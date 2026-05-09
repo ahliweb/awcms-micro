@@ -2,6 +2,7 @@ import { definePlugin } from "emdash";
 import type { PluginDescriptor } from "emdash";
 export { fail, ok } from "./api/envelope";
 export { getOrCreateRequestId } from "./api/request-id";
+export { buildTrustedRequestContext } from "./security/request-context";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
