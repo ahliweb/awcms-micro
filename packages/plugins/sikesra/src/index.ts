@@ -26,6 +26,7 @@ export {
   getPublicSummary,
   applySmallCellSuppression,
 } from "./services/public";
+export { getAdminDashboard } from "./services/dashboard";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
