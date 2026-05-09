@@ -42,28 +42,31 @@ export interface LocalRegionCreateInput {
 
 // ---------- Service Stubs ----------
 
+import type { D1Binding } from "../repositories/db";
+import { getOfficialRegionsRepo, getLocalRegionsRepo, createLocalRegionRepo } from "../repositories/region-repository";
+
 export async function getOfficialRegions(
+  db: D1Binding,
+  ctx: SikesraRequestContext,
   parentCode?: string,
   level?: OfficialRegionLevel,
 ): Promise<OfficialRegion[]> {
-  // TODO: query awcms_sikesra_official_regions
-  return [];
+  return getOfficialRegionsRepo(db, ctx, parentCode, level);
 }
 
 export async function getLocalRegions(
+  db: D1Binding,
+  ctx: SikesraRequestContext,
   villageCode?: string,
-  ctx?: SikesraRequestContext,
 ): Promise<LocalRegion[]> {
-  // TODO: query awcms_sikesra_local_regions
-  return [];
+  return getLocalRegionsRepo(db, ctx, villageCode);
 }
 
 export async function createLocalRegion(
+  db: D1Binding,
   input: LocalRegionCreateInput,
   ctx: SikesraRequestContext,
 ): Promise<LocalRegion> {
-  // TODO: insert into awcms_sikesra_local_regions
-  // Audit the creation
-  // Local region changes must never mutate sikesra_id_20
-  throw new Error("Not implemented");
+  const id = `lreg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  return createLocalRegionRepo(db, id, input, ctx.userId, ctx);
 }
