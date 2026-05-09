@@ -1,5 +1,7 @@
 import { definePlugin } from "emdash";
 import type { PluginDescriptor } from "emdash";
+export { fail, ok } from "./api/envelope";
+export { getOrCreateRequestId } from "./api/request-id";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
