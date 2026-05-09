@@ -7,14 +7,14 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "awcms-micro",
-      "database_id": "local"
+      "database_name": "sikesra",
+      "database_id": "78f08b97-305a-431b-9f7c-9f1c3bbb4551"
     }
   ],
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "awcms-micro-media"
+      "bucket_name": "sikesra"
     }
   ],
   "worker_loaders": [
