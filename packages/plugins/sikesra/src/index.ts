@@ -52,6 +52,8 @@ export interface SikesraPluginOptions {
   enabled?: boolean;
 }
 
+import { SIKESRA_ROUTES } from "./routes/registry";
+
 export function sikesraPlugin(options: SikesraPluginOptions = {}): PluginDescriptor {
   return {
     id: "sikesra",
@@ -60,19 +62,28 @@ export function sikesraPlugin(options: SikesraPluginOptions = {}): PluginDescrip
     entrypoint: "@ahliweb/plugin-sikesra",
     options,
     adminPages: [
-      {
-        path: "/",
-        label: "SIKESRA",
-      },
+      { path: "/", label: "SIKESRA" },
     ],
   };
 }
 
 export function createPlugin(_options: SikesraPluginOptions = {}) {
+  const routes: Record<string, { handler: (ctx: unknown) => Promise<unknown>; public?: boolean }> = {};
+  for (const [name, def] of Object.entries(SIKESRA_ROUTES)) {
+    routes[name] = {
+      public: def.public,
+      handler: async (routeCtx: Record<string, unknown>) => {
+        const { request, input } = routeCtx as { request: Request; input?: unknown };
+        const db = (routeCtx as { env?: { SIKESRA_DB?: unknown } }).env?.SIKESRA_DB as import("./repositories/db").D1Binding;
+        return def.handler({ request, input }, db);
+      },
+    };
+  }
+
   return definePlugin({
     id: "sikesra",
     version: "0.1.0",
-    routes: {},
+    routes,
     hooks: {},
   });
 }
