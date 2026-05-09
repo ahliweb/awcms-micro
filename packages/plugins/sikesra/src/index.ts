@@ -41,6 +41,10 @@ export { createImportBatch, parseAndStageRows, promoteImportRows } from "./servi
 export { getReports, createExportJob, getExportJob } from "./services/export";
 export { getSettings, updateSettings } from "./services/settings";
 export { listEntities as repoListEntities, getEntityById, createEntity as repoCreateEntity, patchEntity as repoPatchEntity } from "./repositories/entity-repository";
+export { getOfficialRegionsRepo, getLocalRegionsRepo, createLocalRegionRepo } from "./repositories/region-repository";
+export { writeVerificationEvent, getVerificationEvents, transitionEntityStatus } from "./repositories/verification-repository";
+export { createFileObject, linkDocumentToEntity, getEntityDocumentsRepo } from "./repositories/document-repository";
+export { getSettingsRepo, updateSettingsRepo } from "./repositories/settings-repository";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
