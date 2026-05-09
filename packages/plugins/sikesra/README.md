@@ -9,5 +9,6 @@ Current scope is intentionally minimal:
 3. API utility scaffolding for request IDs and response envelopes.
 4. Trusted request-context builder utility scaffolding.
 5. Permission catalog defining all `awcms:sikesra:*` constants.
+6. Server-side masking utility for sensitive data (NIK/KIA, phone, names, addresses, documents, desil, R2 keys, audit).
 
 No business workflows, API contracts, data model, ABAC, audit, or UI implementation are included yet.
