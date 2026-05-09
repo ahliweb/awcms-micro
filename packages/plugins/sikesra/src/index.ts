@@ -19,7 +19,7 @@ export {
   maskGuardianDetails,
 } from "./security/masking";
 export { writeAuditEvent, AUDIT_ACTIONS, isHighRiskAction } from "./services/audit";
-export { evaluateAbac, buildAbacSubject } from "./security/abac";
+export { evaluateAbac, buildAbacSubject, evaluateAbacWithDb } from "./security/abac";
 export {
   getPublicMetadata,
   getPublicFilters,
@@ -47,6 +47,7 @@ export { createFileObject, linkDocumentToEntity, getEntityDocumentsRepo } from "
 export { getSettingsRepo, updateSettingsRepo } from "./repositories/settings-repository";
 export { createImportBatchRepo, getImportBatch, getStagingRows, insertStagingRow, updateStagingRow, updateBatchCounts } from "./repositories/import-repository";
 export { writeAuditLog, listAuditLogs } from "./repositories/audit-repository";
+export { loadAbacPolicies } from "./repositories/abac-repository";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;

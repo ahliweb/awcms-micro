@@ -141,4 +141,63 @@ describe("SIKESRA Architecture Validation", () => {
       expect(ctx.roles).toEqual(["editor"]);
     });
   });
+
+  describe("ABAC Evaluator", () => {
+    const ctx = makeContext();
+
+    it("should deny public from entity detail", () => {
+      const { evaluateAbac } = require("../security/abac");
+      const result = evaluateAbac(
+        {
+          subject: { roles: ["public"], permissions: [], tenantId: "t1", siteId: "s1" },
+          resource: { resourceType: "entity" },
+          action: "read",
+          environment: {},
+        },
+        [],
+        ctx,
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reasonCode).toBe("public_denied_entity_detail");
+    });
+
+    it("should allow when no policies and not public", () => {
+      const { evaluateAbac } = require("../security/abac");
+      const result = evaluateAbac(
+        {
+          subject: { roles: ["admin"], permissions: ["awcms:sikesra:entity:read"], tenantId: "default", siteId: "default" },
+          resource: { resourceType: "entity" },
+          action: "read",
+          environment: {},
+        },
+        [],
+        makeContext({ tenantId: "default", siteId: "default" }),
+      );
+      expect(result.allowed).toBe(true);
+    });
+
+    it("should enforce deny precedence", () => {
+      const { evaluateAbac } = require("../security/abac");
+      const result = evaluateAbac(
+        {
+          subject: { roles: ["editor"], permissions: [], tenantId: "default", siteId: "default" },
+          resource: { resourceType: "entity", statusData: "archived" },
+          action: "update",
+          environment: {},
+        },
+        [
+          {
+            id: "p1", name: "Allow update", effect: "allow", priority: 10,
+            conditions: [],
+          },
+          {
+            id: "p2", name: "Deny archived", effect: "deny", priority: 100,
+            conditions: [{ attributeCategory: "resource", attributeName: "statusData", operator: "equals", value: "archived" }],
+          },
+        ],
+        makeContext({ tenantId: "default", siteId: "default" }),
+      );
+      expect(result.allowed).toBe(false);
+    });
+  });
 });

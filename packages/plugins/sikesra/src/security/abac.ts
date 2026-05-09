@@ -211,3 +211,16 @@ export function buildAbacSubject(ctx: SikesraRequestContext): AbacSubject {
     localRegionIds: ctx.regionScope.localRegionIds,
   };
 }
+
+// Convenience: load policies from D1 and evaluate in one call
+import type { D1Binding } from "../repositories/db";
+import { loadAbacPolicies } from "../repositories/abac-repository";
+
+export async function evaluateAbacWithDb(
+  db: D1Binding,
+  input: AbacInput,
+  ctx: SikesraRequestContext,
+): Promise<AbacResult> {
+  const policies = await loadAbacPolicies(db, ctx);
+  return evaluateAbac(input, policies, ctx);
+}
