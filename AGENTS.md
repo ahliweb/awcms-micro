@@ -1,8 +1,10 @@
 # AGENTS.md
 
-> **CRITICAL: Repository boundary warning.** This repository (`ahliweb/awcms-micro`) is the EmDash-compatible host runtime only.
+> **CRITICAL: Repository boundary warning.** This repository (`ahliweb/awcms-micro`) is the **upstream reference EmDash core host only.**
 > - Do **not** add SIKESRA business logic, migrations, seeds, API endpoints, or plugin code here.
-> - SIKESRA code belongs in `ahliweb/awcms-micro-sikesra`.
+> - Do **not** deploy from this repository.
+> - SIKESRA code and deployment belong in `ahliweb/awcms-micro-sikesra`.
+> - `ahliweb/awcms-micro-sikesra` is the self-contained deployment target (SIKESRA + EmDash admin).
 > - Use `git remote -v` and `pwd` to verify the active repository before writing code.
 
 ## Core Rule
