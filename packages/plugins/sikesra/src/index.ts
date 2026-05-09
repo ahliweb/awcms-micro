@@ -19,6 +19,7 @@ export {
   maskGuardianDetails,
 } from "./security/masking";
 export { writeAuditEvent, AUDIT_ACTIONS, isHighRiskAction } from "./services/audit";
+export { evaluateAbac, buildAbacSubject } from "./security/abac";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
