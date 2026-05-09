@@ -3,6 +3,7 @@ import type { PluginDescriptor } from "emdash";
 export { fail, ok } from "./api/envelope";
 export { getOrCreateRequestId } from "./api/request-id";
 export { buildTrustedRequestContext } from "./security/request-context";
+export { SIKESRA_PERMISSIONS, SIKESRA_PERMISSION_LIST } from "./security/permissions";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
