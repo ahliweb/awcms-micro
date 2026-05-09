@@ -20,6 +20,12 @@ export {
 } from "./security/masking";
 export { writeAuditEvent, AUDIT_ACTIONS, isHighRiskAction } from "./services/audit";
 export { evaluateAbac, buildAbacSubject } from "./security/abac";
+export {
+  getPublicMetadata,
+  getPublicFilters,
+  getPublicSummary,
+  applySmallCellSuppression,
+} from "./services/public";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
