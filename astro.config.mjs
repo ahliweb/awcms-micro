@@ -3,7 +3,6 @@ import react from "@astrojs/react";
 import { d1, r2 } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
-import { sikesraPlugin } from "./packages/plugins/sikesra/src/index.ts";
 
 export default defineConfig({
   output: "server",
@@ -17,7 +16,7 @@ export default defineConfig({
     emdash({
       database: d1({ binding: "DB", session: "auto" }),
       storage: r2({ binding: "MEDIA" }),
-      plugins: [sikesraPlugin({ enabled: true })],
+      plugins: [],
     }),
   ],
   devToolbar: { enabled: false },
