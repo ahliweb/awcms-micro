@@ -45,6 +45,8 @@ export { getOfficialRegionsRepo, getLocalRegionsRepo, createLocalRegionRepo } fr
 export { writeVerificationEvent, getVerificationEvents, transitionEntityStatus } from "./repositories/verification-repository";
 export { createFileObject, linkDocumentToEntity, getEntityDocumentsRepo } from "./repositories/document-repository";
 export { getSettingsRepo, updateSettingsRepo } from "./repositories/settings-repository";
+export { createImportBatchRepo, getImportBatch, getStagingRows, insertStagingRow, updateStagingRow, updateBatchCounts } from "./repositories/import-repository";
+export { writeAuditLog, listAuditLogs } from "./repositories/audit-repository";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;

@@ -3,6 +3,8 @@
 // Source: docs/sikesra/04_api_contracts.md, docs/sikesra/07_operations_sop.md
 
 import type { SikesraRequestContext } from "../security/request-context";
+import type { D1Binding } from "../repositories/db";
+import { createFileObject, linkDocumentToEntity, getEntityDocumentsRepo } from "../repositories/document-repository";
 
 export type DocumentClassification = "internal" | "restricted" | "highly_restricted";
 
@@ -49,13 +51,11 @@ export async function completeUpload(
 }
 
 export async function getEntityDocuments(
+  db: D1Binding,
   entityId: string,
   ctx: SikesraRequestContext,
 ): Promise<DocumentSummary[]> {
-  // TODO: query supporting_documents + file_objects
-  // Apply classification-based masking
-  // Never return raw R2 keys
-  return [];
+  return getEntityDocumentsRepo(db, entityId, ctx);
 }
 
 export async function getDocumentDownloadUrl(
