@@ -18,6 +18,7 @@ export {
   maskAuditBeforeAfter,
   maskGuardianDetails,
 } from "./security/masking";
+export { writeAuditEvent, AUDIT_ACTIONS, isHighRiskAction } from "./services/audit";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
