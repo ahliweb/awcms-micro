@@ -24,6 +24,21 @@ import {
   localRegionCreateHandler,
 } from "./region-routes";
 
+import {
+  entityDocumentsHandler,
+  uploadUrlHandler,
+  documentDownloadHandler,
+} from "./document-routes";
+
+import {
+  settingsGetHandler,
+  settingsUpdateHandler,
+} from "./settings-routes";
+
+import {
+  auditListHandler,
+} from "./audit-routes";
+
 export interface RouteDefinition {
   handler: (input: { request: Request; input?: unknown }, db: D1Binding) => Promise<unknown>;
   public?: boolean;
@@ -48,4 +63,16 @@ export const SIKESRA_ROUTES: Record<string, RouteDefinition> = {
   "v1/regions/official": { handler: officialRegionsHandler },
   "v1/regions/local": { handler: localRegionsHandler },
   "v1/regions/local/create": { handler: localRegionCreateHandler },
+
+  // Documents
+  "v1/entities/documents": { handler: entityDocumentsHandler },
+  "v1/documents/upload-url": { handler: uploadUrlHandler },
+  "v1/documents/download": { handler: documentDownloadHandler },
+
+  // Settings
+  "v1/settings": { handler: settingsGetHandler },
+  "v1/settings/update": { handler: settingsUpdateHandler },
+
+  // Audit
+  "v1/audit": { handler: auditListHandler },
 };
