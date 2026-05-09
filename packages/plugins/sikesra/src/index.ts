@@ -29,6 +29,17 @@ export {
 export { getAdminDashboard } from "./services/dashboard";
 export { listEntities, getEntityDetail, createEntity, patchEntity } from "./services/entity";
 export { getOfficialRegions, getLocalRegions, createLocalRegion } from "./services/region";
+export { generateSikesraId, correctSikesraId } from "./services/code";
+export { submitEntity, verifyEntity, getVerificationQueue } from "./services/verification";
+export {
+  generateUploadUrl,
+  completeUpload,
+  getEntityDocuments,
+  getDocumentDownloadUrl,
+} from "./services/document";
+export { createImportBatch, parseAndStageRows, promoteImportRows } from "./services/import";
+export { getReports, createExportJob, getExportJob } from "./services/export";
+export { getSettings, updateSettings } from "./services/settings";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
