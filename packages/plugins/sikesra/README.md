@@ -11,5 +11,6 @@ Current scope is intentionally minimal:
 5. Permission catalog defining all `awcms:sikesra:*` constants.
 6. Server-side masking utility for sensitive data (NIK/KIA, phone, names, addresses, documents, desil, R2 keys, audit).
 7. Audit service baseline with full action catalog and high-risk action tagging.
+8. ABAC evaluator scaffold with deny precedence, region scope, and policy condition engine.
 
 No business workflows, API contracts, data model, ABAC, audit, or UI implementation are included yet.
