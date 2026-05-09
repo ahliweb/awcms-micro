@@ -40,6 +40,7 @@ export {
 export { createImportBatch, parseAndStageRows, promoteImportRows } from "./services/import";
 export { getReports, createExportJob, getExportJob } from "./services/export";
 export { getSettings, updateSettings } from "./services/settings";
+export { listEntities as repoListEntities, getEntityById, createEntity as repoCreateEntity, patchEntity as repoPatchEntity } from "./repositories/entity-repository";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
