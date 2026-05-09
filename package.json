@@ -1,0 +1,36 @@
+{
+  "name": "awcms-micro",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AWCMS-Micro EmDash-compatible host runtime scaffold",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy",
+    "typecheck": "astro check",
+    "test": "echo \"No tests defined yet\"",
+    "bootstrap": "emdash init && emdash seed",
+    "seed": "emdash seed"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.3",
+    "@astrojs/react": "^4.4.0",
+    "@emdash-cms/cloudflare": "latest",
+    "astro": "^5.14.0",
+    "emdash": "latest",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@cloudflare/workers-types": "^4.20260508.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.90.0"
+  }
+}
