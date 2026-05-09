@@ -16,10 +16,5 @@
       "binding": "MEDIA",
       "bucket_name": "sikesra"
     }
-  ],
-  "worker_loaders": [
-    {
-      "binding": "LOADER"
-    }
   ]
 }
