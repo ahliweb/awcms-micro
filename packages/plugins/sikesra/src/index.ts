@@ -27,6 +27,8 @@ export {
   applySmallCellSuppression,
 } from "./services/public";
 export { getAdminDashboard } from "./services/dashboard";
+export { listEntities, getEntityDetail, createEntity, patchEntity } from "./services/entity";
+export { getOfficialRegions, getLocalRegions, createLocalRegion } from "./services/region";
 
 export interface SikesraPluginOptions {
   enabled?: boolean;
