@@ -1,43 +1,59 @@
 # AWCMS-Micro
 
-AWCMS-Micro is an EmDash-compatible host runtime and governance-layer repository.
+AWCMS-Micro is an **example EmDash site** that demonstrates how to build and deploy an EmDash CMS on Cloudflare Workers with D1 and R2.
 
-This repository hosts the core scaffold used to run EmDash with AWCMS conventions and to integrate governed modules/plugins (for example SIKESRA) without modifying EmDash core.
+This repository fully adopts EmDash 100% and adds only example plugins that follow AWCMS conventions. It does not modify any part of EmDash core.
 
 ## Scope
 
-- EmDash-compatible host scaffold (Astro + EmDash integration)
-- Cloudflare runtime baseline (Workers + D1 + R2 bindings)
-- Workspace conventions for AWCMS packages and plugins
-- Migration and seed path conventions
-- Test and validation script conventions
+- EmDash Cloudflare deployment example (Workers + D1 + R2)
+- Example native plugins demonstrating `definePlugin()` patterns
+- Seed file with baseline schema and demo content
+- MCP server configuration for AI-assisted development
 
-## Canonical References
+## Getting Started
 
-1. EmDash docs index: `https://docs.emdashcms.com/llms.txt`
-2. EmDash configuration reference
-3. EmDash native plugin conventions
-4. EmDash Cloudflare deployment conventions
+```bash
+pnpm install
+pnpm dev
+```
 
-## Repository Layout
-
-- `astro.config.mjs` - host runtime integration
-- `src/live.config.ts` - EmDash live collections loader
-- `src/worker.ts` - Cloudflare worker entrypoint
-- `wrangler.jsonc` - Cloudflare bindings baseline
-- `packages/awcms/` - shared AWCMS packages
-- `packages/plugins/` - AWCMS plugins/modules
-- `migrations/` - migration convention path
-- `seeds/` - seed convention path
+Open the admin at [http://localhost:4321/_emdash/admin](http://localhost:4321/_emdash/admin).
 
 ## Commands
 
-- `pnpm install`
-- `pnpm dev`
-- `pnpm build`
-- `pnpm typecheck`
-- `pnpm deploy`
+- `pnpm dev` — Start dev server (runs migrations, seeds, generates types)
+- `pnpm build` — Build for production
+- `pnpm preview` — Preview production build
+- `pnpm deploy` — Build and deploy to Cloudflare Workers
+- `pnpm typecheck` — Type check with Astro check
 
-## Non-Negotiable Rule
+## Key Files
 
-Do not modify EmDash core directly in this repository. Extend through configuration, plugins, and AWCMS packages.
+| File | Purpose |
+|------|---------|
+| `astro.config.mjs` | Astro config with `emdash()` integration, D1, R2, and sandbox runner |
+| `src/live.config.ts` | EmDash loader registration (boilerplate) |
+| `src/worker.ts` | Cloudflare Worker entrypoint (delegates to Astro handler) |
+| `seed/seed.json` | Schema definition + demo content |
+| `emdash-env.d.ts` | Generated TypeScript types for collections |
+| `wrangler.jsonc` | Cloudflare bindings (D1, R2, Worker Loader) |
+
+## Example Plugins
+
+This repository includes example native plugins under `src/plugins/`:
+
+- **`awcms-example-plugin`** — Demonstrates native plugin patterns: hooks, storage, settings, API routes, and admin pages.
+
+## Documentation
+
+- EmDash docs: [docs.emdashcms.com](https://docs.emdashcms.com/)
+- EmDash docs MCP: [docs.emdashcms.com/docs-mcp](https://docs.emdashcms.com/docs-mcp)
+
+## Deploy
+
+```bash
+wrangler deploy
+```
+
+Your site is live at `https://awcms-micro.<your-subdomain>.workers.dev`.

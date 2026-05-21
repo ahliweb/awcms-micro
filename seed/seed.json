@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "collections": [
+    {
+      "id": "posts",
+      "label": "Posts",
+      "type": "content",
+      "fields": [
+        { "id": "title", "label": "Title", "type": "string", "required": true },
+        { "id": "content", "label": "Content", "type": "richtext", "required": true },
+        { "id": "excerpt", "label": "Excerpt", "type": "string" },
+        { "id": "featured_image", "label": "Featured Image", "type": "image" }
+      ],
+      "taxonomies": ["category", "tag"]
+    },
+    {
+      "id": "pages",
+      "label": "Pages",
+      "type": "content",
+      "fields": [
+        { "id": "title", "label": "Title", "type": "string", "required": true },
+        { "id": "content", "label": "Content", "type": "richtext", "required": true }
+      ]
+    }
+  ],
+  "taxonomies": [
+    { "id": "category", "label": "Categories", "type": "category" },
+    { "id": "tag", "label": "Tags", "type": "tag" }
+  ],
+  "menus": [
+    {
+      "id": "primary",
+      "label": "Primary Navigation",
+      "items": [
+        { "label": "Home", "url": "/" },
+        { "label": "Posts", "url": "/posts" }
+      ]
+    }
+  ],
+  "settings": {
+    "title": "AWCMS-Micro Example",
+    "tagline": "An EmDash example site"
+  }
+}

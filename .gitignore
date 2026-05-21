@@ -1,20 +1,21 @@
-node_modules/
-dist/
-.astro/
-.emdash/
-.wrangler/
+node_modules
+dist
+.astro
+.emdash
+uploads
+data.db
 
+# Environment / Wrangler secrets
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
 
-data.db
-*.db
-*.sqlite
-*.sqlite3
-
+# OS
 .DS_Store
 Thumbs.db
 
+# IDE
 .vscode/
 .idea/

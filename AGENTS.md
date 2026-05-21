@@ -1,44 +1,51 @@
 # AGENTS.md
 
-> **CRITICAL: Repository boundary warning.** This repository (`ahliweb/awcms-micro`) is the **upstream reference EmDash core host only.**
-> - Do **not** add SIKESRA business logic, migrations, seeds, API endpoints, or plugin code here.
-> - Do **not** deploy from this repository.
-> - SIKESRA code and deployment belong in `ahliweb/awcms-micro-sikesra`.
-> - `ahliweb/awcms-micro-sikesra` is the self-contained deployment target (SIKESRA + EmDash admin).
-> - Use `git remote -v` and `pwd` to verify the active repository before writing code.
+This is an **EmDash example site** — a CMS built on Astro with a full admin UI.
 
-## Core Rule
+## Commands
 
-EmDash upstream is the architectural authority. AWCMS-Micro is the implementation and governance layer.
+```bash
+pnpm dev        # Start dev server (runs migrations, seeds, generates types)
+pnpm typecheck  # Type check
+pnpm build      # Build for production
+pnpm deploy     # Build and deploy to Cloudflare
+```
 
-Do not modify EmDash core unless a missing extension point is proven and documented.
+The admin UI is at `http://localhost:4321/_emdash/admin`.
 
-## Required Reading Order
+## Key Files
 
-1. `README.md`
-2. EmDash docs index: `https://docs.emdashcms.com/llms.txt`
-3. EmDash configuration reference
-4. EmDash native plugin documentation
+| File | Purpose |
+|------|---------|
+| `astro.config.mjs` | Astro config with `emdash()` integration, database, and storage |
+| `src/live.config.ts` | EmDash loader registration (boilerplate — don't modify) |
+| `seed/seed.json` | Schema definition + demo content |
+| `emdash-env.d.ts` | Generated types for collections (auto-regenerated on dev server start) |
+| `src/worker.ts` | Cloudflare Worker entrypoint |
+| `wrangler.jsonc` | Cloudflare bindings (D1, R2, Worker Loader) |
 
-## Development Rules
+## MCP Server
 
-1. Keep platform logic separate from module business logic.
-2. Use EmDash plugin patterns (`definePlugin`) for module extensions.
-3. Keep Cloudflare D1/R2 binding-based configuration.
-4. Never commit secrets or API tokens.
-5. Keep commits atomic and reversible.
+This repository ships with `.mcp.json` so Claude Code, Cursor, and VS Code auto-discover the EmDash docs MCP server at `https://docs.emdashcms.com/mcp`.
 
-## Conventions
+When you need to verify an API, hook, config option, field type, or pattern, call `search_docs` against the live documentation rather than relying on training-data recall.
 
-1. Admin plugin route boundary: `/_emdash/admin/plugins/<plugin-id>/*`
-2. Plugin API route boundary: `/_emdash/api/plugins/<plugin-id>/<route-name>`
-3. Cloudflare D1 binding name baseline: `DB`
-4. Cloudflare R2 binding name baseline: `MEDIA`
+## Rules
 
-## Validation Baseline
+- All content pages must be server-rendered (`output: "server"`). No `getStaticPaths()` for CMS content.
+- Image fields are objects (`{ src, alt }`), not strings. Use `<Image image={...} />` from `"emdash/ui"`.
+- `entry.id` is the slug (for URLs). `entry.data.id` is the database ULID (for API calls).
+- Always call `Astro.cache.set(cacheHint)` on pages that query content.
+- Taxonomy names in queries must match the seed's `"name"` field exactly.
 
-Before merge:
+## Example Plugins
 
-1. `pnpm typecheck`
-2. `pnpm build`
-3. `pnpm test` when tests exist
+Example plugins live under `src/plugins/`. They demonstrate EmDash native plugin patterns:
+
+- Use `definePlugin()` with `format: "native"`
+- Register in `astro.config.mjs` under `plugins: []`
+- Do not modify EmDash core — extend through plugins only
+
+## This Repository
+
+AWCMS-Micro is an example EmDash site that fully adopts EmDash 100%. It adds only example plugins that follow AWCMS conventions. It does not act as a host for other repositories.
