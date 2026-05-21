@@ -1,126 +1,283 @@
 {
-  "version": 1,
+  "$schema": "https://emdashcms.com/seed.schema.json",
+  "version": "1",
+  "meta": {
+    "name": "AWCMS-Micro",
+    "description": "An EmDash example site demonstrating native plugins and Cloudflare deployment",
+    "author": "AWCMS Team"
+  },
+  "settings": {
+    "title": "AWCMS-Micro",
+    "tagline": "An EmDash Example Site",
+    "description": "A fully-featured example site demonstrating EmDash CMS capabilities with native plugins.",
+    "postsPerPage": 10,
+    "dateFormat": "MMMM d, yyyy"
+  },
   "collections": [
     {
-      "id": "posts",
+      "slug": "posts",
       "label": "Posts",
-      "type": "content",
+      "labelSingular": "Post",
+      "description": "Blog posts and articles",
+      "icon": "file-text",
+      "supports": ["drafts", "revisions"],
       "fields": [
-        { "id": "title", "label": "Title", "type": "string", "required": true },
-        { "id": "content", "label": "Content", "type": "richtext", "required": true },
-        { "id": "excerpt", "label": "Excerpt", "type": "string" },
-        { "id": "featured_image", "label": "Featured Image", "type": "image" },
-        { "id": "author", "label": "Author", "type": "string" },
-        { "id": "reading_time", "label": "Reading Time (minutes)", "type": "number" }
-      ],
-      "taxonomies": ["category", "tag"]
-    },
-    {
-      "id": "pages",
-      "label": "Pages",
-      "type": "content",
-      "fields": [
-        { "id": "title", "label": "Title", "type": "string", "required": true },
-        { "id": "content", "label": "Content", "type": "richtext", "required": true },
-        { "id": "meta_description", "label": "Meta Description", "type": "string" }
+        { "slug": "title", "label": "Title", "type": "string", "required": true },
+        { "slug": "content", "label": "Content", "type": "portableText", "required": true },
+        { "slug": "excerpt", "label": "Excerpt", "type": "text" },
+        { "slug": "featured_image", "label": "Featured Image", "type": "image" },
+        { "slug": "author", "label": "Author", "type": "string" },
+        { "slug": "reading_time", "label": "Reading Time (minutes)", "type": "integer" }
       ]
     },
     {
-      "id": "projects",
-      "label": "Projects",
-      "type": "content",
+      "slug": "pages",
+      "label": "Pages",
+      "labelSingular": "Page",
+      "description": "Static pages",
+      "icon": "file",
       "fields": [
-        { "id": "title", "label": "Title", "type": "string", "required": true },
-        { "id": "description", "label": "Description", "type": "richtext", "required": true },
-        { "id": "cover_image", "label": "Cover Image", "type": "image" },
-        { "id": "url", "label": "Project URL", "type": "url" },
-        { "id": "tech_stack", "label": "Tech Stack", "type": "string" },
-        { "id": "status", "label": "Status", "type": "select", "options": ["active", "completed", "archived"] }
-      ],
-      "taxonomies": ["project-type"]
+        { "slug": "title", "label": "Title", "type": "string", "required": true },
+        { "slug": "content", "label": "Content", "type": "portableText", "required": true },
+        { "slug": "meta_description", "label": "Meta Description", "type": "text" }
+      ]
+    },
+    {
+      "slug": "projects",
+      "label": "Projects",
+      "labelSingular": "Project",
+      "description": "Portfolio projects",
+      "icon": "folder-git",
+      "supports": ["drafts"],
+      "fields": [
+        { "slug": "title", "label": "Title", "type": "string", "required": true },
+        { "slug": "description", "label": "Description", "type": "portableText", "required": true },
+        { "slug": "cover_image", "label": "Cover Image", "type": "image" },
+        { "slug": "url", "label": "Project URL", "type": "url" },
+        { "slug": "tech_stack", "label": "Tech Stack", "type": "text" },
+        { "slug": "status", "label": "Status", "type": "string", "defaultValue": "active" }
+      ]
     }
   ],
   "taxonomies": [
-    { "id": "category", "label": "Categories", "type": "category" },
-    { "id": "tag", "label": "Tags", "type": "tag" },
-    { "id": "project-type", "label": "Project Types", "type": "category" }
-  ],
-  "menus": [
     {
-      "id": "primary",
-      "label": "Primary Navigation",
-      "items": [
-        { "label": "Home", "url": "/" },
-        { "label": "Blog", "url": "/posts" },
-        { "label": "Projects", "url": "/projects" },
-        { "label": "About", "url": "/pages/about" }
+      "name": "category",
+      "label": "Categories",
+      "labelSingular": "Category",
+      "hierarchical": true,
+      "collections": ["posts"],
+      "terms": [
+        { "slug": "announcements", "label": "Announcements" },
+        { "slug": "tutorials", "label": "Tutorials" },
+        { "slug": "news", "label": "News" }
       ]
     },
     {
-      "id": "footer",
+      "name": "tag",
+      "label": "Tags",
+      "labelSingular": "Tag",
+      "hierarchical": false,
+      "collections": ["posts"],
+      "terms": [
+        { "slug": "emdash", "label": "EmDash" },
+        { "slug": "awcms", "label": "AWCMS" },
+        { "slug": "cloudflare", "label": "Cloudflare" }
+      ]
+    },
+    {
+      "name": "project-type",
+      "label": "Project Types",
+      "labelSingular": "Project Type",
+      "hierarchical": true,
+      "collections": ["projects"],
+      "terms": [
+        { "slug": "web-app", "label": "Web Application" },
+        { "slug": "website", "label": "Website" },
+        { "slug": "plugin", "label": "Plugin" }
+      ]
+    }
+  ],
+  "menus": [
+    {
+      "name": "primary",
+      "label": "Primary Navigation",
+      "items": [
+        { "type": "custom", "label": "Home", "url": "/" },
+        { "type": "collection", "label": "Blog", "collection": "posts" },
+        { "type": "collection", "label": "Projects", "collection": "projects" },
+        { "type": "page", "label": "About", "ref": "about" }
+      ]
+    },
+    {
+      "name": "footer",
       "label": "Footer Navigation",
       "items": [
-        { "label": "Privacy Policy", "url": "/pages/privacy" },
-        { "label": "Contact", "url": "/pages/contact" }
+        { "type": "page", "label": "Privacy Policy", "ref": "privacy" },
+        { "type": "page", "label": "Contact", "ref": "contact" }
       ]
     }
   ],
   "widgetAreas": [
     {
-      "id": "sidebar",
+      "name": "sidebar",
       "label": "Sidebar",
+      "description": "Appears on blog posts and pages",
       "widgets": [
-        { "id": "search", "type": "search", "title": "Search" },
-        { "id": "recent-posts", "type": "recent-posts", "title": "Recent Posts", "count": 5 },
-        { "id": "categories", "type": "taxonomy-cloud", "title": "Categories", "taxonomy": "category" }
+        {
+          "type": "component",
+          "title": "Search",
+          "componentId": "core:search"
+        },
+        {
+          "type": "component",
+          "title": "Recent Posts",
+          "componentId": "core:recent-posts",
+          "props": { "count": 5 }
+        },
+        {
+          "type": "component",
+          "title": "Categories",
+          "componentId": "core:categories"
+        }
       ]
     },
     {
-      "id": "footer-widgets",
+      "name": "footer-widgets",
       "label": "Footer Widgets",
+      "description": "Widgets displayed in the footer",
       "widgets": [
-        { "id": "site-info", "type": "text", "title": "About", "content": "AWCMS-Micro is an EmDash example site." }
+        {
+          "type": "content",
+          "title": "About",
+          "content": [
+            {
+              "_type": "block",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "AWCMS-Micro is an EmDash example site." }]
+            }
+          ]
+        }
       ]
     }
   ],
-  "settings": {
-    "title": "AWCMS-Micro",
-    "tagline": "An EmDash Example Site",
-    "description": "A fully-featured example site demonstrating EmDash CMS capabilities with native plugins.",
-    "author": "AWCMS Team"
-  },
-  "entries": [
-    {
-      "collection": "pages",
-      "id": "about",
-      "status": "published",
-      "data": {
-        "title": "About",
-        "content": [
-          { "_type": "block", "_key": "p1", "style": "normal", "children": [{ "_type": "span", "text": "AWCMS-Micro is an example EmDash site that demonstrates the full capabilities of the EmDash CMS platform." }] },
-          { "_type": "block", "_key": "p2", "style": "normal", "children": [{ "_type": "span", "text": "This site showcases native plugins, structured content, and Cloudflare deployment patterns." }] }
-        ]
-      }
-    },
-    {
-      "collection": "posts",
-      "id": "welcome-to-awcms-micro",
-      "status": "published",
-      "data": {
-        "title": "Welcome to AWCMS-Micro",
-        "excerpt": "An introduction to the AWCMS-Micro example site and its capabilities.",
-        "content": [
-          { "_type": "block", "_key": "p1", "style": "normal", "children": [{ "_type": "span", "text": "Welcome to AWCMS-Micro, a fully-featured example site built on EmDash CMS." }] },
-          { "_type": "block", "_key": "p2", "style": "h2", "children": [{ "_type": "span", "text": "Features" }] },
-          { "_type": "block", "_key": "p3", "style": "normal", "children": [{ "_type": "span", "text": "This site demonstrates native plugins with hooks, storage, admin pages, dashboard widgets, Portable Text blocks, page fragments, and more." }] }
-        ],
-        "author": "AWCMS Team",
-        "reading_time": 3
+  "content": {
+    "pages": [
+      {
+        "id": "about",
+        "slug": "about",
+        "status": "published",
+        "data": {
+          "title": "About",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "p1",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "AWCMS-Micro is an example EmDash site that demonstrates the full capabilities of the EmDash CMS platform." }]
+            },
+            {
+              "_type": "block",
+              "_key": "p2",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "This site showcases native plugins, structured content, and Cloudflare deployment patterns." }]
+            }
+          ],
+          "meta_description": "Learn about AWCMS-Micro, an EmDash example site."
+        }
       },
-      "terms": {
-        "category": ["announcements"],
-        "tag": ["emdash", "awcms"]
+      {
+        "id": "privacy",
+        "slug": "privacy",
+        "status": "published",
+        "data": {
+          "title": "Privacy Policy",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "p1",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "This is a placeholder privacy policy page." }]
+            }
+          ]
+        }
+      },
+      {
+        "id": "contact",
+        "slug": "contact",
+        "status": "published",
+        "data": {
+          "title": "Contact",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "p1",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "Get in touch with us." }]
+            }
+          ]
+        }
       }
-    }
-  ]
+    ],
+    "posts": [
+      {
+        "id": "welcome-to-awcms-micro",
+        "slug": "welcome-to-awcms-micro",
+        "status": "published",
+        "data": {
+          "title": "Welcome to AWCMS-Micro",
+          "excerpt": "An introduction to the AWCMS-Micro example site and its capabilities.",
+          "content": [
+            {
+              "_type": "block",
+              "_key": "p1",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "Welcome to AWCMS-Micro, a fully-featured example site built on EmDash CMS." }]
+            },
+            {
+              "_type": "block",
+              "_key": "p2",
+              "style": "h2",
+              "children": [{ "_type": "span", "text": "Features" }]
+            },
+            {
+              "_type": "block",
+              "_key": "p3",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "This site demonstrates native plugins with hooks, storage, admin pages, dashboard widgets, Portable Text blocks, page fragments, and more." }]
+            }
+          ],
+          "author": "AWCMS Team",
+          "reading_time": 3
+        },
+        "taxonomies": {
+          "category": ["announcements"],
+          "tag": ["emdash", "awcms"]
+        }
+      }
+    ],
+    "projects": [
+      {
+        "id": "emdash-cms",
+        "slug": "emdash-cms",
+        "status": "published",
+        "data": {
+          "title": "EmDash CMS",
+          "description": [
+            {
+              "_type": "block",
+              "_key": "p1",
+              "style": "normal",
+              "children": [{ "_type": "span", "text": "The Astro-native CMS that powers this site." }]
+            }
+          ],
+          "url": "https://emdashcms.com",
+          "tech_stack": "Astro, Cloudflare Workers, D1, R2",
+          "status": "active"
+        },
+        "taxonomies": {
+          "project-type": ["web-app"]
+        }
+      }
+    ]
+  }
 }

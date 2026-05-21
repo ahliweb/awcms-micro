@@ -4,17 +4,12 @@
   "main": "./src/worker.ts",
   "compatibility_date": "2026-05-09",
   "compatibility_flags": ["nodejs_compat"],
-  "routes": [
-    {
-      "pattern": "awcms-micro.ahlikoding.com/*",
-      "zone_name": "ahlikoding.com"
-    }
-  ],
+  "workers_dev": true,
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "awcms-micro-d1",
-      "database_id": "9b6478cc-0f47-41bf-a249-e86417bc9a69"
+      "database_id": "dc50f427-fc9f-41d3-b339-b2b2a52c29b2"
     }
   ],
   "r2_buckets": [
