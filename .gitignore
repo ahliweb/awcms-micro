@@ -7,3 +7,6 @@ emdash-latest/node_modules/
 emdash-latest/dist/
 emdash-latest/.astro/
 emdash-latest/.wrangler/
+
+# Environment files
+.env
