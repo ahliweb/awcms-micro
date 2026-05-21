@@ -3,7 +3,7 @@ import react from "@astrojs/react";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
-import { awcmsMicroPlugin } from "./src/plugins/awcms-micro-plugin";
+import awcmsMicroPlugin from "./src/plugins/awcms-micro-plugin";
 
 export default defineConfig({
   output: "server",
