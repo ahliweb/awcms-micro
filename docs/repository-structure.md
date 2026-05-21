@@ -40,6 +40,8 @@ Documents in this folder define:
 - the repository structure
 - the synchronization workflow
 - the implementation instructions and execution model
+- upstream sync status and divergence tracking
+- deployment and security baselines
 
 ### `scripts/`
 
@@ -49,6 +51,15 @@ Expected root scripts:
 
 - a script to update `emdash-latest/` from upstream EmDash
 - a script to rebuild `awcmsmicro-dev/` from `emdash-latest/`
+- a script to validate `awcmsmicro-dev/` after sync
+- a script to run sync and validation together
+
+## AWCMS-Micro Example Locations
+
+- Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+
+These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
 
 ## Root-Level Supporting Files
 

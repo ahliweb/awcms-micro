@@ -1,0 +1,25 @@
+{
+	"name": "@awcms-micro/template-default-example",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"emdash": {
+		"seed": "seed/seed.json"
+	},
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"typecheck": "astro check"
+	},
+	"dependencies": {
+		"@astrojs/check": "catalog:",
+		"@astrojs/node": "catalog:",
+		"@astrojs/react": "catalog:",
+		"astro": "catalog:",
+		"better-sqlite3": "catalog:",
+		"emdash": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	}
+}

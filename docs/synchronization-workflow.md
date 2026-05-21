@@ -12,8 +12,9 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 1. Analyze upstream EmDash changes.
 2. Refresh `emdash-latest/` from upstream.
 3. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
-4. Re-apply or continue AWCMS-Micro-specific implementation work only inside `awcmsmicro-dev/`.
-5. Update root documentation if process, structure, or rules changed.
+4. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
+5. Re-apply or continue AWCMS-Micro-specific implementation work only inside `awcmsmicro-dev/`.
+6. Update root documentation if process, structure, or rules changed.
 
 ## Refresh `emdash-latest/`
 
@@ -42,6 +43,30 @@ Result:
 - copies the current `emdash-latest/` tree into `awcmsmicro-dev/`
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
 - excludes transient local build artifacts such as `node_modules/`, `dist/`, `.astro/`, and `.wrangler/`
+
+## Validate `awcmsmicro-dev/`
+
+Run:
+
+```bash
+bash scripts/validate-awcmsmicro-dev.sh
+```
+
+Result:
+
+- runs install, typecheck, lint, test, and build commands when `pnpm` is available
+- writes the latest validation record to `docs/upstream-sync/LAST_VALIDATION.md`
+- fails clearly when dependency install, tests, or validation steps fail
+
+## Combined Sync Workflow
+
+Run:
+
+```bash
+bash scripts/sync-and-validate-awcmsmicro-dev.sh
+```
+
+This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs validation, and updates `docs/upstream-sync/UPSTREAM_SYNC_STATUS.md`.
 
 ## Operating Rules
 

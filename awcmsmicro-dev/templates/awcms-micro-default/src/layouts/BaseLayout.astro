@@ -1,0 +1,65 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "AWCMS-Micro example template" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<title>{title}</title>
+		<style>
+			:root {
+				color-scheme: light;
+				font-family: Inter, system-ui, sans-serif;
+				background: #f6f7fb;
+				color: #111827;
+			}
+
+			body {
+				margin: 0;
+				background: #f6f7fb;
+			}
+
+			main {
+				max-width: 72rem;
+				margin: 0 auto;
+				padding: 2rem 1.25rem 4rem;
+			}
+
+			section {
+				background: #ffffff;
+				border: 1px solid #e5e7eb;
+				border-radius: 1rem;
+				padding: 1.5rem;
+				margin-block-end: 1.5rem;
+			}
+
+			h1,
+			h2 {
+				line-height: 1.1;
+			}
+
+			p,
+			li {
+				line-height: 1.7;
+			}
+		</style>
+	</head>
+	<body>
+		<SiteHeader />
+		<main>
+			<slot />
+		</main>
+		<SiteFooter />
+	</body>
+</html>

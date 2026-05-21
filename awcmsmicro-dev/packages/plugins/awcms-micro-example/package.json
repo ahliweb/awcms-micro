@@ -1,0 +1,39 @@
+{
+	"name": "@awcms-micro/plugin-example",
+	"version": "0.0.1",
+	"description": "AWCMS-Micro example plugin for EmDash-compatible projects",
+	"type": "module",
+	"main": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./admin": "./src/admin.ts"
+	},
+	"files": [
+		"src",
+		"module.manifest.json",
+		"docs"
+	],
+	"keywords": [
+		"awcms-micro",
+		"emdash",
+		"plugin",
+		"example",
+		"tenant-ready"
+	],
+	"license": "MIT",
+	"peerDependencies": {
+		"emdash": "workspace:>=0.14.0"
+	},
+	"devDependencies": {
+		"vitest": "catalog:"
+	},
+	"scripts": {
+		"test": "vitest run",
+		"typecheck": "tsgo --noEmit"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ahliweb/awcms-micro.git",
+		"directory": "awcmsmicro-dev/packages/plugins/awcms-micro-example"
+	}
+}
