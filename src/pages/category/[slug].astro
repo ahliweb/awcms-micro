@@ -1,0 +1,92 @@
+---
+import { decodeSlug, getEmDashCollection, getTerm, getTermsForEntries } from "emdash";
+import Base from "../../layouts/Base.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getReadingTime } from "../../utils/reading-time";
+
+const slug = decodeSlug(Astro.params.slug);
+const term = slug ? await getTerm("category", slug) : null;
+
+if (!term) {
+  return Astro.redirect("/404");
+}
+
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+  where: { category: term.slug },
+  orderBy: { published_at: "desc" },
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const tagsByEntry = await getTermsForEntries(
+  "posts",
+  posts.map((post) => post.data.id),
+  "tag",
+);
+---
+
+<Base title={`${term.label} posts`} description={`Posts in ${term.label}.`}>
+  <section class="archive-page">
+    <header class="archive-header">
+      <p class="eyebrow">Category</p>
+      <h1>{term.label}</h1>
+      <p class="count">{posts.length} post{posts.length === 1 ? "" : "s"}</p>
+    </header>
+    <div class="posts-grid">
+      {posts.map((post) => (
+        <PostCard
+          title={post.data.title ?? "Untitled"}
+          excerpt={post.data.excerpt}
+          featuredImage={post.data.featured_image}
+          href={`/posts/${post.id}`}
+          date={post.data.publishedAt ?? undefined}
+          readingTime={getReadingTime(post.data.content)}
+          tags={(tagsByEntry.get(post.data.id) ?? []).map((tag) => ({ slug: tag.slug, label: tag.label }))}
+          bylines={post.data.bylines ?? []}
+        />
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .archive-page {
+    display: grid;
+    gap: var(--spacing-10);
+  }
+
+  .eyebrow {
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--spacing-2);
+  }
+
+  h1 {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .count {
+    color: var(--color-muted);
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-8);
+  }
+
+  @media (max-width: 900px) {
+    .posts-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

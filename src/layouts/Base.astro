@@ -1,15 +1,74 @@
 ---
+import { Font } from "astro:assets";
+import { createPublicPageContext } from "emdash/page";
+import LiveSearch from "emdash/ui/search";
+import {
+  EmDashBodyEnd,
+  EmDashBodyStart,
+  EmDashHead,
+  WidgetArea,
+} from "emdash/ui";
 import "../styles/theme.css";
-import { getMenu } from "emdash";
+import { getEmDashCollection, getMenu, getSiteSettings } from "emdash";
 
 interface Props {
   title: string;
-  description?: string;
+  pageTitle?: string | null;
+  description?: string | null;
+  image?: string | null;
+  canonical?: string | null;
+  robots?: string | null;
+  type?: "website" | "article";
+  publishedTime?: string | null;
+  modifiedTime?: string | null;
+  author?: string | null;
+  content?: { collection: string; id: string; slug?: string | null };
 }
 
-const { title, description } = Astro.props;
-const menu = await getMenu("primary");
-const menuItems = menu.items ?? [];
+const {
+  title,
+  pageTitle,
+  description,
+  image,
+  canonical,
+  robots,
+  type = "website",
+  publishedTime,
+  modifiedTime,
+  author,
+  content,
+} = Astro.props;
+
+const [settings, primaryMenu, socialMenu, pagesResult] = await Promise.all([
+  getSiteSettings(),
+  getMenu("primary"),
+  getMenu("social"),
+  getEmDashCollection("pages"),
+]);
+const { entries: pages, cacheHint } = pagesResult;
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const siteTitle = settings?.title ?? "AWCMS-Micro";
+const siteTagline =
+  settings?.tagline ??
+  "An EmDash example repository with a full-feature plugin";
+const fullTitle = title.includes(siteTitle) ? title : `${title} - ${siteTitle}`;
+const isLoggedIn = !!Astro.locals.user;
+const pageCtx = createPublicPageContext({
+  Astro,
+  kind: content ? "content" : "custom",
+  pageType: type,
+  title: fullTitle,
+  pageTitle: pageTitle ?? title,
+  description,
+  canonical,
+  image,
+  content,
+  seo: { ogImage: image, robots },
+  articleMeta: { publishedTime, modifiedTime, author },
+  siteName: siteTitle,
+});
 ---
 
 <!doctype html>
@@ -17,22 +76,36 @@ const menuItems = menu.items ?? [];
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description ?? "AWCMS-Micro - An EmDash Example Site"} />
-    <title>{title}</title>
+    <Font cssVariable="--font-sans" preload />
+    <Font cssVariable="--font-mono" />
+    <title>{fullTitle}</title>
+    <EmDashHead page={pageCtx} />
   </head>
   <body>
+    <EmDashBodyStart page={pageCtx} />
     <header class="site-header">
       <div class="container">
-        <a href="/" class="site-title">AWCMS-Micro</a>
+        <a href="/" class="site-title">{siteTitle}</a>
         <nav class="main-nav">
+          <div class="search-wrap">
+            <LiveSearch
+              placeholder="Search..."
+              class="site-search"
+              inputClass="site-search-input"
+              resultsClass="site-search-results"
+              resultClass="site-search-result"
+              collections={["posts", "pages"]}
+            />
+          </div>
           <ul>
-            {menuItems.map((item: any) => (
+            {(primaryMenu?.items ?? []).map((item: any) => (
               <li>
-                <a href={item.url}>{item.label}</a>
+                <a href={item.url} target={item.target}>{item.label}</a>
               </li>
             ))}
           </ul>
         </nav>
+        {isLoggedIn && <a href="/_emdash/admin" class="admin-link">Admin</a>}
       </div>
     </header>
 
@@ -42,25 +115,46 @@ const menuItems = menu.items ?? [];
 
     <footer class="site-footer">
       <div class="container">
-        <p>&copy; {new Date().getFullYear()} AWCMS-Micro. Built with EmDash.</p>
+        <div class="footer-grid">
+          <div>
+            <h4>{siteTitle}</h4>
+            <p>{siteTagline}</p>
+          </div>
+          <div>
+            <h4>Navigate</h4>
+            <ul class="footer-links">
+              <li><a href="/">Home</a></li>
+              <li><a href="/posts">All Posts</a></li>
+              {pages.slice(0, 3).map((page: any) => (
+                <li><a href={`/pages/${page.id}`}>{page.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4>Connect</h4>
+            <ul class="footer-links">
+              {(socialMenu?.items ?? []).map((item: any) => (
+                <li>
+                  <a href={item.url} target={item.target} rel={item.target === "_blank" ? "noopener noreferrer" : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+              <li><a href="/rss.xml">RSS Feed</a></li>
+            </ul>
+          </div>
+          <div>
+            <WidgetArea name="footer" />
+          </div>
+        </div>
+        <p class="footer-credit">Powered by <a href="https://emdashcms.com">EmDash</a></p>
       </div>
     </footer>
+    <EmDashBodyEnd page={pageCtx} />
   </body>
 </html>
 
 <style>
-  :root {
-    --color-accent: #0066cc;
-    --color-bg: #ffffff;
-    --color-text: #1a1a1a;
-    --color-text-secondary: #666666;
-    --color-border: #e5e5e5;
-    --font-sans: Inter, system-ui, -apple-system, sans-serif;
-    --font-mono: JetBrains Mono, monospace;
-    --max-width: 1200px;
-    --content-width: 680px;
-  }
-
   * {
     margin: 0;
     padding: 0;
@@ -75,20 +169,26 @@ const menuItems = menu.items ?? [];
   }
 
   .container {
-    max-width: var(--max-width);
+    max-width: var(--wide-width);
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 var(--spacing-6);
   }
 
   .site-header {
     border-bottom: 1px solid var(--color-border);
-    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+    backdrop-filter: blur(10px);
   }
 
   .site-header .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--spacing-4);
+    min-height: 4.25rem;
   }
 
   .site-title {
@@ -101,7 +201,8 @@ const menuItems = menu.items ?? [];
   .main-nav ul {
     display: flex;
     list-style: none;
-    gap: 1.5rem;
+    gap: var(--spacing-4);
+    align-items: center;
   }
 
   .main-nav a {
@@ -114,16 +215,107 @@ const menuItems = menu.items ?? [];
     color: var(--color-accent);
   }
 
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+  }
+
+  .search-wrap {
+    min-width: 12rem;
+  }
+
+  :global(.site-search-input) {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.8rem;
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  .admin-link {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
   main {
-    min-height: calc(100vh - 200px);
-    padding: 2rem 0;
+    min-height: calc(100vh - 18rem);
+    padding: var(--spacing-8) var(--spacing-6) var(--spacing-16);
   }
 
   .site-footer {
     border-top: 1px solid var(--color-border);
-    padding: 1.5rem 0;
-    text-align: center;
+    padding: var(--spacing-10) 0 var(--spacing-8);
     color: var(--color-text-secondary);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-8);
+    margin-bottom: var(--spacing-8);
+  }
+
+  .footer-grid h4 {
+    margin-bottom: var(--spacing-3);
+    color: var(--color-text);
+  }
+
+  .footer-links {
+    list-style: none;
+    display: grid;
+    gap: var(--spacing-2);
+  }
+
+  .footer-links a,
+  .footer-credit a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .footer-links a:hover,
+  .footer-credit a:hover {
+    color: var(--color-accent);
+  }
+
+  .footer-credit {
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  @media (max-width: 900px) {
+    .site-header .container,
+    .main-nav {
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: var(--spacing-4);
+      padding-bottom: var(--spacing-4);
+    }
+
+    .main-nav ul {
+      flex-wrap: wrap;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .container {
+      padding: 0 var(--spacing-4);
+    }
+
+    main {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

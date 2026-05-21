@@ -1,56 +1,119 @@
 ---
+import {
+  decodeSlug,
+  getEmDashCollection,
+  getEmDashEntry,
+  getEntryTerms,
+  getSeoMeta,
+  getSiteSettings,
+} from "emdash";
+import { CommentForm, Comments, PortableText, WidgetArea } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
-import { getEmDashCollection, getEntryTerms } from "emdash";
+import { getReadingTime } from "../../utils/reading-time";
 
-const { slug } = Astro.params;
-const { entries } = await getEmDashCollection("posts");
-const entry = entries.find((e: any) => e.id === slug);
+const slug = decodeSlug(Astro.params.slug);
 
-if (!entry) {
+if (!slug) {
   return Astro.redirect("/404");
 }
 
-const terms = await getEntryTerms("posts", entry.data.id);
-const categories = terms.filter((t: any) => t.taxonomy === "category");
-const tags = terms.filter((t: any) => t.taxonomy === "tag");
+const { entry: post, cacheHint } = await getEmDashEntry("posts", slug);
+
+if (!post) {
+  return Astro.redirect("/404");
+}
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const [terms, settings, { entries: recentPosts }] = await Promise.all([
+  Promise.all([
+    getEntryTerms("posts", post.data.id, "category"),
+    getEntryTerms("posts", post.data.id, "tag"),
+  ]),
+  getSiteSettings(),
+  getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 4 }),
+]);
+
+const [categories, tags] = terms;
+const siteTitle = settings?.title ?? "AWCMS-Micro";
+const seo = getSeoMeta(post, {
+  siteTitle,
+  siteUrl: Astro.url.origin,
+  path: `/posts/${slug}`,
+});
+const readingTime = getReadingTime(post.data.content);
+const relatedPosts = recentPosts.filter((entry) => entry.id !== post.id).slice(0, 3);
 ---
 
-<Base title={`${entry.data.title} - AWCMS-Micro`}>
+<Base
+  title={seo.title}
+  pageTitle={seo.ogTitle}
+  description={seo.description}
+  image={seo.ogImage}
+  canonical={seo.canonical}
+  robots={seo.robots}
+  type="article"
+  publishedTime={post.data.publishedAt?.toISOString() ?? null}
+  modifiedTime={post.data.updatedAt.toISOString()}
+  content={{ collection: "posts", id: post.data.id, slug }}
+>
   <article class="post-detail">
-    <header>
-      <h1>{entry.data.title}</h1>
+    <header class="post-header">
+      <h1 {...post.edit.title}>{post.data.title}</h1>
       <div class="post-meta">
-        {entry.data.author && <span class="author">{entry.data.author}</span>}
-        {entry.data.publishedAt && (
-          <time datetime={entry.data.publishedAt.toISOString()}>
-            {entry.data.publishedAt.toLocaleDateString()}
+        {post.data.publishedAt && (
+          <time datetime={post.data.publishedAt.toISOString()}>
+            {post.data.publishedAt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </time>
         )}
+        {post.data.publishedAt && <span class="meta-dot" />}
+        <span>{readingTime} min read</span>
       </div>
     </header>
 
     {categories.length > 0 && (
       <div class="categories">
-        {categories.map((term: any) => (
-          <a href={`/category/${term.id}`} class="category-chip">
-            {term.data.name}
+        {categories.map((term) => (
+          <a href={`/category/${term.slug}`} class="category-chip">
+            {term.label}
           </a>
         ))}
       </div>
     )}
 
     <div class="post-content">
-      <p>{entry.data.excerpt}</p>
+      {post.data.excerpt && <p class="excerpt" {...post.edit.excerpt}>{post.data.excerpt}</p>}
+      <PortableText value={post.data.content} />
     </div>
 
     {tags.length > 0 && (
       <div class="tags">
-        {tags.map((term: any) => (
-          <a href={`/tag/${term.id}`} class="tag-chip">
-            {term.data.name}
+        {tags.map((term) => (
+          <a href={`/tag/${term.slug}`} class="tag-chip">
+            {term.label}
           </a>
         ))}
       </div>
+    )}
+
+    <aside class="widget-sidebar">
+      <WidgetArea name="sidebar" />
+    </aside>
+
+    <section class="comments-section">
+      <Comments collection="posts" contentId={post.data.id} threaded />
+      <CommentForm collection="posts" contentId={post.data.id} />
+    </section>
+
+    {relatedPosts.length > 0 && (
+      <section class="related-posts">
+        <h2>Recent Posts</h2>
+        <ul>
+          {relatedPosts.map((entry) => (
+            <li><a href={`/posts/${entry.id}`}>{entry.data.title}</a></li>
+          ))}
+        </ul>
+      </section>
     )}
   </article>
 </Base>
@@ -59,33 +122,33 @@ const tags = terms.filter((t: any) => t.taxonomy === "tag");
   .post-detail {
     max-width: var(--content-width, 680px);
     margin: 0 auto;
+    display: grid;
+    gap: var(--spacing-6);
   }
 
   h1 {
-    font-size: 2.25rem;
-    letter-spacing: -0.02em;
-    margin-bottom: 1rem;
+    font-size: clamp(var(--font-size-3xl), 5vw, var(--font-size-5xl));
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: var(--spacing-3);
   }
 
   .post-meta {
     display: flex;
-    gap: 1rem;
+    gap: var(--spacing-3);
     color: var(--color-text-secondary, #666);
-    font-size: 0.875rem;
-    margin-bottom: 1.5rem;
+    font-size: var(--font-size-sm);
   }
 
   .categories, .tags {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-2);
     flex-wrap: wrap;
-    margin-bottom: 1.5rem;
   }
 
   .category-chip, .tag-chip {
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
+    padding: var(--tag-padding-y) var(--spacing-2);
+    border-radius: var(--radius);
+    font-size: var(--font-size-xs);
     text-decoration: none;
     background: var(--color-bg-subtle, #f5f5f5);
     color: var(--color-text-secondary, #666);
@@ -97,6 +160,32 @@ const tags = terms.filter((t: any) => t.taxonomy === "tag");
   }
 
   .post-content {
-    line-height: 1.8;
+    line-height: var(--leading-relaxed);
+  }
+
+  .excerpt {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-5);
+  }
+
+  .meta-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-muted);
+    margin-top: 0.55rem;
+  }
+
+  .widget-sidebar,
+  .comments-section,
+  .related-posts {
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: var(--spacing-6);
+  }
+
+  .related-posts ul {
+    margin-top: var(--spacing-3);
+    padding-left: var(--spacing-5);
   }
 </style>

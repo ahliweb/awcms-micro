@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface PluginAPI {
   get(route: string): Promise<any>;

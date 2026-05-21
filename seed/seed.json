@@ -3,59 +3,35 @@
   "version": "1",
   "meta": {
     "name": "AWCMS-Micro",
-    "description": "An EmDash example site demonstrating native plugins and Cloudflare deployment",
-    "author": "AWCMS Team"
+    "description": "An EmDash example repository aligned to the upstream blog Cloudflare template",
+    "author": "Ahliweb"
   },
   "settings": {
     "title": "AWCMS-Micro",
-    "tagline": "An EmDash Example Site",
-    "description": "A fully-featured example site demonstrating EmDash CMS capabilities with native plugins.",
-    "postsPerPage": 10,
-    "dateFormat": "MMMM d, yyyy"
+    "tagline": "An EmDash example repository with a full-feature plugin"
   },
   "collections": [
     {
       "slug": "posts",
       "label": "Posts",
       "labelSingular": "Post",
-      "description": "Blog posts and articles",
-      "icon": "file-text",
-      "supports": ["drafts", "revisions"],
+      "supports": ["drafts", "revisions", "search", "seo"],
+      "commentsEnabled": true,
       "fields": [
-        { "slug": "title", "label": "Title", "type": "string", "required": true },
-        { "slug": "content", "label": "Content", "type": "portableText", "required": true },
-        { "slug": "excerpt", "label": "Excerpt", "type": "text" },
+        { "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
         { "slug": "featured_image", "label": "Featured Image", "type": "image" },
-        { "slug": "author", "label": "Author", "type": "string" },
-        { "slug": "reading_time", "label": "Reading Time (minutes)", "type": "integer" }
+        { "slug": "content", "label": "Content", "type": "portableText", "searchable": true },
+        { "slug": "excerpt", "label": "Excerpt", "type": "text" }
       ]
     },
     {
       "slug": "pages",
       "label": "Pages",
       "labelSingular": "Page",
-      "description": "Static pages",
-      "icon": "file",
+      "supports": ["drafts", "revisions", "search"],
       "fields": [
-        { "slug": "title", "label": "Title", "type": "string", "required": true },
-        { "slug": "content", "label": "Content", "type": "portableText", "required": true },
-        { "slug": "meta_description", "label": "Meta Description", "type": "text" }
-      ]
-    },
-    {
-      "slug": "projects",
-      "label": "Projects",
-      "labelSingular": "Project",
-      "description": "Portfolio projects",
-      "icon": "folder-git",
-      "supports": ["drafts"],
-      "fields": [
-        { "slug": "title", "label": "Title", "type": "string", "required": true },
-        { "slug": "description", "label": "Description", "type": "portableText", "required": true },
-        { "slug": "cover_image", "label": "Cover Image", "type": "image" },
-        { "slug": "url", "label": "Project URL", "type": "url" },
-        { "slug": "tech_stack", "label": "Tech Stack", "type": "text" },
-        { "slug": "status", "label": "Status", "type": "string", "defaultValue": "active" }
+        { "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+        { "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
       ]
     }
   ],
@@ -68,8 +44,8 @@
       "collections": ["posts"],
       "terms": [
         { "slug": "announcements", "label": "Announcements" },
-        { "slug": "tutorials", "label": "Tutorials" },
-        { "slug": "news", "label": "News" }
+        { "slug": "plugin-development", "label": "Plugin Development" },
+        { "slug": "deployment", "label": "Deployment" }
       ]
     },
     {
@@ -80,21 +56,23 @@
       "collections": ["posts"],
       "terms": [
         { "slug": "emdash", "label": "EmDash" },
-        { "slug": "awcms", "label": "AWCMS" },
-        { "slug": "cloudflare", "label": "Cloudflare" }
+        { "slug": "awcms-micro", "label": "AWCMS-Micro" },
+        { "slug": "cloudflare", "label": "Cloudflare" },
+        { "slug": "plugins", "label": "Plugins" }
       ]
+    }
+  ],
+  "bylines": [
+    {
+      "id": "byline-ahlikoding",
+      "slug": "ahlikoding-editorial",
+      "displayName": "Ahlikoding Editorial"
     },
     {
-      "name": "project-type",
-      "label": "Project Types",
-      "labelSingular": "Project Type",
-      "hierarchical": true,
-      "collections": ["projects"],
-      "terms": [
-        { "slug": "web-app", "label": "Web Application" },
-        { "slug": "website", "label": "Website" },
-        { "slug": "plugin", "label": "Plugin" }
-      ]
+      "id": "byline-guest",
+      "slug": "guest-builder",
+      "displayName": "Guest Builder",
+      "isGuest": true
     }
   ],
   "menus": [
@@ -103,17 +81,17 @@
       "label": "Primary Navigation",
       "items": [
         { "type": "custom", "label": "Home", "url": "/" },
-        { "type": "collection", "label": "Blog", "collection": "posts" },
-        { "type": "collection", "label": "Projects", "collection": "projects" },
-        { "type": "page", "label": "About", "ref": "about" }
+        { "type": "custom", "label": "About", "url": "/pages/about" },
+        { "type": "custom", "label": "Posts", "url": "/posts" },
+        { "type": "custom", "label": "Search", "url": "/search" }
       ]
     },
     {
-      "name": "footer",
-      "label": "Footer Navigation",
+      "name": "social",
+      "label": "Social Links",
       "items": [
-        { "type": "page", "label": "Privacy Policy", "ref": "privacy" },
-        { "type": "page", "label": "Contact", "ref": "contact" }
+        { "type": "custom", "label": "GitHub", "url": "https://github.com/ahliweb/awcms-micro", "target": "_blank" },
+        { "type": "custom", "label": "EmDash", "url": "https://emdashcms.com", "target": "_blank" }
       ]
     }
   ],
@@ -130,20 +108,31 @@
         },
         {
           "type": "component",
-          "title": "Recent Posts",
-          "componentId": "core:recent-posts",
-          "props": { "count": 5 }
+          "title": "Categories",
+          "componentId": "core:categories"
         },
         {
           "type": "component",
-          "title": "Categories",
-          "componentId": "core:categories"
+          "title": "Tags",
+          "componentId": "core:tags"
+        },
+        {
+          "type": "component",
+          "title": "Recent Posts",
+          "componentId": "core:recent-posts",
+          "settings": { "count": 5, "showDate": true }
+        },
+        {
+          "type": "component",
+          "title": "Archives",
+          "componentId": "core:archives",
+          "settings": { "type": "monthly", "limit": 6 }
         }
       ]
     },
     {
-      "name": "footer-widgets",
-      "label": "Footer Widgets",
+      "name": "footer",
+      "label": "Footer",
       "description": "Widgets displayed in the footer",
       "widgets": [
         {
@@ -152,8 +141,32 @@
           "content": [
             {
               "_type": "block",
+              "_key": "footer-about-1",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "AWCMS-Micro is an EmDash example site." }]
+              "children": [{ "_type": "span", "_key": "footer-about-1-span", "text": "AWCMS-Micro is a standalone example repository that adopts EmDash directly and demonstrates how trusted plugins extend it." }]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "slug": "plugin-summary",
+      "title": "Plugin Summary",
+      "description": "Reusable section describing the example plugin",
+      "keywords": ["plugin", "awcms", "emdash"],
+      "source": "theme",
+      "content": [
+        {
+          "_type": "block",
+          "_key": "plugin-summary-1",
+          "style": "normal",
+          "children": [
+            {
+              "_type": "span",
+              "_key": "plugin-summary-1-span",
+              "text": "The bundled AWCMS-Micro plugin exercises trusted EmDash extension points including hooks, routes, dashboard widgets, admin pages, page metadata, page fragments, and Portable Text blocks."
             }
           ]
         }
@@ -171,32 +184,15 @@
           "content": [
             {
               "_type": "block",
-              "_key": "p1",
+              "_key": "about-1",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "AWCMS-Micro is an example EmDash site that demonstrates the full capabilities of the EmDash CMS platform." }]
+              "children": [{ "_type": "span", "_key": "about-1-span", "text": "AWCMS-Micro is a standalone EmDash example repository. It does not host or wrap EmDash itself; it adopts the upstream patterns directly and stays focused on demonstrating how a site should extend EmDash through public APIs." }]
             },
             {
               "_type": "block",
-              "_key": "p2",
+              "_key": "about-2",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "This site showcases native plugins, structured content, and Cloudflare deployment patterns." }]
-            }
-          ],
-          "meta_description": "Learn about AWCMS-Micro, an EmDash example site."
-        }
-      },
-      {
-        "id": "privacy",
-        "slug": "privacy",
-        "status": "published",
-        "data": {
-          "title": "Privacy Policy",
-          "content": [
-            {
-              "_type": "block",
-              "_key": "p1",
-              "style": "normal",
-              "children": [{ "_type": "span", "text": "This is a placeholder privacy policy page." }]
+              "children": [{ "_type": "span", "_key": "about-2-span", "text": "The site layer stays intentionally close to the official EmDash blog template, while the bundled plugin demonstrates trusted extension points such as admin pages, dashboard widgets, custom blocks, routes, hooks, and scheduled jobs." }]
             }
           ]
         }
@@ -210,9 +206,9 @@
           "content": [
             {
               "_type": "block",
-              "_key": "p1",
+              "_key": "contact-1",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "Get in touch with us." }]
+              "children": [{ "_type": "span", "_key": "contact-1-span", "text": "Use the example forms and plugin routes as references when building contact flows on top of EmDash. This repository keeps the site itself simple so the extension points stay easy to inspect." }]
             }
           ]
         }
@@ -220,62 +216,97 @@
     ],
     "posts": [
       {
-        "id": "welcome-to-awcms-micro",
-        "slug": "welcome-to-awcms-micro",
+        "id": "aligned-with-emdash",
+        "slug": "aligned-with-emdash",
         "status": "published",
         "data": {
-          "title": "Welcome to AWCMS-Micro",
-          "excerpt": "An introduction to the AWCMS-Micro example site and its capabilities.",
+          "title": "Aligned with EmDash",
+          "excerpt": "How AWCMS-Micro stays close to the upstream EmDash blog template while demonstrating trusted plugin extension points.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1200&h=800&fit=crop",
+              "alt": "Developer workstation with code on screen",
+              "filename": "aligned-with-emdash.jpg"
+            }
+          },
           "content": [
             {
               "_type": "block",
-              "_key": "p1",
+              "_key": "post-1-1",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "Welcome to AWCMS-Micro, a fully-featured example site built on EmDash CMS." }]
+              "children": [{ "_type": "span", "_key": "post-1-1-span", "text": "AWCMS-Micro is intentionally boring in the best way: it uses EmDash directly, follows the same public patterns as the upstream Cloudflare template, and keeps its customization surface small enough to inspect quickly." }]
             },
             {
               "_type": "block",
-              "_key": "p2",
+              "_key": "post-1-2",
               "style": "h2",
-              "children": [{ "_type": "span", "text": "Features" }]
+              "children": [{ "_type": "span", "_key": "post-1-2-span", "text": "What changes live here" }]
             },
             {
               "_type": "block",
-              "_key": "p3",
+              "_key": "post-1-3",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "This site demonstrates native plugins with hooks, storage, admin pages, dashboard widgets, Portable Text blocks, page fragments, and more." }]
+              "children": [{ "_type": "span", "_key": "post-1-3-span", "text": "Branding, content, deployment names, and the bundled AWCMS-Micro plugin live in this repository. Core EmDash behavior does not." }]
+            },
+            {
+              "_type": "awcms-callout",
+              "_key": "post-1-callout",
+              "title": "Plugin surface",
+              "body": "The example plugin demonstrates lifecycle, content, media, comment, email, cron, page metadata, page fragments, admin pages, widgets, routes, settings, storage, and custom blocks.",
+              "tone": "info"
             }
-          ],
-          "author": "AWCMS Team",
-          "reading_time": 3
+          ]
         },
+        "bylines": [
+          { "byline": "byline-ahlikoding" }
+        ],
         "taxonomies": {
           "category": ["announcements"],
-          "tag": ["emdash", "awcms"]
+          "tag": ["emdash", "awcms-micro"]
         }
-      }
-    ],
-    "projects": [
+      },
       {
-        "id": "emdash-cms",
-        "slug": "emdash-cms",
+        "id": "trusted-plugin-features",
+        "slug": "trusted-plugin-features",
         "status": "published",
         "data": {
-          "title": "EmDash CMS",
-          "description": [
+          "title": "Trusted Plugin Features",
+          "excerpt": "A tour of the trusted extension points used by the AWCMS-Micro example plugin.",
+          "featured_image": {
+            "$media": {
+              "url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=800&fit=crop",
+              "alt": "Notebook, keyboard, and plugin planning materials",
+              "filename": "trusted-plugin-features.jpg"
+            }
+          },
+          "content": [
             {
               "_type": "block",
-              "_key": "p1",
+              "_key": "post-2-1",
               "style": "normal",
-              "children": [{ "_type": "span", "text": "The Astro-native CMS that powers this site." }]
+              "children": [{ "_type": "span", "_key": "post-2-1-span", "text": "Trusted plugins can do more than sandboxed plugins. They can contribute custom Portable Text blocks, render Astro components on the public site, and inject validated page fragments when you explicitly opt into those contributions in your layout." }]
+            },
+            {
+              "_type": "awcms-video",
+              "_key": "post-2-video",
+              "id": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "title": "Example Video Embed"
+            },
+            {
+              "_type": "block",
+              "_key": "post-2-2",
+              "style": "normal",
+              "children": [{ "_type": "span", "_key": "post-2-2-span", "text": "This repository uses that trusted mode deliberately for the bundled example plugin so every first-class extension point is visible in one place." }]
             }
-          ],
-          "url": "https://emdashcms.com",
-          "tech_stack": "Astro, Cloudflare Workers, D1, R2",
-          "status": "active"
+          ]
         },
+        "bylines": [
+          { "byline": "byline-ahlikoding" },
+          { "byline": "byline-guest", "roleLabel": "Example collaborator" }
+        ],
         "taxonomies": {
-          "project-type": ["web-app"]
+          "category": ["plugin-development"],
+          "tag": ["emdash", "plugins", "cloudflare"]
         }
       }
     ]

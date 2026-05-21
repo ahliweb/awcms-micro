@@ -7,9 +7,9 @@ import { QuickStatsWidget } from "./components/QuickStatsWidget";
 import { RecentContentWidget } from "./components/RecentContentWidget";
 
 export const pages = {
-  "/dashboard": DashboardPage,
-  "/audit": AuditPage,
-  "/analytics": AnalyticsPage,
+  "/": DashboardPage,
+  "/activity": AuditPage,
+  "/comments": AnalyticsPage,
   "/settings": SettingsPage,
 };
 

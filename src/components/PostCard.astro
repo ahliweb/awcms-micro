@@ -1,0 +1,130 @@
+---
+import type { ContentBylineCredit, MediaValue } from "emdash";
+import { Image } from "emdash/ui";
+
+interface Props {
+  title: string;
+  excerpt?: string;
+  featuredImage?: MediaValue | string;
+  href: string;
+  date?: Date;
+  readingTime?: number;
+  tags?: Array<{ slug: string; label: string }>;
+  bylines?: ContentBylineCredit[];
+}
+
+const { title, excerpt, featuredImage, href, date, readingTime, tags, bylines } = Astro.props;
+const formattedDate = date
+  ? date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  : null;
+---
+
+<article class="post-card">
+  <a href={href} class="card-link">
+    {featuredImage ? (
+      <div class="card-image"><Image image={featuredImage} /></div>
+    ) : (
+      <div class="card-placeholder" />
+    )}
+    <div class="card-body">
+      <div class="card-meta">
+        {bylines && bylines.length > 0 && <span>{bylines[0]?.byline.displayName}</span>}
+        {bylines && bylines.length > 0 && (formattedDate || readingTime) && <span class="meta-dot" />}
+        {formattedDate && <time>{formattedDate}</time>}
+        {formattedDate && readingTime && <span class="meta-dot" />}
+        {readingTime && <span>{readingTime} min</span>}
+      </div>
+      <h3>{title}</h3>
+      {excerpt && <p>{excerpt}</p>}
+    </div>
+  </a>
+  {tags && tags.length > 0 && (
+    <div class="card-tags">
+      {tags.slice(0, 2).map((tag) => (
+        <a href={`/tag/${tag.slug}`}>{tag.label}</a>
+      ))}
+    </div>
+  )}
+</article>
+
+<style>
+  .post-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .card-image,
+  .card-placeholder {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .card-image :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-meta,
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    align-items: center;
+  }
+
+  .card-meta {
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .meta-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-muted);
+  }
+
+  h3 {
+    font-size: var(--font-size-xl);
+    line-height: var(--leading-snug);
+    margin-bottom: var(--spacing-2);
+    transition: color var(--transition-fast);
+  }
+
+  .card-link:hover h3 {
+    color: var(--color-accent);
+  }
+
+  p {
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .card-tags {
+    margin-top: var(--spacing-3);
+  }
+
+  .card-tags a {
+    padding: var(--tag-padding-y) var(--spacing-2);
+    border-radius: var(--radius);
+    text-decoration: none;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+  }
+</style>

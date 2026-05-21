@@ -3,13 +3,13 @@ import { usePluginAPI } from "./ui";
 
 export function ActivitySummaryWidget() {
   const api = usePluginAPI();
-  const [stats, setStats] = useState({ todayActions: 0, auditCount: 0 });
+  const [stats, setStats] = useState({ auditCount: 0, notificationsCount: 0 });
 
   useEffect(() => {
-    api.get("stats").then((data) => {
+    api.get("overview").then((data) => {
       setStats({
-        todayActions: data.todayActions ?? 0,
         auditCount: data.auditCount ?? 0,
+        notificationsCount: data.notificationsCount ?? 0,
       });
     });
   }, []);
@@ -17,8 +17,8 @@ export function ActivitySummaryWidget() {
   return (
     <div>
       <div style={{ display: "flex", gap: "1rem" }}>
-        <div><strong>{stats.todayActions}</strong><br /><small>Today</small></div>
-        <div><strong>{stats.auditCount}</strong><br /><small>Total</small></div>
+        <div><strong>{stats.auditCount}</strong><br /><small>Audit</small></div>
+        <div><strong>{stats.notificationsCount}</strong><br /><small>Unread</small></div>
       </div>
     </div>
   );

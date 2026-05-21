@@ -2,29 +2,24 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "awcms-micro",
   "main": "./src/worker.ts",
-  "compatibility_date": "2026-05-09",
+  "compatibility_date": "2026-02-24",
   "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": true,
+  "workers_dev": false,
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "awcms-micro-d1",
-      "database_id": "df3281e0-4066-4da8-8911-1a0ed60a4562"
+      "database_name": "awcms-micro-d1"
     }
   ],
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "awcms-micro-media"
+      "bucket_name": "awcms-micro-s3"
     }
   ],
   "worker_loaders": [
     {
       "binding": "LOADER"
     }
-  ],
-  "vars": {
-    "SITE_URL": "https://awcms-micro.ahlikoding.com",
-    "S3_ENDPOINT": "https://awcms-micro-s3.ahlikoding.com"
-  }
+  ]
 }

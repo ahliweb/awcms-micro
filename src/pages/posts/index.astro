@@ -1,63 +1,136 @@
 ---
+import { getEmDashCollection, getTermsForEntries } from "emdash";
 import Base from "../../layouts/Base.astro";
-import { getEmDashCollection } from "emdash";
+import { getReadingTime } from "../../utils/reading-time";
 
-const { entries: posts } = await getEmDashCollection("posts", {
-  orderBy: { publishedAt: "desc" },
+const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+  orderBy: { published_at: "desc" },
 });
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const tagsByEntry = await getTermsForEntries(
+  "posts",
+  posts.map((post) => post.data.id),
+  "tag",
+);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 ---
 
-<Base title="All Posts - AWCMS-Micro">
-  <h1>All Posts</h1>
-  <p class="post-count">{posts.length} post{posts.length !== 1 ? "s" : ""}</p>
+<Base title="All Posts" description="Browse every published post in AWCMS-Micro.">
+  <section class="posts-page">
+    <header class="page-header">
+      <h1>All Posts</h1>
+      <p class="post-count">{posts.length} post{posts.length !== 1 ? "s" : ""}</p>
+    </header>
 
-  <ul class="post-list">
-    {posts.map((post: any) => (
-      <li class="post-item">
-        <a href={`/posts/${post.id}`}>
-          <h2>{post.data.title}</h2>
-          {post.data.excerpt && <p>{post.data.excerpt}</p>}
-        </a>
-      </li>
-    ))}
-  </ul>
+    <div class="post-list">
+      {posts.map((post) => (
+        <article class="post-item">
+          <a href={`/posts/${post.id}`} class="post-link">
+            <div class="post-meta">
+              {post.data.publishedAt && <time>{formatDate(post.data.publishedAt)}</time>}
+              {post.data.publishedAt && <span class="meta-dot" />}
+              <span>{getReadingTime(post.data.content)} min read</span>
+            </div>
+            <h2>{post.data.title}</h2>
+            {post.data.excerpt && <p>{post.data.excerpt}</p>}
+          </a>
+          {(tagsByEntry.get(post.data.id) ?? []).length > 0 && (
+            <div class="post-tags">
+              {(tagsByEntry.get(post.data.id) ?? []).slice(0, 3).map((tag) => (
+                <a href={`/tag/${tag.slug}`}>{tag.label}</a>
+              ))}
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
 </Base>
 
 <style>
+  .posts-page {
+    max-width: var(--content-width);
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: var(--spacing-10);
+  }
+
   h1 {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-2);
   }
 
   .post-count {
-    color: var(--color-text-secondary, #666);
-    margin-bottom: 2rem;
-  }
-
-  .post-list {
-    list-style: none;
+    color: var(--color-muted);
   }
 
   .post-item {
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--color-border, #e5e5e5);
+    padding: var(--spacing-8) 0;
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
-  .post-item a {
+  .post-link {
+    display: block;
     text-decoration: none;
     color: inherit;
   }
 
-  .post-item h2 {
-    font-size: 1.25rem;
-    margin-bottom: 0.25rem;
+  .post-meta,
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    align-items: center;
   }
 
-  .post-item h2:hover {
-    color: var(--color-accent, #0066cc);
+  .post-meta {
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-2);
+  }
+
+  .meta-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-muted);
+  }
+
+  .post-item h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-2);
+    transition: color var(--transition-fast);
+  }
+
+  .post-link:hover h2 {
+    color: var(--color-accent);
   }
 
   .post-item p {
-    color: var(--color-text-secondary, #666);
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .post-tags {
+    margin-top: var(--spacing-4);
+  }
+
+  .post-tags a {
+    padding: var(--tag-padding-y) var(--spacing-2);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: var(--font-size-xs);
   }
 </style>

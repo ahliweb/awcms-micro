@@ -1,11 +1,10 @@
 ---
 interface Props {
-  url?: string;
+  id?: string;
   title?: string;
-  poster?: string;
 }
 
-const { url, title, poster } = Astro.props;
+const { id, title } = Astro.props;
 
 function getEmbedUrl(videoUrl: string): string | null {
   const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
@@ -19,33 +18,56 @@ function getEmbedUrl(videoUrl: string): string | null {
   return null;
 }
 
-const embedUrl = url ? getEmbedUrl(url) : null;
+const embedUrl = id ? getEmbedUrl(id) : null;
 ---
 
 {embedUrl ? (
-  <figure class="video-embed my-6">
-    <div class="relative w-full pb-[56.25%]">
+  <figure class="video-embed">
+    <div class="frame">
       <iframe
-        class="absolute top-0 left-0 w-full h-full"
+        class="player"
         src={embedUrl}
         title={title ?? "Video"}
-        frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
       />
     </div>
-    {title && <figcaption class="text-sm text-gray-600 mt-2">{title}</figcaption>}
+    {title && <figcaption>{title}</figcaption>}
   </figure>
-) : url ? (
-  <div class="video-link my-4">
-    <a href={url} target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">
-      {title ?? url}
+) : id ? (
+  <div class="video-link">
+    <a href={id} target="_blank" rel="noopener noreferrer">
+      {title ?? id}
     </a>
   </div>
 ) : null}
 
 <style>
-  .video-embed iframe {
+  .video-embed {
+    margin: 1.5rem 0;
+  }
+
+  .frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+  }
+
+  .player {
     border: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  figcaption,
+  .video-link a {
+    color: var(--color-text-secondary, #666);
+  }
+
+  figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
   }
 </style>

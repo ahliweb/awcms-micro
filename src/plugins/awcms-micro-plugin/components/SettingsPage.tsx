@@ -52,11 +52,13 @@ export function SettingsPage() {
           </label>
         </div>
         <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block", marginBottom: "0.25rem" }}>Webhook URL</label>
+          <label style={{ display: "block", marginBottom: "0.25rem" }}>Max Audit Entries</label>
           <input
-            type="url"
-            value={(settings.webhookUrl as string) ?? ""}
-            onChange={(e) => setSettings({ ...settings, webhookUrl: e.target.value })}
+            type="number"
+            min={25}
+            max={1000}
+            value={Number(settings.maxAuditEntries ?? 150)}
+            onChange={(e) => setSettings({ ...settings, maxAuditEntries: Number(e.target.value) })}
             style={{ width: "100%", padding: "0.5rem", border: "1px solid #e5e5e5", borderRadius: 4 }}
           />
         </div>
@@ -64,10 +66,31 @@ export function SettingsPage() {
           <label style={{ display: "block", marginBottom: "0.25rem" }}>Notification Email</label>
           <input
             type="email"
-            value={(settings.notificationEmail as string) ?? ""}
-            onChange={(e) => setSettings({ ...settings, notificationEmail: e.target.value })}
+            value={(settings.notifyEmail as string) ?? ""}
+            onChange={(e) => setSettings({ ...settings, notifyEmail: e.target.value })}
             style={{ width: "100%", padding: "0.5rem", border: "1px solid #e5e5e5", borderRadius: 4 }}
           />
+        </div>
+        <div style={{ marginBottom: "1rem" }}>
+          <label style={{ display: "block", marginBottom: "0.25rem" }}>Reference URL</label>
+          <input
+            type="url"
+            value={(settings.docsUrl as string) ?? "https://docs.emdashcms.com"}
+            onChange={(e) => setSettings({ ...settings, docsUrl: e.target.value })}
+            style={{ width: "100%", padding: "0.5rem", border: "1px solid #e5e5e5", borderRadius: 4 }}
+          />
+        </div>
+        <div style={{ marginBottom: "1rem" }}>
+          <label style={{ display: "block", marginBottom: "0.25rem" }}>Theme</label>
+          <select
+            value={(settings.theme as string) ?? "system"}
+            onChange={(e) => setSettings({ ...settings, theme: e.target.value })}
+            style={{ width: "100%", padding: "0.5rem", border: "1px solid #e5e5e5", borderRadius: 4 }}
+          >
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
         </div>
         <button
           onClick={handleSave}

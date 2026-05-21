@@ -4,7 +4,7 @@ import { usePluginAPI } from "./ui";
 interface RecentPost {
   id: string;
   title: string;
-  createdAt: string;
+  status: string;
 }
 
 export function RecentContentWidget() {
@@ -12,8 +12,8 @@ export function RecentContentWidget() {
   const [posts, setPosts] = useState<RecentPost[]>([]);
 
   useEffect(() => {
-    api.get("content/activity").then((data) => {
-      setPosts(data.recentPosts ?? []);
+    api.get("content/recent").then((data) => {
+      setPosts((data.items as RecentPost[]) ?? []);
     });
   }, []);
 
@@ -26,7 +26,7 @@ export function RecentContentWidget() {
           {posts.map((post) => (
             <li key={post.id} style={{ marginBottom: "0.5rem" }}>
               <div style={{ fontWeight: 500 }}>{post.title}</div>
-              <small style={{ color: "#666" }}>{new Date(post.createdAt).toLocaleDateString()}</small>
+              <small style={{ color: "#666" }}>{post.status}</small>
             </li>
           ))}
         </ul>

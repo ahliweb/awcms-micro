@@ -3,13 +3,14 @@ import { usePluginAPI } from "./ui";
 
 export function QuickStatsWidget() {
   const api = usePluginAPI();
-  const [stats, setStats] = useState({ analyticsCount: 0, pluginVersion: "" });
+  const [stats, setStats] = useState({ analyticsCount: 0, commentsCount: 0, pluginVersion: "" });
 
   useEffect(() => {
-    api.get("stats").then((data) => {
+    api.get("overview").then((data) => {
       setStats({
         analyticsCount: data.analyticsCount ?? 0,
-        pluginVersion: data.pluginVersion ?? "",
+        commentsCount: data.commentsCount ?? 0,
+        pluginVersion: data.version ?? "",
       });
     });
   }, []);
@@ -17,6 +18,7 @@ export function QuickStatsWidget() {
   return (
     <div>
       <div style={{ marginBottom: "0.5rem" }}><strong>{stats.analyticsCount}</strong><br /><small>Analytics Events</small></div>
+      <div style={{ marginBottom: "0.5rem" }}><strong>{stats.commentsCount}</strong><br /><small>Comment Logs</small></div>
       <div><strong>{stats.pluginVersion}</strong><br /><small>Plugin Version</small></div>
     </div>
   );

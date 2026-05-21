@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "AWCMS-Micro - An EmDash example site",
+  "description": "AWCMS-Micro - An EmDash example repository",
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22"
@@ -32,6 +32,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@cloudflare/workers-types": "^4.20260521.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "typescript": "^5.8.3",
     "wrangler": "^4.93.0"
   }

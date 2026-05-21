@@ -3,11 +3,11 @@ import { usePluginAPI, Card, Loading } from "./ui";
 
 interface AuditEntry {
   id: string;
-  action: string;
-  collection: string;
-  contentId: string;
+  type: string;
+  collection?: string;
+  resourceId?: string;
+  message: string;
   timestamp: string;
-  userId: string;
 }
 
 export function AuditPage() {
@@ -16,8 +16,8 @@ export function AuditPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("audit/recent").then((data) => {
-      setEntries(data.entries ?? []);
+    api.get("activity/list?limit=20").then((data) => {
+      setEntries((data.items as AuditEntry[]) ?? []);
       setLoading(false);
     });
   }, []);
@@ -26,7 +26,7 @@ export function AuditPage() {
 
   return (
     <div>
-      <h1>Audit Log</h1>
+      <h1>Activity Log</h1>
       <Card title="Recent Activity">
         {entries.length === 0 ? (
           <p>No audit entries yet.</p>
@@ -34,18 +34,18 @@ export function AuditPage() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Action</th>
-                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Collection</th>
-                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Content ID</th>
+                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Type</th>
+                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Message</th>
+                <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Resource</th>
                 <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid #e5e5e5" }}>Timestamp</th>
               </tr>
             </thead>
             <tbody>
               {entries.map((entry) => (
                 <tr key={entry.id}>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.action}</td>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.collection}</td>
-                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.contentId}</td>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.type}</td>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.message}</td>
+                  <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{entry.collection ? `${entry.collection}/${entry.resourceId ?? "-"}` : entry.resourceId ?? "-"}</td>
                   <td style={{ padding: "0.5rem", borderBottom: "1px solid #f0f0f0" }}>{new Date(entry.timestamp).toLocaleString()}</td>
                 </tr>
               ))}
