@@ -10,3 +10,6 @@ emdash-latest/.wrangler/
 
 # Environment files
 .env
+
+# Temporary configuration artifacts
+tmp/
