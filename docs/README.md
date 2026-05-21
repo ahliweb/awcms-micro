@@ -1,15 +1,9 @@
-# EmDash Docs
+# Documentation Index
 
-Documentation site for EmDash, built with [Starlight](https://starlight.astro.build).
+This folder contains the root-level technical documentation for the AWCMS-Micro parent repository.
 
-## Development
+## Documents
 
-```bash
-pnpm dev
-```
-
-## Build
-
-```bash
-pnpm build
-```
+- `repository-structure.md`: explains the role of each root folder
+- `synchronization-workflow.md`: explains how to refresh EmDash and rebuild the AWCMS-Micro development tree
+- `implementation-instructions.md`: captures the implementation mandate and atomic execution model
