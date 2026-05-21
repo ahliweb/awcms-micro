@@ -13,9 +13,9 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
 fi
 
 mkdir -p "$TARGET_DIR"
-find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 
 rsync -a \
+	--delete \
 	--exclude='.git' \
 	--exclude='node_modules' \
 	--exclude='dist' \

@@ -1,34 +1,55 @@
 # AWCMS-Micro Parent Repository
 
-This repository is the parent workspace for maintaining AWCMS-Micro against the latest EmDash source.
+This repository is the parent maintenance workspace for keeping AWCMS-Micro aligned with the latest EmDash source.
 
 ## Purpose
 
-- `emdash-latest` stores the latest synchronized EmDash source tree.
-- `awcmsmicro-dev` is a working copy derived from `emdash-latest` for AWCMS-Micro development.
-- `docs` contains the root-level technical documentation for how this repository is structured and operated.
+Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-This repository keeps both trees inside a single git repository so AWCMS-Micro work can be performed against a known EmDash baseline while preserving parent-level documentation and workflow guidance.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that adopts EmDash 100% and includes only example plugins that follow the AWCMS-Micro standard, without modifying EmDash core.
 
-## Main Folders
+## Root Structure
 
-- `emdash-latest/`: latest updated EmDash source tree
-- `awcmsmicro-dev/`: development workspace copied from `emdash-latest/`
-- `docs/`: technical documentation for this parent repository
-- `scripts/`: root-level maintenance scripts for refreshing `emdash-latest/` and `awcmsmicro-dev/`
+- `emdash-latest/`: latest synchronized snapshot of upstream EmDash
+- `awcmsmicro-dev/`: clone of `emdash-latest/` used as the active AWCMS-Micro development workspace
+- `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
+- `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-## Technical Documentation
+Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
 
-- `docs/README.md`: documentation index
-- `docs/repository-structure.md`: root structure and responsibilities
-- `docs/synchronization-workflow.md`: sync/update workflow for EmDash and AWCMS-Micro
-- `docs/implementation-instructions.md`: implementation mandate and atomic execution guidance
+## Repository Rules
+
+- Keep `emdash-latest/` as the clean upstream reference tree.
+- Rebuild `awcmsmicro-dev/` from `emdash-latest/` before AWCMS-Micro-specific implementation work.
+- Do not treat this repository as a runtime host for nested products.
+- Keep root documentation synchronized with the actual workflow and folder layout.
+- Work step by step using small, atomic changes.
+- When a task is too large, split it into smaller follow-up tasks or GitHub issues.
+
+## Official Language
+
+English (US) is the official repository language for root documentation, root scripts, repository instructions, and AWCMS-Micro-specific repository governance text.
+
+Exception:
+
+- `emdash-latest/` must remain as an upstream-faithful EmDash snapshot and should preserve upstream wording as-is, including non-US spelling when present.
+- `awcmsmicro-dev/` may mirror upstream wording when it is rebuilt from `emdash-latest/` as part of synchronization work.
+
+## Core Documentation
+
+- `docs/README.md`
+- `docs/repository-structure.md`
+- `docs/synchronization-workflow.md`
+- `docs/implementation-instructions.md`
 
 ## Maintenance Scripts
 
-- `bash scripts/update-emdash-latest.sh`: refresh `emdash-latest` from upstream EmDash
-- `bash scripts/update-awcmsmicro-dev.sh`: rebuild `awcmsmicro-dev` from `emdash-latest`
+- `bash scripts/update-emdash-latest.sh`
+- `bash scripts/update-awcmsmicro-dev.sh`
 
-## Operating Model
+## Standard Workflow
 
-`awcms-micro` is still treated as an independent repository. The AWCMS-Micro implementation should fully adopt EmDash and should not modify EmDash core directly. Changes specific to AWCMS-Micro should be developed inside `awcmsmicro-dev` on top of the `emdash-latest` baseline.
+1. Refresh `emdash-latest/` from upstream EmDash.
+2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+3. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
+4. Update root documentation when structure or process changes.
