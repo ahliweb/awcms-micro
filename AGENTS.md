@@ -38,13 +38,30 @@ When you need to verify an API, hook, config option, field type, or pattern, cal
 - Always call `Astro.cache.set(cacheHint)` on pages that query content.
 - Taxonomy names in queries must match the seed's `"name"` field exactly.
 
-## Example Plugins
+## Example Plugin
 
-Example plugins live under `src/plugins/`. They demonstrate EmDash native plugin patterns:
+The `awcms-micro-plugin` under `src/plugins/` demonstrates ALL EmDash native plugin features:
 
-- Use `definePlugin()` with `format: "native"`
-- Register in `astro.config.mjs` under `plugins: []`
-- Do not modify EmDash core — extend through plugins only
+- **Lifecycle hooks**: `plugin:install`, `plugin:activate`, `plugin:deactivate`, `plugin:uninstall`
+- **Content hooks**: `content:beforeSave`, `content:afterSave`, `content:beforeDelete`, `content:afterDelete`, `content:afterPublish`, `content:afterUnpublish`
+- **Media hooks**: `media:afterUpload`
+- **Page hooks**: `page:metadata` (JSON-LD, meta tags), `page:fragments` (inline scripts)
+- **Cron hook**: Scheduled cleanup task
+- **Storage**: Three collections (`audit`, `analytics`, `notifications`) with composite indexes
+- **Settings**: Auto-generated `settingsSchema` with all field types (boolean, number, url, secret, email, select)
+- **Routes**: Authenticated and public routes with input validation
+- **Admin pages**: Dashboard, Audit Log, Analytics, Settings (React components)
+- **Dashboard widgets**: Activity Summary, Quick Stats, Recent Content
+- **Portable Text blocks**: Callout Box, Video Embed (with Astro rendering components)
+- **Capabilities**: `read:content`, `write:content`, `read:media`, `network:request`, `email:send`, `users:read`, `hooks.page-fragments:register`, `hooks.page-metadata:register`
+
+Register in `astro.config.mjs` under `plugins: []`. Do not modify EmDash core — extend through plugins only.
+
+## Deployment
+
+- **Site URL**: `https://awcms-micro.ahlikoding.com`
+- **S3 Storage**: `https://awcms-micro-s3.ahlikoding.com`
+- **D1 Database**: `awcms-micro-d1`
 
 ## This Repository
 

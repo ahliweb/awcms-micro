@@ -4,22 +4,32 @@
   "main": "./src/worker.ts",
   "compatibility_date": "2026-05-09",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "awcms-micro.ahlikoding.com/*",
+      "zone_name": "ahlikoding.com"
+    }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "sikesra",
-      "database_id": "78f08b97-305a-431b-9f7c-9f1c3bbb4551"
+      "database_name": "awcms-micro-d1",
+      "database_id": "local-awcms-micro-d1"
     }
   ],
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "sikesra"
+      "bucket_name": "awcms-micro-media"
     }
   ],
   "worker_loaders": [
     {
       "binding": "LOADER"
     }
-  ]
+  ],
+  "vars": {
+    "SITE_URL": "https://awcms-micro.ahlikoding.com",
+    "S3_ENDPOINT": "https://awcms-micro-s3.ahlikoding.com"
+  }
 }

@@ -1,0 +1,63 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getEmDashCollection } from "emdash";
+
+const { entries: posts } = await getEmDashCollection("posts", {
+  orderBy: { publishedAt: "desc" },
+});
+---
+
+<Base title="All Posts - AWCMS-Micro">
+  <h1>All Posts</h1>
+  <p class="post-count">{posts.length} post{posts.length !== 1 ? "s" : ""}</p>
+
+  <ul class="post-list">
+    {posts.map((post: any) => (
+      <li class="post-item">
+        <a href={`/posts/${post.id}`}>
+          <h2>{post.data.title}</h2>
+          {post.data.excerpt && <p>{post.data.excerpt}</p>}
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>
+
+<style>
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-count {
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 2rem;
+  }
+
+  .post-list {
+    list-style: none;
+  }
+
+  .post-item {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+  }
+
+  .post-item a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-item h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .post-item h2:hover {
+    color: var(--color-accent, #0066cc);
+  }
+
+  .post-item p {
+    color: var(--color-text-secondary, #666);
+  }
+</style>

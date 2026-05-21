@@ -3,20 +3,22 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "AWCMS-Micro EmDash-compatible host runtime scaffold",
+  "description": "AWCMS-Micro - An EmDash example site",
   "packageManager": "pnpm@10.28.0",
   "engines": {
     "node": ">=22"
+  },
+  "emdash": {
+    "label": "AWCMS-Micro Example",
+    "seed": "seed/seed.json",
+    "url": "https://awcms-micro.ahlikoding.com"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "deploy": "astro build && wrangler deploy",
-    "typecheck": "astro check",
-    "test": "echo \"No tests defined yet\"",
-    "bootstrap": "emdash init && emdash seed",
-    "seed": "emdash seed"
+    "typecheck": "astro check"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.3",

@@ -1,0 +1,102 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getEmDashCollection, getEntryTerms } from "emdash";
+
+const { slug } = Astro.params;
+const { entries } = await getEmDashCollection("posts");
+const entry = entries.find((e: any) => e.id === slug);
+
+if (!entry) {
+  return Astro.redirect("/404");
+}
+
+const terms = await getEntryTerms("posts", entry.data.id);
+const categories = terms.filter((t: any) => t.taxonomy === "category");
+const tags = terms.filter((t: any) => t.taxonomy === "tag");
+---
+
+<Base title={`${entry.data.title} - AWCMS-Micro`}>
+  <article class="post-detail">
+    <header>
+      <h1>{entry.data.title}</h1>
+      <div class="post-meta">
+        {entry.data.author && <span class="author">{entry.data.author}</span>}
+        {entry.data.publishedAt && (
+          <time datetime={entry.data.publishedAt.toISOString()}>
+            {entry.data.publishedAt.toLocaleDateString()}
+          </time>
+        )}
+      </div>
+    </header>
+
+    {categories.length > 0 && (
+      <div class="categories">
+        {categories.map((term: any) => (
+          <a href={`/category/${term.id}`} class="category-chip">
+            {term.data.name}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <div class="post-content">
+      <p>{entry.data.excerpt}</p>
+    </div>
+
+    {tags.length > 0 && (
+      <div class="tags">
+        {tags.map((term: any) => (
+          <a href={`/tag/${term.id}`} class="tag-chip">
+            {term.data.name}
+          </a>
+        ))}
+      </div>
+    )}
+  </article>
+</Base>
+
+<style>
+  .post-detail {
+    max-width: var(--content-width, 680px);
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 1rem;
+    color: var(--color-text-secondary, #666);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .categories, .tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .category-chip, .tag-chip {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    text-decoration: none;
+    background: var(--color-bg-subtle, #f5f5f5);
+    color: var(--color-text-secondary, #666);
+  }
+
+  .category-chip:hover, .tag-chip:hover {
+    background: var(--color-accent, #0066cc);
+    color: white;
+  }
+
+  .post-content {
+    line-height: 1.8;
+  }
+</style>

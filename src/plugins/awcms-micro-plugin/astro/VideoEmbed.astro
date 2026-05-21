@@ -1,0 +1,51 @@
+---
+interface Props {
+  url?: string;
+  title?: string;
+  poster?: string;
+}
+
+const { url, title, poster } = Astro.props;
+
+function getEmbedUrl(videoUrl: string): string | null {
+  const youtubeMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  if (youtubeMatch) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+  }
+  const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  return null;
+}
+
+const embedUrl = url ? getEmbedUrl(url) : null;
+---
+
+{embedUrl ? (
+  <figure class="video-embed my-6">
+    <div class="relative w-full pb-[56.25%]">
+      <iframe
+        class="absolute top-0 left-0 w-full h-full"
+        src={embedUrl}
+        title={title ?? "Video"}
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      />
+    </div>
+    {title && <figcaption class="text-sm text-gray-600 mt-2">{title}</figcaption>}
+  </figure>
+) : url ? (
+  <div class="video-link my-4">
+    <a href={url} target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">
+      {title ?? url}
+    </a>
+  </div>
+) : null}
+
+<style>
+  .video-embed iframe {
+    border: none;
+  }
+</style>

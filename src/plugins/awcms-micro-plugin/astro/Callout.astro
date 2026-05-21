@@ -1,0 +1,27 @@
+---
+interface Props {
+  title?: string;
+  body?: string;
+  variant?: "info" | "warning" | "error" | "success";
+}
+
+const { title, body, variant = "info" } = Astro.props;
+
+const variantClasses = {
+  info: "border-blue-500 bg-blue-50",
+  warning: "border-yellow-500 bg-yellow-50",
+  error: "border-red-500 bg-red-50",
+  success: "border-green-500 bg-green-50",
+};
+---
+
+<div class={`callout border-l-4 p-4 my-4 ${variantClasses[variant]}`}>
+  {title && <h4 class="font-semibold mb-1">{title}</h4>}
+  {body && <p class="text-sm">{body}</p>}
+</div>
+
+<style>
+  .callout {
+    border-radius: 0 4px 4px 0;
+  }
+</style>

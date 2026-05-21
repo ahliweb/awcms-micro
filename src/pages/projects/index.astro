@@ -1,0 +1,85 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getEmDashCollection } from "emdash";
+
+const { entries: projects } = await getEmDashCollection("projects", {
+  orderBy: { createdAt: "desc" },
+});
+---
+
+<Base title="Projects - AWCMS-Micro">
+  <h1>Projects</h1>
+  <p class="project-count">{projects.length} project{projects.length !== 1 ? "s" : ""}</p>
+
+  <div class="project-grid">
+    {projects.map((project: any) => (
+      <article class="project-card">
+        <h2>{project.data.title}</h2>
+        {project.data.tech_stack && (
+          <p class="tech-stack">Tech: {project.data.tech_stack}</p>
+        )}
+        {project.data.status && (
+          <span class="status-badge">{project.data.status}</span>
+        )}
+        {project.data.url && (
+          <a href={project.data.url as string} target="_blank" rel="noopener noreferrer">
+            View Project
+          </a>
+        )}
+      </article>
+    ))}
+  </div>
+</Base>
+
+<style>
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .project-count {
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 2rem;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .project-card h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tech-stack {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #666);
+    margin-top: 0.5rem;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .project-card a {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--color-accent, #0066cc);
+    text-decoration: none;
+    font-weight: 500;
+  }
+</style>

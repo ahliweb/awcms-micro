@@ -1,0 +1,94 @@
+---
+import Base from "../layouts/Base.astro";
+import { getEmDashCollection } from "emdash";
+
+const { entries: posts } = await getEmDashCollection("posts", {
+  limit: 6,
+  orderBy: { publishedAt: "desc" },
+});
+---
+
+<Base title="AWCMS-Micro - Home">
+  <section class="hero">
+    <h1>AWCMS-Micro</h1>
+    <p class="hero-subtitle">An EmDash Example Site</p>
+  </section>
+
+  <section class="latest-posts">
+    <h2>Latest Posts</h2>
+    <div class="post-grid">
+      {posts.map((post: any) => (
+        <article class="post-card">
+          <a href={`/posts/${post.id}`}>
+            <h3>{post.data.title}</h3>
+            {post.data.excerpt && <p>{post.data.excerpt}</p>}
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 4rem 0;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--color-text-secondary, #666);
+    margin-top: 0.5rem;
+  }
+
+  .latest-posts {
+    padding: 2rem 0;
+  }
+
+  .latest-posts h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .post-card {
+    border: 1px solid var(--color-border, #e5e5e5);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .post-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .post-card a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-card h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .post-card h3:hover {
+    color: var(--color-accent, #0066cc);
+  }
+
+  .post-card p {
+    color: var(--color-text-secondary, #666);
+    font-size: 0.875rem;
+  }
+</style>

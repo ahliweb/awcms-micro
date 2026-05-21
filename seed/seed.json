@@ -9,7 +9,9 @@
         { "id": "title", "label": "Title", "type": "string", "required": true },
         { "id": "content", "label": "Content", "type": "richtext", "required": true },
         { "id": "excerpt", "label": "Excerpt", "type": "string" },
-        { "id": "featured_image", "label": "Featured Image", "type": "image" }
+        { "id": "featured_image", "label": "Featured Image", "type": "image" },
+        { "id": "author", "label": "Author", "type": "string" },
+        { "id": "reading_time", "label": "Reading Time (minutes)", "type": "number" }
       ],
       "taxonomies": ["category", "tag"]
     },
@@ -19,13 +21,29 @@
       "type": "content",
       "fields": [
         { "id": "title", "label": "Title", "type": "string", "required": true },
-        { "id": "content", "label": "Content", "type": "richtext", "required": true }
+        { "id": "content", "label": "Content", "type": "richtext", "required": true },
+        { "id": "meta_description", "label": "Meta Description", "type": "string" }
       ]
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "type": "content",
+      "fields": [
+        { "id": "title", "label": "Title", "type": "string", "required": true },
+        { "id": "description", "label": "Description", "type": "richtext", "required": true },
+        { "id": "cover_image", "label": "Cover Image", "type": "image" },
+        { "id": "url", "label": "Project URL", "type": "url" },
+        { "id": "tech_stack", "label": "Tech Stack", "type": "string" },
+        { "id": "status", "label": "Status", "type": "select", "options": ["active", "completed", "archived"] }
+      ],
+      "taxonomies": ["project-type"]
     }
   ],
   "taxonomies": [
     { "id": "category", "label": "Categories", "type": "category" },
-    { "id": "tag", "label": "Tags", "type": "tag" }
+    { "id": "tag", "label": "Tags", "type": "tag" },
+    { "id": "project-type", "label": "Project Types", "type": "category" }
   ],
   "menus": [
     {
@@ -33,12 +51,76 @@
       "label": "Primary Navigation",
       "items": [
         { "label": "Home", "url": "/" },
-        { "label": "Posts", "url": "/posts" }
+        { "label": "Blog", "url": "/posts" },
+        { "label": "Projects", "url": "/projects" },
+        { "label": "About", "url": "/pages/about" }
+      ]
+    },
+    {
+      "id": "footer",
+      "label": "Footer Navigation",
+      "items": [
+        { "label": "Privacy Policy", "url": "/pages/privacy" },
+        { "label": "Contact", "url": "/pages/contact" }
+      ]
+    }
+  ],
+  "widgetAreas": [
+    {
+      "id": "sidebar",
+      "label": "Sidebar",
+      "widgets": [
+        { "id": "search", "type": "search", "title": "Search" },
+        { "id": "recent-posts", "type": "recent-posts", "title": "Recent Posts", "count": 5 },
+        { "id": "categories", "type": "taxonomy-cloud", "title": "Categories", "taxonomy": "category" }
+      ]
+    },
+    {
+      "id": "footer-widgets",
+      "label": "Footer Widgets",
+      "widgets": [
+        { "id": "site-info", "type": "text", "title": "About", "content": "AWCMS-Micro is an EmDash example site." }
       ]
     }
   ],
   "settings": {
-    "title": "AWCMS-Micro Example",
-    "tagline": "An EmDash example site"
-  }
+    "title": "AWCMS-Micro",
+    "tagline": "An EmDash Example Site",
+    "description": "A fully-featured example site demonstrating EmDash CMS capabilities with native plugins.",
+    "author": "AWCMS Team"
+  },
+  "entries": [
+    {
+      "collection": "pages",
+      "id": "about",
+      "status": "published",
+      "data": {
+        "title": "About",
+        "content": [
+          { "_type": "block", "_key": "p1", "style": "normal", "children": [{ "_type": "span", "text": "AWCMS-Micro is an example EmDash site that demonstrates the full capabilities of the EmDash CMS platform." }] },
+          { "_type": "block", "_key": "p2", "style": "normal", "children": [{ "_type": "span", "text": "This site showcases native plugins, structured content, and Cloudflare deployment patterns." }] }
+        ]
+      }
+    },
+    {
+      "collection": "posts",
+      "id": "welcome-to-awcms-micro",
+      "status": "published",
+      "data": {
+        "title": "Welcome to AWCMS-Micro",
+        "excerpt": "An introduction to the AWCMS-Micro example site and its capabilities.",
+        "content": [
+          { "_type": "block", "_key": "p1", "style": "normal", "children": [{ "_type": "span", "text": "Welcome to AWCMS-Micro, a fully-featured example site built on EmDash CMS." }] },
+          { "_type": "block", "_key": "p2", "style": "h2", "children": [{ "_type": "span", "text": "Features" }] },
+          { "_type": "block", "_key": "p3", "style": "normal", "children": [{ "_type": "span", "text": "This site demonstrates native plugins with hooks, storage, admin pages, dashboard widgets, Portable Text blocks, page fragments, and more." }] }
+        ],
+        "author": "AWCMS Team",
+        "reading_time": 3
+      },
+      "terms": {
+        "category": ["announcements"],
+        "tag": ["emdash", "awcms"]
+      }
+    }
+  ]
 }

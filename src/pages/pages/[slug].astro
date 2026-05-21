@@ -1,0 +1,37 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getEmDashCollection } from "emdash";
+
+const { slug } = Astro.params;
+const { entries } = await getEmDashCollection("pages");
+const entry = entries.find((e: any) => e.id === slug);
+
+if (!entry) {
+  return Astro.redirect("/404");
+}
+---
+
+<Base title={`${entry.data.title} - AWCMS-Micro`}>
+  <article class="page-detail">
+    <h1>{entry.data.title}</h1>
+    <div class="page-content">
+      <p>{entry.data.meta_description ?? ""}</p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .page-detail {
+    max-width: var(--content-width, 680px);
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .page-content {
+    line-height: 1.8;
+  }
+</style>

@@ -1,0 +1,30 @@
+---
+import { getEmDashCollection } from "emdash";
+
+const { entries: posts } = await getEmDashCollection("posts", {
+  orderBy: { publishedAt: "desc" },
+  limit: 20,
+});
+
+const siteUrl = "https://awcms-micro.ahlikoding.com";
+
+const rssItems = posts.map((post: any) => `
+  <item>
+    <title>${post.data.title}</title>
+    <link>${siteUrl}/posts/${post.id}</link>
+    <guid>${siteUrl}/posts/${post.id}</guid>
+    <pubDate>${(post.data.publishedAt ?? post.data.createdAt)?.toUTCString()}</pubDate>
+    <description>${post.data.excerpt ?? ""}</description>
+  </item>
+`).join("\n");
+---
+
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>AWCMS-Micro Blog</title>
+    <description>Latest posts from AWCMS-Micro</description>
+    <link>{siteUrl}</link>
+    {rssItems}
+  </channel>
+</rss>

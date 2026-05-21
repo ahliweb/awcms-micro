@@ -11,6 +11,7 @@ export interface Page {
   status: string;
   title: string;
   content?: PortableTextBlock[];
+  meta_description?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
@@ -25,6 +26,8 @@ export interface Post {
   featured_image?: { id: string; src?: string; alt?: string; width?: number; height?: number };
   content?: PortableTextBlock[];
   excerpt?: string;
+  author?: string;
+  reading_time?: number;
   createdAt: Date;
   updatedAt: Date;
   publishedAt: Date | null;
