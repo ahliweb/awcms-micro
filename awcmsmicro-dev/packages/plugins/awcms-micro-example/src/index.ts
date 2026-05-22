@@ -34,6 +34,7 @@ export function awcmsMicroExamplePlugin(
 		format: "native",
 		capabilities: [...AWCMS_EXAMPLE_CAPABILITIES],
 		allowedHosts: AWCMS_EXAMPLE_ALLOWED_HOSTS,
+		// @ts-expect-error EmDash PluginDescriptor currently doesn't support compound index arrays in its types but supports them at runtime
 		storage: AWCMS_EXAMPLE_DESCRIPTOR_STORAGE,
 		adminPages: AWCMS_EXAMPLE_ADMIN_PAGES,
 		adminWidgets: AWCMS_EXAMPLE_ADMIN_WIDGETS,
