@@ -15,7 +15,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "awcms-micro-d1"
+			"database_name": "awcms-micro-d1",
+			"database_id": "REPLACE_WITH_AWCMS_MICRO_D1_DATABASE_ID"
 		}
 	],
 	"r2_buckets": [
