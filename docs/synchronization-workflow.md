@@ -47,9 +47,11 @@ Result:
 
 ## Protected AWCMS-Micro Paths
 
-The approved rebuild-safe boundary list is documented in `docs/awcmsmicro-dev-protected-paths.md` and stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
+The approved rebuild-safe boundary list is governed by `docs/awcms-micro-implementation-boundaries.md` and stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 
 Only those listed paths are backed up and restored during `bash scripts/update-awcmsmicro-dev.sh`.
+
+Run `bash scripts/validate-awcmsmicro-boundaries.sh` after boundary or allowlist changes.
 
 ## Validate `awcmsmicro-dev/`
 

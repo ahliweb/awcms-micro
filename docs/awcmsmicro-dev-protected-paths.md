@@ -1,15 +1,21 @@
-# AWCMS-Micro Protected Paths
+# AWCMS-Micro Protected Path Allowlist
 
 ## Goal
 
-Define the AWCMS-Micro-specific paths inside `awcmsmicro-dev/` that may diverge from upstream EmDash and must survive `bash scripts/update-awcmsmicro-dev.sh`.
+Define the exact allowlist consumed by `bash scripts/update-awcmsmicro-dev.sh`.
+
+Use `docs/awcms-micro-implementation-boundaries.md` for the full governance rules, upstream-only constraints, and rollback guidance.
 
 ## Approved Paths
 
 These paths are relative to `awcmsmicro-dev/`:
 
 - `templates/awcms-micro-default`
+- `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-example`
+- `demos/awcms-micro-cloudflare`
+- `docs/awcms-micro`
+- `e2e/awcms-micro`
 
 ## How Rebuild Preservation Works
 

@@ -37,11 +37,14 @@ When choosing where a change belongs:
 ## Required References
 
 - Sync governance and validation records live in `docs/upstream-sync/`.
-- The approved rebuild-safe boundary list lives in `docs/awcmsmicro-dev-protected-paths.md` and `scripts/awcmsmicro-dev-protected-paths.txt`.
+- The approved rebuild-safe boundary rules live in `docs/awcms-micro-implementation-boundaries.md` and `scripts/awcmsmicro-dev-protected-paths.txt`.
 - Deployment guidance lives in `docs/deployment/`.
 - Security and compliance baselines live in `docs/security/`.
-- Example template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/`.
+- Example template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/` or `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`.
 - Example plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-example/`.
+- Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
+- Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
+- Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.
 
 ## Language Rule
 

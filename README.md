@@ -41,7 +41,7 @@ Exception:
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
-- `docs/awcmsmicro-dev-protected-paths.md`
+- `docs/awcms-micro-implementation-boundaries.md`
 - `docs/upstream-sync/README.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
@@ -50,13 +50,19 @@ Exception:
 
 - `bash scripts/update-emdash-latest.sh`
 - `bash scripts/update-awcmsmicro-dev.sh`
+- `bash scripts/validate-awcmsmicro-boundaries.sh`
 - `bash scripts/validate-awcmsmicro-dev.sh`
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 
 ## AWCMS-Micro Example Additions
 
 - Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Reserved Cloudflare template boundary: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
+- Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
+- Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
 - Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`
 - Upstream sync tracking: `docs/upstream-sync/`
 - Deployment guidance: `docs/deployment/`
@@ -70,4 +76,4 @@ Exception:
 4. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
 5. Update root documentation when structure or process changes.
 
-During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`.
+During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`.

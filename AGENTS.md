@@ -37,6 +37,7 @@ Within this parent workspace:
 
 - `README.md`
 - `docs/README.md`
+- `docs/awcms-micro-implementation-boundaries.md`
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`

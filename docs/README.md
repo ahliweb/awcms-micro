@@ -7,7 +7,8 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `repository-structure.md`: root folder contract, responsibilities, and boundaries
 - `synchronization-workflow.md`: operational workflow for updating `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 - `implementation-instructions.md`: implementation mandate, constraints, and task-splitting guidance
-- `awcmsmicro-dev-protected-paths.md`: approved AWCMS-Micro paths preserved during `awcmsmicro-dev/` rebuilds
+- `awcms-micro-implementation-boundaries.md`: approved AWCMS-Micro implementation boundaries and preservation rules
+- `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
 - `security/security-baseline.md`: security, privacy, ISO, and Indonesia compliance baseline documentation
@@ -16,10 +17,11 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 
 1. Read `repository-structure.md` to understand the parent repository layout.
 2. Read `synchronization-workflow.md` before refreshing either working tree.
-3. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe AWCMS-Micro boundary list.
-4. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
-5. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-6. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+3. Read `awcms-micro-implementation-boundaries.md` before changing AWCMS-Micro custom boundaries.
+4. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
+5. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
+6. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+7. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

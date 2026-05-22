@@ -10,6 +10,10 @@ PROTECTED_PATHS_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
 BACKUP_DIR=""
 RSYNC_PROTECTED_ARGS=()
 
+log() {
+	printf '[awcmsmicro-dev sync] %s\n' "$1"
+}
+
 cleanup() {
 	if [[ -n "$BACKUP_DIR" && -d "$BACKUP_DIR" ]]; then
 		rm -rf "$BACKUP_DIR"
@@ -17,11 +21,8 @@ cleanup() {
 }
 
 backup_protected_paths() {
-	if [[ ! -f "$PROTECTED_PATHS_FILE" ]]; then
-		return
-	fi
-
 	BACKUP_DIR="$(mktemp -d)"
+	log "Backing up approved AWCMS-Micro paths listed in $PROTECTED_PATHS_FILE"
 
 	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
 		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
@@ -29,16 +30,21 @@ backup_protected_paths() {
 		fi
 
 		if [[ -e "$TARGET_DIR/$relative_path" ]]; then
+			log "Backing up $relative_path"
 			mkdir -p "$BACKUP_DIR/$(dirname "$relative_path")"
 			rsync -a "$TARGET_DIR/$relative_path" "$BACKUP_DIR/$(dirname "$relative_path")/"
+		else
+			log "No existing custom path at $relative_path; skipping backup"
 		fi
 	done < "$PROTECTED_PATHS_FILE"
 }
 
 restore_protected_paths() {
-	if [[ -z "$BACKUP_DIR" || ! -d "$BACKUP_DIR" || ! -f "$PROTECTED_PATHS_FILE" ]]; then
+	if [[ -z "$BACKUP_DIR" || ! -d "$BACKUP_DIR" ]]; then
 		return
 	fi
+
+	log "Restoring approved AWCMS-Micro paths"
 
 	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
 		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
@@ -46,6 +52,7 @@ restore_protected_paths() {
 		fi
 
 		if [[ -e "$BACKUP_DIR/$relative_path" ]]; then
+			log "Restoring $relative_path"
 			mkdir -p "$TARGET_DIR/$(dirname "$relative_path")"
 			rsync -a "$BACKUP_DIR/$relative_path" "$TARGET_DIR/$(dirname "$relative_path")/"
 		fi
@@ -53,10 +60,6 @@ restore_protected_paths() {
 }
 
 load_protected_rsync_args() {
-	if [[ ! -f "$PROTECTED_PATHS_FILE" ]]; then
-		return
-	fi
-
 	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
 		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
 			continue
@@ -73,10 +76,17 @@ if [[ ! -d "$SOURCE_DIR" ]]; then
 	exit 1
 fi
 
+if [[ ! -f "$PROTECTED_PATHS_FILE" ]]; then
+	echo "Missing protected paths file: $PROTECTED_PATHS_FILE" >&2
+	exit 1
+fi
+
 mkdir -p "$TARGET_DIR"
 
 backup_protected_paths
 load_protected_rsync_args
+
+log "Rebuilding $TARGET_DIR from $SOURCE_DIR"
 
 rsync -a \
 	--delete \
@@ -90,4 +100,4 @@ rsync -a \
 
 restore_protected_paths
 
-echo "awcmsmicro-dev has been rebuilt from emdash-latest while preserving approved AWCMS-Micro paths."
+log "awcmsmicro-dev has been rebuilt from emdash-latest while preserving approved AWCMS-Micro paths"
