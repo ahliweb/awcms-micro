@@ -26,16 +26,19 @@ TMP_OUTPUT="$(mktemp)"
 STATUS="Running"
 FAILURE_CATEGORY="None"
 CURRENT_STEP="Not started"
+REPORT_TMP="$(mktemp)"
+TERMINATING="0"
 
 cleanup() {
 	rm -f "$TMP_OUTPUT"
+	rm -f "$REPORT_TMP"
 }
 
 trap cleanup EXIT
 
 write_report() {
 	local completed_at="$1"
-	cat >"$REPORT_FILE" <<EOF
+	cat >"$REPORT_TMP" <<EOF
 # Last Validation
 
 ## Validation Run Metadata
@@ -94,6 +97,7 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 $(cat "$TMP_OUTPUT")
 ```
 EOF
+	mv "$REPORT_TMP" "$REPORT_FILE"
 }
 
 finalize_report() {
@@ -103,6 +107,11 @@ finalize_report() {
 }
 
 handle_termination() {
+	if [[ "$TERMINATING" == "1" ]]; then
+		exit 1
+	fi
+	TERMINATING="1"
+	trap - TERM INT
 	STATUS="Failed"
 	if [[ "$FAILURE_CATEGORY" == "None" ]]; then
 		FAILURE_CATEGORY="Script failure"
