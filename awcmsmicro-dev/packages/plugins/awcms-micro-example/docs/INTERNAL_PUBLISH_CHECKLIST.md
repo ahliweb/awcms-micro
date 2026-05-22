@@ -13,9 +13,10 @@ If you need a clean starting point, copy `docs/emdash-plugin.template.jsonc` to 
 
 ## Package Metadata
 
-- If the plugin lives in its own repository, set `repository` and `homepage` in `package.json`.
+- Set `repository` and `homepage` in `package.json` to match the real published source location, including monorepo subdirectory metadata when applicable.
 - If you want published manifest metadata for source and security review, add `repo` and `security` to `emdash-plugin.jsonc`.
 - Use `docs/MANIFEST_METADATA_EXAMPLES.md` if you need concrete GitHub, monorepo, self-hosted, or internal-portal examples.
+- Use `docs/FINAL_MANIFEST_EXAMPLES.md` if you want a complete manifest example for a monorepo or standalone release model.
 - Confirm `license`, `author`, `name`, `description`, and `keywords` still match the package you are publishing.
 
 ## Trust Contract
