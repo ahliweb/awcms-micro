@@ -29,7 +29,7 @@ Rules:
 
 - Rebuild it from `emdash-latest/` when upstream synchronization is needed.
 - Apply AWCMS-Micro-specific example implementation work here.
-- Keep AWCMS-Micro-owned additions inside the approved protected paths documented in `docs/awcmsmicro-dev-protected-paths.md`.
+- Keep AWCMS-Micro-owned additions inside the approved protected paths documented in `docs/awcms-micro-implementation-boundaries.md`.
 - Preserve the goal that AWCMS-Micro remains a full EmDash adoption, not a divergent fork of EmDash core.
 
 ### `docs/`
@@ -58,11 +58,15 @@ Expected root scripts:
 ## AWCMS-Micro Example Locations
 
 - Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Reserved Cloudflare template boundary: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
+- Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
+- Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
 
-The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is documented in `docs/awcmsmicro-dev-protected-paths.md`.
+The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 
 ## Root-Level Supporting Files
 
