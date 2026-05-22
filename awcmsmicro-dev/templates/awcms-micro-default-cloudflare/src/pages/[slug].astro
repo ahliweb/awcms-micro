@@ -1,0 +1,39 @@
+---
+import { decodeSlug, getEmDashEntry, getSeoMeta, getSiteSettings } from "emdash";
+import { PortableText } from "emdash/ui";
+import Base from "../layouts/Base.astro";
+import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
+
+function asString(value: unknown) {
+	return typeof value === "string" ? value : String(value ?? "");
+}
+
+const slug = decodeSlug(Astro.params.slug);
+
+if (!slug) return Astro.redirect("/404");
+
+const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
+
+if (!page) return Astro.redirect("/404");
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const seo = getSeoMeta(page, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: `/${slug}`,
+});
+---
+
+<Base
+	title={seo.title}
+	pageTitle={seo.ogTitle}
+	description={seo.description}
+	canonical={seo.canonical}
+	content={{ collection: "pages", id: asString(page.data.id), slug }}
+>
+	<article class="card">
+		<h1 {...page.edit.title}>{page.data.title}</h1>
+		<PortableText value={page.data.content} />
+	</article>
+</Base>

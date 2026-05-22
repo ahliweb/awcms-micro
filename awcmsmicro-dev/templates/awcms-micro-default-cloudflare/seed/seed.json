@@ -1,0 +1,175 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "AWCMS-Micro Default Cloudflare",
+		"description": "Cloudflare-ready AWCMS-Micro example template with posts, news, pages, and plugin-ready governance surfaces.",
+		"author": "AWCMS-Micro"
+	},
+	"settings": {
+		"title": "AWCMS-Micro Cloudflare Example",
+		"tagline": "Deployable EmDash example template for posts, pages, news, and AWCMS-Micro plugin integration."
+	},
+	"collections": [
+		{
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{ "slug": "featured_image", "label": "Featured Image", "type": "image" },
+				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true },
+				{ "slug": "excerpt", "label": "Excerpt", "type": "text" }
+			]
+		},
+		{
+			"slug": "news",
+			"label": "News",
+			"labelSingular": "News Item",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{ "slug": "summary", "label": "Summary", "type": "text", "searchable": true },
+				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
+			]
+		},
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"supports": ["drafts", "revisions", "search"],
+			"fields": [
+				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
+			]
+		}
+	],
+	"taxonomies": [
+		{
+			"name": "category",
+			"label": "Categories",
+			"labelSingular": "Category",
+			"hierarchical": true,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "platform", "label": "Platform" },
+				{ "slug": "governance", "label": "Governance" }
+			]
+		},
+		{
+			"name": "tag",
+			"label": "Tags",
+			"labelSingular": "Tag",
+			"hierarchical": false,
+			"collections": ["posts"],
+			"terms": [
+				{ "slug": "awcms-micro", "label": "AWCMS-Micro" },
+				{ "slug": "cloudflare", "label": "Cloudflare" }
+			]
+		}
+	],
+	"menus": [
+		{
+			"name": "primary",
+			"label": "Primary Navigation",
+			"items": [
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Posts", "url": "/posts" },
+				{ "type": "custom", "label": "News", "url": "/news" },
+				{ "type": "custom", "label": "About", "url": "/about" }
+			]
+		}
+	],
+	"widgetAreas": [
+		{
+			"name": "sidebar",
+			"label": "Sidebar",
+			"description": "Sidebar widget area",
+			"widgets": [
+				{ "type": "component", "componentId": "core:search", "title": "Search" },
+				{ "type": "component", "componentId": "core:recent-posts", "title": "Recent Posts", "settings": { "count": 5 } }
+			]
+		}
+	],
+	"content": {
+		"pages": [
+			{
+				"id": "about",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "About This Example",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "This Cloudflare-focused template keeps EmDash core untouched while preparing AWCMS-Micro for deployable posts, pages, news, and plugin-backed governance examples.",
+									"_key": "p1"
+								}
+							],
+							"_key": "b1"
+						}
+					]
+				}
+			}
+		],
+		"posts": [
+			{
+				"id": "cloudflare-ready-awcms-micro",
+				"slug": "cloudflare-ready-awcms-micro",
+				"status": "published",
+				"data": {
+					"title": "Preparing AWCMS-Micro for Cloudflare",
+					"excerpt": "How this example site keeps EmDash compatibility while preparing Cloudflare deployment boundaries.",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "This post demonstrates the public content pattern for the Cloudflare template while the AWCMS-Micro example plugin remains isolated in its own package.",
+									"_key": "p2"
+								}
+							],
+							"_key": "b2"
+						}
+					]
+				},
+				"taxonomies": {
+					"category": ["platform"],
+					"tag": ["awcms-micro", "cloudflare"]
+				}
+			}
+		],
+		"news": [
+			{
+				"id": "plugin-surface-ready",
+				"slug": "plugin-surface-ready",
+				"status": "published",
+				"data": {
+					"title": "Plugin Surface Ready For Template Integration",
+					"summary": "The AWCMS-Micro example plugin is wired into this Cloudflare template through the standard EmDash plugin path.",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "This news collection gives the template a second public content stream without changing any upstream EmDash template path.",
+									"_key": "n1"
+								}
+							],
+							"_key": "nb1"
+						}
+					]
+				}
+			}
+		]
+	}
+}

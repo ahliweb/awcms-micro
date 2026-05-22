@@ -1,0 +1,26 @@
+---
+import { getEmDashCollection } from "emdash";
+import Base from "../../layouts/Base.astro";
+
+const { entries: newsItems, cacheHint } = await getEmDashCollection("news", {
+	orderBy: { published_at: "desc" },
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+---
+
+<Base title="News" description="News updates from the AWCMS-Micro Cloudflare example.">
+	<div class="card">
+		<h1>News</h1>
+		{newsItems.length === 0 ? <p>No news items yet.</p> : (
+			<ul style="padding-left:1.25rem;">
+				{newsItems.map((item) => (
+					<li style="margin-bottom:1rem;">
+						<a href={`/news/${item.id}`}><strong>{item.data.title}</strong></a>
+						{item.data.summary && <p>{item.data.summary}</p>}
+					</li>
+				))}
+			</ul>
+		)}
+	</div>
+</Base>

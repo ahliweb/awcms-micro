@@ -1,0 +1,32 @@
+{
+	"name": "@awcms-micro/template-default-cloudflare",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"emdash": {
+		"seed": "seed/seed.json"
+	},
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"deploy": "astro build && wrangler deploy",
+		"typecheck": "astro check",
+		"test": "pnpm typecheck"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "catalog:",
+		"@astrojs/react": "catalog:",
+		"@awcms-micro/plugin-example": "workspace:*",
+		"@emdash-cms/cloudflare": "workspace:*",
+		"astro": "catalog:",
+		"emdash": "workspace:*",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@astrojs/check": "catalog:",
+		"@cloudflare/workers-types": "catalog:",
+		"wrangler": "catalog:"
+	}
+}
