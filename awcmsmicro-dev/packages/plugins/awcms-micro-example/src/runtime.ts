@@ -17,8 +17,23 @@ export const AWCMS_EXAMPLE_STORAGE = {
 	auditEvents: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
+	accessChangeEvents: {
+		indexes: ["timestamp", "kind", "scope", ["kind", "timestamp"]],
+	},
 	contentSnapshots: {
 		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"]],
+	},
+	permissionCatalog: {
+		indexes: ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],
+	},
+	roleCatalog: {
+		indexes: ["slug", "updatedAt"],
+	},
+	rolePermissionAssignments: {
+		indexes: ["roleSlug", "updatedAt"],
+	},
+	userRoleAssignments: {
+		indexes: ["userId", "updatedAt"],
 	},
 } satisfies PluginStorageConfig;
 
@@ -26,18 +41,38 @@ export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = {
 	auditEvents: {
 		indexes: ["timestamp", "kind", "scope"],
 	},
+	accessChangeEvents: {
+		indexes: ["timestamp", "kind", "scope"],
+	},
 	contentSnapshots: {
 		indexes: ["collection", "contentId", "timestamp"],
+	},
+	permissionCatalog: {
+		indexes: ["slug", "scope", "updatedAt"],
+	},
+	roleCatalog: {
+		indexes: ["slug", "updatedAt"],
+	},
+	rolePermissionAssignments: {
+		indexes: ["roleSlug", "updatedAt"],
+	},
+	userRoleAssignments: {
+		indexes: ["userId", "updatedAt"],
 	},
 } satisfies Record<string, { indexes?: string[]; uniqueIndexes?: string[] }>;
 
 export const AWCMS_EXAMPLE_ADMIN_PAGES = [
 	{ path: "/overview", label: "Overview", icon: "stack" },
 	{ path: "/audit", label: "Audit", icon: "list" },
+	{ path: "/access/permissions", label: "Permissions", icon: "lock" },
+	{ path: "/access/roles", label: "Roles", icon: "users" },
+	{ path: "/access/matrix", label: "Role Matrix", icon: "grid" },
+	{ path: "/access/preview", label: "Access Preview", icon: "eye" },
 ];
 
 export const AWCMS_EXAMPLE_ADMIN_WIDGETS = [
 	{ id: "governance-status", title: "Governance Status", size: "half" as const },
+	{ id: "access-rights-health", title: "Access Rights Health", size: "half" as const },
 ];
 
 export const AWCMS_EXAMPLE_SETTINGS_SCHEMA = {
@@ -106,6 +141,98 @@ export interface ExampleSettings {
 	governanceMode: string;
 	metadataCanonicalBase: string;
 }
+
+export interface AccessPermission {
+	slug: string;
+	label: string;
+	description: string;
+	scope: string;
+	updatedAt: string;
+}
+
+export interface AccessRole {
+	slug: string;
+	label: string;
+	description: string;
+	updatedAt: string;
+}
+
+export interface RolePermissionAssignment {
+	roleSlug: string;
+	permissions: string[];
+	updatedAt: string;
+}
+
+export interface UserRoleAssignment {
+	userId: string;
+	roles: string[];
+	updatedAt: string;
+}
+
+const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
+	{
+		slug: "content.read.public",
+		label: "Read Public Content",
+		description: "Allows reading public-facing content surfaces.",
+		scope: "content",
+		updatedAt: "",
+	},
+	{
+		slug: "content.review.publish",
+		label: "Review And Publish",
+		description: "Allows review workflows to approve and publish content.",
+		scope: "workflow",
+		updatedAt: "",
+	},
+	{
+		slug: "audit.read.events",
+		label: "Read Audit Events",
+		description: "Allows operators to inspect governance and access audit events.",
+		scope: "audit",
+		updatedAt: "",
+	},
+];
+
+const DEFAULT_ACCESS_ROLES: AccessRole[] = [
+	{
+		slug: "site-editor",
+		label: "Site Editor",
+		description: "Editor role for content operations.",
+		updatedAt: "",
+	},
+	{
+		slug: "governance-reviewer",
+		label: "Governance Reviewer",
+		description: "Reviewer role for governance and publishing approval.",
+		updatedAt: "",
+	},
+];
+
+const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
+	{
+		roleSlug: "site-editor",
+		permissions: ["content.read.public", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "governance-reviewer",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+];
+
+const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
+	{
+		userId: "user-demo-editor",
+		roles: ["site-editor"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-reviewer",
+		roles: ["governance-reviewer"],
+		updatedAt: "",
+	},
+];
 
 const DEFAULT_SETTINGS: ExampleSettings = {
 	publicStatusLabel: "healthy",
@@ -255,6 +382,155 @@ async function writeSnapshot(ctx: PluginContext, collection: string, content: Re
 	return snapshotId;
 }
 
+async function appendAccessChangeEvent(ctx: PluginContext, record: ExampleAuditEvent) {
+	await ctx.storage.accessChangeEvents!.put(record.id, record);
+	await incrementCounter(ctx, "state:accessChangeCount");
+	return record;
+}
+
+function touchUpdatedAt<T extends { updatedAt: string }>(value: T): T {
+	return { ...value, updatedAt: toIsoNow() };
+}
+
+async function ensureAccessCatalogSeeded(ctx: PluginContext) {
+	const existingPermissions = await ctx.storage.permissionCatalog!.count();
+	if (existingPermissions === 0) {
+		for (const item of DEFAULT_ACCESS_PERMISSIONS) {
+			await ctx.storage.permissionCatalog!.put(item.slug, touchUpdatedAt(item));
+		}
+	}
+
+	const existingRoles = await ctx.storage.roleCatalog!.count();
+	if (existingRoles === 0) {
+		for (const item of DEFAULT_ACCESS_ROLES) {
+			await ctx.storage.roleCatalog!.put(item.slug, touchUpdatedAt(item));
+		}
+	}
+
+	const existingRoleAssignments = await ctx.storage.rolePermissionAssignments!.count();
+	if (existingRoleAssignments === 0) {
+		for (const item of DEFAULT_ROLE_ASSIGNMENTS) {
+			await ctx.storage.rolePermissionAssignments!.put(item.roleSlug, touchUpdatedAt(item));
+		}
+	}
+
+	const existingUserAssignments = await ctx.storage.userRoleAssignments!.count();
+	if (existingUserAssignments === 0) {
+		for (const item of DEFAULT_USER_ROLE_ASSIGNMENTS) {
+			await ctx.storage.userRoleAssignments!.put(item.userId, touchUpdatedAt(item));
+		}
+		await ctx.kv.set("state:lastPreviewUserId", DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "");
+	}
+}
+
+async function listCollectionValues<T>(collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> }): Promise<T[]> {
+	const result = await collection.query({ orderBy: { updatedAt: "desc" }, limit: 200 });
+	return result.items.map((item) => item.data as T);
+}
+
+async function listPermissions(ctx: PluginContext) {
+	return listCollectionValues<AccessPermission>(ctx.storage.permissionCatalog!);
+}
+
+async function listRoles(ctx: PluginContext) {
+	return listCollectionValues<AccessRole>(ctx.storage.roleCatalog!);
+}
+
+async function listRoleAssignments(ctx: PluginContext) {
+	return listCollectionValues<RolePermissionAssignment>(ctx.storage.rolePermissionAssignments!);
+}
+
+async function listUserRoleAssignments(ctx: PluginContext) {
+	return listCollectionValues<UserRoleAssignment>(ctx.storage.userRoleAssignments!);
+}
+
+function getStringArray(value: unknown, key: string) {
+	if (!isRecord(value)) return [];
+	const candidate = value[key];
+	if (!Array.isArray(candidate)) return [];
+	return candidate.filter((item): item is string => typeof item === "string" && item.length > 0);
+}
+
+async function summarizeAccessRights(ctx: PluginContext) {
+	await ensureAccessCatalogSeeded(ctx);
+	const permissions = await listPermissions(ctx);
+	const roles = await listRoles(ctx);
+	const roleAssignments = await listRoleAssignments(ctx);
+	const userAssignments = await listUserRoleAssignments(ctx);
+	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.accessChangeEvents!);
+
+	const rolesWithoutPermissions = roles
+		.filter((role) => !roleAssignments.some((assignment) => assignment.roleSlug === role.slug && assignment.permissions.length > 0))
+		.map((role) => role.slug);
+
+	const usersWithoutRoles = userAssignments.filter((assignment) => assignment.roles.length === 0).map((assignment) => assignment.userId);
+
+	return {
+		permissions,
+		roles,
+		roleAssignments,
+		userAssignments,
+		changeEvents,
+		health: {
+			permissionCount: permissions.length,
+			roleCount: roles.length,
+			assignmentCount: roleAssignments.length,
+			userAssignmentCount: userAssignments.length,
+			rolesWithoutPermissions,
+			usersWithoutRoles,
+		},
+	};
+}
+
+async function previewAccess(ctx: PluginContext, input: unknown) {
+	await ensureAccessCatalogSeeded(ctx);
+	const userId = getString(input, "userId") ?? "";
+	const permissionSlug = getString(input, "permissionSlug") ?? "";
+	const reasonPrefix = !userId || !permissionSlug ? "Missing required preview input" : null;
+
+	if (reasonPrefix) {
+		return {
+			allowed: false,
+			reason: reasonPrefix,
+			matchedRoles: [],
+			effectivePermissions: [],
+		};
+	}
+
+	const userAssignment = (await ctx.storage.userRoleAssignments!.get(userId)) as UserRoleAssignment | null;
+	if (!userAssignment || userAssignment.roles.length === 0) {
+		return {
+			allowed: false,
+			reason: `No role assignment found for ${userId}`,
+			matchedRoles: [],
+			effectivePermissions: [],
+		};
+	}
+
+	const assignments = await Promise.all(
+		userAssignment.roles.map(async (roleSlug) =>
+			((await ctx.storage.rolePermissionAssignments!.get(roleSlug)) as RolePermissionAssignment | null) ?? {
+				roleSlug,
+				permissions: [],
+				updatedAt: "",
+			},
+		),
+	);
+
+	const effectivePermissions = [...new Set(assignments.flatMap((assignment) => assignment.permissions))].toSorted();
+	const matchedRoles = assignments.filter((assignment) => assignment.permissions.includes(permissionSlug)).map((assignment) => assignment.roleSlug);
+	const allowed = matchedRoles.length > 0;
+
+	return {
+		allowed,
+		reason: allowed
+			? `Permission ${permissionSlug} granted by role ${matchedRoles.join(", ")}`
+			: `Permission ${permissionSlug} not granted to ${userId}`,
+		matchedRoles,
+		effectivePermissions,
+	};
+}
+
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	await incrementCounter(ctx, "state:publicStatusHits");
 	const settings = await getSettings(ctx);
@@ -296,7 +572,12 @@ const auditListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	return summarizePluginState(ctx);
+	const summary = await summarizePluginState(ctx);
+	const access = await summarizeAccessRights(ctx);
+	return {
+		...summary,
+		accessRights: access.health,
+	};
 };
 
 const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -317,6 +598,114 @@ const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, counter, event };
 };
 
+const accessPermissionsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	return { items: await listPermissions(ctx) };
+};
+
+const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	const slug = getString(routeCtx.input, "slug") ?? "";
+	const label = getString(routeCtx.input, "label") ?? slug;
+	const description = getString(routeCtx.input, "description") ?? "";
+	const scope = getString(routeCtx.input, "scope") ?? "general";
+	const permission = touchUpdatedAt<AccessPermission>({ slug, label, description, scope, updatedAt: "" });
+	await ctx.storage.permissionCatalog!.put(slug, permission);
+	const event = createAuditRecord({
+		kind: "access.permission.save",
+		scope: "access-rights",
+		actor: actorFromRoute(ctx),
+		summary: `Saved permission ${slug}`,
+		metadata: { ...permission },
+	});
+	await appendAccessChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: permission };
+};
+
+const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	return {
+		roles: await listRoles(ctx),
+		userAssignments: await listUserRoleAssignments(ctx),
+	};
+};
+
+const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	const slug = getString(routeCtx.input, "slug") ?? "";
+	const label = getString(routeCtx.input, "label") ?? slug;
+	const description = getString(routeCtx.input, "description") ?? "";
+	const role = touchUpdatedAt<AccessRole>({ slug, label, description, updatedAt: "" });
+	await ctx.storage.roleCatalog!.put(slug, role);
+	const event = createAuditRecord({
+		kind: "access.role.save",
+		scope: "access-rights",
+		actor: actorFromRoute(ctx),
+		summary: `Saved role ${slug}`,
+		metadata: { ...role },
+	});
+	await appendAccessChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: role };
+};
+
+const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	const userId = getString(routeCtx.input, "userId") ?? "";
+	const roles = getStringArray(routeCtx.input, "roles");
+	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, updatedAt: "" });
+	await ctx.storage.userRoleAssignments!.put(userId, assignment);
+	await ctx.kv.set("state:lastPreviewUserId", userId);
+	const event = createAuditRecord({
+		kind: "access.user-assignment.save",
+		scope: "access-rights",
+		actor: actorFromRoute(ctx),
+		summary: `Saved user role assignment for ${userId}`,
+		metadata: { ...assignment },
+	});
+	await appendAccessChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: assignment };
+};
+
+const accessMatrixGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const access = await summarizeAccessRights(ctx);
+	return {
+		permissions: access.permissions,
+		roles: access.roles,
+		assignments: access.roleAssignments,
+	};
+};
+
+const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAccessCatalogSeeded(ctx);
+	const roleSlug = getString(routeCtx.input, "roleSlug") ?? "";
+	const permissions = getStringArray(routeCtx.input, "permissions");
+	const assignment = touchUpdatedAt<RolePermissionAssignment>({ roleSlug, permissions, updatedAt: "" });
+	await ctx.storage.rolePermissionAssignments!.put(roleSlug, assignment);
+	const event = createAuditRecord({
+		kind: "access.matrix.save",
+		scope: "access-rights",
+		actor: actorFromRoute(ctx),
+		summary: `Saved role-permission matrix for ${roleSlug}`,
+		metadata: { ...assignment },
+	});
+	await appendAccessChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: assignment };
+};
+
+const accessPreviewRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const preview = await previewAccess(ctx, routeCtx.input);
+	return preview;
+};
+
+const accessHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const access = await summarizeAccessRights(ctx);
+	return access.health;
+};
+
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
@@ -325,6 +714,15 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"settings/save": { handler: settingsSaveRoute },
 	"audit/list": { handler: auditListRoute },
 	"state/touch": { handler: touchStateRoute },
+	"access/permissions/list": { handler: accessPermissionsListRoute },
+	"access/permissions/save": { handler: accessPermissionsSaveRoute },
+	"access/roles/list": { handler: accessRolesListRoute },
+	"access/roles/save": { handler: accessRolesSaveRoute },
+	"access/users/save": { handler: accessUserAssignmentsSaveRoute },
+	"access/matrix/get": { handler: accessMatrixGetRoute },
+	"access/matrix/save": { handler: accessMatrixSaveRoute },
+	"access/preview": { handler: accessPreviewRoute },
+	"access/health": { handler: accessHealthRoute },
 };
 
 export function createSandboxRoutes() {
@@ -357,6 +755,7 @@ function toSandboxRequest(request: Request): SandboxedRequest {
 
 const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:install": async (_event, ctx) => {
+		await ensureAccessCatalogSeeded(ctx);
 		await ctx.kv.set("state:lastLifecycle", "plugin:install");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		await appendAuditEvent(
@@ -371,6 +770,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 		);
 	},
 	"plugin:activate": async (_event, ctx) => {
+		await ensureAccessCatalogSeeded(ctx);
 		await ctx.kv.set("state:lastLifecycle", "plugin:activate");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		if (ctx.cron) {

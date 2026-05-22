@@ -26,8 +26,15 @@
 	"admin": {
 		"pages": [
 			{ "path": "/overview", "label": "Overview", "icon": "stack" },
-			{ "path": "/audit", "label": "Audit", "icon": "list" }
+			{ "path": "/audit", "label": "Audit", "icon": "list" },
+			{ "path": "/access/permissions", "label": "Permissions", "icon": "lock" },
+			{ "path": "/access/roles", "label": "Roles", "icon": "users" },
+			{ "path": "/access/matrix", "label": "Role Matrix", "icon": "grid" },
+			{ "path": "/access/preview", "label": "Access Preview", "icon": "eye" }
 		],
-		"widgets": [{ "id": "governance-status", "title": "Governance Status", "size": "half" }]
+		"widgets": [
+			{ "id": "governance-status", "title": "Governance Status", "size": "half" },
+			{ "id": "access-rights-health", "title": "Access Rights Health", "size": "half" }
+		]
 	}
 }

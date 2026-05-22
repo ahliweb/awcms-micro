@@ -5,6 +5,11 @@ export const AWCMS_EXAMPLE_PERMISSIONS = {
 	auditRead: "awcms:example:audit:read",
 	publicStatusRead: "awcms:example:public-status:read",
 	stateTouch: "awcms:example:state:touch",
+	permissionCatalogRead: "awcms:example:permissions:read",
+	permissionCatalogWrite: "awcms:example:permissions:write",
+	roleCatalogRead: "awcms:example:roles:read",
+	roleCatalogWrite: "awcms:example:roles:write",
+	accessPreviewRead: "awcms:example:access-preview:read",
 } as const;
 
 export const AWCMS_EXAMPLE_PERMISSION_LIST = Object.values(AWCMS_EXAMPLE_PERMISSIONS);

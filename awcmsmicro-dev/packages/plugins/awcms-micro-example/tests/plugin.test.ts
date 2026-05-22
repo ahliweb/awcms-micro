@@ -25,12 +25,33 @@ function parseJsoncObject<T>(source: string): T {
 
 function createMockContext() {
 	const kvData = new Map<string, unknown>();
-	const auditEvents = new Map<string, unknown>();
-	const contentSnapshots = new Map<string, unknown>();
+	const collections = {
+		auditEvents: new Map<string, unknown>(),
+		accessChangeEvents: new Map<string, unknown>(),
+		contentSnapshots: new Map<string, unknown>(),
+		permissionCatalog: new Map<string, unknown>(),
+		roleCatalog: new Map<string, unknown>(),
+		rolePermissionAssignments: new Map<string, unknown>(),
+		userRoleAssignments: new Map<string, unknown>(),
+	};
 	const cron = {
 		schedule: vi.fn(async () => {}),
 		cancel: vi.fn(async () => {}),
 	};
+
+	const createCollection = (store: Map<string, unknown>) => ({
+		put: vi.fn(async (id: string, value: unknown) => {
+			store.set(id, value);
+		}),
+		get: vi.fn(async (id: string) => (store.has(id) ? store.get(id) : null)),
+		delete: vi.fn(async (id: string) => store.delete(id)),
+		count: vi.fn(async () => store.size),
+		query: vi.fn(async () => ({
+			items: Array.from(store.entries(), ([id, data]) => ({ id, data })),
+			cursor: undefined,
+			hasMore: false,
+		})),
+	});
 
 	return {
 		ctx: {
@@ -58,32 +79,16 @@ function createMockContext() {
 				),
 			},
 			storage: {
-					auditEvents: {
-						put: vi.fn(async (id: string, value: unknown) => {
-							auditEvents.set(id, value);
-						}),
-						query: vi.fn(async () => ({
-							items: Array.from(auditEvents.entries(), ([id, data]) => ({ id, data })),
-							cursor: undefined,
-							hasMore: false,
-						})),
-					count: vi.fn(async () => auditEvents.size),
-				},
-					contentSnapshots: {
-						put: vi.fn(async (id: string, value: unknown) => {
-							contentSnapshots.set(id, value);
-						}),
-						query: vi.fn(async () => ({
-							items: Array.from(contentSnapshots.entries(), ([id, data]) => ({ id, data })),
-							cursor: undefined,
-							hasMore: false,
-						})),
-					count: vi.fn(async () => contentSnapshots.size),
-				},
+				auditEvents: createCollection(collections.auditEvents),
+				accessChangeEvents: createCollection(collections.accessChangeEvents),
+				contentSnapshots: createCollection(collections.contentSnapshots),
+				permissionCatalog: createCollection(collections.permissionCatalog),
+				roleCatalog: createCollection(collections.roleCatalog),
+				rolePermissionAssignments: createCollection(collections.rolePermissionAssignments),
+				userRoleAssignments: createCollection(collections.userRoleAssignments),
 			},
 		},
-		auditEvents,
-		contentSnapshots,
+		collections,
 		kvData,
 		cron,
 	};
@@ -104,6 +109,7 @@ describe("awcms micro example plugin", () => {
 	it("exposes the expected permission namespace", () => {
 		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:dashboard:read");
 		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:audit:read");
+		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:permissions:write");
 	});
 
 	it("creates structured audit records", () => {
@@ -122,14 +128,15 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(2);
+		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(6);
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
+		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
 		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
 	});
 
 	it("exposes public and protected routes", async () => {
-		const { ctx, kvData, auditEvents } = createMockContext();
+		const { ctx, kvData, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["settings/save"]!.handler({
@@ -146,11 +153,11 @@ describe("awcms micro example plugin", () => {
 		expect(publicResult.status).toBe("green");
 		expect(publicResult.plugin.visibility).toBe("public-safe");
 		expect(kvData.get("settings:governanceMode")).toBe("observe");
-		expect(auditEvents.size).toBeGreaterThan(0);
+		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
 	it("records lifecycle and cron behavior", async () => {
-		const { ctx, cron, kvData, auditEvents } = createMockContext();
+		const { ctx, cron, kvData, collections } = createMockContext();
 		const hooks = createSharedHooks();
 
 		const activate =
@@ -168,11 +175,12 @@ describe("awcms micro example plugin", () => {
 		expect(cron.schedule).toHaveBeenCalledWith("governance-summary", { schedule: "0 * * * *" });
 		expect(kvData.get("state:lastLifecycle")).toBe("plugin:activate");
 		expect(kvData.get("state:lastCronAt")).toBeTruthy();
-		expect(auditEvents.size).toBeGreaterThan(1);
+		expect(collections.auditEvents.size).toBeGreaterThan(1);
+		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
 	});
 
 	it("records content and media hooks", async () => {
-		const { ctx, auditEvents, contentSnapshots } = createMockContext();
+		const { ctx, collections } = createMockContext();
 		const hooks = createSharedHooks();
 
 		const beforeSave =
@@ -209,8 +217,82 @@ describe("awcms micro example plugin", () => {
 			ctx as any,
 		);
 
-		expect(contentSnapshots.size).toBe(1);
-		expect(auditEvents.size).toBeGreaterThanOrEqual(4);
+		expect(collections.contentSnapshots.size).toBe(1);
+		expect(collections.auditEvents.size).toBeGreaterThanOrEqual(4);
+	});
+
+	it("supports access-rights catalog create, list, matrix, and preview flows", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const permissionsBefore = (await routes["access/permissions/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		expect(permissionsBefore.items.length).toBeGreaterThan(0);
+
+		await routes["access/permissions/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					slug: "documents.review",
+					label: "Review Documents",
+					description: "Allows reviewing governed documents.",
+					scope: "documents",
+				},
+			} as any,
+		);
+
+		await routes["access/roles/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					slug: "document-reviewer",
+					label: "Document Reviewer",
+					description: "Reviews controlled documents.",
+				},
+			} as any,
+		);
+
+		await routes["access/matrix/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					roleSlug: "document-reviewer",
+					permissions: ["documents.review", "audit.read.events"],
+				},
+			} as any,
+		);
+
+		await routes["access/users/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					userId: "user-demo-doc-reviewer",
+					roles: ["document-reviewer"],
+				},
+			} as any,
+		);
+
+		const preview = (await routes["access/preview"]!.handler(
+			{
+				...ctx,
+				input: { userId: "user-demo-doc-reviewer", permissionSlug: "documents.review" },
+			} as any,
+		)) as any;
+
+		expect(preview.allowed).toBe(true);
+		expect(preview.matchedRoles).toContain("document-reviewer");
+		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
+	});
+
+	it("returns a deterministic denied access preview when roles do not grant the permission", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const preview = (await routes["access/preview"]!.handler(
+			{ ...ctx, input: { userId: "user-demo-editor", permissionSlug: "content.review.publish" } } as any,
+		)) as any;
+
+		expect(preview.allowed).toBe(false);
+		expect(preview.reason).toContain("not granted");
 	});
 
 	it("exports a sandbox-compatible server entry", () => {
@@ -224,7 +306,8 @@ describe("awcms micro example plugin", () => {
 
 		expect(manifest.slug).toBe("awcms-micro-example");
 		expect(manifest.capabilities).toEqual([...AWCMS_EXAMPLE_CAPABILITIES]);
-		expect(manifest.admin.pages).toHaveLength(2);
+		expect(manifest.admin.pages).toHaveLength(6);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
+		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 	});
 });

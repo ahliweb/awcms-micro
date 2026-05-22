@@ -16,6 +16,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 - admin pages, dashboard widget, settings schema, and field widget contribution
 - Portable Text block contribution
 - audit logging and content snapshot examples
+- access-rights catalog example with role matrix and effective access preview
 - a sandbox-compatible server-side entry in `src/sandbox.ts`
 
 ## Permission Namespace
@@ -58,8 +59,19 @@ If you want a fresh starting point for registry metadata, copy `docs/emdash-plug
 
 - Public route: `public/status`
 - Protected routes: `overview/summary`, `settings/get`, `settings/save`, `audit/list`, `state/touch`
+- Access-rights routes: `access/permissions/list`, `access/permissions/save`, `access/roles/list`, `access/roles/save`, `access/users/save`, `access/matrix/get`, `access/matrix/save`, `access/preview`, `access/health`
 - Dashboard compatibility alias: `dashboard/summary`
 - Hooks: lifecycle, content, media, cron, and `page:metadata`
+
+## Access-Rights Example Boundaries
+
+The access-rights catalog in this plugin is demonstrative.
+
+- It manages plugin-owned catalog data, role assignments, and preview logic.
+- It does not rewrite or replace EmDash core authorization internals.
+- Effective access preview is enforced only inside the plugin's own route/demo surface.
+
+This keeps the example explicit, isolated, and compatible with upstream EmDash.
 
 ## Testing
 
