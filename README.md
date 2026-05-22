@@ -1,210 +1,55 @@
-# EmDash
+# AWCMS-Micro Parent Repository
 
-A full-stack TypeScript CMS built on [Astro](https://astro.build/) and [Cloudflare](https://www.cloudflare.com/). EmDash takes the ideas that made WordPress dominant -- extensibility, admin UX, a plugin ecosystem -- and rebuilds them on serverless, type-safe foundations. Plugins run in sandboxed Worker isolates, solving the fundamental security problem with WordPress's plugin architecture.
+This repository is the parent maintenance workspace for keeping AWCMS-Micro aligned with the latest EmDash source.
 
-## Get Started
+## Purpose
 
-> [!IMPORTANT]
-> EmDash depends on Dynamic Workers to run secure sandboxed plugins. Dynamic Workers are currently only available on paid accounts. [Upgrade your account](https://www.cloudflare.com/plans/developer-platform/) (starting at $5/mo) or comment out the `worker_loaders` block of your `wrangler.jsonc` configuration file to disable plugins.
+Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-```bash
-npm create emdash@latest
-```
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that adopts EmDash 100% and includes only example plugins that follow the AWCMS-Micro standard, without modifying EmDash core.
 
-Or deploy directly to your Cloudflare account:
+## Root Structure
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/emdash-cms/templates/tree/main/blog-cloudflare)
+- `emdash-latest/`: latest synchronized snapshot of upstream EmDash
+- `awcmsmicro-dev/`: clone of `emdash-latest/` used as the active AWCMS-Micro development workspace
+- `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
+- `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-EmDash runs on Cloudflare (D1 + R2 + Workers) or any Node.js server with SQLite. No PHP, no separate hosting tier -- just deploy your Astro site.
+Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
 
-## Templates
+## Repository Rules
 
-EmDash ships with three starter templates:
+- Keep `emdash-latest/` as the clean upstream reference tree.
+- Rebuild `awcmsmicro-dev/` from `emdash-latest/` before AWCMS-Micro-specific implementation work.
+- Do not treat this repository as a runtime host for nested products.
+- Keep root documentation synchronized with the actual workflow and folder layout.
+- Work step by step using small, atomic changes.
+- When a task is too large, split it into smaller follow-up tasks or GitHub issues.
 
-<table>
-<tr>
-<td width="33%" valign="top">
+## Official Language
 
-### Blog
+English (US) is the official repository language for root documentation, root scripts, repository instructions, and AWCMS-Micro-specific repository governance text.
 
-<a href="assets/templates/blog/latest/"><img src="assets/templates/blog/latest/homepage-light-desktop.jpg" alt="Blog template" width="100%"></a>
+Exception:
 
-A classic blog with sidebar widgets, search, and RSS.
+- `emdash-latest/` must remain as an upstream-faithful EmDash snapshot and should preserve upstream wording as-is, including non-US spelling when present.
+- `awcmsmicro-dev/` may mirror upstream wording when it is rebuilt from `emdash-latest/` as part of synchronization work.
 
-- Categories & tags
-- Full-text search
-- Comment-ready
-- RSS feed
-- Dark / light mode
+## Core Documentation
 
-</td>
-<td width="33%" valign="top">
+- `docs/README.md`
+- `docs/repository-structure.md`
+- `docs/synchronization-workflow.md`
+- `docs/implementation-instructions.md`
 
-### Marketing
+## Maintenance Scripts
 
-<a href="assets/templates/marketing/latest/"><img src="assets/templates/marketing/latest/homepage-light-desktop.jpg" alt="Marketing template" width="100%"></a>
+- `bash scripts/update-emdash-latest.sh`
+- `bash scripts/update-awcmsmicro-dev.sh`
 
-A conversion-focused landing page with pricing and contact form.
+## Standard Workflow
 
-- Hero with CTAs
-- Feature grid
-- Pricing cards
-- FAQ and contact form
-- Dark / light mode
-
-</td>
-<td width="33%" valign="top">
-
-### Portfolio
-
-<a href="assets/templates/portfolio/latest/"><img src="assets/templates/portfolio/latest/work-light-desktop.jpg" alt="Portfolio template" width="100%"></a>
-
-A visual portfolio for showcasing creative work.
-
-- Project grid
-- Tag filtering
-- Case study pages
-- RSS feed
-- Dark / light mode
-<br /><br />
-</td>
-</tr>
-</table>
-
-## Why EmDash?
-
-**WordPress was built for a different era.** Running WordPress today means managing PHP alongside JavaScript, layering caches to get acceptable performance, and knowing that [96% of WordPress security vulnerabilities come from plugins](https://patchstack.com/whitepaper/state-of-wordpress-security-in-2024/). EmDash is what WordPress would look like if you started from scratch with today's tools.
-
-**Sandboxed plugins.** WordPress plugins have full access to the database, filesystem, and user data. A single vulnerable plugin can compromise the entire site. EmDash plugins run in isolated [Worker sandboxes](https://developers.cloudflare.com/workers/runtime-apis/bindings/worker-loader/) via Dynamic Worker Loaders, each with a declared capability manifest. A plugin that requests `read:content` and `email:send` can do exactly that and nothing else.
-
-```typescript
-export default () =>
-	definePlugin({
-		id: "notify-on-publish",
-		capabilities: ["read:content", "email:send"],
-		hooks: {
-			"content:afterSave": async (event, ctx) => {
-				if (event.content.status !== "published") return;
-				await ctx.email.send({
-					to: "editors@example.com",
-					subject: `New post: ${event.content.title}`,
-				});
-			},
-		},
-	});
-```
-
-**Structured content, not serialized HTML.** WordPress stores rich text as HTML with metadata embedded in comments -- tying your content to its DOM representation. EmDash uses [Portable Text](https://www.portabletext.org/), a structured JSON format that decouples content from presentation. Your content can render as a web page, a mobile app, an email, or an API response without parsing HTML.
-
-**Built for agents.** EmDash ships with agent skills for building plugins and themes, a CLI that lets agents manage content and schema programmatically, and a built-in [MCP server](https://modelcontextprotocol.io/) so AI tools like Claude and ChatGPT can interact with your site directly.
-
-**Runs anywhere.** EmDash uses portable abstractions at every layer -- Kysely for SQL, S3 API for storage -- that work with SQLite, D1, Turso, PostgreSQL, R2, AWS S3, or local files. It runs best on Cloudflare, but it's not locked to it.
-
-## How It Works
-
-EmDash is an Astro integration. Add it to your config and you get a complete CMS: admin panel, REST API, authentication, media library, and plugin system.
-
-```typescript
-// astro.config.mjs
-import emdash from "emdash/astro";
-import { d1 } from "emdash/db";
-
-export default defineConfig({
-	integrations: [emdash({ database: d1() })],
-});
-```
-
-Content types are defined in the database, not in code. Non-developers create and modify collections through the admin UI. Each collection gets a real SQL table with typed columns. Developers generate TypeScript types from the live schema:
-
-```bash
-npx emdash types
-```
-
-Query content using Astro's Live Collections -- no rebuilds, no separate API:
-
-```astro
----
-import { getEmDashCollection } from "emdash";
-const { entries: posts } = await getEmDashCollection("posts");
----
-
-{posts.map((post) => <article>{post.data.title}</article>)}
-```
-
-## Features
-
-**Content** -- Blog posts, pages, custom content types. Rich text editing via TipTap with Portable Text storage. Revisions, drafts, scheduled publishing, full-text search (FTS5), inline visual editing.
-
-**Admin** -- Full admin panel with visual schema builder, media library (drag-drop uploads via signed URLs), navigation menus, taxonomies, widgets, and a WordPress import wizard.
-
-**Auth** -- Passkey-first (WebAuthn) with OAuth and magic link fallbacks. Role-based access control: Administrator, Editor, Author, Contributor.
-
-**Plugins** -- `definePlugin()` API with lifecycle hooks, KV storage, settings, admin pages, dashboard widgets, custom block types, and API routes. Sandboxed execution on Cloudflare via Dynamic Worker Loaders.
-
-**Agents** -- Skill files for AI-assisted plugin and theme development. CLI for programmatic site management. Built-in MCP server for direct AI tool integration.
-
-**WordPress migration** -- Import posts, pages, media, and taxonomies from WXR exports, the WordPress REST API, or WordPress.com. Agent skills help port plugins and themes.
-
-## Portable Platforms
-
-| Layer    | Cloudflare                  | Also works with                                     |
-| -------- | --------------------------- | --------------------------------------------------- |
-| Database | D1                          | SQLite, Turso/libSQL, PostgreSQL                    |
-| Storage  | R2                          | AWS S3, any S3-compatible service, local filesystem |
-| Sessions | KV                          | Redis, file-based                                   |
-| Plugins  | Worker isolates (sandboxed) | In-process (safe mode)                              |
-
-## Status
-
-EmDash is in **beta preview**. We welcome contributions, feedback, plugins, themes, and ideas.
-
-```bash
-npm create emdash@latest
-```
-
-See the [documentation](https://docs.emdashcms.com/) for guides, API reference, and plugin development.
-
-## Development
-
-This is a pnpm monorepo. To contribute:
-
-```bash
-git clone https://github.com/emdash-cms/emdash.git && cd emdash
-pnpm install
-pnpm build
-```
-
-Run the demo (Node.js + SQLite, no Cloudflare account needed):
-
-```bash
-pnpm --filter emdash-demo seed
-pnpm --filter emdash-demo dev
-```
-
-Open the admin at [http://localhost:4321/\_emdash/admin](http://localhost:4321/_emdash/admin).
-
-```bash
-pnpm test          # run all tests
-pnpm typecheck     # type check
-pnpm lint:quick    # fast lint (< 1s)
-pnpm format        # format with oxfmt
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
-
-## Repository Structure
-
-```
-packages/
-  core/           Astro integration, APIs, admin UI, CLI
-  auth/           Authentication library
-  blocks/         Portable Text block definitions
-  cloudflare/     Cloudflare adapter (D1, R2, Worker Loader)
-  plugins/        First-party plugins (forms, embeds, SEO, audit-log, etc.)
-  create-emdash/  npm create emdash scaffolding
-  gutenberg-to-portable-text/  WordPress block converter
-
-templates/        Starter templates (blog, marketing, portfolio, starter, blank)
-demos/            Development and example sites
-docs/             Documentation site (Starlight)
-```
+1. Refresh `emdash-latest/` from upstream EmDash.
+2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+3. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
+4. Update root documentation when structure or process changes.
