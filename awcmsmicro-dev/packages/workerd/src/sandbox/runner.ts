@@ -236,10 +236,6 @@ export function makeWorkerdExitHandler(
  * for testing.
  */
 export function waitForProcessExit(proc: ChildProcess, timeoutMs = 5000): Promise<void> {
-	if (proc.exitCode !== null || proc.signalCode !== null) {
-		return Promise.resolve();
-	}
-
 	let killTimer: ReturnType<typeof setTimeout> | null = null;
 	const exitPromise = new Promise<void>((resolve) => {
 		proc.once("exit", () => {
@@ -253,7 +249,7 @@ export function waitForProcessExit(proc: ChildProcess, timeoutMs = 5000): Promis
 	proc.kill("SIGTERM");
 	killTimer = setTimeout(() => {
 		killTimer = null;
-		if (proc.exitCode === null && proc.signalCode === null) proc.kill("SIGKILL");
+		if (proc.exitCode === null) proc.kill("SIGKILL");
 	}, timeoutMs);
 	return exitPromise;
 }
@@ -761,8 +757,8 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 		const proc = this.workerdProcess;
 		this.workerdProcess = null;
 
-		// Fast path: process already exited (exitCode or signalCode is set after exit)
-		if (proc.exitCode !== null || proc.signalCode !== null) {
+		// Fast path: process already exited (exitCode is set after exit)
+		if (proc.exitCode !== null) {
 			return;
 		}
 
