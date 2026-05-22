@@ -6,7 +6,6 @@
  */
 
 import { buildContentPath, getContentData, getContentString, getString } from "./content.js";
-import { decodeHtmlEntities } from "./entities.js";
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -127,6 +126,12 @@ function stripTrailingSlash(url: string): string {
 
 // Pre-compiled regexes
 const HTML_TAG_RE = /<[^>]+>/g;
+const NBSP_RE = /&nbsp;/g;
+const AMP_RE = /&amp;/g;
+const LT_RE = /&lt;/g;
+const GT_RE = /&gt;/g;
+const QUOT_RE = /&quot;/g;
+const APOS_RE = /&#39;/g;
 const WHITESPACE_RE = /\s+/g;
 const HASH_PREFIX_RE = /^#/;
 const MAX_TEXT_CONTENT_LENGTH = 10_000;
@@ -168,13 +173,18 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 
 	if (!body) return undefined;
 
-	// Strip HTML tags first, then decode the remaining entities using a
-	// deterministic literal map instead of chained regex decoding.
+	// Strip HTML tags (simple -- not a full parser, but sufficient for plain text extraction).
+	// Decode &amp; last to avoid double-decoding (e.g. &amp;lt; -> &lt; -> <).
 	let text = body
 		.replace(HTML_TAG_RE, " ")
+		.replace(NBSP_RE, " ")
+		.replace(LT_RE, "<")
+		.replace(GT_RE, ">")
+		.replace(QUOT_RE, '"')
+		.replace(APOS_RE, "'")
+		.replace(AMP_RE, "&")
+		.replace(WHITESPACE_RE, " ")
 		.trim();
-
-	text = decodeHtmlEntities(text).replace(WHITESPACE_RE, " ").trim();
 
 	if (!text) return undefined;
 

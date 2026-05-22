@@ -7,8 +7,6 @@
  *   Tier 3: Unknown blocks <-> opaque HTML comment fences (preserved, not editable)
  */
 
-import { decodeHtmlEntities } from "./entities.js";
-
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -315,26 +313,26 @@ function parseInline(text: string): ParsedInline {
 			spans.push({
 				_type: "span",
 				_key: generateKey(),
-				text: decodeHtmlEntities(text.slice(lastIndex, match.index)),
+				text: text.slice(lastIndex, match.index),
 				marks: [],
 			});
 		}
 
 		if (match[2] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(match[2]), marks: ["strong"] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[2], marks: ["strong"] });
 		} else if (match[4] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(match[4]), marks: ["em"] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[4], marks: ["em"] });
 		} else if (match[6] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(match[6]), marks: ["code"] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[6], marks: ["code"] });
 		} else if (match[8] != null && match[9] != null) {
 			const key = generateKey();
-			markDefs.push({ _key: key, _type: "link", href: decodeHtmlEntities(match[9]) });
-			spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(match[8]), marks: [key] });
+			markDefs.push({ _key: key, _type: "link", href: match[9] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[8], marks: [key] });
 		} else if (match[11] != null) {
 			spans.push({
 				_type: "span",
 				_key: generateKey(),
-				text: decodeHtmlEntities(match[11]),
+				text: match[11],
 				marks: ["strike-through"],
 			});
 		}
@@ -343,11 +341,11 @@ function parseInline(text: string): ParsedInline {
 	}
 
 	if (lastIndex < text.length) {
-		spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(text.slice(lastIndex)), marks: [] });
+		spans.push({ _type: "span", _key: generateKey(), text: text.slice(lastIndex), marks: [] });
 	}
 
 	if (spans.length === 0) {
-		spans.push({ _type: "span", _key: generateKey(), text: decodeHtmlEntities(text), marks: [] });
+		spans.push({ _type: "span", _key: generateKey(), text, marks: [] });
 	}
 
 	return { spans, markDefs };

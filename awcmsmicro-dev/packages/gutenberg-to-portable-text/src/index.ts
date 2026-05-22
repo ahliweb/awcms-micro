@@ -8,7 +8,6 @@
 
 import { parse } from "@wordpress/block-serialization-default-parser";
 
-import { decodeHtmlEntities, decodeUrlEntities } from "./entities.js";
 import { parseInlineContent } from "./inline.js";
 import { getTransformer } from "./transformers/index.js";
 import type {
@@ -30,6 +29,14 @@ const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
 const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
 const HTML_TAG_PATTERN = /<[^>]+>/g;
 const FIGCAPTION_TAG_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
+const AMP_ENTITY_PATTERN = /&amp;/g;
+const LESS_THAN_ENTITY_PATTERN = /&lt;/g;
+const GREATER_THAN_ENTITY_PATTERN = /&gt;/g;
+const QUOTE_ENTITY_PATTERN = /&quot;/g;
+const APOS_ENTITY_PATTERN = /&#039;/g;
+const NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
+const HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
+const NBSP_ENTITY_PATTERN = /&nbsp;/g;
 
 // Re-export types
 export type {
@@ -421,6 +428,31 @@ function transformBlock(
 ): PortableTextBlock[] {
 	const transformer = getTransformer(block.blockName, options.customTransformers);
 	return transformer(block, options, context);
+}
+
+/**
+ * Decode HTML entities
+ */
+function decodeHtmlEntities(html: string): string {
+	return html
+		.replace(LESS_THAN_ENTITY_PATTERN, "<")
+		.replace(GREATER_THAN_ENTITY_PATTERN, ">")
+		.replace(AMP_ENTITY_PATTERN, "&")
+		.replace(QUOTE_ENTITY_PATTERN, '"')
+		.replace(APOS_ENTITY_PATTERN, "'")
+		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&") // &#038; or &#38;
+		.replace(HEX_AMP_ENTITY_PATTERN, "&") // &#x26;
+		.replace(NBSP_ENTITY_PATTERN, " ");
+}
+
+/**
+ * Decode HTML entities in URLs (used for image src attributes)
+ */
+function decodeUrlEntities(url: string): string {
+	return url
+		.replace(AMP_ENTITY_PATTERN, "&")
+		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&")
+		.replace(HEX_AMP_ENTITY_PATTERN, "&");
 }
 
 /**

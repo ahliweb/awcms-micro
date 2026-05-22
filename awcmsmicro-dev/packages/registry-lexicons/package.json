@@ -4,7 +4,6 @@
 	"description": "Generated TypeScript types for EmDash plugin registry lexicons (com.emdashcms.experimental.*). EXPERIMENTAL: NSIDs and shapes will change.",
 	"type": "module",
 	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",

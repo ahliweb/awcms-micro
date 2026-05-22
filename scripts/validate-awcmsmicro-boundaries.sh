@@ -87,7 +87,11 @@ require_contains 'RSYNC_PROTECTED_ARGS+=("--exclude=$relative_path")' "$SYNC_SCR
 require_contains 'Missing protected paths file' "$SYNC_SCRIPT"
 
 log "Checking tracked files for secret-like paths"
-if git -C "$ROOT_DIR" ls-files | rg -n '(^|/)\.env($|\.[^.]+$)|(^|/)\.dev\.vars$|(^|/)(secret|secrets|credential|credentials)\.(json|ya?ml|toml|ini|txt)$|\.(pem|key|p12|pfx)$|(^|/)id_(rsa|ed25519)$'; then
+secret_like_paths="$(git -C "$ROOT_DIR" ls-files \
+	| rg -n '(^|/)\.env($|\.[^.]+$)|(^|/)\.dev\.vars$|(^|/)(secret|secrets|credential|credentials)\.(json|ya?ml|toml|ini|txt)$|\.(pem|key|p12|pfx)$|(^|/)id_(rsa|ed25519)$' \
+	| rg -v '(^|/)\.env\.example$' || true)"
+if [[ -n "$secret_like_paths" ]]; then
+	printf '%s\n' "$secret_like_paths"
 	fail "Tracked secret-like file paths detected"
 fi
 

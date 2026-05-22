@@ -47,19 +47,19 @@ write_report() {
   - Started: $STARTED_AT
   - Completed: $completed_at
 - Operator: Placeholder: update manually if needed
-- Branch: `$BRANCH_NAME`
-- Upstream commit SHA: `$UPSTREAM_SHA`
-- Validation scope: `awcmsmicro-dev` workspace validation
+- Branch: \`$BRANCH_NAME\`
+- Upstream commit SHA: \`$UPSTREAM_SHA\`
+- Validation scope: \`awcmsmicro-dev\` workspace validation
 
 ## Commands
 
-```bash
+\`\`\`bash
 bash scripts/validate-awcmsmicro-dev.sh
 bash -n scripts/update-emdash-latest.sh
 bash -n scripts/update-awcmsmicro-dev.sh
 bash -n scripts/validate-awcmsmicro-dev.sh
 bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
-```
+\`\`\`
 
 ## Result Summary
 
@@ -71,15 +71,15 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 | Category | Status | Details |
 | --- | --- | --- |
 | Script failure | $( [[ "$FAILURE_CATEGORY" == "Script failure" ]] && printf 'Failed' || printf 'Not triggered' ) | Validation wrapper or shell orchestration failure |
-| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm install` failed |
-| Upstream EmDash test failure | $( [[ "$FAILURE_CATEGORY" == "Upstream EmDash test failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm test` failed |
-| AWCMS-Micro added file failure | $( [[ "$FAILURE_CATEGORY" == "AWCMS-Micro added file failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm typecheck`, `pnpm lint:quick`, or `pnpm build` failed |
+| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | \`pnpm install\` failed |
+| Upstream EmDash test failure | $( [[ "$FAILURE_CATEGORY" == "Upstream EmDash test failure" ]] && printf 'Failed' || printf 'Not triggered' ) | \`pnpm --filter @emdash-cms/admin exec node --run locale:compile\` or \`pnpm test\` failed |
+| AWCMS-Micro added file failure | $( [[ "$FAILURE_CATEGORY" == "AWCMS-Micro added file failure" ]] && printf 'Failed' || printf 'Not triggered' ) | \`pnpm --filter emdash build\`, \`pnpm typecheck\`, \`pnpm lint:quick\`, or \`pnpm build\` failed |
 
 ## Detailed Output
 
-```text
+\`\`\`text
 $(cat "$TMP_OUTPUT")
-```
+\`\`\`
 EOF
 	mv "$REPORT_TMP" "$REPORT_FILE"
 }
@@ -138,8 +138,10 @@ run_step() {
 finalize_report
 
 run_step "pnpm-install" "Dependency install failure" pnpm install
+run_step "pnpm-build-emdash" "AWCMS-Micro added file failure" pnpm --filter emdash build
 run_step "pnpm-typecheck" "AWCMS-Micro added file failure" pnpm typecheck
 run_step "pnpm-lint-quick" "AWCMS-Micro added file failure" pnpm lint:quick
+run_step "pnpm-admin-locale-compile" "Upstream EmDash test failure" pnpm --filter @emdash-cms/admin exec node --run locale:compile
 run_step "pnpm-test" "Upstream EmDash test failure" pnpm test
 run_step "pnpm-build" "AWCMS-Micro added file failure" pnpm build
 

@@ -36,12 +36,6 @@ interface LoginPageProps {
 	redirectUrl?: string;
 }
 
-function redirectToSafeUrl(value: string) {
-	if (value.startsWith("/")) {
-		window.location.assign(value);
-	}
-}
-
 type LoginMethod = "passkey" | "magic-link";
 
 // ============================================================================
@@ -187,7 +181,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			redirectToSafeUrl(safeRedirectUrl);
+			window.location.href = safeRedirectUrl;
 		}
 	}, [authInfo, safeRedirectUrl]);
 
@@ -206,7 +200,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		redirectToSafeUrl(safeRedirectUrl);
+		window.location.href = safeRedirectUrl;
 	};
 
 	// All providers with a LoginButton show in the button grid
