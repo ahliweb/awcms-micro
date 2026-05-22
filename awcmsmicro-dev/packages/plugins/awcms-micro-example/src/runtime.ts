@@ -52,44 +52,7 @@ export const AWCMS_EXAMPLE_STORAGE = {
 	},
 } satisfies PluginStorageConfig;
 
-export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = {
-	auditEvents: {
-		indexes: ["timestamp", "kind", "scope"],
-	},
-	accessChangeEvents: {
-		indexes: ["timestamp", "kind", "scope"],
-	},
-	abacChangeEvents: {
-		indexes: ["timestamp", "kind", "scope"],
-	},
-	abacAttributeCatalog: {
-		indexes: ["key", "targetType", "updatedAt"],
-	},
-	abacPolicyRules: {
-		indexes: ["id", "effect", "updatedAt"],
-	},
-	abacResourceAssignments: {
-		indexes: ["resourceId", "updatedAt"],
-	},
-	abacSubjectAssignments: {
-		indexes: ["subjectId", "updatedAt"],
-	},
-	contentSnapshots: {
-		indexes: ["collection", "contentId", "timestamp"],
-	},
-	permissionCatalog: {
-		indexes: ["slug", "scope", "updatedAt"],
-	},
-	roleCatalog: {
-		indexes: ["slug", "updatedAt"],
-	},
-	rolePermissionAssignments: {
-		indexes: ["roleSlug", "updatedAt"],
-	},
-	userRoleAssignments: {
-		indexes: ["userId", "updatedAt"],
-	},
-} satisfies Record<string, { indexes?: string[]; uniqueIndexes?: string[] }>;
+export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = AWCMS_EXAMPLE_STORAGE;
 
 export const AWCMS_EXAMPLE_ADMIN_PAGES = [
 	{ path: "/overview", label: "Overview", icon: "stack" },
@@ -566,8 +529,11 @@ async function ensureAbacCatalogSeeded(ctx: PluginContext) {
 	await ctx.kv.set("state:lastAbacPreviewResourceId", DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "");
 }
 
-async function listCollectionValues<T>(collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> }): Promise<T[]> {
-	const result = await collection.query({ orderBy: { updatedAt: "desc" }, limit: 200 });
+async function listCollectionValues<T>(
+	collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> },
+	orderByField: string = "updatedAt"
+): Promise<T[]> {
+	const result = await collection.query({ orderBy: { [orderByField]: "desc" }, limit: 200 });
 	return result.items.map((item) => item.data as T);
 }
 
@@ -627,7 +593,7 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	const roles = await listRoles(ctx);
 	const roleAssignments = await listRoleAssignments(ctx);
 	const userAssignments = await listUserRoleAssignments(ctx);
-	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.accessChangeEvents!);
+	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.accessChangeEvents!, "timestamp");
 
 	const rolesWithoutPermissions = roles
 		.filter((role) => !roleAssignments.some((assignment) => assignment.roleSlug === role.slug && assignment.permissions.length > 0))
@@ -666,7 +632,7 @@ async function summarizeAbac(ctx: PluginContext) {
 	const policies = await listAbacPolicies(ctx);
 	const subjects = await listAbacSubjects(ctx);
 	const resources = await listAbacResources(ctx);
-	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.abacChangeEvents!);
+	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.abacChangeEvents!, "timestamp");
 
 	return {
 		attributes,

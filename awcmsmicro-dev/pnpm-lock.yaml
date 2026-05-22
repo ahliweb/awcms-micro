@@ -1819,6 +1819,9 @@ importers:
         specifier: ^18.0.0 || ^19.0.0
         version: 19.2.4
     devDependencies:
+      '@cloudflare/kumo':
+        specifier: 'catalog:'
+        version: 1.16.0(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.4.1)
       '@types/node':
         specifier: 24.10.13
         version: 24.10.13
