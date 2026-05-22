@@ -47,6 +47,17 @@ import { generatePluginWrapper } from "./wrapper.js";
 
 /** Replace non-alphanumeric chars for safe file/worker names */
 const SAFE_ID_RE = /[^a-z0-9_-]/gi;
+const PLUGIN_PORT_BASE = 20_000;
+const PLUGIN_PORT_BLOCK_SIZE = 128;
+
+let nextRunnerPortBase = 0;
+
+function allocatePluginPortBase(): number {
+	const base =
+		PLUGIN_PORT_BASE + (process.pid % 256) * PLUGIN_PORT_BLOCK_SIZE + nextRunnerPortBase;
+	nextRunnerPortBase += PLUGIN_PORT_BLOCK_SIZE;
+	return base;
+}
 
 /**
  * Stub for the "emdash" module that sandbox-entry plugins import to get
@@ -300,7 +311,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 	private epoch = 0;
 
 	/** Next available port for plugin nanoservices */
-	private nextPluginPort = 18788;
+	private nextPluginPort = allocatePluginPortBase();
 
 	/**
 	 * Ports freed by unloadPlugin(), preferred over nextPluginPort on the
