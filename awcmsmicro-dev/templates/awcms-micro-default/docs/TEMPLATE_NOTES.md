@@ -7,6 +7,7 @@ This template exists as an AWCMS-Micro example only.
 ## What It Demonstrates
 
 - a small Astro-first public site shell
+- a minimal EmDash seed file for local setup and repeatable example content
 - explicit AWCMS-Micro conventions in a new folder
 - compatibility with EmDash runtime patterns without editing EmDash core
 

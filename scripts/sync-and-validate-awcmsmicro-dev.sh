@@ -16,17 +16,18 @@ SYNC_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 if [[ -f "$STATUS_FILE" ]]; then
 	python3 - <<'PY' "$STATUS_FILE" "$UPSTREAM_SHA" "$SYNC_DATE"
 from pathlib import Path
+import re
 import sys
 
 status_file = Path(sys.argv[1])
 sha = sys.argv[2]
 sync_date = sys.argv[3]
 text = status_file.read_text()
-text = text.replace("- Upstream commit SHA: `TBD`", f"- Upstream commit SHA: `{sha}`", 1) if "- Upstream commit SHA: `TBD`" in text else text
-text = text.replace("- Sync date: `TBD`", f"- Sync date: `{sync_date}`", 1) if "- Sync date: `TBD`" in text else text
+text = re.sub(r"- Upstream commit SHA: `[^`]*`", f"- Upstream commit SHA: `{sha}`", text, count=1)
+text = re.sub(r"- Sync date: `[^`]*`", f"- Sync date: `{sync_date}`", text, count=1)
 text = text.replace("| Upstream fetch into `emdash-latest/` | Pending | Update after sync |", "| Upstream fetch into `emdash-latest/` | Passed | Refreshed by sync-and-validate script |", 1)
 text = text.replace("| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Pending | Update after sync |", "| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt by sync-and-validate script |", 1)
-text = text.replace("| Validation script execution | Pending | See `LAST_VALIDATION.md` |", "| Validation script execution | Passed | See `LAST_VALIDATION.md` |", 1)
+text = re.sub(r"\| Validation script execution \| [^|]+ \| [^\n]+ \|", "| Validation script execution | Passed | See `LAST_VALIDATION.md` |", text, count=1)
 status_file.write_text(text)
 PY
 else

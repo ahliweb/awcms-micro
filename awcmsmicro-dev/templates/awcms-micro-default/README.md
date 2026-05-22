@@ -18,6 +18,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 ## Included Files
 
 - `package.json`
+- `seed/seed.json`
 - `astro.config.mjs`
 - `src/layouts/BaseLayout.astro`
 - `src/components/SiteHeader.astro`
@@ -28,9 +29,9 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 
 ## Manual Usage
 
-This template is intentionally not registered into EmDash core. To use it safely:
+This template is intentionally not registered into EmDash core. It currently assumes an EmDash-compatible pnpm workspace because `package.json` uses `catalog:` and `workspace:*` dependencies. To use it safely:
 
-1. Copy the folder into a working EmDash project.
-2. Install dependencies with `pnpm install`.
-3. Adjust the placeholder content, theme, and schema to fit your site.
+1. Copy the folder into a working EmDash monorepo or compatible pnpm workspace.
+2. Install dependencies with `pnpm install`, or replace the workspace-specific dependency specifiers before using it standalone.
+3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
 4. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.

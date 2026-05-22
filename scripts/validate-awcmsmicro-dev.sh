@@ -44,21 +44,12 @@ write_report() {
 ## Validation Run Metadata
 
 - Date:
-  - Started: \
-    \
-    $STARTED_AT
-  - Completed: \
-    \
-    $completed_at
-- Operator: \
-  - Placeholder: update manually if needed
-- Branch: \
-  - $BRANCH_NAME
-- Upstream commit SHA: \
-  - $UPSTREAM_SHA
-- Validation scope: \
-  - \
-    awcmsmicro-dev workspace validation
+  - Started: $STARTED_AT
+  - Completed: $completed_at
+- Operator: Placeholder: update manually if needed
+- Branch: `$BRANCH_NAME`
+- Upstream commit SHA: `$UPSTREAM_SHA`
+- Validation scope: `awcmsmicro-dev` workspace validation
 
 ## Commands
 
@@ -72,22 +63,15 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 
 ## Result Summary
 
-- Overall status: \
-  - $STATUS
-- Notes: \
-  - Current step: $CURRENT_STEP
+- Overall status: $STATUS
+- Notes: Current step: $CURRENT_STEP
 
 ## Failure Classification
 
 | Category | Status | Details |
 | --- | --- | --- |
 | Script failure | $( [[ "$FAILURE_CATEGORY" == "Script failure" ]] && printf 'Failed' || printf 'Not triggered' ) | Validation wrapper or shell orchestration failure |
-| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | \
-  \
-  \
-  \
-  \
-  `pnpm install` failed |
+| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm install` failed |
 | Upstream EmDash test failure | $( [[ "$FAILURE_CATEGORY" == "Upstream EmDash test failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm test` failed |
 | AWCMS-Micro added file failure | $( [[ "$FAILURE_CATEGORY" == "AWCMS-Micro added file failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm typecheck`, `pnpm lint:quick`, or `pnpm build` failed |
 
