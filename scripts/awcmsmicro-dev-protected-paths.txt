@@ -1,0 +1,3 @@
+# Approved AWCMS-Micro implementation paths preserved across awcmsmicro-dev rebuilds.
+templates/awcms-micro-default
+packages/plugins/awcms-micro-example

@@ -1,0 +1,53 @@
+{
+	"name": "@awcms-micro/plugin-example",
+	"version": "0.0.1",
+	"description": "AWCMS-Micro example plugin for EmDash-compatible projects",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./admin": {
+			"types": "./dist/admin.d.ts",
+			"default": "./dist/admin.js"
+		}
+	},
+	"files": [
+		"dist",
+		"emdash-plugin.jsonc",
+		"docs",
+		"README.md"
+	],
+	"keywords": [
+		"awcms-micro",
+		"emdash",
+		"plugin",
+		"example",
+		"tenant-ready"
+	],
+	"license": "MIT",
+	"peerDependencies": {
+		"emdash": "^0.14.0"
+	},
+	"devDependencies": {
+		"@types/node": "24.10.13",
+		"emdash": "^0.14.0",
+		"tsdown": "^0.20.3",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.5"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch",
+		"prepare": "node --run build",
+		"prepublishOnly": "node --run build",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit -p tsconfig.json"
+	},
+	"engines": {
+		"node": ">=22"
+	}
+}

@@ -1,0 +1,26 @@
+{
+	"$schema": "https://emdashcms.com/schemas/emdash-plugin.schema.json",
+
+	"slug": "awcms-micro-example",
+	"version": "0.0.1",
+	"license": "MIT",
+	"publisher": "example.com", // Replace before any internal or public publish.
+	"author": { "name": "AWCMS-Micro" },
+	// Add `security` and `repo` when the final standalone package location is known.
+	"name": "AWCMS-Micro Example Plugin",
+	"description": "Example EmDash-compatible plugin for AWCMS-Micro projects, packaged for standalone development and internal distribution.",
+	"keywords": ["awcms-micro", "emdash", "plugin", "example", "tenant-ready"],
+
+	// Keep this trust contract aligned with the real runtime surface before release.
+	"capabilities": [],
+	"allowedHosts": [],
+	"storage": {
+		"audit": {
+			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
+		}
+	},
+
+	"admin": {
+		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }]
+	}
+}

@@ -1,0 +1,80 @@
+{
+	"$schema": "https://emdashcms.com/seed.schema.json",
+	"version": "1",
+	"meta": {
+		"name": "AWCMS-Micro Default Example",
+		"description": "Minimal starter seed for the isolated AWCMS-Micro example template",
+		"author": "AWCMS-Micro"
+	},
+	"settings": {
+		"title": "AWCMS-Micro Default Site",
+		"tagline": "Single-tenant-first, tenant-ready, and EmDash-compatible."
+	},
+	"collections": [
+		{
+			"slug": "pages",
+			"label": "Pages",
+			"labelSingular": "Page",
+			"supports": ["drafts", "revisions", "search"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "content",
+					"label": "Content",
+					"type": "portableText",
+					"searchable": true
+				}
+			]
+		}
+	],
+	"menus": [
+		{
+			"name": "primary",
+			"label": "Primary Navigation",
+			"items": [
+				{
+					"type": "custom",
+					"label": "Home",
+					"url": "/"
+				},
+				{
+					"type": "custom",
+					"label": "About",
+					"url": "/about"
+				}
+			]
+		}
+	],
+	"content": {
+		"pages": [
+			{
+				"id": "about",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "About",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "This example page comes from the AWCMS-Micro starter seed and can be replaced with site-specific content.",
+									"_key": "about-1"
+								}
+							],
+							"_key": "about-0"
+						}
+					]
+				}
+			}
+		]
+	}
+}
