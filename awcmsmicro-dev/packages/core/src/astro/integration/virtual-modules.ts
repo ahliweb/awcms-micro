@@ -270,7 +270,7 @@ export function generateAdminRegistryModule(descriptors: PluginDescriptor[]): st
 		entries.push(`  "${pluginId}": ${varName},`);
 	});
 
-	return `
+	const result = `
 // Auto-generated plugin admin registry
 ${imports.join("\n")}
 
@@ -278,6 +278,7 @@ export const pluginAdmins = {
 ${entries.join("\n")}
 };
 `;
+	return result;
 }
 
 /**

@@ -397,13 +397,13 @@ function OverviewPage() {
 					<span className="mb-1 block">Governance Mode</span>
 					<Select 
 						value={formState.governanceMode}
-						onChange={(event: any) =>
-							setFormState((current) => ({ ...current, governanceMode: event.target.value }))
+						onValueChange={(value) =>
+							setFormState((current) => ({ ...current, governanceMode: value }))
 						}
 					>
-						<option value="observe">Observe</option>
-						<option value="review">Review</option>
-						<option value="enforce-demo">Enforce Demo</option>
+						<Select.Option value="observe">Observe</Select.Option>
+						<Select.Option value="review">Review</Select.Option>
+						<Select.Option value="enforce-demo">Enforce Demo</Select.Option>
 					</Select>
 				</label>
 				<label className="block text-sm">
@@ -643,8 +643,8 @@ function MatrixPage() {
 				<h1 className="text-3xl font-bold">Role And Permission Matrix</h1>
 				<p className="text-kumo-subtle mt-2">Save demonstrative role-permission mappings without editing EmDash core authorization internals.</p>
 			</div>
-			<Select  value={selectedRole} onChange={(event: any) => setSelectedRole(event.target.value)}>
-				{data?.roles.map((role) => <option key={role.slug} value={role.slug}>{role.label}</option>)}
+			<Select  value={selectedRole} onValueChange={(value) => setSelectedRole(value)}>
+				{data?.roles.map((role) => <Select.Option key={role.slug} value={role.slug}>{role.label}</Select.Option>)}
 			</Select>
 			<div className="grid gap-2">
 				{data?.permissions.map((permission) => {
@@ -710,14 +710,14 @@ function PreviewPage() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<label className="block text-sm">
 					<span className="mb-1 block">User</span>
-					<Select  value={userId} onChange={(event: any) => setUserId(event.target.value)}>
-						{rolesData?.userAssignments.map((item) => <option key={item.userId} value={item.userId}>{item.userId}</option>)}
+					<Select  value={userId} onValueChange={(value) => setUserId(value)}>
+						{rolesData?.userAssignments.map((item) => <Select.Option key={item.userId} value={item.userId}>{item.userId}</Select.Option>)}
 					</Select>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Permission</span>
-					<Select  value={permissionSlug} onChange={(event: any) => setPermissionSlug(event.target.value)}>
-						{permissionsData?.items.map((item) => <option key={item.slug} value={item.slug}>{item.slug}</option>)}
+					<Select  value={permissionSlug} onValueChange={(value) => setPermissionSlug(value)}>
+						{permissionsData?.items.map((item) => <Select.Option key={item.slug} value={item.slug}>{item.slug}</Select.Option>)}
 					</Select>
 				</label>
 			</div>
@@ -811,10 +811,10 @@ function AbacAttributesPage() {
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveAttribute(event)}>
 				<Input  placeholder="attribute key" value={attributeState.key} onChange={(event: any) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
 				<Input  placeholder="label" value={attributeState.label} onChange={(event: any) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
-				<Select  value={attributeState.targetType} onChange={(event: any) => setAttributeState((current) => ({ ...current, targetType: event.target.value }))}>
-					<option value="subject">subject</option>
-					<option value="resource">resource</option>
-					<option value="context">context</option>
+				<Select  value={attributeState.targetType} onValueChange={(value) => setAttributeState((current) => ({ ...current, targetType: value }))}>
+					<Select.Option value="subject">subject</Select.Option>
+					<Select.Option value="resource">resource</Select.Option>
+					<Select.Option value="context">context</Select.Option>
 				</Select>
 				<InputArea  placeholder="description" value={attributeState.description} onChange={(event: any) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
 				<Button variant="primary"  type="submit">Save Attribute</Button>
@@ -919,9 +919,9 @@ function AbacPoliciesPage() {
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void savePolicy(event)}>
 				<Input  placeholder="policy id" value={formState.id} onChange={(event: any) => setFormState((current) => ({ ...current, id: event.target.value }))} />
 				<Input  placeholder="label" value={formState.label} onChange={(event: any) => setFormState((current) => ({ ...current, label: event.target.value }))} />
-				<Select  value={formState.effect} onChange={(event: any) => setFormState((current) => ({ ...current, effect: event.target.value }))}>
-					<option value="allow">allow</option>
-					<option value="deny">deny</option>
+				<Select  value={formState.effect} onValueChange={(value) => setFormState((current) => ({ ...current, effect: value }))}>
+					<Select.Option value="allow">allow</Select.Option>
+					<Select.Option value="deny">deny</Select.Option>
 				</Select>
 				<Input  placeholder="actions,comma,separated" value={formState.actions} onChange={(event: any) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
 				<InputArea  value={formState.requiredSubject} onChange={(event: any) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
@@ -988,14 +988,14 @@ function AbacPreviewPage() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<label className="block text-sm">
 					<span className="mb-1 block">Subject</span>
-					<Select  value={subjectId} onChange={(event: any) => setSubjectId(event.target.value)}>
-						{subjectData?.items.map((item) => <option key={item.subjectId} value={item.subjectId}>{item.subjectId}</option>)}
+					<Select  value={subjectId} onValueChange={(value) => setSubjectId(value)}>
+						{subjectData?.items.map((item) => <Select.Option key={item.subjectId} value={item.subjectId}>{item.subjectId}</Select.Option>)}
 					</Select>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Resource</span>
-					<Select  value={resourceId} onChange={(event: any) => setResourceId(event.target.value)}>
-						{resourceData?.items.map((item) => <option key={item.resourceId} value={item.resourceId}>{item.resourceId}</option>)}
+					<Select  value={resourceId} onValueChange={(value) => setResourceId(value)}>
+						{resourceData?.items.map((item) => <Select.Option key={item.resourceId} value={item.resourceId}>{item.resourceId}</Select.Option>)}
 					</Select>
 				</label>
 			</div>
@@ -1045,14 +1045,14 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 				</label>
 			)}
 			<div className="flex items-center gap-3">
-				<Select 
+				<Select
 					id={id}
 					value={current}
-					onChange={(event: any) => onChange(event.target.value)}
+					onValueChange={(value) => onChange(value)}
 				>
-					<option value="draft">Draft</option>
-					<option value="review">Review</option>
-					<option value="approved">Approved</option>
+					<Select.Option value="draft">Draft</Select.Option>
+					<Select.Option value="review">Review</Select.Option>
+					<Select.Option value="approved">Approved</Select.Option>
 				</Select>
 				<span className={`rounded px-2 py-1 text-xs font-semibold ${badgeClass}`}>{current}</span>
 			</div>
@@ -1067,6 +1067,7 @@ export const widgets: PluginAdminExports["widgets"] = {
 };
 
 export const pages: PluginAdminExports["pages"] = {
+	"/": OverviewPage,
 	"/overview": OverviewPage,
 	"/audit": AuditPage,
 	"/access/permissions": PermissionsPage,
