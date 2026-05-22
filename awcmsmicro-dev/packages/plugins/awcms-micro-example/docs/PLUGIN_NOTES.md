@@ -21,3 +21,5 @@ This example package now uses published dependency versions and a local build st
 Replace the example publisher value in `emdash-plugin.jsonc` before any real registry publish.
 If you move the package into its own repository, also set `repository` and `homepage` in `package.json` for your new location.
 Add `repo` and `security` to `emdash-plugin.jsonc` only after you know the final standalone repository and security contact URLs.
+
+Use `docs/INTERNAL_PUBLISH_CHECKLIST.md` before any internal or registry release.
