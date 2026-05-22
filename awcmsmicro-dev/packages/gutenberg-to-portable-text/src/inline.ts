@@ -7,6 +7,7 @@
 
 import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
 
+import { decodeUrlEntities } from "./entities.js";
 import type { PortableTextSpan, PortableTextMarkDef } from "./types.js";
 import { sanitizeHref } from "./url.js";
 
@@ -31,9 +32,6 @@ const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
 const IMG_ALT_PATTERN = /<img[^>]+alt=["']([^"']*)["']/i;
 const FIGCAPTION_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
 const IMG_SRC_PATTERN = /<img[^>]+src=["']([^"']*)["']/i;
-const URL_AMP_ENTITY_PATTERN = /&amp;/g;
-const URL_NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
-const URL_HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
 
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
@@ -320,14 +318,4 @@ export function extractSrc(html: string): string | undefined {
 	if (!match?.[1]) return undefined;
 	// Decode HTML entities in URLs
 	return decodeUrlEntities(match[1]);
-}
-
-/**
- * Decode HTML entities commonly found in URLs
- */
-function decodeUrlEntities(url: string): string {
-	return url
-		.replace(URL_AMP_ENTITY_PATTERN, "&")
-		.replace(URL_NUMERIC_AMP_ENTITY_PATTERN, "&")
-		.replace(URL_HEX_AMP_ENTITY_PATTERN, "&");
 }

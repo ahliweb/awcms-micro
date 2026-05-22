@@ -2,6 +2,7 @@
  * Transformers for WordPress core/* blocks
  */
 
+import { decodeHtmlEntities } from "../entities.js";
 import { extractAlt, extractCaption, extractSrc, extractText } from "../inline.js";
 import type {
 	GutenbergBlock,
@@ -31,12 +32,6 @@ const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
 const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
 const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
 const CITE_TAG_PATTERN = /<cite[^>]*>([\s\S]*?)<\/cite>/i;
-const LT_ENTITY_PATTERN = /&lt;/g;
-const GT_ENTITY_PATTERN = /&gt;/g;
-const AMP_ENTITY_PATTERN = /&amp;/g;
-const QUOT_ENTITY_PATTERN = /&quot;/g;
-const APOS_ENTITY_PATTERN = /&#039;/g;
-const NBSP_ENTITY_PATTERN = /&nbsp;/g;
 
 /**
  * core/paragraph → block with style "normal"
@@ -714,19 +709,6 @@ function mapAlignment(
 		default:
 			return undefined;
 	}
-}
-
-/**
- * Decode HTML entities
- */
-function decodeHtmlEntities(html: string): string {
-	return html
-		.replace(LT_ENTITY_PATTERN, "<")
-		.replace(GT_ENTITY_PATTERN, ">")
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(QUOT_ENTITY_PATTERN, '"')
-		.replace(APOS_ENTITY_PATTERN, "'")
-		.replace(NBSP_ENTITY_PATTERN, " ");
 }
 
 /**
