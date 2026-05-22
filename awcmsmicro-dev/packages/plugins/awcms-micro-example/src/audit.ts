@@ -1,16 +1,19 @@
 export interface ExampleAuditEvent {
-	action: string;
-	resource: string;
-	actor?: string;
+	kind: string;
+	scope: string;
+	actor: string;
+	summary: string;
 	metadata?: Record<string, unknown>;
 }
 
 export function createAuditRecord(event: ExampleAuditEvent) {
 	return {
+		id: `${new Date().toISOString()}:${event.kind}`,
 		timestamp: new Date().toISOString(),
-		action: event.action,
-		resource: event.resource,
-		actor: event.actor ?? "system",
+		kind: event.kind,
+		scope: event.scope,
+		actor: event.actor,
+		summary: event.summary,
 		metadata: event.metadata ?? {},
 	};
 }

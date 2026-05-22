@@ -8,19 +8,26 @@
 	"author": { "name": "AWCMS-Micro" },
 	// Add `security` and `repo` when the final standalone package location is known.
 	"name": "AWCMS-Micro Example Plugin",
-	"description": "Example EmDash-compatible plugin for AWCMS-Micro projects, packaged for standalone development and internal distribution.",
+	"description": "Access & audit demo plugin for AWCMS-Micro projects, demonstrating current EmDash plugin extension points without modifying EmDash core.",
 	"keywords": ["awcms-micro", "emdash", "plugin", "example", "tenant-ready"],
 
 	// Keep this trust contract aligned with the real runtime surface before release.
-	"capabilities": [],
+	"capabilities": ["content:read", "media:read", "media:write"],
 	"allowedHosts": [],
 	"storage": {
-		"audit": {
-			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
+		"auditEvents": {
+			"indexes": ["timestamp", "kind", "scope", ["scope", "timestamp"]]
+		},
+		"contentSnapshots": {
+			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"]]
 		}
 	},
 
 	"admin": {
-		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }]
+		"pages": [
+			{ "path": "/overview", "label": "Overview", "icon": "stack" },
+			{ "path": "/audit", "label": "Audit", "icon": "list" }
+		],
+		"widgets": [{ "id": "governance-status", "title": "Governance Status", "size": "half" }]
 	}
 }

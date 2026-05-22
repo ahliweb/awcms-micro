@@ -1815,9 +1815,15 @@ importers:
       '@types/node':
         specifier: 24.10.13
         version: 24.10.13
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.2.14
       emdash:
         specifier: ^0.14.0
         version: 0.14.0(c69703c711f9887e601ebc6c6b03c17c)
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
       tsdown:
         specifier: ^0.20.3
         version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
