@@ -16,25 +16,25 @@ content = content.replace(/data\.roles\[0\]!\.slug/g, "data.roles[0]?.slug");
 content = content.replace(/const roleSlug = selectedRole \|\| data\.roles\[0\]\?\.slug;/g, "const roleSlug = selectedRole || data.roles[0]?.slug || \"\";");
 
 // 3. Inputs
-content = content.replace(/<input\s+className="w-full[^"]*"\s+placeholder="([^"]+)"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}\s*\/>/g, '<Input placeholder="$1" value={$2} onChange={(event) => $3} />');
-content = content.replace(/<input\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}\s*\/>/g, '<Input value={$1} onChange={(event) => $2} />');
+content = content.replace(/<input\s+className="w-full[^"]*"\s+placeholder="([^"]+)"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}\s*\/>/g, '<Input placeholder="$1" value={$2} onChange={(event) => $3} />');
+content = content.replace(/<input\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}\s*\/>/g, '<Input value={$1} onChange={(event) => $2} />');
 
 // 4. InputAreas
-content = content.replace(/<textarea\s+className="w-full[^"]*"\s+placeholder="([^"]+)"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}\s*\/>/g, '<InputArea placeholder="$1" value={$2} onChange={(event) => $3} />');
-content = content.replace(/<textarea\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}\s*\/>/g, '<InputArea value={$1} onChange={(event) => $2} />');
+content = content.replace(/<textarea\s+className="w-full[^"]*"\s+placeholder="([^"]+)"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}\s*\/>/g, '<InputArea placeholder="$1" value={$2} onChange={(event) => $3} />');
+content = content.replace(/<textarea\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}\s*\/>/g, '<InputArea value={$1} onChange={(event) => $2} />');
 
 // 5. Selects
-content = content.replace(/<select\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}>/g, '<Select value={$1} onChange={(event) => $2}>');
-content = content.replace(/<select\s+className="rounded[^"]*"\s+id=\{([^}]+)\}\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}>/g, '<Select id={$1} value={$2} onChange={(event) => $3}>');
-content = content.replace(/<select\s+className="rounded[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^\}]+)\}>/g, '<Select value={$1} onChange={(event) => $2}>');
+content = content.replace(/<select\s+className="w-full[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}>/g, '<Select value={$1} onChange={(event) => $2}>');
+content = content.replace(/<select\s+className="rounded[^"]*"\s+id=\{([^}]+)\}\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}>/g, '<Select id={$1} value={$2} onChange={(event) => $3}>');
+content = content.replace(/<select\s+className="rounded[^"]*"\s+value=\{([^}]+)\}\s+onChange=\{\(event\) => ([^}]+)\}>/g, '<Select value={$1} onChange={(event) => $2}>');
 
 // 6. Buttons
-content = content.replace(/<button className="rounded bg-black[^"]*"\s+disabled=\{([^\}]+)\}\s+type="([^"]+)">/g, '<Button variant="primary" disabled={$1} type="$2">');
+content = content.replace(/<button className="rounded bg-black[^"]*"\s+disabled=\{([^}]+)\}\s+type="([^"]+)">/g, '<Button variant="primary" disabled={$1} type="$2">');
 content = content.replace(/<button className="rounded bg-black[^"]*"\s+type="([^"]+)">/g, '<Button variant="primary" type="$1">');
-content = content.replace(/<button className="rounded bg-black[^"]*"\s+onClick=\{([^\}]+)\}\s+type="([^"]+)">/g, '<Button variant="primary" onClick={$1} type="$2">');
-content = content.replace(/<button className="text-xs text-kumo-subtle[^"]*"\s+onClick=\{([^\}]+)\}>/g, '<Button variant="ghost" size="sm" onClick={$1}>');
-content = content.replace(/<button className="rounded border[^"]*"\s+onClick=\{([^\}]+)\}>/g, '<Button variant="secondary" size="sm" onClick={$1}>');
-content = content.replace(/<button className="rounded border[^"]*"\s+onClick=\{([^\}]+)\}\s+type="([^"]+)">/g, '<Button variant="secondary" onClick={$1} type="$2">');
+content = content.replace(/<button className="rounded bg-black[^"]*"\s+onClick=\{([^}]+)\}\s+type="([^"]+)">/g, '<Button variant="primary" onClick={$1} type="$2">');
+content = content.replace(/<button className="text-xs text-kumo-subtle[^"]*"\s+onClick=\{([^}]+)\}>/g, '<Button variant="ghost" size="sm" onClick={$1}>');
+content = content.replace(/<button className="rounded border[^"]*"\s+onClick=\{([^}]+)\}>/g, '<Button variant="secondary" size="sm" onClick={$1}>');
+content = content.replace(/<button className="rounded border[^"]*"\s+onClick=\{([^}]+)\}\s+type="([^"]+)">/g, '<Button variant="secondary" onClick={$1} type="$2">');
 content = content.replace(/<\/button>/g, '</Button>');
 
 // Remove block span around label
