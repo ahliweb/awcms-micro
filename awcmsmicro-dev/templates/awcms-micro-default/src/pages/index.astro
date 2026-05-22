@@ -1,31 +1,118 @@
 ---
+import { getEmDashCollection, getSiteSettings } from "emdash";
+import { Image } from "emdash/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
+
+function asImage(value: unknown) {
+	return value as any;
+}
+
+const { entries: posts, cacheHint: postsCacheHint } = await getEmDashCollection("posts", {
+	orderBy: { published_at: "desc" },
+	limit: 3,
+});
+const { entries: newsItems, cacheHint: newsCacheHint } = await getEmDashCollection("news", {
+	orderBy: { published_at: "desc" },
+	limit: 3,
+});
+const { entries: pages, cacheHint: pagesCacheHint } = await getEmDashCollection("pages", {
+	orderBy: { published_at: "desc" },
+	limit: 6,
+});
+
+if (Astro.cache?.enabled) {
+	Astro.cache.set(postsCacheHint);
+	Astro.cache.set(newsCacheHint);
+	Astro.cache.set(pagesCacheHint);
+}
+
+const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 ---
 
-<BaseLayout title="AWCMS-Micro Default Example">
+<BaseLayout title={siteTitle} description={siteTagline}>
 	<section>
-		<h2>Site Title Placeholder</h2>
+		<p class="kicker">AWCMS-Micro</p>
+		<h1 style="font-size:clamp(2.25rem,5vw,4rem);margin:0 0 1rem;">A focused EmDash website and admin workflow for AWCMS-Micro.</h1>
 		<p>
-			This example template keeps public rendering simple and Astro-first while remaining ready for
-			EmDash-managed content and admin integration.
+			This local-development template shows how AWCMS-Micro presents public content, keeps EmDash
+			core untouched, and routes editors into the standard admin interface for content, settings,
+			and plugin-backed governance workflows.
 		</p>
+		<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
+			<a class="button-link primary" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
+			<a class="button-link" href="/_emdash/admin/content/posts/new">Create Post</a>
+			<a class="button-link" href="/_emdash/admin/content/pages/new">Create Page</a>
+		</div>
 	</section>
 
 	<section>
-		<h2>Navigation Placeholder</h2>
-		<ul>
-			<li>Home</li>
-			<li>About</li>
-			<li>Services</li>
-			<li>Contact</li>
-		</ul>
+		<h2>How the public site connects to admin</h2>
+		<div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+			<div>
+				<strong>Publish from EmDash</strong>
+				<p>Posts, news, and pages created in the admin flow directly into the public routes below.</p>
+			</div>
+			<div>
+				<strong>Keep content in sync</strong>
+				<p>Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders.</p>
+			</div>
+			<div>
+				<strong>Extend with AWCMS-Micro</strong>
+				<p>The site stays ready for AWCMS-Micro-specific plugins and governance features through the normal EmDash extension points.</p>
+			</div>
+		</div>
 	</section>
 
 	<section>
-		<h2>Page Content Placeholder</h2>
-		<p>
-			Use this page as a starting point for a single-tenant site that may later grow into a
-			tenant-ready structure. Keep custom logic isolated in the project, not in EmDash core.
-		</p>
+		<h2>Editor workflow shortcuts</h2>
+		<div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+			<div>
+				<strong>{posts.length}</strong>
+				<p style="margin:0.5rem 0;">Published posts currently visible on the public website.</p>
+				<a href="/posts">View posts</a>
+			</div>
+			<div>
+				<strong>{newsItems.length}</strong>
+				<p style="margin:0.5rem 0;">News updates connected to the same publishing workflow.</p>
+				<a href="/news">View news</a>
+			</div>
+			<div>
+				<strong>{pages.length}</strong>
+				<p style="margin:0.5rem 0;">Managed pages such as About, implementation notes, and product info.</p>
+				<a href="/about">View about page</a>
+			</div>
+		</div>
+	</section>
+
+	<section>
+		<h2>Recent posts</h2>
+		{posts.length === 0 ? <p>No posts yet. Create one from the admin.</p> : (
+			<ul style="padding-left:1.25rem;">
+				{posts.map((post) => (
+					<li style="margin-bottom:1rem;">
+						<a href={`/posts/${post.id}`}>
+							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} />}
+							<strong>{post.data.title}</strong>
+						</a>
+						{post.data.excerpt && <p>{post.data.excerpt}</p>}
+					</li>
+				))}
+			</ul>
+		)}
+	</section>
+
+	<section>
+		<h2>Latest news</h2>
+		{newsItems.length === 0 ? <p>No news items yet.</p> : (
+			<ul style="padding-left:1.25rem;">
+				{newsItems.map((item) => (
+					<li style="margin-bottom:1rem;">
+						<a href={`/news/${item.id}`}><strong>{item.data.title}</strong></a>
+						{item.data.summary && <p>{item.data.summary}</p>}
+					</li>
+				))}
+			</ul>
+		)}
 	</section>
 </BaseLayout>

@@ -2,13 +2,13 @@
 	"$schema": "https://emdashcms.com/seed.schema.json",
 	"version": "1",
 	"meta": {
-		"name": "AWCMS-Micro Default Cloudflare",
-		"description": "Cloudflare-ready AWCMS-Micro example template with posts, news, pages, and plugin-ready governance surfaces.",
+		"name": "AWCMS-Micro Cloudflare",
+		"description": "Cloudflare-ready AWCMS-Micro website template with public content, protected admin access, and plugin-ready governance surfaces.",
 		"author": "AWCMS-Micro"
 	},
 	"settings": {
-		"title": "AWCMS-Micro Cloudflare Example",
-		"tagline": "Deployable EmDash example template for posts, pages, news, and AWCMS-Micro plugin integration."
+		"title": "AWCMS-Micro",
+		"tagline": "A Cloudflare-ready EmDash implementation for public publishing, governance, and admin operations."
 	},
 	"collections": [
 		{
@@ -99,7 +99,7 @@
 				"slug": "about",
 				"status": "published",
 				"data": {
-					"title": "About This Example",
+					"title": "About AWCMS-Micro",
 					"content": [
 						{
 							"_type": "block",
@@ -107,7 +107,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "This Cloudflare-focused template keeps EmDash core untouched while preparing AWCMS-Micro for deployable posts, pages, news, and plugin-backed governance examples.",
+									"text": "AWCMS-Micro combines a public Astro website, protected EmDash admin operations, and Cloudflare deployment primitives without forking or patching EmDash core.",
 									"_key": "p1"
 								}
 							],
@@ -123,8 +123,8 @@
 				"slug": "cloudflare-ready-awcms-micro",
 				"status": "published",
 				"data": {
-					"title": "Preparing AWCMS-Micro for Cloudflare",
-					"excerpt": "How this example site keeps EmDash compatibility while preparing Cloudflare deployment boundaries.",
+					"title": "Operating AWCMS-Micro on Cloudflare",
+					"excerpt": "How AWCMS-Micro uses EmDash, D1, R2, and Astro to keep publishing and admin operations on one deployment path.",
 					"content": [
 						{
 							"_type": "block",
@@ -132,7 +132,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "This post demonstrates the public content pattern for the Cloudflare template while the AWCMS-Micro example plugin remains isolated in its own package.",
+									"text": "This post explains the intended AWCMS-Micro production model: public pages render from EmDash-managed content, while editors authenticate into the standard admin route to create, publish, and govern that content.",
 									"_key": "p2"
 								}
 							],
@@ -152,8 +152,8 @@
 				"slug": "plugin-surface-ready",
 				"status": "published",
 				"data": {
-					"title": "Plugin Surface Ready For Template Integration",
-					"summary": "The AWCMS-Micro example plugin is wired into this Cloudflare template through the standard EmDash plugin path.",
+					"title": "Governance Plugin Surface Ready",
+					"summary": "The AWCMS-Micro example plugin is connected through the standard EmDash plugin path for audit, access-rights, and ABAC demonstrations.",
 					"content": [
 						{
 							"_type": "block",
@@ -161,7 +161,7 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "This news collection gives the template a second public content stream without changing any upstream EmDash template path.",
+									"text": "This news collection demonstrates how AWCMS-Micro can expose operational updates publicly while keeping the management workflow inside the protected EmDash admin interface.",
 									"_key": "n1"
 								}
 							],

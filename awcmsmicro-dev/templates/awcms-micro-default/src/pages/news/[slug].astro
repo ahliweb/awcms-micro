@@ -1,0 +1,40 @@
+---
+import { decodeSlug, getEmDashEntry, getSeoMeta, getSiteSettings } from "emdash";
+import { PortableText } from "emdash/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { resolveAwcmsMicroSiteIdentity } from "../../utils/site-identity";
+
+function asString(value: unknown) {
+	return typeof value === "string" ? value : String(value ?? "");
+}
+
+const slug = decodeSlug(Astro.params.slug);
+
+if (!slug) return Astro.redirect("/404");
+
+const { entry: item, cacheHint } = await getEmDashEntry("news", slug);
+
+if (!item) return Astro.redirect("/404");
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const seo = getSeoMeta(item, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: `/news/${slug}`,
+});
+---
+
+<BaseLayout
+	title={seo.title}
+	pageTitle={seo.ogTitle}
+	description={seo.description}
+	canonical={seo.canonical}
+	content={{ collection: "news", id: asString(item.data.id), slug }}
+>
+	<section>
+		<h1 {...item.edit.title}>{item.data.title}</h1>
+		{item.data.summary && <p style="color:#475569;">{item.data.summary}</p>}
+		<PortableText value={item.data.content} />
+	</section>
+</BaseLayout>
