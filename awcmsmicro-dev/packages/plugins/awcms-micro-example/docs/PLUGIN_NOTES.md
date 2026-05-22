@@ -14,3 +14,5 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 ## Safe Enablement
 
 Add the plugin from project-level configuration only. Do not hardcode it into EmDash core registries.
+
+This example package currently assumes the EmDash monorepo workspace dependency model.

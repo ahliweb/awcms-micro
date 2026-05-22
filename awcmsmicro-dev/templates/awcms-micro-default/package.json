@@ -10,10 +10,10 @@
 		"dev": "astro dev",
 		"build": "astro build",
 		"preview": "astro preview",
+		"start": "node ./dist/server/entry.mjs",
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"@astrojs/check": "catalog:",
 		"@astrojs/node": "catalog:",
 		"@astrojs/react": "catalog:",
 		"astro": "catalog:",
@@ -21,5 +21,10 @@
 		"emdash": "workspace:*",
 		"react": "catalog:",
 		"react-dom": "catalog:"
-	}
+	},
+	"devDependencies": {
+		"@astrojs/check": "catalog:"
+	},
+	"peerDependencies": {},
+	"optionalDependencies": {}
 }

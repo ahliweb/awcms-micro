@@ -15,7 +15,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - EmDash-compatible: the template uses standard Astro and EmDash integration points only.
 - No EmDash core modification: manual adoption is documented here instead of changing built-in template registration.
 
-## Included Files
+## Key Files
 
 - `package.json`
 - `seed/seed.json`

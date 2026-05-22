@@ -18,4 +18,6 @@ The example uses the `awcms:example:<resource>:<action>` namespace.
 
 ## Safe Enablement
 
-This plugin is intentionally not registered globally in EmDash core. Enable it from a compatible project through the normal `plugins: []` configuration path.
+This plugin is intentionally not registered globally in EmDash core. Enable it from a compatible EmDash workspace through the normal `plugins: []` configuration path.
+
+The package currently follows the monorepo's workspace dependency conventions and is intended as an in-repository example, not a standalone published plugin artifact.
