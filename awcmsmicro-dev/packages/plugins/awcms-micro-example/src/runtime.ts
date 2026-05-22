@@ -20,6 +20,21 @@ export const AWCMS_EXAMPLE_STORAGE = {
 	accessChangeEvents: {
 		indexes: ["timestamp", "kind", "scope", ["kind", "timestamp"]],
 	},
+	abacChangeEvents: {
+		indexes: ["timestamp", "kind", "scope", ["kind", "timestamp"]],
+	},
+	abacAttributeCatalog: {
+		indexes: ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],
+	},
+	abacPolicyRules: {
+		indexes: ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
+	},
+	abacResourceAssignments: {
+		indexes: ["resourceId", "updatedAt"],
+	},
+	abacSubjectAssignments: {
+		indexes: ["subjectId", "updatedAt"],
+	},
 	contentSnapshots: {
 		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"]],
 	},
@@ -43,6 +58,21 @@ export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = {
 	},
 	accessChangeEvents: {
 		indexes: ["timestamp", "kind", "scope"],
+	},
+	abacChangeEvents: {
+		indexes: ["timestamp", "kind", "scope"],
+	},
+	abacAttributeCatalog: {
+		indexes: ["key", "targetType", "updatedAt"],
+	},
+	abacPolicyRules: {
+		indexes: ["id", "effect", "updatedAt"],
+	},
+	abacResourceAssignments: {
+		indexes: ["resourceId", "updatedAt"],
+	},
+	abacSubjectAssignments: {
+		indexes: ["subjectId", "updatedAt"],
 	},
 	contentSnapshots: {
 		indexes: ["collection", "contentId", "timestamp"],
@@ -68,11 +98,15 @@ export const AWCMS_EXAMPLE_ADMIN_PAGES = [
 	{ path: "/access/roles", label: "Roles", icon: "users" },
 	{ path: "/access/matrix", label: "Role Matrix", icon: "grid" },
 	{ path: "/access/preview", label: "Access Preview", icon: "eye" },
+	{ path: "/abac/attributes", label: "ABAC Attributes", icon: "sliders" },
+	{ path: "/abac/policies", label: "ABAC Policies", icon: "shield" },
+	{ path: "/abac/preview", label: "ABAC Preview", icon: "target" },
 ];
 
 export const AWCMS_EXAMPLE_ADMIN_WIDGETS = [
 	{ id: "governance-status", title: "Governance Status", size: "half" as const },
 	{ id: "access-rights-health", title: "Access Rights Health", size: "half" as const },
+	{ id: "abac-policy-status", title: "ABAC Policy Status", size: "half" as const },
 ];
 
 export const AWCMS_EXAMPLE_SETTINGS_SCHEMA = {
@@ -169,6 +203,37 @@ export interface UserRoleAssignment {
 	updatedAt: string;
 }
 
+export interface AbacAttributeDefinition {
+	key: string;
+	label: string;
+	targetType: "subject" | "resource" | "context";
+	description: string;
+	updatedAt: string;
+}
+
+export interface AbacSubjectAssignment {
+	subjectId: string;
+	attributes: Record<string, string>;
+	updatedAt: string;
+}
+
+export interface AbacResourceAssignment {
+	resourceId: string;
+	attributes: Record<string, string>;
+	updatedAt: string;
+}
+
+export interface AbacPolicyRule {
+	id: string;
+	label: string;
+	effect: "allow" | "deny";
+	actions: string[];
+	requiredSubject: Record<string, string>;
+	requiredResource: Record<string, string>;
+	requiredContext: Record<string, string>;
+	updatedAt: string;
+}
+
 const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 	{
 		slug: "content.read.public",
@@ -230,6 +295,51 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 	{
 		userId: "user-demo-reviewer",
 		roles: ["governance-reviewer"],
+		updatedAt: "",
+	},
+];
+
+const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
+	{ key: "tenant_id", label: "Tenant ID", targetType: "subject", description: "Tenant identifier for the acting subject.", updatedAt: "" },
+	{ key: "site_id", label: "Site ID", targetType: "subject", description: "Site identifier for the acting subject.", updatedAt: "" },
+	{ key: "module_id", label: "Module ID", targetType: "resource", description: "Module identifier for the resource.", updatedAt: "" },
+	{ key: "resource_type", label: "Resource Type", targetType: "resource", description: "Resource type used in ABAC evaluation.", updatedAt: "" },
+	{ key: "resource_status", label: "Resource Status", targetType: "resource", description: "Workflow status of the resource.", updatedAt: "" },
+	{ key: "resource_sensitivity", label: "Resource Sensitivity", targetType: "resource", description: "Sensitivity classification for the resource.", updatedAt: "" },
+	{ key: "owner_user_id", label: "Owner User ID", targetType: "resource", description: "Owning user of the resource.", updatedAt: "" },
+	{ key: "region_scope", label: "Region Scope", targetType: "context", description: "Region scope for the decision context.", updatedAt: "" },
+	{ key: "action", label: "Action", targetType: "context", description: "Action under evaluation.", updatedAt: "" },
+];
+
+const DEFAULT_ABAC_SUBJECTS: AbacSubjectAssignment[] = [
+	{ subjectId: "user-demo-editor", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
+	{ subjectId: "user-demo-reviewer", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
+];
+
+const DEFAULT_ABAC_RESOURCES: AbacResourceAssignment[] = [
+	{ resourceId: "resource-public-post", attributes: { module_id: "content", resource_type: "post", resource_status: "published", resource_sensitivity: "public", owner_user_id: "user-demo-editor" }, updatedAt: "" },
+	{ resourceId: "resource-sensitive-policy", attributes: { module_id: "governance", resource_type: "policy", resource_status: "review", resource_sensitivity: "restricted", owner_user_id: "user-demo-reviewer" }, updatedAt: "" },
+];
+
+const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
+	{
+		id: "allow-published-content-read",
+		label: "Allow published content reads for the same tenant",
+		effect: "allow",
+		actions: ["content.read"],
+		requiredSubject: { tenant_id: "tenant-a" },
+		requiredResource: { resource_status: "published", resource_sensitivity: "public" },
+		requiredContext: { region_scope: "id-jakarta" },
+		updatedAt: "",
+	},
+	{
+		id: "deny-sensitive-publish-outside-governance",
+		label: "Explicitly deny publishing restricted governance resources",
+		effect: "deny",
+		actions: ["content.publish_sensitive"],
+		requiredSubject: { tenant_id: "tenant-a" },
+		requiredResource: { resource_sensitivity: "restricted", module_id: "governance" },
+		requiredContext: {},
 		updatedAt: "",
 	},
 ];
@@ -423,6 +533,39 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 	}
 }
 
+async function ensureAbacCatalogSeeded(ctx: PluginContext) {
+	const existingAttributes = await ctx.storage.abacAttributeCatalog!.count();
+	if (existingAttributes === 0) {
+		for (const item of DEFAULT_ABAC_ATTRIBUTES) {
+			await ctx.storage.abacAttributeCatalog!.put(item.key, touchUpdatedAt(item));
+		}
+	}
+
+	const existingSubjects = await ctx.storage.abacSubjectAssignments!.count();
+	if (existingSubjects === 0) {
+		for (const item of DEFAULT_ABAC_SUBJECTS) {
+			await ctx.storage.abacSubjectAssignments!.put(item.subjectId, touchUpdatedAt(item));
+		}
+	}
+
+	const existingResources = await ctx.storage.abacResourceAssignments!.count();
+	if (existingResources === 0) {
+		for (const item of DEFAULT_ABAC_RESOURCES) {
+			await ctx.storage.abacResourceAssignments!.put(item.resourceId, touchUpdatedAt(item));
+		}
+	}
+
+	const existingPolicies = await ctx.storage.abacPolicyRules!.count();
+	if (existingPolicies === 0) {
+		for (const item of DEFAULT_ABAC_POLICIES) {
+			await ctx.storage.abacPolicyRules!.put(item.id, touchUpdatedAt(item));
+		}
+	}
+
+	await ctx.kv.set("state:lastAbacPreviewSubjectId", DEFAULT_ABAC_SUBJECTS[0]?.subjectId ?? "");
+	await ctx.kv.set("state:lastAbacPreviewResourceId", DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "");
+}
+
 async function listCollectionValues<T>(collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> }): Promise<T[]> {
 	const result = await collection.query({ orderBy: { updatedAt: "desc" }, limit: 200 });
 	return result.items.map((item) => item.data as T);
@@ -444,11 +587,38 @@ async function listUserRoleAssignments(ctx: PluginContext) {
 	return listCollectionValues<UserRoleAssignment>(ctx.storage.userRoleAssignments!);
 }
 
+async function listAbacAttributes(ctx: PluginContext) {
+	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.abacAttributeCatalog!);
+}
+
+async function listAbacPolicies(ctx: PluginContext) {
+	return listCollectionValues<AbacPolicyRule>(ctx.storage.abacPolicyRules!);
+}
+
+async function listAbacSubjects(ctx: PluginContext) {
+	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.abacSubjectAssignments!);
+}
+
+async function listAbacResources(ctx: PluginContext) {
+	return listCollectionValues<AbacResourceAssignment>(ctx.storage.abacResourceAssignments!);
+}
+
 function getStringArray(value: unknown, key: string) {
 	if (!isRecord(value)) return [];
 	const candidate = value[key];
 	if (!Array.isArray(candidate)) return [];
 	return candidate.filter((item): item is string => typeof item === "string" && item.length > 0);
+}
+
+function getStringRecord(value: unknown, key: string): Record<string, string> {
+	if (!isRecord(value)) return {};
+	const candidate = value[key];
+	if (!isRecord(candidate)) return {};
+	const result: Record<string, string> = {};
+	for (const [entryKey, entryValue] of Object.entries(candidate)) {
+		if (typeof entryValue === "string" && entryValue.length > 0) result[entryKey] = entryValue;
+	}
+	return result;
 }
 
 async function summarizeAccessRights(ctx: PluginContext) {
@@ -479,6 +649,134 @@ async function summarizeAccessRights(ctx: PluginContext) {
 			rolesWithoutPermissions,
 			usersWithoutRoles,
 		},
+	};
+}
+
+function collectMissingAttributes(required: Record<string, string>, available: Record<string, string>) {
+	return Object.entries(required).filter(([key]) => available[key] === undefined).map(([key]) => key);
+}
+
+function allAttributesMatch(required: Record<string, string>, available: Record<string, string>) {
+	return Object.entries(required).every(([key, value]) => available[key] === value);
+}
+
+async function summarizeAbac(ctx: PluginContext) {
+	await ensureAbacCatalogSeeded(ctx);
+	const attributes = await listAbacAttributes(ctx);
+	const policies = await listAbacPolicies(ctx);
+	const subjects = await listAbacSubjects(ctx);
+	const resources = await listAbacResources(ctx);
+	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.abacChangeEvents!);
+
+	return {
+		attributes,
+		policies,
+		subjects,
+		resources,
+		events,
+		health: {
+			attributeCount: attributes.length,
+			policyCount: policies.length,
+			subjectCount: subjects.length,
+			resourceCount: resources.length,
+			explicitDenyCount: policies.filter((policy) => policy.effect === "deny").length,
+		},
+	};
+}
+
+async function appendAbacChangeEvent(ctx: PluginContext, record: ExampleAuditEvent) {
+	await ctx.storage.abacChangeEvents!.put(record.id, record);
+	await incrementCounter(ctx, "state:abacChangeCount");
+	return record;
+}
+
+async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
+	await ensureAbacCatalogSeeded(ctx);
+	const subjectId = getString(input, "subjectId") ?? "";
+	const resourceId = getString(input, "resourceId") ?? "";
+	const action = getString(input, "action") ?? "";
+	const contextAttributes = getStringRecord(input, "contextAttributes");
+
+	if (!subjectId || !resourceId || !action) {
+		return {
+			allowed: false,
+			reason: "Missing required ABAC input",
+			matchedPolicyIds: [],
+			effect: "deny",
+			missingAttributes: [
+				...(subjectId ? [] : ["subjectId"]),
+				...(resourceId ? [] : ["resourceId"]),
+				...(action ? [] : ["action"]),
+			],
+		};
+	}
+
+	const subject = (await ctx.storage.abacSubjectAssignments!.get(subjectId)) as AbacSubjectAssignment | null;
+	const resource = (await ctx.storage.abacResourceAssignments!.get(resourceId)) as AbacResourceAssignment | null;
+
+	if (!subject || !resource) {
+		return {
+			allowed: false,
+			reason: !subject ? `No subject assignment found for ${subjectId}` : `No resource assignment found for ${resourceId}`,
+			matchedPolicyIds: [],
+			effect: "deny",
+			missingAttributes: [],
+		};
+	}
+
+	const policies = await listAbacPolicies(ctx);
+	const relevantPolicies = policies.filter((policy) => policy.actions.includes(action));
+	let missingAttributes: string[] = [];
+	const matchedAllowPolicies: string[] = [];
+	const matchedDenyPolicies: string[] = [];
+
+	for (const policy of relevantPolicies) {
+		const missing = [
+			...collectMissingAttributes(policy.requiredSubject, subject.attributes),
+			...collectMissingAttributes(policy.requiredResource, resource.attributes),
+			...collectMissingAttributes(policy.requiredContext, contextAttributes),
+		];
+		if (missing.length > 0) {
+			missingAttributes = [...new Set([...missingAttributes, ...missing])];
+			continue;
+		}
+
+		const subjectMatch = allAttributesMatch(policy.requiredSubject, subject.attributes);
+		const resourceMatch = allAttributesMatch(policy.requiredResource, resource.attributes);
+		const contextMatch = allAttributesMatch(policy.requiredContext, contextAttributes);
+
+		if (!(subjectMatch && resourceMatch && contextMatch)) continue;
+
+		if (policy.effect === "deny") matchedDenyPolicies.push(policy.id);
+		else matchedAllowPolicies.push(policy.id);
+	}
+
+	if (matchedDenyPolicies.length > 0) {
+		return {
+			allowed: false,
+			reason: `Explicit deny from policy ${matchedDenyPolicies.join(", ")}`,
+			matchedPolicyIds: matchedDenyPolicies,
+			effect: "deny",
+			missingAttributes,
+		};
+	}
+
+	if (matchedAllowPolicies.length > 0) {
+		return {
+			allowed: true,
+			reason: `Allowed by policy ${matchedAllowPolicies.join(", ")}`,
+			matchedPolicyIds: matchedAllowPolicies,
+			effect: "allow",
+			missingAttributes,
+		};
+	}
+
+	return {
+		allowed: false,
+		reason: missingAttributes.length > 0 ? `Missing required attributes: ${missingAttributes.join(", ")}` : `No matching allow policy for action ${action}`,
+		matchedPolicyIds: [],
+		effect: "deny",
+		missingAttributes,
 	};
 }
 
@@ -706,6 +1004,102 @@ const accessHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return access.health;
 };
 
+const abacAttributesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const abac = await summarizeAbac(ctx);
+	return { items: abac.attributes };
+};
+
+const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAbacCatalogSeeded(ctx);
+	const key = getString(routeCtx.input, "key") ?? "";
+	const label = getString(routeCtx.input, "label") ?? key;
+	const targetType = (getString(routeCtx.input, "targetType") as AbacAttributeDefinition["targetType"] | undefined) ?? "context";
+	const description = getString(routeCtx.input, "description") ?? "";
+	const item = touchUpdatedAt<AbacAttributeDefinition>({ key, label, targetType, description, updatedAt: "" });
+	await ctx.storage.abacAttributeCatalog!.put(key, item);
+	const event = createAuditRecord({ kind: "abac.attribute.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC attribute ${key}`, metadata: { ...item } });
+	await appendAbacChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item };
+};
+
+const abacSubjectsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const abac = await summarizeAbac(ctx);
+	return { items: abac.subjects };
+};
+
+const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAbacCatalogSeeded(ctx);
+	const subjectId = getString(routeCtx.input, "subjectId") ?? "";
+	const attributes = getStringRecord(routeCtx.input, "attributes");
+	const item = touchUpdatedAt<AbacSubjectAssignment>({ subjectId, attributes, updatedAt: "" });
+	await ctx.storage.abacSubjectAssignments!.put(subjectId, item);
+	const event = createAuditRecord({ kind: "abac.subject.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC subject assignment for ${subjectId}`, metadata: { ...item } });
+	await appendAbacChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item };
+};
+
+const abacResourcesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const abac = await summarizeAbac(ctx);
+	return { items: abac.resources };
+};
+
+const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAbacCatalogSeeded(ctx);
+	const resourceId = getString(routeCtx.input, "resourceId") ?? "";
+	const attributes = getStringRecord(routeCtx.input, "attributes");
+	const item = touchUpdatedAt<AbacResourceAssignment>({ resourceId, attributes, updatedAt: "" });
+	await ctx.storage.abacResourceAssignments!.put(resourceId, item);
+	const event = createAuditRecord({ kind: "abac.resource.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC resource assignment for ${resourceId}`, metadata: { ...item } });
+	await appendAbacChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item };
+};
+
+const abacPoliciesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const abac = await summarizeAbac(ctx);
+	return { items: abac.policies };
+};
+
+const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	await ensureAbacCatalogSeeded(ctx);
+	const id = getString(routeCtx.input, "id") ?? "";
+	const label = getString(routeCtx.input, "label") ?? id;
+	const effect = (getString(routeCtx.input, "effect") as AbacPolicyRule["effect"] | undefined) ?? "allow";
+	const actions = getStringArray(routeCtx.input, "actions");
+	const requiredSubject = getStringRecord(routeCtx.input, "requiredSubject");
+	const requiredResource = getStringRecord(routeCtx.input, "requiredResource");
+	const requiredContext = getStringRecord(routeCtx.input, "requiredContext");
+	const item = touchUpdatedAt<AbacPolicyRule>({ id, label, effect, actions, requiredSubject, requiredResource, requiredContext, updatedAt: "" });
+	await ctx.storage.abacPolicyRules!.put(id, item);
+	const event = createAuditRecord({ kind: "abac.policy.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC policy ${id}`, metadata: { ...item } });
+	await appendAbacChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item };
+};
+
+const abacPreviewRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	return evaluateAbacDecision(ctx, routeCtx.input);
+};
+
+const abacEnforceDemoRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const decision = await evaluateAbacDecision(ctx, routeCtx.input);
+	const contextAttributes = getStringRecord(routeCtx.input, "contextAttributes");
+	const sensitive = (contextAttributes.action ?? getString(routeCtx.input, "action") ?? "").includes("sensitive");
+	if (sensitive) {
+		const event = createAuditRecord({ kind: "abac.decision.audit", scope: "abac", actor: actorFromRoute(ctx), summary: `Audited ABAC decision for sensitive action ${contextAttributes.action ?? getString(routeCtx.input, "action") ?? "unknown"}`, metadata: decision as unknown as Record<string, unknown> });
+		await appendAbacChangeEvent(ctx, event);
+		await appendAuditEvent(ctx, event);
+	}
+	return decision;
+};
+
+const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const abac = await summarizeAbac(ctx);
+	return abac.health;
+};
+
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
@@ -723,6 +1117,17 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"access/matrix/save": { handler: accessMatrixSaveRoute },
 	"access/preview": { handler: accessPreviewRoute },
 	"access/health": { handler: accessHealthRoute },
+	"abac/attributes/list": { handler: abacAttributesListRoute },
+	"abac/attributes/save": { handler: abacAttributesSaveRoute },
+	"abac/subjects/list": { handler: abacSubjectsListRoute },
+	"abac/subjects/save": { handler: abacSubjectsSaveRoute },
+	"abac/resources/list": { handler: abacResourcesListRoute },
+	"abac/resources/save": { handler: abacResourcesSaveRoute },
+	"abac/policies/list": { handler: abacPoliciesListRoute },
+	"abac/policies/save": { handler: abacPoliciesSaveRoute },
+	"abac/preview": { handler: abacPreviewRoute },
+	"abac/enforce-demo": { handler: abacEnforceDemoRoute },
+	"abac/health": { handler: abacHealthRoute },
 };
 
 export function createSandboxRoutes() {
@@ -756,6 +1161,7 @@ function toSandboxRequest(request: Request): SandboxedRequest {
 const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:install": async (_event, ctx) => {
 		await ensureAccessCatalogSeeded(ctx);
+		await ensureAbacCatalogSeeded(ctx);
 		await ctx.kv.set("state:lastLifecycle", "plugin:install");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		await appendAuditEvent(
@@ -771,6 +1177,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	},
 	"plugin:activate": async (_event, ctx) => {
 		await ensureAccessCatalogSeeded(ctx);
+		await ensureAbacCatalogSeeded(ctx);
 		await ctx.kv.set("state:lastLifecycle", "plugin:activate");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		if (ctx.cron) {

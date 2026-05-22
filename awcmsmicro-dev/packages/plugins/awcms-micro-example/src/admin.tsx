@@ -94,6 +94,60 @@ interface AccessHealthResponse {
 	usersWithoutRoles: string[];
 }
 
+interface AbacAttributeItem {
+	key: string;
+	label: string;
+	targetType: "subject" | "resource" | "context";
+	description: string;
+	updatedAt: string;
+}
+
+interface AbacAssignmentItem {
+	subjectId?: string;
+	resourceId?: string;
+	attributes: Record<string, string>;
+	updatedAt: string;
+}
+
+interface AbacPolicyItem {
+	id: string;
+	label: string;
+	effect: "allow" | "deny";
+	actions: string[];
+	requiredSubject: Record<string, string>;
+	requiredResource: Record<string, string>;
+	requiredContext: Record<string, string>;
+	updatedAt: string;
+}
+
+interface AbacAttributesResponse {
+	items: AbacAttributeItem[];
+}
+
+interface AbacAssignmentsResponse {
+	items: AbacAssignmentItem[];
+}
+
+interface AbacPoliciesResponse {
+	items: AbacPolicyItem[];
+}
+
+interface AbacPreviewResponse {
+	allowed: boolean;
+	reason: string;
+	matchedPolicyIds: string[];
+	effect: "allow" | "deny";
+	missingAttributes: string[];
+}
+
+interface AbacHealthResponse {
+	attributeCount: number;
+	policyCount: number;
+	subjectCount: number;
+	resourceCount: number;
+	explicitDenyCount: number;
+}
+
 function usePluginData<T>(url: string, init?: RequestInit) {
 	const [data, setData] = React.useState<T | null>(null);
 	const [error, setError] = React.useState<string | null>(null);
@@ -194,6 +248,44 @@ function AccessRightsHealthWidget() {
 					? "No obvious catalog health gaps detected."
 					: `Gaps: ${data.rolesWithoutPermissions.length} role(s) without permissions, ${data.usersWithoutRoles.length} user assignment(s) without roles.`}
 			</div>
+			<button className="text-xs text-kumo-subtle hover:text-kumo-foreground" onClick={() => void reload()}>
+				Refresh
+			</button>
+		</div>
+	);
+}
+
+function AbacPolicyStatusWidget() {
+	const { data, error, loading, reload } = usePluginData<AbacHealthResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/health",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+
+	if (loading) return <div className="text-sm text-kumo-subtle">Loading ABAC status...</div>;
+	if (error) return <div className="text-sm text-red-600">{error}</div>;
+	if (!data) return <div className="text-sm text-kumo-subtle">No ABAC data available.</div>;
+
+	return (
+		<div className="space-y-3">
+			<div className="grid grid-cols-2 gap-2 text-sm">
+				<div>
+					<div className="text-kumo-subtle">Attributes</div>
+					<div className="font-semibold">{data.attributeCount}</div>
+				</div>
+				<div>
+					<div className="text-kumo-subtle">Policies</div>
+					<div className="font-semibold">{data.policyCount}</div>
+				</div>
+				<div>
+					<div className="text-kumo-subtle">Subjects</div>
+					<div className="font-semibold">{data.subjectCount}</div>
+				</div>
+				<div>
+					<div className="text-kumo-subtle">Resources</div>
+					<div className="font-semibold">{data.resourceCount}</div>
+				</div>
+			</div>
+			<div className="text-xs text-kumo-subtle">Explicit deny policies: {data.explicitDenyCount}</div>
 			<button className="text-xs text-kumo-subtle hover:text-kumo-foreground" onClick={() => void reload()}>
 				Refresh
 			</button>
@@ -645,6 +737,289 @@ function PreviewPage() {
 	);
 }
 
+function AbacAttributesPage() {
+	const { data, error, loading, reload } = usePluginData<AbacAttributesResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/attributes/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const { data: subjectData, reload: reloadSubjects } = usePluginData<AbacAssignmentsResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/subjects/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const { data: resourceData, reload: reloadResources } = usePluginData<AbacAssignmentsResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/resources/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const [attributeState, setAttributeState] = React.useState({ key: "", label: "", targetType: "context", description: "" });
+	const [subjectState, setSubjectState] = React.useState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
+	const [resourceState, setResourceState] = React.useState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
+
+	const parseAttributes = (value: string) => {
+		try {
+			return JSON.parse(value) as Record<string, string>;
+		} catch {
+			return {};
+		}
+	};
+
+	const saveAttribute = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const response = await apiFetch("/_emdash/api/plugins/awcms-micro-example/abac/attributes/save", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(attributeState),
+		});
+		if (!response.ok) throw new Error(await getErrorMessage(response, "Failed to save ABAC attribute"));
+		await parseApiResponse(response);
+		setAttributeState({ key: "", label: "", targetType: "context", description: "" });
+		await reload();
+	};
+
+	const saveSubject = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const response = await apiFetch("/_emdash/api/plugins/awcms-micro-example/abac/subjects/save", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ subjectId: subjectState.subjectId, attributes: parseAttributes(subjectState.attributes) }),
+		});
+		if (!response.ok) throw new Error(await getErrorMessage(response, "Failed to save ABAC subject"));
+		await parseApiResponse(response);
+		setSubjectState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
+		await reloadSubjects();
+	};
+
+	const saveResource = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const response = await apiFetch("/_emdash/api/plugins/awcms-micro-example/abac/resources/save", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ resourceId: resourceState.resourceId, attributes: parseAttributes(resourceState.attributes) }),
+		});
+		if (!response.ok) throw new Error(await getErrorMessage(response, "Failed to save ABAC resource"));
+		await parseApiResponse(response);
+		setResourceState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
+		await reloadResources();
+	};
+
+	if (loading) return <div className="text-kumo-subtle">Loading ABAC attributes...</div>;
+	if (error) return <div className="text-red-600">{error}</div>;
+
+	return (
+		<div className="space-y-6 max-w-5xl">
+			<div>
+				<h1 className="text-3xl font-bold">ABAC Attribute Catalog</h1>
+				<p className="text-kumo-subtle mt-2">Define subject, resource, and context attributes for the AWCMS-Micro ABAC demo.</p>
+			</div>
+			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveAttribute(event)}>
+				<input className="w-full rounded border px-3 py-2" placeholder="attribute key" value={attributeState.key} onChange={(event) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
+				<input className="w-full rounded border px-3 py-2" placeholder="label" value={attributeState.label} onChange={(event) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
+				<select className="w-full rounded border px-3 py-2" value={attributeState.targetType} onChange={(event) => setAttributeState((current) => ({ ...current, targetType: event.target.value }))}>
+					<option value="subject">subject</option>
+					<option value="resource">resource</option>
+					<option value="context">context</option>
+				</select>
+				<textarea className="w-full rounded border px-3 py-2" placeholder="description" value={attributeState.description} onChange={(event) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
+				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Attribute</button>
+			</form>
+			<div className="grid gap-4 md:grid-cols-2">
+				<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveSubject(event)}>
+					<h2 className="text-xl font-semibold">Subject Assignment Example</h2>
+					<input className="w-full rounded border px-3 py-2" placeholder="subject id" value={subjectState.subjectId} onChange={(event) => setSubjectState((current) => ({ ...current, subjectId: event.target.value }))} />
+					<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={subjectState.attributes} onChange={(event) => setSubjectState((current) => ({ ...current, attributes: event.target.value }))} />
+					<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Subject</button>
+				</form>
+				<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveResource(event)}>
+					<h2 className="text-xl font-semibold">Resource Assignment Example</h2>
+					<input className="w-full rounded border px-3 py-2" placeholder="resource id" value={resourceState.resourceId} onChange={(event) => setResourceState((current) => ({ ...current, resourceId: event.target.value }))} />
+					<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={resourceState.attributes} onChange={(event) => setResourceState((current) => ({ ...current, attributes: event.target.value }))} />
+					<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Resource</button>
+				</form>
+			</div>
+			<div className="grid gap-4 md:grid-cols-3">
+				<div>
+					<h2 className="text-xl font-semibold">Attributes</h2>
+					<ul className="space-y-2">
+						{data?.items.map((item) => (
+							<li className="rounded border p-3" key={item.key}><div className="font-medium">{item.label}</div><div className="text-sm text-kumo-subtle">{item.key} | {item.targetType}</div></li>
+						))}
+					</ul>
+				</div>
+				<div>
+					<h2 className="text-xl font-semibold">Subjects</h2>
+					<ul className="space-y-2">
+						{subjectData?.items.map((item) => (
+							<li className="rounded border p-3" key={item.subjectId}><div className="font-medium">{item.subjectId}</div><div className="text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div></li>
+						))}
+					</ul>
+				</div>
+				<div>
+					<h2 className="text-xl font-semibold">Resources</h2>
+					<ul className="space-y-2">
+						{resourceData?.items.map((item) => (
+							<li className="rounded border p-3" key={item.resourceId}><div className="font-medium">{item.resourceId}</div><div className="text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div></li>
+						))}
+					</ul>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function AbacPoliciesPage() {
+	const { data, error, loading, reload } = usePluginData<AbacPoliciesResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/policies/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const [formState, setFormState] = React.useState({
+		id: "",
+		label: "",
+		effect: "allow",
+		actions: "content.read",
+		requiredSubject: '{"tenant_id":"tenant-a"}',
+		requiredResource: '{"resource_status":"published"}',
+		requiredContext: '{"region_scope":"id-jakarta"}',
+	});
+
+	const parseAttributes = (value: string) => {
+		try {
+			return JSON.parse(value) as Record<string, string>;
+		} catch {
+			return {};
+		}
+	};
+
+	const savePolicy = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const response = await apiFetch("/_emdash/api/plugins/awcms-micro-example/abac/policies/save", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				id: formState.id,
+				label: formState.label,
+				effect: formState.effect,
+				actions: formState.actions.split(",").map((item) => item.trim()).filter(Boolean),
+				requiredSubject: parseAttributes(formState.requiredSubject),
+				requiredResource: parseAttributes(formState.requiredResource),
+				requiredContext: parseAttributes(formState.requiredContext),
+			}),
+		});
+		if (!response.ok) throw new Error(await getErrorMessage(response, "Failed to save ABAC policy"));
+		await parseApiResponse(response);
+		setFormState({ id: "", label: "", effect: "allow", actions: "content.read", requiredSubject: '{"tenant_id":"tenant-a"}', requiredResource: '{"resource_status":"published"}', requiredContext: '{"region_scope":"id-jakarta"}' });
+		await reload();
+	};
+
+	if (loading) return <div className="text-kumo-subtle">Loading ABAC policies...</div>;
+	if (error) return <div className="text-red-600">{error}</div>;
+
+	return (
+		<div className="space-y-6 max-w-5xl">
+			<div>
+				<h1 className="text-3xl font-bold">ABAC Policy Rules</h1>
+				<p className="text-kumo-subtle mt-2">Create explicit allow and deny rules for the demonstrative ABAC engine.</p>
+			</div>
+			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void savePolicy(event)}>
+				<input className="w-full rounded border px-3 py-2" placeholder="policy id" value={formState.id} onChange={(event) => setFormState((current) => ({ ...current, id: event.target.value }))} />
+				<input className="w-full rounded border px-3 py-2" placeholder="label" value={formState.label} onChange={(event) => setFormState((current) => ({ ...current, label: event.target.value }))} />
+				<select className="w-full rounded border px-3 py-2" value={formState.effect} onChange={(event) => setFormState((current) => ({ ...current, effect: event.target.value }))}>
+					<option value="allow">allow</option>
+					<option value="deny">deny</option>
+				</select>
+				<input className="w-full rounded border px-3 py-2" placeholder="actions,comma,separated" value={formState.actions} onChange={(event) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
+				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredSubject} onChange={(event) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
+				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredResource} onChange={(event) => setFormState((current) => ({ ...current, requiredResource: event.target.value }))} />
+				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredContext} onChange={(event) => setFormState((current) => ({ ...current, requiredContext: event.target.value }))} />
+				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Policy</button>
+			</form>
+			<ul className="space-y-2">
+				{data?.items.map((item) => (
+					<li className="rounded border p-3" key={item.id}>
+						<div className="font-medium">{item.label}</div>
+						<div className="text-sm text-kumo-subtle">{item.id} | {item.effect} | {item.actions.join(", ")}</div>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
+function AbacPreviewPage() {
+	const { data: subjectData } = usePluginData<AbacAssignmentsResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/subjects/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const { data: resourceData } = usePluginData<AbacAssignmentsResponse>(
+		"/_emdash/api/plugins/awcms-micro-example/abac/resources/list",
+		{ method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" },
+	);
+	const [subjectId, setSubjectId] = React.useState("user-demo-editor");
+	const [resourceId, setResourceId] = React.useState("resource-public-post");
+	const [action, setAction] = React.useState("content.read");
+	const [contextAttributes, setContextAttributes] = React.useState('{"region_scope":"id-jakarta"}');
+	const [preview, setPreview] = React.useState<AbacPreviewResponse | null>(null);
+	const [error, setError] = React.useState<string | null>(null);
+
+	const parseAttributes = (value: string) => {
+		try {
+			return JSON.parse(value) as Record<string, string>;
+		} catch {
+			return {};
+		}
+	};
+
+	const runPreview = async (route: "abac/preview" | "abac/enforce-demo") => {
+		setError(null);
+		const response = await apiFetch(`/_emdash/api/plugins/awcms-micro-example/${route}`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ subjectId, resourceId, action, contextAttributes: parseAttributes(contextAttributes) }),
+		});
+		if (!response.ok) {
+			setError(await getErrorMessage(response, "Failed to evaluate ABAC policy"));
+			return;
+		}
+		setPreview(await parseApiResponse<AbacPreviewResponse>(response));
+	};
+
+	return (
+		<div className="space-y-6 max-w-4xl">
+			<div>
+				<h1 className="text-3xl font-bold">ABAC Decision Preview</h1>
+				<p className="text-kumo-subtle mt-2">Preview and enforce the demonstrative ABAC decision engine without touching EmDash core authorization.</p>
+			</div>
+			<div className="grid gap-4 md:grid-cols-2">
+				<label className="block text-sm">
+					<span className="mb-1 block">Subject</span>
+					<select className="w-full rounded border px-3 py-2" value={subjectId} onChange={(event) => setSubjectId(event.target.value)}>
+						{subjectData?.items.map((item) => <option key={item.subjectId} value={item.subjectId}>{item.subjectId}</option>)}
+					</select>
+				</label>
+				<label className="block text-sm">
+					<span className="mb-1 block">Resource</span>
+					<select className="w-full rounded border px-3 py-2" value={resourceId} onChange={(event) => setResourceId(event.target.value)}>
+						{resourceData?.items.map((item) => <option key={item.resourceId} value={item.resourceId}>{item.resourceId}</option>)}
+					</select>
+				</label>
+			</div>
+			<input className="w-full rounded border px-3 py-2" placeholder="action" value={action} onChange={(event) => setAction(event.target.value)} />
+			<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={contextAttributes} onChange={(event) => setContextAttributes(event.target.value)} />
+			<div className="flex gap-3">
+				<button className="rounded bg-black px-4 py-2 text-white" onClick={() => void runPreview("abac/preview")} type="button">Preview Policy</button>
+				<button className="rounded border px-4 py-2" onClick={() => void runPreview("abac/enforce-demo")} type="button">Run Protected Demo</button>
+			</div>
+			{error ? <div className="text-red-600">{error}</div> : null}
+			{preview ? (
+				<div className="rounded border p-4">
+					<div className="font-medium">{preview.allowed ? "Allowed" : "Denied"} ({preview.effect})</div>
+					<div className="text-sm text-kumo-subtle">{preview.reason}</div>
+					<div className="mt-2 text-sm">Matched policies: {preview.matchedPolicyIds.join(", ") || "None"}</div>
+					<div className="mt-2 text-sm">Missing attributes: {preview.missingAttributes.join(", ") || "None"}</div>
+				</div>
+			) : null}
+		</div>
+	);
+}
+
 interface FieldWidgetProps {
 	value: unknown;
 	onChange: (value: unknown) => void;
@@ -691,6 +1066,7 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 export const widgets: PluginAdminExports["widgets"] = {
 	"governance-status": GovernanceWidget,
 	"access-rights-health": AccessRightsHealthWidget,
+	"abac-policy-status": AbacPolicyStatusWidget,
 };
 
 export const pages: PluginAdminExports["pages"] = {
@@ -700,6 +1076,9 @@ export const pages: PluginAdminExports["pages"] = {
 	"/access/roles": RolesPage,
 	"/access/matrix": MatrixPage,
 	"/access/preview": PreviewPage,
+	"/abac/attributes": AbacAttributesPage,
+	"/abac/policies": AbacPoliciesPage,
+	"/abac/preview": AbacPreviewPage,
 };
 
 export const fields: PluginAdminExports["fields"] = {

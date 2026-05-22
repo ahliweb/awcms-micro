@@ -30,11 +30,15 @@
 			{ "path": "/access/permissions", "label": "Permissions", "icon": "lock" },
 			{ "path": "/access/roles", "label": "Roles", "icon": "users" },
 			{ "path": "/access/matrix", "label": "Role Matrix", "icon": "grid" },
-			{ "path": "/access/preview", "label": "Access Preview", "icon": "eye" }
+			{ "path": "/access/preview", "label": "Access Preview", "icon": "eye" },
+			{ "path": "/abac/attributes", "label": "ABAC Attributes", "icon": "sliders" },
+			{ "path": "/abac/policies", "label": "ABAC Policies", "icon": "shield" },
+			{ "path": "/abac/preview", "label": "ABAC Preview", "icon": "target" }
 		],
 		"widgets": [
 			{ "id": "governance-status", "title": "Governance Status", "size": "half" },
-			{ "id": "access-rights-health", "title": "Access Rights Health", "size": "half" }
+			{ "id": "access-rights-health", "title": "Access Rights Health", "size": "half" },
+			{ "id": "abac-policy-status", "title": "ABAC Policy Status", "size": "half" }
 		]
 	}
 }

@@ -28,6 +28,11 @@ function createMockContext() {
 	const collections = {
 		auditEvents: new Map<string, unknown>(),
 		accessChangeEvents: new Map<string, unknown>(),
+		abacChangeEvents: new Map<string, unknown>(),
+		abacAttributeCatalog: new Map<string, unknown>(),
+		abacPolicyRules: new Map<string, unknown>(),
+		abacResourceAssignments: new Map<string, unknown>(),
+		abacSubjectAssignments: new Map<string, unknown>(),
 		contentSnapshots: new Map<string, unknown>(),
 		permissionCatalog: new Map<string, unknown>(),
 		roleCatalog: new Map<string, unknown>(),
@@ -81,6 +86,11 @@ function createMockContext() {
 			storage: {
 				auditEvents: createCollection(collections.auditEvents),
 				accessChangeEvents: createCollection(collections.accessChangeEvents),
+				abacChangeEvents: createCollection(collections.abacChangeEvents),
+				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
+				abacPolicyRules: createCollection(collections.abacPolicyRules),
+				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
+				abacSubjectAssignments: createCollection(collections.abacSubjectAssignments),
 				contentSnapshots: createCollection(collections.contentSnapshots),
 				permissionCatalog: createCollection(collections.permissionCatalog),
 				roleCatalog: createCollection(collections.roleCatalog),
@@ -128,9 +138,10 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(6);
+		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(9);
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
+		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
 		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
 	});
@@ -295,6 +306,100 @@ describe("awcms micro example plugin", () => {
 		expect(preview.reason).toContain("not granted");
 	});
 
+	it("supports ABAC attribute, policy, preview, and sensitive-action audit flows", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const attributes = (await routes["abac/attributes/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		expect(attributes.items.length).toBeGreaterThan(0);
+
+		await routes["abac/attributes/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					key: "action",
+					label: "Action",
+					targetType: "context",
+					description: "Action under review",
+				},
+			} as any,
+		);
+
+		await routes["abac/policies/save"]!.handler(
+			{
+				...ctx,
+				input: {
+					id: "allow-published-read-jakarta",
+					label: "Allow published read in Jakarta",
+					effect: "allow",
+					actions: ["content.read"],
+					requiredSubject: { tenant_id: "tenant-a" },
+					requiredResource: { resource_status: "published", resource_sensitivity: "public" },
+					requiredContext: { region_scope: "id-jakarta" },
+				},
+			} as any,
+		);
+
+		const allow = (await routes["abac/preview"]!.handler(
+			{
+				...ctx,
+				input: {
+					subjectId: "user-demo-editor",
+					resourceId: "resource-public-post",
+					action: "content.read",
+					contextAttributes: { region_scope: "id-jakarta" },
+				},
+			} as any,
+		)) as any;
+
+		expect(allow.allowed).toBe(true);
+		expect(allow.effect).toBe("allow");
+
+		const deny = (await routes["abac/preview"]!.handler(
+			{
+				...ctx,
+				input: {
+					subjectId: "user-demo-reviewer",
+					resourceId: "resource-sensitive-policy",
+					action: "content.publish_sensitive",
+					contextAttributes: {},
+				},
+			} as any,
+		)) as any;
+
+		expect(deny.allowed).toBe(false);
+		expect(deny.reason).toContain("Explicit deny");
+
+		const missing = (await routes["abac/preview"]!.handler(
+			{
+				...ctx,
+				input: {
+					subjectId: "user-demo-editor",
+					resourceId: "resource-public-post",
+					action: "content.read",
+					contextAttributes: {},
+				},
+			} as any,
+		)) as any;
+
+		expect(missing.allowed).toBe(false);
+		expect(missing.reason).toContain("Missing required attributes");
+
+		await routes["abac/enforce-demo"]!.handler(
+			{
+				...ctx,
+				input: {
+					subjectId: "user-demo-reviewer",
+					resourceId: "resource-sensitive-policy",
+					action: "content.publish_sensitive",
+					contextAttributes: { action: "content.publish_sensitive" },
+				},
+			} as any,
+		);
+
+		expect(collections.abacChangeEvents.size).toBeGreaterThanOrEqual(3);
+	});
+
 	it("exports a sandbox-compatible server entry", () => {
 		expect(sandboxPlugin.hooks?.["plugin:install"]).toBeTruthy();
 		expect(sandboxPlugin.routes?.["public/status"]).toBeTruthy();
@@ -306,8 +411,9 @@ describe("awcms micro example plugin", () => {
 
 		expect(manifest.slug).toBe("awcms-micro-example");
 		expect(manifest.capabilities).toEqual([...AWCMS_EXAMPLE_CAPABILITIES]);
-		expect(manifest.admin.pages).toHaveLength(6);
+		expect(manifest.admin.pages).toHaveLength(9);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
+		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");
 	});
 });
