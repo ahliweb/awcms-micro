@@ -10,6 +10,11 @@ export const AWCMS_EXAMPLE_PERMISSIONS = {
 	roleCatalogRead: "awcms:example:roles:read",
 	roleCatalogWrite: "awcms:example:roles:write",
 	accessPreviewRead: "awcms:example:access-preview:read",
+	abacAttributeRead: "awcms:example:abac-attributes:read",
+	abacAttributeWrite: "awcms:example:abac-attributes:write",
+	abacPolicyRead: "awcms:example:abac-policies:read",
+	abacPolicyWrite: "awcms:example:abac-policies:write",
+	abacPreviewRead: "awcms:example:abac-preview:read",
 } as const;
 
 export const AWCMS_EXAMPLE_PERMISSION_LIST = Object.values(AWCMS_EXAMPLE_PERMISSIONS);

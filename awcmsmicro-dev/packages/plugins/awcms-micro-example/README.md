@@ -17,6 +17,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 - Portable Text block contribution
 - audit logging and content snapshot examples
 - access-rights catalog example with role matrix and effective access preview
+- ABAC policy management example with attribute catalogs, policy simulation, and a protected demo route
 - a sandbox-compatible server-side entry in `src/sandbox.ts`
 
 ## Permission Namespace
@@ -60,6 +61,7 @@ If you want a fresh starting point for registry metadata, copy `docs/emdash-plug
 - Public route: `public/status`
 - Protected routes: `overview/summary`, `settings/get`, `settings/save`, `audit/list`, `state/touch`
 - Access-rights routes: `access/permissions/list`, `access/permissions/save`, `access/roles/list`, `access/roles/save`, `access/users/save`, `access/matrix/get`, `access/matrix/save`, `access/preview`, `access/health`
+- ABAC routes: `abac/attributes/list`, `abac/attributes/save`, `abac/subjects/list`, `abac/subjects/save`, `abac/resources/list`, `abac/resources/save`, `abac/policies/list`, `abac/policies/save`, `abac/preview`, `abac/enforce-demo`, `abac/health`
 - Dashboard compatibility alias: `dashboard/summary`
 - Hooks: lifecycle, content, media, cron, and `page:metadata`
 
@@ -72,6 +74,21 @@ The access-rights catalog in this plugin is demonstrative.
 - Effective access preview is enforced only inside the plugin's own route/demo surface.
 
 This keeps the example explicit, isolated, and compatible with upstream EmDash.
+
+## ABAC Example Boundaries
+
+The ABAC example in this plugin is also demonstrative.
+
+- It stores attribute definitions, subject/resource assignments, and policy rules inside plugin-owned storage.
+- It evaluates decisions only inside plugin-owned preview and enforcement-demo routes.
+- It does not replace EmDash core authorization or claim global admin enforcement.
+
+The decision model used by the example is intentionally simple and deterministic:
+
+1. explicit deny wins
+2. allow requires matching subject, action, resource, and context conditions
+3. missing required attributes returns deny with explanation
+4. sensitive action decisions are auditable
 
 ## Testing
 
