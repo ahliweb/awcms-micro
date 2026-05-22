@@ -20,10 +20,10 @@ This document should be updated after `scripts/sync-and-validate-awcmsmicro-dev.
 | --- | --- | --- |
 | Upstream fetch into `emdash-latest/` | Pending | Update after sync |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Pending | Update after sync |
-| Naming consistency review | Pending | Use `awcmsmicro-dev` naming only |
-| Validation script execution | Pending | See `LAST_VALIDATION.md` |
-| Divergence review | Pending | See `DIVERGENCE_LOG.md` |
-| Documentation refresh | Pending | Update root docs when workflow changes |
+| Naming consistency review | Passed | No remaining root-level references to deprecated `awcms-micro-dev` naming were found |
+| Validation script execution | Failed | See `LAST_VALIDATION.md` for timeout and upstream test details |
+| Divergence review | Passed | Current AWCMS-Micro additions are documented as isolated examples and governance docs |
+| Documentation refresh | Passed | Root docs now link sync, deployment, security, template, and plugin additions |
 
 ## Notes
 

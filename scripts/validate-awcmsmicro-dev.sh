@@ -19,19 +19,13 @@ fi
 
 mkdir -p "$(dirname "$REPORT_FILE")"
 
-run_step() {
-	local name="$1"
-	shift
-	echo "==> $name"
-	"$@"
-}
-
 STARTED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 BRANCH_NAME="$(git -C "$ROOT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
 UPSTREAM_SHA="$(git -C "$ROOT_DIR" rev-parse HEAD:emdash-latest 2>/dev/null || printf 'unknown')"
 TMP_OUTPUT="$(mktemp)"
-STATUS="Passed"
+STATUS="Running"
 FAILURE_CATEGORY="None"
+CURRENT_STEP="Not started"
 
 cleanup() {
 	rm -f "$TMP_OUTPUT"
@@ -39,63 +33,20 @@ cleanup() {
 
 trap cleanup EXIT
 
-{
-	echo "$ run_step pnpm-install pnpm install"
-	(
-		cd "$WORKSPACE_DIR"
-		run_step pnpm-install pnpm install
-	)
-
-	echo "$ run_step pnpm-typecheck pnpm typecheck"
-	(
-		cd "$WORKSPACE_DIR"
-		run_step pnpm-typecheck pnpm typecheck
-	)
-
-	echo "$ run_step pnpm-lint-quick pnpm lint:quick"
-	(
-		cd "$WORKSPACE_DIR"
-		run_step pnpm-lint-quick pnpm lint:quick
-	)
-
-	echo "$ run_step pnpm-test pnpm test"
-	(
-		cd "$WORKSPACE_DIR"
-		run_step pnpm-test pnpm test
-	)
-
-	echo "$ run_step pnpm-build pnpm build"
-	(
-		cd "$WORKSPACE_DIR"
-		run_step pnpm-build pnpm build
-	)
-	} >"$TMP_OUTPUT" 2>&1 || {
-		STATUS="Failed"
-		if grep -q "pnpm install" "$TMP_OUTPUT"; then
-			FAILURE_CATEGORY="Dependency install failure"
-		elif grep -q "pnpm test" "$TMP_OUTPUT"; then
-			FAILURE_CATEGORY="Upstream EmDash test failure"
-		elif grep -q "pnpm typecheck\|pnpm lint:quick\|pnpm build" "$TMP_OUTPUT"; then
-			FAILURE_CATEGORY="AWCMS-Micro added file failure"
-		else
-			FAILURE_CATEGORY="Script failure"
-		fi
-	}
-
-COMPLETED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-
-cat >"$REPORT_FILE" <<EOF
+write_report() {
+	local completed_at="$1"
+	cat >"$REPORT_FILE" <<EOF
 # Last Validation
 
 ## Validation Run Metadata
 
-- Date: \
+- Date:
   - Started: \
     \
     $STARTED_AT
   - Completed: \
     \
-    $COMPLETED_AT
+    $completed_at
 - Operator: \
   - Placeholder: update manually if needed
 - Branch: \
@@ -104,12 +55,6 @@ cat >"$REPORT_FILE" <<EOF
   - $UPSTREAM_SHA
 - Validation scope: \
   - \
-    \
-    Rebuilt \
-    \
-    \
-    \
-    \
     awcmsmicro-dev workspace validation
 
 ## Commands
@@ -127,14 +72,19 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 - Overall status: \
   - $STATUS
 - Notes: \
-  - See detailed output below
+  - Current step: $CURRENT_STEP
 
 ## Failure Classification
 
 | Category | Status | Details |
 | --- | --- | --- |
 | Script failure | $( [[ "$FAILURE_CATEGORY" == "Script failure" ]] && printf 'Failed' || printf 'Not triggered' ) | Validation wrapper or shell orchestration failure |
-| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm install` failed |
+| Dependency install failure | $( [[ "$FAILURE_CATEGORY" == "Dependency install failure" ]] && printf 'Failed' || printf 'Not triggered' ) | \
+  \
+  \
+  \
+  \
+  `pnpm install` failed |
 | Upstream EmDash test failure | $( [[ "$FAILURE_CATEGORY" == "Upstream EmDash test failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm test` failed |
 | AWCMS-Micro added file failure | $( [[ "$FAILURE_CATEGORY" == "AWCMS-Micro added file failure" ]] && printf 'Failed' || printf 'Not triggered' ) | `pnpm typecheck`, `pnpm lint:quick`, or `pnpm build` failed |
 
@@ -144,12 +94,66 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 $(cat "$TMP_OUTPUT")
 ```
 EOF
+}
+
+finalize_report() {
+	local completed_at
+	completed_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+	write_report "$completed_at"
+}
+
+handle_termination() {
+	STATUS="Failed"
+	if [[ "$FAILURE_CATEGORY" == "None" ]]; then
+		FAILURE_CATEGORY="Script failure"
+	fi
+	CURRENT_STEP="$CURRENT_STEP (terminated)"
+	finalize_report
+	exit 1
+}
+
+trap handle_termination TERM INT
+
+run_step() {
+	local name="$1"
+	local category="$2"
+	shift 2
+
+	CURRENT_STEP="$name"
+	printf '$ %s\n' "$*" >>"$TMP_OUTPUT"
+	echo "==> $name" >>"$TMP_OUTPUT"
+
+	set +e
+	(
+		cd "$WORKSPACE_DIR"
+		"$@"
+	) >>"$TMP_OUTPUT" 2>&1
+	local exit_code=$?
+	set -e
+
+	if [[ $exit_code -ne 0 ]]; then
+		STATUS="Failed"
+		FAILURE_CATEGORY="$category"
+		finalize_report
+		echo "Validation failed: $FAILURE_CATEGORY" >&2
+		exit "$exit_code"
+	fi
+
+	finalize_report
+}
+
+finalize_report
+
+run_step "pnpm-install" "Dependency install failure" pnpm install
+run_step "pnpm-typecheck" "AWCMS-Micro added file failure" pnpm typecheck
+run_step "pnpm-lint-quick" "AWCMS-Micro added file failure" pnpm lint:quick
+run_step "pnpm-test" "Upstream EmDash test failure" pnpm test
+run_step "pnpm-build" "AWCMS-Micro added file failure" pnpm build
+
+STATUS="Passed"
+CURRENT_STEP="Completed"
+finalize_report
 
 cat "$REPORT_FILE"
-
-if [[ "$STATUS" != "Passed" ]]; then
-	echo "Validation failed: $FAILURE_CATEGORY" >&2
-	exit 1
-fi
 
 echo "Validation completed successfully."
