@@ -36,6 +36,8 @@ This template is intentionally not registered into EmDash core. It can be copied
 3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
 4. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.
 
+If you are still working inside this parent workspace and want to attach the example plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-example/docs/STANDALONE_CONSUMPTION.md`.
+
 ## Standalone Notes
 
 - `package.json` uses published dependency versions instead of monorepo-only `catalog:` or `workspace:*` specifiers.

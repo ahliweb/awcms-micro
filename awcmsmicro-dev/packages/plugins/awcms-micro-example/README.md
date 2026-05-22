@@ -20,6 +20,8 @@ The example uses the `awcms:example:<resource>:<action>` namespace.
 
 This plugin is intentionally not registered globally in EmDash core. Enable it from project-level configuration through the normal `plugins: []` configuration path.
 
+For an end-to-end standalone site integration example, see `docs/STANDALONE_CONSUMPTION.md`.
+
 ## Standalone Usage
 
 1. Copy this folder into its own repository or into a local packages directory in your project.

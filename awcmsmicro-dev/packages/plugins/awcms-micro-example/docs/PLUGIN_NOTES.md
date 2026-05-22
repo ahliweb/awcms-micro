@@ -16,6 +16,8 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 
 Add the plugin from project-level configuration only. Do not hardcode it into EmDash core registries.
 
+Use `docs/STANDALONE_CONSUMPTION.md` for a standalone site integration flow.
+
 This example package now uses published dependency versions and a local build step so it can be copied into a standalone repository or local package workspace without rewriting monorepo-only specifiers.
 
 Replace the example publisher value in `emdash-plugin.jsonc` with the real atproto DID or handle before any internal or registry publish.
