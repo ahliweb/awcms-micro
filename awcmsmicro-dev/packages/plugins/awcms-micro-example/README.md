@@ -5,7 +5,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 ## What It Demonstrates
 
 - plugin descriptor factory
-- manifest-style metadata in `module.manifest.json`
+- registry-ready metadata in `emdash-plugin.jsonc`
 - admin page export example
 - API route example
 - permissions constants and namespace pattern
@@ -18,6 +18,16 @@ The example uses the `awcms:example:<resource>:<action>` namespace.
 
 ## Safe Enablement
 
-This plugin is intentionally not registered globally in EmDash core. Enable it from a compatible EmDash workspace through the normal `plugins: []` configuration path.
+This plugin is intentionally not registered globally in EmDash core. Enable it from project-level configuration through the normal `plugins: []` configuration path.
 
-The package currently follows the monorepo's workspace dependency conventions and is intended as an in-repository example, not a standalone published plugin artifact.
+## Standalone Usage
+
+1. Copy this folder into its own repository or into a local packages directory in your project.
+2. Run `pnpm install` inside the plugin folder.
+3. Run `pnpm build` to produce the `dist/` output.
+4. Review `emdash-plugin.jsonc` and replace the example publisher identity before publishing.
+5. If you want repository or security metadata in the published manifest, add your own `repo` and `security` fields to `emdash-plugin.jsonc` before publishing.
+6. If you moved the plugin into its own repository, add your own `repository` and `homepage` metadata to `package.json` before publishing.
+7. Reference the plugin from your EmDash project as a local package or publish it to your own registry.
+
+The package now uses published dependency versions, a local TypeScript toolchain, and a local `tsdown` build so it can be developed and packaged outside this monorepo.

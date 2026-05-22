@@ -14,17 +14,22 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"@astrojs/node": "catalog:",
-		"@astrojs/react": "catalog:",
-		"astro": "catalog:",
-		"better-sqlite3": "catalog:",
-		"emdash": "workspace:*",
-		"react": "catalog:",
-		"react-dom": "catalog:"
+		"@astrojs/node": "^10.1.1",
+		"@astrojs/react": "^5.0.0",
+		"astro": "^6.3.0",
+		"better-sqlite3": "^12.8.0",
+		"emdash": "^0.14.0",
+		"react": "19.2.4",
+		"react-dom": "19.2.4"
 	},
 	"devDependencies": {
-		"@astrojs/check": "catalog:"
+		"@astrojs/check": "^0.9.7",
+		"@types/node": "24.10.13",
+		"typescript": "^6.0.3"
 	},
 	"peerDependencies": {},
-	"optionalDependencies": {}
+	"optionalDependencies": {},
+	"engines": {
+		"node": ">=22"
+	}
 }

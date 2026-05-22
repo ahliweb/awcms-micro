@@ -10,9 +10,14 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 - namespaced permissions under `awcms:example:*`
 - isolated route and admin examples
 - simple audit logging helper
+- EmDash registry manifest in `emdash-plugin.jsonc`
 
 ## Safe Enablement
 
 Add the plugin from project-level configuration only. Do not hardcode it into EmDash core registries.
 
-This example package currently assumes the EmDash monorepo workspace dependency model.
+This example package now uses published dependency versions and a local build step so it can be copied into a standalone repository or local package workspace without rewriting monorepo-only specifiers.
+
+Replace the example publisher value in `emdash-plugin.jsonc` before any real registry publish.
+If you move the package into its own repository, also set `repository` and `homepage` in `package.json` for your new location.
+Add `repo` and `security` to `emdash-plugin.jsonc` only after you know the final standalone repository and security contact URLs.

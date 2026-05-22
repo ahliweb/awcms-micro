@@ -20,3 +20,5 @@ This template exists as an AWCMS-Micro example only.
 ## Safe Adoption Path
 
 Copy the folder into a project workspace, then customize it through normal EmDash configuration and site-level code.
+
+This example now uses published package versions so it can install outside the parent monorepo without rewriting dependency specifiers.

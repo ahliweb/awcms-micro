@@ -3,15 +3,23 @@
 	"version": "0.0.1",
 	"description": "AWCMS-Micro example plugin for EmDash-compatible projects",
 	"type": "module",
-	"main": "src/index.ts",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"exports": {
-		".": "./src/index.ts",
-		"./admin": "./src/admin.ts"
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./admin": {
+			"types": "./dist/admin.d.ts",
+			"default": "./dist/admin.js"
+		}
 	},
 	"files": [
-		"src",
-		"module.manifest.json",
-		"docs"
+		"dist",
+		"emdash-plugin.jsonc",
+		"docs",
+		"README.md"
 	],
 	"keywords": [
 		"awcms-micro",
@@ -22,18 +30,24 @@
 	],
 	"license": "MIT",
 	"peerDependencies": {
-		"emdash": "workspace:>=0.14.0"
+		"emdash": "^0.14.0"
 	},
 	"devDependencies": {
-		"vitest": "catalog:"
+		"@types/node": "24.10.13",
+		"emdash": "^0.14.0",
+		"tsdown": "^0.20.3",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.5"
 	},
 	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch",
+		"prepare": "node --run build",
+		"prepublishOnly": "node --run build",
 		"test": "vitest run",
-		"typecheck": "tsgo --noEmit"
+		"typecheck": "tsc --noEmit -p tsconfig.json"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/ahliweb/awcms-micro.git",
-		"directory": "awcmsmicro-dev/packages/plugins/awcms-micro-example"
+	"engines": {
+		"node": ">=22"
 	}
 }

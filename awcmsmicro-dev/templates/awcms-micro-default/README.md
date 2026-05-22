@@ -29,9 +29,16 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 
 ## Manual Usage
 
-This template is intentionally not registered into EmDash core. It currently assumes an EmDash-compatible pnpm workspace because `package.json` uses `catalog:` and `workspace:*` dependencies. To use it safely:
+This template is intentionally not registered into EmDash core. It can be copied into a standalone project outside this monorepo.
 
-1. Copy the folder into a working EmDash monorepo or compatible pnpm workspace.
-2. Install dependencies with `pnpm install`, or replace the workspace-specific dependency specifiers before using it standalone.
+1. Copy the folder into a new or existing Node.js 22+ project.
+2. Install dependencies with `pnpm install`.
 3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
 4. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.
+
+## Standalone Notes
+
+- `package.json` uses published dependency versions instead of monorepo-only `catalog:` or `workspace:*` specifiers.
+- The template still expects the standard EmDash runtime flow and Astro server output.
+- The included `seed/seed.json` is intentionally minimal so the folder can bootstrap cleanly outside this repository.
+- Review `astro.config.mjs` before production use: `siteUrl`, SQLite database location, and local uploads storage are example defaults.
