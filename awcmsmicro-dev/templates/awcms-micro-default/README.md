@@ -34,8 +34,8 @@ This template is intentionally not registered into EmDash core. It can be copied
 
 1. Copy the folder into a new app directory, or use it as the project root for a new Node.js 22+ site.
 2. Install dependencies with `pnpm install`.
-3. Ensure the standard EmDash boilerplate is present, including `src/live.config.ts` for the `_emdash` live collection loader.
-4. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
+3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
+4. Start the site and confirm unauthenticated requests to `/_emdash/admin` redirect to `/_emdash/admin/login`.
 5. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.
 
 For a small docs index for this template, start with `docs/README.md`.

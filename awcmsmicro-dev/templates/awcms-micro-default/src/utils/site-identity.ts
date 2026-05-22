@@ -12,7 +12,7 @@ export interface AwcmsMicroSiteIdentitySettings {
 }
 
 const DEFAULT_SITE_TITLE = "AWCMS-Micro";
-const DEFAULT_SITE_TAGLINE = "A Cloudflare-ready EmDash implementation for public publishing, governance, and admin operations.";
+const DEFAULT_SITE_TAGLINE = "A compact EmDash implementation for single-tenant teams and Cloudflare-ready delivery.";
 
 export function resolveAwcmsMicroSiteIdentity(settings?: AwcmsMicroSiteIdentitySettings) {
 	return {

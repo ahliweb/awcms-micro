@@ -122,12 +122,17 @@ const pageCtx = createPublicPageContext({
 				</a>
 				<div class="nav-links">
 					{menu?.items.map((item) => <a href={item.url} target={item.target}>{item.label}</a>)}
-					<a href="/_emdash/admin">Admin</a>
+					<a href="/_emdash/admin/login?redirect=/_emdash/admin">Admin</a>
 					<a href="/_emdash/api/plugins/awcms-micro-example/public/status">Plugin Status</a>
 				</div>
 			</nav>
 			<div style="margin-top:1rem;max-width:28rem;">
 				<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
+			</div>
+			<div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/content/posts/new">Create Post</a>
+				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/content/pages/new">Create Page</a>
+				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Overview</a>
 			</div>
 		</header>
 

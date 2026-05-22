@@ -9,7 +9,7 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 - public homepage
 - public posts and news routes
 - public page route for site pages such as `/about`
-- standard EmDash admin access at `/_emdash/admin`
+- protected EmDash admin access at `/_emdash/admin` with unauthenticated redirects to `/_emdash/admin/login`
 - Cloudflare Worker configuration with D1, R2, observability, and Worker Loader prepared
 - native registration of `@awcms-micro/plugin-example`
 
@@ -73,7 +73,7 @@ Do not commit Cloudflare account IDs, tokens, or secret values.
 - `GET /posts` returns the posts index.
 - `GET /news` returns the news index.
 - `GET /about` returns the published page route.
-- `GET /_emdash/admin` reaches the EmDash admin surface.
+- `GET /_emdash/admin` redirects unauthenticated visitors to `/_emdash/admin/login`.
 - `GET /_emdash/api/plugins/awcms-micro-example/public/status` returns the public-safe plugin response.
 
 ## Notes

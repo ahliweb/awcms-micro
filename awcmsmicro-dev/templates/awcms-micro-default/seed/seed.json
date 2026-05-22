@@ -2,15 +2,38 @@
 	"$schema": "https://emdashcms.com/seed.schema.json",
 	"version": "1",
 	"meta": {
-		"name": "AWCMS-Micro Default Example",
-		"description": "Minimal starter seed for the isolated AWCMS-Micro example template",
+		"name": "AWCMS-Micro Default Template",
+		"description": "Local-development AWCMS-Micro template showing public content wired to the EmDash admin workflow",
 		"author": "AWCMS-Micro"
 	},
 	"settings": {
-		"title": "AWCMS-Micro Default Site",
-		"tagline": "Single-tenant-first, tenant-ready, and EmDash-compatible."
+		"title": "AWCMS-Micro",
+		"tagline": "A compact EmDash implementation for single-tenant teams and Cloudflare-ready delivery."
 	},
 	"collections": [
+		{
+			"slug": "posts",
+			"label": "Posts",
+			"labelSingular": "Post",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{ "slug": "featured_image", "label": "Featured Image", "type": "image" },
+				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true },
+				{ "slug": "excerpt", "label": "Excerpt", "type": "text" }
+			]
+		},
+		{
+			"slug": "news",
+			"label": "News",
+			"labelSingular": "News Item",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{ "slug": "summary", "label": "Summary", "type": "text", "searchable": true },
+				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
+			]
+		},
 		{
 			"slug": "pages",
 			"label": "Pages",
@@ -38,27 +61,33 @@
 			"name": "primary",
 			"label": "Primary Navigation",
 			"items": [
-				{
-					"type": "custom",
-					"label": "Home",
-					"url": "/"
-				},
-				{
-					"type": "custom",
-					"label": "About",
-					"url": "/about"
-				}
+				{ "type": "custom", "label": "Home", "url": "/" },
+				{ "type": "custom", "label": "Posts", "url": "/posts" },
+				{ "type": "custom", "label": "News", "url": "/news" },
+				{ "type": "custom", "label": "About", "url": "/about" }
+			]
+		}
+	],
+	"widgetAreas": [
+		{
+			"name": "sidebar",
+			"label": "Sidebar",
+			"description": "Sidebar widgets for the public site",
+			"widgets": [
+				{ "type": "component", "componentId": "core:search", "title": "Search" },
+				{ "type": "component", "componentId": "core:recent-posts", "title": "Recent Posts", "settings": { "count": 5 } }
 			]
 		}
 	],
 	"content": {
-		"pages": [
+		"posts": [
 			{
-				"id": "about",
-				"slug": "about",
+				"id": "introducing-awcms-micro",
+				"slug": "introducing-awcms-micro",
 				"status": "published",
 				"data": {
-					"title": "About",
+					"title": "Introducing AWCMS-Micro",
+					"excerpt": "Why AWCMS-Micro keeps EmDash core intact while shaping a tighter single-tenant implementation.",
 					"content": [
 						{
 							"_type": "block",
@@ -66,7 +95,56 @@
 							"children": [
 								{
 									"_type": "span",
-									"text": "This example page comes from the AWCMS-Micro starter seed and can be replaced with site-specific content.",
+									"text": "AWCMS-Micro is designed as a practical EmDash implementation that keeps upstream behavior intact while delivering a focused content and governance experience for one production site.",
+									"_key": "post-1"
+								}
+							],
+							"_key": "post-block-1"
+						}
+					]
+				}
+			}
+		],
+		"news": [
+			{
+				"id": "admin-workflow-connected",
+				"slug": "admin-workflow-connected",
+				"status": "published",
+				"data": {
+					"title": "Public Site Now Mirrors Admin Workflow",
+					"summary": "Menus, search, content routes, and site identity are now driven from EmDash-managed data.",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Editors can update posts, pages, and site settings from the standard EmDash admin routes and immediately see the results reflected on the public-facing website structure.",
+									"_key": "news-1"
+								}
+							],
+							"_key": "news-block-1"
+						}
+					]
+				}
+			}
+		],
+		"pages": [
+			{
+				"id": "about",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "About AWCMS-Micro",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "AWCMS-Micro packages a slimmer EmDash website experience, keeps upstream core untouched, and adds only project-level templates, content, and example governance surfaces where needed.",
 									"_key": "about-1"
 								}
 							],

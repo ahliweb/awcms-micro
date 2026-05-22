@@ -16,10 +16,15 @@ const { entries: newsItems, cacheHint: newsCacheHint } = await getEmDashCollecti
 	orderBy: { published_at: "desc" },
 	limit: 3,
 });
+const { entries: pages, cacheHint: pagesCacheHint } = await getEmDashCollection("pages", {
+	orderBy: { published_at: "desc" },
+	limit: 6,
+});
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
 	Astro.cache.set(newsCacheHint);
+	Astro.cache.set(pagesCacheHint);
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
@@ -27,27 +32,47 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 
 <Base title={siteTitle} description={siteTagline}>
 	<section class="card" style="margin-bottom:1.5rem;">
-		<p style="text-transform:uppercase;letter-spacing:0.08em;color:#7dd3fc;">AWCMS-Micro Cloudflare Example</p>
-		<h1 style="font-size:clamp(2rem,5vw,3.5rem);margin:0 0 1rem;">A deployable EmDash site prepared for AWCMS-Micro on Cloudflare.</h1>
+		<p style="text-transform:uppercase;letter-spacing:0.08em;color:#7dd3fc;">AWCMS-Micro</p>
+		<h1 style="font-size:clamp(2rem,5vw,3.5rem);margin:0 0 1rem;">A production-ready AWCMS-Micro website powered by EmDash and Cloudflare.</h1>
 		<p style="max-width:46rem;line-height:1.6;">
-			This example keeps EmDash core untouched while demonstrating a public homepage, posts,
-			news, pages, the standard admin route, and the AWCMS-Micro example plugin in a
-			Cloudflare-ready template.
+			This template turns AWCMS-Micro into a working public website: published content is rendered
+			through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling
+			remains available through the example plugin surface without changing core.
 		</p>
+		<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
+			<a class="card" style="padding:0.8rem 1rem;background:#0f172a;color:#f8fafc;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
+			<a class="card" style="padding:0.8rem 1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
+			<a class="card" style="padding:0.8rem 1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Open Plugin Console</a>
+		</div>
 	</section>
 
 	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
 			<h2>Cloudflare-ready</h2>
-			<p>Prepared for D1, R2, Worker Loader, observability, and a custom domain route.</p>
+			<p>Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.</p>
 		</div>
 		<div class="card">
 			<h2>Plugin-enabled</h2>
-			<p>Registers <code>@awcms-micro/plugin-example</code> through the normal EmDash plugin path.</p>
+			<p>Registers <code>@awcms-micro/plugin-example</code> through the normal EmDash plugin path for audit, access-rights, and ABAC examples.</p>
 		</div>
 		<div class="card">
-			<h2>Admin included</h2>
-			<p>The standard EmDash admin panel remains available at <code>/_emdash/admin</code>.</p>
+			<h2>Admin protected</h2>
+			<p>Unauthenticated visits are pushed to <code>/_emdash/admin/login</code> before the admin shell renders.</p>
+		</div>
+	</section>
+
+	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:1.5rem;">
+		<div class="card">
+			<h2>Published from admin</h2>
+			<p>Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.</p>
+		</div>
+		<div class="card">
+			<h2>Public search and navigation</h2>
+			<p>Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.</p>
+		</div>
+		<div class="card">
+			<h2>Operational surfaces</h2>
+			<p>Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.</p>
 		</div>
 	</section>
 
@@ -83,6 +108,16 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 				</ul>
 			)}
 			<p><a href="/news">Browse all news</a></p>
+		</div>
+
+		<div class="card">
+			<h2>Managed Pages</h2>
+			<ul style="padding-left:1.25rem;">
+				{pages.map((page) => (
+					<li style="margin-bottom:0.75rem;"><a href={`/${page.id}`}>{page.data.title}</a></li>
+				))}
+			</ul>
+			<p><a href="/_emdash/admin/content/pages">Manage pages in admin</a></p>
 		</div>
 	</section>
 </Base>
