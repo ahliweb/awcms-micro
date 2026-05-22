@@ -18,8 +18,38 @@
 		"auditEvents": {
 			"indexes": ["timestamp", "kind", "scope", ["scope", "timestamp"]]
 		},
+		"accessChangeEvents": {
+			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]]
+		},
+		"abacChangeEvents": {
+			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]]
+		},
+		"abacAttributeCatalog": {
+			"indexes": ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]]
+		},
+		"abacPolicyRules": {
+			"indexes": ["id", "effect", "updatedAt", ["effect", "updatedAt"]]
+		},
+		"abacResourceAssignments": {
+			"indexes": ["resourceId", "updatedAt"]
+		},
+		"abacSubjectAssignments": {
+			"indexes": ["subjectId", "updatedAt"]
+		},
 		"contentSnapshots": {
 			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"]]
+		},
+		"permissionCatalog": {
+			"indexes": ["slug", "scope", "updatedAt", ["scope", "updatedAt"]]
+		},
+		"roleCatalog": {
+			"indexes": ["slug", "updatedAt"]
+		},
+		"rolePermissionAssignments": {
+			"indexes": ["roleSlug", "updatedAt"]
+		},
+		"userRoleAssignments": {
+			"indexes": ["userId", "updatedAt"]
 		}
 	},
 

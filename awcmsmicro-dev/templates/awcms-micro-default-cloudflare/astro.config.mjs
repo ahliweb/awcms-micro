@@ -19,15 +19,7 @@ export default defineConfig({
 		emdash({
 			database: d1({ binding: "DB", session: "auto" }),
 			storage: r2({ binding: "MEDIA" }),
-			plugins: [
-		...(() => {
-			const plugin = awcmsMicroExamplePlugin({
-				tenantId: "t-local-dev",
-			});
-			console.log("awcmsMicroExamplePlugin result:", plugin);
-			return [plugin];
-		})(),
-	],
+			plugins: [awcmsMicroExamplePlugin({ tenantId: "t-local-dev" })],
 			sandboxed: [],
 			sandboxRunner: sandbox(),
 			siteUrl,

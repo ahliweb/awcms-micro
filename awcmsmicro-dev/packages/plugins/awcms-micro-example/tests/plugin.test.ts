@@ -415,5 +415,19 @@ describe("awcms micro example plugin", () => {
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");
+		expect(Object.keys(manifest.storage).toSorted()).toEqual([
+			"abacAttributeCatalog",
+			"abacChangeEvents",
+			"abacPolicyRules",
+			"abacResourceAssignments",
+			"abacSubjectAssignments",
+			"accessChangeEvents",
+			"auditEvents",
+			"contentSnapshots",
+			"permissionCatalog",
+			"roleCatalog",
+			"rolePermissionAssignments",
+			"userRoleAssignments",
+		]);
 	});
 });
