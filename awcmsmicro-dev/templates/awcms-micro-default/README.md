@@ -14,6 +14,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - Tenant-ready structure: content sections and file layout keep room for future tenant separation.
 - EmDash-compatible: the template uses standard Astro and EmDash integration points only.
 - No EmDash core modification: manual adoption is documented here instead of changing built-in template registration.
+- Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
 ## Key Files
 

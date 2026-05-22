@@ -243,7 +243,7 @@ function usePluginData<T>(path: string, payload: unknown = {}) {
 }
 
 function PageShell({ children, width = "wide" }: { children: React.ReactNode; width?: "normal" | "wide" }) {
-	return <div className={cx("space-y-6", width === "wide" ? "max-w-6xl" : "max-w-4xl")}>{children}</div>;
+	return <div className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-6xl" : "max-w-4xl")}>{children}</div>;
 }
 
 function PageHeader({
@@ -258,10 +258,10 @@ function PageHeader({
 	actions?: React.ReactNode;
 }) {
 	return (
-		<div className="flex flex-col gap-4 rounded-2xl border bg-white/70 p-5 shadow-sm md:flex-row md:items-start md:justify-between">
+		<div className="flex flex-col gap-4 rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm md:flex-row md:items-start md:justify-between">
 			<div className="space-y-2">
 				{eyebrow ? <div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">{eyebrow}</div> : null}
-				<h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+				<h1 className="text-3xl font-bold tracking-tight text-kumo-default">{title}</h1>
 				<p className="max-w-3xl text-sm leading-6 text-kumo-subtle">{description}</p>
 			</div>
 			{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -281,11 +281,11 @@ function Card({
 	actions?: React.ReactNode;
 }) {
 	return (
-		<section className="rounded-2xl border bg-white p-5 shadow-sm">
+		<section className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm">
 			{title || description || actions ? (
 				<div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 					<div>
-						{title ? <h2 className="text-lg font-semibold">{title}</h2> : null}
+						{title ? <h2 className="text-lg font-semibold text-kumo-default">{title}</h2> : null}
 						{description ? <p className="mt-1 text-sm leading-6 text-kumo-subtle">{description}</p> : null}
 					</div>
 					{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -298,9 +298,9 @@ function Card({
 
 function MetricCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
 	return (
-		<div className="rounded-2xl border bg-white p-4 shadow-sm">
+		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
 			<div className="text-sm text-kumo-subtle">{label}</div>
-			<div className="mt-2 text-3xl font-semibold tracking-tight">{value}</div>
+			<div className="mt-2 text-3xl font-semibold tracking-tight text-kumo-default">{value}</div>
 			{hint ? <div className="mt-2 text-xs text-kumo-subtle">{hint}</div> : null}
 		</div>
 	);
@@ -309,18 +309,18 @@ function MetricCard({ label, value, hint }: { label: string; value: React.ReactN
 function Pill({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "success" | "warning" | "danger" }) {
 	const className = cx(
 		"inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-		tone === "success" && "bg-green-100 text-green-700",
-		tone === "warning" && "bg-amber-100 text-amber-700",
-		tone === "danger" && "bg-red-100 text-red-700",
-		tone === "neutral" && "bg-slate-100 text-slate-700",
+		tone === "success" && "bg-kumo-success/10 text-kumo-success",
+		tone === "warning" && "bg-kumo-warning/10 text-kumo-warning",
+		tone === "danger" && "bg-kumo-danger/10 text-kumo-danger",
+		tone === "neutral" && "bg-kumo-tint text-kumo-default",
 	);
 	return <span className={className}>{children}</span>;
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
 	return (
-		<label className="block text-sm">
-			<span className="mb-1 block font-medium">{label}</span>
+		<label className="block text-sm text-kumo-default">
+			<span className="mb-1 block font-medium text-kumo-default">{label}</span>
 			{children}
 			{hint ? <span className="mt-1 block text-xs leading-5 text-kumo-subtle">{hint}</span> : null}
 		</label>
@@ -328,12 +328,12 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function LoadingState({ label }: { label: string }) {
-	return <div className="rounded-2xl border bg-white p-5 text-sm text-kumo-subtle">{label}</div>;
+	return <div className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-sm text-kumo-default">{label}</div>;
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
 	return (
-		<div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+		<div className="rounded-2xl border border-kumo-danger/30 bg-kumo-danger/10 p-5 text-sm text-kumo-danger">
 			<div className="font-medium">Something went wrong</div>
 			<div className="mt-1">{message}</div>
 			{onRetry ? (
@@ -347,8 +347,8 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
 
 function EmptyState({ title, description }: { title: string; description: string }) {
 	return (
-		<div className="rounded-xl border border-dashed p-5 text-sm">
-			<div className="font-medium">{title}</div>
+		<div className="rounded-xl border border-kumo-line bg-kumo-base p-5 text-sm text-kumo-default">
+			<div className="font-medium text-kumo-default">{title}</div>
 			<div className="mt-1 text-kumo-subtle">{description}</div>
 		</div>
 	);
@@ -359,8 +359,8 @@ function Feedback({ message, tone = "success" }: { message: string | null; tone?
 	return (
 		<div
 			className={cx(
-				"rounded-xl border p-3 text-sm",
-				tone === "success" ? "border-green-200 bg-green-50 text-green-700" : "border-red-200 bg-red-50 text-red-700",
+				"rounded-xl border border-kumo-line p-3 text-sm",
+				tone === "success" ? "border-kumo-success/30 bg-kumo-success/10 text-kumo-success" : "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger",
 			)}
 		>
 			{message}
@@ -372,9 +372,9 @@ function KeyValueList({ items }: { items: Array<[string, React.ReactNode]> }) {
 	return (
 		<dl className="grid gap-3 text-sm md:grid-cols-2">
 			{items.map(([label, value]) => (
-				<div className="rounded-xl bg-slate-50 p-3" key={label}>
+				<div className="rounded-xl border border-kumo-line bg-kumo-tint/50 p-3" key={label}>
 					<dt className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">{label}</dt>
-					<dd className="mt-1 break-words font-medium">{value}</dd>
+					<dd className="mt-1 break-words font-medium text-kumo-default">{value}</dd>
 				</div>
 			))}
 		</dl>
@@ -613,9 +613,9 @@ function OverviewPage() {
 				) : (
 					<div className="space-y-2">
 						{data.recentEvents.map((item) => (
-							<div className="rounded-xl border p-3" key={item.id}>
+							<div className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.id}>
 								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-									<div className="font-medium">{item.summary}</div>
+									<div className="font-medium text-kumo-default">{item.summary}</div>
 									<Pill>{item.kind}</Pill>
 								</div>
 								<div className="mt-2 text-xs text-kumo-subtle">
@@ -653,13 +653,13 @@ function AuditPage() {
 					<EmptyState title="No audit events" description="Plugin actions will appear here after hooks or routes run." />
 				) : (
 					<div className="overflow-hidden rounded-xl border">
-						<div className="grid grid-cols-[1fr_160px_160px] gap-3 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+						<div className="grid grid-cols-[1fr_160px_160px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 							<div>Summary</div>
 							<div>Scope / actor</div>
 							<div>Time</div>
 						</div>
 						{data.items.map((item) => (
-							<div className="grid gap-2 border-t px-4 py-3 text-sm md:grid-cols-[1fr_160px_160px]" key={item.id}>
+							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1fr_160px_160px]" key={item.id}>
 								<div>
 									<div className="font-medium">{item.summary}</div>
 									<div className="mt-1">
@@ -741,9 +741,9 @@ function PermissionsPage() {
 					) : (
 						<div className="grid gap-3">
 							{data.items.map((item) => (
-								<div className="rounded-xl border p-4" key={item.slug}>
+								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
 									<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-										<div className="font-medium">{item.label}</div>
+										<div className="font-medium text-kumo-default">{item.label}</div>
 										<Pill>{item.scope}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
@@ -852,8 +852,8 @@ function RolesPage() {
 					) : (
 						<div className="space-y-3">
 							{data.roles.map((item) => (
-								<div className="rounded-xl border p-4" key={item.slug}>
-									<div className="font-medium">{item.label}</div>
+								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
+									<div className="font-medium text-kumo-default">{item.label}</div>
 									<div className="mt-1 text-sm text-kumo-subtle">{item.slug}</div>
 									<p className="mt-2 text-sm leading-6">{item.description || "No description provided."}</p>
 								</div>
@@ -868,8 +868,8 @@ function RolesPage() {
 					) : (
 						<div className="space-y-3">
 							{data.userAssignments.map((item) => (
-								<div className="rounded-xl border p-4" key={item.userId}>
-									<div className="font-medium">{item.userId}</div>
+								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.userId}>
+									<div className="font-medium text-kumo-default">{item.userId}</div>
 									<div className="mt-2 flex flex-wrap gap-2">
 										{item.roles.length ? item.roles.map((role) => <Pill key={role}>{role}</Pill>) : <Pill tone="warning">No roles</Pill>}
 									</div>
@@ -959,10 +959,10 @@ function MatrixPage() {
 						{data.permissions.map((permission) => {
 							const checked = selectedPermissions.includes(permission.slug);
 							return (
-								<label className={cx("flex items-start gap-3 rounded-xl border p-4 transition", checked && "bg-slate-50")} key={permission.slug}>
+								<label className={cx("flex items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 transition", checked && "bg-kumo-tint/30")} key={permission.slug}>
 									<input type="checkbox" className="mt-1" checked={checked} onChange={(event: React.ChangeEvent<HTMLInputElement>) => togglePermission(permission.slug, event.target.checked)} />
 									<span>
-										<span className="block font-medium">{permission.label}</span>
+											<span className="block font-medium text-kumo-default">{permission.label}</span>
 										<span className="mt-1 block break-all text-sm text-kumo-subtle">{permission.slug}</span>
 										<span className="mt-2 block">
 											<Pill>{permission.scope}</Pill>
@@ -1193,8 +1193,8 @@ function AbacAttributesPage() {
 						<EmptyState title="No attributes" description="Create an attribute definition first." />
 					) : (
 						data.items.map((item) => (
-							<div className="mb-3 rounded-xl border p-3" key={item.key}>
-								<div className="font-medium">{item.label}</div>
+							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.key}>
+								<div className="font-medium text-kumo-default">{item.label}</div>
 								<div className="mt-1 text-sm text-kumo-subtle">{item.key}</div>
 								<div className="mt-2">
 									<Pill>{item.targetType}</Pill>
@@ -1208,8 +1208,8 @@ function AbacAttributesPage() {
 						<EmptyState title="No subjects" description="Create a subject assignment to test policies." />
 					) : (
 						subjectData.items.map((item, index) => (
-							<div className="mb-3 rounded-xl border p-3" key={item.subjectId ?? `subject-${index}`}>
-								<div className="font-medium">{item.subjectId ?? "Unknown subject"}</div>
+							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.subjectId ?? `subject-${index}`}>
+								<div className="font-medium text-kumo-default">{item.subjectId ?? "Unknown subject"}</div>
 								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
 							</div>
 						))
@@ -1220,8 +1220,8 @@ function AbacAttributesPage() {
 						<EmptyState title="No resources" description="Create a resource assignment to test policies." />
 					) : (
 						resourceData.items.map((item, index) => (
-							<div className="mb-3 rounded-xl border p-3" key={item.resourceId ?? `resource-${index}`}>
-								<div className="font-medium">{item.resourceId ?? "Unknown resource"}</div>
+							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.resourceId ?? `resource-${index}`}>
+								<div className="font-medium text-kumo-default">{item.resourceId ?? "Unknown resource"}</div>
 								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
 							</div>
 						))
@@ -1341,9 +1341,9 @@ function AbacPoliciesPage() {
 					) : (
 						<div className="space-y-3">
 							{data.items.map((item) => (
-								<div className="rounded-xl border p-4" key={item.id}>
+								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.id}>
 									<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-										<div className="font-medium">{item.label}</div>
+										<div className="font-medium text-kumo-default">{item.label}</div>
 										<Pill tone={item.effect === "allow" ? "success" : "danger"}>{item.effect}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.id}</div>

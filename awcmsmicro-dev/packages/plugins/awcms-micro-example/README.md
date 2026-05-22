@@ -14,6 +14,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 - cron hook scheduling and state recording
 - page metadata contribution
 - admin pages, dashboard widget, settings schema, and field widget contribution
+- admin UI styling uses Kumo semantic tokens so dark mode and light mode remain readable; do not hardcode light-only card or text colors in new plugin components
 - Portable Text block contribution
 - audit logging and content snapshot examples
 - access-rights catalog example with role matrix and effective access preview

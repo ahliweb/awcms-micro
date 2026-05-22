@@ -12,6 +12,7 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 - protected EmDash admin access at `/_emdash/admin` with unauthenticated redirects to `/_emdash/admin/login`
 - Cloudflare Worker configuration with D1, R2, observability, and Worker Loader prepared
 - native registration of `@awcms-micro/plugin-example`
+- Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
 ## Cloudflare Placeholders
 
