@@ -41,15 +41,33 @@ Exception:
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
+- `docs/awcmsmicro-dev-protected-paths.md`
+- `docs/upstream-sync/README.md`
+- `docs/deployment/cloudflare.md`
+- `docs/security/security-baseline.md`
 
 ## Maintenance Scripts
 
 - `bash scripts/update-emdash-latest.sh`
 - `bash scripts/update-awcmsmicro-dev.sh`
+- `bash scripts/validate-awcmsmicro-dev.sh`
+- `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
+
+## AWCMS-Micro Example Additions
+
+- Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`
+- Upstream sync tracking: `docs/upstream-sync/`
+- Deployment guidance: `docs/deployment/`
+- Security and compliance baselines: `docs/security/`
 
 ## Standard Workflow
 
 1. Refresh `emdash-latest/` from upstream EmDash.
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
-3. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
-4. Update root documentation when structure or process changes.
+3. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
+4. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
+5. Update root documentation when structure or process changes.
+
+During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`.
