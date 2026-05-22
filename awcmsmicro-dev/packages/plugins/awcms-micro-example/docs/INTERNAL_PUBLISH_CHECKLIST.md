@@ -2,6 +2,9 @@
 
 Use this checklist before publishing `@awcms-micro/plugin-example` to an internal registry or distributing it as a reusable package.
 
+Default flow: edit the existing `emdash-plugin.jsonc` in place.
+If you need a clean starting point, copy `docs/emdash-plugin.template.jsonc` to `emdash-plugin.jsonc` first and then apply this checklist.
+
 ## Identity
 
 - Replace `publisher` in `emdash-plugin.jsonc` with the real atproto DID or handle that will own the release.

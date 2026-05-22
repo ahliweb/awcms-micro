@@ -18,8 +18,10 @@ Add the plugin from project-level configuration only. Do not hardcode it into Em
 
 This example package now uses published dependency versions and a local build step so it can be copied into a standalone repository or local package workspace without rewriting monorepo-only specifiers.
 
-Replace the example publisher value in `emdash-plugin.jsonc` before any real registry publish.
+Replace the example publisher value in `emdash-plugin.jsonc` with the real atproto DID or handle before any internal or registry publish.
 If you move the package into its own repository, also set `repository` and `homepage` in `package.json` for your new location.
 Add `repo` and `security` to `emdash-plugin.jsonc` only after you know the final standalone repository and security contact URLs.
 
 Use `docs/INTERNAL_PUBLISH_CHECKLIST.md` before any internal or registry release.
+The default flow is to edit `emdash-plugin.jsonc` in place.
+Use `docs/emdash-plugin.template.jsonc` only when you want to replace it with a fresh checklist-oriented starting point.
