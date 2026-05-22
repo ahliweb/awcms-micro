@@ -4,7 +4,7 @@
 	"slug": "replace-with-final-slug",
 	"version": "0.1.0",
 	"license": "MIT",
-	"publisher": "did:plc:replace-me-or-use-your.handle.example", // Required before any internal or public publish.
+	"publisher": "did:plc:replace-me-or-use-your.handle.example", // Required before any internal or public publish. DID preferred; handle is also accepted.
 
 	"author": { "name": "Your Team Or Publisher Name" },
 	"name": "Your Plugin Display Name",
@@ -24,8 +24,8 @@
 	"capabilities": [],
 	"allowedHosts": [],
 	"storage": {
-		"events": {
-			"indexes": ["timestamp"]
+		"audit": {
+			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
 		}
 	},
 

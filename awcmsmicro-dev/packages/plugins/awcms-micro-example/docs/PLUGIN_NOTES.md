@@ -23,5 +23,6 @@ If you move the package into its own repository, also set `repository` and `home
 Add `repo` and `security` to `emdash-plugin.jsonc` only after you know the final standalone repository and security contact URLs.
 
 Use `docs/INTERNAL_PUBLISH_CHECKLIST.md` before any internal or registry release.
+Use `docs/MANIFEST_METADATA_EXAMPLES.md` for ready-to-copy `repo` and `security` examples.
 The default flow is to edit `emdash-plugin.jsonc` in place.
 Use `docs/emdash-plugin.template.jsonc` only when you want to replace it with a fresh checklist-oriented starting point.

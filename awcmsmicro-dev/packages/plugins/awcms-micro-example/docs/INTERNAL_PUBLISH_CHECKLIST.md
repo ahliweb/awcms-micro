@@ -7,7 +7,7 @@ If you need a clean starting point, copy `docs/emdash-plugin.template.jsonc` to 
 
 ## Identity
 
-- Replace `publisher` in `emdash-plugin.jsonc` with the real atproto DID or handle that will own the release.
+- Replace `publisher` in `emdash-plugin.jsonc` with the real atproto DID or handle that will own the release. DID is preferred; handle is also accepted.
 - Confirm `slug` is final and stable.
 - Bump `version` in both `package.json` and `emdash-plugin.jsonc`.
 
@@ -15,6 +15,7 @@ If you need a clean starting point, copy `docs/emdash-plugin.template.jsonc` to 
 
 - If the plugin lives in its own repository, set `repository` and `homepage` in `package.json`.
 - If you want published manifest metadata for source and security review, add `repo` and `security` to `emdash-plugin.jsonc`.
+- Use `docs/MANIFEST_METADATA_EXAMPLES.md` if you need concrete GitHub, monorepo, self-hosted, or internal-portal examples.
 - Confirm `license`, `author`, `name`, `description`, and `keywords` still match the package you are publishing.
 
 ## Trust Contract
