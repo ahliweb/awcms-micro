@@ -4,6 +4,7 @@
 	"description": "Atproto-aware client for the EmDash plugin registry: credential storage, publisher repo operations, and discovery against an aggregator.",
 	"type": "module",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
