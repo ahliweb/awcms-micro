@@ -13,7 +13,7 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 2. Refresh `emdash-latest/` from upstream.
 3. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 4. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
-5. Re-apply or continue AWCMS-Micro-specific implementation work only inside `awcmsmicro-dev/`.
+5. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
 6. Update root documentation if process, structure, or rules changed.
 
 ## Refresh `emdash-latest/`
@@ -42,7 +42,14 @@ Result:
 
 - copies the current `emdash-latest/` tree into `awcmsmicro-dev/`
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
+- preserves only the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 - excludes transient local build artifacts such as `node_modules/`, `dist/`, `.astro/`, and `.wrangler/`
+
+## Protected AWCMS-Micro Paths
+
+The approved rebuild-safe boundary list is documented in `docs/awcmsmicro-dev-protected-paths.md` and stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
+
+Only those listed paths are backed up and restored during `bash scripts/update-awcmsmicro-dev.sh`.
 
 ## Validate `awcmsmicro-dev/`
 
@@ -72,6 +79,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 
 - Treat `emdash-latest/` as disposable and reproducible from upstream.
 - Treat `awcmsmicro-dev/` as the only place for AWCMS-Micro implementation work inside this parent repository.
+- Keep AWCMS-Micro-owned divergence limited to the approved protected paths rather than editing upstream core locations.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
 

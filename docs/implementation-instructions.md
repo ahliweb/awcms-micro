@@ -13,7 +13,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 - Use `emdash-latest/` as the latest upstream reference source.
 - Use `awcmsmicro-dev/` as the actual AWCMS-Micro working tree.
 - Keep the root repository focused on synchronization, documentation, and maintenance workflow.
-- Keep AWCMS-Micro example templates and example plugins isolated in new folders inside `awcmsmicro-dev/`.
+- Keep AWCMS-Micro example work isolated in the approved protected paths inside `awcmsmicro-dev/`.
 
 ## Execution Strategy
 
@@ -37,6 +37,7 @@ When choosing where a change belongs:
 ## Required References
 
 - Sync governance and validation records live in `docs/upstream-sync/`.
+- The approved rebuild-safe boundary list lives in `docs/awcmsmicro-dev-protected-paths.md` and `scripts/awcmsmicro-dev-protected-paths.txt`.
 - Deployment guidance lives in `docs/deployment/`.
 - Security and compliance baselines live in `docs/security/`.
 - Example template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/`.

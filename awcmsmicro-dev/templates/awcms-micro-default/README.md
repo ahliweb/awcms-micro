@@ -20,6 +20,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - `package.json`
 - `seed/seed.json`
 - `astro.config.mjs`
+- `docs/README.md`
 - `src/layouts/BaseLayout.astro`
 - `src/components/SiteHeader.astro`
 - `src/components/SiteFooter.astro`
@@ -31,12 +32,15 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 
 This template is intentionally not registered into EmDash core. It can be copied into a standalone project outside this monorepo.
 
-1. Copy the folder into a new or existing Node.js 22+ project.
+1. Copy the folder into a new app directory, or use it as the project root for a new Node.js 22+ site.
 2. Install dependencies with `pnpm install`.
-3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
-4. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.
+3. Ensure the standard EmDash boilerplate is present, including `src/live.config.ts` for the `_emdash` live collection loader.
+4. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
+5. Add AWCMS-Micro-specific plugins through the normal `plugins: []` configuration path.
 
+For a small docs index for this template, start with `docs/README.md`.
 If you are still working inside this parent workspace and want to attach the example plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-example/docs/STANDALONE_CONSUMPTION.md`.
+If you want a ready-to-copy `astro.config.mjs` variant for this template with the example plugin enabled, see `docs/PLUGIN_ENABLED_ASTRO_CONFIG.md`.
 
 ## Standalone Notes
 

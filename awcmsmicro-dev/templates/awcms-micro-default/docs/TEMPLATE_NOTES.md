@@ -19,6 +19,10 @@ This template exists as an AWCMS-Micro example only.
 
 ## Safe Adoption Path
 
-Copy the folder into a project workspace, then customize it through normal EmDash configuration and site-level code.
+Copy the folder into a new app directory or project root, ensure the standard EmDash boilerplate is present including `src/live.config.ts`, then customize it through normal EmDash configuration and site-level code.
+
+Use `README.md` in this folder as the entry point for template-specific guidance.
 
 This example now uses published package versions so it can install outside the parent monorepo without rewriting dependency specifiers.
+
+If you want to enable the AWCMS-Micro example plugin in this template, use `PLUGIN_ENABLED_ASTRO_CONFIG.md` as the configuration variant rather than treating the checked-in `astro.config.mjs` as plugin-bound.

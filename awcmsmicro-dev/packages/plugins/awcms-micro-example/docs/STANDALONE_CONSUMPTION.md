@@ -85,15 +85,15 @@ export default defineConfig({
 	adapter: node({ mode: "standalone" }),
 	integrations: [
 		react(),
-			emdash({
-				database: sqlite({ url: "file:./data.db" }),
-				storage: local({
-					directory: "./uploads",
-					baseUrl: "/_emdash/api/media/file",
-				}),
-				plugins: [awcmsMicroExamplePlugin()],
+		emdash({
+			database: sqlite({ url: "file:./data.db" }),
+			storage: local({
+				directory: "./uploads",
+				baseUrl: "/_emdash/api/media/file",
 			}),
-		],
+			plugins: [awcmsMicroExamplePlugin()],
+		}),
+	],
 });
 ```
 

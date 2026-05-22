@@ -29,6 +29,7 @@ Rules:
 
 - Rebuild it from `emdash-latest/` when upstream synchronization is needed.
 - Apply AWCMS-Micro-specific example implementation work here.
+- Keep AWCMS-Micro-owned additions inside the approved protected paths documented in `docs/awcmsmicro-dev-protected-paths.md`.
 - Preserve the goal that AWCMS-Micro remains a full EmDash adoption, not a divergent fork of EmDash core.
 
 ### `docs/`
@@ -60,6 +61,8 @@ Expected root scripts:
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
+
+The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is documented in `docs/awcmsmicro-dev-protected-paths.md`.
 
 ## Root-Level Supporting Files
 
