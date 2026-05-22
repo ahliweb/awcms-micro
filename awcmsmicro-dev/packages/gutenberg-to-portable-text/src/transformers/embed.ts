@@ -105,36 +105,46 @@ export const audio: BlockTransformer = (block, _options, context) => {
 function detectProvider(url: string): string | undefined {
 	if (!url) return undefined;
 
-	const urlLower = url.toLowerCase();
+	let hostname = "";
+	try {
+		hostname = new URL(url).hostname.toLowerCase();
+	} catch {
+		return undefined;
+	}
 
-	if (urlLower.includes("youtube.com") || urlLower.includes("youtu.be")) {
+	if (hostname === "youtube.com" || hostname.endsWith(".youtube.com") || hostname === "youtu.be") {
 		return "youtube";
 	}
-	if (urlLower.includes("vimeo.com")) {
+	if (hostname === "vimeo.com" || hostname.endsWith(".vimeo.com")) {
 		return "vimeo";
 	}
-	if (urlLower.includes("twitter.com") || urlLower.includes("x.com")) {
+	if (
+		hostname === "twitter.com" ||
+		hostname.endsWith(".twitter.com") ||
+		hostname === "x.com" ||
+		hostname.endsWith(".x.com")
+	) {
 		return "twitter";
 	}
-	if (urlLower.includes("instagram.com")) {
+	if (hostname === "instagram.com" || hostname.endsWith(".instagram.com")) {
 		return "instagram";
 	}
-	if (urlLower.includes("facebook.com")) {
+	if (hostname === "facebook.com" || hostname.endsWith(".facebook.com")) {
 		return "facebook";
 	}
-	if (urlLower.includes("tiktok.com")) {
+	if (hostname === "tiktok.com" || hostname.endsWith(".tiktok.com")) {
 		return "tiktok";
 	}
-	if (urlLower.includes("spotify.com")) {
+	if (hostname === "spotify.com" || hostname.endsWith(".spotify.com")) {
 		return "spotify";
 	}
-	if (urlLower.includes("soundcloud.com")) {
+	if (hostname === "soundcloud.com" || hostname.endsWith(".soundcloud.com")) {
 		return "soundcloud";
 	}
-	if (urlLower.includes("codepen.io")) {
+	if (hostname === "codepen.io" || hostname.endsWith(".codepen.io")) {
 		return "codepen";
 	}
-	if (urlLower.includes("gist.github.com")) {
+	if (hostname === "gist.github.com") {
 		return "gist";
 	}
 
