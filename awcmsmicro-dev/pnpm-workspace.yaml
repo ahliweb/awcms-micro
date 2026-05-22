@@ -42,6 +42,21 @@ overrides:
   "@astrojs/telemetry": "3.3.0"
   # 1.3.0 is deprecated (CWE-502); pin the patched line.
   "@ungap/structured-clone": "^1.3.1"
+  # Security remediation for awcmsmicro-dev. Keep these in the managed clone only;
+  # do not mirror them back into emdash-latest from this workspace.
+  astro: "6.3.7"
+  "@astrojs/cloudflare": "13.5.4"
+  hono: "4.12.21"
+  "@hono/node-server": "1.19.13"
+  dompurify: "3.4.5"
+  simple-git: "3.36.0"
+  ip-address: "10.2.0"
+  postcss: "8.5.15"
+  ws: "8.20.1"
+  brace-expansion: "5.0.6"
+  devalue: "5.8.1"
+  fast-uri: "3.1.2"
+  kysely: "0.28.17"
 
 enablePrePostScripts: true
 

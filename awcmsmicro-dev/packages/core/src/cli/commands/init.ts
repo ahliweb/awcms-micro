@@ -45,6 +45,7 @@ async function readPackageJson(cwd: string): Promise<PackageJson | null> {
 
 async function runSqlFile(db: ReturnType<typeof createDatabase>, filePath: string): Promise<void> {
 	const sql = await readFile(filePath, "utf-8");
+	const { sql: kyselySql } = await import("kysely");
 
 	// Remove single-line comments
 	const withoutComments = sql
@@ -59,11 +60,7 @@ async function runSqlFile(db: ReturnType<typeof createDatabase>, filePath: strin
 		.filter((s) => s.length > 0);
 
 	for (const statement of statements) {
-		await db.executeQuery({
-			sql: statement,
-			parameters: [],
-			query: { kind: "RawNode", sqlFragments: [statement], parameters: [] },
-		});
+		await kyselySql.raw(statement).execute(db);
 	}
 }
 

@@ -65,6 +65,31 @@ interface TokenResponse {
 	scope: string;
 }
 
+function getSafeVerificationUri(value: string): string | null {
+	try {
+		const url = new URL(value);
+		return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+	} catch {
+		return null;
+	}
+}
+
+async function openVerificationUri(verificationUri: string): Promise<void> {
+	const safeUri = getSafeVerificationUri(verificationUri);
+	if (!safeUri) return;
+
+	const { execFile } = await import("node:child_process");
+	if (process.platform === "darwin") {
+		execFile("open", [safeUri]);
+		return;
+	}
+	if (process.platform === "win32") {
+		execFile("explorer.exe", [safeUri]);
+		return;
+	}
+	execFile("xdg-open", [safeUri]);
+}
+
 // ---------------------------------------------------------------------------
 // Device Flow polling
 // ---------------------------------------------------------------------------
@@ -292,14 +317,7 @@ export const loginCommand = defineCommand({
 
 			// Try to open browser (best-effort)
 			try {
-				const { execFile } = await import("node:child_process");
-				if (process.platform === "darwin") {
-					execFile("open", [deviceCode.verification_uri]);
-				} else if (process.platform === "win32") {
-					execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
-				} else {
-					execFile("xdg-open", [deviceCode.verification_uri]);
-				}
+				await openVerificationUri(deviceCode.verification_uri);
 			} catch {
 				// Ignore — user can open manually
 			}

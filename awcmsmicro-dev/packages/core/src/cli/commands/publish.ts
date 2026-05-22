@@ -68,6 +68,31 @@ interface AuthDiscovery {
 	};
 }
 
+function getSafeVerificationUri(value: string): string | null {
+	try {
+		const url = new URL(value);
+		return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+	} catch {
+		return null;
+	}
+}
+
+async function openVerificationUri(verificationUri: string): Promise<void> {
+	const safeUri = getSafeVerificationUri(verificationUri);
+	if (!safeUri) return;
+
+	const { execFile } = await import("node:child_process");
+	if (process.platform === "darwin") {
+		execFile("open", [safeUri]);
+		return;
+	}
+	if (process.platform === "win32") {
+		execFile("explorer.exe", [safeUri]);
+		return;
+	}
+	execFile("xdg-open", [safeUri]);
+}
+
 /**
  * Authenticate with the marketplace via GitHub Device Flow.
  * Returns the marketplace JWT and author info.
@@ -110,14 +135,7 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 
 	// Try to open browser
 	try {
-		const { execFile } = await import("node:child_process");
-		if (process.platform === "darwin") {
-			execFile("open", [deviceCode.verification_uri]);
-		} else if (process.platform === "win32") {
-			execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
-		} else {
-			execFile("xdg-open", [deviceCode.verification_uri]);
-		}
+		await openVerificationUri(deviceCode.verification_uri);
 	} catch {
 		// User can open manually
 	}
