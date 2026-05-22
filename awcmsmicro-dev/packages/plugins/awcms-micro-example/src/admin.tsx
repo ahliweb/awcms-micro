@@ -1,5 +1,6 @@
 import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
+import { Button, Input, Select, InputArea } from "@cloudflare/kumo";
 import * as React from "react";
 
 interface SummaryResponse {
@@ -206,9 +207,9 @@ function GovernanceWidget() {
 			<div className="text-xs text-kumo-subtle">
 				Mode: {data.settings.governanceMode} | Last lifecycle: {data.lastLifecycle ?? "n/a"}
 			</div>
-			<button className="text-xs text-kumo-subtle hover:text-kumo-foreground" onClick={() => void reload()}>
+			<Button variant="ghost" size="sm"  onClick={() => void reload()}>
 				Refresh
-			</button>
+			</Button>
 		</div>
 	);
 }
@@ -248,9 +249,9 @@ function AccessRightsHealthWidget() {
 					? "No obvious catalog health gaps detected."
 					: `Gaps: ${data.rolesWithoutPermissions.length} role(s) without permissions, ${data.usersWithoutRoles.length} user assignment(s) without roles.`}
 			</div>
-			<button className="text-xs text-kumo-subtle hover:text-kumo-foreground" onClick={() => void reload()}>
+			<Button variant="ghost" size="sm"  onClick={() => void reload()}>
 				Refresh
-			</button>
+			</Button>
 		</div>
 	);
 }
@@ -286,9 +287,9 @@ function AbacPolicyStatusWidget() {
 				</div>
 			</div>
 			<div className="text-xs text-kumo-subtle">Explicit deny policies: {data.explicitDenyCount}</div>
-			<button className="text-xs text-kumo-subtle hover:text-kumo-foreground" onClick={() => void reload()}>
+			<Button variant="ghost" size="sm"  onClick={() => void reload()}>
 				Refresh
-			</button>
+			</Button>
 		</div>
 	);
 }
@@ -374,10 +375,9 @@ function OverviewPage() {
 				<h2 className="text-xl font-semibold">Plugin Settings Demo</h2>
 				<label className="block text-sm">
 					<span className="mb-1 block">Public Status Label</span>
-					<input
-						className="w-full rounded border px-3 py-2"
+					<Input 
 						value={formState.publicStatusLabel}
-						onChange={(event) =>
+						onChange={(event: any) =>
 							setFormState((current) => ({ ...current, publicStatusLabel: event.target.value }))
 						}
 					/>
@@ -388,38 +388,36 @@ function OverviewPage() {
 						type="number"
 						className="w-full rounded border px-3 py-2"
 						value={formState.auditRetentionDays}
-						onChange={(event) =>
+						onChange={(event: any) =>
 							setFormState((current) => ({ ...current, auditRetentionDays: event.target.value }))
 						}
 					/>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Governance Mode</span>
-					<select
-						className="w-full rounded border px-3 py-2"
+					<Select 
 						value={formState.governanceMode}
-						onChange={(event) =>
+						onChange={(event: any) =>
 							setFormState((current) => ({ ...current, governanceMode: event.target.value }))
 						}
 					>
 						<option value="observe">Observe</option>
 						<option value="review">Review</option>
 						<option value="enforce-demo">Enforce Demo</option>
-					</select>
+					</Select>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Metadata Canonical Base</span>
-					<input
-						className="w-full rounded border px-3 py-2"
+					<Input 
 						value={formState.metadataCanonicalBase}
-						onChange={(event) =>
+						onChange={(event: any) =>
 							setFormState((current) => ({ ...current, metadataCanonicalBase: event.target.value }))
 						}
 					/>
 				</label>
-				<button className="rounded bg-black px-4 py-2 text-white" disabled={saving} type="submit">
+				<Button variant="primary"  disabled={saving} type="submit">
 					{saving ? "Saving..." : "Save Settings"}
-				</button>
+				</Button>
 			</form>
 
 			<div className="rounded border p-4">
@@ -455,9 +453,9 @@ function AuditPage() {
 					<h1 className="text-3xl font-bold">Audit Event History</h1>
 					<p className="text-kumo-subtle mt-2">Example storage-backed audit stream for plugin behavior.</p>
 				</div>
-				<button className="rounded border px-3 py-2 text-sm" onClick={() => void reload()}>
+				<Button variant="secondary" size="sm"  onClick={() => void reload()}>
 					Refresh
-				</button>
+				</Button>
 			</div>
 
 			<ul className="space-y-2">
@@ -505,11 +503,11 @@ function PermissionsPage() {
 				<p className="text-kumo-subtle mt-2">Demonstrative permission catalog stored inside the example plugin.</p>
 			</div>
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void savePermission(event)}>
-				<input className="w-full rounded border px-3 py-2" placeholder="permission slug" value={formState.slug} onChange={(event) => setFormState((current) => ({ ...current, slug: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="label" value={formState.label} onChange={(event) => setFormState((current) => ({ ...current, label: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="scope" value={formState.scope} onChange={(event) => setFormState((current) => ({ ...current, scope: event.target.value }))} />
-				<textarea className="w-full rounded border px-3 py-2" placeholder="description" value={formState.description} onChange={(event) => setFormState((current) => ({ ...current, description: event.target.value }))} />
-				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Permission</button>
+				<Input  placeholder="permission slug" value={formState.slug} onChange={(event: any) => setFormState((current) => ({ ...current, slug: event.target.value }))} />
+				<Input  placeholder="label" value={formState.label} onChange={(event: any) => setFormState((current) => ({ ...current, label: event.target.value }))} />
+				<Input  placeholder="scope" value={formState.scope} onChange={(event: any) => setFormState((current) => ({ ...current, scope: event.target.value }))} />
+				<InputArea  placeholder="description" value={formState.description} onChange={(event: any) => setFormState((current) => ({ ...current, description: event.target.value }))} />
+				<Button variant="primary"  type="submit">Save Permission</Button>
 			</form>
 			<ul className="space-y-2">
 				{data?.items.map((item) => (
@@ -569,16 +567,16 @@ function RolesPage() {
 				<p className="text-kumo-subtle mt-2">Demonstrative role catalog and user-role assignment examples.</p>
 			</div>
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveRole(event)}>
-				<input className="w-full rounded border px-3 py-2" placeholder="role slug" value={roleState.slug} onChange={(event) => setRoleState((current) => ({ ...current, slug: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="label" value={roleState.label} onChange={(event) => setRoleState((current) => ({ ...current, label: event.target.value }))} />
-				<textarea className="w-full rounded border px-3 py-2" placeholder="description" value={roleState.description} onChange={(event) => setRoleState((current) => ({ ...current, description: event.target.value }))} />
-				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Role</button>
+				<Input  placeholder="role slug" value={roleState.slug} onChange={(event: any) => setRoleState((current) => ({ ...current, slug: event.target.value }))} />
+				<Input  placeholder="label" value={roleState.label} onChange={(event: any) => setRoleState((current) => ({ ...current, label: event.target.value }))} />
+				<InputArea  placeholder="description" value={roleState.description} onChange={(event: any) => setRoleState((current) => ({ ...current, description: event.target.value }))} />
+				<Button variant="primary"  type="submit">Save Role</Button>
 			</form>
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveUserAssignment(event)}>
 				<h2 className="text-xl font-semibold">User Role Assignment Example</h2>
-				<input className="w-full rounded border px-3 py-2" placeholder="user id" value={userState.userId} onChange={(event) => setUserState((current) => ({ ...current, userId: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="roles,comma,separated" value={userState.roles} onChange={(event) => setUserState((current) => ({ ...current, roles: event.target.value }))} />
-				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save User Assignment</button>
+				<Input  placeholder="user id" value={userState.userId} onChange={(event: any) => setUserState((current) => ({ ...current, userId: event.target.value }))} />
+				<Input  placeholder="roles,comma,separated" value={userState.roles} onChange={(event: any) => setUserState((current) => ({ ...current, roles: event.target.value }))} />
+				<Button variant="primary"  type="submit">Save User Assignment</Button>
 			</form>
 			<div className="grid gap-4 md:grid-cols-2">
 				<div>
@@ -619,7 +617,7 @@ function MatrixPage() {
 
 	React.useEffect(() => {
 		if (!data?.roles.length) return;
-		const roleSlug = selectedRole || data.roles[0]!.slug;
+		const roleSlug = selectedRole || data.roles[0]?.slug || "";
 		setSelectedRole(roleSlug);
 		const assignment = data.assignments.find((item) => item.roleSlug === roleSlug);
 		setSelectedPermissions(assignment?.permissions ?? []);
@@ -645,9 +643,9 @@ function MatrixPage() {
 				<h1 className="text-3xl font-bold">Role And Permission Matrix</h1>
 				<p className="text-kumo-subtle mt-2">Save demonstrative role-permission mappings without editing EmDash core authorization internals.</p>
 			</div>
-			<select className="rounded border px-3 py-2" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+			<Select  value={selectedRole} onChange={(event: any) => setSelectedRole(event.target.value)}>
 				{data?.roles.map((role) => <option key={role.slug} value={role.slug}>{role.label}</option>)}
-			</select>
+			</Select>
 			<div className="grid gap-2">
 				{data?.permissions.map((permission) => {
 					const checked = selectedPermissions.includes(permission.slug);
@@ -656,7 +654,7 @@ function MatrixPage() {
 							<input
 								type="checkbox"
 								checked={checked}
-								onChange={(event) =>
+								onChange={(event: any) =>
 									setSelectedPermissions((current) =>
 										event.target.checked ? [...current, permission.slug] : current.filter((item) => item !== permission.slug),
 									)
@@ -670,7 +668,7 @@ function MatrixPage() {
 					);
 				})}
 			</div>
-			<button className="rounded bg-black px-4 py-2 text-white" onClick={() => void saveMatrix()} type="button">Save Matrix</button>
+			<Button variant="primary"  onClick={() => void saveMatrix()} type="button">Save Matrix</Button>
 		</div>
 	);
 }
@@ -712,18 +710,18 @@ function PreviewPage() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<label className="block text-sm">
 					<span className="mb-1 block">User</span>
-					<select className="w-full rounded border px-3 py-2" value={userId} onChange={(event) => setUserId(event.target.value)}>
+					<Select  value={userId} onChange={(event: any) => setUserId(event.target.value)}>
 						{rolesData?.userAssignments.map((item) => <option key={item.userId} value={item.userId}>{item.userId}</option>)}
-					</select>
+					</Select>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Permission</span>
-					<select className="w-full rounded border px-3 py-2" value={permissionSlug} onChange={(event) => setPermissionSlug(event.target.value)}>
+					<Select  value={permissionSlug} onChange={(event: any) => setPermissionSlug(event.target.value)}>
 						{permissionsData?.items.map((item) => <option key={item.slug} value={item.slug}>{item.slug}</option>)}
-					</select>
+					</Select>
 				</label>
 			</div>
-			<button className="rounded bg-black px-4 py-2 text-white" onClick={() => void runPreview()} type="button">Preview Access</button>
+			<Button variant="primary"  onClick={() => void runPreview()} type="button">Preview Access</Button>
 			{error ? <div className="text-red-600">{error}</div> : null}
 			{preview ? (
 				<div className="rounded border p-4">
@@ -811,28 +809,28 @@ function AbacAttributesPage() {
 				<p className="text-kumo-subtle mt-2">Define subject, resource, and context attributes for the AWCMS-Micro ABAC demo.</p>
 			</div>
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveAttribute(event)}>
-				<input className="w-full rounded border px-3 py-2" placeholder="attribute key" value={attributeState.key} onChange={(event) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="label" value={attributeState.label} onChange={(event) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
-				<select className="w-full rounded border px-3 py-2" value={attributeState.targetType} onChange={(event) => setAttributeState((current) => ({ ...current, targetType: event.target.value }))}>
+				<Input  placeholder="attribute key" value={attributeState.key} onChange={(event: any) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
+				<Input  placeholder="label" value={attributeState.label} onChange={(event: any) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
+				<Select  value={attributeState.targetType} onChange={(event: any) => setAttributeState((current) => ({ ...current, targetType: event.target.value }))}>
 					<option value="subject">subject</option>
 					<option value="resource">resource</option>
 					<option value="context">context</option>
-				</select>
-				<textarea className="w-full rounded border px-3 py-2" placeholder="description" value={attributeState.description} onChange={(event) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
-				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Attribute</button>
+				</Select>
+				<InputArea  placeholder="description" value={attributeState.description} onChange={(event: any) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
+				<Button variant="primary"  type="submit">Save Attribute</Button>
 			</form>
 			<div className="grid gap-4 md:grid-cols-2">
 				<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveSubject(event)}>
 					<h2 className="text-xl font-semibold">Subject Assignment Example</h2>
-					<input className="w-full rounded border px-3 py-2" placeholder="subject id" value={subjectState.subjectId} onChange={(event) => setSubjectState((current) => ({ ...current, subjectId: event.target.value }))} />
-					<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={subjectState.attributes} onChange={(event) => setSubjectState((current) => ({ ...current, attributes: event.target.value }))} />
-					<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Subject</button>
+					<Input  placeholder="subject id" value={subjectState.subjectId} onChange={(event: any) => setSubjectState((current) => ({ ...current, subjectId: event.target.value }))} />
+					<InputArea  value={subjectState.attributes} onChange={(event: any) => setSubjectState((current) => ({ ...current, attributes: event.target.value }))} />
+					<Button variant="primary"  type="submit">Save Subject</Button>
 				</form>
 				<form className="space-y-3 rounded border p-4" onSubmit={(event) => void saveResource(event)}>
 					<h2 className="text-xl font-semibold">Resource Assignment Example</h2>
-					<input className="w-full rounded border px-3 py-2" placeholder="resource id" value={resourceState.resourceId} onChange={(event) => setResourceState((current) => ({ ...current, resourceId: event.target.value }))} />
-					<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={resourceState.attributes} onChange={(event) => setResourceState((current) => ({ ...current, attributes: event.target.value }))} />
-					<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Resource</button>
+					<Input  placeholder="resource id" value={resourceState.resourceId} onChange={(event: any) => setResourceState((current) => ({ ...current, resourceId: event.target.value }))} />
+					<InputArea  value={resourceState.attributes} onChange={(event: any) => setResourceState((current) => ({ ...current, attributes: event.target.value }))} />
+					<Button variant="primary"  type="submit">Save Resource</Button>
 				</form>
 			</div>
 			<div className="grid gap-4 md:grid-cols-3">
@@ -919,17 +917,17 @@ function AbacPoliciesPage() {
 				<p className="text-kumo-subtle mt-2">Create explicit allow and deny rules for the demonstrative ABAC engine.</p>
 			</div>
 			<form className="space-y-3 rounded border p-4" onSubmit={(event) => void savePolicy(event)}>
-				<input className="w-full rounded border px-3 py-2" placeholder="policy id" value={formState.id} onChange={(event) => setFormState((current) => ({ ...current, id: event.target.value }))} />
-				<input className="w-full rounded border px-3 py-2" placeholder="label" value={formState.label} onChange={(event) => setFormState((current) => ({ ...current, label: event.target.value }))} />
-				<select className="w-full rounded border px-3 py-2" value={formState.effect} onChange={(event) => setFormState((current) => ({ ...current, effect: event.target.value }))}>
+				<Input  placeholder="policy id" value={formState.id} onChange={(event: any) => setFormState((current) => ({ ...current, id: event.target.value }))} />
+				<Input  placeholder="label" value={formState.label} onChange={(event: any) => setFormState((current) => ({ ...current, label: event.target.value }))} />
+				<Select  value={formState.effect} onChange={(event: any) => setFormState((current) => ({ ...current, effect: event.target.value }))}>
 					<option value="allow">allow</option>
 					<option value="deny">deny</option>
-				</select>
-				<input className="w-full rounded border px-3 py-2" placeholder="actions,comma,separated" value={formState.actions} onChange={(event) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
-				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredSubject} onChange={(event) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
-				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredResource} onChange={(event) => setFormState((current) => ({ ...current, requiredResource: event.target.value }))} />
-				<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={formState.requiredContext} onChange={(event) => setFormState((current) => ({ ...current, requiredContext: event.target.value }))} />
-				<button className="rounded bg-black px-4 py-2 text-white" type="submit">Save Policy</button>
+				</Select>
+				<Input  placeholder="actions,comma,separated" value={formState.actions} onChange={(event: any) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
+				<InputArea  value={formState.requiredSubject} onChange={(event: any) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
+				<InputArea  value={formState.requiredResource} onChange={(event: any) => setFormState((current) => ({ ...current, requiredResource: event.target.value }))} />
+				<InputArea  value={formState.requiredContext} onChange={(event: any) => setFormState((current) => ({ ...current, requiredContext: event.target.value }))} />
+				<Button variant="primary"  type="submit">Save Policy</Button>
 			</form>
 			<ul className="space-y-2">
 				{data?.items.map((item) => (
@@ -990,22 +988,22 @@ function AbacPreviewPage() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<label className="block text-sm">
 					<span className="mb-1 block">Subject</span>
-					<select className="w-full rounded border px-3 py-2" value={subjectId} onChange={(event) => setSubjectId(event.target.value)}>
+					<Select  value={subjectId} onChange={(event: any) => setSubjectId(event.target.value)}>
 						{subjectData?.items.map((item) => <option key={item.subjectId} value={item.subjectId}>{item.subjectId}</option>)}
-					</select>
+					</Select>
 				</label>
 				<label className="block text-sm">
 					<span className="mb-1 block">Resource</span>
-					<select className="w-full rounded border px-3 py-2" value={resourceId} onChange={(event) => setResourceId(event.target.value)}>
+					<Select  value={resourceId} onChange={(event: any) => setResourceId(event.target.value)}>
 						{resourceData?.items.map((item) => <option key={item.resourceId} value={item.resourceId}>{item.resourceId}</option>)}
-					</select>
+					</Select>
 				</label>
 			</div>
-			<input className="w-full rounded border px-3 py-2" placeholder="action" value={action} onChange={(event) => setAction(event.target.value)} />
-			<textarea className="w-full rounded border px-3 py-2 font-mono text-sm" value={contextAttributes} onChange={(event) => setContextAttributes(event.target.value)} />
+			<Input  placeholder="action" value={action} onChange={(event: any) => setAction(event.target.value)} />
+			<InputArea  value={contextAttributes} onChange={(event: any) => setContextAttributes(event.target.value)} />
 			<div className="flex gap-3">
-				<button className="rounded bg-black px-4 py-2 text-white" onClick={() => void runPreview("abac/preview")} type="button">Preview Policy</button>
-				<button className="rounded border px-4 py-2" onClick={() => void runPreview("abac/enforce-demo")} type="button">Run Protected Demo</button>
+				<Button variant="primary"  onClick={() => void runPreview("abac/preview")} type="button">Preview Policy</Button>
+				<Button variant="secondary" size="sm"  onClick={() => void runPreview("abac/enforce-demo")} type="button">Run Protected Demo</Button>
 			</div>
 			{error ? <div className="text-red-600">{error}</div> : null}
 			{preview ? (
@@ -1047,16 +1045,15 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 				</label>
 			)}
 			<div className="flex items-center gap-3">
-				<select
-					className="rounded border px-3 py-2"
+				<Select 
 					id={id}
 					value={current}
-					onChange={(event) => onChange(event.target.value)}
+					onChange={(event: any) => onChange(event.target.value)}
 				>
 					<option value="draft">Draft</option>
 					<option value="review">Review</option>
 					<option value="approved">Approved</option>
-				</select>
+				</Select>
 				<span className={`rounded px-2 py-1 text-xs font-semibold ${badgeClass}`}>{current}</span>
 			</div>
 		</div>
