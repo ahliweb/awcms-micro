@@ -10,6 +10,7 @@ import { parse } from "@wordpress/block-serialization-default-parser";
 
 import { extractCaption, parseInlineContent } from "./inline.js";
 import { getTransformer } from "./transformers/index.js";
+import { sanitizeHref, sanitizeMediaUrl } from "./url.js";
 import type {
 	GutenbergBlock,
 	PortableTextBlock,
@@ -181,13 +182,13 @@ export function htmlToPortableText(
 			const srcMatch = fullMatch.match(SRC_ATTR_PATTERN);
 			const altMatch = fullMatch.match(ALT_ATTR_PATTERN);
 			if (srcMatch?.[1]) {
-				const imgUrl = decodeUrlEntities(srcMatch[1]);
+				const imgUrl = sanitizeMediaUrl(decodeUrlEntities(srcMatch[1]));
 				blocks.push({
 					_type: "image",
 					_key: generateKey(),
 					asset: {
 						_type: "reference",
-						_ref: imgUrl,
+						_ref: imgUrl || "",
 						url: imgUrl,
 					},
 					alt: altMatch?.[1],
@@ -208,18 +209,18 @@ export function htmlToPortableText(
 				// First extract linked images
 				let linkedMatch;
 				while ((linkedMatch = LINKED_IMAGE_PATTERN.exec(content)) !== null) {
-					const linkUrl = decodeUrlEntities(linkedMatch[1]!);
+					const linkUrl = sanitizeHref(decodeUrlEntities(linkedMatch[1]!));
 					const imgAttrs = linkedMatch[2]!;
 					const srcMatch = imgAttrs.match(SRC_ATTR_PATTERN);
 					const altMatch = imgAttrs.match(ALT_ATTR_PATTERN);
 					if (srcMatch?.[1]) {
-						const imgUrl = decodeUrlEntities(srcMatch[1]);
+						const imgUrl = sanitizeMediaUrl(decodeUrlEntities(srcMatch[1]));
 						blocks.push({
 							_type: "image",
 							_key: generateKey(),
 							asset: {
 								_type: "reference",
-								_ref: imgUrl,
+								_ref: imgUrl || "",
 								url: imgUrl,
 							},
 							alt: altMatch?.[1],
@@ -355,15 +356,15 @@ export function htmlToPortableText(
 					const srcMatch = imgMatch[0].match(SRC_ATTR_PATTERN);
 					const altMatch = imgMatch[0].match(ALT_ATTR_PATTERN);
 					const captionMatch = content.match(FIGCAPTION_TAG_PATTERN);
-					const imgUrl = srcMatch?.[1] ? decodeUrlEntities(srcMatch[1]) : "";
+					const imgUrl = srcMatch?.[1] ? sanitizeMediaUrl(decodeUrlEntities(srcMatch[1])) : undefined;
 
 					blocks.push({
 						_type: "image",
 						_key: generateKey(),
 						asset: {
 							_type: "reference",
-							_ref: imgUrl,
-							url: imgUrl || undefined,
+							_ref: imgUrl || "",
+							url: imgUrl,
 						},
 						alt: altMatch?.[1],
 						caption: captionMatch?.[0] ? extractCaption(captionMatch[0]) : undefined,

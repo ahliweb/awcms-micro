@@ -11,7 +11,7 @@ import type {
 	TransformContext,
 } from "../types.js";
 import { attrString, attrNumber, attrBoolean, attrObject } from "../types.js";
-import { sanitizeHref } from "../url.js";
+import { sanitizeHref, sanitizeMediaUrl } from "../url.js";
 
 // Regex patterns for core block transformers
 const UOL_TAG_PATTERN = /<[uo]l[^>]*>([\s\S]*)<\/[uo]l>/i;
@@ -369,7 +369,7 @@ export const quote: BlockTransformer = (block, _options, context) => {
  */
 export const image: BlockTransformer = (block, options, context) => {
 	const wpId = attrNumber(block.attrs, "id");
-	const src = attrString(block.attrs, "url") ?? extractSrc(block.innerHTML);
+	const src = sanitizeMediaUrl(attrString(block.attrs, "url") ?? extractSrc(block.innerHTML));
 	const alt = attrString(block.attrs, "alt") ?? extractAlt(block.innerHTML);
 	const caption = extractCaption(block.innerHTML);
 	const align = attrString(block.attrs, "align");
@@ -459,7 +459,7 @@ export const gallery: BlockTransformer = (block, options, context) => {
 		for (const innerBlock of block.innerBlocks) {
 			if (innerBlock.blockName === "core/image") {
 				const wpId = attrNumber(innerBlock.attrs, "id");
-				const src = attrString(innerBlock.attrs, "url") ?? extractSrc(innerBlock.innerHTML);
+				const src = sanitizeMediaUrl(attrString(innerBlock.attrs, "url") ?? extractSrc(innerBlock.innerHTML));
 				const alt = attrString(innerBlock.attrs, "alt") ?? extractAlt(innerBlock.innerHTML);
 				const caption = extractCaption(innerBlock.innerHTML);
 				const ref = wpId && options.mediaMap?.get(wpId);
@@ -480,12 +480,12 @@ export const gallery: BlockTransformer = (block, options, context) => {
 	} else {
 		// Parse from HTML (older gallery format)
 		let match;
-		while ((match = IMG_TAG_GLOBAL.exec(block.innerHTML)) !== null) {
-			const imgHtml = match[0];
-			const src = extractSrc(imgHtml);
-			const alt = extractAlt(imgHtml);
-			const idMatch = imgHtml.match(DATA_ID_PATTERN);
-			const wpId = idMatch?.[1] ? parseInt(idMatch[1], 10) : undefined;
+			while ((match = IMG_TAG_GLOBAL.exec(block.innerHTML)) !== null) {
+				const imgHtml = match[0];
+				const src = sanitizeMediaUrl(extractSrc(imgHtml));
+				const alt = extractAlt(imgHtml);
+				const idMatch = imgHtml.match(DATA_ID_PATTERN);
+				const wpId = idMatch?.[1] ? parseInt(idMatch[1], 10) : undefined;
 			const ref = wpId && options.mediaMap?.get(wpId);
 
 			images.push({
@@ -843,7 +843,7 @@ export const cover: BlockTransformer = (block, _options, context) => {
 		{
 			_type: "cover",
 			_key: context.generateKey(),
-			backgroundImage: url,
+			backgroundImage: sanitizeMediaUrl(url),
 			overlayColor: customOverlayColor || overlayColor,
 			overlayOpacity: dimRatio !== undefined ? dimRatio / 100 : undefined,
 			content,
@@ -989,22 +989,22 @@ export const mediaText: BlockTransformer = (block, _options, context) => {
 	// Create media column
 	const mediaBlock: PortableTextBlock[] =
 		mediaType === "video"
-			? [
+				? [
 					{
 						_type: "embed",
 						_key: context.generateKey(),
-						url: mediaUrl || "",
+						url: sanitizeMediaUrl(mediaUrl) || "",
 						provider: "video",
 					},
 				]
-			: [
+				: [
 					{
 						_type: "image",
 						_key: context.generateKey(),
 						asset: {
 							_type: "reference",
 							_ref: String(mediaId || mediaUrl || ""),
-							url: mediaUrl,
+							url: sanitizeMediaUrl(mediaUrl),
 						},
 						alt: mediaAlt,
 					},

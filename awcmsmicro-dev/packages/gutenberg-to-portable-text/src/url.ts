@@ -7,6 +7,7 @@
  */
 
 const SAFE_URL_SCHEME_RE = /^(https?:|mailto:|tel:|\/(?!\/)|#)/i;
+const SAFE_MEDIA_URL_SCHEME_RE = /^(https?:|\/(?!\/)|#)/i;
 
 /**
  * Returns the URL unchanged if it uses a safe scheme, otherwise returns "".
@@ -18,4 +19,13 @@ const SAFE_URL_SCHEME_RE = /^(https?:|mailto:|tel:|\/(?!\/)|#)/i;
 export function sanitizeHref(url: string | undefined | null): string {
 	if (!url) return "";
 	return SAFE_URL_SCHEME_RE.test(url) ? url : "";
+}
+
+/**
+ * Returns the URL unchanged if it is safe to use as media source URL,
+ * otherwise returns undefined.
+ */
+export function sanitizeMediaUrl(url: string | undefined | null): string | undefined {
+	if (!url) return undefined;
+	return SAFE_MEDIA_URL_SCHEME_RE.test(url) ? url : undefined;
 }

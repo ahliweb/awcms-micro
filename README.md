@@ -55,6 +55,11 @@ Exception:
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 - `pnpm test:awcmsmicro:e2e`
 
+## Contribution Policy
+
+- CLA enforcement is not active in this workspace.
+- Contributions are governed by repository review, issue tracking, and the standard approval flow used by maintainers.
+
 ## AWCMS-Micro Example Additions
 
 - Example template: `awcmsmicro-dev/templates/awcms-micro-default/`

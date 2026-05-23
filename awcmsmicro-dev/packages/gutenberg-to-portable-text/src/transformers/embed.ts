@@ -4,6 +4,7 @@
 
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
+import { sanitizeMediaUrl } from "../url.js";
 
 function findElementAttr(html: string, tagName: string, attrName: string): string | undefined {
 	const lower = html.toLowerCase();
@@ -36,13 +37,14 @@ export const embed: BlockTransformer = (block, _options, context) => {
 
 	// Extract iframe src if present
 	const iframeSrc = findElementAttr(block.innerHTML, "iframe", "src");
+	const safeUrl = sanitizeMediaUrl(url || iframeSrc || "") || "";
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: url || iframeSrc || "",
-			provider: providerSlug || detectProvider(url || iframeSrc || ""),
+			url: safeUrl,
+			provider: providerSlug || detectProvider(safeUrl),
 			html: block.innerHTML.trim() || undefined,
 		},
 	];
@@ -76,13 +78,15 @@ export const video: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from video tag if not in attrs
-	const videoSrc = src || findElementAttr(block.innerHTML, "video", "src") || findElementAttr(block.innerHTML, "source", "src");
+	const videoSrc = sanitizeMediaUrl(
+		src || findElementAttr(block.innerHTML, "video", "src") || findElementAttr(block.innerHTML, "source", "src") || "",
+	) || "";
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: videoSrc || "",
+			url: videoSrc,
 			provider: "video",
 			html: block.innerHTML.trim() || undefined,
 		},
@@ -96,13 +100,15 @@ export const audio: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from audio tag if not in attrs
-	const audioSrc = src || findElementAttr(block.innerHTML, "audio", "src") || findElementAttr(block.innerHTML, "source", "src");
+	const audioSrc = sanitizeMediaUrl(
+		src || findElementAttr(block.innerHTML, "audio", "src") || findElementAttr(block.innerHTML, "source", "src") || "",
+	) || "";
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: audioSrc || "",
+			url: audioSrc,
 			provider: "audio",
 			html: block.innerHTML.trim() || undefined,
 		},
