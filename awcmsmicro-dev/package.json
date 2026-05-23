@@ -15,6 +15,7 @@
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:awcmsmicro:e2e": "node e2e/awcms-micro/smoke.mjs",
+		"test:awcmsmicro:a11y": "node e2e/awcms-micro/accessibility.mjs",
 		"build": "pnpm run --filter {./packages/**} build",
 		"postbuild": "node scripts/relink-bins-if-needed.mjs",
 		"format": "oxfmt --ignore-path .gitignore && prettier --write .",
