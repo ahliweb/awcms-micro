@@ -15,6 +15,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { createServer } from "node:net";
 
 import { WorkerdSandboxRunner } from "../src/sandbox/runner.js";
 
@@ -82,5 +83,27 @@ describe("plugin port reclaim", () => {
 		const after = (runner as any).nextPluginPort;
 		// Ten load/unload cycles should have entirely reused freed ports.
 		expect(after).toBe(before);
+	});
+
+	it("skips ports already bound by another process", async () => {
+		const occupied = createServer();
+		await new Promise<void>((resolve, reject) => {
+			occupied.once("error", reject);
+			occupied.listen(0, "127.0.0.1", () => resolve());
+		});
+
+		try {
+			const address = occupied.address();
+			if (!address || typeof address === "string") {
+				throw new Error("expected an IPv4 address");
+			}
+
+			(runner as any).nextPluginPort = address.port;
+
+			const plugin = await runner.load(stubManifest("occupied"), "export default {};");
+			expect((plugin as any).port).not.toBe(address.port);
+		} finally {
+			await new Promise<void>((resolve) => occupied.close(() => resolve()));
+		}
 	});
 });

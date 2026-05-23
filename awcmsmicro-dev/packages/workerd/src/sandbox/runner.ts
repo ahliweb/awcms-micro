@@ -23,6 +23,7 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { writeFile, mkdir, rm, unlink } from "node:fs/promises";
 import { createServer } from "node:http";
 import type { Server } from "node:http";
+import { createServer as createTcpServer } from "node:net";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -92,6 +93,19 @@ export function minimalWorkerdEnv(): NodeJS.ProcessEnv {
 /** Use Unix domain sockets for the backing service (lower latency than TCP).
  * Falls back to TCP on Windows where Unix sockets are not available. */
 const USE_UNIX_SOCKET = process.platform !== "win32";
+
+function isPortAvailable(port: number): Promise<boolean> {
+	return new Promise((resolve) => {
+		const server = createTcpServer();
+		server.unref();
+		server.once("error", () => {
+			resolve(false);
+		});
+		server.listen(port, "127.0.0.1", () => {
+			server.close(() => resolve(true));
+		});
+	});
+}
 
 const activeRunners = new Set<WorkerdSandboxRunner>();
 let sigHandlerRegistered = false;
@@ -490,7 +504,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 
 		// Assign port and generate auth token. Reuse a freed port if one is
 		// available, otherwise allocate the next sequential port.
-		const port = this.freePorts.pop() ?? this.nextPluginPort++;
+		const port = this.freePorts.pop() ?? (await this.allocatePluginPort());
 		const token = this.generatePluginToken(manifest);
 
 		this.plugins.set(pluginId, { manifest, code, port, token });
@@ -502,6 +516,21 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 		this.scheduleEagerStart();
 
 		return new WorkerdSandboxedPlugin(pluginId, manifest, port, this.limits, this);
+	}
+
+	/**
+	 * Find the next available plugin port, skipping any ports already bound by
+	 * other processes on localhost.
+	 */
+	private async allocatePluginPort(): Promise<number> {
+		while (this.nextPluginPort < 65535) {
+			const port = this.nextPluginPort++;
+			if (await isPortAvailable(port)) {
+				return port;
+			}
+		}
+
+		throw new Error("[emdash:workerd] exhausted available plugin ports");
 	}
 
 	/**
