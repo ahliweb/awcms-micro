@@ -13,8 +13,8 @@ catalogs:
       specifier: ^0.9.7
       version: 0.9.7
     '@astrojs/cloudflare':
-      specifier: ^13.5.3
-      version: 13.5.3
+      specifier: ^13.5.4
+      version: 13.5.4
     '@astrojs/node':
       specifier: ^10.1.1
       version: 10.1.1
@@ -205,7 +205,7 @@ catalogs:
       specifier: 19.2.3
       version: 19.2.3
     astro:
-      specifier: ^6.3.0
+      specifier: ^6.1.10
       version: 6.3.5
     astro-iconset:
       specifier: ^0.0.4
@@ -409,7 +409,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -461,7 +461,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -578,7 +578,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -664,7 +664,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/starlight':
         specifier: ^0.38.2
         version: 0.38.2(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))
@@ -730,7 +730,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/node':
         specifier: 'catalog:'
         version: 10.1.1(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))
@@ -782,7 +782,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2171,7 +2171,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2267,7 +2267,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2341,7 +2341,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2409,7 +2409,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2471,7 +2471,7 @@ importers:
     dependencies:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
-        version: 13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
+        version: 13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.3)
@@ -2594,8 +2594,8 @@ packages:
     peerDependencies:
       typescript: ^5.0.0
 
-  '@astrojs/cloudflare@13.5.3':
-    resolution: {integrity: sha512-LChk0gvXeGlmagsWMa6Ym1H48ckBv2j3rMfYsS+zS9m6bg1TjvOb3F8r6uzsWxRvli61LE7+a1sTffG70U1NMg==}
+  '@astrojs/cloudflare@13.5.4':
+    resolution: {integrity: sha512-LX/G5gDLBZjj/qVBrW83j/EkfpQDiKVSQ9iRTv0n+DamTjCuVwoYILSEatsqZ86hDRoTzzEt5G5G15UQ+/VulA==}
     peerDependencies:
       astro: ^6.3.0
       wrangler: ^4.83.0
@@ -10996,7 +10996,7 @@ snapshots:
       - prettier
       - prettier-plugin-astro
 
-  '@astrojs/cloudflare@13.5.3(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)':
+  '@astrojs/cloudflare@13.5.4(@types/node@24.10.13)(astro@6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.59.0)(yaml@2.8.3))(jiti@2.6.1)(lightningcss@1.32.0)(wrangler@4.90.0(@cloudflare/workers-types@4.20260305.1))(yaml@2.8.3)':
     dependencies:
       '@astrojs/internal-helpers': 0.9.1
       '@astrojs/underscore-redirects': 1.0.3
@@ -11135,7 +11135,7 @@ snapshots:
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       remark-smartypants: 3.0.2
-      shiki: 4.0.1
+      shiki: 4.0.2
       smol-toml: 1.6.0
       unified: 11.0.5
       unist-util-remove-position: 5.0.0
@@ -18745,7 +18745,7 @@ snapshots:
 
   path-scurry@2.0.2:
     dependencies:
-      lru-cache: 11.2.4
+      lru-cache: 11.4.0
       minipass: 7.1.3
 
   path-to-regexp@8.4.0: {}
