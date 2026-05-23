@@ -10,11 +10,11 @@ function asString(value: unknown) {
 
 const slug = decodeSlug(Astro.params.slug);
 
-if (!slug) return Astro.redirect("/404");
+if (!slug) return Astro.rewrite("/404");
 
 const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
 
-if (!page) return Astro.redirect("/404");
+if (!page) return Astro.rewrite("/404");
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());

@@ -24,10 +24,10 @@ function asItems(value: unknown): GalleryItem[] {
 }
 
 const slug = decodeSlug(Astro.params.slug);
-if (!slug) return Astro.redirect("/404");
+if (!slug) return Astro.rewrite("/404");
 
 const { entry: gallery, cacheHint } = await getEmDashEntry("galleries", slug);
-if (!gallery) return Astro.redirect("/404");
+if (!gallery) return Astro.rewrite("/404");
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
