@@ -45,22 +45,34 @@ const pageCtx = createPublicPageContext({
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 		<style>
 			:root {
-				color-scheme: light dark;
+				color-scheme: light;
 				font-family: 'Inter', system-ui, sans-serif;
-				--bg-dark: #0a0e17;
-				--surface-dark: rgba(15, 23, 42, 0.6);
+				--bg-main: #ffffff;
+				--surface-main: #f8fafc;
+				--surface-border: rgba(14, 165, 233, 0.15);
+				--text-main: #0f172a;
+				--text-muted: #475569;
+				--accent: #0ea5e9;
+				--accent-hover: #0284c7;
+				--gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
+				--gradient-surface: linear-gradient(180deg, #ffffff, #f1f5f9);
+			}
+
+			:root.dark {
+				color-scheme: dark;
+				--bg-main: #0a0e17;
+				--surface-main: rgba(15, 23, 42, 0.6);
 				--surface-border: rgba(125, 211, 252, 0.1);
 				--text-main: #f8fafc;
 				--text-muted: #94a3b8;
 				--accent: #38bdf8;
 				--accent-hover: #7dd3fc;
-				--gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
 				--gradient-surface: linear-gradient(180deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.4));
 			}
 
 			body {
 				margin: 0;
-				background: var(--bg-dark);
+				background: var(--bg-main);
 				background-image: 
 					radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
 					radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
@@ -95,11 +107,44 @@ const pageCtx = createPublicPageContext({
 				padding-top: 1.5rem;
 				padding-bottom: 1.5rem;
 				border-bottom: 1px solid var(--surface-border);
-				background: rgba(10, 14, 23, 0.8);
+				background: var(--bg-main);
 				backdrop-filter: blur(12px);
 				position: sticky;
 				top: 0;
 				z-index: 50;
+			}
+
+			input, button, .widget-search__input, .emdash-live-search-input {
+				background: var(--surface-main);
+				color: var(--text-main);
+				border: 1px solid var(--surface-border);
+				border-radius: 0.5rem;
+				padding: 0.5rem 0.75rem;
+			}
+
+			.emdash-live-search-results {
+				background: var(--surface-main) !important;
+				border: 1px solid var(--surface-border) !important;
+			}
+			
+			.emdash-live-search-result:hover {
+				background: var(--surface-border) !important;
+			}
+			
+			.emdash-live-search-result-title {
+				color: var(--text-main) !important;
+			}
+			
+			.emdash-live-search-result-snippet {
+				color: var(--text-muted) !important;
+			}
+
+			.widget-recent-posts__link, .awcms-public-nav__link {
+				color: var(--text-main);
+			}
+
+			.awcms-public-nav__link:hover {
+				color: var(--accent-hover);
 			}
 
 			.nav {
@@ -120,14 +165,25 @@ const pageCtx = createPublicPageContext({
 
 			.primary-nav-shell {
 				margin-top: 1rem;
+				display: flex;
+				align-items: center;
+				gap: 1.5rem;
 			}
 
-			.nav-links a {
+			.utility-links {
+				display: flex;
+				gap: 1.5rem;
+				flex-wrap: wrap;
+				align-items: center;
+				margin-left: auto;
+			}
+
+			.utility-links a {
 				color: var(--text-muted);
 				font-weight: 500;
 			}
 
-			.nav-links a:hover {
+			.utility-links a:hover {
 				color: var(--text-main);
 				text-shadow: none;
 			}
@@ -208,6 +264,15 @@ const pageCtx = createPublicPageContext({
 				text-shadow: none;
 			}
 		</style>
+		<script is:inline>
+			(function() {
+				const savedTheme = localStorage.getItem('awcms-theme');
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<EmDashBodyStart page={pageCtx} />
@@ -216,14 +281,18 @@ const pageCtx = createPublicPageContext({
 					<a class="brand" href="/">
 						{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} style="height:44px;width:auto;display:block;" /> : siteTitle}
 					</a>
-					<div class="utility-links">
-						<a href="/_emdash/admin/login?redirect=/_emdash/admin">Admin</a>
-						<a href="/_emdash/api/plugins/awcms-micro-example/public/status">Plugin Status</a>
+					<div class="primary-nav-shell">
+						<PublicNavigation name="primary" />
+						<div class="utility-links">
+							<a href="/_emdash/admin/login?redirect=/_emdash/admin">Admin</a>
+							<a href="/_emdash/api/plugins/awcms-micro-example/public/status">Plugin Status</a>
+							<button id="theme-toggle" aria-label="Toggle Theme" style="padding: 0.4rem; font-size: 1.2rem; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+								<span class="dark-icon" style="display:none;" title="Switch to Light Mode">🌙</span>
+								<span class="light-icon" style="display:none;" title="Switch to Dark Mode">☀️</span>
+							</button>
+						</div>
 					</div>
 				</nav>
-				<div class="primary-nav-shell">
-					<PublicNavigation name="primary" />
-				</div>
 				<div style="margin-top:1rem;max-width:28rem;">
 					<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
 				</div>
@@ -246,5 +315,31 @@ const pageCtx = createPublicPageContext({
 		</footer>
 
 		<EmDashBodyEnd page={pageCtx} />
+		<script is:inline>
+			const themeToggle = document.getElementById('theme-toggle');
+			if (themeToggle) {
+				const darkIcon = themeToggle.querySelector('.dark-icon');
+				const lightIcon = themeToggle.querySelector('.light-icon');
+
+				function updateIcons() {
+					if (document.documentElement.classList.contains('dark')) {
+						darkIcon.style.display = 'block';
+						lightIcon.style.display = 'none';
+					} else {
+						lightIcon.style.display = 'block';
+						darkIcon.style.display = 'none';
+					}
+				}
+
+				updateIcons();
+
+				themeToggle.addEventListener('click', () => {
+					document.documentElement.classList.toggle('dark');
+					const isDark = document.documentElement.classList.contains('dark');
+					localStorage.setItem('awcms-theme', isDark ? 'dark' : 'light');
+					updateIcons();
+				});
+			}
+		</script>
 	</body>
 </html>
