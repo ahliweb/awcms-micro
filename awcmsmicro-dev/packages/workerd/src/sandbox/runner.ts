@@ -98,9 +98,7 @@ function isPortAvailable(port: number): Promise<boolean> {
 	return new Promise((resolve) => {
 		const server = createTcpServer();
 		server.unref();
-		server.once("error", () => {
-			resolve(false);
-		});
+		server.once("error", () => resolve(false));
 		server.listen(port, "127.0.0.1", () => {
 			server.close(() => resolve(true));
 		});
@@ -519,8 +517,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 	}
 
 	/**
-	 * Find the next available plugin port, skipping any ports already bound by
-	 * other processes on localhost.
+	 * Find the next available plugin port on localhost.
 	 */
 	private async allocatePluginPort(): Promise<number> {
 		while (this.nextPluginPort < 65535) {

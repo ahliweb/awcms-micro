@@ -5,7 +5,7 @@
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
 - Upstream commit SHA: `283bcf059e8c6889d14292e822953f13eaf6a6b0`
-- Sync date: `2026-05-23T20:52:27Z`
+- Sync date: `2026-05-23T21:38:18Z`
 - Operator: `Antigravity`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
