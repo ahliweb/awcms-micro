@@ -12,6 +12,7 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 - simple audit logging helper
 - EmDash registry manifest in `emdash-plugin.jsonc`
 - deterministic SIKESRA reference fixtures for registry, verification, and public-safe aggregate modeling
+- SIKESRA-grade admin references for registry, verification, documents, and reports
 
 ## Safe Enablement
 

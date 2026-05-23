@@ -3,6 +3,8 @@ import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
 import * as React from "react";
 
+import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "./fixtures.js";
+
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-example";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
@@ -165,6 +167,8 @@ interface FieldWidgetProps {
 	minimal?: boolean;
 	required?: boolean;
 }
+
+const REGISTRY_WIZARD_STEPS = ["Identity", "Region", "Documents", "Review"] as const;
 
 function cx(...classes: Array<string | false | null | undefined>) {
 	return classes.filter(Boolean).join(" ");
@@ -628,6 +632,282 @@ function OverviewPage() {
 					</div>
 				)}
 			</Card>
+		</PageShell>
+	);
+}
+
+function RegistryPage() {
+	const [step, setStep] = React.useState(0);
+	const [wizardState, setWizardState] = React.useState({
+		label: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.label ?? "",
+		provinceCode: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.region.provinceCode ?? "",
+		sensitivity: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.sensitivity ?? "public_safe",
+		code: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.code ?? "",
+	});
+
+	const registryEntities = SIKESRA_REFERENCE_FIXTURES.registryEntities;
+	const activeEntity = registryEntities[Math.min(step, registryEntities.length - 1)] ?? registryEntities[0];
+	const verifiedCount = registryEntities.filter((entity) => entity.verificationStage === "active_verified").length;
+	const restrictedCount = registryEntities.filter((entity) => entity.sensitivity !== "public_safe").length;
+	const codePreview = maskSensitive(wizardState.code, step === REGISTRY_WIZARD_STEPS.length - 1);
+
+	return (
+		<PageShell>
+			<PageHeader
+				eyebrow="Registry"
+				title="Registry intake and verification"
+				description="Reference UI for onboarding registry entities, tracking their region scope, and showing how sensitive identifiers stay masked until the review step."
+			/>
+
+			<div className="grid gap-5 md:grid-cols-3">
+				<MetricCard label="Registry entities" value={registryEntities.length} hint="Reference records in the sample queue" />
+				<MetricCard label="Verified records" value={verifiedCount} hint="Records that reached active verification" />
+				<MetricCard label="Restricted entries" value={restrictedCount} hint="Rows that require masking in operator views" />
+			</div>
+
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
+				<Card title="Registry queue" description="Deterministic SIKESRA reference records with stage, sensitivity, and region scope.">
+					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
+						<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+							<div>Entity</div>
+							<div>Region</div>
+							<div>Sensitivity</div>
+							<div>Stage</div>
+						</div>
+						{registryEntities.map((entity) => (
+							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr]" key={entity.id}>
+								<div>
+									<div className="font-medium text-kumo-default">{entity.label}</div>
+									<div className="mt-1 break-all text-xs text-kumo-subtle">{maskSensitive(entity.code, entity.sensitivity === "public_safe")}</div>
+									<div className="mt-2 text-xs text-kumo-subtle">{entity.publicSummary}</div>
+								</div>
+								<div className="text-kumo-subtle">
+									{entity.region.provinceCode}/{entity.region.regencyCode}
+									<br />
+									{entity.region.districtCode}/{entity.region.villageCode}
+								</div>
+								<div>
+									<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
+								</div>
+								<div className="text-kumo-subtle">{entity.verificationStage}</div>
+							</div>
+						))}
+					</div>
+				</Card>
+
+				<Card title="Progressive input wizard" description="A compact operator flow that stages the data entry and only reveals the reference code at the final review step.">
+					<div className="space-y-4">
+						<div className="grid grid-cols-4 gap-2 text-xs font-medium uppercase tracking-wide text-kumo-subtle">
+							{REGISTRY_WIZARD_STEPS.map((label, index) => (
+								<button
+									className={cx("rounded-full border px-3 py-2 text-start", index === step ? "border-kumo-brand bg-kumo-brand/10 text-kumo-brand" : "border-kumo-line bg-kumo-base text-kumo-subtle")}
+									key={label}
+									onClick={() => setStep(index)}
+									type="button"
+								>
+									{index + 1}. {label}
+								</button>
+							))}
+						</div>
+
+						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+							<div className="text-sm font-semibold text-kumo-default">Step {step + 1}: {REGISTRY_WIZARD_STEPS[step]}</div>
+							<p className="mt-2 text-sm leading-6 text-kumo-subtle">
+								{step === 0 ? "Start with identity details and a human-readable label." : null}
+								{step === 1 ? "Add region scope fields so reviewers can check jurisdiction boundaries." : null}
+								{step === 2 ? "Attach documents and keep the sensitive metadata out of the public view." : null}
+								{step === 3 ? "Review the masked reference code and verify the final stage before activation." : null}
+							</p>
+							<div className="mt-4 space-y-3">
+								<Field label="Registry label" hint="Reference entry name shown to operators.">
+									<Input value={wizardState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, label: event.target.value }))} />
+								</Field>
+								<div className="grid gap-4 md:grid-cols-2">
+									<Field label="Province code" hint="Administrative region code.">
+										<Input value={wizardState.provinceCode} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, provinceCode: event.target.value }))} />
+									</Field>
+									<Field label="Sensitivity" hint="Controls masking and public exposure.">
+								<Select value={wizardState.sensitivity} onValueChange={(value) => setWizardState((current) => ({ ...current, sensitivity: (value as typeof SIKESRA_REFERENCE_FIXTURES["registryEntities"][number]["sensitivity"] | null) ?? "public_safe" }))}>
+											<Select.Option value="public_safe">public_safe</Select.Option>
+											<Select.Option value="internal">internal</Select.Option>
+											<Select.Option value="restricted">restricted</Select.Option>
+											<Select.Option value="highly_restricted">highly_restricted</Select.Option>
+										</Select>
+									</Field>
+								</div>
+								<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/30 p-4 text-sm text-kumo-subtle">
+									<div className="font-medium text-kumo-default">Preview</div>
+									<div className="mt-2 grid gap-1">
+										<div>Code: {codePreview}</div>
+										<div>Label: {wizardState.label || "Untitled registry entity"}</div>
+										<div>Region: {wizardState.provinceCode || "--"}</div>
+										<div>Sensitivity: {wizardState.sensitivity}</div>
+									</div>
+								</div>
+							</div>
+
+							<div className="mt-4 flex items-center gap-2">
+								<Button variant="secondary" size="sm" type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>
+									Previous
+								</Button>
+								<Button variant="secondary" size="sm" type="button" disabled={step === REGISTRY_WIZARD_STEPS.length - 1} onClick={() => setStep((current) => Math.min(REGISTRY_WIZARD_STEPS.length - 1, current + 1))}>
+									Next
+								</Button>
+							</div>
+
+							<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
+								<div className="font-medium text-kumo-default">Active reference record</div>
+								<div className="mt-2">{activeEntity?.label}</div>
+								<div className="mt-1">{maskSensitive(activeEntity?.code ?? null, step === REGISTRY_WIZARD_STEPS.length - 1)}</div>
+								<div className="mt-1">{activeEntity?.verificationStage}</div>
+							</div>
+						</div>
+						</div>
+					</Card>
+				</div>
+			</PageShell>
+		);
+}
+
+function VerificationPage() {
+	const queue = [...SIKESRA_REFERENCE_FIXTURES.verificationEvents].toSorted((a, b) => b.createdAt.localeCompare(a.createdAt));
+	const pending = queue.filter((item) => item.result === "needs_review").length;
+	const approved = queue.filter((item) => item.result === "approved").length;
+
+	return (
+		<PageShell>
+			<PageHeader
+				eyebrow="Verification"
+				title="Verification queue"
+				description="A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+			/>
+
+			<div className="grid gap-5 md:grid-cols-3">
+				<MetricCard label="Queued events" value={queue.length} hint="Deterministic reference history" />
+				<MetricCard label="Approved" value={approved} hint="Accepted verification checkpoints" />
+				<MetricCard label="Needs review" value={pending} hint="Items that still need follow-up" />
+			</div>
+
+			<Card title="Queue timeline" description="Stage progression from draft to active verification." >
+				<div className="space-y-3">
+					{queue.map((item) => (
+						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
+							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+								<div>
+									<div className="font-medium text-kumo-default">{item.registryEntityId}</div>
+									<div className="mt-1 text-sm text-kumo-subtle">{item.notes}</div>
+								</div>
+								<div className="flex items-center gap-2">
+									<Pill tone={item.result === "approved" ? "success" : item.result === "needs_review" ? "warning" : "danger"}>{item.result}</Pill>
+									<Pill>{item.stage}</Pill>
+								</div>
+							</div>
+							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
+								<div>Actor: {item.actor}</div>
+								<div>Created: {formatDateTime(item.createdAt)}</div>
+								<div>ID: {maskSensitive(item.id, false)}</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</Card>
+		</PageShell>
+	);
+}
+
+function DocumentsPage() {
+	const docs = SIKESRA_REFERENCE_FIXTURES.supportingDocuments;
+	const sensitiveCount = docs.filter((doc) => doc.sensitivity !== "public_safe").length;
+
+	return (
+		<PageShell>
+			<PageHeader
+				eyebrow="Documents"
+				title="Supporting documents"
+				description="Document metadata for the registry reference model, including sensitivity classification and verification source."
+			/>
+
+			<div className="grid gap-5 md:grid-cols-3">
+				<MetricCard label="Documents" value={docs.length} hint="Reference document metadata" />
+				<MetricCard label="Sensitive docs" value={sensitiveCount} hint="Records that should remain masked" />
+				<MetricCard label="Verified sources" value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint="Unique verifier identifiers" />
+			</div>
+
+			<Card title="Document catalog" description="The linked entity identifier is masked unless the document is explicitly public-safe.">
+				<div className="space-y-3">
+					{docs.map((doc) => (
+						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={doc.id}>
+							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+								<div>
+									<div className="font-medium text-kumo-default">{doc.title}</div>
+									<div className="mt-1 text-sm text-kumo-subtle">{doc.documentType}</div>
+								</div>
+								<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
+							</div>
+							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
+								<div>Entity: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
+								<div>Issued: {formatDateTime(doc.issuedAt)}</div>
+								<div>Verified by: {doc.verifiedBy}</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</Card>
+		</PageShell>
+	);
+}
+
+function ReportsPage() {
+	const aggregate = SIKESRA_REFERENCE_FIXTURES.publicAggregate;
+	const suppressedCount = aggregate.categories.filter((item) => item.suppressed).length;
+
+	return (
+		<PageShell>
+			<PageHeader
+				eyebrow="Reports"
+				title="Public aggregate"
+				description="A public-safe reporting surface that exposes only coarse counts and avoids private identifiers or sensitive record details."
+			/>
+
+			<div className="grid gap-5 md:grid-cols-3">
+				<MetricCard label="Categories" value={aggregate.categories.length} hint="Public-safe summary buckets" />
+				<MetricCard label="Suppressed" value={suppressedCount} hint="Buckets hidden from public detail" />
+				<MetricCard label="Visible" value={aggregate.categories.length - suppressedCount} hint="Buckets safe to display openly" />
+			</div>
+
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] mt-2">
+				<Card title="Aggregate categories" description="Counts are shown only when the category is not suppressed.">
+					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
+						<div className="grid grid-cols-[1.2fr_.7fr_.7fr_.7fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+							<div>Category</div>
+							<div>Total</div>
+							<div>Verified</div>
+							<div>Status</div>
+						</div>
+						{aggregate.categories.map((item) => (
+							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr]" key={item.code}>
+								<div>
+									<div className="font-medium text-kumo-default">{item.label}</div>
+									<div className="mt-1 break-all text-xs text-kumo-subtle">{maskSensitive(item.code, !item.suppressed)}</div>
+								</div>
+								<div className="text-kumo-subtle">{item.suppressed ? "suppressed" : item.total}</div>
+								<div className="text-kumo-subtle">{item.verified}</div>
+								<div>
+									<Pill tone={item.suppressed ? "warning" : "success"}>{item.suppressed ? "masked" : "visible"}</Pill>
+								</div>
+							</div>
+						))}
+					</div>
+				</Card>
+
+				<Card title="Public note" description="The caveat explains why the aggregate is safe for public display.">
+					<p className="text-sm leading-6 text-kumo-subtle">{aggregate.caveat}</p>
+					<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
+						<div className="font-medium text-kumo-default">Display rule</div>
+						<div className="mt-2">Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern.</div>
+					</div>
+				</Card>
+			</div>
 		</PageShell>
 	);
 }
@@ -1490,6 +1770,10 @@ export const widgets: PluginAdminExports["widgets"] = {
 export const pages: PluginAdminExports["pages"] = {
 	"/": OverviewPage,
 	"/overview": OverviewPage,
+	"/registry": RegistryPage,
+	"/verification": VerificationPage,
+	"/documents": DocumentsPage,
+	"/reports": ReportsPage,
 	"/audit": AuditPage,
 	"/access/permissions": PermissionsPage,
 	"/access/roles": RolesPage,

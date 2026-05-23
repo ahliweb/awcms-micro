@@ -56,6 +56,10 @@ export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = AWCMS_EXAMPLE_STORAGE;
 
 export const AWCMS_EXAMPLE_ADMIN_PAGES = [
 	{ path: "/overview", label: "Overview", icon: "stack" },
+	{ path: "/registry", label: "Registry", icon: "grid" },
+	{ path: "/verification", label: "Verification", icon: "check" },
+	{ path: "/documents", label: "Documents", icon: "file" },
+	{ path: "/reports", label: "Reports", icon: "chart" },
 	{ path: "/audit", label: "Audit", icon: "list" },
 	{ path: "/access/permissions", label: "Permissions", icon: "lock" },
 	{ path: "/access/roles", label: "Roles", icon: "users" },

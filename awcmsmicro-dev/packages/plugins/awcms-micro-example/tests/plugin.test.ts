@@ -139,12 +139,27 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(9);
+		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(13);
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
 		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
+		expect(AWCMS_EXAMPLE_ADMIN_PAGES.map((page) => page.path)).toEqual([
+			"/overview",
+			"/registry",
+			"/verification",
+			"/documents",
+			"/reports",
+			"/audit",
+			"/access/permissions",
+			"/access/roles",
+			"/access/matrix",
+			"/access/preview",
+			"/abac/attributes",
+			"/abac/policies",
+			"/abac/preview",
+		]);
 	});
 
 	it("ships deterministic SIKESRA reference fixtures", () => {
