@@ -1,0 +1,36 @@
+---
+import type { MenuItem } from "emdash";
+
+interface Props {
+	item: MenuItem;
+	currentPath: string;
+	level: number;
+}
+
+const { item, currentPath, level } = Astro.props;
+const hasChildren = item.children.length > 0;
+const isActive = currentPath === item.url || (item.url !== "/" && currentPath.startsWith(`${item.url}/`));
+const submenuId = `public-submenu-${item.id}`;
+---
+
+<li class:list={["awcms-public-nav__item", `level-${level}`, item.cssClasses, { "has-children": hasChildren, "is-active": isActive }]}>
+	<a
+		class="awcms-public-nav__link"
+		href={item.url}
+		target={item.target}
+		title={item.titleAttr}
+		aria-current={isActive ? "page" : undefined}
+		aria-haspopup={hasChildren ? "true" : undefined}
+		aria-expanded={hasChildren ? "false" : undefined}
+		aria-controls={hasChildren ? submenuId : undefined}
+	>
+		<span>{item.label}</span>
+		{hasChildren && <span class="awcms-public-nav__chevron" aria-hidden="true">⌄</span>}
+	</a>
+
+	{hasChildren && (
+		<ul id={submenuId} class="awcms-public-nav__submenu" data-level={level + 1}>
+			{item.children.map((child) => <Astro.self item={child} currentPath={currentPath} level={level + 1} />)}
+		</ul>
+	)}
+</li>

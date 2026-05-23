@@ -75,9 +75,35 @@
 			"label": "Primary Navigation",
 			"items": [
 				{ "type": "custom", "label": "Home", "url": "/" },
-				{ "type": "custom", "label": "Posts", "url": "/posts" },
-				{ "type": "custom", "label": "News", "url": "/news" },
-				{ "type": "custom", "label": "About", "url": "/about" }
+				{
+					"type": "custom",
+					"label": "Public Data",
+					"url": "/aggregate",
+					"children": [
+						{ "type": "custom", "label": "Aggregate", "url": "/aggregate" },
+						{ "type": "custom", "label": "Posts", "url": "/posts" },
+						{ "type": "custom", "label": "News", "url": "/news" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Profile",
+					"url": "/about",
+					"children": [
+						{ "type": "custom", "label": "About", "url": "/about" },
+						{ "type": "custom", "label": "Guidance", "url": "/about#guidance" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Services",
+					"url": "/news",
+					"children": [
+						{ "type": "custom", "label": "Announcements", "url": "/news" },
+						{ "type": "custom", "label": "Help Center", "url": "/about#help" }
+					]
+				},
+				{ "type": "custom", "label": "Contact", "url": "/about#contact" }
 			]
 		}
 	],

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { execFile, spawn } from "node:child_process";
+import { access, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
@@ -32,6 +33,50 @@ const templates = [
 async function buildTemplate(dir) {
 	process.stdout.write(`building ${dir}\n`);
 	await execAsync("pnpm", ["build"], { cwd: dir, timeout: 1_200_000 });
+}
+
+async function overlaySeed(dir) {
+	const sourceSeed = resolve(dir, "seed", "seed.json");
+	const overlayDir = resolve(dir, ".emdash");
+	const overlaySeedPath = resolve(overlayDir, "seed.json");
+	let previousSeed = null;
+
+	try {
+		await access(overlaySeedPath);
+		previousSeed = await readFile(overlaySeedPath, "utf-8");
+	} catch {
+		// no overlay yet
+	}
+
+	await mkdir(overlayDir, { recursive: true });
+	await copyFile(sourceSeed, overlaySeedPath);
+
+	return async () => {
+		if (previousSeed == null) {
+			await rm(overlaySeedPath, { force: true });
+			return;
+		}
+
+		await writeFile(overlaySeedPath, previousSeed);
+	};
+}
+
+async function resetLocalSqliteDb(dir) {
+	const dbPath = resolve(dir, "data.db");
+	const backupName = dir.split("/").findLast((part) => part.length > 0) ?? "template";
+	const backupPath = resolve("/tmp/opencode", `${backupName}.data.db`);
+
+	try {
+		await access(dbPath);
+		await copyFile(dbPath, backupPath);
+		await rm(dbPath, { force: true });
+		return async () => {
+			await copyFile(backupPath, dbPath);
+			await rm(backupPath, { force: true });
+		};
+	} catch {
+		return async () => {};
+	}
 }
 
 function waitForServer(url, timeoutMs = 120_000) {
@@ -89,6 +134,8 @@ async function fetchRoute(baseUrl, path) {
 }
 
 async function validateTemplate(template) {
+	const cleanupSeed = await overlaySeed(template.dir);
+	const cleanupDb = await resetLocalSqliteDb(template.dir);
 	await buildTemplate(template.dir);
 	const preview = startPreview(template.dir, template.port);
 	const baseUrl = `http://${HOST}:${template.port}`;
@@ -105,24 +152,35 @@ async function validateTemplate(template) {
 				}
 				continue;
 			}
-			if (path === "/" && !body.includes("AWCMS-Micro")) {
-				throw new Error(`${template.name}: home page missing expected brand text`);
-			}
-			if (path === "/" && template.name === "awcms-micro-default" && !body.includes("View Public Aggregate")) {
-				throw new Error(`${template.name}: home page missing aggregate link`);
-			}
-			if (path === "/" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Plugin Console")) {
-				throw new Error(`${template.name}: home page missing plugin console link`);
-			}
-			if (path === "/aggregate" && !body.includes("Public aggregate")) {
-				throw new Error(`${template.name}: aggregate page missing expected heading`);
-			}
+		if (path === "/" && !body.includes("AWCMS-Micro")) {
+			throw new Error(`${template.name}: home page missing expected brand text`);
+		}
+		if (path === "/" && !body.includes('aria-haspopup="true"')) {
+			throw new Error(`${template.name}: home page missing nested navigation affordance`);
+		}
+		if (path === "/" && !body.includes("public-submenu-")) {
+			throw new Error(`${template.name}: home page missing submenu markup`);
+		}
+		if (path === "/" && template.name === "awcms-micro-default" && !body.includes("View Public Aggregate")) {
+			throw new Error(`${template.name}: home page missing aggregate link`);
+		}
+		if (path === "/" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Plugin Console")) {
+			throw new Error(`${template.name}: home page missing plugin console link`);
+		}
+		if (path === "/" && !body.includes("Public Data")) {
+			throw new Error(`${template.name}: home page missing seeded nested menu label`);
+		}
+		if (path === "/aggregate" && !body.includes("Public aggregate")) {
+			throw new Error(`${template.name}: aggregate page missing expected heading`);
+		}
 			if (path === "/aggregate" && !body.includes("coarse counts")) {
 				throw new Error(`${template.name}: aggregate page missing public-safe description`);
 			}
 		}
 		process.stdout.write(`validated ${template.name}\n`);
 	} finally {
+		await cleanupSeed();
+		await cleanupDb();
 		await preview.stop();
 	}
 }
