@@ -31,93 +31,93 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 ---
 
 <Base title={siteTitle} description={siteTagline}>
-	<section class="card" style="margin-bottom:1.5rem;">
-		<p style="text-transform:uppercase;letter-spacing:0.08em;color:#7dd3fc;">AWCMS-Micro</p>
-		<h1 style="font-size:clamp(2rem,5vw,3.5rem);margin:0 0 1rem;">A production-ready AWCMS-Micro website powered by EmDash and Cloudflare.</h1>
-		<p style="max-width:46rem;line-height:1.6;">
+	<section class="card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
+		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">AWCMS-Micro</p>
+		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">A production-ready CMS powered by <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">EmDash</span> & Cloudflare.</h1>
+		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">
 			This template turns AWCMS-Micro into a working public website: published content is rendered
 			through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling
 			remains available through the example plugin surface without changing core.
 		</p>
-		<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
-			<a class="card" style="padding:0.8rem 1rem;background:#0f172a;color:#f8fafc;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
-			<a class="card" style="padding:0.8rem 1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
-			<a class="card" style="padding:0.8rem 1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Open Plugin Console</a>
+		<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
 		</div>
 	</section>
 
-	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:1.5rem;">
+	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
-			<h2>Cloudflare-ready</h2>
-			<p>Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">Cloudflare-ready</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.</p>
 		</div>
 		<div class="card">
-			<h2>Plugin-enabled</h2>
-			<p>Registers <code>@awcms-micro/plugin-example</code> through the normal EmDash plugin path for audit, access-rights, and ABAC examples.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">Plugin-enabled</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Registers <code style="color:var(--accent);">@awcms-micro/plugin-example</code> through the normal EmDash plugin path for audit, access-rights, and ABAC examples.</p>
 		</div>
 		<div class="card">
-			<h2>Admin protected</h2>
-			<p>Unauthenticated visits are pushed to <code>/_emdash/admin/login</code> before the admin shell renders.</p>
-		</div>
-	</section>
-
-	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:1.5rem;">
-		<div class="card">
-			<h2>Published from admin</h2>
-			<p>Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.</p>
-		</div>
-		<div class="card">
-			<h2>Public search and navigation</h2>
-			<p>Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.</p>
-		</div>
-		<div class="card">
-			<h2>Operational surfaces</h2>
-			<p>Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">Admin protected</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Unauthenticated visits are pushed to <code style="color:var(--accent);">/_emdash/admin/login</code> before the admin shell renders.</p>
 		</div>
 	</section>
 
-	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:3rem;">
 		<div class="card">
-			<h2>Recent Posts</h2>
-			{posts.length === 0 ? <p>No posts yet.</p> : (
-				<ul style="padding-left:1.25rem;">
+			<h2 style="font-size:1.3rem;margin-top:0;">Published from admin</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.</p>
+		</div>
+		<div class="card">
+			<h2 style="font-size:1.3rem;margin-top:0;">Public search and navigation</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.</p>
+		</div>
+		<div class="card">
+			<h2 style="font-size:1.3rem;margin-top:0;">Operational surfaces</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.</p>
+		</div>
+	</section>
+
+	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
+		<div class="card">
+			<h2 style="font-size:1.5rem;margin-top:0;">Recent Posts</h2>
+			{posts.length === 0 ? <p style="color:var(--text-muted);">No posts yet.</p> : (
+				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{posts.map((post) => (
-						<li style="margin-bottom:0.75rem;">
-							<a href={`/posts/${post.id}`}>
-							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} />}
-								<strong>{post.data.title}</strong>
+						<li style="margin-bottom:1rem;">
+							<a href={`/posts/${post.id}`} style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">
+							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} style="border-radius:0.5rem;margin-bottom:0.5rem;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;" />}
+								{post.data.title}
 							</a>
-							{post.data.excerpt && <p>{post.data.excerpt}</p>}
+							{post.data.excerpt && <p style="margin:0;font-size:0.95rem;">{post.data.excerpt}</p>}
 						</li>
 					))}
 				</ul>
 			)}
-			<p><a href="/posts">Browse all posts</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/posts">Browse all posts &rarr;</a></p>
 		</div>
 
 		<div class="card">
-			<h2>Latest News</h2>
-			{newsItems.length === 0 ? <p>No news yet.</p> : (
-				<ul style="padding-left:1.25rem;">
+			<h2 style="font-size:1.5rem;margin-top:0;">Latest News</h2>
+			{newsItems.length === 0 ? <p style="color:var(--text-muted);">No news yet.</p> : (
+				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{newsItems.map((item) => (
-						<li style="margin-bottom:0.75rem;">
-							<a href={`/news/${item.id}`}><strong>{item.data.title}</strong></a>
-							{item.data.summary && <p>{item.data.summary}</p>}
+						<li style="margin-bottom:1rem;">
+							<a href={`/news/${item.id}`} style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">{item.data.title}</a>
+							{item.data.summary && <p style="margin:0;font-size:0.95rem;">{item.data.summary}</p>}
 						</li>
 					))}
 				</ul>
 			)}
-			<p><a href="/news">Browse all news</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/news">Browse all news &rarr;</a></p>
 		</div>
 
 		<div class="card">
-			<h2>Managed Pages</h2>
-			<ul style="padding-left:1.25rem;">
+			<h2 style="font-size:1.5rem;margin-top:0;">Managed Pages</h2>
+			<ul style="padding-left:1.25rem;color:var(--text-muted);">
 				{pages.map((page) => (
-					<li style="margin-bottom:0.75rem;"><a href={`/${page.id}`}>{page.data.title}</a></li>
+					<li style="margin-bottom:0.75rem;"><a href={`/${page.id}`} style="font-weight:500;">{page.data.title}</a></li>
 				))}
 			</ul>
-			<p><a href="/_emdash/admin/content/pages">Manage pages in admin</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">Manage pages in admin &rarr;</a></p>
 		</div>
 	</section>
 </Base>

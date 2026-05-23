@@ -43,43 +43,69 @@ const pageCtx = createPublicPageContext({
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
 		<EmDashHead page={pageCtx} />
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 		<style>
 			:root {
 				color-scheme: light dark;
-				font-family: Inter, system-ui, sans-serif;
+				font-family: 'Inter', system-ui, sans-serif;
+				--bg-dark: #0a0e17;
+				--surface-dark: rgba(15, 23, 42, 0.6);
+				--surface-border: rgba(125, 211, 252, 0.1);
+				--text-main: #f8fafc;
+				--text-muted: #94a3b8;
+				--accent: #38bdf8;
+				--accent-hover: #7dd3fc;
+				--gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
+				--gradient-surface: linear-gradient(180deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.4));
 			}
 
 			body {
 				margin: 0;
-				background: #071019;
-				color: #e8eef7;
+				background: var(--bg-dark);
+				background-image: 
+					radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 40%),
+					radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+				color: var(--text-main);
+				line-height: 1.6;
+			}
+
+			h1, h2, h3, h4, .brand {
+				font-family: 'Outfit', 'Inter', system-ui, sans-serif;
 			}
 
 			a {
-				color: #7dd3fc;
+				color: var(--accent);
 				text-decoration: none;
+				transition: color 0.2s ease, text-shadow 0.2s ease;
 			}
 
 			a:hover {
-				text-decoration: underline;
+				color: var(--accent-hover);
+				text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
 			}
 
 			.header,
 			.main,
 			.footer {
-				max-width: 1100px;
+				max-width: 1200px;
 				margin: 0 auto;
-				padding-inline: 1.25rem;
+				padding-inline: 1.5rem;
 			}
 
 			.header {
-				padding-top: 1.25rem;
-				padding-bottom: 1rem;
+				padding-top: 1.5rem;
+				padding-bottom: 1.5rem;
+				border-bottom: 1px solid var(--surface-border);
+				background: rgba(10, 14, 23, 0.8);
+				backdrop-filter: blur(12px);
+				position: sticky;
+				top: 0;
+				z-index: 50;
 			}
 
 			.nav {
 				display: flex;
-				gap: 1rem;
+				gap: 1.5rem;
 				align-items: center;
 				justify-content: space-between;
 				flex-wrap: wrap;
@@ -87,29 +113,95 @@ const pageCtx = createPublicPageContext({
 
 			.nav-links {
 				display: flex;
-				gap: 1rem;
+				gap: 1.5rem;
 				flex-wrap: wrap;
+				align-items: center;
+			}
+
+			.nav-links a {
+				color: var(--text-muted);
+				font-weight: 500;
+			}
+
+			.nav-links a:hover {
+				color: var(--text-main);
+				text-shadow: none;
 			}
 
 			.brand {
-				font-weight: 700;
-				font-size: 1.05rem;
+				font-weight: 800;
+				font-size: 1.5rem;
+				letter-spacing: -0.02em;
+				color: var(--text-main);
+				background: var(--gradient-primary);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
 			}
 
 			.main {
-				padding-block: 1rem 4rem;
+				padding-block: 3rem 6rem;
 			}
 
 			.footer {
-				padding-bottom: 3rem;
-				color: #9fb1c7;
+				padding-block: 4rem;
+				color: var(--text-muted);
+				border-top: 1px solid var(--surface-border);
 			}
 
 			.card {
-				background: rgba(15, 23, 42, 0.88);
-				border: 1px solid rgba(125, 211, 252, 0.15);
-				border-radius: 1rem;
-				padding: 1rem;
+				background: var(--gradient-surface);
+				border: 1px solid var(--surface-border);
+				border-radius: 1.25rem;
+				padding: 1.5rem;
+				backdrop-filter: blur(8px);
+				transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+			}
+
+			.card:hover {
+				transform: translateY(-4px);
+				border-color: rgba(56, 189, 248, 0.3);
+				box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2), 0 0 20px rgba(56, 189, 248, 0.1);
+			}
+
+			.btn {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0.75rem 1.25rem;
+				border-radius: 0.75rem;
+				font-weight: 600;
+				font-size: 0.95rem;
+				transition: all 0.2s ease;
+				text-decoration: none;
+				border: 1px solid transparent;
+			}
+
+			.btn-primary {
+				background: var(--gradient-primary);
+				color: #fff !important;
+				box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+			}
+
+			.btn-primary:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+				color: #fff !important;
+				text-shadow: none;
+			}
+
+			.btn-secondary {
+				background: rgba(30, 41, 59, 0.5);
+				color: var(--text-main) !important;
+				border: 1px solid var(--surface-border);
+				backdrop-filter: blur(8px);
+			}
+
+			.btn-secondary:hover {
+				background: rgba(30, 41, 59, 0.8);
+				border-color: rgba(56, 189, 248, 0.3);
+				transform: translateY(-2px);
+				color: var(--text-main) !important;
+				text-shadow: none;
 			}
 		</style>
 	</head>
@@ -130,9 +222,9 @@ const pageCtx = createPublicPageContext({
 				<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
 			</div>
 			<div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/content/posts/new">Create Post</a>
-				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/content/pages/new">Create Page</a>
-				<a class="card" style="padding:0.7rem 0.9rem;display:inline-flex;align-items:center;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Overview</a>
+				<a class="btn btn-primary" href="/_emdash/admin/content/posts/new">Create Post</a>
+				<a class="btn btn-secondary" href="/_emdash/admin/content/pages/new">Create Page</a>
+				<a class="btn btn-secondary" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Overview</a>
 			</div>
 		</header>
 

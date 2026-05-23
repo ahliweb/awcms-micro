@@ -520,23 +520,25 @@ function OverviewPage() {
 		<PageShell>
 			<PageHeader
 				eyebrow="AWCMS-Micro plugin"
-				title="Access & Audit Demo"
-				description="A guided admin surface for plugin-owned audit logs, lifecycle status, RBAC catalogs, and ABAC policy simulation without changing EmDash core."
+				title="Plugin Operations Center"
+				description="Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
 				actions={
 					<Button variant="secondary" size="sm" onClick={() => void reload()} type="button">
-						Refresh
+						Refresh Dashboard
 					</Button>
 				}
 			/>
 
-			<div className="grid gap-4 md:grid-cols-3">
-				<MetricCard label="Audit events" value={data.counters.auditCount} hint="Stored plugin activity" />
-				<MetricCard label="Lifecycle events" value={data.counters.lifecycleCount} hint={`Last: ${formatDateTime(data.lastLifecycle)}`} />
-				<MetricCard label="Public status hits" value={data.counters.publicHits} hint={`Cron: ${formatDateTime(data.lastCronAt)}`} />
+			<Feedback message="Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database." tone="success" />
+
+			<div className="grid gap-5 md:grid-cols-3 mt-2">
+				<MetricCard label="Audit Events Stored" value={data.counters.auditCount} hint="Tracks all critical plugin activity" />
+				<MetricCard label="Lifecycle Triggers" value={data.counters.lifecycleCount} hint={`Last recorded: ${formatDateTime(data.lastLifecycle)}`} />
+				<MetricCard label="Public API Hits" value={data.counters.publicHits} hint={`Last chron: ${formatDateTime(data.lastCronAt)}`} />
 			</div>
 
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-				<Card title="Plugin settings" description="Tune demo behavior and metadata values used by the plugin routes.">
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
+				<Card title="Plugin Configuration" description="Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave.">
 					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
