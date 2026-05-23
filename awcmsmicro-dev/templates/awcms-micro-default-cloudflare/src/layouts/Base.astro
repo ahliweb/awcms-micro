@@ -165,6 +165,33 @@ const pageCtx = createPublicPageContext({
 				text-shadow: none;
 			}
 
+			.nav-brand-container {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.mobile-menu-toggle {
+				display: none;
+				background: none;
+				border: none;
+				color: var(--text-main);
+				padding: 0.5rem;
+				cursor: pointer;
+			}
+
+			.header-search {
+				margin-top: 1rem;
+				max-width: 28rem;
+			}
+
+			.header-actions {
+				margin-top: 1rem;
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+			}
+
 			@media (max-width: 48rem) {
 				.primary-nav-shell {
 					flex-direction: column;
@@ -179,6 +206,23 @@ const pageCtx = createPublicPageContext({
 					padding-top: 1rem;
 					border-top: 1px solid var(--surface-border);
 					justify-content: flex-start;
+				}
+
+				.nav-brand-container {
+					width: 100%;
+				}
+
+				.mobile-menu-toggle {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				/* Hide elements when menu is collapsed on mobile */
+				.header:not(.is-open) .primary-nav-shell,
+				.header:not(.is-open) .header-search,
+				.header:not(.is-open) .header-actions {
+					display: none !important;
 				}
 			}
 
@@ -270,11 +314,20 @@ const pageCtx = createPublicPageContext({
 	</head>
 	<body>
 		<EmDashBodyStart page={pageCtx} />
-		<header class="header">
+		<header class="header" id="main-header">
 				<nav class="nav" aria-label="Utility navigation">
-					<a class="brand" href="/">
-						{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} style="height:44px;width:auto;display:block;" /> : siteTitle}
-					</a>
+					<div class="nav-brand-container">
+						<a class="brand" href="/">
+							{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} style="height:44px;width:auto;display:block;" /> : siteTitle}
+						</a>
+						<button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="3" y1="12" x2="21" y2="12"></line>
+								<line x1="3" y1="6" x2="21" y2="6"></line>
+								<line x1="3" y1="18" x2="21" y2="18"></line>
+							</svg>
+						</button>
+					</div>
 					<div class="primary-nav-shell">
 						<PublicNavigation name="primary" />
 						<div class="utility-links">
@@ -287,10 +340,10 @@ const pageCtx = createPublicPageContext({
 						</div>
 					</div>
 				</nav>
-				<div style="margin-top:1rem;max-width:28rem;">
+				<div class="header-search">
 					<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
 				</div>
-			<div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+			<div class="header-actions">
 				<a class="btn btn-primary" href="/_emdash/admin/content/posts/new">Create Post</a>
 				<a class="btn btn-secondary" href="/_emdash/admin/content/pages/new">Create Page</a>
 				<a class="btn btn-secondary" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Overview</a>
@@ -332,6 +385,16 @@ const pageCtx = createPublicPageContext({
 					const isDark = document.documentElement.classList.contains('dark');
 					localStorage.setItem('awcms-theme', isDark ? 'dark' : 'light');
 					updateIcons();
+				});
+			}
+
+			const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+			const mainHeader = document.getElementById('main-header');
+			if (mobileMenuToggle && mainHeader) {
+				mobileMenuToggle.addEventListener('click', () => {
+					mainHeader.classList.toggle('is-open');
+					const isOpen = mainHeader.classList.contains('is-open');
+					mobileMenuToggle.setAttribute('aria-expanded', isOpen);
 				});
 			}
 		</script>
