@@ -81,6 +81,10 @@ Sensitivity levels:
 - #58: Cloudflare deployability
 - #59: E2E validation
 
+## Delivery Status
+
+All backlog items linked above have been implemented and their corresponding GitHub issues are closed.
+
 ## Definition Of Done
 
 - The reference plugin is buildable.
