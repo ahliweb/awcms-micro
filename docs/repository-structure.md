@@ -60,8 +60,10 @@ Expected root scripts:
 - Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
 - Example Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- Example gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
+- Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.

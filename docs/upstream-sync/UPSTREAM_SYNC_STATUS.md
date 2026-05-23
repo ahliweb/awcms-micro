@@ -4,15 +4,15 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `cf3c706a65087696eb6cca5844b7668a50e4a090`
-- Sync date: `2026-05-23T00:44:00Z`
+- Upstream commit SHA: `283bcf059e8c6889d14292e822953f13eaf6a6b0`
+- Sync date: `2026-05-23T20:52:27Z`
 - Operator: `Antigravity`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `cf3c706a` (post-0.14.0, 13 commits). `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully. All AWCMS-Micro protected paths were preserved. Install, build, typecheck, and lint all passed. Validation is blocked only by an upstream `packages/workerd` environment-level port conflict (`127.0.0.1:18789 Address already in use`), which is a persistent test infrastructure issue, not an AWCMS-Micro regression.
+Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation remains blocked only by an upstream `packages/workerd` environment-level port conflict (`127.0.0.1:18789 Address already in use`), which is a persistent test infrastructure issue, not an AWCMS-Micro regression.
 
 ## Key Changes in This Sync (since v0.14.0)
 
@@ -29,16 +29,9 @@ Synced to EmDash `cf3c706a` (post-0.14.0, 13 commits). `emdash-latest/` and `awc
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from local mirror of EmDash `main` at `cf3c706a` |
-| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; all 6 protected paths preserved |
-| `pnpm install` | Passed | Completed in ~1m 18s; example plugin built via `prepare` script |
-| `pnpm --filter emdash build` | Passed | Core build clean |
-| `pnpm typecheck` | Passed | Fixed stale `registry-client` dist after `swapRecord` was added upstream |
-| `pnpm lint:quick` | Passed | No lint errors |
-| `pnpm --filter @emdash-cms/admin exec node --run locale:compile` | Passed | Locale compile clean |
-| `pnpm test` | Partial | AWCMS-Micro tests pass; upstream `packages/workerd` fails with `127.0.0.1:18789 Address already in use` (persistent environment port conflict, not a regression) |
-| `pnpm build` | Skipped | Skipped due to test failure above |
-| Boundary validation | Not re-run | No boundary changes this cycle |
+| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` |
+| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; gallery paths preserved |
+| Validation script execution | Partial | See `LAST_VALIDATION.md`; upstream `packages/workerd` failed to start on `127.0.0.1:18789` |
 
 ## Notes
 

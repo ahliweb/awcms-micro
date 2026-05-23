@@ -75,54 +75,6 @@
 }
 
 /**
- * Classic theme dark mode token overrides
- *
- * CRITICAL: Kumo's theme-kumo.css dark mode selector is:
- *   :root[data-mode="dark"], [data-mode="dark"]:not([data-theme]), ...
- * It does NOT cover [data-theme="classic"][data-mode="dark"].
- * ThemeProvider always sets both data-theme="classic" AND data-mode="dark",
- * so without this block ALL Kumo CSS variables fall through to browser
- * defaults in dark mode — causing white cards, invisible text, etc.
- */
-[data-theme="classic"][data-mode="dark"] {
-	/* Surfaces — dark equivalents of the classic light palette */
-	--color-kumo-base: oklch(22.4% 0 0);
-	--color-kumo-elevated: oklch(18% 0 0);
-	--color-kumo-recessed: oklch(15% 0 0);
-	--color-kumo-overlay: oklch(26.9% 0 0);
-	--color-kumo-control: oklch(26.9% 0 0);
-	--color-kumo-tint: oklch(26.9% 0 0);
-	--color-kumo-fill: oklch(30% 0 0);
-	--color-kumo-fill-hover: oklch(35% 0 0);
-	--color-kumo-contrast: oklch(97% 0 0);
-	--color-kumo-interact: oklch(35% 0 0);
-
-	/* Borders */
-	--color-kumo-line: oklch(30% 0 0);
-	--color-kumo-ring: #3582c4;
-
-	/* Text hierarchy */
-	--text-color-kumo-default: oklch(97% 0 0);
-	--text-color-kumo-strong: oklch(80% 0 0);
-	--text-color-kumo-subtle: oklch(65% 0 0);
-	--text-color-kumo-inactive: oklch(50% 0 0);
-	--text-color-kumo-link: #72aee6;
-
-	/* Semantic colors */
-	--color-kumo-info: #72aee6;
-	--color-kumo-info-tint: oklch(20% 0.04 240);
-	--color-kumo-success: #68de7c;
-	--color-kumo-success-tint: oklch(20% 0.04 145);
-	--color-kumo-warning: #f0c33c;
-	--color-kumo-warning-tint: oklch(20% 0.04 80);
-	--color-kumo-danger: #ff6467;
-	--color-kumo-danger-tint: oklch(20% 0.04 20);
-	--text-color-kumo-success: #68de7c;
-	--text-color-kumo-danger: #ff6467;
-	--text-color-kumo-warning: #f0c33c;
-}
-
-/**
  * Admin font stack
  *
  * --font-emdash is set by the Astro Font API (Noto Sans by default).

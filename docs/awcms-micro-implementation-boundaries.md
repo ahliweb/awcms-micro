@@ -13,8 +13,10 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `templates/awcms-micro-default`
 - `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-example`
+- `packages/plugins/awcms-micro-gallery`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
+- `docs/gallery`
 - `e2e/awcms-micro`
 
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
