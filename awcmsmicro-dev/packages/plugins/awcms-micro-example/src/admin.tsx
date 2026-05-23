@@ -555,7 +555,7 @@ function OverviewPage() {
 								<input
 									type="number"
 									min="1"
-									className="w-full rounded border px-3 py-2"
+									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
 									value={formState.auditRetentionDays}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 										setFormState((current) => ({ ...current, auditRetentionDays: event.target.value }))
@@ -652,16 +652,16 @@ function AuditPage() {
 				{!data?.items.length ? (
 					<EmptyState title="No audit events" description="Plugin actions will appear here after hooks or routes run." />
 				) : (
-					<div className="overflow-hidden rounded-xl border">
+					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1fr_160px_160px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 							<div>Summary</div>
 							<div>Scope / actor</div>
 							<div>Time</div>
 						</div>
 						{data.items.map((item) => (
-							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1fr_160px_160px]" key={item.id}>
+							<div className="grid gap-2 border-t border-kumo-line bg-kumo-base px-4 py-3 text-sm text-kumo-default md:grid-cols-[1fr_160px_160px]" key={item.id}>
 								<div>
-									<div className="font-medium">{item.summary}</div>
+									<div className="font-medium text-kumo-default">{item.summary}</div>
 									<div className="mt-1">
 										<Pill>{item.kind}</Pill>
 									</div>
@@ -747,7 +747,7 @@ function PermissionsPage() {
 										<Pill>{item.scope}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
-									<p className="mt-2 text-sm leading-6">{item.description || "No description provided."}</p>
+									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || "No description provided."}</p>
 								</div>
 							))}
 						</div>
@@ -855,7 +855,7 @@ function RolesPage() {
 								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
 									<div className="font-medium text-kumo-default">{item.label}</div>
 									<div className="mt-1 text-sm text-kumo-subtle">{item.slug}</div>
-									<p className="mt-2 text-sm leading-6">{item.description || "No description provided."}</p>
+									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || "No description provided."}</p>
 								</div>
 							))}
 						</div>
@@ -959,10 +959,10 @@ function MatrixPage() {
 						{data.permissions.map((permission) => {
 							const checked = selectedPermissions.includes(permission.slug);
 							return (
-								<label className={cx("flex items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 transition", checked && "bg-kumo-tint/30")} key={permission.slug}>
-									<input type="checkbox" className="mt-1" checked={checked} onChange={(event: React.ChangeEvent<HTMLInputElement>) => togglePermission(permission.slug, event.target.checked)} />
+								<label className={cx("flex cursor-pointer items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default transition", checked && "bg-kumo-tint/30")} key={permission.slug}>
+									<input type="checkbox" className="mt-1 accent-current" checked={checked} onChange={(event: React.ChangeEvent<HTMLInputElement>) => togglePermission(permission.slug, event.target.checked)} />
 									<span>
-											<span className="block font-medium text-kumo-default">{permission.label}</span>
+										<span className="block font-medium text-kumo-default">{permission.label}</span>
 										<span className="mt-1 block break-all text-sm text-kumo-subtle">{permission.slug}</span>
 										<span className="mt-2 block">
 											<Pill>{permission.scope}</Pill>
@@ -1038,7 +1038,7 @@ function PreviewPage() {
 					<div className="mb-4">
 						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? "Allowed" : "Denied"}</Pill>
 					</div>
-					<p className="text-sm leading-6">{preview.reason}</p>
+					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
 					<KeyValueList
 						items={[
 							["Matched roles", toCsv(preview.matchedRoles) || "None"],
@@ -1347,7 +1347,7 @@ function AbacPoliciesPage() {
 										<Pill tone={item.effect === "allow" ? "success" : "danger"}>{item.effect}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.id}</div>
-									<div className="mt-2 text-sm">Actions: {toCsv(item.actions) || "None"}</div>
+									<div className="mt-2 text-sm text-kumo-subtle">Actions: {toCsv(item.actions) || "None"}</div>
 								</div>
 							))}
 						</div>
@@ -1443,7 +1443,7 @@ function AbacPreviewPage() {
 						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? "Allowed" : "Denied"}</Pill>
 						<Pill>{preview.effect}</Pill>
 					</div>
-					<p className="text-sm leading-6">{preview.reason}</p>
+					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
 					<KeyValueList
 						items={[
 							["Matched policies", toCsv(preview.matchedPolicyIds) || "None"],
@@ -1463,8 +1463,8 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 	return (
 		<div className="space-y-2">
 			{!minimal ? (
-				<label className="block text-sm font-medium" htmlFor={id}>
-					{label} {required ? <span className="text-red-600">*</span> : null}
+				<label className="block text-sm font-medium text-kumo-default" htmlFor={id}>
+					{label} {required ? <span className="text-kumo-danger">*</span> : null}
 				</label>
 			) : null}
 			<div className="flex items-center gap-3">
