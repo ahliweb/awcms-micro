@@ -108,8 +108,17 @@ async function validateTemplate(template) {
 			if (path === "/" && !body.includes("AWCMS-Micro")) {
 				throw new Error(`${template.name}: home page missing expected brand text`);
 			}
+			if (path === "/" && template.name === "awcms-micro-default" && !body.includes("View Public Aggregate")) {
+				throw new Error(`${template.name}: home page missing aggregate link`);
+			}
+			if (path === "/" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Plugin Console")) {
+				throw new Error(`${template.name}: home page missing plugin console link`);
+			}
 			if (path === "/aggregate" && !body.includes("Public aggregate")) {
 				throw new Error(`${template.name}: aggregate page missing expected heading`);
+			}
+			if (path === "/aggregate" && !body.includes("coarse counts")) {
+				throw new Error(`${template.name}: aggregate page missing public-safe description`);
 			}
 		}
 		process.stdout.write(`validated ${template.name}\n`);
