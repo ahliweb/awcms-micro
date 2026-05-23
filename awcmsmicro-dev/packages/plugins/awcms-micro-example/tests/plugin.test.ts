@@ -21,7 +21,60 @@ import {
 } from "../src/runtime.js";
 
 function parseJsoncObject<T>(source: string): T {
-	return Function(`return (${source})`)() as T;
+	let output = "";
+	let index = 0;
+	let inString = false;
+	let escaped = false;
+	let quote = "";
+
+	while (index < source.length) {
+		const char = source[index];
+		const next = source[index + 1];
+
+		if (inString) {
+			output += char;
+			if (escaped) {
+				escaped = false;
+			} else if (char === "\\") {
+				escaped = true;
+			} else if (char === quote) {
+				inString = false;
+				quote = "";
+			}
+			index += 1;
+			continue;
+		}
+
+		if (char === '"' || char === "'") {
+			inString = true;
+			quote = char;
+			output += char;
+			index += 1;
+			continue;
+		}
+
+		if (char === "/" && next === "/") {
+			index += 2;
+			while (index < source.length && source[index] !== "\n") {
+				index += 1;
+			}
+			continue;
+		}
+
+		if (char === "/" && next === "*") {
+			index += 2;
+			while (index < source.length && !(source[index] === "*" && source[index + 1] === "/")) {
+				index += 1;
+			}
+			index += 2;
+			continue;
+		}
+
+		output += char;
+		index += 1;
+	}
+
+	return JSON.parse(output.replace(/,\s*([}\]])/g, "$1")) as T;
 }
 
 function createMockContext() {
@@ -462,7 +515,7 @@ describe("awcms micro example plugin", () => {
 
 		expect(manifest.slug).toBe("awcms-micro-example");
 		expect(manifest.capabilities).toEqual([...AWCMS_EXAMPLE_CAPABILITIES]);
-		expect(manifest.admin.pages).toHaveLength(9);
+		expect(manifest.admin.pages).toHaveLength(13);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");

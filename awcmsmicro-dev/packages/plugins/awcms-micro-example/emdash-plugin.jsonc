@@ -56,6 +56,10 @@
 	"admin": {
 		"pages": [
 			{ "path": "/overview", "label": "Overview", "icon": "stack" },
+			{ "path": "/registry", "label": "Registry", "icon": "grid" },
+			{ "path": "/verification", "label": "Verification", "icon": "check" },
+			{ "path": "/documents", "label": "Documents", "icon": "file" },
+			{ "path": "/reports", "label": "Reports", "icon": "chart" },
 			{ "path": "/audit", "label": "Audit", "icon": "list" },
 			{ "path": "/access/permissions", "label": "Permissions", "icon": "lock" },
 			{ "path": "/access/roles", "label": "Roles", "icon": "users" },
