@@ -42,6 +42,21 @@ overrides:
   "@astrojs/telemetry": "3.3.0"
   # 1.3.0 is deprecated (CWE-502); pin the patched line.
   "@ungap/structured-clone": "^1.3.1"
+  # Security backstops for workspace-only transitive trees.
+  "@hono/node-server": "1.19.13"
+  hono: "4.12.18"
+  yaml: "2.8.3"
+  tar: "7.5.11"
+  ajv: "8.18.0"
+  fast-uri: "3.1.2"
+  postcss: "8.5.10"
+  simple-git: "3.36.0"
+  svgo: "4.0.1"
+  devalue: "5.8.1"
+  path-to-regexp: "8.4.0"
+  defu: "6.1.5"
+  markdown-it: "14.1.1"
+  ws: "8.20.1"
 
 enablePrePostScripts: true
 
