@@ -53,6 +53,7 @@ Exception:
 - `bash scripts/validate-awcmsmicro-boundaries.sh`
 - `bash scripts/validate-awcmsmicro-dev.sh`
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
+- `pnpm test:awcmsmicro:e2e`
 
 ## AWCMS-Micro Example Additions
 

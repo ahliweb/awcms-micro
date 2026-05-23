@@ -1,5 +1,15 @@
 # AWCMS-Micro E2E Boundary
 
-This placeholder reserves a sync-safe AWCMS-Micro end-to-end testing boundary.
+This boundary holds AWCMS-Micro-specific end-to-end validation assets.
 
-Add future AWCMS-Micro-specific test assets here when needed.
+## Current Coverage
+
+- `smoke.mjs`: builds and previews the local and Cloudflare example templates, then checks public pages and the public-safe plugin endpoint.
+
+## Run
+
+From `awcmsmicro-dev`:
+
+```bash
+node e2e/awcms-micro/smoke.mjs
+```
