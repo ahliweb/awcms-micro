@@ -4,6 +4,11 @@ import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { awcmsMicroExamplePlugin } from "../src/index.js";
+import {
+	AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS,
+	AWCMS_EXAMPLE_PLUGIN_HEADER_MENU,
+	filterPluginHeaderMenu,
+} from "../src/admin.js";
 import sandboxPlugin from "../src/sandbox.js";
 import { AWCMS_EXAMPLE_PERMISSION_LIST } from "../src/permissions.js";
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
@@ -213,6 +218,45 @@ describe("awcms micro example plugin", () => {
 			"/abac/policies",
 			"/abac/preview",
 		]);
+	});
+
+	it("declares dashboard module cards and a filtered header menu model", () => {
+		expect(AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS).toHaveLength(8);
+		expect(AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS[0]?.href).toBe("/registry");
+		expect(AWCMS_EXAMPLE_PLUGIN_HEADER_MENU.map((item) => item.label)).toEqual([
+			"Overview",
+			"Data Entry",
+			"Verification",
+			"Reports",
+			"Settings",
+		]);
+
+		const filtered = filterPluginHeaderMenu(
+			[
+				{
+					id: "parent",
+					label: "Parent",
+					href: "/parent",
+					permission: undefined,
+					children: [
+						{ id: "read-child", label: "Read child", href: "/parent/read", permission: "awcms:example:parent:read" },
+						{ id: "write-child", label: "Write child", href: "/parent/write", permission: "awcms:example:parent:write" },
+					],
+				},
+				{
+					id: "blocked",
+					label: "Blocked",
+					href: "/blocked",
+					permission: "awcms:example:blocked:write",
+					children: [{ id: "blocked-child", label: "Blocked child", href: "/blocked/child", permission: "awcms:example:blocked:write" }],
+				},
+			] as any,
+			(permission) => !permission || permission === "awcms:example:parent:read",
+		);
+
+		expect(filtered).toHaveLength(1);
+		expect(filtered[0]?.children).toHaveLength(1);
+		expect(filtered[0]?.children?.[0]?.label).toBe("Read child");
 	});
 
 	it("ships deterministic SIKESRA reference fixtures", () => {
