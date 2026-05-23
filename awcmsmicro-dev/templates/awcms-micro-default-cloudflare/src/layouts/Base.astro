@@ -56,6 +56,15 @@ const pageCtx = createPublicPageContext({
 				--accent-hover: #0284c7;
 				--gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
 				--gradient-surface: linear-gradient(180deg, #ffffff, #f1f5f9);
+
+				/* EmDash LiveSearch Variables */
+				--emdash-search-bg: var(--surface-main);
+				--emdash-search-text: var(--text-main);
+				--emdash-search-muted: var(--text-muted);
+				--emdash-search-border: var(--surface-border);
+				--emdash-search-border-focus: var(--accent);
+				--emdash-search-hover: var(--surface-border);
+				--emdash-search-highlight: var(--accent);
 			}
 
 			:root.dark {
@@ -114,29 +123,12 @@ const pageCtx = createPublicPageContext({
 				z-index: 50;
 			}
 
-			input, button, .widget-search__input, .emdash-live-search-input {
+			input, button, .widget-search__input {
 				background: var(--surface-main);
 				color: var(--text-main);
 				border: 1px solid var(--surface-border);
 				border-radius: 0.5rem;
 				padding: 0.5rem 0.75rem;
-			}
-
-			.emdash-live-search-results {
-				background: var(--surface-main) !important;
-				border: 1px solid var(--surface-border) !important;
-			}
-			
-			.emdash-live-search-result:hover {
-				background: var(--surface-border) !important;
-			}
-			
-			.emdash-live-search-result-title {
-				color: var(--text-main) !important;
-			}
-			
-			.emdash-live-search-result-snippet {
-				color: var(--text-muted) !important;
 			}
 
 			.widget-recent-posts__link, .awcms-public-nav__link {
