@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { awcmsMicroExamplePlugin } from "../src/index.js";
 import sandboxPlugin from "../src/sandbox.js";
 import { AWCMS_EXAMPLE_PERMISSION_LIST } from "../src/permissions.js";
-import { SIKESRA_REFERENCE_FIXTURES } from "../src/fixtures.js";
+import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
 import {
 	AWCMS_EXAMPLE_ADMIN_PAGES,
 	AWCMS_EXAMPLE_ADMIN_WIDGETS,
@@ -158,6 +158,12 @@ describe("awcms micro example plugin", () => {
 		expect(SIKESRA_REFERENCE_FIXTURES.abacPolicies[0]?.effect).toBe("deny");
 	});
 
+	it("masks sensitive values when access is denied", () => {
+		expect(maskSensitive("0912345678", true)).toBe("0912345678");
+		expect(maskSensitive("0912345678", false)).toBe("••••••");
+		expect(maskSensitive(undefined, false)).toBeNull();
+	});
+
 	it("exposes public and protected routes", async () => {
 		const { ctx, kvData, collections } = createMockContext();
 		const routes = createNativeRoutes();
@@ -173,8 +179,11 @@ describe("awcms micro example plugin", () => {
 		} as any);
 
 		const publicResult = (await routes["public/status"]!.handler({ ...ctx, input: {} } as any)) as any;
+		expect(Object.keys(publicResult).toSorted()).toEqual(["auditCount", "governanceMode", "lastLifecycle", "plugin", "status"]);
 		expect(publicResult.status).toBe("green");
 		expect(publicResult.plugin.visibility).toBe("public-safe");
+		expect(publicResult).not.toHaveProperty("storageKey");
+		expect(publicResult).not.toHaveProperty("userId");
 		expect(kvData.get("settings:governanceMode")).toBe("observe");
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
@@ -396,6 +405,21 @@ describe("awcms micro example plugin", () => {
 
 		expect(missing.allowed).toBe(false);
 		expect(missing.reason).toContain("Missing required attributes");
+
+		const regionMismatch = (await routes["abac/preview"]!.handler(
+			{
+				...ctx,
+				input: {
+					subjectId: "user-demo-editor",
+					resourceId: "resource-public-post",
+					action: "content.read",
+					contextAttributes: { region_scope: "id-bandung" },
+				},
+			} as any,
+		)) as any;
+
+		expect(regionMismatch.allowed).toBe(false);
+		expect(regionMismatch.reason).toBe("No matching allow policy for action content.read");
 
 		await routes["abac/enforce-demo"]!.handler(
 			{

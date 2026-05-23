@@ -92,6 +92,11 @@ export interface SikesraReferenceFixtures {
 	abacPolicies: SikesraReferenceAbacPolicy[];
 }
 
+export function maskSensitive(value: string | null | undefined, allowed: boolean) {
+	if (!value) return null;
+	return allowed ? value : "••••••";
+}
+
 export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 	registryEntities: [
 		{
