@@ -83,7 +83,7 @@ packages:
 catalog:
   "@arethetypeswrong/cli": ^0.18.2
   "@astrojs/check": ^0.9.7
-  "@astrojs/cloudflare": ^13.5.3
+  "@astrojs/cloudflare": ^13.5.4
   "@astrojs/node": ^10.1.1
   "@astrojs/react": ^5.0.0
   "@atcute/atproto": ^3.1.11
@@ -148,7 +148,7 @@ catalog:
   "@types/better-sqlite3": ^7.6.12
   "@types/react": 19.2.14
   "@types/react-dom": 19.2.3
-  astro: ^6.3.0
+  astro: ^6.1.10
   astro-iconset: ^0.0.4
   better-sqlite3: ^12.8.0
   chokidar: ^5.0.0
