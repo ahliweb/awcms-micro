@@ -142,6 +142,7 @@ run_step "pnpm-build-emdash" "AWCMS-Micro added file failure" pnpm --filter emda
 run_step "pnpm-typecheck" "AWCMS-Micro added file failure" pnpm typecheck
 run_step "pnpm-lint-quick" "AWCMS-Micro added file failure" pnpm lint:quick
 run_step "pnpm-admin-locale-compile" "Upstream EmDash test failure" pnpm --filter @emdash-cms/admin exec node --run locale:compile
+export EMDASH_WORKERD_PLUGIN_PORT_BASE=28000
 run_step "pnpm-test" "Upstream EmDash test failure" pnpm test
 run_step "pnpm-build" "AWCMS-Micro added file failure" pnpm build
 

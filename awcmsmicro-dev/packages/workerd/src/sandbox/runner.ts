@@ -328,7 +328,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 	private epoch = 0;
 
 	/** Next available port for plugin nanoservices */
-	private nextPluginPort = 18788;
+	private nextPluginPort: number;
 
 	/**
 	 * Ports freed by unloadPlugin(), preferred over nextPluginPort on the
@@ -365,6 +365,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 		this.limits = resolveLimits(options.limits);
 		this.siteInfo = options.siteInfo;
 		this.emailSendCallback = options.emailSend ?? null;
+		this.nextPluginPort = this.resolvePluginPortBase();
 
 		// Warn about unenforceable resource limits. Standalone workerd
 		// only supports wall-time enforcement on the Node path (via
@@ -385,6 +386,18 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 
 		// Forward SIGTERM to workerd child for clean shutdown
 		registerSigHandler(this);
+	}
+
+	/** Resolve the first plugin port from an env override or the default base. */
+	private resolvePluginPortBase(): number {
+		const raw = process.env.EMDASH_WORKERD_PLUGIN_PORT_BASE;
+		if (!raw) return 18_788;
+		const parsed = Number.parseInt(raw, 10);
+		if (!Number.isInteger(parsed) || parsed < 1024 || parsed > 65_000) {
+			console.warn(`[emdash:workerd] ignoring invalid EMDASH_WORKERD_PLUGIN_PORT_BASE=${raw}`);
+			return 18_788;
+		}
+		return parsed;
 	}
 
 	/**
