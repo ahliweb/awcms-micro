@@ -256,6 +256,34 @@ describe("awcms micro example plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("advances one verification stage and persists the new state", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const before = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("verified_district");
+
+		const result = (await routes["verification/advance"]!.handler(
+			{
+				...ctx,
+				input: {
+					registryEntityId: "registry-entity-guru-agama-01",
+					actor: "district-officer",
+					notes: "Promoted from district review",
+				},
+			} as any,
+		)) as any;
+
+		expect(result.success).toBe(true);
+		expect(result.item.verificationStage).toBe("submitted_regency");
+		expect(result.item.nextStage).toBe("active_verified");
+		expect(result.event.kind).toBe("verification.stage.advance");
+
+		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		expect(after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_regency");
+		expect(collections.auditEvents.size).toBeGreaterThan(0);
+	});
+
 	it("records lifecycle and cron behavior", async () => {
 		const { ctx, cron, kvData, collections } = createMockContext();
 		const hooks = createSharedHooks();

@@ -47,6 +47,45 @@ interface AuditListResponse {
 	}>;
 }
 
+interface VerificationItem {
+	id: string;
+	registryEntityId: string;
+	code: string;
+	label: string;
+	entityType: string;
+	sensitivity: string;
+	region: {
+		provinceCode: string;
+		regencyCode: string;
+		districtCode: string;
+		villageCode: string;
+	};
+	verificationStage: string;
+	nextStage: string | null;
+	canAdvance: boolean;
+	supportingDocumentIds: string[];
+	publicSummary: string;
+}
+
+interface VerificationResponse {
+	items: VerificationItem[];
+}
+
+interface VerificationAdvanceResponse {
+	success: boolean;
+	item: VerificationItem;
+	items: VerificationItem[];
+	event: {
+		id: string;
+		timestamp: string;
+		kind: string;
+		scope: string;
+		actor: string;
+		summary: string;
+		metadata: JsonMap;
+	};
+}
+
 interface AccessPermissionItem {
 	slug: string;
 	label: string;
@@ -770,9 +809,37 @@ function RegistryPage() {
 }
 
 function VerificationPage() {
-	const queue = [...SIKESRA_REFERENCE_FIXTURES.verificationEvents].toSorted((a, b) => b.createdAt.localeCompare(a.createdAt));
-	const pending = queue.filter((item) => item.result === "needs_review").length;
-	const approved = queue.filter((item) => item.result === "approved").length;
+	const { data, error, loading, reload } = usePluginData<VerificationResponse>("verification/list");
+	const [isAdvancing, setIsAdvancing] = React.useState(false);
+	const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
+	const [mutationError, setMutationError] = React.useState<string | null>(null);
+	const queue = data?.items ?? [];
+	const pending = queue.filter((item) => item.canAdvance).length;
+	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
+	const nextCandidate = queue.find((item) => item.canAdvance) ?? null;
+
+	if (loading) return <PageShell><LoadingState label="Loading verification queue..." /></PageShell>;
+	if (error) return <PageShell><ErrorState message={error} onRetry={() => void reload()} /></PageShell>;
+
+	async function advanceNextStage() {
+		if (!nextCandidate) return;
+		setIsAdvancing(true);
+		setMutationError(null);
+		setStatusMessage(null);
+		try {
+			const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
+				registryEntityId: nextCandidate.registryEntityId,
+				actor: "district-officer",
+				notes: "Advanced from the reference verification UI",
+			});
+			setStatusMessage(`Advanced ${response.item.code} to ${response.item.verificationStage}.`);
+			await reload();
+		} catch (cause) {
+			setMutationError(cause instanceof Error ? cause.message : "Request failed");
+		} finally {
+			setIsAdvancing(false);
+		}
+	}
 
 	return (
 		<PageShell>
@@ -780,7 +847,17 @@ function VerificationPage() {
 				eyebrow="Verification"
 				title="Verification queue"
 				description="A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+				actions={
+					nextCandidate ? (
+						<Button disabled={isAdvancing} onClick={() => void advanceNextStage()} size="sm" variant="secondary">
+							{isAdvancing ? "Advancing..." : `Advance ${nextCandidate.code} to ${nextCandidate.nextStage}`}
+						</Button>
+					) : null
+				}
 			/>
+
+			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default">{statusMessage}</div> : null}
+			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default">{mutationError}</div> : null}
 
 			<div className="grid gap-5 md:grid-cols-3">
 				<MetricCard label="Queued events" value={queue.length} hint="Deterministic reference history" />
@@ -788,9 +865,33 @@ function VerificationPage() {
 				<MetricCard label="Needs review" value={pending} hint="Items that still need follow-up" />
 			</div>
 
-			<Card title="Queue timeline" description="Stage progression from draft to active verification." >
+			<Card title="Registry verification queue" description="Live verification state that can be advanced one stage at a time from the reference UI.">
 				<div className="space-y-3">
 					{queue.map((item) => (
+						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
+							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+								<div>
+									<div className="font-medium text-kumo-default">{item.label}</div>
+									<div className="mt-1 text-sm text-kumo-subtle">{item.publicSummary}</div>
+								</div>
+								<div className="flex items-center gap-2">
+									<Pill tone={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Pill>
+									<Pill>{item.nextStage ?? "final"}</Pill>
+								</div>
+							</div>
+							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
+								<div>Region: {item.region.provinceCode}/{item.region.regencyCode}</div>
+								<div>Documents: {item.supportingDocumentIds.length}</div>
+								<div>ID: {maskSensitive(item.id, false)}</div>
+							</div>
+						</div>
+					))}
+				</div>
+			</Card>
+
+			<Card title="Reference verification events" description="Stage progression from draft to active verification.">
+				<div className="space-y-3">
+					{SIKESRA_REFERENCE_FIXTURES.verificationEvents.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
 							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 								<div>

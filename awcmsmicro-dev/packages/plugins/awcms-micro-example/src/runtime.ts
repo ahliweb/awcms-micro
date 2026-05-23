@@ -7,6 +7,8 @@ import type {
 } from "emdash";
 import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "emdash/plugin";
 
+import { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
+
 export const AWCMS_EXAMPLE_PLUGIN_ID = "awcms-micro-example";
 
 export const AWCMS_EXAMPLE_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
@@ -320,6 +322,35 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
+type VerificationStage =
+	| "draft"
+	| "submitted_village"
+	| "verified_village"
+	| "submitted_district"
+	| "verified_district"
+	| "submitted_regency"
+	| "active_verified";
+
+interface VerificationListItem {
+	id: string;
+	registryEntityId: string;
+	code: string;
+	label: string;
+	entityType: string;
+	sensitivity: string;
+	region: {
+		provinceCode: string;
+		regencyCode: string;
+		districtCode: string;
+		villageCode: string;
+	};
+	verificationStage: VerificationStage;
+	nextStage: VerificationStage | null;
+	canAdvance: boolean;
+	supportingDocumentIds: string[];
+	publicSummary: string;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -344,6 +375,54 @@ function actorFromRoute(ctx: any): string {
 function actorFromContent(content: Record<string, unknown>): string {
 	const actor = content.authorId ?? content.author_id ?? content.updatedBy ?? content.updated_by;
 	return typeof actor === "string" && actor ? actor : "system";
+}
+
+const VERIFICATION_STAGE_FLOW: VerificationStage[] = [
+	"draft",
+	"submitted_village",
+	"verified_village",
+	"submitted_district",
+	"verified_district",
+	"submitted_regency",
+	"active_verified",
+];
+
+const VERIFICATION_STATE_KEY = "state:sikesraVerificationStages";
+
+function getNextVerificationStage(stage: VerificationStage): VerificationStage | null {
+	const index = VERIFICATION_STAGE_FLOW.indexOf(stage);
+	return index >= 0 && index < VERIFICATION_STAGE_FLOW.length - 1 ? (VERIFICATION_STAGE_FLOW[index + 1] ?? null) : null;
+}
+
+async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
+	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
+	if (stored && typeof stored === "object") return stored;
+	return Object.fromEntries(SIKESRA_REFERENCE_FIXTURES.registryEntities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
+}
+
+async function setVerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
+	await ctx.kv.set(VERIFICATION_STATE_KEY, state);
+}
+
+async function listVerificationItems(ctx: PluginContext): Promise<VerificationListItem[]> {
+	const state = await getVerificationStageState(ctx);
+	return SIKESRA_REFERENCE_FIXTURES.registryEntities.map((entity) => {
+		const verificationStage = state[entity.id] ?? entity.verificationStage;
+		return {
+			id: entity.id,
+			registryEntityId: entity.id,
+			code: entity.code,
+			label: entity.label,
+			entityType: entity.entityType,
+			sensitivity: entity.sensitivity,
+			region: entity.region,
+			verificationStage,
+			nextStage: getNextVerificationStage(verificationStage),
+			canAdvance: verificationStage !== "active_verified",
+			supportingDocumentIds: entity.supportingDocumentIds,
+			publicSummary: entity.publicSummary,
+		};
+	});
 }
 
 function toIsoNow() {
@@ -848,6 +927,59 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	};
 };
 
+const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	return { items: await listVerificationItems(ctx) };
+};
+
+const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
+	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
+	const notes = getString(routeCtx.input, "notes") ?? "Advanced verification stage from the admin reference UI";
+	const items = await listVerificationItems(ctx);
+	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
+
+	if (!item) {
+		return { success: false, error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` } };
+	}
+
+	if (!item.nextStage) {
+		return { success: false, error: { code: "INVALID_STATE", message: `Registry entity ${registryEntityId} is already at the final verification stage` } };
+	}
+
+	const nextState = await getVerificationStageState(ctx);
+	nextState[registryEntityId] = item.nextStage;
+	await setVerificationStageState(ctx, nextState);
+
+	const event = await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "verification.stage.advance",
+			scope: "verification",
+			actor,
+			summary: `Advanced verification for ${item.code} to ${item.nextStage}`,
+			metadata: {
+				registryEntityId,
+				code: item.code,
+				from: item.verificationStage,
+				to: item.nextStage,
+				notes,
+			},
+		}),
+	);
+
+	return {
+		success: true,
+		item: {
+			...item,
+			verificationStage: item.nextStage,
+			nextStage: getNextVerificationStage(item.nextStage),
+			canAdvance: item.nextStage !== "active_verified",
+		},
+		items: await listVerificationItems(ctx),
+		event,
+	};
+};
+
 const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const note = getString(routeCtx.input, "note") ?? "manual-touch";
 	const actor = actorFromRoute(ctx);
@@ -1074,6 +1206,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"public/status": { public: true, handler: publicStatusRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
+	"verification/list": { handler: verificationListRoute },
+	"verification/advance": { handler: verificationAdvanceRoute },
 	"settings/get": { handler: settingsGetRoute },
 	"settings/save": { handler: settingsSaveRoute },
 	"audit/list": { handler: auditListRoute },
