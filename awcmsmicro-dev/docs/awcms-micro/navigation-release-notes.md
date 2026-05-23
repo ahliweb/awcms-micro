@@ -10,6 +10,8 @@ AWCMS-Micro now demonstrates layered navigation without touching EmDash core:
 - plugin header submenu rendering inside example admin pages
 - dashboard module cards for SIKESRA-style reference flows
 - browser coverage for accessibility and smoke validation
+- resolved mobile UX traps by natively expanding submenus and implementing responsive headers on smartphones
+- fixed dark mode text visibility for LiveSearch and dropdown interaction stability via structural hover bridges
 
 ## Safety Guarantees
 

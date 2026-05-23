@@ -26,6 +26,15 @@ Since the EmDash Admin core does not natively support drag-and-drop or explicit 
 4. Any items added to this `primary-about` menu will automatically be fetched and rendered as a nested sub-menu dropdown under the "About" item in the public navigation.
 5. This requires zero modifications to EmDash core and utilizes the standard `getMenu` API.
 
+### Mobile Responsiveness & Usability
+
+To ensure a solid user experience on smaller screens and touch devices, the templates follow these rules:
+
+- **Responsive Header Layout**: The main navigation shell and utility links degrade from a horizontal row to a stacked full-width column on mobile devices (`max-width: 48rem`).
+- **Always-Expanded Submenus**: On mobile view, nested submenus are natively expanded (`display: block`) as indented lists instead of relying on hover states. This prevents a classic mobile UX trap where tapping a parent link triggers navigation instead of opening the submenu.
+- **Hover Bridges for Desktop**: Submenus triggered by hover on desktop include an invisible structural bridge (using negative `inset` on a `::before` pseudo-element). This prevents the submenu from prematurely collapsing when the cursor moves across the gap between the parent item and the dropdown.
+- **Dark Mode Integrity**: EmDash UI components (like `LiveSearch`) that rely on custom CSS variables (e.g., `--emdash-search-bg`) must be explicitly mapped to the layout's global `:root` and `:root.dark` variables to ensure text remains visible and accessible during theme toggles.
+
 ## Plugin Example
 
 - Use a plugin-owned header menu model.
