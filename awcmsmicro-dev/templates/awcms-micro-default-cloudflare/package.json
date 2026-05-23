@@ -19,6 +19,7 @@
 		"@astrojs/cloudflare": "catalog:",
 		"@astrojs/react": "catalog:",
 		"@awcms-micro/plugin-example": "workspace:*",
+		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@emdash-cms/cloudflare": "workspace:*",
 		"astro": "catalog:",
 		"emdash": "workspace:*",

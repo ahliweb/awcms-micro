@@ -1,6 +1,7 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-example";
+import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
@@ -19,7 +20,15 @@ export default defineConfig({
 		emdash({
 			database: d1({ binding: "DB", session: "auto" }),
 			storage: r2({ binding: "MEDIA" }),
-			plugins: [awcmsMicroExamplePlugin({ tenantId: "t-local-dev" })],
+			plugins: [
+				awcmsMicroExamplePlugin({ tenantId: "t-local-dev" }),
+				awcmsMicroGalleryPlugin({
+					maxImageBytes: 10485760,
+					maxVideoBytes: 262144000,
+					cloudflareImages: true,
+					cloudflareStream: true,
+				}),
+			],
 			sandboxed: [],
 			sandboxRunner: sandbox(),
 			siteUrl,

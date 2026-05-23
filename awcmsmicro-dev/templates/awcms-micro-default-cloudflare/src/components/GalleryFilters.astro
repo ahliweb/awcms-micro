@@ -1,0 +1,40 @@
+---
+interface Props {
+	activeType?: string;
+}
+
+const { activeType = "all" } = Astro.props;
+const filters = [
+	{ label: "All", value: "all", href: "/gallery" },
+	{ label: "Photo", value: "photo", href: "/gallery?type=photo" },
+	{ label: "Video", value: "video", href: "/gallery?type=video" },
+	{ label: "Mixed", value: "mixed", href: "/gallery?type=mixed" },
+];
+---
+
+<nav class="gallery-filters" aria-label="Gallery filters">
+	{filters.map((filter) => (
+		<a href={filter.href} aria-current={filter.value === activeType ? "page" : undefined}>{filter.label}</a>
+	))}
+</nav>
+
+<style>
+	.gallery-filters {
+		display: flex;
+		gap: 0.65rem;
+		flex-wrap: wrap;
+		margin-block: 1rem 1.25rem;
+	}
+
+	.gallery-filters a {
+		padding: 0.55rem 0.85rem;
+		border: 1px solid var(--surface-border);
+		border-radius: 999px;
+		color: var(--text-main);
+	}
+
+	.gallery-filters a[aria-current="page"] {
+		background: var(--accent);
+		color: white;
+	}
+</style>

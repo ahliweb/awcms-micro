@@ -41,7 +41,10 @@
 	],
 	"vars": {
 		"AWCMS_MICRO_SITE_URL": "https://awcms-micro.ahlikoding.com",
-		"AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL": "https://awcms-micro-s3.ahlikoding.com"
+		"AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL": "https://awcms-micro-s3.ahlikoding.com",
+		"AWCMS_MICRO_GALLERY_MEDIA_STORAGE": "r2",
+		"AWCMS_MICRO_GALLERY_CLOUDFLARE_IMAGES": "optional",
+		"AWCMS_MICRO_GALLERY_CLOUDFLARE_STREAM": "optional"
 	},
 	"observability": {
 		"enabled": true

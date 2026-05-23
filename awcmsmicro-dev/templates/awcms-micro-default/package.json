@@ -15,11 +15,12 @@
 	},
 	"dependencies": {
 		"@awcms-micro/plugin-example": "workspace:*",
+		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@astrojs/node": "^10.1.1",
 		"@astrojs/react": "^5.0.0",
 		"astro": "catalog:",
 		"better-sqlite3": "^12.8.0",
-		"emdash": "^0.14.0",
+		"emdash": "workspace:*",
 		"react": "19.2.4",
 		"react-dom": "19.2.4"
 	},

@@ -1,0 +1,10 @@
+{
+	"id": "awcms-micro-gallery",
+	"name": "AWCMS-Micro Gallery",
+	"version": "0.0.1",
+	"description": "Advanced gallery management helpers for AWCMS-Micro without modifying EmDash core.",
+	"entrypoint": "@awcms-micro/plugin-gallery/sandbox",
+	"format": "standard",
+	"capabilities": ["content:read", "content:write", "media:read", "media:write"],
+	"adminPages": [{ "path": "/", "label": "Gallery", "icon": "image" }]
+}

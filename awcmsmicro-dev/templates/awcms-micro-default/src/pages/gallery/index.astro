@@ -1,0 +1,52 @@
+---
+import { getEmDashCollection } from "emdash";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import GalleryCard from "../../components/GalleryCard.astro";
+import GalleryFilters from "../../components/GalleryFilters.astro";
+
+function asString(value: unknown, fallback = "") {
+	return typeof value === "string" ? value : fallback;
+}
+
+const activeType = Astro.url.searchParams.get("type") ?? "all";
+const { entries: galleries, cacheHint } = await getEmDashCollection("galleries", {
+	orderBy: { published_at: "desc" },
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const visibleGalleries = activeType === "all" ? galleries : galleries.filter((gallery) => gallery.data.gallery_type === activeType);
+---
+
+<BaseLayout title="Gallery" description="Published AWCMS-Micro photo and video galleries managed from EmDash.">
+	<section>
+		<p class="kicker">Media Library</p>
+		<h1>Photo and Video Gallery</h1>
+		<p>Published galleries are stored in the EmDash collection layer and rendered publicly by the AWCMS-Micro template.</p>
+		<GalleryFilters activeType={activeType} />
+		{visibleGalleries.length === 0 ? <p>No galleries found.</p> : (
+			<div class="gallery-index-grid">
+				{visibleGalleries.map((gallery) => (
+					<GalleryCard
+						href={`/gallery/${gallery.id}`}
+						title={asString(gallery.data.title, gallery.id)}
+						description={asString(gallery.data.description)}
+						cover={gallery.data.cover_image as any}
+						type={asString(gallery.data.gallery_type)}
+						location={asString(gallery.data.location)}
+						date={asString(gallery.data.event_date)}
+						featured={gallery.data.featured === true}
+					/>
+				))}
+			</div>
+		)}
+	</section>
+</BaseLayout>
+
+<style>
+	.gallery-index-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+		gap: 1rem;
+	}
+</style>
