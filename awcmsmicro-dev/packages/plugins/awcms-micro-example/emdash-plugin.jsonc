@@ -12,7 +12,7 @@
 	"keywords": ["awcms-micro", "emdash", "plugin", "example", "tenant-ready"],
 
 	// Keep this trust contract aligned with the real runtime surface before release.
-	"capabilities": ["content:read", "media:read", "media:write"],
+	"capabilities": ["content:read", "content:write", "media:read", "media:write"],
 	"allowedHosts": [],
 	"storage": {
 		"auditEvents": {

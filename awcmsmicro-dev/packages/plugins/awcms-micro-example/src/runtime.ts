@@ -9,7 +9,7 @@ import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "e
 
 export const AWCMS_EXAMPLE_PLUGIN_ID = "awcms-micro-example";
 
-export const AWCMS_EXAMPLE_CAPABILITIES = ["content:read", "media:read", "media:write"] as const;
+export const AWCMS_EXAMPLE_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
 
 export const AWCMS_EXAMPLE_ALLOWED_HOSTS: string[] = [];
 

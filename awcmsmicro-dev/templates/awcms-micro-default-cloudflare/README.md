@@ -50,14 +50,14 @@ From this template directory:
 
 Use `wrangler d1 create awcms-micro-d1` if you need a fresh D1 database.
 
-Then update `wrangler.jsonc` locally or in CI with the returned `database_id` before real deployment.
+Then update `wrangler.jsonc` locally or in CI with the returned `database_id` and session namespace id before real deployment.
 
 Do not commit Cloudflare account IDs, tokens, or secret values.
 
 ## Deploy
 
 1. Confirm `wrangler.jsonc` still points to `awcms-micro.ahlikoding.com` and `awcms-micro-d1`.
-2. Confirm the final D1 `database_id` is injected locally or by CI.
+2. Confirm the final D1 `database_id` and `SESSION` namespace id are injected locally or by CI.
 3. Confirm the `MEDIA` bucket exists.
 4. Run `pnpm build`.
 5. Run `pnpm deploy`.
