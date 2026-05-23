@@ -20,7 +20,6 @@ const UL_TAG_PATTERN = /<ul[^>]*>([\s\S]*)<\/ul>/i;
 const OL_TAG_PATTERN = /<ol[^>]*>([\s\S]*)<\/ol>/i;
 const NESTED_LIST_PATTERN = /<[uo]l[^>]*>[\s\S]*<\/[uo]l>/gi;
 const P_TAG_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/gi;
-const P_TAG_SINGLE_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/i;
 const HREF_PATTERN = /href="([^"]*)"/i;
 const DATA_ID_PATTERN = /data-id=["'](\d+)["']/i;
 const CODE_TAG_PATTERN_SINGLE = /<code[^>]*>([\s\S]*?)<\/code>/i;
@@ -30,14 +29,6 @@ const IMG_TAG_GLOBAL = /<img[^>]+>/gi;
 const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
 const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
 const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
-const CITE_TAG_PATTERN = /<cite[^>]*>([\s\S]*?)<\/cite>/i;
-const LT_ENTITY_PATTERN = /&lt;/g;
-const GT_ENTITY_PATTERN = /&gt;/g;
-const AMP_ENTITY_PATTERN = /&amp;/g;
-const QUOT_ENTITY_PATTERN = /&quot;/g;
-const APOS_ENTITY_PATTERN = /&#039;/g;
-const NBSP_ENTITY_PATTERN = /&nbsp;/g;
-
 /**
  * core/paragraph → block with style "normal"
  */
@@ -721,12 +712,25 @@ function mapAlignment(
  */
 function decodeHtmlEntities(html: string): string {
 	return html
-		.replace(LT_ENTITY_PATTERN, "<")
-		.replace(GT_ENTITY_PATTERN, ">")
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(QUOT_ENTITY_PATTERN, '"')
-		.replace(APOS_ENTITY_PATTERN, "'")
-		.replace(NBSP_ENTITY_PATTERN, " ");
+		.split("&lt;").join("<")
+		.split("&gt;").join(">")
+		.split("&quot;").join('"')
+		.split("&#039;").join("'")
+		.split("&amp;").join("&")
+		.split("&nbsp;").join(" ");
+}
+
+function extractTagText(html: string, tagName: string): string | undefined {
+	const lower = html.toLowerCase();
+	const open = `<${tagName}`;
+	const close = `</${tagName}>`;
+	const start = lower.indexOf(open);
+	if (start === -1) return undefined;
+	const startEnd = html.indexOf(">", start);
+	if (startEnd === -1) return undefined;
+	const end = lower.indexOf(close, startEnd + 1);
+	if (end === -1) return undefined;
+	return html.slice(startEnd + 1, end);
 }
 
 /**
@@ -886,12 +890,11 @@ export const file: BlockTransformer = (block, _options, context) => {
  */
 export const pullquote: BlockTransformer = (block, _options, context) => {
 	// Extract text from blockquote > p
-	const pMatch = block.innerHTML.match(P_TAG_SINGLE_PATTERN);
-	const text = pMatch ? extractText(pMatch[1]!) : extractText(block.innerHTML);
+	const text = extractText(extractTagText(block.innerHTML, "p") ?? block.innerHTML);
 
 	// Extract citation
-	const citeMatch = block.innerHTML.match(CITE_TAG_PATTERN);
-	const citation = citeMatch ? extractText(citeMatch[1]!) : attrString(block.attrs, "citation");
+	const citationContent = extractTagText(block.innerHTML, "cite");
+	const citation = citationContent ? extractText(citationContent) : attrString(block.attrs, "citation");
 
 	return [
 		{

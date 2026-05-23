@@ -113,8 +113,6 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 		const { execFile } = await import("node:child_process");
 		if (process.platform === "darwin") {
 			execFile("open", [deviceCode.verification_uri]);
-		} else if (process.platform === "win32") {
-			execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
 		} else {
 			execFile("xdg-open", [deviceCode.verification_uri]);
 		}

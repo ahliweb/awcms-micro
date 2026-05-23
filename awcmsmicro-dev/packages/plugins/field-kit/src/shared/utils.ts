@@ -12,8 +12,14 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const obj: Record<string, unknown> = { ...source };
+	const obj: Record<string, unknown> = Object.create(null);
+	for (const [key, val] of Object.entries(source)) {
+		if (isSafeObjectKey(key)) {
+			obj[key] = val;
+		}
+	}
 	for (const field of fields) {
+		if (!isSafeObjectKey(field.key)) continue;
 		if (source[field.key] === undefined) {
 			obj[field.key] = field.defaultValue ?? undefined;
 		}
@@ -65,9 +71,13 @@ export function normalizeGrid(
 			// over them. Unknown keys survive so cells added to the schema later
 			// or managed outside this widget aren't silently dropped on save.
 			const rowObj = rowVal as Record<string, unknown>;
-			Object.assign(rowOut, rowObj);
+			for (const [key, val] of Object.entries(rowObj)) {
+				if (isSafeObjectKey(key)) {
+					rowOut[key] = val;
+				}
+			}
 			for (const col of columns) {
-				if (rowObj[col.key] !== undefined) {
+				if (isSafeObjectKey(col.key) && rowObj[col.key] !== undefined) {
 					rowOut[col.key] = rowObj[col.key];
 				}
 			}
@@ -98,4 +108,8 @@ export function renderSummary(template: string, item: Record<string, unknown>): 
 		if (typeof val === "number" || typeof val === "boolean") return String(val);
 		return "";
 	});
+}
+
+function isSafeObjectKey(key: string): boolean {
+	return key !== "__proto__" && key !== "prototype" && key !== "constructor";
 }

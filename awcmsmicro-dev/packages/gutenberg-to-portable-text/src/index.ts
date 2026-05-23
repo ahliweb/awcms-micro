@@ -8,7 +8,7 @@
 
 import { parse } from "@wordpress/block-serialization-default-parser";
 
-import { parseInlineContent } from "./inline.js";
+import { extractCaption, parseInlineContent } from "./inline.js";
 import { getTransformer } from "./transformers/index.js";
 import type {
 	GutenbergBlock,
@@ -27,17 +27,7 @@ const SRC_ATTR_PATTERN = /src=["']([^"']+)["']/i;
 const ALT_ATTR_PATTERN = /alt=["']([^"']*)["']/i;
 const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
 const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
-const HTML_TAG_PATTERN = /<[^>]+>/g;
 const FIGCAPTION_TAG_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
-const AMP_ENTITY_PATTERN = /&amp;/g;
-const LESS_THAN_ENTITY_PATTERN = /&lt;/g;
-const GREATER_THAN_ENTITY_PATTERN = /&gt;/g;
-const QUOTE_ENTITY_PATTERN = /&quot;/g;
-const APOS_ENTITY_PATTERN = /&#039;/g;
-const NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
-const HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
-const NBSP_ENTITY_PATTERN = /&nbsp;/g;
-
 // Re-export types
 export type {
 	GutenbergBlock,
@@ -376,7 +366,7 @@ export function htmlToPortableText(
 							url: imgUrl || undefined,
 						},
 						alt: altMatch?.[1],
-						caption: captionMatch?.[1]?.replace(HTML_TAG_PATTERN, "").trim(),
+						caption: captionMatch?.[0] ? extractCaption(captionMatch[0]) : undefined,
 					});
 				}
 				break;
@@ -435,14 +425,15 @@ function transformBlock(
  */
 function decodeHtmlEntities(html: string): string {
 	return html
-		.replace(LESS_THAN_ENTITY_PATTERN, "<")
-		.replace(GREATER_THAN_ENTITY_PATTERN, ">")
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(QUOTE_ENTITY_PATTERN, '"')
-		.replace(APOS_ENTITY_PATTERN, "'")
-		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&") // &#038; or &#38;
-		.replace(HEX_AMP_ENTITY_PATTERN, "&") // &#x26;
-		.replace(NBSP_ENTITY_PATTERN, " ");
+		.split("&lt;").join("<")
+		.split("&gt;").join(">")
+		.split("&quot;").join('"')
+		.split("&#039;").join("'")
+		.split("&#38;").join("&")
+		.split("&#038;").join("&")
+		.split("&#x26;").join("&")
+		.split("&amp;").join("&")
+		.split("&nbsp;").join(" ");
 }
 
 /**
@@ -450,9 +441,10 @@ function decodeHtmlEntities(html: string): string {
  */
 function decodeUrlEntities(url: string): string {
 	return url
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&")
-		.replace(HEX_AMP_ENTITY_PATTERN, "&");
+		.split("&#038;").join("&")
+		.split("&#38;").join("&")
+		.split("&#x26;").join("&")
+		.split("&amp;").join("&");
 }
 
 /**

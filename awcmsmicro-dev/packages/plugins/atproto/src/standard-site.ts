@@ -124,15 +124,6 @@ function stripTrailingSlash(url: string): string {
 	return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
-// Pre-compiled regexes
-const HTML_TAG_RE = /<[^>]+>/g;
-const NBSP_RE = /&nbsp;/g;
-const AMP_RE = /&amp;/g;
-const LT_RE = /&lt;/g;
-const GT_RE = /&gt;/g;
-const QUOT_RE = /&quot;/g;
-const APOS_RE = /&#39;/g;
-const WHITESPACE_RE = /\s+/g;
 const HASH_PREFIX_RE = /^#/;
 const MAX_TEXT_CONTENT_LENGTH = 10_000;
 
@@ -173,18 +164,10 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 
 	if (!body) return undefined;
 
-	// Strip HTML tags (simple -- not a full parser, but sufficient for plain text extraction).
-	// Decode &amp; last to avoid double-decoding (e.g. &amp;lt; -> &lt; -> <).
-	let text = body
-		.replace(HTML_TAG_RE, " ")
-		.replace(NBSP_RE, " ")
-		.replace(LT_RE, "<")
-		.replace(GT_RE, ">")
-		.replace(QUOT_RE, '"')
-		.replace(APOS_RE, "'")
-		.replace(AMP_RE, "&")
-		.replace(WHITESPACE_RE, " ")
-		.trim();
+	// Decode entities first, then strip tags with a small scanner to avoid regex-based
+	// stripping on untrusted input.
+	let text = decodeHtmlEntities(body);
+	text = stripHtmlTags(text);
 
 	if (!text) return undefined;
 
@@ -194,4 +177,48 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 	}
 
 	return text;
+}
+
+function decodeHtmlEntities(input: string): string {
+	return input
+		.split("&lt;").join("<")
+		.split("&gt;").join(">")
+		.split("&quot;").join('"')
+		.split("&#39;").join("'")
+		.split("&#039;").join("'")
+		.split("&#38;").join("&")
+		.split("&#038;").join("&")
+		.split("&#x26;").join("&")
+		.split("&amp;").join("&")
+		.split("&nbsp;").join(" ");
+}
+
+function stripHtmlTags(input: string): string {
+	let out = "";
+	let inTag = false;
+	let pendingSpace = false;
+
+	for (let i = 0; i < input.length; i++) {
+		const ch = input[i]!;
+		if (inTag) {
+			if (ch === ">") inTag = false;
+			continue;
+		}
+		if (ch === "<") {
+			inTag = true;
+			pendingSpace = out.length > 0;
+			continue;
+		}
+		if (ch === " " || ch === "\n" || ch === "\t" || ch === "\r" || ch === "\f") {
+			pendingSpace = out.length > 0;
+			continue;
+		}
+		if (pendingSpace) {
+			out += " ";
+			pendingSpace = false;
+		}
+		out += ch;
+	}
+
+	return out.trim();
 }
