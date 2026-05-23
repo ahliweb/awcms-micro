@@ -12,7 +12,7 @@
 
 ## Status Summary
 
-Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation remains blocked only by an upstream `packages/workerd` environment-level port conflict (`127.0.0.1:18789 Address already in use`), which is a persistent test infrastructure issue, not an AWCMS-Micro regression.
+Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix, so the remaining open Dependabot alerts are the only unresolved item.
 
 ## Key Changes in This Sync (since v0.14.0)
 
@@ -31,12 +31,12 @@ Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 | --- | --- | --- |
 | Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; gallery paths preserved |
-| Validation script execution | Partial | See `LAST_VALIDATION.md`; upstream `packages/workerd` failed to start on `127.0.0.1:18789` |
+| Validation script execution | Passed | See `LAST_VALIDATION.md` |
 
 ## Notes
 
 - `emdash-latest/` remains the clean upstream snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific example additions.
-- The `packages/workerd` test failure is a persistent environment-level port conflict (`127.0.0.1:18789`). It is an upstream EmDash test infrastructure issue reproducible on this host, not an AWCMS-Micro regression.
+- Validation passes on this host after the local workerd port allocation fix.
 - The `registry-client` dist was stale after the upstream `swapRecord` parameter was added. It was rebuilt in-workspace before typecheck.
 - Any accepted divergence must be logged in `DIVERGENCE_LOG.md`.
