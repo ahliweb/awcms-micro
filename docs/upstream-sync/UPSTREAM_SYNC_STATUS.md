@@ -12,7 +12,7 @@
 
 ## Status Summary
 
-Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, and Dependabot now covers the pnpm workspace in addition to GitHub Actions. Remaining unresolved items are the upstream-blocked dependency alerts tracked in #73 and the CodeQL regex/workflow hotspots tracked in #76.
+Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76.
 
 ## Key Changes in This Sync (since v0.14.0)
 
