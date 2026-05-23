@@ -12,7 +12,7 @@
 
 ## Status Summary
 
-Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix, so the remaining open Dependabot alerts are the only unresolved item.
+Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Remaining unresolved items are the upstream-blocked Dependabot alerts tracked in #73 and the CodeQL regex/workflow hotspots tracked in #76.
 
 ## Key Changes in This Sync (since v0.14.0)
 
@@ -39,4 +39,5 @@ Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific example additions.
 - Validation passes on this host after the local workerd port allocation fix.
 - The `registry-client` dist was stale after the upstream `swapRecord` parameter was added. It was rebuilt in-workspace before typecheck.
+- CodeQL and workflow hardening work is in progress in `awcmsmicro-dev/` and tracked separately from upstream sync.
 - Any accepted divergence must be logged in `DIVERGENCE_LOG.md`.

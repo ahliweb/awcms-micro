@@ -65,6 +65,8 @@ Expected root scripts:
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
+- Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
 

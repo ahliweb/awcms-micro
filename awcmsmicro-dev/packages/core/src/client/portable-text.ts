@@ -163,12 +163,6 @@ function renderSpans(spans: PortableTextSpan[], markDefs: MarkDef[]): string {
 // Markdown -> PT
 // ---------------------------------------------------------------------------
 
-// Regex patterns for markdown parsing
-const OPAQUE_FENCE_PATTERN = /^<!--ec:block (.+) -->$/;
-const HEADING_PATTERN = /^(#{1,6})\s+(.+)$/;
-const UNORDERED_LIST_PATTERN = /^(\s*)[-*+]\s+(.+)$/;
-const ORDERED_LIST_PATTERN = /^(\s*)\d+\.\s+(.+)$/;
-const IMAGE_PATTERN = /^!\[([^\]]*)\]\(([^)]+)\)$/;
 const INLINE_MARKDOWN_PATTERN =
 	/(\*\*(.+?)\*\*)|(_(.+?)_)|(`(.+?)`)|(\[(.+?)\]\((.+?)\))|(~~(.+?)~~)/g;
 
@@ -185,13 +179,9 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		const line = lines[i];
 
 		// Opaque fence
-		const opaqueMatch = line.match(OPAQUE_FENCE_PATTERN);
-		if (opaqueMatch) {
-			try {
-				blocks.push(JSON.parse(opaqueMatch[1]) as PortableTextBlock);
-			} catch {
-				blocks.push(makeBlock(line));
-			}
+		const opaque = parseOpaqueFence(line);
+		if (opaque) {
+			blocks.push(opaque);
 			i++;
 			continue;
 		}
@@ -222,9 +212,9 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Heading
-		const headingMatch = line.match(HEADING_PATTERN);
-		if (headingMatch) {
-			blocks.push(makeBlock(headingMatch[2], `h${headingMatch[1].length}`));
+		const heading = parseHeading(line);
+		if (heading) {
+			blocks.push(makeBlock(heading.text, `h${heading.level}`));
 			i++;
 			continue;
 		}
@@ -237,31 +227,27 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Unordered list
-		const ulMatch = line.match(UNORDERED_LIST_PATTERN);
-		if (ulMatch) {
-			const level = Math.floor(ulMatch[1].length / 2) + 1;
-			blocks.push(makeListBlock(ulMatch[2], "bullet", level));
+		const listItem = parseListItem(line);
+		if (listItem?.kind === "bullet") {
+			blocks.push(makeListBlock(listItem.text, "bullet", listItem.level));
 			i++;
 			continue;
 		}
 
-		// Ordered list
-		const olMatch = line.match(ORDERED_LIST_PATTERN);
-		if (olMatch) {
-			const level = Math.floor(olMatch[1].length / 2) + 1;
-			blocks.push(makeListBlock(olMatch[2], "number", level));
+		if (listItem?.kind === "number") {
+			blocks.push(makeListBlock(listItem.text, "number", listItem.level));
 			i++;
 			continue;
 		}
 
 		// Image
-		const imgMatch = line.match(IMAGE_PATTERN);
-		if (imgMatch) {
+		const image = parseImage(line);
+		if (image) {
 			blocks.push({
 				_type: "image",
 				_key: generateKey(),
-				alt: imgMatch[1],
-				asset: { url: imgMatch[2] },
+				alt: image.alt,
+				asset: { url: image.url },
 			});
 			i++;
 			continue;
@@ -295,6 +281,48 @@ function makeListBlock(text: string, listItem: string, level: number): PortableT
 		markDefs,
 		children: spans,
 	};
+}
+
+function parseOpaqueFence(line: string): PortableTextBlock | null {
+	if (!line.startsWith("<!--ec:block ") || !line.endsWith(" -->")) return null;
+	const json = line.slice("<!--ec:block ".length, -4);
+	try {
+		return JSON.parse(json) as PortableTextBlock;
+	} catch {
+		return makeBlock(line);
+	}
+}
+
+function parseHeading(line: string): { level: number; text: string } | null {
+	let level = 0;
+	while (level < line.length && line[level] === "#" && level < 6) level++;
+	if (level < 1 || line[level] !== " ") return null;
+	return { level, text: line.slice(level + 1) };
+}
+
+function parseListItem(line: string): { kind: "bullet" | "number"; level: number; text: string } | null {
+	let i = 0;
+	while (i < line.length && line[i] === " ") i++;
+	const level = Math.floor(i / 2) + 1;
+	const rest = line.slice(i);
+	if (rest.length >= 2 && "-*+".includes(rest[0]!) && rest[1] === " ") {
+		return { kind: "bullet", level, text: rest.slice(2) };
+	}
+	let j = 0;
+	while (j < rest.length && rest[j] >= "0" && rest[j] <= "9") j++;
+	if (j > 0 && rest[j] === "." && rest[j + 1] === " ") {
+		return { kind: "number", level, text: rest.slice(j + 2) };
+	}
+	return null;
+}
+
+function parseImage(line: string): { alt: string; url: string } | null {
+	if (!line.startsWith("![") || !line.includes("](") || !line.endsWith(")")) return null;
+	const altEnd = line.indexOf("](");
+	if (altEnd === -1) return null;
+	const alt = line.slice(2, altEnd);
+	const url = line.slice(altEnd + 2, -1);
+	return { alt, url };
 }
 
 /**

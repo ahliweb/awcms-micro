@@ -63,6 +63,8 @@ Exception:
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
+- Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 - Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
 - Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`
 - Upstream sync tracking: `docs/upstream-sync/`

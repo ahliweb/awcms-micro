@@ -5,12 +5,27 @@
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
 
-// Regex patterns for embed parsing
-const IFRAME_SRC_PATTERN = /<iframe[^>]+src=["']([^"']+)["']/i;
-const VIDEO_SRC_PATTERN = /<video[^>]+src=["']([^"']+)["']/i;
-const VIDEO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
-const AUDIO_SRC_PATTERN = /<audio[^>]+src=["']([^"']+)["']/i;
-const AUDIO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
+function findElementAttr(html: string, tagName: string, attrName: string): string | undefined {
+	const lower = html.toLowerCase();
+	const open = `<${tagName}`;
+	const start = lower.indexOf(open);
+	if (start === -1) return undefined;
+	const end = html.indexOf(">", start);
+	if (end === -1) return undefined;
+	const attrs = html.slice(start, end);
+	const attrLower = attrName.toLowerCase();
+	const candidates = [attrName + '="', attrName + "='", attrLower + '="', attrLower + "='"];
+	for (const candidate of candidates) {
+		const pos = attrs.toLowerCase().indexOf(candidate.toLowerCase());
+		if (pos !== -1) {
+			const valueStart = pos + candidate.length;
+			const quote = candidate.endsWith("\"") ? '"' : "'";
+			const valueEnd = attrs.indexOf(quote, valueStart);
+			if (valueEnd !== -1) return attrs.slice(valueStart, valueEnd);
+		}
+	}
+	return undefined;
+}
 
 /**
  * core/embed and variants → embed block
@@ -20,8 +35,7 @@ export const embed: BlockTransformer = (block, _options, context) => {
 	const providerSlug = attrString(block.attrs, "providerNameSlug");
 
 	// Extract iframe src if present
-	const iframeMatch = block.innerHTML.match(IFRAME_SRC_PATTERN);
-	const iframeSrc = iframeMatch?.[1];
+	const iframeSrc = findElementAttr(block.innerHTML, "iframe", "src");
 
 	return [
 		{
@@ -62,9 +76,7 @@ export const video: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from video tag if not in attrs
-	const videoMatch = block.innerHTML.match(VIDEO_SRC_PATTERN);
-	const sourceMatch = block.innerHTML.match(VIDEO_SOURCE_PATTERN);
-	const videoSrc = src || videoMatch?.[1] || sourceMatch?.[1];
+	const videoSrc = src || findElementAttr(block.innerHTML, "video", "src") || findElementAttr(block.innerHTML, "source", "src");
 
 	return [
 		{
@@ -84,9 +96,7 @@ export const audio: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from audio tag if not in attrs
-	const audioMatch = block.innerHTML.match(AUDIO_SRC_PATTERN);
-	const sourceMatch = block.innerHTML.match(AUDIO_SOURCE_PATTERN);
-	const audioSrc = src || audioMatch?.[1] || sourceMatch?.[1];
+	const audioSrc = src || findElementAttr(block.innerHTML, "audio", "src") || findElementAttr(block.innerHTML, "source", "src");
 
 	return [
 		{
