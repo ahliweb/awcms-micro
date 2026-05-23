@@ -149,22 +149,7 @@ const pageCtx = createPublicPageContext({
 
 			.utility-links {
 				display: flex;
-				gap: 1.5rem;
-				flex-wrap: wrap;
-				align-items: center;
-				justify-content: flex-end;
-			}
-
-			.primary-nav-shell {
-				margin-top: 1rem;
-				display: flex;
-				align-items: center;
-				gap: 1.5rem;
-			}
-
-			.utility-links {
-				display: flex;
-				gap: 1.5rem;
+				gap: 1rem;
 				flex-wrap: wrap;
 				align-items: center;
 				margin-left: auto;
@@ -178,6 +163,23 @@ const pageCtx = createPublicPageContext({
 			.utility-links a:hover {
 				color: var(--text-main);
 				text-shadow: none;
+			}
+
+			@media (max-width: 48rem) {
+				.primary-nav-shell {
+					flex-direction: column;
+					align-items: flex-start;
+					width: 100%;
+					gap: 1rem;
+				}
+				
+				.utility-links {
+					margin-left: 0;
+					width: 100%;
+					padding-top: 1rem;
+					border-top: 1px solid var(--surface-border);
+					justify-content: flex-start;
+				}
 			}
 
 			.brand {

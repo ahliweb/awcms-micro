@@ -150,15 +150,24 @@ if (menu?.items.length) {
 
 		.awcms-public-nav__submenu {
 			position: static;
-			display: block;
+			display: none;
 			min-width: 0;
 			margin-block-start: 0.25rem;
-			padding-inline-start: 0.5rem;
+			padding: 0;
+			padding-inline-start: 1rem;
 			box-shadow: none;
+			background: transparent;
+			border: none;
+		}
+
+		/* Show submenu when parent is hovered or focused on mobile */
+		.awcms-public-nav__item:hover > .awcms-public-nav__submenu,
+		.awcms-public-nav__item:focus-within > .awcms-public-nav__submenu {
+			display: block;
 		}
 
 		.awcms-public-nav__submenu .awcms-public-nav__submenu {
-			margin-inline-start: 0.5rem;
+			margin-inline-start: 1rem;
 		}
 	}
 </style>

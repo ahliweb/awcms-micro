@@ -149,15 +149,18 @@ if (menu?.items.length) {
 
 		.awcms-public-nav__submenu {
 			position: static;
-			display: block;
+			display: block; /* Always show submenus on mobile */
 			min-width: 0;
 			margin-block-start: 0.25rem;
-			padding-inline-start: 0.5rem;
+			padding: 0;
+			padding-inline-start: 1rem;
 			box-shadow: none;
+			background: transparent;
+			border: none;
 		}
 
 		.awcms-public-nav__submenu .awcms-public-nav__submenu {
-			margin-inline-start: 0.5rem;
+			margin-inline-start: 1rem;
 		}
 	}
 </style>
