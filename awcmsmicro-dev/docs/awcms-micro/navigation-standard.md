@@ -16,6 +16,16 @@ This document records the upstream-safe navigation pattern for AWCMS-Micro.
 - Keep active state, focus state, and mobile layout accessible.
 - Keep local and Cloudflare templates behaviorally aligned.
 
+### Auto-Generate Sub-Menu (Admin Convention)
+
+Since the EmDash Admin core does not natively support drag-and-drop or explicit `parentId` assignments for creating nested menus in the UI, AWCMS-Micro provides an **automatic sub-menu linking convention** within the public templates (`PublicNavigation.astro`):
+
+1. Create a parent menu in the Admin Dashboard (e.g., `primary`).
+2. Add a menu item (e.g., "About").
+3. To attach a sub-menu to "About", create a **new menu** in the Admin Dashboard using the naming convention: `[parentMenuName]-[itemSlug]`. For example: `primary-about`.
+4. Any items added to this `primary-about` menu will automatically be fetched and rendered as a nested sub-menu dropdown under the "About" item in the public navigation.
+5. This requires zero modifications to EmDash core and utilizes the standard `getMenu` API.
+
 ## Plugin Example
 
 - Use a plugin-owned header menu model.
