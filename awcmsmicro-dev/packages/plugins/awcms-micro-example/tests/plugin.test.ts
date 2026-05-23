@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { awcmsMicroExamplePlugin } from "../src/index.js";
 import sandboxPlugin from "../src/sandbox.js";
 import { AWCMS_EXAMPLE_PERMISSION_LIST } from "../src/permissions.js";
+import { SIKESRA_REFERENCE_FIXTURES } from "../src/fixtures.js";
 import {
 	AWCMS_EXAMPLE_ADMIN_PAGES,
 	AWCMS_EXAMPLE_ADMIN_WIDGETS,
@@ -144,6 +145,17 @@ describe("awcms micro example plugin", () => {
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
 		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
+	});
+
+	it("ships deterministic SIKESRA reference fixtures", () => {
+		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities).toHaveLength(3);
+		expect(SIKESRA_REFERENCE_FIXTURES.supportingDocuments).toHaveLength(4);
+		expect(SIKESRA_REFERENCE_FIXTURES.verificationEvents).toHaveLength(3);
+		expect(SIKESRA_REFERENCE_FIXTURES.publicAggregate.caveat).toContain("coarse counts");
+		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.verificationStage).toBe("active_verified");
+		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities[2]?.sensitivity).toBe("highly_restricted");
+		expect(SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.some((item) => item.suppressed)).toBe(true);
+		expect(SIKESRA_REFERENCE_FIXTURES.abacPolicies[0]?.effect).toBe("deny");
 	});
 
 	it("exposes public and protected routes", async () => {

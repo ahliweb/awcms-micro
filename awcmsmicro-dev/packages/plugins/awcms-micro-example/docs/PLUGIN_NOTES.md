@@ -11,6 +11,7 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 - isolated route and admin examples
 - simple audit logging helper
 - EmDash registry manifest in `emdash-plugin.jsonc`
+- deterministic SIKESRA reference fixtures for registry, verification, and public-safe aggregate modeling
 
 ## Safe Enablement
 
@@ -25,6 +26,7 @@ Set `repository` and `homepage` in `package.json` to match the real published so
 Add `repo` and `security` to `emdash-plugin.jsonc` only after you know the final standalone repository and security contact URLs.
 
 Use `docs/INTERNAL_PUBLISH_CHECKLIST.md` before any internal or registry release.
+Use `docs/SIKESRA_REFERENCE_DATA_MODEL.md` when you need the registry fixture reference shapes.
 Use `docs/MANIFEST_METADATA_EXAMPLES.md` for ready-to-copy `repo` and `security` examples.
 Use `docs/FINAL_MANIFEST_EXAMPLES.md` for completed monorepo and standalone manifest examples.
 The default flow is to edit `emdash-plugin.jsonc` in place.

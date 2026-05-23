@@ -19,6 +19,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 - audit logging and content snapshot examples
 - access-rights catalog example with role matrix and effective access preview
 - ABAC policy management example with attribute catalogs, policy simulation, and a protected demo route
+- SIKESRA-inspired registry fixtures for reference data modeling and public-safe aggregate examples
 - a sandbox-compatible server-side entry in `src/sandbox.ts`
 
 ## Permission Namespace
@@ -52,6 +53,7 @@ For an end-to-end standalone site integration example, see `docs/STANDALONE_CONS
 The package now uses published dependency versions, a local TypeScript toolchain, and a local `tsdown` build so it can be developed and packaged outside this monorepo.
 
 For a release-oriented pass, use `docs/INTERNAL_PUBLISH_CHECKLIST.md`.
+For the SIKESRA reference data model and fixtures, use `docs/SIKESRA_REFERENCE_DATA_MODEL.md`.
 For concrete `repo` and `security` snippets, use `docs/MANIFEST_METADATA_EXAMPLES.md`.
 For completed scenario-based manifests, use `docs/FINAL_MANIFEST_EXAMPLES.md`.
 The default flow is to update the checked-in `emdash-plugin.jsonc` in place.

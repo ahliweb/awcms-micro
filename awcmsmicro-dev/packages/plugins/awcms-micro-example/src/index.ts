@@ -2,6 +2,7 @@ import type { PluginDescriptor, ResolvedPlugin } from "emdash";
 import { definePlugin } from "emdash";
 
 import { version } from "../package.json";
+export { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
 import {
 	AWCMS_EXAMPLE_ADMIN_PAGES,
 	AWCMS_EXAMPLE_ADMIN_WIDGETS,
