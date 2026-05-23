@@ -43,6 +43,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/aggregate">Public Aggregate</a>
 		</div>
 	</section>
 
@@ -54,6 +55,10 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">Plugin-enabled</h2>
 			<p style="color:var(--text-muted);margin-bottom:0;">Registers <code style="color:var(--accent);">@awcms-micro/plugin-example</code> through the normal EmDash plugin path for audit, access-rights, and ABAC examples.</p>
+		</div>
+		<div class="card">
+			<h2 style="font-size:1.3rem;margin-top:0;">Public aggregate</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">Provides a public-safe summary page that exposes only high-level counts, not private registry details.</p>
 		</div>
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">Admin protected</h2>

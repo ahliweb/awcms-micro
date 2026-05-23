@@ -136,13 +136,14 @@ After deploy:
 1. `GET /` returns HTTP 200.
 2. `GET /posts` returns HTTP 200.
 3. `GET /news` returns HTTP 200.
-4. `GET /about` returns HTTP 200.
-5. `GET /_emdash/admin` is reachable and protected by EmDash auth.
-6. `GET /_emdash/api/plugins/awcms-micro-example/public/status` returns the public-safe plugin payload.
-7. `POST /_emdash/api/plugins/awcms-micro-example/overview/summary` is not publicly accessible without admin context.
-8. Media upload and retrieval work through the configured R2 binding.
-9. D1-backed content and settings are available.
-10. Worker Loader binding exists when sandboxed plugin support is enabled later.
+4. `GET /aggregate` returns HTTP 200 and stays public-safe.
+5. `GET /about` returns HTTP 200.
+6. `GET /_emdash/admin` is reachable and protected by EmDash auth.
+7. `GET /_emdash/api/plugins/awcms-micro-example/public/status` returns the public-safe plugin payload.
+8. `POST /_emdash/api/plugins/awcms-micro-example/overview/summary` is not publicly accessible without admin context.
+9. Media upload and retrieval work through the configured R2 binding.
+10. D1-backed content and settings are available.
+11. Worker Loader binding exists when sandboxed plugin support is enabled later.
 
 ## Rollback
 

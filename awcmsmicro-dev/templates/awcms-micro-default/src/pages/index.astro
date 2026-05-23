@@ -43,6 +43,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<a class="button-link primary" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
 			<a class="button-link" href="/_emdash/admin/content/posts/new">Create Post</a>
 			<a class="button-link" href="/_emdash/admin/content/pages/new">Create Page</a>
+			<a class="button-link" href="/aggregate">View Public Aggregate</a>
 		</div>
 	</section>
 
@@ -59,7 +60,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			</div>
 			<div>
 				<strong>Extend with AWCMS-Micro</strong>
-				<p>The site stays ready for AWCMS-Micro-specific plugins and governance features through the normal EmDash extension points.</p>
+				<p>The checked-in template already registers the example plugin so local development can exercise governance, audit, and access workflows without Cloudflare.</p>
 			</div>
 		</div>
 	</section>
@@ -81,6 +82,11 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 				<strong>{pages.length}</strong>
 				<p style="margin:0.5rem 0;">Managed pages such as About, implementation notes, and product info.</p>
 				<a href="/about">View about page</a>
+			</div>
+			<div>
+				<strong>Safe aggregate</strong>
+				<p style="margin:0.5rem 0;">A public reference page summarises content without exposing sensitive identifiers.</p>
+				<a href="/aggregate">View aggregate page</a>
 			</div>
 		</div>
 	</section>

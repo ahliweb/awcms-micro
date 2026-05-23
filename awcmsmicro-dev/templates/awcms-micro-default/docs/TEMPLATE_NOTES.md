@@ -16,6 +16,7 @@ This template exists as an AWCMS-Micro example only.
 - it does not replace EmDash built-in templates
 - it does not register itself into EmDash core
 - it does not add custom plugin or template loading mechanisms
+- the checked-in local workflow includes the AWCMS-Micro example plugin, but only through normal EmDash plugin registration
 
 ## Safe Adoption Path
 
@@ -25,4 +26,4 @@ Use `README.md` in this folder as the entry point for template-specific guidance
 
 This example now uses published package versions so it can install outside the parent monorepo without rewriting dependency specifiers.
 
-If you want to enable the AWCMS-Micro example plugin in this template, use `PLUGIN_ENABLED_ASTRO_CONFIG.md` as the configuration variant rather than treating the checked-in `astro.config.mjs` as plugin-bound.
+If you want to reproduce the same plugin-enabled local shape in another site, use `PLUGIN_ENABLED_ASTRO_CONFIG.md` as the reference.

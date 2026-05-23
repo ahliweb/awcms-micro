@@ -2119,6 +2119,9 @@ importers:
       '@astrojs/react':
         specifier: ^5.0.0
         version: 5.0.0(@types/node@24.10.13)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(yaml@2.8.2)
+      '@awcms-micro/plugin-example':
+        specifier: workspace:*
+        version: link:../../packages/plugins/awcms-micro-example
       astro:
         specifier: ^6.1.10
         version: 6.3.5(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.55.2)(yaml@2.8.2)

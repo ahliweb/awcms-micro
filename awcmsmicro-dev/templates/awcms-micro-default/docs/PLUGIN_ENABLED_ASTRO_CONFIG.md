@@ -1,8 +1,8 @@
 # Plugin-Enabled Astro Config
 
-This document shows a concrete `astro.config.mjs` variant for `awcms-micro-default` with `@awcms-micro/plugin-example` enabled.
+This document shows the `astro.config.mjs` shape used by the plugin-enabled `awcms-micro-default` local template.
 
-The checked-in template keeps `astro.config.mjs` plugin-agnostic on purpose. Use this variant only when you want the example plugin enabled in a standalone EmDash site.
+Use it when you need to recreate the same example-plugin setup in a standalone EmDash site.
 
 ## When To Use This
 

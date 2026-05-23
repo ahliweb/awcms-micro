@@ -5,7 +5,7 @@ This folder collects the AWCMS-Micro-specific guidance for `awcms-micro-default`
 ## Documents
 
 - `TEMPLATE_NOTES.md`: scope, intent, and adoption boundaries for the template
-- `PLUGIN_ENABLED_ASTRO_CONFIG.md`: ready-to-copy `astro.config.mjs` variant with `@awcms-micro/plugin-example` enabled
+- `PLUGIN_ENABLED_ASTRO_CONFIG.md`: ready-to-copy `astro.config.mjs` shape with `@awcms-micro/plugin-example` enabled
 
 ## Related Workspace Docs
 

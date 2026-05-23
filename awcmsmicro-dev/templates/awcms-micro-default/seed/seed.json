@@ -60,11 +60,12 @@
 		{
 			"name": "primary",
 			"label": "Primary Navigation",
-			"items": [
-				{ "type": "custom", "label": "Home", "url": "/" },
-				{ "type": "custom", "label": "Posts", "url": "/posts" },
-				{ "type": "custom", "label": "News", "url": "/news" },
-				{ "type": "custom", "label": "About", "url": "/about" }
+				"items": [
+					{ "type": "custom", "label": "Home", "url": "/" },
+					{ "type": "custom", "label": "Aggregate", "url": "/aggregate" },
+					{ "type": "custom", "label": "Posts", "url": "/posts" },
+					{ "type": "custom", "label": "News", "url": "/news" },
+					{ "type": "custom", "label": "About", "url": "/about" }
 			]
 		}
 	],

@@ -1,6 +1,7 @@
 import node from "@astrojs/node";
 import react from "@astrojs/react";
 import { defineConfig } from "astro/config";
+import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-example";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
@@ -20,7 +21,8 @@ export default defineConfig({
 				baseUrl: "/_emdash/api/media/file",
 			}),
 			siteUrl: "https://example.awcms-micro.local",
+			plugins: [awcmsMicroExamplePlugin({ tenantId: "t-local-dev" })],
 		}),
-	],
+		],
 	devToolbar: { enabled: false },
 });
