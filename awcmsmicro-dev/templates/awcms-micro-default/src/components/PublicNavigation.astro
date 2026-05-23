@@ -96,6 +96,17 @@ if (menu?.items.length) {
 		z-index: 20;
 	}
 
+	/* Invisible bridge to prevent hover loss when crossing gaps */
+	.awcms-public-nav__submenu::before {
+		content: "";
+		position: absolute;
+		inset-block-start: -1rem;
+		inset-inline-start: -1rem;
+		inset-block-end: -1rem;
+		inset-inline-end: -1rem;
+		z-index: -1;
+	}
+
 	.awcms-public-nav__submenu .awcms-public-nav__submenu {
 		inset-block-start: 0;
 		inset-inline-start: calc(100% + 0.5rem);
