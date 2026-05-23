@@ -30,6 +30,17 @@ import type { Interceptor } from "./transport.js";
 
 const execFileAsync = promisify(execFile);
 
+function resolveCloudflaredOrigin(appUrl: string): string {
+	const url = new URL(appUrl);
+	if (url.protocol !== "http:" && url.protocol !== "https:") {
+		throw new Error(`Unsupported URL scheme for Cloudflare Access: ${url.protocol}`);
+	}
+	if (url.username || url.password) {
+		throw new Error("Cloudflare Access URLs must not include credentials.");
+	}
+	return url.origin;
+}
+
 /**
  * Parse a single "Name: Value" header string. Returns null if malformed.
  */
@@ -163,7 +174,7 @@ export function isAccessRedirect(response: Response): boolean {
  * Returns null if cloudflared is not installed or has no cached token.
  */
 export async function getCachedAccessToken(appUrl: string): Promise<string | null> {
-	const origin = new URL(appUrl).origin;
+	const origin = resolveCloudflaredOrigin(appUrl);
 	try {
 		const { stdout } = await execFileAsync("cloudflared", ["access", "token", "-app", origin]);
 		const token = stdout.trim();
@@ -183,7 +194,7 @@ export async function getCachedAccessToken(appUrl: string): Promise<string | nul
  * Returns true if the command succeeded, false otherwise.
  */
 export async function runCloudflaredLogin(appUrl: string): Promise<boolean> {
-	const origin = new URL(appUrl).origin;
+	const origin = resolveCloudflaredOrigin(appUrl);
 	try {
 		await execFileAsync("cloudflared", ["access", "login", origin]);
 		return true;

@@ -36,10 +36,16 @@ interface LoginPageProps {
 }
 
 function resolveSafeRedirectUrl(raw: string): string {
-	if (raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("\\")) {
-		return raw;
+	try {
+		const resolved = new URL(raw, window.location.origin);
+		if (resolved.origin !== window.location.origin) return "/_emdash/admin";
+		if (!resolved.pathname.startsWith("/") || resolved.pathname.startsWith("//") || resolved.pathname.includes("\\")) {
+			return "/_emdash/admin";
+		}
+		return `${resolved.pathname}${resolved.search}${resolved.hash}`;
+	} catch {
+		return "/_emdash/admin";
 	}
-	return "/_emdash/admin";
 }
 
 type LoginMethod = "passkey" | "magic-link";

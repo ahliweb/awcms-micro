@@ -12,19 +12,19 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const obj: Record<string, unknown> = Object.create(null);
+	const entries: Array<[string, unknown]> = [];
 	for (const [key, val] of Object.entries(source)) {
 		if (isSafeObjectKey(key)) {
-			obj[key] = val;
+			entries.push([key, val]);
 		}
 	}
 	for (const field of fields) {
 		if (!isSafeObjectKey(field.key)) continue;
 		if (source[field.key] === undefined) {
-			obj[field.key] = field.defaultValue ?? undefined;
+			entries.push([field.key, field.defaultValue ?? undefined]);
 		}
 	}
-	return obj;
+	return Object.fromEntries(entries);
 }
 
 /** Normalize a value into an array. Non-arrays become empty arrays. */
@@ -46,24 +46,21 @@ export function normalizeGrid(
 	rows: GridAxisDef[],
 	columns: GridAxisDef[],
 ): Record<string, Record<string, unknown>> {
-	const out: Record<string, Record<string, unknown>> = {};
-	for (const row of rows) {
-		out[row.key] = {};
-	}
-
 	if (!value || typeof value !== "object" || Array.isArray(value)) {
-		return out;
+		return Object.fromEntries(rows.map((row) => [row.key, {}]));
 	}
 
 	const source = value as Record<string, unknown>;
-	for (const row of rows) {
+	return Object.fromEntries(rows.map((row) => {
 		const rowVal = source[row.key];
-		const rowOut = out[row.key]!;
+		const rowEntries: Array<[string, unknown]> = [];
 		if (Array.isArray(rowVal)) {
 			// Legacy array format: convert ["leaf", "fruit"] → { leaf: true, fruit: true }
 			for (const code of rowVal) {
 				if (typeof code === "string") {
-					rowOut[code] = true;
+					if (isSafeObjectKey(code)) {
+						rowEntries.push([code, true]);
+					}
 				}
 			}
 		} else if (rowVal && typeof rowVal === "object") {
@@ -73,18 +70,17 @@ export function normalizeGrid(
 			const rowObj = rowVal as Record<string, unknown>;
 			for (const [key, val] of Object.entries(rowObj)) {
 				if (isSafeObjectKey(key)) {
-					rowOut[key] = val;
+					rowEntries.push([key, val]);
 				}
 			}
 			for (const col of columns) {
 				if (isSafeObjectKey(col.key) && rowObj[col.key] !== undefined) {
-					rowOut[col.key] = rowObj[col.key];
+					rowEntries.push([col.key, rowObj[col.key]]);
 				}
 			}
 		}
-	}
-
-	return out;
+		return [row.key, Object.fromEntries(rowEntries)];
+	}));
 }
 
 /** Normalize a value into a string array. Filters out non-strings. */

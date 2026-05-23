@@ -129,11 +129,20 @@ jobs:
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
+            const body = [
+              'Could not push formatting changes to this fork. The contributor may have "Allow edits by maintainers" disabled.',
+              '',
+              'Please run the formatter locally:',
+              '',
+              '```',
+              'pnpm format',
+              '```',
+            ].join('\n');
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: Number(process.env.ISSUE_NUMBER),
-              body: `Could not push formatting changes to this fork. The contributor may have "Allow edits by maintainers" disabled.\n\nPlease run the formatter locally:\n\n\`\`\`\npnpm format\n\`\`\``,
+              body,
             });
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}

@@ -1,25 +1,22 @@
 import type { ImageBlock } from "../types.js";
 
-const SAFE_IMAGE_URL_RE = /^(https?:|\/(?!\/))/i;
-
-function escapeHtml(value: string): string {
-	return value
-		.replaceAll("&", "&amp;")
-		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;")
-		.replaceAll('"', "&quot;")
-		.replaceAll("'", "&#039;");
-}
-
 function sanitizeImageUrl(url: string): string | null {
 	if (!url) return null;
-	return SAFE_IMAGE_URL_RE.test(url) ? url : null;
+	if (url.startsWith("/")) {
+		return url.startsWith("//") ? null : url;
+	}
+	try {
+		const parsed = new URL(url);
+		return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
+	} catch {
+		return null;
+	}
 }
 
 export function ImageBlockComponent({ block }: { block: ImageBlock }) {
 	const src = sanitizeImageUrl(block.url);
-	const alt = escapeHtml(block.alt ?? "");
-	const caption = block.title ? escapeHtml(block.title) : null;
+	const alt = block.alt ?? "";
+	const caption = block.title ?? null;
 
 	if (!src) return null;
 

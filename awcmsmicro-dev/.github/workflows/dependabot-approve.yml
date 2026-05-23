@@ -39,12 +39,13 @@ jobs:
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
+            const body = 'Auto-approved: ' + process.env.UPDATE_TYPE + ' update for ' + process.env.DEPENDENCY_NAMES + '.';
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               event: 'APPROVE',
-              body: `Auto-approved: ${process.env.UPDATE_TYPE} update for ${process.env.DEPENDENCY_NAMES}.`,
+              body,
             });
         env:
           UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}

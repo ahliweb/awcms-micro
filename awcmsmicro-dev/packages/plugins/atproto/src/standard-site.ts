@@ -124,7 +124,6 @@ function stripTrailingSlash(url: string): string {
 	return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
-const HASH_PREFIX_RE = /^#/;
 const MAX_TEXT_CONTENT_LENGTH = 10_000;
 
 /**
@@ -138,14 +137,15 @@ function extractTags(content: Record<string, unknown>): string[] {
 	const tags: string[] = [];
 	for (const item of raw) {
 		if (typeof item === "string") {
-			tags.push(item.replace(HASH_PREFIX_RE, ""));
+			tags.push(item.startsWith("#") ? item.slice(1) : item);
 		} else if (
 			typeof item === "object" &&
 			item !== null &&
 			"name" in item &&
 			typeof (item as Record<string, unknown>).name === "string"
 		) {
-			tags.push(((item as Record<string, unknown>).name as string).replace(HASH_PREFIX_RE, ""));
+			const name = (item as Record<string, unknown>).name as string;
+			tags.push(name.startsWith("#") ? name.slice(1) : name);
 		}
 	}
 	return tags;
