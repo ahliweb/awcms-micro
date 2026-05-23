@@ -172,6 +172,9 @@ jobs:
           steps.download.outputs.found == 'true'
           && steps.pr.outputs.is_fork == 'false'
           && steps.apply.outputs.no_diff == 'false'
+        env:
+          PR_REF: ${{ steps.pr.outputs.ref }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
         run: |
           set -e
           git config user.name "emdashbot[bot]"
@@ -182,8 +185,8 @@ jobs:
           # forward — safe outcome, since applying stale counts to a
           # newer tree would hide a regression. The next PR event will
           # kick off a fresh measure+apply against the new head.
-          if ! git push origin "HEAD:${{ steps.pr.outputs.ref }}"; then
-            echo "::error::Non-fast-forward push — the PR branch moved past the measured SHA ${{ steps.pr.outputs.sha }}. Rerun the harness against the new head (the next PR event will do this automatically)." >&2
+          if ! git push origin "HEAD:${PR_REF}"; then
+            echo "::error::Non-fast-forward push — the PR branch moved past the measured SHA ${PR_SHA}. Rerun the harness against the new head (the next PR event will do this automatically)." >&2
             exit 1
           fi
 
@@ -194,6 +197,8 @@ jobs:
           && steps.apply.outputs.no_diff == 'false'
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_REF: ${{ steps.pr.outputs.ref }}
+          FULL_NAME: ${{ steps.pr.outputs.full_name }}
         run: |
           set -e
           git config user.name "emdashbot[bot]"
@@ -202,11 +207,11 @@ jobs:
           export GIT_ASKPASS="$RUNNER_TEMP/git-askpass.sh"
           printf '#!/bin/sh\necho "%s"\n' "$APP_TOKEN" > "$GIT_ASKPASS"
           chmod +x "$GIT_ASKPASS"
-          git remote add fork "https://x-access-token@github.com/${{ steps.pr.outputs.full_name }}.git"
+          git remote add fork "https://x-access-token@github.com/${FULL_NAME}.git"
           # Fail the workflow if we can't push — most likely cause is
           # "Allow edits by maintainers" being disabled on the fork PR.
           # The reviewer needs to know the snapshots couldn't be applied.
-          if ! git push fork "HEAD:${{ steps.pr.outputs.ref }}"; then
+          if ! git push fork "HEAD:${PR_REF}"; then
             rm -f "$GIT_ASKPASS"
             echo "::error::Failed to push snapshots to fork. The contributor may have 'Allow edits by maintainers' disabled. They need to run 'pnpm query-counts --target sqlite --update && pnpm query-counts --target d1 --update' locally and commit, or re-enable maintainer edits." >&2
             exit 1

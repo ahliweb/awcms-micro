@@ -101,8 +101,8 @@ jobs:
           export GIT_ASKPASS="$RUNNER_TEMP/git-askpass.sh"
           printf '#!/bin/sh\necho "%s"\n' "$APP_TOKEN" > "$GIT_ASKPASS"
           chmod +x "$GIT_ASKPASS"
-          git remote add fork "https://x-access-token@github.com/${{ steps.pr.outputs.full_name }}.git"
-          if git push fork "HEAD:${{ steps.pr.outputs.ref }}"; then
+          git remote add fork "https://x-access-token@github.com/${FULL_NAME}.git"
+          if git push fork "HEAD:${PR_REF}"; then
             echo "push_failed=false" >> "$GITHUB_OUTPUT"
           else
             echo "push_failed=true" >> "$GITHUB_OUTPUT"
@@ -110,6 +110,8 @@ jobs:
           rm -f "$GIT_ASKPASS"
         env:
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          FULL_NAME: ${{ steps.pr.outputs.full_name }}
+          PR_REF: ${{ steps.pr.outputs.ref }}
 
       - name: Comment on push failure
         if: steps.push-fork.outputs.push_failed == 'true'
@@ -120,6 +122,8 @@ jobs:
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.pr.outputs.number }},
+              issue_number: Number(process.env.PR_NUMBER),
               body: `Could not push formatting changes to this fork. The contributor may have "Allow edits by maintainers" disabled.\n\nPlease run the formatter locally:\n\n\`\`\`\npnpm format\n\`\`\``,
             });
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}

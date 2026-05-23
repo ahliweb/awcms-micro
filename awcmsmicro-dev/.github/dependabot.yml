@@ -1,4 +1,6 @@
 version: 2
+cooldown:
+  default-days: 7
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"

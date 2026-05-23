@@ -108,17 +108,8 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 	consola.info(`Enter code: ${pc.yellow(pc.bold(deviceCode.user_code))}`);
 	console.log();
 
-	// Try to open browser
-	try {
-		const { execFile } = await import("node:child_process");
-		if (process.platform === "darwin") {
-			execFile("open", [deviceCode.verification_uri]);
-		} else {
-			execFile("xdg-open", [deviceCode.verification_uri]);
-		}
-	} catch {
-		// User can open manually
-	}
+	// Open the verification URL manually in a browser.
+	// Avoid spawning platform-specific commands from untrusted input.
 
 	// Step 4: Poll GitHub for access token
 	consola.start("Waiting for authorization...");

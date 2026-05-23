@@ -27,11 +27,6 @@ const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
 	figcaption: { open: /^<figcaption[^>]*>/i, close: /<\/figcaption>$/i },
 };
 
-// Regex patterns for extracting attributes
-const IMG_ALT_PATTERN = /<img[^>]+alt=["']([^"']*)["']/i;
-const FIGCAPTION_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
-const IMG_SRC_PATTERN = /<img[^>]+src=["']([^"']*)["']/i;
-
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
 type Element = DefaultTreeAdapterMap["element"];
@@ -291,32 +286,23 @@ function getTextContent(nodes: Node[]): string {
  * Extract alt text from an img element in HTML
  */
 export function extractAlt(html: string): string | undefined {
-	const match = html.match(IMG_ALT_PATTERN);
-	if (match) {
-		return match[1]; // Can be empty string ""
-	}
-	return undefined;
+	return findFirstElement(parseFragment(html), "img")?.attrs.find((attr) => attr.name === "alt")?.value;
 }
 
 /**
  * Extract caption from a figcaption element
  */
 export function extractCaption(html: string): string | undefined {
-	const match = html.match(FIGCAPTION_PATTERN);
-	if (match?.[1]) {
-		return extractText(match[1]);
-	}
-	return undefined;
+	const element = findFirstElement(parseFragment(html), "figcaption");
+	return element ? extractText(getTextContent(element.childNodes)) : undefined;
 }
 
 /**
  * Extract src from an img element
  */
 export function extractSrc(html: string): string | undefined {
-	const match = html.match(IMG_SRC_PATTERN);
-	if (!match?.[1]) return undefined;
-	// Decode HTML entities in URLs
-	return decodeUrlEntities(match[1]);
+	const src = findFirstElement(parseFragment(html), "img")?.attrs.find((attr) => attr.name === "src")?.value;
+	return src ? decodeUrlEntities(src) : undefined;
 }
 
 /**
@@ -328,4 +314,17 @@ function decodeUrlEntities(url: string): string {
 		.split("&#38;").join("&")
 		.split("&#x26;").join("&")
 		.split("&amp;").join("&");
+}
+
+function findFirstElement(node: Node, tagName: string): Element | undefined {
+	if (isElement(node) && node.tagName.toLowerCase() === tagName) {
+		return node;
+	}
+	if ("childNodes" in node && Array.isArray(node.childNodes)) {
+		for (const child of node.childNodes) {
+			const found = findFirstElement(child, tagName);
+			if (found) return found;
+		}
+	}
+	return undefined;
 }
