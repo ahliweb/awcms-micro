@@ -1,6 +1,7 @@
 ---
 import { getEmDashCollection, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
+import PublicNavigation from "../components/PublicNavigation.astro";
 import Base from "../layouts/Base.astro";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
@@ -42,8 +43,23 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 		<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
 			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/aggregate">Public Aggregate</a>
+		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
+		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/aggregate">Public Aggregate</a>
+	</div>
+	</section>
+
+	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
+		<div class="card">
+			<p class="kicker">Public navigation example</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">Nested primary menu</h2>
+			<p style="color:var(--text-muted);margin-bottom:1rem;">The homepage now renders the seeded primary menu so visitors can see the dropdown structure directly from the landing page.</p>
+			<PublicNavigation name="homepage-demo" />
+		</div>
+		<div class="card">
+			<p class="kicker">Switch mode</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">Light and dark theme</h2>
+			<p style="color:var(--text-muted);margin-bottom:1rem;">Use the homepage control below to toggle the same theme state managed by the header button.</p>
+			<button class="btn btn-primary" id="page-theme-toggle" type="button" style="padding: 0.9rem 1.25rem;">Switch mode</button>
 		</div>
 	</section>
 
@@ -125,4 +141,13 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">Manage pages in admin &rarr;</a></p>
 		</div>
 	</section>
+
+	<script is:inline>
+		const pageThemeToggle = document.getElementById("page-theme-toggle");
+		const headerThemeToggle = document.getElementById("theme-toggle");
+
+		if (pageThemeToggle && headerThemeToggle) {
+			pageThemeToggle.addEventListener("click", () => headerThemeToggle.click());
+		}
+	</script>
 </Base>

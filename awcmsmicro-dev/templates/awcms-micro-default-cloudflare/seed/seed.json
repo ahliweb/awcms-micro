@@ -105,6 +105,31 @@
 				},
 				{ "type": "custom", "label": "Contact", "url": "/about#contact" }
 			]
+		},
+		{
+			"name": "homepage-demo",
+			"label": "Homepage Demo Navigation",
+			"items": [
+				{
+					"type": "custom",
+					"label": "Public demo",
+					"url": "/aggregate",
+					"children": [
+						{ "type": "custom", "label": "Aggregate demo", "url": "/aggregate" },
+						{ "type": "custom", "label": "Posts index demo", "url": "/posts" },
+						{ "type": "custom", "label": "News index demo", "url": "/news" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Site demo",
+					"url": "/about",
+					"children": [
+						{ "type": "custom", "label": "About AWCMS-Micro", "url": "/about" },
+						{ "type": "custom", "label": "Guidance notes", "url": "/about#guidance" }
+					]
+				}
+			]
 		}
 	],
 	"widgetAreas": [

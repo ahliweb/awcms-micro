@@ -1,6 +1,7 @@
 ---
 import { getEmDashCollection, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
+import PublicNavigation from "../components/PublicNavigation.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
@@ -44,6 +45,22 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<a class="button-link" href="/_emdash/admin/content/posts/new">Create Post</a>
 			<a class="button-link" href="/_emdash/admin/content/pages/new">Create Page</a>
 			<a class="button-link" href="/aggregate">View Public Aggregate</a>
+		</div>
+	</section>
+
+	<section>
+		<h2>Nested menu and mode demo</h2>
+		<div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:start;">
+			<div>
+				<p class="kicker">Public navigation example</p>
+				<p>This preview renders the seeded primary menu with dropdown children so the homepage shows the same recursive navigation used across the template.</p>
+			<PublicNavigation name="homepage-demo" />
+			</div>
+			<div>
+				<p class="kicker">Switch mode</p>
+				<p>The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself.</p>
+				<button class="button-link primary" id="page-theme-toggle" type="button">Switch mode</button>
+			</div>
 		</div>
 	</section>
 
@@ -121,4 +138,13 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			</ul>
 		)}
 	</section>
+
+	<script is:inline>
+		const pageThemeToggle = document.getElementById("page-theme-toggle");
+		const headerThemeToggle = document.getElementById("theme-toggle");
+
+		if (pageThemeToggle && headerThemeToggle) {
+			pageThemeToggle.addEventListener("click", () => headerThemeToggle.click());
+		}
+	</script>
 </BaseLayout>

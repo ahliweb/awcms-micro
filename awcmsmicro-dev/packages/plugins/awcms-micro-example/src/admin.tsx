@@ -474,7 +474,7 @@ function PluginHeaderMenu() {
 					<h2 className="mt-1 text-lg font-semibold text-kumo-default">Plugin header navigation</h2>
 				</div>
 				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					Reference navigation for registry, verification, reports, access, and ABAC flows. Hidden items stay filtered at the menu layer.
+					Reference navigation for registry, verification, reports, access, and ABAC flows. Select a top-level item with children to reveal the nested submenu below while hidden items stay filtered at the menu layer.
 				</p>
 			</div>
 
