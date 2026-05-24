@@ -3,6 +3,7 @@
  */
 
 import { extractAlt, extractCaption, extractSrc, extractText } from "../inline.js";
+import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
 import type {
 	GutenbergBlock,
 	PortableTextBlock,
@@ -12,6 +13,10 @@ import type {
 } from "../types.js";
 import { attrString, attrNumber, attrBoolean, attrObject } from "../types.js";
 import { sanitizeHref, sanitizeMediaUrl } from "../url.js";
+
+type Node = DefaultTreeAdapterMap["node"];
+type TextNode = DefaultTreeAdapterMap["textNode"];
+type Element = DefaultTreeAdapterMap["element"];
 
 /**
  * core/paragraph → block with style "normal"
@@ -141,135 +146,140 @@ function parseListItems(
 	level: number,
 	context: TransformContext,
 ): PortableTextTextBlock[] {
+	return parseListNodes(parseFragment(html).childNodes, listItem, level, context);
+}
+
+/**
+ * Parse list nodes from a parsed HTML fragment
+ */
+function parseListNodes(
+	nodes: Node[],
+	listItem: "bullet" | "number",
+	level: number,
+	context: TransformContext,
+): PortableTextTextBlock[] {
 	const blocks: PortableTextTextBlock[] = [];
 
-	// Match <li> elements - need to handle nested lists carefully
-	// Find each top-level <li> by tracking tag depth
-	const liItems = extractTopLevelListItems(html);
+	for (const node of nodes) {
+		if (!isElement(node)) continue;
+		const tag = node.tagName.toLowerCase();
 
-	for (const liContent of liItems) {
-		// Check for nested lists
-		const nestedUl = extractTagText(liContent, "ul");
-		const nestedOl = extractTagText(liContent, "ol");
-
-		// Get text content (excluding nested lists)
-		let textContent = stripTagBlocks(liContent, ["ul", "ol"]).trim();
-
-		if (textContent) {
-			const { children, markDefs } = context.parseInlineContent(textContent);
-
-			const block: PortableTextTextBlock = {
-				_type: "block",
-				_key: context.generateKey(),
-				style: "normal",
-				listItem,
-				level,
-				children,
-			};
-
-			if (markDefs.length > 0) {
-				block.markDefs = markDefs;
-			}
-
-			blocks.push(block);
+		if (tag === "li") {
+			blocks.push(...parseListItemNode(node, listItem, level, context));
+			continue;
 		}
 
-		// Process nested lists
-		if (nestedUl) {
-			blocks.push(...parseListItems(nestedUl, "bullet", level + 1, context));
-		}
-		if (nestedOl) {
-			blocks.push(...parseListItems(nestedOl, "number", level + 1, context));
+		if (tag === "ul" || tag === "ol") {
+			const nestedListItem = tag === "ol" ? "number" : "bullet";
+			blocks.push(...parseListNodes(node.childNodes, nestedListItem, level, context));
 		}
 	}
 
 	return blocks;
 }
 
-/**
- * Extract top-level <li> items from HTML, handling nested lists correctly
- */
-function extractTopLevelListItems(html: string): string[] {
-	const items: string[] = [];
-	let depth = 0;
-	let currentItem = "";
-	let inLi = false;
-	let i = 0;
+function parseListItemNode(
+	itemNode: Element,
+	listItem: "bullet" | "number",
+	level: number,
+	context: TransformContext,
+): PortableTextTextBlock[] {
+	const blocks: PortableTextTextBlock[] = [];
+	const nestedLists: Element[] = [];
+	const textContent = serializeNodes(itemNode.childNodes, context, {
+		skipTags: new Set(["ul", "ol"]),
+		onNestedElement: (nested) => {
+			const tag = nested.tagName.toLowerCase();
+			if (tag === "ul" || tag === "ol") nestedLists.push(nested);
+		},
+	}).trim();
 
-	while (i < html.length) {
-		// Check for opening tags
-		if (html.substring(i, i + 3).toLowerCase() === "<li") {
-			// Find end of tag
-			const tagEnd = html.indexOf(">", i);
-			if (tagEnd === -1) break;
+	if (textContent) {
+		const { children, markDefs } = context.parseInlineContent(textContent);
 
-			if (!inLi) {
-				inLi = true;
-				i = tagEnd + 1;
-				continue;
-			} else {
-				// Nested li
-				currentItem += html.substring(i, tagEnd + 1);
-				depth++;
-				i = tagEnd + 1;
-				continue;
-			}
+		const block: PortableTextTextBlock = {
+			_type: "block",
+			_key: context.generateKey(),
+			style: "normal",
+			listItem,
+			level,
+			children,
+		};
+
+		if (markDefs.length > 0) {
+			block.markDefs = markDefs;
 		}
 
-		// Check for closing </li>
-		if (html.substring(i, i + 5).toLowerCase() === "</li>") {
-			if (depth === 0) {
-				// End of current top-level item
-				items.push(currentItem);
-				currentItem = "";
-				inLi = false;
-				i += 5;
-				continue;
-			} else {
-				// End of nested item
-				currentItem += "</li>";
-				depth--;
-				i += 5;
-				continue;
-			}
-		}
+		blocks.push(block);
+	}
 
-		// Check for nested list tags to track depth
-		if (
-			html.substring(i, i + 3).toLowerCase() === "<ul" ||
-			html.substring(i, i + 3).toLowerCase() === "<ol"
-		) {
-			const tagEnd = html.indexOf(">", i);
-			if (tagEnd !== -1) {
-				currentItem += html.substring(i, tagEnd + 1);
-				i = tagEnd + 1;
-				continue;
-			}
-		}
+	for (const nestedList of nestedLists) {
+		const nestedListItem = nestedList.tagName.toLowerCase() === "ol" ? "number" : "bullet";
+		blocks.push(...parseListNodes(nestedList.childNodes, nestedListItem, level + 1, context));
+	}
 
-		if (
-			html.substring(i, i + 5).toLowerCase() === "</ul>" ||
-			html.substring(i, i + 5).toLowerCase() === "</ol>"
-		) {
-			currentItem += html.substring(i, i + 5);
-			i += 5;
+	return blocks;
+}
+
+interface SerializeOptions {
+	skipTags?: Set<string>;
+	onNestedElement?: (element: Element) => void;
+}
+
+function serializeNodes(
+	nodes: Node[],
+	context: TransformContext,
+	options: SerializeOptions = {},
+): string {
+	let html = "";
+	for (const node of nodes) {
+		if (isTextNode(node)) {
+			html += escapeHtml(node.value);
+			continue;
+		}
+		if (!isElement(node)) continue;
+
+		const tag = node.tagName.toLowerCase();
+		if (options.skipTags?.has(tag)) {
+			options.onNestedElement?.(node);
 			continue;
 		}
 
-		// Regular character
-		if (inLi) {
-			currentItem += html[i];
-		}
-		i++;
+		html += serializeElement(node, context, options);
 	}
+	return html;
+}
 
-	// Handle case where closing </li> is missing
-	if (currentItem.trim()) {
-		items.push(currentItem);
-	}
+function serializeElement(
+	element: Element,
+	context: TransformContext,
+	options: SerializeOptions = {},
+): string {
+	const tag = element.tagName.toLowerCase();
+	if (tag === "br" || tag === "hr") return `<${tag}>`;
+	if (tag === "img") return `<img${serializeAttrs(element.attrs)}>`;
+	return `<${tag}${serializeAttrs(element.attrs)}>${serializeNodes(element.childNodes, context, options)}</${tag}>`;
+}
 
-	// Filter out empty items that may result from whitespace between tags
-	return items.filter((item) => item.trim().length > 0);
+function serializeAttrs(attrs: Array<{ name: string; value: string }>): string {
+	if (attrs.length === 0) return "";
+	return attrs.map((attr) => ` ${attr.name}="${escapeHtml(attr.value)}"`).join("");
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.replaceAll("&", "&amp;")
+		.replaceAll("<", "&lt;")
+		.replaceAll(">", "&gt;")
+		.replaceAll('"', "&quot;");
+}
+
+function isElement(node: Node): node is Element {
+	return (node as Element).tagName !== undefined;
+}
+
+function isTextNode(node: Node): node is TextNode {
+	return (node as TextNode).value !== undefined;
 }
 
 /**
@@ -609,7 +619,7 @@ function parseTableRows(
 		}> = [];
 
 		// Match both th and td cells
-		for (const cellHtml of [...extractTagHtmls(rowContent, "th"), ...extractTagHtmls(rowContent, "td")]) {
+		for (const cellHtml of [...extractTagBlocks(rowContent, "th"), ...extractTagBlocks(rowContent, "td")]) {
 			const isHeaderCell = cellHtml.startsWith("<th") || isHeader;
 			const cellContent = extractTagText(cellHtml, cellHtml.startsWith("<th") ? "th" : "td") || "";
 
@@ -769,6 +779,25 @@ function extractTagHtmls(html: string, tagName: string): string[] {
 	return htmls;
 }
 
+function extractTagBlocks(html: string, tagName: string): string[] {
+	const lower = html.toLowerCase();
+	const open = `<${tagName}`;
+	const close = `</${tagName}>`;
+	const blocks: string[] = [];
+	let index = 0;
+
+	while (index < html.length) {
+		const start = lower.indexOf(open, index);
+		if (start === -1) break;
+		const closeStart = lower.indexOf(close, start);
+		if (closeStart === -1) break;
+		blocks.push(html.slice(start, closeStart + close.length));
+		index = closeStart + close.length;
+	}
+
+	return blocks;
+}
+
 function getAttrValue(tagHtml: string, attrName: string): string | undefined {
 	const lower = tagHtml.toLowerCase();
 	const name = attrName.toLowerCase();
@@ -782,55 +811,6 @@ function getAttrValue(tagHtml: string, attrName: string): string | undefined {
 		if (end !== -1) return tagHtml.slice(valueStart, end);
 	}
 	return undefined;
-}
-
-function stripTagBlocks(html: string, tagNames: string[]): string {
-	let out = "";
-	let index = 0;
-	while (index < html.length) {
-		let skipped = false;
-		for (const tagName of tagNames) {
-			if (html.slice(index, index + tagName.length + 2).toLowerCase() === `<${tagName}`) {
-				const end = findMatchingCloseTag(html, index, tagName);
-				if (end !== -1) {
-					index = end;
-					skipped = true;
-					break;
-				}
-			}
-		}
-		if (skipped) continue;
-		out += html[index]!;
-		index++;
-	}
-	return out;
-}
-
-function findMatchingCloseTag(html: string, start: number, tagName: string): number {
-	const lower = html.toLowerCase();
-	const open = `<${tagName}`;
-	const close = `</${tagName}>`;
-	let depth = 0;
-	let index = start;
-
-	while (index < html.length) {
-		const nextOpen = lower.indexOf(open, index);
-		const nextClose = lower.indexOf(close, index);
-		if (nextClose === -1) return -1;
-		if (nextOpen !== -1 && nextOpen < nextClose) {
-			depth++;
-			const openEnd = html.indexOf(">", nextOpen);
-			if (openEnd === -1) return -1;
-			index = openEnd + 1;
-			continue;
-		}
-		depth--;
-		const closeEnd = nextClose + close.length;
-		if (depth < 0) return closeEnd;
-		index = closeEnd;
-	}
-
-	return -1;
 }
 
 /**
