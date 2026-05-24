@@ -13,20 +13,6 @@ import { sanitizeHref } from "./url.js";
 // Regex patterns for inline parsing
 const WHITESPACE_PATTERN = /\S/;
 
-// Pre-compiled block tag patterns
-const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
-	p: { open: /^<p[^>]*>/i, close: /<\/p>$/i },
-	h1: { open: /^<h1[^>]*>/i, close: /<\/h1>$/i },
-	h2: { open: /^<h2[^>]*>/i, close: /<\/h2>$/i },
-	h3: { open: /^<h3[^>]*>/i, close: /<\/h3>$/i },
-	h4: { open: /^<h4[^>]*>/i, close: /<\/h4>$/i },
-	h5: { open: /^<h5[^>]*>/i, close: /<\/h5>$/i },
-	h6: { open: /^<h6[^>]*>/i, close: /<\/h6>$/i },
-	li: { open: /^<li[^>]*>/i, close: /<\/li>$/i },
-	blockquote: { open: /^<blockquote[^>]*>/i, close: /<\/blockquote>$/i },
-	figcaption: { open: /^<figcaption[^>]*>/i, close: /<\/figcaption>$/i },
-};
-
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
 type Element = DefaultTreeAdapterMap["element"];
@@ -84,14 +70,28 @@ function stripBlockTags(html: string): string {
 	const blockTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"];
 
 	for (const tag of blockTags) {
-		const patterns = BLOCK_TAG_PATTERNS[tag];
-		if (patterns && patterns.open.test(stripped) && patterns.close.test(stripped)) {
-			stripped = stripped.replace(patterns.open, "").replace(patterns.close, "").trim();
+		const unwrapped = unwrapBlockTag(stripped, tag);
+		if (unwrapped !== stripped) {
+			stripped = unwrapped;
 			break;
 		}
 	}
 
 	return stripped;
+}
+
+function unwrapBlockTag(html: string, tag: string): string {
+	const lower = html.toLowerCase();
+	const openPrefix = `<${tag}`;
+	if (!lower.startsWith(openPrefix)) return html;
+
+	const openEnd = html.indexOf(">");
+	if (openEnd === -1) return html;
+
+	const close = `</${tag}>`;
+	if (!lower.endsWith(close)) return html;
+
+	return html.slice(openEnd + 1, html.length - close.length).trim();
 }
 
 /**
@@ -309,11 +309,21 @@ export function extractSrc(html: string): string | undefined {
  * Decode HTML entities commonly found in URLs
  */
 function decodeUrlEntities(url: string): string {
-	return url
-		.split("&#038;").join("&")
-		.split("&#38;").join("&")
-		.split("&#x26;").join("&")
-		.split("&amp;").join("&");
+	let out = "";
+	for (let i = 0; i < url.length; i++) {
+		if (url.startsWith("&#038;", i) || url.startsWith("&#38;", i) || url.startsWith("&#x26;", i)) {
+			out += "&";
+			i += url.startsWith("&#038;", i) || url.startsWith("&#x26;", i) ? 5 : 4;
+			continue;
+		}
+		if (url.startsWith("&amp;", i)) {
+			out += "&";
+			i += 4;
+			continue;
+		}
+		out += url[i]!;
+	}
+	return out;
 }
 
 function findFirstElement(node: Node, tagName: string): Element | undefined {

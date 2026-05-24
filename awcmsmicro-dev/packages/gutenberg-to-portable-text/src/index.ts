@@ -425,27 +425,57 @@ function transformBlock(
  * Decode HTML entities
  */
 function decodeHtmlEntities(html: string): string {
-	return html
-		.split("&lt;").join("<")
-		.split("&gt;").join(">")
-		.split("&quot;").join('"')
-		.split("&#039;").join("'")
-		.split("&#38;").join("&")
-		.split("&#038;").join("&")
-		.split("&#x26;").join("&")
-		.split("&amp;").join("&")
-		.split("&nbsp;").join(" ");
+	let out = "";
+	for (let i = 0; i < html.length; i++) {
+		if (html.startsWith("&lt;", i)) {
+			out += "<";
+			i += 3;
+			continue;
+		}
+		if (html.startsWith("&gt;", i)) {
+			out += ">";
+			i += 3;
+			continue;
+		}
+		if (html.startsWith("&quot;", i)) {
+			out += '"';
+			i += 5;
+			continue;
+		}
+		if (html.startsWith("&#039;", i)) {
+			out += "'";
+			i += 5;
+			continue;
+		}
+		if (html.startsWith("&#38;", i) || html.startsWith("&#038;", i) || html.startsWith("&#x26;", i) || html.startsWith("&amp;", i)) {
+			out += "&";
+			i += html.startsWith("&#038;", i) || html.startsWith("&#x26;", i) ? 5 : html.startsWith("&#38;", i) || html.startsWith("&amp;", i) ? 4 : 0;
+			continue;
+		}
+		if (html.startsWith("&nbsp;", i)) {
+			out += " ";
+			i += 5;
+			continue;
+		}
+		out += html[i]!;
+	}
+	return out;
 }
 
 /**
  * Decode HTML entities in URLs (used for image src attributes)
  */
 function decodeUrlEntities(url: string): string {
-	return url
-		.split("&#038;").join("&")
-		.split("&#38;").join("&")
-		.split("&#x26;").join("&")
-		.split("&amp;").join("&");
+	let out = "";
+	for (let i = 0; i < url.length; i++) {
+		if (url.startsWith("&#038;", i) || url.startsWith("&#38;", i) || url.startsWith("&#x26;", i) || url.startsWith("&amp;", i)) {
+			out += "&";
+			i += url.startsWith("&#038;", i) || url.startsWith("&#x26;", i) ? 5 : url.startsWith("&#38;", i) || url.startsWith("&amp;", i) ? 4 : 0;
+			continue;
+		}
+		out += url[i]!;
+	}
+	return out;
 }
 
 /**
