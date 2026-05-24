@@ -5,12 +5,10 @@ function sanitizeImageUrl(url: string): string | null {
 	if (url.startsWith("/")) {
 		return url.startsWith("//") ? null : url;
 	}
-	try {
-		const parsed = new URL(url);
-		return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
-	} catch {
-		return null;
+	if (url.startsWith("http://") || url.startsWith("https://")) {
+		return url;
 	}
+	return null;
 }
 
 export function ImageBlockComponent({ block }: { block: ImageBlock }) {

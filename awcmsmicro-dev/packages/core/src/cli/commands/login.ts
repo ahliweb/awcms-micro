@@ -165,12 +165,12 @@ async function handleAccessRedirect(baseUrl: string): Promise<string | null> {
 	consola.info("You have two options:");
 	console.log();
 	consola.info(`  ${pc.bold("Option 1:")} Install cloudflared and run:`);
-	console.log(`    ${pc.cyan(`cloudflared access login ${baseUrl}`)}`);
-	console.log(`    ${pc.cyan(`emdash login --url ${baseUrl}`)}`);
+	console.log(`    ${pc.cyan("cloudflared access login <instance-url>")}`);
+	console.log(`    ${pc.cyan("emdash login --url <instance-url>")}`);
 	console.log();
 	consola.info(`  ${pc.bold("Option 2:")} Use a service token:`);
 	console.log(
-		`    ${pc.cyan(`emdash login --url ${baseUrl} -H "CF-Access-Client-Id: <id>" -H "CF-Access-Client-Secret: <secret>"`)}`,
+		`    ${pc.cyan("emdash login --url <instance-url> -H \"CF-Access-Client-Id: <id>\" -H \"CF-Access-Client-Secret: <secret>\"")}`,
 	);
 	console.log();
 
@@ -256,7 +256,7 @@ export const loginCommand = defineCommand({
 				// No device flow available (external auth mode)
 				consola.info("Device Flow is not available for this instance.");
 				consola.info("Generate an API token in Settings > API Tokens");
-				consola.info(`Then run: ${pc.cyan(`emdash --token <token> --url ${baseUrl}`)}`);
+			consola.info(`Then run: ${pc.cyan("emdash --token <token> --url <instance-url>")}`);
 				return;
 			}
 

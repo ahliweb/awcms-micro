@@ -124,38 +124,30 @@ function detectProvider(url: string): string | undefined {
 	const host = getHostname(url);
 	if (!host) return undefined;
 
-	if (host === "youtube.com" || host.endsWith(".youtube.com") || host === "youtu.be") {
-		return "youtube";
-	}
-	if (host === "vimeo.com" || host.endsWith(".vimeo.com")) {
-		return "vimeo";
-	}
-	if (host === "twitter.com" || host.endsWith(".twitter.com") || host === "x.com" || host.endsWith(".x.com")) {
-		return "twitter";
-	}
-	if (host === "instagram.com" || host.endsWith(".instagram.com")) {
-		return "instagram";
-	}
-	if (host === "facebook.com" || host.endsWith(".facebook.com")) {
-		return "facebook";
-	}
-	if (host === "tiktok.com" || host.endsWith(".tiktok.com")) {
-		return "tiktok";
-	}
-	if (host === "spotify.com" || host.endsWith(".spotify.com")) {
-		return "spotify";
-	}
-	if (host === "soundcloud.com" || host.endsWith(".soundcloud.com")) {
-		return "soundcloud";
-	}
-	if (host === "codepen.io" || host.endsWith(".codepen.io")) {
-		return "codepen";
-	}
-	if (host === "gist.github.com") {
-		return "gist";
+	for (const entry of PROVIDER_HOSTS) {
+		if (entry.hosts.some((allowed) => hostMatches(host, allowed))) {
+			return entry.provider;
+		}
 	}
 
 	return undefined;
+}
+
+const PROVIDER_HOSTS: Array<{ provider: string; hosts: string[] }> = [
+	{ provider: "youtube", hosts: ["youtube.com", "youtu.be"] },
+	{ provider: "vimeo", hosts: ["vimeo.com"] },
+	{ provider: "twitter", hosts: ["twitter.com", "x.com"] },
+	{ provider: "instagram", hosts: ["instagram.com"] },
+	{ provider: "facebook", hosts: ["facebook.com"] },
+	{ provider: "tiktok", hosts: ["tiktok.com"] },
+	{ provider: "spotify", hosts: ["spotify.com"] },
+	{ provider: "soundcloud", hosts: ["soundcloud.com"] },
+	{ provider: "codepen", hosts: ["codepen.io"] },
+	{ provider: "gist", hosts: ["gist.github.com"] },
+];
+
+function hostMatches(host: string, domain: string): boolean {
+	return host === domain || host.endsWith(`.${domain}`);
 }
 
 function getHostname(url: string): string | undefined {

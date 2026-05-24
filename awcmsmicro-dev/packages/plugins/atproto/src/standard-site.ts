@@ -164,9 +164,12 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 
 	if (!body) return undefined;
 
-	// Decode entities first, then strip tags with a small scanner to avoid regex-based
-	// stripping on untrusted input.
+	// Decode entities first, then bound the scanner input and strip tags with a
+	// small scanner to avoid regex-based stripping on untrusted input.
 	let text = decodeHtmlEntities(body);
+	if (text.length > MAX_TEXT_CONTENT_LENGTH * 4) {
+		text = text.slice(0, MAX_TEXT_CONTENT_LENGTH * 4);
+	}
 	text = stripHtmlTags(text);
 
 	if (!text) return undefined;

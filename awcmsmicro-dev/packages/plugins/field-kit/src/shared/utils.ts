@@ -12,19 +12,29 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const entries: Array<[string, unknown]> = [];
+	const result: Record<string, unknown> = Object.create(null);
 	for (const [key, val] of Object.entries(source)) {
 		if (isSafeObjectKey(key)) {
-			entries.push([key, val]);
+			Object.defineProperty(result, key, {
+				value: val,
+				enumerable: true,
+				writable: true,
+				configurable: true,
+			});
 		}
 	}
 	for (const field of fields) {
 		if (!isSafeObjectKey(field.key)) continue;
-		if (source[field.key] === undefined) {
-			entries.push([field.key, field.defaultValue ?? undefined]);
+		if (result[field.key] === undefined) {
+			Object.defineProperty(result, field.key, {
+				value: field.defaultValue ?? undefined,
+				enumerable: true,
+				writable: true,
+				configurable: true,
+			});
 		}
 	}
-	return Object.fromEntries(entries);
+	return result;
 }
 
 /** Normalize a value into an array. Non-arrays become empty arrays. */

@@ -36,16 +36,10 @@ interface LoginPageProps {
 }
 
 function resolveSafeRedirectUrl(raw: string): string {
-	try {
-		const resolved = new URL(raw, window.location.origin);
-		if (resolved.origin !== window.location.origin) return "/_emdash/admin";
-		if (!resolved.pathname.startsWith("/") || resolved.pathname.startsWith("//") || resolved.pathname.includes("\\")) {
-			return "/_emdash/admin";
-		}
-		return `${resolved.pathname}${resolved.search}${resolved.hash}`;
-	} catch {
+	if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) {
 		return "/_emdash/admin";
 	}
+	return raw;
 }
 
 type LoginMethod = "passkey" | "magic-link";
@@ -193,9 +187,13 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
+			if (safeRedirectUrl === "/_emdash/admin" && redirectUrl !== "/_emdash/admin") {
+				window.location.replace("/_emdash/admin");
+				return;
+			}
 			window.location.replace(safeRedirectUrl);
 		}
-	}, [authInfo, safeRedirectUrl]);
+	}, [authInfo, redirectUrl, safeRedirectUrl]);
 
 	// Check for error in URL (from OAuth/provider redirect)
 	React.useEffect(() => {
@@ -212,6 +210,10 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
+		if (safeRedirectUrl === "/_emdash/admin" && redirectUrl !== "/_emdash/admin") {
+			window.location.replace("/_emdash/admin");
+			return;
+		}
 		window.location.replace(safeRedirectUrl);
 	};
 

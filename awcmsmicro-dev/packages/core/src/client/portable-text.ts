@@ -163,9 +163,6 @@ function renderSpans(spans: PortableTextSpan[], markDefs: MarkDef[]): string {
 // Markdown -> PT
 // ---------------------------------------------------------------------------
 
-const INLINE_MARKDOWN_PATTERN =
-	/(\*\*(.+?)\*\*)|(_(.+?)_)|(`(.+?)`)|(\[(.+?)\]\((.+?)\))|(~~(.+?)~~)/g;
-
 /**
  * Convert Markdown to Portable Text blocks.
  * Opaque fences (<!--ec:block ... -->) are deserialized and spliced back in.
@@ -331,46 +328,89 @@ function parseImage(line: string): { alt: string; url: string } | null {
 function parseInline(text: string): ParsedInline {
 	const spans: PortableTextSpan[] = [];
 	const markDefs: MarkDef[] = [];
-	const regex = INLINE_MARKDOWN_PATTERN;
+	let start = 0;
+	let i = 0;
 
-	let lastIndex = 0;
-	let match: RegExpExecArray | null;
+	const pushText = (end: number) => {
+		if (end <= start) return;
+		spans.push({
+			_type: "span",
+			_key: generateKey(),
+			text: text.slice(start, end),
+			marks: [],
+		});
+	};
 
-	while ((match = regex.exec(text)) !== null) {
-		if (match.index > lastIndex) {
-			spans.push({
-				_type: "span",
-				_key: generateKey(),
-				text: text.slice(lastIndex, match.index),
-				marks: [],
-			});
+	while (i < text.length) {
+		if (text.startsWith("**", i)) {
+			const close = text.indexOf("**", i + 2);
+			if (close !== -1) {
+				pushText(i);
+				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 2, close), marks: ["strong"] });
+				i = close + 2;
+				start = i;
+				continue;
+			}
 		}
 
-		if (match[2] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: match[2], marks: ["strong"] });
-		} else if (match[4] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: match[4], marks: ["em"] });
-		} else if (match[6] != null) {
-			spans.push({ _type: "span", _key: generateKey(), text: match[6], marks: ["code"] });
-		} else if (match[8] != null && match[9] != null) {
-			const key = generateKey();
-			markDefs.push({ _key: key, _type: "link", href: match[9] });
-			spans.push({ _type: "span", _key: generateKey(), text: match[8], marks: [key] });
-		} else if (match[11] != null) {
-			spans.push({
-				_type: "span",
-				_key: generateKey(),
-				text: match[11],
-				marks: ["strike-through"],
-			});
+		if (text[i] === "_") {
+			const close = text.indexOf("_", i + 1);
+			if (close !== -1) {
+				pushText(i);
+				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, close), marks: ["em"] });
+				i = close + 1;
+				start = i;
+				continue;
+			}
 		}
 
-		lastIndex = match.index + match[0].length;
+		if (text[i] === "`") {
+			const close = text.indexOf("`", i + 1);
+			if (close !== -1) {
+				pushText(i);
+				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, close), marks: ["code"] });
+				i = close + 1;
+				start = i;
+				continue;
+			}
+		}
+
+		if (text[i] === "[") {
+			const closeBracket = text.indexOf("](", i + 1);
+			if (closeBracket !== -1) {
+				const closeParen = text.indexOf(")", closeBracket + 2);
+				if (closeParen !== -1) {
+					pushText(i);
+					const key = generateKey();
+					markDefs.push({ _key: key, _type: "link", href: text.slice(closeBracket + 2, closeParen) });
+					spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, closeBracket), marks: [key] });
+					i = closeParen + 1;
+					start = i;
+					continue;
+				}
+			}
+		}
+
+		if (text.startsWith("~~", i)) {
+			const close = text.indexOf("~~", i + 2);
+			if (close !== -1) {
+				pushText(i);
+				spans.push({
+					_type: "span",
+					_key: generateKey(),
+					text: text.slice(i + 2, close),
+					marks: ["strike-through"],
+				});
+				i = close + 2;
+				start = i;
+				continue;
+			}
+		}
+
+		i++;
 	}
 
-	if (lastIndex < text.length) {
-		spans.push({ _type: "span", _key: generateKey(), text: text.slice(lastIndex), marks: [] });
-	}
+	pushText(text.length);
 
 	if (spans.length === 0) {
 		spans.push({ _type: "span", _key: generateKey(), text, marks: [] });

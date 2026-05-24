@@ -637,7 +637,7 @@ export const publishCommand = defineCommand({
 				displayAuditResults(finalStatus);
 			} else {
 				consola.warn("Audit did not complete within timeout. Check status later with:");
-				consola.info(`  ${pc.dim(`curl ${versionUrl.toString()}`)}`);
+				consola.info(`  ${pc.dim("curl <plugin-version-url>")}`);
 			}
 		} else {
 			// Synchronous response (201 or legacy)
