@@ -12,6 +12,9 @@ jobs:
     if: github.repository == 'ahliweb/awcms-micro'
     permissions:
       contents: read
+    env:
+      GITLAB_USERNAME: ${{ vars.GITLAB_USERNAME || secrets.GITLAB_USERNAME }}
+      GITLAB_REPO_NAME: ${{ vars.GITLAB_REPO_NAME || secrets.GITLAB_REPO_NAME }}
 
     steps:
       - name: Checkout repository
@@ -22,7 +25,5 @@ jobs:
       - name: Mirror to GitLab
         uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo_url:
-            git@gitlab.com:${{ secrets.GITLAB_USERNAME }}/${{ secrets.GITLAB_REPO_NAME }}.git
-          ssh_private_key:
-            ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
+          target_repo_url: git@gitlab.com:${{ env.GITLAB_USERNAME }}/${{ env.GITLAB_REPO_NAME }}.git
+          ssh_private_key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}

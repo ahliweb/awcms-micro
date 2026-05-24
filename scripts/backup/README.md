@@ -66,6 +66,25 @@ shred -u scripts/backup/.backup-config
 | `BACKUP_SSH_KEYS` | Include SSH keys in backup | `true` |
 | `NOTIFICATION_METHOD` | Backup notifications | `none`, `discord` |
 
+### Cloudflare Deployment Fields
+
+These mirror the `awcms-micro` Worker deployment settings from `wrangler.jsonc`.
+
+| Setting | Description |
+|---------|-------------|
+| `CLOUDFLARE_WORKER_NAME` | Worker script name |
+| `CLOUDFLARE_WORKER_MAIN` | Worker entry file |
+| `CLOUDFLARE_WORKER_COMPATIBILITY_DATE` | Wrangler compatibility date |
+| `CLOUDFLARE_WORKER_COMPATIBILITY_FLAGS` | Compatibility flags |
+| `CLOUDFLARE_WORKER_ROUTE_PATTERN` | Route/custom domain pattern |
+| `CLOUDFLARE_WORKER_ZONE_NAME` | Cloudflare zone name |
+| `CLOUDFLARE_WORKER_D1_DATABASE_NAME` | D1 database name |
+| `CLOUDFLARE_WORKER_D1_DATABASE_ID` | D1 database ID |
+| `CLOUDFLARE_WORKER_R2_BUCKET_NAME` | R2 bucket name |
+| `CLOUDFLARE_WORKER_KV_NAMESPACE_ID` | KV namespace ID |
+| `CLOUDFLARE_WORKER_SITE_URL` | Public site URL |
+| `CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL` | Public storage URL |
+
 ## Scripts
 
 ### Configuration Management
@@ -148,9 +167,36 @@ These must match your `.backup-config` values:
 | `D1_DATABASE_NAME` | `D1_DATABASE_NAME` |
 | `R2_BUCKET_NAME` | `R2_BUCKET_NAME` |
 | `BACKUP_PASSPHRASE` | `BACKUP_PASSPHRASE` |
+| `GITHUB_PAT` | `GITHUB_PAT` |
+| `GITLAB_PAT` | `GITLAB_PAT` |
 | `GITLAB_USERNAME` | `GITLAB_USERNAME` |
 | `GITLAB_REPO_NAME` | `GITLAB_REPO_NAME` |
 | `GITLAB_SSH_PRIVATE_KEY` | Content of file at `GITLAB_SSH_KEY_PATH` |
+
+### GitHub Actions Fields
+
+| Setting | Description |
+|---------|-------------|
+| `GITHUB_ACTION_DEPLOY_WORKFLOW` | Deploy workflow filename |
+| `GITHUB_ACTION_BACKUP_WORKFLOW` | Backup workflow filename |
+| `GITHUB_ACTION_MIRROR_WORKFLOW` | Mirror workflow filename |
+| `GITHUB_ACTION_DEPLOY_BRANCH` | Deploy trigger branch |
+| `GITHUB_ACTION_BACKUP_CRON` | Backup cron schedule |
+| `GITHUB_ACTION_WORKER_TEMPLATE_PACKAGE` | Build target package |
+| `GITHUB_ACTION_NODE_VERSION` | Node version used by workflows |
+| `GITHUB_ACTION_PNPM_VERSION` | pnpm version used by workflows |
+
+### GitHub Repository Variables
+
+Set these as repository variables (not secrets) so workflows can stay aligned with the unified config names:
+
+| Variable | Recommended Value |
+|----------|-------------------|
+| `GITLAB_USERNAME` | `ahliweb` |
+| `GITLAB_REPO_NAME` | `awcms-micro` |
+| `GITHUB_ACTION_NODE_VERSION` | `22` |
+| `GITHUB_ACTION_PNPM_VERSION` | `11.1.3` |
+| `GITHUB_ACTION_WORKER_TEMPLATE_PACKAGE` | `@awcms-micro/template-default-cloudflare` |
 
 ## Security Model
 

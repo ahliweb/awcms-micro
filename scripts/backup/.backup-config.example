@@ -20,6 +20,9 @@ GITLAB_REPO_NAME="awcms-micro"
 GITLAB_REPO_URL="git@gitlab.com:${GITLAB_USERNAME}/${GITLAB_REPO_NAME}.git"
 GITLAB_VISIBILITY="private"
 
+# Optional GitLab personal access token for local API/auth workflows.
+GITLAB_PAT="your-gitlab-pat-here"
+
 # SSH key for GitLab access (path to private key)
 # Generate: ssh-keygen -t ed25519 -C "gitlab-mirror" -f ~/.ssh/gitlab_mirror
 GITLAB_SSH_KEY_PATH="$HOME/.ssh/gitlab_mirror"
@@ -35,11 +38,52 @@ GITHUB_BRANCH="main"
 GITHUB_PAT="your-github-pat-here"
 
 # ---------------------------------------------------------------------------
+# GitHub Actions (Workflows)
+# ---------------------------------------------------------------------------
+GITHUB_ACTION_DEPLOY_WORKFLOW="deploy.yml"
+GITHUB_ACTION_BACKUP_WORKFLOW="backup-automated.yml"
+GITHUB_ACTION_MIRROR_WORKFLOW="mirror-to-gitlab.yml"
+GITHUB_ACTION_DEPLOY_BRANCH="main"
+GITHUB_ACTION_BACKUP_CRON="0 2 * * *"
+GITHUB_ACTION_WORKER_TEMPLATE_PACKAGE="@awcms-micro/template-default-cloudflare"
+GITHUB_ACTION_NODE_VERSION="22"
+GITHUB_ACTION_PNPM_VERSION="11.1.3"
+
+# ---------------------------------------------------------------------------
 # Cloudflare R2 (Backup Storage)
 # ---------------------------------------------------------------------------
 # R2 bucket for storing encrypted backups (DB, env, dotfiles).
 R2_BUCKET_NAME="awcms-micro-backups"
 R2_REGION="auto"
+
+# ---------------------------------------------------------------------------
+# Cloudflare Deployment (Worker: awcms-micro)
+# ---------------------------------------------------------------------------
+CLOUDFLARE_WORKER_NAME="awcms-micro"
+CLOUDFLARE_WORKER_MAIN="./src/worker.ts"
+CLOUDFLARE_WORKER_COMPATIBILITY_DATE="2026-05-14"
+CLOUDFLARE_WORKER_COMPATIBILITY_FLAGS=("nodejs_compat")
+CLOUDFLARE_WORKER_PLACEMENT_MODE="smart"
+CLOUDFLARE_WORKER_ROUTE_PATTERN="awcms-micro.ahlikoding.com/*"
+CLOUDFLARE_WORKER_ZONE_NAME="ahlikoding.com"
+CLOUDFLARE_WORKER_CUSTOM_DOMAIN=false
+CLOUDFLARE_WORKER_OBSERVABILITY=true
+
+CLOUDFLARE_WORKER_D1_BINDING="DB"
+CLOUDFLARE_WORKER_D1_DATABASE_NAME="awcms-micro-d1"
+CLOUDFLARE_WORKER_D1_DATABASE_ID="df3281e0-4066-4da8-8911-1a0ed60a4562"
+
+CLOUDFLARE_WORKER_R2_BINDING="MEDIA"
+CLOUDFLARE_WORKER_R2_BUCKET_NAME="awcms-micro-media"
+
+CLOUDFLARE_WORKER_KV_BINDING="SESSION"
+CLOUDFLARE_WORKER_KV_NAMESPACE_ID="7382419ae0194a10949290c9e69d0840"
+
+CLOUDFLARE_WORKER_IMAGE_BINDING="IMAGES"
+CLOUDFLARE_WORKER_LOADER_BINDING="LOADER"
+
+CLOUDFLARE_WORKER_SITE_URL="https://awcms-micro.ahlikoding.com"
+CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL="https://awcms-micro-s3.ahlikoding.com"
 
 # Cloudflare credentials for wrangler CLI
 CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"

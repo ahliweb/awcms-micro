@@ -10,7 +10,9 @@ ENCRYPTED_FILE="$SCRIPT_DIR/.backup-config.age"
 
 _load_config() {
     if [ -f "$CONFIG_FILE" ]; then
+        set -a
         source "$CONFIG_FILE"
+        set +a
         return 0
     fi
 
@@ -35,7 +37,9 @@ _load_config() {
         fi
 
         if [ -f "$temp_config" ] && grep -q '=' "$temp_config" 2>/dev/null; then
+            set -a
             source "$temp_config"
+            set +a
             rm -f "$temp_config"
             return 0
         else
@@ -53,4 +57,8 @@ _load_config
 
 if [ -n "${GITHUB_PAT:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
     export GITHUB_TOKEN="$GITHUB_PAT"
+fi
+
+if [ -n "${GITLAB_PAT:-}" ] && [ -z "${GITLAB_TOKEN:-}" ]; then
+    export GITLAB_TOKEN="$GITLAB_PAT"
 fi

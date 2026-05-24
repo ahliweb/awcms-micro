@@ -21,6 +21,10 @@ jobs:
     name: Backup Database
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event.inputs.backup_type == 'all' || github.event.inputs.backup_type == 'database'
+    env:
+      D1_DATABASE_NAME: ${{ vars.D1_DATABASE_NAME || secrets.D1_DATABASE_NAME }}
+      R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || secrets.R2_BUCKET_NAME }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
 
     steps:
       - name: Checkout repository
@@ -39,25 +43,24 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
           # Export D1 database
-          wrangler d1 export ${{ secrets.D1_DATABASE_NAME }} --output /tmp/backup.sql --remote
+          wrangler d1 export "$D1_DATABASE_NAME" --output /tmp/backup.sql --remote
 
           # Encrypt
           echo "$BACKUP_PASSPHRASE" | age --passphrase --output /tmp/backup.sql.age /tmp/backup.sql
 
           # Upload to R2
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          wrangler r2 object put ${{ secrets.R2_BUCKET_NAME }}/backups/db/backup-${TIMESTAMP}.sql.age --file /tmp/backup.sql.age
+          wrangler r2 object put "$R2_BUCKET_NAME/backups/db/backup-${TIMESTAMP}.sql.age" --file /tmp/backup.sql.age
 
           # Cleanup old backups (keep last 7)
-          wrangler r2 object list ${{ secrets.R2_BUCKET_NAME }} --prefix "backups/db/" --format json | \
+          wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --format json | \
             jq -r '.objects[].key' | \
             sort | \
             head -n -7 | \
             while read key; do
-              wrangler r2 object delete "${{ secrets.R2_BUCKET_NAME }}/$key"
+              wrangler r2 object delete "$R2_BUCKET_NAME/$key"
             done
 
           # Secure cleanup
@@ -68,6 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [backup-database]
     if: always()
+    env:
+      R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || secrets.R2_BUCKET_NAME }}
 
     steps:
       - name: Checkout repository
@@ -81,7 +86,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          BACKUPS=$(wrangler r2 object list ${{ secrets.R2_BUCKET_NAME }} --prefix "backups/db/" --format json | jq '.objects | length')
+          BACKUPS=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --format json | jq '.objects | length')
           echo "Total backups in R2: $BACKUPS"
 
           if [ "$BACKUPS" -eq 0 ]; then
@@ -89,7 +94,7 @@ jobs:
             exit 1
           fi
 
-          LATEST=$(wrangler r2 object list ${{ secrets.R2_BUCKET_NAME }} --prefix "backups/db/" --format json | jq -r '.objects | sort_by(.uploaded) | last.key')
+          LATEST=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --format json | jq -r '.objects | sort_by(.uploaded) | last.key')
           echo "Latest backup: $LATEST"
 
   notify:
