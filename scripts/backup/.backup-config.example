@@ -1,0 +1,110 @@
+# =============================================================================
+# AWCMS-Micro Backup Configuration
+# =============================================================================
+# This file contains ALL backup and recovery settings in one place.
+#
+# SECURITY: This file MUST be encrypted before committing to any repository.
+# Use: bash scripts/backup/encrypt-config.sh
+# Decrypt: bash scripts/backup/decrypt-config.sh
+#
+# The encrypted file (.backup-config.age) is safe to store in private repos
+# or cloud storage. NEVER commit this unencrypted file.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# GitLab Backup Repository (Private)
+# ---------------------------------------------------------------------------
+# Your GitLab account and repository for mirroring the codebase.
+GITLAB_USERNAME="your-gitlab-username"
+GITLAB_REPO_NAME="awcms-micro"
+GITLAB_REPO_URL="git@gitlab.com:${GITLAB_USERNAME}/${GITLAB_REPO_NAME}.git"
+GITLAB_VISIBILITY="private"
+
+# SSH key for GitLab access (path to private key)
+# Generate: ssh-keygen -t ed25519 -C "gitlab-mirror" -f ~/.ssh/gitlab_mirror
+GITLAB_SSH_KEY_PATH="$HOME/.ssh/gitlab_mirror"
+
+# ---------------------------------------------------------------------------
+# GitHub Repository
+# ---------------------------------------------------------------------------
+GITHUB_REPO_URL="git@github.com:ahliweb/awcms-micro.git"
+GITHUB_BRANCH="main"
+
+# ---------------------------------------------------------------------------
+# Cloudflare R2 (Backup Storage)
+# ---------------------------------------------------------------------------
+# R2 bucket for storing encrypted backups (DB, env, dotfiles).
+R2_BUCKET_NAME="awcms-micro-backups"
+R2_REGION="auto"
+
+# Cloudflare credentials for wrangler CLI
+CLOUDFLARE_API_TOKEN="your-cloudflare-api-token"
+CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
+
+# ---------------------------------------------------------------------------
+# Cloudflare D1 (Database)
+# ---------------------------------------------------------------------------
+# D1 database name to backup.
+D1_DATABASE_NAME="awcms-micro-db"
+
+# Backup retention - how many backups to keep
+D1_BACKUP_KEEP_COUNT=7
+
+# ---------------------------------------------------------------------------
+# Encryption Settings
+# ---------------------------------------------------------------------------
+# Master passphrase for all encrypted backups.
+# IMPORTANT: Store this in your password manager (1Password, Bitwarden, etc.)
+BACKUP_PASSPHRASE="your-secure-master-passphrase-min-8-chars"
+
+# Encryption tool: age (recommended) or gpg
+ENCRYPTION_TOOL="age"
+
+# ---------------------------------------------------------------------------
+# Backup Schedule
+# ---------------------------------------------------------------------------
+# How often to run automated backups (cron format).
+# Default: daily at 2 AM UTC
+BACKUP_CRON_SCHEDULE="0 2 * * *"
+
+# What to backup on each run: database, env, dotfiles, all
+BACKUP_CONTENT="all"
+
+# ---------------------------------------------------------------------------
+# Dotfiles to Backup
+# ---------------------------------------------------------------------------
+# Additional dotfiles beyond the defaults.
+# One path per line, relative to $HOME.
+EXTRA_DOTFILES=(
+    # ".config/kitty/kitty.conf"
+    # ".config/wezterm/wezterm.lua"
+    # ".local/share/nvim/lazy-lock.json"
+)
+
+# Include SSH keys in backup? (true/false)
+BACKUP_SSH_KEYS=true
+
+# Include GPG keys in backup? (true/false)
+BACKUP_GPG_KEYS=false
+
+# Include cloud credentials? (true/false)
+BACKUP_CLOUD_CREDS=true
+
+# ---------------------------------------------------------------------------
+# Notification Settings
+# ---------------------------------------------------------------------------
+# How to get notified about backup results.
+# Options: none, email, discord, slack
+NOTIFICATION_METHOD="none"
+
+# Discord webhook URL (if using discord notifications)
+DISCORD_WEBHOOK_URL=""
+
+# ---------------------------------------------------------------------------
+# Local Paths
+# ---------------------------------------------------------------------------
+# Where to store local backup archives before uploading.
+LOCAL_BACKUP_DIR="/tmp/awcms-backups"
+
+# Log file for backup operations
+BACKUP_LOG_FILE="$HOME/.awcms-backup.log"

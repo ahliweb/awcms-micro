@@ -10,6 +10,26 @@ emdash-latest/.wrangler/
 
 # Environment files
 .env
+.env.bak.*
+.env.local
+.env.*.local
+
+# Encrypted env files CAN be committed to private repos
+# !.env.age
+
+# Backup configuration
+# NEVER commit unencrypted config - only the .age version
+scripts/backup/.backup-config
+scripts/backup/.backup-config.bak
+# Encrypted config is safe to commit in private repos
+# !scripts/backup/.backup-config.age
+
+# Backup artifacts
+*.age.bak
+/tmp/db-backup-*
+/tmp/dotfiles-backup-*
+/tmp/dotfiles-restore-*
+/tmp/awcms-config.*
 
 # Temporary configuration artifacts
 tmp/

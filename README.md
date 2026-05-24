@@ -55,6 +55,17 @@ Exception:
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 - `pnpm test:awcmsmicro:e2e`
 
+## Backup & Recovery
+
+- `bash scripts/backup/encrypt-env.sh` - Encrypt .env files
+- `bash scripts/backup/decrypt-env.sh` - Decrypt .env files
+- `bash scripts/backup/backup-db.sh` - Backup database to R2
+- `bash scripts/backup/backup-dotfiles.sh` - Backup dotfiles
+- `bash scripts/backup/restore-dotfiles.sh` - Restore dotfiles
+- `bash scripts/backup/recovery-checklist.sh` - Disaster recovery guide
+
+See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
+
 ## Contribution Policy
 
 - CLA enforcement is not active in this workspace.
