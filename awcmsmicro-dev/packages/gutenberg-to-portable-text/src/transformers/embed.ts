@@ -124,8 +124,10 @@ function detectProvider(url: string): string | undefined {
 	const host = getHostname(url);
 	if (!host) return undefined;
 
+	const normalizedHost = host.startsWith("www.") ? host.slice(4) : host;
+
 	for (const entry of PROVIDER_HOSTS) {
-		if (entry.hosts.some((allowed) => hostMatches(host, allowed))) {
+		if (entry.hosts.has(normalizedHost)) {
 			return entry.provider;
 		}
 	}
@@ -133,22 +135,18 @@ function detectProvider(url: string): string | undefined {
 	return undefined;
 }
 
-const PROVIDER_HOSTS: Array<{ provider: string; hosts: string[] }> = [
-	{ provider: "youtube", hosts: ["youtube.com", "youtu.be"] },
-	{ provider: "vimeo", hosts: ["vimeo.com"] },
-	{ provider: "twitter", hosts: ["twitter.com", "x.com"] },
-	{ provider: "instagram", hosts: ["instagram.com"] },
-	{ provider: "facebook", hosts: ["facebook.com"] },
-	{ provider: "tiktok", hosts: ["tiktok.com"] },
-	{ provider: "spotify", hosts: ["spotify.com"] },
-	{ provider: "soundcloud", hosts: ["soundcloud.com"] },
-	{ provider: "codepen", hosts: ["codepen.io"] },
-	{ provider: "gist", hosts: ["gist.github.com"] },
+const PROVIDER_HOSTS: Array<{ provider: string; hosts: Set<string> }> = [
+	{ provider: "youtube", hosts: new Set(["youtube.com", "youtu.be", "youtube-nocookie.com"]) },
+	{ provider: "vimeo", hosts: new Set(["vimeo.com", "player.vimeo.com"]) },
+	{ provider: "twitter", hosts: new Set(["twitter.com", "x.com"]) },
+	{ provider: "instagram", hosts: new Set(["instagram.com", "instagr.am"]) },
+	{ provider: "facebook", hosts: new Set(["facebook.com", "fb.watch"]) },
+	{ provider: "tiktok", hosts: new Set(["tiktok.com", "www.tiktok.com"]) },
+	{ provider: "spotify", hosts: new Set(["spotify.com", "open.spotify.com"]) },
+	{ provider: "soundcloud", hosts: new Set(["soundcloud.com", "w.soundcloud.com"]) },
+	{ provider: "codepen", hosts: new Set(["codepen.io", "www.codepen.io"]) },
+	{ provider: "gist", hosts: new Set(["gist.github.com"]) },
 ];
-
-function hostMatches(host: string, domain: string): boolean {
-	return host === domain || host.endsWith(`.${domain}`);
-}
 
 function getHostname(url: string): string | undefined {
 	try {
