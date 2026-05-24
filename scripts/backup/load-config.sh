@@ -50,3 +50,7 @@ _load_config() {
 }
 
 _load_config
+
+if [ -n "${GITHUB_PAT:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
+    export GITHUB_TOKEN="$GITHUB_PAT"
+fi

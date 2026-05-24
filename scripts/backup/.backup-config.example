@@ -30,6 +30,10 @@ GITLAB_SSH_KEY_PATH="$HOME/.ssh/gitlab_mirror"
 GITHUB_REPO_URL="git@github.com:ahliweb/awcms-micro.git"
 GITHUB_BRANCH="main"
 
+# GitHub personal access token for local API/auth workflows.
+# Store it here only because this file is encrypted before backup.
+GITHUB_PAT="your-github-pat-here"
+
 # ---------------------------------------------------------------------------
 # Cloudflare R2 (Backup Storage)
 # ---------------------------------------------------------------------------
