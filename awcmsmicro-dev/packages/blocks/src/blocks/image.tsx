@@ -2,7 +2,7 @@ import type { ImageBlock } from "../types.js";
 
 function safeImageSrc(url: string): string | null {
 	if (url.startsWith("http://") || url.startsWith("https://")) return url;
-	if (url.startsWith("/") && !url.startsWith("//")) return url;
+	if (url.startsWith("/") && !url.startsWith("//") && !url.includes("\\")) return url;
 	return null;
 }
 

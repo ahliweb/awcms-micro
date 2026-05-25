@@ -21,7 +21,6 @@ import * as React from "react";
 
 import { apiFetch, fetchAuthMode } from "../lib/api";
 import { useAuthProviderList } from "../lib/auth-provider-context";
-import { sanitizeRedirectUrl } from "../lib/url";
 import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
@@ -161,8 +160,6 @@ function MagicLinkForm({ onBack }: MagicLinkFormProps) {
 // ============================================================================
 
 export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
-	// Defense-in-depth: sanitize even if the caller already validated
-	const safeRedirectUrl = sanitizeRedirectUrl(redirectUrl);
 	const { t } = useLingui();
 	const navigate = useNavigate();
 	const { locale, setLocale } = useLocale();
@@ -172,6 +169,10 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	// Auth provider components from virtual module (via context)
 	const authProviderList = useAuthProviderList();
+	const safeRedirectUrl =
+		redirectUrl.startsWith("/") && !redirectUrl.startsWith("//") && !redirectUrl.includes("\\")
+			? redirectUrl
+			: "/_emdash/admin";
 
 	// Fetch auth mode from public endpoint (works without authentication)
 	const { data: authInfo, isLoading: authModeLoading } = useQuery({
