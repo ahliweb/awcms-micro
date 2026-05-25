@@ -43,6 +43,23 @@ describe("core media route injection", () => {
 			}),
 		);
 	});
+
+	it("registers both the admin root and catch-all shell routes", () => {
+		const routes: Array<{ pattern: string; entrypoint: string }> = [];
+		injectCoreRoutes((route) => {
+			routes.push({
+				...route,
+				entrypoint: route.entrypoint.replaceAll("\\", "/"),
+			});
+		});
+
+		expect(routes).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ pattern: "/_emdash/admin" }),
+				expect.objectContaining({ pattern: "/_emdash/admin/[...path]" }),
+			]),
+		);
+	});
 });
 
 describe("media file catch-all route", () => {

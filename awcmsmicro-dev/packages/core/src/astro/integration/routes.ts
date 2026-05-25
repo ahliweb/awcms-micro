@@ -45,6 +45,13 @@ type InjectRoute = (route: { pattern: string; entrypoint: string }) => void;
  * Injects all core EmDash routes.
  */
 export function injectCoreRoutes(injectRoute: InjectRoute): void {
+	// Exact admin root so `/ _emdash/admin/` can resolve before the shell's
+	// client-side router takes over.
+	injectRoute({
+		pattern: "/_emdash/admin",
+		entrypoint: resolveRoute("admin.astro"),
+	});
+
 	// Inject admin shell route
 	injectRoute({
 		pattern: "/_emdash/admin/[...path]",

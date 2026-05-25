@@ -53,6 +53,13 @@ test.describe("Authentication", () => {
 			await expect(admin.page).toHaveURL(/\/_emdash\/admin\/login/);
 			await expect(admin.page.locator("h1")).toContainText("Sign in");
 		});
+
+		test("admin root with trailing slash redirects to login", async ({ admin }) => {
+			await admin.page.goto("/_emdash/admin/");
+			await admin.waitForHydration();
+
+			await expect(admin.page).toHaveURL(/\/_emdash\/admin\/login/);
+		});
 	});
 
 	test.describe("Protected Routes", () => {
