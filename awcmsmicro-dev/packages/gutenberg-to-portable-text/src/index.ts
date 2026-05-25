@@ -21,8 +21,6 @@ import type {
 // Regex patterns for HTML parsing and conversion
 const BLOCK_ELEMENT_PATTERN =
 	/<(p|h[1-6]|blockquote|pre|ul|ol|figure|div|hr)[^>]*>([\s\S]*?)<\/\1>|<(hr|br)\s*\/?>|<img\s+[^>]+\/?>/gu;
-const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
-const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
 // Re-export types
 export type {
 	GutenbergBlock,
@@ -245,8 +243,8 @@ export function htmlToPortableText(
 
 			case "pre": {
 				// Extract code content
-				const codeMatch = content.match(CODE_TAG_PATTERN);
-				const code = codeMatch?.[1] || content;
+				const codeNode = findFirstElementInHtml(content, "code");
+				const code = codeNode ? getNodeText(codeNode.childNodes) : content;
 				blocks.push({
 					_type: "code",
 					_key: generateKey(),
@@ -258,20 +256,7 @@ export function htmlToPortableText(
 			case "ul":
 			case "ol": {
 				const listItem = tag === "ol" ? "number" : "bullet";
-				let liMatch;
-				while ((liMatch = LIST_ITEM_PATTERN.exec(content)) !== null) {
-					const liContent = liMatch[1] || "";
-					const { children, markDefs } = parseInlineContent(liContent, generateKey);
-					blocks.push({
-						_type: "block",
-						_key: generateKey(),
-						style: "normal",
-						listItem,
-						level: 1,
-						children,
-						markDefs: markDefs.length > 0 ? markDefs : undefined,
-					});
-				}
+				blocks.push(...extractListBlocks(parseFragment(content).childNodes, listItem, 1, generateKey));
 				break;
 			}
 
@@ -483,6 +468,47 @@ function findFirstImageInNodes(nodes: Node[]): { src?: string; alt?: string } | 
 	return readImage(findElement(nodes, "img") ?? undefined);
 }
 
+function extractListBlocks(
+	nodes: Node[],
+	listItem: "bullet" | "number",
+	level: number,
+	generateKey: () => string,
+): PortableTextBlock[] {
+	const blocks: PortableTextBlock[] = [];
+
+	for (const node of nodes) {
+		if (!isElement(node) || node.tagName.toLowerCase() !== "li") continue;
+
+		const nestedLists: Element[] = [];
+		for (const child of node.childNodes) {
+			if (isElement(child) && (child.tagName.toLowerCase() === "ul" || child.tagName.toLowerCase() === "ol")) {
+				nestedLists.push(child);
+			}
+		}
+		const textContent = getNodeTextWithoutNestedLists(node.childNodes).trim();
+
+		if (textContent) {
+			const { children, markDefs } = parseInlineContent(textContent, generateKey);
+			blocks.push({
+				_type: "block",
+				_key: generateKey(),
+				style: "normal",
+				listItem,
+				level,
+				children,
+				markDefs: markDefs.length > 0 ? markDefs : undefined,
+			});
+		}
+
+		for (const nested of nestedLists) {
+			const nestedItem = nested.tagName.toLowerCase() === "ol" ? "number" : "bullet";
+			blocks.push(...extractListBlocks(nested.childNodes, nestedItem, level + 1, generateKey));
+		}
+	}
+
+	return blocks;
+}
+
 function findFirstElementInHtml(html: string, tagName: string): Element | undefined {
 	return findElement(parseFragment(html).childNodes, tagName);
 }
@@ -532,6 +558,20 @@ function getNodeText(nodes: Node[]): string {
 	for (const node of nodes) {
 		if (isTextNode(node)) text += node.value;
 		else if (isElement(node)) text += getNodeText(node.childNodes);
+	}
+	return text;
+}
+
+function getNodeTextWithoutNestedLists(nodes: Node[]): string {
+	let text = "";
+	for (const node of nodes) {
+		if (isTextNode(node)) {
+			text += node.value;
+		} else if (isElement(node)) {
+			const tag = node.tagName.toLowerCase();
+			if (tag === "ul" || tag === "ol") continue;
+			text += getNodeTextWithoutNestedLists(node.childNodes);
+		}
 	}
 	return text;
 }
