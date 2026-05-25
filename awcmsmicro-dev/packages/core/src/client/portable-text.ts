@@ -163,8 +163,6 @@ function renderSpans(spans: PortableTextSpan[], markDefs: MarkDef[]): string {
 // Markdown -> PT
 // ---------------------------------------------------------------------------
 
-const OPAQUE_FENCE_PATTERN = /^<!--ec:block (.+) -->$/;
-
 /**
  * Convert Markdown to Portable Text blocks.
  * Opaque fences (<!--ec:block ... -->) are deserialized and spliced back in.
@@ -178,10 +176,10 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		const line = lines[i];
 
 		// Opaque fence
-		const opaqueMatch = line.match(OPAQUE_FENCE_PATTERN);
-		if (opaqueMatch) {
+		const opaque = parseOpaqueFence(line);
+		if (opaque) {
 			try {
-				blocks.push(JSON.parse(opaqueMatch[1]) as PortableTextBlock);
+				blocks.push(JSON.parse(opaque) as PortableTextBlock);
 			} catch {
 				blocks.push(makeBlock(line));
 			}
@@ -264,6 +262,11 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 	}
 
 	return blocks;
+}
+
+function parseOpaqueFence(line: string): string | null {
+	if (!line.startsWith("<!--ec:block ") || !line.endsWith(" -->")) return null;
+	return line.slice("<!--ec:block ".length, -4);
 }
 
 // ---------------------------------------------------------------------------
