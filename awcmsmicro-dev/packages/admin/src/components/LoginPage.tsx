@@ -16,7 +16,7 @@
 import { Button, Input, Loader, Select } from "@cloudflare/kumo";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import * as React from "react";
 
 import { apiFetch, fetchAuthMode } from "../lib/api";
@@ -164,6 +164,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Defense-in-depth: sanitize even if the caller already validated
 	const safeRedirectUrl = sanitizeRedirectUrl(redirectUrl);
 	const { t } = useLingui();
+	const navigate = useNavigate();
 	const { locale, setLocale } = useLocale();
 	const [method, setMethod] = React.useState<LoginMethod>("passkey");
 	const [urlError, setUrlError] = React.useState<string | null>(null);
@@ -181,9 +182,9 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			window.location.href = safeRedirectUrl;
+			void navigate({ to: safeRedirectUrl as never, replace: true });
 		}
-	}, [authInfo, safeRedirectUrl]);
+	}, [authInfo, navigate, safeRedirectUrl]);
 
 	// Check for error in URL (from OAuth/provider redirect)
 	React.useEffect(() => {
@@ -200,7 +201,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		window.location.href = safeRedirectUrl;
+		void navigate({ to: safeRedirectUrl as never, replace: true });
 	};
 
 	// All providers with a LoginButton show in the button grid
