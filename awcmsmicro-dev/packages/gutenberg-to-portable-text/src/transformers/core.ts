@@ -2,6 +2,8 @@
  * Transformers for WordPress core/* blocks
  */
 
+import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
+
 import { extractAlt, extractCaption, extractSrc, extractText } from "../inline.js";
 import type {
 	GutenbergBlock,
@@ -14,23 +16,13 @@ import { attrString, attrNumber, attrBoolean, attrObject } from "../types.js";
 import { sanitizeHref } from "../url.js";
 
 // Regex patterns for core block transformers
-const UOL_TAG_PATTERN = /<[uo]l[^>]*>([\s\S]*)<\/[uo]l>/i;
-const LI_TAG_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/i;
-const UL_TAG_PATTERN = /<ul[^>]*>([\s\S]*)<\/ul>/i;
-const OL_TAG_PATTERN = /<ol[^>]*>([\s\S]*)<\/ol>/i;
-const NESTED_LIST_PATTERN = /<[uo]l[^>]*>[\s\S]*<\/[uo]l>/gi;
-const P_TAG_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/gi;
-const P_TAG_SINGLE_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/i;
-const HREF_PATTERN = /href="([^"]*)"/i;
 const DATA_ID_PATTERN = /data-id=["'](\d+)["']/i;
-const CODE_TAG_PATTERN_SINGLE = /<code[^>]*>([\s\S]*?)<\/code>/i;
 const TABLE_TAG_PATTERN = /<table[^>]*>([\s\S]*?)<\/table>/i;
 const THEAD_TAG_PATTERN = /<thead[^>]*>([\s\S]*?)<\/thead>/i;
 const IMG_TAG_GLOBAL = /<img[^>]+>/gi;
 const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
 const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
 const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
-const CITE_TAG_PATTERN = /<cite[^>]*>([\s\S]*?)<\/cite>/i;
 const LT_ENTITY_PATTERN = /&lt;/g;
 const GT_ENTITY_PATTERN = /&gt;/g;
 const AMP_ENTITY_PATTERN = /&amp;/g;
@@ -99,8 +91,8 @@ export const list: BlockTransformer = (block, _options, context) => {
 	}
 
 	// Old format: HTML content in innerHTML
-	const listMatch = block.innerHTML.match(UOL_TAG_PATTERN);
-	const listContent = listMatch?.[1] || block.innerHTML;
+	const listElement = findFirstElement(block.innerHTML, "ol") || findFirstElement(block.innerHTML, "ul");
+	const listContent = listElement ? getNodeInnerHtml(listElement.childNodes) : block.innerHTML;
 
 	return parseListItems(listContent, listItem, 1, context);
 };
@@ -120,8 +112,8 @@ function parseListItemBlocks(
 		if (itemBlock.blockName !== "core/list-item") continue;
 
 		// Get text content from the <li> in innerHTML
-		const textMatch = itemBlock.innerHTML.match(LI_TAG_PATTERN);
-		const textContent = textMatch?.[1]?.trim() || "";
+		const liNode = findFirstElement(itemBlock.innerHTML, "li");
+		const textContent = liNode ? getNodeInnerHtml(liNode.childNodes).trim() : "";
 
 		if (textContent) {
 			const { children, markDefs } = context.parseInlineContent(textContent);
@@ -176,11 +168,11 @@ function parseListItems(
 
 	for (const liContent of liItems) {
 		// Check for nested lists
-		const nestedUl = liContent.match(UL_TAG_PATTERN);
-		const nestedOl = liContent.match(OL_TAG_PATTERN);
+		const nestedUl = findFirstElement(liContent, "ul");
+		const nestedOl = findFirstElement(liContent, "ol");
 
 		// Get text content (excluding nested lists)
-		let textContent = liContent.replace(NESTED_LIST_PATTERN, "").trim();
+		let textContent = stripNestedLists(liContent).trim();
 
 		if (textContent) {
 			const { children, markDefs } = context.parseInlineContent(textContent);
@@ -202,11 +194,11 @@ function parseListItems(
 		}
 
 		// Process nested lists
-		if (nestedUl?.[1]) {
-			blocks.push(...parseListItems(nestedUl[1], "bullet", level + 1, context));
+		if (nestedUl) {
+			blocks.push(...parseListItems(getNodeInnerHtml(nestedUl.childNodes), "bullet", level + 1, context));
 		}
-		if (nestedOl?.[1]) {
-			blocks.push(...parseListItems(nestedOl[1], "number", level + 1, context));
+		if (nestedOl) {
+			blocks.push(...parseListItems(getNodeInnerHtml(nestedOl.childNodes), "number", level + 1, context));
 		}
 	}
 
@@ -299,6 +291,96 @@ function extractTopLevelListItems(html: string): string[] {
 	return items.filter((item) => item.trim().length > 0);
 }
 
+type Node = DefaultTreeAdapterMap["node"];
+type TextNode = DefaultTreeAdapterMap["textNode"];
+type Element = DefaultTreeAdapterMap["element"];
+
+function findFirstElement(html: string, tagName: string): Element | undefined {
+	return findElement(parseFragment(html).childNodes, tagName);
+}
+
+function findElements(html: string, tagName: string): Element[] {
+	const out: Element[] = [];
+	collectElements(parseFragment(html).childNodes, tagName, out);
+	return out;
+}
+
+function findElement(nodes: Node[], tagName: string): Element | undefined {
+	for (const node of nodes) {
+		if (isElement(node)) {
+			if (node.tagName.toLowerCase() === tagName) return node;
+			const found = findElement(node.childNodes, tagName);
+			if (found) return found;
+		}
+	}
+	return undefined;
+}
+
+function collectElements(nodes: Node[], tagName: string, out: Element[]): void {
+	for (const node of nodes) {
+		if (isElement(node)) {
+			if (node.tagName.toLowerCase() === tagName) out.push(node);
+			collectElements(node.childNodes, tagName, out);
+		}
+	}
+}
+
+function getAttr(element: Element, name: string): string | undefined {
+	const attr = element.attrs.find((a) => a.name.toLowerCase() === name);
+	return attr?.value;
+}
+
+function getNodeInnerHtml(nodes: Node[]): string {
+	let html = "";
+	for (const node of nodes) {
+		if (isTextNode(node)) {
+			html += node.value;
+		} else if (isElement(node)) {
+			html += renderElement(node);
+		}
+	}
+	return html;
+}
+
+function renderElement(element: Element): string {
+	const attrs = element.attrs.length
+		? ` ${element.attrs.map((attr) => `${attr.name}="${escapeHtml(attr.value)}"`).join(" ")}`
+		: "";
+	return `<${element.tagName}${attrs}>${getNodeInnerHtml(element.childNodes)}</${element.tagName}>`;
+}
+
+function stripNestedLists(html: string): string {
+	const fragment = parseFragment(html);
+	let out = "";
+	for (const node of fragment.childNodes) {
+		if (isElement(node) && (node.tagName.toLowerCase() === "ul" || node.tagName.toLowerCase() === "ol")) {
+			continue;
+		}
+		out += isElement(node) ? renderElement(node) : isTextNode(node) ? node.value : "";
+	}
+	return out;
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.split("&")
+		.join("&amp;")
+		.split('"')
+		.join("&quot;")
+		.split("<")
+		.join("&lt;")
+		.split(">")
+		.join("&gt;");
+}
+
+function isTextNode(node: Node): node is TextNode {
+	return node.nodeName === "#text";
+}
+
+function isElement(node: Node): node is Element {
+	return "tagName" in node;
+}
+
 /**
  * core/quote → block with style "blockquote"
  */
@@ -306,10 +388,8 @@ export const quote: BlockTransformer = (block, _options, context) => {
 	const blocks: PortableTextBlock[] = [];
 
 	// Extract paragraphs from the blockquote
-	let match;
-
-	while ((match = P_TAG_PATTERN.exec(block.innerHTML)) !== null) {
-		const content = match[1] || "";
+	for (const paragraphNode of findElements(block.innerHTML, "p")) {
+		const content = getNodeInnerHtml(paragraphNode.childNodes);
 		const { children, markDefs } = context.parseInlineContent(content);
 
 		const quoteBlock: PortableTextTextBlock = {
@@ -407,8 +487,8 @@ export const image: BlockTransformer = (block, options, context) => {
  */
 export const code: BlockTransformer = (block, _options, context) => {
 	// Extract code from <pre><code>...</code></pre>
-	const codeMatch = block.innerHTML.match(CODE_TAG_PATTERN_SINGLE);
-	const codeContent = codeMatch?.[1] || block.innerHTML;
+	const codeNode = findFirstElement(block.innerHTML, "code");
+	const codeContent = codeNode ? getNodeInnerHtml(codeNode.childNodes) : block.innerHTML;
 
 	// Decode HTML entities
 	const decoded = decodeHtmlEntities(codeContent);
@@ -860,8 +940,8 @@ export const file: BlockTransformer = (block, _options, context) => {
 	// Try to extract href from HTML if not in attrs
 	let url = href;
 	if (!url) {
-		const hrefMatch = block.innerHTML.match(HREF_PATTERN);
-		url = sanitizeHref(hrefMatch?.[1]);
+		const linkNode = findFirstElement(block.innerHTML, "a");
+		url = sanitizeHref(linkNode ? getAttr(linkNode, "href") : undefined);
 	}
 
 	// Try to extract filename from HTML if not in attrs
@@ -886,12 +966,12 @@ export const file: BlockTransformer = (block, _options, context) => {
  */
 export const pullquote: BlockTransformer = (block, _options, context) => {
 	// Extract text from blockquote > p
-	const pMatch = block.innerHTML.match(P_TAG_SINGLE_PATTERN);
-	const text = pMatch ? extractText(pMatch[1]!) : extractText(block.innerHTML);
+	const pNode = findFirstElement(block.innerHTML, "p");
+	const text = pNode ? getNodeInnerHtml(pNode.childNodes) : extractText(block.innerHTML);
 
 	// Extract citation
-	const citeMatch = block.innerHTML.match(CITE_TAG_PATTERN);
-	const citation = citeMatch ? extractText(citeMatch[1]!) : attrString(block.attrs, "citation");
+	const citeNode = findFirstElement(block.innerHTML, "cite");
+	const citation = citeNode ? getNodeInnerHtml(citeNode.childNodes) : attrString(block.attrs, "citation");
 
 	return [
 		{
