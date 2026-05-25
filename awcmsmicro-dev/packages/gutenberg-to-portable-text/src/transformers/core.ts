@@ -15,14 +15,6 @@ import type {
 import { attrString, attrNumber, attrBoolean, attrObject } from "../types.js";
 import { sanitizeHref } from "../url.js";
 
-// Regex patterns for core block transformers
-const DATA_ID_PATTERN = /data-id=["'](\d+)["']/i;
-const TABLE_TAG_PATTERN = /<table[^>]*>([\s\S]*?)<\/table>/i;
-const THEAD_TAG_PATTERN = /<thead[^>]*>([\s\S]*?)<\/thead>/i;
-const IMG_TAG_GLOBAL = /<img[^>]+>/gi;
-const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
-const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
 /**
  * core/paragraph → block with style "normal"
  */
@@ -561,13 +553,12 @@ export const gallery: BlockTransformer = (block, options, context) => {
 		}
 	} else {
 		// Parse from HTML (older gallery format)
-		let match;
-		while ((match = IMG_TAG_GLOBAL.exec(block.innerHTML)) !== null) {
-			const imgHtml = match[0];
-			const src = extractSrc(imgHtml);
-			const alt = extractAlt(imgHtml);
-			const idMatch = imgHtml.match(DATA_ID_PATTERN);
-			const wpId = idMatch?.[1] ? parseInt(idMatch[1], 10) : undefined;
+		for (const imageNode of findElements(block.innerHTML, "img")) {
+			const imgHtml = renderElement(imageNode);
+			const src = getAttr(imageNode, "src") ?? extractSrc(imgHtml);
+			const alt = getAttr(imageNode, "alt") ?? extractAlt(imgHtml);
+			const wpIdValue = getAttr(imageNode, "data-id");
+			const wpId = wpIdValue ? Number.parseInt(wpIdValue, 10) : undefined;
 			const ref = wpId && options.mediaMap?.get(wpId);
 
 			images.push({
@@ -623,17 +614,13 @@ export const group: BlockTransformer = (block, _options, context) => {
  * core/table → table block
  */
 export const table: BlockTransformer = (block, _options, context) => {
-	// Parse the table HTML
-	const tableMatch = block.innerHTML.match(TABLE_TAG_PATTERN);
-	if (!tableMatch) {
+	const tableElement = findFirstElement(block.innerHTML, "table");
+	if (!tableElement) {
 		return [];
 	}
 
-	const tableContent = tableMatch[1]!;
-
-	// Check for thead
-	const theadMatch = tableContent.match(THEAD_TAG_PATTERN);
-	const tbodyMatch = tableContent.match(TBODY_TAG_PATTERN);
+	const thead = findFirstElement(getNodeInnerHtml(tableElement.childNodes), "thead");
+	const tbody = findFirstElement(getNodeInnerHtml(tableElement.childNodes), "tbody");
 
 	const rows: Array<{
 		_type: "tableRow";
@@ -648,18 +635,18 @@ export const table: BlockTransformer = (block, _options, context) => {
 	}> = [];
 
 	// Parse header rows
-	if (theadMatch?.[1]) {
-		const headerRows = parseTableRows(theadMatch[1], context, true);
+	if (thead) {
+		const headerRows = parseTableRows(thead.childNodes, context, true);
 		rows.push(...headerRows);
 	}
 
 	// Parse body rows
-	if (tbodyMatch?.[1]) {
-		const bodyRows = parseTableRows(tbodyMatch[1], context, false);
+	if (tbody) {
+		const bodyRows = parseTableRows(tbody.childNodes, context, false);
 		rows.push(...bodyRows);
-	} else if (!theadMatch) {
+	} else if (!thead) {
 		// No thead or tbody, parse rows directly
-		const directRows = parseTableRows(tableContent, context, false);
+		const directRows = parseTableRows(tableElement.childNodes, context, false);
 		rows.push(...directRows);
 	}
 
@@ -672,7 +659,7 @@ export const table: BlockTransformer = (block, _options, context) => {
 			_type: "table" as const,
 			_key: context.generateKey(),
 			rows,
-			hasHeaderRow: !!theadMatch,
+			hasHeaderRow: !!thead,
 		},
 	];
 };
@@ -681,7 +668,7 @@ export const table: BlockTransformer = (block, _options, context) => {
  * Parse table rows from HTML
  */
 function parseTableRows(
-	html: string,
+	nodes: Node[],
 	context: import("../types.js").TransformContext,
 	isHeader: boolean,
 ): Array<{
@@ -707,10 +694,7 @@ function parseTableRows(
 		}>;
 	}> = [];
 
-	let rowMatch;
-
-	while ((rowMatch = TABLE_ROW_PATTERN.exec(html)) !== null) {
-		const rowContent = rowMatch[1]!;
+	for (const rowNode of getChildElements(nodes, "tr")) {
 		const cells: Array<{
 			_type: "tableCell";
 			_key: string;
@@ -720,11 +704,13 @@ function parseTableRows(
 		}> = [];
 
 		// Match both th and td cells
-		let cellMatch;
+		for (const cellNode of rowNode.childNodes) {
+			if (!isElement(cellNode)) continue;
+			const cellTag = cellNode.tagName.toLowerCase();
+			if (cellTag !== "th" && cellTag !== "td") continue;
 
-		while ((cellMatch = TABLE_CELL_PATTERN.exec(rowContent)) !== null) {
-			const isHeaderCell = cellMatch[1]!.toLowerCase() === "th" || isHeader;
-			const cellContent = cellMatch[2]!;
+			const isHeaderCell = cellTag === "th" || isHeader;
+			const cellContent = getNodeInnerHtml(cellNode.childNodes);
 
 			const { children, markDefs } = context.parseInlineContent(cellContent);
 
@@ -747,6 +733,10 @@ function parseTableRows(
 	}
 
 	return rows;
+}
+
+function getChildElements(nodes: Node[], tagName: string): Element[] {
+	return nodes.filter((node): node is Element => isElement(node) && node.tagName.toLowerCase() === tagName);
 }
 
 /**
