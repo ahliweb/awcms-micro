@@ -27,14 +27,6 @@ const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
 	figcaption: { open: /^<figcaption[^>]*>/i, close: /<\/figcaption>$/i },
 };
 
-// Regex patterns for extracting attributes
-const IMG_ALT_PATTERN = /<img[^>]+alt=["']([^"']*)["']/i;
-const FIGCAPTION_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
-const IMG_SRC_PATTERN = /<img[^>]+src=["']([^"']*)["']/i;
-const URL_AMP_ENTITY_PATTERN = /&amp;/g;
-const URL_NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
-const URL_HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
-
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
 type Element = DefaultTreeAdapterMap["element"];
@@ -294,32 +286,27 @@ function getTextContent(nodes: Node[]): string {
  * Extract alt text from an img element in HTML
  */
 export function extractAlt(html: string): string | undefined {
-	const match = html.match(IMG_ALT_PATTERN);
-	if (match) {
-		return match[1]; // Can be empty string ""
-	}
-	return undefined;
+	const img = findFirstElement(html, "img");
+	return img ? getAttr(img, "alt") : undefined;
 }
 
 /**
  * Extract caption from a figcaption element
  */
 export function extractCaption(html: string): string | undefined {
-	const match = html.match(FIGCAPTION_PATTERN);
-	if (match?.[1]) {
-		return extractText(match[1]);
-	}
-	return undefined;
+	const figcaption = findFirstElement(html, "figcaption");
+	return figcaption ? extractText(serializeChildren(figcaption.childNodes)) : undefined;
 }
 
 /**
  * Extract src from an img element
  */
 export function extractSrc(html: string): string | undefined {
-	const match = html.match(IMG_SRC_PATTERN);
-	if (!match?.[1]) return undefined;
+	const img = findFirstElement(html, "img");
+	const src = img ? getAttr(img, "src") : undefined;
+	if (!src) return undefined;
 	// Decode HTML entities in URLs
-	return decodeUrlEntities(match[1]);
+	return decodeUrlEntities(src);
 }
 
 /**
@@ -327,7 +314,42 @@ export function extractSrc(html: string): string | undefined {
  */
 function decodeUrlEntities(url: string): string {
 	return url
-		.replace(URL_AMP_ENTITY_PATTERN, "&")
-		.replace(URL_NUMERIC_AMP_ENTITY_PATTERN, "&")
-		.replace(URL_HEX_AMP_ENTITY_PATTERN, "&");
+		.split("&amp;")
+		.join("&")
+		.split("&#038;")
+		.join("&")
+		.split("&#38;")
+		.join("&")
+		.split("&#x26;")
+		.join("&")
+		.split("&#X26;")
+		.join("&");
+}
+
+function findFirstElement(html: string, tagName: string): Element | undefined {
+	const fragment = parseFragment(html);
+	return findElement(fragment.childNodes, tagName);
+}
+
+function findElement(nodes: Node[], tagName: string): Element | undefined {
+	for (const node of nodes) {
+		if (isElement(node)) {
+			if (node.tagName.toLowerCase() === tagName) return node;
+			const found = findElement(node.childNodes, tagName);
+			if (found) return found;
+		}
+	}
+	return undefined;
+}
+
+function serializeChildren(nodes: Node[]): string {
+	let out = "";
+	for (const node of nodes) {
+		if (isTextNode(node)) {
+			out += node.value;
+		} else if (isElement(node)) {
+			out += serializeChildren(node.childNodes);
+		}
+	}
+	return out;
 }
