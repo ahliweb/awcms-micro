@@ -27,7 +27,6 @@ const SRC_ATTR_PATTERN = /src=["']([^"']+)["']/i;
 const ALT_ATTR_PATTERN = /alt=["']([^"']*)["']/i;
 const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
 const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
-const HTML_TAG_PATTERN = /<[^>]+>/g;
 const FIGCAPTION_TAG_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
 const AMP_ENTITY_PATTERN = /&amp;/g;
 const LESS_THAN_ENTITY_PATTERN = /&lt;/g;
@@ -376,7 +375,7 @@ export function htmlToPortableText(
 							url: imgUrl || undefined,
 						},
 						alt: altMatch?.[1],
-						caption: captionMatch?.[1]?.replace(HTML_TAG_PATTERN, "").trim(),
+						caption: captionMatch?.[1] ? stripHtmlTags(captionMatch[1]).trim() : undefined,
 					});
 				}
 				break;
@@ -464,4 +463,29 @@ export function parseGutenbergBlocks(content: string): GutenbergBlock[] {
 		return [];
 	}
 	return normalizeBlocks(parse(content));
+}
+
+function stripHtmlTags(html: string): string {
+	let out = "";
+	let i = 0;
+
+	while (i < html.length) {
+		const char = html[i]!;
+		if (char !== "<") {
+			out += char;
+			i += 1;
+			continue;
+		}
+
+		const close = html.indexOf(">", i + 1);
+		if (close === -1) {
+			out += char;
+			i += 1;
+			continue;
+		}
+
+		i = close + 1;
+	}
+
+	return out;
 }
