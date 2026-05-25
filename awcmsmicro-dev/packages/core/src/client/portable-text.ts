@@ -312,7 +312,7 @@ function parseInline(text: string): ParsedInline {
 
 	while (i < text.length) {
 		if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) === 42) {
-			const end = text.indexOf("**", i + 2);
+			const end = findClosingDelimiter(text, "**", i + 2);
 			if (end > i + 2) {
 				pushTextSpan(text, spans, lastTextStart, i);
 				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 2, end), marks: ["strong"] });
@@ -323,7 +323,7 @@ function parseInline(text: string): ParsedInline {
 		}
 
 		if (text[i] === "_") {
-			const end = text.indexOf("_", i + 1);
+			const end = findClosingChar(text, "_", i + 1);
 			if (end > i + 1) {
 				pushTextSpan(text, spans, lastTextStart, i);
 				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, end), marks: ["em"] });
@@ -334,7 +334,7 @@ function parseInline(text: string): ParsedInline {
 		}
 
 		if (text[i] === "`") {
-			const end = text.indexOf("`", i + 1);
+			const end = findClosingChar(text, "`", i + 1);
 			if (end > i + 1) {
 				pushTextSpan(text, spans, lastTextStart, i);
 				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, end), marks: ["code"] });
@@ -345,7 +345,7 @@ function parseInline(text: string): ParsedInline {
 		}
 
 		if (text.charCodeAt(i) === 126 && text.charCodeAt(i + 1) === 126) {
-			const end = text.indexOf("~~", i + 2);
+			const end = findClosingDelimiter(text, "~~", i + 2);
 			if (end > i + 2) {
 				pushTextSpan(text, spans, lastTextStart, i);
 				spans.push({
@@ -361,8 +361,8 @@ function parseInline(text: string): ParsedInline {
 		}
 
 		if (text[i] === "[") {
-			const closeBracket = text.indexOf("](", i + 1);
-			const closeParen = closeBracket === -1 ? -1 : text.indexOf(")", closeBracket + 2);
+			const closeBracket = findClosingDelimiter(text, "](", i + 1);
+			const closeParen = closeBracket === -1 ? -1 : findClosingChar(text, ")", closeBracket + 2);
 			if (closeBracket > i + 1 && closeParen > closeBracket + 2) {
 				pushTextSpan(text, spans, lastTextStart, i);
 				const key = generateKey();
@@ -432,13 +432,26 @@ function parseOrderedList(line: string): { level: number; text: string } | null 
 }
 
 function parseImage(line: string): { alt: string; url: string } | null {
-	if (!line.startsWith("![")) return null;
-	const closeBracket = line.indexOf("](", 2);
-	if (closeBracket <= 2) return null;
-	if (!line.endsWith(")")) return null;
+	if (line.length < 5 || line.charCodeAt(0) !== 33 || line.charCodeAt(1) !== 91) return null;
+	const closeBracket = findClosingDelimiter(line, "](", 2);
+	if (closeBracket <= 2 || line.charCodeAt(line.length - 1) !== 41) return null;
 	const alt = line.slice(2, closeBracket);
 	const url = line.slice(closeBracket + 2, -1);
 	return alt && url ? { alt, url } : null;
+}
+
+function findClosingChar(text: string, ch: string, fromIndex: number): number {
+	for (let i = fromIndex; i < text.length; i++) {
+		if (text[i] === ch) return i;
+	}
+	return -1;
+}
+
+function findClosingDelimiter(text: string, delimiter: string, fromIndex: number): number {
+	for (let i = fromIndex; i <= text.length - delimiter.length; i++) {
+		if (text.slice(i, i + delimiter.length) === delimiter) return i;
+	}
+	return -1;
 }
 
 // ---------------------------------------------------------------------------
