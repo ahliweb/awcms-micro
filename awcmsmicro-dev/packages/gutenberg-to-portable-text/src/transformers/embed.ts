@@ -5,13 +5,6 @@
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
 
-// Regex patterns for embed parsing
-const IFRAME_SRC_PATTERN = /<iframe[^>]+src=["']([^"']+)["']/i;
-const VIDEO_SRC_PATTERN = /<video[^>]+src=["']([^"']+)["']/i;
-const VIDEO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
-const AUDIO_SRC_PATTERN = /<audio[^>]+src=["']([^"']+)["']/i;
-const AUDIO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
-
 /**
  * core/embed and variants → embed block
  */
@@ -20,8 +13,7 @@ export const embed: BlockTransformer = (block, _options, context) => {
 	const providerSlug = attrString(block.attrs, "providerNameSlug");
 
 	// Extract iframe src if present
-	const iframeMatch = block.innerHTML.match(IFRAME_SRC_PATTERN);
-	const iframeSrc = iframeMatch?.[1];
+	const iframeSrc = extractHtmlAttribute(block.innerHTML, "src");
 
 	return [
 		{
@@ -62,9 +54,7 @@ export const video: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from video tag if not in attrs
-	const videoMatch = block.innerHTML.match(VIDEO_SRC_PATTERN);
-	const sourceMatch = block.innerHTML.match(VIDEO_SOURCE_PATTERN);
-	const videoSrc = src || videoMatch?.[1] || sourceMatch?.[1];
+	const videoSrc = src || extractHtmlAttribute(block.innerHTML, "src");
 
 	return [
 		{
@@ -84,9 +74,7 @@ export const audio: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from audio tag if not in attrs
-	const audioMatch = block.innerHTML.match(AUDIO_SRC_PATTERN);
-	const sourceMatch = block.innerHTML.match(AUDIO_SOURCE_PATTERN);
-	const audioSrc = src || audioMatch?.[1] || sourceMatch?.[1];
+	const audioSrc = src || extractHtmlAttribute(block.innerHTML, "src");
 
 	return [
 		{
@@ -105,38 +93,79 @@ export const audio: BlockTransformer = (block, _options, context) => {
 function detectProvider(url: string): string | undefined {
 	if (!url) return undefined;
 
-	const urlLower = url.toLowerCase();
+	let hostname = "";
+	try {
+		hostname = new URL(url).hostname.toLowerCase();
+		if (hostname.startsWith("www.")) hostname = hostname.slice(4);
+	} catch {
+		return undefined;
+	}
 
-	if (urlLower.includes("youtube.com") || urlLower.includes("youtu.be")) {
+	if (hostname === "youtu.be" || hostname.endsWith(".youtube.com") || hostname === "youtube.com") {
 		return "youtube";
 	}
-	if (urlLower.includes("vimeo.com")) {
+	if (hostname === "vimeo.com" || hostname.endsWith(".vimeo.com")) {
 		return "vimeo";
 	}
-	if (urlLower.includes("twitter.com") || urlLower.includes("x.com")) {
+	if (hostname === "twitter.com" || hostname.endsWith(".twitter.com") || hostname === "x.com" || hostname.endsWith(".x.com")) {
 		return "twitter";
 	}
-	if (urlLower.includes("instagram.com")) {
+	if (hostname === "instagram.com" || hostname.endsWith(".instagram.com")) {
 		return "instagram";
 	}
-	if (urlLower.includes("facebook.com")) {
+	if (hostname === "facebook.com" || hostname.endsWith(".facebook.com") || hostname === "fb.watch") {
 		return "facebook";
 	}
-	if (urlLower.includes("tiktok.com")) {
+	if (hostname === "tiktok.com" || hostname.endsWith(".tiktok.com")) {
 		return "tiktok";
 	}
-	if (urlLower.includes("spotify.com")) {
+	if (hostname === "spotify.com" || hostname.endsWith(".spotify.com")) {
 		return "spotify";
 	}
-	if (urlLower.includes("soundcloud.com")) {
+	if (hostname === "soundcloud.com" || hostname.endsWith(".soundcloud.com")) {
 		return "soundcloud";
 	}
-	if (urlLower.includes("codepen.io")) {
+	if (hostname === "codepen.io" || hostname.endsWith(".codepen.io")) {
 		return "codepen";
 	}
-	if (urlLower.includes("gist.github.com")) {
+	if (hostname === "gist.github.com") {
 		return "gist";
 	}
 
+	return undefined;
+}
+
+function extractHtmlAttribute(html: string, attrName: string): string | undefined {
+	let i = 0;
+	while (i < html.length) {
+		const found = html.indexOf(attrName, i);
+		if (found === -1) return undefined;
+
+		const before = html[found - 1];
+		const afterName = html[found + attrName.length];
+		const beforeCode = before?.charCodeAt(0) ?? 0;
+		const beforeIsIdentChar =
+			(beforeCode >= 48 && beforeCode <= 57) ||
+			(beforeCode >= 65 && beforeCode <= 90) ||
+			(beforeCode >= 97 && beforeCode <= 122) ||
+			before === "_" ||
+			before === "-";
+		if ((before && beforeIsIdentChar) || afterName !== "=") {
+			i = found + attrName.length;
+			continue;
+		}
+
+		let j = found + attrName.length + 1;
+		while (html[j] === " ") j++;
+		const quote = html[j];
+		if (quote !== "\"" && quote !== "'") {
+			i = j;
+			continue;
+		}
+
+		const end = html.indexOf(quote, j + 1);
+		if (end === -1) return undefined;
+		return html.slice(j + 1, end);
+	}
 	return undefined;
 }
