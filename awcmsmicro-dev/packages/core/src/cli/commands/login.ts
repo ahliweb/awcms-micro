@@ -30,6 +30,7 @@ import {
 	saveCredentials,
 } from "../credentials.js";
 import { configureOutputMode } from "../output.js";
+import { validateExternalUrl } from "../../security/ssrf.js";
 
 // ---------------------------------------------------------------------------
 // Types for discovery + device flow responses
@@ -138,10 +139,11 @@ async function pollForToken(
  * Returns the Access JWT, or null if auth couldn't be resolved.
  */
 async function handleAccessRedirect(baseUrl: string): Promise<string | null> {
+	const safeBaseUrl = validateExternalUrl(baseUrl).origin;
 	consola.info("This site is behind Cloudflare Access.");
 
 	// Try cached token first
-	const cached = await getCachedAccessToken(baseUrl);
+	const cached = await getCachedAccessToken(safeBaseUrl);
 	if (cached) {
 		consola.success("Using cached Cloudflare Access token from cloudflared.");
 		return cached;
@@ -149,10 +151,10 @@ async function handleAccessRedirect(baseUrl: string): Promise<string | null> {
 
 	// Try interactive login via cloudflared
 	consola.info("Launching browser for Cloudflare Access login...");
-	const loginOk = await runCloudflaredLogin(baseUrl);
+	const loginOk = await runCloudflaredLogin(safeBaseUrl);
 
 	if (loginOk) {
-		const token = await getCachedAccessToken(baseUrl);
+		const token = await getCachedAccessToken(safeBaseUrl);
 		if (token) {
 			consola.success("Cloudflare Access authentication successful.");
 			return token;
@@ -165,13 +167,13 @@ async function handleAccessRedirect(baseUrl: string): Promise<string | null> {
 	consola.info("You have two options:");
 	console.log();
 	consola.info(`  ${pc.bold("Option 1:")} Install cloudflared and run:`);
-	console.log(`    ${pc.cyan(`cloudflared access login ${baseUrl}`)}`);
-	console.log(`    ${pc.cyan(`emdash login --url ${baseUrl}`)}`);
+		console.log(`    ${pc.cyan(`cloudflared access login ${safeBaseUrl}`)}`);
+		console.log(`    ${pc.cyan(`emdash login --url ${safeBaseUrl}`)}`);
 	console.log();
 	consola.info(`  ${pc.bold("Option 2:")} Use a service token:`);
-	console.log(
-		`    ${pc.cyan(`emdash login --url ${baseUrl} -H "CF-Access-Client-Id: <id>" -H "CF-Access-Client-Secret: <secret>"`)}`,
-	);
+		console.log(
+			`    ${pc.cyan(`emdash login --url ${safeBaseUrl} -H "CF-Access-Client-Id: <id>" -H "CF-Access-Client-Secret: <secret>"`)}`,
+		);
 	console.log();
 
 	return null;
@@ -198,7 +200,8 @@ export const loginCommand = defineCommand({
 	},
 	async run({ args }) {
 		const baseUrl = args.url || "http://localhost:4321";
-		consola.start(`Connecting to ${baseUrl}...`);
+		const safeBaseUrl = validateExternalUrl(baseUrl).origin;
+		consola.start(`Connecting to ${safeBaseUrl}...`);
 
 		// Resolve custom headers from --header flags and EMDASH_HEADERS env
 		const customHeaders = resolveCustomHeaders();
@@ -207,12 +210,12 @@ export const loginCommand = defineCommand({
 		try {
 			// Step 1: Fetch auth discovery.
 			// Use redirect: "manual" to detect Cloudflare Access.
-			const discoveryUrl = new URL("/_emdash/.well-known/auth", baseUrl);
+			const discoveryUrl = new URL("/_emdash/.well-known/auth", safeBaseUrl);
 			let res = await headerFetch(discoveryUrl, { redirect: "manual" });
 
 			// Handle Cloudflare Access
 			if (isAccessRedirect(res)) {
-				const accessToken = await handleAccessRedirect(baseUrl);
+				const accessToken = await handleAccessRedirect(safeBaseUrl);
 				if (!accessToken) {
 					return; // handleAccessRedirect printed instructions
 				}
@@ -227,10 +230,10 @@ export const loginCommand = defineCommand({
 
 			if (!res.ok) {
 				if (res.status === 404) {
-					const isLocal = baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1");
+					const isLocal = safeBaseUrl.includes("localhost") || safeBaseUrl.includes("127.0.0.1");
 					if (isLocal) {
 						consola.info("Auth discovery not available. Trying dev bypass...");
-						const bypassRes = await fetch(new URL("/_emdash/api/auth/dev-bypass", baseUrl), {
+						const bypassRes = await fetch(new URL("/_emdash/api/auth/dev-bypass", safeBaseUrl), {
 							redirect: "manual",
 						});
 						if (bypassRes.status === 302 || bypassRes.ok) {
@@ -256,12 +259,12 @@ export const loginCommand = defineCommand({
 				// No device flow available (external auth mode)
 				consola.info("Device Flow is not available for this instance.");
 				consola.info("Generate an API token in Settings > API Tokens");
-				consola.info(`Then run: ${pc.cyan(`emdash --token <token> --url ${baseUrl}`)}`);
+				consola.info(`Then run: ${pc.cyan(`emdash --token <token> --url ${safeBaseUrl}`)}`);
 				return;
 			}
 
 			// Step 2: Request device code
-			const codeUrl = new URL(deviceFlow.device_authorization_endpoint, baseUrl);
+			const codeUrl = new URL(deviceFlow.device_authorization_endpoint, safeBaseUrl);
 			const codeRes = await headerFetch(codeUrl, {
 				method: "POST",
 				headers: {
@@ -294,7 +297,7 @@ export const loginCommand = defineCommand({
 			// Step 4: Poll for token
 			consola.start("Waiting for authorization...");
 
-			const tokenUrl = new URL(deviceFlow.token_endpoint, baseUrl);
+			const tokenUrl = new URL(deviceFlow.token_endpoint, safeBaseUrl);
 			const tokenResult = await pollForToken(
 				tokenUrl.toString(),
 				deviceCode.device_code,
@@ -307,7 +310,7 @@ export const loginCommand = defineCommand({
 			let userEmail = "unknown";
 			let userRole = "unknown";
 			try {
-				const meRes = await headerFetch(new URL("/_emdash/api/auth/me", baseUrl), {
+				const meRes = await headerFetch(new URL("/_emdash/api/auth/me", safeBaseUrl), {
 					headers: { Authorization: `Bearer ${tokenResult.access_token}` },
 				});
 				if (meRes.ok) {
@@ -333,7 +336,7 @@ export const loginCommand = defineCommand({
 			// Step 6: Save credentials (persist custom headers so subsequent commands inherit them)
 			const expiresAt = new Date(Date.now() + tokenResult.expires_in * 1000).toISOString();
 			const hasCustomHeaders = Object.keys(customHeaders).length > 0;
-			saveCredentials(baseUrl, {
+			saveCredentials(safeBaseUrl, {
 				accessToken: tokenResult.access_token,
 				refreshToken: tokenResult.refresh_token,
 				expiresAt,
@@ -342,7 +345,7 @@ export const loginCommand = defineCommand({
 			});
 
 			consola.success(`Logged in as ${pc.bold(userEmail)} (${userRole})`);
-			consola.info(`Token saved to ${pc.dim(resolveCredentialKey(baseUrl))}`);
+			consola.info(`Token saved to ${pc.dim(resolveCredentialKey(safeBaseUrl))}`);
 		} catch (error) {
 			consola.error(error instanceof Error ? error.message : "Login failed");
 			process.exit(2);
@@ -362,9 +365,10 @@ export const logoutCommand = defineCommand({
 	},
 	async run({ args }) {
 		const baseUrl = args.url || "http://localhost:4321";
+		const safeBaseUrl = validateExternalUrl(baseUrl).origin;
 
 		// Get stored credentials
-		const cred = getCredentials(baseUrl);
+		const cred = getCredentials(safeBaseUrl);
 
 		if (!cred) {
 			consola.info("No stored credentials found for this instance.");
@@ -376,7 +380,7 @@ export const logoutCommand = defineCommand({
 		// Revoke tokens server-side (best-effort)
 		try {
 			// Revoke the refresh token (which also revokes associated access tokens)
-			await headerFetch(new URL("/_emdash/api/oauth/token/revoke", baseUrl), {
+			await headerFetch(new URL("/_emdash/api/oauth/token/revoke", safeBaseUrl), {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ token: cred.refreshToken }),
@@ -386,7 +390,7 @@ export const logoutCommand = defineCommand({
 		}
 
 		// Remove local credentials
-		removeCredentials(baseUrl);
+		removeCredentials(safeBaseUrl);
 		consola.success("Logged out successfully.");
 	},
 });
@@ -416,6 +420,7 @@ export const whoamiCommand = defineCommand({
 	async run({ args }) {
 		configureOutputMode(args);
 		const baseUrl = args.url || "http://localhost:4321";
+		const safeBaseUrl = validateExternalUrl(baseUrl).origin;
 
 		// Resolve token: --token flag > EMDASH_TOKEN env > stored credentials
 		let token = args.token || process.env["EMDASH_TOKEN"];
@@ -423,7 +428,7 @@ export const whoamiCommand = defineCommand({
 		let storedHeaders: Record<string, string> = {};
 
 		if (!token) {
-			const cred = getCredentials(baseUrl);
+			const cred = getCredentials(safeBaseUrl);
 			if (cred) {
 				token = cred.accessToken;
 				authMethod = "stored";
@@ -435,7 +440,7 @@ export const whoamiCommand = defineCommand({
 					// Try to refresh
 					try {
 						const refreshRes = await headerFetch(
-							new URL("/_emdash/api/oauth/token/refresh", baseUrl),
+							new URL("/_emdash/api/oauth/token/refresh", safeBaseUrl),
 							{
 								method: "POST",
 								headers: { "Content-Type": "application/json" },
@@ -455,7 +460,7 @@ export const whoamiCommand = defineCommand({
 									: json
 							) as TokenResponse;
 							token = refreshed.access_token;
-							saveCredentials(baseUrl, {
+							saveCredentials(safeBaseUrl, {
 								...cred,
 								accessToken: refreshed.access_token,
 								expiresAt: new Date(Date.now() + refreshed.expires_in * 1000).toISOString(),
@@ -474,7 +479,7 @@ export const whoamiCommand = defineCommand({
 
 		if (!token) {
 			// Try dev bypass for local
-			const isLocal = baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1");
+			const isLocal = safeBaseUrl.includes("localhost") || safeBaseUrl.includes("127.0.0.1");
 			if (isLocal) {
 				authMethod = "dev-bypass";
 				consola.info(`Auth method: ${pc.cyan("dev-bypass")}`);
@@ -489,7 +494,7 @@ export const whoamiCommand = defineCommand({
 		const headerFetch = createHeaderAwareFetch(storedHeaders);
 
 		try {
-			const meRes = await headerFetch(new URL("/_emdash/api/auth/me", baseUrl), {
+			const meRes = await headerFetch(new URL("/_emdash/api/auth/me", safeBaseUrl), {
 				headers: { Authorization: `Bearer ${token}` },
 			});
 
@@ -528,7 +533,7 @@ export const whoamiCommand = defineCommand({
 						name: me.name,
 						role: roleNames[me.role] || `unknown (${me.role})`,
 						authMethod,
-						url: baseUrl,
+						url: safeBaseUrl,
 					}),
 				);
 			} else {
@@ -536,7 +541,7 @@ export const whoamiCommand = defineCommand({
 				if (me.name) consola.info(`Name:  ${me.name}`);
 				consola.info(`Role:  ${pc.cyan(roleNames[me.role] || `unknown (${me.role})`)}`);
 				consola.info(`Auth:  ${pc.dim(authMethod)}`);
-				consola.info(`URL:   ${pc.dim(baseUrl)}`);
+				consola.info(`URL:   ${pc.dim(safeBaseUrl)}`);
 			}
 		} catch (error) {
 			consola.error(error instanceof Error ? error.message : "Unknown error");
