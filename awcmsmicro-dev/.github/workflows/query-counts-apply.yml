@@ -18,45 +18,17 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Download snapshot artifact
-        id: download
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const fs = require('node:fs');
-            const path = require('node:path');
-            const runId = Number(process.env.RUN_ID);
-            if (!Number.isInteger(runId) || runId <= 0) {
-              core.setFailed('Invalid run_id input');
-              return;
-            }
-            const { data } = await github.rest.actions.listWorkflowRunArtifacts({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: runId,
-            });
-            const artifact = data.artifacts.find((a) => a.name === 'query-counts-snapshots');
-            if (!artifact) {
-              core.setFailed('query-counts-snapshots artifact not found for run ' + runId);
-              return;
-            }
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: artifact.id,
-              archive_format: 'zip',
-            });
-            const outDir = path.join(process.env.RUNNER_TEMP, 'qc-artifact');
-            fs.mkdirSync(outDir, { recursive: true });
-            fs.writeFileSync(path.join(outDir, 'artifact.zip'), Buffer.from(download.data));
-            core.setOutput('dir', outDir);
         env:
+          GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ inputs.run_id }}
-
-      - name: Unpack artifact
         run: |
-          cd "$RUNNER_TEMP/qc-artifact"
-          unzip -o artifact.zip
+          case "$RUN_ID" in
+            (''|*[!0-9]*)
+              echo "Invalid run_id input" >&2
+              exit 1
+              ;;
+          esac
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" -n query-counts-snapshots -D "$RUNNER_TEMP/qc-artifact"
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
