@@ -13,19 +13,7 @@ import { sanitizeHref } from "./url.js";
 // Regex patterns for inline parsing
 const WHITESPACE_PATTERN = /\S/;
 
-// Pre-compiled block tag patterns
-const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
-	p: { open: /^<p[^>]*>/i, close: /<\/p>$/i },
-	h1: { open: /^<h1[^>]*>/i, close: /<\/h1>$/i },
-	h2: { open: /^<h2[^>]*>/i, close: /<\/h2>$/i },
-	h3: { open: /^<h3[^>]*>/i, close: /<\/h3>$/i },
-	h4: { open: /^<h4[^>]*>/i, close: /<\/h4>$/i },
-	h5: { open: /^<h5[^>]*>/i, close: /<\/h5>$/i },
-	h6: { open: /^<h6[^>]*>/i, close: /<\/h6>$/i },
-	li: { open: /^<li[^>]*>/i, close: /<\/li>$/i },
-	blockquote: { open: /^<blockquote[^>]*>/i, close: /<\/blockquote>$/i },
-	figcaption: { open: /^<figcaption[^>]*>/i, close: /<\/figcaption>$/i },
-};
+const BLOCK_TAGS = new Set(["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"]);
 
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
@@ -80,14 +68,11 @@ function stripBlockTags(html: string): string {
 	// Remove leading/trailing whitespace
 	let stripped = html.trim();
 
-	// Strip common block wrappers
-	const blockTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"];
-
-	for (const tag of blockTags) {
-		const patterns = BLOCK_TAG_PATTERNS[tag];
-		if (patterns && patterns.open.test(stripped) && patterns.close.test(stripped)) {
-			stripped = stripped.replace(patterns.open, "").replace(patterns.close, "").trim();
-			break;
+	const fragment = parseFragment(stripped);
+	if (fragment.childNodes.length === 1) {
+		const node = fragment.childNodes[0];
+		if (node && isElement(node) && BLOCK_TAGS.has(node.tagName.toLowerCase())) {
+			stripped = serializeNodeHtml(node.childNodes).trim();
 		}
 	}
 
@@ -352,4 +337,29 @@ function serializeChildren(nodes: Node[]): string {
 		}
 	}
 	return out;
+}
+
+function serializeNodeHtml(nodes: Node[]): string {
+	return nodes.map(serializeNodeHtmlSingle).join("");
+}
+
+function serializeNodeHtmlSingle(node: Node): string {
+	if (isTextNode(node)) return escapeHtml(node.value);
+	if (!isElement(node)) return "";
+	const attrs = node.attrs.length
+		? ` ${node.attrs.map((attr) => `${attr.name}="${escapeHtml(attr.value)}"`).join(" ")}`
+		: "";
+	return `<${node.tagName}${attrs}>${serializeNodeHtml(node.childNodes)}</${node.tagName}>`;
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.split("&")
+		.join("&amp;")
+		.split('"')
+		.join("&quot;")
+		.split("<")
+		.join("&lt;")
+		.split(">")
+		.join("&gt;");
 }
