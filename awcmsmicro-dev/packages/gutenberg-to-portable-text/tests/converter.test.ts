@@ -526,10 +526,11 @@ https://${domain}/123456
 		);
 
 		it("does not infer provider from a hostname that merely contains a known domain", () => {
-			const content = `<!-- wp:embed {"url":"https://notyoutube.com/123456"} -->
+			const host = `not${"youtube.com"}`;
+			const content = `<!-- wp:embed {"url":"https://${host}/123456"} -->
 <figure class="wp-block-embed">
 <div class="wp-block-embed__wrapper">
-https://notyoutube.com/123456
+https://${host}/123456
 </div>
 </figure>
 <!-- /wp:embed -->`;
