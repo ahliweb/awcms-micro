@@ -126,28 +126,37 @@ function stripTrailingSlash(url: string): string {
 
 function stripHtmlTags(input: string): string {
 	let out = "";
-	let i = 0;
+	let inTag = false;
 
-	while (i < input.length) {
+	for (let i = 0; i < input.length; i++) {
 		const char = input[i]!;
-		if (char !== "<") {
-			out += char;
-			i += 1;
+		if (!inTag && char === "<" && isTagStart(input[i + 1])) {
+			inTag = true;
 			continue;
 		}
-
-		const close = input.indexOf(">", i + 1);
-		if (close === -1) {
-			out += char;
-			i += 1;
+		if (char === ">" && inTag) {
+			inTag = false;
+			out += " ";
 			continue;
 		}
-
-		out += " ";
-		i = close + 1;
+		if (!inTag) {
+			out += char;
+		}
 	}
 
 	return out;
+}
+
+function isTagStart(nextChar: string | undefined): boolean {
+	if (!nextChar) return false;
+	const code = nextChar.charCodeAt(0);
+	return (
+		(code >= 65 && code <= 90) ||
+		(code >= 97 && code <= 122) ||
+		nextChar === "/" ||
+		nextChar === "!" ||
+		nextChar === "?"
+	);
 }
 
 // Pre-compiled regexes
@@ -158,7 +167,6 @@ const GT_RE = /&gt;/g;
 const QUOT_RE = /&quot;/g;
 const APOS_RE = /&#39;/g;
 const WHITESPACE_RE = /\s+/g;
-const HASH_PREFIX_RE = /^#/;
 const MAX_TEXT_CONTENT_LENGTH = 10_000;
 
 /**
@@ -172,17 +180,21 @@ function extractTags(content: Record<string, unknown>): string[] {
 	const tags: string[] = [];
 	for (const item of raw) {
 		if (typeof item === "string") {
-			tags.push(item.replace(HASH_PREFIX_RE, ""));
+			tags.push(stripHashPrefix(item));
 		} else if (
 			typeof item === "object" &&
 			item !== null &&
 			"name" in item &&
 			typeof (item as Record<string, unknown>).name === "string"
 		) {
-			tags.push(((item as Record<string, unknown>).name as string).replace(HASH_PREFIX_RE, ""));
+			tags.push(stripHashPrefix((item as Record<string, unknown>).name as string));
 		}
 	}
 	return tags;
+}
+
+function stripHashPrefix(value: string): string {
+	return value.startsWith("#") ? value.slice(1) : value;
 }
 
 /**
