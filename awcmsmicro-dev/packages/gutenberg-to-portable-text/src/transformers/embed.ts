@@ -101,31 +101,31 @@ function detectProvider(url: string): string | undefined {
 		return undefined;
 	}
 
-	if (hostname === "youtu.be" || hostname.endsWith(".youtube.com") || hostname === "youtube.com") {
+	if (hostname === "youtu.be" || hostname === "youtube.com") {
 		return "youtube";
 	}
-	if (hostname === "vimeo.com" || hostname.endsWith(".vimeo.com")) {
+	if (hostname === "vimeo.com") {
 		return "vimeo";
 	}
-	if (hostname === "twitter.com" || hostname.endsWith(".twitter.com") || hostname === "x.com" || hostname.endsWith(".x.com")) {
+	if (hostname === "twitter.com" || hostname === "x.com") {
 		return "twitter";
 	}
-	if (hostname === "instagram.com" || hostname.endsWith(".instagram.com")) {
+	if (hostname === "instagram.com") {
 		return "instagram";
 	}
-	if (hostname === "facebook.com" || hostname.endsWith(".facebook.com") || hostname === "fb.watch") {
+	if (hostname === "facebook.com" || hostname === "fb.watch") {
 		return "facebook";
 	}
-	if (hostname === "tiktok.com" || hostname.endsWith(".tiktok.com")) {
+	if (hostname === "tiktok.com") {
 		return "tiktok";
 	}
-	if (hostname === "spotify.com" || hostname.endsWith(".spotify.com")) {
+	if (hostname === "spotify.com") {
 		return "spotify";
 	}
-	if (hostname === "soundcloud.com" || hostname.endsWith(".soundcloud.com")) {
+	if (hostname === "soundcloud.com") {
 		return "soundcloud";
 	}
-	if (hostname === "codepen.io" || hostname.endsWith(".codepen.io")) {
+	if (hostname === "codepen.io") {
 		return "codepen";
 	}
 	if (hostname === "gist.github.com") {
