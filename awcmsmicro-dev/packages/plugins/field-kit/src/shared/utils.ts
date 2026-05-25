@@ -7,7 +7,7 @@ function isSafeKey(key: string): boolean {
 }
 
 function copySafeEntries(source: Record<string, unknown>): Record<string, unknown> {
-	const obj: Record<string, unknown> = {};
+	const obj: Record<string, unknown> = Object.create(null);
 	for (const [key, value] of Object.entries(source)) {
 		if (isSafeKey(key)) obj[key] = value;
 	}
@@ -54,9 +54,9 @@ export function normalizeGrid(
 	rows: GridAxisDef[],
 	columns: GridAxisDef[],
 ): Record<string, Record<string, unknown>> {
-	const out: Record<string, Record<string, unknown>> = {};
+	const out: Record<string, Record<string, unknown>> = Object.create(null);
 	for (const row of rows) {
-		out[row.key] = {};
+		out[row.key] = Object.create(null);
 	}
 
 	if (!value || typeof value !== "object" || Array.isArray(value)) {

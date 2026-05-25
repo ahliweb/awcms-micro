@@ -9,7 +9,7 @@ describe("field-kit shared utils", () => {
 
 		expect(result).toEqual({ safe: "ok" });
 		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
-		expect(Object.getPrototypeOf(result)).toBe(Object.prototype);
+		expect(Object.getPrototypeOf(result)).toBeNull();
 	});
 
 	it("skips prototype-polluting keys when normalizing grids", () => {
@@ -24,6 +24,6 @@ describe("field-kit shared utils", () => {
 
 		expect(result).toEqual({ mon: { am: true, legacy: "keep-me" } });
 		expect(({} as Record<string, unknown>).polluted).toBeUndefined();
-		expect(Object.getPrototypeOf(result.mon)).toBe(Object.prototype);
+		expect(Object.getPrototypeOf(result.mon)).toBeNull();
 	});
 });
