@@ -2,6 +2,8 @@
  * Transformers for WordPress embed blocks
  */
 
+import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
+
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
 
@@ -136,36 +138,24 @@ function detectProvider(url: string): string | undefined {
 }
 
 function extractHtmlAttribute(html: string, attrName: string): string | undefined {
-	let i = 0;
-	while (i < html.length) {
-		const found = html.indexOf(attrName, i);
-		if (found === -1) return undefined;
+	const fragment = parseFragment(html);
+	return extractAttrFromFragment(fragment.childNodes, attrName);
+}
 
-		const before = html[found - 1];
-		const afterName = html[found + attrName.length];
-		const beforeCode = before?.charCodeAt(0) ?? 0;
-		const beforeIsIdentChar =
-			(beforeCode >= 48 && beforeCode <= 57) ||
-			(beforeCode >= 65 && beforeCode <= 90) ||
-			(beforeCode >= 97 && beforeCode <= 122) ||
-			before === "_" ||
-			before === "-";
-		if ((before && beforeIsIdentChar) || afterName !== "=") {
-			i = found + attrName.length;
-			continue;
-		}
+type Node = DefaultTreeAdapterMap["node"];
+type Element = DefaultTreeAdapterMap["element"];
 
-		let j = found + attrName.length + 1;
-		while (html[j] === " ") j++;
-		const quote = html[j];
-		if (quote !== "\"" && quote !== "'") {
-			i = j;
-			continue;
-		}
-
-		const end = html.indexOf(quote, j + 1);
-		if (end === -1) return undefined;
-		return html.slice(j + 1, end);
+function extractAttrFromFragment(nodes: Node[], attrName: string): string | undefined {
+	for (const node of nodes) {
+		if (!isElement(node)) continue;
+		const attr = node.attrs.find((a) => a.name.toLowerCase() === attrName);
+		if (attr) return attr.value;
+		const nested = extractAttrFromFragment(node.childNodes, attrName);
+		if (nested !== undefined) return nested;
 	}
 	return undefined;
+}
+
+function isElement(node: Node): node is Element {
+	return "tagName" in node;
 }
