@@ -4,29 +4,13 @@
 
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
-import { sanitizeMediaUrl } from "../url.js";
 
-function findElementAttr(html: string, tagName: string, attrName: string): string | undefined {
-	const lower = html.toLowerCase();
-	const open = `<${tagName}`;
-	const start = lower.indexOf(open);
-	if (start === -1) return undefined;
-	const end = html.indexOf(">", start);
-	if (end === -1) return undefined;
-	const attrs = html.slice(start, end);
-	const attrLower = attrName.toLowerCase();
-	const candidates = [attrName + '="', attrName + "='", attrLower + '="', attrLower + "='"];
-	for (const candidate of candidates) {
-		const pos = attrs.toLowerCase().indexOf(candidate.toLowerCase());
-		if (pos !== -1) {
-			const valueStart = pos + candidate.length;
-			const quote = candidate.endsWith("\"") ? '"' : "'";
-			const valueEnd = attrs.indexOf(quote, valueStart);
-			if (valueEnd !== -1) return attrs.slice(valueStart, valueEnd);
-		}
-	}
-	return undefined;
-}
+// Regex patterns for embed parsing
+const IFRAME_SRC_PATTERN = /<iframe[^>]+src=["']([^"']+)["']/i;
+const VIDEO_SRC_PATTERN = /<video[^>]+src=["']([^"']+)["']/i;
+const VIDEO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
+const AUDIO_SRC_PATTERN = /<audio[^>]+src=["']([^"']+)["']/i;
+const AUDIO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
 
 /**
  * core/embed and variants → embed block
@@ -36,15 +20,15 @@ export const embed: BlockTransformer = (block, _options, context) => {
 	const providerSlug = attrString(block.attrs, "providerNameSlug");
 
 	// Extract iframe src if present
-	const iframeSrc = findElementAttr(block.innerHTML, "iframe", "src");
-	const safeUrl = sanitizeMediaUrl(url || iframeSrc || "") || "";
+	const iframeMatch = block.innerHTML.match(IFRAME_SRC_PATTERN);
+	const iframeSrc = iframeMatch?.[1];
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: safeUrl,
-			provider: providerSlug || detectProvider(safeUrl),
+			url: url || iframeSrc || "",
+			provider: providerSlug || detectProvider(url || iframeSrc || ""),
 			html: block.innerHTML.trim() || undefined,
 		},
 	];
@@ -78,15 +62,15 @@ export const video: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from video tag if not in attrs
-	const videoSrc = sanitizeMediaUrl(
-		src || findElementAttr(block.innerHTML, "video", "src") || findElementAttr(block.innerHTML, "source", "src") || "",
-	) || "";
+	const videoMatch = block.innerHTML.match(VIDEO_SRC_PATTERN);
+	const sourceMatch = block.innerHTML.match(VIDEO_SOURCE_PATTERN);
+	const videoSrc = src || videoMatch?.[1] || sourceMatch?.[1];
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: videoSrc,
+			url: videoSrc || "",
 			provider: "video",
 			html: block.innerHTML.trim() || undefined,
 		},
@@ -100,15 +84,15 @@ export const audio: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from audio tag if not in attrs
-	const audioSrc = sanitizeMediaUrl(
-		src || findElementAttr(block.innerHTML, "audio", "src") || findElementAttr(block.innerHTML, "source", "src") || "",
-	) || "";
+	const audioMatch = block.innerHTML.match(AUDIO_SRC_PATTERN);
+	const sourceMatch = block.innerHTML.match(AUDIO_SOURCE_PATTERN);
+	const audioSrc = src || audioMatch?.[1] || sourceMatch?.[1];
 
 	return [
 		{
 			_type: "embed",
 			_key: context.generateKey(),
-			url: audioSrc,
+			url: audioSrc || "",
 			provider: "audio",
 			html: block.innerHTML.trim() || undefined,
 		},
@@ -121,39 +105,38 @@ export const audio: BlockTransformer = (block, _options, context) => {
 function detectProvider(url: string): string | undefined {
 	if (!url) return undefined;
 
-	const host = getHostname(url);
-	if (!host) return undefined;
+	const urlLower = url.toLowerCase();
 
-	const normalizedHost = host.startsWith("www.") ? host.slice(4) : host;
-
-	for (const entry of PROVIDER_HOSTS) {
-		if (entry.hosts.has(normalizedHost)) {
-			return entry.provider;
-		}
+	if (urlLower.includes("youtube.com") || urlLower.includes("youtu.be")) {
+		return "youtube";
+	}
+	if (urlLower.includes("vimeo.com")) {
+		return "vimeo";
+	}
+	if (urlLower.includes("twitter.com") || urlLower.includes("x.com")) {
+		return "twitter";
+	}
+	if (urlLower.includes("instagram.com")) {
+		return "instagram";
+	}
+	if (urlLower.includes("facebook.com")) {
+		return "facebook";
+	}
+	if (urlLower.includes("tiktok.com")) {
+		return "tiktok";
+	}
+	if (urlLower.includes("spotify.com")) {
+		return "spotify";
+	}
+	if (urlLower.includes("soundcloud.com")) {
+		return "soundcloud";
+	}
+	if (urlLower.includes("codepen.io")) {
+		return "codepen";
+	}
+	if (urlLower.includes("gist.github.com")) {
+		return "gist";
 	}
 
 	return undefined;
-}
-
-const PROVIDER_HOSTS: Array<{ provider: string; hosts: Set<string> }> = [
-	{ provider: "youtube", hosts: new Set(["youtube.com", "youtu.be", "youtube-nocookie.com"]) },
-	{ provider: "vimeo", hosts: new Set(["vimeo.com", "player.vimeo.com"]) },
-	{ provider: "twitter", hosts: new Set(["twitter.com", "x.com"]) },
-	{ provider: "instagram", hosts: new Set(["instagram.com", "instagr.am"]) },
-	{ provider: "facebook", hosts: new Set(["facebook.com", "fb.watch"]) },
-	{ provider: "tiktok", hosts: new Set(["tiktok.com", "www.tiktok.com"]) },
-	{ provider: "spotify", hosts: new Set(["spotify.com", "open.spotify.com"]) },
-	{ provider: "soundcloud", hosts: new Set(["soundcloud.com", "w.soundcloud.com"]) },
-	{ provider: "codepen", hosts: new Set(["codepen.io", "www.codepen.io"]) },
-	{ provider: "gist", hosts: new Set(["gist.github.com"]) },
-];
-
-function getHostname(url: string): string | undefined {
-	try {
-		const parsed = new URL(url);
-		if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return undefined;
-		return parsed.hostname.toLowerCase();
-	} catch {
-		return undefined;
-	}
 }

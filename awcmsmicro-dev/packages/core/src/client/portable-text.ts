@@ -163,6 +163,15 @@ function renderSpans(spans: PortableTextSpan[], markDefs: MarkDef[]): string {
 // Markdown -> PT
 // ---------------------------------------------------------------------------
 
+// Regex patterns for markdown parsing
+const OPAQUE_FENCE_PATTERN = /^<!--ec:block (.+) -->$/;
+const HEADING_PATTERN = /^(#{1,6})\s+(.+)$/;
+const UNORDERED_LIST_PATTERN = /^(\s*)[-*+]\s+(.+)$/;
+const ORDERED_LIST_PATTERN = /^(\s*)\d+\.\s+(.+)$/;
+const IMAGE_PATTERN = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+const INLINE_MARKDOWN_PATTERN =
+	/(\*\*(.+?)\*\*)|(_(.+?)_)|(`(.+?)`)|(\[(.+?)\]\((.+?)\))|(~~(.+?)~~)/g;
+
 /**
  * Convert Markdown to Portable Text blocks.
  * Opaque fences (<!--ec:block ... -->) are deserialized and spliced back in.
@@ -176,9 +185,13 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		const line = lines[i];
 
 		// Opaque fence
-		const opaque = parseOpaqueFence(line);
-		if (opaque) {
-			blocks.push(opaque);
+		const opaqueMatch = line.match(OPAQUE_FENCE_PATTERN);
+		if (opaqueMatch) {
+			try {
+				blocks.push(JSON.parse(opaqueMatch[1]) as PortableTextBlock);
+			} catch {
+				blocks.push(makeBlock(line));
+			}
 			i++;
 			continue;
 		}
@@ -209,9 +222,9 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Heading
-		const heading = parseHeading(line);
-		if (heading) {
-			blocks.push(makeBlock(heading.text, `h${heading.level}`));
+		const headingMatch = line.match(HEADING_PATTERN);
+		if (headingMatch) {
+			blocks.push(makeBlock(headingMatch[2], `h${headingMatch[1].length}`));
 			i++;
 			continue;
 		}
@@ -224,27 +237,31 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Unordered list
-		const listItem = parseListItem(line);
-		if (listItem?.kind === "bullet") {
-			blocks.push(makeListBlock(listItem.text, "bullet", listItem.level));
+		const ulMatch = line.match(UNORDERED_LIST_PATTERN);
+		if (ulMatch) {
+			const level = Math.floor(ulMatch[1].length / 2) + 1;
+			blocks.push(makeListBlock(ulMatch[2], "bullet", level));
 			i++;
 			continue;
 		}
 
-		if (listItem?.kind === "number") {
-			blocks.push(makeListBlock(listItem.text, "number", listItem.level));
+		// Ordered list
+		const olMatch = line.match(ORDERED_LIST_PATTERN);
+		if (olMatch) {
+			const level = Math.floor(olMatch[1].length / 2) + 1;
+			blocks.push(makeListBlock(olMatch[2], "number", level));
 			i++;
 			continue;
 		}
 
 		// Image
-		const image = parseImage(line);
-		if (image) {
+		const imgMatch = line.match(IMAGE_PATTERN);
+		if (imgMatch) {
 			blocks.push({
 				_type: "image",
 				_key: generateKey(),
-				alt: image.alt,
-				asset: { url: image.url },
+				alt: imgMatch[1],
+				asset: { url: imgMatch[2] },
 			});
 			i++;
 			continue;
@@ -280,137 +297,52 @@ function makeListBlock(text: string, listItem: string, level: number): PortableT
 	};
 }
 
-function parseOpaqueFence(line: string): PortableTextBlock | null {
-	if (!line.startsWith("<!--ec:block ") || !line.endsWith(" -->")) return null;
-	const json = line.slice("<!--ec:block ".length, -4);
-	try {
-		return JSON.parse(json) as PortableTextBlock;
-	} catch {
-		return makeBlock(line);
-	}
-}
-
-function parseHeading(line: string): { level: number; text: string } | null {
-	let level = 0;
-	while (level < line.length && line[level] === "#" && level < 6) level++;
-	if (level < 1 || line[level] !== " ") return null;
-	return { level, text: line.slice(level + 1) };
-}
-
-function parseListItem(line: string): { kind: "bullet" | "number"; level: number; text: string } | null {
-	let i = 0;
-	while (i < line.length && line[i] === " ") i++;
-	const level = Math.floor(i / 2) + 1;
-	const rest = line.slice(i);
-	if (rest.length >= 2 && "-*+".includes(rest[0]!) && rest[1] === " ") {
-		return { kind: "bullet", level, text: rest.slice(2) };
-	}
-	let j = 0;
-	while (j < rest.length && rest[j] >= "0" && rest[j] <= "9") j++;
-	if (j > 0 && rest[j] === "." && rest[j + 1] === " ") {
-		return { kind: "number", level, text: rest.slice(j + 2) };
-	}
-	return null;
-}
-
-function parseImage(line: string): { alt: string; url: string } | null {
-	if (!line.startsWith("![") || !line.includes("](") || !line.endsWith(")")) return null;
-	const altEnd = line.indexOf("](");
-	if (altEnd === -1) return null;
-	const alt = line.slice(2, altEnd);
-	const url = line.slice(altEnd + 2, -1);
-	return { alt, url };
-}
-
 /**
  * Parse inline markdown (bold, italic, code, links, strikethrough) into PT spans + markDefs.
  */
 function parseInline(text: string): ParsedInline {
 	const spans: PortableTextSpan[] = [];
 	const markDefs: MarkDef[] = [];
-	let start = 0;
-	let i = 0;
+	const regex = INLINE_MARKDOWN_PATTERN;
 
-	const pushText = (end: number) => {
-		if (end <= start) return;
-		spans.push({
-			_type: "span",
-			_key: generateKey(),
-			text: text.slice(start, end),
-			marks: [],
-		});
-	};
+	let lastIndex = 0;
+	let match: RegExpExecArray | null;
 
-	while (i < text.length) {
-		if (text.startsWith("**", i)) {
-			const close = text.indexOf("**", i + 2);
-			if (close !== -1) {
-				pushText(i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 2, close), marks: ["strong"] });
-				i = close + 2;
-				start = i;
-				continue;
-			}
+	while ((match = regex.exec(text)) !== null) {
+		if (match.index > lastIndex) {
+			spans.push({
+				_type: "span",
+				_key: generateKey(),
+				text: text.slice(lastIndex, match.index),
+				marks: [],
+			});
 		}
 
-		if (text[i] === "_") {
-			const close = text.indexOf("_", i + 1);
-			if (close !== -1) {
-				pushText(i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, close), marks: ["em"] });
-				i = close + 1;
-				start = i;
-				continue;
-			}
+		if (match[2] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[2], marks: ["strong"] });
+		} else if (match[4] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[4], marks: ["em"] });
+		} else if (match[6] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[6], marks: ["code"] });
+		} else if (match[8] != null && match[9] != null) {
+			const key = generateKey();
+			markDefs.push({ _key: key, _type: "link", href: match[9] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[8], marks: [key] });
+		} else if (match[11] != null) {
+			spans.push({
+				_type: "span",
+				_key: generateKey(),
+				text: match[11],
+				marks: ["strike-through"],
+			});
 		}
 
-		if (text[i] === "`") {
-			const close = text.indexOf("`", i + 1);
-			if (close !== -1) {
-				pushText(i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, close), marks: ["code"] });
-				i = close + 1;
-				start = i;
-				continue;
-			}
-		}
-
-		if (text[i] === "[") {
-			const closeBracket = text.indexOf("](", i + 1);
-			if (closeBracket !== -1) {
-				const closeParen = text.indexOf(")", closeBracket + 2);
-				if (closeParen !== -1) {
-					pushText(i);
-					const key = generateKey();
-					markDefs.push({ _key: key, _type: "link", href: text.slice(closeBracket + 2, closeParen) });
-					spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, closeBracket), marks: [key] });
-					i = closeParen + 1;
-					start = i;
-					continue;
-				}
-			}
-		}
-
-		if (text.startsWith("~~", i)) {
-			const close = text.indexOf("~~", i + 2);
-			if (close !== -1) {
-				pushText(i);
-				spans.push({
-					_type: "span",
-					_key: generateKey(),
-					text: text.slice(i + 2, close),
-					marks: ["strike-through"],
-				});
-				i = close + 2;
-				start = i;
-				continue;
-			}
-		}
-
-		i++;
+		lastIndex = match.index + match[0].length;
 	}
 
-	pushText(text.length);
+	if (lastIndex < text.length) {
+		spans.push({ _type: "span", _key: generateKey(), text: text.slice(lastIndex), marks: [] });
+	}
 
 	if (spans.length === 0) {
 		spans.push({ _type: "span", _key: generateKey(), text, marks: [] });

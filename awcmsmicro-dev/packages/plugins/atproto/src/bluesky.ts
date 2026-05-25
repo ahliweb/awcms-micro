@@ -7,9 +7,15 @@
 import type { BlobRef } from "./atproto.js";
 import { buildContentPath, getContentString } from "./content.js";
 
+// ── Pre-compiled regexes ────────────────────────────────────────
+
 const TEMPLATE_TITLE_RE = /\{title\}/g;
 const TEMPLATE_URL_RE = /\{url\}/g;
 const TEMPLATE_EXCERPT_RE = /\{excerpt\}/g;
+const TRAILING_PUNCTUATION_RE = /[.,;:!?'"]+$/;
+// Global regexes for facet detection -- reset lastIndex before each use
+const URL_REGEX = /https?:\/\/[^\s)>\]]+/g;
+const HASHTAG_REGEX = /(?<=\s|^)#([a-zA-Z0-9_]+)/g;
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -117,51 +123,39 @@ export function buildFacets(text: string): BskyFacet[] {
 	const encoder = new TextEncoder();
 	const facets: BskyFacet[] = [];
 
-	let i = 0;
-	while (i < text.length) {
-		if (startsWithHttpUrl(text, i)) {
-			const start = i;
-			let end = i;
-			while (end < text.length && !isUrlTerminator(text[end]!)) {
-				end++;
-			}
-			const cleanUrl = trimTrailingPunctuation(text.slice(start, end));
-			if (cleanUrl) {
-				const beforeBytes = encoder.encode(text.slice(0, start));
-				const matchBytes = encoder.encode(cleanUrl);
-				facets.push({
-					index: {
-						byteStart: beforeBytes.length,
-						byteEnd: beforeBytes.length + matchBytes.length,
-					},
-					features: [{ $type: "app.bsky.richtext.facet#link", uri: cleanUrl }],
-				});
-			}
-			i = end;
-			continue;
-		}
+	// Detect URLs
+	let match: RegExpExecArray | null;
+	URL_REGEX.lastIndex = 0;
+	while ((match = URL_REGEX.exec(text)) !== null) {
+		// Strip trailing punctuation that was captured by the greedy regex
+		const cleanUrl = match[0].replace(TRAILING_PUNCTUATION_RE, "");
+		const beforeBytes = encoder.encode(text.slice(0, match.index));
+		const matchBytes = encoder.encode(cleanUrl);
+		facets.push({
+			index: {
+				byteStart: beforeBytes.length,
+				byteEnd: beforeBytes.length + matchBytes.length,
+			},
+			features: [{ $type: "app.bsky.richtext.facet#link", uri: cleanUrl }],
+		});
+	}
 
-		if (isHashtagStart(text, i)) {
-			let end = i + 1;
-			while (end < text.length && isHashtagChar(text[end]!)) {
-				end++;
-			}
-			if (end > i + 1) {
-				const beforeBytes = encoder.encode(text.slice(0, i));
-				const matchBytes = encoder.encode(text.slice(i, end));
-				facets.push({
-					index: {
-						byteStart: beforeBytes.length,
-						byteEnd: beforeBytes.length + matchBytes.length,
-					},
-					features: [{ $type: "app.bsky.richtext.facet#tag", tag: text.slice(i + 1, end) }],
-				});
-			}
-			i = end;
-			continue;
-		}
+	// Detect hashtags
+	HASHTAG_REGEX.lastIndex = 0;
+	while ((match = HASHTAG_REGEX.exec(text)) !== null) {
+		const tag = match[1];
+		if (!tag) continue;
 
-		i++;
+		// Include the # in the byte range
+		const beforeBytes = encoder.encode(text.slice(0, match.index));
+		const matchBytes = encoder.encode(match[0]);
+		facets.push({
+			index: {
+				byteStart: beforeBytes.length,
+				byteEnd: beforeBytes.length + matchBytes.length,
+			},
+			features: [{ $type: "app.bsky.richtext.facet#tag", tag }],
+		});
 	}
 
 	return facets;
@@ -191,44 +185,4 @@ function truncateGraphemes(text: string, maxGraphemes: number): string {
 
 function stripTrailingSlash(url: string): string {
 	return url.endsWith("/") ? url.slice(0, -1) : url;
-}
-
-function startsWithHttpUrl(text: string, index: number): boolean {
-	return text.startsWith("http://", index) || text.startsWith("https://", index);
-}
-
-function isUrlTerminator(ch: string): boolean {
-	return ch === " " || ch === "\t" || ch === "\n" || ch === "\r" || ch === ")" || ch === ">" || ch === "]";
-}
-
-function trimTrailingPunctuation(value: string): string {
-	let end = value.length;
-	while (end > 0) {
-		const ch = value[end - 1]!;
-		if (ch === "." || ch === "," || ch === ";" || ch === ":" || ch === "!" || ch === "?" || ch === "'" || ch === '"') {
-			end--;
-			continue;
-		}
-		break;
-	}
-	return value.slice(0, end);
-}
-
-function isHashtagStart(text: string, index: number): boolean {
-	if (text[index] !== "#") return false;
-	if (index === 0) return true;
-	return isBoundaryChar(text[index - 1]!);
-}
-
-function isHashtagChar(ch: string): boolean {
-	return (
-		(ch >= "a" && ch <= "z") ||
-		(ch >= "A" && ch <= "Z") ||
-		(ch >= "0" && ch <= "9") ||
-		ch === "_"
-	);
-}
-
-function isBoundaryChar(ch: string): boolean {
-	return ch === " " || ch === "\t" || ch === "\n" || ch === "\r";
 }

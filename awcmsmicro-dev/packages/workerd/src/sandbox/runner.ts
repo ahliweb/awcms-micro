@@ -23,7 +23,6 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { writeFile, mkdir, rm, unlink } from "node:fs/promises";
 import { createServer } from "node:http";
 import type { Server } from "node:http";
-import { createServer as createTcpServer } from "node:net";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -39,6 +38,34 @@ import type {
 import type { PluginManifest } from "emdash";
 // @ts-ignore -- SandboxUnavailableError is a class export, not type-only
 import { SandboxUnavailableError } from "emdash";
+
+const PLUGIN_PORT_MIN = 20_000;
+const PLUGIN_PORT_MAX = 64_000;
+const PLUGIN_PORT_BLOCK_SIZE = 512;
+const PLUGIN_PORT_ALLOCATIONS = new Set<number>();
+
+function allocatePluginPortBase(): number {
+	const maxBase = PLUGIN_PORT_MAX - PLUGIN_PORT_BLOCK_SIZE;
+	for (let attempt = 0; attempt < 1000; attempt++) {
+		const seed = randomBytes(2).readUInt16BE(0);
+		const base = PLUGIN_PORT_MIN + (seed % (maxBase - PLUGIN_PORT_MIN));
+		const blockBase = base - (base % PLUGIN_PORT_BLOCK_SIZE);
+		if (!PLUGIN_PORT_ALLOCATIONS.has(blockBase)) {
+			PLUGIN_PORT_ALLOCATIONS.add(blockBase);
+			return blockBase;
+		}
+	}
+
+	// Fallback for pathological cases: keep advancing until we find a free block.
+	for (let blockBase = PLUGIN_PORT_MIN; blockBase <= maxBase; blockBase += PLUGIN_PORT_BLOCK_SIZE) {
+		if (!PLUGIN_PORT_ALLOCATIONS.has(blockBase)) {
+			PLUGIN_PORT_ALLOCATIONS.add(blockBase);
+			return blockBase;
+		}
+	}
+
+	throw new Error("No free plugin port blocks available");
+}
 
 import { createBackingServiceHandler } from "./backing-service.js";
 import type { BackingServiceHandler } from "./backing-service.js";
@@ -93,17 +120,6 @@ export function minimalWorkerdEnv(): NodeJS.ProcessEnv {
 /** Use Unix domain sockets for the backing service (lower latency than TCP).
  * Falls back to TCP on Windows where Unix sockets are not available. */
 const USE_UNIX_SOCKET = process.platform !== "win32";
-
-function isPortAvailable(port: number): Promise<boolean> {
-	return new Promise((resolve) => {
-		const server = createTcpServer();
-		server.unref();
-		server.once("error", () => resolve(false));
-		server.listen(port, "127.0.0.1", () => {
-			server.close(() => resolve(true));
-		});
-	});
-}
 
 const activeRunners = new Set<WorkerdSandboxRunner>();
 let sigHandlerRegistered = false;
@@ -339,8 +355,11 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 	/** Epoch counter, incremented on each workerd restart */
 	private epoch = 0;
 
+	/** Base port block reserved for this runner instance */
+	private readonly pluginPortBase = allocatePluginPortBase();
+
 	/** Next available port for plugin nanoservices */
-	private nextPluginPort = 18788;
+	private nextPluginPort = this.pluginPortBase;
 
 	/**
 	 * Ports freed by unloadPlugin(), preferred over nextPluginPort on the
@@ -502,7 +521,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 
 		// Assign port and generate auth token. Reuse a freed port if one is
 		// available, otherwise allocate the next sequential port.
-		const port = this.freePorts.pop() ?? (await this.allocatePluginPort());
+		const port = this.freePorts.pop() ?? this.nextPluginPort++;
 		const token = this.generatePluginToken(manifest);
 
 		this.plugins.set(pluginId, { manifest, code, port, token });
@@ -514,20 +533,6 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 		this.scheduleEagerStart();
 
 		return new WorkerdSandboxedPlugin(pluginId, manifest, port, this.limits, this);
-	}
-
-	/**
-	 * Find the next available plugin port on localhost.
-	 */
-	private async allocatePluginPort(): Promise<number> {
-		while (this.nextPluginPort < 65535) {
-			const port = this.nextPluginPort++;
-			if (await isPortAvailable(port)) {
-				return port;
-			}
-		}
-
-		throw new Error("[emdash:workerd] exhausted available plugin ports");
 	}
 
 	/**
@@ -590,6 +595,7 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 			await rm(this.configDir, { recursive: true, force: true }).catch(() => {});
 			this.configDir = null;
 		}
+		PLUGIN_PORT_ALLOCATIONS.delete(this.pluginPortBase);
 	}
 
 	/**

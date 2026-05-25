@@ -15,7 +15,6 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createServer } from "node:net";
 
 import { WorkerdSandboxRunner } from "../src/sandbox/runner.js";
 
@@ -85,25 +84,20 @@ describe("plugin port reclaim", () => {
 		expect(after).toBe(before);
 	});
 
-	it("skips ports already bound by another process", async () => {
-		const occupied = createServer();
-		await new Promise<void>((resolve, reject) => {
-			occupied.once("error", reject);
-			occupied.listen(0, "127.0.0.1", () => resolve());
-		});
+	it("allocates distinct port blocks for concurrent runners", async () => {
+		const runnerA = new WorkerdSandboxRunner({ db: null as any });
+		const runnerB = new WorkerdSandboxRunner({ db: null as any });
+		vi.spyOn(runnerA as any, "ensureRunning").mockResolvedValue(undefined);
+		vi.spyOn(runnerB as any, "ensureRunning").mockResolvedValue(undefined);
 
 		try {
-			const address = occupied.address();
-			if (!address || typeof address === "string") {
-				throw new Error("expected an IPv4 address");
-			}
+			const pluginA = await runnerA.load(stubManifest("a"), "export default {};");
+			const pluginB = await runnerB.load(stubManifest("b"), "export default {};");
 
-			(runner as any).nextPluginPort = address.port;
-
-			const plugin = await runner.load(stubManifest("occupied"), "export default {};");
-			expect((plugin as any).port).not.toBe(address.port);
+			expect((pluginA as any).port).not.toBe((pluginB as any).port);
 		} finally {
-			await new Promise<void>((resolve) => occupied.close(() => resolve()));
+			await runnerA.terminateAll();
+			await runnerB.terminateAll();
 		}
 	});
 });

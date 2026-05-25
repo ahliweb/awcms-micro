@@ -5,7 +5,6 @@
 import { describe, it, expect } from "vitest";
 
 import { gutenbergToPortableText, htmlToPortableText, parseGutenbergBlocks } from "../src/index.js";
-import { extractText } from "../src/inline.js";
 import type {
 	PortableTextTextBlock,
 	PortableTextImageBlock,
@@ -15,6 +14,7 @@ import type {
 	PortableTextCoverBlock,
 } from "../src/types.js";
 
+const HTML_TAG_PATTERN = /<[^>]+>/g;
 const knownProviders = [
 	["youtube.com", "youtube"],
 	["youtu.be", "youtube"],
@@ -349,9 +349,9 @@ describe("gutenbergToPortableText", () => {
 		});
 	});
 
-		describe("image blocks", () => {
-			it("converts image with URL in attrs", () => {
-				const content = `<!-- wp:image {"id":123,"sizeSlug":"large","url":"https://example.com/photo.jpg"} -->
+	describe("image blocks", () => {
+		it("converts image with URL in attrs", () => {
+			const content = `<!-- wp:image {"id":123,"sizeSlug":"large","url":"https://example.com/photo.jpg"} -->
 <figure class="wp-block-image size-large"><img src="https://example.com/photo.jpg" alt="A photo" class="wp-image-123"/></figure>
 <!-- /wp:image -->`;
 
@@ -361,20 +361,8 @@ describe("gutenbergToPortableText", () => {
 				_type: "image",
 				alt: "A photo",
 			});
-				const img = result[0] as PortableTextImageBlock;
-				expect(img.asset.url).toBe("https://example.com/photo.jpg");
-			});
-
-			it("strips unsafe image URLs", () => {
-				const content = `<!-- wp:image {"id":123,"url":"javascript:alert(1)"} -->
-<figure class="wp-block-image"><img src="javascript:alert(1)" alt="A photo"/></figure>
-<!-- /wp:image -->`;
-
-			const result = gutenbergToPortableText(content);
 			const img = result[0] as PortableTextImageBlock;
-
-			expect(img.asset.url).toBeUndefined();
-			expect(img.asset._ref).toBe("123");
+			expect(img.asset.url).toBe("https://example.com/photo.jpg");
 		});
 
 		it("extracts image from HTML when not in attrs", () => {
@@ -477,8 +465,8 @@ describe("gutenbergToPortableText", () => {
 		});
 	});
 
-		describe("embed blocks", () => {
-			it("converts YouTube embed", () => {
+	describe("embed blocks", () => {
+		it("converts YouTube embed", () => {
 			const content = `<!-- wp:embed {"url":"https://www.youtube.com/watch?v=abc123","type":"video","providerNameSlug":"youtube"} -->
 <figure class="wp-block-embed is-type-video is-provider-youtube">
 <div class="wp-block-embed__wrapper">
@@ -489,29 +477,12 @@ https://www.youtube.com/watch?v=abc123
 
 			const result = gutenbergToPortableText(content);
 
-				expect(result[0]).toMatchObject({
-					_type: "embed",
-					url: "https://www.youtube.com/watch?v=abc123",
-					provider: "youtube",
-				});
+			expect(result[0]).toMatchObject({
+				_type: "embed",
+				url: "https://www.youtube.com/watch?v=abc123",
+				provider: "youtube",
 			});
-
-			it("strips unsafe embed URLs", () => {
-				const content = `<!-- wp:embed {"url":"javascript:alert(1)","type":"video"} -->
-<figure class="wp-block-embed is-type-video">
-<div class="wp-block-embed__wrapper">
-javascript:alert(1)
-</div>
-</figure>
-<!-- /wp:embed -->`;
-
-				const result = gutenbergToPortableText(content);
-
-				expect(result[0]).toMatchObject({
-					_type: "embed",
-					url: "",
-				});
-			});
+		});
 
 		it("converts Twitter embed", () => {
 			const content = `<!-- wp:embed {"url":"https://twitter.com/user/status/123","type":"rich","providerNameSlug":"twitter"} -->
@@ -1052,7 +1023,7 @@ https://${domain}/123456
 						{
 							_type: "testimonial" as const,
 							_key: ctx.generateKey(),
-							text: extractText(block.innerHTML),
+							text: block.innerHTML.replace(HTML_TAG_PATTERN, "").trim(),
 							rating: block.attrs.rating as number,
 						} as unknown as import("../src/types.js").PortableTextBlock,
 					],

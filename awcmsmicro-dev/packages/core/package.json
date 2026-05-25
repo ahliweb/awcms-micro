@@ -196,7 +196,7 @@
     "@emdash-cms/plugin-types": "workspace:*",
     "@emdash-cms/registry-client": "workspace:*",
     "@floating-ui/react": "^0.27.16",
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@oslojs/crypto": "catalog:",
     "@oslojs/encoding": "catalog:",
     "@portabletext/toolkit": "^5.0.1",
@@ -226,7 +226,7 @@
     "mime": "^4.1.0",
     "modern-tar": "^0.7.5",
     "picocolors": "^1.1.1",
-    "sanitize-html": "^2.17.4",
+    "sanitize-html": "^2.17.1",
     "sax": "^1.4.1",
     "ulidx": "^2.4.1",
     "upng-js": "^2.1.0",
@@ -238,9 +238,9 @@
     "pg": "^8.0.0"
   },
   "peerDependencies": {
-    "@astrojs/react": ">=5.0.5",
+    "@astrojs/react": ">=5.0.0-beta.0",
     "@emdash-cms/auth-atproto": "workspace:>=0.2.7",
-    "astro": ">=6.3.7",
+    "astro": ">=6.0.0-beta.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
@@ -262,7 +262,7 @@
     "publint": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-		"vite": "catalog:",
+    "vite": "^6.0.0",
     "vitest": "catalog:",
     "zod-openapi": "^5.4.6"
   },

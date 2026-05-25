@@ -7,9 +7,11 @@
 import { resolveAndValidateExternalUrl } from "./ssrf.js";
 import type { ImportSource, ProbeResult, SourceProbeResult } from "./types.js";
 
+// Regex pattern for URL normalization
+const TRAILING_SLASHES_PATTERN = /\/+$/;
+
 /** Registered import sources */
 const sources = new Map<string, ImportSource>();
-const TRAILING_SLASH_PATTERN = /\/+$/u;
 
 /**
  * Register an import source
@@ -59,7 +61,7 @@ export async function probeUrl(url: string): Promise<ProbeResult> {
 	}
 
 	// Remove trailing slash for consistency
-	normalizedUrl = normalizedUrl.replace(TRAILING_SLASH_PATTERN, "");
+	normalizedUrl = normalizedUrl.replace(TRAILING_SLASHES_PATTERN, "");
 
 	// SSRF: reject internal/private network targets. DNS resolution
 	// catches hostnames that resolve to private addresses.

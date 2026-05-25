@@ -262,7 +262,7 @@
     "publint": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.0.14",
+    "vite": "^6.0.0",
     "vitest": "catalog:",
     "zod-openapi": "^5.4.6"
   },

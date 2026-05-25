@@ -21,6 +21,7 @@ import * as React from "react";
 
 import { apiFetch, fetchAuthMode } from "../lib/api";
 import { useAuthProviderList } from "../lib/auth-provider-context";
+import { sanitizeRedirectUrl } from "../lib/url";
 import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
@@ -33,13 +34,6 @@ import { BrandLogo } from "./Logo.js";
 interface LoginPageProps {
 	/** URL to redirect to after successful login */
 	redirectUrl?: string;
-}
-
-function resolveSafeRedirectUrl(raw: string): string {
-	if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) {
-		return "/_emdash/admin";
-	}
-	return raw;
 }
 
 type LoginMethod = "passkey" | "magic-link";
@@ -167,8 +161,8 @@ function MagicLinkForm({ onBack }: MagicLinkFormProps) {
 // ============================================================================
 
 export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
-	// Defense-in-depth: validate here so CodeQL can see the local guard.
-	const safeRedirectUrl = resolveSafeRedirectUrl(redirectUrl);
+	// Defense-in-depth: sanitize even if the caller already validated
+	const safeRedirectUrl = sanitizeRedirectUrl(redirectUrl);
 	const { t } = useLingui();
 	const { locale, setLocale } = useLocale();
 	const [method, setMethod] = React.useState<LoginMethod>("passkey");
@@ -187,13 +181,9 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			if (safeRedirectUrl === "/_emdash/admin" && redirectUrl !== "/_emdash/admin") {
-				window.location.replace("/_emdash/admin");
-				return;
-			}
-			window.location.replace(safeRedirectUrl);
+			window.location.href = safeRedirectUrl;
 		}
-	}, [authInfo, redirectUrl, safeRedirectUrl]);
+	}, [authInfo, safeRedirectUrl]);
 
 	// Check for error in URL (from OAuth/provider redirect)
 	React.useEffect(() => {
@@ -210,11 +200,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		if (safeRedirectUrl === "/_emdash/admin" && redirectUrl !== "/_emdash/admin") {
-			window.location.replace("/_emdash/admin");
-			return;
-		}
-		window.location.replace(safeRedirectUrl);
+		window.location.href = safeRedirectUrl;
 	};
 
 	// All providers with a LoginButton show in the button grid

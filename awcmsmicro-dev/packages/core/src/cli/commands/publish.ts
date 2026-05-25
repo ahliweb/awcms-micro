@@ -108,8 +108,19 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 	consola.info(`Enter code: ${pc.yellow(pc.bold(deviceCode.user_code))}`);
 	console.log();
 
-	// Open the verification URL manually in a browser.
-	// Avoid spawning platform-specific commands from untrusted input.
+	// Try to open browser
+	try {
+		const { execFile } = await import("node:child_process");
+		if (process.platform === "darwin") {
+			execFile("open", [deviceCode.verification_uri]);
+		} else if (process.platform === "win32") {
+			execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
+		} else {
+			execFile("xdg-open", [deviceCode.verification_uri]);
+		}
+	} catch {
+		// User can open manually
+	}
 
 	// Step 4: Poll GitHub for access token
 	consola.start("Waiting for authorization...");
@@ -637,7 +648,7 @@ export const publishCommand = defineCommand({
 				displayAuditResults(finalStatus);
 			} else {
 				consola.warn("Audit did not complete within timeout. Check status later with:");
-				consola.info(`  ${pc.dim("curl <plugin-version-url>")}`);
+				consola.info(`  ${pc.dim(`curl ${versionUrl.toString()}`)}`);
 			}
 		} else {
 			// Synchronous response (201 or legacy)

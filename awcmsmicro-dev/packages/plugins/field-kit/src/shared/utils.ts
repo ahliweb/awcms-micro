@@ -12,29 +12,13 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const result: Record<string, unknown> = Object.create(null);
-	for (const [key, val] of Object.entries(source)) {
-		if (isSafeObjectKey(key)) {
-			Object.defineProperty(result, key, {
-				value: val,
-				enumerable: true,
-				writable: true,
-				configurable: true,
-			});
-		}
-	}
+	const obj: Record<string, unknown> = { ...source };
 	for (const field of fields) {
-		if (!isSafeObjectKey(field.key)) continue;
-		if (result[field.key] === undefined) {
-			Object.defineProperty(result, field.key, {
-				value: field.defaultValue ?? undefined,
-				enumerable: true,
-				writable: true,
-				configurable: true,
-			});
+		if (source[field.key] === undefined) {
+			obj[field.key] = field.defaultValue ?? undefined;
 		}
 	}
-	return result;
+	return obj;
 }
 
 /** Normalize a value into an array. Non-arrays become empty arrays. */
@@ -56,21 +40,24 @@ export function normalizeGrid(
 	rows: GridAxisDef[],
 	columns: GridAxisDef[],
 ): Record<string, Record<string, unknown>> {
+	const out: Record<string, Record<string, unknown>> = {};
+	for (const row of rows) {
+		out[row.key] = {};
+	}
+
 	if (!value || typeof value !== "object" || Array.isArray(value)) {
-		return Object.fromEntries(rows.map((row) => [row.key, {}]));
+		return out;
 	}
 
 	const source = value as Record<string, unknown>;
-	return Object.fromEntries(rows.map((row) => {
+	for (const row of rows) {
 		const rowVal = source[row.key];
-		const rowEntries: Array<[string, unknown]> = [];
+		const rowOut = out[row.key]!;
 		if (Array.isArray(rowVal)) {
 			// Legacy array format: convert ["leaf", "fruit"] → { leaf: true, fruit: true }
 			for (const code of rowVal) {
 				if (typeof code === "string") {
-					if (isSafeObjectKey(code)) {
-						rowEntries.push([code, true]);
-					}
+					rowOut[code] = true;
 				}
 			}
 		} else if (rowVal && typeof rowVal === "object") {
@@ -78,19 +65,16 @@ export function normalizeGrid(
 			// over them. Unknown keys survive so cells added to the schema later
 			// or managed outside this widget aren't silently dropped on save.
 			const rowObj = rowVal as Record<string, unknown>;
-			for (const [key, val] of Object.entries(rowObj)) {
-				if (isSafeObjectKey(key)) {
-					rowEntries.push([key, val]);
-				}
-			}
+			Object.assign(rowOut, rowObj);
 			for (const col of columns) {
-				if (isSafeObjectKey(col.key) && rowObj[col.key] !== undefined) {
-					rowEntries.push([col.key, rowObj[col.key]]);
+				if (rowObj[col.key] !== undefined) {
+					rowOut[col.key] = rowObj[col.key];
 				}
 			}
 		}
-		return [row.key, Object.fromEntries(rowEntries)];
-	}));
+	}
+
+	return out;
 }
 
 /** Normalize a value into a string array. Filters out non-strings. */
@@ -114,8 +98,4 @@ export function renderSummary(template: string, item: Record<string, unknown>): 
 		if (typeof val === "number" || typeof val === "boolean") return String(val);
 		return "";
 	});
-}
-
-function isSafeObjectKey(key: string): boolean {
-	return key !== "__proto__" && key !== "prototype" && key !== "constructor";
 }

@@ -19,7 +19,7 @@
 		"react-dom": "^19.1.0"
 	},
 	"devDependencies": {
-		"@astrojs/check": "catalog:",
+		"@astrojs/check": "^0.9.6",
 		"@types/node": "^24.10.9",
 		"typescript": "^5.9.3"
 	}

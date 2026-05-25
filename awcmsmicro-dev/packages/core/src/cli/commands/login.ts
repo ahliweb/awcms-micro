@@ -165,12 +165,12 @@ async function handleAccessRedirect(baseUrl: string): Promise<string | null> {
 	consola.info("You have two options:");
 	console.log();
 	consola.info(`  ${pc.bold("Option 1:")} Install cloudflared and run:`);
-	console.log(`    ${pc.cyan("cloudflared access login <instance-url>")}`);
-	console.log(`    ${pc.cyan("emdash login --url <instance-url>")}`);
+	console.log(`    ${pc.cyan(`cloudflared access login ${baseUrl}`)}`);
+	console.log(`    ${pc.cyan(`emdash login --url ${baseUrl}`)}`);
 	console.log();
 	consola.info(`  ${pc.bold("Option 2:")} Use a service token:`);
 	console.log(
-		`    ${pc.cyan("emdash login --url <instance-url> -H \"CF-Access-Client-Id: <id>\" -H \"CF-Access-Client-Secret: <secret>\"")}`,
+		`    ${pc.cyan(`emdash login --url ${baseUrl} -H "CF-Access-Client-Id: <id>" -H "CF-Access-Client-Secret: <secret>"`)}`,
 	);
 	console.log();
 
@@ -256,7 +256,7 @@ export const loginCommand = defineCommand({
 				// No device flow available (external auth mode)
 				consola.info("Device Flow is not available for this instance.");
 				consola.info("Generate an API token in Settings > API Tokens");
-			consola.info(`Then run: ${pc.cyan("emdash --token <token> --url <instance-url>")}`);
+				consola.info(`Then run: ${pc.cyan(`emdash --token <token> --url ${baseUrl}`)}`);
 				return;
 			}
 
@@ -290,8 +290,19 @@ export const loginCommand = defineCommand({
 			consola.info(`Enter code: ${pc.yellow(pc.bold(deviceCode.user_code))}`);
 			console.log();
 
-			// Open the verification URL manually in a browser.
-			// Avoid spawning platform-specific commands from untrusted input.
+			// Try to open browser (best-effort)
+			try {
+				const { execFile } = await import("node:child_process");
+				if (process.platform === "darwin") {
+					execFile("open", [deviceCode.verification_uri]);
+				} else if (process.platform === "win32") {
+					execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
+				} else {
+					execFile("xdg-open", [deviceCode.verification_uri]);
+				}
+			} catch {
+				// Ignore — user can open manually
+			}
 
 			// Step 4: Poll for token
 			consola.start("Waiting for authorization...");

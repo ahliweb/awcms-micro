@@ -17,6 +17,9 @@ import type {
 	NormalizedItem,
 } from "../types.js";
 
+const TRAILING_SLASHES = /\/+$/;
+const WP_JSON_SUFFIX = /\/wp-json\/?$/;
+
 /** WordPress REST API discovery response */
 interface WpApiDiscovery {
 	name?: string;
@@ -136,14 +139,10 @@ function normalizeUrl(url: string): string {
 	}
 
 	// Remove trailing slash
-	while (normalized.endsWith("/")) {
-		normalized = normalized.slice(0, -1);
-	}
+	normalized = normalized.replace(TRAILING_SLASHES, "");
 
 	// Remove /wp-json if included
-	if (normalized.toLowerCase().endsWith("/wp-json")) {
-		normalized = normalized.slice(0, -"/wp-json".length);
-	}
+	normalized = normalized.replace(WP_JSON_SUFFIX, "");
 
 	return normalized;
 }
