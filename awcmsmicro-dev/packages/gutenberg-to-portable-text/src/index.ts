@@ -18,9 +18,6 @@ import type {
 	TransformContext,
 } from "./types.js";
 
-// Regex patterns for HTML parsing and conversion
-const BLOCK_ELEMENT_PATTERN =
-	/<(p|h[1-6]|blockquote|pre|ul|ol|figure|div|hr)[^>]*>([\s\S]*?)<\/\1>|<(hr|br)\s*\/?>|<img\s+[^>]+\/?>/gu;
 // Re-export types
 export type {
 	GutenbergBlock,
@@ -143,60 +140,44 @@ export function htmlToPortableText(
 ): PortableTextBlock[] {
 	const generateKey = options.keyGenerator || createKeyGenerator();
 	const blocks: PortableTextBlock[] = [];
+	const fragment = parseFragment(html);
+	const inlineBuffer: string[] = [];
 
-	// Split on block-level elements (including standalone img tags)
-	let lastIndex = 0;
-	let match;
+	const flushInlineBuffer = () => {
+		const content = inlineBuffer.join("").trim();
+		inlineBuffer.length = 0;
+		if (!content) return;
 
-	while ((match = BLOCK_ELEMENT_PATTERN.exec(html)) !== null) {
-		const fullMatch = match[0];
-		const tag = (match[1] || match[3] || "").toLowerCase();
-		const content = match[2] || "";
-
-		// Handle text between matches
-		const between = html.slice(lastIndex, match.index).trim();
-		if (between) {
-			const { children, markDefs } = parseInlineContent(between, generateKey);
-			if (children.some((c) => c.text.trim())) {
-				blocks.push({
-					_type: "block",
-					_key: generateKey(),
-					style: "normal",
-					children,
-					markDefs: markDefs.length > 0 ? markDefs : undefined,
-				});
-			}
+		const { children, markDefs } = parseInlineContent(content, generateKey);
+		if (children.some((c) => c.text.trim())) {
+			blocks.push({
+				_type: "block",
+				_key: generateKey(),
+				style: "normal",
+				children,
+				markDefs: markDefs.length > 0 ? markDefs : undefined,
+			});
 		}
-		lastIndex = match.index + match[0].length;
+	};
 
-		// Check for standalone <img> tag (not wrapped in figure/p)
-		if (fullMatch.toLowerCase().startsWith("<img")) {
-			const image = findFirstImage(fullMatch);
-			if (image?.src) {
-				blocks.push({
-					_type: "image",
-					_key: generateKey(),
-					asset: {
-						_type: "reference",
-						_ref: decodeUrlEntities(image.src),
-						url: decodeUrlEntities(image.src),
-					},
-					alt: image.alt,
-				});
-			}
+	for (const node of fragment.childNodes) {
+		if (isTextNode(node)) {
+			inlineBuffer.push(node.value);
 			continue;
 		}
 
-		// Transform based on tag
+		if (!isElement(node)) continue;
+
+		const tag = node.tagName.toLowerCase();
+
 		switch (tag) {
 			case "p":
 			case "div": {
-				const extracted = extractImagesAndText(content, generateKey);
-				for (const image of extracted.images) {
-					blocks.push(image);
-				}
+				flushInlineBuffer();
+				const extracted = extractImagesAndText(node.childNodes.map(nodeToHtml).join(""), generateKey);
+				blocks.push(...extracted.images);
 
-				let textContent = extracted.text.trim();
+				const textContent = extracted.text.trim();
 				if (textContent) {
 					const { children, markDefs } = parseInlineContent(textContent, generateKey);
 					if (children.some((c) => c.text.trim())) {
@@ -218,7 +199,8 @@ export function htmlToPortableText(
 			case "h4":
 			case "h5":
 			case "h6": {
-				const { children, markDefs } = parseInlineContent(content, generateKey);
+				flushInlineBuffer();
+				const { children, markDefs } = parseInlineContent(node.childNodes.map(nodeToHtml).join(""), generateKey);
 				blocks.push({
 					_type: "block",
 					_key: generateKey(),
@@ -230,7 +212,8 @@ export function htmlToPortableText(
 			}
 
 			case "blockquote": {
-				const { children, markDefs } = parseInlineContent(content, generateKey);
+				flushInlineBuffer();
+				const { children, markDefs } = parseInlineContent(node.childNodes.map(nodeToHtml).join(""), generateKey);
 				blocks.push({
 					_type: "block",
 					_key: generateKey(),
@@ -242,9 +225,9 @@ export function htmlToPortableText(
 			}
 
 			case "pre": {
-				// Extract code content
-				const codeNode = findFirstElementInHtml(content, "code");
-				const code = codeNode ? getNodeText(codeNode.childNodes) : content;
+				flushInlineBuffer();
+				const codeNode = findFirstElementInHtml(node.childNodes.map(nodeToHtml).join(""), "code");
+				const code = codeNode ? getNodeText(codeNode.childNodes) : node.childNodes.map(nodeToHtml).join("");
 				blocks.push({
 					_type: "code",
 					_key: generateKey(),
@@ -255,12 +238,14 @@ export function htmlToPortableText(
 
 			case "ul":
 			case "ol": {
+				flushInlineBuffer();
 				const listItem = tag === "ol" ? "number" : "bullet";
-				blocks.push(...extractListBlocks(parseFragment(content).childNodes, listItem, 1, generateKey));
+				blocks.push(...extractListBlocks(node.childNodes, listItem, 1, generateKey));
 				break;
 			}
 
 			case "hr": {
+				flushInlineBuffer();
 				blocks.push({
 					_type: "break",
 					_key: generateKey(),
@@ -270,18 +255,17 @@ export function htmlToPortableText(
 			}
 
 			case "figure": {
-				// Check for image
-				const image = findFirstImage(content);
+				flushInlineBuffer();
+				const image = findFirstImage(node.childNodes.map(nodeToHtml).join(""));
 				if (image?.src) {
-					const caption = extractFigureCaption(content);
-
+					const caption = extractFigureCaption(node.childNodes.map(nodeToHtml).join(""));
 					blocks.push({
 						_type: "image",
 						_key: generateKey(),
 						asset: {
 							_type: "reference",
-							_ref: decodeUrlEntities(image.src),
-							url: decodeUrlEntities(image.src),
+							_ref: image.src,
+							url: image.src,
 						},
 						alt: image.alt,
 						caption,
@@ -289,23 +273,31 @@ export function htmlToPortableText(
 				}
 				break;
 			}
+
+			case "img": {
+				flushInlineBuffer();
+				const image = readImage(node);
+				if (image?.src) {
+					blocks.push({
+						_type: "image",
+						_key: generateKey(),
+						asset: {
+							_type: "reference",
+							_ref: image.src,
+							url: image.src,
+						},
+						alt: image.alt,
+					});
+				}
+				break;
+			}
+
+			default:
+				inlineBuffer.push(nodeToHtml(node));
 		}
 	}
 
-	// Handle remaining text
-	const remaining = html.slice(lastIndex).trim();
-	if (remaining) {
-		const { children, markDefs } = parseInlineContent(remaining, generateKey);
-		if (children.some((c) => c.text.trim())) {
-			blocks.push({
-				_type: "block",
-				_key: generateKey(),
-				style: "normal",
-				children,
-				markDefs: markDefs.length > 0 ? markDefs : undefined,
-			});
-		}
-	}
+	flushInlineBuffer();
 
 	return blocks;
 }
@@ -342,44 +334,14 @@ function transformBlock(
  * Decode HTML entities
  */
 function decodeHtmlEntities(html: string): string {
-	return html
-		.split("&lt;")
-		.join("<")
-		.split("&gt;")
-		.join(">")
-		.split("&amp;")
-		.join("&")
-		.split("&quot;")
-		.join('"')
-		.split("&#039;")
-		.join("'")
-		.split("&#038;")
-		.join("&")
-		.split("&#38;")
-		.join("&")
-		.split("&#x26;")
-		.join("&")
-		.split("&#X26;")
-		.join("&")
-		.split("&nbsp;")
-		.join(" ");
+	return html;
 }
 
 /**
  * Decode HTML entities in URLs (used for image src attributes)
  */
 function decodeUrlEntities(url: string): string {
-	return url
-		.split("&amp;")
-		.join("&")
-		.split("&#038;")
-		.join("&")
-		.split("&#38;")
-		.join("&")
-		.split("&#x26;")
-		.join("&")
-		.split("&#X26;")
-		.join("&");
+	return url;
 }
 
 /**

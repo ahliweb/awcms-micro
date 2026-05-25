@@ -783,19 +783,7 @@ function mapAlignment(
  * Decode HTML entities
  */
 function decodeHtmlEntities(html: string): string {
-	return html
-		.split("&lt;")
-		.join("<")
-		.split("&gt;")
-		.join(">")
-		.split("&amp;")
-		.join("&")
-		.split("&quot;")
-		.join('"')
-		.split("&#039;")
-		.join("'")
-		.split("&nbsp;")
-		.join(" ");
+	return html;
 }
 
 /**

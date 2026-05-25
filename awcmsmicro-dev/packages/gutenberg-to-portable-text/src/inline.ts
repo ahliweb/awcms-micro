@@ -10,9 +10,6 @@ import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
 import type { PortableTextSpan, PortableTextMarkDef } from "./types.js";
 import { sanitizeHref } from "./url.js";
 
-// Regex patterns for inline parsing
-const WHITESPACE_PATTERN = /\S/;
-
 const BLOCK_TAGS = new Set(["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"]);
 
 type Node = DefaultTreeAdapterMap["node"];
@@ -33,7 +30,7 @@ export function parseInlineContent(html: string, generateKey: () => string): Par
 	const markDefMap = new Map<string, string>();
 
 	// Handle whitespace-only input BEFORE stripping (parse5 normalizes whitespace away)
-	if (html.length > 0 && !WHITESPACE_PATTERN.test(html)) {
+	if (html.length > 0 && !hasNonWhitespace(html)) {
 		return {
 			children: [{ _type: "span", _key: generateKey(), text: html }],
 			markDefs: [],
@@ -245,6 +242,16 @@ function isTextNode(node: Node): node is TextNode {
  */
 function isElement(node: Node): node is Element {
 	return "tagName" in node;
+}
+
+function hasNonWhitespace(text: string): boolean {
+	for (let i = 0; i < text.length; i++) {
+		const code = text.charCodeAt(i);
+		if (code !== 9 && code !== 10 && code !== 12 && code !== 13 && code !== 32) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
