@@ -30,6 +30,8 @@ interface WpApiDiscovery {
 	routes?: Record<string, unknown>;
 }
 
+const TRAILING_SLASHES_PATTERN = /\/+$/;
+
 export const wordpressRestSource: ImportSource = {
 	id: "wordpress-rest",
 	name: "WordPress Site",
@@ -135,9 +137,7 @@ export function normalizeUrl(url: string): string {
 		normalized = `https://${normalized}`;
 	}
 
-	while (normalized.endsWith("/")) {
-		normalized = normalized.slice(0, -1);
-	}
+	normalized = normalized.replace(TRAILING_SLASHES_PATTERN, "");
 
 	if (normalized.endsWith("/wp-json")) {
 		normalized = normalized.slice(0, -"/wp-json".length);
