@@ -28,15 +28,6 @@ const ALT_ATTR_PATTERN = /alt=["']([^"']*)["']/i;
 const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
 const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
 const FIGCAPTION_TAG_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
-const AMP_ENTITY_PATTERN = /&amp;/g;
-const LESS_THAN_ENTITY_PATTERN = /&lt;/g;
-const GREATER_THAN_ENTITY_PATTERN = /&gt;/g;
-const QUOTE_ENTITY_PATTERN = /&quot;/g;
-const APOS_ENTITY_PATTERN = /&#039;/g;
-const NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
-const HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
-const NBSP_ENTITY_PATTERN = /&nbsp;/g;
-
 // Re-export types
 export type {
 	GutenbergBlock,
@@ -434,14 +425,26 @@ function transformBlock(
  */
 function decodeHtmlEntities(html: string): string {
 	return html
-		.replace(LESS_THAN_ENTITY_PATTERN, "<")
-		.replace(GREATER_THAN_ENTITY_PATTERN, ">")
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(QUOTE_ENTITY_PATTERN, '"')
-		.replace(APOS_ENTITY_PATTERN, "'")
-		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&") // &#038; or &#38;
-		.replace(HEX_AMP_ENTITY_PATTERN, "&") // &#x26;
-		.replace(NBSP_ENTITY_PATTERN, " ");
+		.split("&lt;")
+		.join("<")
+		.split("&gt;")
+		.join(">")
+		.split("&amp;")
+		.join("&")
+		.split("&quot;")
+		.join('"')
+		.split("&#039;")
+		.join("'")
+		.split("&#038;")
+		.join("&")
+		.split("&#38;")
+		.join("&")
+		.split("&#x26;")
+		.join("&")
+		.split("&#X26;")
+		.join("&")
+		.split("&nbsp;")
+		.join(" ");
 }
 
 /**
@@ -449,9 +452,16 @@ function decodeHtmlEntities(html: string): string {
  */
 function decodeUrlEntities(url: string): string {
 	return url
-		.replace(AMP_ENTITY_PATTERN, "&")
-		.replace(NUMERIC_AMP_ENTITY_PATTERN, "&")
-		.replace(HEX_AMP_ENTITY_PATTERN, "&");
+		.split("&amp;")
+		.join("&")
+		.split("&#038;")
+		.join("&")
+		.split("&#38;")
+		.join("&")
+		.split("&#x26;")
+		.join("&")
+		.split("&#X26;")
+		.join("&");
 }
 
 /**
