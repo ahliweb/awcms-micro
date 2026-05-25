@@ -1,5 +1,19 @@
 import type { SubFieldDef, GridAxisDef } from "./types";
 
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+function isSafeKey(key: string): boolean {
+	return !UNSAFE_KEYS.has(key);
+}
+
+function copySafeEntries(source: Record<string, unknown>): Record<string, unknown> {
+	const obj: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(source)) {
+		if (isSafeKey(key)) obj[key] = value;
+	}
+	return obj;
+}
+
 /**
  * Normalize a value into a plain object keyed by sub-field definitions.
  * Missing declared keys get their defaultValue (or undefined). Keys present
@@ -12,9 +26,9 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
 			: {};
-	const obj: Record<string, unknown> = { ...source };
+	const obj = copySafeEntries(source);
 	for (const field of fields) {
-		if (source[field.key] === undefined) {
+		if (isSafeKey(field.key) && source[field.key] === undefined) {
 			obj[field.key] = field.defaultValue ?? undefined;
 		}
 	}
@@ -56,7 +70,7 @@ export function normalizeGrid(
 		if (Array.isArray(rowVal)) {
 			// Legacy array format: convert ["leaf", "fruit"] → { leaf: true, fruit: true }
 			for (const code of rowVal) {
-				if (typeof code === "string") {
+				if (typeof code === "string" && isSafeKey(code)) {
 					rowOut[code] = true;
 				}
 			}
@@ -65,9 +79,9 @@ export function normalizeGrid(
 			// over them. Unknown keys survive so cells added to the schema later
 			// or managed outside this widget aren't silently dropped on save.
 			const rowObj = rowVal as Record<string, unknown>;
-			Object.assign(rowOut, rowObj);
+			Object.assign(rowOut, copySafeEntries(rowObj));
 			for (const col of columns) {
-				if (rowObj[col.key] !== undefined) {
+				if (isSafeKey(col.key) && rowObj[col.key] !== undefined) {
 					rowOut[col.key] = rowObj[col.key];
 				}
 			}
