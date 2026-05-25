@@ -9,7 +9,12 @@ import type { ImportSource, ProbeResult, SourceProbeResult } from "./types.js";
 
 /** Registered import sources */
 const sources = new Map<string, ImportSource>();
-const TRAILING_SLASHES_PATTERN = /\/+$/;
+
+function trimTrailingSlashes(value: string): string {
+	let end = value.length;
+	while (end > 0 && value[end - 1] === "/") end--;
+	return end === value.length ? value : value.slice(0, end);
+}
 
 /**
  * Register an import source
@@ -59,7 +64,7 @@ export async function probeUrl(url: string): Promise<ProbeResult> {
 	}
 
 	// Remove trailing slash for consistency
-	normalizedUrl = normalizedUrl.replace(TRAILING_SLASHES_PATTERN, "");
+	normalizedUrl = trimTrailingSlashes(normalizedUrl);
 
 	// SSRF: reject internal/private network targets. DNS resolution
 	// catches hostnames that resolve to private addresses.

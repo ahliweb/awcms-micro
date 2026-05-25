@@ -45,3 +45,10 @@ rules:
   excessive-permissions:
     ignore:
       - cla.yml
+
+  # `preview-releases.yml` uses `pkg-pr.new` to publish temporary preview
+  # packages for PR testing. It does not publish to npm and does not use
+  # trusted publishing credentials.
+  use-trusted-publishing:
+    ignore:
+      - preview-releases.yml

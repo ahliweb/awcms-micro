@@ -19,7 +19,7 @@
 
 import { execFileSync, spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { writeFile, mkdir, rm, unlink } from "node:fs/promises";
 import { createServer } from "node:http";
 import type { Server } from "node:http";
@@ -47,8 +47,7 @@ const PLUGIN_PORT_ALLOCATIONS = new Set<number>();
 function allocatePluginPortBase(): number {
 	const maxBase = PLUGIN_PORT_MAX - PLUGIN_PORT_BLOCK_SIZE;
 	for (let attempt = 0; attempt < 1000; attempt++) {
-		const seed = randomBytes(2).readUInt16BE(0);
-		const base = PLUGIN_PORT_MIN + (seed % (maxBase - PLUGIN_PORT_MIN));
+		const base = randomInt(PLUGIN_PORT_MIN, maxBase + 1);
 		const blockBase = base - (base % PLUGIN_PORT_BLOCK_SIZE);
 		if (!PLUGIN_PORT_ALLOCATIONS.has(blockBase)) {
 			PLUGIN_PORT_ALLOCATIONS.add(blockBase);

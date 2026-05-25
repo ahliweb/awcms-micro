@@ -1,26 +1,28 @@
 import type { ImageBlock } from "../types.js";
 
-function safeImageSrc(url: string): string | null {
-	if (!url || url.startsWith("//") || url.includes("\\")) return null;
+const HAS_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
 
-	try {
-		const parsed = new URL(url, "https://example.invalid");
-		if (url.startsWith("/")) {
-			return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : null;
+function isSafePreviewUrl(url: string): boolean {
+	if (!url) return false;
+	if (HAS_SCHEME_RE.test(url)) {
+		try {
+			const parsed = new URL(url);
+			return parsed.protocol === "http:" || parsed.protocol === "https:";
+		} catch {
+			return false;
 		}
-		return parsed.protocol === "https:" || parsed.protocol === "http:" ? parsed.href : null;
-	} catch {
-		return null;
 	}
+	return url.startsWith("/") && !url.startsWith("//") && !url.includes("\\");
 }
 
 export function ImageBlockComponent({ block }: { block: ImageBlock }) {
-	const src = safeImageSrc(block.url);
-	if (!src) return null;
+	const url = block.url;
+	const canPreview = isSafePreviewUrl(url);
+	if (!canPreview) return null;
 
 	return (
 		<figure>
-			<img src={src} alt={block.alt} className="max-w-full rounded" />
+			<img src={url} alt={block.alt} className="max-w-full rounded" referrerPolicy="no-referrer" />
 			{block.title && (
 				<figcaption className="mt-1 text-sm text-kumo-subtle">{block.title}</figcaption>
 			)}
