@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { awcmsMicroGalleryPlugin, createPlugin, validateGalleryContent, validateGalleryItem } from "../src/index.js";
+import sandboxPlugin from "../src/sandbox.js";
 
 function createMockContext() {
 	const kv = new Map<string, unknown>();
@@ -33,6 +34,12 @@ describe("awcms micro gallery plugin", () => {
 		expect(descriptor.entrypoint).toBe("@awcms-micro/plugin-gallery/sandbox");
 		expect(descriptor.capabilities).toContain("media:write");
 		expect(descriptor.adminPages?.[0]?.path).toBe("/");
+	});
+
+	it("exports a sandbox plugin object", () => {
+		expect(typeof sandboxPlugin).toBe("object");
+		expect(sandboxPlugin).toHaveProperty("hooks");
+		expect(sandboxPlugin).toHaveProperty("routes");
 	});
 
 	it("accepts valid mixed gallery content", () => {
