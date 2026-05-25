@@ -188,11 +188,11 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Code fence
-		if (line.startsWith("```")) {
+		if (isCodeFence(line)) {
 			const lang = line.slice(3).trim();
 			const codeLines: string[] = [];
 			i++;
-			while (i < lines.length && !lines[i].startsWith("```")) {
+			while (i < lines.length && !isCodeFence(lines[i])) {
 				codeLines.push(lines[i]);
 				i++;
 			}
@@ -221,7 +221,7 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Blockquote
-		if (line.startsWith("> ")) {
+		if (isBlockquote(line)) {
 			blocks.push(makeBlock(line.slice(2), "blockquote"));
 			i++;
 			continue;
@@ -265,8 +265,17 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 }
 
 function parseOpaqueFence(line: string): string | null {
-	if (!line.startsWith("<!--ec:block ") || !line.endsWith(" -->")) return null;
-	return line.slice("<!--ec:block ".length, -4);
+	if (line.length < 17 || line.slice(0, 13) !== "<!--ec:block ") return null;
+	if (line.slice(-4) !== " -->") return null;
+	return line.slice(13, -4);
+}
+
+function isCodeFence(line: string): boolean {
+	return line.length >= 3 && line.charCodeAt(0) === 96 && line.charCodeAt(1) === 96 && line.charCodeAt(2) === 96;
+}
+
+function isBlockquote(line: string): boolean {
+	return line.length >= 2 && line.charCodeAt(0) === 62 && line.charCodeAt(1) === 32;
 }
 
 // ---------------------------------------------------------------------------
@@ -302,7 +311,7 @@ function parseInline(text: string): ParsedInline {
 	let lastTextStart = 0;
 
 	while (i < text.length) {
-		if (text.startsWith("**", i)) {
+		if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) === 42) {
 			const end = text.indexOf("**", i + 2);
 			if (end > i + 2) {
 				pushTextSpan(text, spans, lastTextStart, i);
@@ -335,7 +344,7 @@ function parseInline(text: string): ParsedInline {
 			}
 		}
 
-		if (text.startsWith("~~", i)) {
+		if (text.charCodeAt(i) === 126 && text.charCodeAt(i + 1) === 126) {
 			const end = text.indexOf("~~", i + 2);
 			if (end > i + 2) {
 				pushTextSpan(text, spans, lastTextStart, i);
