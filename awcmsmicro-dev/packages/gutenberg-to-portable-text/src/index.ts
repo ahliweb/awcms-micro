@@ -7,6 +7,7 @@
  */
 
 import { parse } from "@wordpress/block-serialization-default-parser";
+import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
 
 import { parseInlineContent } from "./inline.js";
 import { getTransformer } from "./transformers/index.js";
@@ -20,14 +21,8 @@ import type {
 // Regex patterns for HTML parsing and conversion
 const BLOCK_ELEMENT_PATTERN =
 	/<(p|h[1-6]|blockquote|pre|ul|ol|figure|div|hr)[^>]*>([\s\S]*?)<\/\1>|<(hr|br)\s*\/?>|<img\s+[^>]+\/?>/gu;
-const LINKED_IMAGE_PATTERN = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>\s*<img\s+([^>]+)\/?>\s*<\/a>/gu;
-const STANDALONE_IMAGE_PATTERN = /<img\s+[^>]+\/?>/gu;
-const IMG_TAG_PATTERN = /<img[^>]+>/i;
-const SRC_ATTR_PATTERN = /src=["']([^"']+)["']/i;
-const ALT_ATTR_PATTERN = /alt=["']([^"']*)["']/i;
 const LIST_ITEM_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/gu;
 const CODE_TAG_PATTERN = /<code[^>]*>([\s\S]*?)<\/code>/i;
-const FIGCAPTION_TAG_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
 // Re-export types
 export type {
 	GutenbergBlock,
@@ -178,19 +173,17 @@ export function htmlToPortableText(
 
 		// Check for standalone <img> tag (not wrapped in figure/p)
 		if (fullMatch.toLowerCase().startsWith("<img")) {
-			const srcMatch = fullMatch.match(SRC_ATTR_PATTERN);
-			const altMatch = fullMatch.match(ALT_ATTR_PATTERN);
-			if (srcMatch?.[1]) {
-				const imgUrl = decodeUrlEntities(srcMatch[1]);
+			const image = findFirstImage(fullMatch);
+			if (image?.src) {
 				blocks.push({
 					_type: "image",
 					_key: generateKey(),
 					asset: {
 						_type: "reference",
-						_ref: imgUrl,
-						url: imgUrl,
+						_ref: decodeUrlEntities(image.src),
+						url: decodeUrlEntities(image.src),
 					},
-					alt: altMatch?.[1],
+					alt: image.alt,
 				});
 			}
 			continue;
@@ -200,69 +193,12 @@ export function htmlToPortableText(
 		switch (tag) {
 			case "p":
 			case "div": {
-				// Extract any images first (including those wrapped in <a> tags)
-				// Match: <a...><img...></a> or standalone <img...>
-				// Track positions of linked images so we don't double-process
-				const linkedImgPositions: Array<{ start: number; end: number }> = [];
-
-				// First extract linked images
-				let linkedMatch;
-				while ((linkedMatch = LINKED_IMAGE_PATTERN.exec(content)) !== null) {
-					const linkUrl = decodeUrlEntities(linkedMatch[1]!);
-					const imgAttrs = linkedMatch[2]!;
-					const srcMatch = imgAttrs.match(SRC_ATTR_PATTERN);
-					const altMatch = imgAttrs.match(ALT_ATTR_PATTERN);
-					if (srcMatch?.[1]) {
-						const imgUrl = decodeUrlEntities(srcMatch[1]);
-						blocks.push({
-							_type: "image",
-							_key: generateKey(),
-							asset: {
-								_type: "reference",
-								_ref: imgUrl,
-								url: imgUrl,
-							},
-							alt: altMatch?.[1],
-							link: linkUrl,
-						});
-					}
-					linkedImgPositions.push({
-						start: linkedMatch.index,
-						end: linkedMatch.index + linkedMatch[0].length,
-					});
+				const extracted = extractImagesAndText(content, generateKey);
+				for (const image of extracted.images) {
+					blocks.push(image);
 				}
 
-				// Then extract standalone images (not inside <a> tags)
-				let imgMatch;
-				while ((imgMatch = STANDALONE_IMAGE_PATTERN.exec(content)) !== null) {
-					// Skip if this image is inside a linked image we already processed
-					const isLinked = linkedImgPositions.some(
-						(pos) => imgMatch!.index >= pos.start && imgMatch!.index < pos.end,
-					);
-					if (isLinked) continue;
-
-					const srcMatch = imgMatch[0].match(SRC_ATTR_PATTERN);
-					const altMatch = imgMatch[0].match(ALT_ATTR_PATTERN);
-					if (srcMatch?.[1]) {
-						const imgUrl = decodeUrlEntities(srcMatch[1]);
-						blocks.push({
-							_type: "image",
-							_key: generateKey(),
-							asset: {
-								_type: "reference",
-								_ref: imgUrl,
-								url: imgUrl,
-							},
-							alt: altMatch?.[1],
-						});
-					}
-				}
-
-				// Then handle the text content (with images and image links stripped)
-				let textContent = content
-					.replace(LINKED_IMAGE_PATTERN, "") // Remove linked images
-					.replace(STANDALONE_IMAGE_PATTERN, "") // Remove standalone images
-					.trim();
+				let textContent = extracted.text.trim();
 				if (textContent) {
 					const { children, markDefs } = parseInlineContent(textContent, generateKey);
 					if (children.some((c) => c.text.trim())) {
@@ -350,23 +286,20 @@ export function htmlToPortableText(
 
 			case "figure": {
 				// Check for image
-				const imgMatch = content.match(IMG_TAG_PATTERN);
-				if (imgMatch) {
-					const srcMatch = imgMatch[0].match(SRC_ATTR_PATTERN);
-					const altMatch = imgMatch[0].match(ALT_ATTR_PATTERN);
-					const captionMatch = content.match(FIGCAPTION_TAG_PATTERN);
-					const imgUrl = srcMatch?.[1] ? decodeUrlEntities(srcMatch[1]) : "";
+				const image = findFirstImage(content);
+				if (image?.src) {
+					const caption = extractFigureCaption(content);
 
 					blocks.push({
 						_type: "image",
 						_key: generateKey(),
 						asset: {
 							_type: "reference",
-							_ref: imgUrl,
-							url: imgUrl || undefined,
+							_ref: decodeUrlEntities(image.src),
+							url: decodeUrlEntities(image.src),
 						},
-						alt: altMatch?.[1],
-						caption: captionMatch?.[1] ? stripHtmlTags(captionMatch[1]).trim() : undefined,
+						alt: image.alt,
+						caption,
 					});
 				}
 				break;
@@ -498,4 +431,136 @@ function stripHtmlTags(html: string): string {
 	}
 
 	return out;
+}
+
+type Node = DefaultTreeAdapterMap["node"];
+type TextNode = DefaultTreeAdapterMap["textNode"];
+type Element = DefaultTreeAdapterMap["element"];
+
+function extractImagesAndText(
+	html: string,
+	generateKey: () => string,
+): { images: PortableTextBlock[]; text: string } {
+	const fragment = parseFragment(html);
+	const images: PortableTextBlock[] = [];
+	const textParts: string[] = [];
+
+	for (const node of fragment.childNodes) {
+		if (isElement(node) && node.tagName.toLowerCase() === "a") {
+			const image = findFirstImageInNodes(node.childNodes);
+			if (image?.src) {
+				const link = getAttr(node, "href");
+				images.push(makeImageBlock(image.src, image.alt, generateKey, link));
+				continue;
+			}
+		}
+
+		if (isElement(node) && node.tagName.toLowerCase() === "img") {
+			const image = readImage(node);
+			if (image?.src) {
+				images.push(makeImageBlock(image.src, image.alt, generateKey));
+				continue;
+			}
+		}
+
+		textParts.push(nodeToHtml(node));
+	}
+
+	return { images, text: textParts.join("") };
+}
+
+function extractFigureCaption(html: string): string | undefined {
+	const captionNode = findFirstElementInHtml(html, "figcaption");
+	if (!captionNode) return undefined;
+	return stripHtmlTags(getNodeText(captionNode.childNodes)).trim() || undefined;
+}
+
+function findFirstImage(html: string): { src?: string; alt?: string } | undefined {
+	return readImage(findFirstElementInHtml(html, "img") ?? undefined);
+}
+
+function findFirstImageInNodes(nodes: Node[]): { src?: string; alt?: string } | undefined {
+	return readImage(findElement(nodes, "img") ?? undefined);
+}
+
+function findFirstElementInHtml(html: string, tagName: string): Element | undefined {
+	return findElement(parseFragment(html).childNodes, tagName);
+}
+
+function findElement(nodes: Node[], tagName: string): Element | undefined {
+	for (const node of nodes) {
+		if (isElement(node)) {
+			if (node.tagName.toLowerCase() === tagName) return node;
+			const found = findElement(node.childNodes, tagName);
+			if (found) return found;
+		}
+	}
+	return undefined;
+}
+
+function getAttr(element: Element, name: string): string | undefined {
+	const attr = element.attrs.find((a) => a.name.toLowerCase() === name);
+	return attr?.value;
+}
+
+function readImage(element?: Element): { src?: string; alt?: string } | undefined {
+	if (!element) return undefined;
+	return { src: getAttr(element, "src"), alt: getAttr(element, "alt") };
+}
+
+function makeImageBlock(
+	src: string,
+	alt: string | undefined,
+	generateKey: () => string,
+	link?: string,
+): PortableTextBlock {
+	return {
+		_type: "image",
+		_key: generateKey(),
+		asset: {
+			_type: "reference",
+			_ref: decodeUrlEntities(src),
+			url: decodeUrlEntities(src),
+		},
+		alt,
+		...(link ? { link } : {}),
+	};
+}
+
+function getNodeText(nodes: Node[]): string {
+	let text = "";
+	for (const node of nodes) {
+		if (isTextNode(node)) text += node.value;
+		else if (isElement(node)) text += getNodeText(node.childNodes);
+	}
+	return text;
+}
+
+function nodeToHtml(node: Node): string {
+	if (isTextNode(node)) return node.value;
+	if (!isElement(node)) return "";
+	const attrs = node.attrs.length
+		? ` ${node.attrs.map((attr) => `${attr.name}="${escapeHtml(attr.value)}"`).join(" ")}`
+		: "";
+	return `<${node.tagName}${attrs}>${node.childNodes.map(nodeToHtml).join("")}</${node.tagName}>`;
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.split("&")
+		.join("&amp;")
+		.split('"')
+		.join("&quot;")
+		.split("<")
+		.join("&lt;")
+		.split(">")
+		.join("&gt;");
+}
+
+function isTextNode(node: Node): node is TextNode {
+	return node.nodeName === "#text";
+}
+
+function isElement(node: Node): node is Element {
+	return "tagName" in node;
 }
