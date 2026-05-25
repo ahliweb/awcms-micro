@@ -406,28 +406,28 @@ function parseHeading(line: string): { level: number; text: string } | null {
 }
 
 function parseUnorderedList(line: string): { level: number; text: string } | null {
-	let indent = 0;
-	while (line[indent] === " ") indent++;
-	const marker = line[indent];
+	const trimmed = line.trimStart();
+	const indent = line.length - trimmed.length;
+	const marker = trimmed[0];
 	if (marker !== "-" && marker !== "*" && marker !== "+") return null;
-	if (line[indent + 1] !== " ") return null;
-	const text = line.slice(indent + 2);
+	if (trimmed[1] !== " ") return null;
+	const text = trimmed.slice(2);
 	return text ? { level: Math.floor(indent / 2) + 1, text } : null;
 }
 
 function parseOrderedList(line: string): { level: number; text: string } | null {
-	let indent = 0;
-	while (line[indent] === " ") indent++;
-	let cursor = indent;
+	const trimmed = line.trimStart();
+	const indent = line.length - trimmed.length;
+	let cursor = 0;
 	let sawDigit = false;
 	while (true) {
-		const code = line.charCodeAt(cursor);
+		const code = trimmed.charCodeAt(cursor);
 		if (code < 48 || code > 57) break;
 		sawDigit = true;
 		cursor++;
 	}
-	if (!sawDigit || line[cursor] !== "." || line[cursor + 1] !== " ") return null;
-	const text = line.slice(cursor + 2);
+	if (!sawDigit || trimmed[cursor] !== "." || trimmed[cursor + 1] !== " ") return null;
+	const text = trimmed.slice(cursor + 2);
 	return text ? { level: Math.floor(indent / 2) + 1, text } : null;
 }
 
