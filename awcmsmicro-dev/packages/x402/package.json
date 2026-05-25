@@ -36,8 +36,8 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
-		"@x402/core": "^2.8.0",
-		"@x402/evm": "^2.8.0"
+		"@x402/core": "^2.13.0",
+		"@x402/evm": "^2.13.0"
 	},
 	"devDependencies": {
 		"@arethetypeswrong/cli": "catalog:",
@@ -51,6 +51,6 @@
 		"astro": ">=6.0.0-beta.0"
 	},
 	"optionalDependencies": {
-		"@x402/svm": "^2.8.0"
+		"@x402/svm": "^2.13.0"
 	}
 }
