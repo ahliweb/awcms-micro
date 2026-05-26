@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { sanitizeRedirectUrl } from "../../src/lib/url";
+import { sanitizeRedirectUrl, toAdminRouterPath } from "../../src/lib/url";
 
 describe("sanitizeRedirectUrl", () => {
 	it("allows simple relative paths", () => {
@@ -55,5 +55,23 @@ describe("sanitizeRedirectUrl", () => {
 
 	it("rejects bare domain", () => {
 		expect(sanitizeRedirectUrl("evil.com")).toBe("/_emdash/admin");
+	});
+});
+
+describe("toAdminRouterPath", () => {
+	it("converts admin root to router root", () => {
+		expect(toAdminRouterPath("/_emdash/admin")).toBe("/");
+	});
+
+	it("converts nested admin paths to router-relative paths", () => {
+		expect(toAdminRouterPath("/_emdash/admin/content/posts")).toBe("/content/posts");
+	});
+
+	it("preserves query and hash fragments", () => {
+		expect(toAdminRouterPath("/_emdash/admin?tab=settings#users")).toBe("/?tab=settings#users");
+	});
+
+	it("falls back safely on unsafe input", () => {
+		expect(toAdminRouterPath("https://evil.com/phish")).toBe("/");
 	});
 });

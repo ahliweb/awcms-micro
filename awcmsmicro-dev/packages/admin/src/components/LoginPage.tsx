@@ -21,7 +21,7 @@ import * as React from "react";
 
 import { apiFetch, fetchAuthMode } from "../lib/api";
 import { useAuthProviderList } from "../lib/auth-provider-context";
-import { sanitizeRedirectUrl } from "../lib/url.js";
+import { toAdminRouterPath } from "../lib/url.js";
 import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
@@ -170,7 +170,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	// Auth provider components from virtual module (via context)
 	const authProviderList = useAuthProviderList();
-	const safeRedirectUrl = sanitizeRedirectUrl(redirectUrl);
+	const routerRedirectUrl = toAdminRouterPath(redirectUrl);
 
 	// Fetch auth mode from public endpoint (works without authentication)
 	const { data: authInfo, isLoading: authModeLoading } = useQuery({
@@ -181,9 +181,9 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			void navigate({ to: safeRedirectUrl as never, replace: true });
+			void navigate({ to: routerRedirectUrl as never, replace: true });
 		}
-	}, [authInfo, navigate, safeRedirectUrl]);
+	}, [authInfo, navigate, routerRedirectUrl]);
 
 	// Check for error in URL (from OAuth/provider redirect)
 	React.useEffect(() => {
@@ -200,7 +200,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		void navigate({ to: safeRedirectUrl as never, replace: true });
+		void navigate({ to: routerRedirectUrl as never, replace: true });
 	};
 
 	// All providers with a LoginButton show in the button grid
