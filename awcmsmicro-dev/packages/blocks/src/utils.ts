@@ -91,3 +91,14 @@ export function formatRelativeTime(iso: string): string {
 	const years = Math.floor(diff / YEAR);
 	return years === 1 ? "1 year ago" : `${years} years ago`;
 }
+
+const HAS_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
+const SAFE_HTTP_RE = /^https?:\/\//i;
+
+export function isSafePreviewUrl(url: string): boolean {
+	if (!url) return false;
+	if (HAS_SCHEME_RE.test(url)) {
+		return SAFE_HTTP_RE.test(url);
+	}
+	return url.startsWith("/") && !url.startsWith("//");
+}

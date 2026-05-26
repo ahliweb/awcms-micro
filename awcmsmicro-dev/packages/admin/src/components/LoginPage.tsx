@@ -181,7 +181,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			window.location.href = safeRedirectUrl;
+			window.location.replace(safeRedirectUrl);
 		}
 	}, [authInfo, safeRedirectUrl]);
 
@@ -200,7 +200,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		window.location.href = safeRedirectUrl;
+		window.location.replace(safeRedirectUrl);
 	};
 
 	// All providers with a LoginButton show in the button grid

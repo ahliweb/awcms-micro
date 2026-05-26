@@ -20,7 +20,6 @@ const UL_TAG_PATTERN = /<ul[^>]*>([\s\S]*)<\/ul>/i;
 const OL_TAG_PATTERN = /<ol[^>]*>([\s\S]*)<\/ol>/i;
 const NESTED_LIST_PATTERN = /<[uo]l[^>]*>[\s\S]*<\/[uo]l>/gi;
 const P_TAG_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/gi;
-const P_TAG_SINGLE_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/i;
 const HREF_PATTERN = /href="([^"]*)"/i;
 const DATA_ID_PATTERN = /data-id=["'](\d+)["']/i;
 const CODE_TAG_PATTERN_SINGLE = /<code[^>]*>([\s\S]*?)<\/code>/i;
@@ -30,13 +29,23 @@ const IMG_TAG_GLOBAL = /<img[^>]+>/gi;
 const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
 const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
 const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
-const CITE_TAG_PATTERN = /<cite[^>]*>([\s\S]*?)<\/cite>/i;
 const LT_ENTITY_PATTERN = /&lt;/g;
 const GT_ENTITY_PATTERN = /&gt;/g;
 const AMP_ENTITY_PATTERN = /&amp;/g;
 const QUOT_ENTITY_PATTERN = /&quot;/g;
 const APOS_ENTITY_PATTERN = /&#039;/g;
 const NBSP_ENTITY_PATTERN = /&nbsp;/g;
+
+function extractTagInnerHtml(html: string, tagName: string): string | undefined {
+	const lower = html.toLowerCase();
+	const openStart = lower.indexOf(`<${tagName}`);
+	if (openStart === -1) return undefined;
+	const openEnd = lower.indexOf(">", openStart);
+	if (openEnd === -1) return undefined;
+	const closeStart = lower.indexOf(`</${tagName}>`, openEnd + 1);
+	if (closeStart === -1) return undefined;
+	return html.slice(openEnd + 1, closeStart);
+}
 
 /**
  * core/paragraph → block with style "normal"
@@ -886,12 +895,12 @@ export const file: BlockTransformer = (block, _options, context) => {
  */
 export const pullquote: BlockTransformer = (block, _options, context) => {
 	// Extract text from blockquote > p
-	const pMatch = block.innerHTML.match(P_TAG_SINGLE_PATTERN);
-	const text = pMatch ? extractText(pMatch[1]!) : extractText(block.innerHTML);
+	const pHtml = extractTagInnerHtml(block.innerHTML, "p");
+	const text = pHtml ? extractText(pHtml) : extractText(block.innerHTML);
 
 	// Extract citation
-	const citeMatch = block.innerHTML.match(CITE_TAG_PATTERN);
-	const citation = citeMatch ? extractText(citeMatch[1]!) : attrString(block.attrs, "citation");
+	const citeHtml = extractTagInnerHtml(block.innerHTML, "cite");
+	const citation = citeHtml ? extractText(citeHtml) : attrString(block.attrs, "citation");
 
 	return [
 		{
