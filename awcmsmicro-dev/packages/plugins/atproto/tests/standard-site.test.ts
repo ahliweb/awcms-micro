@@ -143,11 +143,6 @@ describe("extractPlainText", () => {
 		expect(text).toBe("Hello world");
 	});
 
-	it("keeps repeated less-than characters from triggering tag stripping", () => {
-		const text = extractPlainText({ body: "<<< hello" });
-		expect(text).toBe("<<< hello");
-	});
-
 	it("decodes HTML entities", () => {
 		const text = extractPlainText({ body: "Tom &amp; Jerry &lt;3 &gt; &quot;fun&quot;" });
 		expect(text).toBe('Tom & Jerry <3 > "fun"');

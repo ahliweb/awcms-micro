@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 WORKSPACE_DIR="$ROOT_DIR/awcmsmicro-dev"
 REPORT_FILE="$ROOT_DIR/docs/upstream-sync/LAST_VALIDATION.md"
+FETCH_METADATA_FILE="$ROOT_DIR/docs/upstream-sync/LAST_UPSTREAM_FETCH.md"
 
 if [[ ! -d "$WORKSPACE_DIR" ]]; then
 	echo "Missing workspace directory: $WORKSPACE_DIR" >&2
@@ -21,7 +22,6 @@ mkdir -p "$(dirname "$REPORT_FILE")"
 
 STARTED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 BRANCH_NAME="$(git -C "$ROOT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
-UPSTREAM_SHA="$(git -C "$ROOT_DIR" rev-parse HEAD:emdash-latest 2>/dev/null || printf 'unknown')"
 TMP_OUTPUT="$(mktemp)"
 STATUS="Running"
 FAILURE_CATEGORY="None"
@@ -33,6 +33,25 @@ cleanup() {
 	rm -f "$TMP_OUTPUT"
 	rm -f "$REPORT_TMP"
 }
+
+read_upstream_sha() {
+	local path="$1"
+	if [[ -f "$path" ]]; then
+		python3 - "$path" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+text = Path(sys.argv[1]).read_text()
+match = re.search(r"^\s*- Upstream commit SHA: (.+)$", text, re.M)
+print(match.group(1) if match else "unknown")
+PY
+	else
+		printf 'unknown'
+	fi
+}
+
+UPSTREAM_SHA="$(read_upstream_sha "$FETCH_METADATA_FILE")"
 
 trap cleanup EXIT
 

@@ -27,7 +27,6 @@ import {
 	saveMarketplaceCredential,
 	removeMarketplaceCredential,
 } from "../credentials.js";
-import { validateExternalUrl } from "../../security/ssrf.js";
 
 const DEFAULT_REGISTRY = "https://marketplace.emdashcms.com";
 
@@ -74,10 +73,9 @@ interface AuthDiscovery {
  * Returns the marketplace JWT and author info.
  */
 async function authenticateViaDeviceFlow(registryUrl: string): Promise<MarketplaceAuthResponse> {
-	const safeRegistryUrl = validateExternalUrl(registryUrl).origin;
 	// Step 1: Fetch auth discovery to get GitHub client_id
 	consola.start("Fetching auth configuration...");
-	const discoveryRes = await fetch(new URL("/api/v1/auth/discovery", safeRegistryUrl));
+	const discoveryRes = await fetch(new URL("/api/v1/auth/discovery", registryUrl));
 	if (!discoveryRes.ok) {
 		throw new Error(`Marketplace unreachable: ${discoveryRes.status} ${discoveryRes.statusText}`);
 	}
@@ -109,7 +107,20 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 	console.log();
 	consola.info(`Enter code: ${pc.yellow(pc.bold(deviceCode.user_code))}`);
 	console.log();
-	// Open the URL manually; avoiding shelling out keeps this flow safe.
+
+	// Try to open browser
+	try {
+		const { execFile } = await import("node:child_process");
+		if (process.platform === "darwin") {
+			execFile("open", [deviceCode.verification_uri]);
+		} else if (process.platform === "win32") {
+			execFile("cmd", ["/c", "start", "", deviceCode.verification_uri]);
+		} else {
+			execFile("xdg-open", [deviceCode.verification_uri]);
+		}
+	} catch {
+		// User can open manually
+	}
 
 	// Step 4: Poll GitHub for access token
 	consola.start("Waiting for authorization...");
@@ -123,7 +134,7 @@ async function authenticateViaDeviceFlow(registryUrl: string): Promise<Marketpla
 
 	// Step 5: Exchange GitHub token for marketplace JWT
 	consola.start("Authenticating with marketplace...");
-	const deviceTokenUrl = new URL(discovery.marketplace.deviceTokenEndpoint, safeRegistryUrl);
+	const deviceTokenUrl = new URL(discovery.marketplace.deviceTokenEndpoint, registryUrl);
 	const authRes = await fetch(deviceTokenUrl, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -361,7 +372,6 @@ export const publishCommand = defineCommand({
 	},
 	async run({ args }) {
 		const registryUrl = args.registry;
-		const safeRegistryUrl = validateExternalUrl(registryUrl).origin;
 
 		// ── Step 1: Resolve tarball ──
 
@@ -461,7 +471,7 @@ export const publishCommand = defineCommand({
 
 		let token: string;
 		const envToken = process.env.EMDASH_MARKETPLACE_TOKEN;
-		const stored = !envToken ? getMarketplaceCredential(safeRegistryUrl) : null;
+		const stored = !envToken ? getMarketplaceCredential(registryUrl) : null;
 
 		if (envToken) {
 			token = envToken;
@@ -471,11 +481,11 @@ export const publishCommand = defineCommand({
 			consola.info(`Authenticated as ${pc.bold(stored.author?.name ?? "unknown")}`);
 		} else {
 			consola.info("Not logged in to marketplace. Starting GitHub authentication...");
-			const result = await authenticateViaDeviceFlow(safeRegistryUrl);
+			const result = await authenticateViaDeviceFlow(registryUrl);
 			token = result.token;
 
 			// Save for next time
-			saveMarketplaceCredential(safeRegistryUrl, {
+			saveMarketplaceCredential(registryUrl, {
 				token: result.token,
 				expiresAt: new Date(Date.now() + 30 * 86400 * 1000).toISOString(), // 30 days
 				author: { id: result.author.id, name: result.author.name },
@@ -489,14 +499,14 @@ export const publishCommand = defineCommand({
 		consola.start("Checking marketplace...");
 
 		// Check if plugin exists
-		const pluginRes = await fetch(new URL(`/api/v1/plugins/${manifest.id}`, safeRegistryUrl));
+		const pluginRes = await fetch(new URL(`/api/v1/plugins/${manifest.id}`, registryUrl));
 
 		if (pluginRes.status === 404 && !envToken) {
 			// Plugin doesn't exist — register it first.
 			// When using env token (seed), the server auto-registers on publish.
 			consola.info(`Plugin ${pc.bold(manifest.id)} not found in marketplace. Registering...`);
 
-			const createRes = await fetch(new URL("/api/v1/plugins", safeRegistryUrl), {
+			const createRes = await fetch(new URL("/api/v1/plugins", registryUrl), {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -513,7 +523,7 @@ export const publishCommand = defineCommand({
 				const body = (await createRes.json().catch(() => ({}))) as { error?: string };
 				if (createRes.status === 401) {
 					// Token expired — clear and retry
-					removeMarketplaceCredential(safeRegistryUrl);
+					removeMarketplaceCredential(registryUrl);
 					consola.error(
 						"Authentication expired. Please run `emdash plugin publish` again to re-authenticate.",
 					);
@@ -544,7 +554,7 @@ export const publishCommand = defineCommand({
 			basename(tarballPath),
 		);
 
-		const uploadUrl = new URL(`/api/v1/plugins/${manifest.id}/versions`, safeRegistryUrl);
+		const uploadUrl = new URL(`/api/v1/plugins/${manifest.id}/versions`, registryUrl);
 		const uploadRes = await fetch(uploadUrl, {
 			method: "POST",
 			headers: {
@@ -564,7 +574,7 @@ export const publishCommand = defineCommand({
 				if (envToken) {
 					consola.error("EMDASH_MARKETPLACE_TOKEN was rejected by the marketplace.");
 				} else {
-					removeMarketplaceCredential(safeRegistryUrl);
+					removeMarketplaceCredential(registryUrl);
 					consola.error("Authentication expired. Please run `emdash plugin publish` again.");
 				}
 				process.exit(1);
@@ -630,7 +640,7 @@ export const publishCommand = defineCommand({
 			consola.start("Waiting for security audit to complete...");
 			const versionUrl = new URL(
 				`/api/v1/plugins/${manifest.id}/versions/${manifest.version}`,
-				safeRegistryUrl,
+				registryUrl,
 			);
 			const finalStatus = await pollVersionStatus(versionUrl.toString(), token);
 
@@ -668,18 +678,17 @@ export const marketplaceLoginCommand = defineCommand({
 	},
 	async run({ args }) {
 		const registryUrl = args.registry;
-		const safeRegistryUrl = validateExternalUrl(registryUrl).origin;
 
-		const existing = getMarketplaceCredential(safeRegistryUrl);
+		const existing = getMarketplaceCredential(registryUrl);
 		if (existing) {
 			consola.info(`Already logged in as ${pc.bold(existing.author?.name ?? "unknown")}`);
 			consola.info("Use `emdash plugin logout` to log out first.");
 			return;
 		}
 
-		const result = await authenticateViaDeviceFlow(safeRegistryUrl);
+		const result = await authenticateViaDeviceFlow(registryUrl);
 
-		saveMarketplaceCredential(safeRegistryUrl, {
+		saveMarketplaceCredential(registryUrl, {
 			token: result.token,
 			expiresAt: new Date(Date.now() + 30 * 86400 * 1000).toISOString(),
 			author: { id: result.author.id, name: result.author.name },
@@ -702,8 +711,7 @@ export const marketplaceLogoutCommand = defineCommand({
 		},
 	},
 	async run({ args }) {
-		const safeRegistryUrl = validateExternalUrl(args.registry).origin;
-		const removed = removeMarketplaceCredential(safeRegistryUrl);
+		const removed = removeMarketplaceCredential(args.registry);
 		if (removed) {
 			consola.success("Logged out of marketplace.");
 		} else {

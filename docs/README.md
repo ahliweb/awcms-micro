@@ -11,6 +11,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
+- `upstream-sync/LAST_UPSTREAM_FETCH.md`: exact upstream revision copied into `emdash-latest/`
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
 - `security/security-baseline.md`: security, privacy, ISO, and Indonesia compliance baseline documentation
 

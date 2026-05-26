@@ -83,21 +83,4 @@ describe("plugin port reclaim", () => {
 		// Ten load/unload cycles should have entirely reused freed ports.
 		expect(after).toBe(before);
 	});
-
-	it("allocates distinct port blocks for concurrent runners", async () => {
-		const runnerA = new WorkerdSandboxRunner({ db: null as any });
-		const runnerB = new WorkerdSandboxRunner({ db: null as any });
-		vi.spyOn(runnerA as any, "ensureRunning").mockResolvedValue(undefined);
-		vi.spyOn(runnerB as any, "ensureRunning").mockResolvedValue(undefined);
-
-		try {
-			const pluginA = await runnerA.load(stubManifest("a"), "export default {};");
-			const pluginB = await runnerB.load(stubManifest("b"), "export default {};");
-
-			expect((pluginA as any).port).not.toBe((pluginB as any).port);
-		} finally {
-			await runnerA.terminateAll();
-			await runnerB.terminateAll();
-		}
-	});
 });

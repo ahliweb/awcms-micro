@@ -19,7 +19,7 @@
 
 import { execFileSync, spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { writeFile, mkdir, rm, unlink } from "node:fs/promises";
 import { createServer } from "node:http";
 import type { Server } from "node:http";
@@ -38,33 +38,6 @@ import type {
 import type { PluginManifest } from "emdash";
 // @ts-ignore -- SandboxUnavailableError is a class export, not type-only
 import { SandboxUnavailableError } from "emdash";
-
-const PLUGIN_PORT_MIN = 20_000;
-const PLUGIN_PORT_MAX = 64_000;
-const PLUGIN_PORT_BLOCK_SIZE = 512;
-const PLUGIN_PORT_ALLOCATIONS = new Set<number>();
-
-function allocatePluginPortBase(): number {
-	const maxBase = PLUGIN_PORT_MAX - PLUGIN_PORT_BLOCK_SIZE;
-	for (let attempt = 0; attempt < 1000; attempt++) {
-		const base = randomInt(PLUGIN_PORT_MIN, maxBase + 1);
-		const blockBase = base - (base % PLUGIN_PORT_BLOCK_SIZE);
-		if (!PLUGIN_PORT_ALLOCATIONS.has(blockBase)) {
-			PLUGIN_PORT_ALLOCATIONS.add(blockBase);
-			return blockBase;
-		}
-	}
-
-	// Fallback for pathological cases: keep advancing until we find a free block.
-	for (let blockBase = PLUGIN_PORT_MIN; blockBase <= maxBase; blockBase += PLUGIN_PORT_BLOCK_SIZE) {
-		if (!PLUGIN_PORT_ALLOCATIONS.has(blockBase)) {
-			PLUGIN_PORT_ALLOCATIONS.add(blockBase);
-			return blockBase;
-		}
-	}
-
-	throw new Error("No free plugin port blocks available");
-}
 
 import { createBackingServiceHandler } from "./backing-service.js";
 import type { BackingServiceHandler } from "./backing-service.js";
@@ -354,11 +327,8 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 	/** Epoch counter, incremented on each workerd restart */
 	private epoch = 0;
 
-	/** Base port block reserved for this runner instance */
-	private readonly pluginPortBase = allocatePluginPortBase();
-
 	/** Next available port for plugin nanoservices */
-	private nextPluginPort = this.pluginPortBase;
+	private nextPluginPort = 18788;
 
 	/**
 	 * Ports freed by unloadPlugin(), preferred over nextPluginPort on the
@@ -594,7 +564,6 @@ export class WorkerdSandboxRunner implements SandboxRunner {
 			await rm(this.configDir, { recursive: true, force: true }).catch(() => {});
 			this.configDir = null;
 		}
-		PLUGIN_PORT_ALLOCATIONS.delete(this.pluginPortBase);
 	}
 
 	/**

@@ -3,7 +3,6 @@
  */
 
 const DEFAULT_REDIRECT = "/_emdash/admin";
-const ADMIN_BASE_PATH = "/_emdash/admin";
 const LEADING_SLASHES = /^\/+/;
 
 /**
@@ -20,23 +19,6 @@ export function sanitizeRedirectUrl(raw: string): string {
 		return raw;
 	}
 	return DEFAULT_REDIRECT;
-}
-
-/**
- * Convert a public admin URL into a router-relative path.
- */
-export function toAdminRouterPath(raw: string): string {
-	const sanitized = sanitizeRedirectUrl(raw);
-	const url = new URL(sanitized, "https://emdash.invalid");
-	let pathname = url.pathname;
-
-	if (pathname === ADMIN_BASE_PATH) {
-		pathname = "/";
-	} else if (pathname.startsWith(`${ADMIN_BASE_PATH}/`)) {
-		pathname = pathname.slice(ADMIN_BASE_PATH.length);
-	}
-
-	return `${pathname}${url.search}${url.hash}`;
 }
 
 /**

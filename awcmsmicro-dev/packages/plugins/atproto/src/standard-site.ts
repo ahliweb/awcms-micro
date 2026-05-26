@@ -124,42 +124,8 @@ function stripTrailingSlash(url: string): string {
 	return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
-function stripHtmlTags(input: string): string {
-	let out = "";
-	let inTag = false;
-
-	for (let i = 0; i < input.length; i++) {
-		const char = input[i]!;
-		if (!inTag && char === "<" && isTagStart(input[i + 1])) {
-			inTag = true;
-			continue;
-		}
-		if (char === ">" && inTag) {
-			inTag = false;
-			out += " ";
-			continue;
-		}
-		if (!inTag) {
-			out += char;
-		}
-	}
-
-	return out;
-}
-
-function isTagStart(nextChar: string | undefined): boolean {
-	if (!nextChar) return false;
-	const code = nextChar.charCodeAt(0);
-	return (
-		(code >= 65 && code <= 90) ||
-		(code >= 97 && code <= 122) ||
-		nextChar === "/" ||
-		nextChar === "!" ||
-		nextChar === "?"
-	);
-}
-
 // Pre-compiled regexes
+const HTML_TAG_RE = /<[^>]+>/g;
 const NBSP_RE = /&nbsp;/g;
 const AMP_RE = /&amp;/g;
 const LT_RE = /&lt;/g;
@@ -167,6 +133,7 @@ const GT_RE = /&gt;/g;
 const QUOT_RE = /&quot;/g;
 const APOS_RE = /&#39;/g;
 const WHITESPACE_RE = /\s+/g;
+const HASH_PREFIX_RE = /^#/;
 const MAX_TEXT_CONTENT_LENGTH = 10_000;
 
 /**
@@ -180,21 +147,17 @@ function extractTags(content: Record<string, unknown>): string[] {
 	const tags: string[] = [];
 	for (const item of raw) {
 		if (typeof item === "string") {
-			tags.push(stripHashPrefix(item));
+			tags.push(item.replace(HASH_PREFIX_RE, ""));
 		} else if (
 			typeof item === "object" &&
 			item !== null &&
 			"name" in item &&
 			typeof (item as Record<string, unknown>).name === "string"
 		) {
-			tags.push(stripHashPrefix((item as Record<string, unknown>).name as string));
+			tags.push(((item as Record<string, unknown>).name as string).replace(HASH_PREFIX_RE, ""));
 		}
 	}
 	return tags;
-}
-
-function stripHashPrefix(value: string): string {
-	return value.startsWith("#") ? value.slice(1) : value;
 }
 
 /**
@@ -212,7 +175,8 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 
 	// Strip HTML tags (simple -- not a full parser, but sufficient for plain text extraction).
 	// Decode &amp; last to avoid double-decoding (e.g. &amp;lt; -> &lt; -> <).
-	let text = stripHtmlTags(body)
+	let text = body
+		.replace(HTML_TAG_RE, " ")
 		.replace(NBSP_RE, " ")
 		.replace(LT_RE, "<")
 		.replace(GT_RE, ">")

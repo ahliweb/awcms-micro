@@ -7,6 +7,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 TARGET_DIR="$ROOT_DIR/emdash-latest"
 REPO_URL="https://github.com/emdash-cms/emdash.git"
 REPO_BRANCH="main"
+METADATA_FILE="$ROOT_DIR/docs/upstream-sync/LAST_UPSTREAM_FETCH.md"
 TEMP_DIR="$(mktemp -d)"
 SOURCE_DIR="$TEMP_DIR/emdash"
 
@@ -18,12 +19,31 @@ trap cleanup EXIT
 
 echo "Cloning latest EmDash..."
 git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$SOURCE_DIR"
+UPSTREAM_SHA="$(git -C "$SOURCE_DIR" rev-parse HEAD)"
+FETCHED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 mkdir -p "$TARGET_DIR"
+mkdir -p "$(dirname "$METADATA_FILE")"
 
 rsync -a \
-    --delete \
+	--delete \
 	--exclude='.git' \
 	"$SOURCE_DIR/" "$TARGET_DIR/"
 
-echo "emdash-latest has been refreshed from upstream EmDash ($REPO_BRANCH)."
+cat >"$METADATA_FILE" <<EOF
+# Last Upstream Fetch
+
+## Source
+
+- Upstream repository URL: $REPO_URL
+- Upstream branch: $REPO_BRANCH
+- Upstream commit SHA: $UPSTREAM_SHA
+- Fetch date: $FETCHED_AT
+- Target folder: emdash-latest/
+
+## Notes
+
+This file records the exact upstream EmDash revision copied into emdash-latest/.
+EOF
+
+echo "emdash-latest has been refreshed from upstream EmDash ($REPO_BRANCH) at $UPSTREAM_SHA."

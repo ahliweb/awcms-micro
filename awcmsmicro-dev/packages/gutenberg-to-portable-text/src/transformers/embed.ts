@@ -2,10 +2,15 @@
  * Transformers for WordPress embed blocks
  */
 
-import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
-
 import type { BlockTransformer } from "../types.js";
 import { attrString } from "../types.js";
+
+// Regex patterns for embed parsing
+const IFRAME_SRC_PATTERN = /<iframe[^>]+src=["']([^"']+)["']/i;
+const VIDEO_SRC_PATTERN = /<video[^>]+src=["']([^"']+)["']/i;
+const VIDEO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
+const AUDIO_SRC_PATTERN = /<audio[^>]+src=["']([^"']+)["']/i;
+const AUDIO_SOURCE_PATTERN = /<source[^>]+src=["']([^"']+)["']/i;
 
 /**
  * core/embed and variants → embed block
@@ -15,7 +20,8 @@ export const embed: BlockTransformer = (block, _options, context) => {
 	const providerSlug = attrString(block.attrs, "providerNameSlug");
 
 	// Extract iframe src if present
-	const iframeSrc = extractHtmlAttribute(block.innerHTML, "src");
+	const iframeMatch = block.innerHTML.match(IFRAME_SRC_PATTERN);
+	const iframeSrc = iframeMatch?.[1];
 
 	return [
 		{
@@ -56,7 +62,9 @@ export const video: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from video tag if not in attrs
-	const videoSrc = src || extractHtmlAttribute(block.innerHTML, "src");
+	const videoMatch = block.innerHTML.match(VIDEO_SRC_PATTERN);
+	const sourceMatch = block.innerHTML.match(VIDEO_SOURCE_PATTERN);
+	const videoSrc = src || videoMatch?.[1] || sourceMatch?.[1];
 
 	return [
 		{
@@ -76,7 +84,9 @@ export const audio: BlockTransformer = (block, _options, context) => {
 	const src = attrString(block.attrs, "src");
 
 	// Extract from audio tag if not in attrs
-	const audioSrc = src || extractHtmlAttribute(block.innerHTML, "src");
+	const audioMatch = block.innerHTML.match(AUDIO_SRC_PATTERN);
+	const sourceMatch = block.innerHTML.match(AUDIO_SOURCE_PATTERN);
+	const audioSrc = src || audioMatch?.[1] || sourceMatch?.[1];
 
 	return [
 		{
@@ -95,67 +105,38 @@ export const audio: BlockTransformer = (block, _options, context) => {
 function detectProvider(url: string): string | undefined {
 	if (!url) return undefined;
 
-	let hostname = "";
-	try {
-		hostname = new URL(url).hostname.toLowerCase();
-		if (hostname.startsWith("www.")) hostname = hostname.slice(4);
-	} catch {
-		return undefined;
-	}
+	const urlLower = url.toLowerCase();
 
-	if (hostname === "youtu.be" || hostname === "youtube.com") {
+	if (urlLower.includes("youtube.com") || urlLower.includes("youtu.be")) {
 		return "youtube";
 	}
-	if (hostname === "vimeo.com") {
+	if (urlLower.includes("vimeo.com")) {
 		return "vimeo";
 	}
-	if (hostname === "twitter.com" || hostname === "x.com") {
+	if (urlLower.includes("twitter.com") || urlLower.includes("x.com")) {
 		return "twitter";
 	}
-	if (hostname === "instagram.com") {
+	if (urlLower.includes("instagram.com")) {
 		return "instagram";
 	}
-	if (hostname === "facebook.com" || hostname === "fb.watch") {
+	if (urlLower.includes("facebook.com")) {
 		return "facebook";
 	}
-	if (hostname === "tiktok.com") {
+	if (urlLower.includes("tiktok.com")) {
 		return "tiktok";
 	}
-	if (hostname === "spotify.com") {
+	if (urlLower.includes("spotify.com")) {
 		return "spotify";
 	}
-	if (hostname === "soundcloud.com") {
+	if (urlLower.includes("soundcloud.com")) {
 		return "soundcloud";
 	}
-	if (hostname === "codepen.io") {
+	if (urlLower.includes("codepen.io")) {
 		return "codepen";
 	}
-	if (hostname === "gist.github.com") {
+	if (urlLower.includes("gist.github.com")) {
 		return "gist";
 	}
 
 	return undefined;
-}
-
-function extractHtmlAttribute(html: string, attrName: string): string | undefined {
-	const fragment = parseFragment(html);
-	return extractAttrFromFragment(fragment.childNodes, attrName);
-}
-
-type Node = DefaultTreeAdapterMap["node"];
-type Element = DefaultTreeAdapterMap["element"];
-
-function extractAttrFromFragment(nodes: Node[], attrName: string): string | undefined {
-	for (const node of nodes) {
-		if (!isElement(node)) continue;
-		const attr = node.attrs.find((a) => a.name.toLowerCase() === attrName);
-		if (attr) return attr.value;
-		const nested = extractAttrFromFragment(node.childNodes, attrName);
-		if (nested !== undefined) return nested;
-	}
-	return undefined;
-}
-
-function isElement(node: Node): node is Element {
-	return "tagName" in node;
 }

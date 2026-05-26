@@ -163,6 +163,15 @@ function renderSpans(spans: PortableTextSpan[], markDefs: MarkDef[]): string {
 // Markdown -> PT
 // ---------------------------------------------------------------------------
 
+// Regex patterns for markdown parsing
+const OPAQUE_FENCE_PATTERN = /^<!--ec:block (.+) -->$/;
+const HEADING_PATTERN = /^(#{1,6})\s+(.+)$/;
+const UNORDERED_LIST_PATTERN = /^(\s*)[-*+]\s+(.+)$/;
+const ORDERED_LIST_PATTERN = /^(\s*)\d+\.\s+(.+)$/;
+const IMAGE_PATTERN = /^!\[([^\]]*)\]\(([^)]+)\)$/;
+const INLINE_MARKDOWN_PATTERN =
+	/(\*\*(.+?)\*\*)|(_(.+?)_)|(`(.+?)`)|(\[(.+?)\]\((.+?)\))|(~~(.+?)~~)/g;
+
 /**
  * Convert Markdown to Portable Text blocks.
  * Opaque fences (<!--ec:block ... -->) are deserialized and spliced back in.
@@ -176,10 +185,10 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		const line = lines[i];
 
 		// Opaque fence
-		const opaque = parseOpaqueFence(line);
-		if (opaque) {
+		const opaqueMatch = line.match(OPAQUE_FENCE_PATTERN);
+		if (opaqueMatch) {
 			try {
-				blocks.push(JSON.parse(opaque) as PortableTextBlock);
+				blocks.push(JSON.parse(opaqueMatch[1]) as PortableTextBlock);
 			} catch {
 				blocks.push(makeBlock(line));
 			}
@@ -188,11 +197,11 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Code fence
-		if (isCodeFence(line)) {
+		if (line.startsWith("```")) {
 			const lang = line.slice(3).trim();
 			const codeLines: string[] = [];
 			i++;
-			while (i < lines.length && !isCodeFence(lines[i])) {
+			while (i < lines.length && !lines[i].startsWith("```")) {
 				codeLines.push(lines[i]);
 				i++;
 			}
@@ -213,44 +222,46 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 		}
 
 		// Heading
-		const heading = parseHeading(line);
-		if (heading) {
-			blocks.push(makeBlock(heading.text, `h${heading.level}`));
+		const headingMatch = line.match(HEADING_PATTERN);
+		if (headingMatch) {
+			blocks.push(makeBlock(headingMatch[2], `h${headingMatch[1].length}`));
 			i++;
 			continue;
 		}
 
 		// Blockquote
-		if (isBlockquote(line)) {
+		if (line.startsWith("> ")) {
 			blocks.push(makeBlock(line.slice(2), "blockquote"));
 			i++;
 			continue;
 		}
 
 		// Unordered list
-		const unorderedList = parseUnorderedList(line);
-		if (unorderedList) {
-			blocks.push(makeListBlock(unorderedList.text, "bullet", unorderedList.level));
+		const ulMatch = line.match(UNORDERED_LIST_PATTERN);
+		if (ulMatch) {
+			const level = Math.floor(ulMatch[1].length / 2) + 1;
+			blocks.push(makeListBlock(ulMatch[2], "bullet", level));
 			i++;
 			continue;
 		}
 
 		// Ordered list
-		const orderedList = parseOrderedList(line);
-		if (orderedList) {
-			blocks.push(makeListBlock(orderedList.text, "number", orderedList.level));
+		const olMatch = line.match(ORDERED_LIST_PATTERN);
+		if (olMatch) {
+			const level = Math.floor(olMatch[1].length / 2) + 1;
+			blocks.push(makeListBlock(olMatch[2], "number", level));
 			i++;
 			continue;
 		}
 
 		// Image
-		const image = parseImage(line);
-		if (image) {
+		const imgMatch = line.match(IMAGE_PATTERN);
+		if (imgMatch) {
 			blocks.push({
 				_type: "image",
 				_key: generateKey(),
-				alt: image.alt,
-				asset: { url: image.url },
+				alt: imgMatch[1],
+				asset: { url: imgMatch[2] },
 			});
 			i++;
 			continue;
@@ -262,20 +273,6 @@ export function markdownToPortableText(markdown: string): PortableTextBlock[] {
 	}
 
 	return blocks;
-}
-
-function parseOpaqueFence(line: string): string | null {
-	if (line.length < 17 || line.slice(0, 13) !== "<!--ec:block ") return null;
-	if (line.slice(-4) !== " -->") return null;
-	return line.slice(13, -4);
-}
-
-function isCodeFence(line: string): boolean {
-	return line.length >= 3 && line.charCodeAt(0) === 96 && line.charCodeAt(1) === 96 && line.charCodeAt(2) === 96;
-}
-
-function isBlockquote(line: string): boolean {
-	return line.length >= 2 && line.charCodeAt(0) === 62 && line.charCodeAt(1) === 32;
 }
 
 // ---------------------------------------------------------------------------
@@ -306,152 +303,52 @@ function makeListBlock(text: string, listItem: string, level: number): PortableT
 function parseInline(text: string): ParsedInline {
 	const spans: PortableTextSpan[] = [];
 	const markDefs: MarkDef[] = [];
+	const regex = INLINE_MARKDOWN_PATTERN;
 
-	let i = 0;
-	let lastTextStart = 0;
+	let lastIndex = 0;
+	let match: RegExpExecArray | null;
 
-	while (i < text.length) {
-		if (text.charCodeAt(i) === 42 && text.charCodeAt(i + 1) === 42) {
-			const end = findClosingDelimiter(text, "**", i + 2);
-			if (end > i + 2) {
-				pushTextSpan(text, spans, lastTextStart, i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 2, end), marks: ["strong"] });
-				i = end + 2;
-				lastTextStart = i;
-				continue;
-			}
+	while ((match = regex.exec(text)) !== null) {
+		if (match.index > lastIndex) {
+			spans.push({
+				_type: "span",
+				_key: generateKey(),
+				text: text.slice(lastIndex, match.index),
+				marks: [],
+			});
 		}
 
-		if (text[i] === "_") {
-			const end = findClosingChar(text, "_", i + 1);
-			if (end > i + 1) {
-				pushTextSpan(text, spans, lastTextStart, i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, end), marks: ["em"] });
-				i = end + 1;
-				lastTextStart = i;
-				continue;
-			}
+		if (match[2] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[2], marks: ["strong"] });
+		} else if (match[4] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[4], marks: ["em"] });
+		} else if (match[6] != null) {
+			spans.push({ _type: "span", _key: generateKey(), text: match[6], marks: ["code"] });
+		} else if (match[8] != null && match[9] != null) {
+			const key = generateKey();
+			markDefs.push({ _key: key, _type: "link", href: match[9] });
+			spans.push({ _type: "span", _key: generateKey(), text: match[8], marks: [key] });
+		} else if (match[11] != null) {
+			spans.push({
+				_type: "span",
+				_key: generateKey(),
+				text: match[11],
+				marks: ["strike-through"],
+			});
 		}
 
-		if (text[i] === "`") {
-			const end = findClosingChar(text, "`", i + 1);
-			if (end > i + 1) {
-				pushTextSpan(text, spans, lastTextStart, i);
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, end), marks: ["code"] });
-				i = end + 1;
-				lastTextStart = i;
-				continue;
-			}
-		}
-
-		if (text.charCodeAt(i) === 126 && text.charCodeAt(i + 1) === 126) {
-			const end = findClosingDelimiter(text, "~~", i + 2);
-			if (end > i + 2) {
-				pushTextSpan(text, spans, lastTextStart, i);
-				spans.push({
-					_type: "span",
-					_key: generateKey(),
-					text: text.slice(i + 2, end),
-					marks: ["strike-through"],
-				});
-				i = end + 2;
-				lastTextStart = i;
-				continue;
-			}
-		}
-
-		if (text[i] === "[") {
-			const closeBracket = findClosingDelimiter(text, "](", i + 1);
-			const closeParen = closeBracket === -1 ? -1 : findClosingChar(text, ")", closeBracket + 2);
-			if (closeBracket > i + 1 && closeParen > closeBracket + 2) {
-				pushTextSpan(text, spans, lastTextStart, i);
-				const key = generateKey();
-				markDefs.push({ _key: key, _type: "link", href: text.slice(closeBracket + 2, closeParen) });
-				spans.push({ _type: "span", _key: generateKey(), text: text.slice(i + 1, closeBracket), marks: [key] });
-				i = closeParen + 1;
-				lastTextStart = i;
-				continue;
-			}
-		}
-
-		i += 1;
+		lastIndex = match.index + match[0].length;
 	}
 
-	pushTextSpan(text, spans, lastTextStart, text.length);
+	if (lastIndex < text.length) {
+		spans.push({ _type: "span", _key: generateKey(), text: text.slice(lastIndex), marks: [] });
+	}
 
 	if (spans.length === 0) {
 		spans.push({ _type: "span", _key: generateKey(), text, marks: [] });
 	}
 
 	return { spans, markDefs };
-}
-
-function pushTextSpan(text: string, spans: PortableTextSpan[], start: number, end: number): void {
-	if (end > start) {
-			spans.push({
-				_type: "span",
-				_key: generateKey(),
-				text: text.slice(start, end),
-				marks: [],
-			});
-		}
-}
-
-function parseHeading(line: string): { level: number; text: string } | null {
-	let level = 0;
-	while (level < 6 && line[level] === "#") level++;
-	if (level === 0 || line[level] !== " ") return null;
-	const text = line.slice(level + 1);
-	return text ? { level, text } : null;
-}
-
-function parseUnorderedList(line: string): { level: number; text: string } | null {
-	const trimmed = line.trimStart();
-	const indent = line.length - trimmed.length;
-	const marker = trimmed[0];
-	if (marker !== "-" && marker !== "*" && marker !== "+") return null;
-	if (trimmed[1] !== " ") return null;
-	const text = trimmed.slice(2);
-	return text ? { level: Math.floor(indent / 2) + 1, text } : null;
-}
-
-function parseOrderedList(line: string): { level: number; text: string } | null {
-	const trimmed = line.trimStart();
-	const indent = line.length - trimmed.length;
-	let cursor = 0;
-	let sawDigit = false;
-	while (true) {
-		const code = trimmed.charCodeAt(cursor);
-		if (code < 48 || code > 57) break;
-		sawDigit = true;
-		cursor++;
-	}
-	if (!sawDigit || trimmed[cursor] !== "." || trimmed[cursor + 1] !== " ") return null;
-	const text = trimmed.slice(cursor + 2);
-	return text ? { level: Math.floor(indent / 2) + 1, text } : null;
-}
-
-function parseImage(line: string): { alt: string; url: string } | null {
-	if (line.length < 5 || line.charCodeAt(0) !== 33 || line.charCodeAt(1) !== 91) return null;
-	const closeBracket = findClosingDelimiter(line, "](", 2);
-	if (closeBracket <= 2 || line.charCodeAt(line.length - 1) !== 41) return null;
-	const alt = line.slice(2, closeBracket);
-	const url = line.slice(closeBracket + 2, -1);
-	return alt && url ? { alt, url } : null;
-}
-
-function findClosingChar(text: string, ch: string, fromIndex: number): number {
-	for (let i = fromIndex; i < text.length; i++) {
-		if (text[i] === ch) return i;
-	}
-	return -1;
-}
-
-function findClosingDelimiter(text: string, delimiter: string, fromIndex: number): number {
-	for (let i = fromIndex; i <= text.length - delimiter.length; i++) {
-		if (text.slice(i, i + delimiter.length) === delimiter) return i;
-	}
-	return -1;
 }
 
 // ---------------------------------------------------------------------------

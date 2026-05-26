@@ -29,7 +29,6 @@ test.describe("Authentication", () => {
 	test.describe("Login Page", () => {
 		test("displays login page with passkey button", async ({ admin }) => {
 			await admin.goto("/login");
-			await admin.waitForHydration();
 
 			// Should show login page
 			await expect(admin.page.locator("h1")).toContainText("Sign in");
@@ -40,25 +39,9 @@ test.describe("Authentication", () => {
 
 		test("signup link is hidden when no allowed domains", async ({ admin }) => {
 			await admin.goto("/login");
-			await admin.waitForHydration();
 
 			// No allowed domains are seeded, so signup should not be visible
 			await expect(admin.page.locator('a:has-text("Sign up")')).not.toBeVisible();
-		});
-
-		test("direct admin login URL is served", async ({ admin }) => {
-			await admin.page.goto("/_emdash/admin/login?redirect=/_emdash/admin");
-			await admin.waitForHydration();
-
-			await expect(admin.page).toHaveURL(/\/_emdash\/admin\/login/);
-			await expect(admin.page.locator("h1")).toContainText("Sign in");
-		});
-
-		test("admin root with trailing slash redirects to login", async ({ admin }) => {
-			await admin.page.goto("/_emdash/admin/");
-			await admin.waitForHydration();
-
-			await expect(admin.page).toHaveURL(/\/_emdash\/admin\/login/);
 		});
 	});
 

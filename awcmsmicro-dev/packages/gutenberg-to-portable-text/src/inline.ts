@@ -10,7 +10,30 @@ import { parseFragment, type DefaultTreeAdapterMap } from "parse5";
 import type { PortableTextSpan, PortableTextMarkDef } from "./types.js";
 import { sanitizeHref } from "./url.js";
 
-const BLOCK_TAGS = new Set(["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"]);
+// Regex patterns for inline parsing
+const WHITESPACE_PATTERN = /\S/;
+
+// Pre-compiled block tag patterns
+const BLOCK_TAG_PATTERNS: Record<string, { open: RegExp; close: RegExp }> = {
+	p: { open: /^<p[^>]*>/i, close: /<\/p>$/i },
+	h1: { open: /^<h1[^>]*>/i, close: /<\/h1>$/i },
+	h2: { open: /^<h2[^>]*>/i, close: /<\/h2>$/i },
+	h3: { open: /^<h3[^>]*>/i, close: /<\/h3>$/i },
+	h4: { open: /^<h4[^>]*>/i, close: /<\/h4>$/i },
+	h5: { open: /^<h5[^>]*>/i, close: /<\/h5>$/i },
+	h6: { open: /^<h6[^>]*>/i, close: /<\/h6>$/i },
+	li: { open: /^<li[^>]*>/i, close: /<\/li>$/i },
+	blockquote: { open: /^<blockquote[^>]*>/i, close: /<\/blockquote>$/i },
+	figcaption: { open: /^<figcaption[^>]*>/i, close: /<\/figcaption>$/i },
+};
+
+// Regex patterns for extracting attributes
+const IMG_ALT_PATTERN = /<img[^>]+alt=["']([^"']*)["']/i;
+const FIGCAPTION_PATTERN = /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i;
+const IMG_SRC_PATTERN = /<img[^>]+src=["']([^"']*)["']/i;
+const URL_AMP_ENTITY_PATTERN = /&amp;/g;
+const URL_NUMERIC_AMP_ENTITY_PATTERN = /&#0?38;/g;
+const URL_HEX_AMP_ENTITY_PATTERN = /&#x26;/gi;
 
 type Node = DefaultTreeAdapterMap["node"];
 type TextNode = DefaultTreeAdapterMap["textNode"];
@@ -30,7 +53,7 @@ export function parseInlineContent(html: string, generateKey: () => string): Par
 	const markDefMap = new Map<string, string>();
 
 	// Handle whitespace-only input BEFORE stripping (parse5 normalizes whitespace away)
-	if (html.length > 0 && !hasNonWhitespace(html)) {
+	if (html.length > 0 && !WHITESPACE_PATTERN.test(html)) {
 		return {
 			children: [{ _type: "span", _key: generateKey(), text: html }],
 			markDefs: [],
@@ -65,11 +88,14 @@ function stripBlockTags(html: string): string {
 	// Remove leading/trailing whitespace
 	let stripped = html.trim();
 
-	const fragment = parseFragment(stripped);
-	if (fragment.childNodes.length === 1) {
-		const node = fragment.childNodes[0];
-		if (node && isElement(node) && BLOCK_TAGS.has(node.tagName.toLowerCase())) {
-			stripped = serializeNodeHtml(node.childNodes).trim();
+	// Strip common block wrappers
+	const blockTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "blockquote", "figcaption"];
+
+	for (const tag of blockTags) {
+		const patterns = BLOCK_TAG_PATTERNS[tag];
+		if (patterns && patterns.open.test(stripped) && patterns.close.test(stripped)) {
+			stripped = stripped.replace(patterns.open, "").replace(patterns.close, "").trim();
+			break;
 		}
 	}
 
@@ -244,16 +270,6 @@ function isElement(node: Node): node is Element {
 	return "tagName" in node;
 }
 
-function hasNonWhitespace(text: string): boolean {
-	for (let i = 0; i < text.length; i++) {
-		const code = text.charCodeAt(i);
-		if (code !== 9 && code !== 10 && code !== 12 && code !== 13 && code !== 32) {
-			return true;
-		}
-	}
-	return false;
-}
-
 /**
  * Extract plain text from HTML (for alt text, captions)
  */
@@ -278,27 +294,32 @@ function getTextContent(nodes: Node[]): string {
  * Extract alt text from an img element in HTML
  */
 export function extractAlt(html: string): string | undefined {
-	const img = findFirstElement(html, "img");
-	return img ? getAttr(img, "alt") : undefined;
+	const match = html.match(IMG_ALT_PATTERN);
+	if (match) {
+		return match[1]; // Can be empty string ""
+	}
+	return undefined;
 }
 
 /**
  * Extract caption from a figcaption element
  */
 export function extractCaption(html: string): string | undefined {
-	const figcaption = findFirstElement(html, "figcaption");
-	return figcaption ? extractText(serializeChildren(figcaption.childNodes)) : undefined;
+	const match = html.match(FIGCAPTION_PATTERN);
+	if (match?.[1]) {
+		return extractText(match[1]);
+	}
+	return undefined;
 }
 
 /**
  * Extract src from an img element
  */
 export function extractSrc(html: string): string | undefined {
-	const img = findFirstElement(html, "img");
-	const src = img ? getAttr(img, "src") : undefined;
-	if (!src) return undefined;
+	const match = html.match(IMG_SRC_PATTERN);
+	if (!match?.[1]) return undefined;
 	// Decode HTML entities in URLs
-	return decodeUrlEntities(src);
+	return decodeUrlEntities(match[1]);
 }
 
 /**
@@ -306,67 +327,7 @@ export function extractSrc(html: string): string | undefined {
  */
 function decodeUrlEntities(url: string): string {
 	return url
-		.split("&amp;")
-		.join("&")
-		.split("&#038;")
-		.join("&")
-		.split("&#38;")
-		.join("&")
-		.split("&#x26;")
-		.join("&")
-		.split("&#X26;")
-		.join("&");
-}
-
-function findFirstElement(html: string, tagName: string): Element | undefined {
-	const fragment = parseFragment(html);
-	return findElement(fragment.childNodes, tagName);
-}
-
-function findElement(nodes: Node[], tagName: string): Element | undefined {
-	for (const node of nodes) {
-		if (isElement(node)) {
-			if (node.tagName.toLowerCase() === tagName) return node;
-			const found = findElement(node.childNodes, tagName);
-			if (found) return found;
-		}
-	}
-	return undefined;
-}
-
-function serializeChildren(nodes: Node[]): string {
-	let out = "";
-	for (const node of nodes) {
-		if (isTextNode(node)) {
-			out += node.value;
-		} else if (isElement(node)) {
-			out += serializeChildren(node.childNodes);
-		}
-	}
-	return out;
-}
-
-function serializeNodeHtml(nodes: Node[]): string {
-	return nodes.map(serializeNodeHtmlSingle).join("");
-}
-
-function serializeNodeHtmlSingle(node: Node): string {
-	if (isTextNode(node)) return escapeHtml(node.value);
-	if (!isElement(node)) return "";
-	const attrs = node.attrs.length
-		? ` ${node.attrs.map((attr) => `${attr.name}="${escapeHtml(attr.value)}"`).join(" ")}`
-		: "";
-	return `<${node.tagName}${attrs}>${serializeNodeHtml(node.childNodes)}</${node.tagName}>`;
-}
-
-function escapeHtml(value: string): string {
-	return value
-		.split("&")
-		.join("&amp;")
-		.split('"')
-		.join("&quot;")
-		.split("<")
-		.join("&lt;")
-		.split(">")
-		.join("&gt;");
+		.replace(URL_AMP_ENTITY_PATTERN, "&")
+		.replace(URL_NUMERIC_AMP_ENTITY_PATTERN, "&")
+		.replace(URL_HEX_AMP_ENTITY_PATTERN, "&");
 }

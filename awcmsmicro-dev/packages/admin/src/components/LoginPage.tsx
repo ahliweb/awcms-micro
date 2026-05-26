@@ -16,12 +16,12 @@
 import { Button, Input, Loader, Select } from "@cloudflare/kumo";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import * as React from "react";
 
 import { apiFetch, fetchAuthMode } from "../lib/api";
 import { useAuthProviderList } from "../lib/auth-provider-context";
-import { toAdminRouterPath } from "../lib/url.js";
+import { sanitizeRedirectUrl } from "../lib/url";
 import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
@@ -161,8 +161,9 @@ function MagicLinkForm({ onBack }: MagicLinkFormProps) {
 // ============================================================================
 
 export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
+	// Defense-in-depth: sanitize even if the caller already validated
+	const safeRedirectUrl = sanitizeRedirectUrl(redirectUrl);
 	const { t } = useLingui();
-	const navigate = useNavigate();
 	const { locale, setLocale } = useLocale();
 	const [method, setMethod] = React.useState<LoginMethod>("passkey");
 	const [urlError, setUrlError] = React.useState<string | null>(null);
@@ -170,7 +171,6 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	// Auth provider components from virtual module (via context)
 	const authProviderList = useAuthProviderList();
-	const routerRedirectUrl = toAdminRouterPath(redirectUrl);
 
 	// Fetch auth mode from public endpoint (works without authentication)
 	const { data: authInfo, isLoading: authModeLoading } = useQuery({
@@ -181,9 +181,9 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 	// Redirect to admin when using external auth (authentication is handled externally)
 	React.useEffect(() => {
 		if (authInfo?.authMode && authInfo.authMode !== "passkey") {
-			void navigate({ to: routerRedirectUrl as never, replace: true });
+			window.location.href = safeRedirectUrl;
 		}
-	}, [authInfo, navigate, routerRedirectUrl]);
+	}, [authInfo, safeRedirectUrl]);
 
 	// Check for error in URL (from OAuth/provider redirect)
 	React.useEffect(() => {
@@ -200,7 +200,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		void navigate({ to: routerRedirectUrl as never, replace: true });
+		window.location.href = safeRedirectUrl;
 	};
 
 	// All providers with a LoginButton show in the button grid

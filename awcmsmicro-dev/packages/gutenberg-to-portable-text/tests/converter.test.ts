@@ -4,12 +4,7 @@
 
 import { describe, it, expect } from "vitest";
 
-import {
-	gutenbergToPortableText,
-	htmlToPortableText,
-	parseGutenbergBlocks,
-	extractText,
-} from "../src/index.js";
+import { gutenbergToPortableText, htmlToPortableText, parseGutenbergBlocks } from "../src/index.js";
 import type {
 	PortableTextTextBlock,
 	PortableTextImageBlock,
@@ -19,6 +14,7 @@ import type {
 	PortableTextCoverBlock,
 } from "../src/types.js";
 
+const HTML_TAG_PATTERN = /<[^>]+>/g;
 const knownProviders = [
 	["youtube.com", "youtube"],
 	["youtu.be", "youtube"],
@@ -525,24 +521,6 @@ https://${domain}/123456
 			},
 		);
 
-		it("does not infer provider from a hostname that merely contains a known domain", () => {
-			const host = `not${"youtube.com"}`;
-			const content = `<!-- wp:embed {"url":"https://${host}/123456"} -->
-<figure class="wp-block-embed">
-<div class="wp-block-embed__wrapper">
-https://${host}/123456
-</div>
-</figure>
-<!-- /wp:embed -->`;
-
-			const result = gutenbergToPortableText(content);
-
-			expect(result[0]).toMatchObject({
-				_type: "embed",
-				provider: undefined,
-			});
-		});
-
 		it("converts audio embeds", () => {
 			const content = `<!-- wp:audio {"src":"https://example.com/audio.mp3"} -->
 <audio controls src="https://example.com/audio.mp3"></audio>
@@ -1045,7 +1023,7 @@ https://${host}/123456
 						{
 							_type: "testimonial" as const,
 							_key: ctx.generateKey(),
-							text: extractText(block.innerHTML),
+							text: block.innerHTML.replace(HTML_TAG_PATTERN, "").trim(),
 							rating: block.attrs.rating as number,
 						} as unknown as import("../src/types.js").PortableTextBlock,
 					],

@@ -4,15 +4,15 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `283bcf059e8c6889d14292e822953f13eaf6a6b0`
-- Sync date: `2026-05-23T21:38:18Z`
+- Upstream commit SHA: `62f89fecd57be8774d71a911113671c59b599de2`
+- Sync date: `2026-05-26T16:44:25Z`
 - Operator: `Antigravity`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76. The remaining security hardening pass has intentionally converted privileged GitHub Action automation into manual/read-only workflows.
+Synced to EmDash `62f89fe5`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76. The remaining security hardening pass has intentionally converted privileged GitHub Action automation into manual/read-only workflows.
 
 ## Key Changes in This Sync (since v0.14.0)
 
@@ -40,5 +40,5 @@ Synced to EmDash `283bcf05`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 - Validation passes on this host after the local workerd port allocation fix.
 - The `registry-client` dist was stale after the upstream `swapRecord` parameter was added. It was rebuilt in-workspace before typecheck.
 - CodeQL and workflow hardening work is in progress in `awcmsmicro-dev/` and tracked separately from upstream sync.
-- Manual workflow rewrites now live in `scripts/manualize-workflows.mjs` and the corresponding `awcmsmicro-dev/.github/workflows/*` files.
+- Manual workflow rewrites live in the corresponding `awcmsmicro-dev/.github/workflows/*` files.
 - Any accepted divergence must be logged in `DIVERGENCE_LOG.md`.

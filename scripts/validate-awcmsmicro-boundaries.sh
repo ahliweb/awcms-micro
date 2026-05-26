@@ -12,9 +12,13 @@ REQUIRED_PATHS=(
 	"templates/awcms-micro-default"
 	"templates/awcms-micro-default-cloudflare"
 	"packages/plugins/awcms-micro-example"
+	"packages/plugins/awcms-micro-gallery"
 	"demos/awcms-micro-cloudflare"
 	"docs/awcms-micro"
+	"docs/gallery"
 	"e2e/awcms-micro"
+	".github/workflows"
+	".github/dependabot.yml"
 )
 
 ROOT_DOCS=(
@@ -50,6 +54,11 @@ require_dir() {
 	[[ -d "$path" ]] || fail "Missing required directory: $path"
 }
 
+require_path() {
+	local path="$1"
+	[[ -e "$path" ]] || fail "Missing required path: $path"
+}
+
 require_contains() {
 	local needle="$1"
 	local path="$2"
@@ -76,7 +85,7 @@ for relative_path in "${REQUIRED_PATHS[@]}"; do
 		require_contains "$relative_path" "$doc"
 	done
 	dir_path="$ROOT_DIR/awcmsmicro-dev/$relative_path"
-	require_dir "$dir_path"
+	require_path "$dir_path"
 done
 
 log "Checking sync allowlist strategy"

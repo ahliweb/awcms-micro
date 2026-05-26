@@ -76,8 +76,10 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
 - Example Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- Example gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
+- Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`

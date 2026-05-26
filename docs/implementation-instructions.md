@@ -46,6 +46,8 @@ When choosing where a change belongs:
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.
+- Preserved workflow work belongs in `awcmsmicro-dev/.github/workflows/`.
+- Preserved Dependabot config belongs in `awcmsmicro-dev/.github/dependabot.yml`.
 
 ## Language Rule
 

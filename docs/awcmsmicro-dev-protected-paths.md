@@ -13,9 +13,13 @@ These paths are relative to `awcmsmicro-dev/`:
 - `templates/awcms-micro-default`
 - `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-example`
+- `packages/plugins/awcms-micro-gallery`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
+- `docs/gallery`
 - `e2e/awcms-micro`
+- `.github/workflows`
+- `.github/dependabot.yml`
 
 ## How Rebuild Preservation Works
 
