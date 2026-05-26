@@ -5,14 +5,14 @@
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
 - Upstream commit SHA: `62f89fecd57be8774d71a911113671c59b599de2`
-- Sync date: `2026-05-26T16:44:25Z`
+- Sync date: `2026-05-26T21:24:18Z`
 - Operator: `Antigravity`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `62f89fe5`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76. The remaining security hardening pass has intentionally converted privileged GitHub Action automation into manual/read-only workflows.
+Synced to EmDash `62f89fec`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76. The remaining security hardening pass has intentionally converted privileged GitHub Action automation into manual/read-only workflows.
 
 ## Key Changes in This Sync (since v0.14.0)
 

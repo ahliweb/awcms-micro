@@ -23,6 +23,8 @@ UPSTREAM_SHA="$(git -C "$SOURCE_DIR" rev-parse HEAD)"
 FETCHED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 mkdir -p "$TARGET_DIR"
+rm -rf "$TARGET_DIR"
+mkdir -p "$TARGET_DIR"
 mkdir -p "$(dirname "$METADATA_FILE")"
 
 rsync -a \
