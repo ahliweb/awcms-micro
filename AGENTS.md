@@ -11,7 +11,7 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that fully adopts EmDash 100% and includes only example plugins that follow the AWCMS-Micro standard, without modifying EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that fully adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying EmDash core.
 
 Within this parent workspace:
 

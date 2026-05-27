@@ -12,7 +12,7 @@
 
 ## Status Summary
 
-Synced to EmDash `62f89fec`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, and the gallery protected paths were preserved after the allowlist update. Validation now passes after the local workerd port allocation fix. Root deploy workflow actions are now pinned, Dependabot now covers the pnpm workspace in addition to GitHub Actions, and the workspace dependency graph has been lifted to newer patched releases where possible. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76. The remaining security hardening pass has intentionally converted privileged GitHub Action automation into manual/read-only workflows.
+Synced to EmDash `62f89fec`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully. The current repository governance now enforces a plugin-and-template-only AWCMS-Micro development model, with active navigation and label-resolution helpers moved into plugin-owned exports and the retired shared package layer removed from the protected path model. Root governance docs now include promotion, release-readiness, operator workflow, and product README source documents so the independent `awcms-micro` repository can be prepared without storing persistent downstream identity content in upstream-synced files. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76.
 
 ## Key Changes in This Sync (since v0.14.0)
 
@@ -36,9 +36,10 @@ Synced to EmDash `62f89fec`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 ## Notes
 
 - `emdash-latest/` remains the clean upstream snapshot.
-- `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific example additions.
+- `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host after the local workerd port allocation fix.
 - The `registry-client` dist was stale after the upstream `swapRecord` parameter was added. It was rebuilt in-workspace before typecheck.
-- CodeQL and workflow hardening work is in progress in `awcmsmicro-dev/` and tracked separately from upstream sync.
+- CodeQL and workflow hardening work is in progress in `awcmsmicro-dev` and tracked separately from upstream sync.
 - Manual workflow rewrites live in the corresponding `awcmsmicro-dev/.github/workflows/*` files.
+- Promotion and release-readiness artifacts now live in root `docs/` so they survive upstream rebuilds.
 - Any accepted divergence must be logged in `DIVERGENCE_LOG.md`.

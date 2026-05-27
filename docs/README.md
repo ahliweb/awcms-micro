@@ -9,6 +9,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `implementation-instructions.md`: implementation mandate, constraints, and task-splitting guidance
 - `awcms-micro-implementation-boundaries.md`: approved AWCMS-Micro implementation boundaries and preservation rules
 - `repository-assessment.md`: current repository assessment and prioritized development/documentation recommendations
+- `decision-records.md`: lightweight index of major AWCMS-Micro repository decisions
 - `awcms-micro-product-readme-draft.md`: sync-safe draft README for the future independent `awcms-micro` repository
 - `awcms-micro-product-readme-final.md`: final product-facing README source for the independent `awcms-micro` repository
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
@@ -29,14 +30,15 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 4. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
 5. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
 6. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
-7. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
-8. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
-9. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
-10. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
-11. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-12. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-13. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-14. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+7. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
+8. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
+9. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
+10. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
+11. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
+12. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+13. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+14. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+15. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 
