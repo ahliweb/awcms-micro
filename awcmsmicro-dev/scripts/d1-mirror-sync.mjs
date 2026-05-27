@@ -8,6 +8,7 @@ const DEFAULT_MIRROR_DIR = path.join(".local", "d1-mirror");
 
 const command = process.argv[2] ?? "status";
 const database = getFlagValue("--database") ?? DEFAULT_DATABASE;
+const intervalMs = Number(getFlagValue("--interval") ?? "15000");
 const mirrorDir = path.resolve(getFlagValue("--mirror-dir") ?? DEFAULT_MIRROR_DIR);
 const mirrorPath = path.join(mirrorDir, `${database}.sqlite`);
 const basePath = path.join(mirrorDir, `${database}.base.sqlite`);
@@ -279,6 +280,31 @@ function syncMirror({ reset = false } = {}) {
 	}
 }
 
+function watchMirror() {
+	if (!Number.isFinite(intervalMs) || intervalMs < 1000) {
+		throw new Error("--interval must be at least 1000 milliseconds.");
+	}
+
+	let running = false;
+	const runOnce = () => {
+		if (running) return;
+		running = true;
+		try {
+			syncMirror();
+		} catch (error) {
+			console.error(`[d1-mirror] watch sync failed:`, error);
+		} finally {
+			running = false;
+		}
+	};
+
+	log(`watching ${database} every ${intervalMs}ms`);
+	runOnce();
+	setInterval(runOnce, intervalMs);
+	process.on("SIGINT", () => process.exit(0));
+	process.on("SIGTERM", () => process.exit(0));
+}
+
 function main() {
 	ensureDir();
 	if (command === "status") {
@@ -293,7 +319,11 @@ function main() {
 		syncMirror({ reset: true });
 		return;
 	}
-	throw new Error(`Unknown command "${command}". Use status, sync, or reset.`);
+	if (command === "watch") {
+		watchMirror();
+		return;
+	}
+	throw new Error(`Unknown command "${command}". Use status, sync, reset, or watch.`);
 }
 
 main();

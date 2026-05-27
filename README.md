@@ -73,6 +73,7 @@ Exception:
 - `pnpm --dir awcmsmicro-dev d1:mirror:status`
 - `pnpm --dir awcmsmicro-dev d1:mirror:sync`
 - `pnpm --dir awcmsmicro-dev d1:mirror:reset`
+- `pnpm --dir awcmsmicro-dev d1:mirror:watch`
 - `pnpm test:awcmsmicro:e2e`
 
 ## Backup & Recovery

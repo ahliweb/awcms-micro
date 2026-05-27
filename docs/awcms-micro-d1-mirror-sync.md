@@ -42,6 +42,19 @@ Only tables that meet all of these rules are synced:
 - `pnpm d1:mirror:status`
 - `pnpm d1:mirror:sync`
 - `pnpm d1:mirror:reset`
+- `pnpm d1:mirror:watch`
+
+## Watch Mode
+
+Use `pnpm d1:mirror:watch` to auto-run the sync loop every 15 seconds by default.
+
+You can override the interval with:
+
+```bash
+node scripts/d1-mirror-sync.mjs watch --interval 30000
+```
+
+Watch mode still uses the same conflict rules and still requires DBeaver to disconnect before the sync pass writes the mirror file.
 
 ## Limits
 

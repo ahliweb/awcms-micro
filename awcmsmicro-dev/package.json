@@ -30,6 +30,7 @@
 		"d1:mirror:status": "node scripts/d1-mirror-sync.mjs status",
 		"d1:mirror:sync": "node scripts/d1-mirror-sync.mjs sync",
 		"d1:mirror:reset": "node scripts/d1-mirror-sync.mjs reset",
+		"d1:mirror:watch": "node scripts/d1-mirror-sync.mjs watch",
 		"locale:extract": "pnpm --filter @emdash-cms/admin locale:extract",
 		"locale:compile": "pnpm --filter @emdash-cms/admin locale:compile"
 	},
