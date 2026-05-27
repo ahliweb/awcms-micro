@@ -1,6 +1,6 @@
 {
 	"name": "@awcms-micro/plugin-gallery",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "AWCMS-Micro gallery plugin for EmDash-compatible photo and video collections",
 	"type": "module",
 	"main": "dist/index.mjs",
@@ -17,8 +17,19 @@
 			"default": "./dist/sandbox.mjs"
 		}
 	},
-	"files": ["dist", "emdash-plugin.jsonc", "docs", "README.md"],
-	"keywords": ["awcms-micro", "emdash", "gallery", "media", "cloudflare"],
+	"files": [
+		"dist",
+		"emdash-plugin.jsonc",
+		"docs",
+		"README.md"
+	],
+	"keywords": [
+		"awcms-micro",
+		"emdash",
+		"gallery",
+		"media",
+		"cloudflare"
+	],
 	"license": "MIT",
 	"peerDependencies": {
 		"emdash": "workspace:*"

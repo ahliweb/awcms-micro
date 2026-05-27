@@ -1,6 +1,6 @@
 {
 	"name": "@awcms-micro/plugin-example",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "AWCMS-Micro example plugin for EmDash-compatible projects",
 	"type": "module",
 	"main": "dist/index.js",
