@@ -29,6 +29,11 @@ The entries below classify the admin-side issues that were directly observed dur
 | Admin-side diagnosis of malformed plugin blocks still depends on a generic React crash path instead of a targeted plugin-contract failure path | Open | The renderer, registry, and error-reporting flow live in upstream-owned admin/core paths |
 | Global admin sidebar rendering must honor downstream plugin group ordering metadata to place plugin groups above built-in EmDash menus | Open | The final sidebar composition and rendering path lives in upstream-owned admin/core code, even though downstream metadata is now ready |
 
+Related upstream discussion:
+
+- discussion follow-up comment: `https://github.com/emdash-cms/emdash/discussions/1151#discussioncomment-17081862`
+- focused upstream PR plan: `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
+
 ### Admin: Workaround-only
 
 | Issue | Current status | Why it is only a workaround downstream |
@@ -70,6 +75,10 @@ These issues now appear to depend on upstream-owned EmDash core behavior.
 ##### Suggested Upstream Issue Title
 
 `perf(core): reduce public render query count for menu resolution and page metadata paths`
+
+Tracked upstream issue:
+
+- `https://github.com/emdash-cms/emdash/issues/1189`
 
 ##### Short Problem Statement
 
@@ -256,3 +265,9 @@ When a public or admin issue is found:
 - Continue using downstream fixes for correctness, routing, and perceived UX issues.
 - Track remaining public-render query hotspots as upstream EmDash performance work.
 - Use the `Upstream-required` section in this document as the detailed escalation note for the current core bottleneck.
+
+## External References
+
+- upstream discussion: `https://github.com/emdash-cms/emdash/discussions/1151`
+- sidebar follow-up comment: `https://github.com/emdash-cms/emdash/discussions/1151#discussioncomment-17081862`
+- public render performance issue: `https://github.com/emdash-cms/emdash/issues/1189`

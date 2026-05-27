@@ -48,7 +48,7 @@ Use it as the shortest entry point when you need to understand why the repositor
 
 - Decision: place active plugin sidebars directly below Dashboard, grouped individually, and require full English default and Indonesian translation capability
 - Why: visual isolation and premium localized user experience for plugins, avoiding layout clutter in admin navigation
-- See: `docs/implementation-instructions.md`, `AGENTS.md`
+- See: `docs/implementation-instructions.md`, `AGENTS.md`, `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 
 ### DR-008: Core Performance Bottlenecks Must Be Escalated Upstream
 
