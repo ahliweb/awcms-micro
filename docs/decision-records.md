@@ -38,6 +38,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: make downstream changes auditable and easier to review during future syncs
 - See: `docs/upstream-sync/DIVERGENCE_LOG.md`, `docs/upstream-sync/COMPATIBILITY_MATRIX.md`
 
+### DR-006: AWCMS-Micro Uses Its Own Downstream Versioning Flow
+
+- Decision: keep AWCMS-Micro plugin and template versioning separate from upstream EmDash Changesets
+- Why: downstream AWCMS release cadence and package set differ from the upstream monorepo release set
+- See: `docs/awcms-micro-versioning.md`, `docs/awcms-micro-versioning-rollout-summary.md`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:

@@ -38,10 +38,11 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 10. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
 11. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
 12. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
-13. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-14. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-15. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-16. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+13. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
+14. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+15. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+16. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+17. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

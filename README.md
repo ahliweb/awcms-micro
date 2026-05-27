@@ -45,6 +45,10 @@ Exception:
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/repository-assessment.md`
+- `docs/decision-records.md`
+- `docs/operator-workflow.md`
+- `docs/awcms-micro-versioning.md`
+- `docs/awcms-micro-versioning-rollout-summary.md`
 - `docs/upstream-sync/README.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
@@ -56,6 +60,8 @@ Exception:
 - `bash scripts/validate-awcmsmicro-boundaries.sh`
 - `bash scripts/validate-awcmsmicro-dev.sh`
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
+- `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
+- `node awcmsmicro-dev/.github/scripts/awcms-version.mjs version`
 - `pnpm test:awcmsmicro:e2e`
 
 ## Backup & Recovery
@@ -100,6 +106,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 3. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
 4. Implement AWCMS-Micro-specific product work only in approved plugin and template boundaries inside `awcmsmicro-dev/`.
-5. Update root documentation when structure or process changes.
+5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
+6. Update root documentation when structure or process changes.
 
 During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`.

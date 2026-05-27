@@ -23,6 +23,7 @@ Within this parent workspace:
 - Proceed step by step using an atomic strategy.
 - Prefer small, reviewable changes.
 - Rebuild `awcmsmicro-dev/` from `emdash-latest/` before starting new implementation work when synchronization is required.
+- Keep AWCMS-Micro release-note inputs and release automation inside preserved downstream boundaries such as `.awcms-changesets/` and `.github/scripts/`.
 - Keep root documentation in sync with the actual folder structure and workflow.
 - When work is too large for one pass, split it into smaller tracked tasks.
 - If useful, create GitHub issues so work can later be executed by a smaller or lower-cost AI model.
@@ -41,3 +42,6 @@ Within this parent workspace:
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
+- `docs/awcms-micro-versioning.md`
+- `docs/operator-workflow.md`
+- `docs/decision-records.md`
