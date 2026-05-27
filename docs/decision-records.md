@@ -50,6 +50,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: visual isolation and premium localized user experience for plugins, avoiding layout clutter in admin navigation
 - See: `docs/implementation-instructions.md`, `AGENTS.md`
 
+### DR-008: Core Performance Bottlenecks Must Be Escalated Upstream
+
+- Decision: when AWCMS-Micro public performance hotspots remain in upstream-owned EmDash core paths after downstream template cleanup, document and escalate them upstream instead of patching core locally
+- Why: preserve the plugin-and-template-only downstream model and keep performance fixes reviewable in the canonical EmDash codebase
+- See: `docs/upstream-sync/UPSTREAM_ISSUE_PUBLIC_RENDER_QUERY_BOTTLENECK.md`, `docs/awcms-micro-implementation-boundaries.md`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:
