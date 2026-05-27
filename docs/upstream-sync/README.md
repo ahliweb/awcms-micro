@@ -26,6 +26,8 @@ This folder tracks how the parent repository follows upstream EmDash and how AWC
 3. Read `LAST_VALIDATION.md` for the latest validation result.
 4. Read `COMPATIBILITY_MATRIX.md` for feature-level adoption and adaptation notes.
 5. Read `DIVERGENCE_LOG.md` for downstream decisions that intentionally differ from a plain upstream checkout.
+6. Read `ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before deciding whether a finding belongs in downstream boundaries or upstream EmDash core.
+7. Read `UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing the upstream sidebar ordering PR plan.
 
 ## Operating Rule
 

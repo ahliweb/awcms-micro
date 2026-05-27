@@ -80,6 +80,9 @@ Exception:
 
 ## Backup & Recovery
 
+- `bash scripts/backup/encrypt-config.sh` - Encrypt backup config
+- `bash scripts/backup/decrypt-config.sh` - Decrypt backup config
+- `bash scripts/backup/encrypt-all-env.sh` - Encrypt all .env files
 - `bash scripts/backup/encrypt-env.sh` - Encrypt .env files
 - `bash scripts/backup/decrypt-env.sh` - Decrypt .env files
 - `bash scripts/backup/backup-db.sh` - Backup database to R2
