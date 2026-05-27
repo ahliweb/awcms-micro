@@ -4,6 +4,12 @@ This template is a deployable AWCMS-Micro example site for Cloudflare.
 
 It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`.
 
+## Purpose
+
+- provide a Cloudflare-first AWCMS-Micro reference template
+- demonstrate how AWCMS-Micro plugins can be registered in a deployable Cloudflare EmDash site
+- keep deployment, validation, and rollback guidance template-owned rather than core-owned
+
 ## What It Includes
 
 - public homepage
@@ -26,6 +32,12 @@ This template is prepared for these logical values:
 - Worker Loader binding: `LOADER`
 
 No secrets are committed.
+
+## Boundary Rule
+
+- keep Cloudflare deployment shape template-owned
+- keep plugin behavior plugin-owned and registered through standard EmDash configuration
+- do not move Cloudflare-specific AWCMS-Micro behavior into EmDash core locations
 
 ## Local Development
 
@@ -84,3 +96,9 @@ Do not commit Cloudflare account IDs, tokens, or secret values.
 - The example plugin is currently registered through `plugins: [awcmsMicroExamplePlugin()]`.
 - The Worker Loader binding is already prepared even though this template does not yet register sandboxed plugins.
 - This template is intentionally separate from upstream EmDash templates and does not overwrite them.
+
+## Naming Guidance
+
+- package name: `@awcms-micro/template-default-cloudflare`
+- recommended local folder example: `templates/awcms-micro-default-cloudflare/`
+- related example plugin packages: `@awcms-micro/plugin-example`, `@awcms-micro/plugin-gallery`

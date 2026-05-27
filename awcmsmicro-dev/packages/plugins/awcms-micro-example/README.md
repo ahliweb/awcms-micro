@@ -2,6 +2,12 @@
 
 This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compatible Access & Audit Demo plugin without modifying EmDash core.
 
+## Purpose
+
+- keep AWCMS-Micro-specific governance, navigation, access, audit, and ABAC examples inside an isolated plugin boundary
+- demonstrate how downstream behavior can be added without forking EmDash core
+- provide a reusable example package that templates and standalone EmDash sites can consume through normal plugin registration
+
 ## What It Demonstrates
 
 - plugin descriptor factory and plugin identity/versioning
@@ -26,6 +32,12 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 ## Permission Namespace
 
 The example uses the `awcms:example:<resource>:<action>` namespace.
+
+## Boundary Rule
+
+- keep plugin-owned behavior in this package
+- do not move these example capabilities into EmDash core packages
+- let templates consume the plugin through normal `plugins: []` registration rather than duplicating plugin logic in template code
 
 ## Native And Sandbox Boundaries
 

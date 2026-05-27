@@ -18,6 +18,12 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - No EmDash core modification: manual adoption is documented here instead of changing built-in template registration.
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
+## Boundary Rule
+
+- keep public rendering and site presentation template-owned
+- keep plugin behavior plugin-owned and register it through standard EmDash configuration
+- do not replace or modify built-in EmDash templates in place
+
 ## Key Files
 
 - `package.json`
@@ -52,3 +58,9 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 - The template still expects the standard EmDash runtime flow and Astro server output.
 - The included `seed/seed.json` is intentionally minimal so the folder can bootstrap cleanly outside this repository.
 - Review `astro.config.mjs` before production use: `siteUrl`, SQLite database location, and local uploads storage are example defaults.
+
+## Naming Guidance
+
+- package name: `@awcms-micro/template-default-example`
+- recommended local folder example: `templates/awcms-micro-default/`
+- related example plugin package: `@awcms-micro/plugin-example`
