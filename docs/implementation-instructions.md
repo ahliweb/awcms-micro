@@ -58,3 +58,9 @@ When choosing where a change belongs:
 - Use English (US) for root-level documentation, instructions, scripts, and governance text.
 - Preserve upstream wording in `emdash-latest/`, including non-US spelling.
 - Accept inherited upstream wording in `awcmsmicro-dev/` when it comes from synchronization rather than AWCMS-Micro-specific authorship.
+- Active example plugins and templates must default to English (`en`) and provide a full Indonesian translation (`id`).
+
+## Plugin Sidebar Layout & Grouping Rules
+
+- Active plugins must have their admin sidebar menus displayed at the top, directly below the Dashboard and before the default EmDash menus.
+- Every active plugin must render its custom links inside its own collapsible, distinct group to prevent items from mixing across plugins.

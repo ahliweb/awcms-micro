@@ -44,6 +44,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: downstream AWCMS release cadence and package set differ from the upstream monorepo release set
 - See: `docs/awcms-micro-versioning.md`, `docs/awcms-micro-versioning-rollout-summary.md`
 
+### DR-007: Plugin Placement, Sidebar Grouping, and i18n Rules
+
+- Decision: place active plugin sidebars directly below Dashboard, grouped individually, and require full English default and Indonesian translation capability
+- Why: visual isolation and premium localized user experience for plugins, avoiding layout clutter in admin navigation
+- See: `docs/implementation-instructions.md`, `AGENTS.md`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:

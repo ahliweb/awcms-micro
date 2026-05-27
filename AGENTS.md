@@ -33,6 +33,12 @@ Within this parent workspace:
 - English (US) is the official language for this repository's root-level documentation, instructions, scripts, and governance text.
 - Preserve `emdash-latest/` exactly as upstream EmDash provides it, including non-US spelling or wording.
 - Allow `awcmsmicro-dev/` to inherit upstream wording when it is synchronized from `emdash-latest/`, unless there is a separate AWCMS-Micro-specific reason to change it.
+- All active plugins must default to English (`en`) and contain complete, ready-to-use Indonesian (`id`) translations for all key/label definitions.
+
+## Plugin Admin Sidebar Policy
+
+- When any downstream plugin is active, its admin sidebar menu must be positioned at the top, directly below the Dashboard and before default EmDash menus.
+- Each plugin's menu items must be grouped into their own distinct collapsible menu group to prevent mixing or cluttering sidebar navigation between different plugins.
 
 ## Root Documentation
 
