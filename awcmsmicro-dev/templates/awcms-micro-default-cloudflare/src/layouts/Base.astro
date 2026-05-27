@@ -15,9 +15,10 @@ interface Props {
 	image?: string | null;
 	canonical?: string | null;
 	content?: { collection: string; id: string; slug?: string | null };
+	showFooterWidgets?: boolean;
 }
 
-const { title, pageTitle, description, image, canonical, content } = Astro.props;
+const { title, pageTitle, description, image, canonical, content, showFooterWidgets = true } = Astro.props;
 const { siteTitle, siteTagline, siteLogo } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
@@ -367,7 +368,7 @@ const pageCtx = createPublicPageContext({
 		<footer class="footer">
 			<div class="card">
 				<p style="margin-top:0;">{siteTagline}</p>
-				<WidgetArea name="sidebar" />
+				{showFooterWidgets && <WidgetArea name="sidebar" />}
 			</div>
 		</footer>
 

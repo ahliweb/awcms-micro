@@ -10,18 +10,24 @@ function asImage(value: unknown) {
 	return value as any;
 }
 
-const { entries: posts, cacheHint: postsCacheHint } = await getEmDashCollection("posts", {
-	orderBy: { published_at: "desc" },
-	limit: 3,
-});
-const { entries: newsItems, cacheHint: newsCacheHint } = await getEmDashCollection("news", {
-	orderBy: { published_at: "desc" },
-	limit: 3,
-});
-const { entries: pages, cacheHint: pagesCacheHint } = await getEmDashCollection("pages", {
-	orderBy: { published_at: "desc" },
-	limit: 6,
-});
+const [
+	{ entries: posts, cacheHint: postsCacheHint },
+	{ entries: newsItems, cacheHint: newsCacheHint },
+	{ entries: pages, cacheHint: pagesCacheHint },
+] = await Promise.all([
+	getEmDashCollection("posts", {
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+	getEmDashCollection("news", {
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+	getEmDashCollection("pages", {
+		orderBy: { published_at: "desc" },
+		limit: 6,
+	}),
+]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
@@ -39,7 +45,7 @@ const localeOptions = {
 };
 ---
 
-<Base title={siteTitle} description={siteTagline}>
+<Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
 	<section class="card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
 		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">AWCMS-Micro</p>
 		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">A production-ready CMS powered by <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">EmDash</span> & Cloudflare.</h1>
