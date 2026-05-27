@@ -6,6 +6,8 @@ import { DatabaseSync } from "node:sqlite";
 const DEFAULT_DATABASE = "awcms-micro-d1";
 const DEFAULT_MIRROR_DIR = path.join(".local", "d1-mirror");
 const DEFAULT_INTERVAL_MS = 15000;
+const DEFAULT_MIRROR_PREFIX = `${DEFAULT_DATABASE}.dbeaver`;
+const ftsAuxTableRe = /^_emdash_fts_.*_(data|idx|docsize|config)$/u;
 const newlineRe = /\r?\n/;
 const exportPrefixRe = /^export\s+/;
 const quotedValueRe = /^(".*"|'.*')$/;
@@ -14,11 +16,12 @@ const command = process.argv[2] ?? "status";
 const database = getFlagValue("--database") ?? DEFAULT_DATABASE;
 const mirrorDir = path.resolve(getFlagValue("--mirror-dir") ?? DEFAULT_MIRROR_DIR);
 const intervalMs = Number(getFlagValue("--interval") ?? String(DEFAULT_INTERVAL_MS));
+const mirrorPrefix = getFlagValue("--mirror-prefix") ?? DEFAULT_MIRROR_PREFIX;
 
-const mirrorPath = path.join(mirrorDir, `${database}.sqlite`);
-const basePath = path.join(mirrorDir, `${database}.base.sqlite`);
-const remoteSnapshotPath = path.join(mirrorDir, `${database}.remote.sqlite`);
-const stagingPath = path.join(mirrorDir, `${database}.staging.sqlite`);
+const mirrorPath = path.join(mirrorDir, `${mirrorPrefix}.sqlite`);
+const basePath = path.join(mirrorDir, `${mirrorPrefix}.base.sqlite`);
+const remoteSnapshotPath = path.join(mirrorDir, `${mirrorPrefix}.remote.sqlite`);
+const stagingPath = path.join(mirrorDir, `${mirrorPrefix}.staging.sqlite`);
 
 loadRootEnv();
 
@@ -121,16 +124,18 @@ function runRemoteQuery(sql) {
 	return parsed[0]?.results ?? [];
 }
 
-function listRemoteTables() {
+function listRemoteObjects() {
 	return runRemoteQuery(
-		"SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE VIRTUAL TABLE%';",
+		"SELECT name, type, sql FROM sqlite_master WHERE type IN ('table', 'trigger') AND name NOT LIKE 'sqlite_%' AND sql IS NOT NULL;",
 	);
 }
 
-function listRemoteIndexes(tableName) {
-	return runRemoteQuery(
-		`SELECT sql FROM sqlite_master WHERE type = 'index' AND tbl_name = ${sqlLiteral(tableName)} AND sql IS NOT NULL AND name NOT LIKE 'sqlite_%';`,
-	);
+function isVirtualTableSql(sql) {
+	return typeof sql === "string" && sql.startsWith("CREATE VIRTUAL TABLE");
+}
+
+function isFtsAuxTable(name) {
+	return ftsAuxTableRe.test(name);
 }
 
 function tableInfoRemote(tableName) {
@@ -148,16 +153,22 @@ function tableMetadataFromInfo(info) {
 	};
 }
 
-function listEligibleTablesFromRemote() {
-	return listRemoteTables()
+function listMirrorTablesFromRemote() {
+	return listRemoteObjects()
+		.filter((row) => !row.name.startsWith("_cf_"))
 		.map((row) => {
-			if (row.name.startsWith("_cf_")) return null;
-			const info = tableInfoRemote(row.name);
-			const meta = tableMetadataFromInfo(info);
-			return { name: row.name, sql: row.sql, meta };
-		})
-		.filter(Boolean)
-		.filter(({ meta }) => meta.eligible);
+			if (row.type !== "table") return { name: row.name, type: row.type, sql: row.sql, meta: null };
+			return {
+				name: row.name,
+				type: row.type,
+				sql: row.sql,
+				meta: tableMetadataFromInfo(tableInfoRemote(row.name)),
+			};
+		});
+}
+
+function listEligibleTablesFromRemote() {
+	return listMirrorTablesFromRemote().filter(({ type, meta }) => type === "table" && meta?.eligible);
 }
 
 function loadRows(db, tableName) {
@@ -219,11 +230,14 @@ function buildSnapshot(targetPath) {
 	rmSync(targetPath, { force: true });
 	const snapshotDb = openDatabase(targetPath);
 	snapshotDb.exec("PRAGMA foreign_keys = OFF;");
-	const tables = listEligibleTablesFromRemote();
-	for (const table of tables) {
-		snapshotDb.exec(table.sql);
-	}
-	for (const table of tables) {
+	const tables = listMirrorTablesFromRemote();
+	const ordinaryTables = tables.filter((table) => table.type === "table" && !isFtsAuxTable(table.name) && !isVirtualTableSql(table.sql));
+	const virtualTables = tables.filter((table) => table.type === "table" && isVirtualTableSql(table.sql));
+	const triggers = tables.filter((table) => table.type === "trigger");
+	for (const table of ordinaryTables) snapshotDb.exec(table.sql);
+	for (const table of virtualTables) snapshotDb.exec(table.sql);
+	for (const table of triggers) snapshotDb.exec(table.sql);
+	for (const table of ordinaryTables) {
 		const rows = runRemoteQuery(`SELECT * FROM ${quoteIdent(table.name)};`);
 		if (rows.length === 0) continue;
 		const stmt = snapshotDb.prepare(
@@ -231,11 +245,6 @@ function buildSnapshot(targetPath) {
 		);
 		for (const row of rows) {
 			stmt.run(...table.meta.columns.map((column) => sqliteBindValue(row[column] ?? null)));
-		}
-	}
-	for (const table of tables) {
-		for (const index of listRemoteIndexes(table.name)) {
-			if (index.sql) snapshotDb.exec(index.sql);
 		}
 	}
 	closeDatabase(snapshotDb);
