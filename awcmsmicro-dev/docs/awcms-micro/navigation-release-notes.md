@@ -26,7 +26,7 @@ Recommended checks after navigation changes:
 ```bash
 pnpm lint:quick
 pnpm typecheck
-pnpm test:awcmsmicro:e2e
+pnpm test:e2e
 pnpm test:awcmsmicro:a11y
 ```
 

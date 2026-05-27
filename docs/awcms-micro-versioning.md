@@ -57,13 +57,13 @@ The PR branch used by the workflow is `awcms-release/main`.
 For a quick local status check:
 
 ```bash
-node .github/scripts/awcms-version.mjs status
+node awcmsmicro-dev/.github/scripts/awcms-version.mjs status
 ```
 
 To apply pending AWCMS version updates locally:
 
 ```bash
-node .github/scripts/awcms-version.mjs version
+node awcmsmicro-dev/.github/scripts/awcms-version.mjs version
 ```
 
 ## Boundary Rule

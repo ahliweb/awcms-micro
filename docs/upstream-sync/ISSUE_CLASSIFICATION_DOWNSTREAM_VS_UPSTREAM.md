@@ -50,7 +50,7 @@ These issues can be fixed inside approved AWCMS-Micro plugin/template boundaries
 | Public links used entry `id` instead of `slug` | Fixed downstream | Link construction lived in AWCMS-Micro template files |
 | Locale switcher generated locale-prefixed paths that did not resolve | Fixed downstream | Locale path generation and routing workaround lived in the Cloudflare template |
 | Public navigation lacked prefetch | Fixed downstream | Link behavior is template-owned |
-| Homepage rendered a second demo navigation tree | Fixed downstream | Duplicate render lived entirely in `templates/awcms-micro-default-cloudflare/src/pages/index.astro` |
+| Homepage rendered a second demo navigation tree | Fixed downstream | Duplicate render was removed from both downstream reference templates in `templates/awcms-micro-default*/src/pages/index.astro` |
 | Homepage collection queries were serial | Fixed downstream | Fetch ordering lived in the template page |
 | Footer widgets duplicated content summaries on list/index pages | Fixed downstream | Footer widget usage was a template layout choice |
 | Locale-aware public links across `/`, `/posts`, `/news`, `/gallery`, and content pages | Fixed downstream | URL generation lived in AWCMS-Micro template code |

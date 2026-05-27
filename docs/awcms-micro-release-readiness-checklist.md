@@ -52,7 +52,7 @@ Run the closest available checks for the intended release surface.
 Minimum recommended checks:
 
 1. `bash scripts/validate-awcmsmicro-boundaries.sh`
-2. `node .github/scripts/awcms-version.mjs status`
+2. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
 3. `pnpm --filter @awcms-micro/plugin-example typecheck`
 4. `pnpm --filter @awcms-micro/plugin-example test`
 5. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`

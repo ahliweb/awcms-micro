@@ -871,7 +871,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm build
-pnpm test:awcmsmicro:e2e
+pnpm --dir awcmsmicro-dev test:e2e
 ```
 
 ## Security and Compliance Notes
