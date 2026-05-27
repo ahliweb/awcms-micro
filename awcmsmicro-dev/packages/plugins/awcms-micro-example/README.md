@@ -113,3 +113,7 @@ From this package directory:
 1. `pnpm typecheck`
 2. `pnpm test`
 3. `pnpm build`
+
+## License
+
+This package is licensed under the AW Non-Commercial License 1.0. See `LICENSE.md`.

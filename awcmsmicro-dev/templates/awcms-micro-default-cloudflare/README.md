@@ -102,3 +102,7 @@ Do not commit Cloudflare account IDs, tokens, or secret values.
 - package name: `@awcms-micro/template-default-cloudflare`
 - recommended local folder example: `templates/awcms-micro-default-cloudflare/`
 - related example plugin packages: `@awcms-micro/plugin-example`, `@awcms-micro/plugin-gallery`
+
+## License
+
+This template is licensed under the AW Non-Commercial License 1.0. See `LICENSE.md`.

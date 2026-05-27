@@ -64,3 +64,7 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 - package name: `@awcms-micro/template-default-example`
 - recommended local folder example: `templates/awcms-micro-default/`
 - related example plugin package: `@awcms-micro/plugin-example`
+
+## License
+
+This template is licensed under the AW Non-Commercial License 1.0. See `LICENSE.md`.

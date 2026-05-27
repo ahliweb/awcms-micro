@@ -31,3 +31,7 @@ The admin page is rendered through EmDash Block Kit at the plugin's `Gallery` ad
 - keep gallery management behavior plugin-owned
 - keep public gallery rendering template-owned
 - do not move gallery behavior into EmDash core locations
+
+## License
+
+This package is licensed under the AW Non-Commercial License 1.0. See `LICENSE.md`.
