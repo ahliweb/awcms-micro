@@ -22,3 +22,7 @@ This document describes the Cloudflare deployment model for AWCMS-Micro example 
 ## Security Rule
 
 Never commit live Cloudflare tokens, account IDs, zone IDs, database IDs, or private credentials to repository documentation. Use placeholders in committed examples.
+
+## Deploy Token
+
+Use a dedicated GitHub secret named `CLOUDFLARE_DEPLOY_TOKEN` for the deploy workflow. Keep the token value out of git; if you need to bootstrap it from a local `.env`, load it in your shell and set the secret from there.
