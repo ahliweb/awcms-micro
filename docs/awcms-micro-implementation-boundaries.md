@@ -27,12 +27,6 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, and E2E boundaries listed above
 
-## Transitional Preserved Path
-
-- `packages/awcms`
-
-`packages/awcms` remains in the preservation allowlist so existing work is not deleted during rebuilds. It is a transitional boundary, not an approved destination for new AWCMS-Micro feature work.
-
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 
 ## Upstream-Only Paths

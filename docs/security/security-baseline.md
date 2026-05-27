@@ -31,7 +31,6 @@ AWCMS-Micro should inherit EmDash security mechanisms where available and layer 
 | Auditability | Record sensitive governance-style changes in plugin-owned storage/logs where appropriate | `awcms-micro-example` plugin | Active | Medium |
 | Media and storage isolation | Keep media in configured object storage and avoid checked-in assets/secrets | Cloudflare template + R2 model | Active | Medium |
 | Recovery readiness | Maintain backup and rollback guidance for env, DB, and deploys | root backup scripts + deployment docs | Active | Medium |
-| Transitional path retirement | Shrink preserved non-plugin/template paths over time | `packages/awcms` transition plan | In progress | Medium |
 
 ## Operational Requirements
 

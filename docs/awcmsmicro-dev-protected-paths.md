@@ -20,7 +20,6 @@ These paths are relative to `awcmsmicro-dev/`:
 - `e2e/awcms-micro`
 - `.github/workflows`
 - `.github/dependabot.yml`
-- `packages/awcms` (transitional preserved path; not for new feature work)
 
 ## How Rebuild Preservation Works
 

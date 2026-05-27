@@ -66,7 +66,6 @@ Expected root scripts:
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
-- Transitional preserved path pending migration into plugin or template boundaries: `awcmsmicro-dev/packages/awcms/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 
@@ -77,8 +76,6 @@ New AWCMS-Micro product development should be implemented as:
 - plugins under `awcmsmicro-dev/packages/plugins/`
 - templates under `awcmsmicro-dev/templates/`
 - optional supporting docs, demos, and E2E coverage inside the corresponding approved boundaries
-
-`awcmsmicro-dev/packages/awcms/` is preserved only as a transitional boundary so existing work is not deleted during rebuilds. Do not expand it with new feature work.
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 

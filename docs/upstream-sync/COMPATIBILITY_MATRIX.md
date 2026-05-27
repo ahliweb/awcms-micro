@@ -16,7 +16,6 @@ This matrix compares upstream EmDash features with AWCMS-Micro usage decisions.
 | Supporting docs, demos, and E2E boundaries | Keep as validation and operator surfaces only | Compatible | Low | adapt |
 | Cloudflare deployment overlays | Document as environment-specific deployment guidance | Compatible | Medium | adapt |
 | Compliance and security baselines | Document as operational guidance rather than core changes | Compatible | Low | adapt |
-| Transitional preserved path `packages/awcms` | Preserve only until remaining contents are retired or moved into plugin/template boundaries | Transitional | Medium | retire |
 
 ## Usage Notes
 
@@ -24,4 +23,3 @@ This matrix compares upstream EmDash features with AWCMS-Micro usage decisions.
 - `adapt` means AWCMS-Micro adds isolated examples or documentation without changing EmDash core.
 - `delay` means the feature should be reviewed later.
 - `reject` means the feature is intentionally out of scope.
-- `retire` means the area should shrink over time and should not receive new feature work.

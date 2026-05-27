@@ -60,8 +60,8 @@ The root docs explain the maintenance workflow well, but they still need stronge
 
 ### Priority 3
 
-- Gradually retire transitional preserved paths that do not fit the plugin-and-template rule.
-- Before retiring such a path, move any still-needed behavior into plugin or template boundaries and update the allowlist in the same change.
+- Continue removing any future drift back toward shared non-plugin, non-template product layers.
+- When a utility is still needed, keep it plugin-owned or template-owned and document the ownership boundary clearly.
 
 ## Documentation Recommendations
 
