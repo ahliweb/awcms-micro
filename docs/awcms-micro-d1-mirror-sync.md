@@ -14,6 +14,14 @@ It is a limited two-way sync model, not a live remote connection.
 - `pnpm d1:mirror:sync` merges local mirror edits back to D1 and refreshes the mirror.
 - `pnpm d1:mirror:reset` discards the local mirror and rebuilds it from production.
 
+## Access Required
+
+- The script reads the parent repository `.env` automatically when present.
+- It maps `CLOUDFLARE_WORKER_D1_DATABASE_ID` to the D1 mirror workflow when needed.
+- `wrangler` must already be authenticated to the Cloudflare account that owns `awcms-micro-d1`.
+- The account/token needs D1 query access.
+- If `wrangler` returns `SQLITE_AUTH`, the local mirror cannot be refreshed until the account access issue is resolved.
+
 ## Eligibility Rules
 
 Only tables that meet all of these rules are synced:
