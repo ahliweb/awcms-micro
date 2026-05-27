@@ -243,8 +243,14 @@ function buildSnapshot(targetPath) {
 		const stmt = snapshotDb.prepare(
 			`INSERT INTO ${quoteIdent(table.name)} (${table.meta.columns.map(quoteIdent).join(", ")}) VALUES (${table.meta.columns.map(() => "?").join(", ")})`,
 		);
+		log(`Inserting into ${table.name}, rows count: ${rows.length}`);
 		for (const row of rows) {
-			stmt.run(...table.meta.columns.map((column) => sqliteBindValue(row[column] ?? null)));
+			try {
+				stmt.run(...table.meta.columns.map((column) => sqliteBindValue(row[column] ?? null)));
+			} catch (err) {
+				console.error(`Failed on table ${table.name} with row:`, row);
+				throw err;
+			}
 		}
 	}
 	closeDatabase(snapshotDb);
@@ -371,11 +377,18 @@ function syncMirror({ reset = false } = {}) {
 				"execute",
 				database,
 				"--remote",
-				"--skip-confirmation",
+				"--yes",
 				"--command",
 				mergedSql,
 			],
-			{ stdio: "inherit" },
+			{
+				stdio: "inherit",
+				env: {
+					...process.env,
+					CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
+					CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN,
+				},
+			},
 		);
 		buildSnapshot(mirrorPath);
 		buildSnapshot(basePath);
