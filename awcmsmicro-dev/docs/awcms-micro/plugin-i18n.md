@@ -57,7 +57,7 @@ When rendering, AWCMS-Micro resolves keys in the following strict fallback order
 ### Example Execution
 
 ```ts
-import { resolveLabel } from "@awcms-micro/core";
+import { resolveLabel } from "@awcms-micro/plugin-example/navigation";
 
 const messages = {
   en: { "nav.title": "English Title" },

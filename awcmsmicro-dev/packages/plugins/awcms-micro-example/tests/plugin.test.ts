@@ -203,16 +203,16 @@ describe("awcms micro example plugin", () => {
 		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
 		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
-		expect(AWCMS_EXAMPLE_ADMIN_PAGES.map((page) => page.path)).toEqual([
-			"/overview",
-			"/registry",
-			"/verification",
-			"/documents",
-			"/reports",
-			"/audit",
-			"/access/permissions",
-			"/access/roles",
-			"/access/matrix",
+			expect(AWCMS_EXAMPLE_ADMIN_PAGES.map((page) => page.path)).toEqual([
+				"/overview",
+				"/registry",
+				"/documents",
+				"/verification",
+				"/audit",
+				"/reports",
+				"/access/permissions",
+				"/access/roles",
+				"/access/matrix",
 			"/access/preview",
 			"/abac/attributes",
 			"/abac/policies",

@@ -3,7 +3,7 @@ import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
 import * as React from "react";
 import { useLingui } from "@lingui/react";
-import { normalizeAdminNav, PluginLocalNav } from "@awcms-micro/core";
+import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
 import { AWCMS_EXAMPLE_MANIFEST } from "./runtime.js";
 
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "./fixtures.js";
@@ -24,6 +24,14 @@ interface DashboardModuleCard {
 	href: string;
 	status: string;
 	badge?: string | number;
+}
+
+interface PluginHeaderMenuItem {
+	id: string;
+	label: string;
+	href: string;
+	permission?: string;
+	children?: PluginHeaderMenuItem[];
 }
 
 interface SummaryResponse {
@@ -288,6 +296,83 @@ export const AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS: DashboardModuleCard[] = [
 		badge: "Docs",
 	},
 ];
+
+export const AWCMS_EXAMPLE_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
+	{
+		id: "overview",
+		label: "Overview",
+		href: "/overview",
+		permission: "awcms:example:dashboard:read",
+	},
+	{
+		id: "data-entry",
+		label: "Data Entry",
+		href: "/registry",
+		permission: "awcms:example:dashboard:read",
+		children: [
+			{
+				id: "registry",
+				label: "Registry",
+				href: "/registry",
+				permission: "awcms:example:dashboard:read",
+			},
+			{
+				id: "documents",
+				label: "Documents",
+				href: "/documents",
+				permission: "awcms:example:dashboard:read",
+			},
+		],
+	},
+	{
+		id: "verification",
+		label: "Verification",
+		href: "/verification",
+		permission: "awcms:example:audit:read",
+	},
+	{
+		id: "reports",
+		label: "Reports",
+		href: "/reports",
+		permission: "awcms:example:audit:read",
+	},
+	{
+		id: "settings",
+		label: "Settings",
+		href: "/access/permissions",
+		permission: "awcms:example:settings:read",
+		children: [
+			{
+				id: "permissions",
+				label: "Permissions",
+				href: "/access/permissions",
+				permission: "awcms:example:permissions:read",
+			},
+			{
+				id: "roles",
+				label: "Roles",
+				href: "/access/roles",
+				permission: "awcms:example:roles:read",
+			},
+		],
+	},
+];
+
+export function filterPluginHeaderMenu(
+	items: PluginHeaderMenuItem[],
+	hasPermission: (permission?: string) => boolean
+): PluginHeaderMenuItem[] {
+	return items
+		.filter((item) => hasPermission(item.permission))
+		.map((item) => {
+			const children = item.children ? filterPluginHeaderMenu(item.children, hasPermission) : undefined;
+			return {
+				...item,
+				children: children?.length ? children : undefined,
+			};
+		})
+		.filter((item) => item.children?.length || !item.children);
+}
 function cx(...classes: Array<string | false | null | undefined>) {
 	return classes.filter(Boolean).join(" ");
 }

@@ -6,14 +6,15 @@ This document explains the custom, migration-safe admin navigation compatibility
 
 EmDash currently supports a flat page-based admin navigation structure. AWCMS-Micro, however, requires a structured, grouped, and hierarchical navigation menu for plugins (e.g., grouping access control views under a "Governance" menu).
 
-To support this without modifying EmDash's core package (which would block seamless upstream synchronization), AWCMS-Micro introduces a **Sync-Safe Compatibility Layer** in the `@awcms-micro/core` package.
+To support this without modifying EmDash's core package (which would block seamless upstream synchronization), AWCMS-Micro keeps the compatibility layer inside the example plugin boundary and exposes it through `@awcms-micro/plugin-example/navigation`.
 
 ## Core Design Principles
 
 1. **Zero Modifications to EmDash Core**: AWCMS-Micro must never edit core files in `packages/core` or `packages/admin`.
-2. **Declaration in Manifests**: Plugins declare their structured navigation inside `emdash-plugin.jsonc` or a module manifest schema.
-3. **Dynamic Translation & Resolution**: Labels are translated using locale-fallback registries before rendering.
-4. **Namespace Isolation**: Plugins are sandboxed to their own `/plugins/<plugin-id>` routes. Any attempt to cross namespaces or traverse paths is rejected.
+2. **Plugin-Owned Logic**: Navigation behavior lives in plugin-owned code and can be consumed by templates without introducing a new shared core layer.
+3. **Declaration in Manifests**: Plugins declare their structured navigation inside `emdash-plugin.jsonc` or a module manifest schema.
+4. **Dynamic Translation & Resolution**: Labels are translated using locale-fallback registries before rendering.
+5. **Namespace Isolation**: Plugins are sandboxed to their own `/plugins/<plugin-id>` routes. Any attempt to cross namespaces or traverse paths is rejected.
 
 ## Defining Grouped Navigation in manifests
 

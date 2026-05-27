@@ -8,7 +8,7 @@ import type {
 import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "emdash/plugin";
 
 import { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
-import { adaptToEmdashPages, type AwcmsModuleManifest } from "@awcms-micro/core";
+import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
 export const AWCMS_EXAMPLE_PLUGIN_ID = "awcms-micro-example";
 
@@ -137,6 +137,15 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						icon: "list",
 						sortOrder: 20,
 						permission: "awcms:example:audit:read",
+					},
+					{
+						id: "reports",
+						labelKey: "awcms.nav.reports",
+						fallbackLabel: "Reports",
+						path: "/reports",
+						icon: "chart",
+						sortOrder: 30,
+						permission: "awcms:example:audit:read",
 					}
 				]
 			},
@@ -234,17 +243,18 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 		defaultLocale: "en",
 		supportedLocales: ["en", "id"],
 		messages: {
-			en: {
-				"awcms.nav.group.dashboard": "Dashboard",
-				"awcms.nav.group.content": "Content",
-				"awcms.nav.group.governance": "Governance",
-				"awcms.nav.group.settings": "Settings",
-				"awcms.nav.overview": "Overview",
-				"awcms.nav.pages": "Pages",
-				"awcms.nav.documents": "Documents",
-				"awcms.nav.verification": "Verification",
-				"awcms.nav.audit": "Audit Log",
-				"awcms.nav.access": "Access Control",
+				en: {
+					"awcms.nav.group.dashboard": "Dashboard",
+					"awcms.nav.group.content": "Content",
+					"awcms.nav.group.governance": "Governance",
+					"awcms.nav.group.settings": "Settings",
+					"awcms.nav.overview": "Overview",
+					"awcms.nav.pages": "Pages",
+					"awcms.nav.documents": "Documents",
+					"awcms.nav.verification": "Verification",
+					"awcms.nav.audit": "Audit Log",
+					"awcms.nav.reports": "Reports",
+					"awcms.nav.access": "Access Control",
 				"awcms.nav.permissions": "Permissions",
 				"awcms.nav.roles": "Roles",
 				"awcms.nav.matrix": "Role Matrix",
@@ -264,6 +274,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				"awcms.nav.documents": "Dokumen",
 				"awcms.nav.verification": "Verifikasi",
 				"awcms.nav.audit": "Log Audit",
+				"awcms.nav.reports": "Laporan",
 				"awcms.nav.access": "Kontrol Akses",
 				"awcms.nav.permissions": "Izin",
 				"awcms.nav.roles": "Peran",

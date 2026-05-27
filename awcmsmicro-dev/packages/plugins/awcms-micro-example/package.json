@@ -4,6 +4,7 @@
 	"description": "AWCMS-Micro example plugin for EmDash-compatible projects",
 	"type": "module",
 	"main": "dist/index.js",
+	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
@@ -15,6 +16,11 @@
 			"types": "./dist/admin.d.ts",
 			"import": "./dist/admin.js",
 			"default": "./dist/admin.js"
+		},
+		"./navigation": {
+			"types": "./dist/navigation.d.ts",
+			"import": "./dist/navigation.js",
+			"default": "./dist/navigation.js"
 		},
 		"./sandbox": {
 			"types": "./dist/sandbox.d.ts",
@@ -42,7 +48,8 @@
 		"react": "^18.0.0 || ^19.0.0"
 	},
 	"dependencies": {
-		"@awcms-micro/core": "workspace:*"
+		"@lingui/react": "catalog:",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@cloudflare/kumo": "catalog:",
