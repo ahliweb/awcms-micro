@@ -55,6 +55,8 @@ Exception:
 - `docs/operator-workflow.md`
 - `docs/awcms-micro-versioning.md`
 - `docs/awcms-micro-versioning-rollout-summary.md`
+- `docs/awcms-micro-licensing.md`
+- `docs/awcms-micro-d1-mirror-sync.md`
 - `docs/upstream-sync/README.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
@@ -68,6 +70,9 @@ Exception:
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs version`
+- `pnpm --dir awcmsmicro-dev d1:mirror:status`
+- `pnpm --dir awcmsmicro-dev d1:mirror:sync`
+- `pnpm --dir awcmsmicro-dev d1:mirror:reset`
 - `pnpm test:awcmsmicro:e2e`
 
 ## Backup & Recovery

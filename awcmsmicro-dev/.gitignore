@@ -60,6 +60,8 @@ __screenshots__/
 # AI review artifacts
 *-review.md
 
+.local/d1-mirror/
+
 .chainlink/
 
 .emdash-bundle-tmp

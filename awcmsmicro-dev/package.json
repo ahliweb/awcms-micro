@@ -27,6 +27,9 @@
 		"new": "create-emdash",
 		"screenshots": "node scripts/screenshot-all-templates.mjs",
 		"query-counts": "node scripts/query-counts.mjs",
+		"d1:mirror:status": "node scripts/d1-mirror-sync.mjs status",
+		"d1:mirror:sync": "node scripts/d1-mirror-sync.mjs sync",
+		"d1:mirror:reset": "node scripts/d1-mirror-sync.mjs reset",
 		"locale:extract": "pnpm --filter @emdash-cms/admin locale:extract",
 		"locale:compile": "pnpm --filter @emdash-cms/admin locale:compile"
 	},
