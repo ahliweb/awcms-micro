@@ -57,3 +57,17 @@ Use this when source and advisory workflow live on your own Git service.
 ```
 
 Use this when the code is in Git, but security reporting is routed through a central internal portal.
+
+## AWCMS-Micro Example Plugin Naming Pattern
+
+```jsonc
+"repo": {
+	"url": "https://github.com/your-org/awcms-micro-example-plugin",
+	"directory": "."
+},
+"security": {
+	"url": "https://security.example.com/products/awcms-micro-example-plugin"
+}
+```
+
+Use this when you want your published metadata to follow the AWCMS-Micro example plugin naming pattern directly.

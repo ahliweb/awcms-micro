@@ -53,11 +53,11 @@ Use this when the plugin has been moved into its own repository and published in
 	"description": "Standalone EmDash-compatible plugin distributed internally as the AWCMS-Micro reference example.",
 	"keywords": ["awcms-micro", "emdash", "plugin", "tenant-ready"],
 	"repo": {
-		"url": "https://github.com/your-org/awcms-micro-plugin-example",
+		"url": "https://github.com/your-org/awcms-micro-example-plugin",
 		"directory": "."
 	},
 	"security": {
-		"url": "https://security.example.com/products/awcms-micro-plugin-example"
+		"url": "https://security.example.com/products/awcms-micro-example-plugin"
 	},
 	"capabilities": [],
 	"allowedHosts": [],
