@@ -12,6 +12,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-product-readme-draft.md`: sync-safe draft README for the future independent `awcms-micro` repository
 - `awcms-micro-product-readme-final.md`: final product-facing README source for the independent `awcms-micro` repository
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
+- `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
@@ -30,9 +31,10 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 7. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
 8. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
 9. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
-10. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-11. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-12. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+10. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
+11. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+12. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+13. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

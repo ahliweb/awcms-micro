@@ -15,3 +15,9 @@ Routes:
 - `POST /_emdash/api/plugins/awcms-micro-gallery/media/validate`
 
 The admin page is rendered through EmDash Block Kit at the plugin's `Gallery` admin page.
+
+## Naming Guidance
+
+- package name: `@awcms-micro/plugin-gallery`
+- recommended local repository or folder example: `awcms-micro-plugin-gallery`
+- when used in a local workspace, prefer a folder such as `packages/awcms-micro-plugin-gallery/`

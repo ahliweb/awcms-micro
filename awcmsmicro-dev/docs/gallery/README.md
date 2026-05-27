@@ -1,10 +1,10 @@
 # AWCMS-Micro Gallery
 
-The gallery feature adds a `galleries` EmDash collection, public Astro rendering, and an isolated plugin package. EmDash core remains the canonical upstream reference and is not modified.
+The gallery feature adds a `galleries` EmDash collection, public Astro rendering, and the isolated plugin package `@awcms-micro/plugin-gallery`. EmDash core remains the canonical upstream reference and is not modified.
 
 ## Usage
 
-1. Run the AWCMS-Micro template and open `/_emdash/admin`.
+1. Run an AWCMS-Micro template and open `/_emdash/admin`.
 2. Create or edit entries in the `Galleries` collection.
 3. Add a title, description, cover image, type, event date, location, layout variant, and JSON gallery items.
 4. Publish the gallery.
@@ -66,3 +66,9 @@ Routes:
 ## Rollback
 
 To roll back the gallery feature, remove the gallery plugin from the template `astro.config.mjs`, remove the `galleries` collection from the template seed, and delete the public gallery pages/components. Existing EmDash content remains in the database until removed through admin or a forward migration.
+
+## Naming Guidance
+
+- package name: `@awcms-micro/plugin-gallery`
+- recommended local folder example: `packages/awcms-micro-plugin-gallery/`
+- template integration should keep gallery rendering template-owned and gallery management plugin-owned
