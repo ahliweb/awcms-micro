@@ -17,6 +17,7 @@ This folder tracks how the parent repository follows upstream EmDash and how AWC
 - `COMPATIBILITY_MATRIX.md`: feature-level compatibility review between upstream EmDash and AWCMS-Micro usage
 - `LAST_VALIDATION.md`: latest validation run template and results
 - `UPSTREAM_ISSUE_PUBLIC_RENDER_QUERY_BOTTLENECK.md`: upstream escalation note for remaining core public-render query hotspots
+- `ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether an issue should be fixed downstream or upstream
 
 ## Reading Order
 
