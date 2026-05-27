@@ -1,0 +1,375 @@
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar Vulnerable to Arbitrary File                  │
+│                     │ Creation/Overwrite via Hardlink Path Traversal         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <7.5.7                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.7                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-34x7-hfp2-rc4v      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar is Vulnerable to Arbitrary File Overwrite and │
+│                     │ Symlink Poisoning via Insufficient Path Sanitization   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.3                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-8qq5-rm4j-mr97      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Arbitrary File Read/Write via Hardlink Target Escape   │
+│                     │ Through Symlink Chain in node-tar Extraction           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <7.5.8                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.8                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-83g3-92jg-28cx      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Rollup 4 has Arbitrary File Write via Path Traversal   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ rollup                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=4.0.0 <4.59.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=4.59.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ apps__aggregator>@cloudflare/vite-plugin>vite>rollup   │
+│                     │                                                        │
+│                     │ apps__aggregator>@cloudflare/vitest-pool-              │
+│                     │ workers>vitest>@vitest/mocker>vite>rollup              │
+│                     │                                                        │
+│                     │ apps__aggregator>@cloudflare/vitest-pool-              │
+│                     │ workers>vitest>vite>rollup                             │
+│                     │                                                        │
+│                     │ ... Found 100 paths, run `pnpm why rollup` for more    │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-mw96-cpmx-2vgc      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ @hono/node-server has authorization bypass for         │
+│                     │ protected static paths via encoded slashes in Serve    │
+│                     │ Static Middleware                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ @hono/node-server                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <1.19.10                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=1.19.10                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ docs>@modelcontextprotocol/sdk>@hono/node-server       │
+│                     │                                                        │
+│                     │ docs>agents>@modelcontextprotocol/sdk>@hono/node-      │
+│                     │ server                                                 │
+│                     │                                                        │
+│                     │ packages__core>@modelcontextprotocol/sdk>@hono/node-   │
+│                     │ server                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-wc8c-qw6v-h7f6      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ express-rate-limit: IPv4-mapped IPv6 addresses bypass  │
+│                     │ per-client rate limiting on servers with dual-stack    │
+│                     │ network                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ express-rate-limit                                     │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=8.2.0 <8.2.2                                         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=8.2.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ docs>@modelcontextprotocol/sdk>express-rate-limit      │
+│                     │                                                        │
+│                     │ docs>agents>@modelcontextprotocol/sdk>express-rate-    │
+│                     │ limit                                                  │
+│                     │                                                        │
+│                     │ packages__core>@modelcontextprotocol/sdk>express-rate- │
+│                     │ limit                                                  │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-46wh-pxpv-q5gq      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ tar has Hardlink Path Traversal via Drive-Relative     │
+│                     │ Linkpath                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.9                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.10                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-qffp-2rhf-9h96      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ node-tar Symlink Path Traversal via Drive-Relative     │
+│                     │ Linkpath                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.10                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.11                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-9ppj-qmqm-q256      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Undici: Malicious WebSocket 64-bit length overflows    │
+│                     │ parser and crashes the client                          │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ undici                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.0.0 <7.24.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.24.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ infra__perf-monitor>@cloudflare/vite-                  │
+│                     │ plugin>miniflare>undici                                │
+│                     │                                                        │
+│                     │ packages__blocks__playground>wrangler>miniflare>undici │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-f269-vfmq-vjvj      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Undici has Unbounded Memory Consumption in WebSocket   │
+│                     │ permessage-deflate Decompression                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ undici                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.0.0 <7.24.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.24.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ infra__perf-monitor>@cloudflare/vite-                  │
+│                     │ plugin>miniflare>undici                                │
+│                     │                                                        │
+│                     │ packages__blocks__playground>wrangler>miniflare>undici │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-vrm6-8vpv-qv8q      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Undici has Unhandled Exception in WebSocket Client Due │
+│                     │ to Invalid server_max_window_bits Validation           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ undici                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=7.0.0 <7.24.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.24.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ infra__perf-monitor>@cloudflare/vite-                  │
+│                     │ plugin>miniflare>undici                                │
+│                     │                                                        │
+│                     │ packages__blocks__playground>wrangler>miniflare>undici │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-v9p9-hfj2-hcw8      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Race Condition in node-tar Path Reservations via       │
+│                     │ Unicode Ligature Collisions on macOS APFS              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ tar                                                    │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=7.5.3                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=7.5.4                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ packages__create-emdash>giget>tar                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-r6q2-hw4h-h46w      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ h3 has a Server-Sent Events Injection via Unsanitized  │
+│                     │ Newlines in Event Stream Fields                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ h3                                                     │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <1.15.6                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=1.15.6                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ infra__cache-demo>@astrojs/                            │
+│                     │ cloudflare>astro>unstorage>h3                          │
+│                     │                                                        │
+│                     │ infra__cache-demo>astro>unstorage>h3                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-22cc-p3c6-wpvm      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ path-to-regexp vulnerable to Denial of Service via     │
+│                     │ sequential optional groups                             │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ path-to-regexp                                         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=8.0.0 <8.4.0                                         │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=8.4.0                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ docs>@modelcontextprotocol/sdk>express>router>path-to- │
+│                     │ regexp                                                 │
+│                     │                                                        │
+│                     │ docs>@modelcontextprotocol/sdk>express-rate-           │
+│                     │ limit>express>router>path-to-regexp                    │
+│                     │                                                        │
+│                     │ docs>agents>@modelcontextprotocol/                     │
+│                     │ sdk>express>router>path-to-regexp                      │
+│                     │                                                        │
+│                     │ ... Found 6 paths, run `pnpm why path-to-regexp` for   │
+│                     │ more information                                       │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-j3q9-mxjg-w52f      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ lodash vulnerable to Code Injection via `_.template`   │
+│                     │ imports key names                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ lodash                                                 │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=4.0.0 <=4.17.23                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=4.17.24                                              │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ demos__cloudflare>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-server>lodash  │
+│                     │                                                        │
+│                     │ demos__playground>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-server>lodash  │
+│                     │                                                        │
+│                     │ demos__preview>@astrojs/check>@astrojs/language-       │
+│                     │ server>volar-service-yaml>yaml-language-server>lodash  │
+│                     │                                                        │
+│                     │ ... Found 18 paths, run `pnpm why lodash` for more     │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-r5fr-rjxr-66jc      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ defu: Prototype pollution via `__proto__` key in       │
+│                     │ defaults argument                                      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ defu                                                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=6.1.4                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=6.1.5                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ infra__cache-demo>@astrojs/                            │
+│                     │ cloudflare>astro>unstorage>h3>defu                     │
+│                     │                                                        │
+│                     │ infra__cache-demo>astro>unstorage>h3>defu              │
+│                     │                                                        │
+│                     │ packages__admin>tsdown>defu                            │
+│                     │                                                        │
+│                     │ ... Found 24 paths, run `pnpm why defu` for more       │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-737v-mqg7-c878      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ simple-git is vulnerable to Remote Code Execution      │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ simple-git                                             │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <3.36.0                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=3.36.0                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ .>@lunariajs/core>simple-git                           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-hffm-xvc3-vprc      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ fast-uri vulnerable to path traversal via              │
+│                     │ percent-encoded dot segments                           │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ fast-uri                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=3.1.0                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=3.1.1                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ demos__cloudflare>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-               │
+│                     │ server>ajv>fast-uri                                    │
+│                     │                                                        │
+│                     │ demos__cloudflare>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-server>ajv-    │
+│                     │ draft-04>ajv>fast-uri                                  │
+│                     │                                                        │
+│                     │ demos__playground>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-               │
+│                     │ server>ajv>fast-uri                                    │
+│                     │                                                        │
+│                     │ ... Found 44 paths, run `pnpm why fast-uri` for more   │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-q3j6-qgpj-74h6      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ fast-uri vulnerable to host confusion via              │
+│                     │ percent-encoded authority delimiters                   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ fast-uri                                               │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ <=3.1.1                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=3.1.2                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ demos__cloudflare>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-               │
+│                     │ server>ajv>fast-uri                                    │
+│                     │                                                        │
+│                     │ demos__cloudflare>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-server>ajv-    │
+│                     │ draft-04>ajv>fast-uri                                  │
+│                     │                                                        │
+│                     │ demos__playground>@astrojs/check>@astrojs/language-    │
+│                     │ server>volar-service-yaml>yaml-language-               │
+│                     │ server>ajv>fast-uri                                    │
+│                     │                                                        │
+│                     │ ... Found 44 paths, run `pnpm why fast-uri` for more   │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-v39h-62p7-jpjc      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+┌─────────────────────┬────────────────────────────────────────────────────────┐
+│ high                │ Svelte devalue: DoS via sparse array deserialization   │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Package             │ devalue                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Vulnerable versions │ >=5.6.3 <=5.8.0                                        │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Patched versions    │ >=5.8.1                                                │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ Paths               │ demos__cloudflare>@astrojs/cloudflare>astro>devalue    │
+│                     │                                                        │
+│                     │ demos__cloudflare>@astrojs/react>devalue               │
+│                     │                                                        │
+│                     │ demos__cloudflare>astro>devalue                        │
+│                     │                                                        │
+│                     │ ... Found 85 paths, run `pnpm why devalue` for more    │
+│                     │ information                                            │
+├─────────────────────┼────────────────────────────────────────────────────────┤
+│ More info           │ https://github.com/advisories/GHSA-77vg-94rm-hx3p      │
+└─────────────────────┴────────────────────────────────────────────────────────┘
+54 vulnerabilities found
+Severity: 3 low | 31 moderate | 20 high
