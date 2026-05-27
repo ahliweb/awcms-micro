@@ -46,7 +46,7 @@ function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, 
 			message ? { type: "banner", tone: "success", text: message } : { type: "divider" },
 			{
 				type: "stats",
-				stats: [
+				items: [
 					{ label: "Images", value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
 					{ label: "Videos", value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
 					{ label: "Cloudflare Images", value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },

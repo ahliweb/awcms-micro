@@ -155,7 +155,7 @@ function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, 
 			message ? { type: "banner", tone: "success", text: t("gallery.saved") } : { type: "divider" },
 			{
 				type: "stats",
-				stats: [
+				items: [
 					{ label: t("gallery.images"), value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
 					{ label: t("gallery.videos"), value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
 					{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },

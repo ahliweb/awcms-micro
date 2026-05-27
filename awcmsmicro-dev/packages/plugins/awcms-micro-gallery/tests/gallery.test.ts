@@ -97,4 +97,26 @@ describe("awcms micro gallery plugin", () => {
 
 		expect(response).toMatchObject({ success: false });
 	});
+
+	it("returns admin blocks with stats items for the blocks renderer", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext();
+		const handler = plugin.routes?.admin?.handler;
+
+		expect(handler).toBeDefined();
+		const response = await handler?.({
+			...ctx,
+			input: {},
+			request: { headers: {} },
+		} as never);
+
+		expect(response).toMatchObject({
+			blocks: expect.arrayContaining([
+				expect.objectContaining({
+					type: "stats",
+					items: expect.any(Array),
+				}),
+			]),
+		});
+	});
 });

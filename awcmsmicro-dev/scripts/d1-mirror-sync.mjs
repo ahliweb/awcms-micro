@@ -223,7 +223,7 @@ function buildUpsertSql(tableName, columns, rows) {
 		const values = columns.map((column) => sqlLiteral(row[column] ?? null)).join(", ");
 		return `INSERT INTO ${quoteIdent(tableName)} (${columnList}) VALUES (${values}) ON CONFLICT(${quoteIdent("id")}) DO UPDATE SET ${updateList};`;
 	});
-	return `BEGIN IMMEDIATE;\n${statements.join("\n")}\nCOMMIT;\n`;
+	return statements.join("\n") + "\n";
 }
 
 function buildSnapshot(targetPath) {
