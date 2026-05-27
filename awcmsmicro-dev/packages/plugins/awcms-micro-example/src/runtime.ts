@@ -90,7 +90,8 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				fallbackLabel: "Content",
 				icon: "file",
 				sortOrder: 20,
-				sidebarPlacement: "plugin-local-only",
+				sidebarPlacement: "before-emdash-default",
+				sidebarPriority: 20,
 				items: [
 					{
 						id: "pages",
@@ -118,7 +119,8 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				fallbackLabel: "Governance",
 				icon: "shield",
 				sortOrder: 30,
-				sidebarPlacement: "plugin-local-only",
+				sidebarPlacement: "before-emdash-default",
+				sidebarPriority: 30,
 				items: [
 					{
 						id: "verification",
@@ -155,7 +157,8 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				fallbackLabel: "Settings",
 				icon: "gear",
 				sortOrder: 40,
-				sidebarPlacement: "plugin-local-only",
+				sidebarPlacement: "before-emdash-default",
+				sidebarPriority: 40,
 				items: [
 					{
 						id: "access-control",

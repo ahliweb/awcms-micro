@@ -19,6 +19,7 @@ The entries below classify the admin-side issues that were directly observed dur
 | `awcms-micro-gallery` admin page crashed with `Cannot read properties of undefined (reading 'map')` | Fixed downstream | The plugin emitted a `stats` block with `stats` instead of the renderer's expected `items`, and the faulty payload lived in `packages/plugins/awcms-micro-gallery/` |
 | Gallery plugin sandbox admin route used the same incorrect `stats` block shape | Fixed downstream | The mismatch lived in the downstream gallery plugin sandbox entry, not EmDash core |
 | Plugin admin pages needed locale-aware and boundary-safe navigation fixes after AWCMS-Micro public/admin routing changes | Fixed downstream | The affected links and route behavior lived in the isolated AWCMS-Micro template/plugin boundaries |
+| Plugin group ordering metadata for admin navigation | Fixed downstream | The downstream plugin manifest/navigation layer can already declare `sidebarPlacement` and `sidebarPriority` values without changing EmDash core |
 
 ### Admin: Upstream-required
 
@@ -26,6 +27,7 @@ The entries below classify the admin-side issues that were directly observed dur
 | --- | --- | --- |
 | Block-renderer contract ambiguity for plugin-authored admin blocks is only weakly guarded at runtime | Open | EmDash core/admin would need stronger validation or clearer runtime errors for malformed plugin block payloads before render |
 | Admin-side diagnosis of malformed plugin blocks still depends on a generic React crash path instead of a targeted plugin-contract failure path | Open | The renderer, registry, and error-reporting flow live in upstream-owned admin/core paths |
+| Global admin sidebar rendering must honor downstream plugin group ordering metadata to place plugin groups above built-in EmDash menus | Open | The final sidebar composition and rendering path lives in upstream-owned admin/core code, even though downstream metadata is now ready |
 
 ### Admin: Workaround-only
 

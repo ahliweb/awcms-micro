@@ -103,6 +103,60 @@ describe("AWCMS-Micro navigation kit", () => {
 		expect(result[0]?.items[0]?.path).toBe("/_emdash/admin/plugins/plugin-a/a");
 	});
 
+	it("orders sidebar groups by sidebar priority before sort order", () => {
+		const result = normalizeAdminNav([
+			{
+				id: "plugin-a",
+				name: "Plugin A",
+				navigation: {
+					groups: [
+						{
+							id: "settings-group",
+							labelKey: "nav.settings",
+							fallbackLabel: "Settings",
+							sidebarPlacement: "before-emdash-default",
+							sidebarPriority: 40,
+							sortOrder: 40,
+							items: [
+								{
+									id: "settings-item",
+									labelKey: "nav.settings.item",
+									fallbackLabel: "Settings Item",
+									path: "/settings",
+								},
+							],
+						},
+						{
+							id: "dashboard-group",
+							labelKey: "nav.dashboard",
+							fallbackLabel: "Dashboard",
+							sidebarPlacement: "after-dashboard",
+							sidebarPriority: 10,
+							sortOrder: 10,
+							items: [
+								{
+									id: "dashboard-item",
+									labelKey: "nav.dashboard.item",
+									fallbackLabel: "Dashboard Item",
+									path: "/overview",
+								},
+							],
+						},
+					],
+				},
+			},
+		]);
+
+		expect(result.map((group) => ({
+			id: group.id,
+			sidebarPlacement: group.sidebarPlacement,
+			sidebarPriority: group.sidebarPriority,
+		}))).toEqual([
+			{ id: "dashboard-group", sidebarPlacement: "after-dashboard", sidebarPriority: 10 },
+			{ id: "settings-group", sidebarPlacement: "before-emdash-default", sidebarPriority: 40 },
+		]);
+	});
+
 	it("filters denied items and resolves labels by locale fallback", () => {
 		const permissions = new Set(["allowed"]);
 		const groups = normalizeAdminNav(
