@@ -33,6 +33,10 @@
 	"keywords": [],
 	"author": "Matt Kane",
 	"license": "MIT",
+	"overrides": {
+		"@hono/node-server": "1.19.13",
+		"hono": "4.12.23"
+	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.11.1",
 		"@changesets/changelog-github": "^0.5.2",

@@ -25,7 +25,7 @@
 	"author": "Matt Kane",
 	"license": "MIT",
 	"peerDependencies": {
-		"astro": ">=5",
+		"astro": ">=6.1.6",
 		"emdash": "workspace:>=0.14.0",
 		"react": ">=18"
 	},
