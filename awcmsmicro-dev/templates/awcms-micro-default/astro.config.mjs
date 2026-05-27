@@ -9,6 +9,10 @@ import { sqlite } from "emdash/db";
 export default defineConfig({
 	output: "server",
 	adapter: node({ mode: "standalone" }),
+	prefetch: {
+		prefetchAll: false,
+		defaultStrategy: "hover",
+	},
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,

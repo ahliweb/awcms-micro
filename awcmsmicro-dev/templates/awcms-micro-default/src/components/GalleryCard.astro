@@ -17,7 +17,7 @@ const eventDate = date ? new Date(date) : null;
 ---
 
 <article class="gallery-card">
-	<a href={href} class="gallery-card__media">
+	<a href={href} class="gallery-card__media" data-astro-prefetch="hover">
 		{coverSrc ? <img src={coverSrc} alt={coverAlt} loading="lazy" /> : <div class="gallery-card__placeholder">Gallery</div>}
 	</a>
 	<div class="gallery-card__body">
@@ -25,7 +25,7 @@ const eventDate = date ? new Date(date) : null;
 			{type && <span>{type}</span>}
 			{featured && <span>Featured</span>}
 		</div>
-		<h2><a href={href}>{title}</a></h2>
+		<h2><a href={href} data-astro-prefetch="hover">{title}</a></h2>
 		{description && <p>{description}</p>}
 		{(location || eventDate) && (
 			<p class="gallery-card__details">

@@ -1,11 +1,21 @@
 ---
+import { getI18nConfig } from "emdash";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { toLocalePath } from "../utils/locale-path";
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
 ---
 
-<BaseLayout title="Page Not Found" description="The requested AWCMS-Micro page was not found.">
+<BaseLayout title="Page Not Found" description="The requested AWCMS-Micro page was not found." showFooterWidgets={false}>
 	<section>
 		<h1>Page Not Found</h1>
 		<p>The requested page does not exist or is no longer published.</p>
-		<p><a href="/">Return to the homepage</a></p>
+		<p><a href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">Return to the homepage</a></p>
 	</section>
 </BaseLayout>

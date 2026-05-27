@@ -1,8 +1,9 @@
 ---
-import { getEmDashCollection } from "emdash";
+import { getEmDashCollection, getI18nConfig } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import GalleryCard from "../../components/GalleryCard.astro";
 import GalleryFilters from "../../components/GalleryFilters.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
 
 function asString(value: unknown, fallback = "") {
 	return typeof value === "string" ? value : fallback;
@@ -16,9 +17,16 @@ const { entries: galleries, cacheHint } = await getEmDashCollection("galleries",
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
 const visibleGalleries = activeType === "all" ? galleries : galleries.filter((gallery) => gallery.data.gallery_type === activeType);
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
 ---
 
-<BaseLayout title="Gallery" description="Published AWCMS-Micro photo and video galleries managed from EmDash.">
+<BaseLayout title="Gallery" description="Published AWCMS-Micro photo and video galleries managed from EmDash." showFooterWidgets={false}>
 	<section>
 		<p class="kicker">Media Library</p>
 		<h1>Photo and Video Gallery</h1>
@@ -28,7 +36,7 @@ const visibleGalleries = activeType === "all" ? galleries : galleries.filter((ga
 			<div class="gallery-index-grid">
 				{visibleGalleries.map((gallery) => (
 					<GalleryCard
-						href={`/gallery/${gallery.id}`}
+						href={toLocalePath(`/gallery/${resolveEntrySlug(gallery)}`, currentLocale, localeOptions)}
 						title={asString(gallery.data.title, gallery.id)}
 						description={asString(gallery.data.description)}
 						cover={gallery.data.cover_image as any}

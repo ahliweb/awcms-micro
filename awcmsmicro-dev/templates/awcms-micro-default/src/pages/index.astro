@@ -1,26 +1,32 @@
 ---
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
-import PublicNavigation from "../components/PublicNavigation.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 function asImage(value: unknown) {
 	return value as any;
 }
 
-const { entries: posts, cacheHint: postsCacheHint } = await getEmDashCollection("posts", {
-	orderBy: { published_at: "desc" },
-	limit: 3,
-});
-const { entries: newsItems, cacheHint: newsCacheHint } = await getEmDashCollection("news", {
-	orderBy: { published_at: "desc" },
-	limit: 3,
-});
-const { entries: pages, cacheHint: pagesCacheHint } = await getEmDashCollection("pages", {
-	orderBy: { published_at: "desc" },
-	limit: 6,
-});
+const [
+	{ entries: posts, cacheHint: postsCacheHint },
+	{ entries: newsItems, cacheHint: newsCacheHint },
+	{ entries: pages, cacheHint: pagesCacheHint },
+] = await Promise.all([
+	getEmDashCollection("posts", {
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+	getEmDashCollection("news", {
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+	getEmDashCollection("pages", {
+		orderBy: { published_at: "desc" },
+		limit: 6,
+	}),
+]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
@@ -29,9 +35,16 @@ if (Astro.cache?.enabled) {
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
 ---
 
-<BaseLayout title={siteTitle} description={siteTagline}>
+<BaseLayout title={siteTitle} description={siteTagline} showFooterWidgets={false}>
 	<section>
 		<p class="kicker">AWCMS-Micro</p>
 		<h1 style="font-size:clamp(2.25rem,5vw,4rem);margin:0 0 1rem;">A focused EmDash website and admin workflow for AWCMS-Micro.</h1>
@@ -44,7 +57,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<a class="button-link primary" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
 			<a class="button-link" href="/_emdash/admin/content/posts/new">Create Post</a>
 			<a class="button-link" href="/_emdash/admin/content/pages/new">Create Page</a>
-			<a class="button-link" href="/aggregate">View Public Aggregate</a>
+			<a class="button-link" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">View Public Aggregate</a>
 		</div>
 	</section>
 
@@ -53,8 +66,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 		<div style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:start;">
 			<div>
 				<p class="kicker">Public navigation example</p>
-				<p>This preview renders the seeded primary menu with dropdown children so the homepage shows the same recursive navigation used across the template.</p>
-			<PublicNavigation name="homepage-demo" />
+				<p style="margin-bottom:0;">The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body.</p>
 			</div>
 			<div>
 				<p class="kicker">Switch mode</p>
@@ -88,22 +100,22 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<div>
 				<strong>{posts.length}</strong>
 				<p style="margin:0.5rem 0;">Published posts currently visible on the public website.</p>
-				<a href="/posts">View posts</a>
+				<a href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">View posts</a>
 			</div>
 			<div>
 				<strong>{newsItems.length}</strong>
 				<p style="margin:0.5rem 0;">News updates connected to the same publishing workflow.</p>
-				<a href="/news">View news</a>
+				<a href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">View news</a>
 			</div>
 			<div>
 				<strong>{pages.length}</strong>
 				<p style="margin:0.5rem 0;">Managed pages such as About, implementation notes, and product info.</p>
-				<a href="/about">View about page</a>
+				<a href={toLocalePath("/about", currentLocale, localeOptions)} data-astro-prefetch="hover">View about page</a>
 			</div>
 			<div>
 				<strong>Safe aggregate</strong>
 				<p style="margin:0.5rem 0;">A public reference page summarises content without exposing sensitive identifiers.</p>
-				<a href="/aggregate">View aggregate page</a>
+				<a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">View aggregate page</a>
 			</div>
 		</div>
 	</section>
@@ -114,7 +126,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<ul style="padding-left:1.25rem;">
 				{posts.map((post) => (
 					<li style="margin-bottom:1rem;">
-						<a href={`/posts/${post.id}`}>
+						<a href={toLocalePath(`/posts/${resolveEntrySlug(post)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
 							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} />}
 							<strong>{post.data.title}</strong>
 						</a>
@@ -131,7 +143,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<ul style="padding-left:1.25rem;">
 				{newsItems.map((item) => (
 					<li style="margin-bottom:1rem;">
-						<a href={`/news/${item.id}`}><strong>{item.data.title}</strong></a>
+						<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover"><strong>{item.data.title}</strong></a>
 						{item.data.summary && <p>{item.data.summary}</p>}
 					</li>
 				))}
