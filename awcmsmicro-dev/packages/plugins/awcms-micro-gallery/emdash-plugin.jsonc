@@ -2,6 +2,7 @@
 	"id": "awcms-micro-gallery",
 	"name": "AWCMS-Micro Gallery",
 	"version": "0.0.1",
+	"license": "LicenseRef-AW-NC-1.0",
 	"description": "Advanced gallery management helpers for AWCMS-Micro without modifying EmDash core.",
 	"entrypoint": "@awcms-micro/plugin-gallery/sandbox",
 	"format": "standard",

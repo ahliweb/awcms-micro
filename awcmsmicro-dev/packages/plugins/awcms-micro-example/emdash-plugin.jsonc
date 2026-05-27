@@ -3,7 +3,7 @@
 
 	"slug": "awcms-micro-example",
 	"version": "0.0.1",
-	"license": "MIT",
+	"license": "LicenseRef-AW-NC-1.0",
 	"publisher": "example.com", // Replace before any internal or public publish.
 	"author": { "name": "AWCMS-Micro" },
 	// Add `security` and `repo` when the final standalone package location is known.
