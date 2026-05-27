@@ -7,5 +7,5 @@
 	"entrypoint": "@awcms-micro/plugin-gallery/sandbox",
 	"format": "standard",
 	"capabilities": ["content:read", "content:write", "media:read", "media:write"],
-	"adminPages": [{ "path": "/", "label": "Gallery", "icon": "image" }]
+	"adminPages": [{ "path": "/", "label": "Gallery", "labelKey": "gallery.label", "icon": "image" }]
 }

@@ -26,7 +26,45 @@ export const AWCMS_GALLERY_CAPABILITIES = [
 	"media:write",
 ] as const;
 
-export const AWCMS_GALLERY_ADMIN_PAGES = [{ path: "/", label: "Gallery", icon: "image" }];
+export const AWCMS_GALLERY_TRANSLATIONS = {
+	en: {
+		"gallery.title": "AWCMS-Micro Gallery",
+		"gallery.desc": "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core.",
+		"gallery.saved": "Gallery settings saved.",
+		"gallery.images": "Images",
+		"gallery.videos": "Videos",
+		"gallery.cf_images": "Cloudflare Images",
+		"gallery.cf_stream": "Cloudflare Stream",
+		"gallery.max_img": "Maximum image bytes",
+		"gallery.max_vid": "Maximum video bytes",
+		"gallery.cf_images_enable": "Cloudflare Images enabled",
+		"gallery.cf_stream_enable": "Cloudflare Stream enabled",
+		"gallery.save": "Save settings",
+		"gallery.label": "Gallery",
+	},
+	id: {
+		"gallery.title": "Galeri AWCMS-Micro",
+		"gallery.desc": "Kelola validasi galeri, bendera media Cloudflare, dan kontrol galeri siap-audit tanpa mengubah core EmDash.",
+		"gallery.saved": "Pengaturan galeri disimpan.",
+		"gallery.images": "Gambar",
+		"gallery.videos": "Video",
+		"gallery.cf_images": "Gambar Cloudflare",
+		"gallery.cf_stream": "Stream Cloudflare",
+		"gallery.max_img": "Ukuran gambar maksimum (byte)",
+		"gallery.max_vid": "Ukuran video maksimum (byte)",
+		"gallery.cf_images_enable": "Gambar Cloudflare diaktifkan",
+		"gallery.cf_stream_enable": "Stream Cloudflare diaktifkan",
+		"gallery.save": "Simpan pengaturan",
+		"gallery.label": "Galeri",
+	}
+};
+
+export function translate(key: keyof typeof AWCMS_GALLERY_TRANSLATIONS.en, locale: string): string {
+	const lang = locale && locale.startsWith("id") ? "id" : "en";
+	return AWCMS_GALLERY_TRANSLATIONS[lang][key];
+}
+
+export const AWCMS_GALLERY_ADMIN_PAGES = [{ path: "/", label: "Gallery", labelKey: "gallery.label", icon: "image" }];
 
 export const AWCMS_GALLERY_SETTINGS_SCHEMA = {
 	maxImageBytes: {
@@ -70,6 +108,12 @@ export function awcmsMicroGalleryPlugin(
 		storage: {
 			auditEvents: { indexes: ["timestamp", "kind", "contentId"] },
 		},
+		// @ts-expect-error EmDash PluginDescriptor types might not declare i18n directly at the root, but the runtime reads it.
+		i18n: {
+			defaultLocale: "en",
+			supportedLocales: ["en", "id"],
+			messages: AWCMS_GALLERY_TRANSLATIONS,
+		},
 	};
 }
 
@@ -99,22 +143,23 @@ async function writeAudit(ctx: any, kind: string, summary: string, metadata: Rec
 	});
 }
 
-function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, message?: string) {
+function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, locale: string, message?: string) {
+	const t = (key: keyof typeof AWCMS_GALLERY_TRANSLATIONS.en) => translate(key, locale);
 	return {
 		blocks: [
-			{ type: "header", text: "AWCMS-Micro Gallery" },
+			{ type: "header", text: t("gallery.title") },
 			{
 				type: "section",
-				text: "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core.",
+				text: t("gallery.desc"),
 			},
-			message ? { type: "banner", tone: "success", text: message } : { type: "divider" },
+			message ? { type: "banner", tone: "success", text: t("gallery.saved") } : { type: "divider" },
 			{
 				type: "stats",
 				stats: [
-					{ label: "Images", value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
-					{ label: "Videos", value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
-					{ label: "Cloudflare Images", value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },
-					{ label: "Cloudflare Stream", value: settings.cloudflareStreamEnabled ? "Enabled" : "Optional" },
+					{ label: t("gallery.images"), value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
+					{ label: t("gallery.videos"), value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
+					{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },
+					{ label: t("gallery.cf_stream"), value: settings.cloudflareStreamEnabled ? "Enabled" : "Optional" },
 				],
 			},
 			{
@@ -124,31 +169,31 @@ function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, 
 					{
 						type: "number_input",
 						action_id: "maxImageBytes",
-						label: "Maximum image bytes",
+						label: t("gallery.max_img"),
 						initial_value: settings.maxImageBytes,
 						min: 1,
 					},
 					{
 						type: "number_input",
 						action_id: "maxVideoBytes",
-						label: "Maximum video bytes",
+						label: t("gallery.max_vid"),
 						initial_value: settings.maxVideoBytes,
 						min: 1,
 					},
 					{
 						type: "toggle",
 						action_id: "cloudflareImagesEnabled",
-						label: "Cloudflare Images enabled",
+						label: t("gallery.cf_images_enable"),
 						initial_value: settings.cloudflareImagesEnabled,
 					},
 					{
 						type: "toggle",
 						action_id: "cloudflareStreamEnabled",
-						label: "Cloudflare Stream enabled",
+						label: t("gallery.cf_stream_enable"),
 						initial_value: settings.cloudflareStreamEnabled,
 					},
 				],
-				submit: { label: "Save settings", action_id: "save_settings" },
+				submit: { label: t("gallery.save"), action_id: "save_settings" },
 			},
 		],
 	};
@@ -184,13 +229,14 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 			admin: {
 				handler: async (ctx: any) => {
 					const interaction = ctx.input as { type?: string; page?: string; action_id?: string; values?: Record<string, unknown> };
+					const locale = ctx.request?.headers?.["accept-language"] || "en";
 					if (interaction.type === "form_submit" && interaction.action_id === "save_settings") {
 						const settings = sanitizeGallerySettings(interaction.values ?? {});
 						await ctx.kv.set("settings", settings);
 						await writeAudit(ctx, "gallery.settings.update", "Updated gallery settings", { settings });
-						return buildAdminBlocks(settings, "Gallery settings saved.");
+						return buildAdminBlocks(settings, locale, "Gallery settings saved.");
 					}
-					return buildAdminBlocks(await readSettings(ctx, options));
+					return buildAdminBlocks(await readSettings(ctx, options), locale);
 				},
 			},
 			settings: {
@@ -234,6 +280,11 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 		admin: {
 			settingsSchema: AWCMS_GALLERY_SETTINGS_SCHEMA,
 			pages: AWCMS_GALLERY_ADMIN_PAGES,
+			i18n: {
+				defaultLocale: "en",
+				supportedLocales: ["en", "id"],
+				messages: AWCMS_GALLERY_TRANSLATIONS,
+			},
 		},
 	} as unknown as ResolvedPlugin;
 }

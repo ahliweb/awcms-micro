@@ -14,6 +14,7 @@ import {
 	AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS,
 	AWCMS_EXAMPLE_SETTINGS_SCHEMA,
 	AWCMS_EXAMPLE_STORAGE,
+	AWCMS_EXAMPLE_MANIFEST,
 	createNativeRoutes,
 	createSharedHooks,
 } from "./runtime.js";
@@ -39,6 +40,7 @@ export function awcmsMicroExamplePlugin(
 		storage: AWCMS_EXAMPLE_DESCRIPTOR_STORAGE,
 		adminPages: AWCMS_EXAMPLE_ADMIN_PAGES,
 		adminWidgets: AWCMS_EXAMPLE_ADMIN_WIDGETS,
+		i18n: AWCMS_EXAMPLE_MANIFEST.i18n,
 	};
 }
 
@@ -58,7 +60,8 @@ export function createPlugin(
 			widgets: AWCMS_EXAMPLE_ADMIN_WIDGETS,
 			portableTextBlocks: AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS,
 			fieldWidgets: AWCMS_EXAMPLE_FIELD_WIDGETS,
-		},
+			i18n: AWCMS_EXAMPLE_MANIFEST.i18n,
+		} as any,
 		routes: createNativeRoutes(),
 		hooks: createSharedHooks(),
 	});

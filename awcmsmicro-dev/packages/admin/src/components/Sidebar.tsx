@@ -40,16 +40,23 @@ export interface SidebarNavProps {
 		plugins: Record<
 			string,
 			{
+				name?: string;
 				package?: string;
 				enabled?: boolean;
 				adminMode?: "react" | "blocks" | "none";
 				adminPages?: Array<{
 					path: string;
 					label?: string;
+					labelKey?: string;
 					icon?: string;
 				}>;
 				dashboardWidgets?: Array<{ id: string; title?: string }>;
 				version?: string;
+				i18n?: {
+					defaultLocale: string;
+					supportedLocales: string[];
+					messages: Record<string, Record<string, string>>;
+				};
 			}
 		>;
 		taxonomies: Array<{
@@ -157,7 +164,7 @@ function isItemActive(itemPath: string, currentPath: string): boolean {
  * Admin sidebar navigation using kumo's Sidebar compound component.
  */
 export function SidebarNav({ manifest }: SidebarNavProps) {
-	const { t } = useLingui();
+	const { t, i18n } = useLingui();
 	const location = useLocation();
 	const currentPath = location.pathname;
 	const pluginAdmins = usePluginAdmins();
@@ -245,24 +252,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginItems: NavItem[] = [];
-	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
-		if (config.enabled === false) continue;
-		if (config.adminPages && config.adminPages.length > 0) {
-			const pluginPages = pluginAdmins[pluginId]?.pages;
-			const isBlocksMode = config.adminMode === "blocks";
-			for (const page of config.adminPages) {
-				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
-				const label =
-					page.label ||
-					pluginId
-						.split("-")
-						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-						.join(" ");
-				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
-			}
-		}
-	}
+
 
 	const filterByRole = (items: NavItem[]) =>
 		items.filter((item) => !item.minRole || userRole >= item.minRole);
@@ -270,7 +260,6 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const visibleContent = filterByRole(contentItems);
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
-	const visiblePlugins = filterByRole(pluginItems);
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -458,18 +447,66 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					{/* Plugin pages (collapsible) */}
-					{visiblePlugins.length > 0 && (
-						<>
-							<KumoSidebar.Separator />
-							<KumoSidebar.Group collapsible defaultOpen>
-								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Plugins`}</KumoSidebar.GroupLabel>
-								<KumoSidebar.GroupContent>
-									<KumoSidebar.Menu>{renderNavItems(visiblePlugins)}</KumoSidebar.Menu>
-								</KumoSidebar.GroupContent>
-							</KumoSidebar.Group>
-						</>
-					)}
+					{/* Active Plugins Grouped Separately */}
+					{Object.entries(manifest.plugins).map(([pluginId, config]) => {
+						if (config.enabled === false) return null;
+						if (!config.adminPages || config.adminPages.length === 0) return null;
+
+						const pluginPages = pluginAdmins[pluginId]?.pages;
+						const isBlocksMode = config.adminMode === "blocks";
+						const items: NavItem[] = [];
+
+						for (const page of config.adminPages) {
+							if (!isBlocksMode && !pluginPages?.[page.path]) continue;
+
+							let label = page.label;
+							if (config.i18n?.messages) {
+								const messages = config.i18n.messages;
+								const locale = i18n.locale;
+								if (page.labelKey && messages[locale]?.[page.labelKey]) {
+									label = messages[locale][page.labelKey];
+								} else if (page.labelKey && messages["en"]?.[page.labelKey]) {
+									label = messages["en"][page.labelKey];
+								}
+							}
+							if (!label) {
+								label =
+									page.label ||
+									pluginId
+										.split("-")
+										.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+										.join(" ");
+							}
+							items.push({
+								to: `/plugins/${pluginId}${page.path}`,
+								label,
+								icon: PuzzlePiece,
+							});
+						}
+
+						if (items.length === 0) return null;
+
+						const groupLabel = config.name || pluginId
+							.split("-")
+							.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+							.join(" ");
+
+						return (
+							<React.Fragment key={pluginId}>
+								<KumoSidebar.Separator />
+								<KumoSidebar.Group collapsible defaultOpen>
+									<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
+										{groupLabel}
+									</KumoSidebar.GroupLabel>
+									<KumoSidebar.GroupContent>
+										<KumoSidebar.Menu>
+											{renderNavItems(items)}
+										</KumoSidebar.Menu>
+									</KumoSidebar.GroupContent>
+								</KumoSidebar.Group>
+							</React.Fragment>
+						);
+					})}
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
