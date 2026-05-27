@@ -23,12 +23,12 @@ your-workspace/
   apps/
     site/
   packages/
-    awcms-plugin-example/
+	awcms-micro-plugin-example/
 ```
 
 ### Add the plugin package
 
-1. Copy this plugin folder into `packages/awcms-plugin-example/`.
+1. Copy this plugin folder into `packages/awcms-micro-plugin-example/`.
 2. Run `pnpm install` from the workspace root.
 3. Run `pnpm --filter @awcms-micro/plugin-example build`.
 

@@ -9,6 +9,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `implementation-instructions.md`: implementation mandate, constraints, and task-splitting guidance
 - `awcms-micro-implementation-boundaries.md`: approved AWCMS-Micro implementation boundaries and preservation rules
 - `repository-assessment.md`: current repository assessment and prioritized development/documentation recommendations
+- `awcms-micro-product-readme-draft.md`: sync-safe draft README for the future independent `awcms-micro` repository
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
@@ -24,9 +25,10 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 4. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
 5. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
 6. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
-7. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-8. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-9. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+7. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
+8. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+9. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+10. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 
