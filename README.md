@@ -58,6 +58,8 @@ Exception:
 - `docs/awcms-micro-licensing.md`
 - `docs/awcms-micro-d1-mirror-sync.md`
 - `docs/upstream-sync/README.md`
+- `docs/upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`
+- `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
 

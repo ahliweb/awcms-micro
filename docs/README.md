@@ -23,6 +23,8 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
 - `upstream-sync/LAST_UPSTREAM_FETCH.md`: exact upstream revision copied into `emdash-latest/`
+- `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether a discovered issue belongs in downstream boundaries or upstream EmDash core
+- `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin sidebar ordering support
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
 - `security/security-baseline.md`: security, privacy, ISO, and Indonesia compliance baseline documentation
 
@@ -46,7 +48,9 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 16. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
 17. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
 18. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-19. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+19. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+20. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+21. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 
