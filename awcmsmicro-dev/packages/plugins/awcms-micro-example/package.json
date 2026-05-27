@@ -41,6 +41,9 @@
 		"emdash": "workspace:*",
 		"react": "^18.0.0 || ^19.0.0"
 	},
+	"dependencies": {
+		"@awcms-micro/core": "workspace:*"
+	},
 	"devDependencies": {
 		"@cloudflare/kumo": "catalog:",
 		"@types/node": "24.10.13",

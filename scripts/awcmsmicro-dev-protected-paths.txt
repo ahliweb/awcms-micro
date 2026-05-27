@@ -9,3 +9,4 @@ docs/gallery
 e2e/awcms-micro
 .github/workflows
 .github/dependabot.yml
+packages/awcms

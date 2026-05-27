@@ -20,6 +20,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `e2e/awcms-micro`
 - `.github/workflows`
 - `.github/dependabot.yml`
+- `packages/awcms`
 
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 

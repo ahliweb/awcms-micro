@@ -1,12 +1,12 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-	entry: ["src/index.ts", "src/admin.tsx", "src/sandbox.ts"],
+	entry: ["src/index.ts"],
 	format: ["esm"],
 	outExtensions: () => ({ js: ".js" }),
 	dts: true,
 	clean: true,
 	platform: "neutral",
 	target: "es2023",
-	external: [/^emdash($|\/)/, /^react($|\/)/, /^@awcms-micro\/core/, "@lingui/react"],
+	external: [/^emdash($|\/)/, /^react($|\/)/, "zod", "@cloudflare/kumo"],
 });

@@ -13,6 +13,13 @@ export default defineConfig({
 		layout: "constrained",
 		responsiveStyles: true,
 	},
+	i18n: {
+		defaultLocale: "en",
+		locales: ["en", "id"],
+		routing: {
+			prefixDefaultLocale: false,
+		},
+	},
 	integrations: [
 		react(),
 		emdash({

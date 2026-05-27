@@ -2,9 +2,11 @@ import { Badge, Button, Input, InputArea, LinkButton, Select } from "@cloudflare
 import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
 import * as React from "react";
+import { useLingui } from "@lingui/react";
+import { normalizeAdminNav, PluginLocalNav } from "@awcms-micro/core";
+import { AWCMS_EXAMPLE_MANIFEST } from "./runtime.js";
 
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "./fixtures.js";
-import { AWCMS_EXAMPLE_PERMISSIONS } from "./permissions.js";
 
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-example";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
@@ -13,18 +15,7 @@ type JsonMap = Record<string, string>;
 type GovernanceMode = "observe" | "review" | "enforce-demo";
 type AbacTargetType = "subject" | "resource" | "context";
 type AbacEffect = "allow" | "deny";
-type PluginHeaderCan = (permission?: string, abacAction?: string) => boolean;
 
-interface PluginHeaderMenuItem {
-	id: string;
-	label: string;
-	href: string;
-	description?: string;
-	permission?: string;
-	abacAction?: string;
-	badge?: string | number;
-	children?: PluginHeaderMenuItem[];
-}
 
 interface DashboardModuleCard {
 	id: string;
@@ -297,85 +288,8 @@ export const AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS: DashboardModuleCard[] = [
 		badge: "Docs",
 	},
 ];
-
-export const AWCMS_EXAMPLE_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
-	{
-		id: "overview",
-		label: "Overview",
-		href: "/overview",
-		permission: AWCMS_EXAMPLE_PERMISSIONS.dashboardRead,
-		badge: 8,
-	},
-	{
-		id: "data-entry",
-		label: "Data Entry",
-		href: "/registry",
-		permission: AWCMS_EXAMPLE_PERMISSIONS.dashboardRead,
-		badge: 4,
-		children: [
-			{ id: "registry-entry", label: "Registry Intake", href: "/registry", permission: AWCMS_EXAMPLE_PERMISSIONS.dashboardRead },
-			{ id: "documents-entry", label: "Documents", href: "/documents", permission: AWCMS_EXAMPLE_PERMISSIONS.dashboardRead },
-			{ id: "import-staging", label: "Import Staging", href: "/documents#import-staging", permission: AWCMS_EXAMPLE_PERMISSIONS.settingsRead },
-		],
-	},
-	{
-		id: "verification",
-		label: "Verification",
-		href: "/verification",
-		permission: AWCMS_EXAMPLE_PERMISSIONS.auditRead,
-		badge: 3,
-		children: [
-			{ id: "verification-queue", label: "Verification Queue", href: "/verification", permission: AWCMS_EXAMPLE_PERMISSIONS.auditRead },
-			{ id: "audit-log", label: "Audit Log", href: "/audit", permission: AWCMS_EXAMPLE_PERMISSIONS.auditRead },
-		],
-	},
-	{
-		id: "reports",
-		label: "Reports",
-		href: "/reports",
-		permission: AWCMS_EXAMPLE_PERMISSIONS.dashboardRead,
-		badge: 5,
-		children: [
-			{ id: "public-aggregate", label: "Public Aggregate", href: "/reports", permission: AWCMS_EXAMPLE_PERMISSIONS.publicStatusRead },
-			{ id: "access-preview", label: "Access Preview", href: "/access/preview", permission: AWCMS_EXAMPLE_PERMISSIONS.accessPreviewRead },
-			{ id: "abac-preview", label: "ABAC Preview", href: "/abac/preview", permission: AWCMS_EXAMPLE_PERMISSIONS.abacPreviewRead },
-		],
-	},
-	{
-		id: "settings",
-		label: "Settings",
-		href: "/access/permissions",
-		permission: AWCMS_EXAMPLE_PERMISSIONS.settingsRead,
-		badge: 3,
-		children: [
-			{ id: "permissions-read", label: "Permissions", href: "/access/permissions", permission: AWCMS_EXAMPLE_PERMISSIONS.permissionCatalogRead },
-			{ id: "roles-read", label: "Roles", href: "/access/roles", permission: AWCMS_EXAMPLE_PERMISSIONS.roleCatalogRead },
-			{ id: "matrix-read", label: "Access Matrix", href: "/access/matrix", permission: AWCMS_EXAMPLE_PERMISSIONS.permissionCatalogRead },
-			{ id: "permissions-write", label: "Permission Editor", href: "/access/permissions", permission: AWCMS_EXAMPLE_PERMISSIONS.permissionCatalogWrite },
-			{ id: "roles-write", label: "Role Editor", href: "/access/roles", permission: AWCMS_EXAMPLE_PERMISSIONS.roleCatalogWrite },
-			{ id: "abac-attributes-read", label: "ABAC Attributes", href: "/abac/attributes", permission: AWCMS_EXAMPLE_PERMISSIONS.abacAttributeRead },
-			{ id: "abac-policies-read", label: "ABAC Policies", href: "/abac/policies", permission: AWCMS_EXAMPLE_PERMISSIONS.abacPolicyRead },
-			{ id: "abac-policies-write", label: "Policy Editor", href: "/abac/policies", permission: AWCMS_EXAMPLE_PERMISSIONS.abacPolicyWrite },
-		],
-	},
-];
-
 function cx(...classes: Array<string | false | null | undefined>) {
 	return classes.filter(Boolean).join(" ");
-}
-
-function isMenuItemActive(currentPath: string, href: string) {
-	return currentPath === href || (href !== "/" && currentPath.startsWith(`${href}/`));
-}
-
-export function filterPluginHeaderMenu(items: PluginHeaderMenuItem[], can: PluginHeaderCan): PluginHeaderMenuItem[] {
-	return items
-		.filter((item) => can(item.permission, item.abacAction))
-		.map((item) => ({
-			...item,
-			children: item.children ? filterPluginHeaderMenu(item.children, can) : undefined,
-		}))
-		.filter((item) => !item.children || item.children.length > 0);
 }
 
 function toCsv(items: string[]) {
@@ -461,50 +375,22 @@ function PageShell({ children, width = "wide" }: { children: React.ReactNode; wi
 
 function PluginHeaderMenu() {
 	const currentPath = typeof window === "undefined" ? "" : window.location.pathname;
-	const visibleMenu = filterPluginHeaderMenu(AWCMS_EXAMPLE_PLUGIN_HEADER_MENU, (permission) => !permission || permission.endsWith(":read"));
-	const activeItem = visibleMenu.find((item) => isMenuItemActive(currentPath, item.href)) ?? visibleMenu[0];
+	const { i18n } = useLingui();
+	const locale = i18n.locale;
 
-	if (!visibleMenu.length) return null;
+	const normalizedGroups = normalizeAdminNav([AWCMS_EXAMPLE_MANIFEST], {
+		hasPermission: (permission) => !permission || permission.endsWith(":read"),
+	});
 
 	return (
-		<section className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
-			<div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-				<div>
-					<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">AWCMS Micro Example</div>
-					<h2 className="mt-1 text-lg font-semibold text-kumo-default">Plugin header navigation</h2>
-				</div>
-				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					Reference navigation for registry, verification, reports, access, and ABAC flows. Select a top-level item with children to reveal the nested submenu below while hidden items stay filtered at the menu layer.
-				</p>
-			</div>
-
-			<div className="mt-4 flex flex-wrap gap-2">
-				{visibleMenu.map((item) => {
-					const active = isMenuItemActive(currentPath, item.href);
-					return (
-						<LinkButton key={item.id} href={item.href} size="sm" variant={active ? "primary" : "secondary"} className="items-center gap-2">
-							<span>{item.label}</span>
-							{item.badge != null ? <Badge variant="secondary">{item.badge}</Badge> : null}
-							{item.children?.length ? <span aria-hidden="true">⌄</span> : null}
-						</LinkButton>
-					);
-				})}
-			</div>
-
-			{activeItem?.children?.length ? (
-				<div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-					{activeItem.children.map((child) => (
-						<LinkButton key={child.id} href={child.href} variant="outline" className="h-auto flex-col items-start justify-start gap-1 p-4 text-start">
-							<span className="flex w-full items-center justify-between gap-2">
-								<strong className="text-sm font-semibold text-kumo-default">{child.label}</strong>
-								{child.badge != null ? <Badge variant="secondary">{child.badge}</Badge> : null}
-							</span>
-							{child.description ? <span className="text-xs leading-5 text-kumo-subtle">{child.description}</span> : null}
-						</LinkButton>
-					))}
-				</div>
-			) : null}
-		</section>
+		<PluginLocalNav
+			groups={normalizedGroups}
+			currentPath={currentPath}
+			locale={locale}
+			messages={AWCMS_EXAMPLE_MANIFEST.i18n?.messages}
+			title="Plugin Operations Center"
+			description="Reference navigation for registry, verification, reports, access, and ABAC flows."
+		/>
 	);
 }
 

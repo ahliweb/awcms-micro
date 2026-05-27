@@ -7,14 +7,14 @@ interface Props {
 }
 
 const { name = "primary" } = Astro.props;
-const menu = await getMenu(name);
+const menu = await getMenu(name, { locale: Astro.currentLocale });
 
 if (menu?.items.length) {
 	for (const item of menu.items) {
 		if (!item.children || item.children.length === 0) {
 			const itemSlug = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 			const subMenuName = `${name}-${itemSlug}`;
-			const subMenu = await getMenu(subMenuName);
+			const subMenu = await getMenu(subMenuName, { locale: Astro.currentLocale });
 			if (subMenu && subMenu.items.length > 0) {
 				item.children = subMenu.items;
 			}

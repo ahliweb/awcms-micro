@@ -8,6 +8,7 @@ import type {
 import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "emdash/plugin";
 
 import { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
+import { adaptToEmdashPages, type AwcmsModuleManifest } from "@awcms-micro/core";
 
 export const AWCMS_EXAMPLE_PLUGIN_ID = "awcms-micro-example";
 
@@ -56,21 +57,228 @@ export const AWCMS_EXAMPLE_STORAGE = {
 
 export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = AWCMS_EXAMPLE_STORAGE;
 
-export const AWCMS_EXAMPLE_ADMIN_PAGES = [
-	{ path: "/overview", label: "Overview", icon: "stack" },
-	{ path: "/registry", label: "Registry", icon: "grid" },
-	{ path: "/verification", label: "Verification", icon: "check" },
-	{ path: "/documents", label: "Documents", icon: "file" },
-	{ path: "/reports", label: "Reports", icon: "chart" },
-	{ path: "/audit", label: "Audit", icon: "list" },
-	{ path: "/access/permissions", label: "Permissions", icon: "lock" },
-	{ path: "/access/roles", label: "Roles", icon: "users" },
-	{ path: "/access/matrix", label: "Role Matrix", icon: "grid" },
-	{ path: "/access/preview", label: "Access Preview", icon: "eye" },
-	{ path: "/abac/attributes", label: "ABAC Attributes", icon: "sliders" },
-	{ path: "/abac/policies", label: "ABAC Policies", icon: "shield" },
-	{ path: "/abac/preview", label: "ABAC Preview", icon: "target" },
-];
+export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
+	id: "awcms-micro-example",
+	name: "AWCMS-Micro Example Plugin",
+	version: "0.0.1",
+	description: "Access & audit demo plugin for AWCMS-Micro projects",
+	navigation: {
+		groups: [
+			{
+				id: "dashboard-group",
+				labelKey: "awcms.nav.group.dashboard",
+				fallbackLabel: "Dashboard",
+				icon: "stack",
+				sortOrder: 10,
+				sidebarPlacement: "after-dashboard",
+				sidebarPriority: 10,
+				items: [
+					{
+						id: "overview",
+						labelKey: "awcms.nav.overview",
+						fallbackLabel: "Overview",
+						path: "/overview",
+						icon: "stack",
+						sortOrder: 10,
+						permission: "awcms:example:dashboard:read",
+					}
+				]
+			},
+			{
+				id: "content-group",
+				labelKey: "awcms.nav.group.content",
+				fallbackLabel: "Content",
+				icon: "file",
+				sortOrder: 20,
+				sidebarPlacement: "plugin-local-only",
+				items: [
+					{
+						id: "pages",
+						labelKey: "awcms.nav.pages",
+						fallbackLabel: "Pages",
+						path: "/registry",
+						icon: "grid",
+						sortOrder: 10,
+						permission: "awcms:example:dashboard:read",
+					},
+					{
+						id: "documents",
+						labelKey: "awcms.nav.documents",
+						fallbackLabel: "Documents",
+						path: "/documents",
+						icon: "file",
+						sortOrder: 20,
+						permission: "awcms:example:dashboard:read",
+					}
+				]
+			},
+			{
+				id: "governance-group",
+				labelKey: "awcms.nav.group.governance",
+				fallbackLabel: "Governance",
+				icon: "shield",
+				sortOrder: 30,
+				sidebarPlacement: "plugin-local-only",
+				items: [
+					{
+						id: "verification",
+						labelKey: "awcms.nav.verification",
+						fallbackLabel: "Verification",
+						path: "/verification",
+						icon: "check",
+						sortOrder: 10,
+						permission: "awcms:example:audit:read",
+					},
+					{
+						id: "audit-log",
+						labelKey: "awcms.nav.audit",
+						fallbackLabel: "Audit Log",
+						path: "/audit",
+						icon: "list",
+						sortOrder: 20,
+						permission: "awcms:example:audit:read",
+					}
+				]
+			},
+			{
+				id: "settings-group",
+				labelKey: "awcms.nav.group.settings",
+				fallbackLabel: "Settings",
+				icon: "gear",
+				sortOrder: 40,
+				sidebarPlacement: "plugin-local-only",
+				items: [
+					{
+						id: "access-control",
+						labelKey: "awcms.nav.access",
+						fallbackLabel: "Access Control",
+						path: "/access/permissions",
+						icon: "lock",
+						sortOrder: 10,
+						permission: "awcms:example:settings:read",
+						children: [
+							{
+								id: "permissions",
+								labelKey: "awcms.nav.permissions",
+								fallbackLabel: "Permissions",
+								path: "/access/permissions",
+								sortOrder: 10,
+								permission: "awcms:example:permissions:read",
+							},
+							{
+								id: "roles",
+								labelKey: "awcms.nav.roles",
+								fallbackLabel: "Roles",
+								path: "/access/roles",
+								sortOrder: 20,
+								permission: "awcms:example:roles:read",
+							},
+							{
+								id: "matrix",
+								labelKey: "awcms.nav.matrix",
+								fallbackLabel: "Role Matrix",
+								path: "/access/matrix",
+								sortOrder: 30,
+								permission: "awcms:example:permissions:read",
+							},
+							{
+								id: "access-preview",
+								labelKey: "awcms.nav.accessPreview",
+								fallbackLabel: "Access Preview",
+								path: "/access/preview",
+								sortOrder: 40,
+								permission: "awcms:example:preview:read",
+							}
+						]
+					},
+					{
+						id: "abac",
+						labelKey: "awcms.nav.abac",
+						fallbackLabel: "ABAC",
+						path: "/abac/attributes",
+						icon: "sliders",
+						sortOrder: 20,
+						permission: "awcms:example:settings:read",
+						children: [
+							{
+								id: "abac-attributes",
+								labelKey: "awcms.nav.abacAttributes",
+								fallbackLabel: "Attributes",
+								path: "/abac/attributes",
+								sortOrder: 10,
+								permission: "awcms:example:abac:read",
+							},
+							{
+								id: "abac-policies",
+								labelKey: "awcms.nav.abacPolicies",
+								fallbackLabel: "Policies",
+								path: "/abac/policies",
+								sortOrder: 20,
+								permission: "awcms:example:abac:read",
+							},
+							{
+								id: "abac-preview",
+								labelKey: "awcms.nav.abacPreview",
+								fallbackLabel: "ABAC Preview",
+								path: "/abac/preview",
+								sortOrder: 30,
+								permission: "awcms:example:abac:read",
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	i18n: {
+		defaultLocale: "en",
+		supportedLocales: ["en", "id"],
+		messages: {
+			en: {
+				"awcms.nav.group.dashboard": "Dashboard",
+				"awcms.nav.group.content": "Content",
+				"awcms.nav.group.governance": "Governance",
+				"awcms.nav.group.settings": "Settings",
+				"awcms.nav.overview": "Overview",
+				"awcms.nav.pages": "Pages",
+				"awcms.nav.documents": "Documents",
+				"awcms.nav.verification": "Verification",
+				"awcms.nav.audit": "Audit Log",
+				"awcms.nav.access": "Access Control",
+				"awcms.nav.permissions": "Permissions",
+				"awcms.nav.roles": "Roles",
+				"awcms.nav.matrix": "Role Matrix",
+				"awcms.nav.accessPreview": "Access Preview",
+				"awcms.nav.abac": "ABAC",
+				"awcms.nav.abacAttributes": "Attributes",
+				"awcms.nav.abacPolicies": "Policies",
+				"awcms.nav.abacPreview": "ABAC Preview",
+			},
+			id: {
+				"awcms.nav.group.dashboard": "Dasbor",
+				"awcms.nav.group.content": "Konten",
+				"awcms.nav.group.governance": "Tata Kelola",
+				"awcms.nav.group.settings": "Pengaturan",
+				"awcms.nav.overview": "Ikhtisar",
+				"awcms.nav.pages": "Halaman",
+				"awcms.nav.documents": "Dokumen",
+				"awcms.nav.verification": "Verifikasi",
+				"awcms.nav.audit": "Log Audit",
+				"awcms.nav.access": "Kontrol Akses",
+				"awcms.nav.permissions": "Izin",
+				"awcms.nav.roles": "Peran",
+				"awcms.nav.matrix": "Matriks Peran",
+				"awcms.nav.accessPreview": "Pratinjau Akses",
+				"awcms.nav.abac": "ABAC",
+				"awcms.nav.abacAttributes": "Atribut",
+				"awcms.nav.abacPolicies": "Kebijakan",
+				"awcms.nav.abacPreview": "Pratinjau ABAC",
+			}
+		}
+	}
+};
+
+export const AWCMS_EXAMPLE_ADMIN_PAGES = adaptToEmdashPages(AWCMS_EXAMPLE_MANIFEST);
 
 export const AWCMS_EXAMPLE_ADMIN_WIDGETS = [
 	{ id: "governance-status", title: "Governance Status", size: "half" as const },
