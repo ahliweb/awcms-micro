@@ -19,16 +19,8 @@ const LI_TAG_PATTERN = /<li[^>]*>([\s\S]*?)<\/li>/i;
 const UL_TAG_PATTERN = /<ul[^>]*>([\s\S]*)<\/ul>/i;
 const OL_TAG_PATTERN = /<ol[^>]*>([\s\S]*)<\/ol>/i;
 const NESTED_LIST_PATTERN = /<[uo]l[^>]*>[\s\S]*<\/[uo]l>/gi;
-const P_TAG_PATTERN = /<p[^>]*>([\s\S]*?)<\/p>/gi;
 const HREF_PATTERN = /href="([^"]*)"/i;
 const DATA_ID_PATTERN = /data-id=["'](\d+)["']/i;
-const CODE_TAG_PATTERN_SINGLE = /<code[^>]*>([\s\S]*?)<\/code>/i;
-const TABLE_TAG_PATTERN = /<table[^>]*>([\s\S]*?)<\/table>/i;
-const THEAD_TAG_PATTERN = /<thead[^>]*>([\s\S]*?)<\/thead>/i;
-const IMG_TAG_GLOBAL = /<img[^>]+>/gi;
-const TABLE_ROW_PATTERN = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-const TABLE_CELL_PATTERN = /<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi;
-const TBODY_TAG_PATTERN = /<tbody[^>]*>([\s\S]*?)<\/tbody>/i;
 const LT_ENTITY_PATTERN = /&lt;/g;
 const GT_ENTITY_PATTERN = /&gt;/g;
 const AMP_ENTITY_PATTERN = /&amp;/g;
@@ -45,6 +37,75 @@ function extractTagInnerHtml(html: string, tagName: string): string | undefined 
 	const closeStart = lower.indexOf(`</${tagName}>`, openEnd + 1);
 	if (closeStart === -1) return undefined;
 	return html.slice(openEnd + 1, closeStart);
+}
+
+function extractAllTagInnerHtml(html: string, tagName: string): string[] {
+	const lower = html.toLowerCase();
+	const openPrefix = `<${tagName}`;
+	const closeTag = `</${tagName}>`;
+	const matches: string[] = [];
+
+	let searchStart = 0;
+	while (searchStart < html.length) {
+		const openStart = lower.indexOf(openPrefix, searchStart);
+		if (openStart === -1) break;
+		const openEnd = lower.indexOf(">", openStart);
+		if (openEnd === -1) break;
+		const closeStart = lower.indexOf(closeTag, openEnd + 1);
+		if (closeStart === -1) break;
+		matches.push(html.slice(openEnd + 1, closeStart));
+		searchStart = closeStart + closeTag.length;
+	}
+
+	return matches;
+}
+
+function extractAllTagElements(html: string, tagName: string): string[] {
+	const lower = html.toLowerCase();
+	const openPrefix = `<${tagName}`;
+	const elements: string[] = [];
+
+	let searchStart = 0;
+	while (searchStart < html.length) {
+		const openStart = lower.indexOf(openPrefix, searchStart);
+		if (openStart === -1) break;
+		const openEnd = lower.indexOf(">", openStart);
+		if (openEnd === -1) break;
+		elements.push(html.slice(openStart, openEnd + 1));
+		searchStart = openEnd + 1;
+	}
+
+	return elements;
+}
+
+function extractTableCells(html: string): Array<{ tagName: "th" | "td"; innerHtml: string }> {
+	const lower = html.toLowerCase();
+	const cells: Array<{ tagName: "th" | "td"; innerHtml: string }> = [];
+
+	let searchStart = 0;
+	while (searchStart < html.length) {
+		const thIndex = lower.indexOf("<th", searchStart);
+		const tdIndex = lower.indexOf("<td", searchStart);
+		const openStart =
+			thIndex === -1 ? tdIndex : tdIndex === -1 ? thIndex : Math.min(thIndex, tdIndex);
+
+		if (openStart === -1) break;
+
+		const tagName = openStart === thIndex ? "th" : "td";
+		const openEnd = lower.indexOf(">", openStart);
+		if (openEnd === -1) break;
+		const closeTag = `</${tagName}>`;
+		const closeStart = lower.indexOf(closeTag, openEnd + 1);
+		if (closeStart === -1) break;
+
+		cells.push({
+			tagName,
+			innerHtml: html.slice(openEnd + 1, closeStart),
+		});
+		searchStart = closeStart + closeTag.length;
+	}
+
+	return cells;
 }
 
 /**
@@ -315,10 +376,9 @@ export const quote: BlockTransformer = (block, _options, context) => {
 	const blocks: PortableTextBlock[] = [];
 
 	// Extract paragraphs from the blockquote
-	let match;
+	const paragraphs = extractAllTagInnerHtml(block.innerHTML, "p");
 
-	while ((match = P_TAG_PATTERN.exec(block.innerHTML)) !== null) {
-		const content = match[1] || "";
+	for (const content of paragraphs) {
 		const { children, markDefs } = context.parseInlineContent(content);
 
 		const quoteBlock: PortableTextTextBlock = {
@@ -416,8 +476,7 @@ export const image: BlockTransformer = (block, options, context) => {
  */
 export const code: BlockTransformer = (block, _options, context) => {
 	// Extract code from <pre><code>...</code></pre>
-	const codeMatch = block.innerHTML.match(CODE_TAG_PATTERN_SINGLE);
-	const codeContent = codeMatch?.[1] || block.innerHTML;
+	const codeContent = extractTagInnerHtml(block.innerHTML, "code") ?? block.innerHTML;
 
 	// Decode HTML entities
 	const decoded = decodeHtmlEntities(codeContent);
@@ -497,9 +556,7 @@ export const gallery: BlockTransformer = (block, options, context) => {
 		}
 	} else {
 		// Parse from HTML (older gallery format)
-		let match;
-		while ((match = IMG_TAG_GLOBAL.exec(block.innerHTML)) !== null) {
-			const imgHtml = match[0];
+		for (const imgHtml of extractAllTagElements(block.innerHTML, "img")) {
 			const src = extractSrc(imgHtml);
 			const alt = extractAlt(imgHtml);
 			const idMatch = imgHtml.match(DATA_ID_PATTERN);
@@ -560,16 +617,14 @@ export const group: BlockTransformer = (block, _options, context) => {
  */
 export const table: BlockTransformer = (block, _options, context) => {
 	// Parse the table HTML
-	const tableMatch = block.innerHTML.match(TABLE_TAG_PATTERN);
-	if (!tableMatch) {
+	const tableContent = extractTagInnerHtml(block.innerHTML, "table");
+	if (!tableContent) {
 		return [];
 	}
 
-	const tableContent = tableMatch[1]!;
-
 	// Check for thead
-	const theadMatch = tableContent.match(THEAD_TAG_PATTERN);
-	const tbodyMatch = tableContent.match(TBODY_TAG_PATTERN);
+	const theadContent = extractTagInnerHtml(tableContent, "thead");
+	const tbodyContent = extractTagInnerHtml(tableContent, "tbody");
 
 	const rows: Array<{
 		_type: "tableRow";
@@ -584,16 +639,16 @@ export const table: BlockTransformer = (block, _options, context) => {
 	}> = [];
 
 	// Parse header rows
-	if (theadMatch?.[1]) {
-		const headerRows = parseTableRows(theadMatch[1], context, true);
+	if (theadContent) {
+		const headerRows = parseTableRows(theadContent, context, true);
 		rows.push(...headerRows);
 	}
 
 	// Parse body rows
-	if (tbodyMatch?.[1]) {
-		const bodyRows = parseTableRows(tbodyMatch[1], context, false);
+	if (tbodyContent) {
+		const bodyRows = parseTableRows(tbodyContent, context, false);
 		rows.push(...bodyRows);
-	} else if (!theadMatch) {
+	} else if (!theadContent) {
 		// No thead or tbody, parse rows directly
 		const directRows = parseTableRows(tableContent, context, false);
 		rows.push(...directRows);
@@ -608,7 +663,7 @@ export const table: BlockTransformer = (block, _options, context) => {
 			_type: "table" as const,
 			_key: context.generateKey(),
 			rows,
-			hasHeaderRow: !!theadMatch,
+			hasHeaderRow: !!theadContent,
 		},
 	];
 };
@@ -643,10 +698,7 @@ function parseTableRows(
 		}>;
 	}> = [];
 
-	let rowMatch;
-
-	while ((rowMatch = TABLE_ROW_PATTERN.exec(html)) !== null) {
-		const rowContent = rowMatch[1]!;
+	for (const rowContent of extractAllTagInnerHtml(html, "tr")) {
 		const cells: Array<{
 			_type: "tableCell";
 			_key: string;
@@ -656,11 +708,8 @@ function parseTableRows(
 		}> = [];
 
 		// Match both th and td cells
-		let cellMatch;
-
-		while ((cellMatch = TABLE_CELL_PATTERN.exec(rowContent)) !== null) {
-			const isHeaderCell = cellMatch[1]!.toLowerCase() === "th" || isHeader;
-			const cellContent = cellMatch[2]!;
+		for (const { tagName, innerHtml: cellContent } of extractTableCells(rowContent)) {
+			const isHeaderCell = tagName === "th" || isHeader;
 
 			const { children, markDefs } = context.parseInlineContent(cellContent);
 
