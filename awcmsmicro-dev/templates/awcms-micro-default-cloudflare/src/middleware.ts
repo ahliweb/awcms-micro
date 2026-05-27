@@ -1,4 +1,6 @@
-import { defineMiddleware } from "astro:middleware";
+import { defineMiddleware, sequence } from "astro:middleware";
+
+import { stripLocalePrefix } from "./utils/locale-path";
 
 const PUBLIC_ADMIN_PREFIXES = [
 	"/_emdash/admin/login",
@@ -7,6 +9,16 @@ const PUBLIC_ADMIN_PREFIXES = [
 	"/_emdash/admin/invite/accept",
 	"/_emdash/admin/device",
 ];
+
+const LOCALE_OPTIONS = {
+	defaultLocale: "en",
+	locales: ["en", "id"],
+};
+
+function detectLocale(pathname: string) {
+	const firstSegment = pathname.split("/").filter(Boolean)[0];
+	return LOCALE_OPTIONS.locales.includes(firstSegment ?? "") ? firstSegment! : LOCALE_OPTIONS.defaultLocale;
+}
 
 function isPublicAdminPath(pathname: string) {
 	return PUBLIC_ADMIN_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -23,7 +35,19 @@ function buildLoginRedirect(url: URL) {
 	return loginUrl;
 }
 
-export const onRequest = defineMiddleware(async (context, next) => {
+const localeRewrite = defineMiddleware(async (context, next) => {
+	context.locals.awcmsLocale = detectLocale(context.url.pathname);
+
+	const strippedPath = stripLocalePrefix(context.url.pathname, LOCALE_OPTIONS);
+	if (strippedPath === context.url.pathname) {
+		return next();
+	}
+
+	const rewrittenPath = strippedPath === "/" ? "/" : strippedPath;
+	return next(`${rewrittenPath}${context.url.search}`);
+});
+
+const adminGuard = defineMiddleware(async (context, next) => {
 	const { url, cookies } = context;
 
 	if (!url.pathname.startsWith("/_emdash/admin") || isPublicAdminPath(url.pathname)) {
@@ -41,3 +65,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	return next();
 });
+
+export const onRequest = sequence(
+	localeRewrite,
+	adminGuard,
+);

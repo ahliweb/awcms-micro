@@ -1,6 +1,8 @@
 ---
 import { getI18nConfig, isI18nEnabled, getTranslations } from "emdash";
 
+import { toLocalePath } from "../../utils/locale-path";
+
 interface Props {
 	content?: { collection: string; id: string; slug?: string | null };
 }
@@ -14,7 +16,8 @@ const enabled = isI18nEnabled();
 
 const locales = i18nConfig?.locales || ["en", "id"];
 const defaultLocale = i18nConfig?.defaultLocale || "en";
-const currentLocale = Astro.currentLocale || defaultLocale;
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = { defaultLocale, locales };
 
 // Fetch translations if we are on a content page
 let translationsMap = new Map<string, string>();
@@ -33,36 +36,20 @@ if (enabled && content?.collection && content?.id) {
 
 // Build link for a given target locale
 function getLocaleUrl(targetLocale: string) {
-	const prefix = targetLocale === defaultLocale ? "" : `/${targetLocale}`;
-
 	// 1. If it's a content page
 	if (content?.collection) {
 		const targetSlug = translationsMap.get(targetLocale);
 		if (targetSlug) {
-			// Found translated entry! Build the correct slug
-			if (content.collection === "pages") {
-				return `${prefix}/${targetSlug}`.replace(MULTIPLE_SLASHES, "/");
-			} else {
-				return `${prefix}/${content.collection}/${targetSlug}`.replace(MULTIPLE_SLASHES, "/");
-			}
+			const rawPath = content.collection === "pages" ? `/${targetSlug}` : `/${content.collection}/${targetSlug}`;
+			return toLocalePath(rawPath.replace(MULTIPLE_SLASHES, "/"), targetLocale, localeOptions);
 		} else {
 			// No translation: fall back to the locale home page
-			return targetLocale === defaultLocale ? "/" : `/${targetLocale}/`;
+			return toLocalePath("/", targetLocale, localeOptions);
 		}
 	}
 
-	// 2. If it's a static/custom page, adjust the prefix in pathname
-	const path = Astro.url.pathname;
-	
-	// Remove current locale prefix if we are on a non-default locale
-	let cleanPath = path;
-	if (currentLocale !== defaultLocale && path.startsWith(`/${currentLocale}`)) {
-		cleanPath = path.substring(currentLocale.length + 1);
-	}
-
-	// Append target locale prefix
-	const targetPath = `${prefix}${cleanPath}`;
-	return targetPath.replace(MULTIPLE_SLASHES, "/") || "/";
+	// 2. If it's a static/custom page, rebuild the path for the target locale
+	return toLocalePath(Astro.url.pathname.replace(MULTIPLE_SLASHES, "/") || "/", targetLocale, localeOptions);
 }
 
 const localeNames: Record<string, string> = {

@@ -1,8 +1,9 @@
 ---
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
 import PublicNavigation from "../components/PublicNavigation.astro";
 import Base from "../layouts/Base.astro";
+import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 function asImage(value: unknown) {
@@ -29,6 +30,13 @@ if (Astro.cache?.enabled) {
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
 ---
 
 <Base title={siteTitle} description={siteTagline}>
@@ -44,7 +52,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
 		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
-		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/aggregate">Public Aggregate</a>
+		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">Public Aggregate</a>
 	</div>
 	</section>
 
@@ -104,7 +112,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{posts.map((post) => (
 						<li style="margin-bottom:1rem;">
-							<a href={`/posts/${post.id}`} style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">
+							<a href={toLocalePath(`/posts/${resolveEntrySlug(post)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">
 							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} style="border-radius:0.5rem;margin-bottom:0.5rem;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;" />}
 								{post.data.title}
 							</a>
@@ -113,7 +121,7 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 					))}
 				</ul>
 			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/posts">Browse all posts &rarr;</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">Browse all posts &rarr;</a></p>
 		</div>
 
 		<div class="card">
@@ -122,20 +130,20 @@ const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSe
 				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{newsItems.map((item) => (
 						<li style="margin-bottom:1rem;">
-							<a href={`/news/${item.id}`} style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">{item.data.title}</a>
+							<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">{item.data.title}</a>
 							{item.data.summary && <p style="margin:0;font-size:0.95rem;">{item.data.summary}</p>}
 						</li>
 					))}
 				</ul>
 			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/news">Browse all news &rarr;</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">Browse all news &rarr;</a></p>
 		</div>
 
 		<div class="card">
 			<h2 style="font-size:1.5rem;margin-top:0;">Managed Pages</h2>
 			<ul style="padding-left:1.25rem;color:var(--text-muted);">
 				{pages.map((page) => (
-					<li style="margin-bottom:0.75rem;"><a href={`/${page.id}`} style="font-weight:500;">{page.data.title}</a></li>
+					<li style="margin-bottom:0.75rem;"><a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="font-weight:500;">{page.data.title}</a></li>
 				))}
 			</ul>
 			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">Manage pages in admin &rarr;</a></p>

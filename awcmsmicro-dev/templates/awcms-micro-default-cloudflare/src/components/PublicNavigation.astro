@@ -7,17 +7,23 @@ interface Props {
 }
 
 const { name = "primary" } = Astro.props;
-const menu = await getMenu(name, { locale: Astro.currentLocale });
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || "en";
+const menu = await getMenu(name, { locale: currentLocale });
 
 if (menu?.items.length) {
-	for (const item of menu.items) {
-		if (!item.children || item.children.length === 0) {
-			const itemSlug = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+	const subMenus = await Promise.all(
+		menu.items.map(async (item) => {
+			if (item.children && item.children.length > 0) return item.children;
+			const itemSlug = item.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 			const subMenuName = `${name}-${itemSlug}`;
-			const subMenu = await getMenu(subMenuName, { locale: Astro.currentLocale });
-			if (subMenu && subMenu.items.length > 0) {
-				item.children = subMenu.items;
-			}
+			const subMenu = await getMenu(subMenuName, { locale: currentLocale });
+			return subMenu?.items.length ? subMenu.items : item.children;
+		}),
+	);
+
+	for (const [index, subMenuItems] of subMenus.entries()) {
+		if (subMenuItems && subMenuItems.length > 0) {
+			menu.items[index]!.children = subMenuItems;
 		}
 	}
 }
@@ -27,7 +33,7 @@ if (menu?.items.length) {
 	<nav class="awcms-public-nav" aria-label="Primary navigation">
 		<ul class="awcms-public-nav__list">
 			{menu.items.map((item) => (
-				<PublicNavigationItem item={item} currentPath={Astro.url.pathname} level={0} />
+				<PublicNavigationItem item={item} currentPath={Astro.url.pathname} currentLocale={currentLocale || menu.locale} level={0} />
 			))}
 		</ul>
 	</nav>

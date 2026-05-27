@@ -11,6 +11,10 @@ const siteUrl = process.env.AWCMS_MICRO_SITE_URL ?? "https://awcms-micro.ahlikod
 export default defineConfig({
 	output: "server",
 	adapter: cloudflare(),
+	prefetch: {
+		prefetchAll: false,
+		defaultStrategy: "hover",
+	},
 	image: {
 		layout: "constrained",
 		responsiveStyles: true,
