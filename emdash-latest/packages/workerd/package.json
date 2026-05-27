@@ -33,7 +33,7 @@
 		"workerd": ">=1.0.0"
 	},
 	"optionalDependencies": {
-		"miniflare": "^4.20250408.0"
+		"miniflare": "^4.20260526.0"
 	},
 	"devDependencies": {
 		"@types/better-sqlite3": "catalog:",
