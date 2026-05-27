@@ -16,6 +16,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcms-micro-versioning.md`: AWCMS-Micro-only automatic versioning and changelog flow for plugins and templates
 - `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS-Micro versioning automation rollout and local proof runs
+- `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
@@ -39,10 +40,11 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 11. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
 12. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
 13. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
-14. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-15. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-16. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-17. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+14. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
+15. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+16. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+17. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+18. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

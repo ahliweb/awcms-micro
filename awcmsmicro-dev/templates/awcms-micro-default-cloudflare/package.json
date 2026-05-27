@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"license": "LicenseRef-AW-NC-1.0",
+	"license": "SEE LICENSE IN LICENSE.md",
 	"emdash": {
 		"seed": "seed/seed.json"
 	},

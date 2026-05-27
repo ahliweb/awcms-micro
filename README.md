@@ -14,6 +14,7 @@ AWCMS-Micro-specific product development in this maintenance workspace is limite
 
 - The root maintenance workspace is MIT licensed. See `LICENSE`.
 - AWCMS-Micro example plugins and templates use the AW Non-Commercial License 1.0 from `https://github.com/ahliweb/aw-non-commercial-license`.
+- `docs/awcms-micro-licensing.md` explains how the root MIT license and package-level non-commercial license fit together.
 
 ## Root Structure
 
