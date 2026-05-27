@@ -18,7 +18,9 @@ These paths are relative to `awcmsmicro-dev/`:
 - `docs/awcms-micro`
 - `docs/gallery`
 - `e2e/awcms-micro`
+- `.awcms-changesets`
 - `.github/workflows`
+- `.github/scripts`
 - `.github/dependabot.yml`
 
 ## How Rebuild Preservation Works

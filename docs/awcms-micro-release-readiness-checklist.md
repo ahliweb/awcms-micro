@@ -33,6 +33,7 @@ Use this checklist after upstream sync work and after AWCMS-Micro plugin/templat
 ### 4. Documentation Readiness
 
 - promotion checklist is current
+- AWCMS versioning documentation is current
 - deployment runbook is current for the intended environment
 - security baseline reflects the current plugin-and-template-only model
 - compatibility matrix reflects the current overlays accurately
@@ -51,9 +52,10 @@ Run the closest available checks for the intended release surface.
 Minimum recommended checks:
 
 1. `bash scripts/validate-awcmsmicro-boundaries.sh`
-2. `pnpm --filter @awcms-micro/plugin-example typecheck`
-3. `pnpm --filter @awcms-micro/plugin-example test`
-4. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
+2. `node .github/scripts/awcms-version.mjs status`
+3. `pnpm --filter @awcms-micro/plugin-example typecheck`
+4. `pnpm --filter @awcms-micro/plugin-example test`
+5. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
 Add template- or plugin-specific checks if the release scope requires them.
 

@@ -86,6 +86,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Keep new product behavior in plugins and templates instead of introducing a parallel shared core implementation layer.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
+- Keep AWCMS-Micro-specific release automation inputs inside preserved boundaries such as `.awcms-changesets/` and `.github/scripts/`.
 
 ## Language Rule During Synchronization
 

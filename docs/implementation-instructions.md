@@ -48,6 +48,8 @@ When choosing where a change belongs:
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.
+- AWCMS-Micro release-note inputs belong in `awcmsmicro-dev/.awcms-changesets/`.
+- AWCMS-Micro release automation scripts belong in preserved `.github` boundaries such as `awcmsmicro-dev/.github/scripts/` when workflow-specific logic is required.
 - Preserved workflow work belongs in `awcmsmicro-dev/.github/workflows/`.
 - Preserved Dependabot config belongs in `awcmsmicro-dev/.github/dependabot.yml`.
 

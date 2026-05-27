@@ -18,14 +18,16 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `docs/awcms-micro`
 - `docs/gallery`
 - `e2e/awcms-micro`
+- `.awcms-changesets`
 - `.github/workflows`
+- `.github/scripts`
 - `.github/dependabot.yml`
 
 These are the active product-development boundaries:
 
 - plugin boundaries under `packages/plugins/`
 - template boundaries under `templates/`
-- supporting docs, demos, and E2E boundaries listed above
+- supporting docs, demos, E2E, and release-automation boundaries listed above
 
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 

@@ -84,7 +84,9 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Reserved AWCMS changesets boundary: `awcmsmicro-dev/.awcms-changesets/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
+- Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 - Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
 - Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`

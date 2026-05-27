@@ -10,9 +10,10 @@ This document gives operators one concise end-to-end workflow for maintaining th
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 3. Validate the rebuilt workspace.
 4. Implement AWCMS-Micro work only in approved plugin and template boundaries.
-5. Re-run targeted validation.
-6. Update governance docs if boundaries, workflow, deployment, or security rules changed.
-7. Check promotion and release-readiness artifacts when preparing an independent repository state.
+5. Prepare AWCMS release-note inputs when plugin or template versions should change.
+6. Re-run targeted validation.
+7. Update governance docs if boundaries, workflow, deployment, or security rules changed.
+8. Check promotion and release-readiness artifacts when preparing an independent repository state.
 
 ## Standard Commands
 
@@ -41,6 +42,12 @@ bash scripts/validate-awcmsmicro-dev.sh
 bash scripts/sync-and-validate-awcmsmicro-dev.sh
 ```
 
+### 5. Check AWCMS Versioning Status
+
+```bash
+node .github/scripts/awcms-version.mjs status
+```
+
 ## Decision Rules During Work
 
 - If the change is upstream EmDash, keep it in `emdash-latest/` only.
@@ -54,7 +61,8 @@ When preparing the independent `awcms-micro` repository state:
 1. Review `docs/awcms-micro-product-readme-final.md`.
 2. Review `docs/awcms-micro-repository-promotion-checklist.md`.
 3. Review `docs/awcms-micro-release-readiness-checklist.md`.
-4. Confirm targeted plugin and template validation passes.
+4. Review `docs/awcms-micro-versioning.md`.
+5. Confirm targeted plugin and template validation passes.
 
 ## Minimum Promotion-Readiness Signals
 
