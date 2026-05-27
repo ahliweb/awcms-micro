@@ -15,6 +15,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcms-micro-versioning.md`: AWCMS-Micro-only automatic versioning and changelog flow for plugins and templates
+- `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS-Micro versioning automation rollout and local proof runs
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance without changing the EmDash admin sidebar
