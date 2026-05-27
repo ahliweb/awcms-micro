@@ -16,6 +16,8 @@ minimumReleaseAgeExclude:
   - "@astrojs/cloudflare"
   - wrangler
   - miniflare
+  - "@cloudflare/vite-plugin"
+  - "@astrojs/language-server"
 trustPolicy: no-downgrade
 strictDepBuilds: true
 dangerouslyAllowAllBuilds: false
@@ -37,6 +39,7 @@ trustPolicyExclude:
   - "semver@6.3.1" # provenance -> none (old pinned util via @babel/core)
   - "@portabletext/toolkit@3.0.3" # provenance -> none (old pinned release)
   - "reselect@5.1.1" # provenance -> none (old pinned util)
+  - "tinyexec@1.2.2" # provenance -> attestation (temporary vitest install unblock)
 
 overrides:
   # blockExoticSubdeps: infra/cache-demo's pkg.pr.new Astro preview pulls
@@ -61,7 +64,7 @@ packages:
   - infra/*
 catalog:
   "@arethetypeswrong/cli": ^0.18.2
-  "@astrojs/check": ^0.9.9
+  "@astrojs/check": 0.9.9
   "@astrojs/cloudflare": ^13.5.5
   "@astrojs/node": ^10.1.1
   "@astrojs/react": ^5.0.0
@@ -86,7 +89,7 @@ catalog:
   "@atproto/crypto": ^0.4.5
   "@atproto/repo": ^0.9.1
   "@cloudflare/kumo": ^2.3.0
-  "@cloudflare/vite-plugin": ^1.36.3
+  "@cloudflare/vite-plugin": ^1.39.0
   "@cloudflare/vitest-pool-workers": ^0.16.3
   "@cloudflare/workers-types": ^4.20260305.1
   "@iconify-json/ph": ^1.2.2

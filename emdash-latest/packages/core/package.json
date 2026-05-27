@@ -196,7 +196,7 @@
     "@emdash-cms/plugin-types": "workspace:*",
     "@emdash-cms/registry-client": "workspace:*",
     "@floating-ui/react": "^0.27.16",
-		"@modelcontextprotocol/sdk": "^1.29.0",
+		"@modelcontextprotocol/sdk": "1.29.0",
     "@oslojs/crypto": "catalog:",
     "@oslojs/encoding": "catalog:",
     "@portabletext/toolkit": "^5.0.1",
