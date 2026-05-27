@@ -4,6 +4,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import GalleryCard from "../../components/GalleryCard.astro";
 import GalleryFilters from "../../components/GalleryFilters.astro";
 import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getGalleryCopy } from "../../utils/gallery-copy";
 
 function asString(value: unknown, fallback = "") {
 	return typeof value === "string" ? value : fallback;
@@ -24,15 +25,16 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getGalleryCopy(currentLocale);
 ---
 
-<BaseLayout title="Gallery" description="Published AWCMS-Micro photo and video galleries managed from EmDash." showFooterWidgets={false}>
+<BaseLayout title={copy.pageTitle} description={copy.pageDescription} showFooterWidgets={false}>
 	<section>
-		<p class="kicker">Media Library</p>
-		<h1>Photo and Video Gallery</h1>
-		<p>Published galleries are stored in the EmDash collection layer and rendered publicly by the AWCMS-Micro template.</p>
+		<p class="kicker">{copy.pageKicker}</p>
+		<h1>{copy.pageHeading}</h1>
+		<p>{copy.pageIntro}</p>
 		<GalleryFilters activeType={activeType} />
-		{visibleGalleries.length === 0 ? <p>No galleries found.</p> : (
+		{visibleGalleries.length === 0 ? <p>{copy.noGalleries}</p> : (
 			<div class="gallery-index-grid">
 				{visibleGalleries.map((gallery) => (
 					<GalleryCard

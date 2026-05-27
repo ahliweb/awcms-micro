@@ -1,18 +1,21 @@
 ---
+import { getGalleryCopy } from "../utils/gallery-copy";
+
 interface Props {
 	activeType?: string;
 }
 
 const { activeType = "all" } = Astro.props;
+const copy = getGalleryCopy(Astro.currentLocale || "en");
 const filters = [
-	{ label: "All", value: "all", href: "/gallery" },
-	{ label: "Photo", value: "photo", href: "/gallery?type=photo" },
-	{ label: "Video", value: "video", href: "/gallery?type=video" },
-	{ label: "Mixed", value: "mixed", href: "/gallery?type=mixed" },
+	{ label: copy.all, value: "all", href: "/gallery" },
+	{ label: copy.photo, value: "photo", href: "/gallery?type=photo" },
+	{ label: copy.video, value: "video", href: "/gallery?type=video" },
+	{ label: copy.mixed, value: "mixed", href: "/gallery?type=mixed" },
 ];
 ---
 
-<nav class="gallery-filters" aria-label="Gallery filters">
+<nav class="gallery-filters" aria-label={copy.filtersLabel}>
 	{filters.map((filter) => (
 		<a href={filter.href} aria-current={filter.value === activeType ? "page" : undefined}>{filter.label}</a>
 	))}

@@ -224,6 +224,6 @@ describe("AWCMS-Micro navigation kit", () => {
 			},
 		});
 
-		expect(pages).toEqual([{ path: "/overview", label: "Overview", icon: undefined }]);
+		expect(pages).toEqual([{ path: "/overview", label: "Overview", labelKey: "nav.overview", icon: undefined }]);
 	});
 });

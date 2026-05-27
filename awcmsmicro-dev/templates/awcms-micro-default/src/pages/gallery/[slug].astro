@@ -65,7 +65,7 @@ const seo = getSeoMeta(gallery, {
 		{gallery.data.description && <p {...gallery.edit.description}>{gallery.data.description}</p>}
 		<div class="gallery-detail-meta">
 			{gallery.data.location && <span>{gallery.data.location}</span>}
-			{eventDate && <span>{new Date(eventDate).toLocaleDateString("en-US", { dateStyle: "long" })}</span>}
+			{eventDate && <span>{new Date(eventDate).toLocaleDateString(currentLocale, { dateStyle: "long" })}</span>}
 			<span>{layout}</span>
 		</div>
 		<GalleryLightbox items={items} />

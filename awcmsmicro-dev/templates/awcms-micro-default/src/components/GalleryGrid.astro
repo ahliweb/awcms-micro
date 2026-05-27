@@ -1,5 +1,6 @@
 ---
 import GalleryVideo from "./GalleryVideo.astro";
+import { getGalleryCopy } from "../utils/gallery-copy";
 
 interface GalleryItem {
 	type?: string;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const { items, layout = "grid" } = Astro.props;
+const copy = getGalleryCopy(Astro.currentLocale || "en");
 ---
 
 <div class:list={["gallery-grid", `gallery-grid--${layout}`]}>
@@ -25,7 +27,7 @@ const { items, layout = "grid" } = Astro.props;
 				<GalleryVideo src={item.src} caption={item.caption} poster={item.poster} mimeType={item.mimeType} />
 			) : (
 				<figure>
-					<a href={item.src}><img src={item.src} alt={item.alt || item.caption || "Gallery image"} loading="lazy" /></a>
+					<a href={item.src}><img src={item.src} alt={item.alt || item.caption || copy.imageAlt} loading="lazy" /></a>
 					{item.caption && <figcaption>{item.caption}</figcaption>}
 				</figure>
 			)}

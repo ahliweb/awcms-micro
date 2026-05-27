@@ -1,4 +1,6 @@
 ---
+import { getGalleryCopy } from "../utils/gallery-copy";
+
 interface GalleryItem {
 	type?: string;
 	src?: string;
@@ -11,13 +13,14 @@ interface Props {
 }
 
 const { items } = Astro.props;
+const copy = getGalleryCopy(Astro.currentLocale || "en");
 ---
 
-<div class="gallery-lightbox" aria-label="Gallery media shortcuts">
+<div class="gallery-lightbox" aria-label={copy.lightboxLabel}>
 	{items.map((item, index) => item.src && (
 		<a href={item.src} class="gallery-lightbox__link">
 			<span>{index + 1}</span>
-			{item.caption || item.alt || item.type || "Media item"}
+			{item.caption || item.alt || item.type || copy.mediaItem}
 		</a>
 	))}
 </div>

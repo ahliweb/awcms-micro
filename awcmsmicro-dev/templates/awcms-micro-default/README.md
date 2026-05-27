@@ -35,7 +35,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - `src/components/SiteFooter.astro`
 - `src/pages/index.astro`
 - `src/pages/aggregate.astro`
-- `src/pages/about.astro`
+- `src/pages/[slug].astro`
 - `docs/TEMPLATE_NOTES.md`
 
 ## Manual Usage
@@ -54,7 +54,7 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 
 ## Standalone Notes
 
-- `package.json` uses published dependency versions instead of monorepo-only `catalog:` or `workspace:*` specifiers.
+- `package.json` currently uses monorepo-local `catalog:` and `workspace:*` specifiers, so dependency ranges must be normalized before using this template outside this repository.
 - The template still expects the standard EmDash runtime flow and Astro server output.
 - The included `seed/seed.json` is intentionally minimal so the folder can bootstrap cleanly outside this repository.
 - Review `astro.config.mjs` before production use: `siteUrl`, SQLite database location, and local uploads storage are example defaults.

@@ -6,6 +6,7 @@ import {
 	validateGalleryContent,
 	validateGalleryItem,
 } from "./validation.js";
+import { translateGallery, type GalleryTranslationKey } from "./i18n.js";
 
 function settingsFromOptions(options: { maxImageBytes?: number; maxVideoBytes?: number; cloudflareImages?: boolean; cloudflareStream?: boolean; }) {
 	return sanitizeGallerySettings({
@@ -35,22 +36,23 @@ async function writeAudit(pluginCtx: PluginContext, kind: string, summary: strin
 	});
 }
 
-function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, message?: string) {
+function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, locale: string | undefined, message?: string) {
+	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
 	return {
 		blocks: [
-			{ type: "header", text: "AWCMS-Micro Gallery" },
+			{ type: "header", text: t("gallery.title") },
 			{
 				type: "section",
-				text: "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core.",
+				text: t("gallery.desc"),
 			},
-			message ? { type: "banner", tone: "success", text: message } : { type: "divider" },
+			message ? { type: "banner", tone: "success", text: t("gallery.saved") } : { type: "divider" },
 			{
 				type: "stats",
 				items: [
-					{ label: "Images", value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
-					{ label: "Videos", value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
-					{ label: "Cloudflare Images", value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },
-					{ label: "Cloudflare Stream", value: settings.cloudflareStreamEnabled ? "Enabled" : "Optional" },
+					{ label: t("gallery.images"), value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
+					{ label: t("gallery.videos"), value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
+					{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
+					{ label: t("gallery.cf_stream"), value: settings.cloudflareStreamEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
 				],
 			},
 			{
@@ -60,31 +62,31 @@ function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, 
 					{
 						type: "number_input",
 						action_id: "maxImageBytes",
-						label: "Maximum image bytes",
+						label: t("gallery.max_img"),
 						initial_value: settings.maxImageBytes,
 						min: 1,
 					},
 					{
 						type: "number_input",
 						action_id: "maxVideoBytes",
-						label: "Maximum video bytes",
+						label: t("gallery.max_vid"),
 						initial_value: settings.maxVideoBytes,
 						min: 1,
 					},
 					{
 						type: "toggle",
 						action_id: "cloudflareImagesEnabled",
-						label: "Cloudflare Images enabled",
+						label: t("gallery.cf_images_enable"),
 						initial_value: settings.cloudflareImagesEnabled,
 					},
 					{
 						type: "toggle",
 						action_id: "cloudflareStreamEnabled",
-						label: "Cloudflare Stream enabled",
+						label: t("gallery.cf_stream_enable"),
 						initial_value: settings.cloudflareStreamEnabled,
 					},
 				],
-				submit: { label: "Save settings", action_id: "save_settings" },
+				submit: { label: t("gallery.save"), action_id: "save_settings" },
 			},
 		],
 	};
@@ -108,19 +110,20 @@ const sandboxPlugin: SandboxedPlugin = {
 			},
 		},
 	},
-	routes: {
-		admin: {
-			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
-				const interaction = routeCtx.input as { type?: string; page?: string; action_id?: string; values?: Record<string, unknown> };
-				if (interaction.type === "form_submit" && interaction.action_id === "save_settings") {
-					const settings = sanitizeGallerySettings(interaction.values ?? {});
-					await pluginCtx.kv.set("settings", settings);
-					await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings", { settings });
-					return buildAdminBlocks(settings, "Gallery settings saved.");
-				}
-				return buildAdminBlocks(await readSettings(pluginCtx, {}));
+		routes: {
+			admin: {
+				handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
+					const interaction = routeCtx.input as { type?: string; page?: string; action_id?: string; values?: Record<string, unknown> };
+					const locale = routeCtx.request?.headers?.["accept-language"];
+					if (interaction.type === "form_submit" && interaction.action_id === "save_settings") {
+						const settings = sanitizeGallerySettings(interaction.values ?? {});
+						await pluginCtx.kv.set("settings", settings);
+						await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings", { settings });
+						return buildAdminBlocks(settings, locale, "Gallery settings saved.");
+					}
+					return buildAdminBlocks(await readSettings(pluginCtx, {}), locale);
+				},
 			},
-		},
 		settings: {
 			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
 				if (routeCtx.request.method === "POST") {

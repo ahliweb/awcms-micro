@@ -34,6 +34,12 @@ describe("awcms micro gallery plugin", () => {
 		expect(descriptor.entrypoint).toBe("@awcms-micro/plugin-gallery/sandbox");
 		expect(descriptor.capabilities).toContain("media:write");
 		expect(descriptor.adminPages?.[0]?.path).toBe("/");
+		expect((descriptor as any).navigation?.groups?.[0]).toMatchObject({
+			id: "gallery-group",
+			labelKey: "gallery.group",
+			sidebarPlacement: "after-dashboard",
+			sidebarPriority: 10,
+		});
 	});
 
 	it("exports a sandbox plugin object", () => {
@@ -115,6 +121,50 @@ describe("awcms micro gallery plugin", () => {
 				expect.objectContaining({
 					type: "stats",
 					items: expect.any(Array),
+				}),
+			]),
+		});
+	});
+
+	it("localizes the standard admin blocks for Indonesian requests", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext();
+		const handler = plugin.routes?.admin?.handler;
+
+		const response = await handler?.({
+			...ctx,
+			input: {},
+			request: { headers: { "accept-language": "id-ID,id;q=0.9" } },
+		} as never);
+
+		expect(response).toMatchObject({
+			blocks: expect.arrayContaining([
+				expect.objectContaining({ type: "header", text: "Galeri AWCMS-Micro" }),
+				expect.objectContaining({
+					type: "stats",
+					items: expect.arrayContaining([
+						expect.objectContaining({ label: "Gambar Cloudflare", value: "Opsional" }),
+					]),
+				}),
+			]),
+		});
+	});
+
+	it("localizes the sandbox admin blocks for Indonesian requests", async () => {
+		const ctx = createMockContext();
+		const handler = (sandboxPlugin.routes?.admin as { handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown> } | undefined)?.handler;
+
+		const response = await handler?.(
+			{ input: {}, request: { headers: { "accept-language": "id-ID,id;q=0.9" } } } as never,
+			ctx as never,
+		);
+
+		expect(response).toMatchObject({
+			blocks: expect.arrayContaining([
+				expect.objectContaining({ type: "header", text: "Galeri AWCMS-Micro" }),
+				expect.objectContaining({
+					type: "form",
+					submit: expect.objectContaining({ label: "Simpan pengaturan" }),
 				}),
 			]),
 		});

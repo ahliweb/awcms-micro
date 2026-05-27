@@ -9,6 +9,7 @@ import {
 	validateGalleryContent,
 	validateGalleryItem,
 } from "./validation.js";
+import { AWCMS_GALLERY_TRANSLATIONS, translateGallery, type GalleryTranslationKey } from "./i18n.js";
 
 export interface AwcmsMicroGalleryPluginOptions {
 	maxImageBytes?: number;
@@ -26,43 +27,29 @@ export const AWCMS_GALLERY_CAPABILITIES = [
 	"media:write",
 ] as const;
 
-export const AWCMS_GALLERY_TRANSLATIONS = {
-	en: {
-		"gallery.title": "AWCMS-Micro Gallery",
-		"gallery.desc": "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core.",
-		"gallery.saved": "Gallery settings saved.",
-		"gallery.images": "Images",
-		"gallery.videos": "Videos",
-		"gallery.cf_images": "Cloudflare Images",
-		"gallery.cf_stream": "Cloudflare Stream",
-		"gallery.max_img": "Maximum image bytes",
-		"gallery.max_vid": "Maximum video bytes",
-		"gallery.cf_images_enable": "Cloudflare Images enabled",
-		"gallery.cf_stream_enable": "Cloudflare Stream enabled",
-		"gallery.save": "Save settings",
-		"gallery.label": "Gallery",
-	},
-	id: {
-		"gallery.title": "Galeri AWCMS-Micro",
-		"gallery.desc": "Kelola validasi galeri, bendera media Cloudflare, dan kontrol galeri siap-audit tanpa mengubah core EmDash.",
-		"gallery.saved": "Pengaturan galeri disimpan.",
-		"gallery.images": "Gambar",
-		"gallery.videos": "Video",
-		"gallery.cf_images": "Gambar Cloudflare",
-		"gallery.cf_stream": "Stream Cloudflare",
-		"gallery.max_img": "Ukuran gambar maksimum (byte)",
-		"gallery.max_vid": "Ukuran video maksimum (byte)",
-		"gallery.cf_images_enable": "Gambar Cloudflare diaktifkan",
-		"gallery.cf_stream_enable": "Stream Cloudflare diaktifkan",
-		"gallery.save": "Simpan pengaturan",
-		"gallery.label": "Galeri",
-	}
-};
-
-export function translate(key: keyof typeof AWCMS_GALLERY_TRANSLATIONS.en, locale: string): string {
-	const lang = locale && locale.startsWith("id") ? "id" : "en";
-	return AWCMS_GALLERY_TRANSLATIONS[lang][key];
-}
+export const AWCMS_GALLERY_NAVIGATION = {
+	groups: [
+		{
+			id: "gallery-group",
+			labelKey: "gallery.group",
+			fallbackLabel: "Gallery",
+			icon: "image",
+			sortOrder: 10,
+			sidebarPlacement: "after-dashboard",
+			sidebarPriority: 10,
+			items: [
+				{
+					id: "gallery-home",
+					labelKey: "gallery.label",
+					fallbackLabel: "Gallery",
+					path: "/",
+					icon: "image",
+					sortOrder: 10,
+				},
+			],
+		},
+	],
+} as const;
 
 export const AWCMS_GALLERY_ADMIN_PAGES = [{ path: "/", label: "Gallery", labelKey: "gallery.label", icon: "image" }];
 
@@ -70,25 +57,35 @@ export const AWCMS_GALLERY_SETTINGS_SCHEMA = {
 	maxImageBytes: {
 		type: "number" as const,
 		label: "Maximum image bytes",
+		labelKey: "gallery.max_img",
 		description: "Images larger than this are rejected by gallery validation routes and hooks.",
+		descriptionKey: "gallery.max_img_desc",
 		default: DEFAULT_MAX_IMAGE_BYTES,
 		min: 1,
 	},
 	maxVideoBytes: {
 		type: "number" as const,
 		label: "Maximum video bytes",
+		labelKey: "gallery.max_vid",
 		description: "Videos larger than this are rejected by gallery validation routes and hooks.",
+		descriptionKey: "gallery.max_vid_desc",
 		default: DEFAULT_MAX_VIDEO_BYTES,
 		min: 1,
 	},
 	cloudflareImagesEnabled: {
 		type: "boolean" as const,
 		label: "Cloudflare Images enabled",
+		labelKey: "gallery.cf_images_enable",
+		description: "Enable Cloudflare Images support for gallery media workflows.",
+		descriptionKey: "gallery.cf_images_enable_desc",
 		default: false,
 	},
 	cloudflareStreamEnabled: {
 		type: "boolean" as const,
 		label: "Cloudflare Stream enabled",
+		labelKey: "gallery.cf_stream_enable",
+		description: "Enable Cloudflare Stream support for gallery media workflows.",
+		descriptionKey: "gallery.cf_stream_enable_desc",
 		default: false,
 	},
 };
@@ -108,7 +105,8 @@ export function awcmsMicroGalleryPlugin(
 		storage: {
 			auditEvents: { indexes: ["timestamp", "kind", "contentId"] },
 		},
-		// @ts-expect-error EmDash PluginDescriptor types might not declare i18n directly at the root, but the runtime reads it.
+		// @ts-expect-error Downstream navigation metadata is used by AWCMS-Micro admin integrations even though current EmDash descriptor types do not declare it.
+		navigation: AWCMS_GALLERY_NAVIGATION,
 		i18n: {
 			defaultLocale: "en",
 			supportedLocales: ["en", "id"],
@@ -144,7 +142,7 @@ async function writeAudit(ctx: any, kind: string, summary: string, metadata: Rec
 }
 
 function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, locale: string, message?: string) {
-	const t = (key: keyof typeof AWCMS_GALLERY_TRANSLATIONS.en) => translate(key, locale);
+	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
 	return {
 		blocks: [
 			{ type: "header", text: t("gallery.title") },
@@ -158,8 +156,8 @@ function buildAdminBlocks(settings: ReturnType<typeof sanitizeGallerySettings>, 
 				items: [
 					{ label: t("gallery.images"), value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
 					{ label: t("gallery.videos"), value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
-					{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? "Enabled" : "Optional" },
-					{ label: t("gallery.cf_stream"), value: settings.cloudflareStreamEnabled ? "Enabled" : "Optional" },
+					{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
+					{ label: t("gallery.cf_stream"), value: settings.cloudflareStreamEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
 				],
 			},
 			{

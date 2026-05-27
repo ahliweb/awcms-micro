@@ -12,7 +12,7 @@ This runbook applies to AWCMS-Micro example deployments built from plugin and te
 - Storage domain: `awcms-micro-s3.ahlikoding.com`
 - D1 database name: `awcms-micro-d1`
 
-Use committed placeholders only. Keep real identifiers and credentials outside git.
+Do not commit tokens, secrets, or private credentials. This repository's reference Cloudflare template may commit non-secret resource identifiers such as D1 and KV binding IDs when they are part of the checked-in example deployment shape.
 
 ## Supported Deployment Surface
 
@@ -44,10 +44,10 @@ Use committed placeholders only. Keep real identifiers and credentials outside g
 
 | Binding / value | Purpose | Source of truth | Notes |
 | --- | --- | --- | --- |
-| `D1` / database binding | Primary application database | template `wrangler.jsonc` | Use placeholder IDs in git |
+| `D1` / database binding | Primary application database | template `wrangler.jsonc` | Keep the committed ID aligned with the intended example deployment target |
 | `MEDIA` | Media object storage | template `wrangler.jsonc` | Backed by R2 |
 | `LOADER` | Worker Loader / plugin sandbox support | template `wrangler.jsonc` | Keep prepared even if no sandboxed plugin is active yet |
-| session namespace or equivalent | Session storage | template config / deployment env | Keep final ID outside committed docs when sensitive |
+| session namespace or equivalent | Session storage | template config / deployment env | Keep the committed ID aligned with the intended example deployment target |
 | public app hostname | User-facing site domain | DNS + Worker route config | Example: `awcms-micro.ahlikoding.com` |
 | storage hostname | Public storage edge domain | DNS + R2/public edge config | Example: `awcms-micro-s3.ahlikoding.com` |
 
@@ -66,7 +66,7 @@ Suggested categories:
 ## Provisioning Sequence
 
 1. Validate the local workspace with `bash scripts/validate-awcmsmicro-dev.sh`.
-2. Open `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/` and review `wrangler.jsonc` placeholders.
+2. Open `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/` and review the committed bindings in `wrangler.jsonc`.
 3. Create the D1 database if needed.
 4. Create the R2 bucket if needed.
 5. Inject real binding identifiers locally or in CI.
@@ -83,8 +83,8 @@ Before any production deploy, confirm all of the following:
 - `awcmsmicro-dev` is synced to the intended upstream EmDash snapshot
 - the selected plugins and templates are within approved boundaries
 - no secrets are staged in tracked files
-- the template still points at placeholder-safe committed values
-- real IDs and secrets are injected only through local or CI configuration
+- the template still points at the intended committed example bindings and domains
+- secrets and private credentials are injected only through local or CI configuration
 - the D1 schema is compatible with the target release
 - the R2 bucket and public media access model are confirmed
 
@@ -133,7 +133,7 @@ For each failed deployment or rollback, capture:
 
 ## Security Rule
 
-Never commit live Cloudflare tokens, account IDs, zone IDs, database IDs, or private credentials to repository documentation. Use placeholders in committed examples.
+Never commit live Cloudflare tokens, secret values, or private credentials to repository documentation. Treat committed non-secret binding IDs as operational identifiers and review them before deploy.
 
 ## Deploy Token
 

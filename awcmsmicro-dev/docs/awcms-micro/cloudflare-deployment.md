@@ -70,8 +70,8 @@ bash templates/awcms-micro-default-cloudflare/scripts/validate-cloudflare-env.sh
 The script checks:
 
 - required environment variables are present
-- placeholder values have been replaced
-- `wrangler.jsonc` still contains the expected AWCMS-Micro bindings and domain route
+- environment variables do not still use placeholder values
+- `wrangler.jsonc` still contains the expected AWCMS-Micro bindings, route, and non-placeholder resource IDs
 
 ## Template Validation
 
@@ -124,10 +124,11 @@ Store these in GitHub Actions secrets or environment-protected deployment variab
 
 Do not commit these values into:
 
-- `wrangler.jsonc`
 - `.env.example`
 - `.dev.vars.example`
 - repository docs
+
+The checked-in `wrangler.jsonc` may still contain non-secret operational binding IDs for the reference deployment target. Review them before deploy rather than treating them as placeholders.
 
 ## Smoke Tests
 

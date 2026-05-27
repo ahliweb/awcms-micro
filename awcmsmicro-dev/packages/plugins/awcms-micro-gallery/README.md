@@ -24,7 +24,7 @@ The admin page is rendered through EmDash Block Kit at the plugin's `Gallery` ad
 
 - package name: `@awcms-micro/plugin-gallery`
 - recommended local repository or folder example: `awcms-micro-plugin-gallery`
-- when used in a local workspace, prefer a folder such as `packages/awcms-micro-plugin-gallery/`
+- when used in this workspace, the approved downstream boundary is `packages/plugins/awcms-micro-gallery/`
 
 ## Boundary Rule
 

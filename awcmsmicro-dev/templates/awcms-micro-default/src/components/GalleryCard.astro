@@ -1,4 +1,6 @@
 ---
+import { getGalleryCopy } from "../utils/gallery-copy";
+
 interface Props {
 	href: string;
 	title: string;
@@ -14,22 +16,24 @@ const { href, title, description, cover, type, location, date, featured } = Astr
 const coverSrc = typeof cover === "string" ? cover : cover?.src;
 const coverAlt = typeof cover === "string" ? title : cover?.alt || title;
 const eventDate = date ? new Date(date) : null;
+const currentLocale = Astro.currentLocale || "en";
+const copy = getGalleryCopy(currentLocale);
 ---
 
 <article class="gallery-card">
 	<a href={href} class="gallery-card__media" data-astro-prefetch="hover">
-		{coverSrc ? <img src={coverSrc} alt={coverAlt} loading="lazy" /> : <div class="gallery-card__placeholder">Gallery</div>}
+		{coverSrc ? <img src={coverSrc} alt={coverAlt} loading="lazy" /> : <div class="gallery-card__placeholder">{copy.placeholder}</div>}
 	</a>
 	<div class="gallery-card__body">
 		<div class="gallery-card__meta">
 			{type && <span>{type}</span>}
-			{featured && <span>Featured</span>}
+			{featured && <span>{copy.featured}</span>}
 		</div>
 		<h2><a href={href} data-astro-prefetch="hover">{title}</a></h2>
 		{description && <p>{description}</p>}
 		{(location || eventDate) && (
 			<p class="gallery-card__details">
-				{location}{location && eventDate ? " · " : ""}{eventDate?.toLocaleDateString("en-US", { dateStyle: "medium" })}
+				{location}{location && eventDate ? " · " : ""}{eventDate?.toLocaleDateString(currentLocale, { dateStyle: "medium" })}
 			</p>
 		)}
 	</div>

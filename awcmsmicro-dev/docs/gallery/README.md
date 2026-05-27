@@ -70,5 +70,5 @@ To roll back the gallery feature, remove the gallery plugin from the template `a
 ## Naming Guidance
 
 - package name: `@awcms-micro/plugin-gallery`
-- recommended local folder example: `packages/awcms-micro-plugin-gallery/`
+- approved workspace folder: `packages/plugins/awcms-micro-gallery/`
 - template integration should keep gallery rendering template-owned and gallery management plugin-owned

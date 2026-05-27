@@ -1,5 +1,6 @@
 ---
 import GalleryVideo from "./GalleryVideo.astro";
+import { getGalleryCopy } from "../utils/gallery-copy";
 
 interface GalleryItem {
 	type?: string;
@@ -15,14 +16,15 @@ interface Props {
 }
 
 const { items } = Astro.props;
+const copy = getGalleryCopy(Astro.currentLocale || "en");
 ---
 
-<div class="gallery-carousel" aria-label="Gallery carousel">
+<div class="gallery-carousel" aria-label={copy.carouselLabel}>
 	{items.map((item) => item.src && (
 		<div class="gallery-carousel__slide">
 			{item.type === "video" ? <GalleryVideo src={item.src} caption={item.caption} poster={item.poster} mimeType={item.mimeType} /> : (
 				<figure>
-					<img src={item.src} alt={item.alt || item.caption || "Gallery image"} loading="lazy" />
+					<img src={item.src} alt={item.alt || item.caption || copy.imageAlt} loading="lazy" />
 					{item.caption && <figcaption>{item.caption}</figcaption>}
 				</figure>
 			)}
