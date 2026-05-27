@@ -54,7 +54,7 @@ Use it as the shortest entry point when you need to understand why the repositor
 
 - Decision: when AWCMS-Micro public performance hotspots remain in upstream-owned EmDash core paths after downstream template cleanup, document and escalate them upstream instead of patching core locally
 - Why: preserve the plugin-and-template-only downstream model and keep performance fixes reviewable in the canonical EmDash codebase
-- See: `docs/upstream-sync/UPSTREAM_ISSUE_PUBLIC_RENDER_QUERY_BOTTLENECK.md`, `docs/awcms-micro-implementation-boundaries.md`
+- See: `docs/upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`, `docs/awcms-micro-implementation-boundaries.md`
 
 ## How To Extend
 
