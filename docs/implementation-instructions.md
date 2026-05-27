@@ -6,7 +6,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 
 ## Repository Identity
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories. It should serve as an example repository that fully adopts EmDash 100% and includes only example plugins that follow the AWCMS-Micro standard, without modifying any part of EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories. It should serve as an example repository that fully adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying any part of EmDash core.
 
 ## Practical Interpretation In This Parent Workspace
 
@@ -14,6 +14,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 - Use `awcmsmicro-dev/` as the actual AWCMS-Micro working tree.
 - Keep the root repository focused on synchronization, documentation, and maintenance workflow.
 - Keep AWCMS-Micro example work isolated in the approved protected paths inside `awcmsmicro-dev/`.
+- Implement new AWCMS-Micro product behavior through plugins and templates, with docs, demos, and E2E coverage as supporting layers.
 
 ## Execution Strategy
 
@@ -32,6 +33,7 @@ When choosing where a change belongs:
 
 - if it represents upstream EmDash, it belongs in `emdash-latest/`
 - if it represents AWCMS-Micro example implementation work, it belongs in `awcmsmicro-dev/`
+- if it is new product behavior, prefer `awcmsmicro-dev/packages/plugins/` or `awcmsmicro-dev/templates/` rather than a new shared core layer
 - if it changes repository governance or operator workflow, it belongs in the root docs or `scripts/`
 
 ## Required References
@@ -46,6 +48,7 @@ When choosing where a change belongs:
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.
+- `awcmsmicro-dev/packages/awcms/` is a transitional preserved path only and should not receive new feature work.
 - Preserved workflow work belongs in `awcmsmicro-dev/.github/workflows/`.
 - Preserved Dependabot config belongs in `awcmsmicro-dev/.github/dependabot.yml`.
 

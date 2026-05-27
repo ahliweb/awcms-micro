@@ -20,7 +20,18 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `e2e/awcms-micro`
 - `.github/workflows`
 - `.github/dependabot.yml`
+
+These are the active product-development boundaries:
+
+- plugin boundaries under `packages/plugins/`
+- template boundaries under `templates/`
+- supporting docs, demos, and E2E boundaries listed above
+
+## Transitional Preserved Path
+
 - `packages/awcms`
+
+`packages/awcms` remains in the preservation allowlist so existing work is not deleted during rebuilds. It is a transitional boundary, not an approved destination for new AWCMS-Micro feature work.
 
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 
@@ -53,6 +64,7 @@ That means:
 - upstream EmDash can continue to refresh `awcmsmicro-dev/`
 - AWCMS-Micro example work can survive rebuilds
 - EmDash core does not need to be modified to host AWCMS-Micro additions
+- new AWCMS-Micro behavior can stay in plugin and template surfaces instead of growing a competing core layer
 
 ## Adding Future Work Safely
 
@@ -65,6 +77,8 @@ When adding a new AWCMS-Micro plugin, template, demo, docs area, or test boundar
 5. run `bash scripts/validate-awcmsmicro-boundaries.sh`
 
 Do not preserve upstream overrides by adding random paths to the allowlist.
+
+Do not create new shared AWCMS-Micro product code outside plugin or template boundaries unless the repository rules are intentionally changed first.
 
 ## Rollback Notes
 

@@ -17,6 +17,7 @@ REQUIRED_PATHS=(
 	"docs/awcms-micro"
 	"docs/gallery"
 	"e2e/awcms-micro"
+	"packages/awcms"
 	".github/workflows"
 	".github/dependabot.yml"
 )

@@ -9,6 +9,14 @@ TARGET_DIR="$ROOT_DIR/awcmsmicro-dev"
 PROTECTED_PATHS_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
 BACKUP_DIR=""
 RSYNC_PROTECTED_ARGS=()
+TRANSIENT_SUBPATH_EXCLUDES=(
+	"--exclude=node_modules"
+	"--exclude=dist"
+	"--exclude=.astro"
+	"--exclude=.wrangler"
+	"--exclude=.vite"
+	"--exclude=.mf"
+)
 
 log() {
 	printf '[awcmsmicro-dev sync] %s\n' "$1"
@@ -32,7 +40,7 @@ backup_protected_paths() {
 		if [[ -e "$TARGET_DIR/$relative_path" ]]; then
 			log "Backing up $relative_path"
 			mkdir -p "$BACKUP_DIR/$(dirname "$relative_path")"
-			rsync -a "$TARGET_DIR/$relative_path" "$BACKUP_DIR/$(dirname "$relative_path")/"
+			rsync -a "${TRANSIENT_SUBPATH_EXCLUDES[@]}" "$TARGET_DIR/$relative_path" "$BACKUP_DIR/$(dirname "$relative_path")/"
 		else
 			log "No existing custom path at $relative_path; skipping backup"
 		fi
@@ -54,7 +62,7 @@ restore_protected_paths() {
 		if [[ -e "$BACKUP_DIR/$relative_path" ]]; then
 			log "Restoring $relative_path"
 			mkdir -p "$TARGET_DIR/$(dirname "$relative_path")"
-			rsync -a "$BACKUP_DIR/$relative_path" "$TARGET_DIR/$(dirname "$relative_path")/"
+			rsync -a "${TRANSIENT_SUBPATH_EXCLUDES[@]}" "$BACKUP_DIR/$relative_path" "$TARGET_DIR/$(dirname "$relative_path")/"
 		fi
 	done < "$PROTECTED_PATHS_FILE"
 }

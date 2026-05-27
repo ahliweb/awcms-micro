@@ -29,6 +29,7 @@ Rules:
 
 - Rebuild it from `emdash-latest/` when upstream synchronization is needed.
 - Apply AWCMS-Micro-specific example implementation work here.
+- Keep new product behavior in plugin and template boundaries rather than introducing a new shared core fork layer.
 - Keep AWCMS-Micro-owned additions inside the approved protected paths documented in `docs/awcms-micro-implementation-boundaries.md`.
 - Preserve the goal that AWCMS-Micro remains a full EmDash adoption, not a divergent fork of EmDash core.
 
@@ -65,10 +66,19 @@ Expected root scripts:
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Transitional preserved path pending migration into plugin or template boundaries: `awcmsmicro-dev/packages/awcms/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
+
+New AWCMS-Micro product development should be implemented as:
+
+- plugins under `awcmsmicro-dev/packages/plugins/`
+- templates under `awcmsmicro-dev/templates/`
+- optional supporting docs, demos, and E2E coverage inside the corresponding approved boundaries
+
+`awcmsmicro-dev/packages/awcms/` is preserved only as a transitional boundary so existing work is not deleted during rebuilds. Do not expand it with new feature work.
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 

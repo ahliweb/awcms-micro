@@ -9,4 +9,5 @@ docs/gallery
 e2e/awcms-micro
 .github/workflows
 .github/dependabot.yml
+# Transitional preserved path only; do not add new feature work here.
 packages/awcms

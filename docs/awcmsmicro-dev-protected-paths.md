@@ -20,6 +20,7 @@ These paths are relative to `awcmsmicro-dev/`:
 - `e2e/awcms-micro`
 - `.github/workflows`
 - `.github/dependabot.yml`
+- `packages/awcms` (transitional preserved path; not for new feature work)
 
 ## How Rebuild Preservation Works
 
@@ -36,6 +37,7 @@ This keeps `emdash-latest/` disposable and upstream-faithful while preserving ex
 ## Rules
 
 - Add new protected paths only when they are AWCMS-Micro-owned implementation areas.
+- New product behavior belongs in plugin or template boundaries, not a new shared core layer.
 - Do not use this list to preserve arbitrary upstream overrides.
 - Keep the protected-path list synchronized with the root workflow docs when it changes.
 - Do not store secrets or Cloudflare credentials anywhere under these protected paths.

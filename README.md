@@ -6,7 +6,9 @@ This repository is the parent maintenance workspace for keeping AWCMS-Micro alig
 
 Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that adopts EmDash 100% and includes only example plugins that follow the AWCMS-Micro standard, without modifying EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying EmDash core.
+
+AWCMS-Micro-specific product development in this maintenance workspace is limited to plugin and template boundaries. Root scripts and root documentation may change to support that workflow, but new product behavior should not be introduced through EmDash core forks or new shared core layers.
 
 ## Root Structure
 
@@ -42,6 +44,7 @@ Exception:
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/repository-assessment.md`
 - `docs/upstream-sync/README.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
@@ -81,6 +84,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
+- Transitional preserved path pending retirement: `awcmsmicro-dev/packages/awcms/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 - Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
@@ -94,7 +98,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 1. Refresh `emdash-latest/` from upstream EmDash.
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 3. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
-4. Implement AWCMS-Micro-specific work only in `awcmsmicro-dev/`.
+4. Implement AWCMS-Micro-specific product work only in approved plugin and template boundaries inside `awcmsmicro-dev/`.
 5. Update root documentation when structure or process changes.
 
 During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`.

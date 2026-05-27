@@ -14,7 +14,8 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 3. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 4. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
 5. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
-6. Update root documentation if process, structure, or rules changed.
+6. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
+7. Update root documentation if process, structure, or rules changed.
 
 ## Refresh `emdash-latest/`
 
@@ -82,6 +83,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Treat `emdash-latest/` as disposable and reproducible from upstream.
 - Treat `awcmsmicro-dev/` as the only place for AWCMS-Micro implementation work inside this parent repository.
 - Keep AWCMS-Micro-owned divergence limited to the approved protected paths rather than editing upstream core locations.
+- Keep new product behavior in plugins and templates instead of introducing a parallel shared core implementation layer.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
 
