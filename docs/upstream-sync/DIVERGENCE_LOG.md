@@ -2,6 +2,10 @@
 
 This log records intentional AWCMS-Micro decisions that diverge from a plain upstream EmDash checkout.
 
+## Current Position
+
+The active divergences in this repository are expected to remain isolated to plugin, template, documentation, demo, validation, and governance surfaces rather than upstream EmDash core locations.
+
 ## Rules
 
 - Do not log upstream EmDash changes here.

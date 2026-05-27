@@ -30,7 +30,7 @@ Synced to EmDash `62f89fec`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 | Check | Status | Notes |
 | --- | --- | --- |
 | Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` |
-| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; gallery paths preserved |
+| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; approved AWCMS-Micro boundaries preserved |
 | Validation script execution | Passed | See `LAST_VALIDATION.md` |
 
 ## Notes

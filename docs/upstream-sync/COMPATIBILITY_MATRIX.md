@@ -2,6 +2,10 @@
 
 This matrix compares upstream EmDash features with AWCMS-Micro usage decisions.
 
+## Current Position
+
+AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream behavior in isolated plugin, template, documentation, demo, and validation surfaces.
+
 | EmDash upstream feature | AWCMS-Micro usage | Compatibility status | Risk | Action |
 | --- | --- | --- | --- | --- |
 | Core content modeling and runtime | Adopt directly through upstream sync | Compatible | Low | adopt |
