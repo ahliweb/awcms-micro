@@ -10,6 +10,11 @@ const packageRoots = [
 	path.join(rootDir, "templates"),
 ];
 
+const changesetFrontmatterRe = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/;
+const changesetLineRe = /^"?(@awcms-micro\/[^"]+)"?:\s*(patch|minor|major)$/;
+const semverRe = /^(\d+)\.(\d+)\.(\d+)$/;
+const newlineRe = /\r?\n/;
+
 const bumpOrder = { patch: 0, minor: 1, major: 2 };
 
 function runPnpm(args) {
@@ -40,7 +45,7 @@ function discoverAwcmsPackages() {
 
 function parseChangesetFile(filePath, knownPackages) {
 	const raw = readFileSync(filePath, "utf8");
-	const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+	const match = raw.match(changesetFrontmatterRe);
 	if (!match) {
 		throw new Error(`Invalid AWCMS changeset frontmatter in ${path.basename(filePath)}`);
 	}
@@ -50,8 +55,8 @@ function parseChangesetFile(filePath, knownPackages) {
 		throw new Error(`Missing changeset body in ${path.basename(filePath)}`);
 	}
 	const releases = [];
-	for (const line of header.split(/\r?\n/).map((item) => item.trim()).filter(Boolean)) {
-		const releaseMatch = line.match(/^"?(@awcms-micro\/[^"]+)"?:\s*(patch|minor|major)$/);
+	for (const line of header.split(newlineRe).map((item) => item.trim()).filter(Boolean)) {
+		const releaseMatch = line.match(changesetLineRe);
 		if (!releaseMatch) {
 			throw new Error(`Invalid changeset line ${JSON.stringify(line)} in ${path.basename(filePath)}`);
 		}
@@ -71,12 +76,12 @@ function readPendingChangesets(knownPackages) {
 	if (!existsSync(changesetDir)) return [];
 	return readdirSync(changesetDir)
 		.filter((file) => file.endsWith(".md") && file !== "README.md")
-		.sort()
+		.toSorted()
 		.map((file) => parseChangesetFile(path.join(changesetDir, file), knownPackages));
 }
 
 function bumpVersion(version, bump) {
-	const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+	const match = version.match(semverRe);
 	if (!match) throw new Error(`Unsupported semver version: ${version}`);
 	const [, major, minor, patch] = match;
 	let nextMajor = Number(major);
@@ -97,7 +102,7 @@ function bumpVersion(version, bump) {
 
 function normalizeBody(body) {
 	return body
-		.split(/\r?\n/)
+		.split(newlineRe)
 		.map((line) => line.trim())
 		.filter(Boolean)
 		.join(" ");

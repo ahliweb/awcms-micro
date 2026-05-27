@@ -10,6 +10,11 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 
 AWCMS-Micro-specific product development in this maintenance workspace is limited to plugin and template boundaries. Root scripts and root documentation may change to support that workflow, but new product behavior should not be introduced through EmDash core forks or new shared core layers.
 
+## Licensing
+
+- The root maintenance workspace is MIT licensed. See `LICENSE`.
+- AWCMS-Micro example plugins and templates use the AW Non-Commercial License 1.0 from `https://github.com/ahliweb/aw-non-commercial-license`.
+
 ## Root Structure
 
 - `emdash-latest/`: latest synchronized snapshot of upstream EmDash
