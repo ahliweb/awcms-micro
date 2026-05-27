@@ -1,7 +1,6 @@
 ---
 import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
-import PublicNavigation from "../components/PublicNavigation.astro";
 import Base from "../layouts/Base.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
@@ -66,8 +65,7 @@ const localeOptions = {
 		<div class="card">
 			<p class="kicker">Public navigation example</p>
 			<h2 style="font-size:1.3rem;margin-top:0;">Nested primary menu</h2>
-			<p style="color:var(--text-muted);margin-bottom:1rem;">The homepage now renders the seeded primary menu so visitors can see the dropdown structure directly from the landing page.</p>
-			<PublicNavigation name="homepage-demo" />
+			<p style="color:var(--text-muted);margin-bottom:0;">The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body.</p>
 		</div>
 		<div class="card">
 			<p class="kicker">Switch mode</p>
