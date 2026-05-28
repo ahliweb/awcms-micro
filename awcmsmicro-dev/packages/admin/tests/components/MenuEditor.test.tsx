@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { MenuEditor } from "../../src/components/MenuEditor";
 import { buildParentSelectItems } from "../../src/components/MenuEditor";
+import { buildMenuEditorParentLabel } from "../../src/components/MenuEditor";
 import { render } from "../utils/render.tsx";
 
 vi.mock("@tanstack/react-router", async () => {
@@ -160,6 +161,13 @@ describe("MenuEditor", () => {
 		});
 		expect(options).not.toHaveProperty("2");
 		expect(options).not.toHaveProperty("2-1");
+	});
+
+	it("builds the edit parent label", () => {
+		expect(buildMenuEditorParentLabel({ "": "Top level", 1: "- Home" }, "1", "Top level")).toBe(
+			"- Home",
+		);
+		expect(buildMenuEditorParentLabel({ "": "Top level" }, "", "Top level")).toBe("Top level");
 	});
 
 	it("edit item opens dialog", async () => {

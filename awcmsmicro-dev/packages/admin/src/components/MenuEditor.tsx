@@ -79,6 +79,15 @@ export function buildParentSelectItems(
 	return options;
 }
 
+export function buildMenuEditorParentLabel(
+	parentItems: ParentSelectItems,
+	selectedParentId: string,
+	topLevelLabel: string,
+): string {
+	if (!selectedParentId) return topLevelLabel;
+	return parentItems[selectedParentId] ?? topLevelLabel;
+}
+
 function flattenMenuItems(items: MenuTreeItem[], parentId: string | null = null): Array<{
 	id: string;
 	parentId: string | null;
@@ -404,6 +413,9 @@ export function MenuEditor() {
 	const editParentItems = editingItem
 		? buildParentSelectItems(localItems, t`Top level`, editingItem.id)
 		: { "": t`Top level` };
+	const editParentLabel = editingItem
+		? buildMenuEditorParentLabel(editParentItems, editingItem.parentId ?? "", t`Top level`)
+		: t`Top level`;
 
 	if (isLoading) {
 		return (
@@ -643,6 +655,9 @@ export function MenuEditor() {
 								</Select.Option>
 							))}
 						</Select>
+						<p className="text-sm text-kumo-subtle">
+							{t`Selected parent`}: <span className="font-medium text-kumo-default">{editParentLabel}</span>
+						</p>
 						<DialogError message={editError || getMutationError(updateMutation.error)} />
 							<div className="flex justify-end gap-2">
 								<Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
