@@ -5,7 +5,24 @@ import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 // Fetch SIKESRA public aggregates
 const url = new URL("/_emdash/api/plugins/awcms-micro-sikesra/public/status", Astro.url.origin);
-let sikesraData = {
+interface SikesraPublicCategory {
+	code: string;
+	label: string;
+	total: number;
+	verified: number;
+	suppressed: boolean;
+}
+
+interface SikesraData {
+	status: string;
+	governanceMode: string;
+	publicAggregate: {
+		categories: SikesraPublicCategory[];
+		caveat: string;
+	};
+}
+
+let sikesraData: SikesraData = {
 	status: "healthy",
 	governanceMode: "review",
 	publicAggregate: {
