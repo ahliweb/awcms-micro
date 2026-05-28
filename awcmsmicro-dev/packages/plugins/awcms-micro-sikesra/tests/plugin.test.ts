@@ -422,6 +422,45 @@ describe("awcms micro example plugin", () => {
 		expect(collections.supportingDocuments.size).toBe(1);
 	});
 
+	it("migrates legacy registry and document blobs into plugin storage on read", async () => {
+		const { ctx, collections, kvData } = createMockContext();
+		kvData.set("custom:registryEntities", [
+			{
+				id: "registry-entity-legacy-01",
+				code: "LG-001",
+				label: "Legacy Registry Entity",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				region: { provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010001" },
+				verificationStage: "draft",
+				supportingDocumentIds: [],
+				publicSummary: "Legacy registry summary",
+			},
+		]);
+		kvData.set("custom:supportingDocuments", [
+			{
+				id: "doc-legacy-01",
+				registryEntityId: "registry-entity-legacy-01",
+				documentType: "surat_keterangan",
+				title: "Legacy Document",
+				sensitivity: "internal",
+				issuedAt: "2026-01-01T00:00:00.000Z",
+				verifiedBy: "legacy-verifier",
+			},
+		]);
+		const routes = createNativeRoutes();
+
+		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const documents = (await routes["documents/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+
+		expect(registry.items.some((item: any) => item.id === "registry-entity-legacy-01")).toBe(true);
+		expect(documents.items.some((item: any) => item.id === "doc-legacy-01")).toBe(true);
+		expect(kvData.has("custom:registryEntities")).toBe(false);
+		expect(kvData.has("custom:supportingDocuments")).toBe(false);
+		expect(collections.registryEntities.get("registry-entity-legacy-01")).toMatchObject({ id: "registry-entity-legacy-01", code: "LG-001" });
+		expect(collections.supportingDocuments.get("doc-legacy-01")).toMatchObject({ id: "doc-legacy-01", registryEntityId: "registry-entity-legacy-01" });
+	});
+
 	it("records lifecycle and cron behavior", async () => {
 		const { ctx, cron, kvData, collections } = createMockContext();
 		const hooks = createSharedHooks();

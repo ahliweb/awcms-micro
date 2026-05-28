@@ -826,6 +826,12 @@ function getNextVerificationStage(stage: VerificationStage): VerificationStage |
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
 	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	if (legacy.length > 0) {
+		for (const entity of legacy) {
+			await ctx.storage.registryEntities!.put(entity.id, entity);
+		}
+		await ctx.kv.delete("custom:registryEntities");
+	}
 	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(ctx.storage.registryEntities!);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
@@ -839,6 +845,12 @@ async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRe
 
 async function getSupportingDocuments(ctx: PluginContext): Promise<SikesraReferenceSupportingDocument[]> {
 	const legacy = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+	if (legacy.length > 0) {
+		for (const doc of legacy) {
+			await ctx.storage.supportingDocuments!.put(doc.id, doc);
+		}
+		await ctx.kv.delete("custom:supportingDocuments");
+	}
 	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(ctx.storage.supportingDocuments!);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
