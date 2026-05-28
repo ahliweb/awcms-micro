@@ -425,7 +425,7 @@ async function getCachedUser(): Promise<{ id: string; name?: string } | null> {
 		try {
 			const meResponse = await apiFetch("/_emdash/api/auth/me");
 			if (meResponse.ok) {
-				const meData = await meResponse.json() as any;
+				const meData = await meResponse.json();
 				if (meData && typeof meData === "object" && "id" in meData) {
 					return { id: String(meData.id), name: (meData as { name?: string }).name };
 				}
@@ -4407,7 +4407,7 @@ export function DataTypesPage() {
 				{/* Editor Overlay Card */}
 				{activeForm && (
 					<Card
-						title={activeForm.type === "add" ? `${activeForm.level === "parent" ? copy.addParentType : copy.addSubtype}` : `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`}
+						title={activeForm.type === "add" ? (activeForm.level === "parent" ? copy.addParentType : copy.addSubtype) : `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`}
 						description={`Masukkan nama/label dan kode 2 digit unik.`}
 						actions={<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>Tutup ✕</Button>}
 					>
