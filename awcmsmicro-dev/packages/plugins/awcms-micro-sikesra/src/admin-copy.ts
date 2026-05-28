@@ -392,6 +392,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			dataTypesSavedSuccessfully: "Data jenis/klasifikasi SIKESRA berhasil diperbarui.",
 			failedToSaveDataTypes: "Gagal memperbarui data klasifikasi jenis data.",
 			invalidTypeCode: "Kode harus berupa 2 digit angka/karakter unik.",
+			userLabel: "Pengguna",
 		};
 	}
 
@@ -787,5 +788,6 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		dataTypesSavedSuccessfully: "SIKESRA classification data updated successfully.",
 		failedToSaveDataTypes: "Failed to update SIKESRA classification data.",
 		invalidTypeCode: "Code must be a unique 2-digit number/alphanumeric.",
+		userLabel: "User",
 	};
 }

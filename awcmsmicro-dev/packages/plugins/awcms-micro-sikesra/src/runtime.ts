@@ -813,6 +813,8 @@ export interface ExampleAuditEvent {
 	actor: string;
 	summary: string;
 	metadata: Record<string, unknown>;
+	userId?: string;
+	userName?: string;
 }
 
 export interface ExampleSettings {
@@ -1350,6 +1352,13 @@ export function createAuditRecord(input: Omit<ExampleAuditEvent, "id" | "timesta
 }
 
 async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
+	const req = (ctx as any).request as Request | undefined;
+	if (req) {
+		const userId = req.headers.get("X-Sikesra-User-Id");
+		const userName = req.headers.get("X-Sikesra-User-Name");
+		if (userId) record.userId = userId;
+		if (userName) record.userName = userName;
+	}
 	await ctx.storage.auditEvents!.put(record.id, record);
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");

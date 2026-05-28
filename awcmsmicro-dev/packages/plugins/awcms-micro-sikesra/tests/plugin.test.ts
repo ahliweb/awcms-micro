@@ -212,6 +212,22 @@ describe("awcms micro example plugin", () => {
 		expect(record.summary).toBe("Updated settings");
 	});
 
+	it("stamps audit events with request user headers", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+		const request = new Request("https://example.test", {
+			headers: {
+				"X-Sikesra-User-Id": "user-123",
+				"X-Sikesra-User-Name": "Ada Lovelace",
+			},
+		});
+
+		await routes["state/touch"]!.handler({ ...ctx, request, input: { note: "stamp check" } } as any);
+
+		const stored = [...collections.auditEvents.values()].find((item: any) => item.kind === "state.touch") as any;
+		expect(stored).toMatchObject({ userId: "user-123", userName: "Ada Lovelace" });
+	});
+
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
 		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(16);
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[0]?.id).toBe("governance-status");

@@ -195,6 +195,8 @@ interface SummaryResponse {
 		kind: string;
 		summary: string;
 		actor: string;
+		userId?: string;
+		userName?: string;
 	}>;
 }
 
@@ -206,6 +208,8 @@ interface AuditListResponse {
 		scope: string;
 		actor: string;
 		summary: string;
+		userId?: string;
+		userName?: string;
 	}>;
 }
 
@@ -512,11 +516,43 @@ function parseJsonMap(value: string): { ok: true; data: JsonMap } | { ok: false;
 	}
 }
 
+const TWO_CHAR_CODE_RE = /^[0-9a-zA-Z]{2}$/;
+const LOWER_ID_RE = /^[a-z0-9_]+$/;
+
+let cachedUserPromise: Promise<{ id: string; name?: string } | null> | null = null;
+
+async function getCachedUser(): Promise<{ id: string; name?: string } | null> {
+	if (cachedUserPromise) return cachedUserPromise;
+	cachedUserPromise = (async () => {
+		try {
+			const meResponse = await apiFetch("/_emdash/api/auth/me");
+			if (meResponse.ok) {
+				const meData = await meResponse.json() as any;
+				if (meData && typeof meData === "object" && "id" in meData) {
+					return { id: String(meData.id), name: (meData as { name?: string }).name };
+				}
+			}
+		} catch (err) {
+			console.error("Failed to fetch me info", err);
+		}
+		return null;
+	})();
+	return cachedUserPromise;
+}
+
 async function postPlugin<T>(path: string, payload: unknown = {}) {
 	const copy = getExampleAdminCopy(getCurrentAdminLocale());
+	const user = await getCachedUser();
+	const headers: Record<string, string> = { ...JSON_HEADERS };
+	if (user) {
+		headers["X-Sikesra-User-Id"] = user.id;
+		if (user.name) {
+			headers["X-Sikesra-User-Name"] = user.name;
+		}
+	}
 	const response = await apiFetch(`${PLUGIN_API_BASE}/${path}`, {
 		method: "POST",
-		headers: JSON_HEADERS,
+		headers,
 		body: JSON.stringify(payload),
 	});
 
@@ -1112,8 +1148,14 @@ function OverviewPage() {
 									<div className="font-medium text-kumo-default">{item.summary}</div>
 									<Pill>{item.kind}</Pill>
 								</div>
-								<div className="mt-2 text-xs text-kumo-subtle">
-									{item.actor} • {formatDateTime(item.timestamp)}
+								<div className="mt-2 text-xs text-kumo-subtle space-y-1">
+									<div>{item.actor} • {formatDateTime(item.timestamp)}</div>
+									{(item.userName || item.userId) ? (
+										<div>
+											{copy.userLabel}: {item.userName || item.userId}
+											{item.userId ? ` (${item.userId})` : ""}
+										</div>
+									) : null}
 								</div>
 							</div>
 						))}
@@ -2364,10 +2406,11 @@ function AuditPage() {
 											<span className="text-xs text-kumo-subtle">• scope: <strong className="capitalize">{item.scope}</strong></span>
 										</div>
 										<div className="mt-2 text-sm font-semibold text-kumo-default leading-relaxed">{item.summary}</div>
-										<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
-											<div><strong>Actor:</strong> {item.actor}</div>
-											<div><strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}</div>
-										</div>
+								<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
+									<div><strong>Actor:</strong> {item.actor}</div>
+									{(item.userName || item.userId) ? <div><strong>{copy.userLabel}:</strong> {item.userName || item.userId}{item.userId ? ` (${item.userId})` : ""}</div> : null}
+									<div><strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}</div>
+								</div>
 									</div>
 								</div>
 							);
@@ -4086,7 +4129,7 @@ export function DataTypesPage() {
 			return;
 		}
 
-		if (code.length !== 2 || !/^[0-9a-zA-Z]{2}$/.test(code)) {
+		if (code.length !== 2 || !TWO_CHAR_CODE_RE.test(code)) {
 			setErrMsg(copy.invalidTypeCode);
 			return;
 		}
@@ -4097,7 +4140,7 @@ export function DataTypesPage() {
 		}
 
 		if (level === "parent") {
-			if (!id.trim() || !/^[a-z0-9_]+$/.test(id)) {
+			if (!id.trim() || !LOWER_ID_RE.test(id)) {
 				setErrMsg("ID must be unique and alphanumeric lowercase with underscores.");
 				return;
 			}
