@@ -355,12 +355,13 @@ export function MenuEditor() {
 		});
 	};
 
-	const handleAddContent = (item: { collection: string; id: string; title: string }) => {
+	const handleAddContent = (item: { collection: string; id: string; title: string; parentId?: string }) => {
 		createMutation.mutate({
 			type: item.collection,
 			label: item.title,
 			referenceCollection: item.collection,
 			referenceId: item.id,
+			parentId: item.parentId,
 		});
 	};
 
@@ -519,6 +520,7 @@ export function MenuEditor() {
 				open={isContentPickerOpen}
 				onOpenChange={setIsContentPickerOpen}
 				onSelect={handleAddContent}
+				parentItems={addParentItems}
 			/>
 
 			{i18n && i18n.locales.length > 1 && menu ? (

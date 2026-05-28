@@ -19,7 +19,8 @@ import { cn } from "../lib/utils";
 interface ContentPickerModalProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSelect: (item: { collection: string; id: string; title: string }) => void;
+	onSelect: (item: { collection: string; id: string; title: string; parentId?: string }) => void;
+	parentItems?: Record<string, string>;
 }
 
 function getItemTitle(item: { data: Record<string, unknown>; slug: string | null; id: string }) {
@@ -33,11 +34,22 @@ function getItemTitle(item: { data: Record<string, unknown>; slug: string | null
 	);
 }
 
-export function ContentPickerModal({ open, onOpenChange, onSelect }: ContentPickerModalProps) {
+export function buildContentPickerSelection(
+	item: { collection: string; id: string; title: string },
+	selectedParentId: string,
+): { collection: string; id: string; title: string; parentId?: string } {
+	return {
+		...item,
+		parentId: selectedParentId || undefined,
+	};
+}
+
+export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }: ContentPickerModalProps) {
 	const { t } = useLingui();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const debouncedSearch = useDebouncedValue(searchQuery, 300);
 	const [selectedCollection, setSelectedCollection] = React.useState<string>("");
+	const [selectedParentId, setSelectedParentId] = React.useState("");
 	const [allItems, setAllItems] = React.useState<ContentItem[]>([]);
 	const [nextCursor, setNextCursor] = React.useState<string | undefined>();
 	const [isLoadingMore, setIsLoadingMore] = React.useState(false);
@@ -95,17 +107,19 @@ export function ContentPickerModal({ open, onOpenChange, onSelect }: ContentPick
 		if (open) {
 			setSearchQuery("");
 			setSelectedCollection("");
+			setSelectedParentId("");
 			setAllItems([]);
 			setNextCursor(undefined);
 		}
 	}, [open]);
 
 	const handleSelect = (item: ContentItem) => {
-		onSelect({
-			collection: selectedCollection,
-			id: item.id,
-			title: getItemTitle(item),
-		});
+		onSelect(
+			buildContentPickerSelection(
+				{ collection: selectedCollection, id: item.id, title: getItemTitle(item) },
+				selectedParentId,
+			),
+		);
 		onOpenChange(false);
 	};
 
@@ -139,23 +153,30 @@ export function ContentPickerModal({ open, onOpenChange, onSelect }: ContentPick
 						<MagnifyingGlass className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-kumo-subtle" />
 						<Input
 							placeholder={t`Search content...`}
+							aria-label={t`Search content`}
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							className="ps-10"
 							autoFocus
 						/>
 					</div>
-					<Select
-						value={selectedCollection}
-						onValueChange={(v) => {
-							setSelectedCollection(v ?? "");
-							setAllItems([]);
-							setNextCursor(undefined);
-						}}
-						items={Object.fromEntries(collections.map((col) => [col.slug, col.label]))}
-						aria-label={t`Collection`}
-					/>
-				</div>
+						<Select
+							value={selectedCollection}
+							onValueChange={(v) => {
+								setSelectedCollection(v ?? "");
+								setAllItems([]);
+								setNextCursor(undefined);
+							}}
+							items={Object.fromEntries(collections.map((col) => [col.slug, col.label]))}
+							aria-label={t`Collection`}
+						/>
+						<Select
+							value={selectedParentId}
+							onValueChange={(v) => setSelectedParentId(v ?? "")}
+							items={parentItems ?? { "": t`Top level` }}
+							aria-label={t`Parent`}
+						/>
+					</div>
 
 				{/* Content list */}
 				<div className="flex-1 overflow-y-auto py-4">
