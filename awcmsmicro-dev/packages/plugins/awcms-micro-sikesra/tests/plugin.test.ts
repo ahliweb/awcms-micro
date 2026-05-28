@@ -370,6 +370,18 @@ describe("awcms micro example plugin", () => {
 		expect(collections.pluginState.get("state:manualTouches")).toMatchObject({ key: "state:manualTouches", value: 1 });
 	});
 
+	it("migrates legacy verification state blobs into plugin storage on read", async () => {
+		const { ctx, collections, kvData } = createMockContext();
+		kvData.set("state:sikesraVerificationStages", { "registry-entity-guru-agama-01": "submitted_regency" });
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+
+		expect(result.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_regency");
+		expect(kvData.has("state:sikesraVerificationStages")).toBe(false);
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_regency" });
+	});
+
 	it("persists registry and document records in plugin storage", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

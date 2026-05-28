@@ -872,6 +872,14 @@ async function getVerificationStageState(ctx: PluginContext): Promise<Record<str
 	}
 	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
 	if (stored && typeof stored === "object") {
+		for (const [registryEntityId, stage] of Object.entries(stored)) {
+			await ctx.storage.verificationStageState!.put(registryEntityId, {
+				registryEntityId,
+				stage,
+				updatedAt: toIsoNow(),
+			});
+		}
+		await ctx.kv.delete(VERIFICATION_STATE_KEY);
 		return { ...defaultState, ...stored };
 	}
 	return defaultState;
