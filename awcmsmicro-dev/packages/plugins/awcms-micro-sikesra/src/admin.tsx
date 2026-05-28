@@ -1180,19 +1180,87 @@ function RegistryPage() {
 								{step === 1 && (
 									<>
 										<div className="grid gap-3 grid-cols-2">
-											<Field label="Province Code">
-												<Input value={wizardState.provinceCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, provinceCode: e.target.value }))} />
+											<Field label="Province">
+												<Select value={wizardState.provinceCode} onValueChange={(val) => {
+													const nextRegency = val === "31" ? "3171" : val === "32" ? "3273" : "";
+													const nextDistrict = val === "31" ? "3171010" : val === "32" ? "3273010" : "";
+													const nextVillage = val === "31" ? "3171010001" : val === "32" ? "3273010001" : "";
+													setWizardState(prev => ({
+														...prev,
+														provinceCode: val ?? "",
+														regencyCode: nextRegency,
+														districtCode: nextDistrict,
+														villageCode: nextVillage
+													}));
+												}}>
+													<Select.Option value="31">DKI Jakarta (31)</Select.Option>
+													<Select.Option value="32">Jawa Barat (32)</Select.Option>
+													<Select.Option value="33">Jawa Tengah (33)</Select.Option>
+													<Select.Option value="35">Jawa Timur (35)</Select.Option>
+												</Select>
 											</Field>
-											<Field label="Regency Code">
-												<Input value={wizardState.regencyCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, regencyCode: e.target.value }))} />
+											<Field label="Regency / City">
+												<Select value={wizardState.regencyCode} onValueChange={(val) => {
+													const nextDistrict = val === "3171" ? "3171010" : val === "3273" ? "3273010" : "";
+													const nextVillage = val === "3171" ? "3171010001" : val === "3273" ? "3273010001" : "";
+													setWizardState(prev => ({
+														...prev,
+														regencyCode: val ?? "",
+														districtCode: nextDistrict,
+														villageCode: nextVillage
+													}));
+												}}>
+													{wizardState.provinceCode === "31" && (
+														<Select.Option value="3171">Kota Jakarta Pusat (3171)</Select.Option>
+													)}
+													{wizardState.provinceCode === "32" && (
+														<Select.Option value="3273">Kota Bandung (3273)</Select.Option>
+													)}
+													{!["31", "32"].includes(wizardState.provinceCode) && (
+														<Select.Option value="">-- Select Regency --</Select.Option>
+													)}
+												</Select>
 											</Field>
 										</div>
 										<div className="grid gap-3 grid-cols-2">
-											<Field label="District Code">
-												<Input value={wizardState.districtCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, districtCode: e.target.value }))} />
+											<Field label="District (Kecamatan)">
+												<Select value={wizardState.districtCode} onValueChange={(val) => {
+													const nextVillage = val === "3171010" ? "3171010001" : val === "3273010" ? "3273010001" : "";
+													setWizardState(prev => ({
+														...prev,
+														districtCode: val ?? "",
+														villageCode: nextVillage
+													}));
+												}}>
+													{wizardState.regencyCode === "3171" && (
+														<Select.Option value="3171010">Kecamatan Menteng (3171010)</Select.Option>
+													)}
+													{wizardState.regencyCode === "3273" && (
+														<Select.Option value="3273010">Kecamatan Coblong (3273010)</Select.Option>
+													)}
+													{!["3171", "3273"].includes(wizardState.regencyCode) && (
+														<Select.Option value="">-- Select District --</Select.Option>
+													)}
+												</Select>
 											</Field>
-											<Field label="Village Code (10 digits)">
-												<Input value={wizardState.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, villageCode: e.target.value }))} />
+											<Field label="Village (Desa / Kelurahan)">
+												<Select value={wizardState.villageCode} onValueChange={(val) => setWizardState(prev => ({ ...prev, villageCode: val ?? "" }))}>
+													{wizardState.districtCode === "3171010" && (
+														<>
+															<Select.Option value="3171010001">Kelurahan Menteng (3171010001)</Select.Option>
+															<Select.Option value="3171010002">Kelurahan Pegangsaan (3171010002)</Select.Option>
+														</>
+													)}
+													{wizardState.districtCode === "3273010" && (
+														<>
+															<Select.Option value="3273010001">Kelurahan Dago (3273010001)</Select.Option>
+															<Select.Option value="3273010002">Kelurahan Sadangserang (3273010002)</Select.Option>
+														</>
+													)}
+													{!["3171010", "3273010"].includes(wizardState.districtCode) && (
+														<Select.Option value="">-- Select Village --</Select.Option>
+													)}
+												</Select>
 											</Field>
 										</div>
 									</>
@@ -1235,6 +1303,7 @@ function RegistryPage() {
 												<Select.Option value="Hindu">Hindu</Select.Option>
 												<Select.Option value="Buddha">Buddha</Select.Option>
 												<Select.Option value="Khonghucu">Khonghucu</Select.Option>
+												<Select.Option value="None">None / Tidak ada</Select.Option>
 											</Select>
 										</Field>
 										<Field label="Social Desil Status (1-10)">
@@ -1265,7 +1334,21 @@ function RegistryPage() {
 								)}
 
 								{step === 7 && (
-									<>
+									<div className="space-y-4">
+										<div className="rounded border bg-kumo-tint/10 p-3">
+											<div className="text-xs font-semibold mb-2 text-kumo-default">Document List (Added to Intake):</div>
+											{wizardState.docTitle ? (
+												<div className="flex items-center justify-between text-xs bg-kumo-base border rounded px-3 py-1.5 font-medium text-kumo-default">
+													<div>
+														📁 <strong>{wizardState.docTitle}</strong> <span className="text-kumo-subtle">({wizardState.docType})</span>
+													</div>
+													<Button variant="secondary" size="xs" onClick={() => setWizardState(prev => ({ ...prev, docTitle: "", docType: "surat_keterangan" }))}>Remove</Button>
+												</div>
+											) : (
+												<div className="text-xs text-kumo-subtle italic">No documents added yet. Fill fields below to add.</div>
+											)}
+										</div>
+
 										<Field label="Supporting Document Title">
 											<Input value={wizardState.docTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, docTitle: e.target.value }))} />
 										</Field>
@@ -1286,7 +1369,23 @@ function RegistryPage() {
 												</Select>
 											</Field>
 										</div>
-									</>
+
+										<Field label="Upload File" hint="Max Size: 5MB">
+											<input
+												type="file"
+												className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
+												onChange={(e) => {
+													const file = e.target.files?.[0];
+													if (file) {
+														setWizardState(prev => ({
+															...prev,
+															docTitle: prev.docTitle || file.name,
+														}));
+													}
+												}}
+											/>
+										</Field>
+									</div>
 								)}
 
 								{step === 8 && (
