@@ -24,6 +24,7 @@ import * as React from "react";
 import { fetchCommentCounts } from "../lib/api/comments";
 import { useCurrentUser } from "../lib/api/current-user";
 import { usePluginAdmins } from "../lib/plugin-context";
+import { getPluginNavGroups } from "../lib/plugin-navigation.js";
 import { cn } from "../lib/utils";
 import { BrandIcon } from "./Logo.js";
 
@@ -154,13 +155,6 @@ function isItemActive(itemPath: string, currentPath: string): boolean {
 		: currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
 }
 
-function humanizePluginId(pluginId: string): string {
-	return pluginId
-		.split("-")
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(" ");
-}
-
 /**
  * Admin sidebar navigation using kumo's Sidebar compound component.
  */
@@ -253,32 +247,18 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginGroups: Array<{ id: string; label: string; items: NavItem[] }> = [];
-	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
-		if (config.enabled === false) continue;
-		if (config.adminPages && config.adminPages.length > 0) {
-			const pluginPages = pluginAdmins[pluginId]?.pages;
-			const isBlocksMode = config.adminMode === "blocks";
-			const pluginItems: NavItem[] = [];
-			for (const page of config.adminPages) {
-				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
-				const label =
-					page.label ||
-					pluginId
-						.split("-")
-						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-						.join(" ");
-				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
-			}
-			if (pluginItems.length > 0) {
-				pluginGroups.push({
-					id: pluginId,
-					label: config.name?.trim() || humanizePluginId(pluginId),
-					items: pluginItems,
-				});
-			}
-		}
-	}
+	const pluginGroups = getPluginNavGroups(manifest, (pluginId, config, page) => {
+		const pluginPages = pluginAdmins[pluginId]?.pages;
+		return config.adminMode === "blocks" || !!pluginPages?.[page.path];
+	}).map((group) => ({
+		id: group.pluginId,
+		label: group.label,
+		items: group.pages.map((page) => ({
+			to: `/plugins/${group.pluginId}${page.path}`,
+			label: page.label,
+			icon: PuzzlePiece,
+		})),
+	}));
 
 	const filterByRole = (items: NavItem[]) =>
 		items.filter((item) => !item.minRole || userRole >= item.minRole);

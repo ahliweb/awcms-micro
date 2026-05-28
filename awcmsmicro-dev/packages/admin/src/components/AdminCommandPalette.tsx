@@ -30,6 +30,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import { apiFetch, type AdminManifest } from "../lib/api/client.js";
 import { useCurrentUser } from "../lib/api/current-user";
+import { getPluginNavGroups } from "../lib/plugin-navigation.js";
 
 /** Subset of manifest fields used by the palette (matches `Shell` props shape). */
 type CommandPaletteManifest = {
@@ -136,25 +137,15 @@ function buildNavItems(manifest: CommandPaletteManifest, userRole: number): NavI
 	];
 
 	// Add plugin pages
-	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
-		if (config.enabled === false) continue;
-		if (config.adminPages && config.adminPages.length > 0) {
-			for (const page of config.adminPages) {
-				const label =
-					page.label ||
-					pluginId
-						.split("-")
-						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-						.join(" ");
-
-				items.push({
-					id: `plugin-${pluginId}-${page.path}`,
-					title: label,
-					to: `/plugins/${pluginId}${page.path}`,
-					icon: PuzzlePiece,
-					keywords: ["plugin", pluginId],
-				});
-			}
+	for (const group of getPluginNavGroups(manifest, () => true)) {
+		for (const page of group.pages) {
+			items.push({
+				id: `plugin-${group.pluginId}-${page.path}`,
+				title: page.label,
+				to: `/plugins/${group.pluginId}${page.path}`,
+				icon: PuzzlePiece,
+				keywords: ["plugin", group.pluginId],
+			});
 		}
 	}
 
