@@ -4,6 +4,7 @@ import * as React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { MenuEditor } from "../../src/components/MenuEditor";
+import { buildParentSelectItems } from "../../src/components/MenuEditor";
 import { render } from "../utils/render.tsx";
 
 vi.mock("@tanstack/react-router", async () => {
@@ -146,6 +147,19 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByLabelText("Label")).toBeInTheDocument();
 		await expect.element(screen.getByLabelText("URL")).toBeInTheDocument();
+		await expect.element(screen.getByLabelText("Parent")).toBeInTheDocument();
+	});
+
+	it("builds parent selector options without cycles", () => {
+		const items = defaultMenu.items as Parameters<typeof buildParentSelectItems>[0];
+		const options = buildParentSelectItems(items, "Top level", "2");
+
+		expect(options).toMatchObject({
+			"": "Top level",
+			"1": "- Home",
+		});
+		expect(options).not.toHaveProperty("2");
+		expect(options).not.toHaveProperty("2-1");
 	});
 
 	it("edit item opens dialog", async () => {
@@ -158,6 +172,7 @@ describe("MenuEditor", () => {
 		await expect
 			.element(screen.getByRole("heading", { name: "Edit Menu Item" }))
 			.toBeInTheDocument();
+		await expect.element(screen.getByLabelText("Parent")).toBeInTheDocument();
 	});
 
 	it("delete item fires immediately without confirmation dialog", async () => {

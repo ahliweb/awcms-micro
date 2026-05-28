@@ -38,12 +38,45 @@ import { TranslationsPanel } from "./TranslationsPanel.js";
 import { cn } from "../lib/utils.js";
 
 type MenuTreeItem = MenuItem & { children: MenuTreeItem[] };
+type ParentSelectItems = Record<string, string>;
 
 function normalizeMenuItems(items: MenuItem[]): MenuTreeItem[] {
 	return items.map((item) => ({
 		...(item as MenuItem),
 		children: normalizeMenuItems(((item as MenuItem & { children?: MenuItem[] }).children ?? [])),
 	}));
+}
+
+export function buildParentSelectItems(
+	items: MenuTreeItem[],
+	topLevelLabel: string,
+	excludeId?: string,
+): ParentSelectItems {
+	const options: ParentSelectItems = { "": topLevelLabel };
+	const blockedIds = new Set<string>();
+
+	function collectBlockedIds(nodes: MenuTreeItem[]): void {
+		for (const node of nodes) {
+			blockedIds.add(node.id);
+			collectBlockedIds(node.children);
+		}
+	}
+
+	if (excludeId) {
+		const excluded = items.find((item) => item.id === excludeId);
+		if (excluded) collectBlockedIds([excluded]);
+	}
+
+	function appendNodes(nodes: MenuTreeItem[], depth: number): void {
+		for (const node of nodes) {
+			if (blockedIds.has(node.id)) continue;
+			options[node.id] = `${"-".repeat(depth)} ${node.label}`.trim();
+			appendNodes(node.children, depth + 1);
+		}
+	}
+
+	appendNodes(items, 1);
+	return options;
 }
 
 function flattenMenuItems(items: MenuTreeItem[], parentId: string | null = null): Array<{
@@ -312,11 +345,13 @@ export function MenuEditor() {
 		const labelVal = formData.get("label");
 		const urlVal = formData.get("url");
 		const targetVal = formData.get("target");
+		const parentVal = formData.get("parentId");
 		createMutation.mutate({
 			type: "custom",
 			label: typeof labelVal === "string" ? labelVal : "",
 			customUrl: typeof urlVal === "string" ? urlVal : "",
 			target: (typeof targetVal === "string" ? targetVal : "") || undefined,
+			parentId: typeof parentVal === "string" && parentVal !== "" ? parentVal : undefined,
 		});
 	};
 
@@ -337,6 +372,7 @@ export function MenuEditor() {
 		const uLabelVal = formData.get("label");
 		const uUrlVal = formData.get("url");
 		const uTargetVal = formData.get("target");
+		const uParentVal = formData.get("parentId");
 		updateMutation.mutate({
 			itemId: editingItem.id,
 			input: {
@@ -344,6 +380,7 @@ export function MenuEditor() {
 				customUrl:
 					editingItem.type === "custom" ? (typeof uUrlVal === "string" ? uUrlVal : "") : undefined,
 				target: (typeof uTargetVal === "string" ? uTargetVal : "") || undefined,
+				parentId: typeof uParentVal === "string" && uParentVal !== "" ? uParentVal : null,
 			},
 		});
 	};
@@ -354,6 +391,11 @@ export function MenuEditor() {
 		setLocalItems(nextItems);
 		reorderMutation.mutate({ items: flattenMenuItems(nextItems) });
 	};
+
+	const addParentItems = buildParentSelectItems(localItems, t`Top level`);
+	const editParentItems = editingItem
+		? buildParentSelectItems(localItems, t`Top level`, editingItem.id)
+		: { "": t`Top level` };
 
 	if (isLoading) {
 		return (
@@ -442,16 +484,23 @@ export function MenuEditor() {
 									title={t`Enter a URL (https://…) or a relative path (/…)`}
 									placeholder={t`https://example.com or /about`}
 								/>
-								<Select
-									label={t`Target`}
-									name="target"
-									defaultValue=""
-									items={{ "": t`Same window`, _blank: t`New window` }}
+						<Select
+							label={t`Target`}
+							name="target"
+							defaultValue=""
+							items={{ "": t`Same window`, _blank: t`New window` }}
 								>
 									<Select.Option value="">{t`Same window`}</Select.Option>
-									<Select.Option value="_blank">{t`New window`}</Select.Option>
-								</Select>
-								<DialogError message={addError || getMutationError(createMutation.error)} />
+							<Select.Option value="_blank">{t`New window`}</Select.Option>
+						</Select>
+						<Select label={t`Parent`} name="parentId" defaultValue="" items={addParentItems}>
+							{Object.entries(addParentItems).map(([value, label]) => (
+								<Select.Option key={value} value={value}>
+									{label}
+								</Select.Option>
+							))}
+						</Select>
+						<DialogError message={addError || getMutationError(createMutation.error)} />
 								<div className="flex justify-end gap-2">
 									<Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
 										{t`Cancel`}
@@ -564,16 +613,28 @@ export function MenuEditor() {
 									defaultValue={editingItem.customUrl || ""}
 								/>
 							)}
-							<Select
-								label={t`Target`}
-								name="target"
-								defaultValue={editingItem.target || ""}
-								items={{ "": t`Same window`, _blank: t`New window` }}
+						<Select
+							label={t`Target`}
+							name="target"
+							defaultValue={editingItem.target || ""}
+							items={{ "": t`Same window`, _blank: t`New window` }}
 							>
 								<Select.Option value="">{t`Same window`}</Select.Option>
-								<Select.Option value="_blank">{t`New window`}</Select.Option>
-							</Select>
-							<DialogError message={editError || getMutationError(updateMutation.error)} />
+							<Select.Option value="_blank">{t`New window`}</Select.Option>
+						</Select>
+						<Select
+							label={t`Parent`}
+							name="parentId"
+							defaultValue={editingItem.parentId ?? ""}
+							items={editParentItems}
+						>
+							{Object.entries(editParentItems).map(([value, label]) => (
+								<Select.Option key={value} value={value}>
+									{label}
+								</Select.Option>
+							))}
+						</Select>
+						<DialogError message={editError || getMutationError(updateMutation.error)} />
 							<div className="flex justify-end gap-2">
 								<Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
 									{t`Cancel`}
