@@ -397,6 +397,29 @@ describe("awcms micro example plugin", () => {
 		expect(result.error.code).toBe("INVALID_LEVEL");
 	});
 
+	it("returns verification to the previous review level on needs revision", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/reject"]!.handler(
+			{
+				...ctx,
+				input: {
+					registryEntityId: "registry-entity-guru-agama-01",
+					actor: "sopd-officer",
+					verifierLevel: "sopd",
+					notes: "Returned to district for correction",
+				},
+			} as any,
+		)) as any;
+
+		expect(result.success).toBe(true);
+		expect(result.item.verificationStage).toBe("submitted_district");
+		expect(result.event.kind).toBe("verification.stage.reject");
+		expect(result.verificationEvent.result).toBe("needs_review");
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_district" });
+	});
+
 	it("records manual touch state in plugin storage", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

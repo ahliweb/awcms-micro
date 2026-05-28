@@ -1968,10 +1968,10 @@ function VerificationPage() {
 		const notes = actionNotes[entityId] || "Verification processed via admin console";
 
 		try {
+			const item = queue.find((entry) => entry.registryEntityId === entityId);
+			const fallbackLevel = item ? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" : "desa_kelurahan";
+			const verifierLevel = verifierLevels[entityId] ?? fallbackLevel;
 			if (actionType === "approve") {
-				const item = queue.find((entry) => entry.registryEntityId === entityId);
-				const fallbackLevel = item ? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" : "desa_kelurahan";
-				const verifierLevel = verifierLevels[entityId] ?? fallbackLevel;
 				const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
 					registryEntityId: entityId,
 					actor: verifierLevel === "admin_sikesra" ? "sikesra-admin" : `${verifierLevel}-officer`,
@@ -1980,11 +1980,13 @@ function VerificationPage() {
 				});
 				setStatusMessage(`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`);
 			} else {
-				// Needs Revision: log audit event and reset verification stage
-				await postPlugin("state/touch", {
-					note: `Entity ${entityId} marked as Needs Revision. Notes: ${notes}`,
+				const response = await postPlugin<VerificationAdvanceResponse>("verification/reject", {
+					registryEntityId: entityId,
+					actor: verifierLevel === "admin_sikesra" ? "sikesra-admin" : `${verifierLevel}-officer`,
+					verifierLevel,
+					notes,
 				});
-				setStatusMessage(`Status updated: Entity marked as Needs Revision.`);
+				setStatusMessage(`Needs revision: ${response.item.code} returned to ${response.item.verificationStage}.`);
 			}
 			
 			// Clear notes

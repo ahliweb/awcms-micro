@@ -1226,6 +1226,14 @@ function getAllowedVerifierLevels(level: VerificationLevel): VerificationUserLev
 	return [];
 }
 
+function getRevisionTargetStage(stage: VerificationStage): VerificationStage {
+	if (stage === "draft" || stage === "submitted_village" || stage === "verified_village") return "submitted_village";
+	if (stage === "submitted_district" || stage === "verified_district") return "submitted_village";
+	if (stage === "submitted_sopd" || stage === "verified_sopd") return "submitted_district";
+	if (stage === "submitted_regency" || stage === "active_verified") return "submitted_sopd";
+	return "submitted_village";
+}
+
 function inferVerifierLevel(actor: string): VerificationUserLevel | null {
 	if (actor.includes("village")) return "desa_kelurahan";
 	if (actor.includes("district")) return "kecamatan";
@@ -2170,6 +2178,75 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 };
 
+const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
+	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
+	const verifierLevel = (getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ?? inferVerifierLevel(actor);
+	const notes = getString(routeCtx.input, "notes") ?? "Returned to the previous verification level from the admin reference UI";
+	const items = await listVerificationItems(ctx);
+	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
+
+	if (!item) {
+		return { success: false, error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` } };
+	}
+	if (!verifierLevel) {
+		return { success: false, error: { code: "INVALID_LEVEL", message: `Verification level is required for ${registryEntityId}` } };
+	}
+	const allowedVerifierLevels = getAllowedVerifierLevels(item.currentLevel);
+	if (!allowedVerifierLevels.includes(verifierLevel)) {
+		return {
+			success: false,
+			error: {
+				code: "INVALID_LEVEL",
+				message: `Verification for ${registryEntityId} must be handled by ${allowedVerifierLevels.join(", ")}`,
+			},
+		};
+	}
+
+	const targetStage = getRevisionTargetStage(item.verificationStage);
+	const nextState = await getVerificationStageState(ctx);
+	nextState[registryEntityId] = targetStage;
+	await setVerificationStageState(ctx, nextState);
+
+	const event = await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "verification.stage.reject",
+			scope: "verification",
+			actor,
+			summary: `Returned verification for ${item.code} to ${targetStage}`,
+			metadata: {
+				registryEntityId,
+				code: item.code,
+				from: item.verificationStage,
+				to: targetStage,
+				notes,
+				verifierLevel,
+			},
+		}),
+	);
+	const verificationEvent = await appendVerificationEvent(ctx, {
+		id: `${toIsoNow()}:${registryEntityId}:${targetStage}:needs-review`,
+		registryEntityId,
+		stage: targetStage,
+		actor,
+		result: "needs_review",
+		notes,
+		createdAt: toIsoNow(),
+	});
+
+	const updatedItems = await listVerificationItems(ctx);
+	const updatedItem = updatedItems.find((entry) => entry.registryEntityId === registryEntityId) ?? item;
+	return {
+		success: true,
+		item: updatedItem,
+		items: updatedItems,
+		events: await listVerificationEvents(ctx),
+		event,
+		verificationEvent,
+	};
+};
+
 const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const note = getString(routeCtx.input, "note") ?? "manual-touch";
 	const actor = actorFromRoute(ctx);
@@ -2441,6 +2518,7 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },
 	"verification/advance": { handler: verificationAdvanceRoute },
+	"verification/reject": { handler: verificationRejectRoute },
 	"settings/get": { handler: settingsGetRoute },
 	"settings/save": { handler: settingsSaveRoute },
 	"regions/get": { handler: regionsGetRoute },
