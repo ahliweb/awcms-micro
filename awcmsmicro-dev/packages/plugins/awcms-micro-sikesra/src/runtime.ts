@@ -1120,7 +1120,7 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 		for (const item of DEFAULT_USER_ROLE_ASSIGNMENTS) {
 			await ctx.storage.userRoleAssignments!.put(item.userId, touchUpdatedAt(item));
 		}
-		await ctx.kv.set("state:lastPreviewUserId", DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "");
+		await persistStateValue(ctx, "state:lastPreviewUserId", DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "");
 	}
 }
 
@@ -1153,8 +1153,8 @@ async function ensureAbacCatalogSeeded(ctx: PluginContext) {
 		}
 	}
 
-	await ctx.kv.set("state:lastAbacPreviewSubjectId", DEFAULT_ABAC_SUBJECTS[0]?.subjectId ?? "");
-	await ctx.kv.set("state:lastAbacPreviewResourceId", DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "");
+	await persistStateValue(ctx, "state:lastAbacPreviewSubjectId", DEFAULT_ABAC_SUBJECTS[0]?.subjectId ?? "");
+	await persistStateValue(ctx, "state:lastAbacPreviewResourceId", DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "");
 }
 
 async function listCollectionValues<T>(
@@ -1789,7 +1789,7 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	const roles = getStringArray(routeCtx.input, "roles");
 	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, updatedAt: "" });
 	await ctx.storage.userRoleAssignments!.put(userId, assignment);
-	await ctx.kv.set("state:lastPreviewUserId", userId);
+	await persistStateValue(ctx, "state:lastPreviewUserId", userId);
 	const event = createAuditRecord({
 		kind: "access.user-assignment.save",
 		scope: "access-rights",

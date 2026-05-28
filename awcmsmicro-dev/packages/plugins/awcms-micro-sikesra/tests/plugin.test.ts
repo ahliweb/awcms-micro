@@ -314,6 +314,7 @@ describe("awcms micro example plugin", () => {
 		expect(kvData.get("settings:governanceMode")).toBe("observe");
 		expect(collections.settingsState.size).toBe(6);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
+		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({ key: "state:publicStatusHits", value: 1 });
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
@@ -410,6 +411,10 @@ describe("awcms micro example plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
+		expect(collections.pluginState.get("state:lastLifecycle")).toMatchObject({ key: "state:lastLifecycle", value: "plugin:activate" });
+		expect(collections.pluginState.get("state:lastPreviewUserId")).toMatchObject({ key: "state:lastPreviewUserId", value: "user-demo-editor" });
+		expect(collections.pluginState.get("state:lastAbacPreviewSubjectId")).toMatchObject({ key: "state:lastAbacPreviewSubjectId", value: "user-demo-editor" });
+		expect(collections.pluginState.get("state:lastAbacPreviewResourceId")).toMatchObject({ key: "state:lastAbacPreviewResourceId", value: "resource-public-post" });
 	});
 
 	it("records content and media hooks", async () => {
