@@ -972,7 +972,6 @@ async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
 async function persistStateValue(ctx: PluginContext, key: string, value: StoredStateRecord["value"]) {
 	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
 	await ctx.storage.pluginState!.put(key, record);
-	await ctx.kv.set(key, value);
 }
 
 async function readStateValue<T extends StoredStateRecord["value"]>(ctx: PluginContext, key: string, fallback: T): Promise<T> {

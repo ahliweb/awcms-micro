@@ -462,7 +462,7 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("records lifecycle and cron behavior", async () => {
-		const { ctx, cron, kvData, collections } = createMockContext();
+		const { ctx, cron, collections } = createMockContext();
 		const hooks = createSharedHooks();
 
 		const activate =
@@ -478,12 +478,11 @@ describe("awcms micro example plugin", () => {
 		);
 
 		expect(cron.schedule).toHaveBeenCalledWith("governance-summary", { schedule: "0 * * * *" });
-		expect(kvData.get("state:lastLifecycle")).toBe("plugin:activate");
-		expect(kvData.get("state:lastCronAt")).toBeTruthy();
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
 		expect(collections.pluginState.get("state:lastLifecycle")).toMatchObject({ key: "state:lastLifecycle", value: "plugin:activate" });
+		expect(collections.pluginState.get("state:lastCronAt")).toMatchObject({ key: "state:lastCronAt" });
 		expect(collections.pluginState.get("state:lastPreviewUserId")).toMatchObject({ key: "state:lastPreviewUserId", value: "user-demo-editor" });
 		expect(collections.pluginState.get("state:lastAbacPreviewSubjectId")).toMatchObject({ key: "state:lastAbacPreviewSubjectId", value: "user-demo-editor" });
 		expect(collections.pluginState.get("state:lastAbacPreviewResourceId")).toMatchObject({ key: "state:lastAbacPreviewResourceId", value: "resource-public-post" });
