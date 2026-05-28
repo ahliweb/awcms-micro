@@ -108,6 +108,8 @@ Exception:
 - `bash scripts/backup/restore-dotfiles.sh` - Restore dotfiles
 - `bash scripts/backup/recovery-checklist.sh` - Disaster recovery guide
 
+Backup scripts load encrypted configuration first and then safely overlay local `.env` files when present, which lets operator-only values such as `GITLAB_PAT` stay outside committed config.
+
 See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 
 ## Contribution Policy

@@ -26,7 +26,7 @@ The main operational risk was consistency:
 
 - a preserved path existed in the allowlist but was not validated by the boundary checker
 - the human-readable allowlist documentation had drifted from the real allowlist
-- protected-path rebuild backup could carry transient local artifacts across sync operations
+- protected-path rebuild backup now prunes transient local artifacts during sync operations, reducing rebuild drift
 
 ### 2. AWCMS-Micro Needs A Stronger Product Rule
 

@@ -35,6 +35,7 @@ shred -u scripts/backup/.backup-config
 ```
 
 The encrypted `.backup-config.age` is safe to commit to **private** repositories.
+The loader also normalizes legacy GitLab SSH URLs to the current PAT-based HTTPS mirror when `GITLAB_PAT`, `GITLAB_USERNAME`, and `GITLAB_REPO_NAME` are available.
 
 ### 3. Using the Config
 

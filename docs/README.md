@@ -21,6 +21,8 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
+- `backup/gitlab-mirror-setup.md`: GitLab PAT-based mirror setup and recovery notes
+- `security/backup-restore.md`: backup and restore baseline expectations
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance; see the separate upstream-sync sidebar-ordering note for plugin-first admin navigation
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
@@ -50,11 +52,12 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 16. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
 17. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
 18. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-19. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-20. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-21. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
-22. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-23. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+19. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
+20. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+21. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+22. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+23. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+24. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

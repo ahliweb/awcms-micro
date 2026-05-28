@@ -26,7 +26,7 @@ Go to GitHub repo → Settings → Secrets and variables → Actions → New rep
 Do an initial push to create the repo on GitLab:
 
 ```bash
-git remote add gitlab https://oauth2:GITLAB_PAT@gitlab.com/YOUR_USERNAME/awcms-micro.git
+git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/${GITLAB_USERNAME}/awcms-micro.git"
 git push --all gitlab
 git push --tags gitlab
 ```
