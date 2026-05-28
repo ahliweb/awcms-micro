@@ -896,7 +896,7 @@ function OverviewPage() {
 function RegistryPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const { data, error: _error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
 	const [step, setStep] = React.useState(0);
 	const [submitting, setSubmitting] = React.useState(false);
 	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -1308,9 +1308,9 @@ function RegistryPage() {
 										</Field>
 										<Field label="Social Desil Status (1-10)">
 											<Select value={wizardState.desil} onValueChange={(val) => setWizardState(prev => ({ ...prev, desil: val ?? "3" }))}>
-												{[...Array(10)].map((_, i) => (
-													<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
-												))}
+							{Array.from(Array(10), (_, i) => (
+									<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
+							))}
 											</Select>
 										</Field>
 									</>

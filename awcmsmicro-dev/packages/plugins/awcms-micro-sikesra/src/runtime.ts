@@ -68,7 +68,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				id: "dashboard-group",
 				labelKey: "awcms.nav.group.dashboard",
 				fallbackLabel: "Dashboard",
-				icon: "stack",
+				icon: "chart",
 				sortOrder: 10,
 				sidebarPlacement: "after-dashboard",
 				sidebarPriority: 10,
@@ -78,7 +78,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						labelKey: "awcms.nav.overview",
 						fallbackLabel: "Overview",
 						path: "/overview",
-						icon: "stack",
+						icon: "chart",
 						sortOrder: 10,
 						permission: "awcms:sikesra:dashboard:read",
 					}
