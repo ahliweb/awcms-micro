@@ -9,6 +9,64 @@ import { AWCMS_SIKESRA_MANIFEST } from "./runtime.js";
 
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
 
+export const SUB_TYPE_MAPPING: Record<string, Array<{ code: string; label: string }>> = {
+	rumah_ibadah: [
+		{ code: "01", label: "Masjid" },
+		{ code: "02", label: "Gereja Protestan" },
+		{ code: "03", label: "Gereja Katolik" },
+		{ code: "04", label: "Pura" },
+		{ code: "05", label: "Wihara" },
+		{ code: "06", label: "Klenteng" },
+		{ code: "99", label: "Lainnya" },
+	],
+	lembaga_keagamaan: [
+		{ code: "01", label: "MUI (Majelis Ulama Indonesia)" },
+		{ code: "02", label: "DMI (Dewan Masjid Indonesia)" },
+		{ code: "03", label: "LPTQ" },
+		{ code: "04", label: "FKUB" },
+		{ code: "99", label: "Lainnya" },
+	],
+	pendidikan_keagamaan: [
+		{ code: "01", label: "Pesantren" },
+		{ code: "02", label: "Madrasah" },
+		{ code: "03", label: "TPQ" },
+		{ code: "04", label: "Sekolah Minggu" },
+		{ code: "99", label: "Lainnya" },
+	],
+	lks: [
+		{ code: "01", label: "Panti Asuhan" },
+		{ code: "02", label: "Panti Jompo" },
+		{ code: "03", label: "Rehabilitasi Sosial" },
+		{ code: "99", label: "Lainnya" },
+	],
+	guru_agama: [
+		{ code: "01", label: "Guru Agama Islam" },
+		{ code: "02", label: "Guru Agama Kristen" },
+		{ code: "03", label: "Guru Agama Katolik" },
+		{ code: "04", label: "Guru Agama Hindu" },
+		{ code: "05", label: "Guru Agama Buddha" },
+		{ code: "06", label: "Guru Agama Khonghucu" },
+	],
+	anak_yatim: [
+		{ code: "01", label: "Yatim Piatu (Balita)" },
+		{ code: "02", label: "Yatim Piatu (Anak Sekolah)" },
+		{ code: "03", label: "Yatim Piatu (Remaja)" },
+		{ code: "99", label: "Lainnya" },
+	],
+	disabilitas: [
+		{ code: "01", label: "Tuna Netra" },
+		{ code: "02", label: "Tuna Rungu / Wicara" },
+		{ code: "03", label: "Tuna Daksa" },
+		{ code: "04", label: "Tuna Grahita" },
+		{ code: "99", label: "Lainnya" },
+	],
+	lansia_terlantar: [
+		{ code: "01", label: "Lansia Terlantar Mandiri" },
+		{ code: "02", label: "Lansia Terlantar Bedridden" },
+		{ code: "99", label: "Lainnya" },
+	],
+};
+
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
@@ -1156,8 +1214,10 @@ function RegistryPage() {
 	const [tempDocSensitivity, setTempDocSensitivity] = React.useState<SikesraSensitivity>("public_safe");
 	const [tempDocFile, setTempDocFile] = React.useState<string | null>(null);
 
+	// 11-step wizard state
 	const [wizardState, setWizardState] = React.useState({
 		entityType: "rumah_ibadah",
+		subTypeCode: "01",
 		subtype: "Masjid",
 		provinceCode: "62",
 		regencyCode: "6201",
@@ -1238,16 +1298,7 @@ function RegistryPage() {
 			lansia_terlantar: "08",
 		};
 		const jenis = typeCodes[wizardState.entityType] ?? "99";
-		
-		const religionCodes: Record<string, string> = {
-			Islam: "01",
-			Kristen: "02",
-			Katolik: "03",
-			Hindu: "04",
-			Buddha: "05",
-			Khonghucu: "06",
-		};
-		const subjenis = religionCodes[wizardState.religion] ?? "00";
+		const subjenis = wizardState.subTypeCode || "01";
 		
 		const nextSeq = String(registryEntities.length + 1).padStart(6, "0");
 		const compiledId = `${desa}${jenis}${subjenis}${nextSeq}`;
@@ -1290,6 +1341,7 @@ function RegistryPage() {
 			setStep(0);
 			setWizardState({
 				entityType: "rumah_ibadah",
+				subTypeCode: "01",
 				subtype: "Masjid",
 				provinceCode: regionsData?.[0]?.code ?? "62",
 				regencyCode: regionsData?.[0]?.regencies?.[0]?.code ?? "6201",
@@ -1543,20 +1595,41 @@ function RegistryPage() {
 										<div className="space-y-4">
 											{step === 0 && (
 												<>
-													<Field label="Data Type" hint="Select SIKESRA Entity Type (Mandatory)">
-														<Select value={wizardState.entityType} onValueChange={(val) => setWizardState(prev => ({ ...prev, entityType: val ?? "rumah_ibadah" }))}>
-															<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
-															<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
-															<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
-															<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
-															<Select.Option value="guru_agama">Guru Agama</Select.Option>
-															<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
-															<Select.Option value="disabilitas">Disabilitas</Select.Option>
-															<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+													<Field label="Jenis Data Induk" hint="Pilih Jenis Data Induk SIKESRA (Wajib)">
+														<Select value={wizardState.entityType} onValueChange={(val) => {
+															const type = val ?? "rumah_ibadah";
+															const defaultSub = SUB_TYPE_MAPPING[type]?.[0];
+															setWizardState(prev => ({
+																...prev,
+																entityType: type,
+																subTypeCode: defaultSub?.code ?? "01",
+																subtype: defaultSub?.label ?? "Lainnya"
+															}));
+														}}>
+															<Select.Option value="rumah_ibadah">Rumah Ibadah (01)</Select.Option>
+															<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan (02)</Select.Option>
+															<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan (03)</Select.Option>
+															<Select.Option value="lks">Lembaga Kesejahteraan Sosial (04)</Select.Option>
+															<Select.Option value="guru_agama">Guru Agama (05)</Select.Option>
+															<Select.Option value="anak_yatim">Anak Yatim (06)</Select.Option>
+															<Select.Option value="disabilitas">Disabilitas (07)</Select.Option>
+															<Select.Option value="lansia_terlantar">Lansia Terlantar (08)</Select.Option>
 														</Select>
 													</Field>
-													<Field label="Subtype Specification" hint="Specific category classification (Optional)">
-														<Input value={wizardState.subtype} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, subtype: e.target.value }))} placeholder="e.g. Masjid, Gereja, Wihara" />
+													<Field label="Sub Jenis Data" hint="Pilih Sub Jenis Data SIKESRA (Wajib)">
+														<Select value={wizardState.subTypeCode} onValueChange={(val) => {
+															const code = val ?? "01";
+															const label = SUB_TYPE_MAPPING[wizardState.entityType]?.find(s => s.code === code)?.label ?? "Lainnya";
+															setWizardState(prev => ({
+																...prev,
+																subTypeCode: code,
+																subtype: label
+															}));
+														}}>
+															{(SUB_TYPE_MAPPING[wizardState.entityType] || []).map(sub => (
+																<Select.Option value={sub.code} key={sub.code}>{sub.label} ({sub.code})</Select.Option>
+															))}
+														</Select>
 													</Field>
 													<Field label="Sensitivity classification" hint="Determine visibility of this entity records (Mandatory)">
 														<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
