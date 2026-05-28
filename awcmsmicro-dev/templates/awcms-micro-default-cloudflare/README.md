@@ -97,6 +97,8 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 - The Worker Loader binding is already prepared even though this template does not yet register sandboxed plugins.
 - This template is intentionally separate from upstream EmDash templates and does not overwrite them.
 
+For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
+
 ## Naming Guidance
 
 - package name: `@awcms-micro/template-default-cloudflare`

@@ -20,6 +20,10 @@ This plugin adds AWCMS-Micro gallery management helpers while leaving EmDash cor
 
 The admin page is rendered through EmDash Block Kit at the plugin's `Gallery` admin page.
 
+## Technical PRD
+
+For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
+
 ## Naming Guidance
 
 - package name: `@awcms-micro/plugin-gallery`
