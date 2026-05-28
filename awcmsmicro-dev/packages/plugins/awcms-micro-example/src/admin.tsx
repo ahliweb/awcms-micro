@@ -950,10 +950,10 @@ function RegistryPage() {
 									</Field>
 									<Field label={copy.sensitivity} hint={copy.sensitivityHint}>
 								<Select value={wizardState.sensitivity} onValueChange={(value) => setWizardState((current) => ({ ...current, sensitivity: (value as typeof SIKESRA_REFERENCE_FIXTURES["registryEntities"][number]["sensitivity"] | null) ?? "public_safe" }))}>
-											<Select.Option value="public_safe">public_safe</Select.Option>
-											<Select.Option value="internal">internal</Select.Option>
-											<Select.Option value="restricted">restricted</Select.Option>
-											<Select.Option value="highly_restricted">highly_restricted</Select.Option>
+						<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
+						<Select.Option value="internal">{copy.internal}</Select.Option>
+						<Select.Option value="restricted">{copy.restricted}</Select.Option>
+						<Select.Option value="highly_restricted">{copy.highlyRestricted}</Select.Option>
 										</Select>
 									</Field>
 								</div>
@@ -1015,7 +1015,7 @@ function VerificationPage() {
 			const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
 				registryEntityId: nextCandidate.registryEntityId,
 				actor: "district-officer",
-				notes: "Advanced from the reference verification UI",
+								notes: copy.verificationAdvanceNote,
 			});
 			setStatusMessage(copy.advancedTo(response.item.code, response.item.verificationStage));
 			await reload();
