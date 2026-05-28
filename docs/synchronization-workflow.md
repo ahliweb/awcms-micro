@@ -16,6 +16,7 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 5. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
 6. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
 7. Update root documentation if process, structure, or rules changed.
+8. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
 ## Refresh `emdash-latest/`
 
@@ -87,6 +88,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
 - Keep AWCMS-Micro-specific release automation inputs inside preserved boundaries such as `.awcms-changesets/` and `.github/scripts/`.
+- Keep the root maintenance changelog snapshot aligned with the current `emdash-latest/` revision and the latest plugin/template versions in `awcmsmicro-dev/`.
 
 ## Language Rule During Synchronization
 

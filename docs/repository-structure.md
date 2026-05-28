@@ -42,6 +42,7 @@ Documents in this folder define:
 - the repository structure
 - the synchronization workflow
 - the implementation instructions and execution model
+- the root maintenance versioning and workspace snapshot model
 - upstream sync status and divergence tracking
 - deployment and security baselines
 
@@ -89,6 +90,9 @@ The root repository also contains:
 
 - `README.md`: repository purpose and operator entry point
 - `AGENTS.md`: agent-facing execution rules for this parent repository
+- `CHANGELOG.md`: root maintenance changelog and workspace snapshot
+- `VERSION`: root maintenance release version
+- `.awcms-changesets/`: root maintenance release-note inputs
 - `.gitignore`: local artifact and secret-protection rules
 - local-only `.env`: optional operator secrets, excluded from git
 
