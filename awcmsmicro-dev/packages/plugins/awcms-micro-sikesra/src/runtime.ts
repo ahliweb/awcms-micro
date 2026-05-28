@@ -1245,6 +1245,30 @@ function inferVerifierLevel(actor: string): VerificationUserLevel | null {
 	return null;
 }
 
+function mapRoleSlugToVerifierLevel(roleSlug: string): VerificationUserLevel | null {
+	if (roleSlug === "verifier-desa-kelurahan") return "desa_kelurahan";
+	if (roleSlug === "verifier-kecamatan") return "kecamatan";
+	if (roleSlug === "verifier-sopd") return "sopd";
+	if (roleSlug === "verifier-kabupaten") return "kabupaten";
+	if (roleSlug === "admin-sikesra") return "admin_sikesra";
+	return null;
+}
+
+function getRequestUserId(ctx: PluginContext) {
+	const req = (ctx as any).request as Request | undefined;
+	return req?.headers.get("X-Sikesra-User-Id") ?? null;
+}
+
+async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
+	const userId = getRequestUserId(ctx);
+	if (!userId) return [];
+	const assignment = (await ctx.storage.userRoleAssignments!.get(userId)) as UserRoleAssignment | null;
+	if (!assignment) return [];
+	return assignment.roles
+		.map((roleSlug) => mapRoleSlugToVerifierLevel(roleSlug))
+		.filter((level): level is VerificationUserLevel => level !== null);
+}
+
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
 	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	if (legacy.length > 0) {
@@ -2105,7 +2129,12 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	return { items: await listVerificationItems(ctx), events: await listVerificationEvents(ctx) };
+	await ensureAccessCatalogSeeded(ctx);
+	return {
+		items: await listVerificationItems(ctx),
+		events: await listVerificationEvents(ctx),
+		currentVerifierLevels: await getCurrentVerifierLevels(ctx),
+	};
 };
 
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {

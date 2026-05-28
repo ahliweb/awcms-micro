@@ -342,8 +342,13 @@ describe("awcms micro example plugin", () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const before = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const before = (await routes["verification/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
+			input: {},
+		} as any)) as any;
 		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_sopd");
+		expect(before.currentVerifierLevels).toContain("sopd");
 
 		const result = (await routes["verification/advance"]!.handler(
 			{

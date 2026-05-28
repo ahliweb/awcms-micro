@@ -5,7 +5,7 @@ import * as React from "react";
 import { useLingui } from "@lingui/react";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
-import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType, type SikesraSubType } from "./runtime.js";
+import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType } from "./runtime.js";
 
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument, type SikesraUserLevel } from "./fixtures.js";
 
@@ -29,125 +29,6 @@ interface AdministrativeRegency extends AdministrativeRegion {
 
 interface AdministrativeProvince extends AdministrativeRegion {
 	regencies: AdministrativeRegency[];
-}
-
-const REGION_DATA: AdministrativeProvince[] = [
-	{
-		code: "31",
-		name: "DKI Jakarta (31)",
-		regencies: [
-			{
-				code: "3171",
-				name: "Kota Jakarta Pusat (3171)",
-				districts: [
-					{
-						code: "3171010",
-						name: "Kecamatan Menteng (3171010)",
-						villages: [
-							{ code: "3171010001", name: "Kelurahan Menteng (3171010001)" },
-							{ code: "3171010002", name: "Kelurahan Pegangsaan (3171010002)" },
-						],
-					},
-					{
-						code: "3171020",
-						name: "Kecamatan Senen (3171020)",
-						villages: [
-							{ code: "3171020001", name: "Kelurahan Senen (3171020001)" },
-							{ code: "3171020002", name: "Kelurahan Kenari (3171020002)" },
-						],
-					},
-				],
-			},
-		],
-	},
-	{
-		code: "32",
-		name: "Jawa Barat (32)",
-		regencies: [
-			{
-				code: "3273",
-				name: "Kota Bandung (3273)",
-				districts: [
-					{
-						code: "3273010",
-						name: "Kecamatan Coblong (3273010)",
-						villages: [
-							{ code: "3273010001", name: "Kelurahan Dago (3273010001)" },
-							{ code: "3273010002", name: "Kelurahan Sadangserang (3273010002)" },
-						],
-					},
-					{
-						code: "3273020",
-						name: "Kecamatan Bandung Wetan (3273020)",
-						villages: [
-							{ code: "3273020001", name: "Kelurahan Citarum (3273020001)" },
-							{ code: "3273020002", name: "Kelurahan Tamansari (3273020002)" },
-						],
-					},
-				],
-			},
-		],
-	},
-	{
-		code: "33",
-		name: "Jawa Tengah (33)",
-		regencies: [
-			{
-				code: "3374",
-				name: "Kota Semarang (3374)",
-				districts: [
-					{
-						code: "3374010",
-						name: "Kecamatan Semarang Tengah (3374010)",
-						villages: [
-							{ code: "3374010001", name: "Kelurahan Miroto (3374010001)" },
-							{ code: "3374010002", name: "Kelurahan Brumbungan (3374010002)" },
-						],
-					},
-					{
-						code: "3374020",
-						name: "Kecamatan Semarang Barat (3374020)",
-						villages: [
-							{ code: "3374020001", name: "Kelurahan Krobokan (3374020001)" },
-							{ code: "3374020002", name: "Kelurahan Karangayu (3374020002)" },
-						],
-					},
-				],
-			},
-		],
-	},
-	{
-		code: "35",
-		name: "Jawa Timur (35)",
-		regencies: [
-			{
-				code: "3578",
-				name: "Kota Surabaya (3578)",
-				districts: [
-					{
-						code: "3578010",
-						name: "Kecamatan Genteng (3578010)",
-						villages: [
-							{ code: "3578010001", name: "Kelurahan Genteng (3578010001)" },
-							{ code: "3578010002", name: "Kelurahan Ketabang (3578010002)" },
-						],
-					},
-					{
-						code: "3578020",
-						name: "Kecamatan Tegalsari (3578020)",
-						villages: [
-							{ code: "3578020001", name: "Kelurahan Tegalsari (3578020001)" },
-							{ code: "3578020002", name: "Kelurahan Kedungdoro (3578020002)" },
-						],
-					},
-				],
-			},
-		],
-	},
-];
-
-function SectionDivider() {
-	return <div className="my-4 border-t border-kumo-line/60" />;
 }
 
 type JsonMap = Record<string, string>;
@@ -238,6 +119,7 @@ interface VerificationItem {
 
 interface VerificationResponse {
 	items: VerificationItem[];
+	currentVerifierLevels: string[];
 }
 
 interface VerificationAdvanceResponse {
@@ -1967,6 +1849,7 @@ function VerificationPage() {
 	const [mutationError, setMutationError] = React.useState<string | null>(null);
 
 	const queue = data?.items ?? [];
+	const currentVerifierLevels = data?.currentVerifierLevels ?? [];
 	const pending = queue.filter((item) => item.canAdvance).length;
 	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
 
@@ -2025,6 +1908,8 @@ function VerificationPage() {
 			/>
 			<div className="rounded-xl border border-kumo-line bg-kumo-tint/15 px-4 py-3 text-sm text-kumo-subtle">
 				{copy.verificationInputPolicy}
+				<div className="mt-2"><strong>{copy.assignedVerifierLevels}:</strong> {currentVerifierLevels.length > 0 ? currentVerifierLevels.map((level) => resolveVerifierUserLevelLabel(level, copy)).join(", ") : copy.notSet}</div>
+				<div className="mt-1">{copy.verificationReadOnly}</div>
 			</div>
 
 			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>✓</span> <span>{statusMessage}</span></div> : null}
@@ -2041,7 +1926,10 @@ function VerificationPage() {
 					{queue.length === 0 ? (
 						<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities in the verification queue.</div>
 					) : (
-						queue.map((item) => (
+						queue.map((item) => {
+							const allowedVerifierLevels = getVerifierLevelOptions(item.currentLevel);
+							const canCurrentUserAdvance = allowedVerifierLevels.some((level) => currentVerifierLevels.includes(level));
+							return (
 							<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm" key={item.id}>
 								<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 									<div className="flex-1 flex items-start gap-3">
@@ -2054,7 +1942,7 @@ function VerificationPage() {
 											<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/20 p-2.5 rounded-lg border border-kumo-line/50">{item.publicSummary}</div>
 											
 											{/* Action inputs */}
-											{item.canAdvance && (
+													{item.canAdvance && canCurrentUserAdvance && (
 												<div className="mt-3 max-w-md space-y-2 border-t border-kumo-line/50 pt-3">
 													<label className="block text-xs font-medium text-kumo-default mb-1">Verifier Notes:</label>
 													<Input
@@ -2102,8 +1990,13 @@ function VerificationPage() {
 															✗ Needs Revision
 														</Button>
 													</div>
-												</div>
-											)}
+													</div>
+												)}
+													{item.canAdvance && !canCurrentUserAdvance ? (
+														<div className="mt-3 rounded-lg border border-kumo-line/50 bg-kumo-tint/10 px-3 py-2 text-xs text-kumo-subtle">
+															{copy.verificationReadOnly}
+														</div>
+													) : null}
 										</div>
 									</div>
 									<div className="flex flex-col items-end gap-2 shrink-0 max-md:items-start max-md:mt-2">
@@ -2122,7 +2015,8 @@ function VerificationPage() {
 									</div>
 								</div>
 							</div>
-						))
+							);
+						})
 					)}
 				</div>
 			</Card>
