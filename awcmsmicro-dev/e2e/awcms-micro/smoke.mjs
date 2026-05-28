@@ -20,13 +20,13 @@ const templates = [
 		name: "awcms-micro-default",
 		port: LOCAL_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default"),
-		routes: ["/", "/aggregate", "/posts", "/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
+		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
 	},
 	{
 		name: "awcms-micro-default-cloudflare",
 		port: CLOUDFARE_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default-cloudflare"),
-		routes: ["/", "/aggregate", "/posts", "/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
+		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
 	},
 ];
 
@@ -164,17 +164,32 @@ async function validateTemplate(template) {
 		if (path === "/" && template.name === "awcms-micro-default" && !body.includes("View Public Aggregate")) {
 			throw new Error(`${template.name}: home page missing aggregate link`);
 		}
+		if (path === "/id" && template.name === "awcms-micro-default" && !body.includes("Lihat Agregat Publik")) {
+			throw new Error(`${template.name}: localized home page missing Indonesian aggregate link`);
+		}
 		if (path === "/" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Plugin Console")) {
 			throw new Error(`${template.name}: home page missing plugin console link`);
+		}
+		if (path === "/id" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Konsol Plugin")) {
+			throw new Error(`${template.name}: localized home page missing Indonesian plugin console link`);
 		}
 		if (path === "/" && !body.includes("Public Data")) {
 			throw new Error(`${template.name}: home page missing seeded nested menu label`);
 		}
+		if (path === "/id" && !body.includes("Data Publik")) {
+			throw new Error(`${template.name}: localized home page missing Indonesian nested menu label`);
+		}
 		if (path === "/aggregate" && !body.includes("Public aggregate")) {
 			throw new Error(`${template.name}: aggregate page missing expected heading`);
 		}
+		if (path === "/id/aggregate" && !body.includes("Agregat publik")) {
+			throw new Error(`${template.name}: localized aggregate page missing Indonesian heading`);
+		}
 			if (path === "/aggregate" && !body.includes("coarse counts")) {
 				throw new Error(`${template.name}: aggregate page missing public-safe description`);
+			}
+			if (path === "/id/aggregate" && !body.includes("hitungan tingkat tinggi")) {
+				throw new Error(`${template.name}: localized aggregate page missing Indonesian public-safe description`);
 			}
 		}
 		process.stdout.write(`validated ${template.name}\n`);

@@ -1,5 +1,5 @@
 ---
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 import { getPublicCopy } from "../utils/public-copy";
@@ -17,7 +17,10 @@ if (Astro.cache?.enabled) {
 }
 
 const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
-const copy = getPublicCopy(Astro.currentLocale || Astro.locals.awcmsLocale || "en");
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const copy = getPublicCopy(currentLocale);
 
 const publicCounts = [
 	{ label: copy.counts.posts, value: posts.length },

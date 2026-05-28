@@ -344,21 +344,30 @@ function formatDateTime(value: string | null | undefined, locale: string | undef
 	return date.toLocaleString(locale);
 }
 
+function getCurrentAdminLocale() {
+	if (typeof document !== "undefined") {
+		return document.documentElement.lang || "en";
+	}
+	return "en";
+}
+
 function parseJsonMap(value: string): { ok: true; data: JsonMap } | { ok: false; error: string } {
+	const copy = getExampleAdminCopy(getCurrentAdminLocale());
 	try {
 		const parsed = JSON.parse(value) as unknown;
 		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-			return { ok: false, error: 'Use a JSON object, for example {"tenant_id":"tenant-a"}.' };
+			return { ok: false, error: copy.jsonObjectExampleError };
 		}
 
 		const entries = Object.entries(parsed).map(([key, item]) => [key, String(item)] as const);
 		return { ok: true, data: Object.fromEntries(entries) };
 	} catch {
-		return { ok: false, error: "Invalid JSON. Check quotes, commas, and braces." };
+		return { ok: false, error: copy.invalidJsonError };
 	}
 }
 
 async function postPlugin<T>(path: string, payload: unknown = {}) {
+	const copy = getExampleAdminCopy(getCurrentAdminLocale());
 	const response = await apiFetch(`${PLUGIN_API_BASE}/${path}`, {
 		method: "POST",
 		headers: JSON_HEADERS,
@@ -366,7 +375,7 @@ async function postPlugin<T>(path: string, payload: unknown = {}) {
 	});
 
 	if (!response.ok) {
-		throw new Error(await getErrorMessage(response, "Request failed"));
+		throw new Error(await getErrorMessage(response, copy.requestFailed));
 	}
 
 	return parseApiResponse<T>(response);
@@ -385,7 +394,7 @@ function usePluginData<T>(path: string, payload: unknown = {}) {
 		try {
 			setData(await postPlugin<T>(path, JSON.parse(payloadKey) as unknown));
 		} catch (cause) {
-			setError(cause instanceof Error ? cause.message : "Request failed");
+			setError(cause instanceof Error ? cause.message : getExampleAdminCopy(getCurrentAdminLocale()).requestFailed);
 		} finally {
 			setLoading(false);
 		}
@@ -882,10 +891,10 @@ function RegistryPage() {
 				<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
 					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
-							<div>Entity</div>
-							<div>Region</div>
-							<div>Sensitivity</div>
-							<div>Stage</div>
+							<div>{copy.entity}</div>
+							<div>{copy.region}</div>
+							<div>{copy.sensitivity}</div>
+							<div>{copy.stage}</div>
 						</div>
 						{registryEntities.map((entity) => (
 							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr]" key={entity.id}>
@@ -1011,7 +1020,7 @@ function VerificationPage() {
 			setStatusMessage(copy.advancedTo(response.item.code, response.item.verificationStage));
 			await reload();
 		} catch (cause) {
-			setMutationError(cause instanceof Error ? cause.message : "Request failed");
+			setMutationError(cause instanceof Error ? cause.message : copy.requestFailed);
 		} finally {
 			setIsAdvancing(false);
 		}
@@ -2036,6 +2045,7 @@ function AbacPreviewPage() {
 }
 
 function StatusBadgeField({ value, onChange, label, id, minimal, required }: FieldWidgetProps) {
+	const copy = getExampleAdminCopy(getCurrentAdminLocale());
 	const current = typeof value === "string" && value ? value : "draft";
 	const tone = current === "approved" ? "success" : current === "review" ? "warning" : "neutral";
 
@@ -2048,7 +2058,7 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 			) : null}
 			<div className="flex items-center gap-3">
 				<Select value={current} onValueChange={(nextValue) => onChange(nextValue ?? "")}>
-					<Select.Option value="draft">Draft</Select.Option>
+					<Select.Option value="draft">{copy.draft}</Select.Option>
 					<Select.Option value="review">Review</Select.Option>
 					<Select.Option value="approved">Approved</Select.Option>
 				</Select>
