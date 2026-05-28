@@ -78,6 +78,15 @@ describe("awcms micro gallery plugin", () => {
 		expect(result.errors.join(" ")).toContain("filename");
 	});
 
+	it("localizes gallery validation errors for Indonesian requests", () => {
+		const result = validateGalleryContent({ title: "", gallery_type: "invalid", layout_variant: "invalid", gallery_items: [] }, {}, "id");
+
+		expect(result.valid).toBe(false);
+		expect(result.errors.join(" ")).toContain("Judul galeri wajib diisi");
+		expect(result.errors.join(" ")).toContain("Tipe galeri harus photo, video, atau mixed");
+		expect(result.errors.join(" ")).toContain("Variant layout harus grid, masonry, carousel, atau slider");
+	});
+
 	it("serves public gallery list route through the content API", async () => {
 		const plugin = createPlugin();
 		const ctx = createMockContext();

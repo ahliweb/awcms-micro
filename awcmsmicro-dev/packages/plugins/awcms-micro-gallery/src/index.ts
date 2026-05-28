@@ -211,7 +211,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 				handler: async (event: any, ctx: any) => {
 					if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;
 					const settings = await readSettings(ctx, options);
-					const result = validateGalleryContent(event.content, settings);
+					const result = validateGalleryContent(event.content, settings, locale);
 					await writeAudit(ctx, result.valid ? "gallery.validation.ok" : "gallery.validation.reject", "Validated gallery content before save", {
 						contentId: event.content?.id,
 						errors: result.errors,
@@ -263,9 +263,10 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 			},
 			"media/validate": {
 				handler: async (ctx: any) => {
+					const locale = ctx.request?.headers?.["accept-language"] || "en";
 					const item = (await ctx.request.json()) as unknown;
 					const settings = await readSettings(ctx, options);
-					const result = validateGalleryItem(item, 0, settings);
+					const result = validateGalleryItem(item, 0, settings, locale);
 					if (!result.valid) {
 						await writeAudit(ctx, "gallery.media.reject", "Rejected gallery media item", { errors: result.errors });
 						return { success: false, errors: result.errors };

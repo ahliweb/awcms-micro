@@ -98,7 +98,7 @@ const sandboxPlugin: SandboxedPlugin = {
 			handler: async (event: any, pluginCtx: PluginContext): Promise<void | Record<string, unknown>> => {
 				if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;
 				const settings = await readSettings(pluginCtx, {});
-				const result = validateGalleryContent(event.content, settings);
+				const result = validateGalleryContent(event.content, settings, locale);
 				await writeAudit(pluginCtx, result.valid ? "gallery.validation.ok" : "gallery.validation.reject", "Validated gallery content before save", {
 					contentId: event.content?.id,
 					errors: result.errors,
@@ -150,9 +150,10 @@ const sandboxPlugin: SandboxedPlugin = {
 		},
 		"media/validate": {
 			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
+				const locale = routeCtx.request?.headers?.["accept-language"];
 				const item = (await routeCtx.request.json()) as unknown;
 				const settings = await readSettings(pluginCtx, {});
-				const result = validateGalleryItem(item, 0, settings);
+				const result = validateGalleryItem(item, 0, settings, locale);
 				if (!result.valid) {
 					await writeAudit(pluginCtx, "gallery.media.reject", "Rejected gallery media item", { errors: result.errors });
 					return { success: false, errors: result.errors };
