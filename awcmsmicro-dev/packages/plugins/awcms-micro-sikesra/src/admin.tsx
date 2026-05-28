@@ -803,8 +803,79 @@ function AbacPolicyStatusWidget() {
 	);
 }
 
+function SikesraStatsChart({ categories }: { categories: any[] }) {
+	const maxVal = Math.max(...categories.map((c) => c.total), 1);
+
+	return (
+		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 text-kumo-default shadow-sm mt-2">
+			<h2 className="text-lg font-bold mb-1">Grafik Rekapitulasi Data SIKESRA</h2>
+			<p className="text-xs text-kumo-subtle mb-6">Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.</p>
+
+			<div className="space-y-6">
+				{categories.map((cat) => {
+					const totalPct = (cat.total / maxVal) * 100;
+					const verifiedPct = (cat.verified / maxVal) * 100;
+
+					return (
+						<div key={cat.code} className="space-y-2">
+							<div className="flex items-center justify-between text-sm font-medium">
+								<span className="text-kumo-default">{cat.label}</span>
+								{cat.suppressed ? (
+									<span className="text-xs text-kumo-subtle italic">Disupresi</span>
+								) : (
+									<div className="flex gap-4 text-xs">
+										<span className="text-blue-600 font-semibold">Total: {cat.total}</span>
+										<span className="text-emerald-600 font-semibold">Terverifikasi: {cat.verified}</span>
+									</div>
+								)}
+							</div>
+
+							{cat.suppressed ? (
+								<div className="h-8 w-full bg-kumo-tint rounded-lg flex items-center px-3 border border-dashed border-kumo-line">
+									<div className="text-[10px] text-kumo-subtle">
+										Jumlah terlalu rendah untuk keamanan privasi (&lt; 3)
+									</div>
+								</div>
+							) : (
+								<div className="space-y-1.5">
+									{/* Total Bar */}
+									<div className="w-full bg-kumo-tint h-3 rounded-full overflow-hidden">
+										<div
+											className="bg-blue-500 h-full rounded-full transition-all duration-500 hover:bg-blue-600"
+											style={{ width: `${totalPct}%` }}
+										/>
+									</div>
+									{/* Verified Bar */}
+									<div className="w-full bg-kumo-tint h-3 rounded-full overflow-hidden">
+										<div
+											className="bg-emerald-500 h-full rounded-full transition-all duration-500 hover:bg-emerald-600"
+											style={{ width: `${verifiedPct}%` }}
+										/>
+									</div>
+								</div>
+							)}
+						</div>
+					);
+				})}
+			</div>
+
+			<div className="flex items-center gap-4 mt-6 pt-4 border-t border-kumo-line text-xs text-kumo-subtle">
+				<div className="flex items-center gap-1.5">
+					<span className="w-3 h-3 bg-blue-500 rounded-full inline-block" />
+					<span>Total Entitas</span>
+				</div>
+				<div className="flex items-center gap-1.5">
+					<span className="w-3 h-3 bg-emerald-500 rounded-full inline-block" />
+					<span>Terverifikasi</span>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 function OverviewPage() {
 	const { data, error, loading, reload } = usePluginData<SummaryResponse>("overview/summary");
+	const { data: publicStatus } = usePluginData<any>("public/status");
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const [saving, setSaving] = React.useState(false);
@@ -934,6 +1005,10 @@ function OverviewPage() {
 					);
 				})}
 			</div>
+
+			{publicStatus?.publicAggregate?.categories && publicStatus.publicAggregate.categories.length > 0 && (
+				<SikesraStatsChart categories={publicStatus.publicAggregate.categories} />
+			)}
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
 				<Card title={copy.pluginConfiguration} description={copy.pluginConfigurationDescription}>
