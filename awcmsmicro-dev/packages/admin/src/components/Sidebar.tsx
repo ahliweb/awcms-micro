@@ -40,6 +40,7 @@ export interface SidebarNavProps {
 		plugins: Record<
 			string,
 			{
+				name?: string;
 				package?: string;
 				enabled?: boolean;
 				adminMode?: "react" | "blocks" | "none";
@@ -153,6 +154,13 @@ function isItemActive(itemPath: string, currentPath: string): boolean {
 		: currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
 }
 
+function humanizePluginId(pluginId: string): string {
+	return pluginId
+		.split("-")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+}
+
 /**
  * Admin sidebar navigation using kumo's Sidebar compound component.
  */
@@ -245,12 +253,13 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginItems: NavItem[] = [];
+	const pluginGroups: Array<{ id: string; label: string; items: NavItem[] }> = [];
 	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
 		if (config.enabled === false) continue;
 		if (config.adminPages && config.adminPages.length > 0) {
 			const pluginPages = pluginAdmins[pluginId]?.pages;
 			const isBlocksMode = config.adminMode === "blocks";
+			const pluginItems: NavItem[] = [];
 			for (const page of config.adminPages) {
 				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
 				const label =
@@ -261,6 +270,13 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						.join(" ");
 				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
 			}
+			if (pluginItems.length > 0) {
+				pluginGroups.push({
+					id: pluginId,
+					label: config.name?.trim() || humanizePluginId(pluginId),
+					items: pluginItems,
+				});
+			}
 		}
 	}
 
@@ -270,7 +286,14 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const visibleContent = filterByRole(contentItems);
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
-	const visiblePlugins = filterByRole(pluginItems);
+	const visiblePluginGroups = pluginGroups
+		.map((group) => ({
+			...group,
+			items: filterByRole(group.items),
+		}))
+		.filter((group) => group.items.length > 0);
+	const hasNonPluginGroups =
+		visibleContent.length > 1 || visibleManage.length > 0 || visibleAdmin.length > 0;
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -420,7 +443,24 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Menu>
 					</KumoSidebar.Group>
 
-					<KumoSidebar.Separator />
+					{visiblePluginGroups.length > 0 && <KumoSidebar.Separator />}
+
+					{/* Plugin groups — each plugin gets its own collapsible section */}
+					{visiblePluginGroups.map((group, index) => (
+						<React.Fragment key={group.id}>
+							<KumoSidebar.Group collapsible defaultOpen>
+								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
+									{group.label}
+								</KumoSidebar.GroupLabel>
+								<KumoSidebar.GroupContent>
+									<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
+								</KumoSidebar.GroupContent>
+							</KumoSidebar.Group>
+							{index < visiblePluginGroups.length - 1 && <KumoSidebar.Separator />}
+						</React.Fragment>
+					))}
+
+					{visiblePluginGroups.length > 0 && hasNonPluginGroups && <KumoSidebar.Separator />}
 
 					{/* Content — collections + media (collapsible) */}
 					{visibleContent.length > 1 && (
@@ -434,7 +474,9 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					<KumoSidebar.Separator />
+					{visibleContent.length > 1 && (visibleManage.length > 0 || visibleAdmin.length > 0) && (
+						<KumoSidebar.Separator />
+					)}
 
 					{/* Manage — comments, menus, taxonomies, etc. (collapsible) */}
 					{visibleManage.length > 0 && (
@@ -446,7 +488,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					<KumoSidebar.Separator />
+					{visibleManage.length > 0 && visibleAdmin.length > 0 && <KumoSidebar.Separator />}
 
 					{/* Admin — content types, users, plugins, import (collapsible) */}
 					{visibleAdmin.length > 0 && (
@@ -456,19 +498,6 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 								<KumoSidebar.Menu>{renderNavItems(visibleAdmin)}</KumoSidebar.Menu>
 							</KumoSidebar.GroupContent>
 						</KumoSidebar.Group>
-					)}
-
-					{/* Plugin pages (collapsible) */}
-					{visiblePlugins.length > 0 && (
-						<>
-							<KumoSidebar.Separator />
-							<KumoSidebar.Group collapsible defaultOpen>
-								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Plugins`}</KumoSidebar.GroupLabel>
-								<KumoSidebar.GroupContent>
-									<KumoSidebar.Menu>{renderNavItems(visiblePlugins)}</KumoSidebar.Menu>
-								</KumoSidebar.GroupContent>
-							</KumoSidebar.Group>
-						</>
 					)}
 				</KumoSidebar.Content>
 
