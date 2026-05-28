@@ -1,6 +1,7 @@
 type PluginPageConfig = {
 	path: string;
 	label?: string;
+	icon?: string;
 };
 
 type PluginConfig = {
@@ -17,11 +18,13 @@ type PluginManifest = {
 export type PluginNavPage = {
 	path: string;
 	label: string;
+	icon?: string;
 };
 
 export type PluginNavGroup = {
 	pluginId: string;
 	label: string;
+	icon?: string;
 	pages: PluginNavPage[];
 };
 
@@ -47,6 +50,7 @@ export function getPluginNavGroups(
 			.map((page) => ({
 				path: page.path,
 				label: page.label || humanizePluginId(pluginId),
+				icon: page.icon,
 			}));
 
 		if (pages.length === 0) continue;
@@ -54,6 +58,7 @@ export function getPluginNavGroups(
 		groups.push({
 			pluginId,
 			label: config.name?.trim() || humanizePluginId(pluginId),
+			icon: config.adminPages?.[0]?.icon,
 			pages,
 		});
 	}

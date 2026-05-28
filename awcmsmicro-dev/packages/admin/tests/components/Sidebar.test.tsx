@@ -12,7 +12,7 @@ vi.mock("@cloudflare/kumo", () => {
 		Header: Block,
 		Content: Block,
 		Footer: Block,
-		Group: Block,
+		Group: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 		GroupLabel: ({ children }: React.PropsWithChildren) => <h2>{children}</h2>,
 		GroupContent: Block,
 		Menu: Block,
@@ -65,12 +65,12 @@ const manifest = {
 		"plugin-alpha": {
 			name: "Alpha",
 			enabled: true,
-			adminPages: [{ path: "/overview", label: "Overview" }],
+			adminPages: [{ path: "/overview", label: "Overview", icon: "chart" }],
 		},
 		"plugin-beta": {
 			name: "Beta",
 			enabled: true,
-			adminPages: [{ path: "/settings", label: "Settings" }],
+			adminPages: [{ path: "/settings", label: "Settings", icon: "globe" }],
 		},
 	},
 	taxonomies: [{ name: "cats", label: "Categories" }],
@@ -90,5 +90,8 @@ describe("SidebarNav", () => {
 
 		const groupLabels = Array.from(document.querySelectorAll("h2"), (el) => el.textContent ?? "");
 		expect(groupLabels).toEqual(["Alpha", "Beta", "Content", "Manage", "Admin"]);
+		expect(document.querySelectorAll("h2 svg")).toHaveLength(2);
+		expect(document.querySelector('a[href="/plugins/plugin-alpha/overview"] svg')).not.toBeNull();
+		expect(document.querySelector('a[href="/plugins/plugin-beta/settings"] svg')).not.toBeNull();
 	});
 });

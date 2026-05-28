@@ -1,21 +1,31 @@
 import { Sidebar as KumoSidebar, Tooltip, useSidebar } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react/macro";
 import {
-	SquaresFour,
+	ChartBar,
+	Check,
+	Code,
 	FileText,
-	Image,
-	ChatCircle,
-	Gear,
-	PuzzlePiece,
-	Storefront,
-	Palette,
-	Upload,
-	Database,
-	List,
+	Globe,
 	GridFour,
+	Image,
+	Info,
+	EnvelopeSimple,
+	List,
+	ListBullets,
+	Lock,
+	Palette,
+	PuzzlePiece,
+	Shield,
+	SlidersHorizontal,
+	Storefront,
+	Upload,
 	Users,
 	Stack,
 	ArrowsLeftRight,
+	ChatCircle,
+	Database,
+	Gear,
+	SquaresFour,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -81,6 +91,30 @@ interface NavItem {
 	minRole?: number;
 	/** Optional badge count (e.g., pending comments) */
 	badge?: number;
+}
+
+const PLUGIN_ICON_MAP: Record<string, React.ElementType> = {
+	chart: ChartBar,
+	check: Check,
+	code: Code,
+	file: FileText,
+	form: ListBullets,
+	gear: Gear,
+	globe: Globe,
+	grid: GridFour,
+	image: Image,
+	info: Info,
+	inbox: EnvelopeSimple,
+	list: List,
+	lock: Lock,
+	shield: Shield,
+	sliders: SlidersHorizontal,
+	upload: Upload,
+};
+
+function resolvePluginIcon(icon?: string): React.ElementType {
+	if (icon && PLUGIN_ICON_MAP[icon]) return PLUGIN_ICON_MAP[icon];
+	return PuzzlePiece;
 }
 
 /**
@@ -253,10 +287,11 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	}).map((group) => ({
 		id: group.pluginId,
 		label: group.label,
+		icon: resolvePluginIcon(group.icon),
 		items: group.pages.map((page) => ({
 			to: `/plugins/${group.pluginId}${page.path}`,
 			label: page.label,
-			icon: PuzzlePiece,
+			icon: resolvePluginIcon(page.icon),
 		})),
 	}));
 
@@ -430,7 +465,10 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						<React.Fragment key={group.id}>
 							<KumoSidebar.Group collapsible defaultOpen>
 								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
-									{group.label}
+									<span className="flex items-center gap-2">
+										<group.icon className="size-3.5 shrink-0" aria-hidden="true" />
+										<span>{group.label}</span>
+									</span>
 								</KumoSidebar.GroupLabel>
 								<KumoSidebar.GroupContent>
 									<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
