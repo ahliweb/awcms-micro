@@ -62,6 +62,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: preserve the plugin-and-template-only downstream model and keep performance fixes reviewable in the canonical EmDash codebase
 - See: `docs/upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`, `docs/awcms-micro-implementation-boundaries.md`
 
+### DR-010: Plugin-First Admin Navigation Is A Downstream Adaptation
+
+- Decision: render plugin admin groups directly below Dashboard in `awcmsmicro-dev/`, keep each plugin in its own collapsible group, and reuse the same ordering in the command palette
+- Why: keep AWCMS-Micro plugin navigation clear and consistent while staying inside downstream admin-shell boundaries
+- See: `AGENTS.md`, `docs/implementation-instructions.md`, `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:

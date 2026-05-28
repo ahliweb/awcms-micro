@@ -8,6 +8,8 @@ Draft implementation guidance for AWCMS-Micro.
 
 This document explains how AWCMS-Micro should implement nested menus without modifying EmDash core or the built-in EmDash admin sidebar.
 
+The separate plugin-first admin sidebar ordering used in `awcmsmicro-dev/` is documented in `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` and is implemented only inside the downstream workspace, not by editing upstream `emdash-latest/`.
+
 It covers two separate navigation surfaces:
 
 1. **Public site navigation** — nested public menus and dropdowns rendered by the public Astro template.
@@ -19,8 +21,9 @@ AWCMS-Micro must use EmDash-native capabilities first.
 
 - Public nested menus must use EmDash `menus`, `getMenu()`, and `MenuItem.children`.
 - Plugin-specific nested navigation must be rendered inside the plugin page header or plugin content area.
-- The EmDash admin sidebar must not be modified for AWCMS-Micro-specific plugin grouping unless an upstream-compatible proposal is approved separately.
-- Plugin admin sidebar entries should remain flat and minimal through EmDash `admin.pages` / `adminPages`.
+- The EmDash admin sidebar must not be modified directly in `emdash-latest/` for AWCMS-Micro-specific plugin grouping.
+- AWCMS-Micro may implement approved plugin-first ordering inside `awcmsmicro-dev/` as a downstream adaptation, provided it stays within the plugin/template boundary model and keeps each plugin in its own collapsible group.
+- Plugin admin sidebar entries remain flat at the metadata level through EmDash `admin.pages` / `adminPages`; grouping is handled by the downstream admin shell.
 
 ## Non-Goals
 
