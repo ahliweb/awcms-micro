@@ -1037,12 +1037,6 @@ async function setSettings(ctx: PluginContext, input: unknown) {
 		sikesraPublicEnabled: getBoolean(input, "sikesraPublicEnabled") ?? current.sikesraPublicEnabled,
 	};
 
-	await ctx.kv.set("settings:publicStatusLabel", next.publicStatusLabel);
-	await ctx.kv.set("settings:auditRetentionDays", next.auditRetentionDays);
-	await ctx.kv.set("settings:governanceMode", next.governanceMode);
-	await ctx.kv.set("settings:metadataCanonicalBase", next.metadataCanonicalBase);
-	await ctx.kv.set("settings:smallCellThreshold", next.smallCellThreshold);
-	await ctx.kv.set("settings:sikesraPublicEnabled", next.sikesraPublicEnabled);
 	await persistSettings(ctx, next);
 
 	return next;
