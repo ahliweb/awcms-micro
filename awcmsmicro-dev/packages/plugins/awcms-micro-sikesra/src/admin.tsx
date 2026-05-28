@@ -12,6 +12,142 @@ import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistr
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
+interface AdministrativeRegion {
+	code: string;
+	name: string;
+}
+
+interface AdministrativeDistrict extends AdministrativeRegion {
+	villages: AdministrativeRegion[];
+}
+
+interface AdministrativeRegency extends AdministrativeRegion {
+	districts: AdministrativeDistrict[];
+}
+
+interface AdministrativeProvince extends AdministrativeRegion {
+	regencies: AdministrativeRegency[];
+}
+
+const REGION_DATA: AdministrativeProvince[] = [
+	{
+		code: "31",
+		name: "DKI Jakarta (31)",
+		regencies: [
+			{
+				code: "3171",
+				name: "Kota Jakarta Pusat (3171)",
+				districts: [
+					{
+						code: "3171010",
+						name: "Kecamatan Menteng (3171010)",
+						villages: [
+							{ code: "3171010001", name: "Kelurahan Menteng (3171010001)" },
+							{ code: "3171010002", name: "Kelurahan Pegangsaan (3171010002)" },
+						],
+					},
+					{
+						code: "3171020",
+						name: "Kecamatan Senen (3171020)",
+						villages: [
+							{ code: "3171020001", name: "Kelurahan Senen (3171020001)" },
+							{ code: "3171020002", name: "Kelurahan Kenari (3171020002)" },
+						],
+					},
+				],
+			},
+		],
+	},
+	{
+		code: "32",
+		name: "Jawa Barat (32)",
+		regencies: [
+			{
+				code: "3273",
+				name: "Kota Bandung (3273)",
+				districts: [
+					{
+						code: "3273010",
+						name: "Kecamatan Coblong (3273010)",
+						villages: [
+							{ code: "3273010001", name: "Kelurahan Dago (3273010001)" },
+							{ code: "3273010002", name: "Kelurahan Sadangserang (3273010002)" },
+						],
+					},
+					{
+						code: "3273020",
+						name: "Kecamatan Bandung Wetan (3273020)",
+						villages: [
+							{ code: "3273020001", name: "Kelurahan Citarum (3273020001)" },
+							{ code: "3273020002", name: "Kelurahan Tamansari (3273020002)" },
+						],
+					},
+				],
+			},
+		],
+	},
+	{
+		code: "33",
+		name: "Jawa Tengah (33)",
+		regencies: [
+			{
+				code: "3374",
+				name: "Kota Semarang (3374)",
+				districts: [
+					{
+						code: "3374010",
+						name: "Kecamatan Semarang Tengah (3374010)",
+						villages: [
+							{ code: "3374010001", name: "Kelurahan Miroto (3374010001)" },
+							{ code: "3374010002", name: "Kelurahan Brumbungan (3374010002)" },
+						],
+					},
+					{
+						code: "3374020",
+						name: "Kecamatan Semarang Barat (3374020)",
+						villages: [
+							{ code: "3374020001", name: "Kelurahan Krobokan (3374020001)" },
+							{ code: "3374020002", name: "Kelurahan Karangayu (3374020002)" },
+						],
+					},
+				],
+			},
+		],
+	},
+	{
+		code: "35",
+		name: "Jawa Timur (35)",
+		regencies: [
+			{
+				code: "3578",
+				name: "Kota Surabaya (3578)",
+				districts: [
+					{
+						code: "3578010",
+						name: "Kecamatan Genteng (3578010)",
+						villages: [
+							{ code: "3578010001", name: "Kelurahan Genteng (3578010001)" },
+							{ code: "3578010002", name: "Kelurahan Ketabang (3578010002)" },
+						],
+					},
+					{
+						code: "3578020",
+						name: "Kecamatan Tegalsari (3578020)",
+						villages: [
+							{ code: "3578020001", name: "Kelurahan Tegalsari (3578020001)" },
+							{ code: "3578020002", name: "Kelurahan Kedungdoro (3578020002)" },
+						],
+					},
+				],
+			},
+		],
+	},
+];
+
+function SectionDivider() {
+	return <div className="my-4 border-t border-kumo-line/60" />;
+}
+
 type JsonMap = Record<string, string>;
 type GovernanceMode = "observe" | "review" | "enforce-demo";
 type AbacTargetType = "subject" | "resource" | "context";
@@ -409,6 +545,25 @@ function usePluginData<T>(path: string, payload: unknown = {}) {
 	return { data, error, loading, reload };
 }
 
+// --- Entity type visual helpers ---
+
+const ENTITY_TYPE_META: Record<string, { icon: string }> = {
+	rumah_ibadah: { icon: "🕌" },
+	lembaga_keagamaan: { icon: "🏛️" },
+	pendidikan_keagamaan: { icon: "📚" },
+	lks: { icon: "🤝" },
+	guru_agama: { icon: "🎓" },
+	anak_yatim: { icon: "🌱" },
+	disabilitas: { icon: "♿" },
+	lansia_terlantar: { icon: "🏠" },
+};
+
+function getEntityIcon(type: string): string {
+	return ENTITY_TYPE_META[type]?.icon ?? "📋";
+}
+
+// --- Layout ---
+
 function PageShell({ children, width = "wide" }: { children: React.ReactNode; width?: "normal" | "wide" }) {
 	return (
 		<div className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-6xl" : "max-w-4xl") }>
@@ -445,20 +600,36 @@ function PageHeader({
 	title,
 	description,
 	actions,
+	icon,
 }: {
 	eyebrow?: string;
 	title: string;
 	description: string;
 	actions?: React.ReactNode;
+	icon?: string;
 }) {
 	return (
-		<div className="flex flex-col gap-4 rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm md:flex-row md:items-start md:justify-between">
-			<div className="space-y-2">
-				{eyebrow ? <div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">{eyebrow}</div> : null}
-				<h1 className="text-3xl font-bold tracking-tight text-kumo-default">{title}</h1>
-				<p className="max-w-3xl text-sm leading-6 text-kumo-subtle">{description}</p>
+		<div className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
+			<div className="h-1 bg-gradient-to-r from-kumo-brand/80 via-kumo-brand/50 to-kumo-brand/10" />
+			<div className="flex flex-col gap-4 p-6 md:flex-row md:items-start md:justify-between">
+				<div className="flex items-start gap-4">
+					{icon ? (
+						<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-kumo-line bg-kumo-tint text-xl shadow-sm">
+							{icon}
+						</div>
+					) : null}
+					<div className="space-y-1.5">
+						{eyebrow ? (
+							<div className="inline-flex items-center rounded-full border border-kumo-line bg-kumo-tint px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-kumo-subtle">
+								{eyebrow}
+							</div>
+						) : null}
+						<h1 className="text-2xl font-bold tracking-tight text-kumo-default">{title}</h1>
+						<p className="max-w-3xl text-sm leading-6 text-kumo-subtle">{description}</p>
+					</div>
+				</div>
+				{actions ? <div className="flex shrink-0 items-center gap-2 pt-1">{actions}</div> : null}
 			</div>
-			{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
 		</div>
 	);
 }
@@ -468,34 +639,47 @@ function Card({
 	description,
 	children,
 	actions,
+	icon,
 }: {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
 	actions?: React.ReactNode;
+	icon?: string;
 }) {
+	const hasHeader = !!(title || description || actions);
 	return (
-		<section className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm">
-			{title || description || actions ? (
-				<div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-					<div>
-						{title ? <h2 className="text-lg font-semibold text-kumo-default">{title}</h2> : null}
-						{description ? <p className="mt-1 text-sm leading-6 text-kumo-subtle">{description}</p> : null}
+		<section className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
+			{hasHeader ? (
+				<div className="flex flex-col gap-3 border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 md:flex-row md:items-start md:justify-between">
+					<div className="flex items-center gap-3">
+						{icon ? (
+							<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-kumo-line bg-kumo-base text-base">
+								{icon}
+							</div>
+						) : null}
+						<div>
+							{title ? <h2 className="text-sm font-semibold text-kumo-default">{title}</h2> : null}
+							{description ? <p className="mt-0.5 text-xs text-kumo-subtle">{description}</p> : null}
+						</div>
 					</div>
 					{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
 				</div>
 			) : null}
-			{children}
+			<div className="p-5">{children}</div>
 		</section>
 	);
 }
 
-function MetricCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
+function MetricCard({ label, value, hint, icon }: { label: string; value: React.ReactNode; hint?: string; icon?: string }) {
 	return (
-		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
-			<div className="text-sm text-kumo-subtle">{label}</div>
-			<div className="mt-2 text-3xl font-semibold tracking-tight text-kumo-default">{value}</div>
-			{hint ? <div className="mt-2 text-xs text-kumo-subtle">{hint}</div> : null}
+		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm">
+			<div className="flex items-start justify-between gap-2">
+				<div className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">{label}</div>
+				{icon ? <div className="shrink-0 text-xl">{icon}</div> : null}
+			</div>
+			<div className="mt-3 text-3xl font-bold tracking-tight text-kumo-default">{value}</div>
+			{hint ? <div className="mt-2 text-xs leading-5 text-kumo-subtle">{hint}</div> : null}
 		</div>
 	);
 }
@@ -522,30 +706,41 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function LoadingState({ label }: { label: string }) {
-	return <div className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-sm text-kumo-default">{label}</div>;
+	return (
+		<div className="flex items-center gap-3 rounded-2xl border border-kumo-line bg-kumo-base p-5 text-sm text-kumo-default">
+			<span className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-kumo-brand border-t-transparent" />
+			<span className="text-kumo-subtle">{label}</span>
+		</div>
+	);
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	return (
-		<div className="rounded-2xl border border-kumo-danger/30 bg-kumo-danger/10 p-5 text-sm text-kumo-danger">
-			<div className="font-medium">{copy.somethingWentWrong}</div>
-			<div className="mt-1">{message}</div>
-			{onRetry ? (
-				<Button className="mt-3" variant="secondary" size="sm" onClick={onRetry} type="button">
-					{copy.retry}
-				</Button>
-			) : null}
+		<div className="rounded-2xl border border-kumo-danger/30 bg-kumo-danger/10 p-5 text-kumo-danger">
+			<div className="flex items-start gap-3">
+				<span className="mt-0.5 shrink-0 text-lg">⚠️</span>
+				<div className="min-w-0 flex-1">
+					<div className="text-sm font-semibold">{copy.somethingWentWrong}</div>
+					<div className="mt-1 break-words text-sm opacity-80">{message}</div>
+					{onRetry ? (
+						<Button className="mt-3" variant="secondary" size="sm" onClick={onRetry} type="button">
+							{copy.retry}
+						</Button>
+					) : null}
+				</div>
+			</div>
 		</div>
 	);
 }
 
 function EmptyState({ title, description }: { title: string; description: string }) {
 	return (
-		<div className="rounded-xl border border-kumo-line bg-kumo-base p-5 text-sm text-kumo-default">
-			<div className="font-medium text-kumo-default">{title}</div>
-			<div className="mt-1 text-kumo-subtle">{description}</div>
+		<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-kumo-line bg-kumo-tint/20 px-6 py-10 text-center">
+			<div className="mb-3 text-3xl opacity-50">📭</div>
+			<div className="text-sm font-semibold text-kumo-default">{title}</div>
+			<div className="mt-1 max-w-sm text-sm text-kumo-subtle">{description}</div>
 		</div>
 	);
 }
@@ -555,11 +750,12 @@ function Feedback({ message, tone = "success" }: { message: string | null; tone?
 	return (
 		<div
 			className={cx(
-				"rounded-xl border border-kumo-line p-3 text-sm",
+				"flex items-start gap-2.5 rounded-xl border p-3.5 text-sm",
 				tone === "success" ? "border-kumo-success/30 bg-kumo-success/10 text-kumo-success" : "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger",
 			)}
 		>
-			{message}
+			<span className="mt-0.5 shrink-0">{tone === "success" ? "✅" : "❌"}</span>
+			<span>{message}</span>
 		</div>
 	);
 }
@@ -745,29 +941,56 @@ function OverviewPage() {
 			<Feedback message={copy.overviewSuccess} tone="success" />
 
 			<div className="grid gap-5 md:grid-cols-3 mt-2">
-				<MetricCard label={copy.auditEventsStored} value={data.counters.auditCount} hint={copy.auditEventsStoredHint} />
-				<MetricCard label={copy.lifecycleTriggers} value={data.counters.lifecycleCount} hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))} />
-				<MetricCard label={copy.publicApiHits} value={data.counters.publicHits} hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))} />
+				<MetricCard label={copy.auditEventsStored} value={data.counters.auditCount} hint={copy.auditEventsStoredHint} icon="📋" />
+				<MetricCard label={copy.lifecycleTriggers} value={data.counters.lifecycleCount} hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))} icon="⚙️" />
+				<MetricCard label={copy.publicApiHits} value={data.counters.publicHits} hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))} icon="🌐" />
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-				{dashboardCards.map((card) => (
-					<section className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm" key={card.id}>
-						<div className="flex items-start justify-between gap-3">
-							<div>
-								<div className="text-sm font-semibold text-kumo-default">{card.title}</div>
-								<div className="mt-1 text-xs leading-5 text-kumo-subtle">{card.description}</div>
+				{dashboardCards.map((card) => {
+					const accents: Record<string, string> = {
+						registry: "border-l-4 border-l-blue-500",
+						institutions: "border-l-4 border-l-purple-500",
+						education: "border-l-4 border-l-green-500",
+						welfare: "border-l-4 border-l-teal-500",
+						teachers: "border-l-4 border-l-amber-500",
+						orphans: "border-l-4 border-l-rose-500",
+						disabilities: "border-l-4 border-l-indigo-500",
+						elderly: "border-l-4 border-l-orange-500",
+					};
+					const icons: Record<string, string> = {
+						registry: "🕌",
+						institutions: "🏛️",
+						education: "📚",
+						welfare: "🤝",
+						teachers: "🎓",
+						orphans: "🌱",
+						disabilities: "♿",
+						elderly: "🏠",
+					};
+					return (
+						<section className={cx("rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all", accents[card.id] || "")} key={card.id}>
+							<div className="flex items-start justify-between gap-3">
+								<div className="flex items-start gap-2.5">
+									<span className="text-2xl shrink-0" role="img" aria-label={card.title}>
+										{icons[card.id] || "📋"}
+									</span>
+									<div>
+										<div className="text-sm font-semibold text-kumo-default">{card.title}</div>
+										<div className="mt-1 text-xs leading-5 text-kumo-subtle">{card.description}</div>
+									</div>
+								</div>
+								<div className="flex flex-col items-end gap-1.5 shrink-0">
+									<Badge variant="secondary">{card.status}</Badge>
+									{card.badge != null ? <Badge variant="outline">{card.badge}</Badge> : null}
+								</div>
 							</div>
-							<div className="flex flex-col items-end gap-2">
-								<Badge variant="secondary">{card.status}</Badge>
-								{card.badge != null ? <Badge variant="outline">{card.badge}</Badge> : null}
-							</div>
-						</div>
-						<LinkButton href={card.href} variant="secondary" size="sm" className="mt-4 w-full justify-center">
-							{copy.openModule}
-						</LinkButton>
-					</section>
-				))}
+							<LinkButton href={card.href} variant="secondary" size="sm" className="mt-4 w-full justify-center">
+								{copy.openModule}
+							</LinkButton>
+						</section>
+					);
+				})}
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
@@ -901,6 +1124,13 @@ function RegistryPage() {
 	const [submitting, setSubmitting] = React.useState(false);
 	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
 	const [errMsg, setErrMsg] = React.useState<string | null>(null);
+	const [activeSubTab, setActiveSubTab] = React.useState<"queue" | "intake">("queue");
+
+	// Temp document form states
+	const [tempDocTitle, setTempDocTitle] = React.useState("");
+	const [tempDocType, setTempDocType] = React.useState("surat_keterangan");
+	const [tempDocSensitivity, setTempDocSensitivity] = React.useState<SikesraSensitivity>("public_safe");
+	const [tempDocFile, setTempDocFile] = React.useState<string | null>(null);
 
 	// 11-step wizard state
 	const [wizardState, setWizardState] = React.useState({
@@ -920,9 +1150,12 @@ function RegistryPage() {
 		moduleDetails: "Kapasitas Jamaah: 200 Orang",
 		caregiverName: "H. Ahmad",
 		caregiverPhone: "081234567890",
-		docTitle: "Surat Keterangan Kemenag",
-		docType: "surat_keterangan",
-		docSensitivity: "public_safe" as SikesraSensitivity,
+		documents: [] as Array<{
+			id: string;
+			title: string;
+			documentType: string;
+			sensitivity: SikesraSensitivity;
+		}>,
 		isValidated: false,
 		code: "", // SIKESRA ID
 		sensitivity: "public_safe" as SikesraSensitivity,
@@ -1002,15 +1235,15 @@ function RegistryPage() {
 				regencyCode: wizardState.regencyCode,
 				districtCode: wizardState.districtCode,
 				villageCode: wizardState.villageCode,
-				publicSummary: `${wizardState.label} (${wizardState.subtype}) located in RT ${wizardState.rt} / RW ${wizardState.rw}, ${wizardState.address}. Desil: ${wizardState.desil}, Caregiver: ${wizardState.caregiverName}`,
+				publicSummary: `${wizardState.label} (${wizardState.subtype || "-"}) located in RT ${wizardState.rt || "00"}/RW ${wizardState.rw || "00"}, ${wizardState.address || "-"}.${wizardState.religion ? ` Religion: ${wizardState.religion}.` : ""}${wizardState.desil ? ` Desil: ${wizardState.desil}.` : ""}${wizardState.caregiverName ? ` Caregiver: ${wizardState.caregiverName}` : ""}`,
 			});
 
-			if (wizardState.docTitle) {
+			for (const doc of wizardState.documents) {
 				await postPlugin("documents/save", {
 					registryEntityId: res.item.id,
-					title: wizardState.docTitle,
-					documentType: wizardState.docType,
-					sensitivity: wizardState.docSensitivity,
+					title: doc.title,
+					documentType: doc.documentType,
+					sensitivity: doc.sensitivity,
 				});
 			}
 
@@ -1033,19 +1266,74 @@ function RegistryPage() {
 				moduleDetails: "Kapasitas Jamaah: 200 Orang",
 				caregiverName: "H. Ahmad",
 				caregiverPhone: "081234567890",
-				docTitle: "Surat Keterangan Kemenag",
-				docType: "surat_keterangan",
-				docSensitivity: "public_safe",
+				documents: [],
 				isValidated: false,
 				code: "",
 				sensitivity: "public_safe",
 			});
+			setTempDocTitle("");
+			setTempDocFile(null);
 			await reload();
 		} catch (err) {
 			setErrMsg(err instanceof Error ? err.message : "Failed to save entity");
 		} finally {
 			setSubmitting(false);
 		}
+	};
+
+	const handleProvinceChange = (provinceCode: string) => {
+		const prov = REGION_DATA.find(p => p.code === provinceCode);
+		const reg = prov?.regencies[0];
+		const dist = reg?.districts[0];
+		const vill = dist?.villages[0];
+		setWizardState(prev => ({
+			...prev,
+			provinceCode,
+			regencyCode: reg?.code ?? "",
+			districtCode: dist?.code ?? "",
+			villageCode: vill?.code ?? "",
+		}));
+	};
+
+	const handleRegencyChange = (regencyCode: string) => {
+		const prov = REGION_DATA.find(p => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies.find(r => r.code === regencyCode);
+		const dist = reg?.districts[0];
+		const vill = dist?.villages[0];
+		setWizardState(prev => ({
+			...prev,
+			regencyCode,
+			districtCode: dist?.code ?? "",
+			villageCode: vill?.code ?? "",
+		}));
+	};
+
+	const handleDistrictChange = (districtCode: string) => {
+		const prov = REGION_DATA.find(p => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies.find(r => r.code === wizardState.regencyCode);
+		const dist = reg?.districts.find(d => d.code === districtCode);
+		const vill = dist?.villages[0];
+		setWizardState(prev => ({
+			...prev,
+			districtCode,
+			villageCode: vill?.code ?? "",
+		}));
+	};
+
+	const addDocumentToList = () => {
+		if (!tempDocTitle) return;
+		const nextDoc = {
+			id: `doc-wizard-${Math.random().toString(36).slice(2, 10)}`,
+			title: tempDocTitle,
+			documentType: tempDocType,
+			sensitivity: tempDocSensitivity,
+		};
+		setWizardState(prev => ({
+			...prev,
+			documents: [...prev.documents, nextDoc]
+		}));
+		setTempDocTitle("");
+		setTempDocFile(null);
 	};
 
 	if (loading) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
@@ -1064,380 +1352,425 @@ function RegistryPage() {
 				<MetricCard label={copy.restrictedEntries} value={restrictedCount} hint={copy.restrictedEntriesHint} />
 			</div>
 
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_480px] mt-2">
-				<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
-					<div className="mb-4 flex flex-col gap-3 sm:flex-row">
-						<div className="flex-1">
-							<Input
-								placeholder="Search entity..."
-								value={searchQuery}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-						<div className="w-48">
-							<Select value={filterType} onValueChange={(val) => setFilterType(val ?? "all")}>
-								<Select.Option value="all">All Types</Select.Option>
-								<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
-								<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
-								<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
-								<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
-								<Select.Option value="guru_agama">Guru Agama</Select.Option>
-								<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
-								<Select.Option value="disabilitas">Disabilitas</Select.Option>
-								<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
-							</Select>
-						</div>
-					</div>
+			<div className="mb-4 flex border-b border-kumo-line mt-4">
+				<button
+					type="button"
+					className={cx(
+						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
+						activeSubTab === "queue" ? "border-kumo-brand text-kumo-brand font-bold" : "border-transparent text-kumo-subtle hover:text-kumo-default"
+					)}
+					onClick={() => setActiveSubTab("queue")}
+				>
+					<span>📋</span> {copy.registryQueue}
+				</button>
+				<button
+					type="button"
+					className={cx(
+						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
+						activeSubTab === "intake" ? "border-kumo-brand text-kumo-brand font-bold" : "border-transparent text-kumo-subtle hover:text-kumo-default"
+					)}
+					onClick={() => setActiveSubTab("intake")}
+				>
+					<span>⚡</span> {copy.progressiveInputWizard}
+				</button>
+			</div>
 
-					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
-						<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
-							<div>{copy.entity}</div>
-							<div>{copy.region}</div>
-							<div>{copy.sensitivity}</div>
-							<div>{copy.stage}</div>
-						</div>
-						{filteredEntities.map((entity) => (
-							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr]" key={entity.id}>
-								<div>
-									<div className="font-medium text-kumo-default">{entity.label}</div>
-									<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
-									<div className="mt-1 text-xs text-kumo-subtle">{entity.entityType}</div>
-									<div className="mt-2 text-xs text-kumo-subtle">{entity.publicSummary}</div>
-								</div>
-								<div className="text-kumo-subtle">
-									{entity.region.provinceCode}/{entity.region.regencyCode}
-									<br />
-									{entity.region.districtCode}/{entity.region.villageCode}
-								</div>
-								<div>
-									<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
-								</div>
-								<div className="text-kumo-subtle">
-									<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
-								</div>
+			<div className="grid gap-6">
+				{activeSubTab === "queue" && (
+					<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
+						<div className="mb-4 flex flex-col gap-3 sm:flex-row">
+							<div className="flex-1">
+								<Input
+									placeholder="Search entity name or code..."
+									value={searchQuery}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+								/>
 							</div>
-						))}
-					</div>
-				</Card>
-
-				<Card title={copy.progressiveInputWizard} description={copy.progressiveInputWizardDescription}>
-					<div className="space-y-4">
-						<Feedback message={successMsg} tone="success" />
-						<Feedback message={errMsg} tone="danger" />
-
-						{/* Horizontal Step Buttons */}
-						<div className="grid grid-cols-4 gap-1 text-[10px] font-medium uppercase tracking-wide text-kumo-subtle">
-							{copy.registrySteps.map((label, index) => (
-								<button
-									className={cx(
-										"rounded border p-1 text-center truncate",
-										index === step ? "border-kumo-brand bg-kumo-brand/10 text-kumo-brand font-bold" : "border-kumo-line bg-kumo-base text-kumo-subtle"
-									)}
-									key={label}
-									onClick={() => setStep(index)}
-									type="button"
-								>
-									{index + 1}. {label}
-								</button>
-							))}
+							<div className="w-48">
+								<Select value={filterType} onValueChange={(val) => setFilterType(val ?? "all")}>
+									<Select.Option value="all">All Types</Select.Option>
+									<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
+									<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
+									<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
+									<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
+									<Select.Option value="guru_agama">Guru Agama</Select.Option>
+									<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
+									<Select.Option value="disabilitas">Disabilitas</Select.Option>
+									<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+								</Select>
+							</div>
 						</div>
 
-						{/* Step Contents */}
-						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4">
-							<div className="text-sm font-semibold text-kumo-default">
-								Step {step + 1}: {copy.registrySteps[step]}
+						<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
+							<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+								<div>{copy.entity}</div>
+								<div>{copy.region}</div>
+								<div>{copy.sensitivity}</div>
+								<div>{copy.stage}</div>
 							</div>
-
-							<div className="mt-4 space-y-3">
-								{step === 0 && (
-									<>
-										<Field label="Data Type" hint="Select SIKESRA Entity Type">
-											<Select value={wizardState.entityType} onValueChange={(val) => setWizardState(prev => ({ ...prev, entityType: val ?? "rumah_ibadah" }))}>
-												<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
-												<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
-												<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
-												<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
-												<Select.Option value="guru_agama">Guru Agama</Select.Option>
-												<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
-												<Select.Option value="disabilitas">Disabilitas</Select.Option>
-												<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
-											</Select>
-										</Field>
-										<Field label="Subtype Specification" hint="Specific category classification">
-											<Input value={wizardState.subtype} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, subtype: e.target.value }))} />
-										</Field>
-										<Field label="Sensitivity classification" hint="Determine visibility of this entity records">
-											<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
-												<Select.Option value="public_safe">Public Safe</Select.Option>
-												<Select.Option value="internal">Internal</Select.Option>
-												<Select.Option value="restricted">Restricted</Select.Option>
-												<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
-											</Select>
-										</Field>
-									</>
-								)}
-
-								{step === 1 && (
-									<>
-										<div className="grid gap-3 grid-cols-2">
-											<Field label="Province">
-												<Select value={wizardState.provinceCode} onValueChange={(val) => {
-													const nextRegency = val === "31" ? "3171" : val === "32" ? "3273" : "";
-													const nextDistrict = val === "31" ? "3171010" : val === "32" ? "3273010" : "";
-													const nextVillage = val === "31" ? "3171010001" : val === "32" ? "3273010001" : "";
-													setWizardState(prev => ({
-														...prev,
-														provinceCode: val ?? "",
-														regencyCode: nextRegency,
-														districtCode: nextDistrict,
-														villageCode: nextVillage
-													}));
-												}}>
-													<Select.Option value="31">DKI Jakarta (31)</Select.Option>
-													<Select.Option value="32">Jawa Barat (32)</Select.Option>
-													<Select.Option value="33">Jawa Tengah (33)</Select.Option>
-													<Select.Option value="35">Jawa Timur (35)</Select.Option>
-												</Select>
-											</Field>
-											<Field label="Regency / City">
-												<Select value={wizardState.regencyCode} onValueChange={(val) => {
-													const nextDistrict = val === "3171" ? "3171010" : val === "3273" ? "3273010" : "";
-													const nextVillage = val === "3171" ? "3171010001" : val === "3273" ? "3273010001" : "";
-													setWizardState(prev => ({
-														...prev,
-														regencyCode: val ?? "",
-														districtCode: nextDistrict,
-														villageCode: nextVillage
-													}));
-												}}>
-													{wizardState.provinceCode === "31" && (
-														<Select.Option value="3171">Kota Jakarta Pusat (3171)</Select.Option>
-													)}
-													{wizardState.provinceCode === "32" && (
-														<Select.Option value="3273">Kota Bandung (3273)</Select.Option>
-													)}
-													{!["31", "32"].includes(wizardState.provinceCode) && (
-														<Select.Option value="">-- Select Regency --</Select.Option>
-													)}
-												</Select>
-											</Field>
+							{filteredEntities.length === 0 ? (
+								<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities match the search query and filters.</div>
+							) : (
+								filteredEntities.map((entity) => (
+									<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all" key={entity.id}>
+										<div className="flex items-start gap-2.5">
+											<span className="text-xl shrink-0 mt-0.5" title={entity.entityType}>
+												{getEntityIcon(entity.entityType)}
+											</span>
+											<div>
+												<div className="font-semibold text-kumo-default">{entity.label}</div>
+												<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
+												<div className="mt-1 text-xs text-kumo-subtle capitalize">{entity.entityType.replace("_", " ")}</div>
+												<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">{entity.publicSummary}</div>
+											</div>
 										</div>
-										<div className="grid gap-3 grid-cols-2">
-											<Field label="District (Kecamatan)">
-												<Select value={wizardState.districtCode} onValueChange={(val) => {
-													const nextVillage = val === "3171010" ? "3171010001" : val === "3273010" ? "3273010001" : "";
-													setWizardState(prev => ({
-														...prev,
-														districtCode: val ?? "",
-														villageCode: nextVillage
-													}));
-												}}>
-													{wizardState.regencyCode === "3171" && (
-														<Select.Option value="3171010">Kecamatan Menteng (3171010)</Select.Option>
-													)}
-													{wizardState.regencyCode === "3273" && (
-														<Select.Option value="3273010">Kecamatan Coblong (3273010)</Select.Option>
-													)}
-													{!["3171", "3273"].includes(wizardState.regencyCode) && (
-														<Select.Option value="">-- Select District --</Select.Option>
-													)}
-												</Select>
-											</Field>
-											<Field label="Village (Desa / Kelurahan)">
-												<Select value={wizardState.villageCode} onValueChange={(val) => setWizardState(prev => ({ ...prev, villageCode: val ?? "" }))}>
-													{wizardState.districtCode === "3171010" && (
-														<>
-															<Select.Option value="3171010001">Kelurahan Menteng (3171010001)</Select.Option>
-															<Select.Option value="3171010002">Kelurahan Pegangsaan (3171010002)</Select.Option>
-														</>
-													)}
-													{wizardState.districtCode === "3273010" && (
-														<>
-															<Select.Option value="3273010001">Kelurahan Dago (3273010001)</Select.Option>
-															<Select.Option value="3273010002">Kelurahan Sadangserang (3273010002)</Select.Option>
-														</>
-													)}
-													{!["3171010", "3273010"].includes(wizardState.districtCode) && (
-														<Select.Option value="">-- Select Village --</Select.Option>
-													)}
-												</Select>
-											</Field>
+										<div className="text-kumo-subtle leading-relaxed">
+											<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">Administrative Code:</span>
+											{entity.region.provinceCode}/{entity.region.regencyCode}<br />
+											{entity.region.districtCode}/{entity.region.villageCode}
 										</div>
-									</>
-								)}
-
-								{step === 2 && (
-									<>
-										<div className="grid gap-3 grid-cols-2">
-											<Field label="RT">
-												<Input value={wizardState.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rt: e.target.value }))} />
-											</Field>
-											<Field label="RW">
-												<Input value={wizardState.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rw: e.target.value }))} />
-											</Field>
+										<div className="flex items-start">
+											<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
 										</div>
-										<Field label="Specific Local Address">
-											<Input value={wizardState.address} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, address: e.target.value }))} />
-										</Field>
-									</>
-								)}
+										<div className="flex items-start">
+											<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
+										</div>
+									</div>
+								))
+							)}
+						</div>
+					</Card>
+				)}
 
-								{step === 3 && (
-									<>
-										<Field label="Identity Name / Label" hint="Human-readable name">
-											<Input value={wizardState.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, label: e.target.value }))} />
-										</Field>
-										<Field label="Brief Description">
-											<Input value={wizardState.description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, description: e.target.value }))} />
-										</Field>
-									</>
-								)}
+				{activeSubTab === "intake" && (
+					<Card title={copy.progressiveInputWizard} description={copy.progressiveInputWizardDescription}>
+						<div className="space-y-4">
+							<Feedback message={successMsg} tone="success" />
+							<Feedback message={errMsg} tone="danger" />
 
-								{step === 4 && (
-									<>
-										<Field label="Religion Connection">
-											<Select value={wizardState.religion} onValueChange={(val) => setWizardState(prev => ({ ...prev, religion: val ?? "Islam" }))}>
-												<Select.Option value="Islam">Islam</Select.Option>
-												<Select.Option value="Kristen">Kristen</Select.Option>
-												<Select.Option value="Katolik">Katolik</Select.Option>
-												<Select.Option value="Hindu">Hindu</Select.Option>
-												<Select.Option value="Buddha">Buddha</Select.Option>
-												<Select.Option value="Khonghucu">Khonghucu</Select.Option>
-												<Select.Option value="None">None / Tidak ada</Select.Option>
-											</Select>
-										</Field>
-										<Field label="Social Desil Status (1-10)">
-											<Select value={wizardState.desil} onValueChange={(val) => setWizardState(prev => ({ ...prev, desil: val ?? "3" }))}>
-							{Array.from(Array(10), (_, i) => (
-									<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
-							))}
-											</Select>
-										</Field>
-									</>
-								)}
+							<div className="flex flex-col md:flex-row gap-6">
+								{/* Left Stepper Sidebar */}
+								<div className="w-full md:w-56 shrink-0 border-r border-kumo-line/50 pr-4 max-md:border-r-0 max-md:border-b max-md:pb-4">
+									<div className="space-y-1">
+										{copy.registrySteps.map((label, index) => {
+											const isActive = index === step;
+											const isCompleted = index < step;
+											return (
+												<button
+													key={label}
+													onClick={() => setStep(index)}
+													type="button"
+													className={cx(
+														"w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-xs font-medium border",
+														isActive
+															? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-semibold shadow-sm"
+															: isCompleted
+															? "bg-kumo-success/5 border-transparent text-kumo-success hover:bg-kumo-success/10"
+															: "bg-transparent border-transparent text-kumo-subtle hover:bg-kumo-tint"
+													)}
+												>
+													<span className={cx(
+														"flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold border",
+														isActive
+															? "bg-kumo-brand border-kumo-brand text-white"
+															: isCompleted
+															? "bg-kumo-success border-kumo-success text-white"
+															: "bg-kumo-base border-kumo-line text-kumo-subtle"
+													)}>
+														{isCompleted ? "✓" : index + 1}
+													</span>
+													<span className="truncate">{label}</span>
+												</button>
+											);
+										})}
+									</div>
+								</div>
 
-								{step === 5 && (
-									<Field label="Module specific data details" hint="Additional parameters unique to the module type">
-										<InputArea value={wizardState.moduleDetails} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setWizardState(prev => ({ ...prev, moduleDetails: e.target.value }))} />
-									</Field>
-								)}
+								{/* Right Form Content */}
+								<div className="flex-1 min-w-0">
+									<div className="rounded-xl border border-kumo-line bg-kumo-base p-5 shadow-inner">
+										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line pb-2 mb-4 flex items-center justify-between">
+											<span>Step {step + 1}: {copy.registrySteps[step]}</span>
+											<span className="text-[10px] px-2 py-0.5 rounded-full bg-kumo-tint text-kumo-subtle font-mono">{Math.round((step + 1) / copy.registrySteps.length * 100)}%</span>
+										</div>
 
-								{step === 6 && (
-									<>
-										<Field label="Caregiver / PIC Name">
-											<Input value={wizardState.caregiverName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverName: e.target.value }))} />
-										</Field>
-										<Field label="Caregiver Phone Number">
-											<Input value={wizardState.caregiverPhone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverPhone: e.target.value }))} />
-										</Field>
-									</>
-								)}
+										<div className="space-y-4">
+											{step === 0 && (
+												<>
+													<Field label="Data Type" hint="Select SIKESRA Entity Type (Mandatory)">
+														<Select value={wizardState.entityType} onValueChange={(val) => setWizardState(prev => ({ ...prev, entityType: val ?? "rumah_ibadah" }))}>
+															<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
+															<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
+															<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
+															<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
+															<Select.Option value="guru_agama">Guru Agama</Select.Option>
+															<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
+															<Select.Option value="disabilitas">Disabilitas</Select.Option>
+															<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+														</Select>
+													</Field>
+													<Field label="Subtype Specification" hint="Specific category classification (Optional)">
+														<Input value={wizardState.subtype} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, subtype: e.target.value }))} placeholder="e.g. Masjid, Gereja, Wihara" />
+													</Field>
+													<Field label="Sensitivity classification" hint="Determine visibility of this entity records (Mandatory)">
+														<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+															<Select.Option value="public_safe">Public Safe</Select.Option>
+															<Select.Option value="internal">Internal</Select.Option>
+															<Select.Option value="restricted">Restricted</Select.Option>
+															<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+														</Select>
+													</Field>
+												</>
+											)}
 
-								{step === 7 && (
-									<div className="space-y-4">
-										<div className="rounded border bg-kumo-tint/10 p-3">
-											<div className="text-xs font-semibold mb-2 text-kumo-default">Document List (Added to Intake):</div>
-											{wizardState.docTitle ? (
-												<div className="flex items-center justify-between text-xs bg-kumo-base border rounded px-3 py-1.5 font-medium text-kumo-default">
-													<div>
-														📁 <strong>{wizardState.docTitle}</strong> <span className="text-kumo-subtle">({wizardState.docType})</span>
+											{step === 1 && (
+												<>
+													<div className="grid gap-3 grid-cols-2">
+														<Field label="Province" hint="Cascading lookup selector">
+															<Select value={wizardState.provinceCode} onValueChange={(val) => { if (val) handleProvinceChange(val); }}>
+																{REGION_DATA.map(p => (
+																	<Select.Option value={p.code} key={p.code}>{p.name}</Select.Option>
+																))}
+															</Select>
+														</Field>
+														<Field label="Regency / City" hint="Filtered by Province">
+															<Select value={wizardState.regencyCode} onValueChange={(val) => { if (val) handleRegencyChange(val); }}>
+																{REGION_DATA.find(p => p.code === wizardState.provinceCode)?.regencies.map(r => (
+																	<Select.Option value={r.code} key={r.code}>{r.name}</Select.Option>
+																)) ?? <Select.Option value="">-- Select Regency --</Select.Option>}
+															</Select>
+														</Field>
 													</div>
-													<Button variant="secondary" size="xs" onClick={() => setWizardState(prev => ({ ...prev, docTitle: "", docType: "surat_keterangan" }))}>Remove</Button>
+													<div className="grid gap-3 grid-cols-2">
+														<Field label="District (Kecamatan)" hint="Filtered by Regency">
+															<Select value={wizardState.districtCode} onValueChange={(val) => { if (val) handleDistrictChange(val); }}>
+																{REGION_DATA.find(p => p.code === wizardState.provinceCode)
+																	?.regencies.find(r => r.code === wizardState.regencyCode)
+																	?.districts.map(d => (
+																		<Select.Option value={d.code} key={d.code}>{d.name}</Select.Option>
+																	)) ?? <Select.Option value="">-- Select District --</Select.Option>}
+															</Select>
+														</Field>
+														<Field label="Village (Desa / Kelurahan)" hint="Filtered by District">
+															<Select value={wizardState.villageCode} onValueChange={(val) => setWizardState(prev => ({ ...prev, villageCode: val ?? "" }))}>
+																{REGION_DATA.find(p => p.code === wizardState.provinceCode)
+																	?.regencies.find(r => r.code === wizardState.regencyCode)
+																	?.districts.find(d => d.code === wizardState.districtCode)
+																	?.villages.map(v => (
+																		<Select.Option value={v.code} key={v.code}>{v.name}</Select.Option>
+																	)) ?? <Select.Option value="">-- Select Village --</Select.Option>}
+															</Select>
+														</Field>
+													</div>
+												</>
+											)}
+
+											{step === 2 && (
+												<>
+													<div className="grid gap-3 grid-cols-2">
+														<Field label="RT" hint="Optional (e.g. 001)">
+															<Input value={wizardState.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rt: e.target.value }))} />
+														</Field>
+														<Field label="RW" hint="Optional (e.g. 002)">
+															<Input value={wizardState.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rw: e.target.value }))} />
+														</Field>
+													</div>
+													<Field label="Specific Local Address" hint="Optional specific street details">
+														<Input value={wizardState.address} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, address: e.target.value }))} />
+													</Field>
+												</>
+											)}
+
+											{step === 3 && (
+												<>
+													<Field label="Identity Name / Label" hint="Human-readable name (Mandatory)">
+														<Input value={wizardState.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, label: e.target.value }))} placeholder="e.g. Rumah Ibadah Al-Barokah" />
+													</Field>
+													<Field label="Brief Description" hint="Optional summary details">
+														<Input value={wizardState.description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, description: e.target.value }))} />
+													</Field>
+												</>
+											)}
+
+											{step === 4 && (
+												<>
+													<Field label="Religion Connection" hint="Optional attribute connection">
+														<Select value={wizardState.religion} onValueChange={(val) => setWizardState(prev => ({ ...prev, religion: val ?? "" }))}>
+															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
+															<Select.Option value="Islam">Islam</Select.Option>
+															<Select.Option value="Kristen">Kristen</Select.Option>
+															<Select.Option value="Katolik">Katolik</Select.Option>
+															<Select.Option value="Hindu">Hindu</Select.Option>
+															<Select.Option value="Buddha">Buddha</Select.Option>
+															<Select.Option value="Khonghucu">Khonghucu</Select.Option>
+														</Select>
+													</Field>
+													<Field label="Social Desil Status (1-10)" hint="Optional socio-economic classification">
+														<Select value={wizardState.desil} onValueChange={(val) => setWizardState(prev => ({ ...prev, desil: val ?? "" }))}>
+															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
+															{Array.from(Array(10), (_, i) => (
+																<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
+															))}
+														</Select>
+													</Field>
+												</>
+											)}
+
+											{step === 5 && (
+												<Field label="Module specific data details" hint="Additional parameters unique to the module type (Optional)">
+													<InputArea value={wizardState.moduleDetails} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setWizardState(prev => ({ ...prev, moduleDetails: e.target.value }))} />
+												</Field>
+											)}
+
+											{step === 6 && (
+												<>
+													<Field label="Caregiver / PIC Name" hint="Optional contact person">
+														<Input value={wizardState.caregiverName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverName: e.target.value }))} />
+													</Field>
+													<Field label="Caregiver Phone Number" hint="Optional phone number">
+														<Input value={wizardState.caregiverPhone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverPhone: e.target.value }))} />
+													</Field>
+												</>
+											)}
+
+											{step === 7 && (
+												<div className="space-y-4">
+													<div className="rounded-xl border border-kumo-line bg-kumo-tint/10 p-4">
+														<div className="text-xs font-semibold mb-3 text-kumo-default flex items-center justify-between">
+															<span>Attached Documents ({wizardState.documents.length})</span>
+															{wizardState.documents.length === 0 && <span className="text-kumo-danger text-[10px] font-bold uppercase">No documents attached (Optional)</span>}
+														</div>
+														{wizardState.documents.length > 0 ? (
+															<div className="space-y-2">
+																{wizardState.documents.map((doc) => (
+																	<div className="flex items-center justify-between text-xs bg-kumo-base border border-kumo-line rounded-lg px-3 py-2 font-medium text-kumo-default shadow-sm" key={doc.id}>
+																		<div className="flex items-center gap-2">
+																			<span className="text-sm">📁</span>
+																			<div>
+																				<strong>{doc.title}</strong>
+																				<span className="ml-1 text-[10px] text-kumo-brand bg-kumo-tint px-1.5 py-0.5 rounded font-mono uppercase">{doc.documentType}</span>
+																				<span className="ml-1 text-[10px] text-kumo-subtle">({doc.sensitivity})</span>
+																			</div>
+																		</div>
+																		<Button
+																			variant="secondary"
+																			size="xs"
+																			onClick={() => setWizardState(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== doc.id) }))}
+																		>
+																			Remove
+																		</Button>
+																	</div>
+																))}
+															</div>
+														) : (
+															<div className="text-xs text-kumo-subtle italic text-center py-4">No documents added yet. Use the form below to attach files.</div>
+														)}
+													</div>
+
+													<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 space-y-3">
+														<div className="text-xs font-bold text-kumo-default uppercase tracking-wider">Add New Document</div>
+														<Field label="Supporting Document Title">
+															<Input value={tempDocTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempDocTitle(e.target.value)} placeholder="e.g. Surat Keterangan Domisili" />
+														</Field>
+														<div className="grid gap-3 grid-cols-2">
+															<Field label="Doc Type">
+																<Select value={tempDocType} onValueChange={(val) => setTempDocType(val ?? "surat_keterangan")}>
+																	<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
+																	<Select.Option value="identitas">Identitas Utama</Select.Option>
+																	<Select.Option value="sertifikat">Sertifikat Resmi</Select.Option>
+																</Select>
+															</Field>
+															<Field label="Doc Sensitivity">
+																<Select value={tempDocSensitivity} onValueChange={(val) => setTempDocSensitivity((val as SikesraSensitivity) ?? "public_safe")}>
+																	<Select.Option value="public_safe">Public Safe</Select.Option>
+																	<Select.Option value="internal">Internal</Select.Option>
+																	<Select.Option value="restricted">Restricted</Select.Option>
+																	<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+																</Select>
+															</Field>
+														</div>
+
+														<Field label="Select Supporting File" hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB">
+															<input
+																type="file"
+																className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
+																onChange={(e) => {
+																	const file = e.target.files?.[0];
+																	if (file) {
+																		setTempDocFile(file.name);
+																		setTempDocTitle(prev => prev || file.name.split('.')[0] || "");
+																	}
+																}}
+															/>
+														</Field>
+														
+														{tempDocFile && (
+															<div className="text-xs text-kumo-success font-medium flex items-center gap-1">
+																<span>✓ Selected file:</span> <span className="font-mono">{tempDocFile}</span>
+															</div>
+														)}
+
+														<Button variant="secondary" className="w-full justify-center" disabled={!tempDocTitle} onClick={addDocumentToList}>
+															+ Add Document to List
+														</Button>
+													</div>
 												</div>
-											) : (
-												<div className="text-xs text-kumo-subtle italic">No documents added yet. Fill fields below to add.</div>
+											)}
+
+											{step === 8 && (
+												<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/20 p-4 text-center">
+													<p className="text-xs text-kumo-subtle mb-3">Checks for formatting compliance and potential duplicate records.</p>
+													<Button variant="secondary" size="sm" onClick={runValidationCheck} type="button">Run Validation Check</Button>
+												</div>
+											)}
+
+											{step === 9 && (
+												<div className="rounded-lg border border-kumo-line bg-kumo-tint/10 p-4 text-center">
+													<p className="text-xs text-kumo-subtle mb-3">IDs are generated based on: [Desa Code (10)][Type (2)][Subtype (2)][Sequence (6)]</p>
+													<Button variant="primary" size="sm" onClick={generateSikesraId} type="button">Generate SIKESRA ID</Button>
+													{wizardState.code && (
+														<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">{wizardState.code}</div>
+													)}
+												</div>
+											)}
+
+											{step === 10 && (
+												<div className="rounded-lg border border-kumo-line bg-kumo-base p-4 text-xs space-y-2">
+													<div className="font-semibold text-sm mb-2 text-kumo-default">Summary Intake:</div>
+													<div className="grid grid-cols-2 gap-2">
+														<div><strong>Label:</strong> {wizardState.label}</div>
+														<div><strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}</div>
+														<div><strong>Type:</strong> {wizardState.entityType} ({wizardState.subtype || "-"})</div>
+														<div><strong>Religion / Desil:</strong> {wizardState.religion || "Tidak diisi"} / Desil {wizardState.desil || "Tidak diisi"}</div>
+														<div><strong>Official Region:</strong> {wizardState.provinceCode}/{wizardState.regencyCode}/{wizardState.districtCode}/{wizardState.villageCode}</div>
+														<div><strong>Local Region:</strong> RT {wizardState.rt || "00"} / RW {wizardState.rw || "00"}, {wizardState.address || "-"}</div>
+														<div><strong>Caregiver:</strong> {wizardState.caregiverName || "-"} ({wizardState.caregiverPhone || "-"})</div>
+														<div><strong>Attached Documents:</strong> {wizardState.documents.length} File(s)</div>
+													</div>
+													<div className="pt-3 border-t">
+														<Button variant="primary" className="w-full justify-center" disabled={submitting} onClick={() => void handleWizardSubmit()}>
+															{submitting ? "Submitting..." : "Submit to Verification Queue"}
+														</Button>
+													</div>
+												</div>
 											)}
 										</div>
 
-										<Field label="Supporting Document Title">
-											<Input value={wizardState.docTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, docTitle: e.target.value }))} />
-										</Field>
-										<div className="grid gap-3 grid-cols-2">
-											<Field label="Doc Type">
-												<Select value={wizardState.docType} onValueChange={(val) => setWizardState(prev => ({ ...prev, docType: val ?? "surat_keterangan" }))}>
-													<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
-													<Select.Option value="identitas">Identitas Utama</Select.Option>
-													<Select.Option value="sertifikat">Sertifikat Resmi</Select.Option>
-												</Select>
-											</Field>
-											<Field label="Doc Sensitivity">
-												<Select value={wizardState.docSensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, docSensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
-													<Select.Option value="public_safe">Public Safe</Select.Option>
-													<Select.Option value="internal">Internal</Select.Option>
-													<Select.Option value="restricted">Restricted</Select.Option>
-													<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
-												</Select>
-											</Field>
-										</div>
-
-										<Field label="Upload File" hint="Max Size: 5MB">
-											<input
-												type="file"
-												className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
-												onChange={(e) => {
-													const file = e.target.files?.[0];
-													if (file) {
-														setWizardState(prev => ({
-															...prev,
-															docTitle: prev.docTitle || file.name,
-														}));
-													}
-												}}
-											/>
-										</Field>
-									</div>
-								)}
-
-								{step === 8 && (
-									<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/20 p-4 text-center">
-										<p className="text-xs text-kumo-subtle mb-3">Checks for formatting compliance and potential duplicate records.</p>
-										<Button variant="secondary" size="sm" onClick={runValidationCheck} type="button">Run Validation Check</Button>
-									</div>
-								)}
-
-								{step === 9 && (
-									<div className="rounded-lg border border-kumo-line bg-kumo-tint/10 p-4 text-center">
-										<p className="text-xs text-kumo-subtle mb-3">IDs are generated based on: [Desa Code (10)][Type (2)][Subtype (2)][Sequence (6)]</p>
-										<Button variant="primary" size="sm" onClick={generateSikesraId} type="button">Generate SIKESRA ID</Button>
-										{wizardState.code && (
-											<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">{wizardState.code}</div>
-										)}
-									</div>
-								)}
-
-								{step === 10 && (
-									<div className="rounded-lg border border-kumo-line bg-kumo-base p-4 text-xs space-y-2">
-										<div className="font-semibold text-sm mb-2 text-kumo-default">Summary Intake Intake:</div>
-										<div className="grid grid-cols-2 gap-2">
-											<div><strong>Label:</strong> {wizardState.label}</div>
-											<div><strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}</div>
-											<div><strong>Type:</strong> {wizardState.entityType} ({wizardState.subtype})</div>
-											<div><strong>Religion / Desil:</strong> {wizardState.religion} / Desil {wizardState.desil}</div>
-											<div><strong>Official Region:</strong> {wizardState.provinceCode}/{wizardState.regencyCode}/{wizardState.districtCode}/{wizardState.villageCode}</div>
-											<div><strong>Local Region:</strong> RT {wizardState.rt} / RW {wizardState.rw}, {wizardState.address}</div>
-											<div><strong>Caregiver:</strong> {wizardState.caregiverName} ({wizardState.caregiverPhone})</div>
-											<div><strong>Doc Attachment:</strong> {wizardState.docTitle} ({wizardState.docType})</div>
-										</div>
-										<div className="pt-3 border-t">
-											<Button variant="primary" className="w-full justify-center" disabled={submitting} onClick={() => void handleWizardSubmit()}>
-												{submitting ? "Submitting..." : "Submit to Verification Queue"}
+										<div className="mt-6 flex items-center justify-between border-t border-kumo-line pt-4">
+											<Button variant="secondary" size="sm" type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>
+												{copy.previous}
+											</Button>
+											<div className="text-xs text-kumo-subtle font-medium">Step {step + 1} of {copy.registrySteps.length}</div>
+											<Button variant="secondary" size="sm" type="button" disabled={step === copy.registrySteps.length - 1} onClick={() => setStep((current) => Math.min(copy.registrySteps.length - 1, current + 1))}>
+												{copy.next}
 											</Button>
 										</div>
 									</div>
-								)}
-							</div>
-
-							<div className="mt-4 flex items-center gap-2">
-								<Button variant="secondary" size="sm" type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>
-									{copy.previous}
-								</Button>
-								<Button variant="secondary" size="sm" type="button" disabled={step === copy.registrySteps.length - 1} onClick={() => setStep((current) => Math.min(copy.registrySteps.length - 1, current + 1))}>
-									{copy.next}
-								</Button>
+								</div>
 							</div>
 						</div>
-					</div>
-				</Card>
+					</Card>
+				)}
 			</div>
 		</PageShell>
 	);
@@ -1504,67 +1837,79 @@ function VerificationPage() {
 				description={copy.verificationDescription}
 			/>
 
-			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default">{statusMessage}</div> : null}
-			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default">{mutationError}</div> : null}
+			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>✓</span> <span>{statusMessage}</span></div> : null}
+			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>⚠️</span> <span>{mutationError}</span></div> : null}
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.queuedEvents} value={queue.length} hint={copy.queuedEventsHint} />
-				<MetricCard label={copy.approved} value={approved} hint={copy.approvedHint} />
-				<MetricCard label={copy.needsReview} value={pending} hint={copy.needsReviewHint} />
+				<MetricCard label={copy.queuedEvents} value={queue.length} hint={copy.queuedEventsHint} icon="📥" />
+				<MetricCard label={copy.approved} value={approved} hint={copy.approvedHint} icon="✅" />
+				<MetricCard label={copy.needsReview} value={pending} hint={copy.needsReviewHint} icon="⏳" />
 			</div>
 
 			<Card title={copy.registryVerificationQueue} description={copy.registryVerificationQueueDescription}>
 				<div className="space-y-4">
-					{queue.map((item) => (
-						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
-							<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-								<div className="flex-1">
-									<div className="font-semibold text-kumo-default text-base">{item.label}</div>
-									<div className="mt-1 text-xs font-mono text-kumo-brand font-bold">{item.code}</div>
-									<div className="mt-2 text-sm text-kumo-subtle">{item.publicSummary}</div>
-									
-									{/* Action inputs */}
-									{item.canAdvance && (
-										<div className="mt-3 max-w-md space-y-2">
-											<Input
-												placeholder="Verifier justification notes..."
-												value={actionNotes[item.registryEntityId] || ""}
-												onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-													const val = e.target.value;
-													setActionNotes(prev => ({ ...prev, [item.registryEntityId]: val }));
-												}}
-											/>
-											<div className="flex gap-2">
-												<Button
-													disabled={submittingId !== null}
-													onClick={() => void handleVerifyAction(item.registryEntityId, "approve")}
-													size="sm"
-													variant="primary"
-												>
-													{submittingId === item.registryEntityId ? "Processing..." : `Approve to ${item.nextStage}`}
-												</Button>
-												<Button
-													disabled={submittingId !== null}
-													onClick={() => void handleVerifyAction(item.registryEntityId, "needs_revision")}
-													size="sm"
-													variant="secondary"
-												>
-													Needs Revision
-												</Button>
-											</div>
+					{queue.length === 0 ? (
+						<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities in the verification queue.</div>
+					) : (
+						queue.map((item) => (
+							<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm" key={item.id}>
+								<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+									<div className="flex-1 flex items-start gap-3">
+										<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label={item.entityType}>
+											{getEntityIcon(item.entityType)}
+										</span>
+										<div className="min-w-0 flex-1">
+											<div className="font-semibold text-kumo-default text-base">{item.label}</div>
+											<div className="mt-1 text-xs font-mono text-kumo-brand font-bold bg-kumo-tint px-2 py-0.5 rounded inline-block">{item.code}</div>
+											<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/20 p-2.5 rounded-lg border border-kumo-line/50">{item.publicSummary}</div>
+											
+											{/* Action inputs */}
+											{item.canAdvance && (
+												<div className="mt-3 max-w-md space-y-2 border-t border-kumo-line/50 pt-3">
+													<label className="block text-xs font-medium text-kumo-default mb-1">Verifier Notes:</label>
+													<Input
+														placeholder="Write justification notes..."
+														value={actionNotes[item.registryEntityId] || ""}
+														onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+															const val = e.target.value;
+															setActionNotes(prev => ({ ...prev, [item.registryEntityId]: val }));
+														}}
+													/>
+													<div className="flex gap-2 pt-1">
+														<Button
+															disabled={submittingId !== null}
+															onClick={() => void handleVerifyAction(item.registryEntityId, "approve")}
+															size="xs"
+															variant="primary"
+														>
+															{submittingId === item.registryEntityId ? "Processing..." : `✓ Approve to ${item.nextStage}`}
+														</Button>
+														<Button
+															disabled={submittingId !== null}
+															onClick={() => void handleVerifyAction(item.registryEntityId, "needs_revision")}
+															size="xs"
+															variant="secondary"
+														>
+															✗ Needs Revision
+														</Button>
+													</div>
+												</div>
+											)}
 										</div>
-									)}
-								</div>
-								<div className="flex flex-col items-end gap-2">
-									<div className="flex gap-1">
-										<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
-										{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
 									</div>
-									<div className="text-xs text-kumo-subtle">{copy.documentsCount}: {item.supportingDocumentIds.length}</div>
+									<div className="flex flex-col items-end gap-2 shrink-0 max-md:items-start max-md:mt-2">
+										<div className="flex gap-1.5 flex-wrap">
+											<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
+											{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
+										</div>
+										<div className="text-xs text-kumo-subtle flex items-center gap-1">
+											<span>📁 Documents:</span> <strong>{item.supportingDocumentIds.length}</strong>
+										</div>
+									</div>
 								</div>
 							</div>
-						</div>
-					))}
+						))
+					)}
 				</div>
 			</Card>
 
@@ -1574,18 +1919,18 @@ function VerificationPage() {
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
 							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 								<div>
-									<div className="font-medium text-kumo-default">{item.registryEntityId}</div>
-									<div className="mt-1 text-sm text-kumo-subtle">{item.notes}</div>
+									<div className="font-semibold text-kumo-default text-sm">{item.registryEntityId}</div>
+									<div className="mt-1 text-sm text-kumo-subtle leading-relaxed bg-kumo-tint/20 px-3 py-2 rounded-lg border border-kumo-line/50">{item.notes}</div>
 								</div>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-1.5 shrink-0">
 									<Pill tone={item.result === "approved" ? "success" : item.result === "needs_review" ? "warning" : "danger"}>{item.result}</Pill>
 									<Pill>{item.stage}</Pill>
 								</div>
 							</div>
-							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>{copy.actor}: {item.actor}</div>
-								<div>{copy.created}: {formatDateTime(item.createdAt, i18n.locale)}</div>
-								<div>{copy.idLabel}: {maskSensitive(item.id, false)}</div>
+							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
+								<div><strong>Actor:</strong> {item.actor}</div>
+								<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
+								<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
 							</div>
 						</div>
 					))}
@@ -1706,33 +2051,46 @@ function DocumentsPage() {
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.documentsMetric} value={docs.length} hint={copy.documentsMetricHint} />
-				<MetricCard label={copy.sensitiveDocs} value={sensitiveCount} hint={copy.sensitiveDocsHint} />
-				<MetricCard label={copy.verifiedSources} value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint={copy.verifiedSourcesHint} />
+				<MetricCard label={copy.documentsMetric} value={docs.length} hint={copy.documentsMetricHint} icon="📁" />
+				<MetricCard label={copy.sensitiveDocs} value={sensitiveCount} hint={copy.sensitiveDocsHint} icon="🔐" />
+				<MetricCard label={copy.verifiedSources} value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint={copy.verifiedSourcesHint} icon="🛡️" />
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] mt-2">
 				<Card title={copy.documentCatalog} description={copy.documentCatalogDescription}>
 					<div className="space-y-3">
-						{docs.map((doc) => (
-							<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={doc.id}>
-								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-									<div>
-										<div className="font-medium text-kumo-default">{doc.title}</div>
-										<div className="mt-1 text-xs font-mono bg-kumo-tint px-2 py-0.5 rounded inline-block text-kumo-brand">{doc.documentType}</div>
+						{docs.length === 0 ? (
+							<EmptyState title="No Documents" description="Upload document metadata on the right to populate the catalog." />
+						) : (
+							docs.map((doc) => {
+								const isPdf = doc.title.toLowerCase().endsWith(".pdf") || doc.documentType === "pdf" || doc.documentType === "surat_keterangan";
+								const fileIcon = isPdf ? "📄" : "🖼️";
+								return (
+									<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm" key={doc.id}>
+										<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+											<div className="flex items-center gap-2.5">
+												<span className="text-2xl shrink-0" role="img" aria-label="file format">
+													{fileIcon}
+												</span>
+												<div>
+													<div className="font-semibold text-kumo-default">{doc.title}</div>
+													<div className="mt-1 text-[10px] font-mono bg-kumo-tint px-2 py-0.5 rounded inline-block text-kumo-brand uppercase font-bold">{doc.documentType.replace("_", " ")}</div>
+												</div>
+											</div>
+											<div className="flex items-center gap-2 max-md:mt-2">
+												<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
+												<Button variant="secondary" size="xs" onClick={() => alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)}>Preview</Button>
+											</div>
+										</div>
+										<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
+											<div><strong>Entity:</strong> {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
+											<div><strong>Issued:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}</div>
+											<div><strong>Verifier:</strong> {doc.verifiedBy}</div>
+										</div>
 									</div>
-									<div className="flex items-center gap-2">
-										<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
-										<Button variant="secondary" size="xs" onClick={() => alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)}>Preview</Button>
-									</div>
-								</div>
-								<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-									<div>{copy.entity}: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
-									<div>{copy.issued}: {formatDateTime(doc.issuedAt, i18n.locale)}</div>
-									<div>{copy.verifiedBy}: {doc.verifiedBy}</div>
-								</div>
-							</div>
-						))}
+								);
+							})
+						)}
 					</div>
 				</Card>
 
@@ -1741,11 +2099,11 @@ function DocumentsPage() {
 						<Feedback message={notice} tone="success" />
 						<Feedback message={error} tone="danger" />
 
-						<Field label="Document Title" hint="Name of document for verification reference">
-							<Input value={uploadState.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUploadState(prev => ({ ...prev, title: e.target.value }))} />
+						<Field label="Document Title" hint="Name of document for verification reference (Mandatory)">
+							<Input value={uploadState.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUploadState(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g. Surat Keputusan Kemenag" />
 						</Field>
 
-						<Field label="Linked SIKESRA Entity">
+						<Field label="Linked SIKESRA Entity" hint="Mandatory target link">
 							<Select value={uploadState.registryEntityId} onValueChange={(val) => setUploadState(prev => ({ ...prev, registryEntityId: val ?? "" }))}>
 								<Select.Option value="">-- Select Target Entity --</Select.Option>
 								{entities.map((ent) => (
@@ -1795,7 +2153,7 @@ function DocumentsPage() {
 							</div>
 						)}
 
-						<Button variant="primary" type="submit" className="w-full justify-center" disabled={progress !== null}>
+						<Button variant="primary" type="submit" className="w-full justify-center animate-pulse" disabled={progress !== null}>
 							{progress !== null ? `Uploading ${progress}%` : "Upload metadata to R2"}
 						</Button>
 					</form>
@@ -1820,28 +2178,39 @@ function ReportsPage() {
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.categories} value={aggregate.categories.length} hint={copy.categoriesHint} />
-				<MetricCard label={copy.suppressed} value={suppressedCount} hint={copy.suppressedHint} />
-				<MetricCard label={copy.visible} value={aggregate.categories.length - suppressedCount} hint={copy.visibleHint} />
+				<MetricCard label={copy.categories} value={aggregate.categories.length} hint={copy.categoriesHint} icon="📊" />
+				<MetricCard label={copy.suppressed} value={suppressedCount} hint={copy.suppressedHint} icon="🔐" />
+				<MetricCard label={copy.visible} value={aggregate.categories.length - suppressedCount} hint={copy.visibleHint} icon="👁️" />
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] mt-2">
 				<Card title={copy.aggregateCategories} description={copy.aggregateCategoriesDescription}>
-					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
-						<div className="grid grid-cols-[1.2fr_.7fr_.7fr_.7fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
+						<div className="grid grid-cols-[1.2fr_.7fr_.7fr_.7fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 							<div>{copy.category}</div>
 							<div>{copy.total}</div>
 							<div>{copy.verified}</div>
 							<div>{copy.status}</div>
 						</div>
 						{aggregate.categories.map((item) => (
-							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr]" key={item.code}>
-								<div>
-									<div className="font-medium text-kumo-default">{item.label}</div>
-									<div className="mt-1 break-all text-xs text-kumo-subtle">{maskSensitive(item.code, !item.suppressed)}</div>
+							<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr] hover:bg-kumo-tint/20 transition-all" key={item.code}>
+								<div className="font-semibold text-kumo-default">
+									<div>{item.label}</div>
+									<div className="mt-1 break-all text-[10px] font-mono text-kumo-subtle font-normal">{maskSensitive(item.code, !item.suppressed)}</div>
 								</div>
-								<div className="text-kumo-subtle">{item.suppressed ? copy.suppressed.toLowerCase() : item.total}</div>
-								<div className="text-kumo-subtle">{item.verified}</div>
+								<div className="text-kumo-subtle font-medium">
+									{item.suppressed ? (
+										<span className="text-kumo-subtle italic">{copy.suppressed.toLowerCase()}</span>
+									) : (
+										<div className="flex flex-col gap-1.5">
+											<span>{item.total}</span>
+											<div className="w-16 bg-kumo-line rounded-full h-1 overflow-hidden">
+												<div className="bg-kumo-brand h-full rounded-full" style={{ width: `${(item.verified / Math.max(item.total, 1)) * 100}%` }}></div>
+											</div>
+										</div>
+									)}
+								</div>
+								<div className="text-kumo-subtle font-semibold">{item.verified}</div>
 								<div>
 									<Pill tone={item.suppressed ? "warning" : "success"}>{item.suppressed ? copy.masked : copy.visible.toLowerCase()}</Pill>
 								</div>
@@ -1851,10 +2220,10 @@ function ReportsPage() {
 				</Card>
 
 				<Card title={copy.publicNote} description={copy.publicNoteDescription}>
-					<p className="text-sm leading-6 text-kumo-subtle">{aggregate.caveat}</p>
-					<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
-						<div className="font-medium text-kumo-default">{copy.displayRule}</div>
-						<div className="mt-2">{copy.displayRuleDescription}</div>
+					<p className="text-sm leading-relaxed text-kumo-subtle">{aggregate.caveat}</p>
+					<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-tint/15 p-4 text-xs text-kumo-subtle leading-relaxed space-y-1.5">
+						<div className="font-bold text-kumo-default uppercase tracking-wider">{copy.displayRule}</div>
+						<div>{copy.displayRuleDescription}</div>
 					</div>
 				</Card>
 			</div>
@@ -1882,32 +2251,45 @@ function AuditPage() {
 					</Button>
 				}
 			/>
-			<Card>
+			<Card title="Chronological Log Activity" description="System audit records matching active security policies.">
 				{!data?.items.length ? (
 					<EmptyState title={copy.noAuditEvents} description={copy.noAuditEventsDescription} />
 				) : (
-					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
-						<div className="grid grid-cols-[1fr_160px_160px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
-							<div>{copy.summary}</div>
-							<div>{copy.scopeActor}</div>
-							<div>{copy.time}</div>
-						</div>
-						{data.items.map((item) => (
-							<div className="grid gap-2 border-t border-kumo-line bg-kumo-base px-4 py-3 text-sm text-kumo-default md:grid-cols-[1fr_160px_160px]" key={item.id}>
-								<div>
-									<div className="font-medium text-kumo-default">{item.summary}</div>
-									<div className="mt-1">
-										<Pill>{item.kind}</Pill>
+					<div className="space-y-3.5">
+						{data.items.map((item) => {
+							const scopeColors: Record<string, string> = {
+								registry: "border-l-4 border-l-blue-500",
+								documents: "border-l-4 border-l-emerald-500",
+								verification: "border-l-4 border-l-amber-500",
+								abac: "border-l-4 border-l-purple-500",
+								access: "border-l-4 border-l-pink-500",
+							};
+							const scopeIcons: Record<string, string> = {
+								registry: "🕌",
+								documents: "📄",
+								verification: "⚖️",
+								abac: "🛡️",
+								access: "🔐",
+							};
+							return (
+								<div className={cx("rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/35 transition-all shadow-sm flex gap-3.5 items-start", scopeColors[item.scope] || "border-l-4 border-l-kumo-subtle")} key={item.id}>
+									<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label="scope icon">
+										{scopeIcons[item.scope] || "📋"}
+									</span>
+									<div className="min-w-0 flex-1">
+										<div className="flex flex-wrap items-center gap-2">
+											<span className="text-xs font-mono font-bold text-kumo-brand bg-kumo-tint px-2 py-0.5 rounded leading-none uppercase">{item.kind}</span>
+											<span className="text-xs text-kumo-subtle">• scope: <strong className="capitalize">{item.scope}</strong></span>
+										</div>
+										<div className="mt-2 text-sm font-semibold text-kumo-default leading-relaxed">{item.summary}</div>
+										<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
+											<div><strong>Actor:</strong> {item.actor}</div>
+											<div><strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}</div>
+										</div>
 									</div>
 								</div>
-								<div className="text-kumo-subtle">
-									{item.scope}
-									<br />
-									{item.actor}
-								</div>
-								<div className="text-kumo-subtle">{formatDateTime(item.timestamp, i18n.locale)}</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				)}
 			</Card>
