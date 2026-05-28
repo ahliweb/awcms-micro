@@ -39,7 +39,7 @@ export const AWCMS_SIKESRA_STORAGE = {
 		indexes: ["subjectId", "updatedAt"],
 	},
 	contentSnapshots: {
-		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"]],
+		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
 	},
 	permissionCatalog: {
 		indexes: ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],

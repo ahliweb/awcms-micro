@@ -174,6 +174,7 @@ describe("awcms micro example plugin", () => {
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
 		expect(AWCMS_SIKESRA_STORAGE.accessChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
 		expect(AWCMS_SIKESRA_STORAGE.abacChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
+		expect(AWCMS_SIKESRA_STORAGE.contentSnapshots.indexes).toContainEqual(["contentId", "timestamp"]);
 		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
 		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
 	});
