@@ -21,10 +21,10 @@ export const AWCMS_SIKESRA_STORAGE = {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
 	accessChangeEvents: {
-		indexes: ["timestamp", "kind", "scope", ["kind", "timestamp"]],
+		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
 	abacChangeEvents: {
-		indexes: ["timestamp", "kind", "scope", ["kind", "timestamp"]],
+		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
 	abacAttributeCatalog: {
 		indexes: ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],

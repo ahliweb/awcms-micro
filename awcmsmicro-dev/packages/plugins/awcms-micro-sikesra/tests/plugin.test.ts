@@ -20,6 +20,7 @@ import {
 	AWCMS_SIKESRA_FIELD_WIDGETS,
 	AWCMS_SIKESRA_PLUGIN_ID,
 	AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS,
+	AWCMS_SIKESRA_STORAGE,
 	createAuditRecord,
 	createNativeRoutes,
 	createSharedHooks,
@@ -171,6 +172,8 @@ describe("awcms micro example plugin", () => {
 		expect(descriptor.adminEntry).toBe("@awcms-micro/plugin-sikesra/admin");
 		expect(descriptor.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
+		expect(AWCMS_SIKESRA_STORAGE.accessChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
+		expect(AWCMS_SIKESRA_STORAGE.abacChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
 		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
 		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
 	});
