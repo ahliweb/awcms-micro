@@ -7,7 +7,7 @@ import type {
 } from "emdash";
 import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "emdash/plugin";
 
-import { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
+import { SIKESRA_REFERENCE_FIXTURES, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";

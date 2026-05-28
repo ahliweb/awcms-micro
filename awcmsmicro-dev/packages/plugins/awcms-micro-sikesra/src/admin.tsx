@@ -41,6 +41,8 @@ interface SummaryResponse {
 		auditRetentionDays: number;
 		governanceMode: string;
 		metadataCanonicalBase: string;
+		smallCellThreshold: number;
+		sikesraPublicEnabled: boolean;
 	};
 	counters: {
 		auditCount: number;
@@ -991,7 +993,7 @@ function RegistryPage() {
 		setErrMsg(null);
 		setSuccessMsg(null);
 		try {
-			const res = await postPlugin("registry/save", {
+			const res = await postPlugin<{ item: SikesraReferenceRegistryEntity }>("registry/save", {
 				code: wizardState.code,
 				label: wizardState.label,
 				entityType: wizardState.entityType,
@@ -2711,7 +2713,7 @@ function ImportPage() {
 								onChange={handleFileSelect}
 							/>
 							<label htmlFor="excel-file-upload" className="inline-block">
-								<Button variant="primary" type="button" as="span">{copy.selectFile}</Button>
+								<span className="inline-flex items-center justify-center rounded-xl bg-kumo-brand px-4 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-kumo-brand/90 transition">{copy.selectFile}</span>
 							</label>
 						</div>
 					</Card>
