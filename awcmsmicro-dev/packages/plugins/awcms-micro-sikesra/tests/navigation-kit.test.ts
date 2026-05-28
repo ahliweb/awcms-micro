@@ -12,6 +12,7 @@ import {
 	adaptToEmdashPages,
 	resolveLabel,
 } from "../src/navigation.js";
+import { AWCMS_SIKESRA_MANIFEST } from "../src/runtime.js";
 
 describe("AWCMS-Micro navigation kit", () => {
 	it("validates a manifest and preserves sidebar placement defaults", () => {
@@ -225,5 +226,14 @@ describe("AWCMS-Micro navigation kit", () => {
 		});
 
 		expect(pages).toEqual([{ path: "/overview", label: "Overview", labelKey: "nav.overview", icon: undefined }]);
+	});
+
+	it("assigns contextual icons to the SIKESRA sidebar groups", () => {
+		expect(AWCMS_SIKESRA_MANIFEST.navigation?.groups?.map((group) => ({ id: group.id, icon: group.icon }))).toEqual([
+			{ id: "dashboard-group", icon: "chart" },
+			{ id: "content-group", icon: "file" },
+			{ id: "governance-group", icon: "shield" },
+			{ id: "settings-group", icon: "gear" },
+		]);
 	});
 });
