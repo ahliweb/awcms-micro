@@ -1,6 +1,6 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
-import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-example";
+import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
 import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";

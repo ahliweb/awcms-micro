@@ -10,7 +10,7 @@ It is a reference design, not a production SIKESRA implementation, and it must s
 
 In scope:
 
-- `awcmsmicro-dev/packages/plugins/awcms-micro-example/`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
 - `awcmsmicro-dev/templates/awcms-micro-default/`
 - `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - `awcmsmicro-dev/docs/awcms-micro/`

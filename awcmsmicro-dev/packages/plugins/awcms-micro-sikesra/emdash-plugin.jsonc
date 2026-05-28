@@ -1,7 +1,7 @@
 {
 	"$schema": "https://emdashcms.com/schemas/emdash-plugin.schema.json",
 
-	"slug": "awcms-micro-example",
+	"slug": "awcms-micro-sikesra",
 	"version": "0.0.1",
 	"license": "LicenseRef-AW-NC-1.0",
 	"publisher": "example.com", // Replace before any internal or public publish.
@@ -60,6 +60,7 @@
 			{ "path": "/verification", "label": "Verification", "icon": "check" },
 			{ "path": "/documents", "label": "Documents", "icon": "file" },
 			{ "path": "/reports", "label": "Reports", "icon": "chart" },
+			{ "path": "/import", "label": "Import", "icon": "arrow-up-from-bracket" },
 			{ "path": "/audit", "label": "Audit", "icon": "list" },
 			{ "path": "/access/permissions", "label": "Permissions", "icon": "lock" },
 			{ "path": "/access/roles", "label": "Roles", "icon": "users" },

@@ -20,13 +20,13 @@ const templates = [
 		name: "awcms-micro-default",
 		port: LOCAL_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default"),
-		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
+		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-sikesra/public/status"],
 	},
 	{
 		name: "awcms-micro-default-cloudflare",
 		port: CLOUDFARE_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default-cloudflare"),
-		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-example/public/status"],
+		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-sikesra/public/status"],
 	},
 ];
 
@@ -144,7 +144,7 @@ async function validateTemplate(template) {
 		await preview.ready;
 		for (const path of template.routes) {
 			const body = await fetchRoute(baseUrl, path);
-			if (path === "/_emdash/api/plugins/awcms-micro-example/public/status") {
+			if (path === "/_emdash/api/plugins/awcms-micro-sikesra/public/status") {
 				const json = JSON.parse(body);
 				const payload = json?.data ?? json;
 				if (payload?.plugin?.visibility !== "public-safe") {

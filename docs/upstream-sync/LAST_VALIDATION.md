@@ -57,21 +57,21 @@ Progress: resolved 1807, reused 1519, downloaded 0, added 0
 Already up to date
 Progress: resolved 1807, reused 1519, downloaded 0, added 0, done
 packages/plugins/awcms-micro-gallery prepare$ node --run build
-packages/plugins/awcms-micro-example prepare$ node --run build
+packages/plugins/awcms-micro-sikesra prepare$ node --run build
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts[24m 
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox.ts[39m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m target: [34mes2023[39m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m Build start
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m Cleaning 10 files
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-example/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m Build start
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m Cleaning 8 files
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts[24m 
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m target: [34mes2023[39m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m Build start
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m Cleaning 8 files
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                    [2m 7.13 kB[22m [2m│ gzip: 2.15 kB[22m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[1msandbox.mjs[22m                  [2m 5.35 kB[22m [2m│ gzip: 1.66 kB[22m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22mindex.mjs.map                [2m12.72 kB[22m [2m│ gzip: 3.55 kB[22m
@@ -85,17 +85,17 @@ packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[32m
 packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m 10 files, total: 52.09 kB
 packages/plugins/awcms-micro-gallery prepare: [32m✔[39m Build complete in [32m1511ms[39m
 packages/plugins/awcms-micro-gallery prepare: Done
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
-packages/plugins/awcms-micro-example prepare: [34mℹ[39m 8 files, total: 156.33 kB
-packages/plugins/awcms-micro-example prepare: [32m✔[39m Build complete in [32m2383ms[39m
-packages/plugins/awcms-micro-example prepare: Done
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
+packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m 8 files, total: 156.33 kB
+packages/plugins/awcms-micro-sikesra prepare: [32m✔[39m Build complete in [32m2383ms[39m
+packages/plugins/awcms-micro-sikesra prepare: Done
 [WARN] Issues with peer dependencies found. Run "pnpm peers check" to list them.
 
 Done in 18.7s using pnpm v11.1.3
@@ -2520,15 +2520,15 @@ packages/core build: Done
 packages/cloudflare build$ tsdown
 packages/plugins/atproto build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/audit-log build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
-packages/plugins/awcms-micro-example build$ tsdown
-packages/plugins/awcms-micro-example build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/plugins/awcms-micro-sikesra build$ tsdown
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
 packages/cloudflare build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-example/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-example build: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
-packages/plugins/awcms-micro-example build: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-example build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-example build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-example build: [34mℹ[39m Cleaning 8 files
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts[24m 
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m target: [34mes2023[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Build start
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Cleaning 8 files
 packages/cloudflare build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/cloudflare/tsdown.config.ts[24m 
 packages/cloudflare build: [34mℹ[39m entry: [34msrc/index.ts, src/db/d1.ts, src/db/do.ts, src/db/playground.ts, src/db/playground-middleware.ts, src/storage/r2.ts, src/auth/index.ts, src/sandbox/index.ts, src/plugins/index.ts, src/media/images-runtime.ts, src/media/stream-runtime.ts, src/cache/runtime.ts, src/cache/config.ts[39m
 packages/cloudflare build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
@@ -2677,17 +2677,17 @@ packages/plugins/sandboxed-test build: ◐ Building runtime entry...
 packages/plugins/sandboxed-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
-packages/plugins/awcms-micro-example build: [34mℹ[39m 8 files, total: 156.33 kB
-packages/plugins/awcms-micro-example build: [32m✔[39m Build complete in [32m2972ms[39m
-packages/plugins/awcms-micro-example build: Done
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m 8 files, total: 156.33 kB
+packages/plugins/awcms-micro-sikesra build: [32m✔[39m Build complete in [32m2972ms[39m
+packages/plugins/awcms-micro-sikesra build: Done
 packages/plugins/webhook-notifier build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/webhook-notifier build: ◐ Building plugin...
 packages/plugins/webhook-notifier build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/emdash-plugin.jsonc
@@ -2877,7 +2877,7 @@ packages/plugins/ai-moderation typecheck$ tsgo --noEmit
 packages/plugins/atproto typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck: Done
-packages/plugins/awcms-micro-example typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugins/awcms-micro-sikesra typecheck$ tsc --noEmit -p tsconfig.json
 packages/plugins/atproto typecheck: Done
 packages/plugins/awcms-micro-gallery typecheck$ tsc --noEmit -p tsconfig.json
 packages/cloudflare typecheck: Done
@@ -2899,7 +2899,7 @@ packages/workerd typecheck$ tsgo --noEmit
 packages/plugins/webhook-notifier typecheck: Done
 packages/workerd typecheck: Done
 packages/plugins/awcms-micro-gallery typecheck: Done
-packages/plugins/awcms-micro-example typecheck: Done
+packages/plugins/awcms-micro-sikesra typecheck: Done
 $ pnpm lint:quick
 ==> pnpm-lint-quick
 $ oxlint -f json

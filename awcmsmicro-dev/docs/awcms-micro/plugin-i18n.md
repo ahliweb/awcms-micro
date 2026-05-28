@@ -10,7 +10,7 @@ Plugins define translation maps under the `i18n` property in their manifest. Eac
 
 ```json
 {
-  "id": "awcms-micro-example",
+  "id": "awcms-micro-sikesra",
   "navigation": {
     "groups": [
       {
@@ -57,7 +57,7 @@ When rendering, AWCMS-Micro resolves keys in the following strict fallback order
 ### Example Execution
 
 ```ts
-import { resolveLabel } from "@awcms-micro/plugin-example/navigation";
+import { resolveLabel } from "@awcms-micro/plugin-sikesra/navigation";
 
 const messages = {
   en: { "nav.title": "English Title" },

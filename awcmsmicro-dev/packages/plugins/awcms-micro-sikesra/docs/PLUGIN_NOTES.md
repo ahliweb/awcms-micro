@@ -7,7 +7,7 @@ This package demonstrates how AWCMS-Micro can add a trusted example plugin witho
 ## Highlights
 
 - tenant-ready naming examples in storage path guidance
-- namespaced permissions under `awcms:example:*`
+- namespaced permissions under `awcms:sikesra:*`
 - isolated route and admin examples
 - simple audit logging helper
 - EmDash registry manifest in `emdash-plugin.jsonc`

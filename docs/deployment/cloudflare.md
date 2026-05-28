@@ -107,7 +107,7 @@ Minimum checks after deploy:
 - `GET /aggregate` returns the public-safe summary page
 - `GET /about` returns the published page route
 - `GET /_emdash/admin` redirects unauthenticated users to `/_emdash/admin/login`
-- `GET /_emdash/api/plugins/awcms-micro-example/public/status` returns the public-safe plugin response
+- `GET /_emdash/api/plugins/awcms-micro-sikesra/public/status` returns the public-safe plugin response
 - media upload and retrieval work against the configured R2 bucket
 
 ## Rollback Procedure

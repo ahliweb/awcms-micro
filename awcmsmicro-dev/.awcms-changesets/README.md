@@ -10,7 +10,7 @@ Example:
 
 ```md
 ---
-"@awcms-micro/plugin-example": minor
+"@awcms-micro/plugin-sikesra": minor
 "@awcms-micro/template-default-example": patch
 ---
 

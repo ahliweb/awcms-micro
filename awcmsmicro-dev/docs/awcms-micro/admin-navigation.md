@@ -6,7 +6,7 @@ This document explains the custom, migration-safe admin navigation compatibility
 
 EmDash currently supports a flat page-based admin navigation structure. AWCMS-Micro, however, requires a structured, grouped, and hierarchical navigation menu for plugins (e.g., grouping access control views under a "Governance" menu).
 
-To support this without modifying EmDash's core package (which would block seamless upstream synchronization), AWCMS-Micro keeps the compatibility layer inside the example plugin boundary and exposes it through `@awcms-micro/plugin-example/navigation`.
+To support this without modifying EmDash's core package (which would block seamless upstream synchronization), AWCMS-Micro keeps the compatibility layer inside the example plugin boundary and exposes it through `@awcms-micro/plugin-sikesra/navigation`.
 
 ## Core Design Principles
 
@@ -22,7 +22,7 @@ Each plugin defines its navigation in its manifest:
 
 ```json
 {
-  "id": "awcms-micro-example",
+  "id": "awcms-micro-sikesra",
   "name": "Example Plugin",
   "navigation": {
     "groups": [

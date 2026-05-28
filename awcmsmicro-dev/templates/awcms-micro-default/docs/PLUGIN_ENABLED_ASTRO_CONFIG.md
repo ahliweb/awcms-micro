@@ -8,12 +8,12 @@ Use it when you need to recreate the same example-plugin setup in a standalone E
 
 Use this variant after:
 
-1. installing `@awcms-micro/plugin-example` into the site, and
+1. installing `@awcms-micro/plugin-sikesra` into the site, and
 2. building or linking the plugin so the site can resolve it.
 
 Also make sure the site still includes the standard EmDash boilerplate such as `src/live.config.ts`.
 
-For package installation and linking options, see `../../../packages/plugins/awcms-micro-example/docs/STANDALONE_CONSUMPTION.md` while working inside this parent workspace.
+For package installation and linking options, see `../../../packages/plugins/awcms-micro-sikesra/docs/STANDALONE_CONSUMPTION.md` while working inside this parent workspace.
 
 ## Example `astro.config.mjs`
 
@@ -24,7 +24,7 @@ import { defineConfig } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
-import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-example";
+import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
 
 export default defineConfig({
 	output: "server",

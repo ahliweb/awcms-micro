@@ -31,7 +31,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 
 ## Permission Namespace
 
-The example uses the `awcms:example:<resource>:<action>` namespace.
+The example uses the `awcms:sikesra:<resource>:<action>` namespace.
 
 ## Boundary Rule
 

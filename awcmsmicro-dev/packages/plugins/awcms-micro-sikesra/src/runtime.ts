@@ -10,13 +10,13 @@ import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "e
 import { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
-export const AWCMS_EXAMPLE_PLUGIN_ID = "awcms-micro-example";
+export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
 
-export const AWCMS_EXAMPLE_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
+export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
 
-export const AWCMS_EXAMPLE_ALLOWED_HOSTS: string[] = [];
+export const AWCMS_SIKESRA_ALLOWED_HOSTS: string[] = [];
 
-export const AWCMS_EXAMPLE_STORAGE = {
+export const AWCMS_SIKESRA_STORAGE = {
 	auditEvents: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
@@ -55,10 +55,10 @@ export const AWCMS_EXAMPLE_STORAGE = {
 	},
 } satisfies PluginStorageConfig;
 
-export const AWCMS_EXAMPLE_DESCRIPTOR_STORAGE = AWCMS_EXAMPLE_STORAGE;
+export const AWCMS_SIKESRA_DESCRIPTOR_STORAGE = AWCMS_SIKESRA_STORAGE;
 
-export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
-	id: "awcms-micro-example",
+export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
+	id: "awcms-micro-sikesra",
 	name: "AWCMS-Micro Example Plugin",
 	version: "0.0.1",
 	description: "Access & audit demo plugin for AWCMS-Micro projects",
@@ -80,7 +80,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/overview",
 						icon: "stack",
 						sortOrder: 10,
-						permission: "awcms:example:dashboard:read",
+						permission: "awcms:sikesra:dashboard:read",
 					}
 				]
 			},
@@ -100,7 +100,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/registry",
 						icon: "grid",
 						sortOrder: 10,
-						permission: "awcms:example:dashboard:read",
+						permission: "awcms:sikesra:dashboard:read",
 					},
 					{
 						id: "documents",
@@ -109,7 +109,16 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/documents",
 						icon: "file",
 						sortOrder: 20,
-						permission: "awcms:example:dashboard:read",
+						permission: "awcms:sikesra:dashboard:read",
+					},
+					{
+						id: "import",
+						labelKey: "awcms.nav.import",
+						fallbackLabel: "Import Excel",
+						path: "/import",
+						icon: "arrow-up-from-bracket",
+						sortOrder: 30,
+						permission: "awcms:sikesra:dashboard:read",
 					}
 				]
 			},
@@ -129,7 +138,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/verification",
 						icon: "check",
 						sortOrder: 10,
-						permission: "awcms:example:audit:read",
+						permission: "awcms:sikesra:audit:read",
 					},
 					{
 						id: "audit-log",
@@ -138,7 +147,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/audit",
 						icon: "list",
 						sortOrder: 20,
-						permission: "awcms:example:audit:read",
+						permission: "awcms:sikesra:audit:read",
 					},
 					{
 						id: "reports",
@@ -147,7 +156,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/reports",
 						icon: "chart",
 						sortOrder: 30,
-						permission: "awcms:example:audit:read",
+						permission: "awcms:sikesra:audit:read",
 					}
 				]
 			},
@@ -167,7 +176,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/access/permissions",
 						icon: "lock",
 						sortOrder: 10,
-						permission: "awcms:example:settings:read",
+						permission: "awcms:sikesra:settings:read",
 						children: [
 							{
 								id: "permissions",
@@ -175,7 +184,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Permissions",
 								path: "/access/permissions",
 								sortOrder: 10,
-								permission: "awcms:example:permissions:read",
+								permission: "awcms:sikesra:permissions:read",
 							},
 							{
 								id: "roles",
@@ -183,7 +192,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Roles",
 								path: "/access/roles",
 								sortOrder: 20,
-								permission: "awcms:example:roles:read",
+								permission: "awcms:sikesra:roles:read",
 							},
 							{
 								id: "matrix",
@@ -191,7 +200,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Role Matrix",
 								path: "/access/matrix",
 								sortOrder: 30,
-								permission: "awcms:example:permissions:read",
+								permission: "awcms:sikesra:permissions:read",
 							},
 							{
 								id: "access-preview",
@@ -199,7 +208,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Access Preview",
 								path: "/access/preview",
 								sortOrder: 40,
-								permission: "awcms:example:preview:read",
+								permission: "awcms:sikesra:preview:read",
 							}
 						]
 					},
@@ -210,7 +219,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 						path: "/abac/attributes",
 						icon: "sliders",
 						sortOrder: 20,
-						permission: "awcms:example:settings:read",
+						permission: "awcms:sikesra:settings:read",
 						children: [
 							{
 								id: "abac-attributes",
@@ -218,7 +227,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Attributes",
 								path: "/abac/attributes",
 								sortOrder: 10,
-								permission: "awcms:example:abac:read",
+								permission: "awcms:sikesra:abac:read",
 							},
 							{
 								id: "abac-policies",
@@ -226,7 +235,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "Policies",
 								path: "/abac/policies",
 								sortOrder: 20,
-								permission: "awcms:example:abac:read",
+								permission: "awcms:sikesra:abac:read",
 							},
 							{
 								id: "abac-preview",
@@ -234,7 +243,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 								fallbackLabel: "ABAC Preview",
 								path: "/abac/preview",
 								sortOrder: 30,
-								permission: "awcms:example:abac:read",
+								permission: "awcms:sikesra:abac:read",
 							}
 						]
 					}
@@ -254,6 +263,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 					"awcms.nav.overview": "Overview",
 					"awcms.nav.pages": "Pages",
 					"awcms.nav.documents": "Documents",
+					"awcms.nav.import": "Import Excel",
 					"awcms.nav.verification": "Verification",
 					"awcms.nav.audit": "Audit Log",
 					"awcms.nav.reports": "Reports",
@@ -279,6 +289,10 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.settings.enforceDemo": "Enforce Demo",
 				"awcms.meta.settings.metadataCanonicalBase": "Metadata Canonical Base",
 				"awcms.meta.settings.metadataCanonicalBaseDesc": "Optional override for page metadata contributions.",
+				"awcms.meta.settings.smallCellThreshold": "Small Cell Suppression Threshold",
+				"awcms.meta.settings.smallCellThresholdDesc": "Safety threshold below which counts are suppressed to protect privacy.",
+				"awcms.meta.settings.sikesraPublicEnabled": "SIKESRA Public API Enabled",
+				"awcms.meta.settings.sikesraPublicEnabledDesc": "Enable or disable public aggregate access to SIKESRA stats.",
 				"awcms.meta.block.accessNote": "AWCMS Access Note",
 				"awcms.meta.block.accessNoteDesc": "Portable Text note block for access and governance guidance.",
 				"awcms.meta.block.category": "AWCMS Micro",
@@ -322,6 +336,7 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				"awcms.nav.overview": "Ikhtisar",
 				"awcms.nav.pages": "Halaman",
 				"awcms.nav.documents": "Dokumen",
+				"awcms.nav.import": "Impor Excel",
 				"awcms.nav.verification": "Verifikasi",
 				"awcms.nav.audit": "Log Audit",
 				"awcms.nav.reports": "Laporan",
@@ -347,6 +362,10 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.settings.enforceDemo": "Terapkan Demo",
 				"awcms.meta.settings.metadataCanonicalBase": "Basis Canonical Metadata",
 				"awcms.meta.settings.metadataCanonicalBaseDesc": "Override opsional untuk kontribusi metadata halaman.",
+				"awcms.meta.settings.smallCellThreshold": "Batas Supresi Sel Kecil",
+				"awcms.meta.settings.smallCellThresholdDesc": "Batas keamanan minimum agar jumlah tidak disembunyikan untuk melindungi privasi.",
+				"awcms.meta.settings.sikesraPublicEnabled": "API Publik SIKESRA Aktif",
+				"awcms.meta.settings.sikesraPublicEnabledDesc": "Aktifkan atau nonaktifkan akses agregat publik ke statistik SIKESRA.",
 				"awcms.meta.block.accessNote": "Catatan Akses AWCMS",
 				"awcms.meta.block.accessNoteDesc": "Blok catatan Portable Text untuk panduan akses dan tata kelola.",
 				"awcms.meta.block.category": "AWCMS Micro",
@@ -386,15 +405,15 @@ export const AWCMS_EXAMPLE_MANIFEST: AwcmsModuleManifest = {
 	}
 };
 
-export const AWCMS_EXAMPLE_ADMIN_PAGES = adaptToEmdashPages(AWCMS_EXAMPLE_MANIFEST);
+export const AWCMS_SIKESRA_ADMIN_PAGES = adaptToEmdashPages(AWCMS_SIKESRA_MANIFEST);
 
-export const AWCMS_EXAMPLE_ADMIN_WIDGETS = [
+export const AWCMS_SIKESRA_ADMIN_WIDGETS = [
 	{ id: "governance-status", title: "Governance Status", titleKey: "awcms.meta.widget.governanceStatus", size: "half" as const },
 	{ id: "access-rights-health", title: "Access Rights Health", titleKey: "awcms.meta.widget.accessRightsHealth", size: "half" as const },
 	{ id: "abac-policy-status", title: "ABAC Policy Status", titleKey: "awcms.meta.widget.abacPolicyStatus", size: "half" as const },
 ];
 
-export const AWCMS_EXAMPLE_SETTINGS_SCHEMA = {
+export const AWCMS_SIKESRA_SETTINGS_SCHEMA = {
 	publicStatusLabel: {
 		type: "string" as const,
 		label: "Public Status Label",
@@ -431,9 +450,26 @@ export const AWCMS_EXAMPLE_SETTINGS_SCHEMA = {
 		descriptionKey: "awcms.meta.settings.metadataCanonicalBaseDesc",
 		placeholder: "https://example.awcms-micro.local",
 	},
+	smallCellThreshold: {
+		type: "number" as const,
+		label: "Small Cell Suppression Threshold",
+		labelKey: "awcms.meta.settings.smallCellThreshold",
+		description: "Safety threshold below which counts are suppressed to protect privacy.",
+		descriptionKey: "awcms.meta.settings.smallCellThresholdDesc",
+		default: 3,
+		min: 1,
+	},
+	sikesraPublicEnabled: {
+		type: "boolean" as const,
+		label: "SIKESRA Public API Enabled",
+		labelKey: "awcms.meta.settings.sikesraPublicEnabled",
+		description: "Enable or disable public aggregate access to SIKESRA stats.",
+		descriptionKey: "awcms.meta.settings.sikesraPublicEnabledDesc",
+		default: true,
+	},
 };
 
-export const AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS: PortableTextBlockConfig[] = [
+export const AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS: PortableTextBlockConfig[] = [
 	{
 		type: "awcms-access-note",
 		label: "AWCMS Access Note",
@@ -443,7 +479,7 @@ export const AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS: PortableTextBlockConfig[] = [
 	},
 ];
 
-export const AWCMS_EXAMPLE_FIELD_WIDGETS: FieldWidgetConfig[] = [
+export const AWCMS_SIKESRA_FIELD_WIDGETS: FieldWidgetConfig[] = [
 	{
 		name: "status-badge",
 		label: "Status badge",
@@ -466,6 +502,8 @@ export interface ExampleSettings {
 	auditRetentionDays: number;
 	governanceMode: string;
 	metadataCanonicalBase: string;
+	smallCellThreshold: number;
+	sikesraPublicEnabled: boolean;
 }
 
 export interface AccessPermission {
@@ -660,6 +698,8 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 	auditRetentionDays: 30,
 	governanceMode: "review",
 	metadataCanonicalBase: "",
+	smallCellThreshold: 3,
+	sikesraPublicEnabled: true,
 };
 
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
@@ -709,6 +749,12 @@ function getNumber(value: unknown, key: string): number | undefined {
 	return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : undefined;
 }
 
+function getBoolean(value: unknown, key: string): boolean | undefined {
+	if (!isRecord(value)) return undefined;
+	const candidate = value[key];
+	return typeof candidate === "boolean" ? candidate : undefined;
+}
+
 function actorFromRoute(ctx: any): string {
 	const ip = ctx.requestMeta?.ip;
 	return typeof ip === "string" && ip ? `request:${ip}` : "request:unknown";
@@ -736,10 +782,36 @@ function getNextVerificationStage(stage: VerificationStage): VerificationStage |
 	return index >= 0 && index < VERIFICATION_STAGE_FLOW.length - 1 ? (VERIFICATION_STAGE_FLOW[index + 1] ?? null) : null;
 }
 
+async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
+	const custom = await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities");
+	return [...SIKESRA_REFERENCE_FIXTURES.registryEntities, ...(custom ?? [])];
+}
+
+async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
+	const custom = await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities") ?? [];
+	custom.push(entity);
+	await ctx.kv.set("custom:registryEntities", custom);
+}
+
+async function getSupportingDocuments(ctx: PluginContext): Promise<SikesraReferenceSupportingDocument[]> {
+	const custom = await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments");
+	return [...SIKESRA_REFERENCE_FIXTURES.supportingDocuments, ...(custom ?? [])];
+}
+
+async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+	const custom = await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments") ?? [];
+	custom.push(doc);
+	await ctx.kv.set("custom:supportingDocuments", custom);
+}
+
 async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
 	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
-	if (stored && typeof stored === "object") return stored;
-	return Object.fromEntries(SIKESRA_REFERENCE_FIXTURES.registryEntities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
+	const entities = await getRegistryEntities(ctx);
+	const defaultState = Object.fromEntries(entities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
+	if (stored && typeof stored === "object") {
+		return { ...defaultState, ...stored };
+	}
+	return defaultState;
 }
 
 async function setVerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
@@ -748,7 +820,8 @@ async function setVerificationStageState(ctx: PluginContext, state: Record<strin
 
 async function listVerificationItems(ctx: PluginContext): Promise<VerificationListItem[]> {
 	const state = await getVerificationStageState(ctx);
-	return SIKESRA_REFERENCE_FIXTURES.registryEntities.map((entity) => {
+	const entities = await getRegistryEntities(ctx);
+	return entities.map((entity) => {
 		const verificationStage = state[entity.id] ?? entity.verificationStage;
 		return {
 			id: entity.id,
@@ -776,12 +849,16 @@ async function getSettings(ctx: PluginContext): Promise<ExampleSettings> {
 	const auditRetentionDays = await ctx.kv.get<number>("settings:auditRetentionDays");
 	const governanceMode = await ctx.kv.get<string>("settings:governanceMode");
 	const metadataCanonicalBase = await ctx.kv.get<string>("settings:metadataCanonicalBase");
+	const smallCellThreshold = await ctx.kv.get<number>("settings:smallCellThreshold");
+	const sikesraPublicEnabled = await ctx.kv.get<boolean>("settings:sikesraPublicEnabled");
 
 	return {
 		publicStatusLabel: publicStatusLabel ?? DEFAULT_SETTINGS.publicStatusLabel,
 		auditRetentionDays: auditRetentionDays ?? DEFAULT_SETTINGS.auditRetentionDays,
 		governanceMode: governanceMode ?? DEFAULT_SETTINGS.governanceMode,
 		metadataCanonicalBase: metadataCanonicalBase ?? DEFAULT_SETTINGS.metadataCanonicalBase,
+		smallCellThreshold: smallCellThreshold ?? DEFAULT_SETTINGS.smallCellThreshold,
+		sikesraPublicEnabled: sikesraPublicEnabled ?? DEFAULT_SETTINGS.sikesraPublicEnabled,
 	};
 }
 
@@ -792,12 +869,16 @@ async function setSettings(ctx: PluginContext, input: unknown) {
 		auditRetentionDays: getNumber(input, "auditRetentionDays") ?? current.auditRetentionDays,
 		governanceMode: getString(input, "governanceMode") ?? current.governanceMode,
 		metadataCanonicalBase: getString(input, "metadataCanonicalBase") ?? current.metadataCanonicalBase,
+		smallCellThreshold: getNumber(input, "smallCellThreshold") ?? current.smallCellThreshold,
+		sikesraPublicEnabled: getBoolean(input, "sikesraPublicEnabled") ?? current.sikesraPublicEnabled,
 	};
 
 	await ctx.kv.set("settings:publicStatusLabel", next.publicStatusLabel);
 	await ctx.kv.set("settings:auditRetentionDays", next.auditRetentionDays);
 	await ctx.kv.set("settings:governanceMode", next.governanceMode);
 	await ctx.kv.set("settings:metadataCanonicalBase", next.metadataCanonicalBase);
+	await ctx.kv.set("settings:smallCellThreshold", next.smallCellThreshold);
+	await ctx.kv.set("settings:sikesraPublicEnabled", next.sikesraPublicEnabled);
 
 	return next;
 }
@@ -826,7 +907,7 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	await ctx.storage.auditEvents!.put(record.id, record);
 	await ctx.kv.set("state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
-	ctx.log.info(`[${AWCMS_EXAMPLE_PLUGIN_ID}] ${record.summary}`, record.metadata);
+	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, record.metadata);
 	return record;
 }
 
@@ -854,7 +935,7 @@ async function summarizePluginState(ctx: PluginContext) {
 	const recent = await listAuditEvents(ctx, 5);
 
 	return {
-		plugin: { id: AWCMS_EXAMPLE_PLUGIN_ID },
+		plugin: { id: AWCMS_SIKESRA_PLUGIN_ID },
 		settings,
 		counters: {
 			auditCount,
@@ -1223,16 +1304,192 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	await incrementCounter(ctx, "state:publicStatusHits");
 	const settings = await getSettings(ctx);
-	const auditCount = (await ctx.kv.get<number>("state:auditCount")) ?? 0;
-	const lastLifecycle = (await ctx.kv.get<string>("state:lastLifecycle")) ?? null;
+
+	if (!settings.sikesraPublicEnabled) {
+		return {
+			plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
+			status: settings.publicStatusLabel,
+			governanceMode: settings.governanceMode,
+			publicAggregate: {
+				categories: [],
+				caveat: "SIKESRA Public API is disabled.",
+			},
+		};
+	}
+
+	const state = await getVerificationStageState(ctx);
+
+	const moduleTypes = [
+		{ code: "rumah_ibadah", label: "Rumah Ibadah" },
+		{ code: "lembaga_keagamaan", label: "Lembaga Keagamaan" },
+		{ code: "pendidikan_keagamaan", label: "Pendidikan Keagamaan" },
+		{ code: "lks", label: "Lembaga Kesejahteraan Sosial" },
+		{ code: "guru_agama", label: "Guru Agama" },
+		{ code: "anak_yatim", label: "Anak Yatim" },
+		{ code: "disabilitas", label: "Disabilitas" },
+		{ code: "lansia_terlantar", label: "Lansia Terlantar" },
+	];
+
+	const smallCellThreshold = settings.smallCellThreshold;
+
+	const entitiesList = await getRegistryEntities(ctx);
+
+	const categories = moduleTypes.map((mod) => {
+		const entities = entitiesList.filter(
+			(e) => e.entityType === mod.code
+		);
+		const eligibleEntities = entities.filter(
+			(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal"
+		);
+		const total = eligibleEntities.length;
+		const verified = eligibleEntities.filter(
+			(e) => (state[e.id] ?? e.verificationStage) === "active_verified"
+		).length;
+		const suppressed = total < smallCellThreshold;
+
+		return {
+			code: mod.code,
+			label: mod.label,
+			total: suppressed ? 0 : total,
+			verified: suppressed ? 0 : verified,
+			suppressed,
+		};
+	});
 
 	return {
-		plugin: { id: AWCMS_EXAMPLE_PLUGIN_ID, visibility: "public-safe" },
+		plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
 		status: settings.publicStatusLabel,
 		governanceMode: settings.governanceMode,
-		auditCount,
-		lastLifecycle,
+		publicAggregate: {
+			categories,
+			caveat: "Public aggregate only exposes coarse counts and suppresses sensitive details when counts are suppressed.",
+		},
 	};
+};
+
+const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const entities = await getRegistryEntities(ctx);
+	return { items: entities };
+};
+
+const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) {
+		throw new Error("Invalid input format");
+	}
+	const newEntity: SikesraReferenceRegistryEntity = {
+		id: getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
+		code: getString(input, "code") ?? "",
+		label: getString(input, "label") ?? "Untitled Registry Entity",
+		entityType: getString(input, "entityType") ?? "rumah_ibadah",
+		sensitivity: (getString(input, "sensitivity") as SikesraSensitivity) ?? "public_safe",
+		region: {
+			provinceCode: getString(input, "provinceCode") ?? "",
+			regencyCode: getString(input, "regencyCode") ?? "",
+			districtCode: getString(input, "districtCode") ?? "",
+			villageCode: getString(input, "villageCode") ?? "",
+		},
+		verificationStage: "draft",
+		supportingDocumentIds: [],
+		publicSummary: getString(input, "publicSummary") ?? "",
+	};
+
+	await saveRegistryEntity(ctx, newEntity);
+
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "registry.entity.create",
+			scope: "registry",
+			actor: actorFromRoute(ctx),
+			summary: `Created SIKESRA registry entity ${newEntity.code} - ${newEntity.label}`,
+			metadata: newEntity as unknown as Record<string, unknown>,
+		})
+	);
+
+	return { success: true, item: newEntity };
+};
+
+const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const docs = await getSupportingDocuments(ctx);
+	return { items: docs };
+};
+
+const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) {
+		throw new Error("Invalid input format");
+	}
+	const newDoc: SikesraReferenceSupportingDocument = {
+		id: getString(input, "id") ?? `doc-${Math.random().toString(36).slice(2, 10)}`,
+		registryEntityId: getString(input, "registryEntityId") ?? "",
+		documentType: getString(input, "documentType") ?? "surat_keterangan",
+		title: getString(input, "title") ?? "Untitled Document",
+		sensitivity: (getString(input, "sensitivity") as SikesraSensitivity) ?? "public_safe",
+		issuedAt: toIsoNow(),
+		verifiedBy: actorFromRoute(ctx),
+	};
+
+	await saveSupportingDocument(ctx, newDoc);
+
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "document.create",
+			scope: "documents",
+			actor: actorFromRoute(ctx),
+			summary: `Uploaded document ${newDoc.title} classification ${newDoc.sensitivity}`,
+			metadata: newDoc as unknown as Record<string, unknown>,
+		})
+	);
+
+	return { success: true, item: newDoc };
+};
+
+const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) {
+		throw new Error("Invalid input format");
+	}
+	const rows = input.rows;
+	if (!Array.isArray(rows)) {
+		throw new Error("Invalid rows format");
+	}
+	
+	let count = 0;
+	for (const row of rows) {
+		const newEntity: SikesraReferenceRegistryEntity = {
+			id: row.id ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
+			code: row.code ?? "",
+			label: row.label ?? "Imported Entity",
+			entityType: row.entityType ?? "rumah_ibadah",
+			sensitivity: (row.sensitivity as SikesraSensitivity) ?? "public_safe",
+			region: {
+				provinceCode: row.provinceCode ?? "",
+				regencyCode: row.regencyCode ?? "",
+				districtCode: row.districtCode ?? "",
+				villageCode: row.villageCode ?? "",
+			},
+			verificationStage: "draft",
+			supportingDocumentIds: [],
+			publicSummary: row.publicSummary ?? "",
+		};
+		await saveRegistryEntity(ctx, newEntity);
+		count++;
+	}
+
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "registry.import.promote",
+			scope: "registry",
+			actor: actorFromRoute(ctx),
+			summary: `Promoted ${count} staged rows from Excel import to SIKESRA Registry`,
+			metadata: { count },
+		})
+	);
+
+	return { success: true, count };
 };
 
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -1546,6 +1803,11 @@ const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
+	"registry/list": { handler: registryListRoute },
+	"registry/save": { handler: registrySaveRoute },
+	"documents/list": { handler: documentsListRoute },
+	"documents/save": { handler: documentsSaveRoute },
+	"import/promote": { handler: importPromoteRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },

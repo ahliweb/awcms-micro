@@ -18,7 +18,7 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 - public aggregate reference route
 - protected EmDash admin access at `/_emdash/admin` with unauthenticated redirects to `/_emdash/admin/login`
 - Cloudflare Worker configuration with D1, R2, observability, and Worker Loader prepared
-- native registration of `@awcms-micro/plugin-example` and `@awcms-micro/plugin-gallery`
+- native registration of `@awcms-micro/plugin-sikesra` and `@awcms-micro/plugin-gallery`
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
 ## Cloudflare Placeholders
@@ -89,7 +89,7 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 - `GET /aggregate` returns the public-safe summary page.
 - `GET /about` returns the published page route.
 - `GET /_emdash/admin` redirects unauthenticated visitors to `/_emdash/admin/login`.
-- `GET /_emdash/api/plugins/awcms-micro-example/public/status` returns the public-safe plugin response.
+- `GET /_emdash/api/plugins/awcms-micro-sikesra/public/status` returns the public-safe plugin response.
 
 ## Notes
 
@@ -101,7 +101,7 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 
 - package name: `@awcms-micro/template-default-cloudflare`
 - recommended local folder example: `templates/awcms-micro-default-cloudflare/`
-- related example plugin packages: `@awcms-micro/plugin-example`, `@awcms-micro/plugin-gallery`
+- related example plugin packages: `@awcms-micro/plugin-sikesra`, `@awcms-micro/plugin-gallery`
 
 ## License
 

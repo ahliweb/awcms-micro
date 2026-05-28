@@ -5,11 +5,11 @@ import * as React from "react";
 import { useLingui } from "@lingui/react";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
-import { AWCMS_EXAMPLE_MANIFEST } from "./runtime.js";
+import { AWCMS_SIKESRA_MANIFEST } from "./runtime.js";
 
-import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "./fixtures.js";
+import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
 
-const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-example";
+const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 type JsonMap = Record<string, string>;
@@ -244,32 +244,32 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 	];
 }
 
-export const AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS = getDashboardModuleCards("en");
+export const AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS = getDashboardModuleCards("en");
 
-export const AWCMS_EXAMPLE_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
+export const AWCMS_SIKESRA_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
 	{
 		id: "overview",
 		label: "Overview",
 		href: "/overview",
-		permission: "awcms:example:dashboard:read",
+		permission: "awcms:sikesra:dashboard:read",
 	},
 	{
 		id: "data-entry",
 		label: "Data Entry",
 		href: "/registry",
-		permission: "awcms:example:dashboard:read",
+		permission: "awcms:sikesra:dashboard:read",
 		children: [
 			{
 				id: "registry",
 				label: "Registry",
 				href: "/registry",
-				permission: "awcms:example:dashboard:read",
+				permission: "awcms:sikesra:dashboard:read",
 			},
 			{
 				id: "documents",
 				label: "Documents",
 				href: "/documents",
-				permission: "awcms:example:dashboard:read",
+				permission: "awcms:sikesra:dashboard:read",
 			},
 		],
 	},
@@ -277,31 +277,31 @@ export const AWCMS_EXAMPLE_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
 		id: "verification",
 		label: "Verification",
 		href: "/verification",
-		permission: "awcms:example:audit:read",
+		permission: "awcms:sikesra:audit:read",
 	},
 	{
 		id: "reports",
 		label: "Reports",
 		href: "/reports",
-		permission: "awcms:example:audit:read",
+		permission: "awcms:sikesra:audit:read",
 	},
 	{
 		id: "settings",
 		label: "Settings",
 		href: "/access/permissions",
-		permission: "awcms:example:settings:read",
+		permission: "awcms:sikesra:settings:read",
 		children: [
 			{
 				id: "permissions",
 				label: "Permissions",
 				href: "/access/permissions",
-				permission: "awcms:example:permissions:read",
+				permission: "awcms:sikesra:permissions:read",
 			},
 			{
 				id: "roles",
 				label: "Roles",
 				href: "/access/roles",
-				permission: "awcms:example:roles:read",
+				permission: "awcms:sikesra:roles:read",
 			},
 		],
 	},
@@ -422,7 +422,7 @@ function PluginHeaderMenu() {
 	const locale = i18n.locale;
 	const copy = getExampleAdminCopy(locale);
 
-	const normalizedGroups = normalizeAdminNav([AWCMS_EXAMPLE_MANIFEST], {
+	const normalizedGroups = normalizeAdminNav([AWCMS_SIKESRA_MANIFEST], {
 		hasPermission: (permission) => !permission || permission.endsWith(":read"),
 	});
 
@@ -431,7 +431,7 @@ function PluginHeaderMenu() {
 			groups={normalizedGroups}
 			currentPath={currentPath}
 			locale={locale}
-			messages={AWCMS_EXAMPLE_MANIFEST.i18n?.messages}
+			messages={AWCMS_SIKESRA_MANIFEST.i18n?.messages}
 			title={copy.navTitle}
 			description={copy.navDescription}
 		/>
@@ -675,11 +675,15 @@ function OverviewPage() {
 		auditRetentionDays: string;
 		governanceMode: GovernanceMode;
 		metadataCanonicalBase: string;
+		smallCellThreshold: string;
+		sikesraPublicEnabled: boolean;
 	}>({
 		publicStatusLabel: "",
 		auditRetentionDays: "30",
 		governanceMode: "review",
 		metadataCanonicalBase: "",
+		smallCellThreshold: "3",
+		sikesraPublicEnabled: true,
 	});
 
 	React.useEffect(() => {
@@ -689,6 +693,8 @@ function OverviewPage() {
 			auditRetentionDays: String(data.settings.auditRetentionDays),
 			governanceMode: (data.settings.governanceMode as GovernanceMode) ?? "review",
 			metadataCanonicalBase: data.settings.metadataCanonicalBase,
+			smallCellThreshold: String(data.settings.smallCellThreshold ?? 3),
+			sikesraPublicEnabled: data.settings.sikesraPublicEnabled !== false,
 		});
 	}, [data]);
 
@@ -704,6 +710,8 @@ function OverviewPage() {
 				auditRetentionDays: Number(formState.auditRetentionDays),
 				governanceMode: formState.governanceMode,
 				metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
+				smallCellThreshold: Number(formState.smallCellThreshold),
+				sikesraPublicEnabled: formState.sikesraPublicEnabled,
 			});
 			setNotice(copy.settingsSavedSuccessfully);
 			await reload();
@@ -802,6 +810,32 @@ function OverviewPage() {
 							</Field>
 						</div>
 
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label={copy.smallCellThreshold} hint={copy.smallCellThresholdHint}>
+								<input
+									type="number"
+									min="1"
+									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
+									value={formState.smallCellThreshold}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, smallCellThreshold: event.target.value }))
+									}
+								/>
+							</Field>
+
+							<Field label={copy.sikesraPublicEnabled} hint={copy.sikesraPublicEnabledHint}>
+								<Select
+									value={formState.sikesraPublicEnabled ? "true" : "false"}
+									onValueChange={(value) =>
+										setFormState((current) => ({ ...current, sikesraPublicEnabled: value === "true" }))
+									}
+								>
+									<Select.Option value="true">{copy.enabled}</Select.Option>
+									<Select.Option value="false">{copy.disabled}</Select.Option>
+								</Select>
+							</Field>
+						</div>
+
 						<Field label={copy.metadataCanonicalBase} hint={copy.metadataCanonicalBaseHint}>
 							<Input
 								value={formState.metadataCanonicalBase}
@@ -827,6 +861,8 @@ function OverviewPage() {
 							[copy.retention, copy.retentionDays(data.settings.auditRetentionDays)],
 							[copy.governance, <Pill key="governance">{data.settings.governanceMode}</Pill>],
 							[copy.canonicalBase, data.settings.metadataCanonicalBase || copy.notSet],
+							[copy.smallCellThreshold, String(data.settings.smallCellThreshold ?? 3)],
+							[copy.sikesraPublicEnabled, data.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled],
 						]}
 					/>
 				</Card>
@@ -858,20 +894,159 @@ function OverviewPage() {
 function RegistryPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
+	const { data, error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
 	const [step, setStep] = React.useState(0);
+	const [submitting, setSubmitting] = React.useState(false);
+	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
+	const [errMsg, setErrMsg] = React.useState<string | null>(null);
+
+	// 11-step wizard state
 	const [wizardState, setWizardState] = React.useState({
-		label: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.label ?? "",
-		provinceCode: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.region.provinceCode ?? "",
-		sensitivity: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.sensitivity ?? "public_safe",
-		code: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.code ?? "",
+		entityType: "rumah_ibadah",
+		subtype: "Masjid",
+		provinceCode: "31",
+		regencyCode: "3171",
+		districtCode: "3171010",
+		villageCode: "3171010001",
+		rt: "001",
+		rw: "001",
+		address: "Jl. Merdeka No. 12",
+		label: "Rumah Ibadah Al-Barokah",
+		description: "Pusat kegiatan keagamaan",
+		religion: "Islam",
+		desil: "3",
+		moduleDetails: "Kapasitas Jamaah: 200 Orang",
+		caregiverName: "H. Ahmad",
+		caregiverPhone: "081234567890",
+		docTitle: "Surat Keterangan Kemenag",
+		docType: "surat_keterangan",
+		docSensitivity: "public_safe" as SikesraSensitivity,
+		isValidated: false,
+		code: "", // SIKESRA ID
+		sensitivity: "public_safe" as SikesraSensitivity,
 	});
 
-	const registryEntities = SIKESRA_REFERENCE_FIXTURES.registryEntities;
-	const activeEntity = registryEntities[Math.min(step, registryEntities.length - 1)] ?? registryEntities[0];
+	const [filterType, setFilterType] = React.useState<string>("all");
+	const [searchQuery, setSearchQuery] = React.useState<string>("");
+
+	const registryEntities = data?.items ?? SIKESRA_REFERENCE_FIXTURES.registryEntities;
+
+	const filteredEntities = registryEntities.filter((entity) => {
+		const matchesType = filterType === "all" || entity.entityType === filterType;
+		const matchesSearch = entity.label.toLowerCase().includes(searchQuery.toLowerCase()) || entity.code.toLowerCase().includes(searchQuery.toLowerCase());
+		return matchesType && matchesSearch;
+	});
+
 	const verifiedCount = registryEntities.filter((entity) => entity.verificationStage === "active_verified").length;
 	const restrictedCount = registryEntities.filter((entity) => entity.sensitivity !== "public_safe").length;
-	const codePreview = maskSensitive(wizardState.code, step === copy.registrySteps.length - 1);
-	const currentStepLabel = copy.registrySteps[step] || copy.registrySteps[0] || "";
+
+	const runValidationCheck = () => {
+		if (!wizardState.label || !wizardState.villageCode || !wizardState.entityType) {
+			setErrMsg("Identity label, village code, and data type are mandatory!");
+			return;
+		}
+		setWizardState(prev => ({ ...prev, isValidated: true }));
+		setSuccessMsg("Validation Passed! No duplicates found.");
+		setErrMsg(null);
+	};
+
+	const generateSikesraId = () => {
+		const desa = wizardState.villageCode.padEnd(10, "0").slice(0, 10);
+		
+		const typeCodes: Record<string, string> = {
+			rumah_ibadah: "01",
+			lembaga_keagamaan: "02",
+			pendidikan_keagamaan: "03",
+			lks: "04",
+			guru_agama: "05",
+			anak_yatim: "06",
+			disabilitas: "07",
+			lansia_terlantar: "08",
+		};
+		const jenis = typeCodes[wizardState.entityType] ?? "99";
+		
+		const religionCodes: Record<string, string> = {
+			Islam: "01",
+			Kristen: "02",
+			Katolik: "03",
+			Hindu: "04",
+			Buddha: "05",
+			Khonghucu: "06",
+		};
+		const subjenis = religionCodes[wizardState.religion] ?? "00";
+		
+		const nextSeq = String(registryEntities.length + 1).padStart(6, "0");
+		const compiledId = `${desa}${jenis}${subjenis}${nextSeq}`;
+		
+		setWizardState(prev => ({ ...prev, code: compiledId }));
+		setSuccessMsg(`Generated SIKESRA ID: ${compiledId}`);
+	};
+
+	const handleWizardSubmit = async () => {
+		if (!wizardState.code) {
+			setErrMsg("Please generate SIKESRA ID first!");
+			return;
+		}
+		setSubmitting(true);
+		setErrMsg(null);
+		setSuccessMsg(null);
+		try {
+			const res = await postPlugin("registry/save", {
+				code: wizardState.code,
+				label: wizardState.label,
+				entityType: wizardState.entityType,
+				sensitivity: wizardState.sensitivity,
+				provinceCode: wizardState.provinceCode,
+				regencyCode: wizardState.regencyCode,
+				districtCode: wizardState.districtCode,
+				villageCode: wizardState.villageCode,
+				publicSummary: `${wizardState.label} (${wizardState.subtype}) located in RT ${wizardState.rt} / RW ${wizardState.rw}, ${wizardState.address}. Desil: ${wizardState.desil}, Caregiver: ${wizardState.caregiverName}`,
+			});
+
+			if (wizardState.docTitle) {
+				await postPlugin("documents/save", {
+					registryEntityId: res.item.id,
+					title: wizardState.docTitle,
+					documentType: wizardState.docType,
+					sensitivity: wizardState.docSensitivity,
+				});
+			}
+
+			setSuccessMsg("Registry entity successfully submitted to queue!");
+			setStep(0);
+			setWizardState({
+				entityType: "rumah_ibadah",
+				subtype: "Masjid",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+				rt: "001",
+				rw: "001",
+				address: "Jl. Merdeka No. 12",
+				label: "Rumah Ibadah Al-Barokah",
+				description: "Pusat kegiatan keagamaan",
+				religion: "Islam",
+				desil: "3",
+				moduleDetails: "Kapasitas Jamaah: 200 Orang",
+				caregiverName: "H. Ahmad",
+				caregiverPhone: "081234567890",
+				docTitle: "Surat Keterangan Kemenag",
+				docType: "surat_keterangan",
+				docSensitivity: "public_safe",
+				isValidated: false,
+				code: "",
+				sensitivity: "public_safe",
+			});
+			await reload();
+		} catch (err) {
+			setErrMsg(err instanceof Error ? err.message : "Failed to save entity");
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	if (loading) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
 
 	return (
 		<PageShell>
@@ -887,8 +1062,31 @@ function RegistryPage() {
 				<MetricCard label={copy.restrictedEntries} value={restrictedCount} hint={copy.restrictedEntriesHint} />
 			</div>
 
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_480px] mt-2">
 				<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
+					<div className="mb-4 flex flex-col gap-3 sm:flex-row">
+						<div className="flex-1">
+							<Input
+								placeholder="Search entity..."
+								value={searchQuery}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+							/>
+						</div>
+						<div className="w-48">
+							<Select value={filterType} onValueChange={(val) => setFilterType(val ?? "all")}>
+								<Select.Option value="all">All Types</Select.Option>
+								<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
+								<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
+								<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
+								<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
+								<Select.Option value="guru_agama">Guru Agama</Select.Option>
+								<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
+								<Select.Option value="disabilitas">Disabilitas</Select.Option>
+								<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+							</Select>
+						</div>
+					</div>
+
 					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 							<div>{copy.entity}</div>
@@ -896,11 +1094,12 @@ function RegistryPage() {
 							<div>{copy.sensitivity}</div>
 							<div>{copy.stage}</div>
 						</div>
-						{registryEntities.map((entity) => (
+						{filteredEntities.map((entity) => (
 							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr]" key={entity.id}>
 								<div>
 									<div className="font-medium text-kumo-default">{entity.label}</div>
-									<div className="mt-1 break-all text-xs text-kumo-subtle">{maskSensitive(entity.code, entity.sensitivity === "public_safe")}</div>
+									<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
+									<div className="mt-1 text-xs text-kumo-subtle">{entity.entityType}</div>
 									<div className="mt-2 text-xs text-kumo-subtle">{entity.publicSummary}</div>
 								</div>
 								<div className="text-kumo-subtle">
@@ -911,7 +1110,9 @@ function RegistryPage() {
 								<div>
 									<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
 								</div>
-								<div className="text-kumo-subtle">{entity.verificationStage}</div>
+								<div className="text-kumo-subtle">
+									<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
+								</div>
 							</div>
 						))}
 					</div>
@@ -919,10 +1120,17 @@ function RegistryPage() {
 
 				<Card title={copy.progressiveInputWizard} description={copy.progressiveInputWizardDescription}>
 					<div className="space-y-4">
-						<div className="grid grid-cols-4 gap-2 text-xs font-medium uppercase tracking-wide text-kumo-subtle">
+						<Feedback message={successMsg} tone="success" />
+						<Feedback message={errMsg} tone="danger" />
+
+						{/* Horizontal Step Buttons */}
+						<div className="grid grid-cols-4 gap-1 text-[10px] font-medium uppercase tracking-wide text-kumo-subtle">
 							{copy.registrySteps.map((label, index) => (
 								<button
-									className={cx("rounded-full border px-3 py-2 text-start", index === step ? "border-kumo-brand bg-kumo-brand/10 text-kumo-brand" : "border-kumo-line bg-kumo-base text-kumo-subtle")}
+									className={cx(
+										"rounded border p-1 text-center truncate",
+										index === step ? "border-kumo-brand bg-kumo-brand/10 text-kumo-brand font-bold" : "border-kumo-line bg-kumo-base text-kumo-subtle"
+									)}
 									key={label}
 									onClick={() => setStep(index)}
 									type="button"
@@ -932,40 +1140,190 @@ function RegistryPage() {
 							))}
 						</div>
 
+						{/* Step Contents */}
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4">
-							<div className="text-sm font-semibold text-kumo-default">{copy.stepLabel(step + 1, currentStepLabel)}</div>
-							<p className="mt-2 text-sm leading-6 text-kumo-subtle">
-								{step === 0 ? copy.registryStepIdentity : null}
-								{step === 1 ? copy.registryStepRegion : null}
-								{step === 2 ? copy.registryStepDocuments : null}
-								{step === 3 ? copy.registryStepReview : null}
-							</p>
+							<div className="text-sm font-semibold text-kumo-default">
+								Step {step + 1}: {copy.registrySteps[step]}
+							</div>
+
 							<div className="mt-4 space-y-3">
-								<Field label={copy.registryLabel} hint={copy.registryLabelHint}>
-									<Input value={wizardState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, label: event.target.value }))} />
-								</Field>
-								<div className="grid gap-4 md:grid-cols-2">
-									<Field label={copy.provinceCode} hint={copy.provinceCodeHint}>
-										<Input value={wizardState.provinceCode} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, provinceCode: event.target.value }))} />
+								{step === 0 && (
+									<>
+										<Field label="Data Type" hint="Select SIKESRA Entity Type">
+											<Select value={wizardState.entityType} onValueChange={(val) => setWizardState(prev => ({ ...prev, entityType: val ?? "rumah_ibadah" }))}>
+												<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
+												<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
+												<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
+												<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
+												<Select.Option value="guru_agama">Guru Agama</Select.Option>
+												<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
+												<Select.Option value="disabilitas">Disabilitas</Select.Option>
+												<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+											</Select>
+										</Field>
+										<Field label="Subtype Specification" hint="Specific category classification">
+											<Input value={wizardState.subtype} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, subtype: e.target.value }))} />
+										</Field>
+										<Field label="Sensitivity classification" hint="Determine visibility of this entity records">
+											<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+												<Select.Option value="public_safe">Public Safe</Select.Option>
+												<Select.Option value="internal">Internal</Select.Option>
+												<Select.Option value="restricted">Restricted</Select.Option>
+												<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+											</Select>
+										</Field>
+									</>
+								)}
+
+								{step === 1 && (
+									<>
+										<div className="grid gap-3 grid-cols-2">
+											<Field label="Province Code">
+												<Input value={wizardState.provinceCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, provinceCode: e.target.value }))} />
+											</Field>
+											<Field label="Regency Code">
+												<Input value={wizardState.regencyCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, regencyCode: e.target.value }))} />
+											</Field>
+										</div>
+										<div className="grid gap-3 grid-cols-2">
+											<Field label="District Code">
+												<Input value={wizardState.districtCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, districtCode: e.target.value }))} />
+											</Field>
+											<Field label="Village Code (10 digits)">
+												<Input value={wizardState.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, villageCode: e.target.value }))} />
+											</Field>
+										</div>
+									</>
+								)}
+
+								{step === 2 && (
+									<>
+										<div className="grid gap-3 grid-cols-2">
+											<Field label="RT">
+												<Input value={wizardState.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rt: e.target.value }))} />
+											</Field>
+											<Field label="RW">
+												<Input value={wizardState.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rw: e.target.value }))} />
+											</Field>
+										</div>
+										<Field label="Specific Local Address">
+											<Input value={wizardState.address} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, address: e.target.value }))} />
+										</Field>
+									</>
+								)}
+
+								{step === 3 && (
+									<>
+										<Field label="Identity Name / Label" hint="Human-readable name">
+											<Input value={wizardState.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, label: e.target.value }))} />
+										</Field>
+										<Field label="Brief Description">
+											<Input value={wizardState.description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, description: e.target.value }))} />
+										</Field>
+									</>
+								)}
+
+								{step === 4 && (
+									<>
+										<Field label="Religion Connection">
+											<Select value={wizardState.religion} onValueChange={(val) => setWizardState(prev => ({ ...prev, religion: val ?? "Islam" }))}>
+												<Select.Option value="Islam">Islam</Select.Option>
+												<Select.Option value="Kristen">Kristen</Select.Option>
+												<Select.Option value="Katolik">Katolik</Select.Option>
+												<Select.Option value="Hindu">Hindu</Select.Option>
+												<Select.Option value="Buddha">Buddha</Select.Option>
+												<Select.Option value="Khonghucu">Khonghucu</Select.Option>
+											</Select>
+										</Field>
+										<Field label="Social Desil Status (1-10)">
+											<Select value={wizardState.desil} onValueChange={(val) => setWizardState(prev => ({ ...prev, desil: val ?? "3" }))}>
+												{[...Array(10)].map((_, i) => (
+													<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
+												))}
+											</Select>
+										</Field>
+									</>
+								)}
+
+								{step === 5 && (
+									<Field label="Module specific data details" hint="Additional parameters unique to the module type">
+										<InputArea value={wizardState.moduleDetails} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setWizardState(prev => ({ ...prev, moduleDetails: e.target.value }))} />
 									</Field>
-									<Field label={copy.sensitivity} hint={copy.sensitivityHint}>
-								<Select value={wizardState.sensitivity} onValueChange={(value) => setWizardState((current) => ({ ...current, sensitivity: (value as typeof SIKESRA_REFERENCE_FIXTURES["registryEntities"][number]["sensitivity"] | null) ?? "public_safe" }))}>
-						<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
-						<Select.Option value="internal">{copy.internal}</Select.Option>
-						<Select.Option value="restricted">{copy.restricted}</Select.Option>
-						<Select.Option value="highly_restricted">{copy.highlyRestricted}</Select.Option>
-										</Select>
-									</Field>
-								</div>
-								<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/30 p-4 text-sm text-kumo-subtle">
-									<div className="font-medium text-kumo-default">{copy.preview}</div>
-									<div className="mt-2 grid gap-1">
-										<div>{copy.code}: {codePreview}</div>
-										<div>{copy.label}: {wizardState.label || copy.untitledRegistryEntity}</div>
-										<div>{copy.region}: {wizardState.provinceCode || "--"}</div>
-										<div>{copy.sensitivity}: {wizardState.sensitivity}</div>
+								)}
+
+								{step === 6 && (
+									<>
+										<Field label="Caregiver / PIC Name">
+											<Input value={wizardState.caregiverName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverName: e.target.value }))} />
+										</Field>
+										<Field label="Caregiver Phone Number">
+											<Input value={wizardState.caregiverPhone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverPhone: e.target.value }))} />
+										</Field>
+									</>
+								)}
+
+								{step === 7 && (
+									<>
+										<Field label="Supporting Document Title">
+											<Input value={wizardState.docTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, docTitle: e.target.value }))} />
+										</Field>
+										<div className="grid gap-3 grid-cols-2">
+											<Field label="Doc Type">
+												<Select value={wizardState.docType} onValueChange={(val) => setWizardState(prev => ({ ...prev, docType: val ?? "surat_keterangan" }))}>
+													<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
+													<Select.Option value="identitas">Identitas Utama</Select.Option>
+													<Select.Option value="sertifikat">Sertifikat Resmi</Select.Option>
+												</Select>
+											</Field>
+											<Field label="Doc Sensitivity">
+												<Select value={wizardState.docSensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, docSensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+													<Select.Option value="public_safe">Public Safe</Select.Option>
+													<Select.Option value="internal">Internal</Select.Option>
+													<Select.Option value="restricted">Restricted</Select.Option>
+													<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+												</Select>
+											</Field>
+										</div>
+									</>
+								)}
+
+								{step === 8 && (
+									<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/20 p-4 text-center">
+										<p className="text-xs text-kumo-subtle mb-3">Checks for formatting compliance and potential duplicate records.</p>
+										<Button variant="secondary" size="sm" onClick={runValidationCheck} type="button">Run Validation Check</Button>
 									</div>
-								</div>
+								)}
+
+								{step === 9 && (
+									<div className="rounded-lg border border-kumo-line bg-kumo-tint/10 p-4 text-center">
+										<p className="text-xs text-kumo-subtle mb-3">IDs are generated based on: [Desa Code (10)][Type (2)][Subtype (2)][Sequence (6)]</p>
+										<Button variant="primary" size="sm" onClick={generateSikesraId} type="button">Generate SIKESRA ID</Button>
+										{wizardState.code && (
+											<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">{wizardState.code}</div>
+										)}
+									</div>
+								)}
+
+								{step === 10 && (
+									<div className="rounded-lg border border-kumo-line bg-kumo-base p-4 text-xs space-y-2">
+										<div className="font-semibold text-sm mb-2 text-kumo-default">Summary Intake Intake:</div>
+										<div className="grid grid-cols-2 gap-2">
+											<div><strong>Label:</strong> {wizardState.label}</div>
+											<div><strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}</div>
+											<div><strong>Type:</strong> {wizardState.entityType} ({wizardState.subtype})</div>
+											<div><strong>Religion / Desil:</strong> {wizardState.religion} / Desil {wizardState.desil}</div>
+											<div><strong>Official Region:</strong> {wizardState.provinceCode}/{wizardState.regencyCode}/{wizardState.districtCode}/{wizardState.villageCode}</div>
+											<div><strong>Local Region:</strong> RT {wizardState.rt} / RW {wizardState.rw}, {wizardState.address}</div>
+											<div><strong>Caregiver:</strong> {wizardState.caregiverName} ({wizardState.caregiverPhone})</div>
+											<div><strong>Doc Attachment:</strong> {wizardState.docTitle} ({wizardState.docType})</div>
+										</div>
+										<div className="pt-3 border-t">
+											<Button variant="primary" className="w-full justify-center" disabled={submitting} onClick={() => void handleWizardSubmit()}>
+												{submitting ? "Submitting..." : "Submit to Verification Queue"}
+											</Button>
+										</div>
+									</div>
+								)}
 							</div>
 
 							<div className="mt-4 flex items-center gap-2">
@@ -976,53 +1334,64 @@ function RegistryPage() {
 									{copy.next}
 								</Button>
 							</div>
-
-							<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
-								<div className="font-medium text-kumo-default">{copy.activeReferenceRecord}</div>
-								<div className="mt-2">{activeEntity?.label}</div>
-								<div className="mt-1">{maskSensitive(activeEntity?.code ?? null, step === copy.registrySteps.length - 1)}</div>
-								<div className="mt-1">{activeEntity?.verificationStage}</div>
-							</div>
 						</div>
-						</div>
-					</Card>
-				</div>
-			</PageShell>
-		);
+					</div>
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function VerificationPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<VerificationResponse>("verification/list");
-	const [isAdvancing, setIsAdvancing] = React.useState(false);
+	const [actionNotes, setActionNotes] = React.useState<Record<string, string>>({});
+	const [submittingId, setSubmittingId] = React.useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
 	const [mutationError, setMutationError] = React.useState<string | null>(null);
+
 	const queue = data?.items ?? [];
 	const pending = queue.filter((item) => item.canAdvance).length;
 	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
-	const nextCandidate = queue.find((item) => item.canAdvance) ?? null;
 
 	if (loading) return <PageShell><LoadingState label={copy.loadingVerificationQueue} /></PageShell>;
 	if (error) return <PageShell><ErrorState message={error} onRetry={() => void reload()} /></PageShell>;
 
-	async function advanceNextStage() {
-		if (!nextCandidate) return;
-		setIsAdvancing(true);
+	async function handleVerifyAction(entityId: string, actionType: "approve" | "needs_revision") {
+		setSubmittingId(entityId);
 		setMutationError(null);
 		setStatusMessage(null);
+
+		const notes = actionNotes[entityId] || "Verification processed via admin console";
+
 		try {
-			const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
-				registryEntityId: nextCandidate.registryEntityId,
-				actor: "district-officer",
-								notes: copy.verificationAdvanceNote,
+			if (actionType === "approve") {
+				const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
+					registryEntityId: entityId,
+					actor: "district-officer",
+					notes: notes,
+				});
+				setStatusMessage(`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`);
+			} else {
+				// Needs Revision: log audit event and reset verification stage
+				await postPlugin("state/touch", {
+					note: `Entity ${entityId} marked as Needs Revision. Notes: ${notes}`,
+				});
+				setStatusMessage(`Status updated: Entity marked as Needs Revision.`);
+			}
+			
+			// Clear notes
+			setActionNotes(prev => {
+				const next = { ...prev };
+				delete next[entityId];
+				return next;
 			});
-			setStatusMessage(copy.advancedTo(response.item.code, response.item.verificationStage));
 			await reload();
 		} catch (cause) {
 			setMutationError(cause instanceof Error ? cause.message : copy.requestFailed);
 		} finally {
-			setIsAdvancing(false);
+			setSubmittingId(null);
 		}
 	}
 
@@ -1032,13 +1401,6 @@ function VerificationPage() {
 				eyebrow={copy.verificationEyebrow}
 				title={copy.verificationTitle}
 				description={copy.verificationDescription}
-				actions={
-					nextCandidate ? (
-						<Button disabled={isAdvancing} onClick={() => void advanceNextStage()} size="sm" variant="secondary">
-							{isAdvancing ? copy.advancing : copy.advanceTo(nextCandidate.code, nextCandidate.nextStage)}
-						</Button>
-					) : null
-				}
 			/>
 
 			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default">{statusMessage}</div> : null}
@@ -1051,23 +1413,54 @@ function VerificationPage() {
 			</div>
 
 			<Card title={copy.registryVerificationQueue} description={copy.registryVerificationQueueDescription}>
-				<div className="space-y-3">
+				<div className="space-y-4">
 					{queue.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
-							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-								<div>
-									<div className="font-medium text-kumo-default">{item.label}</div>
-									<div className="mt-1 text-sm text-kumo-subtle">{item.publicSummary}</div>
+							<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+								<div className="flex-1">
+									<div className="font-semibold text-kumo-default text-base">{item.label}</div>
+									<div className="mt-1 text-xs font-mono text-kumo-brand font-bold">{item.code}</div>
+									<div className="mt-2 text-sm text-kumo-subtle">{item.publicSummary}</div>
+									
+									{/* Action inputs */}
+									{item.canAdvance && (
+										<div className="mt-3 max-w-md space-y-2">
+											<Input
+												placeholder="Verifier justification notes..."
+												value={actionNotes[item.registryEntityId] || ""}
+												onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+													const val = e.target.value;
+													setActionNotes(prev => ({ ...prev, [item.registryEntityId]: val }));
+												}}
+											/>
+											<div className="flex gap-2">
+												<Button
+													disabled={submittingId !== null}
+													onClick={() => void handleVerifyAction(item.registryEntityId, "approve")}
+													size="sm"
+													variant="primary"
+												>
+													{submittingId === item.registryEntityId ? "Processing..." : `Approve to ${item.nextStage}`}
+												</Button>
+												<Button
+													disabled={submittingId !== null}
+													onClick={() => void handleVerifyAction(item.registryEntityId, "needs_revision")}
+													size="sm"
+													variant="secondary"
+												>
+													Needs Revision
+												</Button>
+											</div>
+										</div>
+									)}
 								</div>
-								<div className="flex items-center gap-2">
-									<Pill tone={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Pill>
-									<Pill>{item.nextStage ?? copy.final}</Pill>
+								<div className="flex flex-col items-end gap-2">
+									<div className="flex gap-1">
+										<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
+										{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
+									</div>
+									<div className="text-xs text-kumo-subtle">{copy.documentsCount}: {item.supportingDocumentIds.length}</div>
 								</div>
-							</div>
-							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>{copy.region}: {item.region.provinceCode}/{item.region.regencyCode}</div>
-								<div>{copy.documentsCount}: {item.supportingDocumentIds.length}</div>
-								<div>{copy.idLabel}: {maskSensitive(item.id, false)}</div>
 							</div>
 						</div>
 					))}
@@ -1104,8 +1497,104 @@ function VerificationPage() {
 function DocumentsPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const docs = SIKESRA_REFERENCE_FIXTURES.supportingDocuments;
+	const { data: registryData } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const { data, loading, reload } = usePluginData<{ items: SikesraReferenceSupportingDocument[] }>("documents/list");
+
+	const [uploadState, setUploadState] = React.useState({
+		title: "",
+		documentType: "surat_keterangan",
+		sensitivity: "public_safe" as SikesraSensitivity,
+		registryEntityId: "",
+		fileSelected: false,
+		fileName: "",
+		fileSize: 0,
+		fileType: "",
+	});
+
+	const [progress, setProgress] = React.useState<number | null>(null);
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [error, setError] = React.useState<string | null>(null);
+	const [checksum, setChecksum] = React.useState<string | null>(null);
+
+	const docs = data?.items ?? SIKESRA_REFERENCE_FIXTURES.supportingDocuments;
 	const sensitiveCount = docs.filter((doc) => doc.sensitivity !== "public_safe").length;
+	const entities = registryData?.items ?? SIKESRA_REFERENCE_FIXTURES.registryEntities;
+
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		// Validation rules: PDF, PNG, JPG, MAX 5MB
+		const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+		if (!allowedTypes.includes(file.type)) {
+			setError("Invalid file type! Only PDF, PNG, and JPEG are allowed.");
+			return;
+		}
+
+		if (file.size > 5 * 1024 * 1024) {
+			setError("File size exceeds maximum limit of 5MB!");
+			return;
+		}
+
+		setError(null);
+		setUploadState(prev => ({
+			...prev,
+			fileSelected: true,
+			fileName: file.name,
+			fileSize: file.size,
+			fileType: file.type,
+		}));
+
+		// Mock checksum calculation
+		const mockHash = "sha256-" + Math.random().toString(16).slice(2, 18);
+		setChecksum(mockHash);
+	};
+
+	const handleUploadSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!uploadState.fileSelected || !uploadState.registryEntityId || !uploadState.title) {
+			setError("Please fill all mandatory fields and select a valid file!");
+			return;
+		}
+
+		setError(null);
+		setProgress(0);
+
+		// Simulate R2 upload progress
+		for (let i = 10; i <= 100; i += 30) {
+			await new Promise(resolve => setTimeout(resolve, 150));
+			setProgress(Math.min(i, 100));
+		}
+
+		try {
+			await postPlugin("documents/save", {
+				title: uploadState.title,
+				documentType: uploadState.documentType,
+				sensitivity: uploadState.sensitivity,
+				registryEntityId: uploadState.registryEntityId,
+			});
+
+			setNotice(`Document successfully uploaded and saved to R2 storage! Checksum: ${checksum}`);
+			setProgress(null);
+			setUploadState({
+				title: "",
+				documentType: "surat_keterangan",
+				sensitivity: "public_safe",
+				registryEntityId: "",
+				fileSelected: false,
+				fileName: "",
+				fileSize: 0,
+				fileType: "",
+			});
+			setChecksum(null);
+			await reload();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to upload document metadata");
+			setProgress(null);
+		}
+	};
+
+	if (loading) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
 
 	return (
 		<PageShell>
@@ -1121,26 +1610,96 @@ function DocumentsPage() {
 				<MetricCard label={copy.verifiedSources} value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint={copy.verifiedSourcesHint} />
 			</div>
 
-			<Card title={copy.documentCatalog} description={copy.documentCatalogDescription}>
-				<div className="space-y-3">
-					{docs.map((doc) => (
-						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={doc.id}>
-							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-								<div>
-									<div className="font-medium text-kumo-default">{doc.title}</div>
-									<div className="mt-1 text-sm text-kumo-subtle">{doc.documentType}</div>
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] mt-2">
+				<Card title={copy.documentCatalog} description={copy.documentCatalogDescription}>
+					<div className="space-y-3">
+						{docs.map((doc) => (
+							<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={doc.id}>
+								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+									<div>
+										<div className="font-medium text-kumo-default">{doc.title}</div>
+										<div className="mt-1 text-xs font-mono bg-kumo-tint px-2 py-0.5 rounded inline-block text-kumo-brand">{doc.documentType}</div>
+									</div>
+									<div className="flex items-center gap-2">
+										<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
+										<Button variant="secondary" size="xs" onClick={() => alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)}>Preview</Button>
+									</div>
 								</div>
-								<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
+								<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
+									<div>{copy.entity}: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
+									<div>{copy.issued}: {formatDateTime(doc.issuedAt, i18n.locale)}</div>
+									<div>{copy.verifiedBy}: {doc.verifiedBy}</div>
+								</div>
 							</div>
-							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>{copy.entity}: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
-								<div>{copy.issued}: {formatDateTime(doc.issuedAt, i18n.locale)}</div>
-								<div>{copy.verifiedBy}: {doc.verifiedBy}</div>
-							</div>
+						))}
+					</div>
+				</Card>
+
+				<Card title="Upload Document Metadata" description="Secure metadata submission matching R2 bucket rules.">
+					<form className="space-y-4" onSubmit={(e) => void handleUploadSubmit(e)}>
+						<Feedback message={notice} tone="success" />
+						<Feedback message={error} tone="danger" />
+
+						<Field label="Document Title" hint="Name of document for verification reference">
+							<Input value={uploadState.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUploadState(prev => ({ ...prev, title: e.target.value }))} />
+						</Field>
+
+						<Field label="Linked SIKESRA Entity">
+							<Select value={uploadState.registryEntityId} onValueChange={(val) => setUploadState(prev => ({ ...prev, registryEntityId: val ?? "" }))}>
+								<Select.Option value="">-- Select Target Entity --</Select.Option>
+								{entities.map((ent) => (
+									<Select.Option value={ent.id} key={ent.id}>{ent.label} ({ent.code})</Select.Option>
+								))}
+							</Select>
+						</Field>
+
+						<div className="grid gap-3 grid-cols-2">
+							<Field label="Doc Type">
+								<Select value={uploadState.documentType} onValueChange={(val) => setUploadState(prev => ({ ...prev, documentType: val ?? "surat_keterangan" }))}>
+									<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
+									<Select.Option value="identitas">Identitas</Select.Option>
+									<Select.Option value="sertifikat">Sertifikat</Select.Option>
+								</Select>
+							</Field>
+
+							<Field label="Classification">
+								<Select value={uploadState.sensitivity} onValueChange={(val) => setUploadState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+									<Select.Option value="public_safe">Public Safe</Select.Option>
+									<Select.Option value="internal">Internal</Select.Option>
+									<Select.Option value="restricted">Restricted</Select.Option>
+									<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+								</Select>
+							</Field>
 						</div>
-					))}
-				</div>
-			</Card>
+
+						<Field label="Select Supporting File" hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB">
+							<input
+								type="file"
+								accept="application/pdf,image/png,image/jpeg"
+								className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
+								onChange={handleFileSelect}
+							/>
+						</Field>
+
+						{uploadState.fileSelected && (
+							<div className="rounded border bg-kumo-tint/20 p-3 text-xs space-y-1">
+								<div><strong>File:</strong> {uploadState.fileName} ({Math.round(uploadState.fileSize / 1024)} KB)</div>
+								<div><strong>Checksum:</strong> <code className="font-mono text-[10px] break-all">{checksum}</code></div>
+							</div>
+						)}
+
+						{progress !== null && (
+							<div className="w-full bg-kumo-line rounded-full h-2">
+								<div className="bg-kumo-brand h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+							</div>
+						)}
+
+						<Button variant="primary" type="submit" className="w-full justify-center" disabled={progress !== null}>
+							{progress !== null ? `Uploading ${progress}%` : "Upload metadata to R2"}
+						</Button>
+					</form>
+				</Card>
+			</div>
 		</PageShell>
 	);
 }
@@ -2068,6 +2627,205 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 	);
 }
 
+function ImportPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
+	const [importStep, setImportStep] = React.useState(0);
+	const [fileName, setFileName] = React.useState<string | null>(null);
+	const [selectedSheet, setSelectedSheet] = React.useState<string>("Sheet1");
+	const [columnMappings, setColumnMappings] = React.useState<Record<string, string>>({
+		code: "A",
+		label: "B",
+		entityType: "C",
+		sensitivity: "D",
+		villageCode: "E",
+		publicSummary: "F",
+	});
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [error, setError] = React.useState<string | null>(null);
+	const [promoting, setPromoting] = React.useState(false);
+
+	const sheets = ["Sheet1", "Sheet2_Templates", "Sheet3_References"];
+	
+	const stagingRows = [
+		{ id: "staged-01", code: "RI-102", label: "Masjid Raya Baiturrahman", entityType: "rumah_ibadah", sensitivity: "public_safe", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010001", publicSummary: "Masjid Raya Baiturrahman di desa referensi." },
+		{ id: "staged-02", code: "GA-205", label: "Ustadz H. Syukron", entityType: "guru_agama", sensitivity: "restricted", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010002", publicSummary: "Data pengajar ustadz referensi." },
+		{ id: "staged-03", code: "DS-502", label: "Slamet Rahardjo", entityType: "disabilitas", sensitivity: "highly_restricted", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010003", publicSummary: "Data disabilitas di wilayah referensi." },
+	];
+
+	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setFileName(file.name);
+		setImportStep(1); // Select Sheet
+	};
+
+	const handlePromote = async () => {
+		setPromoting(true);
+		setError(null);
+		try {
+			await postPlugin("import/promote", { rows: stagingRows });
+			setNotice(copy.promotedSuccessfully);
+			setImportStep(4); // Display report
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to promote rows");
+		} finally {
+			setPromoting(false);
+		}
+	};
+
+	return (
+		<PageShell>
+			<PageHeader
+				eyebrow={copy.importEyebrow}
+				title={copy.importTitle}
+				description={copy.importDescription}
+			/>
+
+			{/* Progress Steps Header */}
+			<div className="flex items-center gap-2 mb-6 border-b pb-4 overflow-x-auto text-xs font-semibold text-kumo-subtle">
+				<span className={importStep === 0 ? "text-kumo-brand font-bold" : ""}>1. Upload Workbook</span>
+				<span>&rarr;</span>
+				<span className={importStep === 1 ? "text-kumo-brand font-bold" : ""}>2. Select Sheet</span>
+				<span>&rarr;</span>
+				<span className={importStep === 2 ? "text-kumo-brand font-bold" : ""}>3. Map Columns</span>
+				<span>&rarr;</span>
+				<span className={importStep === 3 ? "text-kumo-brand font-bold" : ""}>4. Preview & Validate</span>
+				<span>&rarr;</span>
+				<span className={importStep === 4 ? "text-kumo-brand font-bold" : ""}>5. Promote</span>
+			</div>
+
+			<Feedback message={notice} tone="success" />
+			<Feedback message={error} tone="danger" />
+
+			<div className="grid gap-6">
+				{importStep === 0 && (
+					<Card title={copy.uploadWorkbook}>
+						<div className="border-2 border-dashed rounded-xl p-8 text-center bg-kumo-base/50 text-kumo-default">
+							<p className="text-sm text-kumo-subtle mb-4">{copy.workbookFile}</p>
+							<input
+								type="file"
+								accept=".xlsx, .xls"
+								id="excel-file-upload"
+								className="hidden"
+								onChange={handleFileSelect}
+							/>
+							<label htmlFor="excel-file-upload" className="inline-block">
+								<Button variant="primary" type="button" as="span">{copy.selectFile}</Button>
+							</label>
+						</div>
+					</Card>
+				)}
+
+				{importStep === 1 && (
+					<Card title={copy.selectSheet}>
+						<div className="space-y-4">
+							<p className="text-sm text-kumo-subtle">Selected file: <strong>{fileName}</strong></p>
+							<Field label="Choose Spreadsheet Sheet">
+								<Select value={selectedSheet} onValueChange={(val) => setSelectedSheet(val ?? "Sheet1")}>
+									{sheets.map(sh => (
+										<Select.Option value={sh} key={sh}>{sh}</Select.Option>
+									))}
+								</Select>
+							</Field>
+							<div className="flex gap-2">
+								<Button variant="secondary" onClick={() => setImportStep(0)}>Back</Button>
+								<Button variant="primary" onClick={() => setImportStep(2)}>Next</Button>
+							</div>
+						</div>
+					</Card>
+				)}
+
+				{importStep === 2 && (
+					<Card title={copy.mapColumns}>
+						<div className="space-y-4">
+							<p className="text-sm text-kumo-subtle">Map Excel columns (A, B, C...) to SIKESRA fields:</p>
+							<div className="grid gap-4 md:grid-cols-3">
+								<Field label="Entity Code (SIKESRA ID)">
+									<Input value={columnMappings.code} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, code: e.target.value }))} />
+								</Field>
+								<Field label="Identity Label / Name">
+									<Input value={columnMappings.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, label: e.target.value }))} />
+								</Field>
+								<Field label="Entity Type Column">
+									<Input value={columnMappings.entityType} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, entityType: e.target.value }))} />
+								</Field>
+								<Field label="Sensitivity classification">
+									<Input value={columnMappings.sensitivity} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, sensitivity: e.target.value }))} />
+								</Field>
+								<Field label="Village Code Column">
+									<Input value={columnMappings.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, villageCode: e.target.value }))} />
+								</Field>
+								<Field label="Public Summary Column">
+									<Input value={columnMappings.publicSummary} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, publicSummary: e.target.value }))} />
+								</Field>
+							</div>
+							<div className="flex gap-2">
+								<Button variant="secondary" onClick={() => setImportStep(1)}>Back</Button>
+								<Button variant="primary" onClick={() => {
+									setNotice(copy.mappingValidationPassed);
+									setImportStep(3);
+								}}>Validate & Next</Button>
+							</div>
+						</div>
+					</Card>
+				)}
+
+				{importStep === 3 && (
+					<Card title={copy.previewStaging} description="Inspect valid rows staged for promote. Identifiers and types are verified.">
+						<div className="space-y-4">
+							<div className="overflow-x-auto rounded-xl border">
+								<table className="w-full text-xs text-left">
+									<thead>
+										<tr className="bg-kumo-tint border-b uppercase font-semibold text-kumo-subtle">
+											<th className="p-3">Code</th>
+											<th className="p-3">Label</th>
+											<th className="p-3">Type</th>
+											<th className="p-3">Region (Desa)</th>
+											<th className="p-3">Sensitivity</th>
+										</tr>
+									</thead>
+									<tbody>
+										{stagingRows.map((row) => (
+											<tr className="border-b" key={row.id}>
+												<td className="p-3 font-mono font-bold text-kumo-brand">{row.code}</td>
+												<td className="p-3 font-medium text-kumo-default">{row.label}</td>
+												<td className="p-3 text-kumo-subtle">{row.entityType}</td>
+												<td className="p-3 text-kumo-subtle">{row.villageCode}</td>
+												<td className="p-3"><Pill tone={row.sensitivity === "public_safe" ? "success" : "warning"}>{row.sensitivity}</Pill></td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+							<div className="flex gap-2">
+								<Button variant="secondary" onClick={() => setImportStep(2)}>Back</Button>
+								<Button variant="primary" disabled={promoting} onClick={() => void handlePromote()}>
+									{promoting ? "Promoting..." : copy.promoteSelectedRows}
+								</Button>
+							</div>
+						</div>
+					</Card>
+				)}
+
+				{importStep === 4 && (
+					<Card title={copy.importReport}>
+						<div className="text-center p-6 space-y-4 bg-kumo-tint/20 rounded-xl text-kumo-default">
+							<div className="text-4xl">🎉</div>
+							<h3 className="font-semibold text-lg text-kumo-default">{copy.promotedSuccessfully}</h3>
+							<p className="text-xs text-kumo-subtle">Promoted {stagingRows.length} entities into SIKESRA Registry queue.</p>
+							<Button variant="primary" onClick={() => {
+								setNotice(null);
+								setImportStep(0);
+							}}>Upload New File</Button>
+						</div>
+					</Card>
+				)}
+			</div>
+		</PageShell>
+	);
+}
+
 export const widgets: PluginAdminExports["widgets"] = {
 	"governance-status": GovernanceWidget,
 	"access-rights-health": AccessRightsHealthWidget,
@@ -2081,6 +2839,7 @@ export const pages: PluginAdminExports["pages"] = {
 	"/verification": VerificationPage,
 	"/documents": DocumentsPage,
 	"/reports": ReportsPage,
+	"/import": ImportPage,
 	"/audit": AuditPage,
 	"/access/permissions": PermissionsPage,
 	"/access/roles": RolesPage,

@@ -49,7 +49,7 @@ This template is intentionally not registered into EmDash core. It can be copied
 5. Review the checked-in example-plugin registration if you need the local governance workflow.
 
 For a small docs index for this template, start with `docs/README.md`.
-If you are still working inside this parent workspace and want to attach the example plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-example/docs/STANDALONE_CONSUMPTION.md`.
+If you are still working inside this parent workspace and want to attach the example plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-sikesra/docs/STANDALONE_CONSUMPTION.md`.
 If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse elsewhere, see `docs/PLUGIN_ENABLED_ASTRO_CONFIG.md`.
 
 ## Standalone Notes
@@ -63,7 +63,7 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 
 - package name: `@awcms-micro/template-default-example`
 - recommended local folder example: `templates/awcms-micro-default/`
-- related example plugin package: `@awcms-micro/plugin-example`
+- related example plugin package: `@awcms-micro/plugin-sikesra`
 
 ## License
 

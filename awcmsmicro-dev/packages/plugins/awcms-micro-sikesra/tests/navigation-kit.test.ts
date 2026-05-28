@@ -203,7 +203,7 @@ describe("AWCMS-Micro navigation kit", () => {
 
 	it("adapts grouped navigation to flat EmDash admin pages", () => {
 		const pages = adaptToEmdashPages({
-			id: "awcms-micro-example",
+			id: "awcms-micro-sikesra",
 			name: "Example Plugin",
 			navigation: {
 				groups: [

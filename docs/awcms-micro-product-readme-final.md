@@ -42,7 +42,7 @@ Supporting documentation, demos, and E2E coverage may exist alongside them, but 
 
 ## Included Example Surfaces
 
-- `packages/plugins/awcms-micro-example/`: governance, navigation, access, audit, and ABAC-oriented example plugin
+- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented example plugin
 - `packages/plugins/awcms-micro-gallery/`: gallery and media example plugin
 - `templates/awcms-micro-default/`: Node/SQLite reference template
 - `templates/awcms-micro-default-cloudflare/`: Cloudflare reference template

@@ -1,7 +1,7 @@
 import node from "@astrojs/node";
 import react from "@astrojs/react";
 import { defineConfig } from "astro/config";
-import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-example";
+import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
 import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";

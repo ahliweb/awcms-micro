@@ -5,21 +5,21 @@ import { describe, expect, it, vi } from "vitest";
 
 import { awcmsMicroExamplePlugin } from "../src/index.js";
 import {
-	AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS,
-	AWCMS_EXAMPLE_PLUGIN_HEADER_MENU,
+	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
+	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
 } from "../src/admin.js";
 import sandboxPlugin from "../src/sandbox.js";
-import { AWCMS_EXAMPLE_PERMISSION_LIST } from "../src/permissions.js";
+import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
 import {
-	AWCMS_EXAMPLE_ADMIN_PAGES,
-	AWCMS_EXAMPLE_ADMIN_WIDGETS,
-	AWCMS_EXAMPLE_CAPABILITIES,
-	AWCMS_EXAMPLE_DESCRIPTOR_STORAGE,
-	AWCMS_EXAMPLE_FIELD_WIDGETS,
-	AWCMS_EXAMPLE_PLUGIN_ID,
-	AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS,
+	AWCMS_SIKESRA_ADMIN_PAGES,
+	AWCMS_SIKESRA_ADMIN_WIDGETS,
+	AWCMS_SIKESRA_CAPABILITIES,
+	AWCMS_SIKESRA_DESCRIPTOR_STORAGE,
+	AWCMS_SIKESRA_FIELD_WIDGETS,
+	AWCMS_SIKESRA_PLUGIN_ID,
+	AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS,
 	createAuditRecord,
 	createNativeRoutes,
 	createSharedHooks,
@@ -119,7 +119,7 @@ function createMockContext() {
 
 	return {
 		ctx: {
-			plugin: { id: AWCMS_EXAMPLE_PLUGIN_ID, version: "0.0.1" },
+			plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, version: "0.0.1" },
 			request: new Request("https://example.test"),
 			requestMeta: { ip: "127.0.0.1" },
 			input: {},
@@ -167,18 +167,18 @@ describe("awcms micro example plugin", () => {
 	it("builds a descriptor without touching EmDash core", () => {
 		const descriptor = awcmsMicroExamplePlugin();
 
-		expect(descriptor.id).toBe("awcms-micro-example");
-		expect(descriptor.adminEntry).toBe("@awcms-micro/plugin-example/admin");
-		expect(descriptor.capabilities).toEqual([...AWCMS_EXAMPLE_CAPABILITIES]);
-		expect(descriptor.storage).toEqual(AWCMS_EXAMPLE_DESCRIPTOR_STORAGE);
-		expect(descriptor.adminPages).toEqual(AWCMS_EXAMPLE_ADMIN_PAGES);
-		expect(descriptor.adminWidgets).toEqual(AWCMS_EXAMPLE_ADMIN_WIDGETS);
+		expect(descriptor.id).toBe("awcms-micro-sikesra");
+		expect(descriptor.adminEntry).toBe("@awcms-micro/plugin-sikesra/admin");
+		expect(descriptor.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
+		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
+		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
+		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
 	});
 
 	it("exposes the expected permission namespace", () => {
-		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:dashboard:read");
-		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:audit:read");
-		expect(AWCMS_EXAMPLE_PERMISSION_LIST).toContain("awcms:example:permissions:write");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:dashboard:read");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:audit:read");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:permissions:write");
 	});
 
 	it("creates structured audit records", () => {
@@ -197,33 +197,34 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_EXAMPLE_ADMIN_PAGES).toHaveLength(13);
-		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
-		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
-		expect(AWCMS_EXAMPLE_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
-		expect(AWCMS_EXAMPLE_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
-		expect(AWCMS_EXAMPLE_FIELD_WIDGETS[0]?.name).toBe("status-badge");
-			expect(AWCMS_EXAMPLE_ADMIN_PAGES.map((page) => page.path)).toEqual([
-				"/overview",
-				"/registry",
-				"/documents",
-				"/verification",
-				"/audit",
-				"/reports",
-				"/access/permissions",
-				"/access/roles",
-				"/access/matrix",
-			"/access/preview",
+		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(14);
+		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
+		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
+		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
+		expect(AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
+		expect(AWCMS_SIKESRA_FIELD_WIDGETS[0]?.name).toBe("status-badge");
+		expect(AWCMS_SIKESRA_ADMIN_PAGES.map((page) => page.path).toSorted()).toEqual([
 			"/abac/attributes",
 			"/abac/policies",
 			"/abac/preview",
-		]);
+			"/access/matrix",
+			"/access/permissions",
+			"/access/preview",
+			"/access/roles",
+			"/audit",
+			"/documents",
+			"/import",
+			"/overview",
+			"/registry",
+			"/reports",
+			"/verification",
+		].toSorted());
 	});
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
-		expect(AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS).toHaveLength(8);
-		expect(AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS[0]?.href).toBe("/registry");
-		expect(AWCMS_EXAMPLE_PLUGIN_HEADER_MENU.map((item) => item.label)).toEqual([
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS).toHaveLength(8);
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS[0]?.href).toBe("/registry");
+		expect(AWCMS_SIKESRA_PLUGIN_HEADER_MENU.map((item) => item.label)).toEqual([
 			"Overview",
 			"Data Entry",
 			"Verification",
@@ -239,19 +240,19 @@ describe("awcms micro example plugin", () => {
 					href: "/parent",
 					permission: undefined,
 					children: [
-						{ id: "read-child", label: "Read child", href: "/parent/read", permission: "awcms:example:parent:read" },
-						{ id: "write-child", label: "Write child", href: "/parent/write", permission: "awcms:example:parent:write" },
+						{ id: "read-child", label: "Read child", href: "/parent/read", permission: "awcms:sikesra:parent:read" },
+						{ id: "write-child", label: "Write child", href: "/parent/write", permission: "awcms:sikesra:parent:write" },
 					],
 				},
 				{
 					id: "blocked",
 					label: "Blocked",
 					href: "/blocked",
-					permission: "awcms:example:blocked:write",
-					children: [{ id: "blocked-child", label: "Blocked child", href: "/blocked/child", permission: "awcms:example:blocked:write" }],
+					permission: "awcms:sikesra:blocked:write",
+					children: [{ id: "blocked-child", label: "Blocked child", href: "/blocked/child", permission: "awcms:sikesra:blocked:write" }],
 				},
 			] as any,
-			(permission) => !permission || permission === "awcms:example:parent:read",
+			(permission) => !permission || permission === "awcms:sikesra:parent:read",
 		);
 
 		expect(filtered).toHaveLength(1);
@@ -291,7 +292,7 @@ describe("awcms micro example plugin", () => {
 		} as any);
 
 		const publicResult = (await routes["public/status"]!.handler({ ...ctx, input: {} } as any)) as any;
-		expect(Object.keys(publicResult).toSorted()).toEqual(["auditCount", "governanceMode", "lastLifecycle", "plugin", "status"]);
+		expect(Object.keys(publicResult).toSorted()).toEqual(["governanceMode", "plugin", "publicAggregate", "status"]);
 		expect(publicResult.status).toBe("green");
 		expect(publicResult.plugin.visibility).toBe("public-safe");
 		expect(publicResult).not.toHaveProperty("storageKey");
@@ -585,9 +586,9 @@ describe("awcms micro example plugin", () => {
 		const manifestPath = resolve(import.meta.dirname, "../emdash-plugin.jsonc");
 		const manifest = parseJsoncObject<any>(readFileSync(manifestPath, "utf8"));
 
-		expect(manifest.slug).toBe("awcms-micro-example");
-		expect(manifest.capabilities).toEqual([...AWCMS_EXAMPLE_CAPABILITIES]);
-		expect(manifest.admin.pages).toHaveLength(13);
+		expect(manifest.slug).toBe("awcms-micro-sikesra");
+		expect(manifest.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
+		expect(manifest.admin.pages).toHaveLength(14);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");

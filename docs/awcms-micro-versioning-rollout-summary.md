@@ -14,7 +14,7 @@ This summary records what was added to support AWCMS-Micro-only automatic versio
 
 ## Covered Packages
 
-- `@awcms-micro/plugin-example`
+- `@awcms-micro/plugin-sikesra`
 - `@awcms-micro/plugin-gallery`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
@@ -25,7 +25,7 @@ Two local simulations were run successfully.
 
 ### Simulation 1
 
-- `@awcms-micro/plugin-example`: `0.0.1 -> 0.1.0`
+- `@awcms-micro/plugin-sikesra`: `0.0.1 -> 0.1.0`
 - `@awcms-micro/template-default-example`: `0.0.1 -> 0.0.2`
 
 ### Simulation 2

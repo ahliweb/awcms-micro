@@ -54,7 +54,7 @@ Recommended AWCMS-Micro locations:
 ```txt
 awcmsmicro-dev/templates/awcms-micro-default/
 awcmsmicro-dev/templates/awcms-micro-default-cloudflare/
-awcmsmicro-dev/packages/plugins/awcms-micro-example/
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/
 awcmsmicro-dev/docs/awcms-micro/
 ```
 
@@ -846,7 +846,7 @@ Example CSS:
 
 ### Phase 3 — Plugin Header Implementation
 
-- Add a plugin-owned menu model to `packages/plugins/awcms-micro-example/`.
+- Add a plugin-owned menu model to `packages/plugins/awcms-micro-sikesra/`.
 - Add a plugin header menu component or blocks-mode equivalent.
 - Keep plugin admin `pages` minimal.
 - Add a SIKESRA-style example configuration as documentation or optional example data.

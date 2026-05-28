@@ -53,8 +53,8 @@ Minimum recommended checks:
 
 1. `bash scripts/validate-awcmsmicro-boundaries.sh`
 2. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
-3. `pnpm --filter @awcms-micro/plugin-example typecheck`
-4. `pnpm --filter @awcms-micro/plugin-example test`
+3. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
+4. `pnpm --filter @awcms-micro/plugin-sikesra test`
 5. `pnpm --filter @awcms-micro/plugin-gallery typecheck`
 6. `pnpm --filter @awcms-micro/plugin-gallery test`
 7. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`

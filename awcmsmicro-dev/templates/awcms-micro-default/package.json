@@ -15,7 +15,7 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"@awcms-micro/plugin-example": "workspace:*",
+		"@awcms-micro/plugin-sikesra": "workspace:*",
 		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@astrojs/node": "^10.1.1",
 		"@astrojs/react": "^5.0.5",

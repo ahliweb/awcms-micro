@@ -28,7 +28,7 @@ AWCMS-Micro should inherit EmDash security mechanisms where available and layer 
 | Deployment least privilege | Use dedicated deployment tokens and scoped bindings | Cloudflare deployment workflow and template config | Active | High |
 | Route/path safety | Reject external URLs and traversal in plugin-local nav helpers | plugin-owned navigation utilities | Active | Medium |
 | Authorization model | Keep privileged behavior behind plugin-owned permissions and inherited EmDash auth | EmDash auth + plugin routes | Active | High |
-| Auditability | Record sensitive governance-style changes in plugin-owned storage/logs where appropriate | `awcms-micro-example` plugin | Active | Medium |
+| Auditability | Record sensitive governance-style changes in plugin-owned storage/logs where appropriate | `awcms-micro-sikesra` plugin | Active | Medium |
 | Media and storage isolation | Keep media in configured object storage and avoid checked-in assets/secrets | Cloudflare template + R2 model | Active | Medium |
 | Recovery readiness | Maintain backup and rollback guidance for env, DB, and deploys | root backup scripts + deployment docs | Active | Medium |
 
