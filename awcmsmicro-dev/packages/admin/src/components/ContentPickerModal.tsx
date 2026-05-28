@@ -187,9 +187,6 @@ export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }
 							items={parentItems ?? { "": t`Top level` }}
 							aria-label={t`Parent`}
 						/>
-						<p className="w-full text-sm text-kumo-subtle">
-							{t`Selected parent`}: <span className="font-medium text-kumo-default">{selectedParentLabel}</span>
-						</p>
 					</div>
 
 				{/* Content list */}
@@ -278,7 +275,10 @@ export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }
 				</div>
 
 				{/* Footer */}
-				<div className="flex justify-end gap-2 pt-4 border-t">
+				<div className="flex items-center justify-between gap-4 pt-4 border-t">
+					<p className="text-sm text-kumo-subtle">
+						{t`Selected parent`}: <span className="font-medium text-kumo-default">{selectedParentLabel}</span>
+					</p>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						{t`Cancel`}
 					</Button>
