@@ -29,6 +29,7 @@ const localeOptions = {
 	locales: i18nConfig?.locales || ["en", "id"],
 };
 const copy = getPublicCopy(currentLocale);
+const utilityNavLabel = currentLocale.startsWith("id") ? "Navigasi utilitas" : "Utility navigation";
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const pageCtx = createPublicPageContext({
@@ -269,7 +270,7 @@ const pageCtx = createPublicPageContext({
 		<body>
 			<EmDashBodyStart page={pageCtx} />
 			<header class="header">
-				<nav class="nav" aria-label="Utility navigation">
+				<nav class="nav" aria-label={utilityNavLabel}>
 					<a class="brand" href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">
 						{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} style="height:44px;width:auto;display:block;" /> : siteTitle}
 					</a>

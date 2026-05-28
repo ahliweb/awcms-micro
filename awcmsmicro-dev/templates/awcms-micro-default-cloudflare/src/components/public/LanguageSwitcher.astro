@@ -18,6 +18,7 @@ const locales = i18nConfig?.locales || ["en", "id"];
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const localeOptions = { defaultLocale, locales };
+const switcherLabel = currentLocale.startsWith("id") ? "Pengalih Bahasa" : "Language Switcher";
 
 // Fetch translations if we are on a content page
 let translationsMap = new Map<string, string>();
@@ -59,7 +60,7 @@ const localeNames: Record<string, string> = {
 ---
 
 {enabled && (
-	<div class="awcms-lang-switcher" aria-label="Language Switcher">
+	<div class="awcms-lang-switcher" aria-label={switcherLabel}>
 		<ul class="awcms-lang-switcher__list">
 			{locales.map((loc) => {
 				const isActive = loc === currentLocale;

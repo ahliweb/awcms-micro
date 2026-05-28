@@ -9,6 +9,7 @@ interface Props {
 const { name = "primary" } = Astro.props;
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || "en";
 const menu = await getMenu(name, { locale: currentLocale });
+const navLabel = currentLocale.startsWith("id") ? "Navigasi utama" : "Primary navigation";
 
 if (menu?.items.length) {
 	const subMenus = await Promise.all(
@@ -30,7 +31,7 @@ if (menu?.items.length) {
 ---
 
 {menu?.items.length ? (
-	<nav class="awcms-public-nav" aria-label="Primary navigation">
+	<nav class="awcms-public-nav" aria-label={navLabel}>
 		<ul class="awcms-public-nav__list">
 			{menu.items.map((item) => (
 				<PublicNavigationItem item={item} currentPath={Astro.url.pathname} currentLocale={currentLocale || menu.locale} level={0} />

@@ -29,6 +29,8 @@ const localeOptions = {
 	locales: i18nConfig?.locales || ["en", "id"],
 };
 const copy = getPublicCopy(currentLocale);
+const utilityNavLabel = currentLocale.startsWith("id") ? "Navigasi utilitas" : "Utility navigation";
+const mobileMenuLabel = currentLocale.startsWith("id") ? "Buka menu" : "Toggle Menu";
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const pageCtx = createPublicPageContext({
@@ -327,12 +329,12 @@ const pageCtx = createPublicPageContext({
 	<body>
 		<EmDashBodyStart page={pageCtx} />
 		<header class="header" id="main-header">
-				<nav class="nav" aria-label="Utility navigation">
+				<nav class="nav" aria-label={utilityNavLabel}>
 					<div class="nav-brand-container">
 						<a class="brand" href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">
 							{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} style="height:44px;width:auto;display:block;" /> : siteTitle}
 						</a>
-						<button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
+						<button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label={mobileMenuLabel} aria-expanded="false">
 							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 								<line x1="3" y1="12" x2="21" y2="12"></line>
 								<line x1="3" y1="6" x2="21" y2="6"></line>
