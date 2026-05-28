@@ -349,6 +349,7 @@ describe("awcms micro example plugin", () => {
 		} as any)) as any;
 		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_sopd");
 		expect(before.currentVerifierLevels).toContain("sopd");
+		expect(before.items).toHaveLength(1);
 
 		const result = (await routes["verification/advance"]!.handler(
 			{
@@ -403,6 +404,20 @@ describe("awcms micro example plugin", () => {
 
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("INVALID_LEVEL");
+	});
+
+	it("lets admin sikesra see the full verification queue", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" } }),
+			input: {},
+		} as any)) as any;
+
+		expect(result.currentVerifierLevels).toContain("admin_sikesra");
+		expect(result.items.length).toBeGreaterThan(1);
 	});
 
 	it("returns verification to the previous review level on needs revision", async () => {

@@ -1269,6 +1269,11 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 		.filter((level): level is VerificationUserLevel => level !== null);
 }
 
+function filterVerificationItemsForLevels(items: VerificationListItem[], levels: VerificationUserLevel[]) {
+	if (levels.length === 0 || levels.includes("admin_sikesra")) return items;
+	return items.filter((item) => getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)));
+}
+
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
 	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	if (legacy.length > 0) {
@@ -2130,10 +2135,12 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
+	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
+	const items = await listVerificationItems(ctx);
 	return {
-		items: await listVerificationItems(ctx),
+		items: filterVerificationItemsForLevels(items, currentVerifierLevels),
 		events: await listVerificationEvents(ctx),
-		currentVerifierLevels: await getCurrentVerifierLevels(ctx),
+		currentVerifierLevels,
 	};
 };
 
