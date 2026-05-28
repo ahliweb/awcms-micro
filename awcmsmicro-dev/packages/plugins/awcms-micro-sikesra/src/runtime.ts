@@ -977,7 +977,7 @@ async function persistStateValue(ctx: PluginContext, key: string, value: StoredS
 async function readStateValue<T extends StoredStateRecord["value"]>(ctx: PluginContext, key: string, fallback: T): Promise<T> {
 	const stored = await getStoredState(ctx);
 	const record = stored.get(key);
-	return (record?.value as T | undefined) ?? (await ctx.kv.get<T>(key)) ?? fallback;
+	return (record?.value as T | undefined) ?? fallback;
 }
 
 function mergeById<T extends { id: string }>(...groups: T[][]): T[] {
@@ -990,38 +990,32 @@ function mergeById<T extends { id: string }>(...groups: T[][]): T[] {
 
 async function getSettings(ctx: PluginContext): Promise<ExampleSettings> {
 	const storedSettings = await getStoredSettings(ctx);
-	const publicStatusLabel = await ctx.kv.get<string>("settings:publicStatusLabel");
-	const auditRetentionDays = await ctx.kv.get<number>("settings:auditRetentionDays");
-	const governanceMode = await ctx.kv.get<string>("settings:governanceMode");
-	const metadataCanonicalBase = await ctx.kv.get<string>("settings:metadataCanonicalBase");
-	const smallCellThreshold = await ctx.kv.get<number>("settings:smallCellThreshold");
-	const sikesraPublicEnabled = await ctx.kv.get<boolean>("settings:sikesraPublicEnabled");
 
 	return {
 		publicStatusLabel:
 			typeof storedSettings.get("publicStatusLabel")?.value === "string"
 				? (storedSettings.get("publicStatusLabel")!.value as string)
-				: publicStatusLabel ?? DEFAULT_SETTINGS.publicStatusLabel,
+				: DEFAULT_SETTINGS.publicStatusLabel,
 		auditRetentionDays:
 			typeof storedSettings.get("auditRetentionDays")?.value === "number"
 				? (storedSettings.get("auditRetentionDays")!.value as number)
-				: auditRetentionDays ?? DEFAULT_SETTINGS.auditRetentionDays,
+				: DEFAULT_SETTINGS.auditRetentionDays,
 		governanceMode:
 			typeof storedSettings.get("governanceMode")?.value === "string"
 				? (storedSettings.get("governanceMode")!.value as string)
-				: governanceMode ?? DEFAULT_SETTINGS.governanceMode,
+				: DEFAULT_SETTINGS.governanceMode,
 		metadataCanonicalBase:
 			typeof storedSettings.get("metadataCanonicalBase")?.value === "string"
 				? (storedSettings.get("metadataCanonicalBase")!.value as string)
-				: metadataCanonicalBase ?? DEFAULT_SETTINGS.metadataCanonicalBase,
+				: DEFAULT_SETTINGS.metadataCanonicalBase,
 		smallCellThreshold:
 			typeof storedSettings.get("smallCellThreshold")?.value === "number"
 				? (storedSettings.get("smallCellThreshold")!.value as number)
-				: smallCellThreshold ?? DEFAULT_SETTINGS.smallCellThreshold,
+				: DEFAULT_SETTINGS.smallCellThreshold,
 		sikesraPublicEnabled:
 			typeof storedSettings.get("sikesraPublicEnabled")?.value === "boolean"
 				? (storedSettings.get("sikesraPublicEnabled")!.value as boolean)
-				: sikesraPublicEnabled ?? DEFAULT_SETTINGS.sikesraPublicEnabled,
+				: DEFAULT_SETTINGS.sikesraPublicEnabled,
 	};
 }
 

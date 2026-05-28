@@ -294,7 +294,7 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("exposes public and protected routes", async () => {
-		const { ctx, kvData, collections } = createMockContext();
+		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["settings/save"]!.handler({
@@ -313,10 +313,10 @@ describe("awcms micro example plugin", () => {
 		expect(publicResult.plugin.visibility).toBe("public-safe");
 		expect(publicResult).not.toHaveProperty("storageKey");
 		expect(publicResult).not.toHaveProperty("userId");
-		expect(kvData.get("settings:governanceMode")).toBeUndefined();
 		expect(collections.settingsState.size).toBe(6);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
 		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({ key: "state:publicStatusHits", value: 1 });
+		expect(collections.settingsState.get("governanceMode")).toMatchObject({ key: "governanceMode", value: "observe" });
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
