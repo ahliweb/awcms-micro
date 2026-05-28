@@ -98,7 +98,7 @@ const sandboxPlugin: SandboxedPlugin = {
 			handler: async (event: any, pluginCtx: PluginContext): Promise<void | Record<string, unknown>> => {
 				if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;
 				const settings = await readSettings(pluginCtx, {});
-				const result = validateGalleryContent(event.content, settings, locale);
+				const result = validateGalleryContent(event.content, settings);
 				await writeAudit(pluginCtx, result.valid ? "gallery.validation.ok" : "gallery.validation.reject", "Validated gallery content before save", {
 					contentId: event.content?.id,
 					errors: result.errors,

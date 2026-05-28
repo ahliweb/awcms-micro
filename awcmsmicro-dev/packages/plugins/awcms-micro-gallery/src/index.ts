@@ -211,7 +211,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 				handler: async (event: any, ctx: any) => {
 					if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;
 					const settings = await readSettings(ctx, options);
-					const result = validateGalleryContent(event.content, settings, locale);
+					const result = validateGalleryContent(event.content, settings);
 					await writeAudit(ctx, result.valid ? "gallery.validation.ok" : "gallery.validation.reject", "Validated gallery content before save", {
 						contentId: event.content?.id,
 						errors: result.errors,
