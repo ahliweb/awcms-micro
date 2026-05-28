@@ -42,11 +42,15 @@ Updates root documentation for the maintenance workspace.
 Run:
 
 ```bash
+bash scripts/awcms-root-versioning.sh status
+bash scripts/awcms-root-versioning.sh version
 node scripts/awcms-version.mjs status
 node scripts/awcms-version.mjs version
 ```
 
-The script reads pending changesets, bumps `VERSION`, prepends `CHANGELOG.md`, and removes processed input files.
+The bash wrapper reads pending changesets through the root versioning script, bumps `VERSION`, prepends `CHANGELOG.md`, and then refreshes the workspace snapshot section in the root changelog.
+
+The lower-level Node script remains available for direct changeset processing when the snapshot refresh is not needed.
 
 For workspace snapshots, keep the EmDash revision in sync with `docs/upstream-sync/LAST_UPSTREAM_FETCH.md` and update the plugin/template inventory when package versions change.
 

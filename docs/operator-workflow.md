@@ -45,6 +45,7 @@ bash scripts/sync-and-validate-awcmsmicro-dev.sh
 ### 5. Check AWCMS Versioning Status
 
 ```bash
+bash scripts/awcms-root-versioning.sh status
 node awcmsmicro-dev/.github/scripts/awcms-version.mjs status
 ```
 

@@ -85,6 +85,8 @@ Exception:
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs version`
+- `bash scripts/awcms-root-versioning.sh status`
+- `bash scripts/awcms-root-versioning.sh version`
 - `node scripts/awcms-version.mjs status`
 - `node scripts/awcms-version.mjs version`
 - `pnpm --dir awcmsmicro-dev d1:mirror:status`

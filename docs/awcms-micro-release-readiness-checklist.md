@@ -53,12 +53,13 @@ Run the closest available checks for the intended release surface.
 Minimum recommended checks:
 
 1. `bash scripts/validate-awcmsmicro-boundaries.sh`
-2. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
-3. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
-4. `pnpm --filter @awcms-micro/plugin-sikesra test`
-5. `pnpm --filter @awcms-micro/plugin-gallery typecheck`
-6. `pnpm --filter @awcms-micro/plugin-gallery test`
-7. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
+2. `bash scripts/awcms-root-versioning.sh status`
+3. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
+4. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
+5. `pnpm --filter @awcms-micro/plugin-sikesra test`
+6. `pnpm --filter @awcms-micro/plugin-gallery typecheck`
+7. `pnpm --filter @awcms-micro/plugin-gallery test`
+8. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
 Add template- or plugin-specific checks if the release scope requires them.
 
