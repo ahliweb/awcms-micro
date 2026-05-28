@@ -44,6 +44,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: downstream AWCMS release cadence and package set differ from the upstream monorepo release set
 - See: `docs/awcms-micro-versioning.md`, `docs/awcms-micro-versioning-rollout-summary.md`
 
+### DR-011: Workspace Package Releases Stay On Changesets
+
+- Decision: keep published workspace packages like `@emdash-cms/admin` on the standard `awcmsmicro-dev/.changeset/` flow, separate from downstream `@awcms-micro/*` release notes
+- Why: avoid mixing upstream package release metadata with AWCMS-Micro-specific release boundaries
+- See: `docs/awcms-micro-versioning.md`, `docs/awcms-micro-root-versioning.md`
+
 ### DR-007: Root Changelog Carries The Workspace Snapshot
 
 - Decision: keep the parent repository root changelog as the authoritative workspace snapshot for the current EmDash SHA and the latest version/changelog entry of every plugin and template in `awcmsmicro-dev/`

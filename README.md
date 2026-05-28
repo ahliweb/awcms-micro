@@ -15,6 +15,8 @@ AWCMS-Micro-specific product development in this maintenance workspace is limite
 This workspace uses three separate versioning and changelog surfaces:
 
 - root maintenance changes for the parent repository live in `VERSION`, `CHANGELOG.md`, and root `.awcms-changesets/`
+- workspace package releases for published EmDash packages like `awcmsmicro-dev/packages/admin/` are driven by `awcmsmicro-dev/.changeset/`
+- downstream AWCMS-Micro release-note inputs for `@awcms-micro/*` live in `awcmsmicro-dev/.awcms-changesets/`
 - plugin packages under `awcmsmicro-dev/packages/plugins/` keep their own `package.json` version and `CHANGELOG.md`
 - template packages under `awcmsmicro-dev/templates/` keep their own `package.json` version and `CHANGELOG.md`
 

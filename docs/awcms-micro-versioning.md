@@ -4,6 +4,8 @@
 
 This document describes the AWCMS-Micro-only automatic versioning and changelog flow for package-level releases under the `@awcms-micro/*` namespace.
 
+Published workspace packages such as `@emdash-cms/admin` continue to use the standard `awcmsmicro-dev/.changeset/` Changesets boundary.
+
 Root maintenance versioning is documented separately in `docs/awcms-micro-root-versioning.md`.
 
 ## Scope
@@ -23,6 +25,8 @@ Package-level releases are split into two groups:
 - templates: each template keeps its own `package.json` version and `CHANGELOG.md`
 
 Root maintenance docs keep a separate workspace snapshot of the current EmDash revision and the latest plugin/template versions, but that snapshot is not the package release mechanism.
+
+The downstream AWCMS flow is intentionally separate from both upstream EmDash Changesets and the workspace package-release boundary.
 
 ## Inputs
 

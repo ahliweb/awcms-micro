@@ -4,12 +4,16 @@
 
 This summary records what was added to support AWCMS-Micro-only automatic versioning and changelog generation for the downstream plugin and template surfaces.
 
+It sits alongside the standard workspace package-release flow in `awcmsmicro-dev/.changeset/`, which continues to govern published EmDash packages such as `@emdash-cms/admin`.
+
 ## Delivered
 
 - AWCMS-only release-note input boundary: `awcmsmicro-dev/.awcms-changesets/`
+- Workspace package-release boundary: `awcmsmicro-dev/.changeset/`
 - AWCMS-only versioning script: `awcmsmicro-dev/.github/scripts/awcms-version.mjs`
 - AWCMS-only version PR workflow: `awcmsmicro-dev/.github/workflows/awcms-versioning.yml`
 - Root workspace snapshot changelog for the current EmDash SHA plus the latest version and changelog entry of every plugin and template in `awcmsmicro-dev/`
+- Workspace package releases continue to use the standard Changesets boundary for published workspace packages like `@emdash-cms/admin`
 - Root governance updates so the new boundaries survive `awcmsmicro-dev` rebuilds
 - Operator and release-readiness docs updated to include the AWCMS versioning flow
 
@@ -45,6 +49,7 @@ In both simulations the script:
 ## Boundary Notes
 
 - The AWCMS versioning flow is intentionally separate from upstream EmDash Changesets.
+- The AWCMS versioning flow is intentionally separate from the workspace package-release flow in `awcmsmicro-dev/.changeset/`.
 - The root maintenance changelog now records the current workspace snapshot without changing `emdash-latest/`.
 - AWCMS release-note inputs and release automation scripts now live in preserved rebuild-safe boundaries.
 - The new flow does not require modifying upstream release metadata for EmDash core packages.

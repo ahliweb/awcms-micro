@@ -16,7 +16,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcms-micro-root-versioning.md`: root-level AWCMS maintenance versioning and changelog flow, including the workspace snapshot for every plugin and template in `awcmsmicro-dev/`
-- `awcms-micro-versioning.md`: AWCMS-Micro-only automatic versioning and changelog flow for plugins and templates
+- `awcms-micro-versioning.md`: AWCMS-Micro-only downstream versioning and changelog flow for `@awcms-micro/*`, plus the workspace package-release boundary that keeps `awcmsmicro-dev/.changeset/` separate
 - `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS-Micro versioning automation rollout and local proof runs
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file

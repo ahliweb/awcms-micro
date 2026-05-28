@@ -11,7 +11,7 @@ The repository already follows the correct high-level model:
 - `emdash-latest/` is the clean upstream EmDash reference snapshot.
 - `awcmsmicro-dev/` is the rebuildable AWCMS-Micro working tree.
 - root `docs/` and `scripts/` act as the governance and synchronization layer.
-- root `CHANGELOG.md` and `VERSION` capture the current maintenance release state plus the workspace snapshot for every plugin and template in `awcmsmicro-dev/`.
+- root `CHANGELOG.md` and `VERSION` capture the current maintenance release state plus the workspace snapshot for every plugin and template in `awcmsmicro-dev/`; published workspace packages like `@emdash-cms/admin` keep their own Changesets-driven release metadata in `awcmsmicro-dev/.changeset/`.
 - AWCMS-Micro-owned work is mostly isolated into preserved boundaries rather than mixed into upstream EmDash core.
 
 This is a strong foundation for keeping `awcms-micro` aligned with EmDash while still allowing project-specific example work.

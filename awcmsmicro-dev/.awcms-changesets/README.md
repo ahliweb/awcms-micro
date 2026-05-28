@@ -2,6 +2,8 @@
 
 This directory stores AWCMS-Micro-only release note entries for versioning plugins and templates under the `@awcms-micro/*` namespace.
 
+Do not use it for workspace package releases such as `@emdash-cms/admin`; those continue to use the standard `awcmsmicro-dev/.changeset/` boundary.
+
 ## File Format
 
 Each changeset is a Markdown file with frontmatter listing one or more affected packages and the bump type.

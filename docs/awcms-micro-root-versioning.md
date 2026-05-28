@@ -15,7 +15,7 @@ It is separate from `awcmsmicro-dev/.awcms-changesets/`, which tracks versioning
 - `.awcms-changesets/`: pending root release-note inputs
 - `scripts/awcms-version.mjs`: the root versioning script
 
-`CHANGELOG.md` also carries a workspace snapshot section that records the current EmDash upstream revision plus the version and latest changelog entry for every plugin and template in `awcmsmicro-dev/`, including `@awcms-micro/*` and `@emdash-cms/*` packages.
+`CHANGELOG.md` also carries a workspace snapshot section that records the current EmDash upstream revision plus the version and latest changelog entry for every plugin and template in `awcmsmicro-dev/`. Workspace package releases such as `@emdash-cms/admin` are tracked through `awcmsmicro-dev/.changeset/`, not this root snapshot.
 
 ## File Format
 
