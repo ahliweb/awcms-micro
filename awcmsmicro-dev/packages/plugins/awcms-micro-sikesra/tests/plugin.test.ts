@@ -343,7 +343,7 @@ describe("awcms micro example plugin", () => {
 		const routes = createNativeRoutes();
 
 		const before = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("verified_district");
+		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_sopd");
 
 		const result = (await routes["verification/advance"]!.handler(
 			{
@@ -357,17 +357,22 @@ describe("awcms micro example plugin", () => {
 		)) as any;
 
 		expect(result.success).toBe(true);
-		expect(result.item.verificationStage).toBe("submitted_regency");
-		expect(result.item.nextStage).toBe("active_verified");
+		expect(result.item.verificationStage).toBe("verified_sopd");
+		expect(result.item.currentLevel).toBe("sopd");
+		expect(result.item.nextStage).toBe("submitted_regency");
+		expect(result.item.nextLevel).toBe("kabupaten_admin");
 		expect(result.event.kind).toBe("verification.stage.advance");
-		expect(result.verificationEvent.stage).toBe("submitted_regency");
+		expect(result.verificationEvent.stage).toBe("verified_sopd");
 
 		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		expect(after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_regency");
+		const afterItem = after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01");
+		expect(afterItem?.verificationStage).toBe("verified_sopd");
+		expect(afterItem?.currentLevel).toBe("kabupaten_admin");
+		expect(afterItem?.nextLevel).toBe("kabupaten_admin");
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 		expect(collections.verificationEvents.size).toBe(1);
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_regency" });
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "verified_sopd" });
 		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({ key: "state:lastVerificationEventId", value: expect.stringContaining("registry-entity-guru-agama-01") });
 	});
 

@@ -227,7 +227,9 @@ interface VerificationItem {
 		villageCode: string;
 	};
 	verificationStage: string;
+	currentLevel: string;
 	nextStage: string | null;
+	nextLevel: string | null;
 	canAdvance: boolean;
 	supportingDocumentIds: string[];
 	publicSummary: string;
@@ -1183,6 +1185,18 @@ function resolveRegionNames(
 	};
 }
 
+function resolveVerificationLevelLabel(
+	level: string | null | undefined,
+	copy: ReturnType<typeof getExampleAdminCopy>,
+) {
+	if (level === "desa_kelurahan") return copy.villageLevel;
+	if (level === "kecamatan") return copy.districtLevel;
+	if (level === "sopd") return copy.sopdLevel;
+	if (level === "kabupaten_admin") return copy.regencyAdminLevel;
+	if (level === "tampil") return copy.publishedLevel;
+	return level ?? copy.notSet;
+}
+
 function resolveDataTypeNames(
 	code: string,
 	dataTypes: SikesraParentType[]
@@ -2025,6 +2039,10 @@ function VerificationPage() {
 										<div className="flex gap-1.5 flex-wrap">
 											<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
 											{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
+										</div>
+										<div className="text-xs text-kumo-subtle space-y-1 text-end max-md:text-start">
+											<div><strong>{copy.currentLevel}:</strong> {resolveVerificationLevelLabel(item.currentLevel, copy)}</div>
+											{item.nextLevel ? <div><strong>{copy.nextLevel}:</strong> {resolveVerificationLevelLabel(item.nextLevel, copy)}</div> : null}
 										</div>
 										<div className="text-xs text-kumo-subtle flex items-center gap-1">
 											<span>📁 Documents:</span> <strong>{item.supportingDocumentIds.length}</strong>

@@ -1048,8 +1048,12 @@ type VerificationStage =
 	| "verified_village"
 	| "submitted_district"
 	| "verified_district"
+	| "submitted_sopd"
+	| "verified_sopd"
 	| "submitted_regency"
 	| "active_verified";
+
+type VerificationLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten_admin" | "tampil";
 
 interface VerificationListItem {
 	id: string;
@@ -1065,7 +1069,9 @@ interface VerificationListItem {
 		villageCode: string;
 	};
 	verificationStage: VerificationStage;
+	currentLevel: VerificationLevel;
 	nextStage: VerificationStage | null;
+	nextLevel: VerificationLevel | null;
 	canAdvance: boolean;
 	supportingDocumentIds: string[];
 	publicSummary: string;
@@ -1109,6 +1115,8 @@ const VERIFICATION_STAGE_FLOW: VerificationStage[] = [
 	"verified_village",
 	"submitted_district",
 	"verified_district",
+	"submitted_sopd",
+	"verified_sopd",
 	"submitted_regency",
 	"active_verified",
 ];
@@ -1118,6 +1126,14 @@ const VERIFICATION_STATE_KEY = "state:sikesraVerificationStages";
 function getNextVerificationStage(stage: VerificationStage): VerificationStage | null {
 	const index = VERIFICATION_STAGE_FLOW.indexOf(stage);
 	return index >= 0 && index < VERIFICATION_STAGE_FLOW.length - 1 ? (VERIFICATION_STAGE_FLOW[index + 1] ?? null) : null;
+}
+
+function getVerificationLevel(stage: VerificationStage): VerificationLevel {
+	if (stage === "draft" || stage === "submitted_village") return "desa_kelurahan";
+	if (stage === "verified_village" || stage === "submitted_district") return "kecamatan";
+	if (stage === "verified_district" || stage === "submitted_sopd") return "sopd";
+	if (stage === "verified_sopd" || stage === "submitted_regency") return "kabupaten_admin";
+	return "tampil";
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
@@ -1209,6 +1225,7 @@ async function listVerificationItems(ctx: PluginContext): Promise<VerificationLi
 	const entities = await getRegistryEntities(ctx);
 	return entities.map((entity) => {
 		const verificationStage = state[entity.id] ?? entity.verificationStage;
+		const nextStage = getNextVerificationStage(verificationStage);
 		return {
 			id: entity.id,
 			registryEntityId: entity.id,
@@ -1218,7 +1235,9 @@ async function listVerificationItems(ctx: PluginContext): Promise<VerificationLi
 			sensitivity: entity.sensitivity,
 			region: entity.region,
 			verificationStage,
-			nextStage: getNextVerificationStage(verificationStage),
+			currentLevel: getVerificationLevel(verificationStage),
+			nextStage,
+			nextLevel: nextStage ? getVerificationLevel(nextStage) : null,
 			canAdvance: verificationStage !== "active_verified",
 			supportingDocumentIds: entity.supportingDocumentIds,
 			publicSummary: entity.publicSummary,

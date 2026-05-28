@@ -12,7 +12,16 @@ export interface SikesraReferenceRegistryEntity {
 		districtCode: string;
 		villageCode: string;
 	};
-	verificationStage: "draft" | "submitted_village" | "verified_village" | "submitted_district" | "verified_district" | "submitted_regency" | "active_verified";
+	verificationStage:
+		| "draft"
+		| "submitted_village"
+		| "verified_village"
+		| "submitted_district"
+		| "verified_district"
+		| "submitted_sopd"
+		| "verified_sopd"
+		| "submitted_regency"
+		| "active_verified";
 	supportingDocumentIds: string[];
 	publicSummary: string;
 }
@@ -127,7 +136,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 				districtCode: "3171010",
 				villageCode: "3171010002",
 			},
-			verificationStage: "verified_district",
+			verificationStage: "submitted_sopd",
 			supportingDocumentIds: ["doc-guru-agama-01", "doc-guru-agama-02"],
 			publicSummary: "Data tenaga pengajar disajikan dalam bentuk agregat aman tanpa identitas pribadi.",
 		},
@@ -143,7 +152,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 				districtCode: "3171010",
 				villageCode: "3171010003",
 			},
-			verificationStage: "submitted_regency",
+			verificationStage: "verified_sopd",
 			supportingDocumentIds: ["doc-disabilitas-01"],
 			publicSummary: "Kasus berisiko tinggi hanya disajikan sebagai hitungan agregat aman.",
 		},
@@ -199,19 +208,19 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 		{
 			id: "verify-guru-district",
 			registryEntityId: "registry-entity-guru-agama-01",
-			stage: "verified_district",
+			stage: "submitted_sopd",
 			actor: "district-officer",
 			result: "approved",
-			notes: "Kelengkapan data diverifikasi pada tingkat kecamatan.",
+			notes: "Kelengkapan data diverifikasi pada tingkat kecamatan dan diteruskan ke SOPD terkait.",
 			createdAt: "2026-01-13T08:00:00.000Z",
 		},
 		{
 			id: "verify-disabilitas-regency",
 			registryEntityId: "registry-entity-disabilitas-01",
-			stage: "submitted_regency",
-			actor: "district-officer",
+			stage: "verified_sopd",
+			actor: "sopd-officer",
 			result: "needs_review",
-			notes: "Permohonan diteruskan ke tingkat kabupaten untuk review lanjutan.",
+			notes: "SOPD terkait menyelesaikan review substansi dan meneruskan ke kabupaten/admin SIKESRA.",
 			createdAt: "2026-01-14T08:00:00.000Z",
 		},
 	],
