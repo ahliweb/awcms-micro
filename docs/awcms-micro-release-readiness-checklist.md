@@ -34,6 +34,7 @@ Use this checklist after upstream sync work and after AWCMS-Micro plugin/templat
 
 - promotion checklist is current
 - AWCMS versioning documentation is current
+- root workspace snapshot changelog is current for the active EmDash revision and all workspace plugins/templates
 - deployment runbook is current for the intended environment
 - security baseline reflects the current plugin-and-template-only model
 - compatibility matrix reflects the current overlays accurately

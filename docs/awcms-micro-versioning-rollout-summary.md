@@ -9,6 +9,7 @@ This summary records what was added to support AWCMS-Micro-only automatic versio
 - AWCMS-only release-note input boundary: `awcmsmicro-dev/.awcms-changesets/`
 - AWCMS-only versioning script: `awcmsmicro-dev/.github/scripts/awcms-version.mjs`
 - AWCMS-only version PR workflow: `awcmsmicro-dev/.github/workflows/awcms-versioning.yml`
+- Root workspace snapshot changelog for the current EmDash SHA plus the latest version and changelog entry of every plugin and template in `awcmsmicro-dev/`
 - Root governance updates so the new boundaries survive `awcmsmicro-dev` rebuilds
 - Operator and release-readiness docs updated to include the AWCMS versioning flow
 
@@ -44,6 +45,7 @@ In both simulations the script:
 ## Boundary Notes
 
 - The AWCMS versioning flow is intentionally separate from upstream EmDash Changesets.
+- The root maintenance changelog now records the current workspace snapshot without changing `emdash-latest/`.
 - AWCMS release-note inputs and release automation scripts now live in preserved rebuild-safe boundaries.
 - The new flow does not require modifying upstream release metadata for EmDash core packages.
 

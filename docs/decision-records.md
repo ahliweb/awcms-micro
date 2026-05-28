@@ -44,13 +44,19 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: downstream AWCMS release cadence and package set differ from the upstream monorepo release set
 - See: `docs/awcms-micro-versioning.md`, `docs/awcms-micro-versioning-rollout-summary.md`
 
-### DR-007: Plugin Placement, Sidebar Grouping, and i18n Rules
+### DR-007: Root Changelog Carries The Workspace Snapshot
+
+- Decision: keep the parent repository root changelog as the authoritative workspace snapshot for the current EmDash SHA and the latest version/changelog entry of every plugin and template in `awcmsmicro-dev/`
+- Why: make the current maintenance state visible in one place without modifying `emdash-latest/`
+- See: `README.md`, `CHANGELOG.md`, `docs/awcms-micro-root-versioning.md`
+
+### DR-008: Plugin Placement, Sidebar Grouping, and i18n Rules
 
 - Decision: place active plugin sidebars directly below Dashboard, grouped individually, and require full English default and Indonesian translation capability
 - Why: visual isolation and premium localized user experience for plugins, avoiding layout clutter in admin navigation
 - See: `docs/implementation-instructions.md`, `AGENTS.md`, `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 
-### DR-008: Core Performance Bottlenecks Must Be Escalated Upstream
+### DR-009: Core Performance Bottlenecks Must Be Escalated Upstream
 
 - Decision: when AWCMS-Micro public performance hotspots remain in upstream-owned EmDash core paths after downstream template cleanup, document and escalate them upstream instead of patching core locally
 - Why: preserve the plugin-and-template-only downstream model and keep performance fixes reviewable in the canonical EmDash codebase

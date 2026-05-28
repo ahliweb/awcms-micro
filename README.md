@@ -18,7 +18,9 @@ This workspace uses three separate versioning and changelog surfaces:
 - plugin packages under `awcmsmicro-dev/packages/plugins/` keep their own `package.json` version and `CHANGELOG.md`
 - template packages under `awcmsmicro-dev/templates/` keep their own `package.json` version and `CHANGELOG.md`
 
-Keep these flows separate so root maintenance releases do not mix with package releases.
+`CHANGELOG.md` also carries a workspace snapshot of the current EmDash upstream SHA plus the version and latest changelog entry for every plugin and template in `awcmsmicro-dev/`.
+
+Keep these flows separate so root maintenance releases do not mix with package releases, while the snapshot stays current.
 
 ## Licensing
 

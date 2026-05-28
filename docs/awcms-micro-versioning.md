@@ -22,6 +22,8 @@ Package-level releases are split into two groups:
 - plugins: each plugin keeps its own `package.json` version and `CHANGELOG.md`
 - templates: each template keeps its own `package.json` version and `CHANGELOG.md`
 
+Root maintenance docs keep a separate workspace snapshot of the current EmDash revision and the latest plugin/template versions, but that snapshot is not the package release mechanism.
+
 ## Inputs
 
 AWCMS-Micro release-note inputs live in `awcmsmicro-dev/.awcms-changesets/`.
