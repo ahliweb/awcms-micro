@@ -119,7 +119,7 @@ const sandboxPlugin: SandboxedPlugin = {
 						const settings = sanitizeGallerySettings(interaction.values ?? {});
 						await pluginCtx.kv.set("settings", settings);
 						await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings", { settings });
-						return buildAdminBlocks(settings, locale, "Gallery settings saved.");
+						return buildAdminBlocks(settings, locale, translateGallery("gallery.saved", locale));
 					}
 					return buildAdminBlocks(await readSettings(pluginCtx, {}), locale);
 				},

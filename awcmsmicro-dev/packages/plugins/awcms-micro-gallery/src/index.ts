@@ -232,7 +232,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 						const settings = sanitizeGallerySettings(interaction.values ?? {});
 						await ctx.kv.set("settings", settings);
 						await writeAudit(ctx, "gallery.settings.update", "Updated gallery settings", { settings });
-						return buildAdminBlocks(settings, locale, "Gallery settings saved.");
+						return buildAdminBlocks(settings, locale, translateGallery("gallery.saved", locale));
 					}
 					return buildAdminBlocks(await readSettings(ctx, options), locale);
 				},
