@@ -461,6 +461,7 @@ describe("awcms micro example plugin", () => {
 		const documents = (await routes["documents/list"]!.handler({ ...ctx, input: {} } as any)) as any;
 
 		expect(registry.items.some((item: any) => item.id === "registry-entity-custom-01")).toBe(true);
+		expect(registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.verificationStage).toBe("submitted_village");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
 		expect(collections.registryEntities.size).toBe(1);
 		expect(collections.supportingDocuments.size).toBe(1);
@@ -524,6 +525,8 @@ describe("awcms micro example plugin", () => {
 		expect(cron.schedule).toHaveBeenCalledWith("governance-summary", { schedule: "0 * * * *" });
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
+		expect(collections.roleCatalog.get("admin-sikesra")).toMatchObject({ slug: "admin-sikesra" });
+		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({ userId: "user-demo-village", roles: ["verifier-desa-kelurahan"] });
 		expect(collections.pluginState.size).toBeGreaterThan(0);
 		expect(collections.pluginState.get("state:lastLifecycle")).toMatchObject({ key: "state:lastLifecycle", value: "plugin:activate" });
 		expect(collections.pluginState.get("state:lastCronAt")).toMatchObject({ key: "state:lastCronAt" });

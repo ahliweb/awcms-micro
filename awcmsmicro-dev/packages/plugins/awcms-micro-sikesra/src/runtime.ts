@@ -956,6 +956,36 @@ const DEFAULT_ACCESS_ROLES: AccessRole[] = [
 		descriptionKey: "awcms.meta.role.governanceReviewerDesc",
 		updatedAt: "",
 	},
+	{
+		slug: "verifier-desa-kelurahan",
+		label: "Verifier Desa/Kelurahan",
+		description: "Initial verifier role for village and subdistrict submissions.",
+		updatedAt: "",
+	},
+	{
+		slug: "verifier-kecamatan",
+		label: "Verifier Kecamatan",
+		description: "District-level verifier role for SIKESRA escalation.",
+		updatedAt: "",
+	},
+	{
+		slug: "verifier-sopd",
+		label: "Verifier SOPD",
+		description: "Related SOPD verifier role for SIKESRA review.",
+		updatedAt: "",
+	},
+	{
+		slug: "verifier-kabupaten",
+		label: "Verifier Kabupaten",
+		description: "Regency-level verifier role for final regional approval.",
+		updatedAt: "",
+	},
+	{
+		slug: "admin-sikesra",
+		label: "Admin SIKESRA",
+		description: "Administrative override role for SIKESRA verification and publication.",
+		updatedAt: "",
+	},
 ];
 
 const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
@@ -966,6 +996,31 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	},
 	{
 		roleSlug: "governance-reviewer",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "verifier-desa-kelurahan",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "verifier-kecamatan",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "verifier-sopd",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "verifier-kabupaten",
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "admin-sikesra",
 		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
 		updatedAt: "",
 	},
@@ -980,6 +1035,31 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 	{
 		userId: "user-demo-reviewer",
 		roles: ["governance-reviewer"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-village",
+		roles: ["verifier-desa-kelurahan"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-district",
+		roles: ["verifier-kecamatan"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-sopd",
+		roles: ["verifier-sopd"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-regency",
+		roles: ["verifier-kabupaten"],
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-sikesra-admin",
+		roles: ["admin-sikesra"],
 		updatedAt: "",
 	},
 ];
@@ -1874,7 +1954,7 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			districtCode: getString(input, "districtCode") ?? "",
 			villageCode: getString(input, "villageCode") ?? "",
 		},
-		verificationStage: "draft",
+		verificationStage: "submitted_village",
 		supportingDocumentIds: [],
 		publicSummary: getString(input, "publicSummary") ?? "",
 	};
@@ -1955,7 +2035,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 				districtCode: row.districtCode ?? "",
 				villageCode: row.villageCode ?? "",
 			},
-			verificationStage: "draft",
+			verificationStage: "submitted_village",
 			supportingDocumentIds: [],
 			publicSummary: row.publicSummary ?? "",
 		};

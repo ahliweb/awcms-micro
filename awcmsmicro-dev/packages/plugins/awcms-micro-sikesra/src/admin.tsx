@@ -1999,6 +1999,9 @@ function VerificationPage() {
 				title={copy.verificationTitle}
 				description={copy.verificationDescription}
 			/>
+			<div className="rounded-xl border border-kumo-line bg-kumo-tint/15 px-4 py-3 text-sm text-kumo-subtle">
+				{copy.verificationInputPolicy}
+			</div>
 
 			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>✓</span> <span>{statusMessage}</span></div> : null}
 			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>⚠️</span> <span>{mutationError}</span></div> : null}
