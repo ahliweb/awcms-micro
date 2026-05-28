@@ -2,6 +2,7 @@
 import { getI18nConfig } from "emdash";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { toLocalePath } from "../utils/locale-path";
+import { getPublicCopy } from "../utils/public-copy";
 
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
@@ -10,12 +11,13 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 ---
 
-<BaseLayout title="Page Not Found" description="The requested AWCMS-Micro page was not found." showFooterWidgets={false}>
+<BaseLayout title={copy.notFoundTitle} description={copy.notFoundDescription} showFooterWidgets={false}>
 	<section>
-		<h1>Page Not Found</h1>
-		<p>The requested page does not exist or is no longer published.</p>
-		<p><a href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">Return to the homepage</a></p>
+		<h1>{copy.notFoundTitle}</h1>
+		<p>{copy.notFoundMessage}</p>
+		<p><a href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.returnHome}</a></p>
 	</section>
 </BaseLayout>

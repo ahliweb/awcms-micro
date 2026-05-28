@@ -3,6 +3,7 @@ import { getEmDashCollection, getI18nConfig } from "emdash";
 import { Image } from "emdash/ui";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
 
 function asImage(value: unknown) {
 	return value as any;
@@ -20,12 +21,13 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 ---
 
-<BaseLayout title="Posts" description="Published AWCMS-Micro posts managed from the EmDash admin." showFooterWidgets={false}>
+<BaseLayout title={copy.postsTitle} description={copy.postsDescription} showFooterWidgets={false}>
 	<section>
-		<h1>Posts</h1>
-		{posts.length === 0 ? <p>No posts yet.</p> : (
+		<h1>{copy.postsTitle}</h1>
+		{posts.length === 0 ? <p>{copy.noPostsYet}</p> : (
 			<ul style="padding-left:1.25rem;">
 				{posts.map((post) => (
 					<li style="margin-bottom:1rem;">

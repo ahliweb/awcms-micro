@@ -2,6 +2,7 @@
 import { getEmDashCollection, getI18nConfig } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
 
 const { entries: newsItems, cacheHint } = await getEmDashCollection("news", {
 	orderBy: { published_at: "desc" },
@@ -15,12 +16,13 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 ---
 
-<BaseLayout title="News" description="Operational and product news from AWCMS-Micro." showFooterWidgets={false}>
+<BaseLayout title={copy.newsTitle} description={copy.newsDescription} showFooterWidgets={false}>
 	<section>
-		<h1>News</h1>
-		{newsItems.length === 0 ? <p>No news items yet.</p> : (
+		<h1>{copy.newsTitle}</h1>
+		{newsItems.length === 0 ? <p>{copy.noNewsYet}</p> : (
 			<ul style="padding-left:1.25rem;">
 				{newsItems.map((item) => (
 					<li style="margin-bottom:1rem;">

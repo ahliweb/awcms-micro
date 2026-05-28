@@ -6,6 +6,7 @@ import LiveSearch from "emdash/ui/search";
 import PublicNavigation from "../components/PublicNavigation.astro";
 import LanguageSwitcher from "../components/public/LanguageSwitcher.astro";
 import { toLocalePath } from "../utils/locale-path";
+import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 interface Props {
@@ -27,6 +28,7 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const pageCtx = createPublicPageContext({
@@ -342,22 +344,22 @@ const pageCtx = createPublicPageContext({
 						<PublicNavigation name="primary" />
 						<div class="utility-links">
 							<LanguageSwitcher content={content} />
-							<a href="/_emdash/admin/login?redirect=/_emdash/admin">Admin</a>
-							<a href="/_emdash/api/plugins/awcms-micro-example/public/status">Plugin Status</a>
-							<button id="theme-toggle" aria-label="Toggle Theme" style="padding: 0.4rem; font-size: 1.2rem; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-								<span class="dark-icon" style="display:none;" title="Switch to Light Mode">🌙</span>
-								<span class="light-icon" style="display:none;" title="Switch to Dark Mode">☀️</span>
+							<a href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.adminLink}</a>
+							<a href="/_emdash/api/plugins/awcms-micro-example/public/status">{copy.pluginStatus}</a>
+							<button id="theme-toggle" aria-label={copy.toggleTheme} style="padding: 0.4rem; font-size: 1.2rem; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+								<span class="dark-icon" style="display:none;" title={copy.switchToLightMode}>🌙</span>
+								<span class="light-icon" style="display:none;" title={copy.switchToDarkMode}>☀️</span>
 							</button>
 						</div>
 					</div>
 				</nav>
 				<div class="header-search">
-					<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
+					<LiveSearch placeholder={copy.searchPlaceholder} collections={["posts", "pages", "news"]} />
 				</div>
 			<div class="header-actions">
-				<a class="btn btn-primary" href="/_emdash/admin/content/posts/new">Create Post</a>
-				<a class="btn btn-secondary" href="/_emdash/admin/content/pages/new">Create Page</a>
-				<a class="btn btn-secondary" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Overview</a>
+				<a class="btn btn-primary" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
+				<a class="btn btn-secondary" href="/_emdash/admin/content/pages/new">{copy.createPage}</a>
+				<a class="btn btn-secondary" href="/_emdash/admin/plugins/awcms-micro-example/overview">{copy.pluginOverview}</a>
 			</div>
 		</header>
 

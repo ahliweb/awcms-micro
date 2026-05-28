@@ -6,6 +6,7 @@ import LiveSearch from "emdash/ui/search";
 import PublicNavigation from "../components/PublicNavigation.astro";
 import LanguageSwitcher from "../components/public/LanguageSwitcher.astro";
 import { toLocalePath } from "../utils/locale-path";
+import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 interface Props {
@@ -27,6 +28,7 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const pageCtx = createPublicPageContext({
@@ -275,16 +277,16 @@ const pageCtx = createPublicPageContext({
 						<PublicNavigation name="primary" />
 						<div class="utility-links">
 							<LanguageSwitcher content={content} />
-							<a href="/_emdash/admin/login?redirect=/_emdash/admin">Admin</a>
-							<button id="theme-toggle" aria-label="Toggle Theme" style="padding: 0.4rem; font-size: 1.2rem; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-								<span class="dark-icon" style="display:none;" title="Switch to Light Mode">🌙</span>
-								<span class="light-icon" style="display:none;" title="Switch to Dark Mode">☀️</span>
+							<a href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.adminLink}</a>
+							<button id="theme-toggle" aria-label={copy.toggleTheme} style="padding: 0.4rem; font-size: 1.2rem; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+								<span class="dark-icon" style="display:none;" title={copy.switchToLightMode}>🌙</span>
+								<span class="light-icon" style="display:none;" title={copy.switchToDarkMode}>☀️</span>
 							</button>
 						</div>
 					</div>
 				</nav>
 				<div class="search-shell">
-					<LiveSearch placeholder="Search posts, pages, and news" collections={["posts", "pages", "news"]} />
+					<LiveSearch placeholder={copy.searchPlaceholder} collections={["posts", "pages", "news"]} />
 				</div>
 			</header>
 			<main class="main">

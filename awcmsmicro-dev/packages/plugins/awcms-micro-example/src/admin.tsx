@@ -1326,6 +1326,8 @@ function PermissionsPage() {
 }
 
 function RolesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AccessRolesResponse>("access/roles/list");
 	const [roleSaving, setRoleSaving] = React.useState(false);
 	const [userSaving, setUserSaving] = React.useState(false);
@@ -1343,10 +1345,10 @@ function RolesPage() {
 		try {
 			await postPlugin("access/roles/save", roleState);
 			setRoleState({ slug: "", label: "", description: "" });
-			setNotice("Role saved.");
+			setNotice(copy.roleSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save role");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveRole);
 		} finally {
 			setRoleSaving(false);
 		}
@@ -1361,84 +1363,84 @@ function RolesPage() {
 		try {
 			await postPlugin("access/users/save", { userId: userState.userId, roles: fromCsv(userState.roles) });
 			setUserState({ userId: "", roles: "" });
-			setNotice("User role assignment saved.");
+			setNotice(copy.userRoleAssignmentSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save user assignment");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveUserAssignment);
 		} finally {
 			setUserSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading roles..." />;
+	if (loading) return <LoadingState label={copy.loadingRoles} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="Access" title="Roles and assignments" description="Manage plugin-owned role definitions and assign users to demo roles." />
+			<PageHeader eyebrow={copy.accessEyebrow} title={copy.rolesAndAssignments} description={copy.rolesAndAssignmentsDescription} />
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			<div className="grid gap-6 lg:grid-cols-2">
-				<Card title="Add role" description="Create reusable role labels before mapping permissions.">
+				<Card title={copy.addRole} description={copy.addRoleDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveRole(event)}>
-						<Field label="Role slug">
+						<Field label={copy.roleSlug}>
 							<Input value={roleState.slug} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRoleState((current) => ({ ...current, slug: event.target.value }))} />
 						</Field>
-						<Field label="Label">
+						<Field label={copy.label}>
 							<Input value={roleState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRoleState((current) => ({ ...current, label: event.target.value }))} />
 						</Field>
-						<Field label="Description">
+						<Field label={copy.descriptionLabel}>
 							<InputArea value={roleState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setRoleState((current) => ({ ...current, description: event.target.value }))} />
 						</Field>
 						<Button variant="primary" disabled={roleSaving} type="submit">
-							{roleSaving ? "Saving..." : "Save role"}
+							{roleSaving ? copy.saving : copy.saveRole}
 						</Button>
 					</form>
 				</Card>
 
-				<Card title="Assign user roles" description="Use comma-separated role slugs, for example editor, reviewer.">
+				<Card title={copy.assignUserRoles} description={copy.assignUserRolesDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
-						<Field label="User ID">
+						<Field label={copy.userId}>
 							<Input value={userState.userId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserState((current) => ({ ...current, userId: event.target.value }))} />
 						</Field>
-						<Field label="Roles">
+						<Field label={copy.roles}>
 							<Input value={userState.roles} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserState((current) => ({ ...current, roles: event.target.value }))} />
 						</Field>
 						<Button variant="primary" disabled={userSaving} type="submit">
-							{userSaving ? "Saving..." : "Save assignment"}
+							{userSaving ? copy.saving : copy.saveAssignment}
 						</Button>
 					</form>
 				</Card>
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-2">
-				<Card title="Roles" description={`${data?.roles.length ?? 0} role(s) available.`}>
+				<Card title={copy.rolesTitle} description={copy.rolesDescription(data?.roles.length ?? 0)}>
 					{!data?.roles.length ? (
-						<EmptyState title="No roles yet" description="Create a role before assigning permissions." />
+						<EmptyState title={copy.noRolesYet} description={copy.noRolesYetDescription} />
 					) : (
 						<div className="space-y-3">
 							{data.roles.map((item) => (
 								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
 									<div className="font-medium text-kumo-default">{item.label}</div>
 									<div className="mt-1 text-sm text-kumo-subtle">{item.slug}</div>
-									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || "No description provided."}</p>
+									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || copy.noDescriptionProvided}</p>
 								</div>
 							))}
 						</div>
 					)}
 				</Card>
 
-				<Card title="User assignments" description={`${data?.userAssignments.length ?? 0} user assignment(s).`}>
+				<Card title={copy.userAssignments} description={copy.userAssignmentsDescription(data?.userAssignments.length ?? 0)}>
 					{!data?.userAssignments.length ? (
-						<EmptyState title="No assignments yet" description="Assign a user to one or more roles." />
+						<EmptyState title={copy.noAssignmentsYet} description={copy.noAssignmentsYetDescription} />
 					) : (
 						<div className="space-y-3">
 							{data.userAssignments.map((item) => (
 								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.userId}>
 									<div className="font-medium text-kumo-default">{item.userId}</div>
 									<div className="mt-2 flex flex-wrap gap-2">
-										{item.roles.length ? item.roles.map((role) => <Pill key={role}>{role}</Pill>) : <Pill tone="warning">No roles</Pill>}
+										{item.roles.length ? item.roles.map((role) => <Pill key={role}>{role}</Pill>) : <Pill tone="warning">{copy.noRolesPill}</Pill>}
 									</div>
 								</div>
 							))}
@@ -1451,6 +1453,8 @@ function RolesPage() {
 }
 
 function MatrixPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AccessMatrixResponse>("access/matrix/get");
 	const [selectedRole, setSelectedRole] = React.useState("");
 	const [selectedPermissions, setSelectedPermissions] = React.useState<string[]>([]);
@@ -1480,38 +1484,38 @@ function MatrixPage() {
 
 		try {
 			await postPlugin("access/matrix/save", { roleSlug: selectedRole, permissions: selectedPermissions });
-			setNotice("Role matrix saved.");
+			setNotice(copy.roleMatrixSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save matrix");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveMatrix);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading role matrix..." />;
+	if (loading) return <LoadingState label={copy.loadingRoleMatrix} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="Access" title="Role and permission matrix" description="Map permissions to roles in the plugin-owned catalog. This preview does not replace EmDash core authorization." />
+			<PageHeader eyebrow={copy.accessEyebrow} title={copy.rolePermissionMatrix} description={copy.rolePermissionMatrixDescription} />
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			{!data?.roles.length || !data.permissions.length ? (
-				<EmptyState title="Catalog incomplete" description="Create at least one role and one permission before editing the matrix." />
+				<EmptyState title={copy.catalogIncomplete} description={copy.catalogIncompleteDescription} />
 			) : (
 				<Card
-					title="Edit matrix"
-					description={`${selectedPermissions.length} permission(s) selected for the current role.`}
+					title={copy.editMatrix}
+					description={copy.editMatrixDescription(selectedPermissions.length)}
 					actions={
 						<Button variant="primary" disabled={saving || !selectedRole} onClick={() => void saveMatrix()} type="button">
-							{saving ? "Saving..." : "Save matrix"}
+							{saving ? copy.saving : copy.saveMatrix}
 						</Button>
 					}
 				>
 					<div className="mb-5 max-w-sm">
-						<Field label="Role">
+						<Field label={copy.role}>
 							<Select value={selectedRole} onValueChange={(value) => setSelectedRole(value ?? "")}>
 								{data.roles.map((role) => (
 									<Select.Option key={role.slug} value={role.slug}>
@@ -1546,6 +1550,8 @@ function MatrixPage() {
 }
 
 function PreviewPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data: rolesData } = usePluginData<AccessRolesResponse>("access/roles/list");
 	const { data: permissionsData } = usePluginData<AccessPermissionsResponse>("access/permissions/list");
 	const [userId, setUserId] = React.useState("user-demo-editor");
@@ -1562,7 +1568,7 @@ function PreviewPage() {
 		try {
 			setPreview(await postPlugin<AccessPreviewResponse>("access/preview", { userId, permissionSlug }));
 		} catch (cause) {
-			setError(cause instanceof Error ? cause.message : "Failed to preview access");
+			setError(cause instanceof Error ? cause.message : copy.failedToPreviewAccess);
 		} finally {
 			setRunning(false);
 		}
@@ -1570,10 +1576,10 @@ function PreviewPage() {
 
 	return (
 		<PageShell width="normal">
-			<PageHeader eyebrow="Access" title="Effective access preview" description="Simulate whether a user has a plugin-owned permission based on current role assignments." />
-			<Card title="Preview input" description="Select a user and permission, then run the deterministic access preview.">
+			<PageHeader eyebrow={copy.accessEyebrow} title={copy.effectiveAccessPreview} description={copy.effectiveAccessPreviewDescription} />
+			<Card title={copy.previewInput} description={copy.previewInputDescription}>
 				<div className="grid gap-4 md:grid-cols-2">
-					<Field label="User">
+					<Field label={copy.user}>
 						<Select value={userId} onValueChange={(value) => setUserId(value ?? "")}>
 							{rolesData?.userAssignments.map((item) => (
 								<Select.Option key={item.userId} value={item.userId}>
@@ -1582,7 +1588,7 @@ function PreviewPage() {
 							))}
 						</Select>
 					</Field>
-					<Field label="Permission">
+					<Field label={copy.permission}>
 						<Select value={permissionSlug} onValueChange={(value) => setPermissionSlug(value ?? "")}>
 							{permissionsData?.items.map((item) => (
 								<Select.Option key={item.slug} value={item.slug}>
@@ -1594,22 +1600,22 @@ function PreviewPage() {
 				</div>
 				<div className="mt-4">
 					<Button variant="primary" disabled={running} onClick={() => void runPreview()} type="button">
-						{running ? "Checking..." : "Preview access"}
+						{running ? copy.loadingAccessPreview : copy.previewAccess}
 					</Button>
 				</div>
 			</Card>
 
 			<Feedback message={error} tone="danger" />
 			{preview ? (
-				<Card title="Decision result">
+				<Card title={copy.decisionResult}>
 					<div className="mb-4">
-						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? "Allowed" : "Denied"}</Pill>
+						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? copy.allowed : copy.denied}</Pill>
 					</div>
 					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
 					<KeyValueList
 						items={[
-							["Matched roles", toCsv(preview.matchedRoles) || "None"],
-							["Effective permissions", toCsv(preview.effectivePermissions) || "None"],
+							[copy.matchedRoles, toCsv(preview.matchedRoles) || copy.none],
+							[copy.effectivePermissions, toCsv(preview.effectivePermissions) || copy.none],
 						]}
 					/>
 				</Card>
@@ -1619,6 +1625,8 @@ function PreviewPage() {
 }
 
 function AbacAttributesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AbacAttributesResponse>("abac/attributes/list");
 	const { data: subjectData, reload: reloadSubjects } = usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
 	const { data: resourceData, reload: reloadResources } = usePluginData<AbacAssignmentsResponse>("abac/resources/list");
@@ -1641,10 +1649,10 @@ function AbacAttributesPage() {
 		try {
 			await postPlugin("abac/attributes/save", attributeState);
 			setAttributeState({ key: "", label: "", targetType: "context", description: "" });
-			setNotice("Attribute saved.");
+			setNotice(copy.attributeSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save ABAC attribute");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveAbacAttribute);
 		}
 	};
 
@@ -1661,10 +1669,10 @@ function AbacAttributesPage() {
 		try {
 			await postPlugin("abac/subjects/save", { subjectId: subjectState.subjectId, attributes: parsed.data });
 			setSubjectState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
-			setNotice("Subject attributes saved.");
+			setNotice(copy.subjectAttributesSaved);
 			await reloadSubjects();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save ABAC subject");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveAbacSubject);
 		}
 	};
 
@@ -1681,83 +1689,83 @@ function AbacAttributesPage() {
 		try {
 			await postPlugin("abac/resources/save", { resourceId: resourceState.resourceId, attributes: parsed.data });
 			setResourceState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
-			setNotice("Resource attributes saved.");
+			setNotice(copy.resourceAttributesSaved);
 			await reloadResources();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save ABAC resource");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveAbacResource);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading ABAC attributes..." />;
+	if (loading) return <LoadingState label={copy.loadingAbacAttributes} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="ABAC" title="Attribute catalog" description="Define subject, resource, and context attributes used by the demo ABAC policy engine." />
+			<PageHeader eyebrow={copy.abacEyebrow} title={copy.attributeCatalog} description={copy.attributeCatalogDescription} />
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			<div className="grid gap-6 lg:grid-cols-3">
-				<Card title="Attribute definition">
+				<Card title={copy.attributeDefinition}>
 					<form className="space-y-4" onSubmit={(event) => void saveAttribute(event)}>
-						<Field label="Key">
+						<Field label={copy.code === "Code" ? "Key" : "Key"}>
 							<Input value={attributeState.key} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
 						</Field>
-						<Field label="Label">
+						<Field label={copy.label}>
 							<Input value={attributeState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
 						</Field>
-						<Field label="Target type">
+						<Field label={copy.targetType}>
 							<Select
 								value={attributeState.targetType}
 								onValueChange={(value) => setAttributeState((current) => ({ ...current, targetType: (value as AbacTargetType | null) ?? "context" }))}
 							>
-								<Select.Option value="subject">Subject</Select.Option>
-								<Select.Option value="resource">Resource</Select.Option>
+								<Select.Option value="subject">{copy.subject}</Select.Option>
+								<Select.Option value="resource">{copy.resource}</Select.Option>
 								<Select.Option value="context">Context</Select.Option>
 							</Select>
 						</Field>
-						<Field label="Description">
+						<Field label={copy.descriptionLabel}>
 							<InputArea value={attributeState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
 						</Field>
 						<Button variant="primary" type="submit">
-							Save attribute
+							{copy.saveAttribute}
 						</Button>
 					</form>
 				</Card>
 
-				<Card title="Subject assignment">
+				<Card title={copy.subjectAssignment}>
 					<form className="space-y-4" onSubmit={(event) => void saveSubject(event)}>
-						<Field label="Subject ID">
+						<Field label={copy.subjectId}>
 							<Input value={subjectState.subjectId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSubjectState((current) => ({ ...current, subjectId: event.target.value }))} />
 						</Field>
-						<Field label="Attributes JSON" hint='Example: {"tenant_id":"tenant-a"}'>
+						<Field label={copy.attributesJson} hint={copy.attributesJsonExampleSubject}>
 							<InputArea value={subjectState.attributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setSubjectState((current) => ({ ...current, attributes: event.target.value }))} />
 						</Field>
 						<Button variant="primary" type="submit">
-							Save subject
+							{copy.saveSubject}
 						</Button>
 					</form>
 				</Card>
 
-				<Card title="Resource assignment">
+				<Card title={copy.resourceAssignment}>
 					<form className="space-y-4" onSubmit={(event) => void saveResource(event)}>
-						<Field label="Resource ID">
+						<Field label={copy.resourceId}>
 							<Input value={resourceState.resourceId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setResourceState((current) => ({ ...current, resourceId: event.target.value }))} />
 						</Field>
-						<Field label="Attributes JSON" hint='Example: {"resource_type":"policy"}'>
+						<Field label={copy.attributesJson} hint={copy.attributesJsonExampleResource}>
 							<InputArea value={resourceState.attributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setResourceState((current) => ({ ...current, attributes: event.target.value }))} />
 						</Field>
 						<Button variant="primary" type="submit">
-							Save resource
+							{copy.saveResource}
 						</Button>
 					</form>
 				</Card>
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-3">
-				<Card title="Attributes">
+				<Card title={copy.attributesTitle}>
 					{!data?.items.length ? (
-						<EmptyState title="No attributes" description="Create an attribute definition first." />
+						<EmptyState title={copy.noAttributes} description={copy.noAttributesDescription} />
 					) : (
 						data.items.map((item) => (
 							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.key}>
@@ -1770,25 +1778,25 @@ function AbacAttributesPage() {
 						))
 					)}
 				</Card>
-				<Card title="Subjects">
+				<Card title={copy.subjectsTitle}>
 					{!subjectData?.items.length ? (
-						<EmptyState title="No subjects" description="Create a subject assignment to test policies." />
+						<EmptyState title={copy.noSubjects} description={copy.noSubjectsDescription} />
 					) : (
 						subjectData.items.map((item, index) => (
 							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.subjectId ?? `subject-${index}`}>
-								<div className="font-medium text-kumo-default">{item.subjectId ?? "Unknown subject"}</div>
+								<div className="font-medium text-kumo-default">{item.subjectId ?? copy.unknownSubject}</div>
 								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
 							</div>
 						))
 					)}
 				</Card>
-				<Card title="Resources">
+				<Card title={copy.resourcesTitle}>
 					{!resourceData?.items.length ? (
-						<EmptyState title="No resources" description="Create a resource assignment to test policies." />
+						<EmptyState title={copy.noResources} description={copy.noResourcesDescription} />
 					) : (
 						resourceData.items.map((item, index) => (
 							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.resourceId ?? `resource-${index}`}>
-								<div className="font-medium text-kumo-default">{item.resourceId ?? "Unknown resource"}</div>
+								<div className="font-medium text-kumo-default">{item.resourceId ?? copy.unknownResource}</div>
 								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
 							</div>
 						))
@@ -1800,6 +1808,8 @@ function AbacAttributesPage() {
 }
 
 function AbacPoliciesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AbacPoliciesResponse>("abac/policies/list");
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -1831,7 +1841,7 @@ function AbacPoliciesPage() {
 		const context = parseJsonMap(formState.requiredContext);
 
 		if (!subject.ok || !resource.ok || !context.ok) {
-			setSaveError("One or more JSON condition fields are invalid.");
+			setSaveError(copy.oneOrMoreJsonInvalid);
 			return;
 		}
 
@@ -1854,57 +1864,57 @@ function AbacPoliciesPage() {
 				requiredResource: '{"resource_status":"published"}',
 				requiredContext: '{"region_scope":"id-jakarta"}',
 			});
-			setNotice("Policy saved.");
+			setNotice(copy.policySaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save ABAC policy");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveAbacPolicy);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading ABAC policies..." />;
+	if (loading) return <LoadingState label={copy.loadingAbacPolicies} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="ABAC" title="Policy rules" description="Create explicit allow and deny rules for the demonstrative ABAC engine." />
+			<PageHeader eyebrow={copy.abacEyebrow} title={copy.policyRules} description={copy.policyRulesDescription} />
 			<div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
-				<Card title="Add policy" description="Deny rules take precedence in the demo decision model.">
+				<Card title={copy.addPolicy} description={copy.addPolicyDescription}>
 					<form className="space-y-4" onSubmit={(event) => void savePolicy(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
-						<Field label="Policy ID">
+						<Field label={copy.policyId}>
 							<Input value={formState.id} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, id: event.target.value }))} />
 						</Field>
-						<Field label="Label">
+						<Field label={copy.label}>
 							<Input value={formState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, label: event.target.value }))} />
 						</Field>
-						<Field label="Effect">
+						<Field label={copy.effect}>
 							<Select value={formState.effect} onValueChange={(value) => setFormState((current) => ({ ...current, effect: (value as AbacEffect | null) ?? "allow" }))}>
-								<Select.Option value="allow">Allow</Select.Option>
-								<Select.Option value="deny">Deny</Select.Option>
+								<Select.Option value="allow">{copy.allow}</Select.Option>
+								<Select.Option value="deny">{copy.deny}</Select.Option>
 							</Select>
 						</Field>
-						<Field label="Actions" hint="Comma-separated actions.">
+						<Field label={copy.actions} hint={copy.actionsHint}>
 							<Input value={formState.actions} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
 						</Field>
-						<Field label="Required subject JSON">
+						<Field label={copy.requiredSubjectJson}>
 							<InputArea value={formState.requiredSubject} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
 						</Field>
-						<Field label="Required resource JSON">
+						<Field label={copy.requiredResourceJson}>
 							<InputArea value={formState.requiredResource} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredResource: event.target.value }))} />
 						</Field>
-						<Field label="Required context JSON">
+						<Field label={copy.requiredContextJson}>
 							<InputArea value={formState.requiredContext} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredContext: event.target.value }))} />
 						</Field>
 						<Button variant="primary" type="submit">
-							Save policy
+							{copy.savePolicy}
 						</Button>
 					</form>
 				</Card>
 
-				<Card title="Existing policies" description={`${data?.items.length ?? 0} policy rule(s).`}>
+				<Card title={copy.existingPolicies} description={copy.existingPoliciesDescription(data?.items.length ?? 0)}>
 					{!data?.items.length ? (
-						<EmptyState title="No policies" description="Create a policy to use the ABAC decision preview." />
+						<EmptyState title={copy.noPolicies} description={copy.noPoliciesDescription} />
 					) : (
 						<div className="space-y-3">
 							{data.items.map((item) => (
@@ -1914,7 +1924,7 @@ function AbacPoliciesPage() {
 										<Pill tone={item.effect === "allow" ? "success" : "danger"}>{item.effect}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.id}</div>
-									<div className="mt-2 text-sm text-kumo-subtle">Actions: {toCsv(item.actions) || "None"}</div>
+									<div className="mt-2 text-sm text-kumo-subtle">{copy.actionsLabel}: {toCsv(item.actions) || copy.none}</div>
 								</div>
 							))}
 						</div>
@@ -1926,6 +1936,8 @@ function AbacPoliciesPage() {
 }
 
 function AbacPreviewPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data: subjectData } = usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
 	const { data: resourceData } = usePluginData<AbacAssignmentsResponse>("abac/resources/list");
 	const [subjectId, setSubjectId] = React.useState("user-demo-editor");
@@ -1949,7 +1961,7 @@ function AbacPreviewPage() {
 		try {
 			setPreview(await postPlugin<AbacPreviewResponse>(route, { subjectId, resourceId, action, contextAttributes: parsed.data }));
 		} catch (cause) {
-			setError(cause instanceof Error ? cause.message : "Failed to evaluate ABAC policy");
+			setError(cause instanceof Error ? cause.message : copy.failedToEvaluateAbacPolicy);
 		} finally {
 			setRunning(false);
 		}
@@ -1957,10 +1969,10 @@ function AbacPreviewPage() {
 
 	return (
 		<PageShell width="normal">
-			<PageHeader eyebrow="ABAC" title="Decision preview" description="Preview or run the protected demo route using subject, resource, action, and context attributes." />
-			<Card title="Decision input">
+			<PageHeader eyebrow={copy.abacEyebrow} title={copy.decisionPreview} description={copy.decisionPreviewDescription} />
+			<Card title={copy.decisionInput}>
 				<div className="grid gap-4 md:grid-cols-2">
-					<Field label="Subject">
+					<Field label={copy.subject}>
 						<Select value={subjectId} onValueChange={(value) => setSubjectId(value ?? "")}>
 							{subjectData?.items.map((item, index) => {
 								const value = item.subjectId ?? `subject-${index}`;
@@ -1972,7 +1984,7 @@ function AbacPreviewPage() {
 							})}
 						</Select>
 					</Field>
-					<Field label="Resource">
+					<Field label={copy.resource}>
 						<Select value={resourceId} onValueChange={(value) => setResourceId(value ?? "")}>
 							{resourceData?.items.map((item, index) => {
 								const value = item.resourceId ?? `resource-${index}`;
@@ -1986,35 +1998,35 @@ function AbacPreviewPage() {
 					</Field>
 				</div>
 				<div className="mt-4 grid gap-4 md:grid-cols-2">
-					<Field label="Action">
+					<Field label={copy.action}>
 						<Input value={action} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAction(event.target.value)} />
 					</Field>
-					<Field label="Context attributes JSON">
+					<Field label={copy.contextAttributesJson}>
 						<InputArea value={contextAttributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setContextAttributes(event.target.value)} />
 					</Field>
 				</div>
 				<div className="mt-4 flex flex-wrap gap-3">
 					<Button variant="primary" disabled={running} onClick={() => void runPreview("abac/preview")} type="button">
-						{running ? "Evaluating..." : "Preview policy"}
+						{running ? copy.loadingAbacDecision : copy.previewPolicy}
 					</Button>
 					<Button variant="secondary" disabled={running} onClick={() => void runPreview("abac/enforce-demo")} type="button">
-						Run protected demo
+						{copy.runProtectedDemo}
 					</Button>
 				</div>
 			</Card>
 
 			<Feedback message={error} tone="danger" />
 			{preview ? (
-				<Card title="Decision result">
+				<Card title={copy.decisionResult}>
 					<div className="mb-4 flex items-center gap-2">
-						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? "Allowed" : "Denied"}</Pill>
+						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? copy.allowed : copy.denied}</Pill>
 						<Pill>{preview.effect}</Pill>
 					</div>
 					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
 					<KeyValueList
 						items={[
-							["Matched policies", toCsv(preview.matchedPolicyIds) || "None"],
-							["Missing attributes", toCsv(preview.missingAttributes) || "None"],
+							[copy.matchedPolicies, toCsv(preview.matchedPolicyIds) || copy.none],
+							[copy.missingAttributes, toCsv(preview.missingAttributes) || copy.none],
 						]}
 					/>
 				</Card>

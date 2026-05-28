@@ -3,6 +3,7 @@ import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import { Image } from "emdash/ui";
 import Base from "../layouts/Base.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
+import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 function asImage(value: unknown) {
@@ -42,77 +43,74 @@ const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
 };
+const copy = getPublicCopy(currentLocale);
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
 	<section class="card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
-		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">AWCMS-Micro</p>
-		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">A production-ready CMS powered by <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">EmDash</span> & Cloudflare.</h1>
-		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">
-			This template turns AWCMS-Micro into a working public website: published content is rendered
-			through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling
-			remains available through the example plugin surface without changing core.
-		</p>
+		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">{copy.homeKicker}</p>
+		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">{copy.homeHeading}</h1>
+		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">{copy.homeIntro}</p>
 		<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">Open Admin</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">Create Post</a>
-		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">Plugin Console</a>
-		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">Public Aggregate</a>
+			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.openAdmin}</a>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
+		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-example/overview">{copy.pluginConsole}</a>
+		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.publicAggregateLink}</a>
 	</div>
 	</section>
 
 	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
-			<p class="kicker">Public navigation example</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">Nested primary menu</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body.</p>
+			<p class="kicker">{copy.publicNavigationExample}</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.nestedPrimaryMenu}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.nestedPrimaryMenuDescription}</p>
 		</div>
 		<div class="card">
-			<p class="kicker">Switch mode</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">Light and dark theme</h2>
-			<p style="color:var(--text-muted);margin-bottom:1rem;">Use the homepage control below to toggle the same theme state managed by the header button.</p>
-			<button class="btn btn-primary" id="page-theme-toggle" type="button" style="padding: 0.9rem 1.25rem;">Switch mode</button>
+			<p class="kicker">{copy.switchModeTitle}</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.lightDarkTheme}</h2>
+			<p style="color:var(--text-muted);margin-bottom:1rem;">{copy.lightDarkThemeDescription}</p>
+			<button class="btn btn-primary" id="page-theme-toggle" type="button" style="padding: 0.9rem 1.25rem;">{copy.switchModeButton}</button>
 		</div>
 	</section>
 
 	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Cloudflare-ready</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.cloudflareReady}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.cloudflareReadyDescription}</p>
 		</div>
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Plugin-enabled</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Registers <code style="color:var(--accent);">@awcms-micro/plugin-example</code> through the normal EmDash plugin path for audit, access-rights, and ABAC examples.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.pluginEnabled}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.pluginEnabledDescription}</p>
 		</div>
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Public aggregate</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Provides a public-safe summary page that exposes only high-level counts, not private registry details.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicAggregateTitle}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publicAggregateDescription}</p>
 		</div>
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Admin protected</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Unauthenticated visits are pushed to <code style="color:var(--accent);">/_emdash/admin/login</code> before the admin shell renders.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.adminProtected}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.adminProtectedDescription}</p>
 		</div>
 	</section>
 
 	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:3rem;">
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Published from admin</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publishedFromAdmin}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publishedFromAdminDescription}</p>
 		</div>
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Public search and navigation</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicSearchAndNavigation}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publicSearchAndNavigationDescription}</p>
 		</div>
 		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">Operational surfaces</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.operationalSurfaces}</h2>
+			<p style="color:var(--text-muted);margin-bottom:0;">{copy.operationalSurfacesDescription}</p>
 		</div>
 	</section>
 
 	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
 		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">Recent Posts</h2>
-			{posts.length === 0 ? <p style="color:var(--text-muted);">No posts yet.</p> : (
+			<h2 style="font-size:1.5rem;margin-top:0;">{copy.recentPosts}</h2>
+			{posts.length === 0 ? <p style="color:var(--text-muted);">{copy.noPostsYet}</p> : (
 				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{posts.map((post) => (
 						<li style="margin-bottom:1rem;">
@@ -125,12 +123,12 @@ const localeOptions = {
 					))}
 				</ul>
 			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">Browse all posts &rarr;</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.browseAllPosts}</a></p>
 		</div>
 
 		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">Latest News</h2>
-			{newsItems.length === 0 ? <p style="color:var(--text-muted);">No news yet.</p> : (
+			<h2 style="font-size:1.5rem;margin-top:0;">{copy.latestNews}</h2>
+			{newsItems.length === 0 ? <p style="color:var(--text-muted);">{copy.noNewsYet}</p> : (
 				<ul style="padding-left:1.25rem;color:var(--text-muted);">
 					{newsItems.map((item) => (
 						<li style="margin-bottom:1rem;">
@@ -140,17 +138,17 @@ const localeOptions = {
 					))}
 				</ul>
 			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">Browse all news &rarr;</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.browseAllNews}</a></p>
 		</div>
 
 		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">Managed Pages</h2>
+			<h2 style="font-size:1.5rem;margin-top:0;">{copy.managedPages}</h2>
 			<ul style="padding-left:1.25rem;color:var(--text-muted);">
 				{pages.map((page) => (
 					<li style="margin-bottom:0.75rem;"><a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="font-weight:500;">{page.data.title}</a></li>
 				))}
 			</ul>
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">Manage pages in admin &rarr;</a></p>
+			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a></p>
 		</div>
 	</section>
 

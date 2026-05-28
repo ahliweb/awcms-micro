@@ -75,6 +75,7 @@
 	],
 	"menus": [
 		{
+			"id": "menu:primary:en",
 			"name": "primary",
 			"label": "Primary Navigation",
 			"items": [
@@ -112,6 +113,47 @@
 			]
 		},
 		{
+			"id": "menu:primary:id",
+			"name": "primary",
+			"label": "Navigasi Utama",
+			"locale": "id",
+			"translationOf": "menu:primary:en",
+			"items": [
+				{ "type": "custom", "label": "Beranda", "url": "/" },
+				{
+					"type": "custom",
+					"label": "Data Publik",
+					"url": "/aggregate",
+					"children": [
+						{ "type": "custom", "label": "Agregat", "url": "/aggregate" },
+						{ "type": "custom", "label": "Pos", "url": "/posts" },
+						{ "type": "custom", "label": "Berita", "url": "/news" },
+						{ "type": "custom", "label": "Galeri", "url": "/gallery" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Profil",
+					"url": "/about",
+					"children": [
+						{ "type": "custom", "label": "Tentang", "url": "/about" },
+						{ "type": "custom", "label": "Panduan", "url": "/about#guidance" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Layanan",
+					"url": "/news",
+					"children": [
+						{ "type": "custom", "label": "Pengumuman", "url": "/news" },
+						{ "type": "custom", "label": "Pusat Bantuan", "url": "/about#help" }
+					]
+				},
+				{ "type": "custom", "label": "Kontak", "url": "/about#contact" }
+			]
+		},
+		{
+			"id": "menu:homepage-demo:en",
 			"name": "homepage-demo",
 			"label": "Homepage Demo Navigation",
 			"items": [
@@ -132,6 +174,34 @@
 					"children": [
 						{ "type": "custom", "label": "About AWCMS-Micro", "url": "/about" },
 						{ "type": "custom", "label": "Guidance notes", "url": "/about#guidance" }
+					]
+				}
+			]
+		},
+		{
+			"id": "menu:homepage-demo:id",
+			"name": "homepage-demo",
+			"label": "Navigasi Demo Beranda",
+			"locale": "id",
+			"translationOf": "menu:homepage-demo:en",
+			"items": [
+				{
+					"type": "custom",
+					"label": "Demo publik",
+					"url": "/aggregate",
+					"children": [
+						{ "type": "custom", "label": "Demo agregat", "url": "/aggregate" },
+						{ "type": "custom", "label": "Demo indeks pos", "url": "/posts" },
+						{ "type": "custom", "label": "Demo indeks berita", "url": "/news" }
+					]
+				},
+				{
+					"type": "custom",
+					"label": "Demo situs",
+					"url": "/about",
+					"children": [
+						{ "type": "custom", "label": "Tentang AWCMS-Micro", "url": "/about" },
+						{ "type": "custom", "label": "Catatan panduan", "url": "/about#guidance" }
 					]
 				}
 			]
@@ -172,6 +242,31 @@
 						}
 					]
 				}
+			},
+			{
+				"id": "introducing-awcms-micro-id",
+				"translationOf": "introducing-awcms-micro",
+				"locale": "id",
+				"slug": "introducing-awcms-micro",
+				"status": "published",
+				"data": {
+					"title": "Memperkenalkan AWCMS-Micro",
+					"excerpt": "Mengapa AWCMS-Micro menjaga core EmDash tetap utuh sambil membentuk implementasi single-tenant yang lebih rapat.",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "AWCMS-Micro dirancang sebagai implementasi EmDash yang praktis, menjaga perilaku upstream tetap utuh sambil menghadirkan pengalaman konten dan tata kelola yang terfokus untuk satu situs produksi.",
+									"_key": "post-1-id"
+								}
+							],
+							"_key": "post-block-1-id"
+						}
+					]
+				}
 			}
 		],
 		"news": [
@@ -197,6 +292,31 @@
 						}
 					]
 				}
+			},
+			{
+				"id": "admin-workflow-connected-id",
+				"translationOf": "admin-workflow-connected",
+				"locale": "id",
+				"slug": "admin-workflow-connected",
+				"status": "published",
+				"data": {
+					"title": "Situs Publik Kini Mencerminkan Alur Kerja Admin",
+					"summary": "Menu, pencarian, route konten, dan identitas situs kini digerakkan dari data yang dikelola EmDash.",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Editor dapat memperbarui pos, halaman, dan pengaturan situs dari route admin EmDash standar dan langsung melihat hasilnya tercermin pada struktur situs publik.",
+									"_key": "news-1-id"
+								}
+							],
+							"_key": "news-block-1-id"
+						}
+					]
+				}
 			}
 		],
 		"pages": [
@@ -218,6 +338,30 @@
 								}
 							],
 							"_key": "about-0"
+						}
+					]
+				}
+			},
+			{
+				"id": "about-id",
+				"translationOf": "about",
+				"locale": "id",
+				"slug": "about",
+				"status": "published",
+				"data": {
+					"title": "Tentang AWCMS-Micro",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "AWCMS-Micro mengemas pengalaman situs EmDash yang lebih ramping, menjaga core upstream tetap utuh, dan hanya menambahkan template tingkat proyek, konten, dan surface tata kelola contoh bila diperlukan.",
+									"_key": "about-1-id"
+								}
+							],
+							"_key": "about-0-id"
 						}
 					]
 				}
@@ -255,6 +399,44 @@
 							"filename": "cleanup-recap.mp4",
 							"sizeBytes": 1120000,
 							"caption": "Short recap video placeholder for Cloudflare Stream or R2-hosted media.",
+							"provider": "external"
+						}
+					]
+				}
+			},
+			{
+				"id": "community-cleanup-gallery-id",
+				"translationOf": "community-cleanup-gallery",
+				"locale": "id",
+				"slug": "community-cleanup-gallery",
+				"status": "published",
+				"data": {
+					"title": "Galeri Kerja Bakti Komunitas",
+					"description": "Galeri foto dan video campuran yang mendemonstrasikan field media EmDash, item galeri JSON, dan render Astro publik.",
+					"cover_image": { "src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80", "alt": "Relawan berkumpul untuk acara komunitas" },
+					"gallery_type": "mixed",
+					"event_date": "2026-05-01T09:00:00.000Z",
+					"location": "Balai Komunitas AWCMS-Micro",
+					"layout_variant": "grid",
+					"featured": true,
+					"gallery_items": [
+						{
+							"type": "image",
+							"src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80",
+							"mimeType": "image/jpeg",
+							"filename": "community-cleanup-volunteers.jpg",
+							"sizeBytes": 420000,
+							"alt": "Relawan tersenyum saat registrasi kerja bakti",
+							"caption": "Registrasi dan pengarahan keselamatan sebelum kerja bakti.",
+							"provider": "external"
+						},
+						{
+							"type": "video",
+							"src": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+							"mimeType": "video/mp4",
+							"filename": "cleanup-recap.mp4",
+							"sizeBytes": 1120000,
+							"caption": "Placeholder video rekap singkat untuk media Cloudflare Stream atau R2.",
 							"provider": "external"
 						}
 					]
