@@ -35,6 +35,128 @@ import { ContentPickerModal } from "./ContentPickerModal";
 import { DialogError, getMutationError } from "./DialogError.js";
 import { useI18nConfig } from "./LocaleSwitcher.js";
 import { TranslationsPanel } from "./TranslationsPanel.js";
+import { cn } from "../lib/utils.js";
+
+type MenuTreeItem = MenuItem & { children: MenuTreeItem[] };
+
+function normalizeMenuItems(items: MenuItem[]): MenuTreeItem[] {
+	return items.map((item) => ({
+		...(item as MenuItem),
+		children: normalizeMenuItems(((item as MenuItem & { children?: MenuItem[] }).children ?? [])),
+	}));
+}
+
+function flattenMenuItems(items: MenuTreeItem[], parentId: string | null = null): Array<{
+	id: string;
+	parentId: string | null;
+	sortOrder: number;
+}> {
+	return items.flatMap((item, sortOrder) => [
+		{ id: item.id, parentId, sortOrder },
+		...flattenMenuItems(item.children ?? [], item.id),
+	]);
+}
+
+function moveMenuItem(items: MenuTreeItem[], itemId: string, direction: "up" | "down"): MenuTreeItem[] {
+	const targetIndex = items.findIndex((item) => item.id === itemId);
+	if (targetIndex >= 0) {
+		const nextIndex = direction === "up" ? targetIndex - 1 : targetIndex + 1;
+		if (nextIndex < 0 || nextIndex >= items.length) return items;
+
+		const nextItems = [...items];
+		const currentItem = nextItems[targetIndex];
+		const swapItem = nextItems[nextIndex];
+		if (!currentItem || !swapItem) return items;
+		nextItems[targetIndex] = swapItem;
+		nextItems[nextIndex] = currentItem;
+		return nextItems;
+	}
+
+	let changed = false;
+	const nextItems = items.map((item) => {
+		const children = item.children ?? [];
+		const nextChildren = moveMenuItem(children, itemId, direction);
+		if (nextChildren !== children) {
+			changed = true;
+			return { ...item, children: nextChildren };
+		}
+		return item;
+	});
+
+	return changed ? nextItems : items;
+}
+
+function renderMenuItems(
+	items: MenuTreeItem[],
+	depth: number,
+	onMove: (itemId: string, direction: "up" | "down") => void,
+	onEdit: (item: MenuTreeItem) => void,
+	onDelete: (itemId: string) => void,
+	t: ReturnType<typeof useLingui>["t"],
+) {
+	return items.map((item, index) => (
+		<React.Fragment key={item.id}>
+			<div className={cn("border rounded-lg p-4 flex items-center justify-between", depth > 0 && "ps-6 border-s") }>
+				<div className="flex-1">
+					<div className="font-medium">{item.label}</div>
+					<div className="text-sm text-kumo-subtle">
+						{item.type === "custom" ? (
+							item.customUrl
+						) : (
+							<span className="inline-flex items-center rounded-full bg-kumo-brand/10 px-2 py-0.5 text-xs font-medium text-kumo-brand">
+								{item.referenceCollection ?? item.type}
+							</span>
+						)}
+						{item.target === "_blank" && t` (opens in new window)`}
+					</div>
+				</div>
+				<div className="flex gap-2">
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label={t`Move up`}
+						onClick={() => onMove(item.id, "up")}
+						disabled={index === 0}
+					>
+						<CaretUp className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						aria-label={t`Move down`}
+						onClick={() => onMove(item.id, "down")}
+						disabled={index === items.length - 1}
+					>
+						<CaretDown className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						aria-label={t`Edit ${item.label}`}
+						data-testid={`menu-edit-${item.id}`}
+						onClick={() => onEdit(item)}
+					>
+						{t`Edit`}
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						aria-label={t`Delete ${item.label}`}
+						data-testid={`menu-delete-${item.id}`}
+						onClick={() => onDelete(item.id)}
+					>
+						<Trash className="h-4 w-4" />
+					</Button>
+				</div>
+			</div>
+			{item.children.length > 0 ? (
+				<div className="space-y-2">
+		{renderMenuItems(item.children ?? [], depth + 1, onMove, onEdit, onDelete, t)}
+				</div>
+			) : null}
+		</React.Fragment>
+	));
+}
 
 export function MenuEditor() {
 	const { t } = useLingui();
@@ -47,7 +169,7 @@ export function MenuEditor() {
 	const [isAddOpen, setIsAddOpen] = React.useState(false);
 	const [isContentPickerOpen, setIsContentPickerOpen] = React.useState(false);
 	const [editingItem, setEditingItem] = React.useState<MenuItem | null>(null);
-	const [localItems, setLocalItems] = React.useState<MenuItem[]>([]);
+	const [localItems, setLocalItems] = React.useState<MenuTreeItem[]>([]);
 	const [addError, setAddError] = React.useState<string | null>(null);
 	const [editError, setEditError] = React.useState<string | null>(null);
 
@@ -108,7 +230,7 @@ export function MenuEditor() {
 	// Sync local items with fetched data
 	React.useEffect(() => {
 		if (menu?.items) {
-			setLocalItems(menu.items);
+			setLocalItems(normalizeMenuItems(menu.items));
 		}
 	}, [menu]);
 
@@ -226,27 +348,11 @@ export function MenuEditor() {
 		});
 	};
 
-	const moveItem = (index: number, direction: "up" | "down") => {
-		const newItems = [...localItems];
-		const targetIndex = direction === "up" ? index - 1 : index + 1;
-		if (targetIndex < 0 || targetIndex >= newItems.length) return;
-
-		const currentItem = newItems[index];
-		const targetItem = newItems[targetIndex];
-		if (!currentItem || !targetItem) return;
-
-		newItems[index] = targetItem;
-		newItems[targetIndex] = currentItem;
-
-		// Update sort orders
-		const reorderedItems = newItems.map((item, i) => ({
-			id: item.id,
-			parentId: item.parentId,
-			sortOrder: i,
-		}));
-
-		setLocalItems(newItems);
-		reorderMutation.mutate({ items: reorderedItems });
+	const moveItem = (itemId: string, direction: "up" | "down") => {
+		const nextItems = moveMenuItem(localItems, itemId, direction);
+		if (nextItems === localItems) return;
+		setLocalItems(nextItems);
+		reorderMutation.mutate({ items: flattenMenuItems(nextItems) });
 	};
 
 	if (isLoading) {
@@ -411,56 +517,7 @@ export function MenuEditor() {
 					</div>
 				</div>
 			) : (
-				<div className="space-y-2">
-					{localItems.map((item, index) => (
-						<div key={item.id} className="border rounded-lg p-4 flex items-center justify-between">
-							<div className="flex-1">
-								<div className="font-medium">{item.label}</div>
-								<div className="text-sm text-kumo-subtle">
-									{item.type === "custom" ? (
-										item.customUrl
-									) : (
-										<span className="inline-flex items-center rounded-full bg-kumo-brand/10 px-2 py-0.5 text-xs font-medium text-kumo-brand">
-											{item.referenceCollection ?? item.type}
-										</span>
-									)}
-									{item.target === "_blank" && t` (opens in new window)`}
-								</div>
-							</div>
-							<div className="flex gap-2">
-								<Button
-									variant="ghost"
-									size="sm"
-									aria-label={t`Move up`}
-									onClick={() => moveItem(index, "up")}
-									disabled={index === 0}
-								>
-									<CaretUp className="h-4 w-4" />
-								</Button>
-								<Button
-									variant="ghost"
-									size="sm"
-									aria-label={t`Move down`}
-									onClick={() => moveItem(index, "down")}
-									disabled={index === localItems.length - 1}
-								>
-									<CaretDown className="h-4 w-4" />
-								</Button>
-								<Button variant="outline" size="sm" onClick={() => setEditingItem(item)}>
-									{t`Edit`}
-								</Button>
-								<Button
-									variant="outline"
-									size="sm"
-									aria-label={t`Delete`}
-									onClick={() => deleteMutation.mutate(item.id)}
-								>
-									<Trash className="h-4 w-4" />
-								</Button>
-							</div>
-						</div>
-					))}
-				</div>
+				<div className="space-y-2">{renderMenuItems(localItems, 0, moveItem, setEditingItem, (itemId) => deleteMutation.mutate(itemId), t)}</div>
 			)}
 
 			<Dialog.Root

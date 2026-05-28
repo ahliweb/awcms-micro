@@ -70,6 +70,7 @@ const defaultMenu = {
 			createdAt: "",
 			locale: "en",
 			translationGroup: "1",
+			children: [],
 		},
 		{
 			id: "2",
@@ -87,6 +88,26 @@ const defaultMenu = {
 			createdAt: "",
 			locale: "en",
 			translationGroup: "2",
+			children: [
+				{
+					id: "2-1",
+					menuId: "menu1",
+					parentId: "2",
+					sortOrder: 0,
+					type: "custom",
+					referenceCollection: null,
+					referenceId: null,
+					customUrl: "/about/services",
+					label: "Services",
+					titleAttr: null,
+					target: "_self",
+					cssClasses: null,
+					createdAt: "",
+					locale: "en",
+					translationGroup: "2-1",
+					children: [],
+				},
+			],
 		},
 	],
 };
@@ -114,6 +135,7 @@ describe("MenuEditor", () => {
 		// Use exact: true to avoid matching "/about" which contains "About"
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 		await expect.element(screen.getByText("About", { exact: true })).toBeInTheDocument();
+		await expect.element(screen.getByText("Services", { exact: true })).toBeInTheDocument();
 	});
 
 	it("add item button opens dialog with label and URL inputs", async () => {
@@ -131,8 +153,7 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 
-		const editButtons = screen.getByRole("button", { name: "Edit" });
-		await editButtons.first().click();
+		await screen.getByTestId("menu-edit-1").click();
 
 		await expect
 			.element(screen.getByRole("heading", { name: "Edit Menu Item" }))
@@ -144,9 +165,8 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 
-		// Delete buttons have aria-label="Delete"
-		const deleteBtn = screen.getByRole("button", { name: "Delete" });
-		await deleteBtn.first().click();
+		// Delete buttons are item-specific via test hooks.
+		await screen.getByTestId("menu-delete-1").click();
 
 		// No confirmation dialog should appear
 		expect(screen.getByText("Are you sure").query()).toBeNull();
@@ -187,7 +207,7 @@ describe("MenuEditor", () => {
 		const screen = await render(<MenuEditor />, { wrapper: Wrapper });
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
-		await expect.element(screen.getByText("/about")).toBeInTheDocument();
+		await expect.element(screen.getByText("/about", { exact: true })).toBeInTheDocument();
 	});
 
 	it("URL input accepts relative paths", async () => {
