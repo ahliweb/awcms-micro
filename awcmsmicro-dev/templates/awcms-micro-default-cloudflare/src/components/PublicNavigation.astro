@@ -6,6 +6,9 @@ interface Props {
 	name?: string;
 }
 
+const ITEM_SLUG_SANITIZE_REGEX = /[^a-z0-9]+/g;
+const ITEM_SLUG_TRIM_REGEX = /(^-|-$)/g;
+
 const { name = "primary" } = Astro.props;
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || "en";
 const menu = await getMenu(name, { locale: currentLocale });
@@ -15,7 +18,7 @@ if (menu?.items.length) {
 	const subMenus = await Promise.all(
 		menu.items.map(async (item) => {
 			if (item.children && item.children.length > 0) return item.children;
-			const itemSlug = item.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+			const itemSlug = item.label.toLowerCase().replace(ITEM_SLUG_SANITIZE_REGEX, "-").replace(ITEM_SLUG_TRIM_REGEX, "");
 			const subMenuName = `${name}-${itemSlug}`;
 			const subMenu = await getMenu(subMenuName, { locale: currentLocale });
 			return subMenu?.items.length ? subMenu.items : item.children;

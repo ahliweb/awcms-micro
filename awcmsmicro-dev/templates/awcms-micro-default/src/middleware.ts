@@ -16,8 +16,8 @@ const LOCALE_OPTIONS = {
 };
 
 function detectLocale(pathname: string) {
-	const firstSegment = pathname.split("/").filter(Boolean)[0];
-	return LOCALE_OPTIONS.locales.includes(firstSegment ?? "") ? firstSegment! : LOCALE_OPTIONS.defaultLocale;
+	const firstSegment = pathname.split("/").find(Boolean);
+	return firstSegment && LOCALE_OPTIONS.locales.includes(firstSegment) ? firstSegment : LOCALE_OPTIONS.defaultLocale;
 }
 
 function isPublicAdminPath(pathname: string) {

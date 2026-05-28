@@ -1,7 +1,10 @@
 ---
+const currentLocale = Astro.currentLocale || "en";
+const isId = currentLocale.startsWith("id");
+const navigationLabel = isId ? "Navigasi utama" : "Primary navigation";
 const navigation = [
-	{ href: "/", label: "Home" },
-	{ href: "/about", label: "About" },
+	{ href: "/", label: isId ? "Beranda" : "Home" },
+	{ href: "/about", label: isId ? "Tentang" : "About" },
 ];
 ---
 
@@ -12,7 +15,7 @@ const navigation = [
 			<h1>AWCMS-Micro Default Site</h1>
 			<p class="tagline">Single-tenant-first, tenant-ready, and EmDash-compatible.</p>
 		</div>
-		<nav aria-label="Primary navigation">
+		<nav aria-label={navigationLabel}>
 			<ul>
 				{navigation.map((item) => (
 					<li><a href={item.href}>{item.label}</a></li>

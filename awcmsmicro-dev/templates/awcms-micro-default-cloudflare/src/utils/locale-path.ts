@@ -4,6 +4,9 @@ export interface LocalePathOptions {
 }
 
 const NON_LOCALIZED_PREFIXES = ["/_emdash", "/_astro", "/favicon", "/robots.txt", "/sitemap"];
+const URL_PARTS_REGEX = /^([^?#]*)(.*)$/;
+const EXTERNAL_URL_REGEX = /^[a-z][a-z0-9+.-]*:/i;
+const TRAILING_SLASH_REGEX = /\/$/;
 
 function ensureLeadingSlash(path: string) {
 	if (!path || path === "/") return "/";
@@ -11,7 +14,7 @@ function ensureLeadingSlash(path: string) {
 }
 
 function splitUrlParts(path: string) {
-	const match = path.match(/^([^?#]*)(.*)$/);
+	const match = path.match(URL_PARTS_REGEX);
 	return {
 		pathname: match?.[1] || "/",
 		suffix: match?.[2] || "",
@@ -19,7 +22,7 @@ function splitUrlParts(path: string) {
 }
 
 function isExternalUrl(path: string) {
-	return /^[a-z][a-z0-9+.-]*:/i.test(path) || path.startsWith("//") || path.startsWith("#");
+	return EXTERNAL_URL_REGEX.test(path) || path.startsWith("//") || path.startsWith("#");
 }
 
 export function isLocalizablePath(path: string) {
@@ -35,7 +38,7 @@ export function stripLocalePrefix(path: string, options: LocalePathOptions) {
 
 	for (const locale of options.locales) {
 		const localePrefix = `/${locale}`;
-		if (normalizedPath === localePrefix) return `/${suffix}`.replace(/\/$/, "") || "/";
+		if (normalizedPath === localePrefix) return `/${suffix}`.replace(TRAILING_SLASH_REGEX, "") || "/";
 		if (normalizedPath.startsWith(`${localePrefix}/`)) {
 			return `${normalizedPath.slice(localePrefix.length)}${suffix}` || "/";
 		}
