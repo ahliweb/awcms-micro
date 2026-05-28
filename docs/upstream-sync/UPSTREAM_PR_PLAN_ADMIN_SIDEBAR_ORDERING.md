@@ -30,7 +30,7 @@ Do not include these in the same PR:
 
 AWCMS-Micro now has downstream plugin metadata that can express admin group placement and ordering, but the global EmDash admin sidebar does not yet consume that metadata when composing the final sidebar.
 
-That means downstream is metadata-ready, but upstream still controls the actual rendering outcome.
+That means downstream is metadata-ready, and AWCMS-Micro already applies the ordering inside its downstream admin shell. Upstream still controls the canonical rendering outcome in plain EmDash.
 
 ## Existing Downstream-Proven Metadata
 
@@ -68,6 +68,7 @@ Representative downstream usage already proven in AWCMS-Micro:
 - lower `sidebarPriority` renders first within the same placement bucket
 - ties fall back to group `sortOrder`
 - remaining ties fall back to label or existing deterministic ordering
+- AWCMS-Micro already uses this ordering model downstream for plugin-first sidebar rendering and command-palette consistency
 
 ## Candidate Upstream Touchpoints
 
@@ -118,4 +119,4 @@ Potential supporting touchpoints if needed:
 
 ## Recommended Next Step
 
-Prepare a focused upstream PR that changes only the global sidebar composition logic and its tests.
+Prepare a focused upstream PR that changes only the global sidebar composition logic and its tests, so plain EmDash can match the downstream-proven ordering model without adopting any AWCMS-Micro-specific plugin implementations.
