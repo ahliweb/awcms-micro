@@ -387,7 +387,8 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("rejects verification advances from the wrong user level", async () => {
-		const { ctx } = createMockContext();
+		const { ctx, kvData } = createMockContext();
+		kvData.set("state:sikesraVerificationStages", { "registry-entity-guru-agama-01": "submitted_village" });
 		const routes = createNativeRoutes();
 
 		const result = (await routes["verification/advance"]!.handler(
@@ -418,6 +419,33 @@ describe("awcms micro example plugin", () => {
 
 		expect(result.currentVerifierLevels).toContain("admin_sikesra");
 		expect(result.items.length).toBeGreaterThan(1);
+	});
+
+	it("filters the verification queue by regional scope for SOPD verifiers", async () => {
+		const { ctx, collections } = createMockContext();
+		collections.registryEntities.set("registry-entity-outside-scope", {
+			id: "registry-entity-outside-scope",
+			code: "OS-001",
+			label: "Outside Scope Entity",
+			entityType: "guru_agama",
+			sensitivity: "restricted",
+			region: { provinceCode: "32", regencyCode: "3273", districtCode: "3273010", villageCode: "3273010001" },
+			verificationStage: "submitted_sopd",
+			inputLevel: "kecamatan",
+			supportingDocumentIds: [],
+			publicSummary: "Should be hidden from Jakarta SOPD verifier.",
+		});
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
+			input: {},
+		} as any)) as any;
+
+		expect(result.currentVerifierLevels).toContain("sopd");
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0]?.registryEntityId).toBe("registry-entity-guru-agama-01");
 	});
 
 	it("returns verification to the previous review level on needs revision", async () => {

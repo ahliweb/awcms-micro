@@ -1080,6 +1080,11 @@ const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
 const DEFAULT_ABAC_SUBJECTS: AbacSubjectAssignment[] = [
 	{ subjectId: "user-demo-editor", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
 	{ subjectId: "user-demo-reviewer", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
+	{ subjectId: "user-demo-village", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010002" }, updatedAt: "" },
+	{ subjectId: "user-demo-district", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010" }, updatedAt: "" },
+	{ subjectId: "user-demo-sopd", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" }, updatedAt: "" },
+	{ subjectId: "user-demo-regency", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" }, updatedAt: "" },
+	{ subjectId: "user-demo-sikesra-admin", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "all" }, updatedAt: "" },
 ];
 
 const DEFAULT_ABAC_RESOURCES: AbacResourceAssignment[] = [
@@ -1269,9 +1274,30 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 		.filter((level): level is VerificationUserLevel => level !== null);
 }
 
+async function getCurrentVerifierRegionScope(ctx: PluginContext) {
+	const userId = getRequestUserId(ctx);
+	if (!userId) return null;
+	const subject = (await ctx.storage.abacSubjectAssignments!.get(userId)) as AbacSubjectAssignment | null;
+	return subject?.attributes.region_scope ?? null;
+}
+
 function filterVerificationItemsForLevels(items: VerificationListItem[], levels: VerificationUserLevel[]) {
 	if (levels.length === 0 || levels.includes("admin_sikesra")) return items;
 	return items.filter((item) => getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)));
+}
+
+function filterVerificationItemsForRegionScope(
+	items: VerificationListItem[],
+	levels: VerificationUserLevel[],
+	regionScope: string | null,
+) {
+	if (!regionScope || regionScope === "all" || levels.includes("admin_sikesra")) return items;
+	return items.filter((item) => {
+		if (levels.includes("desa_kelurahan")) return item.region.villageCode === regionScope;
+		if (levels.includes("kecamatan")) return item.region.districtCode === regionScope;
+		if (levels.includes("sopd") || levels.includes("kabupaten")) return item.region.regencyCode === regionScope;
+		return true;
+	});
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
@@ -2135,10 +2161,12 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
+	await ensureAbacCatalogSeeded(ctx);
 	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
+	const regionScope = await getCurrentVerifierRegionScope(ctx);
 	const items = await listVerificationItems(ctx);
 	return {
-		items: filterVerificationItemsForLevels(items, currentVerifierLevels),
+		items: filterVerificationItemsForRegionScope(filterVerificationItemsForLevels(items, currentVerifierLevels), currentVerifierLevels, regionScope),
 		events: await listVerificationEvents(ctx),
 		currentVerifierLevels,
 	};
