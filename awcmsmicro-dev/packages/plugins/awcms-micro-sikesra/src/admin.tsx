@@ -508,7 +508,7 @@ function getEntityIcon(type: string): string {
 
 function PageShell({ children, width = "wide" }: { children: React.ReactNode; width?: "normal" | "wide" }) {
 	return (
-		<div className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-6xl" : "max-w-4xl") }>
+		<div className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-full" : "max-w-4xl") }>
 			<PluginHeaderMenu />
 			{children}
 		</div>
