@@ -1281,6 +1281,16 @@ async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	return subject?.attributes.region_scope ?? null;
 }
 
+async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
+	const userId = getRequestUserId(ctx);
+	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
+	const subject = (await ctx.storage.abacSubjectAssignments!.get(userId)) as AbacSubjectAssignment | null;
+	return {
+		verifierRegionScope: subject?.attributes.region_scope,
+		verifierOrgScope: subject?.attributes.site_id,
+	};
+}
+
 function filterVerificationItemsForLevels(items: VerificationListItem[], levels: VerificationUserLevel[]) {
 	if (levels.length === 0 || levels.includes("admin_sikesra")) return items;
 	return items.filter((item) => getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)));
@@ -2201,6 +2211,7 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		};
 	}
 	const nextStage = item.nextStage;
+	const { verifierRegionScope, verifierOrgScope } = await getCurrentVerifierScopeMetadata(ctx);
 
 	const nextState = await getVerificationStageState(ctx);
 	nextState[registryEntityId] = item.nextStage;
@@ -2229,6 +2240,8 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		actor,
 		inputLevel: item.inputLevel,
 		verifierLevel,
+		verifierRegionScope,
+		verifierOrgScope,
 		result: "approved",
 		notes,
 		createdAt: toIsoNow(),
@@ -2275,6 +2288,7 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	}
 
 	const targetStage = getRevisionTargetStage(item.verificationStage);
+	const { verifierRegionScope, verifierOrgScope } = await getCurrentVerifierScopeMetadata(ctx);
 	const nextState = await getVerificationStageState(ctx);
 	nextState[registryEntityId] = targetStage;
 	await setVerificationStageState(ctx, nextState);
@@ -2303,6 +2317,8 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		actor,
 		inputLevel: item.inputLevel,
 		verifierLevel,
+		verifierRegionScope,
+		verifierOrgScope,
 		result: "needs_review",
 		notes,
 		createdAt: toIsoNow(),

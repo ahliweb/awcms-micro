@@ -45,6 +45,8 @@ export interface SikesraReferenceVerificationEvent {
 	actor: string;
 	inputLevel?: SikesraUserLevel;
 	verifierLevel?: SikesraUserLevel;
+	verifierRegionScope?: string;
+	verifierOrgScope?: string;
 	result: "approved" | "needs_review" | "rejected";
 	notes: string;
 	createdAt: string;
@@ -210,6 +212,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			actor: "village-officer",
 			inputLevel: "desa_kelurahan",
 			verifierLevel: "desa_kelurahan",
+			verifierRegionScope: "3171010001",
+			verifierOrgScope: "site-main",
 			result: "approved",
 			notes: "Dokumen lengkap dan lokasi sesuai.",
 			createdAt: "2026-01-12T08:00:00.000Z",
@@ -221,6 +225,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			actor: "district-officer",
 			inputLevel: "kecamatan",
 			verifierLevel: "kecamatan",
+			verifierRegionScope: "3171010",
+			verifierOrgScope: "site-main",
 			result: "approved",
 			notes: "Kelengkapan data diverifikasi pada tingkat kecamatan dan diteruskan ke SOPD terkait.",
 			createdAt: "2026-01-13T08:00:00.000Z",
@@ -232,6 +238,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			actor: "sopd-officer",
 			inputLevel: "sopd",
 			verifierLevel: "sopd",
+			verifierRegionScope: "3171",
+			verifierOrgScope: "site-main",
 			result: "needs_review",
 			notes: "SOPD terkait menyelesaikan review substansi dan meneruskan ke kabupaten/admin SIKESRA.",
 			createdAt: "2026-01-14T08:00:00.000Z",

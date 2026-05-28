@@ -354,6 +354,7 @@ describe("awcms micro example plugin", () => {
 		const result = (await routes["verification/advance"]!.handler(
 			{
 				...ctx,
+				request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
 				input: {
 					registryEntityId: "registry-entity-guru-agama-01",
 					actor: "sopd-officer",
@@ -373,6 +374,8 @@ describe("awcms micro example plugin", () => {
 		expect(result.verificationEvent.stage).toBe("verified_sopd");
 		expect(result.verificationEvent.inputLevel).toBe("kecamatan");
 		expect(result.verificationEvent.verifierLevel).toBe("sopd");
+		expect(result.verificationEvent.verifierRegionScope).toBe("3171");
+		expect(result.verificationEvent.verifierOrgScope).toBe("site-main");
 
 		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
 		const afterItem = after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01");

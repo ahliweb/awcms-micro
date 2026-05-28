@@ -119,6 +119,19 @@ interface VerificationItem {
 
 interface VerificationResponse {
 	items: VerificationItem[];
+	events: Array<{
+		id: string;
+		registryEntityId: string;
+		stage: string;
+		actor: string;
+		inputLevel?: string;
+		verifierLevel?: string;
+		verifierRegionScope?: string;
+		verifierOrgScope?: string;
+		result: "approved" | "needs_review" | "rejected";
+		notes: string;
+		createdAt: string;
+	}>;
 	currentVerifierLevels: string[];
 }
 
@@ -1849,6 +1862,7 @@ function VerificationPage() {
 	const [mutationError, setMutationError] = React.useState<string | null>(null);
 
 	const queue = data?.items ?? [];
+	const verificationEvents = data?.events ?? SIKESRA_REFERENCE_FIXTURES.verificationEvents;
 	const currentVerifierLevels = data?.currentVerifierLevels ?? [];
 	const pending = queue.filter((item) => item.canAdvance).length;
 	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
@@ -2023,7 +2037,7 @@ function VerificationPage() {
 
 			<Card title={copy.referenceVerificationEvents} description={copy.referenceVerificationEventsDescription}>
 				<div className="space-y-3">
-					{SIKESRA_REFERENCE_FIXTURES.verificationEvents.map((item) => (
+					{verificationEvents.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
 							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 								<div>
@@ -2035,13 +2049,15 @@ function VerificationPage() {
 									<Pill>{item.stage}</Pill>
 								</div>
 							</div>
-						<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
-							<div><strong>Actor:</strong> {item.actor}</div>
-							<div><strong>{copy.inputLevel}:</strong> {item.inputLevel ? resolveVerifierUserLevelLabel(item.inputLevel, copy) : copy.notSet}</div>
-							<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(item.verifierLevel ?? inferVerifierLevelFromActor(item.actor), copy)}</div>
-							<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
-							<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
-						</div>
+							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
+								<div><strong>Actor:</strong> {item.actor}</div>
+								<div><strong>{copy.inputLevel}:</strong> {item.inputLevel ? resolveVerifierUserLevelLabel(item.inputLevel, copy) : copy.notSet}</div>
+								<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(item.verifierLevel ?? inferVerifierLevelFromActor(item.actor), copy)}</div>
+								{item.verifierRegionScope ? <div><strong>{copy.regionScope}:</strong> {item.verifierRegionScope}</div> : null}
+								{item.verifierOrgScope ? <div><strong>{copy.orgScope}:</strong> {item.verifierOrgScope}</div> : null}
+								<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
+								<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
+							</div>
 						</div>
 					))}
 				</div>
