@@ -31,6 +31,8 @@ git push --all gitlab
 git push --tags gitlab
 ```
 
+For local backup scripts, `scripts/backup/load-config.sh` safely reads encrypted backup config first and then overlays local `.env` files when present.
+
 ### 4. Verify
 
 After the next push to GitHub, check the Actions tab to see the mirror workflow run.

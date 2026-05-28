@@ -14,6 +14,10 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+if [ -f "$SCRIPT_DIR/load-config.sh" ]; then
+    source "$SCRIPT_DIR/load-config.sh" 2>/dev/null || true
+fi
+
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BLUE}║          DISASTER RECOVERY CHECKLIST                     ║${NC}"
 echo -e "${BLUE}║          AWCMS-Micro Development Environment             ║${NC}"
@@ -67,12 +71,12 @@ echo
 echo -e "${CYAN}Phase 2: Clone Repository${NC}"
 echo "────────────────────────────────────────"
 check_item "GitHub repo accessible" "git ls-remote git@github.com:ahliweb/awcms-micro.git &>/dev/null"
-check_item "GitLab backup accessible" "git ls-remote git@gitlab.com:\${GITLAB_USERNAME:-username}/awcms-micro.git &>/dev/null" false
+check_item "GitLab backup accessible" "git ls-remote \"${GITLAB_REPO_URL:-https://oauth2:${GITLAB_PAT:-token}@gitlab.com/${GITLAB_USERNAME:-username}/${GITLAB_REPO_NAME:-awcms-micro}.git}\" &>/dev/null" false
 echo
 echo -e "  ${YELLOW}Commands:${NC}"
 echo "    git clone git@github.com:ahliweb/awcms-micro.git"
 echo "    cd awcms-micro"
-echo "    git remote add backup git@gitlab.com:username/awcms-micro.git"
+echo "    git remote add backup \"${GITLAB_REPO_URL:-https://oauth2:GITLAB_PAT@gitlab.com/username/awcms-micro.git}\""
 echo
 
 echo -e "${CYAN}Phase 3: Restore Secrets & Configs${NC}"

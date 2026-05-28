@@ -17,14 +17,15 @@
 # Your GitLab account and repository for mirroring the codebase.
 GITLAB_USERNAME="your-gitlab-username"
 GITLAB_REPO_NAME="awcms-micro"
-GITLAB_REPO_URL="git@gitlab.com:${GITLAB_USERNAME}/${GITLAB_REPO_NAME}.git"
 GITLAB_VISIBILITY="private"
 
 # Optional GitLab personal access token for local API/auth workflows.
 GITLAB_PAT="your-gitlab-pat-here"
 
-# SSH key for GitLab access (path to private key)
-# Generate: ssh-keygen -t ed25519 -C "gitlab-mirror" -f ~/.ssh/gitlab_mirror
+GITLAB_REPO_URL="https://oauth2:${GITLAB_PAT}@gitlab.com/${GITLAB_USERNAME}/${GITLAB_REPO_NAME}.git"
+
+# Legacy SSH key path for workflows that still need it.
+# Not used by the PAT-based GitLab mirror workflow.
 GITLAB_SSH_KEY_PATH="$HOME/.ssh/gitlab_mirror"
 
 # ---------------------------------------------------------------------------

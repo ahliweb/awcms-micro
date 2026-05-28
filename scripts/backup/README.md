@@ -39,6 +39,7 @@ The encrypted `.backup-config.age` is safe to commit to **private** repositories
 ### 3. Using the Config
 
 All scripts automatically read from the encrypted config. You only need to enter the passphrase once per session.
+The loader also safely overlays local `.env` files when present, so mirror-only values like `GITLAB_PAT` can be supplied without shell-sourcing arbitrary content.
 
 ```bash
 # Decrypt config for editing
