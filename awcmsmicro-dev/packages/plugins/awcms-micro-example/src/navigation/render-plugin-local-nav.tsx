@@ -19,9 +19,13 @@ export function PluginLocalNav({
 	locale,
 	defaultLocale = "en",
 	messages,
-	title = "Plugin Operations",
-	description = "Access and manage features from this console.",
+	title,
+	description,
 }: PluginLocalNavProps) {
+	const fallbackTitle = locale.startsWith("id") ? "Operasi Plugin" : "Plugin Operations";
+	const fallbackDescription = locale.startsWith("id") ? "Akses dan kelola fitur dari konsol ini." : "Access and manage features from this console.";
+	const resolvedTitle = title || fallbackTitle;
+	const resolvedDescription = description || fallbackDescription;
 	const activeGroup = groups.find((group) =>
 		group.items.some((item) =>
 			currentPath.startsWith(item.path) || (item.children?.some((child) => currentPath.startsWith(child.path)))
@@ -46,10 +50,10 @@ export function PluginLocalNav({
 					<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
 						{getLocalizedName(activeGroup)}
 					</div>
-					<h2 className="mt-1 text-lg font-semibold text-kumo-default">{title}</h2>
+					<h2 className="mt-1 text-lg font-semibold text-kumo-default">{resolvedTitle}</h2>
 				</div>
 				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					{description}
+					{resolvedDescription}
 				</p>
 			</div>
 

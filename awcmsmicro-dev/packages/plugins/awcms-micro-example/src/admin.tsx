@@ -1717,7 +1717,7 @@ function AbacAttributesPage() {
 			<div className="grid gap-6 lg:grid-cols-3">
 				<Card title={copy.attributeDefinition}>
 					<form className="space-y-4" onSubmit={(event) => void saveAttribute(event)}>
-						<Field label={copy.code === "Code" ? "Key" : "Key"}>
+						<Field label={copy.key}>
 							<Input value={attributeState.key} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
 						</Field>
 						<Field label={copy.label}>
@@ -1730,7 +1730,7 @@ function AbacAttributesPage() {
 							>
 								<Select.Option value="subject">{copy.subject}</Select.Option>
 								<Select.Option value="resource">{copy.resource}</Select.Option>
-								<Select.Option value="context">Context</Select.Option>
+								<Select.Option value="context">{copy.context}</Select.Option>
 							</Select>
 						</Field>
 						<Field label={copy.descriptionLabel}>
