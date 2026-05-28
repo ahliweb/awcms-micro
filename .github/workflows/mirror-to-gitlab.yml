@@ -2,7 +2,7 @@ name: Mirror to GitLab
 
 on:
   push:
-    branches: ['**']
+    branches: ["**"]
   delete:
 
 jobs:
@@ -15,6 +15,7 @@ jobs:
     env:
       GITLAB_USERNAME: ${{ vars.GITLAB_USERNAME || secrets.GITLAB_USERNAME }}
       GITLAB_REPO_NAME: ${{ vars.GITLAB_REPO_NAME || secrets.GITLAB_REPO_NAME }}
+      GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
 
     steps:
       - name: Checkout repository
@@ -23,8 +24,22 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Validate GitLab mirror configuration
+        id: mirror-config
+        shell: bash
+        run: |
+          if [[ -z "$GITLAB_USERNAME" || -z "$GITLAB_REPO_NAME" || -z "$GITLAB_PAT" ]]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "GitLab mirror not configured; skipping mirror step."
+            exit 0
+          fi
+
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+
       - name: Mirror to GitLab
-        uses: pixta-dev/repository-mirroring-action@674e65a7d483ca28dafaacba0d07351bdcc8bd75 # v1
-        with:
-          target_repo_url: git@gitlab.com:${{ env.GITLAB_USERNAME }}/${{ env.GITLAB_REPO_NAME }}.git
-          ssh_private_key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
+        if: steps.mirror-config.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/${GITLAB_USERNAME}/${GITLAB_REPO_NAME}.git"
+          git push --prune gitlab --all
+          git push gitlab --tags

@@ -3,48 +3,42 @@
 ## Prerequisites
 
 1. Create a private repository on GitLab named `awcms-micro`
-2. Generate an SSH key pair for the mirror action
+2. Create a GitLab Personal Access Token (PAT) with `write_repository` scope
 
 ## Setup Steps
 
-### 1. Generate SSH Key
+### 1. Create a PAT
 
-```bash
-ssh-keygen -t ed25519 -C "github-mirror@awcms-micro" -f ~/.ssh/gitlab_mirror -N ""
-```
+Create a GitLab PAT with `write_repository` scope in your GitLab account settings.
 
-### 2. Add Deploy Key to GitLab
-
-1. Go to your GitLab repo → Settings → Repository → Deploy Keys
-2. Add a new deploy key with the **public** key (`~/.ssh/gitlab_mirror.pub`)
-3. Grant **Write access**
-
-### 3. Add Secrets to GitHub
+### 2. Add Secrets to GitHub
 
 Go to GitHub repo → Settings → Secrets and variables → Actions → New repository secret:
 
-| Secret Name | Value |
-|---|---|
-| `GITLAB_USERNAME` | Your GitLab username |
-| `GITLAB_REPO_NAME` | `awcms-micro` |
-| `GITLAB_SSH_PRIVATE_KEY` | Content of `~/.ssh/gitlab_mirror` (private key) |
+| Secret Name        | Value                |
+| ------------------ | -------------------- |
+| `GITLAB_USERNAME`  | Your GitLab username |
+| `GITLAB_REPO_NAME` | `awcms-micro`        |
+| `GITLAB_PAT`       | GitLab PAT token     |
 
-### 4. Initial Push
+### 3. Initial Push
 
 Do an initial push to create the repo on GitLab:
 
 ```bash
-git remote add gitlab git@gitlab.com:YOUR_USERNAME/awcms-micro.git
+git remote add gitlab https://oauth2:GITLAB_PAT@gitlab.com/YOUR_USERNAME/awcms-micro.git
 git push --all gitlab
 git push --tags gitlab
 ```
 
-### 5. Verify
+### 4. Verify
 
 After the next push to GitHub, check the Actions tab to see the mirror workflow run.
 
+If the mirror variables or PAT are missing, the workflow now skips the mirror step instead of failing the push.
+
 ## Troubleshooting
 
-- **Permission denied**: Verify deploy key has write access
 - **Repository not found**: Check `GITLAB_USERNAME` and `GITLAB_REPO_NAME`
-- **Key format error**: Ensure the private key is in OpenSSH format
+- **Permission denied**: Verify the PAT has `write_repository` scope
+- **Workflow skipped**: Confirm the GitHub repository variables and `GITLAB_PAT` secret are set
