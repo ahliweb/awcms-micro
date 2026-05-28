@@ -433,44 +433,40 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				<KumoSidebar.Header>
 					<Link
 						to="/"
-						className="emdash-brand-link flex w-full min-w-0 items-center gap-2.5 px-3 py-1.5"
+						className="emdash-brand-link flex w-full min-w-0 items-center gap-2.5 px-3 py-2"
 					>
 						<svg
-							viewBox="0 0 75 75"
+							viewBox="0 0 180 100"
 							fill="none"
 							xmlns="http://www.w3.org/2000/svg"
-							className="size-6 shrink-0"
+							className="w-12 h-7 shrink-0"
 							aria-hidden="true"
 						>
-							<rect
-								x="3"
-								y="3"
-								width="69"
-								height="69"
-								rx="16"
-								stroke="url(#awcms-logo-grad)"
-								strokeWidth="5"
-							/>
-							<path
-								d="M22 48L32.5 24L39.5 40L46.5 24L57 48"
-								stroke="#fff"
-								strokeWidth="5"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
+							{/* Orange Left Bar */}
+							<path d="M5 90 L60 20 H75 L20 90 Z" fill="url(#aw-orange)" />
+							{/* Orange Left Diamond */}
+							<path d="M33 70 L46 52 L59 70 L46 88 Z" fill="url(#aw-orange)" />
+							
+							{/* Blue Left Down Bar */}
+							<path d="M65 43 L78 26 L118 78 L105 95 Z" fill="#0066ff" />
+							{/* Blue Middle Diamond */}
+							<path d="M98 26 L111 8 L124 26 L111 44 Z" fill="#0066ff" />
+							{/* Blue Right Up Bar */}
+							<path d="M117 78 L130 95 L170 26 L157 8 Z" fill="#0066ff" />
+							
 							<defs>
-								<linearGradient id="awcms-logo-grad" x1="0" y1="0" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-									<stop stopColor="#3b82f6" />
-									<stop offset="1" stopColor="#10b981" />
+								<linearGradient id="aw-orange" x1="5" y1="90" x2="75" y2="20" gradientUnits="userSpaceOnUse">
+									<stop stopColor="#ff4d00" />
+									<stop offset="1" stopColor="#ffa600" />
 								</linearGradient>
 							</defs>
 						</svg>
 						<div className="emdash-brand-text flex flex-col min-w-0 leading-tight">
 							<span className="font-bold text-[13px] text-white tracking-wide">
-								AWCMS-Micro
+								AWCMS
 							</span>
 							<span className="text-[9px] text-white/50 font-medium">
-								by ahliweb.com
+								powered by ahliweb.com
 							</span>
 						</div>
 					</Link>
