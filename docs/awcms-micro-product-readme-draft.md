@@ -43,6 +43,14 @@ Supporting documentation, demos, and E2E coverage may exist alongside them, but 
 - `templates/awcms-micro-default/`: Node/SQLite reference template
 - `templates/awcms-micro-default-cloudflare/`: Cloudflare reference template
 
+## Versioning And Changelog
+
+Each plugin and template keeps its own version and changelog.
+
+- plugin releases are tracked per package under `packages/plugins/*`
+- template releases are tracked per package under `templates/*`
+- release notes should stay package-scoped and product-facing
+
 ## Upstream Relationship
 
 AWCMS-Micro adopts EmDash as-is wherever possible.
@@ -66,6 +74,7 @@ For Cloudflare-oriented setups, start with `templates/awcms-micro-default-cloudf
 - keep AWCMS-Micro behavior plugin-and-template-only
 - avoid long-lived divergence from EmDash core
 - keep deployment and security guidance explicit and reviewable
+- keep versioning and changelog notes scoped to the relevant plugin or template
 ```
 
 ## Notes For Future Promotion
