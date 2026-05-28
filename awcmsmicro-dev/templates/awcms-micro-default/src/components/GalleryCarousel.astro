@@ -24,7 +24,7 @@ const copy = getGalleryCopy(Astro.currentLocale || "en");
 		<div class="gallery-carousel__slide">
 			{item.type === "video" ? <GalleryVideo src={item.src} caption={item.caption} poster={item.poster} mimeType={item.mimeType} /> : (
 				<figure>
-					<img src={item.src} alt={item.alt || item.caption || copy.imageAlt} loading="lazy" />
+					<a href={item.src} class="carousel-lightbox-link"><img src={item.src} alt={item.alt || item.caption || copy.imageAlt} loading="lazy" /></a>
 					{item.caption && <figcaption>{item.caption}</figcaption>}
 				</figure>
 			)}

@@ -128,8 +128,18 @@ describe("awcms micro gallery plugin", () => {
 		expect(response).toMatchObject({
 			blocks: expect.arrayContaining([
 				expect.objectContaining({
-					type: "stats",
-					items: expect.any(Array),
+					type: "tab",
+					panels: expect.arrayContaining([
+						expect.objectContaining({
+							label: "Settings",
+							blocks: expect.arrayContaining([
+								expect.objectContaining({
+									type: "stats",
+									items: expect.any(Array),
+								}),
+							]),
+						}),
+					]),
 				}),
 			]),
 		});
@@ -140,21 +150,23 @@ describe("awcms micro gallery plugin", () => {
 		const ctx = createMockContext();
 		const handler = plugin.routes?.admin?.handler;
 
-		const response = await handler?.({
+		const response = (await handler?.({
 			...ctx,
 			input: {},
 			request: { headers: { "accept-language": "id-ID,id;q=0.9" } },
-		} as never);
+		} as never)) as any;
 
 		expect(response).toMatchObject({
 			blocks: expect.arrayContaining([
 				expect.objectContaining({ type: "header", text: "Galeri AWCMS-Micro" }),
-				expect.objectContaining({
-					type: "stats",
-					items: expect.arrayContaining([
-						expect.objectContaining({ label: "Gambar Cloudflare", value: "Opsional" }),
-					]),
-				}),
+			]),
+		});
+
+		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Settings");
+		const statsBlock = settingsPanel?.blocks.find((b: any) => b.type === "stats");
+		expect(statsBlock).toMatchObject({
+			items: expect.arrayContaining([
+				expect.objectContaining({ label: "Gambar Cloudflare", value: "Opsional" }),
 			]),
 		});
 	});
@@ -163,19 +175,21 @@ describe("awcms micro gallery plugin", () => {
 		const ctx = createMockContext();
 		const handler = (sandboxPlugin.routes?.admin as { handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown> } | undefined)?.handler;
 
-		const response = await handler?.(
+		const response = (await handler?.(
 			{ input: {}, request: { headers: { "accept-language": "id-ID,id;q=0.9" } } } as never,
 			ctx as never,
-		);
+		)) as any;
 
 		expect(response).toMatchObject({
 			blocks: expect.arrayContaining([
 				expect.objectContaining({ type: "header", text: "Galeri AWCMS-Micro" }),
-				expect.objectContaining({
-					type: "form",
-					submit: expect.objectContaining({ label: "Simpan pengaturan" }),
-				}),
 			]),
+		});
+
+		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Settings");
+		const formBlock = settingsPanel?.blocks.find((b: any) => b.type === "form");
+		expect(formBlock).toMatchObject({
+			submit: expect.objectContaining({ label: "Simpan pengaturan" }),
 		});
 	});
 });
