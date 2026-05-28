@@ -471,7 +471,9 @@ export interface ExampleSettings {
 export interface AccessPermission {
 	slug: string;
 	label: string;
+	labelKey?: string;
 	description: string;
+	descriptionKey?: string;
 	scope: string;
 	updatedAt: string;
 }
@@ -479,7 +481,9 @@ export interface AccessPermission {
 export interface AccessRole {
 	slug: string;
 	label: string;
+	labelKey?: string;
 	description: string;
+	descriptionKey?: string;
 	updatedAt: string;
 }
 
@@ -498,8 +502,10 @@ export interface UserRoleAssignment {
 export interface AbacAttributeDefinition {
 	key: string;
 	label: string;
+	labelKey?: string;
 	targetType: "subject" | "resource" | "context";
 	description: string;
+	descriptionKey?: string;
 	updatedAt: string;
 }
 
@@ -518,6 +524,7 @@ export interface AbacResourceAssignment {
 export interface AbacPolicyRule {
 	id: string;
 	label: string;
+	labelKey?: string;
 	effect: "allow" | "deny";
 	actions: string[];
 	requiredSubject: Record<string, string>;
@@ -530,21 +537,27 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 	{
 		slug: "content.read.public",
 		label: "Read Public Content",
+		labelKey: "awcms.meta.permission.readPublicContent",
 		description: "Allows reading public-facing content surfaces.",
+		descriptionKey: "awcms.meta.permission.readPublicContentDesc",
 		scope: "content",
 		updatedAt: "",
 	},
 	{
 		slug: "content.review.publish",
 		label: "Review And Publish",
+		labelKey: "awcms.meta.permission.reviewAndPublish",
 		description: "Allows review workflows to approve and publish content.",
+		descriptionKey: "awcms.meta.permission.reviewAndPublishDesc",
 		scope: "workflow",
 		updatedAt: "",
 	},
 	{
 		slug: "audit.read.events",
 		label: "Read Audit Events",
+		labelKey: "awcms.meta.permission.readAuditEvents",
 		description: "Allows operators to inspect governance and access audit events.",
+		descriptionKey: "awcms.meta.permission.readAuditEventsDesc",
 		scope: "audit",
 		updatedAt: "",
 	},
@@ -554,13 +567,17 @@ const DEFAULT_ACCESS_ROLES: AccessRole[] = [
 	{
 		slug: "site-editor",
 		label: "Site Editor",
+		labelKey: "awcms.meta.role.siteEditor",
 		description: "Editor role for content operations.",
+		descriptionKey: "awcms.meta.role.siteEditorDesc",
 		updatedAt: "",
 	},
 	{
 		slug: "governance-reviewer",
 		label: "Governance Reviewer",
+		labelKey: "awcms.meta.role.governanceReviewer",
 		description: "Reviewer role for governance and publishing approval.",
+		descriptionKey: "awcms.meta.role.governanceReviewerDesc",
 		updatedAt: "",
 	},
 ];
@@ -592,15 +609,15 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 ];
 
 const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
-	{ key: "tenant_id", label: "Tenant ID", targetType: "subject", description: "Tenant identifier for the acting subject.", updatedAt: "" },
-	{ key: "site_id", label: "Site ID", targetType: "subject", description: "Site identifier for the acting subject.", updatedAt: "" },
-	{ key: "module_id", label: "Module ID", targetType: "resource", description: "Module identifier for the resource.", updatedAt: "" },
-	{ key: "resource_type", label: "Resource Type", targetType: "resource", description: "Resource type used in ABAC evaluation.", updatedAt: "" },
-	{ key: "resource_status", label: "Resource Status", targetType: "resource", description: "Workflow status of the resource.", updatedAt: "" },
-	{ key: "resource_sensitivity", label: "Resource Sensitivity", targetType: "resource", description: "Sensitivity classification for the resource.", updatedAt: "" },
-	{ key: "owner_user_id", label: "Owner User ID", targetType: "resource", description: "Owning user of the resource.", updatedAt: "" },
-	{ key: "region_scope", label: "Region Scope", targetType: "context", description: "Region scope for the decision context.", updatedAt: "" },
-	{ key: "action", label: "Action", targetType: "context", description: "Action under evaluation.", updatedAt: "" },
+	{ key: "tenant_id", label: "Tenant ID", labelKey: "awcms.meta.abac.tenantId", targetType: "subject", description: "Tenant identifier for the acting subject.", descriptionKey: "awcms.meta.abac.tenantIdDesc", updatedAt: "" },
+	{ key: "site_id", label: "Site ID", labelKey: "awcms.meta.abac.siteId", targetType: "subject", description: "Site identifier for the acting subject.", descriptionKey: "awcms.meta.abac.siteIdDesc", updatedAt: "" },
+	{ key: "module_id", label: "Module ID", labelKey: "awcms.meta.abac.moduleId", targetType: "resource", description: "Module identifier for the resource.", descriptionKey: "awcms.meta.abac.moduleIdDesc", updatedAt: "" },
+	{ key: "resource_type", label: "Resource Type", labelKey: "awcms.meta.abac.resourceType", targetType: "resource", description: "Resource type used in ABAC evaluation.", descriptionKey: "awcms.meta.abac.resourceTypeDesc", updatedAt: "" },
+	{ key: "resource_status", label: "Resource Status", labelKey: "awcms.meta.abac.resourceStatus", targetType: "resource", description: "Workflow status of the resource.", descriptionKey: "awcms.meta.abac.resourceStatusDesc", updatedAt: "" },
+	{ key: "resource_sensitivity", label: "Resource Sensitivity", labelKey: "awcms.meta.abac.resourceSensitivity", targetType: "resource", description: "Sensitivity classification for the resource.", descriptionKey: "awcms.meta.abac.resourceSensitivityDesc", updatedAt: "" },
+	{ key: "owner_user_id", label: "Owner User ID", labelKey: "awcms.meta.abac.ownerUserId", targetType: "resource", description: "Owning user of the resource.", descriptionKey: "awcms.meta.abac.ownerUserIdDesc", updatedAt: "" },
+	{ key: "region_scope", label: "Region Scope", labelKey: "awcms.meta.abac.regionScope", targetType: "context", description: "Region scope for the decision context.", descriptionKey: "awcms.meta.abac.regionScopeDesc", updatedAt: "" },
+	{ key: "action", label: "Action", labelKey: "awcms.meta.abac.action", targetType: "context", description: "Action under evaluation.", descriptionKey: "awcms.meta.abac.actionDesc", updatedAt: "" },
 ];
 
 const DEFAULT_ABAC_SUBJECTS: AbacSubjectAssignment[] = [
@@ -617,6 +634,7 @@ const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
 	{
 		id: "allow-published-content-read",
 		label: "Allow published content reads for the same tenant",
+		labelKey: "awcms.meta.abac.policy.allowPublishedReads",
 		effect: "allow",
 		actions: ["content.read"],
 		requiredSubject: { tenant_id: "tenant-a" },
@@ -627,6 +645,7 @@ const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
 	{
 		id: "deny-sensitive-publish-outside-governance",
 		label: "Explicitly deny publishing restricted governance resources",
+		labelKey: "awcms.meta.abac.policy.denyRestrictedGovernance",
 		effect: "deny",
 		actions: ["content.publish_sensitive"],
 		requiredSubject: { tenant_id: "tenant-a" },
