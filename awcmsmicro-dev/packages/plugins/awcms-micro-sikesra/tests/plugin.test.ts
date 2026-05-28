@@ -350,7 +350,8 @@ describe("awcms micro example plugin", () => {
 				...ctx,
 				input: {
 					registryEntityId: "registry-entity-guru-agama-01",
-					actor: "district-officer",
+					actor: "sopd-officer",
+					verifierLevel: "sopd",
 					notes: "Promoted from district review",
 				},
 			} as any,
@@ -374,6 +375,26 @@ describe("awcms micro example plugin", () => {
 		expect(collections.verificationEvents.size).toBe(1);
 		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "verified_sopd" });
 		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({ key: "state:lastVerificationEventId", value: expect.stringContaining("registry-entity-guru-agama-01") });
+	});
+
+	it("rejects verification advances from the wrong user level", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/advance"]!.handler(
+			{
+				...ctx,
+				input: {
+					registryEntityId: "registry-entity-guru-agama-01",
+					actor: "district-officer",
+					verifierLevel: "kecamatan",
+					notes: "Attempted from wrong level",
+				},
+			} as any,
+		)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("INVALID_LEVEL");
 	});
 
 	it("records manual touch state in plugin storage", async () => {

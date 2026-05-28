@@ -1055,6 +1055,8 @@ type VerificationStage =
 
 type VerificationLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten_admin" | "tampil";
 
+type VerificationUserLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten" | "admin_sikesra";
+
 interface VerificationListItem {
 	id: string;
 	registryEntityId: string;
@@ -1134,6 +1136,23 @@ function getVerificationLevel(stage: VerificationStage): VerificationLevel {
 	if (stage === "verified_district" || stage === "submitted_sopd") return "sopd";
 	if (stage === "verified_sopd" || stage === "submitted_regency") return "kabupaten_admin";
 	return "tampil";
+}
+
+function getAllowedVerifierLevels(level: VerificationLevel): VerificationUserLevel[] {
+	if (level === "desa_kelurahan") return ["desa_kelurahan"];
+	if (level === "kecamatan") return ["kecamatan"];
+	if (level === "sopd") return ["sopd"];
+	if (level === "kabupaten_admin") return ["kabupaten", "admin_sikesra"];
+	return [];
+}
+
+function inferVerifierLevel(actor: string): VerificationUserLevel | null {
+	if (actor.includes("village")) return "desa_kelurahan";
+	if (actor.includes("district")) return "kecamatan";
+	if (actor.includes("sopd")) return "sopd";
+	if (actor.includes("regency")) return "kabupaten";
+	if (actor.includes("sikesra-admin") || actor.includes("sikesra_admin")) return "admin_sikesra";
+	return null;
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
@@ -1999,6 +2018,7 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
+	const verifierLevel = (getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ?? inferVerifierLevel(actor);
 	const notes = getString(routeCtx.input, "notes") ?? "Advanced verification stage from the admin reference UI";
 	const items = await listVerificationItems(ctx);
 	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
@@ -2009,6 +2029,19 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 
 	if (!item.nextStage) {
 		return { success: false, error: { code: "INVALID_STATE", message: `Registry entity ${registryEntityId} is already at the final verification stage` } };
+	}
+	if (!verifierLevel) {
+		return { success: false, error: { code: "INVALID_LEVEL", message: `Verification level is required for ${registryEntityId}` } };
+	}
+	const allowedVerifierLevels = getAllowedVerifierLevels(item.currentLevel);
+	if (!allowedVerifierLevels.includes(verifierLevel)) {
+		return {
+			success: false,
+			error: {
+				code: "INVALID_LEVEL",
+				message: `Verification for ${registryEntityId} must be handled by ${allowedVerifierLevels.join(", ")}`,
+			},
+		};
 	}
 	const nextStage = item.nextStage;
 

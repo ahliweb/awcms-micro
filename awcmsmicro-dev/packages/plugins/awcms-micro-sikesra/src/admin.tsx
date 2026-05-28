@@ -1197,6 +1197,26 @@ function resolveVerificationLevelLabel(
 	return level ?? copy.notSet;
 }
 
+function getVerifierLevelOptions(level: string | null | undefined) {
+	if (level === "desa_kelurahan") return ["desa_kelurahan"];
+	if (level === "kecamatan") return ["kecamatan"];
+	if (level === "sopd") return ["sopd"];
+	if (level === "kabupaten_admin") return ["kabupaten", "admin_sikesra"];
+	return [];
+}
+
+function resolveVerifierUserLevelLabel(
+	level: string | null | undefined,
+	copy: ReturnType<typeof getExampleAdminCopy>,
+) {
+	if (level === "desa_kelurahan") return copy.villageLevel;
+	if (level === "kecamatan") return copy.districtLevel;
+	if (level === "sopd") return copy.sopdLevel;
+	if (level === "kabupaten") return copy.regencyLevel;
+	if (level === "admin_sikesra") return copy.sikesraAdminLevel;
+	return level ?? copy.notSet;
+}
+
 function resolveDataTypeNames(
 	code: string,
 	dataTypes: SikesraParentType[]
@@ -1919,6 +1939,7 @@ function VerificationPage() {
 	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<VerificationResponse>("verification/list");
 	const [actionNotes, setActionNotes] = React.useState<Record<string, string>>({});
+	const [verifierLevels, setVerifierLevels] = React.useState<Record<string, string>>({});
 	const [submittingId, setSubmittingId] = React.useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
 	const [mutationError, setMutationError] = React.useState<string | null>(null);
@@ -1939,9 +1960,13 @@ function VerificationPage() {
 
 		try {
 			if (actionType === "approve") {
+				const item = queue.find((entry) => entry.registryEntityId === entityId);
+				const fallbackLevel = item ? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" : "desa_kelurahan";
+				const verifierLevel = verifierLevels[entityId] ?? fallbackLevel;
 				const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
 					registryEntityId: entityId,
-					actor: "district-officer",
+					actor: verifierLevel === "admin_sikesra" ? "sikesra-admin" : `${verifierLevel}-officer`,
+					verifierLevel,
 					notes: notes,
 				});
 				setStatusMessage(`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`);
@@ -2013,6 +2038,21 @@ function VerificationPage() {
 															setActionNotes(prev => ({ ...prev, [item.registryEntityId]: val }));
 														}}
 													/>
+													<div>
+														<label className="block text-xs font-medium text-kumo-default mb-1">{copy.verifierLevel}:</label>
+														<Select
+															value={verifierLevels[item.registryEntityId] ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan"}
+															onValueChange={(value) =>
+																setVerifierLevels((prev) => ({ ...prev, [item.registryEntityId]: value ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" }))
+															}
+														>
+															{getVerifierLevelOptions(item.currentLevel).map((level) => (
+																<Select.Option key={level} value={level}>
+																	{resolveVerifierUserLevelLabel(level, copy)}
+																</Select.Option>
+															))}
+														</Select>
+													</div>
 													<div className="flex gap-2 pt-1">
 														<Button
 															disabled={submittingId !== null}
