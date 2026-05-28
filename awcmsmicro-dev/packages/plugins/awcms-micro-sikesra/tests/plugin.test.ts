@@ -347,6 +347,24 @@ describe("awcms micro example plugin", () => {
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 		expect(collections.verificationEvents.size).toBe(1);
+		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({ key: "state:lastVerificationEventId", value: expect.stringContaining("registry-entity-guru-agama-01") });
+	});
+
+	it("records manual touch state in plugin storage", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["state/touch"]!.handler(
+			{
+				...ctx,
+				input: { note: "manual review" },
+			} as any,
+		)) as any;
+
+		expect(result.success).toBe(true);
+		expect(result.counter).toBe(1);
+		expect(collections.pluginState.get("state:lastManualTouch")).toMatchObject({ key: "state:lastManualTouch" });
+		expect(collections.pluginState.get("state:manualTouches")).toMatchObject({ key: "state:manualTouches", value: 1 });
 	});
 
 	it("persists registry and document records in plugin storage", async () => {

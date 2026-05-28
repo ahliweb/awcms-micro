@@ -847,7 +847,7 @@ async function listVerificationEvents(ctx: PluginContext): Promise<SikesraRefere
 
 async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
 	await ctx.storage.verificationEvents!.put(event.id, event);
-	await ctx.kv.set("state:lastVerificationEventId", event.id);
+	await persistStateValue(ctx, "state:lastVerificationEventId", event.id);
 	return event;
 }
 
@@ -1716,7 +1716,7 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const note = getString(routeCtx.input, "note") ?? "manual-touch";
 	const actor = actorFromRoute(ctx);
-	await ctx.kv.set("state:lastManualTouch", toIsoNow());
+	await persistStateValue(ctx, "state:lastManualTouch", toIsoNow());
 	const counter = await incrementCounter(ctx, "state:manualTouches");
 	const event = await appendAuditEvent(
 		ctx,
