@@ -1,6 +1,6 @@
 {
 	"name": "@awcms-micro/plugin-gallery",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "AWCMS-Micro gallery plugin for EmDash-compatible photo and video collections",
 	"type": "module",
 	"main": "dist/index.mjs",

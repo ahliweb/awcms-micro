@@ -10,6 +10,16 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 
 AWCMS-Micro-specific product development in this maintenance workspace is limited to plugin and template boundaries. Root scripts and root documentation may change to support that workflow, but new product behavior should not be introduced through EmDash core forks or new shared core layers.
 
+## Versioning Model
+
+This workspace uses three separate versioning and changelog surfaces:
+
+- root maintenance changes for the parent repository live in `VERSION`, `CHANGELOG.md`, and root `.awcms-changesets/`
+- plugin packages under `awcmsmicro-dev/packages/plugins/` keep their own `package.json` version and `CHANGELOG.md`
+- template packages under `awcmsmicro-dev/templates/` keep their own `package.json` version and `CHANGELOG.md`
+
+Keep these flows separate so root maintenance releases do not mix with package releases.
+
 ## Licensing
 
 - The root maintenance workspace is MIT licensed. See `LICENSE`.
@@ -54,6 +64,7 @@ Exception:
 - `docs/decision-records.md`
 - `docs/operator-workflow.md`
 - `docs/awcms-micro-versioning.md`
+- `docs/awcms-micro-root-versioning.md`
 - `docs/awcms-micro-versioning-rollout-summary.md`
 - `docs/awcms-micro-licensing.md`
 - `docs/awcms-micro-d1-mirror-sync.md`
@@ -72,6 +83,8 @@ Exception:
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
 - `node awcmsmicro-dev/.github/scripts/awcms-version.mjs version`
+- `node scripts/awcms-version.mjs status`
+- `node scripts/awcms-version.mjs version`
 - `pnpm --dir awcmsmicro-dev d1:mirror:status`
 - `pnpm --dir awcmsmicro-dev d1:mirror:sync`
 - `pnpm --dir awcmsmicro-dev d1:mirror:reset`

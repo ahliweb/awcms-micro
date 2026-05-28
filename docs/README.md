@@ -14,6 +14,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-product-readme-final.md`: final product-facing README source for the independent `awcms-micro` repository
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
+- `awcms-micro-root-versioning.md`: root-level AWCMS maintenance versioning and changelog flow
 - `awcms-micro-versioning.md`: AWCMS-Micro-only automatic versioning and changelog flow for plugins and templates
 - `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS-Micro versioning automation rollout and local proof runs
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance

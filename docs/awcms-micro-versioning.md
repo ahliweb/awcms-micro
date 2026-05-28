@@ -2,7 +2,9 @@
 
 ## Purpose
 
-This document describes the AWCMS-Micro-only automatic versioning and changelog flow for packages under the `@awcms-micro/*` namespace.
+This document describes the AWCMS-Micro-only automatic versioning and changelog flow for package-level releases under the `@awcms-micro/*` namespace.
+
+Root maintenance versioning is documented separately in `docs/awcms-micro-root-versioning.md`.
 
 ## Scope
 
@@ -14,6 +16,11 @@ It covers:
 - `@awcms-micro/plugin-gallery`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
+
+Package-level releases are split into two groups:
+
+- plugins: each plugin keeps its own `package.json` version and `CHANGELOG.md`
+- templates: each template keeps its own `package.json` version and `CHANGELOG.md`
 
 ## Inputs
 
