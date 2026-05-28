@@ -1,4 +1,5 @@
 export type SikesraSensitivity = "public_safe" | "internal" | "restricted" | "highly_restricted";
+export type SikesraUserLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten" | "admin_sikesra";
 
 export interface SikesraReferenceRegistryEntity {
 	id: string;
@@ -22,6 +23,7 @@ export interface SikesraReferenceRegistryEntity {
 		| "verified_sopd"
 		| "submitted_regency"
 		| "active_verified";
+	inputLevel: SikesraUserLevel;
 	supportingDocumentIds: string[];
 	publicSummary: string;
 }
@@ -41,6 +43,8 @@ export interface SikesraReferenceVerificationEvent {
 	registryEntityId: string;
 	stage: SikesraReferenceRegistryEntity["verificationStage"];
 	actor: string;
+	inputLevel?: SikesraUserLevel;
+	verifierLevel?: SikesraUserLevel;
 	result: "approved" | "needs_review" | "rejected";
 	notes: string;
 	createdAt: string;
@@ -121,6 +125,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 				villageCode: "3171010001",
 			},
 			verificationStage: "active_verified",
+			inputLevel: "desa_kelurahan",
 			supportingDocumentIds: ["doc-rumah-ibadah-01"],
 			publicSummary: "Rumah ibadah aktif dan sudah terverifikasi di wilayah administrasi referensi.",
 		},
@@ -137,6 +142,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 				villageCode: "3171010002",
 			},
 			verificationStage: "submitted_sopd",
+			inputLevel: "kecamatan",
 			supportingDocumentIds: ["doc-guru-agama-01", "doc-guru-agama-02"],
 			publicSummary: "Data tenaga pengajar disajikan dalam bentuk agregat aman tanpa identitas pribadi.",
 		},
@@ -153,6 +159,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 				villageCode: "3171010003",
 			},
 			verificationStage: "verified_sopd",
+			inputLevel: "sopd",
 			supportingDocumentIds: ["doc-disabilitas-01"],
 			publicSummary: "Kasus berisiko tinggi hanya disajikan sebagai hitungan agregat aman.",
 		},
@@ -201,6 +208,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			registryEntityId: "registry-entity-rumah-ibadah-01",
 			stage: "verified_village",
 			actor: "village-officer",
+			inputLevel: "desa_kelurahan",
+			verifierLevel: "desa_kelurahan",
 			result: "approved",
 			notes: "Dokumen lengkap dan lokasi sesuai.",
 			createdAt: "2026-01-12T08:00:00.000Z",
@@ -210,6 +219,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			registryEntityId: "registry-entity-guru-agama-01",
 			stage: "submitted_sopd",
 			actor: "district-officer",
+			inputLevel: "kecamatan",
+			verifierLevel: "kecamatan",
 			result: "approved",
 			notes: "Kelengkapan data diverifikasi pada tingkat kecamatan dan diteruskan ke SOPD terkait.",
 			createdAt: "2026-01-13T08:00:00.000Z",
@@ -219,6 +230,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			registryEntityId: "registry-entity-disabilitas-01",
 			stage: "verified_sopd",
 			actor: "sopd-officer",
+			inputLevel: "sopd",
+			verifierLevel: "sopd",
 			result: "needs_review",
 			notes: "SOPD terkait menyelesaikan review substansi dan meneruskan ke kabupaten/admin SIKESRA.",
 			createdAt: "2026-01-14T08:00:00.000Z",

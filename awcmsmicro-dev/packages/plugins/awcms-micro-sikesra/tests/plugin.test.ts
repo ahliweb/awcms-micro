@@ -362,8 +362,11 @@ describe("awcms micro example plugin", () => {
 		expect(result.item.currentLevel).toBe("sopd");
 		expect(result.item.nextStage).toBe("submitted_regency");
 		expect(result.item.nextLevel).toBe("kabupaten_admin");
+		expect(result.item.inputLevel).toBe("kecamatan");
 		expect(result.event.kind).toBe("verification.stage.advance");
 		expect(result.verificationEvent.stage).toBe("verified_sopd");
+		expect(result.verificationEvent.inputLevel).toBe("kecamatan");
+		expect(result.verificationEvent.verifierLevel).toBe("sopd");
 
 		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
 		const afterItem = after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01");
@@ -466,6 +469,7 @@ describe("awcms micro example plugin", () => {
 				districtCode: "3171010",
 				villageCode: "3171010001",
 				publicSummary: "Custom summary",
+				inputLevel: "admin_sikesra",
 			},
 		} as any);
 
@@ -485,6 +489,7 @@ describe("awcms micro example plugin", () => {
 
 		expect(registry.items.some((item: any) => item.id === "registry-entity-custom-01")).toBe(true);
 		expect(registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.verificationStage).toBe("submitted_village");
+		expect(registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel).toBe("admin_sikesra");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
 		expect(collections.registryEntities.size).toBe(1);
 		expect(collections.supportingDocuments.size).toBe(1);

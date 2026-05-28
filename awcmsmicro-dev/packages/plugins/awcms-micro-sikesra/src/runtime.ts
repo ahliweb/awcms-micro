@@ -11,6 +11,7 @@ import {
 	SIKESRA_REFERENCE_FIXTURES,
 	type SikesraReferenceRegistryEntity,
 	type SikesraReferenceSupportingDocument,
+	type SikesraUserLevel,
 	type SikesraReferenceVerificationEvent,
 	type SikesraSensitivity,
 } from "./fixtures.js";
@@ -1135,7 +1136,7 @@ type VerificationStage =
 
 type VerificationLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten_admin" | "tampil";
 
-type VerificationUserLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten" | "admin_sikesra";
+type VerificationUserLevel = SikesraUserLevel;
 
 interface VerificationListItem {
 	id: string;
@@ -1151,6 +1152,7 @@ interface VerificationListItem {
 		villageCode: string;
 	};
 	verificationStage: VerificationStage;
+	inputLevel: VerificationUserLevel;
 	currentLevel: VerificationLevel;
 	nextStage: VerificationStage | null;
 	nextLevel: VerificationLevel | null;
@@ -1342,6 +1344,7 @@ async function listVerificationItems(ctx: PluginContext): Promise<VerificationLi
 			sensitivity: entity.sensitivity,
 			region: entity.region,
 			verificationStage,
+			inputLevel: entity.inputLevel,
 			currentLevel: getVerificationLevel(verificationStage),
 			nextStage,
 			nextLevel: nextStage ? getVerificationLevel(nextStage) : null,
@@ -1963,6 +1966,7 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			villageCode: getString(input, "villageCode") ?? "",
 		},
 		verificationStage: "submitted_village",
+		inputLevel: (getString(input, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 		supportingDocumentIds: [],
 		publicSummary: getString(input, "publicSummary") ?? "",
 	};
@@ -2044,6 +2048,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 				villageCode: row.villageCode ?? "",
 			},
 			verificationStage: "submitted_village",
+			inputLevel: (row.inputLevel as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 			supportingDocumentIds: [],
 			publicSummary: row.publicSummary ?? "",
 		};
@@ -2158,6 +2163,8 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		registryEntityId,
 		stage: nextStage,
 		actor,
+		inputLevel: item.inputLevel,
+		verifierLevel,
 		result: "approved",
 		notes,
 		createdAt: toIsoNow(),
@@ -2230,6 +2237,8 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		registryEntityId,
 		stage: targetStage,
 		actor,
+		inputLevel: item.inputLevel,
+		verifierLevel,
 		result: "needs_review",
 		notes,
 		createdAt: toIsoNow(),

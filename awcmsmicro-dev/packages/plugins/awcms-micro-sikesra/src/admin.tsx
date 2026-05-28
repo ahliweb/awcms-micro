@@ -7,7 +7,7 @@ import { getExampleAdminCopy } from "./admin-copy.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
 import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType, type SikesraSubType } from "./runtime.js";
 
-import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
+import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument, type SikesraUserLevel } from "./fixtures.js";
 
 
 
@@ -227,6 +227,7 @@ interface VerificationItem {
 		villageCode: string;
 	};
 	verificationStage: string;
+	inputLevel: string;
 	currentLevel: string;
 	nextStage: string | null;
 	nextLevel: string | null;
@@ -1289,6 +1290,7 @@ function RegistryPage() {
 		isValidated: false,
 		code: "", // SIKESRA ID
 		sensitivity: "public_safe" as SikesraSensitivity,
+		inputLevel: "desa_kelurahan" as SikesraUserLevel,
 	});
 
 	React.useEffect(() => {
@@ -1373,6 +1375,7 @@ function RegistryPage() {
 				districtCode: wizardState.districtCode,
 				villageCode: wizardState.villageCode,
 				publicSummary: `${wizardState.label} (${wizardState.subtype || "-"}) located in RT ${wizardState.rt || "00"}/RW ${wizardState.rw || "00"}, ${wizardState.address || "-"}.${wizardState.religion ? ` Religion: ${wizardState.religion}.` : ""}${wizardState.desil ? ` Desil: ${wizardState.desil}.` : ""}${wizardState.caregiverName ? ` Caregiver: ${wizardState.caregiverName}` : ""}`,
+				inputLevel: wizardState.inputLevel,
 			});
 
 			for (const doc of wizardState.documents) {
@@ -1408,6 +1411,7 @@ function RegistryPage() {
 				isValidated: false,
 				code: "",
 				sensitivity: "public_safe",
+				inputLevel: "desa_kelurahan",
 			});
 			setTempDocTitle("");
 			setTempDocFile(null);
@@ -1680,15 +1684,24 @@ function RegistryPage() {
 														</Select>
 													</Field>
 													<Field label="Sensitivity classification" hint="Determine visibility of this entity records (Mandatory)">
-														<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
-															<Select.Option value="public_safe">Public Safe</Select.Option>
-															<Select.Option value="internal">Internal</Select.Option>
-															<Select.Option value="restricted">Restricted</Select.Option>
-															<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
-														</Select>
-													</Field>
-												</>
-											)}
+								<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+									<Select.Option value="public_safe">Public Safe</Select.Option>
+									<Select.Option value="internal">Internal</Select.Option>
+									<Select.Option value="restricted">Restricted</Select.Option>
+									<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+								</Select>
+							</Field>
+							<Field label={copy.inputLevel} hint={copy.verificationInputPolicy}>
+								<Select value={wizardState.inputLevel} onValueChange={(val) => setWizardState(prev => ({ ...prev, inputLevel: (val as SikesraUserLevel) ?? "desa_kelurahan" }))}>
+									<Select.Option value="desa_kelurahan">{copy.villageLevel}</Select.Option>
+									<Select.Option value="kecamatan">{copy.districtLevel}</Select.Option>
+									<Select.Option value="sopd">{copy.sopdLevel}</Select.Option>
+									<Select.Option value="kabupaten">{copy.regencyLevel}</Select.Option>
+									<Select.Option value="admin_sikesra">{copy.sikesraAdminLevel}</Select.Option>
+								</Select>
+							</Field>
+						</>
+					)}
 
 											{step === 1 && (
 												<>
@@ -2098,10 +2111,11 @@ function VerificationPage() {
 											<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
 											{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
 										</div>
-										<div className="text-xs text-kumo-subtle space-y-1 text-end max-md:text-start">
-											<div><strong>{copy.currentLevel}:</strong> {resolveVerificationLevelLabel(item.currentLevel, copy)}</div>
-											{item.nextLevel ? <div><strong>{copy.nextLevel}:</strong> {resolveVerificationLevelLabel(item.nextLevel, copy)}</div> : null}
-										</div>
+						<div className="text-xs text-kumo-subtle space-y-1 text-end max-md:text-start">
+							<div><strong>{copy.inputLevel}:</strong> {resolveVerifierUserLevelLabel(item.inputLevel, copy)}</div>
+							<div><strong>{copy.currentLevel}:</strong> {resolveVerificationLevelLabel(item.currentLevel, copy)}</div>
+							{item.nextLevel ? <div><strong>{copy.nextLevel}:</strong> {resolveVerificationLevelLabel(item.nextLevel, copy)}</div> : null}
+						</div>
 										<div className="text-xs text-kumo-subtle flex items-center gap-1">
 											<span>📁 Documents:</span> <strong>{item.supportingDocumentIds.length}</strong>
 										</div>
@@ -2127,12 +2141,13 @@ function VerificationPage() {
 									<Pill>{item.stage}</Pill>
 								</div>
 							</div>
-							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
-								<div><strong>Actor:</strong> {item.actor}</div>
-								<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(inferVerifierLevelFromActor(item.actor), copy)}</div>
-								<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
-								<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
-							</div>
+						<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
+							<div><strong>Actor:</strong> {item.actor}</div>
+							<div><strong>{copy.inputLevel}:</strong> {item.inputLevel ? resolveVerifierUserLevelLabel(item.inputLevel, copy) : copy.notSet}</div>
+							<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(item.verifierLevel ?? inferVerifierLevelFromActor(item.actor), copy)}</div>
+							<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
+							<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
+						</div>
 						</div>
 					))}
 				</div>
