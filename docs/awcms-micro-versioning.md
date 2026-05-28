@@ -26,6 +26,7 @@ Example:
 ```md
 ---
 "@awcms-micro/plugin-example": minor
+"@awcms-micro/plugin-gallery": patch
 "@awcms-micro/template-default-example": patch
 ---
 

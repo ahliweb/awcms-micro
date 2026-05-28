@@ -2057,12 +2057,12 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 				</label>
 			) : null}
 			<div className="flex items-center gap-3">
-				<Select value={current} onValueChange={(nextValue) => onChange(nextValue ?? "")}>
+				<Select value={current} onValueChange={(nextValue) => onChange(nextValue ?? "")}> 
 					<Select.Option value="draft">{copy.draft}</Select.Option>
-					<Select.Option value="review">Review</Select.Option>
-					<Select.Option value="approved">Approved</Select.Option>
+					<Select.Option value="review">{copy.review}</Select.Option>
+					<Select.Option value="approved">{copy.approved}</Select.Option>
 				</Select>
-				<Pill tone={tone}>{current}</Pill>
+				<Pill tone={tone}>{current === "approved" ? copy.approved : current === "review" ? copy.review : copy.draft}</Pill>
 			</div>
 		</div>
 	);
