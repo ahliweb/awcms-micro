@@ -396,6 +396,86 @@ This section is a product-planning checklist, not legal advice. Confirm jurisdic
 - document where data is stored, who can access it, and how it is deleted or restored
 - keep third-party service terms and deployment constraints in the release checklist
 
+## 10. AI Strategy & Governance
+
+### AI Strategy
+
+- use AI as an assistive layer, not an autonomous replacement for product ownership
+- limit AI to clearly scoped tasks such as content assistance, moderation support, summarization, translation help, search assistance, and operator productivity
+- keep deterministic non-AI fallback paths for every AI-assisted feature
+- prefer AI features that can be disabled without breaking the core product
+
+### Governance Principles
+
+- human review is required for actions that publish, delete, moderate, or change critical settings
+- AI-generated output must be attributable to the model or workflow that produced it
+- all AI-assisted decisions that affect users should be reviewable in logs or audit trails
+- model/provider selection must be explicit and documented before release
+- prompt injection, unsafe tool use, and data leakage must be treated as release-blocking risks
+
+### Operational Guardrails
+
+- AI features must fail closed when prompts, tools, or model responses are invalid
+- AI features must not silently escalate privileges or bypass authorization checks
+- AI features must not train on private data unless the policy, contract, and user consent explicitly allow it
+- AI-assisted changes should be previewed before being committed to content or settings
+
+## 11. AI UX & Evaluation
+
+### UX Requirements
+
+- disclose when content or recommendations are AI-assisted
+- show confidence, uncertainty, or review-needed states when the output may be ambiguous
+- provide a clear override or undo action for human operators
+- keep AI actions inside the same localized and RTL-safe UI system as the rest of the product
+- avoid surprise automation; AI should ask for confirmation before high-impact actions
+
+### Evaluation Requirements
+
+- define success metrics before release for each AI feature
+- measure accuracy, false positives, false negatives, latency, and cost
+- maintain a regression set for common prompts, edge cases, and abuse cases
+- run manual review for critical paths such as moderation, publishing, and administrative actions
+- compare output quality against a non-AI baseline when relevant
+
+### Acceptance Criteria For AI Features
+
+- the feature clearly states that AI is being used
+- users can review, edit, or reject AI output
+- failures fall back to a safe non-AI path
+- the feature meets its target quality, latency, and cost envelope
+- the feature can be audited after deployment
+
+## 12. AI Data Policy
+
+### Data Classification
+
+- public content may be eligible for AI-assisted processing when allowed by policy
+- private content, credentials, secrets, and internal operator notes must be excluded unless explicitly approved
+- personal data requires stricter handling, minimization, and retention rules
+- any data sent to a third-party model/provider must be reviewed as a transfer of information
+
+### Data Handling Rules
+
+- anonymize or redact sensitive fields before AI processing when possible
+- retain only the minimum logs needed for debugging, safety, and auditability
+- separate prompt inputs, model outputs, and human edits in records where practical
+- document retention and deletion behavior for AI logs and artifacts
+- do not use production secrets in prompts, examples, or evaluation datasets
+
+### Model Training And Fine-Tuning
+
+- default to no-training-on-customer-data unless explicitly approved
+- any fine-tuning or retrieval workflow must be documented and reviewed as a data-processing change
+- use consent, contractual terms, and legal review before using external or user-generated data for training
+
+### AI Data Acceptance Criteria
+
+- the policy states exactly what data can and cannot be sent to AI systems
+- the product has a safe redaction or minimization step where needed
+- AI logs are retained only as long as necessary
+- the workflow remains compliant with the repository's privacy and security baseline
+
 ## Acceptance Criteria
 
 - the product can be explained clearly from the PRD without reading source code first
@@ -405,3 +485,4 @@ This section is a product-planning checklist, not legal advice. Confirm jurisdic
 - the repository remains EmDash-compatible and upstream-safe
 - personas, scope per release, and out-of-scope boundaries are explicit
 - business management and legal/regulatory considerations are documented for operators and reviewers
+- AI strategy, UX, evaluation, and data policy are documented for modern AI-enabled development
