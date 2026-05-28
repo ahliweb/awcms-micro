@@ -7,7 +7,13 @@ import type {
 } from "emdash";
 import type { SandboxedPlugin, SandboxedRequest, SandboxedRouteContext } from "emdash/plugin";
 
-import { SIKESRA_REFERENCE_FIXTURES, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
+import {
+	SIKESRA_REFERENCE_FIXTURES,
+	type SikesraReferenceRegistryEntity,
+	type SikesraReferenceSupportingDocument,
+	type SikesraReferenceVerificationEvent,
+	type SikesraSensitivity,
+} from "./fixtures.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
@@ -26,11 +32,17 @@ export const AWCMS_SIKESRA_STORAGE = {
 	abacChangeEvents: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
+	registryEntities: {
+		indexes: ["code", "entityType", "sensitivity", ["entityType", "sensitivity"]],
+	},
 	abacAttributeCatalog: {
 		indexes: ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],
 	},
 	abacPolicyRules: {
 		indexes: ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
+	},
+	supportingDocuments: {
+		indexes: ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
 	},
 	abacResourceAssignments: {
 		indexes: ["resourceId", "updatedAt"],
@@ -52,6 +64,9 @@ export const AWCMS_SIKESRA_STORAGE = {
 	},
 	userRoleAssignments: {
 		indexes: ["userId", "updatedAt"],
+	},
+	verificationEvents: {
+		indexes: ["registryEntityId", "stage", "createdAt", ["registryEntityId", "createdAt"]],
 	},
 } satisfies PluginStorageConfig;
 
@@ -783,25 +798,39 @@ function getNextVerificationStage(stage: VerificationStage): VerificationStage |
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
-	const custom = await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities");
-	return [...SIKESRA_REFERENCE_FIXTURES.registryEntities, ...(custom ?? [])];
+	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(ctx.storage.registryEntities!);
+	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
 
 async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
-	const custom = await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities") ?? [];
-	custom.push(entity);
-	await ctx.kv.set("custom:registryEntities", custom);
+	const custom = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	const next = [...custom.filter((item) => item.id !== entity.id), entity];
+	await ctx.kv.set("custom:registryEntities", next);
+	await ctx.storage.registryEntities!.put(entity.id, entity);
 }
 
 async function getSupportingDocuments(ctx: PluginContext): Promise<SikesraReferenceSupportingDocument[]> {
-	const custom = await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments");
-	return [...SIKESRA_REFERENCE_FIXTURES.supportingDocuments, ...(custom ?? [])];
+	const legacy = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(ctx.storage.supportingDocuments!);
+	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
 
 async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
-	const custom = await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments") ?? [];
-	custom.push(doc);
-	await ctx.kv.set("custom:supportingDocuments", custom);
+	const custom = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+	const next = [...custom.filter((item) => item.id !== doc.id), doc];
+	await ctx.kv.set("custom:supportingDocuments", next);
+	await ctx.storage.supportingDocuments!.put(doc.id, doc);
+}
+
+async function listVerificationEvents(ctx: PluginContext): Promise<SikesraReferenceVerificationEvent[]> {
+	return listStorageValues<SikesraReferenceVerificationEvent>(ctx.storage.verificationEvents!);
+}
+
+async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
+	await ctx.storage.verificationEvents!.put(event.id, event);
+	await ctx.kv.set("state:lastVerificationEventId", event.id);
+	return event;
 }
 
 async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
@@ -842,6 +871,19 @@ async function listVerificationItems(ctx: PluginContext): Promise<VerificationLi
 
 function toIsoNow() {
 	return new Date().toISOString();
+}
+
+async function listStorageValues<T>(collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> }) {
+	const result = await collection.query({ limit: 200 });
+	return result.items.map((item) => item.data as T);
+}
+
+function mergeById<T extends { id: string }>(...groups: T[][]): T[] {
+	const merged = new Map<string, T>();
+	for (const group of groups) {
+		for (const item of group) merged.set(item.id, item);
+	}
+	return [...merged.values()];
 }
 
 async function getSettings(ctx: PluginContext): Promise<ExampleSettings> {
@@ -1527,7 +1569,7 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	return { items: await listVerificationItems(ctx) };
+	return { items: await listVerificationItems(ctx), events: await listVerificationEvents(ctx) };
 };
 
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -1544,6 +1586,7 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!item.nextStage) {
 		return { success: false, error: { code: "INVALID_STATE", message: `Registry entity ${registryEntityId} is already at the final verification stage` } };
 	}
+	const nextStage = item.nextStage;
 
 	const nextState = await getVerificationStageState(ctx);
 	nextState[registryEntityId] = item.nextStage;
@@ -1565,17 +1608,28 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		}),
 	);
+	const verificationEvent = await appendVerificationEvent(ctx, {
+		id: `${toIsoNow()}:${registryEntityId}:${nextStage}`,
+		registryEntityId,
+		stage: nextStage,
+		actor,
+		result: "approved",
+		notes,
+		createdAt: toIsoNow(),
+	});
 
 	return {
 		success: true,
 		item: {
 			...item,
-			verificationStage: item.nextStage,
-			nextStage: getNextVerificationStage(item.nextStage),
+			verificationStage: nextStage,
+			nextStage: getNextVerificationStage(nextStage),
 			canAdvance: item.nextStage !== "active_verified",
 		},
 		items: await listVerificationItems(ctx),
+		events: await listVerificationEvents(ctx),
 		event,
+		verificationEvent,
 	};
 };
 

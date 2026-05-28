@@ -89,6 +89,7 @@ function createMockContext() {
 		auditEvents: new Map<string, unknown>(),
 		accessChangeEvents: new Map<string, unknown>(),
 		abacChangeEvents: new Map<string, unknown>(),
+		registryEntities: new Map<string, unknown>(),
 		abacAttributeCatalog: new Map<string, unknown>(),
 		abacPolicyRules: new Map<string, unknown>(),
 		abacResourceAssignments: new Map<string, unknown>(),
@@ -98,6 +99,8 @@ function createMockContext() {
 		roleCatalog: new Map<string, unknown>(),
 		rolePermissionAssignments: new Map<string, unknown>(),
 		userRoleAssignments: new Map<string, unknown>(),
+		supportingDocuments: new Map<string, unknown>(),
+		verificationEvents: new Map<string, unknown>(),
 	};
 	const cron = {
 		schedule: vi.fn(async () => {}),
@@ -147,6 +150,7 @@ function createMockContext() {
 				auditEvents: createCollection(collections.auditEvents),
 				accessChangeEvents: createCollection(collections.accessChangeEvents),
 				abacChangeEvents: createCollection(collections.abacChangeEvents),
+				registryEntities: createCollection(collections.registryEntities),
 				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
 				abacPolicyRules: createCollection(collections.abacPolicyRules),
 				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
@@ -156,6 +160,8 @@ function createMockContext() {
 				roleCatalog: createCollection(collections.roleCatalog),
 				rolePermissionAssignments: createCollection(collections.rolePermissionAssignments),
 				userRoleAssignments: createCollection(collections.userRoleAssignments),
+				supportingDocuments: createCollection(collections.supportingDocuments),
+				verificationEvents: createCollection(collections.verificationEvents),
 			},
 		},
 		collections,
@@ -327,10 +333,53 @@ describe("awcms micro example plugin", () => {
 		expect(result.item.verificationStage).toBe("submitted_regency");
 		expect(result.item.nextStage).toBe("active_verified");
 		expect(result.event.kind).toBe("verification.stage.advance");
+		expect(result.verificationEvent.stage).toBe("submitted_regency");
 
 		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
 		expect(after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_regency");
+		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
+		expect(collections.verificationEvents.size).toBe(1);
+	});
+
+	it("persists registry and document records in plugin storage", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			input: {
+				id: "registry-entity-custom-01",
+				code: "CU-001",
+				label: "Custom Registry Entity",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+				publicSummary: "Custom summary",
+			},
+		} as any);
+
+		await routes["documents/save"]!.handler({
+			...ctx,
+			input: {
+				id: "doc-custom-01",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Custom Document",
+				sensitivity: "internal",
+			},
+		} as any);
+
+		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const documents = (await routes["documents/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+
+		expect(registry.items.some((item: any) => item.id === "registry-entity-custom-01")).toBe(true);
+		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
+		expect(collections.registryEntities.size).toBe(1);
+		expect(collections.supportingDocuments.size).toBe(1);
 	});
 
 	it("records lifecycle and cron behavior", async () => {
