@@ -1217,6 +1217,15 @@ function resolveVerifierUserLevelLabel(
 	return level ?? copy.notSet;
 }
 
+function inferVerifierLevelFromActor(actor: string) {
+	if (actor.includes("village")) return "desa_kelurahan";
+	if (actor.includes("district")) return "kecamatan";
+	if (actor.includes("sopd")) return "sopd";
+	if (actor.includes("regency")) return "kabupaten";
+	if (actor.includes("sikesra-admin") || actor.includes("sikesra_admin")) return "admin_sikesra";
+	return null;
+}
+
 function resolveDataTypeNames(
 	code: string,
 	dataTypes: SikesraParentType[]
@@ -2056,6 +2065,10 @@ function VerificationPage() {
 															))}
 														</Select>
 													</div>
+													<div className="grid gap-1 text-xs text-kumo-subtle md:grid-cols-2">
+														<div><strong>{copy.inputLevel}:</strong> {copy.allUserLevels}</div>
+														<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(verifierLevels[item.registryEntityId] ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan", copy)}</div>
+													</div>
 													<div className="flex gap-2 pt-1">
 														<Button
 															disabled={submittingId !== null}
@@ -2114,6 +2127,7 @@ function VerificationPage() {
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
 								<div><strong>Actor:</strong> {item.actor}</div>
+								<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(inferVerifierLevelFromActor(item.actor), copy)}</div>
 								<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
 								<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
 							</div>
