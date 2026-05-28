@@ -53,6 +53,12 @@ export const AWCMS_SIKESRA_STORAGE = {
 	contentSnapshots: {
 		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
 	},
+	settingsState: {
+		indexes: ["key", "updatedAt"],
+	},
+	pluginState: {
+		indexes: ["key", "updatedAt"],
+	},
 	permissionCatalog: {
 		indexes: ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],
 	},
@@ -521,6 +527,18 @@ export interface ExampleSettings {
 	sikesraPublicEnabled: boolean;
 }
 
+interface StoredSettingRecord {
+	key: string;
+	value: string | number | boolean;
+	updatedAt: string;
+}
+
+interface StoredStateRecord {
+	key: string;
+	value: string | number | boolean | null;
+	updatedAt: string;
+}
+
 export interface AccessPermission {
 	slug: string;
 	label: string;
@@ -878,6 +896,48 @@ async function listStorageValues<T>(collection: { query: (options?: any) => Prom
 	return result.items.map((item) => item.data as T);
 }
 
+async function getStoredSettings(ctx: PluginContext) {
+	const records = await listStorageValues<StoredSettingRecord>(ctx.storage.settingsState!);
+	const map = new Map<string, StoredSettingRecord>();
+	for (const record of records) map.set(record.key, record);
+	return map;
+}
+
+async function getStoredState(ctx: PluginContext) {
+	const records = await listStorageValues<StoredStateRecord>(ctx.storage.pluginState!);
+	const map = new Map<string, StoredStateRecord>();
+	for (const record of records) map.set(record.key, record);
+	return map;
+}
+
+async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
+	const now = toIsoNow();
+	const records: StoredSettingRecord[] = [
+		{ key: "publicStatusLabel", value: next.publicStatusLabel, updatedAt: now },
+		{ key: "auditRetentionDays", value: next.auditRetentionDays, updatedAt: now },
+		{ key: "governanceMode", value: next.governanceMode, updatedAt: now },
+		{ key: "metadataCanonicalBase", value: next.metadataCanonicalBase, updatedAt: now },
+		{ key: "smallCellThreshold", value: next.smallCellThreshold, updatedAt: now },
+		{ key: "sikesraPublicEnabled", value: next.sikesraPublicEnabled, updatedAt: now },
+	];
+
+	for (const record of records) {
+		await ctx.storage.settingsState!.put(record.key, record);
+	}
+}
+
+async function persistStateValue(ctx: PluginContext, key: string, value: StoredStateRecord["value"]) {
+	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
+	await ctx.storage.pluginState!.put(key, record);
+	await ctx.kv.set(key, value);
+}
+
+async function readStateValue<T extends StoredStateRecord["value"]>(ctx: PluginContext, key: string, fallback: T): Promise<T> {
+	const stored = await getStoredState(ctx);
+	const record = stored.get(key);
+	return (record?.value as T | undefined) ?? (await ctx.kv.get<T>(key)) ?? fallback;
+}
+
 function mergeById<T extends { id: string }>(...groups: T[][]): T[] {
 	const merged = new Map<string, T>();
 	for (const group of groups) {
@@ -887,6 +947,7 @@ function mergeById<T extends { id: string }>(...groups: T[][]): T[] {
 }
 
 async function getSettings(ctx: PluginContext): Promise<ExampleSettings> {
+	const storedSettings = await getStoredSettings(ctx);
 	const publicStatusLabel = await ctx.kv.get<string>("settings:publicStatusLabel");
 	const auditRetentionDays = await ctx.kv.get<number>("settings:auditRetentionDays");
 	const governanceMode = await ctx.kv.get<string>("settings:governanceMode");
@@ -895,12 +956,30 @@ async function getSettings(ctx: PluginContext): Promise<ExampleSettings> {
 	const sikesraPublicEnabled = await ctx.kv.get<boolean>("settings:sikesraPublicEnabled");
 
 	return {
-		publicStatusLabel: publicStatusLabel ?? DEFAULT_SETTINGS.publicStatusLabel,
-		auditRetentionDays: auditRetentionDays ?? DEFAULT_SETTINGS.auditRetentionDays,
-		governanceMode: governanceMode ?? DEFAULT_SETTINGS.governanceMode,
-		metadataCanonicalBase: metadataCanonicalBase ?? DEFAULT_SETTINGS.metadataCanonicalBase,
-		smallCellThreshold: smallCellThreshold ?? DEFAULT_SETTINGS.smallCellThreshold,
-		sikesraPublicEnabled: sikesraPublicEnabled ?? DEFAULT_SETTINGS.sikesraPublicEnabled,
+		publicStatusLabel:
+			typeof storedSettings.get("publicStatusLabel")?.value === "string"
+				? (storedSettings.get("publicStatusLabel")!.value as string)
+				: publicStatusLabel ?? DEFAULT_SETTINGS.publicStatusLabel,
+		auditRetentionDays:
+			typeof storedSettings.get("auditRetentionDays")?.value === "number"
+				? (storedSettings.get("auditRetentionDays")!.value as number)
+				: auditRetentionDays ?? DEFAULT_SETTINGS.auditRetentionDays,
+		governanceMode:
+			typeof storedSettings.get("governanceMode")?.value === "string"
+				? (storedSettings.get("governanceMode")!.value as string)
+				: governanceMode ?? DEFAULT_SETTINGS.governanceMode,
+		metadataCanonicalBase:
+			typeof storedSettings.get("metadataCanonicalBase")?.value === "string"
+				? (storedSettings.get("metadataCanonicalBase")!.value as string)
+				: metadataCanonicalBase ?? DEFAULT_SETTINGS.metadataCanonicalBase,
+		smallCellThreshold:
+			typeof storedSettings.get("smallCellThreshold")?.value === "number"
+				? (storedSettings.get("smallCellThreshold")!.value as number)
+				: smallCellThreshold ?? DEFAULT_SETTINGS.smallCellThreshold,
+		sikesraPublicEnabled:
+			typeof storedSettings.get("sikesraPublicEnabled")?.value === "boolean"
+				? (storedSettings.get("sikesraPublicEnabled")!.value as boolean)
+				: sikesraPublicEnabled ?? DEFAULT_SETTINGS.sikesraPublicEnabled,
 	};
 }
 
@@ -921,6 +1000,7 @@ async function setSettings(ctx: PluginContext, input: unknown) {
 	await ctx.kv.set("settings:metadataCanonicalBase", next.metadataCanonicalBase);
 	await ctx.kv.set("settings:smallCellThreshold", next.smallCellThreshold);
 	await ctx.kv.set("settings:sikesraPublicEnabled", next.sikesraPublicEnabled);
+	await persistSettings(ctx, next);
 
 	return next;
 }

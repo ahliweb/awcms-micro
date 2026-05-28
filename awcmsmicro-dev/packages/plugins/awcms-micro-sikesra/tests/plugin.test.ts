@@ -90,6 +90,7 @@ function createMockContext() {
 		accessChangeEvents: new Map<string, unknown>(),
 		abacChangeEvents: new Map<string, unknown>(),
 		registryEntities: new Map<string, unknown>(),
+		settingsState: new Map<string, unknown>(),
 		abacAttributeCatalog: new Map<string, unknown>(),
 		abacPolicyRules: new Map<string, unknown>(),
 		abacResourceAssignments: new Map<string, unknown>(),
@@ -151,6 +152,7 @@ function createMockContext() {
 				accessChangeEvents: createCollection(collections.accessChangeEvents),
 				abacChangeEvents: createCollection(collections.abacChangeEvents),
 				registryEntities: createCollection(collections.registryEntities),
+				settingsState: createCollection(collections.settingsState),
 				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
 				abacPolicyRules: createCollection(collections.abacPolicyRules),
 				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
@@ -308,6 +310,7 @@ describe("awcms micro example plugin", () => {
 		expect(publicResult).not.toHaveProperty("storageKey");
 		expect(publicResult).not.toHaveProperty("userId");
 		expect(kvData.get("settings:governanceMode")).toBe("observe");
+		expect(collections.settingsState.size).toBe(6);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
