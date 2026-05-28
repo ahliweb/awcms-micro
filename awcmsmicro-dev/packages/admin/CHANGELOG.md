@@ -1,5 +1,12 @@
 # @emdash-cms/admin
 
+## 0.15.1
+
+### Patch Changes
+
+- Moves plugin admin pages to standalone groups immediately after Dashboard in the sidebar, aligns command palette ordering with the same plugin-first navigation priority, and gives plugin sidebar groups contextual icons from plugin metadata.
+- Adds parent-selection cues to `MenuEditor` and `ContentPickerModal` so nested content selection stays visible while editors choose the target parent.
+
 ## 0.15.0
 
 ### Minor Changes
