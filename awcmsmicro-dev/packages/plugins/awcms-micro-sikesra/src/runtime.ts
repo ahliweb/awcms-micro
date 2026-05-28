@@ -44,6 +44,9 @@ export const AWCMS_SIKESRA_STORAGE = {
 	supportingDocuments: {
 		indexes: ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
 	},
+	verificationStageState: {
+		indexes: ["registryEntityId", "stage", "updatedAt", ["registryEntityId", "updatedAt"]],
+	},
 	abacResourceAssignments: {
 		indexes: ["resourceId", "updatedAt"],
 	},
@@ -539,6 +542,12 @@ interface StoredStateRecord {
 	updatedAt: string;
 }
 
+interface StoredVerificationStageRecord {
+	registryEntityId: string;
+	stage: VerificationStage;
+	updatedAt: string;
+}
+
 export interface AccessPermission {
 	slug: string;
 	label: string;
@@ -852,9 +861,16 @@ async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferen
 }
 
 async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
-	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
 	const entities = await getRegistryEntities(ctx);
 	const defaultState = Object.fromEntries(entities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
+	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(ctx.storage.verificationStageState!);
+	if (storedRecords.length > 0) {
+		return {
+			...defaultState,
+			...Object.fromEntries(storedRecords.map((record) => [record.registryEntityId, record.stage])),
+		};
+	}
+	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
 	if (stored && typeof stored === "object") {
 		return { ...defaultState, ...stored };
 	}
@@ -862,6 +878,13 @@ async function getVerificationStageState(ctx: PluginContext): Promise<Record<str
 }
 
 async function setVerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
+	for (const [registryEntityId, stage] of Object.entries(state)) {
+		await ctx.storage.verificationStageState!.put(registryEntityId, {
+			registryEntityId,
+			stage,
+			updatedAt: toIsoNow(),
+		});
+	}
 	await ctx.kv.set(VERIFICATION_STATE_KEY, state);
 }
 

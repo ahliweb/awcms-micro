@@ -92,6 +92,7 @@ function createMockContext() {
 		registryEntities: new Map<string, unknown>(),
 		settingsState: new Map<string, unknown>(),
 		pluginState: new Map<string, unknown>(),
+		verificationStageState: new Map<string, unknown>(),
 		abacAttributeCatalog: new Map<string, unknown>(),
 		abacPolicyRules: new Map<string, unknown>(),
 		abacResourceAssignments: new Map<string, unknown>(),
@@ -155,6 +156,7 @@ function createMockContext() {
 				registryEntities: createCollection(collections.registryEntities),
 				settingsState: createCollection(collections.settingsState),
 				pluginState: createCollection(collections.pluginState),
+				verificationStageState: createCollection(collections.verificationStageState),
 				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
 				abacPolicyRules: createCollection(collections.abacPolicyRules),
 				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
@@ -347,6 +349,7 @@ describe("awcms micro example plugin", () => {
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 		expect(collections.verificationEvents.size).toBe(1);
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_regency" });
 		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({ key: "state:lastVerificationEventId", value: expect.stringContaining("registry-entity-guru-agama-01") });
 	});
 
