@@ -18,6 +18,9 @@ export function AwcmsPluginHeaderMenu({
 	defaultLocale = "en",
 	messages,
 }: AwcmsPluginHeaderMenuProps) {
+	const description = locale.startsWith("id")
+		? "Navigasi administrasi plugin bertingkat untuk AWCMS-Micro."
+		: "AWCMS-Micro nested plugin administration navigation menu.";
 	const activeGroup = groups.find((group) =>
 		group.items.some((item) =>
 			currentPath === item.path || currentPath.startsWith(item.path + "/") ||
@@ -48,7 +51,7 @@ export function AwcmsPluginHeaderMenu({
 					</h2>
 				</div>
 				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					AWCMS-Micro nested plugin administration navigation menu.
+					{description}
 				</p>
 			</div>
 
