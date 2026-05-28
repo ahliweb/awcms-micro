@@ -12,6 +12,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `decision-records.md`: lightweight index of major AWCMS-Micro repository decisions
 - `awcms-micro-product-readme-draft.md`: sync-safe draft README for the future independent `awcms-micro` repository
 - `awcms-micro-product-readme-final.md`: final product-facing README source for the independent `awcms-micro` repository
+- `awcms-micro-prd.md`: detailed PRD for the future independent `awcms-micro` repository, including architecture, schema, and Mermaid diagrams
 - `awcms-micro-repository-promotion-checklist.md`: repository promotion steps and verification checklist for the independent `awcms-micro` repository
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcms-micro-root-versioning.md`: root-level AWCMS maintenance versioning and changelog flow, including the workspace snapshot for every plugin and template in `awcmsmicro-dev/`
@@ -40,19 +41,20 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 7. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
 8. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
 9. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
-10. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
-11. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
-12. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
-13. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
-14. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
-15. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
-16. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
-17. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-18. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-19. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-20. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
-21. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-22. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+10. Read `awcms-micro-prd.md` before changing product requirements, architecture, database, or user-flow assumptions.
+11. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
+12. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
+13. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
+14. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
+15. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
+16. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
+17. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
+18. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+19. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+20. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+21. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+22. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+23. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 

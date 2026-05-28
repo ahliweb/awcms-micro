@@ -65,6 +65,7 @@ Exception:
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
 - `docs/operator-workflow.md`
+- `docs/awcms-micro-prd.md`
 - `docs/awcms-micro-versioning.md`
 - `docs/awcms-micro-root-versioning.md`
 - `docs/awcms-micro-versioning-rollout-summary.md`

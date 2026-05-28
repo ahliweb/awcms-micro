@@ -61,7 +61,7 @@ Minimum recommended checks:
 7. `pnpm --filter @awcms-micro/plugin-gallery test`
 8. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
-Add template- or plugin-specific checks if the release scope requires them.
+These commands are examples. Repeat the relevant plugin or template checks for every package in the current release scope, and add any surface-specific UI, backend, or database checks that apply.
 
 ## Exit Criteria
 
