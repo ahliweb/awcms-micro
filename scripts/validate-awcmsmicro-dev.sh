@@ -22,6 +22,7 @@ mkdir -p "$(dirname "$REPORT_FILE")"
 
 STARTED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 BRANCH_NAME="$(git -C "$ROOT_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
+OPERATOR_NAME="${SYNC_OPERATOR:-${USER:-unknown}}"
 TMP_OUTPUT="$(mktemp)"
 STATUS="Running"
 FAILURE_CATEGORY="None"
@@ -57,6 +58,8 @@ trap cleanup EXIT
 
 write_report() {
 	local completed_at="$1"
+	local normalized_output
+	normalized_output="$(sed -E 's/[[:space:]]+$//' "$TMP_OUTPUT")"
 	cat >"$REPORT_TMP" <<EOF
 # Last Validation
 
@@ -65,7 +68,7 @@ write_report() {
 - Date:
   - Started: $STARTED_AT
   - Completed: $completed_at
-- Operator: Placeholder: update manually if needed
+- Operator: $OPERATOR_NAME
 - Branch: \`$BRANCH_NAME\`
 - Upstream commit SHA: \`$UPSTREAM_SHA\`
 - Validation scope: \`awcmsmicro-dev\` workspace validation
@@ -97,7 +100,7 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 ## Detailed Output
 
 \`\`\`text
-$(cat "$TMP_OUTPUT")
+$normalized_output
 \`\`\`
 EOF
 	mv "$REPORT_TMP" "$REPORT_FILE"

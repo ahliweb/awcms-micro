@@ -15,9 +15,6 @@ export const API_BASE = "/_emdash/api";
 export function apiFetch(input: string | URL | Request, init?: RequestInit): Promise<Response> {
 	const headers = new Headers(init?.headers);
 	headers.set("X-EmDash-Request", "1");
-	if (i18n.locale) {
-		headers.set("Accept-Language", i18n.locale);
-	}
 	return fetch(input, { ...init, headers });
 }
 

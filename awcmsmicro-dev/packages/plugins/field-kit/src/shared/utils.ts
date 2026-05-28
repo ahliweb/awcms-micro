@@ -11,13 +11,10 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 	const source =
 		value && typeof value === "object" && !Array.isArray(value)
 			? (value as Record<string, unknown>)
-			: null;
-	const obj: Record<string, unknown> = Object.create(null);
-	if (source) {
-		Object.assign(obj, source);
-	}
+			: {};
+	const obj: Record<string, unknown> = { ...source };
 	for (const field of fields) {
-		if (!source || !Object.hasOwn(source, field.key) || source[field.key] === undefined) {
+		if (source[field.key] === undefined) {
 			obj[field.key] = field.defaultValue ?? undefined;
 		}
 	}
@@ -43,9 +40,9 @@ export function normalizeGrid(
 	rows: GridAxisDef[],
 	columns: GridAxisDef[],
 ): Record<string, Record<string, unknown>> {
-	const out: Record<string, Record<string, unknown>> = Object.create(null);
+	const out: Record<string, Record<string, unknown>> = {};
 	for (const row of rows) {
-		out[row.key] = Object.create(null);
+		out[row.key] = {};
 	}
 
 	if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -59,12 +56,7 @@ export function normalizeGrid(
 		if (Array.isArray(rowVal)) {
 			// Legacy array format: convert ["leaf", "fruit"] → { leaf: true, fruit: true }
 			for (const code of rowVal) {
-				if (
-					typeof code === "string" &&
-					code !== "__proto__" &&
-					code !== "constructor" &&
-					code !== "prototype"
-				) {
+				if (typeof code === "string") {
 					rowOut[code] = true;
 				}
 			}
@@ -75,7 +67,7 @@ export function normalizeGrid(
 			const rowObj = rowVal as Record<string, unknown>;
 			Object.assign(rowOut, rowObj);
 			for (const col of columns) {
-				if (Object.hasOwn(rowObj, col.key) && rowObj[col.key] !== undefined) {
+				if (rowObj[col.key] !== undefined) {
 					rowOut[col.key] = rowObj[col.key];
 				}
 			}

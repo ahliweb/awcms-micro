@@ -18,8 +18,6 @@ For human-facing contributor info (setup, repo layout, PR policy, changesets, i1
 
 Run `pnpm lint:json | jq '.diagnostics | length'` before starting and confirm it's clean -- if it's failing after your edits, your changes caused it.
 
-When you change a plugin or template package, keep that package's `package.json` version and `CHANGELOG.md` current, and add the matching AWCMS changeset in `awcmsmicro-dev/.awcms-changesets/`.
-
 During work:
 
 - `pnpm lint:quick` after every edit (sub-second)

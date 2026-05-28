@@ -29,6 +29,8 @@ bash scripts/update-emdash-latest.sh
 bash scripts/update-awcmsmicro-dev.sh
 ```
 
+This rebuild path also prunes stale directories that remain only because they contain excluded transient artifacts such as `node_modules/`, `dist/`, `.vite/`, or `.mf/` after an upstream path is removed.
+
 ### 3. Validate Boundaries And Workspace
 
 ```bash

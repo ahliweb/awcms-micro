@@ -860,29 +860,6 @@ https://${domain}/123456
 				asset: { url: "https://example.com/photo3.jpg" },
 			});
 		});
-
-		it("converts gallery from raw HTML image tags", () => {
-			const content = `<!-- wp:gallery {"columns":2} -->
-<figure class="wp-block-gallery">
-<img src="https://example.com/raw-1.jpg" alt="Raw 1" data-id="11">
-<img src="https://example.com/raw-2.jpg" alt="Raw 2" data-id="12">
-</figure>
-<!-- /wp:gallery -->`;
-
-			const result = gutenbergToPortableText(content);
-
-			expect(result).toHaveLength(1);
-			const gallery = result[0] as PortableTextGalleryBlock;
-			expect(gallery.images).toHaveLength(2);
-			expect(gallery.images[0]).toMatchObject({
-				alt: "Raw 1",
-				asset: { url: "https://example.com/raw-1.jpg" },
-			});
-			expect(gallery.images[1]).toMatchObject({
-				alt: "Raw 2",
-				asset: { url: "https://example.com/raw-2.jpg" },
-			});
-		});
 	});
 
 	describe("cover blocks", () => {

@@ -17,6 +17,14 @@ TRANSIENT_SUBPATH_EXCLUDES=(
 	"--exclude=.vite"
 	"--exclude=.mf"
 )
+TRANSIENT_SUBPATH_NAMES=(
+	"node_modules"
+	"dist"
+	".astro"
+	".wrangler"
+	".vite"
+	".mf"
+)
 
 log() {
 	printf '[awcmsmicro-dev sync] %s\n' "$1"
@@ -67,6 +75,73 @@ restore_protected_paths() {
 	done < "$PROTECTED_PATHS_FILE"
 }
 
+is_protected_path() {
+	local candidate="$1"
+	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
+		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
+			continue
+		fi
+		if [[ "$candidate" == "$relative_path" || "$candidate" == "$relative_path"/* ]]; then
+			return 0
+		fi
+	done < "$PROTECTED_PATHS_FILE"
+	return 1
+}
+
+contains_only_transient_children() {
+	local dir="$1"
+	local child
+	local has_entries="0"
+
+	shopt -s nullglob dotglob
+	for child in "$dir"/*; do
+		local base
+		base="$(basename "$child")"
+		if [[ "$base" == "." || "$base" == ".." ]]; then
+			continue
+		fi
+		has_entries="1"
+		local allowed="0"
+		for transient in "${TRANSIENT_SUBPATH_NAMES[@]}"; do
+			if [[ "$base" == "$transient" ]]; then
+				allowed="1"
+				break
+			fi
+		done
+		if [[ "$allowed" != "1" ]]; then
+			shopt -u nullglob dotglob
+			return 1
+		fi
+		if [[ ! -d "$child" ]]; then
+			shopt -u nullglob dotglob
+			return 1
+		fi
+	done
+	shopt -u nullglob dotglob
+	[[ "$has_entries" == "1" ]]
+}
+
+prune_stale_transient_dirs() {
+	log "Pruning stale directories that only contain transient build artifacts"
+	while IFS= read -r absolute_path; do
+		local relative_path
+		relative_path="$(realpath --relative-to="$TARGET_DIR" "$absolute_path")"
+		if [[ -z "$relative_path" || "$relative_path" == "." ]]; then
+			continue
+		fi
+		if [[ -e "$SOURCE_DIR/$relative_path" ]]; then
+			continue
+		fi
+		if is_protected_path "$relative_path"; then
+			continue
+		fi
+		if contains_only_transient_children "$absolute_path"; then
+			log "Removing stale transient-only directory $relative_path"
+			rm -rf "$absolute_path"
+		fi
+	done < <(find "$TARGET_DIR" -mindepth 1 -depth -type d)
+}
+
 load_protected_rsync_args() {
 	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
 		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
@@ -103,9 +178,12 @@ rsync -a \
 	--exclude='dist' \
 	--exclude='.astro' \
 	--exclude='.wrangler' \
+	--exclude='.vite' \
+	--exclude='.mf' \
 	"${RSYNC_PROTECTED_ARGS[@]}" \
 	"$SOURCE_DIR/" "$TARGET_DIR/"
 
+prune_stale_transient_dirs
 restore_protected_paths
 
 log "awcmsmicro-dev has been rebuilt from emdash-latest while preserving approved AWCMS-Micro paths"

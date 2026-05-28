@@ -3,11 +3,11 @@
 ## Validation Run Metadata
 
 - Date:
-  - Started: 2026-05-26T21:22:18Z
-  - Completed: 2026-05-26T21:24:18Z
-- Operator: Antigravity
+  - Started: 2026-05-28T18:00:24Z
+  - Completed: 2026-05-28T18:02:09Z
+- Operator: unggul
 - Branch: `main`
-- Upstream commit SHA: `62f89fecd57be8774d71a911113671c59b599de2`
+- Upstream commit SHA: `139a4d5c965c2444fcb10be95ffe112855e19e52`
 - Validation scope: `awcmsmicro-dev` workspace validation
 
 ## Commands
@@ -40,70 +40,13 @@ bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
 $ pnpm install
 ==> pnpm-install
 Scope: all 59 workspace projects
-[WARN] There are cyclic workspace dependencies: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth-atproto, /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core
-Progress: resolved 1, reused 0, downloaded 0, added 0
-Progress: resolved 50, reused 49, downloaded 0, added 0
-Progress: resolved 104, reused 104, downloaded 0, added 0
-Progress: resolved 170, reused 170, downloaded 0, added 0
-Progress: resolved 182, reused 182, downloaded 0, added 0
-Progress: resolved 184, reused 184, downloaded 0, added 0
-Progress: resolved 440, reused 387, downloaded 0, added 0
-Progress: resolved 691, reused 620, downloaded 0, added 0
-Progress: resolved 1212, reused 977, downloaded 0, added 0
-Progress: resolved 1729, reused 1441, downloaded 0, added 0
-Progress: resolved 1798, reused 1510, downloaded 0, added 0
-Progress: resolved 1807, reused 1519, downloaded 0, added 0
-[WARN] 5 deprecated subdependencies found: glob@11.1.0, node-domexception@1.0.0, prebuild-install@7.1.3, tar@6.2.1, whatwg-encoding@3.1.1
 Already up to date
-Progress: resolved 1807, reused 1519, downloaded 0, added 0, done
-packages/plugins/awcms-micro-gallery prepare$ node --run build
-packages/plugins/awcms-micro-sikesra prepare$ node --run build
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox.ts[39m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m Build start
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m Cleaning 10 files
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m Build start
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m Cleaning 8 files
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                    [2m 7.13 kB[22m [2m│ gzip: 2.15 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[1msandbox.mjs[22m                  [2m 5.35 kB[22m [2m│ gzip: 1.66 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22mindex.mjs.map                [2m12.72 kB[22m [2m│ gzip: 3.55 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22msandbox.mjs.map              [2m10.02 kB[22m [2m│ gzip: 2.87 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22mvalidation-M9D7cuf8.mjs.map  [2m 8.56 kB[22m [2m│ gzip: 2.56 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22mvalidation-M9D7cuf8.mjs      [2m 4.55 kB[22m [2m│ gzip: 1.45 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22mindex.d.mts.map              [2m 0.80 kB[22m [2m│ gzip: 0.34 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22msandbox.d.mts.map            [2m 0.12 kB[22m [2m│ gzip: 0.12 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m                  [2m 2.63 kB[22m [2m│ gzip: 0.82 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.mts[22m[39m                [2m 0.21 kB[22m [2m│ gzip: 0.16 kB[22m
-packages/plugins/awcms-micro-gallery prepare: [34mℹ[39m 10 files, total: 52.09 kB
-packages/plugins/awcms-micro-gallery prepare: [32m✔[39m Build complete in [32m1511ms[39m
-packages/plugins/awcms-micro-gallery prepare: Done
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
-packages/plugins/awcms-micro-sikesra prepare: [34mℹ[39m 8 files, total: 156.33 kB
-packages/plugins/awcms-micro-sikesra prepare: [32m✔[39m Build complete in [32m2383ms[39m
-packages/plugins/awcms-micro-sikesra prepare: Done
-[WARN] Issues with peer dependencies found. Run "pnpm peers check" to list them.
-
-Done in 18.7s using pnpm v11.1.3
+Done in 332ms using pnpm v11.1.3
 $ pnpm --filter emdash build
 ==> pnpm-build-emdash
 $ tsdown
 [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-[34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core/tsdown.config.ts[24m 
+[34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core/tsdown.config.ts[24m
 [34mℹ[39m entry: [34msrc/index.ts, src/request-context.ts, src/astro/index.ts, src/astro/middleware.ts, src/astro/middleware/setup.ts, src/astro/middleware/auth.ts, src/astro/middleware/redirect.ts, src/astro/middleware/request-context.ts, src/astro/types.ts, src/db/index.ts, src/db/sqlite.ts, src/db/libsql.ts, src/db/postgres.ts, src/database/instrumentation.ts, src/storage/local.ts, src/storage/s3.ts, src/media/index.ts, src/media/local-runtime.ts, src/runtime.ts, src/seed/index.ts, src/cli/index.ts, src/client/index.ts, src/client/cf-access.ts, src/seo/index.ts, src/page/index.ts, src/plugin-utils.ts, src/plugin-types.ts, src/plugins/adapt-sandbox-entry.ts, src/api/route-utils.ts, src/api/schemas/index.ts, src/auth/providers/github.ts, src/auth/providers/google.ts[39m
 [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 [34mℹ[39m Build start
@@ -411,7 +354,7 @@ $ tsdown
 [34mℹ[39m [2mdist/[22mastro/routes/api/setup/dev-bypass.mjs.map                                [2m  8.60 kB[22m [2m│ gzip:  3.24 kB[22m
 [34mℹ[39m [2mdist/[22mapi-tokens-ucpcNXDt.mjs.map                                              [2m  8.50 kB[22m [2m│ gzip:  2.44 kB[22m
 [34mℹ[39m [2mdist/[22mmedia/local-runtime.mjs.map                                              [2m  8.45 kB[22m [2m│ gzip:  2.58 kB[22m
-[34mℹ[39m [2mdist/[22mbylines-B2_XmnSU.d.mts.map                                               [2m  8.45 kB[22m [2m│ gzip:  1.47 kB[22m
+[34mℹ[39m [2mdist/[22mbylines-BjDZCfex.d.mts.map                                               [2m  8.45 kB[22m [2m│ gzip:  1.47 kB[22m
 [34mℹ[39m [2mdist/[22mastro/routes/api/oauth/register.mjs.map                                  [2m  8.19 kB[22m [2m│ gzip:  2.94 kB[22m
 [34mℹ[39m [2mdist/[22mallowed-origins-D0fFk9a6.mjs.map                                         [2m  8.19 kB[22m [2m│ gzip:  3.02 kB[22m
 [34mℹ[39m [2mdist/[22mrequest-meta-C_Cjii-T.mjs.map                                            [2m  8.19 kB[22m [2m│ gzip:  3.14 kB[22m
@@ -701,7 +644,7 @@ $ tsdown
 [34mℹ[39m [2mdist/[22mseo/index.d.mts.map                                                      [2m  0.64 kB[22m [2m│ gzip:  0.36 kB[22m
 [34mℹ[39m [2mdist/[22mstorage/local.d.mts.map                                                  [2m  0.62 kB[22m [2m│ gzip:  0.32 kB[22m
 [34mℹ[39m [2mdist/[22mtypes-Dgo6y-Ut.d.mts.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.31 kB[22m
-[34mℹ[39m [2mdist/[22mversion-DIx_t5XX.mjs.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.33 kB[22m
+[34mℹ[39m [2mdist/[22mversion-DSZ2FO1K.mjs.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.33 kB[22m
 [34mℹ[39m [2mdist/[22mescape-Cg6kMELH.mjs.map                                                  [2m  0.58 kB[22m [2m│ gzip:  0.34 kB[22m
 [34mℹ[39m [2mdist/[22mmode-CaaiebZI.mjs                                                        [2m  0.58 kB[22m [2m│ gzip:  0.36 kB[22m
 [34mℹ[39m [2mdist/[22mrequest-context.d.mts.map                                                [2m  0.57 kB[22m [2m│ gzip:  0.31 kB[22m
@@ -846,7 +789,7 @@ $ tsdown
 [34mℹ[39m [2mdist/[22mastro/routes/api/auth/signup/request.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 [34mℹ[39m [2mdist/[22mastro/routes/api/menus/_name_/reorder.d.mts.map                          [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 [34mℹ[39m [2mdist/[22mastro/routes/api/schema/orphans/_slug_.d.mts.map                         [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
-[34mℹ[39m [2mdist/[22mversion-DIx_t5XX.mjs                                                     [2m  0.17 kB[22m [2m│ gzip:  0.16 kB[22m
+[34mℹ[39m [2mdist/[22mversion-DSZ2FO1K.mjs                                                     [2m  0.17 kB[22m [2m│ gzip:  0.16 kB[22m
 [34mℹ[39m [2mdist/[22mastro/middleware/redirect.d.mts.map                                      [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 [34mℹ[39m [2mdist/[22mastro/routes/api/oauth/token/refresh.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 [34mℹ[39m [2mdist/[22mastro/routes/api/auth/passkey/verify.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
@@ -1088,7 +1031,7 @@ $ tsdown
 [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/api/auth/mode.d.mts[22m[39m                                         [2m  0.22 kB[22m [2m│ gzip:  0.17 kB[22m
 [34mℹ[39m [2mdist/[22m[32m[1mcli/index.d.mts[22m[39m                                                          [2m  0.01 kB[22m [2m│ gzip:  0.03 kB[22m
 [34mℹ[39m [2mdist/[22m[32mindex-FyFO19Gd.d.mts[39m                                                     [2m152.20 kB[22m [2m│ gzip: 40.96 kB[22m
-[34mℹ[39m [2mdist/[22m[32mbylines-B2_XmnSU.d.mts[39m                                                   [2m 73.07 kB[22m [2m│ gzip:  8.45 kB[22m
+[34mℹ[39m [2mdist/[22m[32mbylines-BjDZCfex.d.mts[39m                                                   [2m 73.07 kB[22m [2m│ gzip:  8.45 kB[22m
 [34mℹ[39m [2mdist/[22m[32mtypes-DGHWRQgr.d.mts[39m                                                     [2m 39.71 kB[22m [2m│ gzip: 10.61 kB[22m
 [34mℹ[39m [2mdist/[22m[32mtypes-DaqNzqVt.d.mts[39m                                                     [2m 11.55 kB[22m [2m│ gzip:  2.61 kB[22m
 [34mℹ[39m [2mdist/[22m[32mtypes-bYmRn_Uy.d.mts[39m                                                     [2m  9.78 kB[22m [2m│ gzip:  3.24 kB[22m
@@ -1106,11 +1049,11 @@ $ tsdown
 [34mℹ[39m [2mdist/[22m[32mtransport-DOxLfUir.d.mts[39m                                                 [2m  1.67 kB[22m [2m│ gzip:  0.76 kB[22m
 [34mℹ[39m 995 files, total: 6909.22 kB
 [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
-  - rolldown-plugin-dts:generate (50%)
-  - rolldown-plugin-dts:resolver (33%)
+  - rolldown-plugin-dts:generate (41%)
+  - rolldown-plugin-dts:resolver (36%)
 See https://rolldown.rs/options/checks#plugintimings for more details.
 
-[32m✔[39m Build complete in [32m6144ms[39m
+[32m✔[39m Build complete in [32m5261ms[39m
 $ pnpm --filter @emdash-cms/registry-lexicons build
 ==> pnpm-build-registry-lexicons
 $ pnpm run build:lexicons && pnpm run build:types
@@ -1118,7 +1061,7 @@ $ node scripts/copy-lexicons.mjs
 using in-package lexicon copy at /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/lexicons/com/emdashcms/experimental (no source at /home/data/dev_react/awcms-micro/awcmsmicro-dev/lexicons/com/emdashcms/experimental)
 $ tsdown
 [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-[34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/tsdown.config.ts[24m 
+[34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/tsdown.config.ts[24m
 [34mℹ[39m entry: [34msrc/index.ts, src/generated/types/com/emdashcms/experimental/aggregator/defs.ts, src/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.ts, src/generated/types/com/emdashcms/experimental/aggregator/getPackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/listReleases.ts, src/generated/types/com/emdashcms/experimental/aggregator/resolvePackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/searchPackages.ts, src/generated/types/com/emdashcms/experimental/package/profile.ts, src/generated/types/com/emdashcms/experimental/package/release.ts, src/generated/types/com/emdashcms/experimental/package/releaseExtension.ts, src/generated/types/com/emdashcms/experimental/publisher/profile.ts, src/generated/types/com/emdashcms/experimental/publisher/verification.ts[39m
 [34mℹ[39m target: [34mes2023[39m
 [34mℹ[39m tsconfig: [34mtsconfig.json[39m
@@ -1174,7 +1117,7 @@ $ tsdown
 [34mℹ[39m [2mdist/[22m[32m[1mgenerated/types/com/emdashcms/experimental/aggregator/getLatestRelease.d.ts[22m[39m      [2m 1.25 kB[22m [2m│ gzip: 0.58 kB[22m
 [34mℹ[39m [2mdist/[22m[32m[1mgenerated/types/com/emdashcms/experimental/aggregator/getPackage.d.ts[22m[39m            [2m 1.20 kB[22m [2m│ gzip: 0.57 kB[22m
 [34mℹ[39m 49 files, total: 154.54 kB
-[32m✔[39m Build complete in [32m654ms[39m
+[32m✔[39m Build complete in [32m701ms[39m
 $ pnpm build
 ==> pnpm-build-workspace
 $ pnpm run --filter {./packages/**} build
@@ -1183,35 +1126,35 @@ packages/auth build$ tsdown
 packages/blocks build$ tsdown
 packages/contentful-to-portable-text build$ tsdown src/index.ts --format esm --dts --clean
 packages/create-emdash build$ tsdown
-packages/contentful-to-portable-text build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/create-emdash build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/contentful-to-portable-text build: [34mℹ[39m entry: [34msrc/index.ts[39m
-packages/contentful-to-portable-text build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/contentful-to-portable-text build: [34mℹ[39m Build start
-packages/contentful-to-portable-text build: [34mℹ[39m Cleaning 4 files
-packages/auth build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
 packages/blocks build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/create-emdash build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash/tsdown.config.ts[24m 
-packages/create-emdash build: [34mℹ[39m entry: [34msrc/index.ts[39m
-packages/create-emdash build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/create-emdash build: [34mℹ[39m Build start
-packages/create-emdash build: [34mℹ[39m Cleaning 3 files
-packages/auth build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth/tsdown.config.ts[24m 
-packages/auth build: [34mℹ[39m entry: [34msrc/index.ts, src/passkey/index.ts, src/adapters/kysely.ts, src/oauth/providers/github.ts, src/oauth/providers/google.ts[39m
-packages/auth build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/auth build: [34mℹ[39m Build start
-packages/auth build: [34mℹ[39m Cleaning 32 files
-packages/blocks build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks/tsdown.config.ts[24m 
+packages/create-emdash build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/auth build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/contentful-to-portable-text build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/blocks build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks/tsdown.config.ts[24m
 packages/blocks build: [34mℹ[39m entry: [34msrc/index.ts, src/server.ts[39m
 packages/blocks build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/blocks build: [34mℹ[39m Build start
 packages/blocks build: [34mℹ[39m Cleaning 10 files
+packages/create-emdash build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash/tsdown.config.ts[24m
+packages/create-emdash build: [34mℹ[39m entry: [34msrc/index.ts[39m
+packages/create-emdash build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/create-emdash build: [34mℹ[39m Build start
+packages/contentful-to-portable-text build: [34mℹ[39m entry: [34msrc/index.ts[39m
+packages/contentful-to-portable-text build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/contentful-to-portable-text build: [34mℹ[39m Build start
+packages/create-emdash build: [34mℹ[39m Cleaning 3 files
+packages/auth build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth/tsdown.config.ts[24m
+packages/contentful-to-portable-text build: [34mℹ[39m Cleaning 4 files
+packages/auth build: [34mℹ[39m entry: [34msrc/index.ts, src/passkey/index.ts, src/adapters/kysely.ts, src/oauth/providers/github.ts, src/oauth/providers/google.ts[39m
+packages/auth build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/auth build: [34mℹ[39m Build start
+packages/auth build: [34mℹ[39m Cleaning 32 files
 packages/contentful-to-portable-text build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m        [2m15.95 kB[22m [2m│ gzip: 4.30 kB[22m
 packages/contentful-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.mjs.map    [2m39.25 kB[22m [2m│ gzip: 9.30 kB[22m
 packages/contentful-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.d.mts.map  [2m 0.66 kB[22m [2m│ gzip: 0.33 kB[22m
 packages/contentful-to-portable-text build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m      [2m 2.15 kB[22m [2m│ gzip: 0.88 kB[22m
 packages/contentful-to-portable-text build: [34mℹ[39m 4 files, total: 58.01 kB
-packages/contentful-to-portable-text build: [32m✔[39m Build complete in [32m602ms[39m
+packages/contentful-to-portable-text build: [32m✔[39m Build complete in [32m695ms[39m
 packages/contentful-to-portable-text build: Done
 packages/gutenberg-to-portable-text build$ tsdown src/index.ts --format esm --dts --clean
 packages/gutenberg-to-portable-text build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
@@ -1224,31 +1167,16 @@ packages/create-emdash build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m    
 packages/create-emdash build: [34mℹ[39m [2mdist/[22mindex.mjs.map  [2m38.84 kB[22m [2m│ gzip: 11.84 kB[22m
 packages/create-emdash build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m    [2m 0.01 kB[22m [2m│ gzip:  0.03 kB[22m
 packages/create-emdash build: [34mℹ[39m 3 files, total: 59.03 kB
-packages/create-emdash build: [32m✔[39m Build complete in [32m996ms[39m
+packages/create-emdash build: [32m✔[39m Build complete in [32m934ms[39m
 packages/create-emdash build: Done
 packages/plugin-types build$ tsdown
 packages/plugin-types build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugin-types build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-types/tsdown.config.ts[24m 
+packages/plugin-types build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-types/tsdown.config.ts[24m
 packages/plugin-types build: [34mℹ[39m entry: [34msrc/index.ts[39m
 packages/plugin-types build: [34mℹ[39m target: [34mes2023[39m
 packages/plugin-types build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugin-types build: [34mℹ[39m Build start
 packages/plugin-types build: [34mℹ[39m Cleaning 4 files
-packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m           [2m42.66 kB[22m [2m│ gzip:  9.88 kB[22m
-packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.mjs.map       [2m92.08 kB[22m [2m│ gzip: 20.03 kB[22m
-packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.d.mts.map     [2m 3.63 kB[22m [2m│ gzip:  1.03 kB[22m
-packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mchunk-DQk6qfdC.mjs  [2m 0.38 kB[22m [2m│ gzip:  0.26 kB[22m
-packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m         [2m11.56 kB[22m [2m│ gzip:  2.98 kB[22m
-packages/gutenberg-to-portable-text build: [34mℹ[39m 5 files, total: 150.32 kB
-packages/gutenberg-to-portable-text build: [32m✔[39m Build complete in [32m684ms[39m
-packages/gutenberg-to-portable-text build: Done
-packages/registry-lexicons build$ pnpm run build:lexicons && pnpm run build:types
-packages/plugin-types build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m        [2m 4.31 kB[22m [2m│ gzip: 1.96 kB[22m
-packages/plugin-types build: [34mℹ[39m [2mdist/[22mindex.js.map    [2m13.45 kB[22m [2m│ gzip: 4.90 kB[22m
-packages/plugin-types build: [34mℹ[39m [2mdist/[22mindex.d.ts.map  [2m 1.23 kB[22m [2m│ gzip: 0.56 kB[22m
-packages/plugin-types build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m      [2m10.06 kB[22m [2m│ gzip: 3.84 kB[22m
-packages/plugin-types build: [34mℹ[39m 4 files, total: 29.04 kB
-packages/plugin-types build: [32m✔[39m Build complete in [32m506ms[39m
 packages/auth build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                         [2m26.94 kB[22m [2m│ gzip:  6.91 kB[22m
 packages/auth build: [34mℹ[39m [2mdist/[22m[1madapters/kysely.mjs[22m               [2m14.12 kB[22m [2m│ gzip:  3.19 kB[22m
 packages/auth build: [34mℹ[39m [2mdist/[22m[1moauth/providers/github.mjs[22m        [2m 1.64 kB[22m [2m│ gzip:  0.81 kB[22m
@@ -1278,18 +1206,41 @@ packages/auth build: [34mℹ[39m [2mdist/[22m[32mtypes-DZ0waGOT.d.mts[39m 
 packages/auth build: [34mℹ[39m [2mdist/[22m[32mauthenticate-Da9jec28.d.mts[39m       [2m 5.21 kB[22m [2m│ gzip:  1.49 kB[22m
 packages/auth build: [34mℹ[39m [2mdist/[22m[32mtypes-Bu4irX9A.d.mts[39m              [2m 0.76 kB[22m [2m│ gzip:  0.38 kB[22m
 packages/auth build: [34mℹ[39m 28 files, total: 245.46 kB
-packages/auth build: [32m✔[39m Build complete in [32m1679ms[39m
+packages/auth build: [32m✔[39m Build complete in [32m1370ms[39m
+packages/auth build: Done
+packages/registry-lexicons build$ pnpm run build:lexicons && pnpm run build:types
+packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m           [2m42.66 kB[22m [2m│ gzip:  9.88 kB[22m
+packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.mjs.map       [2m92.08 kB[22m [2m│ gzip: 20.03 kB[22m
+packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mindex.d.mts.map     [2m 3.63 kB[22m [2m│ gzip:  1.03 kB[22m
+packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22mchunk-DQk6qfdC.mjs  [2m 0.38 kB[22m [2m│ gzip:  0.26 kB[22m
+packages/gutenberg-to-portable-text build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m         [2m11.56 kB[22m [2m│ gzip:  2.98 kB[22m
+packages/gutenberg-to-portable-text build: [34mℹ[39m 5 files, total: 150.32 kB
+packages/plugin-types build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m        [2m 4.31 kB[22m [2m│ gzip: 1.96 kB[22m
+packages/plugin-types build: [34mℹ[39m [2mdist/[22mindex.js.map    [2m13.45 kB[22m [2m│ gzip: 4.90 kB[22m
+packages/plugin-types build: [34mℹ[39m [2mdist/[22mindex.d.ts.map  [2m 1.23 kB[22m [2m│ gzip: 0.56 kB[22m
+packages/plugin-types build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m      [2m10.06 kB[22m [2m│ gzip: 3.84 kB[22m
+packages/plugin-types build: [34mℹ[39m 4 files, total: 29.04 kB
+packages/gutenberg-to-portable-text build: [32m✔[39m Build complete in [32m717ms[39m
+packages/plugin-types build: [32m✔[39m Build complete in [32m441ms[39m
 packages/plugin-types build: Done
 packages/x402 build$ tsdown
-packages/auth build: Done
+packages/gutenberg-to-portable-text build: Done
 packages/x402 build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/registry-lexicons build: $ node scripts/copy-lexicons.mjs
-packages/registry-lexicons build: using in-package lexicon copy at /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/lexicons/com/emdashcms/experimental (no source at /home/data/dev_react/awcms-micro/awcmsmicro-dev/lexicons/com/emdashcms/experimental)
-packages/x402 build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402/tsdown.config.ts[24m 
+packages/x402 build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402/tsdown.config.ts[24m
 packages/x402 build: [34mℹ[39m entry: [34msrc/index.ts, src/middleware.ts[39m
 packages/x402 build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/x402 build: [34mℹ[39m Build start
 packages/x402 build: [34mℹ[39m Cleaning 10 files
+packages/registry-lexicons build: $ node scripts/copy-lexicons.mjs
+packages/registry-lexicons build: using in-package lexicon copy at /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/lexicons/com/emdashcms/experimental (no source at /home/data/dev_react/awcms-micro/awcmsmicro-dev/lexicons/com/emdashcms/experimental)
+packages/registry-lexicons build: $ tsdown
+packages/registry-lexicons build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/registry-lexicons build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/tsdown.config.ts[24m
+packages/registry-lexicons build: [34mℹ[39m entry: [34msrc/index.ts, src/generated/types/com/emdashcms/experimental/aggregator/defs.ts, src/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.ts, src/generated/types/com/emdashcms/experimental/aggregator/getPackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/listReleases.ts, src/generated/types/com/emdashcms/experimental/aggregator/resolvePackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/searchPackages.ts, src/generated/types/com/emdashcms/experimental/package/profile.ts, src/generated/types/com/emdashcms/experimental/package/release.ts, src/generated/types/com/emdashcms/experimental/package/releaseExtension.ts, src/generated/types/com/emdashcms/experimental/publisher/profile.ts, src/generated/types/com/emdashcms/experimental/publisher/verification.ts[39m
+packages/registry-lexicons build: [34mℹ[39m target: [34mes2023[39m
+packages/registry-lexicons build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/registry-lexicons build: [34mℹ[39m Build start
+packages/registry-lexicons build: [34mℹ[39m Cleaning 57 files
 packages/blocks build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m                      [2m31.37 kB[22m [2m│ gzip:  7.04 kB[22m
 packages/blocks build: [34mℹ[39m [2mdist/[22m[1mserver.js[22m                     [2m 0.14 kB[22m [2m│ gzip:  0.11 kB[22m
 packages/blocks build: [34mℹ[39m [2mdist/[22mvalidation-Dq-a7CXm.js.map    [2m79.81 kB[22m [2m│ gzip: 10.78 kB[22m
@@ -1301,16 +1252,20 @@ packages/blocks build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m
 packages/blocks build: [34mℹ[39m [2mdist/[22m[32m[1mserver.d.ts[22m[39m                   [2m 1.22 kB[22m [2m│ gzip:  0.45 kB[22m
 packages/blocks build: [34mℹ[39m [2mdist/[22m[32mvalidation-5vL6669b.d.ts[39m      [2m15.63 kB[22m [2m│ gzip:  3.89 kB[22m
 packages/blocks build: [34mℹ[39m 10 files, total: 239.45 kB
-packages/blocks build: [32m✔[39m Build complete in [32m1950ms[39m
+packages/blocks build: [32m✔[39m Build complete in [32m2339ms[39m
 packages/blocks build: Done
-packages/registry-lexicons build: $ tsdown
-packages/registry-lexicons build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/registry-lexicons build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/tsdown.config.ts[24m 
-packages/registry-lexicons build: [34mℹ[39m entry: [34msrc/index.ts, src/generated/types/com/emdashcms/experimental/aggregator/defs.ts, src/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.ts, src/generated/types/com/emdashcms/experimental/aggregator/getPackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/listReleases.ts, src/generated/types/com/emdashcms/experimental/aggregator/resolvePackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/searchPackages.ts, src/generated/types/com/emdashcms/experimental/package/profile.ts, src/generated/types/com/emdashcms/experimental/package/release.ts, src/generated/types/com/emdashcms/experimental/package/releaseExtension.ts, src/generated/types/com/emdashcms/experimental/publisher/profile.ts, src/generated/types/com/emdashcms/experimental/publisher/verification.ts[39m
-packages/registry-lexicons build: [34mℹ[39m target: [34mes2023[39m
-packages/registry-lexicons build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/registry-lexicons build: [34mℹ[39m Build start
-packages/registry-lexicons build: [34mℹ[39m Cleaning 57 files
+packages/x402 build: [34mℹ[39m [2mdist/[22m[1mmiddleware.mjs[22m           [2m 6.17 kB[22m [2m│ gzip: 2.21 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                [2m 0.90 kB[22m [2m│ gzip: 0.47 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mserver-BKVUFgbf.mjs.map  [2m12.72 kB[22m [2m│ gzip: 4.15 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mmiddleware.mjs.map       [2m11.59 kB[22m [2m│ gzip: 3.91 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mserver-BKVUFgbf.mjs      [2m 5.41 kB[22m [2m│ gzip: 2.04 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mindex.mjs.map            [2m 3.29 kB[22m [2m│ gzip: 1.36 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mindex.d.mts.map          [2m 1.01 kB[22m [2m│ gzip: 0.49 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22mmiddleware.d.mts.map     [2m 0.12 kB[22m [2m│ gzip: 0.12 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m              [2m 4.73 kB[22m [2m│ gzip: 1.83 kB[22m
+packages/x402 build: [34mℹ[39m [2mdist/[22m[32m[1mmiddleware.d.mts[22m[39m         [2m 0.38 kB[22m [2m│ gzip: 0.26 kB[22m
+packages/x402 build: [34mℹ[39m 10 files, total: 46.34 kB
+packages/x402 build: [32m✔[39m Build complete in [32m1259ms[39m
 packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[1mgenerated/types/com/emdashcms/experimental/package/releaseExtension.js[22m           [2m 5.50 kB[22m [2m│ gzip: 0.86 kB[22m
 packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[1mgenerated/types/com/emdashcms/experimental/package/profile.js[22m                    [2m 4.45 kB[22m [2m│ gzip: 0.78 kB[22m
 packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[1mgenerated/types/com/emdashcms/experimental/package/release.js[22m                    [2m 4.01 kB[22m [2m│ gzip: 0.78 kB[22m
@@ -1361,25 +1316,13 @@ packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[32m[1mgenerated
 packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[32m[1mgenerated/types/com/emdashcms/experimental/aggregator/getLatestRelease.d.ts[22m[39m      [2m 1.25 kB[22m [2m│ gzip: 0.58 kB[22m
 packages/registry-lexicons build: [34mℹ[39m [2mdist/[22m[32m[1mgenerated/types/com/emdashcms/experimental/aggregator/getPackage.d.ts[22m[39m            [2m 1.20 kB[22m [2m│ gzip: 0.57 kB[22m
 packages/registry-lexicons build: [34mℹ[39m 49 files, total: 154.54 kB
-packages/registry-lexicons build: [32m✔[39m Build complete in [32m752ms[39m
-packages/registry-lexicons build: Done
-packages/x402 build: [34mℹ[39m [2mdist/[22m[1mmiddleware.mjs[22m           [2m 6.17 kB[22m [2m│ gzip: 2.21 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                [2m 0.90 kB[22m [2m│ gzip: 0.47 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mserver-BKVUFgbf.mjs.map  [2m12.72 kB[22m [2m│ gzip: 4.15 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mmiddleware.mjs.map       [2m11.59 kB[22m [2m│ gzip: 3.91 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mserver-BKVUFgbf.mjs      [2m 5.41 kB[22m [2m│ gzip: 2.04 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mindex.mjs.map            [2m 3.29 kB[22m [2m│ gzip: 1.36 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mindex.d.mts.map          [2m 1.01 kB[22m [2m│ gzip: 0.49 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22mmiddleware.d.mts.map     [2m 0.12 kB[22m [2m│ gzip: 0.12 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m              [2m 4.73 kB[22m [2m│ gzip: 1.83 kB[22m
-packages/x402 build: [34mℹ[39m [2mdist/[22m[32m[1mmiddleware.d.mts[22m[39m         [2m 0.38 kB[22m [2m│ gzip: 0.26 kB[22m
-packages/x402 build: [34mℹ[39m 10 files, total: 46.34 kB
-packages/x402 build: [32m✔[39m Build complete in [32m1314ms[39m
+packages/registry-lexicons build: [32m✔[39m Build complete in [32m719ms[39m
 packages/x402 build: Done
+packages/registry-lexicons build: Done
 packages/blocks/playground build$ vite build
 packages/registry-client build$ tsdown
 packages/registry-client build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/registry-client build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-client/tsdown.config.ts[24m 
+packages/registry-client build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-client/tsdown.config.ts[24m
 packages/registry-client build: [34mℹ[39m entry: [34msrc/index.ts, src/credentials/index.ts, src/discovery/index.ts, src/publishing/index.ts[39m
 packages/registry-client build: [34mℹ[39m target: [34mnode22[39m
 packages/registry-client build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
@@ -1408,7 +1351,7 @@ packages/registry-client build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts
 packages/registry-client build: [34mℹ[39m [2mdist/[22m[32mtypes-CVqU18IH.d.ts[39m         [2m 3.66 kB[22m [2m│ gzip: 1.65 kB[22m
 packages/registry-client build: [34mℹ[39m [2mdist/[22m[32mmemory-BJDHdZ1M.d.ts[39m        [2m 1.94 kB[22m [2m│ gzip: 0.60 kB[22m
 packages/registry-client build: [34mℹ[39m 20 files, total: 103.99 kB
-packages/registry-client build: [32m✔[39m Build complete in [32m832ms[39m
+packages/registry-client build: [32m✔[39m Build complete in [32m727ms[39m
 packages/registry-client build: Done
 packages/blocks/playground build: ✓ 5241 modules transformed.
 packages/blocks/playground build: rendering chunks...
@@ -1416,7 +1359,7 @@ packages/blocks/playground build: computing gzip size...
 packages/blocks/playground build: dist/index.html                     0.40 kB │ gzip:   0.28 kB
 packages/blocks/playground build: dist/assets/index-D8pXNJuf.css    136.92 kB │ gzip:  21.83 kB
 packages/blocks/playground build: dist/assets/index-DNIjwPqS.js   1,235.87 kB │ gzip: 397.50 kB
-packages/blocks/playground build: ✓ built in 5.41s
+packages/blocks/playground build: ✓ built in 5.62s
 packages/blocks/playground build: (!) Some chunks are larger than 500 kB after minification. Consider:
 packages/blocks/playground build: - Using dynamic import() to code-split the application
 packages/blocks/playground build: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
@@ -1425,9 +1368,9 @@ packages/blocks/playground build: Done
 packages/admin build$ node --run locale:compile && tsdown && node --run locale:copy && npx @tailwindcss/cli -i src/styles.css -o dist/styles.css --minify
 packages/plugin-cli build$ node --run gen-schema && tsdown
 packages/plugin-cli build: Wrote /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli/schemas/emdash-plugin.schema.json
-packages/admin build: Compiling message catalogs…
 packages/plugin-cli build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugin-cli build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli/tsdown.config.ts[24m 
+packages/admin build: Compiling message catalogs…
+packages/plugin-cli build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli/tsdown.config.ts[24m
 packages/plugin-cli build: [34mℹ[39m entry: [34msrc/index.ts[39m
 packages/plugin-cli build: [34mℹ[39m target: [34mnode22[39m
 packages/plugin-cli build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
@@ -1436,9 +1379,9 @@ packages/plugin-cli build: [34mℹ[39m target: [34mnode22[39m
 packages/plugin-cli build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugin-cli build: [34mℹ[39m Build start
 packages/plugin-cli build: [34mℹ[39m Cleaning 5 files
-packages/admin build: Done in 534ms
+packages/admin build: Done in 510ms
 packages/admin build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/admin build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tsdown.config.ts[24m 
+packages/admin build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tsdown.config.ts[24m
 packages/admin build: [34mℹ[39m entry: [34msrc/index.ts, src/locales/index.ts[39m
 packages/admin build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/admin build: [34mℹ[39m Build start
@@ -1446,7 +1389,7 @@ packages/admin build: [34mℹ[39m Cleaning 78 files
 packages/plugin-cli build: [34mℹ[39m Granting execute permission to [4mdist/index.mjs[24m
 packages/plugin-cli build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m  [2m247.04 kB[22m [2m│ gzip: 76.25 kB[22m
 packages/plugin-cli build: [34mℹ[39m 1 files, total: 247.04 kB
-packages/plugin-cli build: [32m✔[39m Build complete in [32m1173ms[39m
+packages/plugin-cli build: [32m✔[39m Build complete in [32m1189ms[39m
 packages/plugin-cli build: [34mℹ[39m [2mdist/[22m[1mapi.mjs[22m        [2m 98.97 kB[22m [2m│ gzip: 30.73 kB[22m
 packages/plugin-cli build: [34mℹ[39m [2mdist/[22mapi.mjs.map    [2m203.16 kB[22m [2m│ gzip: 55.38 kB[22m
 packages/plugin-cli build: [34mℹ[39m [2mdist/[22mapi.d.mts.map  [2m  3.23 kB[22m [2m│ gzip:  1.17 kB[22m
@@ -1499,17 +1442,17 @@ packages/admin build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m 
 packages/admin build: [34mℹ[39m [2mdist/[22m[32m[1mlocales/index.d.ts[22m[39m                       [2m   0.47 kB[22m [2m│ gzip:  0.24 kB[22m
 packages/admin build: [34mℹ[39m [2mdist/[22m[32mconfig-ZP4qGbGk.d.ts[39m                     [2m   2.97 kB[22m [2m│ gzip:  1.25 kB[22m
 packages/admin build: [34mℹ[39m 44 files, total: 6053.08 kB
-packages/admin build: [32m✔[39m Build complete in [32m4485ms[39m
+packages/admin build: [32m✔[39m Build complete in [32m4763ms[39m
 packages/admin build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
 packages/admin build:   - rolldown-plugin-dts:generate (56%)
-packages/admin build:   - tsdown:external (29%)
+packages/admin build:   - tsdown:external (28%)
 packages/admin build: See https://rolldown.rs/options/checks#plugintimings for more details.
 packages/admin build: ≈ tailwindcss v4.1.18
-packages/admin build: Done in 327ms
+packages/admin build: Done in 381ms
 packages/admin build: Done
 packages/core build$ tsdown
 packages/core build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/core build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core/tsdown.config.ts[24m 
+packages/core build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core/tsdown.config.ts[24m
 packages/core build: [34mℹ[39m entry: [34msrc/index.ts, src/request-context.ts, src/astro/index.ts, src/astro/middleware.ts, src/astro/middleware/setup.ts, src/astro/middleware/auth.ts, src/astro/middleware/redirect.ts, src/astro/middleware/request-context.ts, src/astro/types.ts, src/db/index.ts, src/db/sqlite.ts, src/db/libsql.ts, src/db/postgres.ts, src/database/instrumentation.ts, src/storage/local.ts, src/storage/s3.ts, src/media/index.ts, src/media/local-runtime.ts, src/runtime.ts, src/seed/index.ts, src/cli/index.ts, src/client/index.ts, src/client/cf-access.ts, src/seo/index.ts, src/page/index.ts, src/plugin-utils.ts, src/plugin-types.ts, src/plugins/adapt-sandbox-entry.ts, src/api/route-utils.ts, src/api/schemas/index.ts, src/auth/providers/github.ts, src/auth/providers/google.ts[39m
 packages/core build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/core build: [34mℹ[39m Build start
@@ -1731,10 +1674,15 @@ packages/core build: [34mℹ[39m [2mdist/[22mmenus-Bjf5R1Qq.mjs.map         
 packages/core build: [34mℹ[39m [2mdist/[22mastro/middleware/request-context.mjs.map                                 [2m 49.16 kB[22m [2m│ gzip: 12.37 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mimport-DG80rC_I.mjs                                                      [2m 48.70 kB[22m [2m│ gzip: 11.84 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mquery-BJn8TOPk.mjs.map                                                   [2m 48.27 kB[22m [2m│ gzip: 14.61 kB[22m
+packages/core build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
+packages/core build:   - rolldown-plugin-dts:resolver (35%)
+packages/core build:   - rolldown-plugin-dts:generate (34%)
+packages/core build:   - rolldown-plugin-dts:fake-js (23%)
+packages/core build: See https://rolldown.rs/options/checks#plugintimings for more details.
 packages/core build: [34mℹ[39m [2mdist/[22mredirects-COMLwsV5.mjs                                                   [2m 46.92 kB[22m [2m│ gzip:  9.49 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/middleware/auth.mjs.map                                            [2m 44.73 kB[22m [2m│ gzip: 12.39 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mloader-Chm5h7Gr.mjs.map                                                  [2m 40.46 kB[22m [2m│ gzip: 11.37 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22mindex-C-Y4tcPk.d.mts.map                                                 [2m 36.26 kB[22m [2m│ gzip: 10.02 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22mindex-D-nOaIhr.d.mts.map                                                 [2m 36.26 kB[22m [2m│ gzip: 10.02 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mtaxonomies-CLs9HPE2.mjs.map                                              [2m 34.53 kB[22m [2m│ gzip:  8.02 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mbyline-CTaWkMh5.mjs.map                                                  [2m 33.46 kB[22m [2m│ gzip:  8.89 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mclient/index.mjs.map                                                     [2m 32.97 kB[22m [2m│ gzip:  7.93 kB[22m
@@ -1817,7 +1765,7 @@ packages/core build: [34mℹ[39m [2mdist/[22moauth-authorization-CTMeVfvj.mj
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/setup/dev-bypass.mjs.map                                [2m  8.60 kB[22m [2m│ gzip:  3.24 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mapi-tokens-ucpcNXDt.mjs.map                                              [2m  8.50 kB[22m [2m│ gzip:  2.44 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mmedia/local-runtime.mjs.map                                              [2m  8.45 kB[22m [2m│ gzip:  2.58 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22mbylines-CsIn9ZF5.d.mts.map                                               [2m  8.45 kB[22m [2m│ gzip:  1.47 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22mbylines-DWlSS_R8.d.mts.map                                               [2m  8.45 kB[22m [2m│ gzip:  1.47 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/oauth/register.mjs.map                                  [2m  8.19 kB[22m [2m│ gzip:  2.94 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mallowed-origins-D0fFk9a6.mjs.map                                         [2m  8.19 kB[22m [2m│ gzip:  3.02 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mrequest-meta-C_Cjii-T.mjs.map                                            [2m  8.19 kB[22m [2m│ gzip:  3.14 kB[22m
@@ -2107,7 +2055,7 @@ packages/core build: [34mℹ[39m [2mdist/[22mstorage/s3.d.mts.map           
 packages/core build: [34mℹ[39m [2mdist/[22mseo/index.d.mts.map                                                      [2m  0.64 kB[22m [2m│ gzip:  0.36 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mstorage/local.d.mts.map                                                  [2m  0.62 kB[22m [2m│ gzip:  0.32 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mtypes-Dgo6y-Ut.d.mts.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.31 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22mversion-DIx_t5XX.mjs.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.33 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22mversion-DSZ2FO1K.mjs.map                                                 [2m  0.59 kB[22m [2m│ gzip:  0.33 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mescape-Cg6kMELH.mjs.map                                                  [2m  0.58 kB[22m [2m│ gzip:  0.34 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mmode-CaaiebZI.mjs                                                        [2m  0.58 kB[22m [2m│ gzip:  0.36 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mrequest-context.d.mts.map                                                [2m  0.57 kB[22m [2m│ gzip:  0.31 kB[22m
@@ -2252,7 +2200,7 @@ packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/auth/passkey/o
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/auth/signup/request.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/menus/_name_/reorder.d.mts.map                          [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/schema/orphans/_slug_.d.mts.map                         [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22mversion-DIx_t5XX.mjs                                                     [2m  0.17 kB[22m [2m│ gzip:  0.16 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22mversion-DSZ2FO1K.mjs                                                     [2m  0.17 kB[22m [2m│ gzip:  0.16 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/middleware/redirect.d.mts.map                                      [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/oauth/token/refresh.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22mastro/routes/api/auth/passkey/verify.d.mts.map                           [2m  0.17 kB[22m [2m│ gzip:  0.15 kB[22m
@@ -2302,7 +2250,7 @@ packages/core build: [34mℹ[39m [2mdist/[22mssrf-BIcd-aXW.mjs              
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m                                                              [2m 18.12 kB[22m [2m│ gzip:  4.80 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/types.d.mts[22m[39m                                                        [2m 12.52 kB[22m [2m│ gzip:  3.82 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mclient/index.d.mts[22m[39m                                                       [2m 11.48 kB[22m [2m│ gzip:  3.14 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mapi/schemas/index.d.mts[22m[39m                                                  [2m  7.93 kB[22m [2m│ gzip:  1.89 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mapi/schemas/index.d.mts[22m[39m                                                  [2m  7.93 kB[22m [2m│ gzip:  1.88 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mpage/index.d.mts[22m[39m                                                         [2m  6.82 kB[22m [2m│ gzip:  2.27 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mplugin-types.d.mts[22m[39m                                                       [2m  6.38 kB[22m [2m│ gzip:  2.28 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/api/import/wordpress/execute.d.mts[22m[39m                          [2m  3.91 kB[22m [2m│ gzip:  1.54 kB[22m
@@ -2321,7 +2269,7 @@ packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mstorage/local.d.mts[2
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mplugins/adapt-sandbox-entry.d.mts[22m[39m                                        [2m  1.37 kB[22m [2m│ gzip:  0.64 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mmedia/local-runtime.d.mts[22m[39m                                                [2m  1.33 kB[22m [2m│ gzip:  0.59 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mruntime.d.mts[22m[39m                                                            [2m  1.09 kB[22m [2m│ gzip:  0.58 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/middleware/auth.d.mts[22m[39m                                              [2m  0.97 kB[22m [2m│ gzip:  0.50 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/middleware/auth.d.mts[22m[39m                                              [2m  0.97 kB[22m [2m│ gzip:  0.49 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/api/import/wordpress/media.d.mts[22m[39m                            [2m  0.96 kB[22m [2m│ gzip:  0.47 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mseed/index.d.mts[22m[39m                                                         [2m  0.82 kB[22m [2m│ gzip:  0.33 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/middleware/redirect.d.mts[22m[39m                                          [2m  0.72 kB[22m [2m│ gzip:  0.45 kB[22m
@@ -2493,8 +2441,8 @@ packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/api/snaps
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/robots.txt.d.mts[22m[39m                                            [2m  0.22 kB[22m [2m│ gzip:  0.17 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mastro/routes/api/auth/mode.d.mts[22m[39m                                         [2m  0.22 kB[22m [2m│ gzip:  0.17 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32m[1mcli/index.d.mts[22m[39m                                                          [2m  0.01 kB[22m [2m│ gzip:  0.03 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22m[32mindex-C-Y4tcPk.d.mts[39m                                                     [2m152.20 kB[22m [2m│ gzip: 40.96 kB[22m
-packages/core build: [34mℹ[39m [2mdist/[22m[32mbylines-CsIn9ZF5.d.mts[39m                                                   [2m 73.07 kB[22m [2m│ gzip:  8.46 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22m[32mindex-D-nOaIhr.d.mts[39m                                                     [2m152.20 kB[22m [2m│ gzip: 40.96 kB[22m
+packages/core build: [34mℹ[39m [2mdist/[22m[32mbylines-DWlSS_R8.d.mts[39m                                                   [2m 73.07 kB[22m [2m│ gzip:  8.45 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32mtypes-DGHWRQgr.d.mts[39m                                                     [2m 39.71 kB[22m [2m│ gzip: 10.61 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32mtypes-DaqNzqVt.d.mts[39m                                                     [2m 11.55 kB[22m [2m│ gzip:  2.61 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32mtypes-bYmRn_Uy.d.mts[39m                                                     [2m  9.78 kB[22m [2m│ gzip:  3.24 kB[22m
@@ -2511,59 +2459,55 @@ packages/core build: [34mℹ[39m [2mdist/[22m[32mtypes-Dgo6y-Ut.d.mts[39m 
 packages/core build: [34mℹ[39m [2mdist/[22m[32mrunner-CNHRo1mT.d.mts[39m                                                    [2m  1.83 kB[22m [2m│ gzip:  0.91 kB[22m
 packages/core build: [34mℹ[39m [2mdist/[22m[32mtransport-DOxLfUir.d.mts[39m                                                 [2m  1.67 kB[22m [2m│ gzip:  0.76 kB[22m
 packages/core build: [34mℹ[39m 995 files, total: 6909.22 kB
-packages/core build: [32m✔[39m Build complete in [32m6151ms[39m
-packages/core build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
-packages/core build:   - rolldown-plugin-dts:generate (65%)
-packages/core build:   - rolldown-plugin-dts:resolver (18%)
-packages/core build: See https://rolldown.rs/options/checks#plugintimings for more details.
+packages/core build: [32m✔[39m Build complete in [32m4950ms[39m
 packages/core build: Done
 packages/cloudflare build$ tsdown
 packages/plugins/atproto build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/audit-log build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
-packages/plugins/awcms-micro-sikesra build$ tsdown
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/plugins/awcms-micro-gallery build$ tsdown
 packages/cloudflare build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/sandbox.ts[39m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Cleaning 8 files
-packages/cloudflare build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/cloudflare/tsdown.config.ts[24m 
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts[24m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox.ts[39m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m target: [34mes2023[39m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m Build start
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m Cleaning 10 files
+packages/plugins/audit-log build: ◐ Building plugin...
+packages/cloudflare build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/cloudflare/tsdown.config.ts[24m
 packages/cloudflare build: [34mℹ[39m entry: [34msrc/index.ts, src/db/d1.ts, src/db/do.ts, src/db/playground.ts, src/db/playground-middleware.ts, src/storage/r2.ts, src/auth/index.ts, src/sandbox/index.ts, src/plugins/index.ts, src/media/images-runtime.ts, src/media/stream-runtime.ts, src/cache/runtime.ts, src/cache/config.ts[39m
 packages/cloudflare build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/cloudflare build: [34mℹ[39m Build start
-packages/cloudflare build: [34mℹ[39m Cleaning 41 files
-packages/plugins/atproto build: ◐ Building plugin...
-packages/plugins/audit-log build: ◐ Building plugin...
-packages/plugins/atproto build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/emdash-plugin.jsonc
-packages/plugins/atproto build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/src/plugin.ts
-packages/plugins/atproto build: ℹ Package: @emdash-cms/plugin-atproto
 packages/plugins/audit-log build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/emdash-plugin.jsonc
 packages/plugins/audit-log build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/src/plugin.ts
 packages/plugins/audit-log build: ℹ Package: @emdash-cms/plugin-audit-log
-packages/plugins/atproto build: ◐ Building runtime entry...
-packages/plugins/atproto build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
-packages/plugins/atproto build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/atproto build: [34mℹ[39m Build start
+packages/cloudflare build: [34mℹ[39m Cleaning 41 files
+packages/plugins/atproto build: ◐ Building plugin...
+packages/plugins/atproto build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/emdash-plugin.jsonc
+packages/plugins/atproto build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/src/plugin.ts
+packages/plugins/atproto build: ℹ Package: @emdash-cms/plugin-atproto
 packages/plugins/audit-log build: ◐ Building runtime entry...
 packages/plugins/audit-log build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/audit-log build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/audit-log build: [34mℹ[39m Build start
-packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-zwHX7a/runtime/[22m[1mplugin.mjs[22m        [2m 4.80 kB[22m [2m│ gzip: 1.60 kB[22m
-packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-zwHX7a/runtime/[22mplugin.mjs.map    [2m17.30 kB[22m [2m│ gzip: 4.37 kB[22m
-packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-zwHX7a/runtime/[22mplugin.d.mts.map  [2m 0.40 kB[22m [2m│ gzip: 0.21 kB[22m
-packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-zwHX7a/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 4.76 kB[22m [2m│ gzip: 0.81 kB[22m
+packages/plugins/atproto build: ◐ Building runtime entry...
+packages/plugins/atproto build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
+packages/plugins/atproto build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/atproto build: [34mℹ[39m Build start
+packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-It9X6G/runtime/[22m[1mplugin.mjs[22m        [2m 4.80 kB[22m [2m│ gzip: 1.60 kB[22m
+packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-It9X6G/runtime/[22mplugin.mjs.map    [2m17.30 kB[22m [2m│ gzip: 4.37 kB[22m
+packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-It9X6G/runtime/[22mplugin.d.mts.map  [2m 0.40 kB[22m [2m│ gzip: 0.21 kB[22m
+packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-It9X6G/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 4.76 kB[22m [2m│ gzip: 0.81 kB[22m
 packages/plugins/audit-log build: [34mℹ[39m 4 files, total: 27.26 kB
-packages/plugins/audit-log build: [32m✔[39m Build complete in [32m1679ms[39m
+packages/plugins/audit-log build: [32m✔[39m Build complete in [32m1759ms[39m
 packages/plugins/audit-log build: ✔ Built plugin.mjs
 packages/plugins/audit-log build: ◐ Probing plugin surface...
 packages/plugins/audit-log build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/audit-log build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/audit-log build: [34mℹ[39m Build start
-packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-zwHX7a/plugin-probe/[22m[1mplugin.mjs[22m  [2m8.20 kB[22m [2m│ gzip: 2.12 kB[22m
+packages/plugins/audit-log build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-It9X6G/plugin-probe/[22m[1mplugin.mjs[22m  [2m8.20 kB[22m [2m│ gzip: 2.12 kB[22m
 packages/plugins/audit-log build: [34mℹ[39m 1 files, total: 8.20 kB
-packages/plugins/audit-log build: [32m✔[39m Build complete in [32m10ms[39m
+packages/plugins/audit-log build: [32m✔[39m Build complete in [32m9ms[39m
 packages/plugins/audit-log build: ℹ   Hooks: plugin:install, plugin:activate, plugin:deactivate, plugin:uninstall, content:beforeSave, content:afterSave, content:beforeDelete, content:afterDelete, media:afterUpload
 packages/plugins/audit-log build: ℹ   Routes: admin, recent, history
 packages/plugins/audit-log build: ✔ Wrote manifest.json
@@ -2575,28 +2519,42 @@ packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-
 packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/plugin.mjs
 packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/manifest.json
 packages/plugins/audit-log build: Done
-packages/plugins/awcms-micro-gallery build$ tsdown
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts[24m 
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox.ts[39m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m target: [34mes2023[39m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m Cleaning 10 files
-packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Nll0RQ/runtime/[22m[1mplugin.mjs[22m        [2m19.93 kB[22m [2m│ gzip:  5.86 kB[22m
-packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Nll0RQ/runtime/[22mplugin.mjs.map    [2m76.81 kB[22m [2m│ gzip: 17.04 kB[22m
-packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Nll0RQ/runtime/[22mplugin.d.mts.map  [2m 0.79 kB[22m [2m│ gzip:  0.32 kB[22m
-packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Nll0RQ/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 3.14 kB[22m [2m│ gzip:  0.80 kB[22m
+packages/plugins/awcms-micro-sikesra build$ tsdown
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts[24m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m entry: [34msrc/index.ts, src/admin.tsx, src/navigation.ts, src/sandbox.ts[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m target: [34mes2023[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Build start
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m Cleaning 10 files
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m              [2m 8.61 kB[22m [2m│ gzip: 2.47 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[1msandbox.mjs[22m            [2m 5.61 kB[22m [2m│ gzip: 1.68 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mi18n-DkHmeFE4.mjs.map  [2m19.56 kB[22m [2m│ gzip: 4.68 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mindex.mjs.map          [2m15.55 kB[22m [2m│ gzip: 4.20 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mi18n-DkHmeFE4.mjs      [2m11.76 kB[22m [2m│ gzip: 2.96 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22msandbox.mjs.map        [2m10.76 kB[22m [2m│ gzip: 3.02 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mindex.d.mts.map        [2m 0.87 kB[22m [2m│ gzip: 0.36 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22msandbox.d.mts.map      [2m 0.12 kB[22m [2m│ gzip: 0.12 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m            [2m 3.54 kB[22m [2m│ gzip: 1.00 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.mts[22m[39m          [2m 0.21 kB[22m [2m│ gzip: 0.16 kB[22m
+packages/plugins/awcms-micro-gallery build: [34mℹ[39m 10 files, total: 76.57 kB
+packages/plugins/awcms-micro-gallery build: [32m✔[39m Build complete in [32m2088ms[39m
+packages/plugins/awcms-micro-gallery build: Done
+packages/plugins/marketplace-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
+packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-BITlU9/runtime/[22m[1mplugin.mjs[22m        [2m19.93 kB[22m [2m│ gzip:  5.86 kB[22m
+packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-BITlU9/runtime/[22mplugin.mjs.map    [2m76.81 kB[22m [2m│ gzip: 17.04 kB[22m
+packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-BITlU9/runtime/[22mplugin.d.mts.map  [2m 0.79 kB[22m [2m│ gzip:  0.32 kB[22m
+packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-BITlU9/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 3.14 kB[22m [2m│ gzip:  0.80 kB[22m
 packages/plugins/atproto build: [34mℹ[39m 4 files, total: 100.67 kB
-packages/plugins/atproto build: [32m✔[39m Build complete in [32m2073ms[39m
+packages/plugins/atproto build: [32m✔[39m Build complete in [32m2222ms[39m
 packages/plugins/atproto build: ✔ Built plugin.mjs
 packages/plugins/atproto build: ◐ Probing plugin surface...
 packages/plugins/atproto build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/atproto build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/atproto build: [34mℹ[39m Build start
-packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Nll0RQ/plugin-probe/[22m[1mplugin.mjs[22m  [2m36.24 kB[22m [2m│ gzip: 8.45 kB[22m
+packages/plugins/atproto build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-BITlU9/plugin-probe/[22m[1mplugin.mjs[22m  [2m36.24 kB[22m [2m│ gzip: 8.45 kB[22m
 packages/plugins/atproto build: [34mℹ[39m 1 files, total: 36.24 kB
-packages/plugins/atproto build: [32m✔[39m Build complete in [32m12ms[39m
+packages/plugins/atproto build: [32m✔[39m Build complete in [32m14ms[39m
 packages/plugins/atproto build: ℹ   Hooks: plugin:install, content:afterSave, content:afterPublish, content:afterDelete, page:metadata
 packages/plugins/atproto build: ℹ   Routes: status, test-connection, sync-publication, recent-syncs, verification, admin
 packages/plugins/atproto build: ✔ Wrote manifest.json
@@ -2607,6 +2565,16 @@ packages/plugins/atproto build: ℹ Output:
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/index.mjs
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/plugin.mjs
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/manifest.json
+packages/plugins/marketplace-test build: ◐ Building plugin...
+packages/plugins/marketplace-test build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/emdash-plugin.jsonc
+packages/plugins/marketplace-test build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/src/plugin.ts
+packages/plugins/marketplace-test build: ℹ Package: @emdash-cms/plugin-marketplace-test
+packages/plugins/atproto build: Done
+packages/plugins/sandboxed-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
+packages/plugins/marketplace-test build: ◐ Building runtime entry...
+packages/plugins/marketplace-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
+packages/plugins/marketplace-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/plugins/marketplace-test build: [34mℹ[39m Build start
 packages/cloudflare build: [34mℹ[39m [2mdist/[22m[1msandbox/index.mjs[22m                  [2m43.63 kB[22m [2m│ gzip: 11.90 kB[22m
 packages/cloudflare build: [34mℹ[39m [2mdist/[22m[1mdb/playground-middleware.mjs[22m       [2m26.77 kB[22m [2m│ gzip:  8.07 kB[22m
 packages/cloudflare build: [34mℹ[39m [2mdist/[22m[1mdb/do.mjs[22m                          [2m17.43 kB[22m [2m│ gzip:  6.26 kB[22m
@@ -2642,53 +2610,31 @@ packages/cloudflare build: [34mℹ[39m [2mdist/[22m[32mimages-4RT9Ag8_.d.mt
 packages/cloudflare build: [34mℹ[39m [2mdist/[22m[32mstream-DdbcvKi0.d.mts[39m              [2m 1.93 kB[22m [2m│ gzip:  0.74 kB[22m
 packages/cloudflare build: [34mℹ[39m [2mdist/[22m[32mdo-types-CY0G0oyh.d.mts[39m            [2m 0.47 kB[22m [2m│ gzip:  0.30 kB[22m
 packages/cloudflare build: [34mℹ[39m 34 files, total: 184.40 kB
+packages/cloudflare build: [32m✔[39m Build complete in [32m2562ms[39m
 packages/cloudflare build: src/db/playground-middleware.ts (16:33) [33m[UNRESOLVED_IMPORT] Warning:[0m Could not resolve 'astro:middleware' in src/db/playground-middleware.ts
 packages/cloudflare build:     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/db/playground-middleware.ts:16:34 [38;5;246m][0m
 packages/cloudflare build:     [38;5;246m│[0m
 packages/cloudflare build:  [38;5;246m16 │[0m [38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m{[0m[38;5;249m [0m[38;5;249md[0m[38;5;249me[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249mn[0m[38;5;249me[0m[38;5;249mM[0m[38;5;249mi[0m[38;5;249md[0m[38;5;249md[0m[38;5;249ml[0m[38;5;249me[0m[38;5;249mw[0m[38;5;249ma[0m[38;5;249mr[0m[38;5;249me[0m[38;5;249m [0m[38;5;249m}[0m[38;5;249m [0m[38;5;249mf[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mm[0m[38;5;249m [0m"astro:middleware"[38;5;249m;[0m
-packages/cloudflare build:  [38;5;240m   │[0m                                  ─────────┬────────  
+packages/cloudflare build:  [38;5;240m   │[0m                                  ─────────┬────────
 packages/cloudflare build:  [38;5;240m   │[0m                                           ╰────────── Module not found, treating it as an external dependency
 packages/cloudflare build: [38;5;246m────╯[0m
 packages/cloudflare build: src/db/playground-middleware.ts (21:26) [33m[UNRESOLVED_IMPORT] Warning:[0m Could not resolve 'virtual:emdash/config' in src/db/playground-middleware.ts
 packages/cloudflare build:     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/db/playground-middleware.ts:21:27 [38;5;246m][0m
 packages/cloudflare build:     [38;5;246m│[0m
 packages/cloudflare build:  [38;5;246m21 │[0m [38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249mv[0m[38;5;249mi[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249mu[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249mC[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249mf[0m[38;5;249mi[0m[38;5;249mg[0m[38;5;249m [0m[38;5;249mf[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mm[0m[38;5;249m [0m"virtual:emdash/config"[38;5;249m;[0m
-packages/cloudflare build:  [38;5;240m   │[0m                           ───────────┬───────────  
+packages/cloudflare build:  [38;5;240m   │[0m                           ───────────┬───────────
 packages/cloudflare build:  [38;5;240m   │[0m                                      ╰───────────── Module not found, treating it as an external dependency
 packages/cloudflare build: [38;5;246m────╯[0m
-packages/cloudflare build: [32m✔[39m Build complete in [32m2171ms[39m
-packages/plugins/atproto build: Done
-packages/plugins/marketplace-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
-packages/cloudflare build: Done
-packages/plugins/sandboxed-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
-packages/plugins/marketplace-test build: ◐ Building plugin...
-packages/plugins/marketplace-test build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/emdash-plugin.jsonc
-packages/plugins/marketplace-test build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/src/plugin.ts
-packages/plugins/marketplace-test build: ℹ Package: @emdash-cms/plugin-marketplace-test
 packages/plugins/sandboxed-test build: ◐ Building plugin...
 packages/plugins/sandboxed-test build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/emdash-plugin.jsonc
 packages/plugins/sandboxed-test build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/src/plugin.ts
 packages/plugins/sandboxed-test build: ℹ Package: @emdash-cms/plugin-sandboxed-test
-packages/plugins/marketplace-test build: ◐ Building runtime entry...
-packages/plugins/marketplace-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
-packages/plugins/marketplace-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/plugins/marketplace-test build: [34mℹ[39m Build start
+packages/cloudflare build: Done
+packages/plugins/webhook-notifier build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/sandboxed-test build: ◐ Building runtime entry...
 packages/plugins/sandboxed-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1madmin.js[22m              [2m97.55 kB[22m [2m│ gzip: 16.45 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m              [2m 1.80 kB[22m [2m│ gzip:  0.69 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m            [2m 0.26 kB[22m [2m│ gzip:  0.18 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mruntime-Byq6APqJ.js   [2m44.27 kB[22m [2m│ gzip:  8.97 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mfixtures-CiJVS_nI.js  [2m 6.11 kB[22m [2m│ gzip:  1.72 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m            [2m 3.05 kB[22m [2m│ gzip:  0.88 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m          [2m 2.23 kB[22m [2m│ gzip:  0.50 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m            [2m 1.08 kB[22m [2m│ gzip:  0.42 kB[22m
-packages/plugins/awcms-micro-sikesra build: [34mℹ[39m 8 files, total: 156.33 kB
-packages/plugins/awcms-micro-sikesra build: [32m✔[39m Build complete in [32m2972ms[39m
-packages/plugins/awcms-micro-sikesra build: Done
-packages/plugins/webhook-notifier build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/webhook-notifier build: ◐ Building plugin...
 packages/plugins/webhook-notifier build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/emdash-plugin.jsonc
 packages/plugins/webhook-notifier build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/src/plugin.ts
@@ -2697,40 +2643,20 @@ packages/plugins/webhook-notifier build: ◐ Building runtime entry...
 packages/plugins/webhook-notifier build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/webhook-notifier build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/webhook-notifier build: [34mℹ[39m Build start
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                    [2m 7.13 kB[22m [2m│ gzip: 2.15 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[1msandbox.mjs[22m                  [2m 5.35 kB[22m [2m│ gzip: 1.66 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mindex.mjs.map                [2m12.72 kB[22m [2m│ gzip: 3.55 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22msandbox.mjs.map              [2m10.02 kB[22m [2m│ gzip: 2.87 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mvalidation-M9D7cuf8.mjs.map  [2m 8.56 kB[22m [2m│ gzip: 2.56 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mvalidation-M9D7cuf8.mjs      [2m 4.55 kB[22m [2m│ gzip: 1.45 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22mindex.d.mts.map              [2m 0.80 kB[22m [2m│ gzip: 0.34 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22msandbox.d.mts.map            [2m 0.12 kB[22m [2m│ gzip: 0.12 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m                  [2m 2.63 kB[22m [2m│ gzip: 0.82 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.mts[22m[39m                [2m 0.21 kB[22m [2m│ gzip: 0.16 kB[22m
-packages/plugins/awcms-micro-gallery build: [34mℹ[39m 10 files, total: 52.09 kB
-packages/plugins/awcms-micro-gallery build: [32m✔[39m Build complete in [32m1837ms[39m
-packages/plugins/awcms-micro-gallery build: Done
-packages/workerd build$ tsdown
-packages/workerd build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
-packages/workerd build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/workerd/tsdown.config.ts[24m 
-packages/workerd build: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox/index.ts[39m
-packages/workerd build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
-packages/workerd build: [34mℹ[39m Build start
-packages/workerd build: [34mℹ[39m Cleaning 7 files
-packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Z7Gxkp/runtime/[22m[1mplugin.mjs[22m        [2m0.58 kB[22m [2m│ gzip: 0.34 kB[22m
-packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Z7Gxkp/runtime/[22mplugin.mjs.map    [2m2.47 kB[22m [2m│ gzip: 1.12 kB[22m
-packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Z7Gxkp/runtime/[22mplugin.d.mts.map  [2m0.18 kB[22m [2m│ gzip: 0.15 kB[22m
-packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Z7Gxkp/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m1.59 kB[22m [2m│ gzip: 0.70 kB[22m
+packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-U8BfJ8/runtime/[22m[1mplugin.mjs[22m        [2m0.58 kB[22m [2m│ gzip: 0.34 kB[22m
+packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-U8BfJ8/runtime/[22mplugin.mjs.map    [2m2.47 kB[22m [2m│ gzip: 1.12 kB[22m
+packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-U8BfJ8/runtime/[22mplugin.d.mts.map  [2m0.18 kB[22m [2m│ gzip: 0.15 kB[22m
+packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-U8BfJ8/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m1.59 kB[22m [2m│ gzip: 0.70 kB[22m
 packages/plugins/marketplace-test build: [34mℹ[39m 4 files, total: 4.82 kB
-packages/plugins/marketplace-test build: [32m✔[39m Build complete in [32m1759ms[39m
+packages/plugins/marketplace-test build: [32m✔[39m Build complete in [32m1898ms[39m
 packages/plugins/marketplace-test build: ✔ Built plugin.mjs
 packages/plugins/marketplace-test build: ◐ Probing plugin surface...
 packages/plugins/marketplace-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/marketplace-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/marketplace-test build: [34mℹ[39m Build start
-packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-Z7Gxkp/plugin-probe/[22m[1mplugin.mjs[22m  [2m0.85 kB[22m [2m│ gzip: 0.44 kB[22m
+packages/plugins/marketplace-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-U8BfJ8/plugin-probe/[22m[1mplugin.mjs[22m  [2m0.85 kB[22m [2m│ gzip: 0.44 kB[22m
 packages/plugins/marketplace-test build: [34mℹ[39m 1 files, total: 0.85 kB
-packages/plugins/marketplace-test build: [32m✔[39m Build complete in [32m9ms[39m
+packages/plugins/marketplace-test build: [32m✔[39m Build complete in [32m10ms[39m
 packages/plugins/marketplace-test build: ℹ   Hooks: content:beforeSave
 packages/plugins/marketplace-test build: ℹ   Routes: ping, events
 packages/plugins/marketplace-test build: ✔ Wrote manifest.json
@@ -2742,56 +2668,57 @@ packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcm
 packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/dist/plugin.mjs
 packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/dist/manifest.json
 packages/plugins/marketplace-test build: Done
-packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-e3r7zl/runtime/[22m[1mplugin.mjs[22m        [2m19.59 kB[22m [2m│ gzip:  5.31 kB[22m
-packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-e3r7zl/runtime/[22mplugin.mjs.map    [2m62.07 kB[22m [2m│ gzip: 13.43 kB[22m
-packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-e3r7zl/runtime/[22mplugin.d.mts.map  [2m 1.75 kB[22m [2m│ gzip:  0.37 kB[22m
-packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-e3r7zl/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 8.47 kB[22m [2m│ gzip:  1.15 kB[22m
+packages/workerd build$ tsdown
+packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-82bCuK/runtime/[22m[1mplugin.mjs[22m        [2m19.59 kB[22m [2m│ gzip:  5.31 kB[22m
+packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-82bCuK/runtime/[22mplugin.mjs.map    [2m62.07 kB[22m [2m│ gzip: 13.43 kB[22m
+packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-82bCuK/runtime/[22mplugin.d.mts.map  [2m 1.75 kB[22m [2m│ gzip:  0.37 kB[22m
+packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-82bCuK/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 8.47 kB[22m [2m│ gzip:  1.15 kB[22m
 packages/plugins/sandboxed-test build: [34mℹ[39m 4 files, total: 91.88 kB
 packages/plugins/sandboxed-test build: src/plugin.ts (359:24) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:359:25 [38;5;246m][0m
 packages/plugins/sandboxed-test build:      [38;5;246m│[0m
 packages/plugins/sandboxed-test build:  [38;5;246m359 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249me[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249mR[0m[38;5;249me[0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249ml[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0meval[38;5;249m([0m[38;5;249m"[0m[38;5;249m1[0m[38;5;249m [0m[38;5;249m+[0m[38;5;249m [0m[38;5;249m1[0m[38;5;249m"[0m[38;5;249m)[0m[38;5;249m;[0m
-packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                  ──┬─  
+packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                  ──┬─
 packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                    ╰─── Use of direct `eval` here.
-packages/plugins/sandboxed-test build:  [38;5;240m    │[0m 
+packages/plugins/sandboxed-test build:  [38;5;240m    │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m    │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m─────╯[0m
 packages/plugins/sandboxed-test build: src/plugin.ts (1049:2) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:       [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:1049:3 [38;5;246m][0m
 packages/plugins/sandboxed-test build:       [38;5;246m│[0m
 packages/plugins/sandboxed-test build:  [38;5;246m1049 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0meval[38;5;249m([0m[38;5;249m"[0m[38;5;249m1[0m[38;5;249m+[0m[38;5;249m1[0m[38;5;249m"[0m[38;5;249m)[0m[38;5;249m;[0m
-packages/plugins/sandboxed-test build:  [38;5;240m     │[0m        ──┬─  
+packages/plugins/sandboxed-test build:  [38;5;240m     │[0m        ──┬─
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m          ╰─── Use of direct `eval` here.
-packages/plugins/sandboxed-test build:  [38;5;240m     │[0m 
+packages/plugins/sandboxed-test build:  [38;5;240m     │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m──────╯[0m
-packages/plugins/sandboxed-test build: [32m✔[39m Build complete in [32m1871ms[39m
+packages/plugins/sandboxed-test build: [32m✔[39m Build complete in [32m1733ms[39m
 packages/plugins/sandboxed-test build: ✔ Built plugin.mjs
 packages/plugins/sandboxed-test build: ◐ Probing plugin surface...
 packages/plugins/sandboxed-test build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/sandboxed-test build: [34mℹ[39m Build start
-packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-e3r7zl/plugin-probe/[22m[1mplugin.mjs[22m  [2m29.37 kB[22m [2m│ gzip: 6.51 kB[22m
+packages/plugins/sandboxed-test build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-82bCuK/plugin-probe/[22m[1mplugin.mjs[22m  [2m29.37 kB[22m [2m│ gzip: 6.51 kB[22m
 packages/plugins/sandboxed-test build: [34mℹ[39m 1 files, total: 29.37 kB
 packages/plugins/sandboxed-test build: src/plugin.ts (359:24) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:359:25 [38;5;246m][0m
 packages/plugins/sandboxed-test build:      [38;5;246m│[0m
 packages/plugins/sandboxed-test build:  [38;5;246m359 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249mc[0m[38;5;249mo[0m[38;5;249mn[0m[38;5;249ms[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249me[0m[38;5;249mv[0m[38;5;249ma[0m[38;5;249ml[0m[38;5;249mR[0m[38;5;249me[0m[38;5;249ms[0m[38;5;249mu[0m[38;5;249ml[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m=[0m[38;5;249m [0meval[38;5;249m([0m[38;5;249m"[0m[38;5;249m1[0m[38;5;249m [0m[38;5;249m+[0m[38;5;249m [0m[38;5;249m1[0m[38;5;249m"[0m[38;5;249m)[0m[38;5;249m;[0m
-packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                  ──┬─  
+packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                  ──┬─
 packages/plugins/sandboxed-test build:  [38;5;240m    │[0m                                    ╰─── Use of direct `eval` here.
-packages/plugins/sandboxed-test build:  [38;5;240m    │[0m 
+packages/plugins/sandboxed-test build:  [38;5;240m    │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m    │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m─────╯[0m
 packages/plugins/sandboxed-test build: src/plugin.ts (1049:2) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:       [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:1049:3 [38;5;246m][0m
 packages/plugins/sandboxed-test build:       [38;5;246m│[0m
 packages/plugins/sandboxed-test build:  [38;5;246m1049 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0meval[38;5;249m([0m[38;5;249m"[0m[38;5;249m1[0m[38;5;249m+[0m[38;5;249m1[0m[38;5;249m"[0m[38;5;249m)[0m[38;5;249m;[0m
-packages/plugins/sandboxed-test build:  [38;5;240m     │[0m        ──┬─  
+packages/plugins/sandboxed-test build:  [38;5;240m     │[0m        ──┬─
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m          ╰─── Use of direct `eval` here.
-packages/plugins/sandboxed-test build:  [38;5;240m     │[0m 
+packages/plugins/sandboxed-test build:  [38;5;240m     │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m──────╯[0m
-packages/plugins/sandboxed-test build: [32m✔[39m Build complete in [32m11ms[39m
+packages/plugins/sandboxed-test build: [32m✔[39m Build complete in [32m12ms[39m
 packages/plugins/sandboxed-test build: ℹ   Hooks: content:beforeSave, content:afterSave
 packages/plugins/sandboxed-test build: ℹ   Routes: admin, ping, debug/http, kv/test, storage/test, content/list, http/test, enforce/blocked-host, enforce/kv-isolation, enforce/storage-isolation, enforce/no-direct-db, enforce/globals-blocked, evil/exfil-to-attacker, evil/steal-other-plugin-kv, evil/steal-other-plugin-storage, evil/access-raw-db, evil/escalate-capabilities, evil/run-all, enforce/run-all
 packages/plugins/sandboxed-test build: ✔ Wrote manifest.json
@@ -2803,20 +2730,26 @@ packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsm
 packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/dist/plugin.mjs
 packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/dist/manifest.json
 packages/plugins/sandboxed-test build: Done
-packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-xSz6rV/runtime/[22m[1mplugin.mjs[22m        [2m 9.25 kB[22m [2m│ gzip: 3.05 kB[22m
-packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-xSz6rV/runtime/[22mplugin.mjs.map    [2m28.71 kB[22m [2m│ gzip: 7.20 kB[22m
-packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-xSz6rV/runtime/[22mplugin.d.mts.map  [2m 0.30 kB[22m [2m│ gzip: 0.21 kB[22m
-packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-xSz6rV/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 2.94 kB[22m [2m│ gzip: 0.70 kB[22m
+packages/workerd build: [34mℹ[39m tsdown [2mv0.20.3[22m powered by rolldown [2mv1.0.0-rc.3[22m
+packages/workerd build: [34mℹ[39m config file: [4m/home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/workerd/tsdown.config.ts[24m
+packages/workerd build: [34mℹ[39m entry: [34msrc/index.ts, src/sandbox/index.ts[39m
+packages/workerd build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
+packages/workerd build: [34mℹ[39m Build start
+packages/workerd build: [34mℹ[39m Cleaning 7 files
+packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-etaYO1/runtime/[22m[1mplugin.mjs[22m        [2m 9.25 kB[22m [2m│ gzip: 3.05 kB[22m
+packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-etaYO1/runtime/[22mplugin.mjs.map    [2m28.71 kB[22m [2m│ gzip: 7.20 kB[22m
+packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-etaYO1/runtime/[22mplugin.d.mts.map  [2m 0.30 kB[22m [2m│ gzip: 0.21 kB[22m
+packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-etaYO1/runtime/[22m[32m[1mplugin.d.mts[22m[39m      [2m 2.94 kB[22m [2m│ gzip: 0.70 kB[22m
 packages/plugins/webhook-notifier build: [34mℹ[39m 4 files, total: 41.20 kB
-packages/plugins/webhook-notifier build: [32m✔[39m Build complete in [32m1735ms[39m
+packages/plugins/webhook-notifier build: [32m✔[39m Build complete in [32m1918ms[39m
 packages/plugins/webhook-notifier build: ✔ Built plugin.mjs
 packages/plugins/webhook-notifier build: ◐ Probing plugin surface...
 packages/plugins/webhook-notifier build: [34mℹ[39m entry: [34msrc/plugin.ts[39m
 packages/plugins/webhook-notifier build: [34mℹ[39m tsconfig: [34mtsconfig.json[39m
 packages/plugins/webhook-notifier build: [34mℹ[39m Build start
-packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-xSz6rV/plugin-probe/[22m[1mplugin.mjs[22m  [2m14.88 kB[22m [2m│ gzip: 3.94 kB[22m
+packages/plugins/webhook-notifier build: [34mℹ[39m [2m../../../../../../../../tmp/emdash-build-etaYO1/plugin-probe/[22m[1mplugin.mjs[22m  [2m14.88 kB[22m [2m│ gzip: 3.94 kB[22m
 packages/plugins/webhook-notifier build: [34mℹ[39m 1 files, total: 14.88 kB
-packages/plugins/webhook-notifier build: [32m✔[39m Build complete in [32m8ms[39m
+packages/plugins/webhook-notifier build: [32m✔[39m Build complete in [32m12ms[39m
 packages/plugins/webhook-notifier build: ℹ   Hooks: content:afterSave, content:afterDelete, media:afterUpload
 packages/plugins/webhook-notifier build: ℹ   Routes: admin, status, settings, settings/save, test
 packages/plugins/webhook-notifier build: ✔ Wrote manifest.json
@@ -2828,6 +2761,19 @@ packages/plugins/webhook-notifier build:   /home/data/dev_react/awcms-micro/awcm
 packages/plugins/webhook-notifier build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/dist/plugin.mjs
 packages/plugins/webhook-notifier build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/dist/manifest.json
 packages/plugins/webhook-notifier build: Done
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1madmin.js[22m                           [2m252.91 kB[22m [2m│ gzip: 45.24 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1mindex.js[22m                           [2m  1.91 kB[22m [2m│ gzip:  0.71 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1mnavigation.js[22m                      [2m  0.78 kB[22m [2m│ gzip:  0.32 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[1msandbox.js[22m                         [2m  0.30 kB[22m [2m│ gzip:  0.22 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mruntime-Nr7slEqR.js                [2m100.55 kB[22m [2m│ gzip: 18.81 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22mAwcmsPluginHeaderMenu-DPb2TOeZ.js  [2m 13.95 kB[22m [2m│ gzip:  3.27 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1mnavigation.d.ts[22m[39m                    [2m  6.04 kB[22m [2m│ gzip:  1.38 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.ts[22m[39m                         [2m  3.34 kB[22m [2m│ gzip:  0.97 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1msandbox.d.ts[22m[39m                       [2m  2.23 kB[22m [2m│ gzip:  0.50 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m [2mdist/[22m[32m[1madmin.d.ts[22m[39m                         [2m  1.17 kB[22m [2m│ gzip:  0.47 kB[22m
+packages/plugins/awcms-micro-sikesra build: [34mℹ[39m 10 files, total: 383.17 kB
+packages/plugins/awcms-micro-sikesra build: [32m✔[39m Build complete in [32m2985ms[39m
+packages/plugins/awcms-micro-sikesra build: Done
 packages/workerd build: [34mℹ[39m [2mdist/[22m[1msandbox/index.mjs[22m              [2m 0.24 kB[22m [2m│ gzip:  0.15 kB[22m
 packages/workerd build: [34mℹ[39m [2mdist/[22m[1mindex.mjs[22m                      [2m 0.18 kB[22m [2m│ gzip:  0.13 kB[22m
 packages/workerd build: [34mℹ[39m [2mdist/[22mrunner-DPvq5mbQ.mjs            [2m83.97 kB[22m [2m│ gzip: 21.86 kB[22m
@@ -2835,7 +2781,7 @@ packages/workerd build: [34mℹ[39m [2mdist/[22m[32m[1msandbox/index.d.mts
 packages/workerd build: [34mℹ[39m [2mdist/[22m[32m[1mindex.d.mts[22m[39m                    [2m 0.18 kB[22m [2m│ gzip:  0.14 kB[22m
 packages/workerd build: [34mℹ[39m [2mdist/[22m[32mbridge-handler-O1ayzB49.d.mts[39m  [2m11.52 kB[22m [2m│ gzip:  3.97 kB[22m
 packages/workerd build: [34mℹ[39m 6 files, total: 96.34 kB
-packages/workerd build: [32m✔[39m Build complete in [32m1611ms[39m
+packages/workerd build: [32m✔[39m Build complete in [32m1571ms[39m
 packages/workerd build: Done
 $ node scripts/relink-bins-if-needed.mjs
 $ pnpm typecheck
@@ -2858,8 +2804,8 @@ packages/gutenberg-to-portable-text typecheck: Done
 packages/registry-lexicons typecheck$ tsgo --noEmit
 packages/plugin-types typecheck: Done
 packages/x402 typecheck$ tsgo --noEmit
-packages/registry-lexicons typecheck: Done
 packages/blocks typecheck: Done
+packages/registry-lexicons typecheck: Done
 packages/x402 typecheck: Done
 packages/marketplace typecheck: Done
 packages/registry-client typecheck$ tsgo --noEmit
@@ -2873,13 +2819,13 @@ packages/core typecheck$ tsgo --noEmit
 packages/auth-atproto typecheck: Done
 packages/core typecheck: Done
 packages/cloudflare typecheck$ tsgo --noEmit
-packages/plugins/ai-moderation typecheck$ tsgo --noEmit
 packages/plugins/atproto typecheck$ tsgo --noEmit
+packages/plugins/ai-moderation typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck: Done
-packages/plugins/awcms-micro-sikesra typecheck$ tsc --noEmit -p tsconfig.json
-packages/plugins/atproto typecheck: Done
 packages/plugins/awcms-micro-gallery typecheck$ tsc --noEmit -p tsconfig.json
+packages/plugins/atproto typecheck: Done
+packages/plugins/awcms-micro-sikesra typecheck$ tsc --noEmit -p tsconfig.json
 packages/cloudflare typecheck: Done
 packages/plugins/color typecheck$ tsgo --noEmit
 packages/plugins/ai-moderation typecheck: Done
@@ -2904,15 +2850,15 @@ $ pnpm lint:quick
 ==> pnpm-lint-quick
 $ oxlint -f json
 { "diagnostics": [],
-              "number_of_files": 1815,
+              "number_of_files": 1842,
               "number_of_rules": 138,
               "threads_count": 20,
-              "start_time": 1.4706264660000001
+              "start_time": 1.566317704
             }
             $ pnpm --filter @emdash-cms/admin exec node --run locale:compile
 ==> pnpm-admin-locale-compile
 Compiling message catalogs…
-Done in 458ms
+Done in 488ms
 $ pnpm --filter @emdash-cms/admin exec playwright install chromium
 ==> playwright-install-chromium
 BEWARE: your OS is not officially supported by Playwright; downloading fallback build for ubuntu24.04-x64.
@@ -2923,108 +2869,108 @@ $ pnpm test
 $ pnpm run --filter {./packages/*} test
 Scope: 17 of 59 workspace projects
 packages/atproto-test-utils test$ vitest run
-packages/blocks test$ vitest
 packages/auth test$ vitest
 packages/contentful-to-portable-text test$ vitest
-packages/blocks test: 4:23:30 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+packages/blocks test$ vitest
+packages/blocks test: 1:01:18 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
 packages/blocks test: `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
-packages/contentful-to-portable-text test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/contentful-to-portable-text
 packages/blocks test: Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
-packages/blocks test: [vite:react-babel] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance. More information at https://vite.dev/rolldown
 packages/auth test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth
-packages/blocks test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks
 packages/atproto-test-utils test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/atproto-test-utils
+packages/blocks test: [vite:react-babel] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance. More information at https://vite.dev/rolldown
+packages/blocks test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks
+packages/contentful-to-portable-text test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/contentful-to-portable-text
 packages/contentful-to-portable-text test:  Test Files  2 passed (2)
 packages/contentful-to-portable-text test:       Tests  60 passed (60)
-packages/contentful-to-portable-text test:    Start at  04:23:30
-packages/contentful-to-portable-text test:    Duration  292ms (transform 175ms, setup 0ms, import 264ms, tests 39ms, environment 0ms)
+packages/contentful-to-portable-text test:    Start at  01:01:18
+packages/contentful-to-portable-text test:    Duration  307ms (transform 180ms, setup 0ms, import 254ms, tests 34ms, environment 0ms)
 packages/contentful-to-portable-text test: Done
 packages/create-emdash test$ vitest run
 packages/auth test:  Test Files  5 passed (5)
 packages/auth test:       Tests  57 passed (57)
-packages/auth test:    Start at  04:23:30
-packages/auth test:    Duration  339ms (transform 268ms, setup 0ms, import 492ms, tests 337ms, environment 0ms)
+packages/auth test:    Start at  01:01:18
+packages/auth test:    Duration  439ms (transform 363ms, setup 0ms, import 685ms, tests 410ms, environment 0ms)
 packages/auth test: Done
 packages/gutenberg-to-portable-text test$ vitest
+packages/create-emdash test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash
 packages/atproto-test-utils test:  Test Files  1 passed (1)
 packages/atproto-test-utils test:       Tests  17 passed (17)
-packages/atproto-test-utils test:    Start at  04:23:30
-packages/atproto-test-utils test:    Duration  495ms (transform 97ms, setup 0ms, import 272ms, tests 126ms, environment 0ms)
+packages/atproto-test-utils test:    Start at  01:01:18
+packages/atproto-test-utils test:    Duration  639ms (transform 115ms, setup 0ms, import 320ms, tests 173ms, environment 0ms)
 packages/atproto-test-utils test: Done
 packages/marketplace test$ vitest
-packages/create-emdash test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash
 packages/gutenberg-to-portable-text test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/gutenberg-to-portable-text
-packages/marketplace test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/marketplace
 packages/create-emdash test:  Test Files  2 passed (2)
 packages/create-emdash test:       Tests  103 passed (103)
-packages/create-emdash test:    Start at  04:23:31
-packages/create-emdash test:    Duration  251ms (transform 86ms, setup 0ms, import 159ms, tests 42ms, environment 0ms)
+packages/create-emdash test:    Start at  01:01:19
+packages/create-emdash test:    Duration  198ms (transform 115ms, setup 0ms, import 148ms, tests 29ms, environment 0ms)
 packages/create-emdash test: Done
 packages/plugin-types test$ vitest run
 packages/blocks test:  Test Files  3 passed (3)
 packages/blocks test:       Tests  96 passed (96)
-packages/blocks test:    Start at  04:23:30
-packages/blocks test:    Duration  910ms (transform 334ms, setup 0ms, import 681ms, tests 280ms, environment 992ms)
+packages/blocks test:    Start at  01:01:18
+packages/blocks test:    Duration  921ms (transform 333ms, setup 0ms, import 645ms, tests 242ms, environment 1.19s)
 packages/blocks test: Done
 packages/registry-lexicons test$ vitest run
+packages/marketplace test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/marketplace
 packages/gutenberg-to-portable-text test:  Test Files  2 passed (2)
 packages/gutenberg-to-portable-text test:       Tests  140 passed (140)
-packages/gutenberg-to-portable-text test:    Start at  04:23:31
-packages/gutenberg-to-portable-text test:    Duration  354ms (transform 221ms, setup 0ms, import 328ms, tests 85ms, environment 0ms)
-packages/marketplace test:  Test Files  4 passed (4)
-packages/marketplace test:       Tests  43 passed (43)
-packages/marketplace test:    Start at  04:23:31
-packages/marketplace test:    Duration  217ms (transform 97ms, setup 0ms, import 201ms, tests 43ms, environment 0ms)
+packages/gutenberg-to-portable-text test:    Start at  01:01:19
+packages/gutenberg-to-portable-text test:    Duration  310ms (transform 149ms, setup 0ms, import 302ms, tests 67ms, environment 0ms)
 packages/gutenberg-to-portable-text test: Done
 packages/x402 test$ vitest
-packages/marketplace test: Done
 packages/plugin-types test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-types
+packages/marketplace test:  Test Files  4 passed (4)
+packages/marketplace test:       Tests  43 passed (43)
+packages/marketplace test:    Start at  01:01:19
+packages/marketplace test:    Duration  210ms (transform 109ms, setup 0ms, import 194ms, tests 43ms, environment 0ms)
+packages/marketplace test: Done
 packages/registry-lexicons test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons
-packages/x402 test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402
 packages/plugin-types test:  Test Files  2 passed (2)
 packages/plugin-types test:       Tests  27 passed (27)
-packages/plugin-types test:    Start at  04:23:31
-packages/plugin-types test:    Duration  182ms (transform 59ms, setup 0ms, import 85ms, tests 13ms, environment 0ms)
+packages/plugin-types test:    Start at  01:01:19
+packages/plugin-types test:    Duration  155ms (transform 40ms, setup 0ms, import 59ms, tests 10ms, environment 0ms)
+packages/x402 test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402
 packages/plugin-types test: Done
 packages/registry-lexicons test:  Test Files  1 passed (1)
 packages/registry-lexicons test:       Tests  10 passed (10)
-packages/registry-lexicons test:    Start at  04:23:31
-packages/registry-lexicons test:    Duration  224ms (transform 74ms, setup 0ms, import 118ms, tests 11ms, environment 0ms)
+packages/registry-lexicons test:    Start at  01:01:19
+packages/registry-lexicons test:    Duration  240ms (transform 76ms, setup 0ms, import 122ms, tests 10ms, environment 0ms)
 packages/registry-lexicons test: Done
 packages/x402 test:  Test Files  1 passed (1)
 packages/x402 test:       Tests  17 passed (17)
-packages/x402 test:    Start at  04:23:31
-packages/x402 test:    Duration  269ms (transform 68ms, setup 0ms, import 78ms, tests 52ms, environment 0ms)
+packages/x402 test:    Start at  01:01:19
+packages/x402 test:    Duration  208ms (transform 59ms, setup 0ms, import 67ms, tests 44ms, environment 0ms)
 packages/x402 test: Done
 packages/registry-client test$ vitest run
 packages/registry-client test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-client
 packages/registry-client test:  Test Files  3 passed (3)
 packages/registry-client test:       Tests  37 passed (37)
-packages/registry-client test:    Start at  04:23:32
-packages/registry-client test:    Duration  335ms (transform 205ms, setup 0ms, import 377ms, tests 93ms, environment 0ms)
+packages/registry-client test:    Start at  01:01:20
+packages/registry-client test:    Duration  279ms (transform 201ms, setup 0ms, import 349ms, tests 95ms, environment 0ms)
 packages/registry-client test: Done
-packages/admin test$ vitest
 packages/plugin-cli test$ vitest run
+packages/admin test$ vitest
 packages/plugin-cli test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli
 packages/admin test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/bubble-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/toolbar.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/slash-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/RevisionHistory.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/InviteUserModal.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/settings/AllowedDomainsSettings.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/slash-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/toolbar.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/bubble-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/UserDetail.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/settings/AllowedDomainsSettings.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/block-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/plugin-cli test:  Test Files  18 passed (18)
 packages/plugin-cli test:       Tests  316 passed (316)
-packages/plugin-cli test:    Start at  04:23:33
-packages/plugin-cli test:    Duration  10.68s (transform 2.89s, setup 0ms, import 5.47s, tests 10.71s, environment 2ms)
+packages/plugin-cli test:    Start at  01:01:20
+packages/plugin-cli test:    Duration  12.24s (transform 3.25s, setup 0ms, import 5.86s, tests 12.22s, environment 2ms)
 packages/plugin-cli test: Done
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/InviteUserModal.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/lib/hooks.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  Test Files  66 passed (66)
 packages/admin test:       Tests  913 passed (913)
-packages/admin test:    Start at  04:23:33
-packages/admin test:    Duration  18.96s (transform 0ms, setup 6.57s, import 113.43s, tests 57.76s, environment 0ms)
+packages/admin test:    Start at  01:01:20
+packages/admin test:    Duration  21.66s (transform 0ms, setup 7.32s, import 128.78s, tests 65.69s, environment 0ms)
 packages/admin test: Done
 packages/auth-atproto test$ vitest run
 packages/core test$ vitest
@@ -3032,26 +2978,26 @@ packages/core test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev
 packages/auth-atproto test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth-atproto
 packages/auth-atproto test:  Test Files  3 passed (3)
 packages/auth-atproto test:       Tests  30 passed (30)
-packages/auth-atproto test:    Start at  04:23:52
-packages/auth-atproto test:    Duration  291ms (transform 192ms, setup 0ms, import 282ms, tests 144ms, environment 0ms)
+packages/auth-atproto test:    Start at  01:01:43
+packages/auth-atproto test:    Duration  411ms (transform 217ms, setup 0ms, import 332ms, tests 157ms, environment 0ms)
 packages/auth-atproto test: Done
 packages/core test:  Test Files  218 passed (218)
 packages/core test:       Tests  3453 passed (3453)
-packages/core test:    Start at  04:23:52
-packages/core test:    Duration  16.11s (transform 24.63s, setup 0ms, import 111.69s, tests 146.14s, environment 34ms)
+packages/core test:    Start at  01:01:43
+packages/core test:    Duration  16.63s (transform 27.75s, setup 0ms, import 118.53s, tests 148.16s, environment 31ms)
 packages/core test: Done
-packages/workerd test$ vitest run
 packages/cloudflare test$ vitest run
-packages/cloudflare test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/cloudflare
+packages/workerd test$ vitest run
 packages/workerd test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/workerd
+packages/cloudflare test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/cloudflare
 packages/cloudflare test:  Test Files  8 passed (8)
 packages/cloudflare test:       Tests  157 passed (157)
-packages/cloudflare test:    Start at  04:24:08
-packages/cloudflare test:    Duration  308ms (transform 380ms, setup 0ms, import 741ms, tests 111ms, environment 1ms)
+packages/cloudflare test:    Start at  01:02:00
+packages/cloudflare test:    Duration  367ms (transform 381ms, setup 0ms, import 779ms, tests 111ms, environment 1ms)
 packages/cloudflare test: Done
 packages/workerd test:  Test Files  11 passed (11)
 packages/workerd test:       Tests  73 passed (73)
-packages/workerd test:    Start at  04:24:08
-packages/workerd test:    Duration  9.30s (transform 5.92s, setup 0ms, import 11.32s, tests 8.92s, environment 1ms)
+packages/workerd test:    Start at  01:02:00
+packages/workerd test:    Duration  9.36s (transform 5.88s, setup 0ms, import 11.70s, tests 8.95s, environment 1ms)
 packages/workerd test: Done
 ```

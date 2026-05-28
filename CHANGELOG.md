@@ -6,7 +6,7 @@
 
 ## Workspace Snapshot - 2026-05-28
 
-- EmDash upstream: `62f89fecd57be8774d71a911113671c59b599de2` from `emdash-latest/`
+- EmDash upstream: `139a4d5c965c2444fcb10be95ffe112855e19e52` from `emdash-latest/`
 - Root version: `0.1.0`
 
 ### Plugins
@@ -18,7 +18,7 @@
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.15` - latest changelog section: 0.1.15
+- `@emdash-cms/plugin-embeds` `0.1.16` - latest changelog section: 0.1.16
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
 - `@emdash-cms/plugin-forms` `0.2.2` - latest changelog section: 0.2.2
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2

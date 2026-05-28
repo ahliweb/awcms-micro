@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
-		"lib": ["es2023", "es2024"]
+		"lib": ["es2023", "esnext.typedarrays"]
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist", "tests"]

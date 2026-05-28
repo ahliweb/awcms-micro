@@ -1,6 +1,6 @@
 {
   "name": "@emdash-cms/auth",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Passkey-first authentication for EmDash",
   "type": "module",
   "main": "dist/index.mjs",
@@ -45,7 +45,7 @@
     "zod": "catalog:"
   },
   "peerDependencies": {
-    "astro": ">=6.3.8",
+    "astro": ">=6.0.0-beta.0",
     "kysely": "^0.29.0"
   },
   "peerDependenciesMeta": {

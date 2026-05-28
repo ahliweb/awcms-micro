@@ -27,9 +27,10 @@ print(match.group(1) if match else "TBD")
 PY
 )"
 SYNC_DATE="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+OPERATOR_NAME="${SYNC_OPERATOR:-${USER:-unknown}}"
 
 if [[ -f "$STATUS_FILE" ]]; then
-	python3 - <<'PY' "$STATUS_FILE" "$UPSTREAM_SHA" "$SYNC_DATE"
+	python3 - <<'PY' "$STATUS_FILE" "$UPSTREAM_SHA" "$SYNC_DATE" "$OPERATOR_NAME"
 from pathlib import Path
 import re
 import sys
@@ -41,6 +42,7 @@ text = status_file.read_text()
 text = re.sub(r"Synced to EmDash `[^`]+`\.", f"Synced to EmDash `{sha[:8]}`.", text, count=1)
 text = re.sub(r"- Upstream commit SHA: `[^`]*`", f"- Upstream commit SHA: `{sha}`", text, count=1)
 text = re.sub(r"- Sync date: `[^`]*`", f"- Sync date: `{sync_date}`", text, count=1)
+text = re.sub(r"- Operator: `[^`]*`", f"- Operator: `{sys.argv[4]}`", text, count=1)
 text = text.replace("| Upstream fetch into `emdash-latest/` | Pending | Update after sync |", "| Upstream fetch into `emdash-latest/` | Passed | Refreshed by sync-and-validate script |", 1)
 text = text.replace("| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Pending | Update after sync |", "| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt by sync-and-validate script |", 1)
 text = re.sub(r"\| Validation script execution \| [^|]+ \| [^\n]+ \|", "| Validation script execution | Passed | See `LAST_VALIDATION.md` |", text, count=1)
