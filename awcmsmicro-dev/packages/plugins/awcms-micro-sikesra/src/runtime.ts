@@ -16,6 +16,168 @@ import {
 } from "./fixtures.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
+export interface AdministrativeRegion {
+	code: string;
+	name: string;
+}
+
+export interface AdministrativeDistrict extends AdministrativeRegion {
+	villages: AdministrativeRegion[];
+}
+
+export interface AdministrativeRegency extends AdministrativeRegion {
+	districts: AdministrativeDistrict[];
+}
+
+export interface AdministrativeProvince extends AdministrativeRegion {
+	regencies: AdministrativeRegency[];
+}
+
+export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
+	{
+		code: "62",
+		name: "Kalimantan Tengah",
+		regencies: [
+			{
+				code: "6201",
+				name: "Kotawaringin Barat",
+				districts: [
+					{
+						code: "620101",
+						name: "Arut Selatan",
+						villages: [
+							{ code: "6201010001", name: "Kelurahan Baru" },
+							{ code: "6201010002", name: "Kelurahan Madurejo" },
+							{ code: "6201010003", name: "Kelurahan Mendawai" },
+							{ code: "6201010004", name: "Kelurahan Mendawai Seberang" },
+							{ code: "6201010005", name: "Kelurahan Raja" },
+							{ code: "6201010006", name: "Kelurahan Raja Seberang" },
+							{ code: "6201010007", name: "Kelurahan Sidorejo" },
+							{ code: "6201010008", name: "Kenambui" },
+							{ code: "6201010009", name: "Kumpai Batu Atas" },
+							{ code: "6201010010", name: "Kumpai Batu Bawah" },
+							{ code: "6201010011", name: "Medang Sari" },
+							{ code: "6201010012", name: "Natai Baru" },
+							{ code: "6201010013", name: "Natai Raya" },
+							{ code: "6201010014", name: "Pasir Panjang" },
+							{ code: "6201010015", name: "Rangda" },
+							{ code: "6201010016", name: "Runtu" },
+							{ code: "6201010017", name: "Sulung" },
+							{ code: "6201010018", name: "Tanjung Putri" },
+							{ code: "6201010019", name: "Tanjung Terantang" },
+							{ code: "6201010020", name: "Umpang" }
+						]
+					},
+					{
+						code: "620102",
+						name: "Arut Utara",
+						villages: [
+							{ code: "6201020001", name: "Kelurahan Pangkut" },
+							{ code: "6201020002", name: "Gandis" },
+							{ code: "6201020003", name: "Kerabu" },
+							{ code: "6201020004", name: "Nanga Mua" },
+							{ code: "6201020005", name: "Panahan" },
+							{ code: "6201020006", name: "Pandan" },
+							{ code: "6201020007", name: "Penyombaan" },
+							{ code: "6201020008", name: "Riam" },
+							{ code: "6201020009", name: "Sambi" },
+							{ code: "6201020010", name: "Sukarami" },
+							{ code: "6201020011", name: "Sungai Dau" }
+						]
+					},
+					{
+						code: "620103",
+						name: "Kotawaringin Lama",
+						villages: [
+							{ code: "6201030001", name: "Kelurahan Kotawaringin Hilir" },
+							{ code: "6201030002", name: "Kelurahan Kotawaringin Hulu" },
+							{ code: "6201030003", name: "Babual Baboti" },
+							{ code: "6201030004", name: "Dawak" },
+							{ code: "6201030005", name: "Ipuh Bangun Jaya" },
+							{ code: "6201030006", name: "Kinjil" },
+							{ code: "6201030007", name: "Kondang" },
+							{ code: "6201030008", name: "Lalang" },
+							{ code: "6201030009", name: "Palih Baru" },
+							{ code: "6201030010", name: "Riam Durian" },
+							{ code: "6201030011", name: "Rungun" },
+							{ code: "6201030012", name: "Suka Mulya" },
+							{ code: "6201030013", name: "Sakabulin" },
+							{ code: "6201030014", name: "Sukajaya" },
+							{ code: "6201030015", name: "Suka Makmur" },
+							{ code: "6201030016", name: "Sumber Mukti" },
+							{ code: "6201030017", name: "Tempayung" }
+						]
+					},
+					{
+						code: "620104",
+						name: "Kumai",
+						villages: [
+							{ code: "6201040001", name: "Kelurahan Candi" },
+							{ code: "6201040002", name: "Kelurahan Kumai Hilir" },
+							{ code: "6201040003", name: "Kelurahan Kumai Hulu" },
+							{ code: "6201040004", name: "Batu Belaman" },
+							{ code: "6201040005", name: "Bumi Harjo" },
+							{ code: "6201040006", name: "Keraya" },
+							{ code: "6201040007", name: "Kubu" },
+							{ code: "6201040008", name: "Pangkalan Satu" },
+							{ code: "6201040009", name: "Sabuai" },
+							{ code: "6201040010", name: "Sebuai Timur" },
+							{ code: "6201040011", name: "Sungai Bakau" },
+							{ code: "6201040012", name: "Sungai Bedaun" },
+							{ code: "6201040013", name: "Sungai Cabang" },
+							{ code: "6201040014", name: "Sungai Kapitan" },
+							{ code: "6201040015", name: "Sungai Sekonyer" },
+							{ code: "6201040016", name: "Sungai Tendang" },
+							{ code: "6201040017", name: "Teluk Bogam" },
+							{ code: "6201040018", name: "Teluk Pulai" }
+						]
+					},
+					{
+						code: "620105",
+						name: "Pangkalan Banteng",
+						villages: [
+							{ code: "6201050001", name: "Amin Jaya" },
+							{ code: "6201050002", name: "Arga Mulya" },
+							{ code: "6201050003", name: "Berambai Makmur" },
+							{ code: "6201050004", name: "Karang Mulya" },
+							{ code: "6201050005", name: "Karang Sari" },
+							{ code: "6201050006", name: "Kebon Agung" },
+							{ code: "6201050007", name: "Marga Mulya" },
+							{ code: "6201050008", name: "Mulya Jadi" },
+							{ code: "6201050009", name: "Natai Kerbau" },
+							{ code: "6201050010", name: "Pangkalan Banteng" },
+							{ code: "6201050011", name: "Sido Mulyo" },
+							{ code: "6201050012", name: "Simpang Berambai" },
+							{ code: "6201050013", name: "Sungai Bengkuang" },
+							{ code: "6201050014", name: "Sungai Hijau" },
+							{ code: "6201050015", name: "Sungai Kuning" },
+							{ code: "6201050016", name: "Sungai Pakit" },
+							{ code: "6201050017", name: "Sungai Pulau" }
+						]
+					},
+					{
+						code: "620106",
+						name: "Pangkalan Lada",
+						villages: [
+							{ code: "6201060001", name: "Kadipi Atas" },
+							{ code: "6201060002", name: "Lada Mandala Jaya" },
+							{ code: "6201060003", name: "Makarti Jaya" },
+							{ code: "6201060004", name: "Pandu Sanjaya" },
+							{ code: "6201060005", name: "Pangkalan Dewa" },
+							{ code: "6201060006", name: "Pangkalan Durin" },
+							{ code: "6201060007", name: "Pangkalan Tiga" },
+							{ code: "6201060008", name: "Purbasari" },
+							{ code: "6201060009", name: "Sumber Agung" },
+							{ code: "6201060010", name: "Sungai Rangit Jaya" },
+							{ code: "6201060011", name: "Terantang" }
+						]
+					}
+				]
+			}
+		]
+	}
+];
+
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
 
 export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
@@ -270,6 +432,15 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 								permission: "awcms:sikesra:abac:read",
 							}
 						]
+					},
+					{
+						id: "regions",
+						labelKey: "awcms.nav.regions",
+						fallbackLabel: "Official Regions",
+						path: "/regions",
+						icon: "globe",
+						sortOrder: 30,
+						permission: "awcms:sikesra:settings:read",
 					}
 				]
 			}
@@ -292,7 +463,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 					"awcms.nav.audit": "Audit Log",
 					"awcms.nav.reports": "Reports",
 					"awcms.nav.access": "Access Control",
-				"awcms.nav.permissions": "Permissions",
+					"awcms.nav.regions": "Official Regions",
+					"awcms.nav.permissions": "Permissions",
 				"awcms.nav.roles": "Roles",
 				"awcms.nav.matrix": "Role Matrix",
 				"awcms.nav.accessPreview": "Access Preview",
@@ -365,6 +537,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.nav.audit": "Log Audit",
 				"awcms.nav.reports": "Laporan",
 				"awcms.nav.access": "Kontrol Akses",
+				"awcms.nav.regions": "Wilayah Resmi",
 				"awcms.nav.permissions": "Izin",
 				"awcms.nav.roles": "Peran",
 				"awcms.nav.matrix": "Matriks Peran",
@@ -1965,6 +2138,25 @@ const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return abac.health;
 };
 
+const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const regions = (await ctx.kv.get<unknown>("custom:regions")) ?? DEFAULT_REGION_TREE;
+	return regions;
+};
+
+const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	await ctx.kv.set("custom:regions", input);
+	const event = createAuditRecord({
+		kind: "settings.regions.update",
+		scope: "settings",
+		actor: actorFromRoute(ctx),
+		summary: "Updated official administrative regions list",
+		metadata: { updatedCount: Array.isArray(input) ? input.length : 0 },
+	});
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: input };
+};
+
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
 	"registry/list": { handler: registryListRoute },
@@ -1978,6 +2170,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"verification/advance": { handler: verificationAdvanceRoute },
 	"settings/get": { handler: settingsGetRoute },
 	"settings/save": { handler: settingsSaveRoute },
+	"regions/get": { handler: regionsGetRoute },
+	"regions/save": { handler: regionsSaveRoute },
 	"audit/list": { handler: auditListRoute },
 	"state/touch": { handler: touchStateRoute },
 	"access/permissions/list": { handler: accessPermissionsListRoute },

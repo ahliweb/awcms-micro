@@ -213,7 +213,7 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(14);
+		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(15);
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
@@ -231,6 +231,7 @@ describe("awcms micro example plugin", () => {
 			"/documents",
 			"/import",
 			"/overview",
+			"/regions",
 			"/registry",
 			"/reports",
 			"/verification",

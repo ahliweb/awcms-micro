@@ -441,6 +441,12 @@ export const AWCMS_SIKESRA_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
 				href: "/access/roles",
 				permission: "awcms:sikesra:roles:read",
 			},
+			{
+				id: "regions",
+				label: "Official Regions",
+				href: "/regions",
+				permission: "awcms:sikesra:settings:read",
+			},
 		],
 	},
 ];
@@ -1116,10 +1122,28 @@ function OverviewPage() {
 	);
 }
 
+function resolveRegionNames(
+	region: { provinceCode: string; regencyCode: string; districtCode: string; villageCode: string },
+	regions: AdministrativeProvince[]
+) {
+	const prov = regions.find(p => p.code === region.provinceCode);
+	const reg = prov?.regencies?.find(r => r.code === region.regencyCode);
+	const dist = reg?.districts?.find(d => d.code === region.districtCode);
+	const vill = dist?.villages?.find(v => v.code === region.villageCode);
+
+	return {
+		provinceName: prov ? prov.name : region.provinceCode,
+		regencyName: reg ? reg.name : region.regencyCode,
+		districtName: dist ? dist.name : region.districtCode,
+		villageName: vill ? vill.name : region.villageCode,
+	};
+}
+
 function RegistryPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error: _error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const { data: regionsData, loading: loadingRegions } = usePluginData<AdministrativeProvince[]>("regions/get");
 	const [step, setStep] = React.useState(0);
 	const [submitting, setSubmitting] = React.useState(false);
 	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -1132,14 +1156,13 @@ function RegistryPage() {
 	const [tempDocSensitivity, setTempDocSensitivity] = React.useState<SikesraSensitivity>("public_safe");
 	const [tempDocFile, setTempDocFile] = React.useState<string | null>(null);
 
-	// 11-step wizard state
 	const [wizardState, setWizardState] = React.useState({
 		entityType: "rumah_ibadah",
 		subtype: "Masjid",
-		provinceCode: "31",
-		regencyCode: "3171",
-		districtCode: "3171010",
-		villageCode: "3171010001",
+		provinceCode: "62",
+		regencyCode: "6201",
+		districtCode: "620101",
+		villageCode: "6201010001",
 		rt: "001",
 		rw: "001",
 		address: "Jl. Merdeka No. 12",
@@ -1160,6 +1183,22 @@ function RegistryPage() {
 		code: "", // SIKESRA ID
 		sensitivity: "public_safe" as SikesraSensitivity,
 	});
+
+	React.useEffect(() => {
+		if (regionsData && regionsData.length > 0) {
+			const prov = regionsData[0];
+			const reg = prov?.regencies?.[0];
+			const dist = reg?.districts?.[0];
+			const vill = dist?.villages?.[0];
+			setWizardState(prev => ({
+				...prev,
+				provinceCode: prov?.code ?? "62",
+				regencyCode: reg?.code ?? "6201",
+				districtCode: dist?.code ?? "620101",
+				villageCode: vill?.code ?? "6201010001",
+			}));
+		}
+	}, [regionsData]);
 
 	const [filterType, setFilterType] = React.useState<string>("all");
 	const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -1252,10 +1291,10 @@ function RegistryPage() {
 			setWizardState({
 				entityType: "rumah_ibadah",
 				subtype: "Masjid",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: regionsData?.[0]?.code ?? "62",
+				regencyCode: regionsData?.[0]?.regencies?.[0]?.code ?? "6201",
+				districtCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.code ?? "620101",
+				villageCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.villages?.[0]?.code ?? "6201010001",
 				rt: "001",
 				rw: "001",
 				address: "Jl. Merdeka No. 12",
@@ -1280,12 +1319,13 @@ function RegistryPage() {
 			setSubmitting(false);
 		}
 	};
-
+ 
 	const handleProvinceChange = (provinceCode: string) => {
-		const prov = REGION_DATA.find(p => p.code === provinceCode);
-		const reg = prov?.regencies[0];
-		const dist = reg?.districts[0];
-		const vill = dist?.villages[0];
+		const activeRegionData = regionsData || [];
+		const prov = activeRegionData.find(p => p.code === provinceCode);
+		const reg = prov?.regencies?.[0];
+		const dist = reg?.districts?.[0];
+		const vill = dist?.villages?.[0];
 		setWizardState(prev => ({
 			...prev,
 			provinceCode,
@@ -1294,12 +1334,13 @@ function RegistryPage() {
 			villageCode: vill?.code ?? "",
 		}));
 	};
-
+ 
 	const handleRegencyChange = (regencyCode: string) => {
-		const prov = REGION_DATA.find(p => p.code === wizardState.provinceCode);
-		const reg = prov?.regencies.find(r => r.code === regencyCode);
-		const dist = reg?.districts[0];
-		const vill = dist?.villages[0];
+		const activeRegionData = regionsData || [];
+		const prov = activeRegionData.find(p => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies?.find(r => r.code === regencyCode);
+		const dist = reg?.districts?.[0];
+		const vill = dist?.villages?.[0];
 		setWizardState(prev => ({
 			...prev,
 			regencyCode,
@@ -1307,12 +1348,13 @@ function RegistryPage() {
 			villageCode: vill?.code ?? "",
 		}));
 	};
-
+ 
 	const handleDistrictChange = (districtCode: string) => {
-		const prov = REGION_DATA.find(p => p.code === wizardState.provinceCode);
-		const reg = prov?.regencies.find(r => r.code === wizardState.regencyCode);
-		const dist = reg?.districts.find(d => d.code === districtCode);
-		const vill = dist?.villages[0];
+		const activeRegionData = regionsData || [];
+		const prov = activeRegionData.find(p => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies?.find(r => r.code === wizardState.regencyCode);
+		const dist = reg?.districts?.find(d => d.code === districtCode);
+		const vill = dist?.villages?.[0];
 		setWizardState(prev => ({
 			...prev,
 			districtCode,
@@ -1336,7 +1378,7 @@ function RegistryPage() {
 		setTempDocFile(null);
 	};
 
-	if (loading) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	if (loading || loadingRegions) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
 
 	return (
 		<PageShell>
@@ -1411,32 +1453,36 @@ function RegistryPage() {
 							{filteredEntities.length === 0 ? (
 								<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities match the search query and filters.</div>
 							) : (
-								filteredEntities.map((entity) => (
-									<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all" key={entity.id}>
-										<div className="flex items-start gap-2.5">
-											<span className="text-xl shrink-0 mt-0.5" title={entity.entityType}>
-												{getEntityIcon(entity.entityType)}
-											</span>
-											<div>
-												<div className="font-semibold text-kumo-default">{entity.label}</div>
-												<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
-												<div className="mt-1 text-xs text-kumo-subtle capitalize">{entity.entityType.replace("_", " ")}</div>
-												<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">{entity.publicSummary}</div>
+								filteredEntities.map((entity) => {
+									const names = resolveRegionNames(entity.region, regionsData || []);
+									return (
+										<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all" key={entity.id}>
+											<div className="flex items-start gap-2.5">
+												<span className="text-xl shrink-0 mt-0.5" title={entity.entityType}>
+													{getEntityIcon(entity.entityType)}
+												</span>
+												<div>
+													<div className="font-semibold text-kumo-default">{entity.label}</div>
+													<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
+													<div className="mt-1 text-xs text-kumo-subtle capitalize">{entity.entityType.replace("_", " ")}</div>
+													<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">{entity.publicSummary}</div>
+												</div>
+											</div>
+											<div className="text-kumo-subtle leading-relaxed">
+												<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">Region Scope:</span>
+												<div className="font-medium text-kumo-default text-xs">{names.provinceName} • {names.regencyName}</div>
+												<div className="font-semibold text-kumo-brand text-xs mt-0.5">{names.districtName} • {names.villageName}</div>
+												<div className="mt-1.5 font-mono text-[9px] opacity-60">({entity.region.provinceCode}/{entity.region.regencyCode}/{entity.region.districtCode}/{entity.region.villageCode})</div>
+											</div>
+											<div className="flex items-start">
+												<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
+											</div>
+											<div className="flex items-start">
+												<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
 											</div>
 										</div>
-										<div className="text-kumo-subtle leading-relaxed">
-											<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">Administrative Code:</span>
-											{entity.region.provinceCode}/{entity.region.regencyCode}<br />
-											{entity.region.districtCode}/{entity.region.villageCode}
-										</div>
-										<div className="flex items-start">
-											<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
-										</div>
-										<div className="flex items-start">
-											<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
-										</div>
-									</div>
-								))
+									);
+								})
 							)}
 						</div>
 					</Card>
@@ -1528,14 +1574,14 @@ function RegistryPage() {
 													<div className="grid gap-3 grid-cols-2">
 														<Field label="Province" hint="Cascading lookup selector">
 															<Select value={wizardState.provinceCode} onValueChange={(val) => { if (val) handleProvinceChange(val); }}>
-																{REGION_DATA.map(p => (
+																{(regionsData || []).map(p => (
 																	<Select.Option value={p.code} key={p.code}>{p.name}</Select.Option>
 																))}
 															</Select>
 														</Field>
 														<Field label="Regency / City" hint="Filtered by Province">
 															<Select value={wizardState.regencyCode} onValueChange={(val) => { if (val) handleRegencyChange(val); }}>
-																{REGION_DATA.find(p => p.code === wizardState.provinceCode)?.regencies.map(r => (
+																{(regionsData || []).find(p => p.code === wizardState.provinceCode)?.regencies?.map(r => (
 																	<Select.Option value={r.code} key={r.code}>{r.name}</Select.Option>
 																)) ?? <Select.Option value="">-- Select Regency --</Select.Option>}
 															</Select>
@@ -1544,19 +1590,19 @@ function RegistryPage() {
 													<div className="grid gap-3 grid-cols-2">
 														<Field label="District (Kecamatan)" hint="Filtered by Regency">
 															<Select value={wizardState.districtCode} onValueChange={(val) => { if (val) handleDistrictChange(val); }}>
-																{REGION_DATA.find(p => p.code === wizardState.provinceCode)
-																	?.regencies.find(r => r.code === wizardState.regencyCode)
-																	?.districts.map(d => (
+																{(regionsData || []).find(p => p.code === wizardState.provinceCode)
+																	?.regencies?.find(r => r.code === wizardState.regencyCode)
+																	?.districts?.map(d => (
 																		<Select.Option value={d.code} key={d.code}>{d.name}</Select.Option>
 																	)) ?? <Select.Option value="">-- Select District --</Select.Option>}
 															</Select>
 														</Field>
 														<Field label="Village (Desa / Kelurahan)" hint="Filtered by District">
 															<Select value={wizardState.villageCode} onValueChange={(val) => setWizardState(prev => ({ ...prev, villageCode: val ?? "" }))}>
-																{REGION_DATA.find(p => p.code === wizardState.provinceCode)
-																	?.regencies.find(r => r.code === wizardState.regencyCode)
-																	?.districts.find(d => d.code === wizardState.districtCode)
-																	?.villages.map(v => (
+																{(regionsData || []).find(p => p.code === wizardState.provinceCode)
+																	?.regencies?.find(r => r.code === wizardState.regencyCode)
+																	?.districts?.find(d => d.code === wizardState.districtCode)
+																	?.villages?.map(v => (
 																		<Select.Option value={v.code} key={v.code}>{v.name}</Select.Option>
 																	)) ?? <Select.Option value="">-- Select Village --</Select.Option>}
 															</Select>
@@ -3315,6 +3361,596 @@ export const widgets: PluginAdminExports["widgets"] = {
 	"abac-policy-status": AbacPolicyStatusWidget,
 };
 
+export function RegionsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
+	
+	const { data: fetchedRegions, loading: loadingRegions, reload: reloadRegions } = usePluginData<AdministrativeProvince[]>("regions/get");
+	const [regions, setRegions] = React.useState<AdministrativeProvince[]>([]);
+	const [saving, setSaving] = React.useState(false);
+	const [isDirty, setIsDirty] = React.useState(false);
+	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
+	const [errMsg, setErrMsg] = React.useState<string | null>(null);
+
+	// Selections
+	const [selectedProvinceCode, setSelectedProvinceCode] = React.useState<string>("");
+	const [selectedRegencyCode, setSelectedRegencyCode] = React.useState<string>("");
+	const [selectedDistrictCode, setSelectedDistrictCode] = React.useState<string>("");
+	const [selectedVillageCode, setSelectedVillageCode] = React.useState<string>("");
+
+	// Active Form for CRUD operations
+	// type: 'add' | 'edit', level: 'province' | 'regency' | 'district' | 'village'
+	const [activeForm, setActiveForm] = React.useState<{
+		type: "add" | "edit";
+		level: "province" | "regency" | "district" | "village";
+		oldCode?: string;
+		name: string;
+		code: string;
+	} | null>(null);
+
+	React.useEffect(() => {
+		if (fetchedRegions) {
+			setRegions(fetchedRegions);
+		}
+	}, [fetchedRegions]);
+
+	// Counts
+	const totalProvinces = regions.length;
+	const totalRegencies = regions.reduce((acc, p) => acc + (p.regencies?.length ?? 0), 0);
+	const totalDistricts = regions.reduce((acc, p) => acc + (p.regencies?.reduce((acc2, r) => acc2 + (r.districts?.length ?? 0), 0) ?? 0), 0);
+	const totalVillages = regions.reduce((acc, p) => acc + (p.regencies?.reduce((acc2, r) => acc2 + (r.districts?.reduce((acc3, d) => acc3 + (d.villages?.length ?? 0), 0) ?? 0), 0) ?? 0), 0);
+
+	const activeProvince = regions.find(p => p.code === selectedProvinceCode);
+	const activeRegency = activeProvince?.regencies?.find(r => r.code === selectedRegencyCode);
+	const activeDistrict = activeRegency?.districts?.find(d => d.code === selectedDistrictCode);
+
+	// CRUD functions
+	const handleSaveToBackend = async () => {
+		setSaving(true);
+		setSuccessMsg(null);
+		setErrMsg(null);
+		try {
+			await postPlugin("regions/save", regions);
+			setSuccessMsg(copy.regionsSavedSuccessfully);
+			setIsDirty(false);
+			await reloadRegions();
+		} catch (cause) {
+			setErrMsg(cause instanceof Error ? cause.message : copy.failedToSaveRegions);
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleReset = () => {
+		if (fetchedRegions) {
+			setRegions(fetchedRegions);
+			setIsDirty(false);
+			setSuccessMsg(null);
+			setErrMsg(null);
+			setActiveForm(null);
+		}
+	};
+
+	// Validation check
+	const validateCodeUniqueness = (level: string, code: string, oldCode?: string) => {
+		if (!code.trim()) return false;
+		if (code === oldCode) return true;
+
+		if (level === "province") {
+			return !regions.some(p => p.code === code);
+		}
+		if (level === "regency") {
+			return !regions.some(p => p.regencies?.some(r => r.code === code));
+		}
+		if (level === "district") {
+			return !regions.some(p => p.regencies?.some(r => r.districts?.some(d => d.code === code)));
+		}
+		if (level === "village") {
+			return !regions.some(p => p.regencies?.some(r => r.districts?.some(d => d.villages?.some(v => v.code === code))));
+		}
+		return true;
+	};
+
+	const handleFormSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!activeForm) return;
+
+		const { type, level, oldCode, name, code } = activeForm;
+
+		if (!name.trim()) {
+			setErrMsg(copy.invalidName);
+			return;
+		}
+		if (!code.trim() || !validateCodeUniqueness(level, code, oldCode)) {
+			setErrMsg(copy.invalidCode);
+			return;
+		}
+
+		setErrMsg(null);
+		setIsDirty(true);
+
+		if (type === "add") {
+			if (level === "province") {
+				setRegions(prev => [...prev, { name, code, regencies: [] }]);
+				setSelectedProvinceCode(code);
+			} else if (level === "regency") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: [...(p.regencies ?? []), { name, code, districts: [] }]
+				} : p));
+				setSelectedRegencyCode(code);
+			} else if (level === "district") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+						...r,
+						districts: [...(r.districts ?? []), { name, code, villages: [] }]
+					} : r)
+				} : p));
+				setSelectedDistrictCode(code);
+			} else if (level === "village") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+						...r,
+						districts: r.districts.map(d => d.code === selectedDistrictCode ? {
+							...d,
+							villages: [...(d.villages ?? []), { name, code }]
+						} : d)
+					} : r)
+				} : p));
+				setSelectedVillageCode(code);
+			}
+		} else {
+			// Edit
+			if (level === "province") {
+				setRegions(prev => prev.map(p => p.code === oldCode ? { ...p, name, code } : p));
+				setSelectedProvinceCode(code);
+			} else if (level === "regency") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: p.regencies.map(r => r.code === oldCode ? { ...r, name, code } : r)
+				} : p));
+				setSelectedRegencyCode(code);
+			} else if (level === "district") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+						...r,
+						districts: r.districts.map(d => d.code === oldCode ? { ...d, name, code } : d)
+					} : r)
+				} : p));
+				setSelectedDistrictCode(code);
+			} else if (level === "village") {
+				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+					...p,
+					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+						...r,
+						districts: r.districts.map(d => d.code === selectedDistrictCode ? {
+							...d,
+							villages: d.villages.map(v => v.code === oldCode ? { ...v, name, code } : v)
+						} : d)
+					} : r)
+				} : p));
+				setSelectedVillageCode(code);
+			}
+		}
+
+		setActiveForm(null);
+	};
+
+	const handleDeleteNode = (level: "province" | "regency" | "district" | "village", code: string) => {
+		if (!window.confirm(copy.deleteConfirm)) return;
+
+		setIsDirty(true);
+		setErrMsg(null);
+
+		if (level === "province") {
+			setRegions(prev => prev.filter(p => p.code !== code));
+			if (selectedProvinceCode === code) {
+				setSelectedProvinceCode("");
+				setSelectedRegencyCode("");
+				setSelectedDistrictCode("");
+				setSelectedVillageCode("");
+			}
+		} else if (level === "regency") {
+			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+				...p,
+				regencies: p.regencies.filter(r => r.code !== code)
+			} : p));
+			if (selectedRegencyCode === code) {
+				setSelectedRegencyCode("");
+				setSelectedDistrictCode("");
+				setSelectedVillageCode("");
+			}
+		} else if (level === "district") {
+			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+				...p,
+				regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+					...r,
+					districts: r.districts.filter(d => d.code !== code)
+				} : r)
+			} : p));
+			if (selectedDistrictCode === code) {
+				setSelectedDistrictCode("");
+				setSelectedVillageCode("");
+			}
+		} else if (level === "village") {
+			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
+				...p,
+				regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
+					...r,
+					districts: r.districts.map(d => d.code === selectedDistrictCode ? {
+						...d,
+						villages: d.villages.filter(v => v.code !== code)
+					} : d)
+				} : r)
+			} : p));
+			if (selectedVillageCode === code) {
+				setSelectedVillageCode("");
+			}
+		}
+	};
+
+	if (loadingRegions) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader
+				eyebrow="SIKESRA"
+				title={copy.regionsTitle}
+				description={copy.regionsDescription}
+				actions={
+					<div className="flex gap-2">
+						{isDirty && (
+							<Button variant="secondary" onClick={handleReset}>
+								Reset
+							</Button>
+						)}
+						<Button variant="primary" disabled={saving || !isDirty} onClick={() => void handleSaveToBackend()}>
+							{saving ? copy.saving : copy.saveRegions}
+						</Button>
+					</div>
+				}
+			/>
+
+			{isDirty && (
+				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2">
+					<span>⚠️</span>
+					<span>Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik tombol &quot;Simpan Perubahan Wilayah&quot; di atas untuk menyimpan.</span>
+				</div>
+			)}
+
+			<Feedback message={successMsg} tone="success" />
+			<Feedback message={errMsg} tone="danger" />
+
+			<div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+				<MetricCard label={copy.totalProvinces} value={totalProvinces} icon="🗺️" />
+				<MetricCard label={copy.totalRegencies} value={totalRegencies} icon="🏛️" />
+				<MetricCard label={copy.totalDistricts} value={totalDistricts} icon="🏘️" />
+				<MetricCard label={copy.totalVillages} value={totalVillages} icon="🏠" />
+			</div>
+
+			<div className="grid gap-6">
+				{/* Explorer Panel */}
+				<section className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
+					<div className="border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 flex items-center justify-between">
+						<div>
+							<h2 className="text-sm font-semibold text-kumo-default">Explorer Wilayah Administratif Resmi</h2>
+							<p className="mt-0.5 text-xs text-kumo-subtle">Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini.</p>
+						</div>
+					</div>
+					<div className="p-5 grid gap-4 md:grid-cols-4 min-h-[400px]">
+						
+						{/* Provinces Column */}
+						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.province}</span>
+								<Button variant="secondary" size="xs" onClick={() => setActiveForm({ type: "add", level: "province", name: "", code: "" })}>+ Tambah</Button>
+							</div>
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+								{regions.map((p) => {
+									const isSelected = p.code === selectedProvinceCode;
+									return (
+										<div
+											key={p.code}
+											className={cx(
+												"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
+												isSelected
+													? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
+													: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+											)}
+											onClick={() => {
+												setSelectedProvinceCode(p.code);
+												setSelectedRegencyCode("");
+												setSelectedDistrictCode("");
+												setSelectedVillageCode("");
+											}}
+										>
+											<div className="truncate pr-12">
+												<div>{p.name}</div>
+												<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {p.code}</div>
+											</div>
+											<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
+												<button
+													type="button"
+													className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
+													title="Edit"
+													onClick={(e) => {
+														e.stopPropagation();
+														setActiveForm({ type: "edit", level: "province", oldCode: p.code, name: p.name, code: p.code });
+													}}
+												>
+													✏️
+												</button>
+												<button
+													type="button"
+													className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
+													title="Delete"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleDeleteNode("province", p.code);
+													}}
+												>
+													🗑️
+												</button>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+
+						{/* Regencies Column */}
+						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.regency}</span>
+								<Button
+									variant="secondary"
+									size="xs"
+									disabled={!selectedProvinceCode}
+									onClick={() => setActiveForm({ type: "add", level: "regency", name: "", code: "" })}
+								>
+									+ Tambah
+								</Button>
+							</div>
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+								{!selectedProvinceCode ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih provinsi terlebih dahulu.</div>
+								) : activeProvince?.regencies?.length === 0 ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data kabupaten.</div>
+								) : (
+									activeProvince?.regencies?.map((r) => {
+										const isSelected = r.code === selectedRegencyCode;
+										return (
+											<div
+												key={r.code}
+												className={cx(
+													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
+													isSelected
+														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+												)}
+												onClick={() => {
+													setSelectedRegencyCode(r.code);
+													setSelectedDistrictCode("");
+													setSelectedVillageCode("");
+												}}
+											>
+												<div className="truncate pr-12">
+													<div>{r.name}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {r.code}</div>
+												</div>
+												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
+													<button
+														type="button"
+														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
+														title="Edit"
+														onClick={(e) => {
+															e.stopPropagation();
+															setActiveForm({ type: "edit", level: "regency", oldCode: r.code, name: r.name, code: r.code });
+														}}
+													>
+														✏️
+													</button>
+													<button
+														type="button"
+														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
+														title="Delete"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleDeleteNode("regency", r.code);
+														}}
+													>
+														🗑️
+													</button>
+												</div>
+											</div>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+						{/* Districts Column */}
+						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.district}</span>
+								<Button
+									variant="secondary"
+									size="xs"
+									disabled={!selectedRegencyCode}
+									onClick={() => setActiveForm({ type: "add", level: "district", name: "", code: "" })}
+								>
+									+ Tambah
+								</Button>
+							</div>
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+								{!selectedRegencyCode ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih kabupaten terlebih dahulu.</div>
+								) : activeRegency?.districts?.length === 0 ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data kecamatan.</div>
+								) : (
+									activeRegency?.districts?.map((d) => {
+										const isSelected = d.code === selectedDistrictCode;
+										return (
+											<div
+												key={d.code}
+												className={cx(
+													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
+													isSelected
+														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+												)}
+												onClick={() => {
+													setSelectedDistrictCode(d.code);
+													setSelectedVillageCode("");
+												}}
+											>
+												<div className="truncate pr-12">
+													<div>{d.name}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {d.code}</div>
+												</div>
+												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
+													<button
+														type="button"
+														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
+														title="Edit"
+														onClick={(e) => {
+															e.stopPropagation();
+															setActiveForm({ type: "edit", level: "district", oldCode: d.code, name: d.name, code: d.code });
+														}}
+													>
+														✏️
+													</button>
+													<button
+														type="button"
+														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
+														title="Delete"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleDeleteNode("district", d.code);
+														}}
+													>
+														🗑️
+													</button>
+												</div>
+											</div>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+						{/* Villages Column */}
+						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.village}</span>
+								<Button
+									variant="secondary"
+									size="xs"
+									disabled={!selectedDistrictCode}
+									onClick={() => setActiveForm({ type: "add", level: "village", name: "", code: "" })}
+								>
+									+ Tambah
+								</Button>
+							</div>
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+								{!selectedDistrictCode ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih kecamatan terlebih dahulu.</div>
+								) : activeDistrict?.villages?.length === 0 ? (
+									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data desa/kelurahan.</div>
+								) : (
+									activeDistrict?.villages?.map((v) => {
+										const isSelected = v.code === selectedVillageCode;
+										return (
+											<div
+												key={v.code}
+												className={cx(
+													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
+													isSelected
+														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+												)}
+												onClick={() => {
+													setSelectedVillageCode(v.code);
+												}}
+											>
+												<div className="truncate pr-12">
+													<div>{v.name}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {v.code}</div>
+												</div>
+												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
+													<button
+														type="button"
+														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
+														title="Edit"
+														onClick={(e) => {
+															e.stopPropagation();
+															setActiveForm({ type: "edit", level: "village", oldCode: v.code, name: v.name, code: v.code });
+														}}
+													>
+														✏️
+													</button>
+													<button
+														type="button"
+														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
+														title="Delete"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleDeleteNode("village", v.code);
+														}}
+													>
+														🗑️
+													</button>
+												</div>
+											</div>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+					</div>
+				</section>
+
+				{/* Editor Overlay Card */}
+				{activeForm && (
+					<Card
+						title={activeForm.type === "add" ? `${copy.addProvince.replace("Provinsi", "")} ${activeForm.level.toUpperCase()}` : `${copy.editNode} (${activeForm.level.toUpperCase()})`}
+						description={`Masukkan nama dan kode unik untuk tingkat administratif ${activeForm.level}.`}
+						actions={<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>Tutup ✕</Button>}
+					>
+						<form onSubmit={handleFormSubmit} className="space-y-4 max-w-md">
+							<Field label={copy.nodeName}>
+								<Input
+									value={activeForm.name}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, name: e.target.value } : null)}
+									placeholder="Nama wilayah"
+									required
+								/>
+							</Field>
+							<Field label={copy.nodeCode} hint="Pastikan kode unik dan sesuai dengan pedoman administratif (BPS/Kemendagri).">
+								<Input
+									value={activeForm.code}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, code: e.target.value } : null)}
+									placeholder="Kode wilayah"
+									required
+								/>
+							</Field>
+							<div className="flex gap-2 pt-2">
+								<Button variant="primary" type="submit">Konfirmasi</Button>
+								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>Batal</Button>
+							</div>
+						</form>
+					</Card>
+				)}
+
+			</div>
+		</PageShell>
+	);
+}
+
 export const pages: PluginAdminExports["pages"] = {
 	"/": OverviewPage,
 	"/overview": OverviewPage,
@@ -3331,6 +3967,7 @@ export const pages: PluginAdminExports["pages"] = {
 	"/abac/attributes": AbacAttributesPage,
 	"/abac/policies": AbacPoliciesPage,
 	"/abac/preview": AbacPreviewPage,
+	"/regions": RegionsPage,
 };
 
 export const fields: PluginAdminExports["fields"] = {
