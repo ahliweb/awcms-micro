@@ -356,8 +356,15 @@ export function MenuEditor() {
 	};
 
 	const handleAddContent = (item: { collection: string; id: string; title: string; parentId?: string }) => {
+		let type: "page" | "post" | "taxonomy" | "collection" = "collection";
+		if (item.collection === "pages") {
+			type = "page";
+		} else if (item.collection === "posts") {
+			type = "post";
+		}
+
 		createMutation.mutate({
-			type: item.collection,
+			type,
 			label: item.title,
 			referenceCollection: item.collection,
 			referenceId: item.id,

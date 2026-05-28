@@ -2828,7 +2828,7 @@ function PreviewPage() {
 	};
 
 	return (
-		<PageShell width="normal">
+		<PageShell width="wide">
 			<PageHeader eyebrow={copy.accessEyebrow} title={copy.effectiveAccessPreview} description={copy.effectiveAccessPreviewDescription} />
 			<Card title={copy.previewInput} description={copy.previewInputDescription}>
 				<div className="grid gap-4 md:grid-cols-2">
@@ -3221,7 +3221,7 @@ function AbacPreviewPage() {
 	};
 
 	return (
-		<PageShell width="normal">
+		<PageShell width="wide">
 			<PageHeader eyebrow={copy.abacEyebrow} title={copy.decisionPreview} description={copy.decisionPreviewDescription} />
 			<Card title={copy.decisionInput}>
 				<div className="grid gap-4 md:grid-cols-2">

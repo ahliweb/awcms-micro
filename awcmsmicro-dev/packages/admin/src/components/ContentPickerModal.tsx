@@ -44,6 +44,15 @@ export function buildContentPickerSelection(
 	};
 }
 
+export function buildContentPickerParentLabel(
+	parentItems: Record<string, string> | undefined,
+	selectedParentId: string,
+	topLevelLabel: string,
+): string {
+	if (!selectedParentId) return topLevelLabel;
+	return parentItems?.[selectedParentId] ?? topLevelLabel;
+}
+
 export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }: ContentPickerModalProps) {
 	const { t } = useLingui();
 	const [searchQuery, setSearchQuery] = React.useState("");
@@ -123,6 +132,8 @@ export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }
 		onOpenChange(false);
 	};
 
+	const selectedParentLabel = buildContentPickerParentLabel(parentItems, selectedParentId, t`Top level`);
+
 	return (
 		<Dialog.Root open={open} onOpenChange={onOpenChange}>
 			<Dialog className="p-6 max-w-2xl h-[80vh] flex flex-col" size="lg">
@@ -148,7 +159,7 @@ export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }
 				</div>
 
 				{/* Search and collection filter */}
-				<div className="flex items-center gap-4 py-4 border-b">
+					<div className="flex flex-wrap items-center gap-4 py-4 border-b">
 					<div className="relative flex-1">
 						<MagnifyingGlass className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-kumo-subtle" />
 						<Input
@@ -176,6 +187,9 @@ export function ContentPickerModal({ open, onOpenChange, onSelect, parentItems }
 							items={parentItems ?? { "": t`Top level` }}
 							aria-label={t`Parent`}
 						/>
+						<p className="w-full text-sm text-kumo-subtle">
+							{t`Selected parent`}: <span className="font-medium text-kumo-default">{selectedParentLabel}</span>
+						</p>
 					</div>
 
 				{/* Content list */}
