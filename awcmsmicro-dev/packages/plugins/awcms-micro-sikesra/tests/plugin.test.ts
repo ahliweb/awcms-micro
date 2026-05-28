@@ -91,6 +91,7 @@ function createMockContext() {
 		abacChangeEvents: new Map<string, unknown>(),
 		registryEntities: new Map<string, unknown>(),
 		settingsState: new Map<string, unknown>(),
+		pluginState: new Map<string, unknown>(),
 		abacAttributeCatalog: new Map<string, unknown>(),
 		abacPolicyRules: new Map<string, unknown>(),
 		abacResourceAssignments: new Map<string, unknown>(),
@@ -153,6 +154,7 @@ function createMockContext() {
 				abacChangeEvents: createCollection(collections.abacChangeEvents),
 				registryEntities: createCollection(collections.registryEntities),
 				settingsState: createCollection(collections.settingsState),
+				pluginState: createCollection(collections.pluginState),
 				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
 				abacPolicyRules: createCollection(collections.abacPolicyRules),
 				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
@@ -311,6 +313,7 @@ describe("awcms micro example plugin", () => {
 		expect(publicResult).not.toHaveProperty("userId");
 		expect(kvData.get("settings:governanceMode")).toBe("observe");
 		expect(collections.settingsState.size).toBe(6);
+		expect(collections.pluginState.size).toBeGreaterThan(0);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
@@ -406,6 +409,7 @@ describe("awcms micro example plugin", () => {
 		expect(kvData.get("state:lastCronAt")).toBeTruthy();
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
+		expect(collections.pluginState.size).toBeGreaterThan(0);
 	});
 
 	it("records content and media hooks", async () => {

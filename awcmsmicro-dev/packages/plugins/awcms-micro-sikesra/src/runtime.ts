@@ -1006,9 +1006,9 @@ async function setSettings(ctx: PluginContext, input: unknown) {
 }
 
 async function incrementCounter(ctx: PluginContext, key: string) {
-	const current = (await ctx.kv.get<number>(key)) ?? 0;
+	const current = await readStateValue(ctx, key, 0);
 	const next = current + 1;
-	await ctx.kv.set(key, next);
+	await persistStateValue(ctx, key, next);
 	return next;
 }
 
@@ -1027,7 +1027,7 @@ export function createAuditRecord(input: Omit<ExampleAuditEvent, "id" | "timesta
 
 async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	await ctx.storage.auditEvents!.put(record.id, record);
-	await ctx.kv.set("state:lastAuditEventId", record.id);
+	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
 	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, record.metadata);
 	return record;
@@ -1049,11 +1049,11 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, cursor?: string) 
 
 async function summarizePluginState(ctx: PluginContext) {
 	const settings = await getSettings(ctx);
-	const auditCount = (await ctx.kv.get<number>("state:auditCount")) ?? 0;
-	const lifecycleCount = (await ctx.kv.get<number>("state:lifecycleCount")) ?? 0;
-	const publicHits = (await ctx.kv.get<number>("state:publicStatusHits")) ?? 0;
-	const lastCronAt = (await ctx.kv.get<string>("state:lastCronAt")) ?? null;
-	const lastLifecycle = (await ctx.kv.get<string>("state:lastLifecycle")) ?? null;
+	const auditCount = await readStateValue(ctx, "state:auditCount", 0);
+	const lifecycleCount = await readStateValue(ctx, "state:lifecycleCount", 0);
+	const publicHits = await readStateValue(ctx, "state:publicStatusHits", 0);
+	const lastCronAt = await readStateValue(ctx, "state:lastCronAt", null);
+	const lastLifecycle = await readStateValue(ctx, "state:lastLifecycle", null);
 	const recent = await listAuditEvents(ctx, 5);
 
 	return {
@@ -2004,7 +2004,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:install": async (_event, ctx) => {
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
-		await ctx.kv.set("state:lastLifecycle", "plugin:install");
+		await persistStateValue(ctx, "state:lastLifecycle", "plugin:install");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		await appendAuditEvent(
 			ctx,
@@ -2020,7 +2020,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:activate": async (_event, ctx) => {
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
-		await ctx.kv.set("state:lastLifecycle", "plugin:activate");
+		await persistStateValue(ctx, "state:lastLifecycle", "plugin:activate");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		if (ctx.cron) {
 			await ctx.cron.schedule("governance-summary", { schedule: "0 * * * *" });
@@ -2037,7 +2037,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 		);
 	},
 	"plugin:deactivate": async (_event, ctx) => {
-		await ctx.kv.set("state:lastLifecycle", "plugin:deactivate");
+		await persistStateValue(ctx, "state:lastLifecycle", "plugin:deactivate");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		if (ctx.cron) {
 			await ctx.cron.cancel("governance-summary").catch(() => {});
@@ -2054,7 +2054,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 		);
 	},
 	"plugin:uninstall": async (event, ctx) => {
-		await ctx.kv.set("state:lastLifecycle", "plugin:uninstall");
+		await persistStateValue(ctx, "state:lastLifecycle", "plugin:uninstall");
 		await incrementCounter(ctx, "state:lifecycleCount");
 		if (ctx.cron) {
 			await ctx.cron.cancel("governance-summary").catch(() => {});
@@ -2176,7 +2176,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	},
 	cron: async (event, ctx) => {
 		if (event.name !== "governance-summary") return;
-		await ctx.kv.set("state:lastCronAt", toIsoNow());
+		await persistStateValue(ctx, "state:lastCronAt", toIsoNow());
 		const settings = await getSettings(ctx);
 		await appendAuditEvent(
 			ctx,
