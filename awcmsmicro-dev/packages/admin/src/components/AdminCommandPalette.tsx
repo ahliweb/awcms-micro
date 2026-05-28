@@ -135,6 +135,29 @@ function buildNavItems(manifest: CommandPaletteManifest, userRole: number): NavI
 		},
 	];
 
+	// Add plugin pages
+	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
+		if (config.enabled === false) continue;
+		if (config.adminPages && config.adminPages.length > 0) {
+			for (const page of config.adminPages) {
+				const label =
+					page.label ||
+					pluginId
+						.split("-")
+						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+						.join(" ");
+
+				items.push({
+					id: `plugin-${pluginId}-${page.path}`,
+					title: label,
+					to: `/plugins/${pluginId}${page.path}`,
+					icon: PuzzlePiece,
+					keywords: ["plugin", pluginId],
+				});
+			}
+		}
+	}
+
 	// Add collection links
 	for (const [name, config] of Object.entries(manifest.collections)) {
 		items.push({
@@ -247,29 +270,6 @@ function buildNavItems(manifest: CommandPaletteManifest, userRole: number): NavI
 			keywords: ["passkeys", "authentication"],
 		},
 	);
-
-	// Add plugin pages
-	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
-		if (config.enabled === false) continue;
-		if (config.adminPages && config.adminPages.length > 0) {
-			for (const page of config.adminPages) {
-				const label =
-					page.label ||
-					pluginId
-						.split("-")
-						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-						.join(" ");
-
-				items.push({
-					id: `plugin-${pluginId}-${page.path}`,
-					title: label,
-					to: `/plugins/${pluginId}${page.path}`,
-					icon: PuzzlePiece,
-					keywords: ["plugin", pluginId],
-				});
-			}
-		}
-	}
 
 	// Filter by role
 	return items.filter((item) => !item.minRole || userRole >= item.minRole);
