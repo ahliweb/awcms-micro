@@ -178,6 +178,116 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 	}
 ];
 
+export interface SikesraSubType {
+	code: string;
+	label: string;
+}
+
+export interface SikesraParentType {
+	id: string;
+	code: string;
+	label: string;
+	subTypes: SikesraSubType[];
+}
+
+export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
+	{
+		id: "rumah_ibadah",
+		code: "01",
+		label: "Rumah Ibadah",
+		subTypes: [
+			{ code: "01", label: "Masjid" },
+			{ code: "02", label: "Gereja Protestan" },
+			{ code: "03", label: "Gereja Katolik" },
+			{ code: "04", label: "Pura" },
+			{ code: "05", label: "Wihara" },
+			{ code: "06", label: "Klenteng" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "lembaga_keagamaan",
+		code: "02",
+		label: "Lembaga Keagamaan",
+		subTypes: [
+			{ code: "01", label: "MUI (Majelis Ulama Indonesia)" },
+			{ code: "02", label: "DMI (Dewan Masjid Indonesia)" },
+			{ code: "03", label: "LPTQ" },
+			{ code: "04", label: "FKUB" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "pendidikan_keagamaan",
+		code: "03",
+		label: "Pendidikan Keagamaan",
+		subTypes: [
+			{ code: "01", label: "Pesantren" },
+			{ code: "02", label: "Madrasah" },
+			{ code: "03", label: "TPQ" },
+			{ code: "04", label: "Sekolah Minggu" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "lks",
+		code: "04",
+		label: "Lembaga Kesejahteraan Sosial",
+		subTypes: [
+			{ code: "01", label: "Panti Asuhan" },
+			{ code: "02", label: "Panti Jompo" },
+			{ code: "03", label: "Rehabilitasi Sosial" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "guru_agama",
+		code: "05",
+		label: "Guru Agama",
+		subTypes: [
+			{ code: "01", label: "Guru Agama Islam" },
+			{ code: "02", label: "Guru Agama Kristen" },
+			{ code: "03", label: "Guru Agama Katolik" },
+			{ code: "04", label: "Guru Agama Hindu" },
+			{ code: "05", label: "Guru Agama Buddha" },
+			{ code: "06", label: "Guru Agama Khonghucu" }
+		]
+	},
+	{
+		id: "anak_yatim",
+		code: "06",
+		label: "Anak Yatim",
+		subTypes: [
+			{ code: "01", label: "Yatim Piatu (Balita)" },
+			{ code: "02", label: "Yatim Piatu (Anak Sekolah)" },
+			{ code: "03", label: "Yatim Piatu (Remaja)" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "disabilitas",
+		code: "07",
+		label: "Disabilitas",
+		subTypes: [
+			{ code: "01", label: "Tuna Netra" },
+			{ code: "02", label: "Tuna Rungu / Wicara" },
+			{ code: "03", label: "Tuna Daksa" },
+			{ code: "04", label: "Tuna Grahita" },
+			{ code: "99", label: "Lainnya" }
+		]
+	},
+	{
+		id: "lansia_terlantar",
+		code: "08",
+		label: "Lansia Terlantar",
+		subTypes: [
+			{ code: "01", label: "Lansia Terlantar Mandiri" },
+			{ code: "02", label: "Lansia Terlantar Bedridden" },
+			{ code: "99", label: "Lainnya" }
+		]
+	}
+];
+
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
 
 export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
@@ -441,6 +551,15 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						icon: "globe",
 						sortOrder: 30,
 						permission: "awcms:sikesra:settings:read",
+					},
+					{
+						id: "data-types",
+						labelKey: "awcms.nav.dataTypes",
+						fallbackLabel: "Sikesra Data Types",
+						path: "/data-types",
+						icon: "list",
+						sortOrder: 40,
+						permission: "awcms:sikesra:settings:read",
 					}
 				]
 			}
@@ -464,6 +583,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 					"awcms.nav.reports": "Reports",
 					"awcms.nav.access": "Access Control",
 					"awcms.nav.regions": "Official Regions",
+					"awcms.nav.dataTypes": "Sikesra Data Types",
 					"awcms.nav.permissions": "Permissions",
 				"awcms.nav.roles": "Roles",
 				"awcms.nav.matrix": "Role Matrix",
@@ -538,6 +658,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.nav.reports": "Laporan",
 				"awcms.nav.access": "Kontrol Akses",
 				"awcms.nav.regions": "Wilayah Resmi",
+				"awcms.nav.dataTypes": "Jenis Data Sikesra",
 				"awcms.nav.permissions": "Izin",
 				"awcms.nav.roles": "Peran",
 				"awcms.nav.matrix": "Matriks Peran",
@@ -1644,16 +1765,8 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 	const state = await getVerificationStageState(ctx);
 
-	const moduleTypes = [
-		{ code: "rumah_ibadah", label: "Rumah Ibadah" },
-		{ code: "lembaga_keagamaan", label: "Lembaga Keagamaan" },
-		{ code: "pendidikan_keagamaan", label: "Pendidikan Keagamaan" },
-		{ code: "lks", label: "Lembaga Kesejahteraan Sosial" },
-		{ code: "guru_agama", label: "Guru Agama" },
-		{ code: "anak_yatim", label: "Anak Yatim" },
-		{ code: "disabilitas", label: "Disabilitas" },
-		{ code: "lansia_terlantar", label: "Lansia Terlantar" },
-	];
+	const dataTypes = (await ctx.kv.get<SikesraParentType[]>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
+	const moduleTypes = dataTypes.map((t) => ({ code: t.id, label: t.label }));
 
 	const smallCellThreshold = settings.smallCellThreshold;
 
@@ -2157,6 +2270,25 @@ const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, item: input };
 };
 
+const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const dataTypes = (await ctx.kv.get<unknown>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
+	return dataTypes;
+};
+
+const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	await ctx.kv.set("custom:data-types", input);
+	const event = createAuditRecord({
+		kind: "settings.data-types.update",
+		scope: "settings",
+		actor: actorFromRoute(ctx),
+		summary: "Updated Sikesra data types and sub classifications",
+		metadata: { updatedCount: Array.isArray(input) ? input.length : 0 },
+	});
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: input };
+};
+
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
 	"registry/list": { handler: registryListRoute },
@@ -2172,6 +2304,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"settings/save": { handler: settingsSaveRoute },
 	"regions/get": { handler: regionsGetRoute },
 	"regions/save": { handler: regionsSaveRoute },
+	"data-types/get": { handler: dataTypesGetRoute },
+	"data-types/save": { handler: dataTypesSaveRoute },
 	"audit/list": { handler: auditListRoute },
 	"state/touch": { handler: touchStateRoute },
 	"access/permissions/list": { handler: accessPermissionsListRoute },

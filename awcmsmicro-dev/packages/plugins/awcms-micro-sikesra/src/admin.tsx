@@ -5,67 +5,11 @@ import * as React from "react";
 import { useLingui } from "@lingui/react";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
-import { AWCMS_SIKESRA_MANIFEST } from "./runtime.js";
+import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType, type SikesraSubType } from "./runtime.js";
 
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument } from "./fixtures.js";
 
-export const SUB_TYPE_MAPPING: Record<string, Array<{ code: string; label: string }>> = {
-	rumah_ibadah: [
-		{ code: "01", label: "Masjid" },
-		{ code: "02", label: "Gereja Protestan" },
-		{ code: "03", label: "Gereja Katolik" },
-		{ code: "04", label: "Pura" },
-		{ code: "05", label: "Wihara" },
-		{ code: "06", label: "Klenteng" },
-		{ code: "99", label: "Lainnya" },
-	],
-	lembaga_keagamaan: [
-		{ code: "01", label: "MUI (Majelis Ulama Indonesia)" },
-		{ code: "02", label: "DMI (Dewan Masjid Indonesia)" },
-		{ code: "03", label: "LPTQ" },
-		{ code: "04", label: "FKUB" },
-		{ code: "99", label: "Lainnya" },
-	],
-	pendidikan_keagamaan: [
-		{ code: "01", label: "Pesantren" },
-		{ code: "02", label: "Madrasah" },
-		{ code: "03", label: "TPQ" },
-		{ code: "04", label: "Sekolah Minggu" },
-		{ code: "99", label: "Lainnya" },
-	],
-	lks: [
-		{ code: "01", label: "Panti Asuhan" },
-		{ code: "02", label: "Panti Jompo" },
-		{ code: "03", label: "Rehabilitasi Sosial" },
-		{ code: "99", label: "Lainnya" },
-	],
-	guru_agama: [
-		{ code: "01", label: "Guru Agama Islam" },
-		{ code: "02", label: "Guru Agama Kristen" },
-		{ code: "03", label: "Guru Agama Katolik" },
-		{ code: "04", label: "Guru Agama Hindu" },
-		{ code: "05", label: "Guru Agama Buddha" },
-		{ code: "06", label: "Guru Agama Khonghucu" },
-	],
-	anak_yatim: [
-		{ code: "01", label: "Yatim Piatu (Balita)" },
-		{ code: "02", label: "Yatim Piatu (Anak Sekolah)" },
-		{ code: "03", label: "Yatim Piatu (Remaja)" },
-		{ code: "99", label: "Lainnya" },
-	],
-	disabilitas: [
-		{ code: "01", label: "Tuna Netra" },
-		{ code: "02", label: "Tuna Rungu / Wicara" },
-		{ code: "03", label: "Tuna Daksa" },
-		{ code: "04", label: "Tuna Grahita" },
-		{ code: "99", label: "Lainnya" },
-	],
-	lansia_terlantar: [
-		{ code: "01", label: "Lansia Terlantar Mandiri" },
-		{ code: "02", label: "Lansia Terlantar Bedridden" },
-		{ code: "99", label: "Lainnya" },
-	],
-};
+
 
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
@@ -1197,11 +1141,29 @@ function resolveRegionNames(
 	};
 }
 
+function resolveDataTypeNames(
+	code: string,
+	dataTypes: SikesraParentType[]
+) {
+	if (!code || code.length < 14) return { parentLabel: "Unknown", subLabel: "Unknown" };
+	const parentCode = code.slice(10, 12);
+	const subCode = code.slice(12, 14);
+
+	const parent = dataTypes.find(p => p.code === parentCode);
+	const subtype = parent?.subTypes?.find(s => s.code === subCode);
+
+	return {
+		parentLabel: parent?.label ?? "Unknown",
+		subLabel: subtype?.label ?? "Unknown"
+	};
+}
+
 function RegistryPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error: _error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
 	const { data: regionsData, loading: loadingRegions } = usePluginData<AdministrativeProvince[]>("regions/get");
+	const { data: dataTypesData, loading: loadingDataTypes } = usePluginData<SikesraParentType[]>("data-types/get");
 	const [step, setStep] = React.useState(0);
 	const [submitting, setSubmitting] = React.useState(false);
 	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -1250,15 +1212,23 @@ function RegistryPage() {
 			const reg = prov?.regencies?.[0];
 			const dist = reg?.districts?.[0];
 			const vill = dist?.villages?.[0];
+
+			const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+			const defaultParent = activeTypes[0];
+			const defaultSub = defaultParent?.subTypes?.[0];
+
 			setWizardState(prev => ({
 				...prev,
 				provinceCode: prov?.code ?? "62",
 				regencyCode: reg?.code ?? "6201",
 				districtCode: dist?.code ?? "620101",
 				villageCode: vill?.code ?? "6201010001",
+				entityType: defaultParent?.id ?? "rumah_ibadah",
+				subTypeCode: defaultSub?.code ?? "01",
+				subtype: defaultSub?.label ?? "Masjid",
 			}));
 		}
-	}, [regionsData]);
+	}, [regionsData, dataTypesData]);
 
 	const [filterType, setFilterType] = React.useState<string>("all");
 	const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -1287,17 +1257,9 @@ function RegistryPage() {
 	const generateSikesraId = () => {
 		const desa = wizardState.villageCode.padEnd(10, "0").slice(0, 10);
 		
-		const typeCodes: Record<string, string> = {
-			rumah_ibadah: "01",
-			lembaga_keagamaan: "02",
-			pendidikan_keagamaan: "03",
-			lks: "04",
-			guru_agama: "05",
-			anak_yatim: "06",
-			disabilitas: "07",
-			lansia_terlantar: "08",
-		};
-		const jenis = typeCodes[wizardState.entityType] ?? "99";
+		const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+		const parentType = activeTypes.find(p => p.id === wizardState.entityType);
+		const jenis = parentType?.code ?? "99";
 		const subjenis = wizardState.subTypeCode || "01";
 		
 		const nextSeq = String(registryEntities.length + 1).padStart(6, "0");
@@ -1430,7 +1392,7 @@ function RegistryPage() {
 		setTempDocFile(null);
 	};
 
-	if (loading || loadingRegions) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	if (loading || loadingRegions || loadingDataTypes) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
 
 	return (
 		<PageShell>
@@ -1507,6 +1469,8 @@ function RegistryPage() {
 							) : (
 								filteredEntities.map((entity) => {
 									const names = resolveRegionNames(entity.region, regionsData || []);
+									const activeDataTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+									const resolvedTypeNames = resolveDataTypeNames(entity.code, activeDataTypes);
 									return (
 										<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all" key={entity.id}>
 											<div className="flex items-start gap-2.5">
@@ -1516,7 +1480,7 @@ function RegistryPage() {
 												<div>
 													<div className="font-semibold text-kumo-default">{entity.label}</div>
 													<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
-													<div className="mt-1 text-xs text-kumo-subtle capitalize">{entity.entityType.replace("_", " ")}</div>
+													<div className="mt-1 text-xs text-kumo-subtle capitalize">{resolvedTypeNames.parentLabel} • {resolvedTypeNames.subLabel}</div>
 													<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">{entity.publicSummary}</div>
 												</div>
 											</div>
@@ -1598,7 +1562,9 @@ function RegistryPage() {
 													<Field label="Jenis Data Induk" hint="Pilih Jenis Data Induk SIKESRA (Wajib)">
 														<Select value={wizardState.entityType} onValueChange={(val) => {
 															const type = val ?? "rumah_ibadah";
-															const defaultSub = SUB_TYPE_MAPPING[type]?.[0];
+															const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+															const parent = activeTypes.find(p => p.id === type);
+															const defaultSub = parent?.subTypes?.[0];
 															setWizardState(prev => ({
 																...prev,
 																entityType: type,
@@ -1606,27 +1572,24 @@ function RegistryPage() {
 																subtype: defaultSub?.label ?? "Lainnya"
 															}));
 														}}>
-															<Select.Option value="rumah_ibadah">Rumah Ibadah (01)</Select.Option>
-															<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan (02)</Select.Option>
-															<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan (03)</Select.Option>
-															<Select.Option value="lks">Lembaga Kesejahteraan Sosial (04)</Select.Option>
-															<Select.Option value="guru_agama">Guru Agama (05)</Select.Option>
-															<Select.Option value="anak_yatim">Anak Yatim (06)</Select.Option>
-															<Select.Option value="disabilitas">Disabilitas (07)</Select.Option>
-															<Select.Option value="lansia_terlantar">Lansia Terlantar (08)</Select.Option>
+															{(dataTypesData ?? DEFAULT_DATA_TYPES).map(p => (
+																<Select.Option value={p.id} key={p.id}>{p.label} ({p.code})</Select.Option>
+															))}
 														</Select>
 													</Field>
 													<Field label="Sub Jenis Data" hint="Pilih Sub Jenis Data SIKESRA (Wajib)">
 														<Select value={wizardState.subTypeCode} onValueChange={(val) => {
 															const code = val ?? "01";
-															const label = SUB_TYPE_MAPPING[wizardState.entityType]?.find(s => s.code === code)?.label ?? "Lainnya";
+															const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+															const parent = activeTypes.find(p => p.id === wizardState.entityType);
+															const label = parent?.subTypes?.find(s => s.code === code)?.label ?? "Lainnya";
 															setWizardState(prev => ({
 																...prev,
 																subTypeCode: code,
 																subtype: label
 															}));
 														}}>
-															{(SUB_TYPE_MAPPING[wizardState.entityType] || []).map(sub => (
+															{((dataTypesData ?? DEFAULT_DATA_TYPES).find(p => p.id === wizardState.entityType)?.subTypes || []).map(sub => (
 																<Select.Option value={sub.code} key={sub.code}>{sub.label} ({sub.code})</Select.Option>
 															))}
 														</Select>
@@ -4024,6 +3987,427 @@ export function RegionsPage() {
 	);
 }
 
+export function DataTypesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
+
+	const { data: fetchedDataTypes, loading: loadingDataTypes, reload: reloadDataTypes } = usePluginData<SikesraParentType[]>("data-types/get");
+	const [dataTypes, setDataTypes] = React.useState<SikesraParentType[]>([]);
+	const [saving, setSaving] = React.useState(false);
+	const [isDirty, setIsDirty] = React.useState(false);
+	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
+	const [errMsg, setErrMsg] = React.useState<string | null>(null);
+
+	// Selections
+	const [selectedParentId, setSelectedParentId] = React.useState<string>("");
+
+	// Active Form for CRUD operations
+	// type: 'add' | 'edit', level: 'parent' | 'subtype'
+	const [activeForm, setActiveForm] = React.useState<{
+		type: "add" | "edit";
+		level: "parent" | "subtype";
+		oldCode?: string;
+		oldId?: string;
+		id: string; // for parent
+		code: string; // 2 digits
+		label: string;
+	} | null>(null);
+
+	React.useEffect(() => {
+		if (fetchedDataTypes) {
+			setDataTypes(fetchedDataTypes);
+			if (fetchedDataTypes.length > 0 && !selectedParentId) {
+				setSelectedParentId(fetchedDataTypes[0]?.id || "");
+			}
+		}
+	}, [fetchedDataTypes]);
+
+	// Counts
+	const totalParents = dataTypes.length;
+	const totalSubtypes = dataTypes.reduce((acc, p) => acc + (p.subTypes?.length ?? 0), 0);
+
+	const activeParent = dataTypes.find(p => p.id === selectedParentId);
+
+	// CRUD functions
+	const handleSaveToBackend = async () => {
+		setSaving(true);
+		setSuccessMsg(null);
+		setErrMsg(null);
+		try {
+			await postPlugin("data-types/save", dataTypes);
+			setSuccessMsg(copy.dataTypesSavedSuccessfully);
+			setIsDirty(false);
+			await reloadDataTypes();
+		} catch (cause) {
+			setErrMsg(cause instanceof Error ? cause.message : copy.failedToSaveDataTypes);
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	const handleReset = () => {
+		if (fetchedDataTypes) {
+			setDataTypes(fetchedDataTypes);
+			setIsDirty(false);
+			setSuccessMsg(null);
+			setErrMsg(null);
+			setActiveForm(null);
+		}
+	};
+
+	// Validation checks
+	const validateCodeUniqueness = (level: "parent" | "subtype", code: string, oldCode?: string) => {
+		if (code.length !== 2) return false;
+		if (code === oldCode) return true;
+
+		if (level === "parent") {
+			return !dataTypes.some(p => p.code === code);
+		}
+		if (level === "subtype" && activeParent) {
+			return !activeParent.subTypes?.some(s => s.code === code);
+		}
+		return true;
+	};
+
+	const validateIdUniqueness = (id: string, oldId?: string) => {
+		if (!id.trim()) return false;
+		if (id === oldId) return true;
+		return !dataTypes.some(p => p.id === id);
+	};
+
+	const handleFormSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!activeForm) return;
+
+		const { type, level, oldCode, oldId, id, code, label } = activeForm;
+
+		if (!label.trim()) {
+			setErrMsg(copy.invalidName);
+			return;
+		}
+
+		if (code.length !== 2 || !/^[0-9a-zA-Z]{2}$/.test(code)) {
+			setErrMsg(copy.invalidTypeCode);
+			return;
+		}
+
+		if (!validateCodeUniqueness(level, code, oldCode)) {
+			setErrMsg(copy.invalidCode);
+			return;
+		}
+
+		if (level === "parent") {
+			if (!id.trim() || !/^[a-z0-9_]+$/.test(id)) {
+				setErrMsg("ID must be unique and alphanumeric lowercase with underscores.");
+				return;
+			}
+			if (!validateIdUniqueness(id, oldId)) {
+				setErrMsg("ID must be unique.");
+				return;
+			}
+		}
+
+		// Update state
+		setDataTypes(prev => {
+			const updated = [...prev];
+			if (level === "parent") {
+				if (type === "add") {
+					updated.push({
+						id,
+						code,
+						label,
+						subTypes: []
+					});
+				} else {
+					const idx = updated.findIndex(p => p.id === oldId);
+					const existing = updated[idx];
+					if (idx !== -1 && existing) {
+						updated[idx] = {
+							id,
+							code,
+							label,
+							subTypes: existing.subTypes || []
+						};
+					}
+				}
+			} else if (level === "subtype" && selectedParentId) {
+				const parentIdx = updated.findIndex(p => p.id === selectedParentId);
+				const parent = updated[parentIdx];
+				if (parentIdx !== -1 && parent) {
+					const subTypes = parent.subTypes ? [...parent.subTypes] : [];
+					if (type === "add") {
+						subTypes.push({ code, label });
+					} else {
+						const subIdx = subTypes.findIndex(s => s.code === oldCode);
+						if (subIdx !== -1) {
+							subTypes[subIdx] = { code, label };
+						}
+					}
+					updated[parentIdx] = {
+						id: parent.id,
+						code: parent.code,
+						label: parent.label,
+						subTypes
+					};
+				}
+			}
+			return updated;
+		});
+
+		if (level === "parent" && type === "add") {
+			setSelectedParentId(id);
+		}
+
+		setIsDirty(true);
+		setErrMsg(null);
+		setActiveForm(null);
+	};
+
+	const handleDeleteNode = (level: "parent" | "subtype", codeOrId: string) => {
+		if (!confirm(copy.deleteConfirm)) return;
+
+		setDataTypes(prev => {
+			const updated = [...prev];
+			if (level === "parent") {
+				const filtered = updated.filter(p => p.id !== codeOrId);
+				return filtered;
+			} else if (level === "subtype" && selectedParentId) {
+				const parentIdx = updated.findIndex(p => p.id === selectedParentId);
+				const parent = updated[parentIdx];
+				if (parentIdx !== -1 && parent) {
+					const subTypes = (parent.subTypes ?? []).filter(s => s.code !== codeOrId);
+					updated[parentIdx] = {
+						id: parent.id,
+						code: parent.code,
+						label: parent.label,
+						subTypes
+					};
+				}
+			}
+			return updated;
+		});
+
+		setIsDirty(true);
+		if (level === "parent" && selectedParentId === codeOrId) {
+			setSelectedParentId("");
+		}
+	};
+
+	if (loadingDataTypes) {
+		return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	}
+
+	return (
+		<PageShell width="wide">
+			<PageHeader
+				eyebrow="SIKESRA"
+				title={copy.dataTypesTitle}
+				description={copy.dataTypesDescription}
+				actions={
+					<div className="flex gap-2">
+						{isDirty && (
+							<Button variant="secondary" disabled={saving} onClick={handleReset}>
+								Reset
+							</Button>
+						)}
+						<Button variant="primary" disabled={saving || !isDirty} onClick={() => void handleSaveToBackend()}>
+							{saving ? copy.saving : copy.saveDataTypes}
+						</Button>
+					</div>
+				}
+			/>
+
+			{isDirty && (
+				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2 mt-4">
+					<span>⚠️</span>
+					<span>Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol &quot;Simpan Perubahan Jenis Data&quot; di atas untuk menyimpan.</span>
+				</div>
+			)}
+
+			<div className="space-y-6 mt-6">
+				{successMsg && <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm">{successMsg}</div>}
+				{errMsg && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm">{errMsg}</div>}
+
+				{/* Summary Cards */}
+				<div className="grid grid-cols-2 gap-4">
+					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
+						<div className="text-xs text-slate-400 uppercase tracking-wider">{copy.parentTypes}</div>
+						<div className="text-2xl font-bold mt-1 text-blue-400">{totalParents}</div>
+					</div>
+					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
+						<div className="text-xs text-slate-400 uppercase tracking-wider">{copy.subTypes}</div>
+						<div className="text-2xl font-bold mt-1 text-teal-400">{totalSubtypes}</div>
+					</div>
+				</div>
+
+				<section className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+						{/* Parent Types Panel */}
+						<div className="space-y-4 border-r border-slate-800 pr-0 md:pr-6">
+							<div className="flex justify-between items-center">
+								<h3 className="font-semibold text-slate-200">{copy.parentTypes}</h3>
+								<Button
+									variant="ghost"
+									size="xs"
+									onClick={() => setActiveForm({ type: "add", level: "parent", id: "", code: "", label: "" })}
+								>
+									+ {copy.addParentType}
+								</Button>
+							</div>
+
+							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+								{dataTypes.length === 0 ? (
+									<div className="text-sm text-slate-500 italic p-3 text-center">Belum ada jenis data induk</div>
+								) : (
+									dataTypes.map(p => {
+										const isSelected = p.id === selectedParentId;
+										return (
+											<div
+												key={p.id}
+												onClick={() => setSelectedParentId(p.id)}
+												className={`p-3 rounded-md flex justify-between items-center cursor-pointer transition-colors border ${
+													isSelected
+														? "bg-blue-500/10 border-blue-500/30 text-slate-200"
+														: "bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800/40"
+												}`}
+											>
+												<div className="flex gap-2 items-center">
+													<Badge variant="blue">{p.code}</Badge>
+													<div className="text-sm font-medium">{p.label}</div>
+													<div className="text-xs text-slate-500">({p.id})</div>
+												</div>
+												<div className="flex gap-1" onClick={e => e.stopPropagation()}>
+													<Button
+														variant="ghost"
+														size="xs"
+														onClick={() => setActiveForm({ type: "edit", level: "parent", oldId: p.id, oldCode: p.code, id: p.id, code: p.code, label: p.label })}
+													>
+														✏️
+													</Button>
+													<Button
+														variant="ghost"
+														size="xs"
+														onClick={() => handleDeleteNode("parent", p.id)}
+													>
+														🗑️
+													</Button>
+												</div>
+											</div>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+						{/* Subtypes Panel */}
+						<div className="space-y-4">
+							<div className="flex justify-between items-center">
+								<h3 className="font-semibold text-slate-200">
+									{copy.subTypes} {activeParent ? `— ${activeParent.label}` : ""}
+								</h3>
+								{activeParent && (
+									<Button
+										variant="ghost"
+										size="xs"
+										onClick={() => setActiveForm({ type: "add", level: "subtype", code: "", label: "", id: "" })}
+									>
+										+ {copy.addSubtype}
+									</Button>
+								)}
+							</div>
+
+							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+								{!activeParent ? (
+									<div className="text-sm text-slate-500 italic p-3 text-center">Pilih jenis data induk terlebih dahulu</div>
+								) : !activeParent.subTypes || activeParent.subTypes.length === 0 ? (
+									<div className="text-sm text-slate-500 italic p-3 text-center">Belum ada sub jenis data</div>
+								) : (
+									activeParent.subTypes.map(s => {
+										return (
+											<div
+												key={s.code}
+												className="p-3 bg-slate-950 border border-slate-800 rounded-md flex justify-between items-center text-slate-300"
+											>
+												<div className="flex gap-2 items-center">
+													<Badge variant="teal">{s.code}</Badge>
+													<div className="text-sm font-medium">{s.label}</div>
+												</div>
+												<div className="flex gap-1">
+													<Button
+														variant="ghost"
+														size="xs"
+														onClick={() => setActiveForm({ type: "edit", level: "subtype", oldCode: s.code, code: s.code, label: s.label, id: "" })}
+													>
+														✏️
+													</Button>
+													<Button
+														variant="ghost"
+														size="xs"
+														onClick={() => handleDeleteNode("subtype", s.code)}
+													>
+														🗑️
+													</Button>
+												</div>
+											</div>
+										);
+									})
+								)}
+							</div>
+						</div>
+
+					</div>
+				</section>
+
+				{/* Editor Overlay Card */}
+				{activeForm && (
+					<Card
+						title={activeForm.type === "add" ? `${activeForm.level === "parent" ? copy.addParentType : copy.addSubtype}` : `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`}
+						description={`Masukkan nama/label dan kode 2 digit unik.`}
+						actions={<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>Tutup ✕</Button>}
+					>
+						<form onSubmit={handleFormSubmit} className="space-y-4 max-w-md">
+							<Field label="Label/Nama">
+								<Input
+									value={activeForm.label}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, label: e.target.value } : null)}
+									placeholder="Nama klasifikasi"
+									required
+								/>
+							</Field>
+							{activeForm.level === "parent" && (
+								<Field label="ID String" hint="Gunakan format lowercase dan underscore (contoh: rumah_ibadah).">
+									<Input
+										value={activeForm.id}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, id: e.target.value } : null)}
+										placeholder="id_jenis_data"
+										required
+										disabled={activeForm.type === "edit"}
+									/>
+								</Field>
+							)}
+							<Field label="Kode (2 Digit)" hint="Harus berupa 2 karakter unik (contoh: 01, 02, 99).">
+								<Input
+									value={activeForm.code}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, code: e.target.value } : null)}
+									placeholder="01"
+									required
+									maxLength={2}
+								/>
+							</Field>
+							<div className="flex gap-2 pt-2">
+								<Button variant="primary" type="submit">Konfirmasi</Button>
+								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>Batal</Button>
+							</div>
+						</form>
+					</Card>
+				)}
+
+			</div>
+		</PageShell>
+	);
+}
+
 export const pages: PluginAdminExports["pages"] = {
 	"/": OverviewPage,
 	"/overview": OverviewPage,
@@ -4041,6 +4425,7 @@ export const pages: PluginAdminExports["pages"] = {
 	"/abac/policies": AbacPoliciesPage,
 	"/abac/preview": AbacPreviewPage,
 	"/regions": RegionsPage,
+	"/data-types": DataTypesPage,
 };
 
 export const fields: PluginAdminExports["fields"] = {
