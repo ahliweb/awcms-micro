@@ -433,17 +433,46 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				<KumoSidebar.Header>
 					<Link
 						to="/"
-						className="emdash-brand-link flex w-full min-w-0 items-center gap-2 px-3 py-1"
+						className="emdash-brand-link flex w-full min-w-0 items-center gap-2.5 px-3 py-1.5"
 					>
-						<BrandIcon
-							logoUrl={manifest.admin?.logo}
-							siteName={manifest.admin?.siteName}
-							className="size-5 shrink-0"
+						<svg
+							viewBox="0 0 75 75"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+							className="size-6 shrink-0"
 							aria-hidden="true"
-						/>
-						<span className="emdash-brand-text font-semibold truncate">
-							{manifest.admin?.siteName || "EmDash"}
-						</span>
+						>
+							<rect
+								x="3"
+								y="3"
+								width="69"
+								height="69"
+								rx="16"
+								stroke="url(#awcms-logo-grad)"
+								strokeWidth="5"
+							/>
+							<path
+								d="M22 48L32.5 24L39.5 40L46.5 24L57 48"
+								stroke="#fff"
+								strokeWidth="5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+							<defs>
+								<linearGradient id="awcms-logo-grad" x1="0" y1="0" x2="75" y2="75" gradientUnits="userSpaceOnUse">
+									<stop stopColor="#3b82f6" />
+									<stop offset="1" stopColor="#10b981" />
+								</linearGradient>
+							</defs>
+						</svg>
+						<div className="emdash-brand-text flex flex-col min-w-0 leading-tight">
+							<span className="font-bold text-[13px] text-white tracking-wide">
+								AWCMS-Micro
+							</span>
+							<span className="text-[9px] text-white/50 font-medium">
+								by ahliweb.com
+							</span>
+						</div>
 					</Link>
 				</KumoSidebar.Header>
 
@@ -520,10 +549,10 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
-					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
-						{manifest.commit && ` (${manifest.commit})`}
-					</p>
+					<div className="emdash-nav-label px-3 py-2 text-[11px] text-white/30 space-y-0.5">
+						<div>awcms-micro v{manifest.version || "0.1.0"}</div>
+						<div className="text-[10px] text-white/20">powered by EmDash</div>
+					</div>
 				</KumoSidebar.Footer>
 			</KumoSidebar>
 		</>
