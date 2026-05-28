@@ -3,6 +3,7 @@ import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
 import * as React from "react";
 import { useLingui } from "@lingui/react";
+import { getExampleAdminCopy } from "./admin-copy.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
 import { AWCMS_EXAMPLE_MANIFEST } from "./runtime.js";
 
@@ -228,74 +229,22 @@ interface FieldWidgetProps {
 	required?: boolean;
 }
 
-const REGISTRY_WIZARD_STEPS = ["Identity", "Region", "Documents", "Review"] as const;
+function getDashboardModuleCards(locale: string | undefined): DashboardModuleCard[] {
+	const copy = getExampleAdminCopy(locale);
+	const cards = copy.dashboardCards;
+	return [
+		{ id: "registry", title: cards[0]!.title, description: cards[0]!.description, status: cards[0]!.status, badge: cards[0]!.badge, href: "/registry" },
+		{ id: "institutions", title: cards[1]!.title, description: cards[1]!.description, status: cards[1]!.status, badge: cards[1]!.badge, href: "/registry" },
+		{ id: "education", title: cards[2]!.title, description: cards[2]!.description, status: cards[2]!.status, badge: cards[2]!.badge, href: "/verification" },
+		{ id: "welfare", title: cards[3]!.title, description: cards[3]!.description, status: cards[3]!.status, badge: cards[3]!.badge, href: "/reports" },
+		{ id: "teachers", title: cards[4]!.title, description: cards[4]!.description, status: cards[4]!.status, badge: cards[4]!.badge, href: "/access/roles" },
+		{ id: "orphans", title: cards[5]!.title, description: cards[5]!.description, status: cards[5]!.status, badge: cards[5]!.badge, href: "/audit" },
+		{ id: "disabilities", title: cards[6]!.title, description: cards[6]!.description, status: cards[6]!.status, badge: cards[6]!.badge, href: "/abac/preview" },
+		{ id: "elderly", title: cards[7]!.title, description: cards[7]!.description, status: cards[7]!.status, badge: cards[7]!.badge, href: "/documents" },
+	];
+}
 
-export const AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS: DashboardModuleCard[] = [
-	{
-		id: "registry",
-		title: "Worship Places",
-		description: "Register worship place records and keep region scope visible for operators.",
-		href: "/registry",
-		status: "Ready",
-		badge: "Core",
-	},
-	{
-		id: "institutions",
-		title: "Religious Institutions",
-		description: "Track institutional records and their verification progress.",
-		href: "/registry",
-		status: "Ready",
-		badge: "Core",
-	},
-	{
-		id: "education",
-		title: "Religious Education",
-		description: "Keep education entries staged for verification and reporting.",
-		href: "/verification",
-		status: "Review",
-		badge: "Queue",
-	},
-	{
-		id: "welfare",
-		title: "Social Welfare Institutions",
-		description: "Review welfare-related records with public-safe aggregation in mind.",
-		href: "/reports",
-		status: "Ready",
-		badge: "Report",
-	},
-	{
-		id: "teachers",
-		title: "Religion Teachers",
-		description: "Keep staff metadata aligned with the access and verification workflow.",
-		href: "/access/roles",
-		status: "Ready",
-		badge: "Access",
-	},
-	{
-		id: "orphans",
-		title: "Orphans",
-		description: "Reference child-support records with careful masking and audit traces.",
-		href: "/audit",
-		status: "Audit",
-		badge: "Audit",
-	},
-	{
-		id: "disabilities",
-		title: "Disabilities",
-		description: "Manage sensitive records with ABAC-ready preview surfaces.",
-		href: "/abac/preview",
-		status: "Restricted",
-		badge: "ABAC",
-	},
-	{
-		id: "elderly",
-		title: "Abandoned Elderly",
-		description: "Keep high-sensitivity examples available without exposing public identifiers.",
-		href: "/documents",
-		status: "Locked",
-		badge: "Docs",
-	},
-];
+export const AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS = getDashboardModuleCards("en");
 
 export const AWCMS_EXAMPLE_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
 	{
@@ -388,11 +337,11 @@ function fromCsv(value: string) {
 		.filter(Boolean);
 }
 
-function formatDateTime(value: string | null | undefined) {
-	if (!value) return "Never";
+function formatDateTime(value: string | null | undefined, locale: string | undefined = "en") {
+	if (!value) return getExampleAdminCopy(locale).never;
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return value;
-	return date.toLocaleString();
+	return date.toLocaleString(locale);
 }
 
 function parseJsonMap(value: string): { ok: true; data: JsonMap } | { ok: false; error: string } {
@@ -462,6 +411,7 @@ function PluginHeaderMenu() {
 	const currentPath = typeof window === "undefined" ? "" : window.location.pathname;
 	const { i18n } = useLingui();
 	const locale = i18n.locale;
+	const copy = getExampleAdminCopy(locale);
 
 	const normalizedGroups = normalizeAdminNav([AWCMS_EXAMPLE_MANIFEST], {
 		hasPermission: (permission) => !permission || permission.endsWith(":read"),
@@ -473,8 +423,8 @@ function PluginHeaderMenu() {
 			currentPath={currentPath}
 			locale={locale}
 			messages={AWCMS_EXAMPLE_MANIFEST.i18n?.messages}
-			title="Plugin Operations Center"
-			description="Reference navigation for registry, verification, reports, access, and ABAC flows."
+			title={copy.navTitle}
+			description={copy.navDescription}
 		/>
 	);
 }
@@ -565,13 +515,15 @@ function LoadingState({ label }: { label: string }) {
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	return (
 		<div className="rounded-2xl border border-kumo-danger/30 bg-kumo-danger/10 p-5 text-sm text-kumo-danger">
-			<div className="font-medium">Something went wrong</div>
+			<div className="font-medium">{copy.somethingWentWrong}</div>
 			<div className="mt-1">{message}</div>
 			{onRetry ? (
 				<Button className="mt-3" variant="secondary" size="sm" onClick={onRetry} type="button">
-					Retry
+					{copy.retry}
 				</Button>
 			) : null}
 		</div>
@@ -616,26 +568,28 @@ function KeyValueList({ items }: { items: Array<[string, React.ReactNode]> }) {
 
 function GovernanceWidget() {
 	const { data, error, loading, reload } = usePluginData<SummaryResponse>("overview/summary");
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 
-	if (loading) return <LoadingState label="Loading governance status..." />;
+	if (loading) return <LoadingState label={copy.loadingGovernanceStatus} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title="No status yet" description="The plugin did not return summary data." />;
+	if (!data) return <EmptyState title={copy.noStatusYet} description={copy.noStatusYetDescription} />;
 
 	return (
 		<div className="space-y-3">
 			<div className="grid grid-cols-3 gap-2 text-sm">
-				<MetricCard label="Audit" value={data.counters.auditCount} />
-				<MetricCard label="Lifecycle" value={data.counters.lifecycleCount} />
-				<MetricCard label="Public hits" value={data.counters.publicHits} />
+				<MetricCard label={copy.audit} value={data.counters.auditCount} />
+				<MetricCard label={copy.lifecycle} value={data.counters.lifecycleCount} />
+				<MetricCard label={copy.publicHits} value={data.counters.publicHits} />
 			</div>
 			<KeyValueList
 				items={[
-					["Mode", <Pill key="mode">{data.settings.governanceMode}</Pill>],
-					["Last lifecycle", formatDateTime(data.lastLifecycle)],
+					[copy.mode, <Pill key="mode">{data.settings.governanceMode}</Pill>],
+					[copy.lastLifecycle, formatDateTime(data.lastLifecycle, i18n.locale)],
 				]}
 			/>
 			<Button variant="ghost" size="sm" onClick={() => void reload()} type="button">
-				Refresh
+				{copy.refresh}
 			</Button>
 		</div>
 	);
@@ -643,31 +597,33 @@ function GovernanceWidget() {
 
 function AccessRightsHealthWidget() {
 	const { data, error, loading, reload } = usePluginData<AccessHealthResponse>("access/health");
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 
-	if (loading) return <LoadingState label="Loading access health..." />;
+	if (loading) return <LoadingState label={copy.loadingAccessHealth} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title="No health data" description="The access catalog did not return health data." />;
+	if (!data) return <EmptyState title={copy.noHealthData} description={copy.noHealthDataDescription} />;
 
 	const hasGaps = data.rolesWithoutPermissions.length > 0 || data.usersWithoutRoles.length > 0;
 
 	return (
 		<div className="space-y-3">
 			<div className="grid grid-cols-2 gap-2 text-sm">
-				<MetricCard label="Permissions" value={data.permissionCount} />
-				<MetricCard label="Roles" value={data.roleCount} />
-				<MetricCard label="Matrices" value={data.assignmentCount} />
-				<MetricCard label="Users" value={data.userAssignmentCount} />
+				<MetricCard label={copy.permissions} value={data.permissionCount} />
+				<MetricCard label={copy.roles} value={data.roleCount} />
+				<MetricCard label={copy.matrices} value={data.assignmentCount} />
+				<MetricCard label={copy.users} value={data.userAssignmentCount} />
 			</div>
 			<div className="text-sm">
-				<Pill tone={hasGaps ? "warning" : "success"}>{hasGaps ? "Review needed" : "Healthy"}</Pill>
+				<Pill tone={hasGaps ? "warning" : "success"}>{hasGaps ? copy.reviewNeeded : copy.healthy}</Pill>
 				<p className="mt-2 text-kumo-subtle">
 					{hasGaps
-						? `${data.rolesWithoutPermissions.length} role(s) without permissions and ${data.usersWithoutRoles.length} user assignment(s) without roles.`
-						: "No obvious catalog health gaps detected."}
+						? copy.catalogGapSummary(data.rolesWithoutPermissions.length, data.usersWithoutRoles.length)
+						: copy.catalogGapNone}
 				</p>
 			</div>
 			<Button variant="ghost" size="sm" onClick={() => void reload()} type="button">
-				Refresh
+				{copy.refresh}
 			</Button>
 		</div>
 	);
@@ -675,22 +631,24 @@ function AccessRightsHealthWidget() {
 
 function AbacPolicyStatusWidget() {
 	const { data, error, loading, reload } = usePluginData<AbacHealthResponse>("abac/health");
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 
-	if (loading) return <LoadingState label="Loading ABAC status..." />;
+	if (loading) return <LoadingState label={copy.loadingAbacStatus} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title="No ABAC data" description="The ABAC routes did not return health data." />;
+	if (!data) return <EmptyState title={copy.noAbacData} description={copy.noAbacDataDescription} />;
 
 	return (
 		<div className="space-y-3">
 			<div className="grid grid-cols-2 gap-2 text-sm">
-				<MetricCard label="Attributes" value={data.attributeCount} />
-				<MetricCard label="Policies" value={data.policyCount} />
-				<MetricCard label="Subjects" value={data.subjectCount} />
-				<MetricCard label="Resources" value={data.resourceCount} />
+				<MetricCard label={copy.attributes} value={data.attributeCount} />
+				<MetricCard label={copy.policies} value={data.policyCount} />
+				<MetricCard label={copy.subjects} value={data.subjectCount} />
+				<MetricCard label={copy.resources} value={data.resourceCount} />
 			</div>
-			<div className="text-sm text-kumo-subtle">Explicit deny policies: {data.explicitDenyCount}</div>
+			<div className="text-sm text-kumo-subtle">{copy.explicitDenyPolicies(data.explicitDenyCount)}</div>
 			<Button variant="ghost" size="sm" onClick={() => void reload()} type="button">
-				Refresh
+				{copy.refresh}
 			</Button>
 		</div>
 	);
@@ -698,6 +656,8 @@ function AbacPolicyStatusWidget() {
 
 function OverviewPage() {
 	const { data, error, loading, reload } = usePluginData<SummaryResponse>("overview/summary");
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -736,42 +696,43 @@ function OverviewPage() {
 				governanceMode: formState.governanceMode,
 				metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
 			});
-			setNotice("Settings saved successfully.");
+			setNotice(copy.settingsSavedSuccessfully);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save settings");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveSettings);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading plugin overview..." />;
+	if (loading) return <LoadingState label={copy.loadingPluginOverview} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title="No overview data" description="The plugin did not return overview data." />;
+	if (!data) return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
+	const dashboardCards = getDashboardModuleCards(i18n.locale);
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="AWCMS-Micro plugin"
-				title="Plugin Operations Center"
-				description="Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
+				eyebrow={copy.overviewEyebrow}
+				title={copy.overviewTitle}
+				description={copy.overviewDescription}
 				actions={
 					<Button variant="secondary" size="sm" onClick={() => void reload()} type="button">
-						Refresh Dashboard
+						{copy.refreshDashboard}
 					</Button>
 				}
 			/>
 
-			<Feedback message="Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database." tone="success" />
+			<Feedback message={copy.overviewSuccess} tone="success" />
 
 			<div className="grid gap-5 md:grid-cols-3 mt-2">
-				<MetricCard label="Audit Events Stored" value={data.counters.auditCount} hint="Tracks all critical plugin activity" />
-				<MetricCard label="Lifecycle Triggers" value={data.counters.lifecycleCount} hint={`Last recorded: ${formatDateTime(data.lastLifecycle)}`} />
-				<MetricCard label="Public API Hits" value={data.counters.publicHits} hint={`Last chron: ${formatDateTime(data.lastCronAt)}`} />
+				<MetricCard label={copy.auditEventsStored} value={data.counters.auditCount} hint={copy.auditEventsStoredHint} />
+				<MetricCard label={copy.lifecycleTriggers} value={data.counters.lifecycleCount} hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))} />
+				<MetricCard label={copy.publicApiHits} value={data.counters.publicHits} hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))} />
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-				{AWCMS_EXAMPLE_DASHBOARD_MODULE_CARDS.map((card) => (
+				{dashboardCards.map((card) => (
 					<section className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm" key={card.id}>
 						<div className="flex items-start justify-between gap-3">
 							<div>
@@ -784,19 +745,19 @@ function OverviewPage() {
 							</div>
 						</div>
 						<LinkButton href={card.href} variant="secondary" size="sm" className="mt-4 w-full justify-center">
-							Open module
+							{copy.openModule}
 						</LinkButton>
 					</section>
 				))}
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
-				<Card title="Plugin Configuration" description="Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave.">
+				<Card title={copy.pluginConfiguration} description={copy.pluginConfigurationDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
 
-						<Field label="Public status label" hint="Shown by the public-safe status route.">
+						<Field label={copy.publicStatusLabel} hint={copy.publicStatusLabelHint}>
 							<Input
 								value={formState.publicStatusLabel}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -806,7 +767,7 @@ function OverviewPage() {
 						</Field>
 
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Audit retention days" hint="Use a positive number. Example: 30.">
+							<Field label={copy.auditRetentionDays} hint={copy.auditRetentionDaysHint}>
 								<input
 									type="number"
 									min="1"
@@ -818,21 +779,21 @@ function OverviewPage() {
 								/>
 							</Field>
 
-							<Field label="Governance mode" hint="Observe logs only, review, or run the demo enforcement path.">
+							<Field label={copy.governanceMode} hint={copy.governanceModeHint}>
 								<Select
 									value={formState.governanceMode}
 									onValueChange={(value) =>
 										setFormState((current) => ({ ...current, governanceMode: (value as GovernanceMode | null) ?? "review" }))
 									}
 								>
-									<Select.Option value="observe">Observe</Select.Option>
-									<Select.Option value="review">Review</Select.Option>
-									<Select.Option value="enforce-demo">Enforce demo</Select.Option>
+									<Select.Option value="observe">{copy.observe}</Select.Option>
+									<Select.Option value="review">{copy.review}</Select.Option>
+									<Select.Option value="enforce-demo">{copy.enforceDemo}</Select.Option>
 								</Select>
 							</Field>
 						</div>
 
-						<Field label="Metadata canonical base" hint="Optional base URL for page metadata examples.">
+						<Field label={copy.metadataCanonicalBase} hint={copy.metadataCanonicalBaseHint}>
 							<Input
 								value={formState.metadataCanonicalBase}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -843,28 +804,28 @@ function OverviewPage() {
 
 						<div className="flex items-center gap-3">
 							<Button variant="primary" disabled={saving} type="submit">
-								{saving ? "Saving..." : "Save settings"}
+								{saving ? copy.saving : copy.saveSettings}
 							</Button>
-							<span className="text-xs text-kumo-subtle">Mode: {data.settings.governanceMode}</span>
+							<span className="text-xs text-kumo-subtle">{copy.modeLabel(data.settings.governanceMode)}</span>
 						</div>
 					</form>
 				</Card>
 
-				<Card title="Current status">
+				<Card title={copy.currentStatus}>
 					<KeyValueList
 						items={[
-							["Status label", data.settings.publicStatusLabel || "Not set"],
-							["Retention", `${data.settings.auditRetentionDays} day(s)`],
-							["Governance", <Pill key="governance">{data.settings.governanceMode}</Pill>],
-							["Canonical base", data.settings.metadataCanonicalBase || "Not set"],
+							[copy.statusLabel, data.settings.publicStatusLabel || copy.notSet],
+							[copy.retention, copy.retentionDays(data.settings.auditRetentionDays)],
+							[copy.governance, <Pill key="governance">{data.settings.governanceMode}</Pill>],
+							[copy.canonicalBase, data.settings.metadataCanonicalBase || copy.notSet],
 						]}
 					/>
 				</Card>
 			</div>
 
-			<Card title="Recent audit events" description="Latest plugin activity, useful for quick verification after changing settings.">
+			<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
 				{data.recentEvents.length === 0 ? (
-					<EmptyState title="No recent events" description="Trigger plugin actions to populate the audit stream." />
+					<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
 				) : (
 					<div className="space-y-2">
 						{data.recentEvents.map((item) => (
@@ -886,6 +847,8 @@ function OverviewPage() {
 }
 
 function RegistryPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const [step, setStep] = React.useState(0);
 	const [wizardState, setWizardState] = React.useState({
 		label: SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.label ?? "",
@@ -898,24 +861,25 @@ function RegistryPage() {
 	const activeEntity = registryEntities[Math.min(step, registryEntities.length - 1)] ?? registryEntities[0];
 	const verifiedCount = registryEntities.filter((entity) => entity.verificationStage === "active_verified").length;
 	const restrictedCount = registryEntities.filter((entity) => entity.sensitivity !== "public_safe").length;
-	const codePreview = maskSensitive(wizardState.code, step === REGISTRY_WIZARD_STEPS.length - 1);
+	const codePreview = maskSensitive(wizardState.code, step === copy.registrySteps.length - 1);
+	const currentStepLabel = copy.registrySteps[step] || copy.registrySteps[0] || "";
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="Registry"
-				title="Registry intake and verification"
-				description="Reference UI for onboarding registry entities, tracking their region scope, and showing how sensitive identifiers stay masked until the review step."
+				eyebrow={copy.registryEyebrow}
+				title={copy.registryTitle}
+				description={copy.registryDescription}
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label="Registry entities" value={registryEntities.length} hint="Reference records in the sample queue" />
-				<MetricCard label="Verified records" value={verifiedCount} hint="Records that reached active verification" />
-				<MetricCard label="Restricted entries" value={restrictedCount} hint="Rows that require masking in operator views" />
+				<MetricCard label={copy.registryEntities} value={registryEntities.length} hint={copy.registryEntitiesHint} />
+				<MetricCard label={copy.verifiedRecords} value={verifiedCount} hint={copy.verifiedRecordsHint} />
+				<MetricCard label={copy.restrictedEntries} value={restrictedCount} hint={copy.restrictedEntriesHint} />
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
-				<Card title="Registry queue" description="Deterministic SIKESRA reference records with stage, sensitivity, and region scope.">
+				<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
 					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 							<div>Entity</div>
@@ -944,10 +908,10 @@ function RegistryPage() {
 					</div>
 				</Card>
 
-				<Card title="Progressive input wizard" description="A compact operator flow that stages the data entry and only reveals the reference code at the final review step.">
+				<Card title={copy.progressiveInputWizard} description={copy.progressiveInputWizardDescription}>
 					<div className="space-y-4">
 						<div className="grid grid-cols-4 gap-2 text-xs font-medium uppercase tracking-wide text-kumo-subtle">
-							{REGISTRY_WIZARD_STEPS.map((label, index) => (
+							{copy.registrySteps.map((label, index) => (
 								<button
 									className={cx("rounded-full border px-3 py-2 text-start", index === step ? "border-kumo-brand bg-kumo-brand/10 text-kumo-brand" : "border-kumo-line bg-kumo-base text-kumo-subtle")}
 									key={label}
@@ -960,22 +924,22 @@ function RegistryPage() {
 						</div>
 
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4">
-							<div className="text-sm font-semibold text-kumo-default">Step {step + 1}: {REGISTRY_WIZARD_STEPS[step]}</div>
+							<div className="text-sm font-semibold text-kumo-default">{copy.stepLabel(step + 1, currentStepLabel)}</div>
 							<p className="mt-2 text-sm leading-6 text-kumo-subtle">
-								{step === 0 ? "Start with identity details and a human-readable label." : null}
-								{step === 1 ? "Add region scope fields so reviewers can check jurisdiction boundaries." : null}
-								{step === 2 ? "Attach documents and keep the sensitive metadata out of the public view." : null}
-								{step === 3 ? "Review the masked reference code and verify the final stage before activation." : null}
+								{step === 0 ? copy.registryStepIdentity : null}
+								{step === 1 ? copy.registryStepRegion : null}
+								{step === 2 ? copy.registryStepDocuments : null}
+								{step === 3 ? copy.registryStepReview : null}
 							</p>
 							<div className="mt-4 space-y-3">
-								<Field label="Registry label" hint="Reference entry name shown to operators.">
+								<Field label={copy.registryLabel} hint={copy.registryLabelHint}>
 									<Input value={wizardState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, label: event.target.value }))} />
 								</Field>
 								<div className="grid gap-4 md:grid-cols-2">
-									<Field label="Province code" hint="Administrative region code.">
+									<Field label={copy.provinceCode} hint={copy.provinceCodeHint}>
 										<Input value={wizardState.provinceCode} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWizardState((current) => ({ ...current, provinceCode: event.target.value }))} />
 									</Field>
-									<Field label="Sensitivity" hint="Controls masking and public exposure.">
+									<Field label={copy.sensitivity} hint={copy.sensitivityHint}>
 								<Select value={wizardState.sensitivity} onValueChange={(value) => setWizardState((current) => ({ ...current, sensitivity: (value as typeof SIKESRA_REFERENCE_FIXTURES["registryEntities"][number]["sensitivity"] | null) ?? "public_safe" }))}>
 											<Select.Option value="public_safe">public_safe</Select.Option>
 											<Select.Option value="internal">internal</Select.Option>
@@ -985,29 +949,29 @@ function RegistryPage() {
 									</Field>
 								</div>
 								<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/30 p-4 text-sm text-kumo-subtle">
-									<div className="font-medium text-kumo-default">Preview</div>
+									<div className="font-medium text-kumo-default">{copy.preview}</div>
 									<div className="mt-2 grid gap-1">
-										<div>Code: {codePreview}</div>
-										<div>Label: {wizardState.label || "Untitled registry entity"}</div>
-										<div>Region: {wizardState.provinceCode || "--"}</div>
-										<div>Sensitivity: {wizardState.sensitivity}</div>
+										<div>{copy.code}: {codePreview}</div>
+										<div>{copy.label}: {wizardState.label || copy.untitledRegistryEntity}</div>
+										<div>{copy.region}: {wizardState.provinceCode || "--"}</div>
+										<div>{copy.sensitivity}: {wizardState.sensitivity}</div>
 									</div>
 								</div>
 							</div>
 
 							<div className="mt-4 flex items-center gap-2">
 								<Button variant="secondary" size="sm" type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>
-									Previous
+									{copy.previous}
 								</Button>
-								<Button variant="secondary" size="sm" type="button" disabled={step === REGISTRY_WIZARD_STEPS.length - 1} onClick={() => setStep((current) => Math.min(REGISTRY_WIZARD_STEPS.length - 1, current + 1))}>
-									Next
+								<Button variant="secondary" size="sm" type="button" disabled={step === copy.registrySteps.length - 1} onClick={() => setStep((current) => Math.min(copy.registrySteps.length - 1, current + 1))}>
+									{copy.next}
 								</Button>
 							</div>
 
 							<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
-								<div className="font-medium text-kumo-default">Active reference record</div>
+								<div className="font-medium text-kumo-default">{copy.activeReferenceRecord}</div>
 								<div className="mt-2">{activeEntity?.label}</div>
-								<div className="mt-1">{maskSensitive(activeEntity?.code ?? null, step === REGISTRY_WIZARD_STEPS.length - 1)}</div>
+								<div className="mt-1">{maskSensitive(activeEntity?.code ?? null, step === copy.registrySteps.length - 1)}</div>
 								<div className="mt-1">{activeEntity?.verificationStage}</div>
 							</div>
 						</div>
@@ -1019,6 +983,8 @@ function RegistryPage() {
 }
 
 function VerificationPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<VerificationResponse>("verification/list");
 	const [isAdvancing, setIsAdvancing] = React.useState(false);
 	const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
@@ -1028,7 +994,7 @@ function VerificationPage() {
 	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
 	const nextCandidate = queue.find((item) => item.canAdvance) ?? null;
 
-	if (loading) return <PageShell><LoadingState label="Loading verification queue..." /></PageShell>;
+	if (loading) return <PageShell><LoadingState label={copy.loadingVerificationQueue} /></PageShell>;
 	if (error) return <PageShell><ErrorState message={error} onRetry={() => void reload()} /></PageShell>;
 
 	async function advanceNextStage() {
@@ -1042,7 +1008,7 @@ function VerificationPage() {
 				actor: "district-officer",
 				notes: "Advanced from the reference verification UI",
 			});
-			setStatusMessage(`Advanced ${response.item.code} to ${response.item.verificationStage}.`);
+			setStatusMessage(copy.advancedTo(response.item.code, response.item.verificationStage));
 			await reload();
 		} catch (cause) {
 			setMutationError(cause instanceof Error ? cause.message : "Request failed");
@@ -1054,13 +1020,13 @@ function VerificationPage() {
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="Verification"
-				title="Verification queue"
-				description="A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+				eyebrow={copy.verificationEyebrow}
+				title={copy.verificationTitle}
+				description={copy.verificationDescription}
 				actions={
 					nextCandidate ? (
 						<Button disabled={isAdvancing} onClick={() => void advanceNextStage()} size="sm" variant="secondary">
-							{isAdvancing ? "Advancing..." : `Advance ${nextCandidate.code} to ${nextCandidate.nextStage}`}
+							{isAdvancing ? copy.advancing : copy.advanceTo(nextCandidate.code, nextCandidate.nextStage)}
 						</Button>
 					) : null
 				}
@@ -1070,12 +1036,12 @@ function VerificationPage() {
 			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default">{mutationError}</div> : null}
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label="Queued events" value={queue.length} hint="Deterministic reference history" />
-				<MetricCard label="Approved" value={approved} hint="Accepted verification checkpoints" />
-				<MetricCard label="Needs review" value={pending} hint="Items that still need follow-up" />
+				<MetricCard label={copy.queuedEvents} value={queue.length} hint={copy.queuedEventsHint} />
+				<MetricCard label={copy.approved} value={approved} hint={copy.approvedHint} />
+				<MetricCard label={copy.needsReview} value={pending} hint={copy.needsReviewHint} />
 			</div>
 
-			<Card title="Registry verification queue" description="Live verification state that can be advanced one stage at a time from the reference UI.">
+			<Card title={copy.registryVerificationQueue} description={copy.registryVerificationQueueDescription}>
 				<div className="space-y-3">
 					{queue.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
@@ -1086,20 +1052,20 @@ function VerificationPage() {
 								</div>
 								<div className="flex items-center gap-2">
 									<Pill tone={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Pill>
-									<Pill>{item.nextStage ?? "final"}</Pill>
+									<Pill>{item.nextStage ?? copy.final}</Pill>
 								</div>
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>Region: {item.region.provinceCode}/{item.region.regencyCode}</div>
-								<div>Documents: {item.supportingDocumentIds.length}</div>
-								<div>ID: {maskSensitive(item.id, false)}</div>
+								<div>{copy.region}: {item.region.provinceCode}/{item.region.regencyCode}</div>
+								<div>{copy.documentsCount}: {item.supportingDocumentIds.length}</div>
+								<div>{copy.idLabel}: {maskSensitive(item.id, false)}</div>
 							</div>
 						</div>
 					))}
 				</div>
 			</Card>
 
-			<Card title="Reference verification events" description="Stage progression from draft to active verification.">
+			<Card title={copy.referenceVerificationEvents} description={copy.referenceVerificationEventsDescription}>
 				<div className="space-y-3">
 					{SIKESRA_REFERENCE_FIXTURES.verificationEvents.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
@@ -1114,9 +1080,9 @@ function VerificationPage() {
 								</div>
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>Actor: {item.actor}</div>
-								<div>Created: {formatDateTime(item.createdAt)}</div>
-								<div>ID: {maskSensitive(item.id, false)}</div>
+								<div>{copy.actor}: {item.actor}</div>
+								<div>{copy.created}: {formatDateTime(item.createdAt, i18n.locale)}</div>
+								<div>{copy.idLabel}: {maskSensitive(item.id, false)}</div>
 							</div>
 						</div>
 					))}
@@ -1127,24 +1093,26 @@ function VerificationPage() {
 }
 
 function DocumentsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const docs = SIKESRA_REFERENCE_FIXTURES.supportingDocuments;
 	const sensitiveCount = docs.filter((doc) => doc.sensitivity !== "public_safe").length;
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="Documents"
-				title="Supporting documents"
-				description="Document metadata for the registry reference model, including sensitivity classification and verification source."
+				eyebrow={copy.documentsEyebrow}
+				title={copy.documentsTitle}
+				description={copy.documentsDescription}
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label="Documents" value={docs.length} hint="Reference document metadata" />
-				<MetricCard label="Sensitive docs" value={sensitiveCount} hint="Records that should remain masked" />
-				<MetricCard label="Verified sources" value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint="Unique verifier identifiers" />
+				<MetricCard label={copy.documentsMetric} value={docs.length} hint={copy.documentsMetricHint} />
+				<MetricCard label={copy.sensitiveDocs} value={sensitiveCount} hint={copy.sensitiveDocsHint} />
+				<MetricCard label={copy.verifiedSources} value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint={copy.verifiedSourcesHint} />
 			</div>
 
-			<Card title="Document catalog" description="The linked entity identifier is masked unless the document is explicitly public-safe.">
+			<Card title={copy.documentCatalog} description={copy.documentCatalogDescription}>
 				<div className="space-y-3">
 					{docs.map((doc) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={doc.id}>
@@ -1156,9 +1124,9 @@ function DocumentsPage() {
 								<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3">
-								<div>Entity: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
-								<div>Issued: {formatDateTime(doc.issuedAt)}</div>
-								<div>Verified by: {doc.verifiedBy}</div>
+								<div>{copy.entity}: {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
+								<div>{copy.issued}: {formatDateTime(doc.issuedAt, i18n.locale)}</div>
+								<div>{copy.verifiedBy}: {doc.verifiedBy}</div>
 							</div>
 						</div>
 					))}
@@ -1169,31 +1137,33 @@ function DocumentsPage() {
 }
 
 function ReportsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const aggregate = SIKESRA_REFERENCE_FIXTURES.publicAggregate;
 	const suppressedCount = aggregate.categories.filter((item) => item.suppressed).length;
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="Reports"
-				title="Public aggregate"
-				description="A public-safe reporting surface that exposes only coarse counts and avoids private identifiers or sensitive record details."
+				eyebrow={copy.reportsEyebrow}
+				title={copy.reportsTitle}
+				description={copy.reportsDescription}
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label="Categories" value={aggregate.categories.length} hint="Public-safe summary buckets" />
-				<MetricCard label="Suppressed" value={suppressedCount} hint="Buckets hidden from public detail" />
-				<MetricCard label="Visible" value={aggregate.categories.length - suppressedCount} hint="Buckets safe to display openly" />
+				<MetricCard label={copy.categories} value={aggregate.categories.length} hint={copy.categoriesHint} />
+				<MetricCard label={copy.suppressed} value={suppressedCount} hint={copy.suppressedHint} />
+				<MetricCard label={copy.visible} value={aggregate.categories.length - suppressedCount} hint={copy.visibleHint} />
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] mt-2">
-				<Card title="Aggregate categories" description="Counts are shown only when the category is not suppressed.">
+				<Card title={copy.aggregateCategories} description={copy.aggregateCategoriesDescription}>
 					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1.2fr_.7fr_.7fr_.7fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
-							<div>Category</div>
-							<div>Total</div>
-							<div>Verified</div>
-							<div>Status</div>
+							<div>{copy.category}</div>
+							<div>{copy.total}</div>
+							<div>{copy.verified}</div>
+							<div>{copy.status}</div>
 						</div>
 						{aggregate.categories.map((item) => (
 							<div className="grid gap-2 border-t border-kumo-line px-4 py-3 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr]" key={item.code}>
@@ -1201,21 +1171,21 @@ function ReportsPage() {
 									<div className="font-medium text-kumo-default">{item.label}</div>
 									<div className="mt-1 break-all text-xs text-kumo-subtle">{maskSensitive(item.code, !item.suppressed)}</div>
 								</div>
-								<div className="text-kumo-subtle">{item.suppressed ? "suppressed" : item.total}</div>
+								<div className="text-kumo-subtle">{item.suppressed ? copy.suppressed.toLowerCase() : item.total}</div>
 								<div className="text-kumo-subtle">{item.verified}</div>
 								<div>
-									<Pill tone={item.suppressed ? "warning" : "success"}>{item.suppressed ? "masked" : "visible"}</Pill>
+									<Pill tone={item.suppressed ? "warning" : "success"}>{item.suppressed ? copy.masked : copy.visible.toLowerCase()}</Pill>
 								</div>
 							</div>
 						))}
 					</div>
 				</Card>
 
-				<Card title="Public note" description="The caveat explains why the aggregate is safe for public display.">
+				<Card title={copy.publicNote} description={copy.publicNoteDescription}>
 					<p className="text-sm leading-6 text-kumo-subtle">{aggregate.caveat}</p>
 					<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-base p-4 text-sm text-kumo-subtle">
-						<div className="font-medium text-kumo-default">Display rule</div>
-						<div className="mt-2">Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern.</div>
+						<div className="font-medium text-kumo-default">{copy.displayRule}</div>
+						<div className="mt-2">{copy.displayRuleDescription}</div>
 					</div>
 				</Card>
 			</div>
@@ -1224,32 +1194,34 @@ function ReportsPage() {
 }
 
 function AuditPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AuditListResponse>("audit/list", { limit: 25 });
 
-	if (loading) return <LoadingState label="Loading audit log..." />;
+	if (loading) return <LoadingState label={copy.loadingAuditLog} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="Audit"
-				title="Event history"
-				description="Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
+				eyebrow={copy.auditEyebrow}
+				title={copy.auditTitle}
+				description={copy.auditDescription}
 				actions={
 					<Button variant="secondary" size="sm" onClick={() => void reload()} type="button">
-						Refresh
+						{copy.refresh}
 					</Button>
 				}
 			/>
 			<Card>
 				{!data?.items.length ? (
-					<EmptyState title="No audit events" description="Plugin actions will appear here after hooks or routes run." />
+					<EmptyState title={copy.noAuditEvents} description={copy.noAuditEventsDescription} />
 				) : (
 					<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
 						<div className="grid grid-cols-[1fr_160px_160px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
-							<div>Summary</div>
-							<div>Scope / actor</div>
-							<div>Time</div>
+							<div>{copy.summary}</div>
+							<div>{copy.scopeActor}</div>
+							<div>{copy.time}</div>
 						</div>
 						{data.items.map((item) => (
 							<div className="grid gap-2 border-t border-kumo-line bg-kumo-base px-4 py-3 text-sm text-kumo-default md:grid-cols-[1fr_160px_160px]" key={item.id}>
@@ -1264,7 +1236,7 @@ function AuditPage() {
 									<br />
 									{item.actor}
 								</div>
-								<div className="text-kumo-subtle">{formatDateTime(item.timestamp)}</div>
+								<div className="text-kumo-subtle">{formatDateTime(item.timestamp, i18n.locale)}</div>
 							</div>
 						))}
 					</div>
@@ -1275,6 +1247,8 @@ function AuditPage() {
 }
 
 function PermissionsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const { data, error, loading, reload } = usePluginData<AccessPermissionsResponse>("access/permissions/list");
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
@@ -1290,59 +1264,59 @@ function PermissionsPage() {
 		try {
 			await postPlugin("access/permissions/save", formState);
 			setFormState({ slug: "", label: "", description: "", scope: "content" });
-			setNotice("Permission saved.");
+			setNotice(copy.permissionSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save permission");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSavePermission);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading permissions..." />;
+	if (loading) return <LoadingState label={copy.loadingPermissions} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="Access" title="Permission catalog" description="Create plugin-owned permissions with explicit slugs, labels, scopes, and descriptions." />
+			<PageHeader eyebrow={copy.accessEyebrow} title={copy.permissionCatalog} description={copy.permissionCatalogDescription} />
 			<div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
-				<Card title="Add permission" description="Use stable dot-separated slugs such as content.read.public.">
+				<Card title={copy.addPermission} description={copy.addPermissionDescription}>
 					<form className="space-y-4" onSubmit={(event) => void savePermission(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
-						<Field label="Slug">
+						<Field label={copy.slug}>
 							<Input value={formState.slug} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, slug: event.target.value }))} />
 						</Field>
-						<Field label="Label">
+						<Field label={copy.label}>
 							<Input value={formState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, label: event.target.value }))} />
 						</Field>
-						<Field label="Scope">
+						<Field label={copy.scope}>
 							<Input value={formState.scope} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, scope: event.target.value }))} />
 						</Field>
-						<Field label="Description">
+						<Field label={copy.descriptionLabel}>
 							<InputArea value={formState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, description: event.target.value }))} />
 						</Field>
 						<Button variant="primary" disabled={saving} type="submit">
-							{saving ? "Saving..." : "Save permission"}
+							{saving ? copy.saving : copy.savePermission}
 						</Button>
 					</form>
 				</Card>
 
-				<Card title="Existing permissions" description={`${data?.items.length ?? 0} permission(s) in the plugin catalog.`}>
+				<Card title={copy.existingPermissions} description={copy.existingPermissionsDescription(data?.items.length ?? 0)}>
 					{!data?.items.length ? (
-						<EmptyState title="No permissions yet" description="Create a permission to begin building the role matrix." />
+						<EmptyState title={copy.noPermissionsYet} description={copy.noPermissionsYetDescription} />
 					) : (
 						<div className="grid gap-3">
 							{data.items.map((item) => (
 								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
 									<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-										<div className="font-medium text-kumo-default">{item.label}</div>
-										<Pill>{item.scope}</Pill>
-									</div>
-									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
-									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || "No description provided."}</p>
+									<div className="font-medium text-kumo-default">{item.label}</div>
+									<Pill>{item.scope}</Pill>
 								</div>
-							))}
+								<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
+								<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || copy.noDescriptionProvided}</p>
+							</div>
+						))}
 						</div>
 					)}
 				</Card>
