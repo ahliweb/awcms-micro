@@ -1,0 +1,12 @@
+diff --git a/packages/admin/src/components/Sidebar.tsx b/packages/admin/src/components/Sidebar.tsx
+--- a/packages/admin/src/components/Sidebar.tsx
++++ b/packages/admin/src/components/Sidebar.tsx
+@@ -474,7 +474,7 @@
+
+				<KumoSidebar.Footer>
+					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
+-						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
++						{manifest.admin?.siteName || "AWCMS powered by EmDash <br />"} v{import.meta.env.AWCMS_ROOT_VERSION || manifest.version || "0.0.0"}
+						{manifest.commit && ` (${manifest.commit})`}
+					</p>
+				</KumoSidebar.Footer>

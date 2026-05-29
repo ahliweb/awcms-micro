@@ -19,6 +19,7 @@ These paths are relative to `awcmsmicro-dev/`:
 - `docs/gallery`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
+- `.awcms-patches`
 - `.changeset`
 - `.github/workflows`
 - `.github/scripts`
@@ -33,6 +34,7 @@ For each approved path, the script:
 1. copies the current AWCMS-Micro path to a temporary backup if it exists
 2. runs the upstream `rsync --delete` rebuild
 3. restores only the approved backed-up paths into `awcmsmicro-dev/`
+4. replays any patch files stored under `awcmsmicro-dev/.awcms-patches/`
 
 This keeps `emdash-latest/` disposable and upstream-faithful while preserving explicitly approved AWCMS-Micro implementation boundaries.
 

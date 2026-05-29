@@ -1,4 +1,5 @@
 # Approved AWCMS-Micro implementation paths preserved across awcmsmicro-dev rebuilds.
+# Downstream source-level overrides that must survive sync live in .awcms-patches/ and are replayed by the rebuild script.
 templates/awcms-micro-default
 templates/awcms-micro-default-cloudflare
 packages/plugins/awcms-micro-sikesra
@@ -8,6 +9,7 @@ docs/awcms-micro
 docs/gallery
 e2e/awcms-micro
 .awcms-changesets
+.awcms-patches
 .changeset
 .github/workflows
 .github/scripts

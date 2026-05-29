@@ -474,7 +474,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
+						{manifest.admin?.siteName || "EmDash CMS"} v{import.meta.env.AWCMS_ROOT_VERSION || manifest.version || "0.0.0"}
 						{manifest.commit && ` (${manifest.commit})`}
 					</p>
 				</KumoSidebar.Footer>

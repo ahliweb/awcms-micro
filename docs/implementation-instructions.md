@@ -15,6 +15,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 - Keep the root repository focused on synchronization, documentation, and maintenance workflow.
 - Keep the root maintenance changelog and workspace snapshot current when the EmDash revision or workspace package inventory changes.
 - Keep AWCMS-Micro example work isolated in the approved protected paths inside `awcmsmicro-dev/`.
+- Persist any source-level downstream customization that must survive sync as a patch overlay in `awcmsmicro-dev/.awcms-patches/` and ensure the rebuild script reapplies it automatically.
 - Implement new AWCMS-Micro product behavior through plugins and templates, with docs, demos, and E2E coverage as supporting layers.
 
 ## Execution Strategy

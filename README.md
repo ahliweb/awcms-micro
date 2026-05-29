@@ -47,6 +47,7 @@ Hidden root files such as `.gitignore` and local-only `.env` support the parent 
 - Keep root documentation synchronized with the actual workflow and folder layout.
 - Work step by step using small, atomic changes.
 - When a task is too large, split it into smaller follow-up tasks or GitHub issues.
+- If a downstream source tweak must survive sync but does not belong in a plugin or template boundary, encode it as a patch under `awcmsmicro-dev/.awcms-patches/` so the rebuild script can reapply it automatically.
 
 ## Official Language
 
@@ -134,6 +135,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
+- Downstream patch overlay: `awcmsmicro-dev/.awcms-patches/`
 - Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
 - Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`
 - Upstream sync tracking: `docs/upstream-sync/`
@@ -143,7 +145,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 ## Standard Workflow
 
 1. Refresh `emdash-latest/` from upstream EmDash.
-2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+2. Rebuild `awcmsmicro-dev/` from `emdash-latest/` and let the rebuild script reapply any downstream patch overlays from `awcmsmicro-dev/.awcms-patches/`.
 3. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
 4. Implement AWCMS-Micro-specific product work only in approved plugin and template boundaries inside `awcmsmicro-dev/`.
 5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.

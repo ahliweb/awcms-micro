@@ -19,6 +19,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `docs/gallery`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
+- `.awcms-patches`
 - `.changeset`
 - `.github/workflows`
 - `.github/scripts`
@@ -49,6 +50,7 @@ This keeps AWCMS-Micro aligned with EmDash rather than turning `awcmsmicro-dev/`
 1. back up approved custom paths from `awcmsmicro-dev/` if they exist
 2. rebuild `awcmsmicro-dev/` from `emdash-latest/` with `rsync --delete`
 3. restore only the backed-up allowlisted paths
+4. reapply any patch overlays stored in `awcmsmicro-dev/.awcms-patches/`
 
 No arbitrary unknown paths are preserved.
 
@@ -68,10 +70,11 @@ That means:
 When adding a new AWCMS-Micro plugin, template, demo, docs area, or test boundary:
 
 1. place it inside an existing approved custom path when possible
-2. if a new boundary is required, add it to `scripts/awcmsmicro-dev-protected-paths.txt`
-3. update this document and the root workflow docs in the same change
-4. run `bash scripts/update-awcmsmicro-dev.sh`
-5. run `bash scripts/validate-awcmsmicro-boundaries.sh`
+2. if it is a persistent source-level change that must survive rebuilds, encode it as a patch file under `awcmsmicro-dev/.awcms-patches/`
+3. if a new boundary is required, add it to `scripts/awcmsmicro-dev-protected-paths.txt`
+4. update this document and the root workflow docs in the same change
+5. run `bash scripts/update-awcmsmicro-dev.sh`
+6. run `bash scripts/validate-awcmsmicro-boundaries.sh`
 
 Do not preserve upstream overrides by adding random paths to the allowlist.
 

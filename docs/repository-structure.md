@@ -68,6 +68,7 @@ Expected root scripts:
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 - Reserved AWCMS changesets boundary: `awcmsmicro-dev/.awcms-changesets/`
+- Downstream patch overlay: `awcmsmicro-dev/.awcms-patches/`
 - Preserved workspace package-release boundary: `awcmsmicro-dev/.changeset/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`

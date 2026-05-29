@@ -45,6 +45,7 @@ Result:
 - copies the current `emdash-latest/` tree into `awcmsmicro-dev/`
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
 - preserves only the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`, including the workflow and Dependabot config under `awcmsmicro-dev/.github/`
+- reapplies downstream patch overlays from `awcmsmicro-dev/.awcms-patches/` after the restore step so persistent source tweaks do not need to be recreated manually
 - preserves workspace package-release metadata in `awcmsmicro-dev/.changeset/` alongside the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 - excludes transient local build artifacts such as `node_modules/`, `dist/`, `.astro/`, `.wrangler/`, `.vite/`, and `.mf/`
 - prunes stale directories that remain only because they contain excluded transient artifacts after upstream paths are removed
@@ -86,6 +87,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Treat `emdash-latest/` as disposable and reproducible from upstream.
 - Treat `awcmsmicro-dev/` as the only place for AWCMS-Micro implementation work inside this parent repository.
 - Keep AWCMS-Micro-owned divergence limited to the approved protected paths rather than editing upstream core locations.
+- Keep persistent source-level downstream tweaks as patch overlays in `awcmsmicro-dev/.awcms-patches/` instead of relying on unprotected source edits.
 - Keep new product behavior in plugins and templates instead of introducing a parallel shared core implementation layer.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.

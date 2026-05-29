@@ -7,6 +7,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 SOURCE_DIR="$ROOT_DIR/emdash-latest"
 TARGET_DIR="$ROOT_DIR/awcmsmicro-dev"
 PROTECTED_PATHS_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
+PATCHES_DIR="$TARGET_DIR/.awcms-patches"
 BACKUP_DIR=""
 RSYNC_PROTECTED_ARGS=()
 TRANSIENT_SUBPATH_EXCLUDES=(
@@ -73,6 +74,30 @@ restore_protected_paths() {
 			rsync -a "${TRANSIENT_SUBPATH_EXCLUDES[@]}" "$BACKUP_DIR/$relative_path" "$TARGET_DIR/$(dirname "$relative_path")/"
 		fi
 	done < "$PROTECTED_PATHS_FILE"
+}
+
+apply_downstream_patches() {
+	if [[ ! -d "$PATCHES_DIR" ]]; then
+		log "No downstream patch overlay found; skipping patch application"
+		return
+	fi
+
+	shopt -s nullglob
+	local patch_files=("$PATCHES_DIR"/*.patch)
+	shopt -u nullglob
+
+	if [[ "${#patch_files[@]}" -eq 0 ]]; then
+		log "No downstream patch files found under $PATCHES_DIR; skipping patch application"
+		return
+	fi
+
+	local patch_file
+	for patch_file in "${patch_files[@]}"; do
+		log "Applying downstream patch $(basename "$patch_file")"
+		git -C "$ROOT_DIR" apply --directory=awcmsmicro-dev --whitespace=nowarn "$patch_file"
+	done
+
+	log "Applied ${#patch_files[@]} downstream patch(es)"
 }
 
 is_protected_path() {
@@ -189,5 +214,6 @@ rsync -a \
 
 prune_stale_transient_dirs
 restore_protected_paths
+apply_downstream_patches
 
 log "awcmsmicro-dev has been rebuilt from emdash-latest while preserving approved AWCMS-Micro paths"
