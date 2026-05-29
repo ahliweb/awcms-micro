@@ -4,8 +4,8 @@
 
 - Upstream repository URL: https://github.com/emdash-cms/emdash.git
 - Upstream branch: main
-- Upstream commit SHA: 139a4d5c965c2444fcb10be95ffe112855e19e52
-- Fetch date: 2026-05-28T17:46:01Z
+- Upstream commit SHA: 176f6a5f9f4df15b4ee38bbdc31b691a905e1f44
+- Fetch date: 2026-05-29T01:44:23Z
 - Target folder: emdash-latest/
 
 ## Notes

@@ -1,31 +1,21 @@
 import { Sidebar as KumoSidebar, Tooltip, useSidebar } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react/macro";
 import {
-	ChartBar,
-	Check,
-	Code,
+	SquaresFour,
 	FileText,
-	Globe,
-	GridFour,
 	Image,
-	Info,
-	EnvelopeSimple,
-	List,
-	ListBullets,
-	Lock,
-	Palette,
+	ChatCircle,
+	Gear,
 	PuzzlePiece,
-	Shield,
-	SlidersHorizontal,
 	Storefront,
+	Palette,
 	Upload,
+	Database,
+	List,
+	GridFour,
 	Users,
 	Stack,
 	ArrowsLeftRight,
-	ChatCircle,
-	Database,
-	Gear,
-	SquaresFour,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -34,7 +24,6 @@ import * as React from "react";
 import { fetchCommentCounts } from "../lib/api/comments";
 import { useCurrentUser } from "../lib/api/current-user";
 import { usePluginAdmins } from "../lib/plugin-context";
-import { getPluginNavGroups } from "../lib/plugin-navigation.js";
 import { cn } from "../lib/utils";
 import { BrandIcon } from "./Logo.js";
 
@@ -44,6 +33,9 @@ export { KumoSidebar as Sidebar, useSidebar };
 // Role levels (matching @emdash-cms/auth)
 const ROLE_ADMIN = 50;
 const ROLE_EDITOR = 40;
+const NAMESPACE_PREFIX_RE = /^@[^/]+\//;
+const DOWNSTREAM_PLUGIN_PREFIX_RE = /^(awcms-micro|emdash-cms)[-_]?/;
+const PLUGIN_WORD_SPLIT_RE = /[-_]+/;
 
 export interface SidebarNavProps {
 	manifest: {
@@ -51,7 +43,6 @@ export interface SidebarNavProps {
 		plugins: Record<
 			string,
 			{
-				name?: string;
 				package?: string;
 				enabled?: boolean;
 				adminMode?: "react" | "blocks" | "none";
@@ -93,28 +84,21 @@ interface NavItem {
 	badge?: number;
 }
 
-const PLUGIN_ICON_MAP: Record<string, React.ElementType> = {
-	chart: ChartBar,
-	check: Check,
-	code: Code,
-	file: FileText,
-	form: ListBullets,
-	gear: Gear,
-	globe: Globe,
-	grid: GridFour,
-	image: Image,
-	info: Info,
-	inbox: EnvelopeSimple,
-	list: List,
-	lock: Lock,
-	shield: Shield,
-	sliders: SlidersHorizontal,
-	upload: Upload,
-};
+interface PluginNavGroup {
+	id: string;
+	label: string;
+	items: NavItem[];
+}
 
-function resolvePluginIcon(icon?: string): React.ElementType {
-	if (icon && PLUGIN_ICON_MAP[icon]) return PLUGIN_ICON_MAP[icon];
-	return PuzzlePiece;
+function formatPluginGroupLabel(pluginId: string): string {
+	const normalized = pluginId
+		.replace(NAMESPACE_PREFIX_RE, "")
+		.replace(DOWNSTREAM_PLUGIN_PREFIX_RE, "");
+	const words = normalized
+		.split(PLUGIN_WORD_SPLIT_RE)
+		.filter(Boolean)
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+	return words.length > 0 ? words.join(" ") : pluginId;
 }
 
 /**
@@ -281,19 +265,32 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginGroups = getPluginNavGroups(manifest, (pluginId, config, page) => {
-		const pluginPages = pluginAdmins[pluginId]?.pages;
-		return config.adminMode === "blocks" || !!pluginPages?.[page.path];
-	}).map((group) => ({
-		id: group.pluginId,
-		label: group.label,
-		icon: resolvePluginIcon(group.icon),
-		items: group.pages.map((page) => ({
-			to: `/plugins/${group.pluginId}${page.path}`,
-			label: page.label,
-			icon: resolvePluginIcon(page.icon),
-		})),
-	}));
+	const pluginGroups: PluginNavGroup[] = [];
+	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
+		if (config.enabled === false) continue;
+		if (config.adminPages && config.adminPages.length > 0) {
+			const pluginPages = pluginAdmins[pluginId]?.pages;
+			const isBlocksMode = config.adminMode === "blocks";
+			const items: NavItem[] = [];
+			for (const page of config.adminPages) {
+				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
+				const label =
+					page.label ||
+					pluginId
+						.split("-")
+						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+						.join(" ");
+				items.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
+			}
+			if (items.length > 0) {
+				pluginGroups.push({
+					id: pluginId,
+					label: formatPluginGroupLabel(pluginId),
+					items,
+				});
+			}
+		}
+	}
 
 	const filterByRole = (items: NavItem[]) =>
 		items.filter((item) => !item.minRole || userRole >= item.minRole);
@@ -302,13 +299,8 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
 	const visiblePluginGroups = pluginGroups
-		.map((group) => ({
-			...group,
-			items: filterByRole(group.items),
-		}))
+		.map((group) => ({ ...group, items: filterByRole(group.items) }))
 		.filter((group) => group.items.length > 0);
-	const hasNonPluginGroups =
-		visibleContent.length > 1 || visibleManage.length > 0 || visibleAdmin.length > 0;
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -433,42 +425,17 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				<KumoSidebar.Header>
 					<Link
 						to="/"
-						className="emdash-brand-link flex w-full min-w-0 items-center gap-2.5 px-3 py-2"
+						className="emdash-brand-link flex w-full min-w-0 items-center gap-2 px-3 py-1"
 					>
-						<svg
-							viewBox="0 0 180 100"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-							className="w-12 h-7 shrink-0"
+						<BrandIcon
+							logoUrl={manifest.admin?.logo}
+							siteName={manifest.admin?.siteName}
+							className="size-5 shrink-0"
 							aria-hidden="true"
-						>
-							{/* Orange Left Bar */}
-							<path d="M5 90 L60 20 H75 L20 90 Z" fill="url(#aw-orange)" />
-							{/* Orange Left Diamond */}
-							<path d="M33 70 L46 52 L59 70 L46 88 Z" fill="url(#aw-orange)" />
-							
-							{/* Blue Left Down Bar */}
-							<path d="M65 43 L78 26 L118 78 L105 95 Z" fill="#0066ff" />
-							{/* Blue Middle Diamond */}
-							<path d="M98 26 L111 8 L124 26 L111 44 Z" fill="#0066ff" />
-							{/* Blue Right Up Bar */}
-							<path d="M117 78 L130 95 L170 26 L157 8 Z" fill="#0066ff" />
-							
-							<defs>
-								<linearGradient id="aw-orange" x1="5" y1="90" x2="75" y2="20" gradientUnits="userSpaceOnUse">
-									<stop stopColor="#ff4d00" />
-									<stop offset="1" stopColor="#ffa600" />
-								</linearGradient>
-							</defs>
-						</svg>
-						<div className="emdash-brand-text flex flex-col min-w-0 leading-tight">
-							<span className="font-bold text-[13px] text-white tracking-wide">
-								AWCMS
-							</span>
-							<span className="text-[9px] text-white/50 font-medium">
-								powered by ahliweb.com
-							</span>
-						</div>
+						/>
+						<span className="emdash-brand-text font-semibold truncate">
+							{manifest.admin?.siteName || "EmDash"}
+						</span>
 					</Link>
 				</KumoSidebar.Header>
 
@@ -485,25 +452,19 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 
 					{visiblePluginGroups.length > 0 && <KumoSidebar.Separator />}
 
-					{/* Plugin groups — each plugin gets its own collapsible section */}
-					{visiblePluginGroups.map((group, index) => (
-						<React.Fragment key={group.id}>
-							<KumoSidebar.Group collapsible defaultOpen>
-								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
-									<span className="flex items-center gap-2">
-										<group.icon className="size-3.5 shrink-0" aria-hidden="true" />
-										<span>{group.label}</span>
-									</span>
-								</KumoSidebar.GroupLabel>
-								<KumoSidebar.GroupContent>
-									<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
-								</KumoSidebar.GroupContent>
-							</KumoSidebar.Group>
-							{index < visiblePluginGroups.length - 1 && <KumoSidebar.Separator />}
-						</React.Fragment>
+					{/* Downstream plugin groups must stay immediately below Dashboard. */}
+					{visiblePluginGroups.map((group) => (
+						<KumoSidebar.Group key={group.id} collapsible defaultOpen>
+							<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
+								{group.label}
+							</KumoSidebar.GroupLabel>
+							<KumoSidebar.GroupContent>
+								<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
+							</KumoSidebar.GroupContent>
+						</KumoSidebar.Group>
 					))}
 
-					{visiblePluginGroups.length > 0 && hasNonPluginGroups && <KumoSidebar.Separator />}
+					<KumoSidebar.Separator />
 
 					{/* Content — collections + media (collapsible) */}
 					{visibleContent.length > 1 && (
@@ -517,9 +478,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					{visibleContent.length > 1 && (visibleManage.length > 0 || visibleAdmin.length > 0) && (
-						<KumoSidebar.Separator />
-					)}
+					<KumoSidebar.Separator />
 
 					{/* Manage — comments, menus, taxonomies, etc. (collapsible) */}
 					{visibleManage.length > 0 && (
@@ -531,7 +490,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					{visibleManage.length > 0 && visibleAdmin.length > 0 && <KumoSidebar.Separator />}
+					<KumoSidebar.Separator />
 
 					{/* Admin — content types, users, plugins, import (collapsible) */}
 					{visibleAdmin.length > 0 && (
@@ -542,13 +501,14 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 							</KumoSidebar.GroupContent>
 						</KumoSidebar.Group>
 					)}
+
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
-					<div className="emdash-nav-label px-3 py-2 text-[11px] text-white/30 space-y-0.5">
-						<div>awcms-micro v{manifest.version || "0.1.0"}</div>
-						<div className="text-[10px] text-white/20">powered by EmDash</div>
-					</div>
+					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
+						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
+						{manifest.commit && ` (${manifest.commit})`}
+					</p>
 				</KumoSidebar.Footer>
 			</KumoSidebar>
 		</>

@@ -4,8 +4,6 @@ import * as React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { MenuEditor } from "../../src/components/MenuEditor";
-import { buildParentSelectItems } from "../../src/components/MenuEditor";
-import { buildMenuEditorParentLabel } from "../../src/components/MenuEditor";
 import { render } from "../utils/render.tsx";
 
 vi.mock("@tanstack/react-router", async () => {
@@ -72,7 +70,6 @@ const defaultMenu = {
 			createdAt: "",
 			locale: "en",
 			translationGroup: "1",
-			children: [],
 		},
 		{
 			id: "2",
@@ -90,26 +87,6 @@ const defaultMenu = {
 			createdAt: "",
 			locale: "en",
 			translationGroup: "2",
-			children: [
-				{
-					id: "2-1",
-					menuId: "menu1",
-					parentId: "2",
-					sortOrder: 0,
-					type: "custom",
-					referenceCollection: null,
-					referenceId: null,
-					customUrl: "/about/services",
-					label: "Services",
-					titleAttr: null,
-					target: "_self",
-					cssClasses: null,
-					createdAt: "",
-					locale: "en",
-					translationGroup: "2-1",
-					children: [],
-				},
-			],
 		},
 	],
 };
@@ -137,7 +114,6 @@ describe("MenuEditor", () => {
 		// Use exact: true to avoid matching "/about" which contains "About"
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 		await expect.element(screen.getByText("About", { exact: true })).toBeInTheDocument();
-		await expect.element(screen.getByText("Services", { exact: true })).toBeInTheDocument();
 	});
 
 	it("add item button opens dialog with label and URL inputs", async () => {
@@ -148,26 +124,6 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByLabelText("Label")).toBeInTheDocument();
 		await expect.element(screen.getByLabelText("URL")).toBeInTheDocument();
-		await expect.element(screen.getByLabelText("Parent")).toBeInTheDocument();
-	});
-
-	it("builds parent selector options without cycles", () => {
-		const items = defaultMenu.items as Parameters<typeof buildParentSelectItems>[0];
-		const options = buildParentSelectItems(items, "Top level", "2");
-
-		expect(options).toMatchObject({
-			"": "Top level",
-			"1": "- Home",
-		});
-		expect(options).not.toHaveProperty("2");
-		expect(options).not.toHaveProperty("2-1");
-	});
-
-	it("builds the edit parent label", () => {
-		expect(buildMenuEditorParentLabel({ "": "Top level", 1: "- Home" }, "1", "Top level")).toBe(
-			"- Home",
-		);
-		expect(buildMenuEditorParentLabel({ "": "Top level" }, "", "Top level")).toBe("Top level");
 	});
 
 	it("edit item opens dialog", async () => {
@@ -175,12 +131,12 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 
-		await screen.getByTestId("menu-edit-1").click();
+		const editButtons = screen.getByRole("button", { name: "Edit" });
+		await editButtons.first().click();
 
 		await expect
 			.element(screen.getByRole("heading", { name: "Edit Menu Item" }))
 			.toBeInTheDocument();
-		await expect.element(screen.getByLabelText("Parent")).toBeInTheDocument();
 	});
 
 	it("delete item fires immediately without confirmation dialog", async () => {
@@ -188,8 +144,9 @@ describe("MenuEditor", () => {
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
 
-		// Delete buttons are item-specific via test hooks.
-		await screen.getByTestId("menu-delete-1").click();
+		// Delete buttons have aria-label="Delete"
+		const deleteBtn = screen.getByRole("button", { name: "Delete" });
+		await deleteBtn.first().click();
 
 		// No confirmation dialog should appear
 		expect(screen.getByText("Are you sure").query()).toBeNull();
@@ -230,7 +187,7 @@ describe("MenuEditor", () => {
 		const screen = await render(<MenuEditor />, { wrapper: Wrapper });
 
 		await expect.element(screen.getByText("Home")).toBeInTheDocument();
-		await expect.element(screen.getByText("/about", { exact: true })).toBeInTheDocument();
+		await expect.element(screen.getByText("/about")).toBeInTheDocument();
 	});
 
 	it("URL input accepts relative paths", async () => {

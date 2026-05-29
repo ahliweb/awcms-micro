@@ -4,15 +4,15 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `139a4d5c965c2444fcb10be95ffe112855e19e52`
-- Sync date: `2026-05-28T17:49:31Z`
-- Operator: `OpenCode`
+- Upstream commit SHA: `176f6a5f9f4df15b4ee38bbdc31b691a905e1f44`
+- Sync date: `2026-05-29T01:47:45Z`
+- Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `139a4d5c`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully. The current repository governance now enforces a plugin-and-template-only AWCMS-Micro development model, with active navigation and label-resolution helpers moved into plugin-owned exports and the retired shared package layer removed from the protected path model. Root governance docs now include promotion, release-readiness, operator workflow, and product README source documents so the independent `awcms-micro` repository can be prepared without storing persistent downstream identity content in upstream-synced files. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76.
+Synced to EmDash `176f6a5f`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully. The current repository governance now enforces a plugin-and-template-only AWCMS-Micro development model, with active navigation and label-resolution helpers moved into plugin-owned exports and the retired shared package layer removed from the protected path model. Root governance docs now include promotion, release-readiness, operator workflow, and product README source documents so the independent `awcms-micro` repository can be prepared without storing persistent downstream identity content in upstream-synced files. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76.
 
 ## Key Changes in This Sync (since v0.14.0)
 

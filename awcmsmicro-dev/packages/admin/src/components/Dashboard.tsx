@@ -24,6 +24,7 @@ import { SandboxedPluginWidget } from "./SandboxedPluginWidget";
 export interface DashboardProps {
 	manifest: AdminManifest;
 }
+
 /**
  * Admin dashboard — quick actions, status, collections, recent activity.
  */
@@ -280,25 +281,19 @@ function StatusDot({ status }: { status: string }) {
 // --- Plugin widgets ---
 
 function PluginWidgets({ manifest }: { manifest: AdminManifest }) {
-	const widgetsByPlugin: Record<
-		string,
-		Array<{
-			id: string;
-			pluginId: string;
-			title?: string;
-			size?: "full" | "half" | "third";
-		}>
-	> = {};
+	const widgets: Array<{
+		id: string;
+		pluginId: string;
+		title?: string;
+		size?: "full" | "half" | "third";
+	}> = [];
 
 	for (const [pluginId, plugin] of Object.entries(manifest.plugins || {})) {
 		if (plugin.enabled === false) continue;
 
 		if ("dashboardWidgets" in plugin && Array.isArray(plugin.dashboardWidgets)) {
 			for (const widget of plugin.dashboardWidgets) {
-				if (!widgetsByPlugin[pluginId]) {
-					widgetsByPlugin[pluginId] = [];
-				}
-				widgetsByPlugin[pluginId].push({
+				widgets.push({
 					id: widget.id,
 					pluginId,
 					title: widget.title,
@@ -308,59 +303,29 @@ function PluginWidgets({ manifest }: { manifest: AdminManifest }) {
 		}
 	}
 
-	const pluginIds = Object.keys(widgetsByPlugin);
-
-	if (pluginIds.length === 0) {
+	if (widgets.length === 0) {
 		return null;
 	}
 
 	return (
-		<div className="space-y-8">
-			{pluginIds.map((pluginId) => {
-				const pluginName = manifest.plugins[pluginId]?.name || pluginId;
-				const widgets = widgetsByPlugin[pluginId] || [];
-
-				return (
-					<div key={pluginId} className="space-y-4">
-						<div className="flex items-center gap-2 border-b pb-2 border-kumo-line">
-							<span className="text-xs font-semibold uppercase tracking-wider text-kumo-subtle">
-								Plugin:
-							</span>
-							<h3 className="text-sm font-semibold text-kumo-subtle">{pluginName}</h3>
-						</div>
-						<div className="grid gap-6 lg:grid-cols-2">
-							{widgets.map((widget) => (
-								<PluginWidgetCard
-									key={`${widget.pluginId}:${widget.id}`}
-									widget={widget}
-									pluginName={pluginName}
-								/>
-							))}
-						</div>
-					</div>
-				);
-			})}
+		<div className="grid gap-6 lg:grid-cols-2">
+			{widgets.map((widget) => (
+				<PluginWidgetCard key={`${widget.pluginId}:${widget.id}`} widget={widget} />
+			))}
 		</div>
 	);
 }
 
 function PluginWidgetCard({
 	widget,
-	pluginName,
 }: {
 	widget: { id: string; pluginId: string; title?: string; size?: string };
-	pluginName: string;
 }) {
 	const WidgetComponent = usePluginWidget(widget.pluginId, widget.id);
 
 	return (
 		<div className="rounded-lg border bg-kumo-base p-4 sm:p-6">
-			<div className="flex items-center justify-between mb-4 gap-4">
-				<h2 className="text-lg font-semibold">{widget.title || widget.id}</h2>
-				<span className="shrink-0 text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded border border-kumo-line bg-kumo-tint text-kumo-subtle">
-					{pluginName}
-				</span>
-			</div>
+			<h2 className="text-lg font-semibold mb-4">{widget.title || widget.id}</h2>
 			{WidgetComponent ? (
 				<WidgetComponent />
 			) : (
