@@ -135,6 +135,14 @@ describe("SidebarNav", () => {
 		await expect.element(screen.getByText("Sikesra")).toBeInTheDocument();
 		await expect.element(screen.getByText("Overview")).toBeInTheDocument();
 		await expect.element(screen.getByText("Reports")).toBeInTheDocument();
+		expect(document.querySelector(".emdash-brand-text .font-semibold")?.textContent).toBe("AWCMS");
+		expect(document.querySelector(".emdash-brand-text span:nth-of-type(2)")?.textContent).toBe("by ahliweb.com");
+		expect(document.querySelector('[data-sidebar="footer"] p')?.textContent).toContain(
+			"AWCMS v0.15.0 powered by ahliweb.com",
+		);
+
+		expect(document.querySelector('a[href="/plugins/awcms-micro-gallery/admin"] [data-icon="image"]')).toBeTruthy();
+		expect(document.querySelector('a[href="/plugins/awcms-micro-sikesra/reports"] [data-icon="chart"]')).toBeTruthy();
 
 		const labels = Array.from(
 			document.querySelectorAll('[data-sidebar="group-label"]'),

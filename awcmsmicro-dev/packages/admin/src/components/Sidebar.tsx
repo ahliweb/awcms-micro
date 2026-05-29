@@ -6,6 +6,7 @@ import {
 	Image,
 	ChatCircle,
 	Gear,
+	Shield,
 	PuzzlePiece,
 	Storefront,
 	Palette,
@@ -16,6 +17,17 @@ import {
 	Users,
 	Stack,
 	ArrowsLeftRight,
+	Code,
+	Check,
+	ChartLineUp,
+	Eye,
+	Globe,
+	EnvelopeSimple,
+	LinkSimple,
+	LockKey,
+	SlidersHorizontal,
+	ArrowSquareOut,
+	Video,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -77,6 +89,7 @@ interface NavItem {
 	to: string;
 	label: string;
 	icon: React.ElementType;
+	iconName?: string;
 	params?: Record<string, string>;
 	/** Minimum role level required to see this item */
 	minRole?: number;
@@ -99,6 +112,71 @@ function formatPluginGroupLabel(pluginId: string): string {
 		.filter(Boolean)
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
 	return words.length > 0 ? words.join(" ") : pluginId;
+}
+
+function resolveIconByName(iconName?: string): { icon: React.ElementType; iconName: string } {
+	switch (iconName) {
+		case "image":
+			return { icon: Image, iconName };
+		case "code":
+			return { icon: Code, iconName };
+		case "shield":
+			return { icon: Shield, iconName };
+		case "list":
+			return { icon: List, iconName };
+		case "inbox":
+			return { icon: EnvelopeSimple, iconName };
+		case "video":
+			return { icon: Video, iconName };
+		case "link":
+			return { icon: LinkSimple, iconName };
+		case "link-external":
+			return { icon: ArrowSquareOut, iconName };
+		case "chart":
+			return { icon: ChartLineUp, iconName };
+		case "file":
+			return { icon: FileText, iconName };
+		case "grid":
+			return { icon: GridFour, iconName };
+		case "gear":
+			return { icon: Gear, iconName };
+		case "globe":
+			return { icon: Globe, iconName };
+		case "sliders":
+			return { icon: SlidersHorizontal, iconName };
+		case "lock":
+			return { icon: LockKey, iconName };
+		case "check":
+			return { icon: Check, iconName };
+		default:
+			return { icon: PuzzlePiece, iconName: iconName || "puzzle-piece" };
+	}
+}
+
+function resolvePluginPageIcon(
+	pluginId: string,
+	page: { path: string; label?: string; icon?: string },
+): { icon: React.ElementType; iconName: string } {
+	if (page.icon) return resolveIconByName(page.icon);
+
+	const path = page.path.toLowerCase();
+	const label = page.label?.toLowerCase() || "";
+
+	if (pluginId === "awcms-micro-gallery") return { icon: Image, iconName: "image" };
+	if (path.includes("overview") || label.includes("overview")) return { icon: SquaresFour, iconName: "overview" };
+	if (path.includes("registry") || label.includes("registry")) return { icon: GridFour, iconName: "grid" };
+	if (path.includes("document") || label.includes("document")) return { icon: FileText, iconName: "file" };
+	if (path.includes("import") || label.includes("import")) return { icon: Upload, iconName: "upload" };
+	if (path.includes("verification") || label.includes("verification")) return { icon: Check, iconName: "check" };
+	if (path.includes("audit") || label.includes("audit")) return { icon: List, iconName: "list" };
+	if (path.includes("report") || label.includes("report")) return { icon: ChartLineUp, iconName: "chart" };
+	if (path.includes("access") || label.includes("access")) return { icon: LockKey, iconName: "lock" };
+	if (path.includes("abac") || label.includes("abac")) return { icon: SlidersHorizontal, iconName: "sliders" };
+	if (path.includes("region") || label.includes("region")) return { icon: Globe, iconName: "globe" };
+	if (path.includes("preview") || label.includes("preview")) return { icon: Eye, iconName: "eye" };
+	if (path.includes("settings") || label.includes("settings")) return { icon: Gear, iconName: "gear" };
+
+	return { icon: PuzzlePiece, iconName: "puzzle-piece" };
 }
 
 /**
@@ -131,6 +209,7 @@ function NavMenuLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
 					"emdash-nav-icon size-[18px] shrink-0 transition-colors duration-200",
 					isActive ? "text-white" : "text-white/60 group-hover/menu-button:text-white/90",
 				)}
+				data-icon={item.iconName}
 				aria-hidden="true"
 			/>
 			<span className="emdash-nav-label flex flex-1 items-center min-w-0 text-start overflow-hidden">
@@ -280,7 +359,13 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						.split("-")
 						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 						.join(" ");
-				items.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
+				const resolvedIcon = resolvePluginPageIcon(pluginId, page);
+				items.push({
+					to: `/plugins/${pluginId}${page.path}`,
+					label,
+					icon: resolvedIcon.icon,
+					iconName: resolvedIcon.iconName,
+				});
 			}
 			if (items.length > 0) {
 				pluginGroups.push({
@@ -433,8 +518,9 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 							className="size-5 shrink-0"
 							aria-hidden="true"
 						/>
-						<span className="emdash-brand-text font-semibold truncate">
-							{manifest.admin?.siteName || "EmDash"}
+						<span className="emdash-brand-text min-w-0 truncate text-start leading-tight">
+							<span className="block font-semibold">AWCMS</span>
+							<span className="block text-[11px] font-medium text-white/55">by ahliweb.com</span>
 						</span>
 					</Link>
 				</KumoSidebar.Header>
@@ -506,7 +592,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
+						AWCMS v{manifest.version || "0.0.0"} powered by ahliweb.com
 						{manifest.commit && ` (${manifest.commit})`}
 					</p>
 				</KumoSidebar.Footer>
