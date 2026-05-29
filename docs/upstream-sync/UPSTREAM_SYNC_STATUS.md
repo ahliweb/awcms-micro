@@ -4,26 +4,21 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `176f6a5f9f4df15b4ee38bbdc31b691a905e1f44`
-- Sync date: `2026-05-29T01:47:45Z`
+- Upstream commit SHA: `19c580240158747733b30c5f04a45bdf4df73518`
+- Sync date: `2026-05-29T08:20:23Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `176f6a5f`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully. The current repository governance now enforces a plugin-and-template-only AWCMS-Micro development model, with active navigation and label-resolution helpers moved into plugin-owned exports and the retired shared package layer removed from the protected path model. Root governance docs now include promotion, release-readiness, operator workflow, and product README source documents so the independent `awcms-micro` repository can be prepared without storing persistent downstream identity content in upstream-synced files. Remaining unresolved items are the upstream-blocked transitive dependency alerts tracked in #73 and the residual CodeQL / supply-chain hotspots tracked in #76.
+Synced to EmDash `19c58024`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, the downstream workspace validates cleanly on this host, and the rebuild allowlist now preserves `awcmsmicro-dev/.changeset/` so workspace package-release metadata survives future upstream rebuilds.
 
-## Key Changes in This Sync (since v0.14.0)
+## Key Changes in This Sync
 
-- `feat(plugin-cli): add update-package command` — lets publishers edit package profiles post-publish
-- `feat: Node.js plugin isolation via workerd sandbox` — sandbox runner for Node.js deployments
-- `feat(registry): uninstall, update, update-check handlers + admin lifecycle`
-- `chore: gate lint warnings in CI, clear the existing pile` (adds `--deny-warnings` to lint)
-- `refactor(plugin-cli): validate probed plugin shape with Zod`
-- `chore: switch kysely to workspace catalog`
-- i18n improvements (Indonesian translation, locale catalog extraction)
-- Dependency bumps: kysely 0.29.0, oxlint ^1.66.0, oxlint-tsgolint ^0.23.0
+- `fix(triage): use CLOUDFLARE_API_KEY (not _TOKEN) for the AI Gateway` in the upstream triage workflow
+- `fix(triage): run flue from repo root, not .flue/, so --root resolves correctly`
+- Downstream sync fix: preserve `awcmsmicro-dev/.changeset/` in the protected rebuild allowlist and root boundary documentation
 
 ## Validation Status
 
@@ -37,9 +32,6 @@ Synced to EmDash `176f6a5f`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 
 - `emdash-latest/` remains the clean upstream snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
-- Validation passes on this host after the local workerd port allocation fix.
-- The `registry-client` dist was stale after the upstream `swapRecord` parameter was added. It was rebuilt in-workspace before typecheck.
-- CodeQL and workflow hardening work is in progress in `awcmsmicro-dev` and tracked separately from upstream sync.
-- Manual workflow rewrites live in the corresponding `awcmsmicro-dev/.github/workflows/*` files.
-- Promotion and release-readiness artifacts now live in root `docs/` so they survive upstream rebuilds.
-- Any accepted divergence must be logged in `DIVERGENCE_LOG.md`.
+- Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
+- The rebuilt workspace now keeps both `awcmsmicro-dev/.changeset/` and `awcmsmicro-dev/.awcms-changesets/` across syncs.
+- Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.

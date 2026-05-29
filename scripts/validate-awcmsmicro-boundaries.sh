@@ -18,6 +18,7 @@ REQUIRED_PATHS=(
 	"docs/gallery"
 	"e2e/awcms-micro"
 	".awcms-changesets"
+	".changeset"
 	".github/workflows"
 	".github/scripts"
 	".github/dependabot.yml"

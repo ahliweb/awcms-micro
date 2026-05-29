@@ -122,11 +122,12 @@ contains_only_transient_children() {
 }
 
 prune_stale_transient_dirs() {
+	local pruned_count="0"
 	log "Pruning stale directories that only contain transient build artifacts"
 	while IFS= read -r absolute_path; do
 		local relative_path
-		relative_path="$(realpath --relative-to="$TARGET_DIR" "$absolute_path")"
-		if [[ -z "$relative_path" || "$relative_path" == "." ]]; then
+		relative_path="${absolute_path#"$TARGET_DIR"/}"
+		if [[ "$relative_path" == "$absolute_path" || -z "$relative_path" || "$relative_path" == "." ]]; then
 			continue
 		fi
 		if [[ -e "$SOURCE_DIR/$relative_path" ]]; then
@@ -136,10 +137,13 @@ prune_stale_transient_dirs() {
 			continue
 		fi
 		if contains_only_transient_children "$absolute_path"; then
-			log "Removing stale transient-only directory $relative_path"
 			rm -rf "$absolute_path"
+			pruned_count="$((pruned_count + 1))"
 		fi
 	done < <(find "$TARGET_DIR" -mindepth 1 -depth -type d)
+	if [[ "$pruned_count" != "0" ]]; then
+		log "Removed $pruned_count stale transient-only directories"
+	fi
 }
 
 load_protected_rsync_args() {

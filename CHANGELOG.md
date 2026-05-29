@@ -4,14 +4,14 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-05-28
+## Workspace Snapshot - 2026-05-29
 
-- EmDash upstream: `139a4d5c965c2444fcb10be95ffe112855e19e52` from `emdash-latest/`
+- EmDash upstream: `19c580240158747733b30c5f04a45bdf4df73518` from `emdash-latest/`
 - Root version: `0.1.0`
 
 ### Plugins
 
-- `@awcms-micro/plugin-gallery` `0.0.3` - Localizes gallery validation errors and keeps the gallery admin and Cloudflare-first template surfaces aligned with the active locale.
+- `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
 - `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the example plugin surface stays aligned with the active locale.
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3

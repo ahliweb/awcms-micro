@@ -130,6 +130,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 - Reserved AWCMS changesets boundary: `awcmsmicro-dev/.awcms-changesets/`
+- Preserved workspace package-release boundary: `awcmsmicro-dev/.changeset/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
@@ -148,4 +149,4 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
 6. Update root documentation when structure or process changes.
 
-During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`.
+During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`, including `awcmsmicro-dev/.changeset/` for workspace package-release metadata.

@@ -10,7 +10,7 @@ This document gives operators one concise end-to-end workflow for maintaining th
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 3. Validate the rebuilt workspace.
 4. Implement AWCMS-Micro work only in approved plugin and template boundaries.
-5. Prepare AWCMS release-note inputs when plugin or template versions should change, use `awcmsmicro-dev/.changeset/` for workspace packages like `@emdash-cms/admin`, and update the root workspace snapshot when the plugin/template inventory changes.
+5. Prepare AWCMS release-note inputs when plugin or template versions should change, keep `awcmsmicro-dev/.changeset/` preserved for workspace packages like `@emdash-cms/admin`, and update the root workspace snapshot when the plugin/template inventory changes.
 6. Re-run targeted validation.
 7. Update governance docs if boundaries, workflow, deployment, or security rules changed.
 8. Check promotion and release-readiness artifacts when preparing an independent repository state.

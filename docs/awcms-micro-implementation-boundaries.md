@@ -19,6 +19,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `docs/gallery`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
+- `.changeset`
 - `.github/workflows`
 - `.github/scripts`
 - `.github/dependabot.yml`

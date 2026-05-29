@@ -45,6 +45,7 @@ Result:
 - copies the current `emdash-latest/` tree into `awcmsmicro-dev/`
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
 - preserves only the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`, including the workflow and Dependabot config under `awcmsmicro-dev/.github/`
+- preserves workspace package-release metadata in `awcmsmicro-dev/.changeset/` alongside the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 - excludes transient local build artifacts such as `node_modules/`, `dist/`, `.astro/`, `.wrangler/`, `.vite/`, and `.mf/`
 - prunes stale directories that remain only because they contain excluded transient artifacts after upstream paths are removed
 

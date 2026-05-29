@@ -6,7 +6,6 @@ import {
 	Image,
 	ChatCircle,
 	Gear,
-	Shield,
 	PuzzlePiece,
 	Storefront,
 	Palette,
@@ -17,17 +16,6 @@ import {
 	Users,
 	Stack,
 	ArrowsLeftRight,
-	Code,
-	Check,
-	ChartLineUp,
-	Eye,
-	Globe,
-	EnvelopeSimple,
-	LinkSimple,
-	LockKey,
-	SlidersHorizontal,
-	ArrowSquareOut,
-	Video,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -36,7 +24,6 @@ import * as React from "react";
 import { fetchCommentCounts } from "../lib/api/comments";
 import { useCurrentUser } from "../lib/api/current-user";
 import { usePluginAdmins } from "../lib/plugin-context";
-import { AWCMS_ROOT_VERSION } from "../lib/awcms-version.js";
 import { cn } from "../lib/utils";
 import { BrandIcon } from "./Logo.js";
 
@@ -46,9 +33,6 @@ export { KumoSidebar as Sidebar, useSidebar };
 // Role levels (matching @emdash-cms/auth)
 const ROLE_ADMIN = 50;
 const ROLE_EDITOR = 40;
-const NAMESPACE_PREFIX_RE = /^@[^/]+\//;
-const DOWNSTREAM_PLUGIN_PREFIX_RE = /^(awcms-micro|emdash-cms)[-_]?/;
-const PLUGIN_WORD_SPLIT_RE = /[-_]+/;
 
 export interface SidebarNavProps {
 	manifest: {
@@ -90,94 +74,11 @@ interface NavItem {
 	to: string;
 	label: string;
 	icon: React.ElementType;
-	iconName?: string;
 	params?: Record<string, string>;
 	/** Minimum role level required to see this item */
 	minRole?: number;
 	/** Optional badge count (e.g., pending comments) */
 	badge?: number;
-}
-
-interface PluginNavGroup {
-	id: string;
-	label: string;
-	items: NavItem[];
-}
-
-function formatPluginGroupLabel(pluginId: string): string {
-	const normalized = pluginId
-		.replace(NAMESPACE_PREFIX_RE, "")
-		.replace(DOWNSTREAM_PLUGIN_PREFIX_RE, "");
-	const words = normalized
-		.split(PLUGIN_WORD_SPLIT_RE)
-		.filter(Boolean)
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
-	return words.length > 0 ? words.join(" ") : pluginId;
-}
-
-function resolveIconByName(iconName?: string): { icon: React.ElementType; iconName: string } {
-	switch (iconName) {
-		case "image":
-			return { icon: Image, iconName };
-		case "code":
-			return { icon: Code, iconName };
-		case "shield":
-			return { icon: Shield, iconName };
-		case "list":
-			return { icon: List, iconName };
-		case "inbox":
-			return { icon: EnvelopeSimple, iconName };
-		case "video":
-			return { icon: Video, iconName };
-		case "link":
-			return { icon: LinkSimple, iconName };
-		case "link-external":
-			return { icon: ArrowSquareOut, iconName };
-		case "chart":
-			return { icon: ChartLineUp, iconName };
-		case "file":
-			return { icon: FileText, iconName };
-		case "grid":
-			return { icon: GridFour, iconName };
-		case "gear":
-			return { icon: Gear, iconName };
-		case "globe":
-			return { icon: Globe, iconName };
-		case "sliders":
-			return { icon: SlidersHorizontal, iconName };
-		case "lock":
-			return { icon: LockKey, iconName };
-		case "check":
-			return { icon: Check, iconName };
-		default:
-			return { icon: PuzzlePiece, iconName: iconName || "puzzle-piece" };
-	}
-}
-
-function resolvePluginPageIcon(
-	pluginId: string,
-	page: { path: string; label?: string; icon?: string },
-): { icon: React.ElementType; iconName: string } {
-	if (page.icon) return resolveIconByName(page.icon);
-
-	const path = page.path.toLowerCase();
-	const label = page.label?.toLowerCase() || "";
-
-	if (pluginId === "awcms-micro-gallery") return { icon: Image, iconName: "image" };
-	if (path.includes("overview") || label.includes("overview")) return { icon: SquaresFour, iconName: "overview" };
-	if (path.includes("registry") || label.includes("registry")) return { icon: GridFour, iconName: "grid" };
-	if (path.includes("document") || label.includes("document")) return { icon: FileText, iconName: "file" };
-	if (path.includes("import") || label.includes("import")) return { icon: Upload, iconName: "upload" };
-	if (path.includes("verification") || label.includes("verification")) return { icon: Check, iconName: "check" };
-	if (path.includes("audit") || label.includes("audit")) return { icon: List, iconName: "list" };
-	if (path.includes("report") || label.includes("report")) return { icon: ChartLineUp, iconName: "chart" };
-	if (path.includes("access") || label.includes("access")) return { icon: LockKey, iconName: "lock" };
-	if (path.includes("abac") || label.includes("abac")) return { icon: SlidersHorizontal, iconName: "sliders" };
-	if (path.includes("region") || label.includes("region")) return { icon: Globe, iconName: "globe" };
-	if (path.includes("preview") || label.includes("preview")) return { icon: Eye, iconName: "eye" };
-	if (path.includes("settings") || label.includes("settings")) return { icon: Gear, iconName: "gear" };
-
-	return { icon: PuzzlePiece, iconName: "puzzle-piece" };
 }
 
 /**
@@ -210,7 +111,6 @@ function NavMenuLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
 					"emdash-nav-icon size-[18px] shrink-0 transition-colors duration-200",
 					isActive ? "text-white" : "text-white/60 group-hover/menu-button:text-white/90",
 				)}
-				data-icon={item.iconName}
 				aria-hidden="true"
 			/>
 			<span className="emdash-nav-label flex flex-1 items-center min-w-0 text-start overflow-hidden">
@@ -345,13 +245,12 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginGroups: PluginNavGroup[] = [];
+	const pluginItems: NavItem[] = [];
 	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
 		if (config.enabled === false) continue;
 		if (config.adminPages && config.adminPages.length > 0) {
 			const pluginPages = pluginAdmins[pluginId]?.pages;
 			const isBlocksMode = config.adminMode === "blocks";
-			const items: NavItem[] = [];
 			for (const page of config.adminPages) {
 				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
 				const label =
@@ -360,20 +259,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						.split("-")
 						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 						.join(" ");
-				const resolvedIcon = resolvePluginPageIcon(pluginId, page);
-				items.push({
-					to: `/plugins/${pluginId}${page.path}`,
-					label,
-					icon: resolvedIcon.icon,
-					iconName: resolvedIcon.iconName,
-				});
-			}
-			if (items.length > 0) {
-				pluginGroups.push({
-					id: pluginId,
-					label: formatPluginGroupLabel(pluginId),
-					items,
-				});
+				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
 			}
 		}
 	}
@@ -384,9 +270,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const visibleContent = filterByRole(contentItems);
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
-	const visiblePluginGroups = pluginGroups
-		.map((group) => ({ ...group, items: filterByRole(group.items) }))
-		.filter((group) => group.items.length > 0);
+	const visiblePlugins = filterByRole(pluginItems);
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -519,9 +403,8 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 							className="size-5 shrink-0"
 							aria-hidden="true"
 						/>
-						<span className="emdash-brand-text min-w-0 truncate text-start leading-tight">
-							<span className="block font-semibold">AWCMS</span>
-							<span className="block text-[11px] font-medium text-white/55">by ahliweb.com</span>
+						<span className="emdash-brand-text font-semibold truncate">
+							{manifest.admin?.siteName || "EmDash"}
 						</span>
 					</Link>
 				</KumoSidebar.Header>
@@ -536,20 +419,6 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 							/>
 						</KumoSidebar.Menu>
 					</KumoSidebar.Group>
-
-					{visiblePluginGroups.length > 0 && <KumoSidebar.Separator />}
-
-					{/* Downstream plugin groups must stay immediately below Dashboard. */}
-					{visiblePluginGroups.map((group) => (
-						<KumoSidebar.Group key={group.id} collapsible defaultOpen>
-							<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
-								{group.label}
-							</KumoSidebar.GroupLabel>
-							<KumoSidebar.GroupContent>
-								<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
-							</KumoSidebar.GroupContent>
-						</KumoSidebar.Group>
-					))}
 
 					<KumoSidebar.Separator />
 
@@ -589,11 +458,23 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
+					{/* Plugin pages (collapsible) */}
+					{visiblePlugins.length > 0 && (
+						<>
+							<KumoSidebar.Separator />
+							<KumoSidebar.Group collapsible defaultOpen>
+								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Plugins`}</KumoSidebar.GroupLabel>
+								<KumoSidebar.GroupContent>
+									<KumoSidebar.Menu>{renderNavItems(visiblePlugins)}</KumoSidebar.Menu>
+								</KumoSidebar.GroupContent>
+							</KumoSidebar.Group>
+						</>
+					)}
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						AWCMS v{AWCMS_ROOT_VERSION} powered by ahliweb.com
+						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
 						{manifest.commit && ` (${manifest.commit})`}
 					</p>
 				</KumoSidebar.Footer>

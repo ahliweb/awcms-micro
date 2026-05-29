@@ -68,6 +68,7 @@ Expected root scripts:
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
 - Reserved AWCMS changesets boundary: `awcmsmicro-dev/.awcms-changesets/`
+- Preserved workspace package-release boundary: `awcmsmicro-dev/.changeset/`
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
@@ -79,6 +80,7 @@ New AWCMS-Micro product development should be implemented as:
 - plugins under `awcmsmicro-dev/packages/plugins/`
 - templates under `awcmsmicro-dev/templates/`
 - optional supporting docs, demos, and E2E coverage inside the corresponding approved boundaries
+- workspace package-release metadata under `awcmsmicro-dev/.changeset/`
 - release-note inputs under `awcmsmicro-dev/.awcms-changesets/`
 - workflow automation under preserved `.github/` boundaries when needed for AWCMS-Micro-specific release operations
 
