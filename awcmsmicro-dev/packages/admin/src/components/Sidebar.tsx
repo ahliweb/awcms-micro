@@ -36,6 +36,7 @@ import * as React from "react";
 import { fetchCommentCounts } from "../lib/api/comments";
 import { useCurrentUser } from "../lib/api/current-user";
 import { usePluginAdmins } from "../lib/plugin-context";
+import { AWCMS_ROOT_VERSION } from "../lib/awcms-version.js";
 import { cn } from "../lib/utils";
 import { BrandIcon } from "./Logo.js";
 
@@ -592,7 +593,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						AWCMS v{manifest.version || "0.0.0"} powered by ahliweb.com
+						AWCMS v{AWCMS_ROOT_VERSION} powered by ahliweb.com
 						{manifest.commit && ` (${manifest.commit})`}
 					</p>
 				</KumoSidebar.Footer>

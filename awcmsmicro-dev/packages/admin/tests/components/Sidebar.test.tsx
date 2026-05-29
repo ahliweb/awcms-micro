@@ -3,6 +3,7 @@ import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PluginAdminProvider } from "../../src/lib/plugin-context";
+import { AWCMS_ROOT_VERSION } from "../../src/lib/awcms-version.js";
 import { render } from "../utils/render.tsx";
 
 vi.mock("@cloudflare/kumo", () => {
@@ -138,7 +139,7 @@ describe("SidebarNav", () => {
 		expect(document.querySelector(".emdash-brand-text .font-semibold")?.textContent).toBe("AWCMS");
 		expect(document.querySelector(".emdash-brand-text span:nth-of-type(2)")?.textContent).toBe("by ahliweb.com");
 		expect(document.querySelector('[data-sidebar="footer"] p')?.textContent).toContain(
-			"AWCMS v0.15.0 powered by ahliweb.com",
+			`AWCMS v${AWCMS_ROOT_VERSION} powered by ahliweb.com`,
 		);
 
 		expect(document.querySelector('a[href="/plugins/awcms-micro-gallery/admin"] [data-icon="image"]')).toBeTruthy();
