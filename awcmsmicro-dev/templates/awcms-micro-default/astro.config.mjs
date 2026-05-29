@@ -37,6 +37,11 @@ export default defineConfig({
 				awcmsMicroExamplePlugin({ tenantId: "t-local-dev" }),
 				awcmsMicroGalleryPlugin({ maxImageBytes: 10485760, maxVideoBytes: 262144000 }),
 			],
+			admin: {
+				logo: "/awcms-logo.png",
+				favicon: "/awcms-logo.png",
+				siteName: "AWCMS",
+			},
 		}),
 		],
 	devToolbar: { enabled: false },

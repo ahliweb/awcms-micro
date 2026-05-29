@@ -43,6 +43,11 @@ export default defineConfig({
 			sandboxed: [],
 			sandboxRunner: sandbox(),
 			siteUrl,
+			admin: {
+				logo: "/awcms-logo.png",
+				favicon: "/awcms-logo.png",
+				siteName: "AWCMS",
+			},
 		}),
 	],
 	devToolbar: { enabled: false },
