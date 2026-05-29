@@ -61,6 +61,55 @@
 
 6. **Verify restore**: Check table counts and sample data.
 
+### Restore Migration Tracking Table
+
+If `_emdash_migrations` table is empty but all tables exist (schema intact), restore migration records:
+
+```sql
+INSERT INTO _emdash_migrations (name, timestamp) VALUES 
+('001_initial', '2026-05-21T07:56:39.250Z'),
+('002_media_status', '2026-05-21T07:56:39.250Z'),
+('003_schema_registry', '2026-05-21T07:56:39.250Z'),
+('004_plugins', '2026-05-21T07:56:39.250Z'),
+('005_menus', '2026-05-21T07:56:39.250Z'),
+('006_taxonomy_defs', '2026-05-21T07:56:39.250Z'),
+('007_widgets', '2026-05-21T07:56:39.250Z'),
+('008_auth', '2026-05-21T07:56:39.250Z'),
+('009_user_disabled', '2026-05-21T07:56:39.250Z'),
+('011_sections', '2026-05-21T07:56:39.250Z'),
+('012_search', '2026-05-21T07:56:39.250Z'),
+('013_scheduled_publishing', '2026-05-21T07:56:39.250Z'),
+('014_draft_revisions', '2026-05-21T07:56:39.250Z'),
+('015_indexes', '2026-05-21T07:56:39.250Z'),
+('016_api_tokens', '2026-05-21T07:56:39.250Z'),
+('017_authorization_codes', '2026-05-21T07:56:39.250Z'),
+('018_seo', '2026-05-21T07:56:39.250Z'),
+('019_i18n', '2026-05-21T07:56:39.250Z'),
+('020_collection_url_pattern', '2026-05-21T07:56:39.250Z'),
+('021_remove_section_categories', '2026-05-21T07:56:39.250Z'),
+('022_marketplace_plugin_state', '2026-05-21T07:56:39.250Z'),
+('023_plugin_metadata', '2026-05-21T07:56:39.250Z'),
+('024_media_placeholders', '2026-05-21T07:56:39.250Z'),
+('025_oauth_clients', '2026-05-21T07:56:39.250Z'),
+('026_cron_tasks', '2026-05-21T07:56:39.250Z'),
+('027_comments', '2026-05-21T07:56:39.250Z'),
+('028_drop_author_url', '2026-05-21T07:56:39.250Z'),
+('029_redirects', '2026-05-21T07:56:39.250Z'),
+('030_widen_scheduled_index', '2026-05-21T07:56:39.250Z'),
+('031_bylines', '2026-05-21T07:56:39.250Z'),
+('032_rate_limits', '2026-05-21T07:56:39.250Z'),
+('033_optimize_content_indexes', '2026-05-21T07:56:39.250Z'),
+('034_published_at_index', '2026-05-21T07:56:39.250Z'),
+('035_bounded_404_log', '2026-05-21T07:56:39.250Z'),
+('036_i18n_menus_and_taxonomies', '2026-05-21T07:56:39.250Z'),
+('037_credential_algorithm', '2026-05-21T07:56:39.250Z'),
+('038_registry_plugin_state', '2026-05-21T07:56:39.250Z'),
+('039_fix_fts5_triggers', '2026-05-21T07:56:39.250Z'),
+('040_byline_i18n', '2026-05-21T07:56:39.250Z');
+```
+
+Verify: `SELECT COUNT(*) FROM _emdash_migrations;` should return 39.
+
 ### Restore from GitLab Mirror
 
 1. **Clone from GitLab**:
@@ -97,6 +146,25 @@
 | Repository Admin | ✅ | ✅ | Full access to Cloudflare and GitHub |
 | Developer | ✅ (via workflow) | ❌ | Can trigger workflow_dispatch |
 | Viewer | ❌ | ❌ | Read-only access |
+
+## Restore Test Notes
+
+### 2026-05-29: Migration Table Restore Test
+
+**Scenario**: `_emdash_migrations` table was empty but all 48 tables existed with data.
+
+**Actions Taken**:
+1. Verified database had 48 tables (schema intact)
+2. Verified data existed: 1 user, 4 collections, 17 fields, 1 post, 3 pages, 1 news, 2 media, 8 revisions
+3. Inserted 39 migration records into `_emdash_migrations` table
+4. Verified `_emdash_migrations_lock` table had `is_locked: 0`
+5. Verified admin page accessible (`/_emdash/admin` loads)
+6. Verified setup status: `{"needsSetup": false}`
+7. Verified sitemap and content serving correctly
+
+**Result**: ✅ Database fully functional after migration table restore.
+
+**Next Test Due**: 2026-08-29 (quarterly)
 
 ## Minimum Evidence
 
