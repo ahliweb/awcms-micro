@@ -175,7 +175,32 @@ function getGalleryItemsCount(entry: any): number {
 
 async function loadMediaItems(ctx: any, cursor?: string) {
 	if (!ctx.media?.list) return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
-	return ctx.media.list({ limit: 10, cursor });
+	try {
+		return await ctx.media.list({ limit: 10, cursor });
+	} catch {
+		return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	}
+}
+
+async function loadGalleryItems(ctx: any, cursor?: string) {
+	if (!ctx.content?.list) return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	try {
+		return await ctx.content.list(AWCMS_GALLERY_COLLECTION, { limit: 10, cursor });
+	} catch {
+		return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	}
+}
+
+function buildAdminErrorBlocks(locale: string, messageKey: GalleryTranslationKey = "gallery.no_entries") {
+	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
+	return {
+		blocks: [
+			{ type: "header", text: t("gallery.title") },
+			{ type: "context", text: t(messageKey) },
+			{ type: "divider" },
+			{ type: "empty", title: t("gallery.title"), description: t("gallery.desc") },
+		],
+	};
 }
 
 async function importMediaFromUrl(ctx: any, sourceUrl: string, filename: string) {
@@ -341,7 +366,7 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 
 	// Default Tab: List & Settings
 	const [galleryResult, mediaResult] = await Promise.all([
-		ctx.content ? ctx.content.list(AWCMS_GALLERY_COLLECTION, { limit: 10, cursor: state.cursor }) : Promise.resolve({ items: [], cursor: undefined, hasMore: false }),
+		loadGalleryItems(ctx, state.cursor),
 		loadMediaItems(ctx, state.mediaCursor),
 	]);
 
@@ -553,120 +578,125 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 				handler: async (ctx: any) => {
 					const interaction = ctx.input as { type?: string; page?: string; action_id?: string; value?: string; values?: Record<string, unknown> };
 					const locale = ctx.request?.headers?.["accept-language"] || "en";
-					const settings = await readSettings(ctx, options);
+					try {
+						const settings = await readSettings(ctx, options);
 
-					let state = (await ctx.kv.get("admin:state")) as AdminState | null;
-					if (!state || (interaction.type === "page_load" && interaction.page === "/")) {
-						state = { view: "list", search: "", cursor: undefined, mediaCursor: undefined };
-						await ctx.kv.set("admin:state", state);
-					}
-
-					let toastMessage: string | undefined;
-
-					if (interaction.type === "block_action") {
-						if (interaction.action_id === "nav_create") {
-							state = { view: "create", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "nav_edit") {
-							state = { view: "edit", id: interaction.value, search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "nav_list") {
-							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "load-galleries-page") {
-							state = { view: state.view, id: state.id, search: state.search, cursor: interaction.value, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "load-media-page") {
-							state = { view: state.view, id: state.id, search: state.search, cursor: state.cursor, mediaCursor: interaction.value };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "delete_gallery" && interaction.value && ctx.content) {
-							try {
-								await ctx.content.delete(AWCMS_GALLERY_COLLECTION, interaction.value);
-								await writeAudit(ctx, "gallery.entry.delete", `Deleted gallery ${interaction.value}`, { id: interaction.value });
-								toastMessage = translateGallery("gallery.deleted_entry", locale);
-							} catch (e: any) {
-								ctx.log.error(`Delete gallery error: ${e.message}`);
-							}
-							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+						let state = (await ctx.kv.get("admin:state")) as AdminState | null;
+						if (!state || (interaction.type === "page_load" && interaction.page === "/")) {
+							state = { view: "list", search: "", cursor: undefined, mediaCursor: undefined };
 							await ctx.kv.set("admin:state", state);
 						}
-					} else if (interaction.type === "form_submit") {
-						if (interaction.action_id === "save_settings") {
-							const newSettings = sanitizeGallerySettings(interaction.values ?? {});
-							await ctx.kv.set("settings", newSettings);
-							await writeAudit(ctx, "gallery.settings.update", "Updated gallery settings", { settings: newSettings });
-							toastMessage = translateGallery("gallery.saved", locale);
-							return buildAdminBlocks(ctx, newSettings, locale, state, toastMessage);
-						} else if (interaction.action_id === "search_galleries") {
-							const searchVal = typeof interaction.values?.search_query === "string" ? interaction.values.search_query.trim() : "";
-							state = { view: "list", search: searchVal, cursor: undefined, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
-						} else if (interaction.action_id === "import_media") {
-							const values = interaction.values || {};
-							const sourceUrl = typeof values.source_url === "string" ? values.source_url.trim() : "";
-							const filename = typeof values.filename === "string" ? values.filename.trim() : "";
-							if (sourceUrl && filename) {
+
+						let toastMessage: string | undefined;
+
+						if (interaction.type === "block_action") {
+							if (interaction.action_id === "nav_create") {
+								state = { view: "create", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "nav_edit") {
+								state = { view: "edit", id: interaction.value, search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "nav_list") {
+								state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "load-galleries-page") {
+								state = { view: state.view, id: state.id, search: state.search, cursor: interaction.value, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "load-media-page") {
+								state = { view: state.view, id: state.id, search: state.search, cursor: state.cursor, mediaCursor: interaction.value };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "delete_gallery" && interaction.value && ctx.content) {
 								try {
-									const uploaded = await importMediaFromUrl(ctx, sourceUrl, filename);
-									await writeAudit(ctx, "gallery.media.import", `Imported media ${filename}`, { sourceUrl, filename, mediaId: uploaded.mediaId });
+									await ctx.content.delete(AWCMS_GALLERY_COLLECTION, interaction.value);
+									await writeAudit(ctx, "gallery.entry.delete", `Deleted gallery ${interaction.value}`, { id: interaction.value });
+									toastMessage = translateGallery("gallery.deleted_entry", locale);
+								} catch (error: any) {
+									ctx.log.error(`Delete gallery error: ${error.message}`);
+								}
+								state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							}
+						} else if (interaction.type === "form_submit") {
+							if (interaction.action_id === "save_settings") {
+								const newSettings = sanitizeGallerySettings(interaction.values ?? {});
+								await ctx.kv.set("settings", newSettings);
+								await writeAudit(ctx, "gallery.settings.update", "Updated gallery settings", { settings: newSettings });
+								toastMessage = translateGallery("gallery.saved", locale);
+								return buildAdminBlocks(ctx, newSettings, locale, state, toastMessage);
+							} else if (interaction.action_id === "search_galleries") {
+								const searchVal = typeof interaction.values?.search_query === "string" ? interaction.values.search_query.trim() : "";
+								state = { view: "list", search: searchVal, cursor: undefined, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
+							} else if (interaction.action_id === "import_media") {
+								const values = interaction.values || {};
+								const sourceUrl = typeof values.source_url === "string" ? values.source_url.trim() : "";
+								const filename = typeof values.filename === "string" ? values.filename.trim() : "";
+								if (sourceUrl && filename) {
+									try {
+										const uploaded = await importMediaFromUrl(ctx, sourceUrl, filename);
+										await writeAudit(ctx, "gallery.media.import", `Imported media ${filename}`, { sourceUrl, filename, mediaId: uploaded.mediaId });
+										toastMessage = translateGallery("gallery.saved_entry", locale);
+									} catch (error: any) {
+										ctx.log.error(`Import media error: ${error.message}`);
+									}
+								}
+							} else if (interaction.action_id === "save_gallery" && ctx.content) {
+								const values = interaction.values || {};
+								const title = typeof values.title === "string" ? values.title : "Untitled Gallery";
+								const description = typeof values.description === "string" ? values.description : "";
+								const gallery_type = typeof values.gallery_type === "string" ? values.gallery_type : "photo";
+								const layout_variant = typeof values.layout_variant === "string" ? values.layout_variant : "grid";
+								const event_date = typeof values.event_date === "string" && values.event_date ? new Date(values.event_date).toISOString() : null;
+								const location = typeof values.location === "string" ? values.location : "";
+								const featured = values.featured === true;
+								const cover_image_src = asString(values.cover_image_src);
+								const gallery_items = Array.isArray(values.gallery_items) ? values.gallery_items : [];
+
+								const galleryData = {
+									title,
+									description,
+									gallery_type,
+									layout_variant,
+									event_date,
+									location,
+									featured,
+									cover_image: cover_image_src ? { src: cover_image_src, alt: title } : null,
+									gallery_items
+								};
+
+								try {
+									if (state.view === "create") {
+										const slug = slugify(title);
+										await ctx.content.create(AWCMS_GALLERY_COLLECTION, {
+											slug,
+											status: "published",
+											data: galleryData
+										});
+										await writeAudit(ctx, "gallery.entry.create", `Created gallery ${title}`, { title, slug });
+									} else if (state.view === "edit" && state.id) {
+										const slug = slugify(title);
+										await ctx.content.update(AWCMS_GALLERY_COLLECTION, state.id, {
+											slug,
+											status: "published",
+											data: galleryData
+										});
+										await writeAudit(ctx, "gallery.entry.update", `Updated gallery ${title}`, { id: state.id, title, slug });
+									}
 									toastMessage = translateGallery("gallery.saved_entry", locale);
 								} catch (error: any) {
-									ctx.log.error(`Import media error: ${error.message}`);
+									ctx.log.error(`Save gallery error: ${error.message}`);
 								}
+
+								state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+								await ctx.kv.set("admin:state", state);
 							}
-						} else if (interaction.action_id === "save_gallery" && ctx.content) {
-							const values = interaction.values || {};
-							const title = typeof values.title === "string" ? values.title : "Untitled Gallery";
-							const description = typeof values.description === "string" ? values.description : "";
-							const gallery_type = typeof values.gallery_type === "string" ? values.gallery_type : "photo";
-							const layout_variant = typeof values.layout_variant === "string" ? values.layout_variant : "grid";
-							const event_date = typeof values.event_date === "string" && values.event_date ? new Date(values.event_date).toISOString() : null;
-							const location = typeof values.location === "string" ? values.location : "";
-							const featured = values.featured === true;
-							const cover_image_src = asString(values.cover_image_src);
-							const gallery_items = Array.isArray(values.gallery_items) ? values.gallery_items : [];
-
-							const galleryData = {
-								title,
-								description,
-								gallery_type,
-								layout_variant,
-								event_date,
-								location,
-								featured,
-								cover_image: cover_image_src ? { src: cover_image_src, alt: title } : null,
-								gallery_items
-							};
-
-							try {
-								if (state.view === "create") {
-									const slug = slugify(title);
-									await ctx.content.create(AWCMS_GALLERY_COLLECTION, {
-										slug,
-										status: "published",
-										data: galleryData
-									});
-									await writeAudit(ctx, "gallery.entry.create", `Created gallery ${title}`, { title, slug });
-								} else if (state.view === "edit" && state.id) {
-									const slug = slugify(title);
-									await ctx.content.update(AWCMS_GALLERY_COLLECTION, state.id, {
-										slug,
-										status: "published",
-										data: galleryData
-									});
-									await writeAudit(ctx, "gallery.entry.update", `Updated gallery ${title}`, { id: state.id, title, slug });
-								}
-								toastMessage = translateGallery("gallery.saved_entry", locale);
-							} catch (e: any) {
-								ctx.log.error(`Save gallery error: ${e.message}`);
-							}
-
-							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-							await ctx.kv.set("admin:state", state);
 						}
-					}
 
-					return buildAdminBlocks(ctx, settings, locale, state, toastMessage);
+						return buildAdminBlocks(ctx, settings, locale, state, toastMessage);
+					} catch (error: any) {
+						ctx.log.error(`Gallery admin route error: ${error.message}`);
+						return buildAdminErrorBlocks(locale);
+					}
 				},
 			},
 			settings: {
