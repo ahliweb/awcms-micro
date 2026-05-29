@@ -1,12 +1,6 @@
 import { transformAsync } from "@babel/core";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Plugin } from "rolldown";
 import { defineConfig } from "tsdown";
-
-const ROOT_DIR = dirname(fileURLToPath(import.meta.url));
-const AWCMS_ROOT_VERSION = readFileSync(resolve(ROOT_DIR, "../../../VERSION"), "utf-8").trim() || "0.1.0";
 
 const JS_TS_RE = /\.[jt]sx?$/;
 
@@ -36,9 +30,6 @@ export default defineConfig({
 	clean: true,
 	platform: "browser",
 	plugins: [linguiMacroPlugin()],
-	define: {
-		"import.meta.env.AWCMS_ROOT_VERSION": JSON.stringify(AWCMS_ROOT_VERSION),
-	},
 	// @tiptap/suggestion is intentionally bundled (devDependency)
 	inlineOnly: false,
 	external: [

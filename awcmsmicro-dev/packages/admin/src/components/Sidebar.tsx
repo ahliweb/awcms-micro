@@ -395,7 +395,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				<KumoSidebar.Header>
 					<Link
 						to="/"
-						className="emdash-brand-link flex w-full min-w-0 items-center gap-2 px-3 py-1"
+						className="emdash-brand-link flex w-full min-w-0 items-start gap-2 px-3 py-1"
 					>
 						<BrandIcon
 							logoUrl={manifest.admin?.logo}
@@ -403,8 +403,9 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 							className="size-5 shrink-0"
 							aria-hidden="true"
 						/>
-						<span className="emdash-brand-text font-semibold truncate">
-							{manifest.admin?.siteName || "EmDash"}
+						<span className="emdash-brand-text flex min-w-0 flex-col leading-tight">
+							<span className="truncate font-semibold">AWCMS</span>
+							<span className="text-[10px] font-normal text-white/40">by ahliweb.com & EmDash</span>
 						</span>
 					</Link>
 				</KumoSidebar.Header>
@@ -474,7 +475,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						{manifest.admin?.siteName || "EmDash CMS"} v{import.meta.env.AWCMS_ROOT_VERSION || manifest.version || "0.0.0"}
+						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
 						{manifest.commit && ` (${manifest.commit})`}
 					</p>
 				</KumoSidebar.Footer>
