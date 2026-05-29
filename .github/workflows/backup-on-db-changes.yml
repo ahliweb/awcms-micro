@@ -1,20 +1,23 @@
-name: Automated Backups
+name: Backup on Database Changes
 
 on:
-  schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - 'awcmsmicro-dev/packages/core/src/database/migrations/**'
+      - 'awcmsmicro-dev/packages/core/src/schema/**'
+      - '.github/workflows/backup-on-db-changes.yml'
   workflow_dispatch:
     inputs:
       backup_type:
         description: 'Type of backup to run'
         required: true
-        default: 'all'
+        default: 'database'
         type: choice
         options:
-          - all
           - database
-          - env
+          - full
 
 permissions:
   contents: read
@@ -25,15 +28,14 @@ env:
 
 jobs:
   backup-database:
-    name: Backup Database
+    name: Backup D1 Database
     runs-on: ubuntu-latest
-    if: github.event_name == 'schedule' || github.event.inputs.backup_type == 'all' || github.event.inputs.backup_type == 'database'
     env:
-      D1_DATABASE_NAME: ${{ vars.D1_DATABASE_NAME || secrets.D1_DATABASE_NAME }}
-      R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || secrets.R2_BUCKET_NAME }}
-      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      D1_DATABASE_NAME: awcms-micro-d1
+      R2_BUCKET_NAME: awcms-micro-backups
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
 
     steps:
       - name: Checkout repository
@@ -44,9 +46,9 @@ jobs:
       - name: Install wrangler
         run: npm install -g wrangler
 
-      - name: Backup D1 database
+      - name: Export D1 database
         run: |
-          # Get list of non-FTS tables (FTS5 virtual tables cannot be exported)
+          # Get list of non-FTS tables
           TABLES=$(wrangler d1 execute "$D1_DATABASE_NAME" --remote --command "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_emdash_fts_%' ORDER BY name;" 2>/dev/null | jq -r '.[0].results[].name' | tr '\n' ' ')
           
           echo "Exporting tables: $TABLES"
@@ -57,22 +59,27 @@ jobs:
             TABLE_ARGS="$TABLE_ARGS --table $TABLE"
           done
           
-          # Export D1 database (excluding FTS5 tables)
+          # Export
           wrangler d1 export "$D1_DATABASE_NAME" --remote --output /tmp/backup.sql $TABLE_ARGS -y
 
-          # Encrypt with openssl (age has issues in non-interactive CI)
+      - name: Encrypt backup
+        run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           openssl enc -aes-256-cbc -salt -pbkdf2 \
             -in /tmp/backup.sql \
             -out "/tmp/backup-${TIMESTAMP}.sql.enc" \
             -pass pass:"$BACKUP_PASSPHRASE"
+          
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
 
-          # Upload to R2
+      - name: Upload to R2
+        run: |
           wrangler r2 object put "$R2_BUCKET_NAME/backups/db/backup-${TIMESTAMP}.sql.enc" \
             --file "/tmp/backup-${TIMESTAMP}.sql.enc" \
             --remote -y
 
-          # Cleanup old backups (keep last 7)
+      - name: Cleanup old backups (keep last 7)
+        run: |
           BACKUPS=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --remote --format json 2>/dev/null | jq -r '.objects[].key' | sort)
           BACKUP_COUNT=$(echo "$BACKUPS" | wc -l)
           
@@ -87,57 +94,24 @@ jobs:
             echo "Keeping all $BACKUP_COUNT backups (under limit)"
           fi
 
-          # Secure cleanup
+      - name: Secure cleanup
+        if: always()
+        run: |
           shred -u /tmp/backup.sql 2>/dev/null || rm -f /tmp/backup.sql
           rm -f /tmp/backup-*.sql.enc
-
-      - name: Set backup timestamp
-        run: echo "BACKUP_TIMESTAMP=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
-
-  backup-verify:
-    name: Verify Backups
-    runs-on: ubuntu-latest
-    needs: [backup-database]
-    if: always()
-    env:
-      R2_BUCKET_NAME: ${{ vars.R2_BUCKET_NAME || secrets.R2_BUCKET_NAME }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Install wrangler
-        run: npm install -g wrangler
-
-      - name: Verify latest backup exists
-        run: |
-          BACKUPS=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --remote --format json 2>/dev/null | jq '.objects | length')
-          echo "Total backups in R2: $BACKUPS"
-
-          if [ "$BACKUPS" -eq 0 ]; then
-            echo "ERROR: No backups found!"
-            exit 1
-          fi
-
-          LATEST=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --remote --format json 2>/dev/null | jq -r '.objects | sort_by(.uploaded) | last.key')
-          echo "Latest backup: $LATEST"
 
   notify:
     name: Notify Result
     runs-on: ubuntu-latest
-    needs: [backup-database, backup-verify]
+    needs: [backup-database]
     if: always()
 
     steps:
       - name: Check backup status
         run: |
           if [ "${{ needs.backup-database.result }}" = "success" ]; then
-            echo "✅ Backup completed successfully"
+            echo "✅ Database backup completed successfully"
           else
-            echo "❌ Backup failed - check logs"
+            echo "❌ Database backup failed - check logs"
             exit 1
           fi
