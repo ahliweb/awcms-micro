@@ -1,12 +1,12 @@
 {
 	"id": "awcms-micro-gallery",
 	"name": "AWCMS-Micro Gallery",
-	"version": "0.0.1",
+	"version": "0.0.4",
 	"license": "LicenseRef-AW-NC-1.0",
 	"description": "Advanced gallery management helpers for AWCMS-Micro without modifying EmDash core.",
 	"entrypoint": "@awcms-micro/plugin-gallery/sandbox",
 	"format": "standard",
-	"capabilities": ["content:read", "content:write", "media:read", "media:write"],
+	"capabilities": ["content:read", "content:write", "media:read", "media:write", "network:request:unrestricted"],
 	"adminPages": [{ "path": "/", "label": "Gallery", "labelKey": "gallery.label", "icon": "image" }],
 	"navigation": {
 		"groups": [

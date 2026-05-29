@@ -6,6 +6,10 @@ import sandboxPlugin from "../src/sandbox.js";
 function createMockContext() {
 	const kv = new Map<string, unknown>();
 	const audit = new Map<string, unknown>();
+	const mediaItems = [
+		{ id: "media-1", filename: "hero.jpg", mimeType: "image/jpeg", url: "/media/media-1/hero.jpg", createdAt: "2026-05-29T00:00:00.000Z" },
+		{ id: "media-2", filename: "clip.mp4", mimeType: "video/mp4", url: "/media/media-2/clip.mp4", createdAt: "2026-05-29T01:00:00.000Z" },
+	];
 	return {
 		plugin: { id: "awcms-micro-gallery", version: "0.0.1" },
 		kv: {
@@ -18,7 +22,17 @@ function createMockContext() {
 			},
 		},
 		content: {
-			list: vi.fn(async () => ({ items: [{ id: "community-cleanup", data: { title: "Community Cleanup" } }], cursor: undefined, hasMore: false })),
+			list: vi.fn(async () => ({ items: [{ id: "community-cleanup", data: { title: "Community Cleanup" } }], cursor: "next-page", hasMore: true })),
+			create: vi.fn(async (_collection: string, data: any) => ({ id: "gallery-1", type: "galleries", slug: data.slug ?? "gallery-1", status: "published", locale: "en", data: data.data ?? {}, createdAt: "2026-05-29T00:00:00.000Z", updatedAt: "2026-05-29T00:00:00.000Z", publishedAt: "2026-05-29T00:00:00.000Z" })),
+			update: vi.fn(async (_collection: string, _id: string, data: any) => ({ id: "gallery-1", type: "galleries", slug: data.slug ?? "gallery-1", status: "published", locale: "en", data: data.data ?? {}, createdAt: "2026-05-29T00:00:00.000Z", updatedAt: "2026-05-29T00:00:00.000Z", publishedAt: "2026-05-29T00:00:00.000Z" })),
+			delete: vi.fn(async () => true),
+		},
+		media: {
+			list: vi.fn(async () => ({ items: mediaItems, cursor: "media-next", hasMore: true })),
+			upload: vi.fn(async (_filename: string, _contentType: string, _bytes: ArrayBuffer) => ({ mediaId: "media-uploaded", storageKey: "media-uploaded.jpg", url: "/media/media-uploaded/media-uploaded.jpg" })),
+		},
+		http: {
+			fetch: vi.fn(async () => new Response(new Uint8Array([1, 2, 3]), { status: 200, headers: { "content-type": "image/jpeg" } })),
 		},
 		log: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 		_audit: audit,
@@ -99,6 +113,74 @@ describe("awcms micro gallery plugin", () => {
 		expect(ctx.content.list).toHaveBeenCalledWith("galleries", { limit: 50 });
 	});
 
+	it("renders paginated admin gallery and media tables", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext();
+		const handler = plugin.routes?.admin?.handler;
+
+		const response = (await handler?.({
+			...ctx,
+			input: { type: "page_load", page: "/" },
+			request: { headers: {} },
+		} as never)) as any;
+
+		const tab = response.blocks.find((b: any) => b.type === "tab");
+		expect(tab.panels).toEqual(expect.arrayContaining([
+			expect.objectContaining({ label: "Gallery", blocks: expect.arrayContaining([expect.objectContaining({ type: "table", page_action_id: "load-galleries-page", next_cursor: "next-page" })]) }),
+			expect.objectContaining({ label: "Media", blocks: expect.arrayContaining([expect.objectContaining({ type: "table", page_action_id: "load-media-page", next_cursor: "media-next" })]) }),
+		]));
+	});
+
+	it("saves gallery content with media-library urls", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext();
+		const handler = plugin.routes?.admin?.handler;
+
+		ctx.kv.get = vi.fn(async (key: string) => {
+			if (key === "admin:state") return { view: "create", search: "", cursor: undefined, mediaCursor: undefined };
+			return null;
+		});
+
+		await handler?.({
+			...ctx,
+			input: {
+				type: "form_submit",
+				action_id: "save_gallery",
+				values: {
+					title: "Launch Day",
+					description: "Gallery launch",
+					gallery_type: "mixed",
+					layout_variant: "grid",
+					location: "Jakarta",
+					cover_image_src: "/media/media-1/hero.jpg",
+					gallery_items: [{ type: "image", src: "/media/media-1/hero.jpg", alt: "Hero", caption: "Cover" }],
+				},
+			},
+			request: { headers: {} },
+		} as never);
+
+		expect(ctx.content.create).toHaveBeenCalled();
+		const createCall = (ctx.content.create as any).mock.calls[0][1];
+		expect(createCall.data.cover_image.src).toBe("/media/media-1/hero.jpg");
+		expect(createCall.data.gallery_items[0].src).toBe("/media/media-1/hero.jpg");
+	});
+
+	it("imports media from a source url", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext();
+		const handler = plugin.routes?.["media/import"]?.handler;
+
+		const response = await handler?.({
+			...ctx,
+			input: { sourceUrl: "https://example.test/hero.jpg", filename: "hero.jpg" },
+			request: { headers: {} },
+		} as never);
+
+		expect(response).toMatchObject({ success: true, mediaId: "media-uploaded" });
+		expect(ctx.http.fetch).toHaveBeenCalledWith("https://example.test/hero.jpg");
+		expect(ctx.media.upload).toHaveBeenCalled();
+	});
+
 	it("returns invalid media rejection from the validation API", async () => {
 		const plugin = createPlugin();
 		const ctx = createMockContext();
@@ -162,7 +244,7 @@ describe("awcms micro gallery plugin", () => {
 			]),
 		});
 
-		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Settings");
+		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Pengaturan");
 		const statsBlock = settingsPanel?.blocks.find((b: any) => b.type === "stats");
 		expect(statsBlock).toMatchObject({
 			items: expect.arrayContaining([
@@ -186,7 +268,7 @@ describe("awcms micro gallery plugin", () => {
 			]),
 		});
 
-		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Settings");
+		const settingsPanel = response.blocks.find((b: any) => b.type === "tab")?.panels.find((p: any) => p.label === "Pengaturan");
 		const formBlock = settingsPanel?.blocks.find((b: any) => b.type === "form");
 		expect(formBlock).toMatchObject({
 			submit: expect.objectContaining({ label: "Simpan pengaturan" }),

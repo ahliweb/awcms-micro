@@ -18,6 +18,22 @@ export interface AwcmsMicroGalleryPluginOptions {
 	cloudflareStream?: boolean;
 }
 
+interface AdminState {
+	view: "list" | "create" | "edit";
+	id?: string;
+	search?: string;
+	cursor?: string;
+	mediaCursor?: string;
+}
+
+interface MediaListItem {
+	id: string;
+	name: string;
+}
+
+const NON_ALNUM_RE = /[^a-z0-9]+/g;
+const EDGE_DASH_RE = /(^-|-$)/g;
+
 export const AWCMS_GALLERY_PLUGIN_ID = "awcms-micro-gallery";
 
 export const AWCMS_GALLERY_CAPABILITIES = [
@@ -25,6 +41,7 @@ export const AWCMS_GALLERY_CAPABILITIES = [
 	"content:write",
 	"media:read",
 	"media:write",
+	"network:request:unrestricted",
 ] as const;
 
 export const AWCMS_GALLERY_NAVIGATION = {
@@ -141,14 +158,54 @@ async function writeAudit(ctx: any, kind: string, summary: string, metadata: Rec
 	});
 }
 
+function asString(value: unknown, fallback = "") {
+	return typeof value === "string" ? value : fallback;
+}
+
+function asMediaListItem(item: any): MediaListItem {
+	return {
+		id: item.url,
+		name: `${asString(item.filename, item.id)}${item.mimeType ? ` · ${item.mimeType}` : ""}`,
+	};
+}
+
+function getGalleryItemsCount(entry: any): number {
+	return Array.isArray(entry?.gallery_items) ? entry.gallery_items.length : 0;
+}
+
+async function loadMediaItems(ctx: any, cursor?: string) {
+	if (!ctx.media?.list) return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	return ctx.media.list({ limit: 10, cursor });
+}
+
+async function importMediaFromUrl(ctx: any, sourceUrl: string, filename: string) {
+	if (!ctx.http?.fetch || !ctx.media?.upload) {
+		throw new Error("Media import is not available");
+	}
+	if (!sourceUrl.startsWith("https://")) {
+		throw new Error("Source URL must use HTTPS");
+	}
+	const safeFilename = filename.split("/").pop() ?? filename;
+	const response = await ctx.http.fetch(sourceUrl);
+	if (!response.ok) {
+		throw new Error(`Failed to fetch source media (${response.status})`);
+	}
+	const contentType = response.headers.get("content-type") || "application/octet-stream";
+	if (!contentType.startsWith("image/") && !contentType.startsWith("video/")) {
+		throw new Error("Imported media must be an image or video");
+	}
+	const bytes = await response.arrayBuffer();
+	return ctx.media.upload(safeFilename, contentType, bytes);
+}
+
 function slugify(text: string): string {
 	return text
 		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/(^-|-$)/g, "");
+		.replace(NON_ALNUM_RE, "-")
+		.replace(EDGE_DASH_RE, "");
 }
 
-async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGallerySettings>, locale: string, state: { view: string; id?: string; search?: string }, toastMessage?: string) {
+async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGallerySettings>, locale: string, state: AdminState, toastMessage?: string) {
 	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
 	
 	if (state.view === "create" || state.view === "edit") {
@@ -159,9 +216,9 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 				if (result) {
 					entry = result.data;
 				}
-			} catch (e) {
-				// Handle gracefully
-			}
+						} catch {
+							// Handle gracefully
+						}
 		}
 
 		return {
@@ -227,9 +284,11 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 							initial_value: entry?.location || ""
 						},
 						{
-							type: "media_picker",
+							type: "select",
 							action_id: "cover_image_src",
 							label: t("gallery.cover_image_label"),
+							options: [],
+							optionsRoute: "media/list",
 							initial_value: typeof entry?.cover_image === "string" ? entry.cover_image : entry?.cover_image?.src || ""
 						},
 						{
@@ -255,9 +314,11 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 									]
 								},
 								{
-									type: "text_input",
+									type: "select",
 									action_id: "src",
-									label: t("gallery.item_src")
+									label: t("gallery.item_src"),
+									options: [],
+									optionsRoute: "media/list"
 								},
 								{
 									type: "text_input",
@@ -279,27 +340,37 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 	}
 
 	// Default Tab: List & Settings
-	const galleriesList: any[] = [];
-	if (ctx.content) {
-		try {
-			const res = await ctx.content.list(AWCMS_GALLERY_COLLECTION, { limit: 100 });
-			if (res && res.items) {
-				galleriesList.push(...res.items);
-			}
-		} catch (e) {
-			// Catch pre-migration / missing table issues gracefully
-		}
-	}
+	const [galleryResult, mediaResult] = await Promise.all([
+		ctx.content ? ctx.content.list(AWCMS_GALLERY_COLLECTION, { limit: 10, cursor: state.cursor }) : Promise.resolve({ items: [], cursor: undefined, hasMore: false }),
+		loadMediaItems(ctx, state.mediaCursor),
+	]);
 
-	// Filter galleries list if search query exists
-	const filteredGalleries = state.search
-		? galleriesList.filter((g: any) => {
-				const title = (g.data?.title || "").toLowerCase();
-				const desc = (g.data?.description || "").toLowerCase();
-				const loc = (g.data?.location || "").toLowerCase();
-				return title.includes(state.search!.toLowerCase()) || desc.includes(state.search!.toLowerCase()) || loc.includes(state.search!.toLowerCase());
-		  })
-		: galleriesList;
+	const galleriesList = state.search
+		? galleryResult.items.filter((g: any) => {
+			const title = asString(g.data?.title).toLowerCase();
+			const desc = asString(g.data?.description).toLowerCase();
+			const loc = asString(g.data?.location).toLowerCase();
+			const query = state.search!.toLowerCase();
+			return title.includes(query) || desc.includes(query) || loc.includes(query);
+		})
+		: galleryResult.items;
+
+	const galleryRows = galleriesList.map((g: any) => ({
+		title: asString(g.data?.title, g.id),
+		description: asString(g.data?.description),
+		location: asString(g.data?.location, "-"),
+		date: g.data?.event_date ? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" }) : "-",
+		type: asString(g.data?.gallery_type, "mixed"),
+		items: getGalleryItemsCount(g),
+		id: g.id,
+	}));
+
+	const mediaRows = mediaResult.items.map((item: any) => ({
+		name: asString(item.filename, item.id),
+		type: asString(item.mimeType, "-"),
+		url: asString(item.url, "-"),
+		created: asString(item.createdAt, "-"),
+	}));
 
 	// Build Tab 1: Galleries list
 	const listBlocks: any[] = [
@@ -310,12 +381,12 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 				{
 					type: "text_input",
 					action_id: "search_query",
-					label: "Search Galleries",
+					label: t("gallery.search_label"),
 					initial_value: state.search || "",
-					placeholder: "Type title, description, or location..."
+					placeholder: t("gallery.search_placeholder")
 				}
 			],
-			submit: { label: "Search", action_id: "search_galleries" }
+			submit: { label: t("gallery.search"), action_id: "search_galleries" }
 		},
 		{
 			type: "actions",
@@ -326,41 +397,31 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 		{ type: "divider" }
 	];
 
-	if (filteredGalleries.length === 0) {
+	if (galleryRows.length === 0) {
 		listBlocks.push({ type: "context", text: t("gallery.no_entries") });
 	} else {
-		for (const g of filteredGalleries) {
-			const dateStr = g.data?.event_date ? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" }) : "-";
-			const itemsCount = Array.isArray(g.data?.gallery_items) ? g.data.gallery_items.length : 0;
-			
-			listBlocks.push(
-				{
-					type: "section",
-					text: `### **${g.data?.title || g.id}**\n${g.data?.description || ""}\n\n📍 *${g.data?.location || "-"}*  |  📅 *${dateStr}*  |  🏷️ *${g.data?.gallery_type || "mixed"}* (${itemsCount} items)`
-				},
-				{
-					type: "actions",
-					elements: [
-						{ type: "button", label: t("gallery.edit"), action_id: "nav_edit", value: g.id, style: "secondary" },
-						{
-							type: "button",
-							label: t("gallery.delete"),
-							action_id: "delete_gallery",
-							value: g.id,
-							style: "danger",
-							confirm: {
-								title: t("gallery.delete"),
-								text: "Are you sure you want to delete this gallery?",
-								confirm: "Yes, Delete",
-								deny: "Cancel",
-								style: "danger"
-							}
-						}
-					]
-				},
-				{ type: "divider" }
-			);
-		}
+		listBlocks.push({
+			type: "table",
+			block_id: "gallery-table",
+			columns: [
+				{ key: "title", label: t("gallery.title_label"), format: "text" },
+				{ key: "location", label: t("gallery.location_label"), format: "text" },
+				{ key: "date", label: t("gallery.event_date_label"), format: "text" },
+				{ key: "type", label: t("gallery.type_label"), format: "badge" },
+				{ key: "items", label: t("gallery.items_label"), format: "number" },
+			],
+		rows: galleryRows.map((row: { title: string; location: string; date: string; type: string; items: number; id: string }) => ({
+				title: row.title,
+				location: row.location,
+				date: row.date,
+				type: row.type,
+				items: row.items,
+				actions: row.id,
+			})),
+			page_action_id: "load-galleries-page",
+			next_cursor: galleryResult.cursor,
+			empty_text: t("gallery.no_entries"),
+		});
 	}
 
 	// Build Tab 2: Settings
@@ -417,7 +478,38 @@ async function buildAdminBlocks(ctx: any, settings: ReturnType<typeof sanitizeGa
 				type: "tab",
 				panels: [
 					{ label: t("gallery.label"), blocks: listBlocks },
-					{ label: "Settings", blocks: settingsBlocks }
+					{ label: t("gallery.settings"), blocks: settingsBlocks },
+					{
+						label: t("gallery.media"),
+						blocks: [
+							{ type: "header", text: t("gallery.media_title") },
+							{ type: "context", text: t("gallery.media_desc") },
+							{
+								type: "form",
+								block_id: "gallery-media-import",
+								fields: [
+									{ type: "text_input", action_id: "source_url", label: t("gallery.media_source"), placeholder: "https://..." },
+									{ type: "text_input", action_id: "filename", label: t("gallery.media_filename"), placeholder: "photo.jpg" },
+								],
+								submit: { label: t("gallery.media_import"), action_id: "import_media" },
+							},
+							{ type: "divider" },
+							{
+								type: "table",
+								block_id: "gallery-media-table",
+								columns: [
+									{ key: "name", label: t("gallery.item_caption"), format: "text" },
+									{ key: "type", label: t("gallery.item_type"), format: "code" },
+									{ key: "url", label: t("gallery.media_url"), format: "code" },
+									{ key: "created", label: "Created", format: "relative_time" },
+								],
+								rows: mediaRows,
+			page_action_id: "load-media-page",
+			next_cursor: mediaResult.cursor,
+							empty_text: t("gallery.no_entries"),
+							},
+						],
+					},
 				]
 			}
 		]
@@ -463,9 +555,9 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 					const locale = ctx.request?.headers?.["accept-language"] || "en";
 					const settings = await readSettings(ctx, options);
 
-					let state = (await ctx.kv.get("admin:state")) as { view: string; id?: string; search?: string } | null;
+					let state = (await ctx.kv.get("admin:state")) as AdminState | null;
 					if (!state || (interaction.type === "page_load" && interaction.page === "/")) {
-						state = { view: "list", search: "" };
+						state = { view: "list", search: "", cursor: undefined, mediaCursor: undefined };
 						await ctx.kv.set("admin:state", state);
 					}
 
@@ -473,13 +565,19 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 
 					if (interaction.type === "block_action") {
 						if (interaction.action_id === "nav_create") {
-							state = { view: "create", search: state.search };
+							state = { view: "create", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
 							await ctx.kv.set("admin:state", state);
 						} else if (interaction.action_id === "nav_edit") {
-							state = { view: "edit", id: interaction.value, search: state.search };
+							state = { view: "edit", id: interaction.value, search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
 							await ctx.kv.set("admin:state", state);
 						} else if (interaction.action_id === "nav_list") {
-							state = { view: "list", search: state.search };
+							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
+							await ctx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "load-galleries-page") {
+							state = { view: state.view, id: state.id, search: state.search, cursor: interaction.value, mediaCursor: state.mediaCursor };
+							await ctx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "load-media-page") {
+							state = { view: state.view, id: state.id, search: state.search, cursor: state.cursor, mediaCursor: interaction.value };
 							await ctx.kv.set("admin:state", state);
 						} else if (interaction.action_id === "delete_gallery" && interaction.value && ctx.content) {
 							try {
@@ -489,7 +587,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 							} catch (e: any) {
 								ctx.log.error(`Delete gallery error: ${e.message}`);
 							}
-							state = { view: "list", search: state.search };
+							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
 							await ctx.kv.set("admin:state", state);
 						}
 					} else if (interaction.type === "form_submit") {
@@ -501,8 +599,21 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 							return buildAdminBlocks(ctx, newSettings, locale, state, toastMessage);
 						} else if (interaction.action_id === "search_galleries") {
 							const searchVal = typeof interaction.values?.search_query === "string" ? interaction.values.search_query.trim() : "";
-							state = { view: "list", search: searchVal };
+							state = { view: "list", search: searchVal, cursor: undefined, mediaCursor: state.mediaCursor };
 							await ctx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "import_media") {
+							const values = interaction.values || {};
+							const sourceUrl = typeof values.source_url === "string" ? values.source_url.trim() : "";
+							const filename = typeof values.filename === "string" ? values.filename.trim() : "";
+							if (sourceUrl && filename) {
+								try {
+									const uploaded = await importMediaFromUrl(ctx, sourceUrl, filename);
+									await writeAudit(ctx, "gallery.media.import", `Imported media ${filename}`, { sourceUrl, filename, mediaId: uploaded.mediaId });
+									toastMessage = translateGallery("gallery.saved_entry", locale);
+								} catch (error: any) {
+									ctx.log.error(`Import media error: ${error.message}`);
+								}
+							}
 						} else if (interaction.action_id === "save_gallery" && ctx.content) {
 							const values = interaction.values || {};
 							const title = typeof values.title === "string" ? values.title : "Untitled Gallery";
@@ -512,7 +623,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 							const event_date = typeof values.event_date === "string" && values.event_date ? new Date(values.event_date).toISOString() : null;
 							const location = typeof values.location === "string" ? values.location : "";
 							const featured = values.featured === true;
-							const cover_image_src = typeof values.cover_image_src === "string" ? values.cover_image_src : "";
+							const cover_image_src = asString(values.cover_image_src);
 							const gallery_items = Array.isArray(values.gallery_items) ? values.gallery_items : [];
 
 							const galleryData = {
@@ -550,7 +661,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 								ctx.log.error(`Save gallery error: ${e.message}`);
 							}
 
-							state = { view: "list", search: state.search };
+							state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
 							await ctx.kv.set("admin:state", state);
 						}
 					}
@@ -580,6 +691,27 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 						cursor: result.cursor,
 						hasMore: result.hasMore,
 					};
+				},
+			},
+			"media/list": {
+				handler: async (ctx: any) => {
+					const result = await loadMediaItems(ctx);
+					return {
+						items: result.items.map(asMediaListItem),
+						cursor: result.cursor,
+						hasMore: result.hasMore,
+					};
+				},
+			},
+			"media/import": {
+				handler: async (ctx: any) => {
+					const body = ctx.input ?? {};
+					const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl.trim() : "";
+					const filename = typeof body.filename === "string" ? body.filename.trim() : "";
+					if (!sourceUrl || !filename) return { success: false, error: "Missing sourceUrl or filename" };
+					const uploaded = await importMediaFromUrl(ctx, sourceUrl, filename);
+					await writeAudit(ctx, "gallery.media.import", `Imported media ${filename}`, { sourceUrl, filename, mediaId: uploaded.mediaId });
+					return { success: true, mediaId: uploaded.mediaId, url: uploaded.url };
 				},
 			},
 			"media/validate": {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4 - 2026-05-29
+
+- Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
+
 ## 0.0.3 - 2026-05-28
 
 - Localizes gallery validation errors and keeps the gallery admin and Cloudflare-first template surfaces aligned with the active locale.

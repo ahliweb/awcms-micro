@@ -92,6 +92,7 @@ function isAllowedType(value: unknown, allowed: readonly string[]): value is str
 
 function isSafePublicUrl(value: string): boolean {
 	if (value.startsWith("/_emdash/api/media/file/")) return true;
+	if (value.startsWith("/media/")) return true;
 	if (value.startsWith("/uploads/")) return true;
 	if (value.startsWith("https://")) return true;
 	return false;
