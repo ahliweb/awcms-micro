@@ -13,6 +13,10 @@ It is a limited two-way sync model, not a live remote connection.
 - DBeaver connects to that SQLite file.
 - The local mirror can be edited in DBeaver and refreshed from a new production export when needed.
 
+## Available Helper
+
+- `pnpm --dir awcmsmicro-dev d1:mirror:status` prints a read-only summary of the local mirror and checks content-table parity against `_emdash_collections`.
+
 ## Access Required
 
 - Any future mirror automation should read the parent repository `.env` automatically when present.
@@ -46,7 +50,7 @@ Only tables that meet all of these rules are synced:
 
 ## Current Snapshot
 
-This repository snapshot does not include the `pnpm d1:mirror:*` helper commands referenced by earlier workflow notes.
+This repository snapshot includes the read-only `pnpm d1:mirror:status` helper, but not the `sync`, `reset`, or `watch` helpers referenced by earlier workflow notes.
 
 Use the local SQLite mirror directly in DBeaver, and refresh it with the manual export/import process described above when you need a new production snapshot.
 

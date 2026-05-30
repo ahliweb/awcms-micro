@@ -96,6 +96,7 @@ Exception:
 - `bash scripts/awcms-root-versioning.sh version`
 - `node scripts/awcms-version.mjs status`
 - `node scripts/awcms-version.mjs version`
+- `pnpm --dir awcmsmicro-dev d1:mirror:status`
 - `pnpm --dir awcmsmicro-dev test:e2e`
 
 ## Backup & Recovery
