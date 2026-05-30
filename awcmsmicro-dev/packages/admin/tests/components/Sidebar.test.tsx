@@ -1,5 +1,5 @@
 import * as React from "react";
-import { vi, describe, expect, it } from "vitest";
+import { vi, describe, expect, it, beforeEach } from "vitest";
 import { render } from "../utils/render.tsx";
 import { TestWrapper } from "../utils/test-helpers.tsx";
 
@@ -51,8 +51,14 @@ vi.mock("../../src/lib/api/comments", () => ({
 	fetchCommentCounts: () => Promise.resolve({ pending: 0 }),
 }));
 
+let mockedPluginAdmins: Record<string, { pages?: Record<string, unknown> }> = {};
+
+beforeEach(() => {
+	mockedPluginAdmins = {};
+});
+
 vi.mock("../../src/lib/plugin-context", () => ({
-	usePluginAdmins: () => ({}),
+	usePluginAdmins: () => mockedPluginAdmins,
 }));
 
 const { buildSidebarPluginGroups, humanizePluginLabel, resolveSidebarIcon, SidebarNav } =
@@ -62,6 +68,7 @@ describe("SidebarNav helpers", () => {
 	it("humanizes plugin labels and resolves icons", () => {
 		expect(humanizePluginLabel("awcms-micro-sikesra")).toBe("Awcms Micro Sikesra");
 		expect(humanizePluginLabel("awcms-micro-sikesra", "Registry")).toBe("Registry");
+		expect(resolveSidebarIcon("book")).toBeDefined();
 		expect(resolveSidebarIcon("shield")).toBeDefined();
 		expect(resolveSidebarIcon("code")).toBeDefined();
 		expect(resolveSidebarIcon("unknown-icon")).toBeDefined();
@@ -97,13 +104,45 @@ describe("SidebarNav helpers", () => {
 		expect(groups[1]?.items[0]?.icon).toBe(resolveSidebarIcon("gear"));
 	});
 
+	it("includes docs plugin pages in sidebar groups", () => {
+		const groups = buildSidebarPluginGroups(
+			{
+				collections: {},
+				plugins: {
+					"awcms-micro-docs": {
+						enabled: true,
+						adminMode: "react",
+						adminPages: [{ path: "/", label: "Docs", icon: "book" }],
+					},
+				},
+				taxonomies: [],
+			},
+			{
+				"awcms-micro-docs": { pages: { "/": {} } },
+			},
+		);
+
+		expect(groups).toHaveLength(1);
+		expect(groups[0]?.label).toBe("Docs");
+		expect(groups[0]?.items[0]?.label).toBe("Docs");
+		expect(groups[0]?.items[0]?.icon).toBe(resolveSidebarIcon("book"));
+	});
+
 	it("renders a single separator after dashboard", async () => {
+		mockedPluginAdmins = {
+			"awcms-micro-docs": { pages: { "/": () => null } },
+		};
 		const screen = await render(
 			<TestWrapper>
 				<SidebarNav
 					manifest={{
 						collections: { pages: { label: "Pages" } },
 						plugins: {
+							"awcms-micro-docs": {
+								enabled: true,
+								adminMode: "react",
+								adminPages: [{ path: "/", label: "Docs", icon: "book" }],
+							},
 							"alpha-plugin": {
 								name: "Alpha Plugin",
 								enabled: true,
@@ -118,7 +157,12 @@ describe("SidebarNav helpers", () => {
 		);
 
 		await expect.element(screen.getByText("Dashboard")).toBeInTheDocument();
+		const groupLabels = Array.from(document.querySelectorAll('[data-sidebar="group-label"]'), (node) =>
+			node.textContent,
+		);
+		expect(groupLabels.slice(0, 2)).toEqual(["Alpha Plugin", "Docs"]);
+		await expect.element(screen.getByRole("link", { name: "Docs" })).toBeInTheDocument();
 		await expect.element(screen.getByText("Alpha Plugin")).toBeInTheDocument();
-		expect(document.querySelectorAll('[data-sidebar="separator"]').length).toBe(4);
+		expect(document.querySelectorAll('[data-sidebar="separator"]').length).toBe(5);
 	});
 });

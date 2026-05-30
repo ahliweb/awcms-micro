@@ -14,4 +14,10 @@ describe("docs copy", () => {
 	it("includes the docs plugin boundary", () => {
 		expect(getDocsCopy("en").sections[2]?.bullets.join(" ")).toContain("awcms-micro-docs");
 	});
+
+	it("includes PRD summary content", () => {
+		const copy = getDocsCopy("en");
+		expect(copy.prTitle).toContain("PRD");
+		expect(copy.prBacklog.join(" ")).toContain("#51");
+	});
 });

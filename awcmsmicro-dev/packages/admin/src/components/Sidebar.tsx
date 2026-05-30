@@ -229,6 +229,8 @@ export function buildSidebarPluginGroups(
 		.map(([pluginId, config]) => {
 			const pluginPages = pluginAdmins[pluginId]?.pages;
 			const isBlocksMode = config.adminMode === "blocks";
+			const singlePageLabel =
+				config.adminPages?.length === 1 ? config.adminPages[0]?.label?.trim() : undefined;
 			const pages = config.adminPages
 				? config.adminPages
 					.filter((page) => isBlocksMode || Boolean(pluginPages?.[page.path]))
@@ -241,7 +243,7 @@ export function buildSidebarPluginGroups(
 
 			return {
 				id: `plugin-${pluginId}`,
-				label: config.name?.trim() || humanizePluginLabel(pluginId),
+				label: config.name?.trim() || singlePageLabel || humanizePluginLabel(pluginId),
 				items: pages,
 			};
 		})
