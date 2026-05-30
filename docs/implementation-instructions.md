@@ -17,6 +17,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 - Keep AWCMS-Micro example work isolated in the approved protected paths inside `awcmsmicro-dev/`.
 - Persist any source-level downstream customization that must survive sync as a patch overlay in `awcmsmicro-dev/.awcms-patches/` and ensure the rebuild script reapplies it automatically.
 - Implement new AWCMS-Micro product behavior through plugins and templates, with docs, demos, and E2E coverage as supporting layers.
+- Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for what must survive `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
 
 ## Execution Strategy
 

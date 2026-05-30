@@ -31,6 +31,21 @@ Within this parent workspace:
 - When work is too large for one pass, split it into smaller tracked tasks.
 - If useful, create GitHub issues so work can later be executed by a smaller or lower-cost AI model.
 
+## Required Reading For Agents
+
+Before changing code, docs, scripts, or generated outputs in this workspace, read:
+
+- `README.md`
+- `AGENTS.md`
+- `docs/README.md`
+- `docs/synchronization-workflow.md`
+- `docs/implementation-instructions.md`
+- `docs/awcms-micro-implementation-boundaries.md`
+- `docs/repository-structure.md`
+- `docs/operator-workflow.md`
+
+Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for the list of paths and change categories that must be preserved during `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
+
 ## Language Policy
 
 - English (US) is the official language for this repository's root-level documentation, instructions, scripts, and governance text.

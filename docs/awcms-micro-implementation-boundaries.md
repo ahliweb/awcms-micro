@@ -54,6 +54,21 @@ This keeps AWCMS-Micro aligned with EmDash rather than turning `awcmsmicro-dev/`
 
 No arbitrary unknown paths are preserved.
 
+## Preserved Change Categories
+
+When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these change categories must be preserved inside the approved boundaries above:
+
+- AWCMS-Micro release-note inputs in `awcmsmicro-dev/.awcms-changesets/`
+- workspace package-release metadata in `awcmsmicro-dev/.changeset/`
+- preserved workflow and release automation in `awcmsmicro-dev/.github/workflows/` and `awcmsmicro-dev/.github/scripts/`
+- preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
+- persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
+- supported example plugin and template work in `awcmsmicro-dev/packages/plugins/` and `awcmsmicro-dev/templates/`
+- supporting docs, demos, and E2E assets under the approved custom paths listed above
+- root maintenance snapshot updates, including `CHANGELOG.md` and the latest plugin/template version notes
+
+If a change does not fit one of these categories, do not assume it should survive rebuilds.
+
 ## Compatibility Guardrail
 
 This boundary preserves EmDash compatibility by keeping upstream behavior in upstream-owned locations and confining AWCMS-Micro example work to explicitly approved paths.

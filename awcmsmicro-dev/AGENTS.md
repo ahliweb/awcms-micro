@@ -14,6 +14,21 @@ For human-facing contributor info (setup, repo layout, PR policy, changesets, i1
 
 **Scope discipline.** No drive-by refactors, no bulk lint/type cleanups, no "while I'm here" edits in unrelated files. If you see a systemic issue, open a Discussion. See [CONTRIBUTING.md § Contribution Policy](CONTRIBUTING.md#contribution-policy).
 
+## Required Reading For Agents
+
+Before changing code, docs, scripts, or generated outputs in this workspace, read:
+
+- `README.md`
+- `AGENTS.md`
+- `docs/README.md`
+- `docs/synchronization-workflow.md`
+- `docs/implementation-instructions.md`
+- `docs/awcms-micro-implementation-boundaries.md`
+- `docs/repository-structure.md`
+- `docs/operator-workflow.md`
+
+Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for the list of paths and change categories that must be preserved during `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
+
 ## Workflow
 
 Run `pnpm lint:json | jq '.diagnostics | length'` before starting and confirm it's clean -- if it's failing after your edits, your changes caused it.

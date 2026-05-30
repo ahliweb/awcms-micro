@@ -94,6 +94,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Keep AWCMS-Micro-specific release automation inputs inside preserved boundaries such as `.awcms-changesets/` and `.github/scripts/`.
 - Keep workspace package-release metadata in `awcmsmicro-dev/.changeset/` and downstream AWCMS release-note inputs in `awcmsmicro-dev/.awcms-changesets/`.
 - Keep the root maintenance changelog snapshot aligned with the current `emdash-latest/` revision and the latest plugin/template versions in `awcmsmicro-dev/`.
+- Treat `docs/awcms-micro-implementation-boundaries.md` as the authoritative list of paths and change categories that must survive an `update-awcmsmicro-dev.sh` rebuild.
 
 ## Language Rule During Synchronization
 
