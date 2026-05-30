@@ -35,6 +35,7 @@ trustPolicyExclude:
   - "semver@6.3.1" # provenance -> none (old pinned util via @babel/core)
   - "@portabletext/toolkit@3.0.3" # provenance -> none (old pinned release)
   - "reselect@5.1.1" # provenance -> none (old pinned util)
+  - "express-rate-limit@8.2.2" # provenance -> none (Dependabot-patched line; reviewed for this workspace)
 
 overrides:
   # blockExoticSubdeps: infra/cache-demo's pkg.pr.new Astro preview pulls
@@ -73,6 +74,18 @@ overrides:
   # Patch Dependabot alert: hono and node server fixes.
   "hono": "4.12.18"
   "@hono/node-server": "1.19.13"
+  # Patch Dependabot alert: lodash prototype pollution fixes.
+  "lodash": "4.18.0"
+  # Patch Dependabot alert: js-yaml alias/constructor fixes.
+  "js-yaml": "4.1.1"
+  # Patch Dependabot alert: ajv schema validation fixes.
+  "ajv": "8.18.0"
+  # Patch Dependabot alert: express-rate-limit header parsing fixes.
+  "express-rate-limit": "8.2.2"
+  # Patch Dependabot alert: markdown-it XSS / HTML parsing fixes.
+  "markdown-it": "14.1.1"
+  # Patch Dependabot alert: svgo script sanitization fixes.
+  "svgo": "4.0.1"
 
 enablePrePostScripts: true
 
