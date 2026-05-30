@@ -16,9 +16,10 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 - public posts and news routes
 - public page route for site pages such as `/about`
 - public aggregate reference route
+- public `/docs` route backed by the docs plugin shared content
 - protected EmDash admin access at `/_emdash/admin` with unauthenticated redirects to `/_emdash/admin/login`
 - Cloudflare Worker configuration with D1, R2, observability, and Worker Loader prepared
-- native registration of `@awcms-micro/plugin-sikesra` and `@awcms-micro/plugin-gallery`
+- native registration of `@awcms-micro/plugin-docs`, `@awcms-micro/plugin-sikesra`, and `@awcms-micro/plugin-gallery`
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
 ## Cloudflare Placeholders
@@ -103,7 +104,7 @@ For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
 
 - package name: `@awcms-micro/template-default-cloudflare`
 - recommended local folder example: `templates/awcms-micro-default-cloudflare/`
-- related example plugin packages: `@awcms-micro/plugin-sikesra`, `@awcms-micro/plugin-gallery`
+- related example plugin packages: `@awcms-micro/plugin-docs`, `@awcms-micro/plugin-sikesra`, `@awcms-micro/plugin-gallery`
 
 ## License
 

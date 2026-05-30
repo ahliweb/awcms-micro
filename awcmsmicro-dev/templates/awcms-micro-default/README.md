@@ -8,6 +8,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - stay compatible with EmDash without modifying EmDash core
 - show an Astro-first public rendering baseline for a single-tenant-first site
 - include the AWCMS-Micro example plugin in the checked-in local workflow
+- include the AWCMS-Micro docs plugin and public `/docs` route in the checked-in local workflow
 - expose a public-safe aggregate reference page for operator and reviewer guidance
 
 ## AWCMS-Micro Notes
@@ -65,6 +66,7 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 - package name: `@awcms-micro/template-default-example`
 - recommended local folder example: `templates/awcms-micro-default/`
 - related example plugin package: `@awcms-micro/plugin-sikesra`
+- related docs plugin package: `@awcms-micro/plugin-docs`
 
 ## License
 

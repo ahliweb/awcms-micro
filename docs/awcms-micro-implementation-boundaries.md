@@ -14,6 +14,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-sikesra`
 - `packages/plugins/awcms-micro-gallery`
+- `packages/plugins/awcms-micro-docs`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
 - `docs/gallery`

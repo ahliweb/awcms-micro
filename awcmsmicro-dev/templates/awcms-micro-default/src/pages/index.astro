@@ -55,6 +55,7 @@ const copy = getPublicCopy(currentLocale);
 			<a class="button-link primary" href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.openAdmin}</a>
 			<a class="button-link" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
 			<a class="button-link" href="/_emdash/admin/content/pages/new">{copy.createPage}</a>
+			<a class="button-link" href="/docs" data-astro-prefetch="hover">{copy.viewDocs}</a>
 			<a class="button-link" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.viewPublicAggregate}</a>
 		</div>
 	</section>

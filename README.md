@@ -129,6 +129,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Example Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
 - Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
 - Example gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
+- Example docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved gallery docs boundary: `awcmsmicro-dev/docs/gallery/`

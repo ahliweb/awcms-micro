@@ -19,6 +19,7 @@
 	"dependencies": {
 		"@astrojs/cloudflare": "catalog:",
 		"@astrojs/react": "catalog:",
+		"@awcms-micro/plugin-docs": "workspace:*",
 		"@awcms-micro/plugin-sikesra": "workspace:*",
 		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@emdash-cms/cloudflare": "workspace:*",
