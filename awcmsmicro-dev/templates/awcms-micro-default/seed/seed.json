@@ -253,16 +253,30 @@
 			]
 		}
 	],
+	"bylines": [
+		{
+			"id": "byline-awcms-editorial",
+			"slug": "awcms-micro-editorial",
+			"displayName": "AWCMS-Micro Editorial"
+		},
+		{
+			"id": "byline-awcms-editorial-id",
+			"translationOf": "byline-awcms-editorial",
+			"locale": "id",
+			"slug": "awcms-micro-editorial",
+			"displayName": "Editorial AWCMS-Micro"
+		}
+	],
 	"content": {
 		"posts": [
 			{
 				"id": "introducing-awcms-micro",
 				"slug": "introducing-awcms-micro",
 				"status": "published",
-				"data": {
-					"title": "Introducing AWCMS-Micro",
-					"excerpt": "Why AWCMS-Micro keeps EmDash core intact while shaping a tighter single-tenant implementation.",
-					"content": [
+					"data": {
+						"title": "Introducing AWCMS-Micro",
+						"excerpt": "Why AWCMS-Micro keeps EmDash core intact while shaping a tighter single-tenant implementation.",
+						"content": [
 						{
 							"_type": "block",
 							"style": "normal",
@@ -275,8 +289,13 @@
 							],
 							"_key": "post-block-1"
 						}
+						]
+					},
+					"bylines": [
+						{
+							"byline": "byline-awcms-editorial"
+						}
 					]
-				}
 			},
 			{
 				"id": "introducing-awcms-micro-id",
@@ -284,10 +303,10 @@
 				"locale": "id",
 				"slug": "introducing-awcms-micro",
 				"status": "published",
-				"data": {
-					"title": "Memperkenalkan AWCMS-Micro",
-					"excerpt": "Mengapa AWCMS-Micro menjaga core EmDash tetap utuh sambil membentuk implementasi single-tenant yang lebih rapat.",
-					"content": [
+					"data": {
+						"title": "Memperkenalkan AWCMS-Micro",
+						"excerpt": "Mengapa AWCMS-Micro menjaga core EmDash tetap utuh sambil membentuk implementasi single-tenant yang lebih rapat.",
+						"content": [
 						{
 							"_type": "block",
 							"style": "normal",
@@ -300,8 +319,13 @@
 							],
 							"_key": "post-block-1-id"
 						}
+						]
+					},
+					"bylines": [
+						{
+							"byline": "byline-awcms-editorial"
+						}
 					]
-				}
 			}
 		],
 		"news": [
@@ -309,10 +333,10 @@
 				"id": "admin-workflow-connected",
 				"slug": "admin-workflow-connected",
 				"status": "published",
-				"data": {
-					"title": "Public Site Now Mirrors Admin Workflow",
-					"summary": "Menus, search, content routes, and site identity are now driven from EmDash-managed data.",
-					"content": [
+					"data": {
+						"title": "Public Site Now Mirrors Admin Workflow",
+						"summary": "Menus, search, content routes, and site identity are now driven from EmDash-managed data.",
+						"content": [
 						{
 							"_type": "block",
 							"style": "normal",
@@ -325,8 +349,13 @@
 							],
 							"_key": "news-block-1"
 						}
+						]
+					},
+					"bylines": [
+						{
+							"byline": "byline-awcms-editorial"
+						}
 					]
-				}
 			},
 			{
 				"id": "admin-workflow-connected-id",
@@ -334,10 +363,10 @@
 				"locale": "id",
 				"slug": "admin-workflow-connected",
 				"status": "published",
-				"data": {
-					"title": "Situs Publik Kini Mencerminkan Alur Kerja Admin",
-					"summary": "Menu, pencarian, route konten, dan identitas situs kini digerakkan dari data yang dikelola EmDash.",
-					"content": [
+					"data": {
+						"title": "Situs Publik Kini Mencerminkan Alur Kerja Admin",
+						"summary": "Menu, pencarian, route konten, dan identitas situs kini digerakkan dari data yang dikelola EmDash.",
+						"content": [
 						{
 							"_type": "block",
 							"style": "normal",
@@ -350,8 +379,13 @@
 							],
 							"_key": "news-block-1-id"
 						}
+						]
+					},
+					"bylines": [
+						{
+							"byline": "byline-awcms-editorial"
+						}
 					]
-				}
 			}
 		],
 		"pages": [
