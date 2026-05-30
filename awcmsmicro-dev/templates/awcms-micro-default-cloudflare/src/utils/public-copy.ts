@@ -70,6 +70,9 @@ const PUBLIC_COPY = {
 			"Published pages are editable from the Pages collection and can be surfaced from the docs hub.",
 		managePagesInAdmin: "Manage pages in admin",
 		openPage: "Open page",
+		featuredGalleryTitle: "Gallery spotlight",
+		featuredGalleryDescription:
+			"A featured gallery shows how media-rich content, layout variants, and admin-managed assets render publicly.",
 		browseAllPosts: "Browse all posts ->",
 		browseAllNews: "Browse all news ->",
 		searchPlaceholder: "Search posts, pages, and news",
@@ -79,7 +82,7 @@ const PUBLIC_COPY = {
 		toggleTheme: "Toggle Theme",
 		switchToLightMode: "Switch to Light Mode",
 		switchToDarkMode: "Switch to Dark Mode",
-		counts: { posts: "Posts", news: "News", pages: "Pages" },
+		counts: { posts: "Posts", news: "News", pages: "Pages", galleries: "Galleries" },
 	},
 	id: {
 		notFoundTitle: "Tidak Ditemukan",
@@ -152,6 +155,9 @@ const PUBLIC_COPY = {
 			"Halaman terpublikasi dapat diedit dari koleksi Pages dan bisa ditampilkan dari hub docs.",
 		managePagesInAdmin: "Kelola halaman di admin",
 		openPage: "Buka halaman",
+		featuredGalleryTitle: "Sorotan galeri",
+		featuredGalleryDescription:
+			"Galeri unggulan menunjukkan bagaimana konten kaya media, variasi layout, dan aset yang dikelola admin dirender secara publik.",
 		browseAllPosts: "Lihat semua pos ->",
 		browseAllNews: "Lihat semua berita ->",
 		searchPlaceholder: "Cari pos, halaman, dan berita",
@@ -161,7 +167,7 @@ const PUBLIC_COPY = {
 		toggleTheme: "Ganti Tema",
 		switchToLightMode: "Ganti ke Mode Terang",
 		switchToDarkMode: "Ganti ke Mode Gelap",
-		counts: { posts: "Pos", news: "Berita", pages: "Halaman" },
+		counts: { posts: "Pos", news: "Berita", pages: "Halaman", galleries: "Galeri" },
 	},
 } as const;
 

@@ -14,6 +14,7 @@ const [
 	{ entries: posts, cacheHint: postsCacheHint },
 	{ entries: newsItems, cacheHint: newsCacheHint },
 	{ entries: pages, cacheHint: pagesCacheHint },
+	{ entries: galleries, cacheHint: galleriesCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", {
 		orderBy: { published_at: "desc" },
@@ -27,12 +28,17 @@ const [
 		orderBy: { published_at: "desc" },
 		limit: 6,
 	}),
+	getEmDashCollection("galleries", {
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
 ]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
 	Astro.cache.set(newsCacheHint);
 	Astro.cache.set(pagesCacheHint);
+	Astro.cache.set(galleriesCacheHint);
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
@@ -44,6 +50,18 @@ const localeOptions = {
 	locales: i18nConfig?.locales || ["en", "id"],
 };
 const copy = getPublicCopy(currentLocale);
+
+const spotlightPageSlugs = ["about", "public-site-guide", "publishing-workflow"];
+const featuredPages = spotlightPageSlugs
+	.map((slug) => pages.find((page) => resolveEntrySlug(page) === slug))
+	.filter((page): page is (typeof pages)[number] => Boolean(page));
+const gallerySpotlight = galleries.find((gallery) => gallery.data.featured === true) ?? galleries[0];
+const publicCounts = [
+	{ label: copy.counts.posts, value: posts.length },
+	{ label: copy.counts.news, value: newsItems.length },
+	{ label: copy.counts.pages, value: pages.length },
+	{ label: copy.counts.galleries, value: galleries.length },
+];
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
@@ -90,6 +108,43 @@ const copy = getPublicCopy(currentLocale);
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.adminProtected}</h2>
 			<p style="color:var(--text-muted);margin-bottom:0;">{copy.adminProtectedDescription}</p>
+		</div>
+	</section>
+
+	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:2rem;">
+		{publicCounts.map((item) => (
+			<div class="card" style="padding:1rem 1.2rem;">
+				<p class="kicker" style="margin-bottom:0.35rem;">{item.label}</p>
+				<strong style="font-size:2rem;line-height:1;">{item.value}</strong>
+			</div>
+		))}
+	</section>
+
+	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
+		<div class="card">
+			<p class="kicker">{copy.publicPagesTitle}</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicPagesDescription}</h2>
+			<div style="display:grid;gap:0.75rem;">
+				{featuredPages.map((page) => (
+					<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:flex;justify-content:space-between;gap:1rem;padding:0.9rem 1rem;border:1px solid var(--surface-border);border-radius:1rem;text-decoration:none;color:var(--text-main);background:var(--surface-main);">
+						<strong>{page.data.title}</strong>
+						<span style="color:var(--text-muted);">/{resolveEntrySlug(page)}</span>
+					</a>
+				))}
+			</div>
+			<p style="margin-top:1rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a></p>
+		</div>
+
+		<div class="card">
+			<p class="kicker">{copy.featuredGalleryTitle}</p>
+			<h2 style="font-size:1.3rem;margin-top:0;">{copy.featuredGalleryDescription}</h2>
+			{gallerySpotlight ? (
+				<a href={toLocalePath(`/gallery/${resolveEntrySlug(gallerySpotlight)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:grid;gap:0.75rem;text-decoration:none;color:var(--text-main);">
+					{gallerySpotlight.data.cover_image && <Image image={asImage(gallerySpotlight.data.cover_image)} style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:1rem;" />}
+					<strong>{gallerySpotlight.data.title}</strong>
+					<p style="margin:0;color:var(--text-muted);">{gallerySpotlight.data.description}</p>
+				</a>
+			) : null}
 		</div>
 	</section>
 
