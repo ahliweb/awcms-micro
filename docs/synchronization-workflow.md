@@ -46,6 +46,7 @@ Result:
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
 - preserves only the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`, including the workflow and Dependabot config under `awcmsmicro-dev/.github/`
 - reapplies downstream patch overlays from `awcmsmicro-dev/.awcms-patches/` after the restore step so persistent source tweaks do not need to be recreated manually
+- refreshes `awcmsmicro-dev/pnpm-lock.yaml` after restore so workspace installs remain in frozen-lockfile sync
 - preserves workspace package-release metadata in `awcmsmicro-dev/.changeset/` alongside the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 - excludes transient local build artifacts such as `node_modules/`, `dist/`, `.astro/`, `.wrangler/`, `.vite/`, and `.mf/`
 - prunes stale directories that remain only because they contain excluded transient artifacts after upstream paths are removed
@@ -69,6 +70,7 @@ bash scripts/validate-awcmsmicro-dev.sh
 Result:
 
 - runs install, typecheck, lint, test, and build commands when `pnpm` is available
+- performs a clean `pnpm install --frozen-lockfile` before typecheck/lint so stale workspace links are rebuilt
 - writes the latest validation record to `docs/upstream-sync/LAST_VALIDATION.md`
 - fails clearly when dependency install, tests, or validation steps fail
 

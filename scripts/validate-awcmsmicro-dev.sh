@@ -159,7 +159,7 @@ run_step() {
 
 finalize_report
 
-run_step "pnpm-install" "Dependency install failure" pnpm install
+run_step "pnpm-install" "Dependency install failure" bash -lc 'rm -rf node_modules && pnpm install --frozen-lockfile'
 run_step "pnpm-build-emdash" "AWCMS-Micro added file failure" pnpm --filter emdash build
 run_step "pnpm-build-registry-lexicons" "AWCMS-Micro added file failure" pnpm --filter @emdash-cms/registry-lexicons build
 run_step "pnpm-build-workspace" "AWCMS-Micro added file failure" pnpm build

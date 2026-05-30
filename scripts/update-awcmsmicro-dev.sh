@@ -100,6 +100,19 @@ apply_downstream_patches() {
 	log "Applied ${#patch_files[@]} downstream patch(es)"
 }
 
+refresh_lockfile() {
+	if ! command -v pnpm >/dev/null 2>&1; then
+		log "pnpm not available; skipping lockfile refresh"
+		return
+	fi
+
+	log "Refreshing pnpm-lock.yaml to match the rebuilt workspace"
+	(
+		cd "$TARGET_DIR"
+		pnpm install --lockfile-only --ignore-scripts
+	)
+}
+
 is_protected_path() {
 	local candidate="$1"
 	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
@@ -215,5 +228,6 @@ rsync -a \
 prune_stale_transient_dirs
 restore_protected_paths
 apply_downstream_patches
+refresh_lockfile
 
 log "awcmsmicro-dev has been rebuilt from emdash-latest while preserving approved AWCMS-Micro paths"

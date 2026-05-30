@@ -14,3 +14,5 @@ e2e/awcms-micro
 .github/workflows
 .github/scripts
 .github/dependabot.yml
+packages/admin/src/components/Sidebar.tsx
+packages/admin/tests/components/Sidebar.test.tsx

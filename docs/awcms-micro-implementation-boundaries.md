@@ -24,6 +24,8 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `.github/workflows`
 - `.github/scripts`
 - `.github/dependabot.yml`
+- `packages/admin/src/components/Sidebar.tsx`
+- `packages/admin/tests/components/Sidebar.test.tsx`
 
 These are the active product-development boundaries:
 
@@ -64,6 +66,7 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
 - supported example plugin and template work in `awcmsmicro-dev/packages/plugins/` and `awcmsmicro-dev/templates/`
+- file-level AWCMS-Micro persistence exceptions for the admin sidebar and its regression test above
 - supporting docs, demos, and E2E assets under the approved custom paths listed above
 - root maintenance snapshot updates, including `CHANGELOG.md` and the latest plugin/template version notes
 
