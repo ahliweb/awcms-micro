@@ -97,6 +97,7 @@ The root repository also contains:
 - `CHANGELOG.md`: root maintenance changelog and workspace snapshot
 - `VERSION`: root maintenance release version
 - `.awcms-changesets/`: root maintenance release-note inputs
+- `scripts/check-runtime-prereqs.sh`: runtime OS/user/tool preflight used by sync and validation entrypoints
 - `.gitignore`: local artifact and secret-protection rules
 - local-only `.env`: optional operator secrets, excluded from git and preserved in `awcmsmicro-dev/` rebuilds when present alongside `awcmsmicro-dev/.env.age`
 

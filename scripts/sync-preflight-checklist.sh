@@ -53,6 +53,11 @@ fail() {
 	exit 1
 }
 
+if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
+	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
+	export AWCMS_RUNTIME_PREREQS_CHECKED=1
+fi
+
 persist_local_value() {
 	local key="$1"
 	local value="$2"

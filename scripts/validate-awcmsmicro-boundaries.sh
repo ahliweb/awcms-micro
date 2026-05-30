@@ -6,8 +6,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 BOUNDARIES_DOC="$ROOT_DIR/docs/awcms-micro-implementation-boundaries.md"
 ALLOWLIST_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
+RUNTIME_PREREQS_SCRIPT="$SCRIPT_DIR/check-runtime-prereqs.sh"
 SYNC_SCRIPT="$SCRIPT_DIR/update-awcmsmicro-dev.sh"
 PREFLIGHT_SCRIPT="$SCRIPT_DIR/sync-preflight-checklist.sh"
+VALIDATION_SCRIPT="$SCRIPT_DIR/validate-awcmsmicro-dev.sh"
+COMBINED_SCRIPT="$SCRIPT_DIR/sync-and-validate-awcmsmicro-dev.sh"
 
 REQUIRED_PATHS=(
 	"templates/awcms-micro-default"
@@ -92,12 +95,20 @@ require_contains() {
 	rg -F --quiet -- "$needle" "$path" || fail "Expected '$needle' in $path"
 }
 
+if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
+	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
+	export AWCMS_RUNTIME_PREREQS_CHECKED=1
+fi
+
 require_dir "$ROOT_DIR/emdash-latest"
 require_dir "$ROOT_DIR/awcmsmicro-dev"
 require_file "$BOUNDARIES_DOC"
 require_file "$ALLOWLIST_FILE"
+require_file "$RUNTIME_PREREQS_SCRIPT"
 require_file "$SYNC_SCRIPT"
 require_file "$PREFLIGHT_SCRIPT"
+require_file "$VALIDATION_SCRIPT"
+require_file "$COMBINED_SCRIPT"
 
 log "Checking root documentation references"
 for doc in "${ROOT_DOCS[@]}"; do
@@ -134,17 +145,33 @@ for relative_path in "${LOCAL_STATE_PATHS[@]}"; do
 done
 
 log "Checking sync allowlist strategy"
+require_contains 'check-runtime-prereqs.sh' "$SYNC_SCRIPT"
 require_contains 'PROTECTED_PATHS_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"' "$SYNC_SCRIPT"
 require_contains 'backup_protected_paths()' "$SYNC_SCRIPT"
 require_contains 'restore_protected_paths()' "$SYNC_SCRIPT"
 require_contains 'RSYNC_PROTECTED_ARGS+=("--exclude=$relative_path")' "$SYNC_SCRIPT"
 require_contains 'Missing protected paths file' "$SYNC_SCRIPT"
 
+log "Checking runtime prerequisite preflight"
+require_contains 'Unsupported operating system: $OS_NAME' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'command -v "$command_name"' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'Required runtime commands are available' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'OS:' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'User:' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'git --version' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'node --version' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'pnpm --version' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'python3 --version' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'rsync --version' "$RUNTIME_PREREQS_SCRIPT"
+require_contains 'check-runtime-prereqs.sh' "$VALIDATION_SCRIPT"
+require_contains 'check-runtime-prereqs.sh' "$COMBINED_SCRIPT"
+
 log "Checking sync preflight gate"
 require_contains 'MODE="continuation"' "$PREFLIGHT_SCRIPT"
 require_contains '--fresh-clone' "$PREFLIGHT_SCRIPT"
 require_contains 'AWCMSMICRO_TEMPLATE_NAME' "$PREFLIGHT_SCRIPT"
 require_contains 'AWCMSMICRO_USE_BUILTIN_PLUGINS' "$PREFLIGHT_SCRIPT"
+require_contains 'check-runtime-prereqs.sh' "$PREFLIGHT_SCRIPT"
 require_contains 'validate-awcmsmicro-boundaries.sh' "$PREFLIGHT_SCRIPT"
 
 log "Checking tracked files for secret-like paths"

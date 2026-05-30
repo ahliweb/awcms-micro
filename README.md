@@ -86,6 +86,7 @@ Exception:
 
 - `bash scripts/update-emdash-latest.sh`
 - `bash scripts/update-awcmsmicro-dev.sh`
+- `bash scripts/check-runtime-prereqs.sh`
 - `bash scripts/validate-awcmsmicro-boundaries.sh`
 - `bash scripts/validate-awcmsmicro-dev.sh`
 - `bash scripts/sync-and-validate-awcmsmicro-dev.sh`

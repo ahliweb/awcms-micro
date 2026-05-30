@@ -8,6 +8,11 @@ STATUS_FILE="$ROOT_DIR/docs/upstream-sync/UPSTREAM_SYNC_STATUS.md"
 FETCH_METADATA_FILE="$ROOT_DIR/docs/upstream-sync/LAST_UPSTREAM_FETCH.md"
 UPDATE_MODE="${1:-continuation}"
 
+if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
+	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
+	export AWCMS_RUNTIME_PREREQS_CHECKED=1
+fi
+
 # Sync only after upstream/downstream analysis confirms the update path is correct.
 bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh" --mode "$UPDATE_MODE"
 export SYNC_PREFLIGHT_CHECKED=1

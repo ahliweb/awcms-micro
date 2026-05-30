@@ -13,9 +13,9 @@ if [[ ! -d "$WORKSPACE_DIR" ]]; then
 	exit 1
 fi
 
-if ! command -v pnpm >/dev/null 2>&1; then
-	echo "Missing required command: pnpm" >&2
-	exit 1
+if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
+	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
+	export AWCMS_RUNTIME_PREREQS_CHECKED=1
 fi
 
 mkdir -p "$(dirname "$REPORT_FILE")"
