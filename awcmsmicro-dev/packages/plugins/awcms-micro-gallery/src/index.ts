@@ -5,6 +5,7 @@ import {
 	AWCMS_GALLERY_COLLECTION,
 	DEFAULT_MAX_IMAGE_BYTES,
 	DEFAULT_MAX_VIDEO_BYTES,
+	AWCMS_GALLERY_STORAGE_COLLECTION,
 	sanitizeGallerySettings,
 	validateGalleryContent,
 	validateGalleryItem,
@@ -120,7 +121,7 @@ export function awcmsMicroGalleryPlugin(
 		allowedHosts: [],
 		adminPages: AWCMS_GALLERY_ADMIN_PAGES,
 		storage: {
-			auditEvents: { indexes: ["timestamp", "kind", "contentId"] },
+			gallery_audit_events: { indexes: ["timestamp", "kind", "contentId"] },
 		},
 		// @ts-expect-error Downstream navigation metadata is used by AWCMS-Micro admin integrations even though current EmDash descriptor types do not declare it.
 		navigation: AWCMS_GALLERY_NAVIGATION,
@@ -149,13 +150,92 @@ async function readSettings(ctx: any, options: AwcmsMicroGalleryPluginOptions) {
 
 async function writeAudit(ctx: any, kind: string, summary: string, metadata: Record<string, unknown>) {
 	const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-	await ctx.storage.auditEvents.put(id, {
+	await ctx.storage.gallery_audit_events.put(id, {
 		id,
 		timestamp: new Date().toISOString(),
 		kind,
 		summary,
 		metadata,
 	});
+}
+
+interface PluginStorageRow {
+	id: string;
+	data: string;
+	created_at?: string | null;
+	updated_at?: string | null;
+}
+
+const AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS = [{ from: "auditEvents", to: AWCMS_GALLERY_STORAGE_COLLECTION } as const];
+
+function toTimestamp(value: string | null | undefined): number {
+	if (!value) return -1;
+	const parsed = Date.parse(value);
+	return Number.isNaN(parsed) ? -1 : parsed;
+}
+
+function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | undefined): boolean {
+	if (!current) return true;
+	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
+	const currentUpdated = toTimestamp(current.updated_at ?? current.created_at ?? null);
+	return legacyUpdated > currentUpdated;
+}
+
+async function migrateLegacyStorageCollections(ctx: any) {
+	const db = (ctx as { db?: unknown }).db as any;
+	if (!db) return;
+
+	let migratedRows = 0;
+	for (const { from, to } of AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS) {
+		const legacyRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", AWCMS_GALLERY_PLUGIN_ID)
+			.where("collection", "=", from)
+			.execute()) as PluginStorageRow[];
+
+		if (legacyRows.length === 0) continue;
+
+		const currentRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", AWCMS_GALLERY_PLUGIN_ID)
+			.where("collection", "=", to)
+			.execute()) as PluginStorageRow[];
+		const currentById = new Map(currentRows.map((row) => [row.id, row]));
+
+		for (const row of legacyRows) {
+			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
+			await db
+				.insertInto("_plugin_storage")
+				.values({
+					plugin_id: AWCMS_GALLERY_PLUGIN_ID,
+					collection: to,
+					id: row.id,
+					data: row.data,
+					created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
+					updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+				})
+				.onConflict((oc: any) =>
+					oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
+						data: row.data,
+						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+					}),
+				)
+				.execute();
+			migratedRows += 1;
+		}
+
+		await db
+			.deleteFrom("_plugin_storage")
+			.where("plugin_id", "=", AWCMS_GALLERY_PLUGIN_ID)
+			.where("collection", "=", from)
+			.execute();
+	}
+
+	if (migratedRows > 0) {
+		ctx.log.info(`[${AWCMS_GALLERY_PLUGIN_ID}] migrated legacy storage collections`, { migratedRows });
+	}
 }
 
 function asString(value: unknown, fallback = "") {
@@ -554,9 +634,14 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 		capabilities: [...AWCMS_GALLERY_CAPABILITIES],
 		allowedHosts: [],
 		storage: {
-			auditEvents: { indexes: ["timestamp", "kind", "contentId"] },
+			gallery_audit_events: { indexes: ["timestamp", "kind", "contentId"] },
 		},
 		hooks: {
+			"plugin:activate": {
+				handler: async (_event: any, ctx: any) => {
+					await migrateLegacyStorageCollections(ctx);
+				},
+			},
 			"content:beforeSave": {
 				handler: async (event: any, ctx: any) => {
 					if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;

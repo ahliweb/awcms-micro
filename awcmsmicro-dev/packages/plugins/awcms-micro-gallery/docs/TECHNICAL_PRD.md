@@ -133,7 +133,7 @@ flowchart TD
 - gallery content is stored in the `galleries` collection
 - gallery items live as structured content fields inside the collection record
 - plugin settings are stored in plugin-owned KV or equivalent plugin settings storage
-- audit events are stored in plugin-owned audit storage
+- audit events are stored in plugin-owned audit storage, using the `gallery_audit_events` collection name
 
 ### Gallery Fields
 

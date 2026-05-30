@@ -2,6 +2,7 @@ import type { PluginContext, SandboxedPlugin } from "emdash/plugin";
 
 import {
 	AWCMS_GALLERY_COLLECTION,
+	AWCMS_GALLERY_STORAGE_COLLECTION,
 	sanitizeGallerySettings,
 	validateGalleryContent,
 	validateGalleryItem,
@@ -103,7 +104,7 @@ async function readSettings(pluginCtx: PluginContext, options: { maxImageBytes?:
 
 async function writeAudit(pluginCtx: PluginContext, kind: string, summary: string, metadata: Record<string, unknown>) {
 	const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-	const auditEvents = pluginCtx.storage.auditEvents;
+	const auditEvents = pluginCtx.storage.gallery_audit_events;
 	if (!auditEvents) return;
 	await auditEvents.put(id, {
 		id,
@@ -112,6 +113,85 @@ async function writeAudit(pluginCtx: PluginContext, kind: string, summary: strin
 		summary,
 		metadata,
 	});
+}
+
+interface PluginStorageRow {
+	id: string;
+	data: string;
+	created_at?: string | null;
+	updated_at?: string | null;
+}
+
+const AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS = [{ from: "auditEvents", to: AWCMS_GALLERY_STORAGE_COLLECTION } as const];
+
+function toTimestamp(value: string | null | undefined): number {
+	if (!value) return -1;
+	const parsed = Date.parse(value);
+	return Number.isNaN(parsed) ? -1 : parsed;
+}
+
+function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | undefined): boolean {
+	if (!current) return true;
+	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
+	const currentUpdated = toTimestamp(current.updated_at ?? current.created_at ?? null);
+	return legacyUpdated > currentUpdated;
+}
+
+async function migrateLegacyStorageCollections(pluginCtx: PluginContext) {
+	const db = (pluginCtx as PluginContext & { db?: unknown }).db as any;
+	if (!db) return;
+
+	let migratedRows = 0;
+	for (const { from, to } of AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS) {
+		const legacyRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", "awcms-micro-gallery")
+			.where("collection", "=", from)
+			.execute()) as PluginStorageRow[];
+
+		if (legacyRows.length === 0) continue;
+
+		const currentRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", "awcms-micro-gallery")
+			.where("collection", "=", to)
+			.execute()) as PluginStorageRow[];
+		const currentById = new Map(currentRows.map((row) => [row.id, row]));
+
+		for (const row of legacyRows) {
+			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
+			await db
+				.insertInto("_plugin_storage")
+				.values({
+					plugin_id: "awcms-micro-gallery",
+					collection: to,
+					id: row.id,
+					data: row.data,
+					created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
+					updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+				})
+				.onConflict((oc: any) =>
+					oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
+						data: row.data,
+						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+					}),
+				)
+				.execute();
+			migratedRows += 1;
+		}
+
+		await db
+			.deleteFrom("_plugin_storage")
+			.where("plugin_id", "=", "awcms-micro-gallery")
+			.where("collection", "=", from)
+			.execute();
+	}
+
+	if (migratedRows > 0) {
+		pluginCtx.log.info(`[awcms-micro-gallery] migrated legacy storage collections`, { migratedRows });
+	}
 }
 
 async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, settings: ReturnType<typeof sanitizeGallerySettings>, locale: string | undefined, state: AdminState, toastMessage?: string) {
@@ -448,8 +528,13 @@ const sandboxPlugin: SandboxedPlugin = {
 				return event.content as Record<string, unknown> | undefined;
 			},
 		},
+		"plugin:activate": {
+			handler: async (_event: any, pluginCtx: PluginContext): Promise<void> => {
+				await migrateLegacyStorageCollections(pluginCtx);
+			},
+		},
 	},
-		routes: {
+	routes: {
 			admin: {
 				handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
 					const interaction = routeCtx.input as { type?: string; page?: string; action_id?: string; value?: string; values?: Record<string, unknown> };

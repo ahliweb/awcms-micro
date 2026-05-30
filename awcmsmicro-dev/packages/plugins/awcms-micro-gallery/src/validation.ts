@@ -1,4 +1,5 @@
 export const AWCMS_GALLERY_COLLECTION = "galleries";
+export const AWCMS_GALLERY_STORAGE_COLLECTION = "gallery_audit_events";
 
 export const GALLERY_TYPES = ["photo", "video", "mixed"] as const;
 export const GALLERY_LAYOUTS = ["grid", "masonry", "carousel", "slider"] as const;

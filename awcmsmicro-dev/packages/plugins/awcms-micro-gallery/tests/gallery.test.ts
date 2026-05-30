@@ -17,7 +17,7 @@ function createMockContext() {
 			set: vi.fn(async (key: string, value: unknown) => kv.set(key, value)),
 		},
 		storage: {
-			auditEvents: {
+			gallery_audit_events: {
 				put: vi.fn(async (id: string, value: unknown) => audit.set(id, value)),
 			},
 		},
@@ -54,6 +54,7 @@ describe("awcms micro gallery plugin", () => {
 			sidebarPlacement: "after-dashboard",
 			sidebarPriority: 10,
 		});
+		expect(Object.keys(descriptor.storage ?? {})).toEqual(["gallery_audit_events"]);
 	});
 
 	it("exports a sandbox plugin object", () => {
@@ -111,6 +112,50 @@ describe("awcms micro gallery plugin", () => {
 
 		expect(response).toMatchObject({ items: [{ id: "community-cleanup" }] });
 		expect(ctx.content.list).toHaveBeenCalledWith("galleries", { limit: 50 });
+	});
+
+	it("migrates legacy gallery audit storage on activate", async () => {
+		const plugin = createPlugin();
+		const hook = plugin.hooks?.["plugin:activate"];
+		const rows = [
+			{ id: "event-1", data: JSON.stringify({ id: "event-1", kind: "gallery.media.accept" }), created_at: "2026-05-29T00:00:00.000Z", updated_at: "2026-05-29T00:00:00.000Z" },
+		];
+		const currentRows: any[] = [];
+		const db = {
+			selectFrom: () => ({
+				select: () => ({
+					where: (_column: string, _op: string, _value: string) => ({
+						where: (column: string, _op2: string, value2: string) => ({
+							execute: async () => {
+								if (column === "collection" && value2 === "auditEvents") return rows;
+								if (column === "collection" && value2 === "gallery_audit_events") return currentRows;
+								return [];
+							},
+						}),
+					}),
+				}),
+			}),
+			insertInto: () => ({
+				values: (value: any) => ({
+					onConflict: () => ({ execute: async () => currentRows.push(value) }),
+				}),
+			}),
+			deleteFrom: () => ({
+				where: () => ({
+					where: () => ({ execute: async () => undefined }),
+				}),
+			}),
+		};
+		const ctx = { ...createMockContext(), db, log: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() } };
+
+		await hook?.handler?.({} as never, ctx as never);
+
+		expect(currentRows).toHaveLength(1);
+		expect(currentRows[0]).toMatchObject({
+			plugin_id: "awcms-micro-gallery",
+			collection: "gallery_audit_events",
+			id: "event-1",
+		});
 	});
 
 	it("renders paginated admin gallery and media tables", async () => {

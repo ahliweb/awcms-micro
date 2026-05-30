@@ -7,6 +7,7 @@ This plugin adds AWCMS-Micro gallery management helpers while leaving EmDash cor
 - Public rendering lives in the AWCMS-Micro Astro templates.
 - The `galleries` collection is seeded through the template seed file.
 - The plugin provides settings, public list, media validation, and audit-ready hooks under `/_emdash/api/plugins/awcms-micro-gallery/*`.
+- Audit events are stored in the plugin-owned `gallery_audit_events` collection.
 - Cloudflare R2 remains the canonical media store. Cloudflare Images and Stream are optional flags, not hardcoded secrets.
 
 ## Routes
