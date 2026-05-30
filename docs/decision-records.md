@@ -80,6 +80,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: prevent a new clone from silently inheriting the wrong deployment, naming, or service configuration and keep operator choices outside git
 - See: `docs/operator-workflow.md`, `docs/synchronization-workflow.md`, `scripts/sync-preflight-checklist.sh`
 
+### DR-013: Plugin Sidebar Groups Stay Per-Plugin And Alphabetical
+
+- Decision: render plugin admin links as one collapsible group per plugin, order the groups alphabetically by plugin name, and use contextual page icons from plugin metadata where available
+- Why: keep plugin navigation clear, stable across rebuilds, and visually aligned with the content each plugin actually exposes
+- See: `packages/admin/src/components/Sidebar.tsx`, `docs/awcms-micro-implementation-boundaries.md`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:

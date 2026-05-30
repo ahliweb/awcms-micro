@@ -1,20 +1,32 @@
 import { Sidebar as KumoSidebar, Tooltip, useSidebar } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react/macro";
 import {
-	SquaresFour,
+	ArrowSquareOut,
+	ChartBar,
+	Check,
+	Code,
 	FileText,
-	Image,
-	ChatCircle,
 	Gear,
-	PuzzlePiece,
-	Storefront,
-	Palette,
-	Upload,
-	Database,
-	List,
+	Globe,
 	GridFour,
+	Image,
+	Info,
+	LinkSimple,
+	ListBullets,
+	Lock,
+	Palette,
+	PuzzlePiece,
+	Shield,
+	Sliders,
+	SquaresFour,
+	Upload,
 	Users,
 	Stack,
+	VideoCamera,
+	ChatCircle,
+	Storefront,
+	Database,
+	List,
 	ArrowsLeftRight,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
@@ -40,6 +52,7 @@ export interface SidebarNavProps {
 		plugins: Record<
 			string,
 			{
+				name?: string;
 				package?: string;
 				enabled?: boolean;
 				adminMode?: "react" | "blocks" | "none";
@@ -48,7 +61,7 @@ export interface SidebarNavProps {
 					label?: string;
 					icon?: string;
 				}>;
-				dashboardWidgets?: Array<{ id: string; title?: string }>;
+				dashboardWidgets?: Array<{ id: string; title?: string }>; 
 				version?: string;
 			}
 		>;
@@ -67,7 +80,13 @@ export interface SidebarNavProps {
 			siteName?: string;
 			favicon?: string;
 		};
-	};
+		};
+}
+
+interface PluginGroup {
+	id: string;
+	label: string;
+	items: NavItem[];
 }
 
 interface NavItem {
@@ -152,6 +171,79 @@ export function humanizePluginLabel(pluginId: string, label?: string): string {
 		.split("-")
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(" ");
+}
+
+export function resolveSidebarIcon(iconKey?: string): React.ElementType {
+	switch (iconKey) {
+		case "chart":
+			return ChartBar;
+		case "check":
+			return Check;
+		case "code":
+			return Code;
+		case "file":
+			return FileText;
+		case "form":
+			return ListBullets;
+		case "gear":
+		case "settings":
+			return Gear;
+		case "globe":
+			return Globe;
+		case "grid":
+			return GridFour;
+		case "image":
+			return Image;
+		case "info":
+			return Info;
+		case "inbox":
+			return ListBullets;
+		case "link":
+			return LinkSimple;
+		case "link-external":
+			return ArrowSquareOut;
+		case "list":
+			return ListBullets;
+		case "lock":
+			return Lock;
+		case "shield":
+			return Shield;
+		case "sliders":
+			return Sliders;
+		case "video":
+			return VideoCamera;
+		default:
+			return PuzzlePiece;
+	}
+}
+
+export function buildSidebarPluginGroups(
+	manifest: SidebarNavProps["manifest"],
+	pluginAdmins: Record<string, { pages?: Record<string, unknown> }>,
+): PluginGroup[] {
+	return Object.entries(manifest.plugins)
+		.filter(([, config]) => config.enabled !== false && (config.adminPages?.length ?? 0) > 0)
+		.map(([pluginId, config]) => {
+			const pluginPages = pluginAdmins[pluginId]?.pages;
+			const isBlocksMode = config.adminMode === "blocks";
+			const pages = config.adminPages
+				? config.adminPages
+					.filter((page) => isBlocksMode || Boolean(pluginPages?.[page.path]))
+					.map((page) => ({
+						to: `/plugins/${pluginId}${page.path}`,
+						label: page.label || humanizePluginLabel(pluginId),
+						icon: resolveSidebarIcon(page.icon),
+					}))
+				: [];
+
+			return {
+				id: `plugin-${pluginId}`,
+				label: config.name?.trim() || humanizePluginLabel(pluginId),
+				items: pages,
+			};
+		})
+		.filter((group) => group.items.length > 0)
+		.toSorted((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" }) || a.id.localeCompare(b.id));
 }
 
 /** Checks if a nav item is active based on the current router path. */
@@ -253,27 +345,16 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginItems: NavItem[] = [];
-	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
-		if (config.enabled === false) continue;
-		if (config.adminPages && config.adminPages.length > 0) {
-			const pluginPages = pluginAdmins[pluginId]?.pages;
-			const isBlocksMode = config.adminMode === "blocks";
-			for (const page of config.adminPages) {
-				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
-				const label = humanizePluginLabel(pluginId, page.label);
-				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
-			}
-		}
-	}
-
 	const filterByRole = (items: NavItem[]) =>
 		items.filter((item) => !item.minRole || userRole >= item.minRole);
 
 	const visibleContent = filterByRole(contentItems);
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
-	const visiblePlugins = filterByRole(pluginItems);
+	const visiblePluginGroups = buildSidebarPluginGroups(manifest, pluginAdmins).map((group) => ({
+		...group,
+		items: filterByRole(group.items),
+	}));
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -462,18 +543,23 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					{/* Plugin pages (collapsible) */}
-					{visiblePlugins.length > 0 && (
-						<>
-							<KumoSidebar.Separator />
-							<KumoSidebar.Group collapsible defaultOpen>
-								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Plugins`}</KumoSidebar.GroupLabel>
-								<KumoSidebar.GroupContent>
-									<KumoSidebar.Menu>{renderNavItems(visiblePlugins)}</KumoSidebar.Menu>
-								</KumoSidebar.GroupContent>
-							</KumoSidebar.Group>
-						</>
-					)}
+				{/* Plugin pages (collapsible, one group per plugin) */}
+				{visiblePluginGroups.length > 0 && (
+					<>
+						<KumoSidebar.Separator />
+						{visiblePluginGroups.map((group, index) => (
+							<React.Fragment key={group.id}>
+								{index > 0 && <KumoSidebar.Separator />}
+								<KumoSidebar.Group collapsible defaultOpen>
+									<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{group.label}</KumoSidebar.GroupLabel>
+									<KumoSidebar.GroupContent>
+										<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
+									</KumoSidebar.GroupContent>
+								</KumoSidebar.Group>
+							</React.Fragment>
+						))}
+					</>
+				)}
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
