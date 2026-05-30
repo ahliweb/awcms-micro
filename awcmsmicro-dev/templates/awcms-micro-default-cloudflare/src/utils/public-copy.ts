@@ -24,9 +24,9 @@ const PUBLIC_COPY = {
 		newsDescription: "News updates from the AWCMS-Micro Cloudflare example.",
 		noNewsYet: "No news items yet.",
 		homeKicker: "AWCMS-Micro",
-		homeHeading: "A production-ready CMS powered by EmDash & Cloudflare.",
+		homeHeading: "Public content, admin workflows, and Cloudflare delivery.",
 		homeIntro:
-			"This template turns AWCMS-Micro into a working public website: published content is rendered through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling remains available through the example plugin surface without changing core.",
+			"A concise public site for published content, simple editing, and example governance surfaces.",
 		createPost: "Create Post",
 		createPage: "Create Page",
 		viewDocs: "View Docs",
@@ -43,7 +43,7 @@ const PUBLIC_COPY = {
 		switchModeButton: "Switch mode",
 		cloudflareReady: "Cloudflare-ready",
 		cloudflareReadyDescription:
-			"Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.",
+			"Ready for D1, R2, Workers, observability, and the `awcms-micro.ahlikoding.com` deployment route.",
 		pluginEnabled: "Plugin-enabled",
 		pluginEnabledDescription:
 			"Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples.",
@@ -109,9 +109,9 @@ const PUBLIC_COPY = {
 		newsDescription: "Pembaruan berita dari contoh Cloudflare AWCMS-Micro.",
 		noNewsYet: "Belum ada berita.",
 		homeKicker: "AWCMS-Micro",
-		homeHeading: "CMS siap produksi yang ditenagai EmDash & Cloudflare.",
+		homeHeading: "Konten publik, workflow admin, dan delivery Cloudflare.",
 		homeIntro:
-			"Template ini mengubah AWCMS-Micro menjadi situs publik yang berfungsi: konten terpublikasi dirender melalui Astro, alur kerja editor tetap berada di admin EmDash standar, dan tooling tata kelola tetap tersedia melalui surface plugin contoh tanpa mengubah core.",
+			"Situs publik yang ringkas untuk konten terpublikasi, pengeditan mudah, dan surface tata kelola contoh.",
 		createPost: "Buat Pos",
 		createPage: "Buat Halaman",
 		viewDocs: "Lihat Docs",
@@ -128,7 +128,7 @@ const PUBLIC_COPY = {
 		switchModeButton: "Ganti mode",
 		cloudflareReady: "Siap Cloudflare",
 		cloudflareReadyDescription:
-			"Disiapkan untuk D1, R2, Worker Loader, observability, dan route deployment `awcms-micro.ahlikoding.com`.",
+			"Siap untuk D1, R2, Workers, observability, dan route deployment `awcms-micro.ahlikoding.com`.",
 		pluginEnabled: "Plugin aktif",
 		pluginEnabledDescription:
 			"Mendaftarkan `@awcms-micro/plugin-sikesra` melalui jalur plugin EmDash normal untuk contoh audit, hak akses, dan ABAC.",

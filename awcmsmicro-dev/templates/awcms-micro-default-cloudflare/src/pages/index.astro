@@ -69,13 +69,12 @@ const publicCounts = [
 		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">{copy.homeKicker}</p>
 		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">{copy.homeHeading}</h1>
 		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">{copy.homeIntro}</p>
-      <div class="hero-actions" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+		<div class="hero-actions" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
 			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.openAdmin}</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/docs" data-astro-prefetch="hover">{copy.viewDocs}</a>
-		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-sikesra/overview">{copy.pluginConsole}</a>
-		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.publicAggregateLink}</a>
-	</div>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.publicAggregateLink}</a>
+		</div>
   </section>
 
 	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1.5rem;">
@@ -96,10 +95,6 @@ const publicCounts = [
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.cloudflareReady}</h2>
 			<p style="color:var(--text-muted);margin-bottom:0;">{copy.cloudflareReadyDescription}</p>
-		</div>
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.pluginEnabled}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.pluginEnabledDescription}</p>
 		</div>
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicAggregateTitle}</h2>
