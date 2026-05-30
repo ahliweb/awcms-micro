@@ -31,6 +31,18 @@ const copy = getDocsCopy(currentLocale);
 		))}
 	</section>
 
+	<section class="card" style="margin-bottom:1rem;">
+		<h2 style="margin-top:0;">{copy.prTitle}</h2>
+		<p>{copy.prIntro}</p>
+		<ul style="padding-left:1.25rem;">
+			{copy.prBullets.map((bullet) => <li>{bullet}</li>)}
+		</ul>
+		<h3>{copy.prBacklogTitle}</h3>
+		<ul style="padding-left:1.25rem;">
+			{copy.prBacklog.map((item) => <li>{item}</li>)}
+		</ul>
+	</section>
+
 	{copy.sections.map((section) => (
 		<section class="card" style="margin-bottom:1rem;">
 			<h2 style="margin-top:0;">{section.title}</h2>

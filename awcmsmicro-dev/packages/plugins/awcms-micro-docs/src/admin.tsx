@@ -25,6 +25,26 @@ function DocsAdminPage() {
 				</div>
 			</section>
 
+			<section className="space-y-4">
+				<h2 className="text-xl font-semibold text-kumo-foreground">{copy.prTitle}</h2>
+				<p className="max-w-3xl text-sm leading-6 text-kumo-subtle">{copy.prIntro}</p>
+				<div className="grid gap-3 md:grid-cols-3">
+					{copy.prBullets.map((bullet) => (
+						<article key={bullet} className="rounded-lg border border-kumo-border bg-kumo-background p-4 text-sm text-kumo-subtle">
+							{bullet}
+						</article>
+					))}
+				</div>
+				<div className="rounded-lg border border-kumo-border bg-kumo-background p-4">
+					<h3 className="text-base font-semibold text-kumo-foreground">{copy.prBacklogTitle}</h3>
+					<ul className="mt-3 grid gap-2 text-sm text-kumo-subtle md:grid-cols-2">
+						{copy.prBacklog.map((item) => (
+							<li key={item}>{item}</li>
+						))}
+					</ul>
+				</div>
+			</section>
+
 			<section className="grid gap-4 lg:grid-cols-3">
 				{copy.sections.map((section) => (
 						<article key={section.title} className="rounded-lg border border-kumo-border bg-kumo-background p-4">

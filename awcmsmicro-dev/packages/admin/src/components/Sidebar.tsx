@@ -28,6 +28,7 @@ import {
 	Database,
 	List,
 	ArrowsLeftRight,
+	BookOpen,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -212,6 +213,8 @@ export function resolveSidebarIcon(iconKey?: string): React.ElementType {
 			return Sliders;
 		case "video":
 			return VideoCamera;
+		case "book":
+			return BookOpen;
 		default:
 			return PuzzlePiece;
 	}

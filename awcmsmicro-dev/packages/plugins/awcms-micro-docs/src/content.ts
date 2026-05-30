@@ -15,6 +15,11 @@ export interface DocsCopy {
 	kicker: string;
 	title: string;
 	intro: string;
+	prTitle: string;
+	prIntro: string;
+	prBullets: string[];
+	prBacklogTitle: string;
+	prBacklog: string[];
 	openAdmin: string;
 	openDocsAdmin: string;
 	viewPublicDocs: string;
@@ -29,6 +34,15 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		title: "AWCMS-Micro docs and operating notes",
 		intro:
 			"This plugin surfaces the workspace guidance that keeps AWCMS-Micro aligned with EmDash while preserving the approved downstream boundaries.",
+		prTitle: "Reference PRD",
+		prIntro: "The SIKESRA reference PRD frames the example standard without turning it into production SIKESRA code.",
+		prBullets: [
+			"In scope: the docs boundary, the example plugin, both templates, and E2E coverage.",
+			"Reference goals: plugin/runtime shape, public-safe aggregate, registry and verification screens, masked fixtures, and validation guidance.",
+			"Execution order: document the standard, build the reference plugin and fixtures, align admin UI, align both templates, then harden E2E validation.",
+		],
+		prBacklogTitle: "Backlog map",
+		prBacklog: ["#51 PRD and execution standard", "#52 Reference plugin standard", "#54 Admin UI/UX reference", "#55 Data model and fixtures", "#56 Security tests", "#57 Public aggregate page", "#58 Cloudflare deployability", "#59 E2E validation"],
 		openAdmin: "Open docs admin",
 		openDocsAdmin: "Open docs page",
 		viewPublicDocs: "View public docs",
@@ -76,6 +90,15 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		title: "Dokumen dan catatan operasi AWCMS-Micro",
 		intro:
 			"Plugin ini menampilkan panduan workspace yang menjaga AWCMS-Micro tetap selaras dengan EmDash sambil mempertahankan boundary downstream yang disetujui.",
+		prTitle: "PRD Referensi",
+		prIntro: "PRD referensi SIKESRA membingkai standar contoh tanpa mengubahnya menjadi kode SIKESRA produksi.",
+		prBullets: [
+			"Ruang lingkup: boundary docs, plugin contoh, kedua template, dan cakupan E2E.",
+			"Tujuan referensi: bentuk plugin/runtime, aggregate aman-publik, layar registry dan verifikasi, fixture yang dimasking, dan panduan validasi.",
+			"Urutan eksekusi: dokumentasikan standar, bangun plugin dan fixture referensi, selaraskan UI admin, selaraskan kedua template, lalu perkuat validasi E2E.",
+		],
+		prBacklogTitle: "Peta backlog",
+		prBacklog: ["#51 PRD dan standar eksekusi", "#52 Standar plugin referensi", "#54 Referensi UI/UX admin", "#55 Model data dan fixture", "#56 Tes keamanan", "#57 Halaman aggregate publik", "#58 Kesiapan deploy Cloudflare", "#59 Validasi E2E"],
 		openAdmin: "Buka admin docs",
 		openDocsAdmin: "Buka halaman docs",
 		viewPublicDocs: "Lihat docs publik",
