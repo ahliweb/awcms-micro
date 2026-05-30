@@ -44,6 +44,7 @@ The root docs explain the maintenance workflow well, but they still need stronge
 - what AWCMS-Micro is trying to standardize beyond upstream EmDash
 - where future work belongs by default
 - what is transitional versus strategic
+- how fresh clones should capture local bootstrap choices such as template naming, built-in plugin usage, and `.env`-backed GitHub/Cloudflare config before sync
 
 The root versioning docs now address the current workspace snapshot explicitly, so the remaining gap is mostly product-facing guidance rather than maintenance-state visibility.
 

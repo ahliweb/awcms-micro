@@ -74,6 +74,12 @@ Use it as the shortest entry point when you need to understand why the repositor
 - Why: keep AWCMS-Micro plugin navigation clear and consistent while staying inside downstream admin-shell boundaries
 - See: `AGENTS.md`, `docs/implementation-instructions.md`, `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 
+### DR-012: Fresh-Clone Sync Requires Explicit Local Bootstrap Choices
+
+- Decision: distinguish `continuation` and `fresh-clone` update modes, and require fresh-clone runs to capture local bootstrap choices such as template name, built-in plugin usage, and local `.env`-based GitHub/Cloudflare config before sync proceeds
+- Why: prevent a new clone from silently inheriting the wrong deployment, naming, or service configuration and keep operator choices outside git
+- See: `docs/operator-workflow.md`, `docs/synchronization-workflow.md`, `scripts/sync-preflight-checklist.sh`
+
 ## How To Extend
 
 When a new repository-shaping decision is introduced:
