@@ -784,7 +784,7 @@ describe("awcms micro example plugin", () => {
 				: hooks?.["plugin:activate"]?.handler;
 
 		seedDbRow({
-			plugin_id: AWCMS_SIKESRA_PLUGIN_ID,
+			plugin_id: "awcms-micro-example",
 			collection: "auditEvents",
 			id: "audit-legacy-01",
 			data: JSON.stringify({

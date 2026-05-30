@@ -290,6 +290,7 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 ];
 
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
+const AWCMS_SIKESRA_LEGACY_PLUGIN_ID = "awcms-micro-example";
 
 export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
 
@@ -405,7 +406,7 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 		const legacyRows = (await db
 			.selectFrom("_plugin_storage")
 			.select(["id", "data", "created_at", "updated_at"])
-			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+			.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)
 			.where("collection", "=", from)
 			.execute()) as PluginStorageRow[];
 
