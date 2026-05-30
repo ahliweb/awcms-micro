@@ -302,9 +302,6 @@ export const AWCMS_SIKESRA_CAPABILITIES = [
 export const AWCMS_SIKESRA_ALLOWED_HOSTS: string[] = [];
 
 export const AWCMS_SIKESRA_STORAGE = {
-	sikesra_audit_events: {
-		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
-	},
 	sikesra_access_change_events: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
@@ -371,6 +368,8 @@ export const AWCMS_SIKESRA_STORAGE = {
 
 export const AWCMS_SIKESRA_DESCRIPTOR_STORAGE = AWCMS_SIKESRA_STORAGE;
 
+const AWCMS_SIKESRA_AUDIT_TABLE = "sikesra_audit_events";
+
 const AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS = [
 	{ from: "auditEvents", to: "sikesra_audit_events" },
 	{ from: "accessChangeEvents", to: "sikesra_access_change_events" },
@@ -399,6 +398,20 @@ interface PluginStorageRow {
 	updated_at?: string | null;
 }
 
+interface SikesraAuditEventRow {
+	id: string;
+	timestamp: string;
+	kind: string;
+	scope: string;
+	actor: string;
+	summary: string;
+	metadata: string;
+	user_id?: string | null;
+	user_name?: string | null;
+	created_at?: string | null;
+	updated_at?: string | null;
+}
+
 function toTimestamp(value: string | null | undefined): number {
 	if (!value) return -1;
 	const parsed = Date.parse(value);
@@ -407,7 +420,7 @@ function toTimestamp(value: string | null | undefined): number {
 
 function isLegacyRowNewer(
 	legacy: PluginStorageRow,
-	current: PluginStorageRow | undefined,
+	current: { created_at?: string | null; updated_at?: string | null } | undefined,
 ): boolean {
 	if (!current) return true;
 	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
@@ -415,10 +428,30 @@ function isLegacyRowNewer(
 	return legacyUpdated > currentUpdated;
 }
 
+async function ensureAuditEventTable(db: any) {
+	await db.schema
+		.createTable(AWCMS_SIKESRA_AUDIT_TABLE)
+		.ifNotExists()
+		.addColumn("id", "text", (column: any) => column.primaryKey())
+		.addColumn("timestamp", "text", (column: any) => column.notNull())
+		.addColumn("kind", "text", (column: any) => column.notNull())
+		.addColumn("scope", "text", (column: any) => column.notNull())
+		.addColumn("actor", "text", (column: any) => column.notNull())
+		.addColumn("summary", "text", (column: any) => column.notNull())
+		.addColumn("metadata", "text", (column: any) => column.notNull())
+		.addColumn("user_id", "text")
+		.addColumn("user_name", "text")
+		.addColumn("created_at", "text", (column: any) => column.notNull())
+		.addColumn("updated_at", "text", (column: any) => column.notNull())
+		.execute();
+}
+
 async function migrateLegacyStorageCollections(ctx: PluginContext) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 
 	if (!db) return;
+
+	await ensureAuditEventTable(db);
 
 	let migratedRows = 0;
 	for (const { from, to } of AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS) {
@@ -431,33 +464,82 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 
 		if (legacyRows.length === 0) continue;
 
-		const currentRows = (await db
-			.selectFrom("_plugin_storage")
-			.select(["id", "data", "created_at", "updated_at"])
-			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
-			.where("collection", "=", to)
-			.execute()) as PluginStorageRow[];
+		const currentRows =
+			to === AWCMS_SIKESRA_AUDIT_TABLE
+				? ((await db
+					.selectFrom(to)
+					.select([
+						"id",
+						"timestamp",
+						"kind",
+						"scope",
+						"actor",
+						"summary",
+						"metadata",
+						"created_at",
+						"updated_at",
+					])
+					.execute()) as SikesraAuditEventRow[])
+				: ((await db
+					.selectFrom("_plugin_storage")
+					.select(["id", "data", "created_at", "updated_at"])
+					.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+					.where("collection", "=", to)
+					.execute()) as PluginStorageRow[]);
 		const currentById = new Map(currentRows.map((row) => [row.id, row]));
 
 		for (const row of legacyRows) {
 			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
-			await db
-				.insertInto("_plugin_storage")
-				.values({
-					plugin_id: AWCMS_SIKESRA_PLUGIN_ID,
-					collection: to,
-					id: row.id,
-					data: row.data,
-					created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
-					updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
-				})
-				.onConflict((oc: any) =>
-					oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
-						data: row.data,
+			if (to === AWCMS_SIKESRA_AUDIT_TABLE) {
+				const parsed = JSON.parse(row.data) as Partial<SikesraAuditEventRow>;
+				await db
+					.insertInto(to)
+					.values({
+						id: row.id,
+						timestamp: parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						kind: parsed.kind ?? "legacy.audit",
+						scope: parsed.scope ?? "lifecycle",
+						actor: parsed.actor ?? "system",
+						summary: parsed.summary ?? "Migrated audit row",
+						metadata: JSON.stringify(parsed.metadata ?? {}),
+						user_id: parsed.user_id ?? null,
+						user_name: parsed.user_name ?? null,
+						created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
 						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
-					}),
-				)
-				.execute();
+					})
+					.onConflict((oc: any) =>
+						oc.columns(["id"]).doUpdateSet({
+							timestamp: parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+							kind: parsed.kind ?? "legacy.audit",
+							scope: parsed.scope ?? "lifecycle",
+							actor: parsed.actor ?? "system",
+							summary: parsed.summary ?? "Migrated audit row",
+							metadata: JSON.stringify(parsed.metadata ?? {}),
+							user_id: parsed.user_id ?? null,
+							user_name: parsed.user_name ?? null,
+							updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						}),
+					)
+					.execute();
+			} else {
+				await db
+					.insertInto("_plugin_storage")
+					.values({
+						plugin_id: AWCMS_SIKESRA_PLUGIN_ID,
+						collection: to,
+						id: row.id,
+						data: row.data,
+						created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
+						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+					})
+					.onConflict((oc: any) =>
+						oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
+							data: row.data,
+							updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						}),
+					)
+					.execute();
+			}
 			migratedRows += 1;
 		}
 
@@ -466,6 +548,14 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
 			.where("collection", "=", from)
 			.execute();
+
+		if (to === AWCMS_SIKESRA_AUDIT_TABLE) {
+			await db
+				.deleteFrom("_plugin_storage")
+				.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)
+				.where("collection", "=", from)
+				.execute();
+		}
 	}
 
 	if (migratedRows > 0) {
@@ -1886,26 +1976,74 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 		if (userId) record.userId = userId;
 		if (userName) record.userName = userName;
 	}
-	await ctx.storage.sikesra_audit_events!.put(record.id, record);
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db) return record;
+
+	await ensureAuditEventTable(db);
+	const timestamp = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
+		.values({
+			id: record.id,
+			timestamp,
+			kind: record.kind,
+			scope: record.scope,
+			actor: record.actor,
+			summary: record.summary,
+			metadata: JSON.stringify(record.metadata ?? {}),
+			user_id: record.userId ?? null,
+			user_name: record.userName ?? null,
+			created_at: timestamp,
+			updated_at: timestamp,
+		})
+		.execute();
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
 	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, record.metadata);
 	return record;
 }
 
-async function listAuditEvents(ctx: PluginContext, limit = 20, cursor?: string) {
-	const result = await ctx.storage.sikesra_audit_events!.query({
-		orderBy: { timestamp: "desc" },
-		limit,
-		cursor,
-	});
+async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db) {
+		return { items: [] as ExampleAuditEvent[], cursor: undefined as string | undefined, hasMore: false };
+	}
+
+	await ensureAuditEventTable(db);
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_AUDIT_TABLE)
+		.select([
+			"id",
+			"timestamp",
+			"kind",
+			"scope",
+			"actor",
+			"summary",
+			"metadata",
+			"user_id",
+			"user_name",
+			"created_at",
+			"updated_at",
+		])
+		.orderBy("timestamp", "desc")
+		.orderBy("id", "desc")
+		.limit(limit)
+		.execute()) as SikesraAuditEventRow[];
 
 	return {
-		items: result.items.map(
-			(item: { id: string; data: unknown }) => item.data as ExampleAuditEvent,
-		),
-		cursor: result.cursor,
-		hasMore: result.hasMore,
+		items: rows.map((item) => ({
+			id: item.id,
+			timestamp: item.timestamp,
+			kind: item.kind,
+			scope: item.scope,
+			actor: item.actor,
+			summary: item.summary,
+			metadata: JSON.parse(item.metadata) as Record<string, unknown>,
+			userId: item.user_id ?? undefined,
+			userName: item.user_name ?? undefined,
+		})),
+		cursor: undefined,
+		hasMore: false,
 	};
 }
 

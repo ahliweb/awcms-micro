@@ -105,6 +105,7 @@ function createMockContext() {
 		supportingDocuments: new Map<string, unknown>(),
 		verificationEvents: new Map<string, unknown>(),
 	};
+	const auditTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
 		sikesra_audit_events: collections.auditEvents,
 		sikesra_access_change_events: collections.accessChangeEvents,
@@ -145,6 +146,26 @@ function createMockContext() {
 		target.delete(row.id);
 	};
 	const cloneRow = (row: DbRow) => ({ ...row });
+	const auditRowToData = (row: Record<string, unknown>) => ({
+		id: row.id,
+		timestamp: row.timestamp,
+		kind: row.kind,
+		scope: row.scope,
+		actor: row.actor,
+		summary: row.summary,
+		metadata: JSON.parse(String(row.metadata ?? "{}")),
+		userId: row.user_id ?? undefined,
+		userName: row.user_name ?? undefined,
+	});
+	const schemaBuilder = {
+		ifNotExists() {
+			return schemaBuilder;
+		},
+		addColumn() {
+			return schemaBuilder;
+		},
+		execute: vi.fn(async () => undefined),
+	};
 	const queryRows = (filters: Record<string, string>) =>
 		dbRows
 			.filter((row) => {
@@ -159,10 +180,19 @@ function createMockContext() {
 		syncCollectionMap(row);
 	};
 	const db = {
+		schema: {
+			createTable: vi.fn(() => schemaBuilder),
+		},
 		selectFrom(_table: string) {
 			const filters: Record<string, string> = {};
 			const query = {
 				select(_columns: string[]) {
+					return query;
+				},
+				orderBy() {
+					return query;
+				},
+				limit() {
 					return query;
 				},
 				where(column: string, _op: string, value: string) {
@@ -170,46 +200,111 @@ function createMockContext() {
 					return query;
 				},
 				async execute() {
+					if (_table === "sikesra_audit_events") {
+						return auditTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					return queryRows(filters);
 				},
 			};
 			return query;
 		},
 		insertInto(_table: string) {
-			let row: DbRow | null = null;
+			let row: DbRow | Record<string, unknown> | null = null;
 			return {
 				values(nextRow: Record<string, unknown>) {
-					row = {
-						plugin_id: String(nextRow.plugin_id ?? ""),
-						collection: String(nextRow.collection ?? ""),
-						id: String(nextRow.id ?? ""),
-						data: String(nextRow.data ?? "{}"),
-						created_at: String(nextRow.created_at ?? ""),
-						updated_at: String(nextRow.updated_at ?? ""),
-					};
+					row =
+						_table === "sikesra_audit_events"
+							? {
+								id: String(nextRow.id ?? ""),
+								timestamp: String(nextRow.timestamp ?? ""),
+								kind: String(nextRow.kind ?? ""),
+								scope: String(nextRow.scope ?? ""),
+								actor: String(nextRow.actor ?? ""),
+								summary: String(nextRow.summary ?? ""),
+								metadata: String(nextRow.metadata ?? "{}"),
+								user_id: nextRow.user_id ?? null,
+								user_name: nextRow.user_name ?? null,
+								created_at: String(nextRow.created_at ?? ""),
+								updated_at: String(nextRow.updated_at ?? ""),
+							}
+							: {
+								plugin_id: String(nextRow.plugin_id ?? ""),
+								collection: String(nextRow.collection ?? ""),
+								id: String(nextRow.id ?? ""),
+								data: String(nextRow.data ?? "{}"),
+								created_at: String(nextRow.created_at ?? ""),
+								updated_at: String(nextRow.updated_at ?? ""),
+							};
 					const operation = {
 						onConflict(_handler: unknown) {
 							const statement = {
 								async execute() {
 									if (!row) return;
+									if (_table === "sikesra_audit_events") {
+										const auditRow = row as Record<string, unknown>;
+										const index = auditTableRows.findIndex((existing) => existing.id === auditRow.id);
+										if (index >= 0) {
+											auditTableRows[index] = auditRow;
+										} else {
+											auditTableRows.push(auditRow);
+										}
+										collections.auditEvents.set(String(auditRow.id), auditRowToData(auditRow));
+										return;
+									}
+									const storedRow = row as DbRow;
 									const index = dbRows.findIndex(
 										(existing) =>
-											existing.plugin_id === row!.plugin_id &&
-											existing.collection === row!.collection &&
-											existing.id === row!.id,
+											existing.plugin_id === storedRow.plugin_id &&
+											existing.collection === storedRow.collection &&
+											existing.id === storedRow.id,
 									);
 									if (index >= 0) {
 										unsyncCollectionMap(dbRows[index]!);
-										dbRows[index] = row;
+										dbRows[index] = storedRow;
 									} else {
-										dbRows.push(row);
+										dbRows.push(storedRow);
 									}
-									syncCollectionMap(row);
+									syncCollectionMap(storedRow);
 								},
 							};
 							return statement;
 						},
-					};
+						execute: async () => {
+							if (!row) return;
+							if (_table === "sikesra_audit_events") {
+								const auditRow = row as Record<string, unknown>;
+								const index = auditTableRows.findIndex((existing) => existing.id === auditRow.id);
+								if (index >= 0) {
+									auditTableRows[index] = auditRow;
+								} else {
+									auditTableRows.push(auditRow);
+								}
+								collections.auditEvents.set(String(auditRow.id), auditRowToData(auditRow));
+								return;
+							}
+							const storedRow = row as DbRow;
+							const index = dbRows.findIndex(
+								(existing) =>
+									existing.plugin_id === storedRow.plugin_id &&
+									existing.collection === storedRow.collection &&
+									existing.id === storedRow.id,
+							);
+							if (index >= 0) {
+								unsyncCollectionMap(dbRows[index]!);
+								dbRows[index] = storedRow;
+							} else {
+								dbRows.push(storedRow);
+							}
+							syncCollectionMap(storedRow);
+						},
+				};
 					return operation;
 				},
 			};
@@ -222,6 +317,22 @@ function createMockContext() {
 					return query;
 				},
 				async execute() {
+					if (_table === "sikesra_audit_events") {
+						for (let index = auditTableRows.length - 1; index >= 0; index -= 1) {
+							const row = auditTableRows[index]!;
+							let matches = true;
+							for (const [key, value] of Object.entries(filters)) {
+								if ((row as Record<string, string>)[key] !== value) {
+									matches = false;
+									break;
+								}
+							}
+							if (!matches) continue;
+							collections.auditEvents.delete(String(row.id));
+							auditTableRows.splice(index, 1);
+						}
+						return;
+					}
 					for (let index = dbRows.length - 1; index >= 0; index -= 1) {
 						const row = dbRows[index]!;
 						let matches = true;
@@ -311,6 +422,7 @@ function createMockContext() {
 		collections,
 		db,
 		dbRows,
+		auditTableRows,
 		seedDbRow,
 		kvData,
 		cron,
@@ -328,7 +440,6 @@ describe("awcms micro example plugin", () => {
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
 		expect(Object.keys(storage)).toEqual(
 			expect.arrayContaining([
-				"sikesra_audit_events",
 				"sikesra_access_change_events",
 				"sikesra_abac_change_events",
 				"sikesra_registry_entities",
@@ -916,7 +1027,7 @@ describe("awcms micro example plugin", () => {
 	});
 
 	it("migrates legacy plugin storage collections into prefixed collections on activate", async () => {
-		const { ctx, collections, dbRows, seedDbRow } = createMockContext();
+		const { ctx, collections, dbRows, seedDbRow, auditTableRows } = createMockContext();
 		const hooks = createSharedHooks();
 		const activate =
 			typeof hooks?.["plugin:activate"] === "function"
@@ -955,6 +1066,19 @@ describe("awcms micro example plugin", () => {
 			created_at: "2026-02-01T00:00:00.000Z",
 			updated_at: "2026-02-01T00:00:00.000Z",
 		});
+		auditTableRows.push({
+			id: "audit-legacy-01",
+			timestamp: "2026-02-01T00:00:00.000Z",
+			kind: "current.audit",
+			scope: "lifecycle",
+			actor: "system",
+			summary: "Current audit row",
+			metadata: "{}",
+			user_id: null,
+			user_name: null,
+			created_at: "2026-02-01T00:00:00.000Z",
+			updated_at: "2026-02-01T00:00:00.000Z",
+		});
 
 		await activate!({} as any, ctx as any);
 
@@ -968,12 +1092,9 @@ describe("awcms micro example plugin", () => {
 			),
 		).toBe(true);
 		expect(dbRows.some((row) => row.collection === "auditEvents")).toBe(false);
-		expect(
-			dbRows.some(
-				(row) => row.collection === "sikesra_audit_events" && row.id === "audit-legacy-01",
-			),
-		).toBe(true);
+		expect(auditTableRows.some((row) => row.id === "audit-legacy-01")).toBe(true);
 		expect(collections.auditEvents.get("audit-legacy-01")).toMatchObject({
+			kind: "current.audit",
 			summary: "Current audit row",
 		});
 	});
@@ -1205,7 +1326,6 @@ describe("awcms micro example plugin", () => {
 			"abacResourceAssignments",
 			"abacSubjectAssignments",
 			"accessChangeEvents",
-			"auditEvents",
 			"contentSnapshots",
 			"permissionCatalog",
 			"roleCatalog",

@@ -13,7 +13,7 @@ This package is an AWCMS-Micro example plugin that demonstrates an EmDash-compat
 - plugin descriptor factory and plugin identity/versioning
 - EmDash registry manifest scaffolding in `emdash-plugin.jsonc`
 - capabilities, allowed hosts, storage declarations, and KV conventions
-- storage collection names are prefixed with `sikesra_` so plugin data stays in its own namespace
+- plugin-owned storage names are prefixed with `sikesra_` so data stays in its own namespace; audit events are stored in the physical D1 table `sikesra_audit_events`
 - protected routes plus a public-safe status route
 - lifecycle hooks: install, activate, deactivate, uninstall
 - content hooks: before/after save, before/after delete, after publish, after unpublish
