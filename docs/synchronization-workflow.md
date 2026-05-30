@@ -11,13 +11,14 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 
 1. Analyze upstream EmDash changes.
 2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
-3. Refresh `emdash-latest/` from upstream.
-4. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
-5. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
-6. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
-7. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
-8. Update root documentation if process, structure, or rules changed.
-9. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
+3. Run `bash scripts/sync-preflight-checklist.sh` to record the operator checklist before any sync command.
+4. Refresh `emdash-latest/` from upstream.
+5. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+6. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
+7. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
+8. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
+9. Update root documentation if process, structure, or rules changed.
+10. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
 ## Refresh `emdash-latest/`
 

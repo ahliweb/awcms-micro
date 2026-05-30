@@ -198,6 +198,7 @@ trap cleanup EXIT
 
 # Run this rebuild only after analyzing upstream/downstream state.
 # If a downstream change needs sync, update, or validation script adjustments, stop here and make them first.
+bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh"
 if [[ ! -d "$SOURCE_DIR" ]]; then
 	echo "Missing source directory: $SOURCE_DIR" >&2
 	exit 1

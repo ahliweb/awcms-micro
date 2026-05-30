@@ -8,6 +8,7 @@ STATUS_FILE="$ROOT_DIR/docs/upstream-sync/UPSTREAM_SYNC_STATUS.md"
 FETCH_METADATA_FILE="$ROOT_DIR/docs/upstream-sync/LAST_UPSTREAM_FETCH.md"
 
 # Sync only after upstream/downstream analysis confirms the update path is correct.
+bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh"
 bash "$ROOT_DIR/scripts/update-emdash-latest.sh"
 bash "$ROOT_DIR/scripts/update-awcmsmicro-dev.sh"
 bash "$ROOT_DIR/scripts/validate-awcmsmicro-dev.sh"
