@@ -405,7 +405,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						/>
 						<span className="emdash-brand-text flex min-w-0 flex-col leading-tight">
 							<span className="truncate font-semibold">AWCMS</span>
-							<span className="text-[10px] font-normal text-white/40">by ahliweb.com & EmDash</span>
+							<span className="text-[10px] font-normal text-white/40">AWCMS by ahliweb.com & EmDash</span>
 						</span>
 					</Link>
 				</KumoSidebar.Header>

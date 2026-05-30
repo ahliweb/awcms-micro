@@ -20,7 +20,7 @@ index 395c4c6..d3b8bcb 100644
 -							{manifest.admin?.siteName || "EmDash"}
 +						<span className="emdash-brand-text flex min-w-0 flex-col leading-tight">
 +							<span className="truncate font-semibold">AWCMS</span>
-+							<span className="text-[10px] font-normal text-white/40">by ahliweb.com & EmDash</span>
++							<span className="text-[10px] font-normal text-white/40">AWCMS by ahliweb.com & EmDash</span>
  						</span>
  					</Link>
  				</KumoSidebar.Header>
