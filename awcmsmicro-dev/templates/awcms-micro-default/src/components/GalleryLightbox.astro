@@ -223,7 +223,8 @@ const validItems = items.filter(item => item.src);
 
 	// Initialize all lightboxes on the page
 	document.querySelectorAll(".gallery-lightbox-controller").forEach((el) => {
-		new GalleryLightbox(el as HTMLElement);
+		const lightbox = new GalleryLightbox(el as HTMLElement);
+		void lightbox;
 	});
 </script>
 
