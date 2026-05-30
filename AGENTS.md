@@ -21,10 +21,12 @@ Within this parent workspace:
 ## Execution Rules
 
 - Proceed step by step using an atomic strategy.
+- Always analyze the current upstream/downstream state before starting an update or sync pass.
+- If analysis shows `scripts/` or validation workflow changes are required to preserve a downstream change, stop the update and adjust those scripts/docs first.
 - Prefer small, reviewable changes.
 - Rebuild `awcmsmicro-dev/` from `emdash-latest/` before starting new implementation work when synchronization is required.
 - Keep AWCMS-Micro release-note inputs and release automation inside preserved downstream boundaries such as `.awcms-changesets/` and `.github/scripts/`.
-- Keep any persistent source-level downstream tweaks as patch overlays in `awcmsmicro-dev/.awcms-patches/` and replay them through `scripts/update-awcmsmicro-dev.sh`; do not depend on unprotected manual edits to survive sync.
+- Keep any persistent source-level downstream tweaks as patch overlays in `awcmsmicro-dev/.awcms-patches/` and replay them through `scripts/update-awcmsmicro-dev.sh`; also update the sync/validation scripts and protected-path rules so those changes survive future rebuilds instead of being lost.
 - Keep the root workspace snapshot in `CHANGELOG.md` aligned with the current EmDash upstream SHA and the latest versions/changelog entries for every plugin and template in `awcmsmicro-dev/`; keep workspace package releases like `awcmsmicro-dev/packages/admin/` aligned with `awcmsmicro-dev/.changeset/`.
 - Keep root documentation in sync with the actual folder structure and workflow.
 - Keep backup and mirror documentation aligned with the current PAT-based GitLab flow and the safe `.env` overlay used by `scripts/backup/load-config.sh`.

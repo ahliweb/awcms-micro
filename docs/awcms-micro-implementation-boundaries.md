@@ -90,9 +90,10 @@ When adding a new AWCMS-Micro plugin, template, demo, docs area, or test boundar
 1. place it inside an existing approved custom path when possible
 2. if it is a persistent source-level change that must survive rebuilds, encode it as a patch file under `awcmsmicro-dev/.awcms-patches/`
 3. if a new boundary is required, add it to `scripts/awcmsmicro-dev-protected-paths.txt`
-4. update this document and the root workflow docs in the same change
-5. run `bash scripts/update-awcmsmicro-dev.sh`
-6. run `bash scripts/validate-awcmsmicro-boundaries.sh`
+4. if preserving the change requires updating rebuild or validation scripts, make those script/doc changes before the next `update-awcmsmicro-dev.sh` run
+5. update this document and the root workflow docs in the same change
+6. run `bash scripts/update-awcmsmicro-dev.sh`
+7. run `bash scripts/validate-awcmsmicro-boundaries.sh`
 
 Do not preserve upstream overrides by adding random paths to the allowlist.
 

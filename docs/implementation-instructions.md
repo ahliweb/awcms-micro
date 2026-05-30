@@ -22,6 +22,8 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 ## Execution Strategy
 
 - Proceed step by step using an atomic strategy.
+- Always analyze the upstream/downstream state before any update or sync pass.
+- If analysis shows sync, update, or validation scripts need changes to preserve a downstream adjustment, stop the update and align those scripts/docs first.
 - Prefer small, reviewable changes.
 - Separate upstream refresh work from AWCMS-Micro adaptation work whenever practical.
 - Keep documentation synchronized with the actual repository state.

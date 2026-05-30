@@ -10,13 +10,14 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 ## Standard Sequence
 
 1. Analyze upstream EmDash changes.
-2. Refresh `emdash-latest/` from upstream.
-3. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
-4. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
-5. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
-6. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
-7. Update root documentation if process, structure, or rules changed.
-8. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
+2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
+3. Refresh `emdash-latest/` from upstream.
+4. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+5. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
+6. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
+7. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
+8. Update root documentation if process, structure, or rules changed.
+9. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
 ## Refresh `emdash-latest/`
 
@@ -90,6 +91,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Treat `awcmsmicro-dev/` as the only place for AWCMS-Micro implementation work inside this parent repository.
 - Keep AWCMS-Micro-owned divergence limited to the approved protected paths rather than editing upstream core locations.
 - Keep persistent source-level downstream tweaks as patch overlays in `awcmsmicro-dev/.awcms-patches/` instead of relying on unprotected source edits.
+- If preserving a downstream tweak requires sync, update, or validation script changes, make those script/doc changes first and only then rerun the rebuild.
 - Keep new product behavior in plugins and templates instead of introducing a parallel shared core implementation layer.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
