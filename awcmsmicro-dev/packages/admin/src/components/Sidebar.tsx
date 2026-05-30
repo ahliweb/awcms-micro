@@ -22,7 +22,7 @@ import {
 	Code,
 	GlobeSimple,
 	Info,
-	Inbox,
+	Envelope,
 	LinkSimple,
 	ListBullets,
 	Lock,
@@ -104,7 +104,7 @@ interface PluginNavGroup {
 const SIDEBAR_ICON_MAP: Record<string, React.ElementType> = {
 	image: Image,
 	list: List,
-	inbox: Inbox,
+	inbox: Envelope,
 	form: ListBullets,
 	code: Code,
 	shield: Shield,
@@ -135,6 +135,9 @@ const PLUGIN_NAME_WORDS: Record<string, string> = {
 	url: "URL",
 	xml: "XML",
 };
+
+const PLUGIN_PREFIX_RE = /^(plugin-|emdash-|awcms-micro-)/;
+const PLUGIN_WORDS_RE = /[-_]+/;
 
 /**
  * Navigation item rendered as a TanStack Router <Link> inside kumo's
@@ -209,9 +212,9 @@ function resolveSidebarIcon(icon?: string): React.ElementType {
 }
 
 function humanizePluginLabel(pluginId: string, packageName?: string): string {
-	const rawName = (packageName?.split("/").pop() ?? pluginId).replace(/^(plugin-|emdash-|awcms-micro-)/, "");
+	const rawName = (packageName?.split("/").pop() ?? pluginId).replace(PLUGIN_PREFIX_RE, "");
 	return rawName
-		.split(/[-_]+/)
+		.split(PLUGIN_WORDS_RE)
 		.filter(Boolean)
 		.map((word) => {
 			const lower = word.toLowerCase();
