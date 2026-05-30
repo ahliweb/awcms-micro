@@ -142,7 +142,18 @@ const PUBLIC_COPY = {
 		footerLinkPrivacy: "Privacy Policy",
 		footerLinkTerms: "Terms of Service",
 		footerCopyright: "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash.",
-		counts: { posts: "Posts", news: "News", pages: "Pages" },
+		featuredPagesTitle: "Featured pages",
+		featuredPagesDescription:
+			"Published pages are editable from the Pages collection and can be promoted into the public navigation.",
+		featuredGalleryTitle: "Gallery spotlight",
+		featuredGalleryDescription:
+			"A featured gallery shows how media-rich content, layout variants, and admin-managed assets render publicly.",
+		publicPagesTitle: "Public reference pages",
+		publicPagesDescription:
+			"Useful pages managed in the standard Pages collection and linked from the public site.",
+		managePagesInAdmin: "Manage pages in admin",
+		openPage: "Open page",
+		counts: { posts: "Posts", news: "News", pages: "Pages", galleries: "Galleries" },
 	},
 	id: {
 		notFoundTitle: "Halaman Tidak Ditemukan",
@@ -288,7 +299,18 @@ const PUBLIC_COPY = {
 		footerLinkTerms: "Ketentuan Layanan",
 		footerCopyright:
 			"© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
-		counts: { posts: "Pos", news: "Berita", pages: "Halaman" },
+		featuredPagesTitle: "Halaman unggulan",
+		featuredPagesDescription:
+			"Halaman terpublikasi dapat diedit dari koleksi Pages dan dipromosikan ke navigasi publik.",
+		featuredGalleryTitle: "Sorotan galeri",
+		featuredGalleryDescription:
+			"Galeri unggulan menunjukkan bagaimana konten kaya media, variasi layout, dan aset yang dikelola admin dirender secara publik.",
+		publicPagesTitle: "Halaman referensi publik",
+		publicPagesDescription:
+			"Halaman berguna yang dikelola di koleksi Pages standar dan ditautkan dari situs publik.",
+		managePagesInAdmin: "Kelola halaman di admin",
+		openPage: "Buka halaman",
+		counts: { posts: "Pos", news: "Berita", pages: "Halaman", galleries: "Galeri" },
 	},
 } as const;
 

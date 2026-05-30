@@ -127,7 +127,9 @@
 					"url": "/about",
 					"children": [
 						{ "type": "custom", "label": "About", "url": "/about" },
-						{ "type": "custom", "label": "Guidance", "url": "/about#guidance" }
+						{ "type": "custom", "label": "Guidance", "url": "/about#guidance" },
+						{ "type": "custom", "label": "Public Site Guide", "url": "/public-site-guide" },
+						{ "type": "custom", "label": "Publishing Workflow", "url": "/publishing-workflow" }
 					]
 				},
 				{
@@ -136,7 +138,8 @@
 					"url": "/news",
 					"children": [
 						{ "type": "custom", "label": "Announcements", "url": "/news" },
-						{ "type": "custom", "label": "Help Center", "url": "/about#help" }
+						{ "type": "custom", "label": "Help Center", "url": "/about#help" },
+						{ "type": "custom", "label": "Docs Roadmap", "url": "/docs-roadmap" }
 					]
 				},
 				{ "type": "custom", "label": "Contact", "url": "/about#contact" }
@@ -165,9 +168,11 @@
 					"type": "custom",
 					"label": "Profil",
 					"url": "/about",
-					"children": [
+				"children": [
 						{ "type": "custom", "label": "Tentang", "url": "/about" },
-						{ "type": "custom", "label": "Panduan", "url": "/about#guidance" }
+						{ "type": "custom", "label": "Panduan", "url": "/about#guidance" },
+						{ "type": "custom", "label": "Panduan Situs Publik", "url": "/public-site-guide" },
+						{ "type": "custom", "label": "Alur Kerja Publikasi", "url": "/publishing-workflow" }
 					]
 				},
 				{
@@ -176,7 +181,8 @@
 					"url": "/news",
 					"children": [
 						{ "type": "custom", "label": "Pengumuman", "url": "/news" },
-						{ "type": "custom", "label": "Pusat Bantuan", "url": "/about#help" }
+						{ "type": "custom", "label": "Pusat Bantuan", "url": "/about#help" },
+						{ "type": "custom", "label": "Peta Jalan Docs", "url": "/docs-roadmap" }
 					]
 				},
 				{ "type": "custom", "label": "Kontak", "url": "/about#contact" }
@@ -431,6 +437,144 @@
 								}
 							],
 							"_key": "about-0-id"
+						}
+					]
+				}
+			},
+			{
+				"id": "public-site-guide",
+				"slug": "public-site-guide",
+				"status": "published",
+				"data": {
+					"title": "Public Site Guide",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Use this page as the editable landing guide for visitors. Editors can update the copy from Pages, then promote it into the navigation or homepage spotlights.",
+									"_key": "public-guide-1"
+								}
+							],
+							"_key": "public-guide-0"
+						}
+					]
+				}
+			},
+			{
+				"id": "public-site-guide-id",
+				"translationOf": "public-site-guide",
+				"locale": "id",
+				"slug": "public-site-guide",
+				"status": "published",
+				"data": {
+					"title": "Panduan Situs Publik",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Gunakan halaman ini sebagai panduan landing yang bisa diedit untuk pengunjung. Editor dapat memperbarui copy dari Pages lalu mempromosikannya ke navigasi atau sorotan beranda.",
+									"_key": "public-guide-1-id"
+								}
+							],
+							"_key": "public-guide-0-id"
+						}
+					]
+				}
+			},
+			{
+				"id": "publishing-workflow",
+				"slug": "publishing-workflow",
+				"status": "published",
+				"data": {
+					"title": "Publishing Workflow",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "This page captures the editorial flow for posts, news, pages, and galleries. Keep it current so admins can use it as a quick reference while publishing.",
+									"_key": "workflow-1"
+								}
+							],
+							"_key": "workflow-0"
+						}
+					]
+				}
+			},
+			{
+				"id": "publishing-workflow-id",
+				"translationOf": "publishing-workflow",
+				"locale": "id",
+				"slug": "publishing-workflow",
+				"status": "published",
+				"data": {
+					"title": "Alur Kerja Publikasi",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Halaman ini merangkum alur editorial untuk pos, berita, halaman, dan galeri. Jaga tetap mutakhir agar admin dapat menjadikannya referensi cepat saat publikasi.",
+									"_key": "workflow-1-id"
+								}
+							],
+							"_key": "workflow-0-id"
+						}
+					]
+				}
+			},
+			{
+				"id": "docs-roadmap",
+				"slug": "docs-roadmap",
+				"status": "published",
+				"data": {
+					"title": "Docs Roadmap",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Use this page to track documentation priorities, release notes, and public reference links that the docs page can surface.",
+									"_key": "roadmap-1"
+								}
+							],
+							"_key": "roadmap-0"
+						}
+					]
+				}
+			},
+			{
+				"id": "docs-roadmap-id",
+				"translationOf": "docs-roadmap",
+				"locale": "id",
+				"slug": "docs-roadmap",
+				"status": "published",
+				"data": {
+					"title": "Peta Jalan Docs",
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"children": [
+								{
+									"_type": "span",
+									"text": "Gunakan halaman ini untuk melacak prioritas dokumentasi, catatan rilis, dan tautan referensi publik yang bisa ditampilkan halaman docs.",
+									"_key": "roadmap-1-id"
+								}
+							],
+							"_key": "roadmap-0-id"
 						}
 					]
 				}

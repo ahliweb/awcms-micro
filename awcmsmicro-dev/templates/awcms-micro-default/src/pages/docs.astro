@@ -1,14 +1,27 @@
 ---
-import { getI18nConfig, getSiteSettings } from "emdash";
+import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 import { getDocsCopy } from "@awcms-micro/plugin-docs";
+import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
+
+const { entries: pages, cacheHint } = await getEmDashCollection("pages", {
+	orderBy: { published_at: "desc" },
+	limit: 6,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
 const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const copy = getDocsCopy(currentLocale);
+
+const publicPageSlugs = ["about", "public-site-guide", "publishing-workflow", "docs-roadmap"];
+const publicPages = publicPageSlugs
+	.map((slug) => pages.find((page) => resolveEntrySlug(page) === slug))
+	.filter((page): page is (typeof pages)[number] => Boolean(page));
 
 // Map each reference document to an icon
 const refIcons: Record<string, string> = {
@@ -87,6 +100,32 @@ const sectionIcons = ["🏗️", "🔁", "🔒"];
 					<span class="chip">{item}</span>
 				))}
 			</div>
+		</div>
+	</section>
+
+	<section class="docs-public-pages">
+		<h2 class="docs-section-title">
+			<span class="docs-section-icon">🧩</span>
+			{copy.publicPagesTitle}
+		</h2>
+		<p class="docs-public-pages__intro">{copy.publicPagesDescription}</p>
+		<div class="docs-public-pages__grid">
+			{publicPages.map((page) => (
+				<article class="docs-public-pages__card">
+					<div>
+						<h3 class="docs-public-pages__title">{page.data.title}</h3>
+						<p class="docs-public-pages__meta">/{resolveEntrySlug(page)}</p>
+					</div>
+					<div class="docs-public-pages__actions">
+						<a class="docs-public-pages__link" href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] })} data-astro-prefetch="hover">
+							{copy.openPage}
+						</a>
+						<a class="docs-public-pages__link docs-public-pages__link--secondary" href="/_emdash/admin/content/pages">
+							{copy.managePagesInAdmin}
+						</a>
+					</div>
+				</article>
+			))}
 		</div>
 	</section>
 
@@ -330,6 +369,73 @@ const sectionIcons = ["🏗️", "🔁", "🔒"];
 	.docs-prd__backlog {
 		padding-top: 1.5rem;
 		border-top: 1px solid var(--surface-border);
+	}
+
+	.docs-public-pages {
+		background: var(--gradient-surface);
+		border: 1px solid var(--surface-border);
+		border-radius: var(--radius-lg);
+		padding: 2.5rem;
+		margin-block-end: 2rem;
+		box-shadow: var(--shadow-md);
+	}
+
+	.docs-public-pages__intro {
+		color: var(--text-muted);
+		margin: 0 0 1.5rem;
+		line-height: 1.7;
+	}
+
+	.docs-public-pages__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 1rem;
+	}
+
+	.docs-public-pages__card {
+		background: var(--surface-main);
+		border: 1px solid var(--surface-border);
+		border-radius: var(--radius-md);
+		padding: 1.25rem;
+		display: grid;
+		gap: 1rem;
+	}
+
+	.docs-public-pages__title {
+		font-size: 1rem;
+		font-weight: 700;
+		margin: 0 0 0.35rem;
+	}
+
+	.docs-public-pages__meta {
+		margin: 0;
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+
+	.docs-public-pages__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.docs-public-pages__link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.6rem 0.9rem;
+		border-radius: 999px;
+		background: var(--accent);
+		color: white;
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-weight: 700;
+	}
+
+	.docs-public-pages__link--secondary {
+		background: transparent;
+		color: var(--text-main);
+		border: 1px solid var(--surface-border);
 	}
 
 	.docs-prd__backlog-title {

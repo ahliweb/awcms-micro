@@ -23,6 +23,10 @@ export interface DocsCopy {
 	openAdmin: string;
 	openDocsAdmin: string;
 	viewPublicDocs: string;
+	publicPagesTitle: string;
+	publicPagesDescription: string;
+	openPage: string;
+	managePagesInAdmin: string;
 	sections: DocsSection[];
 	referencesTitle: string;
 	references: DocsReferenceItem[];
@@ -56,6 +60,11 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		openAdmin: "Open docs admin",
 		openDocsAdmin: "Open docs page",
 		viewPublicDocs: "View public docs",
+		publicPagesTitle: "Public reference pages",
+		publicPagesDescription:
+			"Published pages are editable from the standard Pages collection and can be surfaced from the docs hub.",
+		openPage: "Open page",
+		managePagesInAdmin: "Manage pages in admin",
 		sections: [
 			{
 				title: "Workspace shape",
@@ -135,6 +144,11 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		openAdmin: "Buka admin docs",
 		openDocsAdmin: "Buka halaman docs",
 		viewPublicDocs: "Lihat docs publik",
+		publicPagesTitle: "Halaman referensi publik",
+		publicPagesDescription:
+			"Halaman terpublikasi dapat diedit dari koleksi Pages standar dan bisa ditampilkan dari hub docs.",
+		openPage: "Buka halaman",
+		managePagesInAdmin: "Kelola halaman di admin",
 		sections: [
 			{
 				title: "Bentuk workspace",
