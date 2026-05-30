@@ -510,7 +510,6 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			{/* Plugin pages (collapsible, one group per plugin) */}
 			{visiblePluginGroups.length > 0 && (
 				<>
-					<KumoSidebar.Separator />
 					{visiblePluginGroups.map((group, index) => (
 						<React.Fragment key={group.id}>
 							{index > 0 && <KumoSidebar.Separator />}
