@@ -76,6 +76,8 @@ overrides:
   "@hono/node-server": "1.19.13"
   # Patch Dependabot alert: lodash prototype pollution fixes.
   "lodash": "4.18.0"
+  # Patch Dependabot alert: tar archive extraction fixes.
+  "tar": "7.5.11"
   # Patch Dependabot alert: js-yaml alias/constructor fixes.
   "js-yaml": "4.1.1"
   # Patch Dependabot alert: ajv schema validation fixes.
@@ -86,6 +88,10 @@ overrides:
   "markdown-it": "14.1.1"
   # Patch Dependabot alert: svgo script sanitization fixes.
   "svgo": "4.0.1"
+  # Patch Dependabot alert: astro parser/runtime fixes.
+  "astro": "6.3.5"
+  # Patch Dependabot alert: rollup bundler fixes.
+  "rollup": "4.59.0"
 
 enablePrePostScripts: true
 
