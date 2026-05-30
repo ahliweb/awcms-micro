@@ -17,6 +17,8 @@ cleanup() {
 
 trap cleanup EXIT
 
+# Run this only after upstream/downstream analysis is complete.
+# If preserving downstream changes requires script or validation updates, make those first.
 echo "Cloning latest EmDash..."
 git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$SOURCE_DIR"
 UPSTREAM_SHA="$(git -C "$SOURCE_DIR" rev-parse HEAD)"
