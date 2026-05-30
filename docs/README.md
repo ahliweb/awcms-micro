@@ -22,6 +22,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
+- `operator-workflow.md`: also documents `continuation` vs `fresh-clone` update mode and the fresh-clone prompt details
 - `backup/gitlab-mirror-setup.md`: GitLab PAT-based mirror setup and recovery notes
 - `security/backup-restore.md`: backup and restore baseline expectations
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
