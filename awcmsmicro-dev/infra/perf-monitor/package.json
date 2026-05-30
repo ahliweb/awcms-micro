@@ -16,9 +16,9 @@
 		"trigger": "node scripts/trigger.mjs"
 	},
 	"devDependencies": {
-    "@cloudflare/vite-plugin": "catalog:",
+		"@cloudflare/vite-plugin": "^1.0.0",
 		"typescript": "catalog:",
-    "vite": "catalog:",
+		"vite": "^6.0.0",
 		"wrangler": "catalog:"
 	}
 }

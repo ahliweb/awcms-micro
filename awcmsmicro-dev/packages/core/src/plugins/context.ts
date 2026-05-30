@@ -989,7 +989,5 @@ export function createPluginContext(
 	plugin: ResolvedPlugin,
 ): PluginContext {
 	const factory = new PluginContextFactory(options);
-	const context = factory.createContext(plugin) as PluginContext & { db: Kysely<Database> };
-	context.db = options.db;
-	return context;
+	return factory.createContext(plugin);
 }

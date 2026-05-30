@@ -28,6 +28,12 @@ allowBuilds:
   better-sqlite3: true
   esbuild: true
   workerd: true
+  # Transitive @flue/runtime deps. The reviewer ran end-to-end with these
+  # build scripts ignored, so none are needed at runtime.
+  "@google/genai": false
+  "@mongodb-js/zstd": false
+  node-liblzma: false
+  protobufjs: false
 # Reviewed benign trust downgrades (publish-method changes, not takeovers).
 trustPolicyExclude:
   - "vite@6.4.1" # trusted-publisher -> provenance (vitejs CI change)
@@ -35,7 +41,6 @@ trustPolicyExclude:
   - "semver@6.3.1" # provenance -> none (old pinned util via @babel/core)
   - "@portabletext/toolkit@3.0.3" # provenance -> none (old pinned release)
   - "reselect@5.1.1" # provenance -> none (old pinned util)
-  - "express-rate-limit@8.2.2" # provenance -> none (Dependabot-patched line; reviewed for this workspace)
 
 overrides:
   # blockExoticSubdeps: infra/cache-demo's pkg.pr.new Astro preview pulls
@@ -43,55 +48,6 @@ overrides:
   "@astrojs/telemetry": "3.3.0"
   # 1.3.0 is deprecated (CWE-502); pin the patched line.
   "@ungap/structured-clone": "^1.3.1"
-  # Patch Dependabot alert: brace-expansion large-range DoS.
-  "brace-expansion": "5.0.6"
-  # Patch Dependabot alert: qs comma-array null/undefined DoS.
-  "qs": "6.15.2"
-  # Patch Dependabot alert: ws uninitialized memory disclosure.
-  "ws": "8.20.1"
-  # Patch Dependabot alert: devalue sparse-array DoS.
-  "devalue": "5.8.1"
-  # Patch Dependabot alert: dompurify forbidden-tag bypass.
-  "dompurify": "3.4.0"
-  # Patch Dependabot alert: simple-git RCE.
-  "simple-git": "3.36.0"
-  # Patch Dependabot alert: path-to-regexp ReDoS.
-  "path-to-regexp": "8.4.0"
-  # Patch Dependabot alert: defu prototype-pollution bypass.
-  "defu": "6.1.7"
-  # Patch Dependabot alert: h3 request smuggling / DoS fixes.
-  "h3": "1.15.11"
-  # Patch Dependabot alert: fast-uri prototype pollution / parser fixes.
-  "fast-uri": "3.1.2"
-  # Patch Dependabot alert: undici request smuggling / cache poisoning fixes.
-  "undici": "7.24.8"
-  # Patch Dependabot alert: postcss parser fixes.
-  "postcss": "8.5.14"
-  # Patch Dependabot alert: ip-address bounds checks.
-  "ip-address": "10.1.1"
-  # Patch Dependabot alert: yaml parser fixes.
-  "yaml": "2.8.3"
-  # Patch Dependabot alert: hono and node server fixes.
-  "hono": "4.12.18"
-  "@hono/node-server": "1.19.13"
-  # Patch Dependabot alert: lodash prototype pollution fixes.
-  "lodash": "4.18.0"
-  # Patch Dependabot alert: tar archive extraction fixes.
-  "tar": "7.5.11"
-  # Patch Dependabot alert: js-yaml alias/constructor fixes.
-  "js-yaml": "4.1.1"
-  # Patch Dependabot alert: ajv schema validation fixes.
-  "ajv": "8.18.0"
-  # Patch Dependabot alert: express-rate-limit header parsing fixes.
-  "express-rate-limit": "8.2.2"
-  # Patch Dependabot alert: markdown-it XSS / HTML parsing fixes.
-  "markdown-it": "14.1.1"
-  # Patch Dependabot alert: svgo script sanitization fixes.
-  "svgo": "4.0.1"
-  # Patch Dependabot alert: astro parser/runtime fixes.
-  "astro": "6.3.5"
-  # Patch Dependabot alert: rollup bundler fixes.
-  "rollup": "4.59.0"
 
 enablePrePostScripts: true
 
@@ -112,7 +68,7 @@ catalog:
   "@astrojs/check": ^0.9.7
   "@astrojs/cloudflare": ^13.5.3
   "@astrojs/node": ^10.1.1
-  "@astrojs/react": ^5.0.6
+  "@astrojs/react": ^5.0.0
   "@atcute/atproto": ^3.1.11
   "@atcute/car": ^6.0.0
   "@atcute/cbor": ^2.3.3
@@ -189,5 +145,5 @@ catalog:
   typescript: ^6.0.3
   vite: ^8.0.11
   vitest: ^4.1.5
-  wrangler: ^4.83.0
+  wrangler: ^4.95.0
   zod: ^4.4.1
