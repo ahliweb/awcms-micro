@@ -11,7 +11,7 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 
 1. Analyze upstream EmDash changes.
 2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
-3. Run `bash scripts/sync-preflight-checklist.sh` to record the operator checklist before any sync command.
+3. Run `bash scripts/sync-preflight-checklist.sh` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing or boundary validation fails.
 4. Refresh `emdash-latest/` from upstream.
 5. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 6. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
