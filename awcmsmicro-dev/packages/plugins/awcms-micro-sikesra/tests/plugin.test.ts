@@ -222,26 +222,26 @@ function createMockContext() {
 					row =
 						_table === "sikesra_audit_events"
 							? {
-								id: String(nextRow.id ?? ""),
-								timestamp: String(nextRow.timestamp ?? ""),
-								kind: String(nextRow.kind ?? ""),
-								scope: String(nextRow.scope ?? ""),
-								actor: String(nextRow.actor ?? ""),
-								summary: String(nextRow.summary ?? ""),
-								metadata: String(nextRow.metadata ?? "{}"),
-								user_id: nextRow.user_id ?? null,
-								user_name: nextRow.user_name ?? null,
-								created_at: String(nextRow.created_at ?? ""),
-								updated_at: String(nextRow.updated_at ?? ""),
-							}
+									id: String(nextRow.id ?? ""),
+									timestamp: String(nextRow.timestamp ?? ""),
+									kind: String(nextRow.kind ?? ""),
+									scope: String(nextRow.scope ?? ""),
+									actor: String(nextRow.actor ?? ""),
+									summary: String(nextRow.summary ?? ""),
+									metadata: String(nextRow.metadata ?? "{}"),
+									user_id: nextRow.user_id ?? null,
+									user_name: nextRow.user_name ?? null,
+									created_at: String(nextRow.created_at ?? ""),
+									updated_at: String(nextRow.updated_at ?? ""),
+								}
 							: {
-								plugin_id: String(nextRow.plugin_id ?? ""),
-								collection: String(nextRow.collection ?? ""),
-								id: String(nextRow.id ?? ""),
-								data: String(nextRow.data ?? "{}"),
-								created_at: String(nextRow.created_at ?? ""),
-								updated_at: String(nextRow.updated_at ?? ""),
-							};
+									plugin_id: String(nextRow.plugin_id ?? ""),
+									collection: String(nextRow.collection ?? ""),
+									id: String(nextRow.id ?? ""),
+									data: String(nextRow.data ?? "{}"),
+									created_at: String(nextRow.created_at ?? ""),
+									updated_at: String(nextRow.updated_at ?? ""),
+								};
 					const operation = {
 						onConflict(_handler: unknown) {
 							const statement = {
@@ -249,7 +249,9 @@ function createMockContext() {
 									if (!row) return;
 									if (_table === "sikesra_audit_events") {
 										const auditRow = row as Record<string, unknown>;
-										const index = auditTableRows.findIndex((existing) => existing.id === auditRow.id);
+										const index = auditTableRows.findIndex(
+											(existing) => existing.id === auditRow.id,
+										);
 										if (index >= 0) {
 											auditTableRows[index] = auditRow;
 										} else {
@@ -304,7 +306,7 @@ function createMockContext() {
 							}
 							syncCollectionMap(storedRow);
 						},
-				};
+					};
 					return operation;
 				},
 			};

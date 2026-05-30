@@ -467,25 +467,25 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 		const currentRows =
 			to === AWCMS_SIKESRA_AUDIT_TABLE
 				? ((await db
-					.selectFrom(to)
-					.select([
-						"id",
-						"timestamp",
-						"kind",
-						"scope",
-						"actor",
-						"summary",
-						"metadata",
-						"created_at",
-						"updated_at",
-					])
-					.execute()) as SikesraAuditEventRow[])
+						.selectFrom(to)
+						.select([
+							"id",
+							"timestamp",
+							"kind",
+							"scope",
+							"actor",
+							"summary",
+							"metadata",
+							"created_at",
+							"updated_at",
+						])
+						.execute()) as SikesraAuditEventRow[])
 				: ((await db
-					.selectFrom("_plugin_storage")
-					.select(["id", "data", "created_at", "updated_at"])
-					.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
-					.where("collection", "=", to)
-					.execute()) as PluginStorageRow[]);
+						.selectFrom("_plugin_storage")
+						.select(["id", "data", "created_at", "updated_at"])
+						.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+						.where("collection", "=", to)
+						.execute()) as PluginStorageRow[]);
 		const currentById = new Map(currentRows.map((row) => [row.id, row]));
 
 		for (const row of legacyRows) {
@@ -496,7 +496,8 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 					.insertInto(to)
 					.values({
 						id: row.id,
-						timestamp: parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						timestamp:
+							parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
 						kind: parsed.kind ?? "legacy.audit",
 						scope: parsed.scope ?? "lifecycle",
 						actor: parsed.actor ?? "system",
@@ -509,7 +510,8 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 					})
 					.onConflict((oc: any) =>
 						oc.columns(["id"]).doUpdateSet({
-							timestamp: parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+							timestamp:
+								parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
 							kind: parsed.kind ?? "legacy.audit",
 							scope: parsed.scope ?? "lifecycle",
 							actor: parsed.actor ?? "system",
@@ -2006,7 +2008,11 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db) {
-		return { items: [] as ExampleAuditEvent[], cursor: undefined as string | undefined, hasMore: false };
+		return {
+			items: [] as ExampleAuditEvent[],
+			cursor: undefined as string | undefined,
+			hasMore: false,
+		};
 	}
 
 	await ensureAuditEventTable(db);

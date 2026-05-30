@@ -1,35 +1,176 @@
 ---
-const currentLocale = Astro.currentLocale || "en";
-const isId = currentLocale.startsWith("id");
-const footerMessage = isId ? "Placeholder footer contoh AWCMS-Micro." : "AWCMS-Micro example footer placeholder.";
-const supportMessage = isId ? "Tidak ada modifikasi EmDash core yang diperlukan untuk memakai template ini." : "No EmDash core modifications are required to use this template.";
+import { getPublicCopy } from "../utils/public-copy";
+import { getI18nConfig } from "emdash";
+import { toLocalePath } from "../utils/locale-path";
+import { WidgetArea } from "emdash/ui";
+
+interface Props {
+	showWidgets?: boolean;
+}
+
+const { showWidgets = true } = Astro.props;
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
+const copy = getPublicCopy(currentLocale);
 ---
 
-<footer>
-	<div class="shell">
-		<p>{footerMessage}</p>
-		<p>{supportMessage}</p>
+<footer class="site-footer">
+	<div class="footer-container">
+		<div class="footer-brand-col">
+			<span class="footer-brand-text">AWCMS-Micro</span>
+			<p class="footer-brand-desc">{copy.footerBrandDesc}</p>
+		</div>
+		
+		<div class="footer-links-grid">
+			<div class="footer-links-col">
+				<h4 class="footer-links-title">{copy.footerLinksProduct}</h4>
+				<ul class="footer-links-list">
+					<li><a href={toLocalePath("/", currentLocale, localeOptions)}>{copy.returnHome}</a></li>
+					<li><a href="#features">{copy.footerLinkFeatures}</a></li>
+					<li><a href="/gallery" data-astro-prefetch="hover">{copy.footerLinkGallery}</a></li>
+				</ul>
+			</div>
+			
+			<div class="footer-links-col">
+				<h4 class="footer-links-title">{copy.footerLinksResources}</h4>
+				<ul class="footer-links-list">
+					<li><a href="/docs" data-astro-prefetch="hover">{copy.footerLinkDocs}</a></li>
+					<li><a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkAggregate}</a></li>
+					<li><a href="/sikesra" data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
+				</ul>
+			</div>
+			
+			<div class="footer-links-col">
+				<h4 class="footer-links-title">{copy.footerLinksCompany}</h4>
+				<ul class="footer-links-list">
+					<li><a href="/about" data-astro-prefetch="hover">{copy.viewAboutPage}</a></li>
+					<li><a href="/privacy">{copy.footerLinkPrivacy}</a></li>
+					<li><a href="/terms">{copy.footerLinkTerms}</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	{showWidgets && (
+		<div class="footer-widgets-container">
+			<WidgetArea name="sidebar" />
+		</div>
+	)}
+	
+	<div class="footer-bottom">
+		<p class="footer-copyright">{copy.footerCopyright}</p>
 	</div>
 </footer>
 
 <style>
-	footer {
-		border-top: 1px solid #d1d5db;
-		background: #ffffff;
+	.site-footer {
+		background: var(--surface-main);
+		border-top: 1px solid var(--surface-border);
+		padding: 4rem 1.25rem 2rem;
+		transition: background-color 0.3s ease, border-color 0.3s ease;
 	}
 
-	.shell {
+	.footer-container {
 		max-width: 72rem;
 		margin: 0 auto;
-		padding: 1.5rem 1.25rem 2rem;
 		display: flex;
 		justify-content: space-between;
-		gap: 1rem;
+		gap: 3rem;
 		flex-wrap: wrap;
-		color: #4b5563;
+		margin-bottom: 3rem;
 	}
 
-	p {
+	.footer-brand-col {
+		max-width: 20rem;
+		flex-shrink: 0;
+	}
+
+	.footer-brand-text {
+		font-weight: 800;
+		font-size: 1.25rem;
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		letter-spacing: -0.01em;
+		display: inline-block;
+		margin-bottom: 1rem;
+	}
+
+	.footer-brand-desc {
+		font-size: 0.9rem;
+		line-height: 1.6;
+		color: var(--text-muted);
 		margin: 0;
+	}
+
+	.footer-links-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(120px, 1fr));
+		gap: 2rem;
+		flex-grow: 1;
+		max-width: 38rem;
+	}
+
+	.footer-links-title {
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-main);
+		margin: 0 0 1rem;
+	}
+
+	.footer-links-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.65rem;
+	}
+
+	.footer-links-list a {
+		font-size: 0.9rem;
+		color: var(--text-muted);
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.footer-links-list a:hover {
+		color: var(--accent);
+	}
+
+	.footer-bottom {
+		max-width: 72rem;
+		margin: 0 auto;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--surface-border);
+		display: flex;
+		justify-content: center;
+	}
+
+	.footer-copyright {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		margin: 0;
+		text-align: center;
+	}
+
+	@media (max-width: 768px) {
+		.footer-container {
+			flex-direction: column;
+			gap: 2.5rem;
+		}
+
+		.footer-links-grid {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
+			max-width: none;
+		}
 	}
 </style>

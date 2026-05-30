@@ -68,6 +68,80 @@ const PUBLIC_COPY = {
 		toggleTheme: "Toggle Theme",
 		switchToLightMode: "Switch to Light Mode",
 		switchToDarkMode: "Switch to Dark Mode",
+		// Hero Section
+		heroTitle: "Build Anything on a Resilient Foundation",
+		heroSubtitle:
+			"AWCMS-Micro combines the absolute reliability of single-tenant architecture with the flexible extension model of EmDash. Fully integrated, zero core modifications, completely tenant-ready.",
+		heroCtaPrimary: "Explore Admin",
+		heroCtaSecondary: "Read Documentation",
+
+		// Features
+		featuresTitle: "Engineered for Every Use Case",
+		featuresSubtitle:
+			"From standard marketing sites to complex data backends, AWCMS-Micro provides a unified development experience.",
+		featureCmsTitle: "Modern CMS",
+		featureCmsDesc:
+			"Flexible content structures for blogs, news, and pages with instant preview and publishing.",
+		featureShopTitle: "E-Commerce Ready",
+		featureShopDesc:
+			"Secure transactions, product galleries, and inventory management powered by custom microservices.",
+		featureAppTitle: "Custom Web Apps",
+		featureAppDesc:
+			"Robust APIs and serverless workflows to power tailored web portals and business applications.",
+		featureAdminTitle: "Admin Center",
+		featureAdminDesc:
+			"A complete, customizable backoffice portal for data entry, audits, and governance workflows.",
+		featureMobileTitle: "Mobile Backend",
+		featureMobileDesc:
+			"Ultra-fast REST and GraphQL endpoints designed to feed native Android and iOS applications.",
+		featureIotAiTitle: "IoT & AI Integrations",
+		featureIotAiDesc:
+			"Real-time sensor pipelines, agent webhooks, and AI model orchestration out of the box.",
+
+		// Use Cases Showcase
+		useCasesTitle: "Concrete Implementations",
+		useCasesSubtitle:
+			"See how AWCMS-Micro templates and plugins adapt to your architectural demands.",
+		useCaseCmsHeading: "1. Headless Website CMS",
+		useCaseCmsText:
+			"Manage content with standard EmDash collections and deliver it statically or dynamically. Astro-powered frontend provides optimal load times and top-tier SEO performance.",
+		useCaseShopHeading: "2. Secure E-Commerce",
+		useCaseShopText:
+			"Implement product feeds, interactive search, and secure checkouts. Leverage Cloudflare KV or durable storage to build performant, globally-distributed storefronts.",
+		useCaseAppHeading: "3. Enterprise Web Portals",
+		useCaseAppText:
+			"Construct responsive layouts and workflows with full support for user authorization, settings, and third-party API integrations.",
+		useCaseAdminHeading: "4. Multi-Tenant Admin Portals",
+		useCaseAdminText:
+			"AWCMS-Micro includes a powerful admin dashboard featuring localized interfaces, collapsible sidebar groups, and extensible widgets.",
+		useCaseMobileHeading: "5. Mobile & IoT Backend",
+		useCaseMobileText:
+			"Serve as a high-performance backend. Provide API endpoints with sub-millisecond response times, secure authentication, and real-time data sync.",
+		useCaseAiHeading: "6. AI-Powered Workflows",
+		useCaseAiText:
+			"Run intelligent agents, monitor logs, and trigger automated workflows based on database events and webhooks.",
+
+		// CTA Banner
+		ctaTitle: "Ready to accelerate your next project?",
+		ctaSubtitle:
+			"Deploy AWCMS-Micro on Cloudflare Pages or run it locally in seconds. Join developers building resilient applications.",
+		ctaPrimary: "Get Started Now",
+		ctaSecondary: "View on GitHub",
+
+		// Footer
+		footerBrandDesc:
+			"Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and secure.",
+		footerLinksProduct: "Product",
+		footerLinksResources: "Resources",
+		footerLinksCompany: "Company",
+		footerLinkFeatures: "Features",
+		footerLinkDocs: "Docs",
+		footerLinkAggregate: "Aggregate",
+		footerLinkGallery: "Gallery Demo",
+		footerLinkSikesra: "Sikesra App",
+		footerLinkPrivacy: "Privacy Policy",
+		footerLinkTerms: "Terms of Service",
+		footerCopyright: "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash.",
 		counts: { posts: "Posts", news: "News", pages: "Pages" },
 	},
 	id: {
@@ -139,6 +213,81 @@ const PUBLIC_COPY = {
 		toggleTheme: "Ganti Tema",
 		switchToLightMode: "Ganti ke Mode Terang",
 		switchToDarkMode: "Ganti ke Mode Gelap",
+		// Hero Section
+		heroTitle: "Bangun Apa Saja di Atas Fondasi yang Tangguh",
+		heroSubtitle:
+			"AWCMS-Micro menggabungkan keandalan mutlak arsitektur single-tenant dengan model ekstensi EmDash yang fleksibel. Terintegrasi penuh, tanpa modifikasi core, siap untuk multi-tenant.",
+		heroCtaPrimary: "Jelajahi Admin",
+		heroCtaSecondary: "Baca Dokumentasi",
+
+		// Features
+		featuresTitle: "Didesain untuk Segala Kebutuhan",
+		featuresSubtitle:
+			"Dari situs web pemasaran standar hingga backend data yang kompleks, AWCMS-Micro menyediakan pengalaman pengembangan yang terpadu.",
+		featureCmsTitle: "CMS Modern",
+		featureCmsDesc:
+			"Struktur konten fleksibel untuk blog, berita, dan halaman dengan pratinjau dan publikasi instan.",
+		featureShopTitle: "Siap E-Commerce",
+		featureShopDesc:
+			"Transaksi aman, galeri produk, dan manajemen inventaris yang didukung oleh microservices kustom.",
+		featureAppTitle: "Aplikasi Web Kustom",
+		featureAppDesc:
+			"API tangguh dan alur kerja serverless untuk mendukung portal web kustom dan aplikasi bisnis.",
+		featureAdminTitle: "Pusat Admin",
+		featureAdminDesc:
+			"Portal backoffice lengkap yang dapat disesuaikan untuk entri data, audit, dan alur kerja tata kelola.",
+		featureMobileTitle: "Backend Mobile",
+		featureMobileDesc:
+			"Endpoint REST dan GraphQL super cepat yang dirancang untuk mendukung aplikasi native Android dan iOS.",
+		featureIotAiTitle: "Integrasi IoT & AI",
+		featureIotAiDesc:
+			"Pipeline sensor real-time, webhook agen, dan orkestrasi model AI langsung dari kotak.",
+
+		// Use Cases Showcase
+		useCasesTitle: "Implementasi Nyata",
+		useCasesSubtitle:
+			"Lihat bagaimana template dan plugin AWCMS-Micro menyesuaikan dengan kebutuhan arsitektur Anda.",
+		useCaseCmsHeading: "1. CMS Website Headless",
+		useCaseCmsText:
+			"Kelola konten dengan koleksi EmDash standar dan sajikan secara statis atau dinamis. Frontend bertenaga Astro memberikan waktu muat optimal dan performa SEO terbaik.",
+		useCaseShopHeading: "2. E-Commerce yang Aman",
+		useCaseShopText:
+			"Implementasikan feed produk, pencarian interaktif, dan checkout aman. Manfaatkan Cloudflare KV atau penyimpanan tahan lama untuk membangun toko global berperforma tinggi.",
+		useCaseAppHeading: "3. Portal Web Perusahaan",
+		useCaseAppText:
+			"Bangun tata letak dan alur kerja responsif dengan dukungan penuh untuk otorisasi pengguna, pengaturan, dan integrasi API pihak ketiga.",
+		useCaseAdminHeading: "4. Portal Admin Multi-Tenant",
+		useCaseAdminText:
+			"AWCMS-Micro menyertakan dasbor admin canggih yang menampilkan antarmuka terlokalisasi, grup sidebar yang dapat diciutkan, dan widget yang dapat diperluas.",
+		useCaseMobileHeading: "5. Backend Mobile & IoT",
+		useCaseMobileText:
+			"Berfungsi sebagai backend berkinerja tinggi. Sediakan endpoint API dengan waktu respons sub-milidetik, otentikasi aman, dan sinkronisasi data real-time.",
+		useCaseAiHeading: "6. Alur Kerja Bertenaga AI",
+		useCaseAiText:
+			"Jalankan agen cerdas, pantau log, dan picu alur kerja otomatis berdasarkan event database dan webhook.",
+
+		// CTA Banner
+		ctaTitle: "Siap mempercepat proyek Anda berikutnya?",
+		ctaSubtitle:
+			"Deploy AWCMS-Micro di Cloudflare Pages atau jalankan secara lokal dalam hitungan detik. Bergabunglah dengan pengembang yang membangun aplikasi tangguh.",
+		ctaPrimary: "Mulai Sekarang",
+		ctaSecondary: "Lihat di GitHub",
+
+		// Footer
+		footerBrandDesc:
+			"Template web dan plugin tangguh yang dibangun di atas EmDash. Ringan, cepat, dan aman.",
+		footerLinksProduct: "Produk",
+		footerLinksResources: "Sumber Daya",
+		footerLinksCompany: "Perusahaan",
+		footerLinkFeatures: "Fitur",
+		footerLinkDocs: "Dokumentasi",
+		footerLinkAggregate: "Agregat",
+		footerLinkGallery: "Demo Galeri",
+		footerLinkSikesra: "Aplikasi Sikesra",
+		footerLinkPrivacy: "Kebijakan Privasi",
+		footerLinkTerms: "Ketentuan Layanan",
+		footerCopyright:
+			"© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
 		counts: { posts: "Pos", news: "Berita", pages: "Halaman" },
 	},
 } as const;
