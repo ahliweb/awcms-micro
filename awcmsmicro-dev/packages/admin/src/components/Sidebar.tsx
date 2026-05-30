@@ -16,6 +16,19 @@ import {
 	Users,
 	Stack,
 	ArrowsLeftRight,
+	ArrowSquareOut,
+	Check,
+	ChartBar,
+	Code,
+	GlobeSimple,
+	Info,
+	Inbox,
+	LinkSimple,
+	ListBullets,
+	Lock,
+	Shield,
+	SlidersHorizontal,
+	VideoCamera,
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -81,6 +94,48 @@ interface NavItem {
 	badge?: number;
 }
 
+interface PluginNavGroup {
+	id: string;
+	label: string;
+	icon: React.ElementType;
+	items: NavItem[];
+}
+
+const SIDEBAR_ICON_MAP: Record<string, React.ElementType> = {
+	image: Image,
+	list: List,
+	inbox: Inbox,
+	form: ListBullets,
+	code: Code,
+	shield: Shield,
+	chart: ChartBar,
+	file: FileText,
+	gear: Gear,
+	globe: GlobeSimple,
+	grid: GridFour,
+	info: Info,
+	lock: Lock,
+	sliders: SlidersHorizontal,
+	"arrow-up-from-bracket": Upload,
+	link: LinkSimple,
+	"link-external": ArrowSquareOut,
+	video: VideoCamera,
+	check: Check,
+};
+
+const PLUGIN_NAME_WORDS: Record<string, string> = {
+	ai: "AI",
+	api: "API",
+	awcms: "AWCMS",
+	cms: "CMS",
+	id: "ID",
+	http: "HTTP",
+	json: "JSON",
+	seo: "SEO",
+	url: "URL",
+	xml: "XML",
+};
+
 /**
  * Navigation item rendered as a TanStack Router <Link> inside kumo's
  * Sidebar.MenuItem. Styled to match kumo MenuButton appearance.
@@ -144,6 +199,25 @@ function resolveItemPath(item: NavItem): string {
 		}
 	}
 	return path;
+}
+
+function resolveSidebarIcon(icon?: string): React.ElementType {
+	if (icon && SIDEBAR_ICON_MAP[icon]) {
+		return SIDEBAR_ICON_MAP[icon]!;
+	}
+	return PuzzlePiece;
+}
+
+function humanizePluginLabel(pluginId: string, packageName?: string): string {
+	const rawName = (packageName?.split("/").pop() ?? pluginId).replace(/^(plugin-|emdash-|awcms-micro-)/, "");
+	return rawName
+		.split(/[-_]+/)
+		.filter(Boolean)
+		.map((word) => {
+			const lower = word.toLowerCase();
+			return PLUGIN_NAME_WORDS[lower] ?? lower.charAt(0).toUpperCase() + lower.slice(1);
+		})
+		.join(" ");
 }
 
 /** Checks if a nav item is active based on the current router path. */
@@ -245,21 +319,28 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const pluginItems: NavItem[] = [];
+	const pluginGroups: PluginNavGroup[] = [];
 	for (const [pluginId, config] of Object.entries(manifest.plugins)) {
 		if (config.enabled === false) continue;
 		if (config.adminPages && config.adminPages.length > 0) {
 			const pluginPages = pluginAdmins[pluginId]?.pages;
 			const isBlocksMode = config.adminMode === "blocks";
+			const items: NavItem[] = [];
 			for (const page of config.adminPages) {
 				if (!isBlocksMode && !pluginPages?.[page.path]) continue;
-				const label =
-					page.label ||
-					pluginId
-						.split("-")
-						.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-						.join(" ");
-				pluginItems.push({ to: `/plugins/${pluginId}${page.path}`, label, icon: PuzzlePiece });
+				items.push({
+					to: `/plugins/${pluginId}${page.path}`,
+					label: page.label || humanizePluginLabel(pluginId, config.package),
+					icon: resolveSidebarIcon(page.icon),
+				});
+			}
+			if (items.length > 0) {
+				pluginGroups.push({
+					id: pluginId,
+					label: humanizePluginLabel(pluginId, config.package),
+					icon: items[0]!.icon,
+					items,
+				});
 			}
 		}
 	}
@@ -270,7 +351,9 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const visibleContent = filterByRole(contentItems);
 	const visibleManage = filterByRole(manageItems);
 	const visibleAdmin = filterByRole(adminItems);
-	const visiblePlugins = filterByRole(pluginItems);
+	const visiblePluginGroups = pluginGroups
+		.map((group) => ({ ...group, items: filterByRole(group.items) }))
+		.filter((group) => group.items.length > 0);
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -421,57 +504,66 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Menu>
 					</KumoSidebar.Group>
 
-					<KumoSidebar.Separator />
+				<KumoSidebar.Separator />
 
-					{/* Content — collections + media (collapsible) */}
-					{visibleContent.length > 1 && (
-						<KumoSidebar.Group collapsible defaultOpen>
-							<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Content`}</KumoSidebar.GroupLabel>
-							<KumoSidebar.GroupContent>
-								<KumoSidebar.Menu>
-									{renderNavItems(visibleContent.filter((i) => i.to !== "/"))}
-								</KumoSidebar.Menu>
-							</KumoSidebar.GroupContent>
-						</KumoSidebar.Group>
-					)}
-
-					<KumoSidebar.Separator />
-
-					{/* Manage — comments, menus, taxonomies, etc. (collapsible) */}
-					{visibleManage.length > 0 && (
-						<KumoSidebar.Group collapsible defaultOpen>
-							<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Manage`}</KumoSidebar.GroupLabel>
-							<KumoSidebar.GroupContent>
-								<KumoSidebar.Menu>{renderNavItems(visibleManage)}</KumoSidebar.Menu>
-							</KumoSidebar.GroupContent>
-						</KumoSidebar.Group>
-					)}
-
-					<KumoSidebar.Separator />
-
-					{/* Admin — content types, users, plugins, import (collapsible) */}
-					{visibleAdmin.length > 0 && (
-						<KumoSidebar.Group collapsible defaultOpen>
-							<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Admin`}</KumoSidebar.GroupLabel>
-							<KumoSidebar.GroupContent>
-								<KumoSidebar.Menu>{renderNavItems(visibleAdmin)}</KumoSidebar.Menu>
-							</KumoSidebar.GroupContent>
-						</KumoSidebar.Group>
-					)}
-
-					{/* Plugin pages (collapsible) */}
-					{visiblePlugins.length > 0 && (
-						<>
-							<KumoSidebar.Separator />
-							<KumoSidebar.Group collapsible defaultOpen>
-								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Plugins`}</KumoSidebar.GroupLabel>
+				{/* Plugin pages — grouped by plugin */}
+				{visiblePluginGroups.length > 0 &&
+					visiblePluginGroups.map((group) => {
+						const GroupIcon = group.icon;
+						return (
+							<KumoSidebar.Group key={group.id} collapsible defaultOpen>
+								<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">
+									<span className="flex items-center gap-2">
+										<GroupIcon className="size-4 shrink-0" aria-hidden="true" />
+										<span>{group.label}</span>
+									</span>
+								</KumoSidebar.GroupLabel>
 								<KumoSidebar.GroupContent>
-									<KumoSidebar.Menu>{renderNavItems(visiblePlugins)}</KumoSidebar.Menu>
+									<KumoSidebar.Menu>{renderNavItems(group.items)}</KumoSidebar.Menu>
 								</KumoSidebar.GroupContent>
 							</KumoSidebar.Group>
-						</>
-					)}
-				</KumoSidebar.Content>
+						);
+					})}
+
+				{visiblePluginGroups.length > 0 && <KumoSidebar.Separator />}
+
+				{/* Content — collections + media (collapsible) */}
+				{visibleContent.length > 1 && (
+					<KumoSidebar.Group collapsible defaultOpen>
+						<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Content`}</KumoSidebar.GroupLabel>
+						<KumoSidebar.GroupContent>
+							<KumoSidebar.Menu>
+								{renderNavItems(visibleContent.filter((i) => i.to !== "/"))}
+							</KumoSidebar.Menu>
+						</KumoSidebar.GroupContent>
+					</KumoSidebar.Group>
+				)}
+
+				<KumoSidebar.Separator />
+
+				{/* Manage — comments, menus, taxonomies, etc. (collapsible) */}
+				{visibleManage.length > 0 && (
+					<KumoSidebar.Group collapsible defaultOpen>
+						<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Manage`}</KumoSidebar.GroupLabel>
+						<KumoSidebar.GroupContent>
+							<KumoSidebar.Menu>{renderNavItems(visibleManage)}</KumoSidebar.Menu>
+						</KumoSidebar.GroupContent>
+					</KumoSidebar.Group>
+				)}
+
+				<KumoSidebar.Separator />
+
+				{/* Admin — content types, users, plugins, import (collapsible) */}
+				{visibleAdmin.length > 0 && (
+					<KumoSidebar.Group collapsible defaultOpen>
+						<KumoSidebar.GroupLabel className="[&>span]:text-start [&_svg]:rtl:-scale-x-100 [&_svg]:rtl:-scale-y-100">{t`Admin`}</KumoSidebar.GroupLabel>
+						<KumoSidebar.GroupContent>
+							<KumoSidebar.Menu>{renderNavItems(visibleAdmin)}</KumoSidebar.Menu>
+						</KumoSidebar.GroupContent>
+					</KumoSidebar.Group>
+				)}
+
+			</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
 					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
