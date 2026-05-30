@@ -30,6 +30,7 @@ Within this parent workspace:
 - Keep the root workspace snapshot in `CHANGELOG.md` aligned with the current EmDash upstream SHA and the latest versions/changelog entries for every plugin and template in `awcmsmicro-dev/`; keep workspace package releases like `awcmsmicro-dev/packages/admin/` aligned with `awcmsmicro-dev/.changeset/`.
 - Keep root documentation in sync with the actual folder structure and workflow.
 - Keep backup and mirror documentation aligned with the current PAT-based GitLab flow and the safe `.env` overlay used by `scripts/backup/load-config.sh`.
+- Check `docs/operator-workflow.md` for `continuation` vs `fresh-clone` update mode guidance before sync work, especially when fresh-clone bootstrap values must be captured locally.
 - When work is too large for one pass, split it into smaller tracked tasks.
 - If useful, create GitHub issues so work can later be executed by a smaller or lower-cost AI model.
 
