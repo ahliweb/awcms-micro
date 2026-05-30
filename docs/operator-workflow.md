@@ -20,6 +20,7 @@ This document gives operators one concise end-to-end workflow for maintaining th
 - Use `continuation` when the workspace already has its local configuration and you are continuing an existing sync or implementation cycle.
 - Use `fresh-clone` when the workspace was just cloned or reset and local bootstrap config still needs to be prepared.
 - In `fresh-clone` mode, make sure local `.env` or encrypted backup config exists before running sync commands so GitHub and Cloudflare settings are not skipped.
+- Fresh-clone mode also asks for a unique template folder name and whether built-in plugins should be used; those choices are saved into `awcmsmicro-dev/.env` as local bootstrap values.
 
 ## Standard Commands
 

@@ -11,8 +11,8 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 
 1. Analyze upstream EmDash changes.
 2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
-3. Choose the update mode: `continuation` for an existing workspace or `fresh-clone` for a new clone that still needs local config bootstrap (`.env` or backup config).
-4. Run `bash scripts/sync-preflight-checklist.sh --mode <continuation|fresh-clone>` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing, boundary validation fails, or fresh-clone config bootstrap is not ready.
+3. Choose the update mode: `continuation` for an existing workspace or `fresh-clone` for a new clone that still needs local config bootstrap (`.env` or backup config) and fresh-clone template/plugin choices.
+4. Run `bash scripts/sync-preflight-checklist.sh --mode <continuation|fresh-clone>` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing, boundary validation fails, or fresh-clone config/bootstrap choices are not ready.
 5. Refresh `emdash-latest/` from upstream.
 6. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
 7. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.

@@ -103,6 +103,8 @@ require_contains 'Missing protected paths file' "$SYNC_SCRIPT"
 log "Checking sync preflight gate"
 require_contains 'MODE="continuation"' "$PREFLIGHT_SCRIPT"
 require_contains '--fresh-clone' "$PREFLIGHT_SCRIPT"
+require_contains 'AWCMSMICRO_TEMPLATE_NAME' "$PREFLIGHT_SCRIPT"
+require_contains 'AWCMSMICRO_USE_BUILTIN_PLUGINS' "$PREFLIGHT_SCRIPT"
 require_contains 'validate-awcmsmicro-boundaries.sh' "$PREFLIGHT_SCRIPT"
 
 log "Checking tracked files for secret-like paths"
