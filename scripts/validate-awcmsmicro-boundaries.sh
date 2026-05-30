@@ -35,6 +35,19 @@ ADMIN_NAV_PERSISTENCE_PATHS=(
 	"AGENTS.md"
 )
 
+LOCAL_STATE_PATHS=(
+	".env"
+	".env.age"
+)
+
+LOCAL_STATE_DOCS=(
+	"$ROOT_DIR/README.md"
+	"$ROOT_DIR/docs/repository-structure.md"
+	"$ROOT_DIR/docs/implementation-instructions.md"
+	"$ROOT_DIR/docs/operator-workflow.md"
+	"$ROOT_DIR/docs/synchronization-workflow.md"
+)
+
 ROOT_DOCS=(
 	"$ROOT_DIR/README.md"
 	"$ROOT_DIR/docs/README.md"
@@ -109,6 +122,15 @@ for relative_path in "${ADMIN_NAV_PERSISTENCE_PATHS[@]}"; do
 	require_contains "$relative_path" "$ALLOWLIST_FILE"
 	dir_path="$ROOT_DIR/awcmsmicro-dev/$relative_path"
 	require_path "$dir_path"
+done
+
+log "Checking local bootstrap state preservation"
+for relative_path in "${LOCAL_STATE_PATHS[@]}"; do
+	require_contains "$relative_path" "$BOUNDARIES_DOC"
+	require_contains "$relative_path" "$ALLOWLIST_FILE"
+	for doc in "${LOCAL_STATE_DOCS[@]}"; do
+		require_contains "$relative_path" "$doc"
+	done
 done
 
 log "Checking sync allowlist strategy"

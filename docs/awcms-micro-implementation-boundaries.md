@@ -33,6 +33,11 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, E2E, and release-automation boundaries listed above
 
+Local bootstrap state used by sync and backup workflows is also preserved across rebuilds:
+
+- `awcmsmicro-dev/.env`
+- `awcmsmicro-dev/.env.age`
+
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
 
 ## Upstream-Only Paths
@@ -65,6 +70,7 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - preserved workflow and release automation in `awcmsmicro-dev/.github/workflows/` and `awcmsmicro-dev/.github/scripts/`
 - preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
 - dev-workspace agent guidance in `awcmsmicro-dev/AGENTS.md`
+- local bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
 - sidebar branding/header/footer, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
 - file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, and `packages/admin/tests/components/AdminCommandPalette.test.tsx`
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`

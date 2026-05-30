@@ -38,7 +38,7 @@ Keep these flows separate so root maintenance releases do not mix with package r
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
-Fresh-clone sync bootstrapping may also store template name and built-in plugin choices in `awcmsmicro-dev/.env` so local operator decisions stay outside git.
+Fresh-clone sync bootstrapping may also store template name and built-in plugin choices in `awcmsmicro-dev/.env` so local operator decisions stay outside git, and rebuilds preserve both `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when present.
 See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update modes and the fresh-clone prompt details.
 
 ## Repository Rules

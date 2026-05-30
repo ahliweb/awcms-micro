@@ -98,7 +98,7 @@ The root repository also contains:
 - `VERSION`: root maintenance release version
 - `.awcms-changesets/`: root maintenance release-note inputs
 - `.gitignore`: local artifact and secret-protection rules
-- local-only `.env`: optional operator secrets, excluded from git
+- local-only `.env`: optional operator secrets, excluded from git and preserved in `awcmsmicro-dev/` rebuilds when present alongside `awcmsmicro-dev/.env.age`
 
 ## Language Policy
 
