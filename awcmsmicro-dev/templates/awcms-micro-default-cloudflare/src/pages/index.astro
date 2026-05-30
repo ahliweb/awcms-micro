@@ -65,20 +65,20 @@ const publicCounts = [
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
-	<section class="card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
+  <section class="card hero-card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
 		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">{copy.homeKicker}</p>
 		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">{copy.homeHeading}</h1>
 		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">{copy.homeIntro}</p>
-		<div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+      <div class="hero-actions" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
 			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.openAdmin}</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
 			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/docs" data-astro-prefetch="hover">{copy.viewDocs}</a>
 		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/plugins/awcms-micro-sikesra/overview">{copy.pluginConsole}</a>
 		<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.publicAggregateLink}</a>
 	</div>
-	</section>
+  </section>
 
-	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
+	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
 			<p class="kicker">{copy.publicNavigationExample}</p>
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.nestedPrimaryMenu}</h2>
@@ -92,7 +92,7 @@ const publicCounts = [
 		</div>
 	</section>
 
-	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:1.5rem;">
+	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1.5rem;">
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.cloudflareReady}</h2>
 			<p style="color:var(--text-muted);margin-bottom:0;">{copy.cloudflareReadyDescription}</p>
@@ -111,7 +111,7 @@ const publicCounts = [
 		</div>
 	</section>
 
-	<section style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:2rem;">
+	<section class="stack-grid stack-grid--counts" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:2rem;">
 		{publicCounts.map((item) => (
 			<div class="card" style="padding:1rem 1.2rem;">
 				<p class="kicker" style="margin-bottom:0.35rem;">{item.label}</p>
@@ -120,7 +120,7 @@ const publicCounts = [
 		))}
 	</section>
 
-	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:2rem;">
+	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:2rem;">
 		<div class="card">
 			<p class="kicker">{copy.publicPagesTitle}</p>
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicPagesDescription}</h2>
@@ -148,7 +148,7 @@ const publicCounts = [
 		</div>
 	</section>
 
-	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));margin-bottom:3rem;">
+	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:3rem;">
 		<div class="card">
 			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publishedFromAdmin}</h2>
 			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publishedFromAdminDescription}</p>
@@ -208,12 +208,43 @@ const publicCounts = [
 		</div>
 	</section>
 
-	<script is:inline>
+  <script is:inline>
 		const pageThemeToggle = document.getElementById("page-theme-toggle");
 		const headerThemeToggle = document.getElementById("theme-toggle");
 
 		if (pageThemeToggle && headerThemeToggle) {
 			pageThemeToggle.addEventListener("click", () => headerThemeToggle.click());
 		}
-	</script>
+  </script>
+
+  <style>
+	.stack-grid {
+		align-items: stretch;
+	}
+
+	.stack-grid :global(.card) {
+		height: 100%;
+	}
+
+	.hero-actions > .btn {
+		min-width: 11rem;
+	}
+
+	@media (max-width: 640px) {
+		.hero-card {
+			padding: 2.5rem 1.25rem !important;
+		}
+
+		.hero-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.hero-actions > .btn {
+			width: 100%;
+			justify-content: center;
+			min-width: 0;
+		}
+	}
+  </style>
 </Base>
