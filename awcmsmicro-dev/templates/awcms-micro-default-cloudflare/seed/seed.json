@@ -278,6 +278,20 @@
 			]
 		}
 	],
+	"bylines": [
+		{
+			"id": "byline-awcms-editorial",
+			"slug": "awcms-micro-editorial",
+			"displayName": "AWCMS-Micro Editorial"
+		},
+		{
+			"id": "byline-awcms-editorial-id",
+			"translationOf": "byline-awcms-editorial",
+			"locale": "id",
+			"slug": "awcms-micro-editorial",
+			"displayName": "Editorial AWCMS-Micro"
+		}
+	],
 	"content": {
 		"pages": [
 			{
@@ -300,7 +314,12 @@
 							"_key": "b1"
 						}
 					]
-				}
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
 			},
 			{
 				"id": "about-id",
@@ -462,7 +481,12 @@
 							"_key": "roadmap-0-id"
 						}
 					]
-				}
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
 			}
 		],
 		"posts": [
@@ -488,6 +512,11 @@
 						}
 					]
 				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				],
 				"taxonomies": {
 					"category": ["platform"],
 					"tag": ["awcms-micro", "cloudflare"]
@@ -517,6 +546,11 @@
 						}
 					]
 				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				],
 				"taxonomies": {
 					"category": ["platform"],
 					"tag": ["awcms-micro", "cloudflare"]
