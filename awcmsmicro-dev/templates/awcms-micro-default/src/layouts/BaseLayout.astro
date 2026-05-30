@@ -53,21 +53,21 @@ const pageCtx = createPublicPageContext({
 			:root {
 				color-scheme: light;
 				font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
-				--bg-main: #f8fbff;
+				--bg-main: #f8fafc;
 				--surface-main: #ffffff;
-				--surface-border: rgba(14, 165, 233, 0.15);
+				--surface-border: rgba(99, 102, 241, 0.15);
 				--text-main: #0f172a;
 				--text-muted: #475569;
-				--accent: #0ea5e9;
-				--accent-hover: #0284c7;
-				--gradient-primary: linear-gradient(135deg, #0ea5e9, #6366f1);
-				--gradient-surface: linear-gradient(180deg, #ffffff, #f1f5f9);
+				--accent: #6366f1;
+				--accent-hover: #4f46e5;
+				--gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #6366f1 50%, #d946ef 100%);
+				--gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(241,245,249,0.5));
 
 				/* Richer Design tokens */
-				--shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-				--shadow-md: 0 8px 16px rgba(15, 23, 42, 0.06);
-				--shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.08);
-				--shadow-xl: 0 24px 48px rgba(15, 23, 42, 0.12);
+				--shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.04);
+				--shadow-md: 0 8px 24px rgba(99, 102, 241, 0.06);
+				--shadow-lg: 0 16px 32px rgba(99, 102, 241, 0.08);
+				--shadow-xl: 0 24px 48px rgba(99, 102, 241, 0.12);
 				--radius-lg: 1.5rem;
 				--radius-md: 1rem;
 				--radius-sm: 0.5rem;
@@ -75,25 +75,43 @@ const pageCtx = createPublicPageContext({
 
 			:root.dark {
 				color-scheme: dark;
-				--bg-main: #020917;
-				--surface-main: rgba(15, 23, 42, 0.6);
-				--surface-border: rgba(125, 211, 252, 0.1);
-				--text-main: #f8fafc;
-				--text-muted: #94a3b8;
-				--accent: #38bdf8;
-				--accent-hover: #7dd3fc;
-				--gradient-surface: linear-gradient(180deg, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.4));
+				--bg-main: #030712;
+				--surface-main: rgba(17, 24, 39, 0.4);
+				--surface-border: rgba(99, 102, 241, 0.15);
+				--text-main: #f3f4f6;
+				--text-muted: #9ca3af;
+				--accent: #a855f7;
+				--accent-hover: #c084fc;
+				--gradient-surface: linear-gradient(180deg, rgba(17, 24, 39, 0.6), rgba(3, 7, 18, 0.4));
 			}
 
 			body {
 				margin: 0;
+				position: relative;
 				background: var(--bg-main);
 				background-image:
-					radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12), transparent 45%),
-					radial-gradient(circle at 100% 60%, rgba(99, 102, 241, 0.06), transparent 50%);
+					radial-gradient(circle at 10% 20%, rgba(217, 70, 239, 0.08), transparent 35%),
+					radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.08), transparent 35%),
+					radial-gradient(circle at 50% 80%, rgba(14, 165, 233, 0.06), transparent 40%);
+				background-attachment: fixed;
 				color: var(--text-main);
 				line-height: 1.6;
 				transition: background-color 0.3s ease, color 0.3s ease;
+			}
+
+			body::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-image: 
+					linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+					linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+				background-size: 40px 40px;
+				pointer-events: none;
+				z-index: -1;
 			}
 
 			a {

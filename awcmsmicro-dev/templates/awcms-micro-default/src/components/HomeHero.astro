@@ -29,14 +29,14 @@ const copy = getPublicCopy(currentLocale);
 <style>
 	.hero-section {
 		position: relative;
-		padding: 6rem 1.5rem;
+		padding: 7rem 1.5rem;
 		text-align: center;
 		overflow: hidden;
 		background: var(--gradient-surface);
 		border: 1px solid var(--surface-border);
 		border-radius: 2rem;
 		margin-bottom: 3rem;
-		box-shadow: var(--shadow-xl, 0 20px 40px rgba(0,0,0,0.05));
+		box-shadow: var(--shadow-xl);
 	}
 
 	.hero-glow {
@@ -45,7 +45,7 @@ const copy = getPublicCopy(currentLocale);
 		left: -50%;
 		width: 200%;
 		height: 200%;
-		background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.03) 50%, transparent 100%);
+		background: radial-gradient(circle, rgba(217, 70, 239, 0.08) 0%, rgba(99, 102, 241, 0.04) 50%, transparent 100%);
 		pointer-events: none;
 		z-index: 0;
 		animation: pulse-glow 15s infinite alternate ease-in-out;
@@ -53,7 +53,7 @@ const copy = getPublicCopy(currentLocale);
 
 	@keyframes pulse-glow {
 		0% { transform: scale(1) translate(0, 0); }
-		100% { transform: scale(1.1) translate(2%, 2%); }
+		100% { transform: scale(1.05) translate(1%, 1%); }
 	}
 
 	.hero-container {
@@ -71,10 +71,10 @@ const copy = getPublicCopy(currentLocale);
 		letter-spacing: 0.15em;
 		color: var(--accent);
 		margin-bottom: 1.5rem;
-		background: rgba(14, 165, 233, 0.1);
-		padding: 0.35rem 1rem;
+		background: rgba(99, 102, 241, 0.08);
+		padding: 0.35rem 1.25rem;
 		border-radius: 999px;
-		border: 1px solid rgba(14, 165, 233, 0.2);
+		border: 1px solid rgba(99, 102, 241, 0.15);
 	}
 
 	.hero-title {
@@ -83,14 +83,14 @@ const copy = getPublicCopy(currentLocale);
 		line-height: 1.1;
 		color: var(--text-main);
 		margin: 0 0 1.5rem;
-		letter-spacing: -0.02em;
-		background: linear-gradient(135deg, var(--text-main) 30%, var(--accent) 100%);
+		letter-spacing: -0.03em;
+		background: var(--gradient-primary);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
 
 	:root.dark .hero-title {
-		background: linear-gradient(135deg, #ffffff 40%, #7dd3fc 100%);
+		background: linear-gradient(135deg, #ffffff 10%, #6366f1 50%, #d946ef 100%);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 	}
@@ -113,7 +113,7 @@ const copy = getPublicCopy(currentLocale);
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		padding: 0.875rem 2rem;
+		padding: 0.875rem 2.25rem;
 		border-radius: 999px;
 		font-weight: 700;
 		font-size: 1rem;
@@ -126,12 +126,32 @@ const copy = getPublicCopy(currentLocale);
 		background: var(--gradient-primary);
 		color: #ffffff;
 		border: none;
-		box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+		box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+		position: relative;
+	}
+
+	.btn-primary::after {
+		content: '';
+		position: absolute;
+		top: -2px;
+		left: -2px;
+		right: -2px;
+		bottom: -2px;
+		border-radius: 999px;
+		background: var(--gradient-primary);
+		z-index: -1;
+		opacity: 0.4;
+		transition: transform 0.5s ease, opacity 0.5s ease;
+	}
+
+	.btn-primary:hover::after {
+		transform: scale(1.08, 1.15);
+		opacity: 0;
 	}
 
 	.btn-primary:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 8px 30px rgba(14, 165, 233, 0.5);
+		box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
 		color: #ffffff;
 	}
 
@@ -143,6 +163,7 @@ const copy = getPublicCopy(currentLocale);
 		background: var(--surface-main);
 		color: var(--text-main);
 		border: 1px solid var(--surface-border);
+		backdrop-filter: blur(8px);
 	}
 
 	.btn-secondary:hover {

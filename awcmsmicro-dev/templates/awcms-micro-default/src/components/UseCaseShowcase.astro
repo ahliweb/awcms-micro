@@ -80,6 +80,45 @@ onCollectionChange("analysis", async (event) => {
 });`
 	}
 ];
+
+const REGEX_AMP = /&/g;
+const REGEX_LT = /</g;
+const REGEX_GT = />/g;
+const REGEX_STR = /("(?:[^"\\]|\\.)*")/g;
+const REGEX_KEY = /(<span class="tok-str">"[^"]+"<\/span>)(?=\s*:)/g;
+const REGEX_KW = /\b(export|async|function|const|let|var|return|await|if|default|import|from)\b/g;
+const REGEX_FN = /\b(Response|getSession|onCollectionChange|openai|db|update|summarize|onRequest)\b/g;
+const REGEX_STATUS = /(\[200 OK\])/g;
+const REGEX_STAT = /(response_time:\s*\d+\.?\d*ms)/g;
+const REGEX_COMMENT = /(\/\/.*)/g;
+
+function highlight(code: string) {
+	let html = code
+		.replace(REGEX_AMP, "&amp;")
+		.replace(REGEX_LT, "&lt;")
+		.replace(REGEX_GT, "&gt;");
+
+	// 1. Highlight strings first
+	html = html.replace(REGEX_STR, '<span class="tok-str">$1</span>');
+
+	// 2. Highlight JSON keys
+	html = html.replace(REGEX_KEY, '<span class="tok-key">$1</span>');
+
+	// 3. Keywords
+	html = html.replace(REGEX_KW, '<span class="tok-kw">$1</span>');
+
+	// 4. Functions & objects
+	html = html.replace(REGEX_FN, '<span class="tok-fn">$1</span>');
+
+	// 5. HTTP Response status & stats
+	html = html.replace(REGEX_STATUS, '<span class="tok-status">$1</span>');
+	html = html.replace(REGEX_STAT, '<span class="tok-stat">$1</span>');
+
+	// 6. Comments
+	html = html.replace(REGEX_COMMENT, '<span class="tok-comment">$1</span>');
+
+	return html;
+}
 ---
 
 <section class="usecases-section">
@@ -103,7 +142,7 @@ onCollectionChange("analysis", async (event) => {
 							<span class="dot green"></span>
 							<span class="window-title">{uc.type.toUpperCase()} MODEL</span>
 						</div>
-						<pre class="window-code"><code>{uc.mock}</code></pre>
+						<pre class="window-code"><code set:html={highlight(uc.mock)}></code></pre>
 					</div>
 				</div>
 			</div>
@@ -227,12 +266,20 @@ onCollectionChange("analysis", async (event) => {
 		margin: 0;
 		padding: 1.5rem;
 		overflow-x: auto;
-		color: #93c5fd;
+		color: #e2e8f0;
 		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 		font-size: 0.85rem;
-		line-height: 1.5;
+		line-height: 1.6;
 		text-align: left;
 	}
+
+	.tok-str { color: #34d399; }
+	.tok-key { color: #38bdf8; }
+	.tok-comment { color: #64748b; font-style: italic; }
+	.tok-kw { color: #f43f5e; font-weight: 700; }
+	.tok-fn { color: #fbbf24; }
+	.tok-status { color: #34d399; font-weight: 700; }
+	.tok-stat { color: #c084fc; }
 
 	@media (max-width: 768px) {
 		.usecase-item, .usecase-item.reverse {

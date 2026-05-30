@@ -68,24 +68,26 @@ const copy = getPublicCopy(currentLocale);
 	.site-header-nav .emdash-live-search-input {
 		width: 100%;
 		font-size: 0.875rem;
-		padding: 0.5rem 1rem 0.5rem 2.25rem;
+		padding: 0.5rem 1.25rem 0.5rem 2.25rem;
 		border-radius: 999px;
-		background: rgba(14, 165, 233, 0.05);
+		background: rgba(99, 102, 241, 0.05);
 		border: 1px solid var(--surface-border);
-		transition: all 0.25s ease;
+		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+		color: var(--text-main);
 	}
 	.site-header-nav .emdash-live-search-input:focus {
-		background: var(--bg-main);
+		background: var(--surface-main);
 		border-color: var(--accent);
-		box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+		box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 		outline: none;
 	}
 	.site-header-nav .emdash-live-search-results {
 		top: calc(100% + 8px) !important;
-		border-radius: 1rem !important;
+		border-radius: 1.25rem !important;
 		border: 1px solid var(--surface-border) !important;
-		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-		background: var(--bg-main) !important;
+		box-shadow: var(--shadow-lg) !important;
+		background: var(--surface-main) !important;
+		backdrop-filter: blur(16px);
 	}
 </style>
 
@@ -94,21 +96,21 @@ const copy = getPublicCopy(currentLocale);
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		background: rgba(255, 255, 255, 0.85);
+		background: rgba(248, 250, 252, 0.75);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
 		border-bottom: 1px solid var(--surface-border);
-		transition: background-color 0.3s ease, border-color 0.3s ease;
+		transition: all 0.3s ease;
 	}
 
 	:root.dark .site-header-nav {
-		background: rgba(10, 14, 23, 0.85);
+		background: rgba(3, 7, 18, 0.75);
 	}
 
 	.nav-container {
 		max-width: 72rem;
 		margin: 0 auto;
-		padding: 1rem 1.25rem;
+		padding: 0.85rem 1.25rem;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -123,18 +125,18 @@ const copy = getPublicCopy(currentLocale);
 	}
 
 	.brand-logo {
-		height: 38px;
+		height: 36px;
 		width: auto;
 		display: block;
 	}
 
 	.brand-text {
 		font-weight: 800;
-		font-size: 1.25rem;
+		font-size: 1.35rem;
 		background: var(--gradient-primary);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-		letter-spacing: -0.01em;
+		letter-spacing: -0.02em;
 	}
 
 	.menu-toggle-checkbox {
@@ -164,7 +166,7 @@ const copy = getPublicCopy(currentLocale);
 		align-items: center;
 		justify-content: space-between;
 		flex-grow: 1;
-		margin-left: 2rem;
+		margin-left: 2.5rem;
 	}
 
 	.nav-center {
@@ -175,7 +177,7 @@ const copy = getPublicCopy(currentLocale);
 	.nav-right {
 		display: flex;
 		align-items: center;
-		gap: 1.5rem;
+		gap: 1.25rem;
 		margin-left: auto;
 	}
 
@@ -187,31 +189,32 @@ const copy = getPublicCopy(currentLocale);
 	.nav-actions {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
+		gap: 0.75rem;
 	}
 
 	.admin-login-btn {
-		font-size: 0.875rem;
+		font-size: 0.85rem;
 		font-weight: 700;
 		color: var(--text-main);
-		background: rgba(14, 165, 233, 0.08);
+		background: rgba(99, 102, 241, 0.08);
 		border: 1px solid var(--surface-border);
-		padding: 0.45rem 1rem;
+		padding: 0.45rem 1.15rem;
 		border-radius: 999px;
-		transition: all 0.25s ease;
+		transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 		text-decoration: none;
 	}
 
 	.admin-login-btn:hover {
-		background: var(--accent);
+		background: var(--gradient-primary);
 		color: #ffffff;
 		border-color: transparent;
-		box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+		box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+		transform: translateY(-1px);
 	}
 
 	.theme-toggle-btn {
-		padding: 0.4rem;
-		font-size: 1.2rem;
+		padding: 0.5rem;
+		font-size: 1.15rem;
 		background: transparent;
 		border: none;
 		cursor: pointer;
@@ -220,10 +223,11 @@ const copy = getPublicCopy(currentLocale);
 		justify-content: center;
 		border-radius: 50%;
 		transition: background-color 0.2s ease;
+		color: var(--text-main);
 	}
 
 	.theme-toggle-btn:hover {
-		background: var(--surface-border);
+		background: rgba(99, 102, 241, 0.1);
 	}
 
 	@media (max-width: 991px) {
@@ -244,7 +248,7 @@ const copy = getPublicCopy(currentLocale);
 			gap: 1.5rem;
 			margin-left: 0;
 			display: none;
-			box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+			box-shadow: var(--shadow-lg);
 			backdrop-filter: blur(16px);
 		}
 

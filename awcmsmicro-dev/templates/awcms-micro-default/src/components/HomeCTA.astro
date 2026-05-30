@@ -28,13 +28,14 @@ const copy = getPublicCopy(currentLocale);
 <style>
 	.cta-section {
 		position: relative;
-		padding: 5rem 2rem;
+		padding: 5.5rem 2rem;
 		text-align: center;
-		background: var(--gradient-primary);
+		background: linear-gradient(135deg, #070a13 0%, #030712 100%);
+		border: 1px solid rgba(99, 102, 241, 0.25);
 		color: #ffffff;
 		border-radius: 2rem;
 		overflow: hidden;
-		box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+		box-shadow: var(--shadow-xl);
 		margin-bottom: 2rem;
 	}
 
@@ -44,7 +45,7 @@ const copy = getPublicCopy(currentLocale);
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: radial-gradient(circle at top right, rgba(255,255,255,0.15) 0%, transparent 60%);
+		background: radial-gradient(circle at top right, rgba(217, 70, 239, 0.15) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 100%);
 		pointer-events: none;
 	}
 
@@ -60,15 +61,20 @@ const copy = getPublicCopy(currentLocale);
 		font-weight: 800;
 		color: #ffffff;
 		margin: 0 0 1rem;
-		letter-spacing: -0.02em;
+		letter-spacing: -0.03em;
+		background: linear-gradient(135deg, #ffffff 40%, #c084fc 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
 		line-height: 1.2;
 	}
 
 	.cta-subtitle {
 		font-size: 1.125rem;
-		color: rgba(255, 255, 255, 0.85);
+		color: rgba(243, 244, 246, 0.8);
 		margin: 0 0 2.5rem;
 		line-height: 1.6;
+		max-width: 32rem;
+		margin-inline: auto;
 	}
 
 	.cta-buttons {
@@ -82,7 +88,7 @@ const copy = getPublicCopy(currentLocale);
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
-		padding: 0.875rem 2rem;
+		padding: 0.875rem 2.25rem;
 		border-radius: 999px;
 		font-weight: 700;
 		font-size: 1rem;
@@ -92,28 +98,29 @@ const copy = getPublicCopy(currentLocale);
 	}
 
 	.btn-primary {
-		background: #ffffff;
-		color: #1e1b4b;
+		background: var(--gradient-primary);
+		color: #ffffff;
 		border: none;
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+		box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
 	}
 
 	.btn-primary:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
-		background: #f8fafc;
+		box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+		color: #ffffff;
 	}
 
 	.btn-secondary {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.05);
 		color: #ffffff;
-		border: 1px solid rgba(255, 255, 255, 0.25);
+		border: 1px solid rgba(255, 255, 255, 0.15);
 		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
 	}
 
 	.btn-secondary:hover {
-		background: rgba(255, 255, 255, 0.2);
+		background: rgba(255, 255, 255, 0.1);
 		transform: translateY(-2px);
-		border-color: rgba(255, 255, 255, 0.4);
+		border-color: rgba(255, 255, 255, 0.3);
 	}
 </style>
