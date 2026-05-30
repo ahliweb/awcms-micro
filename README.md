@@ -96,10 +96,6 @@ Exception:
 - `bash scripts/awcms-root-versioning.sh version`
 - `node scripts/awcms-version.mjs status`
 - `node scripts/awcms-version.mjs version`
-- `pnpm --dir awcmsmicro-dev d1:mirror:status`
-- `pnpm --dir awcmsmicro-dev d1:mirror:sync`
-- `pnpm --dir awcmsmicro-dev d1:mirror:reset`
-- `pnpm --dir awcmsmicro-dev d1:mirror:watch`
 - `pnpm --dir awcmsmicro-dev test:e2e`
 
 ## Backup & Recovery
@@ -117,6 +113,8 @@ Exception:
 Backup scripts load encrypted configuration first and then safely overlay local `.env` files when present, which lets operator-only values such as `GITLAB_PAT` stay outside committed config.
 
 See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
+
+The D1 mirror workflow for DBeaver is documented separately in `docs/awcms-micro-d1-mirror-sync.md`.
 
 ## Contribution Policy
 

@@ -11,13 +11,12 @@ It is a limited two-way sync model, not a live remote connection.
 - Production D1 is exported with `wrangler d1 export --remote`.
 - The export is loaded into a local SQLite mirror at `awcmsmicro-dev/.local/d1-mirror/awcms-micro-d1.dbeaver.sqlite`.
 - DBeaver connects to that SQLite file.
-- `pnpm d1:mirror:sync` merges local mirror edits back to D1 and refreshes the mirror.
-- `pnpm d1:mirror:reset` discards the local mirror and rebuilds it from production.
+- The local mirror can be edited in DBeaver and refreshed from a new production export when needed.
 
 ## Access Required
 
-- The script reads the parent repository `.env` automatically when present.
-- It maps `CLOUDFLARE_WORKER_D1_DATABASE_ID` to the D1 mirror workflow when needed.
+- Any future mirror automation should read the parent repository `.env` automatically when present.
+- Any future mirror automation should map `CLOUDFLARE_WORKER_D1_DATABASE_ID` to the D1 mirror workflow when needed.
 - `wrangler` must already be authenticated to the Cloudflare account that owns `awcms-micro-d1`.
 - The account/token needs D1 query access.
 - If `wrangler` returns `SQLITE_AUTH`, the local mirror cannot be refreshed until the account access issue is resolved.
@@ -39,30 +38,17 @@ Only tables that meet all of these rules are synced:
 
 ## DBeaver Setup
 
-1. Run `pnpm d1:mirror:sync` once to create the mirror.
+1. Create or refresh the mirror file from a production D1 export.
 2. In DBeaver, create a new SQLite connection.
 3. Point it at `awcmsmicro-dev/.local/d1-mirror/awcms-micro-d1.dbeaver.sqlite`.
-4. Disconnect or close the DBeaver connection before running `pnpm d1:mirror:sync`.
-5. After editing rows in DBeaver, run `pnpm d1:mirror:sync` again.
+4. Disconnect or close the DBeaver connection before replacing the file.
+5. After editing rows in DBeaver, refresh the mirror again with a new export/import cycle.
 
-## Commands
+## Current Snapshot
 
-- `pnpm d1:mirror:status`
-- `pnpm d1:mirror:sync`
-- `pnpm d1:mirror:reset`
-- `pnpm d1:mirror:watch`
+This repository snapshot does not include the `pnpm d1:mirror:*` helper commands referenced by earlier workflow notes.
 
-## Watch Mode
-
-Use `pnpm d1:mirror:watch` to auto-run the sync loop every 15 seconds by default.
-
-You can override the interval with:
-
-```bash
-node scripts/d1-mirror-sync.mjs watch --interval 30000
-```
-
-Watch mode still uses the same conflict rules and still requires DBeaver to disconnect before the sync pass writes the mirror file.
+Use the local SQLite mirror directly in DBeaver, and refresh it with the manual export/import process described above when you need a new production snapshot.
 
 ## Limits
 
