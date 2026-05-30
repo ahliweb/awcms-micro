@@ -82,9 +82,9 @@ Use it as the shortest entry point when you need to understand why the repositor
 
 ### DR-013: Plugin Sidebar Groups Stay Per-Plugin And Alphabetical
 
-- Decision: render plugin admin links as one collapsible group per plugin, order the groups alphabetically by plugin name, and use contextual page icons from plugin metadata where available
+- Decision: render plugin admin links as one collapsible group per plugin, order the groups alphabetically by plugin name, mirror the same ordering in the admin command palette, and use contextual page icons from plugin metadata where available
 - Why: keep plugin navigation clear, stable across rebuilds, and visually aligned with the content each plugin actually exposes
-- See: `packages/admin/src/components/Sidebar.tsx`, `docs/awcms-micro-implementation-boundaries.md`
+- See: `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `docs/awcms-micro-implementation-boundaries.md`
 
 ## How To Extend
 
