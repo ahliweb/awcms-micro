@@ -73,6 +73,7 @@ Expected root scripts:
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
+- Preserved dev-workspace agent guidance: `awcmsmicro-dev/AGENTS.md`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
 

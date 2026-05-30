@@ -137,6 +137,7 @@ See [scripts/backup/README.md](scripts/backup/README.md) for full documentation.
 - Preserved workflow boundary: `awcmsmicro-dev/.github/workflows/`
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
+- Preserved dev-workspace agent guidance: `awcmsmicro-dev/AGENTS.md`
 - Downstream patch overlay: `awcmsmicro-dev/.awcms-patches/`
 - Approved implementation boundaries: `docs/awcms-micro-implementation-boundaries.md`
 - Protected implementation boundary list: `scripts/awcmsmicro-dev-protected-paths.txt`

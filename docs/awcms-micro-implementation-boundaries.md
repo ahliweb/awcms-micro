@@ -64,7 +64,9 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - workspace package-release metadata in `awcmsmicro-dev/.changeset/`
 - preserved workflow and release automation in `awcmsmicro-dev/.github/workflows/` and `awcmsmicro-dev/.github/scripts/`
 - preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
+- dev-workspace agent guidance in `awcmsmicro-dev/AGENTS.md`
 - sidebar branding/header/footer, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
+- file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, and `packages/admin/tests/components/AdminCommandPalette.test.tsx`
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
 - supported example plugin and template work in `awcmsmicro-dev/packages/plugins/` and `awcmsmicro-dev/templates/`
 - file-level AWCMS-Micro persistence exceptions for the admin sidebar and its regression test above

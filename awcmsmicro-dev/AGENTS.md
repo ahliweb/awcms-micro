@@ -18,8 +18,6 @@ For human-facing contributor info (setup, repo layout, PR policy, changesets, i1
 
 Run `pnpm lint:json | jq '.diagnostics | length'` before starting and confirm it's clean -- if it's failing after your edits, your changes caused it.
 
-Always analyze the current upstream/downstream state before starting any update or sync pass. If the analysis shows `scripts/` or validation workflow changes are needed to preserve a downstream change, stop the update and align those scripts/docs first; do not proceed with the rebuild until the update path is adjusted.
-
 Check `docs/operator-workflow.md` for `continuation` vs `fresh-clone` update mode guidance before sync work, especially when fresh-clone bootstrap values must be captured locally.
 
 During work:

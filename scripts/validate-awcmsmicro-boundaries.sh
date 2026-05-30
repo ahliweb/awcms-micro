@@ -23,6 +23,16 @@ REQUIRED_PATHS=(
 	".github/workflows"
 	".github/scripts"
 	".github/dependabot.yml"
+	"AGENTS.md"
+)
+
+ADMIN_NAV_PERSISTENCE_PATHS=(
+	"packages/admin/src/components/Sidebar.tsx"
+	"packages/admin/src/components/Shell.tsx"
+	"packages/admin/src/components/AdminCommandPalette.tsx"
+	"packages/admin/tests/components/Sidebar.test.tsx"
+	"packages/admin/tests/components/AdminCommandPalette.test.tsx"
+	"AGENTS.md"
 )
 
 ROOT_DOCS=(
@@ -89,6 +99,14 @@ for relative_path in "${REQUIRED_PATHS[@]}"; do
 	for doc in "${PATH_REFERENCE_DOCS[@]}"; do
 		require_contains "$relative_path" "$doc"
 	done
+	dir_path="$ROOT_DIR/awcmsmicro-dev/$relative_path"
+	require_path "$dir_path"
+done
+
+log "Checking admin navigation persistence overlays"
+for relative_path in "${ADMIN_NAV_PERSISTENCE_PATHS[@]}"; do
+	require_contains "$relative_path" "$BOUNDARIES_DOC"
+	require_contains "$relative_path" "$ALLOWLIST_FILE"
 	dir_path="$ROOT_DIR/awcmsmicro-dev/$relative_path"
 	require_path "$dir_path"
 done

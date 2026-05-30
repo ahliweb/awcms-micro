@@ -58,6 +58,7 @@ When choosing where a change belongs:
 - AWCMS-Micro release automation scripts belong in preserved `.github` boundaries such as `awcmsmicro-dev/.github/scripts/` when workflow-specific logic is required.
 - Preserved workflow work belongs in `awcmsmicro-dev/.github/workflows/`.
 - Preserved Dependabot config belongs in `awcmsmicro-dev/.github/dependabot.yml`.
+- Preserved dev-workspace agent guidance belongs in `awcmsmicro-dev/AGENTS.md`.
 
 ## Language Rule
 

@@ -14,5 +14,9 @@ e2e/awcms-micro
 .github/workflows
 .github/scripts
 .github/dependabot.yml
+AGENTS.md
 packages/admin/src/components/Sidebar.tsx
+packages/admin/src/components/Shell.tsx
+packages/admin/src/components/AdminCommandPalette.tsx
 packages/admin/tests/components/Sidebar.test.tsx
+packages/admin/tests/components/AdminCommandPalette.test.tsx
