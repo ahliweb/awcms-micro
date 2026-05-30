@@ -11,21 +11,23 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 
 1. Analyze upstream EmDash changes.
 2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
-3. Run `bash scripts/sync-preflight-checklist.sh` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing or boundary validation fails.
-4. Refresh `emdash-latest/` from upstream.
-5. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
-6. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
-7. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
-8. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
-9. Update root documentation if process, structure, or rules changed.
-10. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
+3. Choose the update mode: `continuation` for an existing workspace or `fresh-clone` for a new clone that still needs local config bootstrap (`.env` or backup config).
+4. Run `bash scripts/sync-preflight-checklist.sh --mode <continuation|fresh-clone>` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing, boundary validation fails, or fresh-clone config bootstrap is not ready.
+5. Refresh `emdash-latest/` from upstream.
+6. Rebuild `awcmsmicro-dev/` from `emdash-latest/`.
+7. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
+8. Continue AWCMS-Micro-specific implementation work only inside the approved protected paths in `awcmsmicro-dev/`.
+9. Keep new product development in plugin and template boundaries; use docs, demos, and E2E paths only as supporting surfaces.
+10. Update root documentation if process, structure, or rules changed.
+11. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
 ## Refresh `emdash-latest/`
 
 Run:
 
 ```bash
-bash scripts/update-emdash-latest.sh
+bash scripts/update-emdash-latest.sh continuation
+bash scripts/update-emdash-latest.sh fresh-clone
 ```
 
 Result:
@@ -39,7 +41,8 @@ Result:
 Run:
 
 ```bash
-bash scripts/update-awcmsmicro-dev.sh
+bash scripts/update-awcmsmicro-dev.sh continuation
+bash scripts/update-awcmsmicro-dev.sh fresh-clone
 ```
 
 Result:

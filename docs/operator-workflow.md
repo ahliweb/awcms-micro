@@ -15,18 +15,26 @@ This document gives operators one concise end-to-end workflow for maintaining th
 7. Update governance docs if boundaries, workflow, deployment, or security rules changed.
 8. Check promotion and release-readiness artifacts when preparing an independent repository state.
 
+## Update Modes
+
+- Use `continuation` when the workspace already has its local configuration and you are continuing an existing sync or implementation cycle.
+- Use `fresh-clone` when the workspace was just cloned or reset and local bootstrap config still needs to be prepared.
+- In `fresh-clone` mode, make sure local `.env` or encrypted backup config exists before running sync commands so GitHub and Cloudflare settings are not skipped.
+
 ## Standard Commands
 
 ### 1. Refresh Upstream Snapshot
 
 ```bash
-bash scripts/update-emdash-latest.sh
+bash scripts/update-emdash-latest.sh continuation
+bash scripts/update-emdash-latest.sh fresh-clone
 ```
 
 ### 2. Rebuild The AWCMS-Micro Workspace
 
 ```bash
-bash scripts/update-awcmsmicro-dev.sh
+bash scripts/update-awcmsmicro-dev.sh continuation
+bash scripts/update-awcmsmicro-dev.sh fresh-clone
 ```
 
 This rebuild path also prunes stale directories that remain only because they contain excluded transient artifacts such as `node_modules/`, `dist/`, `.vite/`, or `.mf/` after an upstream path is removed.
@@ -41,7 +49,8 @@ bash scripts/validate-awcmsmicro-dev.sh
 ### 4. Combined Sync Path
 
 ```bash
-bash scripts/sync-and-validate-awcmsmicro-dev.sh
+bash scripts/sync-and-validate-awcmsmicro-dev.sh continuation
+bash scripts/sync-and-validate-awcmsmicro-dev.sh fresh-clone
 ```
 
 ### 5. Check AWCMS Versioning Status

@@ -19,8 +19,9 @@ trap cleanup EXIT
 
 # Run this only after upstream/downstream analysis is complete.
 # If preserving downstream changes requires script or validation updates, make those first.
+UPDATE_MODE="${1:-continuation}"
 if [[ "${SYNC_PREFLIGHT_CHECKED:-0}" != "1" ]]; then
-	bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh"
+	bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh" --mode "$UPDATE_MODE"
 fi
 echo "Cloning latest EmDash..."
 git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$SOURCE_DIR"

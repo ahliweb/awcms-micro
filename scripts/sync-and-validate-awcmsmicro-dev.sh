@@ -6,12 +6,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 STATUS_FILE="$ROOT_DIR/docs/upstream-sync/UPSTREAM_SYNC_STATUS.md"
 FETCH_METADATA_FILE="$ROOT_DIR/docs/upstream-sync/LAST_UPSTREAM_FETCH.md"
+UPDATE_MODE="${1:-continuation}"
 
 # Sync only after upstream/downstream analysis confirms the update path is correct.
-bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh"
+bash "$ROOT_DIR/scripts/sync-preflight-checklist.sh" --mode "$UPDATE_MODE"
 export SYNC_PREFLIGHT_CHECKED=1
-bash "$ROOT_DIR/scripts/update-emdash-latest.sh"
-bash "$ROOT_DIR/scripts/update-awcmsmicro-dev.sh"
+bash "$ROOT_DIR/scripts/update-emdash-latest.sh" "$UPDATE_MODE"
+bash "$ROOT_DIR/scripts/update-awcmsmicro-dev.sh" "$UPDATE_MODE"
 bash "$ROOT_DIR/scripts/validate-awcmsmicro-dev.sh"
 
 UPSTREAM_SHA="$(python3 - "$FETCH_METADATA_FILE" <<'PY'

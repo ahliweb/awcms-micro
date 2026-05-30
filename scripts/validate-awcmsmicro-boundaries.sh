@@ -7,6 +7,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 BOUNDARIES_DOC="$ROOT_DIR/docs/awcms-micro-implementation-boundaries.md"
 ALLOWLIST_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
 SYNC_SCRIPT="$SCRIPT_DIR/update-awcmsmicro-dev.sh"
+PREFLIGHT_SCRIPT="$SCRIPT_DIR/sync-preflight-checklist.sh"
 
 REQUIRED_PATHS=(
 	"templates/awcms-micro-default"
@@ -65,7 +66,7 @@ require_path() {
 require_contains() {
 	local needle="$1"
 	local path="$2"
-	rg -F --quiet "$needle" "$path" || fail "Expected '$needle' in $path"
+	rg -F --quiet -- "$needle" "$path" || fail "Expected '$needle' in $path"
 }
 
 require_dir "$ROOT_DIR/emdash-latest"
@@ -73,6 +74,7 @@ require_dir "$ROOT_DIR/awcmsmicro-dev"
 require_file "$BOUNDARIES_DOC"
 require_file "$ALLOWLIST_FILE"
 require_file "$SYNC_SCRIPT"
+require_file "$PREFLIGHT_SCRIPT"
 
 log "Checking root documentation references"
 for doc in "${ROOT_DOCS[@]}"; do
@@ -97,6 +99,11 @@ require_contains 'backup_protected_paths()' "$SYNC_SCRIPT"
 require_contains 'restore_protected_paths()' "$SYNC_SCRIPT"
 require_contains 'RSYNC_PROTECTED_ARGS+=("--exclude=$relative_path")' "$SYNC_SCRIPT"
 require_contains 'Missing protected paths file' "$SYNC_SCRIPT"
+
+log "Checking sync preflight gate"
+require_contains 'MODE="continuation"' "$PREFLIGHT_SCRIPT"
+require_contains '--fresh-clone' "$PREFLIGHT_SCRIPT"
+require_contains 'validate-awcmsmicro-boundaries.sh' "$PREFLIGHT_SCRIPT"
 
 log "Checking tracked files for secret-like paths"
 secret_like_paths="$(git -C "$ROOT_DIR" ls-files \
