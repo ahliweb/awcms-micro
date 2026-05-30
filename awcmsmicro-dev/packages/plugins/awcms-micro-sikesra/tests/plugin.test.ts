@@ -150,24 +150,24 @@ function createMockContext() {
 				),
 			},
 			storage: {
-				auditEvents: createCollection(collections.auditEvents),
-				accessChangeEvents: createCollection(collections.accessChangeEvents),
-				abacChangeEvents: createCollection(collections.abacChangeEvents),
-				registryEntities: createCollection(collections.registryEntities),
-				settingsState: createCollection(collections.settingsState),
-				pluginState: createCollection(collections.pluginState),
-				verificationStageState: createCollection(collections.verificationStageState),
-				abacAttributeCatalog: createCollection(collections.abacAttributeCatalog),
-				abacPolicyRules: createCollection(collections.abacPolicyRules),
-				abacResourceAssignments: createCollection(collections.abacResourceAssignments),
-				abacSubjectAssignments: createCollection(collections.abacSubjectAssignments),
-				contentSnapshots: createCollection(collections.contentSnapshots),
-				permissionCatalog: createCollection(collections.permissionCatalog),
-				roleCatalog: createCollection(collections.roleCatalog),
-				rolePermissionAssignments: createCollection(collections.rolePermissionAssignments),
-				userRoleAssignments: createCollection(collections.userRoleAssignments),
-				supportingDocuments: createCollection(collections.supportingDocuments),
-				verificationEvents: createCollection(collections.verificationEvents),
+				sikesra_audit_events: createCollection(collections.auditEvents),
+				sikesra_access_change_events: createCollection(collections.accessChangeEvents),
+				sikesra_abac_change_events: createCollection(collections.abacChangeEvents),
+				sikesra_registry_entities: createCollection(collections.registryEntities),
+				sikesra_settings_state: createCollection(collections.settingsState),
+				sikesra_plugin_state: createCollection(collections.pluginState),
+				sikesra_verification_stage_state: createCollection(collections.verificationStageState),
+				sikesra_abac_attribute_catalog: createCollection(collections.abacAttributeCatalog),
+				sikesra_abac_policy_rules: createCollection(collections.abacPolicyRules),
+				sikesra_abac_resource_assignments: createCollection(collections.abacResourceAssignments),
+				sikesra_abac_subject_assignments: createCollection(collections.abacSubjectAssignments),
+				sikesra_content_snapshots: createCollection(collections.contentSnapshots),
+				sikesra_permission_catalog: createCollection(collections.permissionCatalog),
+				sikesra_role_catalog: createCollection(collections.roleCatalog),
+				sikesra_role_permission_assignments: createCollection(collections.rolePermissionAssignments),
+				sikesra_user_role_assignments: createCollection(collections.userRoleAssignments),
+				sikesra_supporting_documents: createCollection(collections.supportingDocuments),
+				sikesra_verification_events: createCollection(collections.verificationEvents),
 			},
 		},
 		collections,
@@ -179,14 +179,38 @@ function createMockContext() {
 describe("awcms micro example plugin", () => {
 	it("builds a descriptor without touching EmDash core", () => {
 		const descriptor = awcmsMicroExamplePlugin();
+		const storage = descriptor.storage ?? {};
 
 		expect(descriptor.id).toBe("awcms-micro-sikesra");
 		expect(descriptor.adminEntry).toBe("@awcms-micro/plugin-sikesra/admin");
 		expect(descriptor.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
-		expect(AWCMS_SIKESRA_STORAGE.accessChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
-		expect(AWCMS_SIKESRA_STORAGE.abacChangeEvents.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
-		expect(AWCMS_SIKESRA_STORAGE.contentSnapshots.indexes).toContainEqual(["contentId", "timestamp"]);
+		expect(Object.keys(storage)).toEqual(
+			expect.arrayContaining([
+				"sikesra_audit_events",
+				"sikesra_access_change_events",
+				"sikesra_abac_change_events",
+				"sikesra_registry_entities",
+				"sikesra_settings_state",
+				"sikesra_plugin_state",
+				"sikesra_verification_stage_state",
+				"sikesra_abac_attribute_catalog",
+				"sikesra_abac_policy_rules",
+				"sikesra_abac_resource_assignments",
+				"sikesra_abac_subject_assignments",
+				"sikesra_content_snapshots",
+				"sikesra_permission_catalog",
+				"sikesra_role_catalog",
+				"sikesra_role_permission_assignments",
+				"sikesra_user_role_assignments",
+				"sikesra_supporting_documents",
+				"sikesra_verification_events",
+			]),
+		);
+		expect(Object.keys(storage).every((key) => key.startsWith("sikesra_"))).toBe(true);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_access_change_events.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_abac_change_events.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_content_snapshots.indexes).toContainEqual(["contentId", "timestamp"]);
 		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
 		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
 	});

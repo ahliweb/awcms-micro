@@ -296,58 +296,58 @@ export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "med
 export const AWCMS_SIKESRA_ALLOWED_HOSTS: string[] = [];
 
 export const AWCMS_SIKESRA_STORAGE = {
-	auditEvents: {
+	sikesra_audit_events: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
-	accessChangeEvents: {
+	sikesra_access_change_events: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
-	abacChangeEvents: {
+	sikesra_abac_change_events: {
 		indexes: ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 	},
-	registryEntities: {
+	sikesra_registry_entities: {
 		indexes: ["code", "entityType", "sensitivity", ["entityType", "sensitivity"]],
 	},
-	abacAttributeCatalog: {
+	sikesra_abac_attribute_catalog: {
 		indexes: ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],
 	},
-	abacPolicyRules: {
+	sikesra_abac_policy_rules: {
 		indexes: ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
 	},
-	supportingDocuments: {
+	sikesra_supporting_documents: {
 		indexes: ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
 	},
-	verificationStageState: {
+	sikesra_verification_stage_state: {
 		indexes: ["registryEntityId", "stage", "updatedAt", ["registryEntityId", "updatedAt"]],
 	},
-	abacResourceAssignments: {
+	sikesra_abac_resource_assignments: {
 		indexes: ["resourceId", "updatedAt"],
 	},
-	abacSubjectAssignments: {
+	sikesra_abac_subject_assignments: {
 		indexes: ["subjectId", "updatedAt"],
 	},
-	contentSnapshots: {
+	sikesra_content_snapshots: {
 		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
 	},
-	settingsState: {
+	sikesra_settings_state: {
 		indexes: ["key", "updatedAt"],
 	},
-	pluginState: {
+	sikesra_plugin_state: {
 		indexes: ["key", "updatedAt"],
 	},
-	permissionCatalog: {
+	sikesra_permission_catalog: {
 		indexes: ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],
 	},
-	roleCatalog: {
+	sikesra_role_catalog: {
 		indexes: ["slug", "updatedAt"],
 	},
-	rolePermissionAssignments: {
+	sikesra_role_permission_assignments: {
 		indexes: ["roleSlug", "updatedAt"],
 	},
-	userRoleAssignments: {
+	sikesra_user_role_assignments: {
 		indexes: ["userId", "updatedAt"],
 	},
-	verificationEvents: {
+	sikesra_verification_events: {
 		indexes: ["registryEntityId", "stage", "createdAt", ["registryEntityId", "createdAt"]],
 	},
 } satisfies PluginStorageConfig;
@@ -1267,7 +1267,7 @@ function getRequestUserId(ctx: PluginContext) {
 async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return [];
-	const assignment = (await ctx.storage.userRoleAssignments!.get(userId)) as UserRoleAssignment | null;
+	const assignment = (await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null;
 	if (!assignment) return [];
 	return assignment.roles
 		.map((roleSlug) => mapRoleSlugToVerifierLevel(roleSlug))
@@ -1277,14 +1277,14 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return null;
-	const subject = (await ctx.storage.abacSubjectAssignments!.get(userId)) as AbacSubjectAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(userId)) as AbacSubjectAssignment | null;
 	return subject?.attributes.region_scope ?? null;
 }
 
 async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
-	const subject = (await ctx.storage.abacSubjectAssignments!.get(userId)) as AbacSubjectAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(userId)) as AbacSubjectAssignment | null;
 	return {
 		verifierRegionScope: subject?.attributes.region_scope,
 		verifierOrgScope: subject?.attributes.site_id,
@@ -1314,11 +1314,11 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	if (legacy.length > 0) {
 		for (const entity of legacy) {
-			await ctx.storage.registryEntities!.put(entity.id, entity);
+			await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
 		}
 		await ctx.kv.delete("custom:registryEntities");
 	}
-	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(ctx.storage.registryEntities!);
+	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(ctx.storage.sikesra_registry_entities!);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
 
@@ -1326,18 +1326,18 @@ async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRe
 	const custom = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	const next = [...custom.filter((item) => item.id !== entity.id), entity];
 	await ctx.kv.set("custom:registryEntities", next);
-	await ctx.storage.registryEntities!.put(entity.id, entity);
+	await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
 }
 
 async function getSupportingDocuments(ctx: PluginContext): Promise<SikesraReferenceSupportingDocument[]> {
 	const legacy = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	if (legacy.length > 0) {
 		for (const doc of legacy) {
-			await ctx.storage.supportingDocuments!.put(doc.id, doc);
+			await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
 		}
 		await ctx.kv.delete("custom:supportingDocuments");
 	}
-	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(ctx.storage.supportingDocuments!);
+	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(ctx.storage.sikesra_supporting_documents!);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
 
@@ -1345,15 +1345,15 @@ async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceS
 	const custom = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	const next = [...custom.filter((item) => item.id !== doc.id), doc];
 	await ctx.kv.set("custom:supportingDocuments", next);
-	await ctx.storage.supportingDocuments!.put(doc.id, doc);
+	await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
 }
 
 async function listVerificationEvents(ctx: PluginContext): Promise<SikesraReferenceVerificationEvent[]> {
-	return listStorageValues<SikesraReferenceVerificationEvent>(ctx.storage.verificationEvents!);
+	return listStorageValues<SikesraReferenceVerificationEvent>(ctx.storage.sikesra_verification_events!);
 }
 
 async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
-	await ctx.storage.verificationEvents!.put(event.id, event);
+	await ctx.storage.sikesra_verification_events!.put(event.id, event);
 	await persistStateValue(ctx, "state:lastVerificationEventId", event.id);
 	return event;
 }
@@ -1361,7 +1361,7 @@ async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferen
 async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
 	const entities = await getRegistryEntities(ctx);
 	const defaultState = Object.fromEntries(entities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
-	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(ctx.storage.verificationStageState!);
+	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(ctx.storage.sikesra_verification_stage_state!);
 	if (storedRecords.length > 0) {
 		return {
 			...defaultState,
@@ -1371,7 +1371,7 @@ async function getVerificationStageState(ctx: PluginContext): Promise<Record<str
 	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
 	if (stored && typeof stored === "object") {
 		for (const [registryEntityId, stage] of Object.entries(stored)) {
-			await ctx.storage.verificationStageState!.put(registryEntityId, {
+			await ctx.storage.sikesra_verification_stage_state!.put(registryEntityId, {
 				registryEntityId,
 				stage,
 				updatedAt: toIsoNow(),
@@ -1385,7 +1385,7 @@ async function getVerificationStageState(ctx: PluginContext): Promise<Record<str
 
 async function setVerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
 	for (const [registryEntityId, stage] of Object.entries(state)) {
-		await ctx.storage.verificationStageState!.put(registryEntityId, {
+		await ctx.storage.sikesra_verification_stage_state!.put(registryEntityId, {
 			registryEntityId,
 			stage,
 			updatedAt: toIsoNow(),
@@ -1430,14 +1430,14 @@ async function listStorageValues<T>(collection: { query: (options?: any) => Prom
 }
 
 async function getStoredSettings(ctx: PluginContext) {
-	const records = await listStorageValues<StoredSettingRecord>(ctx.storage.settingsState!);
+	const records = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
 	const map = new Map<string, StoredSettingRecord>();
 	for (const record of records) map.set(record.key, record);
 	return map;
 }
 
 async function getStoredState(ctx: PluginContext) {
-	const records = await listStorageValues<StoredStateRecord>(ctx.storage.pluginState!);
+	const records = await listStorageValues<StoredStateRecord>(ctx.storage.sikesra_plugin_state!);
 	const map = new Map<string, StoredStateRecord>();
 	for (const record of records) map.set(record.key, record);
 	return map;
@@ -1455,13 +1455,13 @@ async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
 	];
 
 	for (const record of records) {
-		await ctx.storage.settingsState!.put(record.key, record);
+		await ctx.storage.sikesra_settings_state!.put(record.key, record);
 	}
 }
 
 async function persistStateValue(ctx: PluginContext, key: string, value: StoredStateRecord["value"]) {
 	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
-	await ctx.storage.pluginState!.put(key, record);
+	await ctx.storage.sikesra_plugin_state!.put(key, record);
 }
 
 async function readStateValue<T extends StoredStateRecord["value"]>(ctx: PluginContext, key: string, fallback: T): Promise<T> {
@@ -1553,7 +1553,7 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 		if (userId) record.userId = userId;
 		if (userName) record.userName = userName;
 	}
-	await ctx.storage.auditEvents!.put(record.id, record);
+	await ctx.storage.sikesra_audit_events!.put(record.id, record);
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
 	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, record.metadata);
@@ -1561,7 +1561,7 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 }
 
 async function listAuditEvents(ctx: PluginContext, limit = 20, cursor?: string) {
-	const result = await ctx.storage.auditEvents!.query({
+	const result = await ctx.storage.sikesra_audit_events!.query({
 		orderBy: { timestamp: "desc" },
 		limit,
 		cursor,
@@ -1600,7 +1600,7 @@ async function summarizePluginState(ctx: PluginContext) {
 async function writeSnapshot(ctx: PluginContext, collection: string, content: Record<string, unknown>) {
 	const contentId = typeof content.id === "string" ? content.id : "unknown";
 	const snapshotId = `${collection}:${contentId}:${Date.now()}`;
-	await ctx.storage.contentSnapshots!.put(snapshotId, {
+	await ctx.storage.sikesra_content_snapshots!.put(snapshotId, {
 		collection,
 		contentId,
 		timestamp: toIsoNow(),
@@ -1611,7 +1611,7 @@ async function writeSnapshot(ctx: PluginContext, collection: string, content: Re
 }
 
 async function appendAccessChangeEvent(ctx: PluginContext, record: ExampleAuditEvent) {
-	await ctx.storage.accessChangeEvents!.put(record.id, record);
+	await ctx.storage.sikesra_access_change_events!.put(record.id, record);
 	await incrementCounter(ctx, "state:accessChangeCount");
 	return record;
 }
@@ -1621,62 +1621,62 @@ function touchUpdatedAt<T extends { updatedAt: string }>(value: T): T {
 }
 
 async function ensureAccessCatalogSeeded(ctx: PluginContext) {
-	const existingPermissions = await ctx.storage.permissionCatalog!.count();
+	const existingPermissions = await ctx.storage.sikesra_permission_catalog!.count();
 	if (existingPermissions === 0) {
 		for (const item of DEFAULT_ACCESS_PERMISSIONS) {
-			await ctx.storage.permissionCatalog!.put(item.slug, touchUpdatedAt(item));
+			await ctx.storage.sikesra_permission_catalog!.put(item.slug, touchUpdatedAt(item));
 		}
 	}
 
-	const existingRoles = await ctx.storage.roleCatalog!.count();
+	const existingRoles = await ctx.storage.sikesra_role_catalog!.count();
 	if (existingRoles === 0) {
 		for (const item of DEFAULT_ACCESS_ROLES) {
-			await ctx.storage.roleCatalog!.put(item.slug, touchUpdatedAt(item));
+			await ctx.storage.sikesra_role_catalog!.put(item.slug, touchUpdatedAt(item));
 		}
 	}
 
-	const existingRoleAssignments = await ctx.storage.rolePermissionAssignments!.count();
+	const existingRoleAssignments = await ctx.storage.sikesra_role_permission_assignments!.count();
 	if (existingRoleAssignments === 0) {
 		for (const item of DEFAULT_ROLE_ASSIGNMENTS) {
-			await ctx.storage.rolePermissionAssignments!.put(item.roleSlug, touchUpdatedAt(item));
+			await ctx.storage.sikesra_role_permission_assignments!.put(item.roleSlug, touchUpdatedAt(item));
 		}
 	}
 
-	const existingUserAssignments = await ctx.storage.userRoleAssignments!.count();
+	const existingUserAssignments = await ctx.storage.sikesra_user_role_assignments!.count();
 	if (existingUserAssignments === 0) {
 		for (const item of DEFAULT_USER_ROLE_ASSIGNMENTS) {
-			await ctx.storage.userRoleAssignments!.put(item.userId, touchUpdatedAt(item));
+			await ctx.storage.sikesra_user_role_assignments!.put(item.userId, touchUpdatedAt(item));
 		}
 		await persistStateValue(ctx, "state:lastPreviewUserId", DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "");
 	}
 }
 
 async function ensureAbacCatalogSeeded(ctx: PluginContext) {
-	const existingAttributes = await ctx.storage.abacAttributeCatalog!.count();
+	const existingAttributes = await ctx.storage.sikesra_abac_attribute_catalog!.count();
 	if (existingAttributes === 0) {
 		for (const item of DEFAULT_ABAC_ATTRIBUTES) {
-			await ctx.storage.abacAttributeCatalog!.put(item.key, touchUpdatedAt(item));
+			await ctx.storage.sikesra_abac_attribute_catalog!.put(item.key, touchUpdatedAt(item));
 		}
 	}
 
-	const existingSubjects = await ctx.storage.abacSubjectAssignments!.count();
+	const existingSubjects = await ctx.storage.sikesra_abac_subject_assignments!.count();
 	if (existingSubjects === 0) {
 		for (const item of DEFAULT_ABAC_SUBJECTS) {
-			await ctx.storage.abacSubjectAssignments!.put(item.subjectId, touchUpdatedAt(item));
+			await ctx.storage.sikesra_abac_subject_assignments!.put(item.subjectId, touchUpdatedAt(item));
 		}
 	}
 
-	const existingResources = await ctx.storage.abacResourceAssignments!.count();
+	const existingResources = await ctx.storage.sikesra_abac_resource_assignments!.count();
 	if (existingResources === 0) {
 		for (const item of DEFAULT_ABAC_RESOURCES) {
-			await ctx.storage.abacResourceAssignments!.put(item.resourceId, touchUpdatedAt(item));
+			await ctx.storage.sikesra_abac_resource_assignments!.put(item.resourceId, touchUpdatedAt(item));
 		}
 	}
 
-	const existingPolicies = await ctx.storage.abacPolicyRules!.count();
+	const existingPolicies = await ctx.storage.sikesra_abac_policy_rules!.count();
 	if (existingPolicies === 0) {
 		for (const item of DEFAULT_ABAC_POLICIES) {
-			await ctx.storage.abacPolicyRules!.put(item.id, touchUpdatedAt(item));
+			await ctx.storage.sikesra_abac_policy_rules!.put(item.id, touchUpdatedAt(item));
 		}
 	}
 
@@ -1693,35 +1693,35 @@ async function listCollectionValues<T>(
 }
 
 async function listPermissions(ctx: PluginContext) {
-	return listCollectionValues<AccessPermission>(ctx.storage.permissionCatalog!);
+	return listCollectionValues<AccessPermission>(ctx.storage.sikesra_permission_catalog!);
 }
 
 async function listRoles(ctx: PluginContext) {
-	return listCollectionValues<AccessRole>(ctx.storage.roleCatalog!);
+	return listCollectionValues<AccessRole>(ctx.storage.sikesra_role_catalog!);
 }
 
 async function listRoleAssignments(ctx: PluginContext) {
-	return listCollectionValues<RolePermissionAssignment>(ctx.storage.rolePermissionAssignments!);
+	return listCollectionValues<RolePermissionAssignment>(ctx.storage.sikesra_role_permission_assignments!);
 }
 
 async function listUserRoleAssignments(ctx: PluginContext) {
-	return listCollectionValues<UserRoleAssignment>(ctx.storage.userRoleAssignments!);
+	return listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments!);
 }
 
 async function listAbacAttributes(ctx: PluginContext) {
-	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.abacAttributeCatalog!);
+	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog!);
 }
 
 async function listAbacPolicies(ctx: PluginContext) {
-	return listCollectionValues<AbacPolicyRule>(ctx.storage.abacPolicyRules!);
+	return listCollectionValues<AbacPolicyRule>(ctx.storage.sikesra_abac_policy_rules!);
 }
 
 async function listAbacSubjects(ctx: PluginContext) {
-	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.abacSubjectAssignments!);
+	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.sikesra_abac_subject_assignments!);
 }
 
 async function listAbacResources(ctx: PluginContext) {
-	return listCollectionValues<AbacResourceAssignment>(ctx.storage.abacResourceAssignments!);
+	return listCollectionValues<AbacResourceAssignment>(ctx.storage.sikesra_abac_resource_assignments!);
 }
 
 function getStringArray(value: unknown, key: string) {
@@ -1748,7 +1748,7 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	const roles = await listRoles(ctx);
 	const roleAssignments = await listRoleAssignments(ctx);
 	const userAssignments = await listUserRoleAssignments(ctx);
-	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.accessChangeEvents!, "timestamp");
+	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.sikesra_access_change_events!, "timestamp");
 
 	const rolesWithoutPermissions = roles
 		.filter((role) => !roleAssignments.some((assignment) => assignment.roleSlug === role.slug && assignment.permissions.length > 0))
@@ -1787,7 +1787,7 @@ async function summarizeAbac(ctx: PluginContext) {
 	const policies = await listAbacPolicies(ctx);
 	const subjects = await listAbacSubjects(ctx);
 	const resources = await listAbacResources(ctx);
-	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.abacChangeEvents!, "timestamp");
+	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.sikesra_abac_change_events!, "timestamp");
 
 	return {
 		attributes,
@@ -1806,7 +1806,7 @@ async function summarizeAbac(ctx: PluginContext) {
 }
 
 async function appendAbacChangeEvent(ctx: PluginContext, record: ExampleAuditEvent) {
-	await ctx.storage.abacChangeEvents!.put(record.id, record);
+	await ctx.storage.sikesra_abac_change_events!.put(record.id, record);
 	await incrementCounter(ctx, "state:abacChangeCount");
 	return record;
 }
@@ -1832,8 +1832,8 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const subject = (await ctx.storage.abacSubjectAssignments!.get(subjectId)) as AbacSubjectAssignment | null;
-	const resource = (await ctx.storage.abacResourceAssignments!.get(resourceId)) as AbacResourceAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(subjectId)) as AbacSubjectAssignment | null;
+	const resource = (await ctx.storage.sikesra_abac_resource_assignments!.get(resourceId)) as AbacResourceAssignment | null;
 
 	if (!subject || !resource) {
 		return {
@@ -1916,7 +1916,7 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const userAssignment = (await ctx.storage.userRoleAssignments!.get(userId)) as UserRoleAssignment | null;
+	const userAssignment = (await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null;
 	if (!userAssignment || userAssignment.roles.length === 0) {
 		return {
 			allowed: false,
@@ -1928,7 +1928,7 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 
 	const assignments = await Promise.all(
 		userAssignment.roles.map(async (roleSlug) =>
-			((await ctx.storage.rolePermissionAssignments!.get(roleSlug)) as RolePermissionAssignment | null) ?? {
+			((await ctx.storage.sikesra_role_permission_assignments!.get(roleSlug)) as RolePermissionAssignment | null) ?? {
 				roleSlug,
 				permissions: [],
 				updatedAt: "",
@@ -2366,7 +2366,7 @@ const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => 
 	const description = getString(routeCtx.input, "description") ?? "";
 	const scope = getString(routeCtx.input, "scope") ?? "general";
 	const permission = touchUpdatedAt<AccessPermission>({ slug, label, description, scope, updatedAt: "" });
-	await ctx.storage.permissionCatalog!.put(slug, permission);
+	await ctx.storage.sikesra_permission_catalog!.put(slug, permission);
 	const event = createAuditRecord({
 		kind: "access.permission.save",
 		scope: "access-rights",
@@ -2393,7 +2393,7 @@ const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const label = getString(routeCtx.input, "label") ?? slug;
 	const description = getString(routeCtx.input, "description") ?? "";
 	const role = touchUpdatedAt<AccessRole>({ slug, label, description, updatedAt: "" });
-	await ctx.storage.roleCatalog!.put(slug, role);
+	await ctx.storage.sikesra_role_catalog!.put(slug, role);
 	const event = createAuditRecord({
 		kind: "access.role.save",
 		scope: "access-rights",
@@ -2411,7 +2411,7 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	const userId = getString(routeCtx.input, "userId") ?? "";
 	const roles = getStringArray(routeCtx.input, "roles");
 	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, updatedAt: "" });
-	await ctx.storage.userRoleAssignments!.put(userId, assignment);
+	await ctx.storage.sikesra_user_role_assignments!.put(userId, assignment);
 	await persistStateValue(ctx, "state:lastPreviewUserId", userId);
 	const event = createAuditRecord({
 		kind: "access.user-assignment.save",
@@ -2439,7 +2439,7 @@ const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const roleSlug = getString(routeCtx.input, "roleSlug") ?? "";
 	const permissions = getStringArray(routeCtx.input, "permissions");
 	const assignment = touchUpdatedAt<RolePermissionAssignment>({ roleSlug, permissions, updatedAt: "" });
-	await ctx.storage.rolePermissionAssignments!.put(roleSlug, assignment);
+	await ctx.storage.sikesra_role_permission_assignments!.put(roleSlug, assignment);
 	const event = createAuditRecord({
 		kind: "access.matrix.save",
 		scope: "access-rights",
@@ -2474,7 +2474,7 @@ const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const targetType = (getString(routeCtx.input, "targetType") as AbacAttributeDefinition["targetType"] | undefined) ?? "context";
 	const description = getString(routeCtx.input, "description") ?? "";
 	const item = touchUpdatedAt<AbacAttributeDefinition>({ key, label, targetType, description, updatedAt: "" });
-	await ctx.storage.abacAttributeCatalog!.put(key, item);
+	await ctx.storage.sikesra_abac_attribute_catalog!.put(key, item);
 	const event = createAuditRecord({ kind: "abac.attribute.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC attribute ${key}`, metadata: { ...item } });
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
@@ -2491,7 +2491,7 @@ const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const subjectId = getString(routeCtx.input, "subjectId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacSubjectAssignment>({ subjectId, attributes, updatedAt: "" });
-	await ctx.storage.abacSubjectAssignments!.put(subjectId, item);
+	await ctx.storage.sikesra_abac_subject_assignments!.put(subjectId, item);
 	const event = createAuditRecord({ kind: "abac.subject.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC subject assignment for ${subjectId}`, metadata: { ...item } });
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
@@ -2508,7 +2508,7 @@ const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const resourceId = getString(routeCtx.input, "resourceId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacResourceAssignment>({ resourceId, attributes, updatedAt: "" });
-	await ctx.storage.abacResourceAssignments!.put(resourceId, item);
+	await ctx.storage.sikesra_abac_resource_assignments!.put(resourceId, item);
 	const event = createAuditRecord({ kind: "abac.resource.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC resource assignment for ${resourceId}`, metadata: { ...item } });
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
@@ -2530,7 +2530,7 @@ const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const requiredResource = getStringRecord(routeCtx.input, "requiredResource");
 	const requiredContext = getStringRecord(routeCtx.input, "requiredContext");
 	const item = touchUpdatedAt<AbacPolicyRule>({ id, label, effect, actions, requiredSubject, requiredResource, requiredContext, updatedAt: "" });
-	await ctx.storage.abacPolicyRules!.put(id, item);
+	await ctx.storage.sikesra_abac_policy_rules!.put(id, item);
 	const event = createAuditRecord({ kind: "abac.policy.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC policy ${id}`, metadata: { ...item } });
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
