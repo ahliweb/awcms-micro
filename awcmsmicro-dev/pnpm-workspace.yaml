@@ -56,6 +56,23 @@ overrides:
   "simple-git": "3.36.0"
   # Patch Dependabot alert: path-to-regexp ReDoS.
   "path-to-regexp": "8.4.0"
+  # Patch Dependabot alert: defu prototype-pollution bypass.
+  "defu": "6.1.7"
+  # Patch Dependabot alert: h3 request smuggling / DoS fixes.
+  "h3": "1.15.11"
+  # Patch Dependabot alert: fast-uri prototype pollution / parser fixes.
+  "fast-uri": "3.1.2"
+  # Patch Dependabot alert: undici request smuggling / cache poisoning fixes.
+  "undici": "7.24.8"
+  # Patch Dependabot alert: postcss parser fixes.
+  "postcss": "8.5.14"
+  # Patch Dependabot alert: ip-address bounds checks.
+  "ip-address": "10.1.1"
+  # Patch Dependabot alert: yaml parser fixes.
+  "yaml": "2.8.3"
+  # Patch Dependabot alert: hono and node server fixes.
+  "hono": "4.12.18"
+  "@hono/node-server": "1.19.13"
 
 enablePrePostScripts: true
 
