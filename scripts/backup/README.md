@@ -12,6 +12,11 @@ brew install age        # macOS
 sudo apt install age    # Ubuntu
 sudo pacman -S age      # Arch
 
+# openssl (database backup encryption)
+brew install openssl    # macOS
+sudo apt install openssl # Ubuntu
+sudo pacman -S openssl  # Arch
+
 # wrangler (Cloudflare CLI)
 npm install -g wrangler
 ```
@@ -116,6 +121,8 @@ bash scripts/backup/encrypt-all-env.sh
 | Script         | Description                           |
 | -------------- | ------------------------------------- |
 | `backup-db.sh` | Backup database to R2 with encryption |
+
+Database exports filter out D1 virtual FTS tables automatically and write encrypted `.sql.enc` files before uploading to R2.
 
 ```bash
 # Uses config defaults (D1 + R2)

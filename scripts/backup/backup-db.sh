@@ -77,9 +77,9 @@ if ! command -v wrangler &> /dev/null; then
     exit 1
 fi
 
-# Check for age if encryption enabled
-if [ "$ENCRYPT" = true ] && ! command -v age &> /dev/null; then
-    echo -e "${RED}Error: 'age' is required for encryption.${NC}"
+# Check for openssl if encryption enabled
+if [ "$ENCRYPT" = true ] && ! command -v openssl &> /dev/null; then
+    echo -e "${RED}Error: 'openssl' is required for encryption.${NC}"
     exit 1
 fi
 
@@ -105,30 +105,46 @@ backup_database() {
     case $DB_TYPE in
         postgres)
             output_file="${output_file}.sql"
-            echo -e "${BLUE}Dumping PostgreSQL database: $DB_NAME${NC}"
+            echo -e "${BLUE}Dumping PostgreSQL database: $DB_NAME${NC}" >&2
             pg_dump "$DB_NAME" > "$output_file"
             ;;
         mysql)
             output_file="${output_file}.sql"
-            echo -e "${BLUE}Dumping MySQL database: $DB_NAME${NC}"
+            echo -e "${BLUE}Dumping MySQL database: $DB_NAME${NC}" >&2
             mysqldump "$DB_NAME" > "$output_file"
             ;;
         sqlite)
             output_file="${output_file}.sqlite"
-            echo -e "${BLUE}Copying SQLite database: $DB_NAME${NC}"
+            echo -e "${BLUE}Copying SQLite database: $DB_NAME${NC}" >&2
             if [ ! -f "$DB_NAME" ]; then
-                echo -e "${RED}Error: SQLite file not found: $DB_NAME${NC}"
+                echo -e "${RED}Error: SQLite file not found: $DB_NAME${NC}" >&2
                 exit 1
             fi
             cp "$DB_NAME" "$output_file"
             ;;
         d1)
             output_file="${output_file}.sql"
-            echo -e "${BLUE}Exporting D1 database: $DB_NAME${NC}"
-            wrangler d1 export "$DB_NAME" --output "$output_file" --remote
+            echo -e "${BLUE}Exporting D1 database: $DB_NAME${NC}" >&2
+            mapfile -t D1_TABLES < <(
+                wrangler d1 execute "$DB_NAME" --remote --json --command "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '_emdash_%' AND name NOT LIKE '_emdash_fts_%' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE VIRTUAL TABLE%' ORDER BY name;" |
+                node -e 'const fs = require("node:fs"); const input = fs.readFileSync(0, "utf8"); const idx = input.search(/[\[{]/); if (idx >= 0) process.stdout.write(input.slice(idx));' |
+                jq -r '.[0].results[].name'
+            )
+
+            if [ ${#D1_TABLES[@]} -eq 0 ]; then
+                echo -e "${RED}Error: No exportable D1 tables found.${NC}" >&2
+                exit 1
+            fi
+
+            EXPORT_ARGS=()
+            for table_name in "${D1_TABLES[@]}"; do
+                EXPORT_ARGS+=(--table "$table_name")
+            done
+
+            wrangler d1 export "$DB_NAME" --output "$output_file" --remote "${EXPORT_ARGS[@]}" 1>&2
             ;;
         *)
-            echo -e "${RED}Error: Unsupported database type: $DB_TYPE${NC}"
+            echo -e "${RED}Error: Unsupported database type: $DB_TYPE${NC}" >&2
             exit 1
             ;;
     esac
@@ -157,14 +173,15 @@ if [ "$ENCRYPT" = true ]; then
         echo
     fi
 
-    ENCRYPTED_FILE="${BACKUP_FILE}.age"
-    echo "$PASSPHRASE" | age --passphrase --output "$ENCRYPTED_FILE" "$BACKUP_FILE" 2>/dev/null
+    ORIGINAL_BACKUP_FILE="$BACKUP_FILE"
+    ENCRYPTED_FILE="${BACKUP_FILE}.enc"
+    openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"$PASSPHRASE" -in "$BACKUP_FILE" -out "$ENCRYPTED_FILE"
 
     if [ -f "$ENCRYPTED_FILE" ]; then
         echo -e "${GREEN}Encrypted: $ENCRYPTED_FILE${NC}"
         BACKUP_FILE="$ENCRYPTED_FILE"
         # Secure delete unencrypted
-        shred -u "$BACKUP_FILE" 2>/dev/null || true
+        shred -u "$ORIGINAL_BACKUP_FILE" 2>/dev/null || true
     else
         echo -e "${RED}Encryption failed, uploading unencrypted.${NC}"
     fi
@@ -177,7 +194,7 @@ if [ "$DRY_RUN" = true ]; then
     echo -e "${YELLOW}[DRY RUN] Would upload to: r2://$R2_BUCKET/$R2_KEY${NC}"
 else
     echo -e "${BLUE}Uploading to R2: $R2_BUCKET/$R2_KEY${NC}"
-    wrangler r2 object put "$R2_BUCKET/$R2_KEY" --file "$BACKUP_FILE"
+    wrangler r2 object put "$R2_BUCKET/$R2_KEY" --file "$BACKUP_FILE" --remote
     echo -e "${GREEN}Uploaded to: r2://$R2_BUCKET/$R2_KEY${NC}"
 fi
 
