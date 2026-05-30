@@ -7,6 +7,26 @@ fail() {
 	exit 1
 }
 
+detect_username() {
+	if command -v id >/dev/null 2>&1; then
+		id -un
+		return
+	fi
+	if command -v whoami >/dev/null 2>&1; then
+		whoami
+		return
+	fi
+	printf '%s\n' unknown
+}
+
+detect_user_id() {
+	if command -v id >/dev/null 2>&1; then
+		id -u
+		return
+	fi
+	printf '%s\n' unknown
+}
+
 check_command() {
 	local command_name="$1"
 	command -v "$command_name" >/dev/null 2>&1 || fail "Missing required command: $command_name"
@@ -20,21 +40,29 @@ check_version() {
 	fi
 }
 
-OS_NAME="$(uname -s)"
-KERNEL_RELEASE="$(uname -r)"
-ARCHITECTURE="$(uname -m)"
-LOGIN_USER="${SUDO_USER:-$(id -un)}"
-EFFECTIVE_USER="$(id -un)"
-CURRENT_UID="$(id -u)"
+OS_NAME="${AWCMS_RUNTIME_UNAME_S:-$(uname -s)}"
+KERNEL_RELEASE="${AWCMS_RUNTIME_UNAME_R:-$(uname -r)}"
+ARCHITECTURE="${AWCMS_RUNTIME_UNAME_M:-$(uname -m)}"
+LOGIN_USER="${SUDO_USER:-$(detect_username)}"
+EFFECTIVE_USER="$(detect_username)"
+CURRENT_UID="$(detect_user_id)"
 
 case "$OS_NAME" in
-	Linux) ;;
+	Linux)
+		OS_LABEL="Linux"
+		;;
+	Darwin)
+		OS_LABEL="macOS"
+		;;
+	MINGW*|MSYS*|CYGWIN*)
+		OS_LABEL="Windows"
+		;;
 	*)
-		fail "Unsupported operating system: $OS_NAME. This repository's scripts are validated on Linux only."
+		fail "Unsupported operating system: $OS_NAME. Supported hosts are Linux, macOS, and Windows via a Bash-compatible shell."
 		;;
 esac
 
-printf '%s\n' "[runtime prereqs] OS: $OS_NAME $KERNEL_RELEASE ($ARCHITECTURE)"
+printf '%s\n' "[runtime prereqs] Platform: $OS_LABEL ($OS_NAME $KERNEL_RELEASE $ARCHITECTURE)"
 printf '%s\n' "[runtime prereqs] User: login=$LOGIN_USER effective=$EFFECTIVE_USER uid=$CURRENT_UID"
 
 if [[ "$CURRENT_UID" == "0" ]]; then

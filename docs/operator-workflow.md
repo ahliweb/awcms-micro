@@ -22,7 +22,8 @@ This document gives operators one concise end-to-end workflow for maintaining th
 - In `fresh-clone` mode, make sure local `.env` or encrypted backup config exists before running sync commands so GitHub and Cloudflare settings are not skipped.
 - Fresh-clone mode also asks for a unique template folder name and whether built-in plugins should be used; those choices are saved into `awcmsmicro-dev/.env` as local bootstrap values.
 - The saved bootstrap values are local-only and should not be committed, and rebuilds preserve both `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when present.
-- Every sync or validation entrypoint now performs a runtime preflight that reports Linux kernel and user context and confirms `bash`, `git`, `node`, `pnpm`, `python3`, and `rsync` are usable before continuing.
+- Every sync or validation entrypoint now performs a runtime preflight that reports host platform and user context and confirms `bash`, `git`, `node`, `pnpm`, `python3`, and `rsync` are usable before continuing.
+- Supported hosts are Linux, macOS, and Windows when using a Bash-compatible shell such as Git Bash, MSYS2, Cygwin, or WSL.
 - Example safe answers: `awcms-micro-alpha`, `awcms-micro-studio`, or another unique lowercase hyphenated name that does not reuse `awcms-micro-default` or `awcms-micro-default-cloudflare`.
 - If the workspace is meant to rely only on AWCMS-Micro example plugins, answer yes; if the template should stay plugin-free for now, answer no.
 
