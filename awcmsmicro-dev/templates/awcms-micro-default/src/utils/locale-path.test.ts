@@ -27,7 +27,10 @@ void describe("locale path helpers", () => {
 	});
 
 	void it("uses content slug when available", () => {
-		assert.equal(resolveEntrySlug({ id: "entry_123", data: { slug: "hello-world" } }), "hello-world");
+		assert.equal(
+			resolveEntrySlug({ id: "entry_123", data: { slug: "hello-world" } }),
+			"hello-world",
+		);
 		assert.equal(resolveEntrySlug({ id: "entry_123", data: {} }), "entry_123");
 	});
 });

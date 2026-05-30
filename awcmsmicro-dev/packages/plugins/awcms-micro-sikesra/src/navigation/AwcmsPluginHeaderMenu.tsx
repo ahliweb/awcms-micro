@@ -1,5 +1,6 @@
-import * as React from "react";
 import { LinkButton } from "@cloudflare/kumo";
+import * as React from "react";
+
 import type { NormalizedNavGroup } from "./normalize-admin-nav.js";
 import { resolveLabel, type TranslationMessages } from "./resolve-label.js";
 
@@ -21,12 +22,17 @@ export function AwcmsPluginHeaderMenu({
 	const description = locale.startsWith("id")
 		? "Navigasi administrasi plugin bertingkat untuk AWCMS-Micro."
 		: "AWCMS-Micro nested plugin administration navigation menu.";
-	const activeGroup = groups.find((group) =>
-		group.items.some((item) =>
-			currentPath === item.path || currentPath.startsWith(item.path + "/") ||
-				(item.children?.some((child) => currentPath === child.path || currentPath.startsWith(child.path + "/")))
-		)
-	) || groups[0];
+	const activeGroup =
+		groups.find((group) =>
+			group.items.some(
+				(item) =>
+					currentPath === item.path ||
+					currentPath.startsWith(item.path + "/") ||
+					item.children?.some(
+						(child) => currentPath === child.path || currentPath.startsWith(child.path + "/"),
+					),
+			),
+		) || groups[0];
 
 	if (!groups.length || !activeGroup) return null;
 
@@ -34,10 +40,15 @@ export function AwcmsPluginHeaderMenu({
 		return resolveLabel(item.labelKey, item.fallbackLabel, messages, locale, defaultLocale);
 	};
 
-	const activeItem = activeGroup.items.find((item) =>
-		currentPath === item.path || currentPath.startsWith(item.path + "/") ||
-			(item.children?.some((child) => currentPath === child.path || currentPath.startsWith(child.path + "/")))
-	) || activeGroup.items[0];
+	const activeItem =
+		activeGroup.items.find(
+			(item) =>
+				currentPath === item.path ||
+				currentPath.startsWith(item.path + "/") ||
+				item.children?.some(
+					(child) => currentPath === child.path || currentPath.startsWith(child.path + "/"),
+				),
+		) || activeGroup.items[0];
 
 	return (
 		<section className="mb-6 rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
@@ -50,9 +61,7 @@ export function AwcmsPluginHeaderMenu({
 						{getLocalizedName(activeItem || activeGroup)}
 					</h2>
 				</div>
-				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					{description}
-				</p>
+				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">{description}</p>
 			</div>
 
 			<div className="mt-4 flex flex-wrap gap-2">
@@ -76,7 +85,8 @@ export function AwcmsPluginHeaderMenu({
 			{activeItem?.children?.length ? (
 				<div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
 					{activeItem.children.map((child) => {
-						const isChildActive = currentPath === child.path || currentPath.startsWith(child.path + "/");
+						const isChildActive =
+							currentPath === child.path || currentPath.startsWith(child.path + "/");
 						return (
 							<LinkButton
 								key={child.id}

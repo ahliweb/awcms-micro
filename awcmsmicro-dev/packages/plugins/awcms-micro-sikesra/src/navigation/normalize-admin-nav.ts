@@ -56,7 +56,7 @@ function normalizePath(pluginId: string, path: string): { path: string; routerPa
 
 export function normalizeAdminNav(
 	manifests: AwcmsModuleManifest[],
-	options: NormalizeOptions = {}
+	options: NormalizeOptions = {},
 ): NormalizedNavGroup[] {
 	const { hasPermission = () => true, preserveEmptyGroups = false } = options;
 
@@ -99,7 +99,10 @@ export function normalizeAdminNav(
 								continue;
 							}
 
-							const { path: childFullPath, routerPath: childRouterPath } = normalizePath(pluginId, child.path);
+							const { path: childFullPath, routerPath: childRouterPath } = normalizePath(
+								pluginId,
+								child.path,
+							);
 
 							normalizedChildren.push({
 								id: child.id,

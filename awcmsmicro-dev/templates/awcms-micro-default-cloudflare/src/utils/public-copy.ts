@@ -8,10 +8,12 @@ const PUBLIC_COPY = {
 		aggregateDescription: "A public-safe summary page for the AWCMS-Micro Cloudflare template.",
 		aggregateKicker: "Reference",
 		aggregateHeading: (siteTitle: string) => `Public aggregate for ${siteTitle}`,
-		aggregateIntro: "This page demonstrates the public-safe aggregate pattern. It exposes only coarse counts and avoids sensitive identifiers, raw storage keys, or private registry data.",
+		aggregateIntro:
+			"This page demonstrates the public-safe aggregate pattern. It exposes only coarse counts and avoids sensitive identifiers, raw storage keys, or private registry data.",
 		summary: "Summary",
 		privacyNote: "Privacy note",
-		privacyNoteDescription: "This aggregate stays high level so it can be published without revealing individual registry entities, verification events, or protected attributes.",
+		privacyNoteDescription:
+			"This aggregate stays high level so it can be published without revealing individual registry entities, verification events, or protected attributes.",
 		openAdmin: "Open admin",
 		openAdminDescription: "to work with the underlying content and governance workflows.",
 		postsTitle: "All Posts",
@@ -23,7 +25,8 @@ const PUBLIC_COPY = {
 		noNewsYet: "No news items yet.",
 		homeKicker: "AWCMS-Micro",
 		homeHeading: "A production-ready CMS powered by EmDash & Cloudflare.",
-		homeIntro: "This template turns AWCMS-Micro into a working public website: published content is rendered through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling remains available through the example plugin surface without changing core.",
+		homeIntro:
+			"This template turns AWCMS-Micro into a working public website: published content is rendered through Astro, the editor workflow stays in the standard EmDash admin, and governance tooling remains available through the example plugin surface without changing core.",
 		createPost: "Create Post",
 		createPage: "Create Page",
 		viewDocs: "View Docs",
@@ -31,25 +34,34 @@ const PUBLIC_COPY = {
 		publicAggregateLink: "Public Aggregate",
 		publicNavigationExample: "Public navigation example",
 		nestedPrimaryMenu: "Nested primary menu",
-		nestedPrimaryMenuDescription: "The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body.",
+		nestedPrimaryMenuDescription:
+			"The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body.",
 		switchModeTitle: "Switch mode",
 		lightDarkTheme: "Light and dark theme",
-		lightDarkThemeDescription: "Use the homepage control below to toggle the same theme state managed by the header button.",
+		lightDarkThemeDescription:
+			"Use the homepage control below to toggle the same theme state managed by the header button.",
 		switchModeButton: "Switch mode",
 		cloudflareReady: "Cloudflare-ready",
-		cloudflareReadyDescription: "Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.",
+		cloudflareReadyDescription:
+			"Prepared for D1, R2, Worker Loader, observability, and the `awcms-micro.ahlikoding.com` deployment route.",
 		pluginEnabled: "Plugin-enabled",
-		pluginEnabledDescription: "Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples.",
+		pluginEnabledDescription:
+			"Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples.",
 		publicAggregateTitle: "Public aggregate",
-		publicAggregateDescription: "Provides a public-safe summary page that exposes only high-level counts, not private registry details.",
+		publicAggregateDescription:
+			"Provides a public-safe summary page that exposes only high-level counts, not private registry details.",
 		adminProtected: "Admin protected",
-		adminProtectedDescription: "Unauthenticated visits are pushed to `/_emdash/admin/login` before the admin shell renders.",
+		adminProtectedDescription:
+			"Unauthenticated visits are pushed to `/_emdash/admin/login` before the admin shell renders.",
 		publishedFromAdmin: "Published from admin",
-		publishedFromAdminDescription: "Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.",
+		publishedFromAdminDescription:
+			"Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish.",
 		publicSearchAndNavigation: "Public search and navigation",
-		publicSearchAndNavigationDescription: "Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.",
+		publicSearchAndNavigationDescription:
+			"Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders.",
 		operationalSurfaces: "Operational surfaces",
-		operationalSurfacesDescription: "Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.",
+		operationalSurfacesDescription:
+			"Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment.",
 		recentPosts: "Recent Posts",
 		latestNews: "Latest News",
 		managedPages: "Managed Pages",
@@ -74,10 +86,12 @@ const PUBLIC_COPY = {
 		aggregateDescription: "Halaman ringkasan aman-publik untuk template Cloudflare AWCMS-Micro.",
 		aggregateKicker: "Referensi",
 		aggregateHeading: (siteTitle: string) => `Agregat publik untuk ${siteTitle}`,
-		aggregateIntro: "Halaman ini mendemonstrasikan pola agregat aman-publik. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal sensitif, kunci storage mentah, atau data registry privat.",
+		aggregateIntro:
+			"Halaman ini mendemonstrasikan pola agregat aman-publik. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal sensitif, kunci storage mentah, atau data registry privat.",
 		summary: "Ringkasan",
 		privacyNote: "Catatan privasi",
-		privacyNoteDescription: "Agregat ini tetap berada pada level tinggi sehingga dapat dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi.",
+		privacyNoteDescription:
+			"Agregat ini tetap berada pada level tinggi sehingga dapat dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi.",
 		openAdmin: "Buka admin",
 		openAdminDescription: "untuk mengelola konten dan alur kerja tata kelola dasarnya.",
 		postsTitle: "Semua Pos",
@@ -89,7 +103,8 @@ const PUBLIC_COPY = {
 		noNewsYet: "Belum ada berita.",
 		homeKicker: "AWCMS-Micro",
 		homeHeading: "CMS siap produksi yang ditenagai EmDash & Cloudflare.",
-		homeIntro: "Template ini mengubah AWCMS-Micro menjadi situs publik yang berfungsi: konten terpublikasi dirender melalui Astro, alur kerja editor tetap berada di admin EmDash standar, dan tooling tata kelola tetap tersedia melalui surface plugin contoh tanpa mengubah core.",
+		homeIntro:
+			"Template ini mengubah AWCMS-Micro menjadi situs publik yang berfungsi: konten terpublikasi dirender melalui Astro, alur kerja editor tetap berada di admin EmDash standar, dan tooling tata kelola tetap tersedia melalui surface plugin contoh tanpa mengubah core.",
 		createPost: "Buat Pos",
 		createPage: "Buat Halaman",
 		viewDocs: "Lihat Docs",
@@ -97,25 +112,34 @@ const PUBLIC_COPY = {
 		publicAggregateLink: "Agregat Publik",
 		publicNavigationExample: "Contoh navigasi publik",
 		nestedPrimaryMenu: "Menu utama bertingkat",
-		nestedPrimaryMenuDescription: "Navigasi utama di header lengket menggunakan struktur menu hasil seed secara langsung, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman.",
+		nestedPrimaryMenuDescription:
+			"Navigasi utama di header lengket menggunakan struktur menu hasil seed secara langsung, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman.",
 		switchModeTitle: "Ganti mode",
 		lightDarkTheme: "Tema terang dan gelap",
-		lightDarkThemeDescription: "Gunakan kontrol beranda di bawah ini untuk mengganti state tema yang sama dengan yang dikelola tombol header.",
+		lightDarkThemeDescription:
+			"Gunakan kontrol beranda di bawah ini untuk mengganti state tema yang sama dengan yang dikelola tombol header.",
 		switchModeButton: "Ganti mode",
 		cloudflareReady: "Siap Cloudflare",
-		cloudflareReadyDescription: "Disiapkan untuk D1, R2, Worker Loader, observability, dan route deployment `awcms-micro.ahlikoding.com`.",
+		cloudflareReadyDescription:
+			"Disiapkan untuk D1, R2, Worker Loader, observability, dan route deployment `awcms-micro.ahlikoding.com`.",
 		pluginEnabled: "Plugin aktif",
-		pluginEnabledDescription: "Mendaftarkan `@awcms-micro/plugin-sikesra` melalui jalur plugin EmDash normal untuk contoh audit, hak akses, dan ABAC.",
+		pluginEnabledDescription:
+			"Mendaftarkan `@awcms-micro/plugin-sikesra` melalui jalur plugin EmDash normal untuk contoh audit, hak akses, dan ABAC.",
 		publicAggregateTitle: "Agregat publik",
-		publicAggregateDescription: "Menyediakan halaman ringkasan aman-publik yang hanya mengekspos hitungan tingkat tinggi, bukan detail registry privat.",
+		publicAggregateDescription:
+			"Menyediakan halaman ringkasan aman-publik yang hanya mengekspos hitungan tingkat tinggi, bukan detail registry privat.",
 		adminProtected: "Admin terlindungi",
-		adminProtectedDescription: "Kunjungan tanpa autentikasi diarahkan ke `/_emdash/admin/login` sebelum shell admin dirender.",
+		adminProtectedDescription:
+			"Kunjungan tanpa autentikasi diarahkan ke `/_emdash/admin/login` sebelum shell admin dirender.",
 		publishedFromAdmin: "Dipublikasikan dari admin",
-		publishedFromAdminDescription: "Pos, halaman, dan berita yang dibuat di EmDash langsung ditampilkan oleh route situs publik setelah publish.",
+		publishedFromAdminDescription:
+			"Pos, halaman, dan berita yang dibuat di EmDash langsung ditampilkan oleh route situs publik setelah publish.",
 		publicSearchAndNavigation: "Pencarian dan navigasi publik",
-		publicSearchAndNavigationDescription: "Menu, identitas situs, dan live search semuanya membaca dari konten yang dikelola EmDash, bukan placeholder template.",
+		publicSearchAndNavigationDescription:
+			"Menu, identitas situs, dan live search semuanya membaca dari konten yang dikelola EmDash, bukan placeholder template.",
 		operationalSurfaces: "Surface operasional",
-		operationalSurfacesDescription: "Editor dapat berpindah dari situs publik ke pembuatan konten, pengaturan, dan dasbor plugin tanpa meninggalkan deployment yang sama.",
+		operationalSurfacesDescription:
+			"Editor dapat berpindah dari situs publik ke pembuatan konten, pengaturan, dan dasbor plugin tanpa meninggalkan deployment yang sama.",
 		recentPosts: "Pos Terbaru",
 		latestNews: "Berita Terbaru",
 		managedPages: "Halaman Terkelola",

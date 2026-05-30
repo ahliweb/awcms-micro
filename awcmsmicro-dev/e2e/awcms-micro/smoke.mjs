@@ -2,8 +2,8 @@
 
 import { execFile, spawn } from "node:child_process";
 import { access, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execAsync = promisify(execFile);
@@ -20,13 +20,33 @@ const templates = [
 		name: "awcms-micro-default",
 		port: LOCAL_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default"),
-		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-sikesra/public/status"],
+		routes: [
+			"/",
+			"/id",
+			"/aggregate",
+			"/id/aggregate",
+			"/posts",
+			"/id/posts",
+			"/news",
+			"/id/news",
+			"/_emdash/api/plugins/awcms-micro-sikesra/public/status",
+		],
 	},
 	{
 		name: "awcms-micro-default-cloudflare",
 		port: CLOUDFARE_PORT,
 		dir: resolve(ROOT, "templates/awcms-micro-default-cloudflare"),
-		routes: ["/", "/id", "/aggregate", "/id/aggregate", "/posts", "/id/posts", "/news", "/id/news", "/_emdash/api/plugins/awcms-micro-sikesra/public/status"],
+		routes: [
+			"/",
+			"/id",
+			"/aggregate",
+			"/id/aggregate",
+			"/posts",
+			"/id/posts",
+			"/news",
+			"/id/news",
+			"/_emdash/api/plugins/awcms-micro-sikesra/public/status",
+		],
 	},
 ];
 
@@ -103,11 +123,15 @@ function waitForServer(url, timeoutMs = 120_000) {
 }
 
 function startPreview(dir, port) {
-	const child = spawn("pnpm", ["exec", "astro", "preview", "--host", HOST, "--port", String(port)], {
-		cwd: dir,
-		env: { ...process.env, HOST, PORT: String(port) },
-		stdio: ["ignore", "pipe", "pipe"],
-	});
+	const child = spawn(
+		"pnpm",
+		["exec", "astro", "preview", "--host", HOST, "--port", String(port)],
+		{
+			cwd: dir,
+			env: { ...process.env, HOST, PORT: String(port) },
+			stdio: ["ignore", "pipe", "pipe"],
+		},
+	);
 
 	child.stdout.on("data", (data) => process.stdout.write(data));
 	child.stderr.on("data", (data) => process.stderr.write(data));
@@ -119,7 +143,12 @@ function startPreview(dir, port) {
 		ready: waitForServer(`http://${HOST}:${port}`),
 		async stop() {
 			child.kill("SIGTERM");
-			await Promise.race([exited, new Promise((resolveTimer) => setTimeout(resolveTimer, 5000)).then(() => child.kill("SIGKILL"))]);
+			await Promise.race([
+				exited,
+				new Promise((resolveTimer) => setTimeout(resolveTimer, 5000)).then(() =>
+					child.kill("SIGKILL"),
+				),
+			]);
 		},
 	};
 }
@@ -152,44 +181,66 @@ async function validateTemplate(template) {
 				}
 				continue;
 			}
-		if (path === "/" && !body.includes("AWCMS-Micro")) {
-			throw new Error(`${template.name}: home page missing expected brand text`);
-		}
-		if (path === "/" && !body.includes('aria-haspopup="true"')) {
-			throw new Error(`${template.name}: home page missing nested navigation affordance`);
-		}
-		if (path === "/" && !body.includes("public-submenu-")) {
-			throw new Error(`${template.name}: home page missing submenu markup`);
-		}
-		if (path === "/" && template.name === "awcms-micro-default" && !body.includes("View Public Aggregate")) {
-			throw new Error(`${template.name}: home page missing aggregate link`);
-		}
-		if (path === "/id" && template.name === "awcms-micro-default" && !body.includes("Lihat Agregat Publik")) {
-			throw new Error(`${template.name}: localized home page missing Indonesian aggregate link`);
-		}
-		if (path === "/" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Plugin Console")) {
-			throw new Error(`${template.name}: home page missing plugin console link`);
-		}
-		if (path === "/id" && template.name === "awcms-micro-default-cloudflare" && !body.includes("Konsol Plugin")) {
-			throw new Error(`${template.name}: localized home page missing Indonesian plugin console link`);
-		}
-		if (path === "/" && !body.includes("Public Data")) {
-			throw new Error(`${template.name}: home page missing seeded nested menu label`);
-		}
-		if (path === "/id" && !body.includes("Data Publik")) {
-			throw new Error(`${template.name}: localized home page missing Indonesian nested menu label`);
-		}
-		if (path === "/aggregate" && !body.includes("Public aggregate")) {
-			throw new Error(`${template.name}: aggregate page missing expected heading`);
-		}
-		if (path === "/id/aggregate" && !body.includes("Agregat publik")) {
-			throw new Error(`${template.name}: localized aggregate page missing Indonesian heading`);
-		}
+			if (path === "/" && !body.includes("AWCMS-Micro")) {
+				throw new Error(`${template.name}: home page missing expected brand text`);
+			}
+			if (path === "/" && !body.includes('aria-haspopup="true"')) {
+				throw new Error(`${template.name}: home page missing nested navigation affordance`);
+			}
+			if (path === "/" && !body.includes("public-submenu-")) {
+				throw new Error(`${template.name}: home page missing submenu markup`);
+			}
+			if (
+				path === "/" &&
+				template.name === "awcms-micro-default" &&
+				!body.includes("View Public Aggregate")
+			) {
+				throw new Error(`${template.name}: home page missing aggregate link`);
+			}
+			if (
+				path === "/id" &&
+				template.name === "awcms-micro-default" &&
+				!body.includes("Lihat Agregat Publik")
+			) {
+				throw new Error(`${template.name}: localized home page missing Indonesian aggregate link`);
+			}
+			if (
+				path === "/" &&
+				template.name === "awcms-micro-default-cloudflare" &&
+				!body.includes("Plugin Console")
+			) {
+				throw new Error(`${template.name}: home page missing plugin console link`);
+			}
+			if (
+				path === "/id" &&
+				template.name === "awcms-micro-default-cloudflare" &&
+				!body.includes("Konsol Plugin")
+			) {
+				throw new Error(
+					`${template.name}: localized home page missing Indonesian plugin console link`,
+				);
+			}
+			if (path === "/" && !body.includes("Public Data")) {
+				throw new Error(`${template.name}: home page missing seeded nested menu label`);
+			}
+			if (path === "/id" && !body.includes("Data Publik")) {
+				throw new Error(
+					`${template.name}: localized home page missing Indonesian nested menu label`,
+				);
+			}
+			if (path === "/aggregate" && !body.includes("Public aggregate")) {
+				throw new Error(`${template.name}: aggregate page missing expected heading`);
+			}
+			if (path === "/id/aggregate" && !body.includes("Agregat publik")) {
+				throw new Error(`${template.name}: localized aggregate page missing Indonesian heading`);
+			}
 			if (path === "/aggregate" && !body.includes("coarse counts")) {
 				throw new Error(`${template.name}: aggregate page missing public-safe description`);
 			}
 			if (path === "/id/aggregate" && !body.includes("hitungan tingkat tinggi")) {
-				throw new Error(`${template.name}: localized aggregate page missing Indonesian public-safe description`);
+				throw new Error(
+					`${template.name}: localized aggregate page missing Indonesian public-safe description`,
+				);
 			}
 		}
 		process.stdout.write(`validated ${template.name}\n`);

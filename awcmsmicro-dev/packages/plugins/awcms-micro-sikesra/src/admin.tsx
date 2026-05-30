@@ -1,15 +1,20 @@
 import { Badge, Button, Input, InputArea, LinkButton, Select } from "@cloudflare/kumo";
+import { useLingui } from "@lingui/react";
 import type { PluginAdminExports } from "emdash";
 import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
 import * as React from "react";
-import { useLingui } from "@lingui/react";
+
 import { getExampleAdminCopy } from "./admin-copy.js";
+import {
+	SIKESRA_REFERENCE_FIXTURES,
+	maskSensitive,
+	type SikesraReferenceRegistryEntity,
+	type SikesraSensitivity,
+	type SikesraReferenceSupportingDocument,
+	type SikesraUserLevel,
+} from "./fixtures.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
 import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType } from "./runtime.js";
-
-import { SIKESRA_REFERENCE_FIXTURES, maskSensitive, type SikesraReferenceRegistryEntity, type SikesraSensitivity, type SikesraReferenceSupportingDocument, type SikesraUserLevel } from "./fixtures.js";
-
-
 
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
@@ -35,7 +40,6 @@ type JsonMap = Record<string, string>;
 type GovernanceMode = "observe" | "review" | "enforce-demo";
 type AbacTargetType = "subject" | "resource" | "context";
 type AbacEffect = "allow" | "deny";
-
 
 interface DashboardModuleCard {
 	id: string;
@@ -275,14 +279,70 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 	const copy = getExampleAdminCopy(locale);
 	const cards = copy.dashboardCards;
 	return [
-		{ id: "registry", title: cards[0]!.title, description: cards[0]!.description, status: cards[0]!.status, badge: cards[0]!.badge, href: "/registry" },
-		{ id: "institutions", title: cards[1]!.title, description: cards[1]!.description, status: cards[1]!.status, badge: cards[1]!.badge, href: "/registry" },
-		{ id: "education", title: cards[2]!.title, description: cards[2]!.description, status: cards[2]!.status, badge: cards[2]!.badge, href: "/verification" },
-		{ id: "welfare", title: cards[3]!.title, description: cards[3]!.description, status: cards[3]!.status, badge: cards[3]!.badge, href: "/reports" },
-		{ id: "teachers", title: cards[4]!.title, description: cards[4]!.description, status: cards[4]!.status, badge: cards[4]!.badge, href: "/access/roles" },
-		{ id: "orphans", title: cards[5]!.title, description: cards[5]!.description, status: cards[5]!.status, badge: cards[5]!.badge, href: "/audit" },
-		{ id: "disabilities", title: cards[6]!.title, description: cards[6]!.description, status: cards[6]!.status, badge: cards[6]!.badge, href: "/abac/preview" },
-		{ id: "elderly", title: cards[7]!.title, description: cards[7]!.description, status: cards[7]!.status, badge: cards[7]!.badge, href: "/documents" },
+		{
+			id: "registry",
+			title: cards[0]!.title,
+			description: cards[0]!.description,
+			status: cards[0]!.status,
+			badge: cards[0]!.badge,
+			href: "/registry",
+		},
+		{
+			id: "institutions",
+			title: cards[1]!.title,
+			description: cards[1]!.description,
+			status: cards[1]!.status,
+			badge: cards[1]!.badge,
+			href: "/registry",
+		},
+		{
+			id: "education",
+			title: cards[2]!.title,
+			description: cards[2]!.description,
+			status: cards[2]!.status,
+			badge: cards[2]!.badge,
+			href: "/verification",
+		},
+		{
+			id: "welfare",
+			title: cards[3]!.title,
+			description: cards[3]!.description,
+			status: cards[3]!.status,
+			badge: cards[3]!.badge,
+			href: "/reports",
+		},
+		{
+			id: "teachers",
+			title: cards[4]!.title,
+			description: cards[4]!.description,
+			status: cards[4]!.status,
+			badge: cards[4]!.badge,
+			href: "/access/roles",
+		},
+		{
+			id: "orphans",
+			title: cards[5]!.title,
+			description: cards[5]!.description,
+			status: cards[5]!.status,
+			badge: cards[5]!.badge,
+			href: "/audit",
+		},
+		{
+			id: "disabilities",
+			title: cards[6]!.title,
+			description: cards[6]!.description,
+			status: cards[6]!.status,
+			badge: cards[6]!.badge,
+			href: "/abac/preview",
+		},
+		{
+			id: "elderly",
+			title: cards[7]!.title,
+			description: cards[7]!.description,
+			status: cards[7]!.status,
+			badge: cards[7]!.badge,
+			href: "/documents",
+		},
 	];
 }
 
@@ -357,12 +417,14 @@ export const AWCMS_SIKESRA_PLUGIN_HEADER_MENU: PluginHeaderMenuItem[] = [
 
 export function filterPluginHeaderMenu(
 	items: PluginHeaderMenuItem[],
-	hasPermission: (permission?: string) => boolean
+	hasPermission: (permission?: string) => boolean,
 ): PluginHeaderMenuItem[] {
 	return items
 		.filter((item) => hasPermission(item.permission))
 		.map((item) => {
-			const children = item.children ? filterPluginHeaderMenu(item.children, hasPermission) : undefined;
+			const children = item.children
+				? filterPluginHeaderMenu(item.children, hasPermission)
+				: undefined;
 			return {
 				...item,
 				children: children?.length ? children : undefined,
@@ -474,7 +536,11 @@ function usePluginData<T>(path: string, payload: unknown = {}) {
 		try {
 			setData(await postPlugin<T>(path, JSON.parse(payloadKey) as unknown));
 		} catch (cause) {
-			setError(cause instanceof Error ? cause.message : getExampleAdminCopy(getCurrentAdminLocale()).requestFailed);
+			setError(
+				cause instanceof Error
+					? cause.message
+					: getExampleAdminCopy(getCurrentAdminLocale()).requestFailed,
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -506,9 +572,17 @@ function getEntityIcon(type: string): string {
 
 // --- Layout ---
 
-function PageShell({ children, width = "wide" }: { children: React.ReactNode; width?: "normal" | "wide" }) {
+function PageShell({
+	children,
+	width = "wide",
+}: {
+	children: React.ReactNode;
+	width?: "normal" | "wide";
+}) {
 	return (
-		<div className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-full" : "max-w-4xl") }>
+		<div
+			className={cx("space-y-6 text-kumo-default", width === "wide" ? "max-w-full" : "max-w-4xl")}
+		>
 			<PluginHeaderMenu />
 			{children}
 		</div>
@@ -602,7 +676,9 @@ function Card({
 						) : null}
 						<div>
 							{title ? <h2 className="text-sm font-semibold text-kumo-default">{title}</h2> : null}
-							{description ? <p className="mt-0.5 text-xs text-kumo-subtle">{description}</p> : null}
+							{description ? (
+								<p className="mt-0.5 text-xs text-kumo-subtle">{description}</p>
+							) : null}
 						</div>
 					</div>
 					{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
@@ -613,7 +689,17 @@ function Card({
 	);
 }
 
-function MetricCard({ label, value, hint, icon }: { label: string; value: React.ReactNode; hint?: string; icon?: string }) {
+function MetricCard({
+	label,
+	value,
+	hint,
+	icon,
+}: {
+	label: string;
+	value: React.ReactNode;
+	hint?: string;
+	icon?: string;
+}) {
 	return (
 		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm">
 			<div className="flex items-start justify-between gap-2">
@@ -626,7 +712,13 @@ function MetricCard({ label, value, hint, icon }: { label: string; value: React.
 	);
 }
 
-function Pill({ children, tone = "neutral" }: { children: React.ReactNode; tone?: "neutral" | "success" | "warning" | "danger" }) {
+function Pill({
+	children,
+	tone = "neutral",
+}: {
+	children: React.ReactNode;
+	tone?: "neutral" | "success" | "warning" | "danger";
+}) {
 	const className = cx(
 		"inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
 		tone === "success" && "bg-kumo-success/10 text-kumo-success",
@@ -637,7 +729,15 @@ function Pill({ children, tone = "neutral" }: { children: React.ReactNode; tone?
 	return <span className={className}>{children}</span>;
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+	label,
+	hint,
+	children,
+}: {
+	label: string;
+	hint?: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<label className="block text-sm text-kumo-default">
 			<span className="mb-1 block font-medium text-kumo-default">{label}</span>
@@ -687,13 +787,21 @@ function EmptyState({ title, description }: { title: string; description: string
 	);
 }
 
-function Feedback({ message, tone = "success" }: { message: string | null; tone?: "success" | "danger" }) {
+function Feedback({
+	message,
+	tone = "success",
+}: {
+	message: string | null;
+	tone?: "success" | "danger";
+}) {
 	if (!message) return null;
 	return (
 		<div
 			className={cx(
 				"flex items-start gap-2.5 rounded-xl border p-3.5 text-sm",
-				tone === "success" ? "border-kumo-success/30 bg-kumo-success/10 text-kumo-success" : "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger",
+				tone === "success"
+					? "border-kumo-success/30 bg-kumo-success/10 text-kumo-success"
+					: "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger",
 			)}
 		>
 			<span className="mt-0.5 shrink-0">{tone === "success" ? "✅" : "❌"}</span>
@@ -722,7 +830,8 @@ function GovernanceWidget() {
 
 	if (loading) return <LoadingState label={copy.loadingGovernanceStatus} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title={copy.noStatusYet} description={copy.noStatusYetDescription} />;
+	if (!data)
+		return <EmptyState title={copy.noStatusYet} description={copy.noStatusYetDescription} />;
 
 	return (
 		<div className="space-y-3">
@@ -751,7 +860,8 @@ function AccessRightsHealthWidget() {
 
 	if (loading) return <LoadingState label={copy.loadingAccessHealth} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title={copy.noHealthData} description={copy.noHealthDataDescription} />;
+	if (!data)
+		return <EmptyState title={copy.noHealthData} description={copy.noHealthDataDescription} />;
 
 	const hasGaps = data.rolesWithoutPermissions.length > 0 || data.usersWithoutRoles.length > 0;
 
@@ -764,10 +874,15 @@ function AccessRightsHealthWidget() {
 				<MetricCard label={copy.users} value={data.userAssignmentCount} />
 			</div>
 			<div className="text-sm">
-				<Pill tone={hasGaps ? "warning" : "success"}>{hasGaps ? copy.reviewNeeded : copy.healthy}</Pill>
+				<Pill tone={hasGaps ? "warning" : "success"}>
+					{hasGaps ? copy.reviewNeeded : copy.healthy}
+				</Pill>
 				<p className="mt-2 text-kumo-subtle">
 					{hasGaps
-						? copy.catalogGapSummary(data.rolesWithoutPermissions.length, data.usersWithoutRoles.length)
+						? copy.catalogGapSummary(
+								data.rolesWithoutPermissions.length,
+								data.usersWithoutRoles.length,
+							)
 						: copy.catalogGapNone}
 				</p>
 			</div>
@@ -795,7 +910,9 @@ function AbacPolicyStatusWidget() {
 				<MetricCard label={copy.subjects} value={data.subjectCount} />
 				<MetricCard label={copy.resources} value={data.resourceCount} />
 			</div>
-			<div className="text-sm text-kumo-subtle">{copy.explicitDenyPolicies(data.explicitDenyCount)}</div>
+			<div className="text-sm text-kumo-subtle">
+				{copy.explicitDenyPolicies(data.explicitDenyCount)}
+			</div>
 			<Button variant="ghost" size="sm" onClick={() => void reload()} type="button">
 				{copy.refresh}
 			</Button>
@@ -809,7 +926,9 @@ function SikesraStatsChart({ categories }: { categories: any[] }) {
 	return (
 		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 text-kumo-default shadow-sm mt-2">
 			<h2 className="text-lg font-bold mb-1">Grafik Rekapitulasi Data SIKESRA</h2>
-			<p className="text-xs text-kumo-subtle mb-6">Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.</p>
+			<p className="text-xs text-kumo-subtle mb-6">
+				Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.
+			</p>
 
 			<div className="space-y-6">
 				{categories.map((cat) => {
@@ -825,7 +944,9 @@ function SikesraStatsChart({ categories }: { categories: any[] }) {
 								) : (
 									<div className="flex gap-4 text-xs">
 										<span className="text-blue-600 font-semibold">Total: {cat.total}</span>
-										<span className="text-emerald-600 font-semibold">Terverifikasi: {cat.verified}</span>
+										<span className="text-emerald-600 font-semibold">
+											Terverifikasi: {cat.verified}
+										</span>
 									</div>
 								)}
 							</div>
@@ -935,7 +1056,8 @@ function OverviewPage() {
 
 	if (loading) return <LoadingState label={copy.loadingPluginOverview} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data) return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
+	if (!data)
+		return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
 	const dashboardCards = getDashboardModuleCards(i18n.locale);
 
 	return (
@@ -954,9 +1076,24 @@ function OverviewPage() {
 			<Feedback message={copy.overviewSuccess} tone="success" />
 
 			<div className="grid gap-5 md:grid-cols-3 mt-2">
-				<MetricCard label={copy.auditEventsStored} value={data.counters.auditCount} hint={copy.auditEventsStoredHint} icon="📋" />
-				<MetricCard label={copy.lifecycleTriggers} value={data.counters.lifecycleCount} hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))} icon="⚙️" />
-				<MetricCard label={copy.publicApiHits} value={data.counters.publicHits} hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))} icon="🌐" />
+				<MetricCard
+					label={copy.auditEventsStored}
+					value={data.counters.auditCount}
+					hint={copy.auditEventsStoredHint}
+					icon="📋"
+				/>
+				<MetricCard
+					label={copy.lifecycleTriggers}
+					value={data.counters.lifecycleCount}
+					hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))}
+					icon="⚙️"
+				/>
+				<MetricCard
+					label={copy.publicApiHits}
+					value={data.counters.publicHits}
+					hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))}
+					icon="🌐"
+				/>
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -982,7 +1119,13 @@ function OverviewPage() {
 						elderly: "🏠",
 					};
 					return (
-						<section className={cx("rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all", accents[card.id] || "")} key={card.id}>
+						<section
+							className={cx(
+								"rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all",
+								accents[card.id] || "",
+							)}
+							key={card.id}
+						>
 							<div className="flex items-start justify-between gap-3">
 								<div className="flex items-start gap-2.5">
 									<span className="text-2xl shrink-0" role="img" aria-label={card.title}>
@@ -990,7 +1133,9 @@ function OverviewPage() {
 									</span>
 									<div>
 										<div className="text-sm font-semibold text-kumo-default">{card.title}</div>
-										<div className="mt-1 text-xs leading-5 text-kumo-subtle">{card.description}</div>
+										<div className="mt-1 text-xs leading-5 text-kumo-subtle">
+											{card.description}
+										</div>
 									</div>
 								</div>
 								<div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -998,7 +1143,12 @@ function OverviewPage() {
 									{card.badge != null ? <Badge variant="outline">{card.badge}</Badge> : null}
 								</div>
 							</div>
-							<LinkButton href={card.href} variant="secondary" size="sm" className="mt-4 w-full justify-center">
+							<LinkButton
+								href={card.href}
+								variant="secondary"
+								size="sm"
+								className="mt-4 w-full justify-center"
+							>
 								{copy.openModule}
 							</LinkButton>
 						</section>
@@ -1006,9 +1156,10 @@ function OverviewPage() {
 				})}
 			</div>
 
-			{publicStatus?.publicAggregate?.categories && publicStatus.publicAggregate.categories.length > 0 && (
-				<SikesraStatsChart categories={publicStatus.publicAggregate.categories} />
-			)}
+			{publicStatus?.publicAggregate?.categories &&
+				publicStatus.publicAggregate.categories.length > 0 && (
+					<SikesraStatsChart categories={publicStatus.publicAggregate.categories} />
+				)}
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
 				<Card title={copy.pluginConfiguration} description={copy.pluginConfigurationDescription}>
@@ -1033,7 +1184,10 @@ function OverviewPage() {
 									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
 									value={formState.auditRetentionDays}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({ ...current, auditRetentionDays: event.target.value }))
+										setFormState((current) => ({
+											...current,
+											auditRetentionDays: event.target.value,
+										}))
 									}
 								/>
 							</Field>
@@ -1042,7 +1196,10 @@ function OverviewPage() {
 								<Select
 									value={formState.governanceMode}
 									onValueChange={(value) =>
-										setFormState((current) => ({ ...current, governanceMode: (value as GovernanceMode | null) ?? "review" }))
+										setFormState((current) => ({
+											...current,
+											governanceMode: (value as GovernanceMode | null) ?? "review",
+										}))
 									}
 								>
 									<Select.Option value="observe">{copy.observe}</Select.Option>
@@ -1060,7 +1217,10 @@ function OverviewPage() {
 									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
 									value={formState.smallCellThreshold}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({ ...current, smallCellThreshold: event.target.value }))
+										setFormState((current) => ({
+											...current,
+											smallCellThreshold: event.target.value,
+										}))
 									}
 								/>
 							</Field>
@@ -1069,7 +1229,10 @@ function OverviewPage() {
 								<Select
 									value={formState.sikesraPublicEnabled ? "true" : "false"}
 									onValueChange={(value) =>
-										setFormState((current) => ({ ...current, sikesraPublicEnabled: value === "true" }))
+										setFormState((current) => ({
+											...current,
+											sikesraPublicEnabled: value === "true",
+										}))
 									}
 								>
 									<Select.Option value="true">{copy.enabled}</Select.Option>
@@ -1082,7 +1245,10 @@ function OverviewPage() {
 							<Input
 								value={formState.metadataCanonicalBase}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setFormState((current) => ({ ...current, metadataCanonicalBase: event.target.value }))
+									setFormState((current) => ({
+										...current,
+										metadataCanonicalBase: event.target.value,
+									}))
 								}
 							/>
 						</Field>
@@ -1091,7 +1257,9 @@ function OverviewPage() {
 							<Button variant="primary" disabled={saving} type="submit">
 								{saving ? copy.saving : copy.saveSettings}
 							</Button>
-							<span className="text-xs text-kumo-subtle">{copy.modeLabel(data.settings.governanceMode)}</span>
+							<span className="text-xs text-kumo-subtle">
+								{copy.modeLabel(data.settings.governanceMode)}
+							</span>
 						</div>
 					</form>
 				</Card>
@@ -1104,7 +1272,10 @@ function OverviewPage() {
 							[copy.governance, <Pill key="governance">{data.settings.governanceMode}</Pill>],
 							[copy.canonicalBase, data.settings.metadataCanonicalBase || copy.notSet],
 							[copy.smallCellThreshold, String(data.settings.smallCellThreshold ?? 3)],
-							[copy.sikesraPublicEnabled, data.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled],
+							[
+								copy.sikesraPublicEnabled,
+								data.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled,
+							],
 						]}
 					/>
 				</Card>
@@ -1116,14 +1287,19 @@ function OverviewPage() {
 				) : (
 					<div className="space-y-2">
 						{data.recentEvents.map((item) => (
-							<div className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.id}>
+							<div
+								className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
+								key={item.id}
+							>
 								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 									<div className="font-medium text-kumo-default">{item.summary}</div>
 									<Pill>{item.kind}</Pill>
 								</div>
 								<div className="mt-2 text-xs text-kumo-subtle space-y-1">
-									<div>{item.actor} • {formatDateTime(item.timestamp)}</div>
-									{(item.userName || item.userId) ? (
+									<div>
+										{item.actor} • {formatDateTime(item.timestamp)}
+									</div>
+									{item.userName || item.userId ? (
 										<div>
 											{copy.userLabel}: {item.userName || item.userId}
 											{item.userId ? ` (${item.userId})` : ""}
@@ -1141,12 +1317,12 @@ function OverviewPage() {
 
 function resolveRegionNames(
 	region: { provinceCode: string; regencyCode: string; districtCode: string; villageCode: string },
-	regions: AdministrativeProvince[]
+	regions: AdministrativeProvince[],
 ) {
-	const prov = regions.find(p => p.code === region.provinceCode);
-	const reg = prov?.regencies?.find(r => r.code === region.regencyCode);
-	const dist = reg?.districts?.find(d => d.code === region.districtCode);
-	const vill = dist?.villages?.find(v => v.code === region.villageCode);
+	const prov = regions.find((p) => p.code === region.provinceCode);
+	const reg = prov?.regencies?.find((r) => r.code === region.regencyCode);
+	const dist = reg?.districts?.find((d) => d.code === region.districtCode);
+	const vill = dist?.villages?.find((v) => v.code === region.villageCode);
 
 	return {
 		provinceName: prov ? prov.name : region.provinceCode,
@@ -1197,29 +1373,33 @@ function inferVerifierLevelFromActor(actor: string) {
 	return null;
 }
 
-function resolveDataTypeNames(
-	code: string,
-	dataTypes: SikesraParentType[]
-) {
+function resolveDataTypeNames(code: string, dataTypes: SikesraParentType[]) {
 	if (!code || code.length < 14) return { parentLabel: "Unknown", subLabel: "Unknown" };
 	const parentCode = code.slice(10, 12);
 	const subCode = code.slice(12, 14);
 
-	const parent = dataTypes.find(p => p.code === parentCode);
-	const subtype = parent?.subTypes?.find(s => s.code === subCode);
+	const parent = dataTypes.find((p) => p.code === parentCode);
+	const subtype = parent?.subTypes?.find((s) => s.code === subCode);
 
 	return {
 		parentLabel: parent?.label ?? "Unknown",
-		subLabel: subtype?.label ?? "Unknown"
+		subLabel: subtype?.label ?? "Unknown",
 	};
 }
 
 function RegistryPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error: _error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
-	const { data: regionsData, loading: loadingRegions } = usePluginData<AdministrativeProvince[]>("regions/get");
-	const { data: dataTypesData, loading: loadingDataTypes } = usePluginData<SikesraParentType[]>("data-types/get");
+	const {
+		data,
+		error: _error,
+		loading,
+		reload,
+	} = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const { data: regionsData, loading: loadingRegions } =
+		usePluginData<AdministrativeProvince[]>("regions/get");
+	const { data: dataTypesData, loading: loadingDataTypes } =
+		usePluginData<SikesraParentType[]>("data-types/get");
 	const [step, setStep] = React.useState(0);
 	const [submitting, setSubmitting] = React.useState(false);
 	const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -1229,7 +1409,8 @@ function RegistryPage() {
 	// Temp document form states
 	const [tempDocTitle, setTempDocTitle] = React.useState("");
 	const [tempDocType, setTempDocType] = React.useState("surat_keterangan");
-	const [tempDocSensitivity, setTempDocSensitivity] = React.useState<SikesraSensitivity>("public_safe");
+	const [tempDocSensitivity, setTempDocSensitivity] =
+		React.useState<SikesraSensitivity>("public_safe");
 	const [tempDocFile, setTempDocFile] = React.useState<string | null>(null);
 
 	// 11-step wizard state
@@ -1274,7 +1455,7 @@ function RegistryPage() {
 			const defaultParent = activeTypes[0];
 			const defaultSub = defaultParent?.subTypes?.[0];
 
-			setWizardState(prev => ({
+			setWizardState((prev) => ({
 				...prev,
 				provinceCode: prov?.code ?? "62",
 				regencyCode: reg?.code ?? "6201",
@@ -1294,35 +1475,41 @@ function RegistryPage() {
 
 	const filteredEntities = registryEntities.filter((entity) => {
 		const matchesType = filterType === "all" || entity.entityType === filterType;
-		const matchesSearch = entity.label.toLowerCase().includes(searchQuery.toLowerCase()) || entity.code.toLowerCase().includes(searchQuery.toLowerCase());
+		const matchesSearch =
+			entity.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			entity.code.toLowerCase().includes(searchQuery.toLowerCase());
 		return matchesType && matchesSearch;
 	});
 
-	const verifiedCount = registryEntities.filter((entity) => entity.verificationStage === "active_verified").length;
-	const restrictedCount = registryEntities.filter((entity) => entity.sensitivity !== "public_safe").length;
+	const verifiedCount = registryEntities.filter(
+		(entity) => entity.verificationStage === "active_verified",
+	).length;
+	const restrictedCount = registryEntities.filter(
+		(entity) => entity.sensitivity !== "public_safe",
+	).length;
 
 	const runValidationCheck = () => {
 		if (!wizardState.label || !wizardState.villageCode || !wizardState.entityType) {
 			setErrMsg("Identity label, village code, and data type are mandatory!");
 			return;
 		}
-		setWizardState(prev => ({ ...prev, isValidated: true }));
+		setWizardState((prev) => ({ ...prev, isValidated: true }));
 		setSuccessMsg("Validation Passed! No duplicates found.");
 		setErrMsg(null);
 	};
 
 	const generateSikesraId = () => {
 		const desa = wizardState.villageCode.padEnd(10, "0").slice(0, 10);
-		
+
 		const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
-		const parentType = activeTypes.find(p => p.id === wizardState.entityType);
+		const parentType = activeTypes.find((p) => p.id === wizardState.entityType);
 		const jenis = parentType?.code ?? "99";
 		const subjenis = wizardState.subTypeCode || "01";
-		
+
 		const nextSeq = String(registryEntities.length + 1).padStart(6, "0");
 		const compiledId = `${desa}${jenis}${subjenis}${nextSeq}`;
-		
-		setWizardState(prev => ({ ...prev, code: compiledId }));
+
+		setWizardState((prev) => ({ ...prev, code: compiledId }));
 		setSuccessMsg(`Generated SIKESRA ID: ${compiledId}`);
 	};
 
@@ -1366,7 +1553,8 @@ function RegistryPage() {
 				provinceCode: regionsData?.[0]?.code ?? "62",
 				regencyCode: regionsData?.[0]?.regencies?.[0]?.code ?? "6201",
 				districtCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.code ?? "620101",
-				villageCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.villages?.[0]?.code ?? "6201010001",
+				villageCode:
+					regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.villages?.[0]?.code ?? "6201010001",
 				rt: "001",
 				rw: "001",
 				address: "Jl. Merdeka No. 12",
@@ -1392,14 +1580,14 @@ function RegistryPage() {
 			setSubmitting(false);
 		}
 	};
- 
+
 	const handleProvinceChange = (provinceCode: string) => {
 		const activeRegionData = regionsData || [];
-		const prov = activeRegionData.find(p => p.code === provinceCode);
+		const prov = activeRegionData.find((p) => p.code === provinceCode);
 		const reg = prov?.regencies?.[0];
 		const dist = reg?.districts?.[0];
 		const vill = dist?.villages?.[0];
-		setWizardState(prev => ({
+		setWizardState((prev) => ({
 			...prev,
 			provinceCode,
 			regencyCode: reg?.code ?? "",
@@ -1407,28 +1595,28 @@ function RegistryPage() {
 			villageCode: vill?.code ?? "",
 		}));
 	};
- 
+
 	const handleRegencyChange = (regencyCode: string) => {
 		const activeRegionData = regionsData || [];
-		const prov = activeRegionData.find(p => p.code === wizardState.provinceCode);
-		const reg = prov?.regencies?.find(r => r.code === regencyCode);
+		const prov = activeRegionData.find((p) => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies?.find((r) => r.code === regencyCode);
 		const dist = reg?.districts?.[0];
 		const vill = dist?.villages?.[0];
-		setWizardState(prev => ({
+		setWizardState((prev) => ({
 			...prev,
 			regencyCode,
 			districtCode: dist?.code ?? "",
 			villageCode: vill?.code ?? "",
 		}));
 	};
- 
+
 	const handleDistrictChange = (districtCode: string) => {
 		const activeRegionData = regionsData || [];
-		const prov = activeRegionData.find(p => p.code === wizardState.provinceCode);
-		const reg = prov?.regencies?.find(r => r.code === wizardState.regencyCode);
-		const dist = reg?.districts?.find(d => d.code === districtCode);
+		const prov = activeRegionData.find((p) => p.code === wizardState.provinceCode);
+		const reg = prov?.regencies?.find((r) => r.code === wizardState.regencyCode);
+		const dist = reg?.districts?.find((d) => d.code === districtCode);
 		const vill = dist?.villages?.[0];
-		setWizardState(prev => ({
+		setWizardState((prev) => ({
 			...prev,
 			districtCode,
 			villageCode: vill?.code ?? "",
@@ -1443,15 +1631,20 @@ function RegistryPage() {
 			documentType: tempDocType,
 			sensitivity: tempDocSensitivity,
 		};
-		setWizardState(prev => ({
+		setWizardState((prev) => ({
 			...prev,
-			documents: [...prev.documents, nextDoc]
+			documents: [...prev.documents, nextDoc],
 		}));
 		setTempDocTitle("");
 		setTempDocFile(null);
 	};
 
-	if (loading || loadingRegions || loadingDataTypes) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	if (loading || loadingRegions || loadingDataTypes)
+		return (
+			<PageShell>
+				<LoadingState label={copy.loadingPluginOverview} />
+			</PageShell>
+		);
 
 	return (
 		<PageShell>
@@ -1462,9 +1655,21 @@ function RegistryPage() {
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.registryEntities} value={registryEntities.length} hint={copy.registryEntitiesHint} />
-				<MetricCard label={copy.verifiedRecords} value={verifiedCount} hint={copy.verifiedRecordsHint} />
-				<MetricCard label={copy.restrictedEntries} value={restrictedCount} hint={copy.restrictedEntriesHint} />
+				<MetricCard
+					label={copy.registryEntities}
+					value={registryEntities.length}
+					hint={copy.registryEntitiesHint}
+				/>
+				<MetricCard
+					label={copy.verifiedRecords}
+					value={verifiedCount}
+					hint={copy.verifiedRecordsHint}
+				/>
+				<MetricCard
+					label={copy.restrictedEntries}
+					value={restrictedCount}
+					hint={copy.restrictedEntriesHint}
+				/>
 			</div>
 
 			<div className="mb-4 flex border-b border-kumo-line mt-4">
@@ -1472,7 +1677,9 @@ function RegistryPage() {
 					type="button"
 					className={cx(
 						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
-						activeSubTab === "queue" ? "border-kumo-brand text-kumo-brand font-bold" : "border-transparent text-kumo-subtle hover:text-kumo-default"
+						activeSubTab === "queue"
+							? "border-kumo-brand text-kumo-brand font-bold"
+							: "border-transparent text-kumo-subtle hover:text-kumo-default",
 					)}
 					onClick={() => setActiveSubTab("queue")}
 				>
@@ -1482,7 +1689,9 @@ function RegistryPage() {
 					type="button"
 					className={cx(
 						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
-						activeSubTab === "intake" ? "border-kumo-brand text-kumo-brand font-bold" : "border-transparent text-kumo-subtle hover:text-kumo-default"
+						activeSubTab === "intake"
+							? "border-kumo-brand text-kumo-brand font-bold"
+							: "border-transparent text-kumo-subtle hover:text-kumo-default",
 					)}
 					onClick={() => setActiveSubTab("intake")}
 				>
@@ -1498,7 +1707,9 @@ function RegistryPage() {
 								<Input
 									placeholder="Search entity name or code..."
 									value={searchQuery}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setSearchQuery(e.target.value)
+									}
 								/>
 							</div>
 							<div className="w-48">
@@ -1524,36 +1735,72 @@ function RegistryPage() {
 								<div>{copy.stage}</div>
 							</div>
 							{filteredEntities.length === 0 ? (
-								<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities match the search query and filters.</div>
+								<div className="p-8 text-center text-sm text-kumo-subtle italic">
+									No entities match the search query and filters.
+								</div>
 							) : (
 								filteredEntities.map((entity) => {
 									const names = resolveRegionNames(entity.region, regionsData || []);
 									const activeDataTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
 									const resolvedTypeNames = resolveDataTypeNames(entity.code, activeDataTypes);
 									return (
-										<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all" key={entity.id}>
+										<div
+											className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all"
+											key={entity.id}
+										>
 											<div className="flex items-start gap-2.5">
 												<span className="text-xl shrink-0 mt-0.5" title={entity.entityType}>
 													{getEntityIcon(entity.entityType)}
 												</span>
 												<div>
 													<div className="font-semibold text-kumo-default">{entity.label}</div>
-													<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">{entity.code || "PENDING"}</div>
-													<div className="mt-1 text-xs text-kumo-subtle capitalize">{resolvedTypeNames.parentLabel} • {resolvedTypeNames.subLabel}</div>
-													<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">{entity.publicSummary}</div>
+													<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">
+														{entity.code || "PENDING"}
+													</div>
+													<div className="mt-1 text-xs text-kumo-subtle capitalize">
+														{resolvedTypeNames.parentLabel} • {resolvedTypeNames.subLabel}
+													</div>
+													<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">
+														{entity.publicSummary}
+													</div>
 												</div>
 											</div>
 											<div className="text-kumo-subtle leading-relaxed">
-												<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">Region Scope:</span>
-												<div className="font-medium text-kumo-default text-xs">{names.provinceName} • {names.regencyName}</div>
-												<div className="font-semibold text-kumo-brand text-xs mt-0.5">{names.districtName} • {names.villageName}</div>
-												<div className="mt-1.5 font-mono text-[9px] opacity-60">({entity.region.provinceCode}/{entity.region.regencyCode}/{entity.region.districtCode}/{entity.region.villageCode})</div>
+												<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">
+													Region Scope:
+												</span>
+												<div className="font-medium text-kumo-default text-xs">
+													{names.provinceName} • {names.regencyName}
+												</div>
+												<div className="font-semibold text-kumo-brand text-xs mt-0.5">
+													{names.districtName} • {names.villageName}
+												</div>
+												<div className="mt-1.5 font-mono text-[9px] opacity-60">
+													({entity.region.provinceCode}/{entity.region.regencyCode}/
+													{entity.region.districtCode}/{entity.region.villageCode})
+												</div>
 											</div>
 											<div className="flex items-start">
-												<Pill tone={entity.sensitivity === "public_safe" ? "success" : entity.sensitivity === "restricted" ? "warning" : "danger"}>{entity.sensitivity}</Pill>
+												<Pill
+													tone={
+														entity.sensitivity === "public_safe"
+															? "success"
+															: entity.sensitivity === "restricted"
+																? "warning"
+																: "danger"
+													}
+												>
+													{entity.sensitivity}
+												</Pill>
 											</div>
 											<div className="flex items-start">
-												<Badge variant={entity.verificationStage === "active_verified" ? "success" : "warning"}>{entity.verificationStage}</Badge>
+												<Badge
+													variant={
+														entity.verificationStage === "active_verified" ? "success" : "warning"
+													}
+												>
+													{entity.verificationStage}
+												</Badge>
 											</div>
 										</div>
 									);
@@ -1564,7 +1811,10 @@ function RegistryPage() {
 				)}
 
 				{activeSubTab === "intake" && (
-					<Card title={copy.progressiveInputWizard} description={copy.progressiveInputWizardDescription}>
+					<Card
+						title={copy.progressiveInputWizard}
+						description={copy.progressiveInputWizardDescription}
+					>
 						<div className="space-y-4">
 							<Feedback message={successMsg} tone="success" />
 							<Feedback message={errMsg} tone="danger" />
@@ -1586,18 +1836,20 @@ function RegistryPage() {
 														isActive
 															? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-semibold shadow-sm"
 															: isCompleted
-															? "bg-kumo-success/5 border-transparent text-kumo-success hover:bg-kumo-success/10"
-															: "bg-transparent border-transparent text-kumo-subtle hover:bg-kumo-tint"
+																? "bg-kumo-success/5 border-transparent text-kumo-success hover:bg-kumo-success/10"
+																: "bg-transparent border-transparent text-kumo-subtle hover:bg-kumo-tint",
 													)}
 												>
-													<span className={cx(
-														"flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold border",
-														isActive
-															? "bg-kumo-brand border-kumo-brand text-white"
-															: isCompleted
-															? "bg-kumo-success border-kumo-success text-white"
-															: "bg-kumo-base border-kumo-line text-kumo-subtle"
-													)}>
+													<span
+														className={cx(
+															"flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold border",
+															isActive
+																? "bg-kumo-brand border-kumo-brand text-white"
+																: isCompleted
+																	? "bg-kumo-success border-kumo-success text-white"
+																	: "bg-kumo-base border-kumo-line text-kumo-subtle",
+														)}
+													>
 														{isCompleted ? "✓" : index + 1}
 													</span>
 													<span className="truncate">{label}</span>
@@ -1611,104 +1863,192 @@ function RegistryPage() {
 								<div className="flex-1 min-w-0">
 									<div className="rounded-xl border border-kumo-line bg-kumo-base p-5 shadow-inner">
 										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line pb-2 mb-4 flex items-center justify-between">
-											<span>Step {step + 1}: {copy.registrySteps[step]}</span>
-											<span className="text-[10px] px-2 py-0.5 rounded-full bg-kumo-tint text-kumo-subtle font-mono">{Math.round((step + 1) / copy.registrySteps.length * 100)}%</span>
+											<span>
+												Step {step + 1}: {copy.registrySteps[step]}
+											</span>
+											<span className="text-[10px] px-2 py-0.5 rounded-full bg-kumo-tint text-kumo-subtle font-mono">
+												{Math.round(((step + 1) / copy.registrySteps.length) * 100)}%
+											</span>
 										</div>
 
 										<div className="space-y-4">
 											{step === 0 && (
 												<>
-													<Field label="Jenis Data Induk" hint="Pilih Jenis Data Induk SIKESRA (Wajib)">
-														<Select value={wizardState.entityType} onValueChange={(val) => {
-															const type = val ?? "rumah_ibadah";
-															const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
-															const parent = activeTypes.find(p => p.id === type);
-															const defaultSub = parent?.subTypes?.[0];
-															setWizardState(prev => ({
-																...prev,
-																entityType: type,
-																subTypeCode: defaultSub?.code ?? "01",
-																subtype: defaultSub?.label ?? "Lainnya"
-															}));
-														}}>
-															{(dataTypesData ?? DEFAULT_DATA_TYPES).map(p => (
-																<Select.Option value={p.id} key={p.id}>{p.label} ({p.code})</Select.Option>
+													<Field
+														label="Jenis Data Induk"
+														hint="Pilih Jenis Data Induk SIKESRA (Wajib)"
+													>
+														<Select
+															value={wizardState.entityType}
+															onValueChange={(val) => {
+																const type = val ?? "rumah_ibadah";
+																const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+																const parent = activeTypes.find((p) => p.id === type);
+																const defaultSub = parent?.subTypes?.[0];
+																setWizardState((prev) => ({
+																	...prev,
+																	entityType: type,
+																	subTypeCode: defaultSub?.code ?? "01",
+																	subtype: defaultSub?.label ?? "Lainnya",
+																}));
+															}}
+														>
+															{(dataTypesData ?? DEFAULT_DATA_TYPES).map((p) => (
+																<Select.Option value={p.id} key={p.id}>
+																	{p.label} ({p.code})
+																</Select.Option>
 															))}
 														</Select>
 													</Field>
 													<Field label="Sub Jenis Data" hint="Pilih Sub Jenis Data SIKESRA (Wajib)">
-														<Select value={wizardState.subTypeCode} onValueChange={(val) => {
-															const code = val ?? "01";
-															const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
-															const parent = activeTypes.find(p => p.id === wizardState.entityType);
-															const label = parent?.subTypes?.find(s => s.code === code)?.label ?? "Lainnya";
-															setWizardState(prev => ({
-																...prev,
-																subTypeCode: code,
-																subtype: label
-															}));
-														}}>
-															{((dataTypesData ?? DEFAULT_DATA_TYPES).find(p => p.id === wizardState.entityType)?.subTypes || []).map(sub => (
-																<Select.Option value={sub.code} key={sub.code}>{sub.label} ({sub.code})</Select.Option>
+														<Select
+															value={wizardState.subTypeCode}
+															onValueChange={(val) => {
+																const code = val ?? "01";
+																const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+																const parent = activeTypes.find(
+																	(p) => p.id === wizardState.entityType,
+																);
+																const label =
+																	parent?.subTypes?.find((s) => s.code === code)?.label ??
+																	"Lainnya";
+																setWizardState((prev) => ({
+																	...prev,
+																	subTypeCode: code,
+																	subtype: label,
+																}));
+															}}
+														>
+															{(
+																(dataTypesData ?? DEFAULT_DATA_TYPES).find(
+																	(p) => p.id === wizardState.entityType,
+																)?.subTypes || []
+															).map((sub) => (
+																<Select.Option value={sub.code} key={sub.code}>
+																	{sub.label} ({sub.code})
+																</Select.Option>
 															))}
 														</Select>
 													</Field>
-													<Field label="Sensitivity classification" hint="Determine visibility of this entity records (Mandatory)">
-								<Select value={wizardState.sensitivity} onValueChange={(val) => setWizardState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
-									<Select.Option value="public_safe">Public Safe</Select.Option>
-									<Select.Option value="internal">Internal</Select.Option>
-									<Select.Option value="restricted">Restricted</Select.Option>
-									<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
-								</Select>
-							</Field>
-							<Field label={copy.inputLevel} hint={copy.verificationInputPolicy}>
-								<Select value={wizardState.inputLevel} onValueChange={(val) => setWizardState(prev => ({ ...prev, inputLevel: (val as SikesraUserLevel) ?? "desa_kelurahan" }))}>
-									<Select.Option value="desa_kelurahan">{copy.villageLevel}</Select.Option>
-									<Select.Option value="kecamatan">{copy.districtLevel}</Select.Option>
-									<Select.Option value="sopd">{copy.sopdLevel}</Select.Option>
-									<Select.Option value="kabupaten">{copy.regencyLevel}</Select.Option>
-									<Select.Option value="admin_sikesra">{copy.sikesraAdminLevel}</Select.Option>
-								</Select>
-							</Field>
-						</>
-					)}
+													<Field
+														label="Sensitivity classification"
+														hint="Determine visibility of this entity records (Mandatory)"
+													>
+														<Select
+															value={wizardState.sensitivity}
+															onValueChange={(val) =>
+																setWizardState((prev) => ({
+																	...prev,
+																	sensitivity: (val as SikesraSensitivity) ?? "public_safe",
+																}))
+															}
+														>
+															<Select.Option value="public_safe">Public Safe</Select.Option>
+															<Select.Option value="internal">Internal</Select.Option>
+															<Select.Option value="restricted">Restricted</Select.Option>
+															<Select.Option value="highly_restricted">
+																Highly Restricted
+															</Select.Option>
+														</Select>
+													</Field>
+													<Field label={copy.inputLevel} hint={copy.verificationInputPolicy}>
+														<Select
+															value={wizardState.inputLevel}
+															onValueChange={(val) =>
+																setWizardState((prev) => ({
+																	...prev,
+																	inputLevel: (val as SikesraUserLevel) ?? "desa_kelurahan",
+																}))
+															}
+														>
+															<Select.Option value="desa_kelurahan">
+																{copy.villageLevel}
+															</Select.Option>
+															<Select.Option value="kecamatan">{copy.districtLevel}</Select.Option>
+															<Select.Option value="sopd">{copy.sopdLevel}</Select.Option>
+															<Select.Option value="kabupaten">{copy.regencyLevel}</Select.Option>
+															<Select.Option value="admin_sikesra">
+																{copy.sikesraAdminLevel}
+															</Select.Option>
+														</Select>
+													</Field>
+												</>
+											)}
 
 											{step === 1 && (
 												<>
 													<div className="grid gap-3 grid-cols-2">
 														<Field label="Province" hint="Cascading lookup selector">
-															<Select value={wizardState.provinceCode} onValueChange={(val) => { if (val) handleProvinceChange(val); }}>
-																{(regionsData || []).map(p => (
-																	<Select.Option value={p.code} key={p.code}>{p.name}</Select.Option>
+															<Select
+																value={wizardState.provinceCode}
+																onValueChange={(val) => {
+																	if (val) handleProvinceChange(val);
+																}}
+															>
+																{(regionsData || []).map((p) => (
+																	<Select.Option value={p.code} key={p.code}>
+																		{p.name}
+																	</Select.Option>
 																))}
 															</Select>
 														</Field>
 														<Field label="Regency / City" hint="Filtered by Province">
-															<Select value={wizardState.regencyCode} onValueChange={(val) => { if (val) handleRegencyChange(val); }}>
-																{(regionsData || []).find(p => p.code === wizardState.provinceCode)?.regencies?.map(r => (
-																	<Select.Option value={r.code} key={r.code}>{r.name}</Select.Option>
-																)) ?? <Select.Option value="">-- Select Regency --</Select.Option>}
+															<Select
+																value={wizardState.regencyCode}
+																onValueChange={(val) => {
+																	if (val) handleRegencyChange(val);
+																}}
+															>
+																{(regionsData || [])
+																	.find((p) => p.code === wizardState.provinceCode)
+																	?.regencies?.map((r) => (
+																		<Select.Option value={r.code} key={r.code}>
+																			{r.name}
+																		</Select.Option>
+																	)) ?? (
+																	<Select.Option value="">-- Select Regency --</Select.Option>
+																)}
 															</Select>
 														</Field>
 													</div>
 													<div className="grid gap-3 grid-cols-2">
 														<Field label="District (Kecamatan)" hint="Filtered by Regency">
-															<Select value={wizardState.districtCode} onValueChange={(val) => { if (val) handleDistrictChange(val); }}>
-																{(regionsData || []).find(p => p.code === wizardState.provinceCode)
-																	?.regencies?.find(r => r.code === wizardState.regencyCode)
-																	?.districts?.map(d => (
-																		<Select.Option value={d.code} key={d.code}>{d.name}</Select.Option>
-																	)) ?? <Select.Option value="">-- Select District --</Select.Option>}
+															<Select
+																value={wizardState.districtCode}
+																onValueChange={(val) => {
+																	if (val) handleDistrictChange(val);
+																}}
+															>
+																{(regionsData || [])
+																	.find((p) => p.code === wizardState.provinceCode)
+																	?.regencies?.find((r) => r.code === wizardState.regencyCode)
+																	?.districts?.map((d) => (
+																		<Select.Option value={d.code} key={d.code}>
+																			{d.name}
+																		</Select.Option>
+																	)) ?? (
+																	<Select.Option value="">-- Select District --</Select.Option>
+																)}
 															</Select>
 														</Field>
 														<Field label="Village (Desa / Kelurahan)" hint="Filtered by District">
-															<Select value={wizardState.villageCode} onValueChange={(val) => setWizardState(prev => ({ ...prev, villageCode: val ?? "" }))}>
-																{(regionsData || []).find(p => p.code === wizardState.provinceCode)
-																	?.regencies?.find(r => r.code === wizardState.regencyCode)
-																	?.districts?.find(d => d.code === wizardState.districtCode)
-																	?.villages?.map(v => (
-																		<Select.Option value={v.code} key={v.code}>{v.name}</Select.Option>
-																	)) ?? <Select.Option value="">-- Select Village --</Select.Option>}
+															<Select
+																value={wizardState.villageCode}
+																onValueChange={(val) =>
+																	setWizardState((prev) => ({ ...prev, villageCode: val ?? "" }))
+																}
+															>
+																{(regionsData || [])
+																	.find((p) => p.code === wizardState.provinceCode)
+																	?.regencies?.find((r) => r.code === wizardState.regencyCode)
+																	?.districts?.find((d) => d.code === wizardState.districtCode)
+																	?.villages?.map((v) => (
+																		<Select.Option value={v.code} key={v.code}>
+																			{v.name}
+																		</Select.Option>
+																	)) ?? (
+																	<Select.Option value="">-- Select Village --</Select.Option>
+																)}
 															</Select>
 														</Field>
 													</div>
@@ -1719,25 +2059,57 @@ function RegistryPage() {
 												<>
 													<div className="grid gap-3 grid-cols-2">
 														<Field label="RT" hint="Optional (e.g. 001)">
-															<Input value={wizardState.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rt: e.target.value }))} />
+															<Input
+																value={wizardState.rt}
+																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																	setWizardState((prev) => ({ ...prev, rt: e.target.value }))
+																}
+															/>
 														</Field>
 														<Field label="RW" hint="Optional (e.g. 002)">
-															<Input value={wizardState.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, rw: e.target.value }))} />
+															<Input
+																value={wizardState.rw}
+																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																	setWizardState((prev) => ({ ...prev, rw: e.target.value }))
+																}
+															/>
 														</Field>
 													</div>
-													<Field label="Specific Local Address" hint="Optional specific street details">
-														<Input value={wizardState.address} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, address: e.target.value }))} />
+													<Field
+														label="Specific Local Address"
+														hint="Optional specific street details"
+													>
+														<Input
+															value={wizardState.address}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																setWizardState((prev) => ({ ...prev, address: e.target.value }))
+															}
+														/>
 													</Field>
 												</>
 											)}
 
 											{step === 3 && (
 												<>
-													<Field label="Identity Name / Label" hint="Human-readable name (Mandatory)">
-														<Input value={wizardState.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, label: e.target.value }))} placeholder="e.g. Rumah Ibadah Al-Barokah" />
+													<Field
+														label="Identity Name / Label"
+														hint="Human-readable name (Mandatory)"
+													>
+														<Input
+															value={wizardState.label}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																setWizardState((prev) => ({ ...prev, label: e.target.value }))
+															}
+															placeholder="e.g. Rumah Ibadah Al-Barokah"
+														/>
 													</Field>
 													<Field label="Brief Description" hint="Optional summary details">
-														<Input value={wizardState.description} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, description: e.target.value }))} />
+														<Input
+															value={wizardState.description}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																setWizardState((prev) => ({ ...prev, description: e.target.value }))
+															}
+														/>
 													</Field>
 												</>
 											)}
@@ -1745,7 +2117,12 @@ function RegistryPage() {
 											{step === 4 && (
 												<>
 													<Field label="Religion Connection" hint="Optional attribute connection">
-														<Select value={wizardState.religion} onValueChange={(val) => setWizardState(prev => ({ ...prev, religion: val ?? "" }))}>
+														<Select
+															value={wizardState.religion}
+															onValueChange={(val) =>
+																setWizardState((prev) => ({ ...prev, religion: val ?? "" }))
+															}
+														>
 															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
 															<Select.Option value="Islam">Islam</Select.Option>
 															<Select.Option value="Kristen">Kristen</Select.Option>
@@ -1755,11 +2132,21 @@ function RegistryPage() {
 															<Select.Option value="Khonghucu">Khonghucu</Select.Option>
 														</Select>
 													</Field>
-													<Field label="Social Desil Status (1-10)" hint="Optional socio-economic classification">
-														<Select value={wizardState.desil} onValueChange={(val) => setWizardState(prev => ({ ...prev, desil: val ?? "" }))}>
+													<Field
+														label="Social Desil Status (1-10)"
+														hint="Optional socio-economic classification"
+													>
+														<Select
+															value={wizardState.desil}
+															onValueChange={(val) =>
+																setWizardState((prev) => ({ ...prev, desil: val ?? "" }))
+															}
+														>
 															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
 															{Array.from(Array(10), (_, i) => (
-																<Select.Option value={String(i + 1)} key={i}>Desil {i + 1}</Select.Option>
+																<Select.Option value={String(i + 1)} key={i}>
+																	Desil {i + 1}
+																</Select.Option>
 															))}
 														</Select>
 													</Field>
@@ -1767,18 +2154,42 @@ function RegistryPage() {
 											)}
 
 											{step === 5 && (
-												<Field label="Module specific data details" hint="Additional parameters unique to the module type (Optional)">
-													<InputArea value={wizardState.moduleDetails} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setWizardState(prev => ({ ...prev, moduleDetails: e.target.value }))} />
+												<Field
+													label="Module specific data details"
+													hint="Additional parameters unique to the module type (Optional)"
+												>
+													<InputArea
+														value={wizardState.moduleDetails}
+														onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+															setWizardState((prev) => ({ ...prev, moduleDetails: e.target.value }))
+														}
+													/>
 												</Field>
 											)}
 
 											{step === 6 && (
 												<>
 													<Field label="Caregiver / PIC Name" hint="Optional contact person">
-														<Input value={wizardState.caregiverName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverName: e.target.value }))} />
+														<Input
+															value={wizardState.caregiverName}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																setWizardState((prev) => ({
+																	...prev,
+																	caregiverName: e.target.value,
+																}))
+															}
+														/>
 													</Field>
 													<Field label="Caregiver Phone Number" hint="Optional phone number">
-														<Input value={wizardState.caregiverPhone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWizardState(prev => ({ ...prev, caregiverPhone: e.target.value }))} />
+														<Input
+															value={wizardState.caregiverPhone}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																setWizardState((prev) => ({
+																	...prev,
+																	caregiverPhone: e.target.value,
+																}))
+															}
+														/>
 													</Field>
 												</>
 											)}
@@ -1788,24 +2199,40 @@ function RegistryPage() {
 													<div className="rounded-xl border border-kumo-line bg-kumo-tint/10 p-4">
 														<div className="text-xs font-semibold mb-3 text-kumo-default flex items-center justify-between">
 															<span>Attached Documents ({wizardState.documents.length})</span>
-															{wizardState.documents.length === 0 && <span className="text-kumo-danger text-[10px] font-bold uppercase">No documents attached (Optional)</span>}
+															{wizardState.documents.length === 0 && (
+																<span className="text-kumo-danger text-[10px] font-bold uppercase">
+																	No documents attached (Optional)
+																</span>
+															)}
 														</div>
 														{wizardState.documents.length > 0 ? (
 															<div className="space-y-2">
 																{wizardState.documents.map((doc) => (
-																	<div className="flex items-center justify-between text-xs bg-kumo-base border border-kumo-line rounded-lg px-3 py-2 font-medium text-kumo-default shadow-sm" key={doc.id}>
+																	<div
+																		className="flex items-center justify-between text-xs bg-kumo-base border border-kumo-line rounded-lg px-3 py-2 font-medium text-kumo-default shadow-sm"
+																		key={doc.id}
+																	>
 																		<div className="flex items-center gap-2">
 																			<span className="text-sm">📁</span>
 																			<div>
 																				<strong>{doc.title}</strong>
-																				<span className="ml-1 text-[10px] text-kumo-brand bg-kumo-tint px-1.5 py-0.5 rounded font-mono uppercase">{doc.documentType}</span>
-																				<span className="ml-1 text-[10px] text-kumo-subtle">({doc.sensitivity})</span>
+																				<span className="ml-1 text-[10px] text-kumo-brand bg-kumo-tint px-1.5 py-0.5 rounded font-mono uppercase">
+																					{doc.documentType}
+																				</span>
+																				<span className="ml-1 text-[10px] text-kumo-subtle">
+																					({doc.sensitivity})
+																				</span>
 																			</div>
 																		</div>
 																		<Button
 																			variant="secondary"
 																			size="xs"
-																			onClick={() => setWizardState(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== doc.id) }))}
+																			onClick={() =>
+																				setWizardState((prev) => ({
+																					...prev,
+																					documents: prev.documents.filter((d) => d.id !== doc.id),
+																				}))
+																			}
 																		>
 																			Remove
 																		</Button>
@@ -1813,34 +2240,61 @@ function RegistryPage() {
 																))}
 															</div>
 														) : (
-															<div className="text-xs text-kumo-subtle italic text-center py-4">No documents added yet. Use the form below to attach files.</div>
+															<div className="text-xs text-kumo-subtle italic text-center py-4">
+																No documents added yet. Use the form below to attach files.
+															</div>
 														)}
 													</div>
 
 													<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 space-y-3">
-														<div className="text-xs font-bold text-kumo-default uppercase tracking-wider">Add New Document</div>
+														<div className="text-xs font-bold text-kumo-default uppercase tracking-wider">
+															Add New Document
+														</div>
 														<Field label="Supporting Document Title">
-															<Input value={tempDocTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempDocTitle(e.target.value)} placeholder="e.g. Surat Keterangan Domisili" />
+															<Input
+																value={tempDocTitle}
+																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+																	setTempDocTitle(e.target.value)
+																}
+																placeholder="e.g. Surat Keterangan Domisili"
+															/>
 														</Field>
 														<div className="grid gap-3 grid-cols-2">
 															<Field label="Doc Type">
-																<Select value={tempDocType} onValueChange={(val) => setTempDocType(val ?? "surat_keterangan")}>
-																	<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
+																<Select
+																	value={tempDocType}
+																	onValueChange={(val) => setTempDocType(val ?? "surat_keterangan")}
+																>
+																	<Select.Option value="surat_keterangan">
+																		Surat Keterangan
+																	</Select.Option>
 																	<Select.Option value="identitas">Identitas Utama</Select.Option>
 																	<Select.Option value="sertifikat">Sertifikat Resmi</Select.Option>
 																</Select>
 															</Field>
 															<Field label="Doc Sensitivity">
-																<Select value={tempDocSensitivity} onValueChange={(val) => setTempDocSensitivity((val as SikesraSensitivity) ?? "public_safe")}>
+																<Select
+																	value={tempDocSensitivity}
+																	onValueChange={(val) =>
+																		setTempDocSensitivity(
+																			(val as SikesraSensitivity) ?? "public_safe",
+																		)
+																	}
+																>
 																	<Select.Option value="public_safe">Public Safe</Select.Option>
 																	<Select.Option value="internal">Internal</Select.Option>
 																	<Select.Option value="restricted">Restricted</Select.Option>
-																	<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+																	<Select.Option value="highly_restricted">
+																		Highly Restricted
+																	</Select.Option>
 																</Select>
 															</Field>
 														</div>
 
-														<Field label="Select Supporting File" hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB">
+														<Field
+															label="Select Supporting File"
+															hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+														>
 															<input
 																type="file"
 																className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
@@ -1848,19 +2302,27 @@ function RegistryPage() {
 																	const file = e.target.files?.[0];
 																	if (file) {
 																		setTempDocFile(file.name);
-																		setTempDocTitle(prev => prev || file.name.split('.')[0] || "");
+																		setTempDocTitle(
+																			(prev) => prev || file.name.split(".")[0] || "",
+																		);
 																	}
 																}}
 															/>
 														</Field>
-														
+
 														{tempDocFile && (
 															<div className="text-xs text-kumo-success font-medium flex items-center gap-1">
-																<span>✓ Selected file:</span> <span className="font-mono">{tempDocFile}</span>
+																<span>✓ Selected file:</span>{" "}
+																<span className="font-mono">{tempDocFile}</span>
 															</div>
 														)}
 
-														<Button variant="secondary" className="w-full justify-center" disabled={!tempDocTitle} onClick={addDocumentToList}>
+														<Button
+															variant="secondary"
+															className="w-full justify-center"
+															disabled={!tempDocTitle}
+															onClick={addDocumentToList}
+														>
 															+ Add Document to List
 														</Button>
 													</div>
@@ -1869,36 +2331,88 @@ function RegistryPage() {
 
 											{step === 8 && (
 												<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/20 p-4 text-center">
-													<p className="text-xs text-kumo-subtle mb-3">Checks for formatting compliance and potential duplicate records.</p>
-													<Button variant="secondary" size="sm" onClick={runValidationCheck} type="button">Run Validation Check</Button>
+													<p className="text-xs text-kumo-subtle mb-3">
+														Checks for formatting compliance and potential duplicate records.
+													</p>
+													<Button
+														variant="secondary"
+														size="sm"
+														onClick={runValidationCheck}
+														type="button"
+													>
+														Run Validation Check
+													</Button>
 												</div>
 											)}
 
 											{step === 9 && (
 												<div className="rounded-lg border border-kumo-line bg-kumo-tint/10 p-4 text-center">
-													<p className="text-xs text-kumo-subtle mb-3">IDs are generated based on: [Desa Code (10)][Type (2)][Subtype (2)][Sequence (6)]</p>
-													<Button variant="primary" size="sm" onClick={generateSikesraId} type="button">Generate SIKESRA ID</Button>
+													<p className="text-xs text-kumo-subtle mb-3">
+														IDs are generated based on: [Desa Code (10)][Type (2)][Subtype
+														(2)][Sequence (6)]
+													</p>
+													<Button
+														variant="primary"
+														size="sm"
+														onClick={generateSikesraId}
+														type="button"
+													>
+														Generate SIKESRA ID
+													</Button>
 													{wizardState.code && (
-														<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">{wizardState.code}</div>
+														<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">
+															{wizardState.code}
+														</div>
 													)}
 												</div>
 											)}
 
 											{step === 10 && (
 												<div className="rounded-lg border border-kumo-line bg-kumo-base p-4 text-xs space-y-2">
-													<div className="font-semibold text-sm mb-2 text-kumo-default">Summary Intake:</div>
+													<div className="font-semibold text-sm mb-2 text-kumo-default">
+														Summary Intake:
+													</div>
 													<div className="grid grid-cols-2 gap-2">
-														<div><strong>Label:</strong> {wizardState.label}</div>
-														<div><strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}</div>
-														<div><strong>Type:</strong> {wizardState.entityType} ({wizardState.subtype || "-"})</div>
-														<div><strong>Religion / Desil:</strong> {wizardState.religion || "Tidak diisi"} / Desil {wizardState.desil || "Tidak diisi"}</div>
-														<div><strong>Official Region:</strong> {wizardState.provinceCode}/{wizardState.regencyCode}/{wizardState.districtCode}/{wizardState.villageCode}</div>
-														<div><strong>Local Region:</strong> RT {wizardState.rt || "00"} / RW {wizardState.rw || "00"}, {wizardState.address || "-"}</div>
-														<div><strong>Caregiver:</strong> {wizardState.caregiverName || "-"} ({wizardState.caregiverPhone || "-"})</div>
-														<div><strong>Attached Documents:</strong> {wizardState.documents.length} File(s)</div>
+														<div>
+															<strong>Label:</strong> {wizardState.label}
+														</div>
+														<div>
+															<strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}
+														</div>
+														<div>
+															<strong>Type:</strong> {wizardState.entityType} (
+															{wizardState.subtype || "-"})
+														</div>
+														<div>
+															<strong>Religion / Desil:</strong>{" "}
+															{wizardState.religion || "Tidak diisi"} / Desil{" "}
+															{wizardState.desil || "Tidak diisi"}
+														</div>
+														<div>
+															<strong>Official Region:</strong> {wizardState.provinceCode}/
+															{wizardState.regencyCode}/{wizardState.districtCode}/
+															{wizardState.villageCode}
+														</div>
+														<div>
+															<strong>Local Region:</strong> RT {wizardState.rt || "00"} / RW{" "}
+															{wizardState.rw || "00"}, {wizardState.address || "-"}
+														</div>
+														<div>
+															<strong>Caregiver:</strong> {wizardState.caregiverName || "-"} (
+															{wizardState.caregiverPhone || "-"})
+														</div>
+														<div>
+															<strong>Attached Documents:</strong> {wizardState.documents.length}{" "}
+															File(s)
+														</div>
 													</div>
 													<div className="pt-3 border-t">
-														<Button variant="primary" className="w-full justify-center" disabled={submitting} onClick={() => void handleWizardSubmit()}>
+														<Button
+															variant="primary"
+															className="w-full justify-center"
+															disabled={submitting}
+															onClick={() => void handleWizardSubmit()}
+														>
 															{submitting ? "Submitting..." : "Submit to Verification Queue"}
 														</Button>
 													</div>
@@ -1907,11 +2421,27 @@ function RegistryPage() {
 										</div>
 
 										<div className="mt-6 flex items-center justify-between border-t border-kumo-line pt-4">
-											<Button variant="secondary" size="sm" type="button" disabled={step === 0} onClick={() => setStep((current) => Math.max(0, current - 1))}>
+											<Button
+												variant="secondary"
+												size="sm"
+												type="button"
+												disabled={step === 0}
+												onClick={() => setStep((current) => Math.max(0, current - 1))}
+											>
 												{copy.previous}
 											</Button>
-											<div className="text-xs text-kumo-subtle font-medium">Step {step + 1} of {copy.registrySteps.length}</div>
-											<Button variant="secondary" size="sm" type="button" disabled={step === copy.registrySteps.length - 1} onClick={() => setStep((current) => Math.min(copy.registrySteps.length - 1, current + 1))}>
+											<div className="text-xs text-kumo-subtle font-medium">
+												Step {step + 1} of {copy.registrySteps.length}
+											</div>
+											<Button
+												variant="secondary"
+												size="sm"
+												type="button"
+												disabled={step === copy.registrySteps.length - 1}
+												onClick={() =>
+													setStep((current) => Math.min(copy.registrySteps.length - 1, current + 1))
+												}
+											>
 												{copy.next}
 											</Button>
 										</div>
@@ -1942,8 +2472,18 @@ function VerificationPage() {
 	const pending = queue.filter((item) => item.canAdvance).length;
 	const approved = queue.filter((item) => item.verificationStage === "active_verified").length;
 
-	if (loading) return <PageShell><LoadingState label={copy.loadingVerificationQueue} /></PageShell>;
-	if (error) return <PageShell><ErrorState message={error} onRetry={() => void reload()} /></PageShell>;
+	if (loading)
+		return (
+			<PageShell>
+				<LoadingState label={copy.loadingVerificationQueue} />
+			</PageShell>
+		);
+	if (error)
+		return (
+			<PageShell>
+				<ErrorState message={error} onRetry={() => void reload()} />
+			</PageShell>
+		);
 
 	async function handleVerifyAction(entityId: string, actionType: "approve" | "needs_revision") {
 		setSubmittingId(entityId);
@@ -1954,7 +2494,9 @@ function VerificationPage() {
 
 		try {
 			const item = queue.find((entry) => entry.registryEntityId === entityId);
-			const fallbackLevel = item ? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" : "desa_kelurahan";
+			const fallbackLevel = item
+				? (getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan")
+				: "desa_kelurahan";
 			const verifierLevel = verifierLevels[entityId] ?? fallbackLevel;
 			if (actionType === "approve") {
 				const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
@@ -1963,7 +2505,9 @@ function VerificationPage() {
 					verifierLevel,
 					notes: notes,
 				});
-				setStatusMessage(`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`);
+				setStatusMessage(
+					`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`,
+				);
 			} else {
 				const response = await postPlugin<VerificationAdvanceResponse>("verification/reject", {
 					registryEntityId: entityId,
@@ -1971,11 +2515,13 @@ function VerificationPage() {
 					verifierLevel,
 					notes,
 				});
-				setStatusMessage(`Needs revision: ${response.item.code} returned to ${response.item.verificationStage}.`);
+				setStatusMessage(
+					`Needs revision: ${response.item.code} returned to ${response.item.verificationStage}.`,
+				);
 			}
-			
+
 			// Clear notes
-			setActionNotes(prev => {
+			setActionNotes((prev) => {
 				const next = { ...prev };
 				delete next[entityId];
 				return next;
@@ -1997,141 +2543,275 @@ function VerificationPage() {
 			/>
 			<div className="rounded-xl border border-kumo-line bg-kumo-tint/15 px-4 py-3 text-sm text-kumo-subtle">
 				{copy.verificationInputPolicy}
-				<div className="mt-2"><strong>{copy.assignedVerifierLevels}:</strong> {currentVerifierLevels.length > 0 ? currentVerifierLevels.map((level) => resolveVerifierUserLevelLabel(level, copy)).join(", ") : copy.notSet}</div>
+				<div className="mt-2">
+					<strong>{copy.assignedVerifierLevels}:</strong>{" "}
+					{currentVerifierLevels.length > 0
+						? currentVerifierLevels
+								.map((level) => resolveVerifierUserLevelLabel(level, copy))
+								.join(", ")
+						: copy.notSet}
+				</div>
 				<div className="mt-1">{copy.verificationReadOnly}</div>
 			</div>
 
-			{statusMessage ? <div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>✓</span> <span>{statusMessage}</span></div> : null}
-			{mutationError ? <div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2"><span>⚠️</span> <span>{mutationError}</span></div> : null}
+			{statusMessage ? (
+				<div className="rounded-xl border border-kumo-success/30 bg-kumo-success/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2">
+					<span>✓</span> <span>{statusMessage}</span>
+				</div>
+			) : null}
+			{mutationError ? (
+				<div className="rounded-xl border border-kumo-danger/30 bg-kumo-danger/10 px-4 py-3 text-sm text-kumo-default flex items-center gap-2">
+					<span>⚠️</span> <span>{mutationError}</span>
+				</div>
+			) : null}
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.queuedEvents} value={queue.length} hint={copy.queuedEventsHint} icon="📥" />
+				<MetricCard
+					label={copy.queuedEvents}
+					value={queue.length}
+					hint={copy.queuedEventsHint}
+					icon="📥"
+				/>
 				<MetricCard label={copy.approved} value={approved} hint={copy.approvedHint} icon="✅" />
-				<MetricCard label={copy.needsReview} value={pending} hint={copy.needsReviewHint} icon="⏳" />
+				<MetricCard
+					label={copy.needsReview}
+					value={pending}
+					hint={copy.needsReviewHint}
+					icon="⏳"
+				/>
 			</div>
 
-			<Card title={copy.registryVerificationQueue} description={copy.registryVerificationQueueDescription}>
+			<Card
+				title={copy.registryVerificationQueue}
+				description={copy.registryVerificationQueueDescription}
+			>
 				<div className="space-y-4">
 					{queue.length === 0 ? (
-						<div className="p-8 text-center text-sm text-kumo-subtle italic">No entities in the verification queue.</div>
+						<div className="p-8 text-center text-sm text-kumo-subtle italic">
+							No entities in the verification queue.
+						</div>
 					) : (
 						queue.map((item) => {
 							const allowedVerifierLevels = getVerifierLevelOptions(item.currentLevel);
-							const canCurrentUserAdvance = allowedVerifierLevels.some((level) => currentVerifierLevels.includes(level));
+							const canCurrentUserAdvance = allowedVerifierLevels.some((level) =>
+								currentVerifierLevels.includes(level),
+							);
 							return (
-							<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm" key={item.id}>
-								<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-									<div className="flex-1 flex items-start gap-3">
-										<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label={item.entityType}>
-											{getEntityIcon(item.entityType)}
-										</span>
-										<div className="min-w-0 flex-1">
-											<div className="font-semibold text-kumo-default text-base">{item.label}</div>
-											<div className="mt-1 text-xs font-mono text-kumo-brand font-bold bg-kumo-tint px-2 py-0.5 rounded inline-block">{item.code}</div>
-											<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/20 p-2.5 rounded-lg border border-kumo-line/50">{item.publicSummary}</div>
-											
-											{/* Action inputs */}
-													{item.canAdvance && canCurrentUserAdvance && (
-												<div className="mt-3 max-w-md space-y-2 border-t border-kumo-line/50 pt-3">
-													<label className="block text-xs font-medium text-kumo-default mb-1">Verifier Notes:</label>
-													<Input
-														placeholder="Write justification notes..."
-														value={actionNotes[item.registryEntityId] || ""}
-														onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-															const val = e.target.value;
-															setActionNotes(prev => ({ ...prev, [item.registryEntityId]: val }));
-														}}
-													/>
-													<div>
-														<label className="block text-xs font-medium text-kumo-default mb-1">{copy.verifierLevel}:</label>
-														<Select
-															value={verifierLevels[item.registryEntityId] ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan"}
-															onValueChange={(value) =>
-																setVerifierLevels((prev) => ({ ...prev, [item.registryEntityId]: value ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan" }))
-															}
-														>
-															{getVerifierLevelOptions(item.currentLevel).map((level) => (
-																<Select.Option key={level} value={level}>
-																	{resolveVerifierUserLevelLabel(level, copy)}
-																</Select.Option>
-															))}
-														</Select>
-													</div>
-													<div className="grid gap-1 text-xs text-kumo-subtle md:grid-cols-2">
-														<div><strong>{copy.inputLevel}:</strong> {copy.allUserLevels}</div>
-														<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(verifierLevels[item.registryEntityId] ?? getVerifierLevelOptions(item.currentLevel)[0] ?? "desa_kelurahan", copy)}</div>
-													</div>
-													<div className="flex gap-2 pt-1">
-														<Button
-															disabled={submittingId !== null}
-															onClick={() => void handleVerifyAction(item.registryEntityId, "approve")}
-															size="xs"
-															variant="primary"
-														>
-															{submittingId === item.registryEntityId ? "Processing..." : `✓ Approve to ${item.nextStage}`}
-														</Button>
-														<Button
-															disabled={submittingId !== null}
-															onClick={() => void handleVerifyAction(item.registryEntityId, "needs_revision")}
-															size="xs"
-															variant="secondary"
-														>
-															✗ Needs Revision
-														</Button>
-													</div>
+								<div
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm"
+									key={item.id}
+								>
+									<div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+										<div className="flex-1 flex items-start gap-3">
+											<span
+												className="text-2xl shrink-0 mt-0.5"
+												role="img"
+												aria-label={item.entityType}
+											>
+												{getEntityIcon(item.entityType)}
+											</span>
+											<div className="min-w-0 flex-1">
+												<div className="font-semibold text-kumo-default text-base">
+													{item.label}
+												</div>
+												<div className="mt-1 text-xs font-mono text-kumo-brand font-bold bg-kumo-tint px-2 py-0.5 rounded inline-block">
+													{item.code}
+												</div>
+												<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/20 p-2.5 rounded-lg border border-kumo-line/50">
+													{item.publicSummary}
+												</div>
+
+												{/* Action inputs */}
+												{item.canAdvance && canCurrentUserAdvance && (
+													<div className="mt-3 max-w-md space-y-2 border-t border-kumo-line/50 pt-3">
+														<label className="block text-xs font-medium text-kumo-default mb-1">
+															Verifier Notes:
+														</label>
+														<Input
+															placeholder="Write justification notes..."
+															value={actionNotes[item.registryEntityId] || ""}
+															onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+																const val = e.target.value;
+																setActionNotes((prev) => ({
+																	...prev,
+																	[item.registryEntityId]: val,
+																}));
+															}}
+														/>
+														<div>
+															<label className="block text-xs font-medium text-kumo-default mb-1">
+																{copy.verifierLevel}:
+															</label>
+															<Select
+																value={
+																	verifierLevels[item.registryEntityId] ??
+																	getVerifierLevelOptions(item.currentLevel)[0] ??
+																	"desa_kelurahan"
+																}
+																onValueChange={(value) =>
+																	setVerifierLevels((prev) => ({
+																		...prev,
+																		[item.registryEntityId]:
+																			value ??
+																			getVerifierLevelOptions(item.currentLevel)[0] ??
+																			"desa_kelurahan",
+																	}))
+																}
+															>
+																{getVerifierLevelOptions(item.currentLevel).map((level) => (
+																	<Select.Option key={level} value={level}>
+																		{resolveVerifierUserLevelLabel(level, copy)}
+																	</Select.Option>
+																))}
+															</Select>
+														</div>
+														<div className="grid gap-1 text-xs text-kumo-subtle md:grid-cols-2">
+															<div>
+																<strong>{copy.inputLevel}:</strong> {copy.allUserLevels}
+															</div>
+															<div>
+																<strong>{copy.approverLevel}:</strong>{" "}
+																{resolveVerifierUserLevelLabel(
+																	verifierLevels[item.registryEntityId] ??
+																		getVerifierLevelOptions(item.currentLevel)[0] ??
+																		"desa_kelurahan",
+																	copy,
+																)}
+															</div>
+														</div>
+														<div className="flex gap-2 pt-1">
+															<Button
+																disabled={submittingId !== null}
+																onClick={() =>
+																	void handleVerifyAction(item.registryEntityId, "approve")
+																}
+																size="xs"
+																variant="primary"
+															>
+																{submittingId === item.registryEntityId
+																	? "Processing..."
+																	: `✓ Approve to ${item.nextStage}`}
+															</Button>
+															<Button
+																disabled={submittingId !== null}
+																onClick={() =>
+																	void handleVerifyAction(item.registryEntityId, "needs_revision")
+																}
+																size="xs"
+																variant="secondary"
+															>
+																✗ Needs Revision
+															</Button>
+														</div>
 													</div>
 												)}
-													{item.canAdvance && !canCurrentUserAdvance ? (
-														<div className="mt-3 rounded-lg border border-kumo-line/50 bg-kumo-tint/10 px-3 py-2 text-xs text-kumo-subtle">
-															{copy.verificationReadOnly}
-														</div>
-													) : null}
+												{item.canAdvance && !canCurrentUserAdvance ? (
+													<div className="mt-3 rounded-lg border border-kumo-line/50 bg-kumo-tint/10 px-3 py-2 text-xs text-kumo-subtle">
+														{copy.verificationReadOnly}
+													</div>
+												) : null}
+											</div>
 										</div>
-									</div>
-									<div className="flex flex-col items-end gap-2 shrink-0 max-md:items-start max-md:mt-2">
-										<div className="flex gap-1.5 flex-wrap">
-											<Badge variant={item.canAdvance ? "warning" : "success"}>{item.verificationStage}</Badge>
-											{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
-										</div>
-						<div className="text-xs text-kumo-subtle space-y-1 text-end max-md:text-start">
-							<div><strong>{copy.inputLevel}:</strong> {resolveVerifierUserLevelLabel(item.inputLevel, copy)}</div>
-							<div><strong>{copy.currentLevel}:</strong> {resolveVerificationLevelLabel(item.currentLevel, copy)}</div>
-							{item.nextLevel ? <div><strong>{copy.nextLevel}:</strong> {resolveVerificationLevelLabel(item.nextLevel, copy)}</div> : null}
-						</div>
-										<div className="text-xs text-kumo-subtle flex items-center gap-1">
-											<span>📁 Documents:</span> <strong>{item.supportingDocumentIds.length}</strong>
+										<div className="flex flex-col items-end gap-2 shrink-0 max-md:items-start max-md:mt-2">
+											<div className="flex gap-1.5 flex-wrap">
+												<Badge variant={item.canAdvance ? "warning" : "success"}>
+													{item.verificationStage}
+												</Badge>
+												{item.nextStage && <Badge variant="outline">Next: {item.nextStage}</Badge>}
+											</div>
+											<div className="text-xs text-kumo-subtle space-y-1 text-end max-md:text-start">
+												<div>
+													<strong>{copy.inputLevel}:</strong>{" "}
+													{resolveVerifierUserLevelLabel(item.inputLevel, copy)}
+												</div>
+												<div>
+													<strong>{copy.currentLevel}:</strong>{" "}
+													{resolveVerificationLevelLabel(item.currentLevel, copy)}
+												</div>
+												{item.nextLevel ? (
+													<div>
+														<strong>{copy.nextLevel}:</strong>{" "}
+														{resolveVerificationLevelLabel(item.nextLevel, copy)}
+													</div>
+												) : null}
+											</div>
+											<div className="text-xs text-kumo-subtle flex items-center gap-1">
+												<span>📁 Documents:</span>{" "}
+												<strong>{item.supportingDocumentIds.length}</strong>
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 							);
 						})
 					)}
 				</div>
 			</Card>
 
-			<Card title={copy.referenceVerificationEvents} description={copy.referenceVerificationEventsDescription}>
+			<Card
+				title={copy.referenceVerificationEvents}
+				description={copy.referenceVerificationEventsDescription}
+			>
 				<div className="space-y-3">
 					{verificationEvents.map((item) => (
 						<div className="rounded-xl border border-kumo-line bg-kumo-base p-4" key={item.id}>
 							<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 								<div>
-									<div className="font-semibold text-kumo-default text-sm">{item.registryEntityId}</div>
-									<div className="mt-1 text-sm text-kumo-subtle leading-relaxed bg-kumo-tint/20 px-3 py-2 rounded-lg border border-kumo-line/50">{item.notes}</div>
+									<div className="font-semibold text-kumo-default text-sm">
+										{item.registryEntityId}
+									</div>
+									<div className="mt-1 text-sm text-kumo-subtle leading-relaxed bg-kumo-tint/20 px-3 py-2 rounded-lg border border-kumo-line/50">
+										{item.notes}
+									</div>
 								</div>
 								<div className="flex items-center gap-1.5 shrink-0">
-									<Pill tone={item.result === "approved" ? "success" : item.result === "needs_review" ? "warning" : "danger"}>{item.result}</Pill>
+									<Pill
+										tone={
+											item.result === "approved"
+												? "success"
+												: item.result === "needs_review"
+													? "warning"
+													: "danger"
+										}
+									>
+										{item.result}
+									</Pill>
 									<Pill>{item.stage}</Pill>
 								</div>
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
-								<div><strong>Actor:</strong> {item.actor}</div>
-								<div><strong>{copy.inputLevel}:</strong> {item.inputLevel ? resolveVerifierUserLevelLabel(item.inputLevel, copy) : copy.notSet}</div>
-								<div><strong>{copy.approverLevel}:</strong> {resolveVerifierUserLevelLabel(item.verifierLevel ?? inferVerifierLevelFromActor(item.actor), copy)}</div>
-								{item.verifierRegionScope ? <div><strong>{copy.regionScope}:</strong> {item.verifierRegionScope}</div> : null}
-								{item.verifierOrgScope ? <div><strong>{copy.orgScope}:</strong> {item.verifierOrgScope}</div> : null}
-								<div><strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}</div>
-								<div><strong>ID Label:</strong> {maskSensitive(item.id, false)}</div>
+								<div>
+									<strong>Actor:</strong> {item.actor}
+								</div>
+								<div>
+									<strong>{copy.inputLevel}:</strong>{" "}
+									{item.inputLevel
+										? resolveVerifierUserLevelLabel(item.inputLevel, copy)
+										: copy.notSet}
+								</div>
+								<div>
+									<strong>{copy.approverLevel}:</strong>{" "}
+									{resolveVerifierUserLevelLabel(
+										item.verifierLevel ?? inferVerifierLevelFromActor(item.actor),
+										copy,
+									)}
+								</div>
+								{item.verifierRegionScope ? (
+									<div>
+										<strong>{copy.regionScope}:</strong> {item.verifierRegionScope}
+									</div>
+								) : null}
+								{item.verifierOrgScope ? (
+									<div>
+										<strong>{copy.orgScope}:</strong> {item.verifierOrgScope}
+									</div>
+								) : null}
+								<div>
+									<strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}
+								</div>
+								<div>
+									<strong>ID Label:</strong> {maskSensitive(item.id, false)}
+								</div>
 							</div>
 						</div>
 					))}
@@ -2144,8 +2824,12 @@ function VerificationPage() {
 function DocumentsPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data: registryData } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
-	const { data, loading, reload } = usePluginData<{ items: SikesraReferenceSupportingDocument[] }>("documents/list");
+	const { data: registryData } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>(
+		"registry/list",
+	);
+	const { data, loading, reload } = usePluginData<{ items: SikesraReferenceSupportingDocument[] }>(
+		"documents/list",
+	);
 
 	const [uploadState, setUploadState] = React.useState({
 		title: "",
@@ -2184,7 +2868,7 @@ function DocumentsPage() {
 		}
 
 		setError(null);
-		setUploadState(prev => ({
+		setUploadState((prev) => ({
 			...prev,
 			fileSelected: true,
 			fileName: file.name,
@@ -2209,7 +2893,7 @@ function DocumentsPage() {
 
 		// Simulate R2 upload progress
 		for (let i = 10; i <= 100; i += 30) {
-			await new Promise(resolve => setTimeout(resolve, 150));
+			await new Promise((resolve) => setTimeout(resolve, 150));
 			setProgress(Math.min(i, 100));
 		}
 
@@ -2241,7 +2925,12 @@ function DocumentsPage() {
 		}
 	};
 
-	if (loading) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	if (loading)
+		return (
+			<PageShell>
+				<LoadingState label={copy.loadingPluginOverview} />
+			</PageShell>
+		);
 
 	return (
 		<PageShell>
@@ -2252,22 +2941,46 @@ function DocumentsPage() {
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.documentsMetric} value={docs.length} hint={copy.documentsMetricHint} icon="📁" />
-				<MetricCard label={copy.sensitiveDocs} value={sensitiveCount} hint={copy.sensitiveDocsHint} icon="🔐" />
-				<MetricCard label={copy.verifiedSources} value={new Set(docs.map((doc) => doc.verifiedBy)).size} hint={copy.verifiedSourcesHint} icon="🛡️" />
+				<MetricCard
+					label={copy.documentsMetric}
+					value={docs.length}
+					hint={copy.documentsMetricHint}
+					icon="📁"
+				/>
+				<MetricCard
+					label={copy.sensitiveDocs}
+					value={sensitiveCount}
+					hint={copy.sensitiveDocsHint}
+					icon="🔐"
+				/>
+				<MetricCard
+					label={copy.verifiedSources}
+					value={new Set(docs.map((doc) => doc.verifiedBy)).size}
+					hint={copy.verifiedSourcesHint}
+					icon="🛡️"
+				/>
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] mt-2">
 				<Card title={copy.documentCatalog} description={copy.documentCatalogDescription}>
 					<div className="space-y-3">
 						{docs.length === 0 ? (
-							<EmptyState title="No Documents" description="Upload document metadata on the right to populate the catalog." />
+							<EmptyState
+								title="No Documents"
+								description="Upload document metadata on the right to populate the catalog."
+							/>
 						) : (
 							docs.map((doc) => {
-								const isPdf = doc.title.toLowerCase().endsWith(".pdf") || doc.documentType === "pdf" || doc.documentType === "surat_keterangan";
+								const isPdf =
+									doc.title.toLowerCase().endsWith(".pdf") ||
+									doc.documentType === "pdf" ||
+									doc.documentType === "surat_keterangan";
 								const fileIcon = isPdf ? "📄" : "🖼️";
 								return (
-									<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm" key={doc.id}>
+									<div
+										className="rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/40 transition-all shadow-sm"
+										key={doc.id}
+									>
 										<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 											<div className="flex items-center gap-2.5">
 												<span className="text-2xl shrink-0" role="img" aria-label="file format">
@@ -2275,18 +2988,45 @@ function DocumentsPage() {
 												</span>
 												<div>
 													<div className="font-semibold text-kumo-default">{doc.title}</div>
-													<div className="mt-1 text-[10px] font-mono bg-kumo-tint px-2 py-0.5 rounded inline-block text-kumo-brand uppercase font-bold">{doc.documentType.replace("_", " ")}</div>
+													<div className="mt-1 text-[10px] font-mono bg-kumo-tint px-2 py-0.5 rounded inline-block text-kumo-brand uppercase font-bold">
+														{doc.documentType.replace("_", " ")}
+													</div>
 												</div>
 											</div>
 											<div className="flex items-center gap-2 max-md:mt-2">
-												<Pill tone={doc.sensitivity === "public_safe" ? "success" : doc.sensitivity === "restricted" ? "warning" : "danger"}>{doc.sensitivity}</Pill>
-												<Button variant="secondary" size="xs" onClick={() => alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)}>Preview</Button>
+												<Pill
+													tone={
+														doc.sensitivity === "public_safe"
+															? "success"
+															: doc.sensitivity === "restricted"
+																? "warning"
+																: "danger"
+													}
+												>
+													{doc.sensitivity}
+												</Pill>
+												<Button
+													variant="secondary"
+													size="xs"
+													onClick={() =>
+														alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)
+													}
+												>
+													Preview
+												</Button>
 											</div>
 										</div>
 										<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
-											<div><strong>Entity:</strong> {maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}</div>
-											<div><strong>Issued:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}</div>
-											<div><strong>Verifier:</strong> {doc.verifiedBy}</div>
+											<div>
+												<strong>Entity:</strong>{" "}
+												{maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}
+											</div>
+											<div>
+												<strong>Issued:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}
+											</div>
+											<div>
+												<strong>Verifier:</strong> {doc.verifiedBy}
+											</div>
 										</div>
 									</div>
 								);
@@ -2295,27 +3035,51 @@ function DocumentsPage() {
 					</div>
 				</Card>
 
-				<Card title="Upload Document Metadata" description="Secure metadata submission matching R2 bucket rules.">
+				<Card
+					title="Upload Document Metadata"
+					description="Secure metadata submission matching R2 bucket rules."
+				>
 					<form className="space-y-4" onSubmit={(e) => void handleUploadSubmit(e)}>
 						<Feedback message={notice} tone="success" />
 						<Feedback message={error} tone="danger" />
 
-						<Field label="Document Title" hint="Name of document for verification reference (Mandatory)">
-							<Input value={uploadState.title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUploadState(prev => ({ ...prev, title: e.target.value }))} placeholder="e.g. Surat Keputusan Kemenag" />
+						<Field
+							label="Document Title"
+							hint="Name of document for verification reference (Mandatory)"
+						>
+							<Input
+								value={uploadState.title}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+									setUploadState((prev) => ({ ...prev, title: e.target.value }))
+								}
+								placeholder="e.g. Surat Keputusan Kemenag"
+							/>
 						</Field>
 
 						<Field label="Linked SIKESRA Entity" hint="Mandatory target link">
-							<Select value={uploadState.registryEntityId} onValueChange={(val) => setUploadState(prev => ({ ...prev, registryEntityId: val ?? "" }))}>
+							<Select
+								value={uploadState.registryEntityId}
+								onValueChange={(val) =>
+									setUploadState((prev) => ({ ...prev, registryEntityId: val ?? "" }))
+								}
+							>
 								<Select.Option value="">-- Select Target Entity --</Select.Option>
 								{entities.map((ent) => (
-									<Select.Option value={ent.id} key={ent.id}>{ent.label} ({ent.code})</Select.Option>
+									<Select.Option value={ent.id} key={ent.id}>
+										{ent.label} ({ent.code})
+									</Select.Option>
 								))}
 							</Select>
 						</Field>
 
 						<div className="grid gap-3 grid-cols-2">
 							<Field label="Doc Type">
-								<Select value={uploadState.documentType} onValueChange={(val) => setUploadState(prev => ({ ...prev, documentType: val ?? "surat_keterangan" }))}>
+								<Select
+									value={uploadState.documentType}
+									onValueChange={(val) =>
+										setUploadState((prev) => ({ ...prev, documentType: val ?? "surat_keterangan" }))
+									}
+								>
 									<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
 									<Select.Option value="identitas">Identitas</Select.Option>
 									<Select.Option value="sertifikat">Sertifikat</Select.Option>
@@ -2323,7 +3087,15 @@ function DocumentsPage() {
 							</Field>
 
 							<Field label="Classification">
-								<Select value={uploadState.sensitivity} onValueChange={(val) => setUploadState(prev => ({ ...prev, sensitivity: (val as SikesraSensitivity) ?? "public_safe" }))}>
+								<Select
+									value={uploadState.sensitivity}
+									onValueChange={(val) =>
+										setUploadState((prev) => ({
+											...prev,
+											sensitivity: (val as SikesraSensitivity) ?? "public_safe",
+										}))
+									}
+								>
 									<Select.Option value="public_safe">Public Safe</Select.Option>
 									<Select.Option value="internal">Internal</Select.Option>
 									<Select.Option value="restricted">Restricted</Select.Option>
@@ -2332,7 +3104,10 @@ function DocumentsPage() {
 							</Field>
 						</div>
 
-						<Field label="Select Supporting File" hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB">
+						<Field
+							label="Select Supporting File"
+							hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+						>
 							<input
 								type="file"
 								accept="application/pdf,image/png,image/jpeg"
@@ -2343,18 +3118,32 @@ function DocumentsPage() {
 
 						{uploadState.fileSelected && (
 							<div className="rounded border bg-kumo-tint/20 p-3 text-xs space-y-1">
-								<div><strong>File:</strong> {uploadState.fileName} ({Math.round(uploadState.fileSize / 1024)} KB)</div>
-								<div><strong>Checksum:</strong> <code className="font-mono text-[10px] break-all">{checksum}</code></div>
+								<div>
+									<strong>File:</strong> {uploadState.fileName} (
+									{Math.round(uploadState.fileSize / 1024)} KB)
+								</div>
+								<div>
+									<strong>Checksum:</strong>{" "}
+									<code className="font-mono text-[10px] break-all">{checksum}</code>
+								</div>
 							</div>
 						)}
 
 						{progress !== null && (
 							<div className="w-full bg-kumo-line rounded-full h-2">
-								<div className="bg-kumo-brand h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+								<div
+									className="bg-kumo-brand h-2 rounded-full transition-all duration-300"
+									style={{ width: `${progress}%` }}
+								></div>
 							</div>
 						)}
 
-						<Button variant="primary" type="submit" className="w-full justify-center animate-pulse" disabled={progress !== null}>
+						<Button
+							variant="primary"
+							type="submit"
+							className="w-full justify-center animate-pulse"
+							disabled={progress !== null}
+						>
 							{progress !== null ? `Uploading ${progress}%` : "Upload metadata to R2"}
 						</Button>
 					</form>
@@ -2379,9 +3168,24 @@ function ReportsPage() {
 			/>
 
 			<div className="grid gap-5 md:grid-cols-3">
-				<MetricCard label={copy.categories} value={aggregate.categories.length} hint={copy.categoriesHint} icon="📊" />
-				<MetricCard label={copy.suppressed} value={suppressedCount} hint={copy.suppressedHint} icon="🔐" />
-				<MetricCard label={copy.visible} value={aggregate.categories.length - suppressedCount} hint={copy.visibleHint} icon="👁️" />
+				<MetricCard
+					label={copy.categories}
+					value={aggregate.categories.length}
+					hint={copy.categoriesHint}
+					icon="📊"
+				/>
+				<MetricCard
+					label={copy.suppressed}
+					value={suppressedCount}
+					hint={copy.suppressedHint}
+					icon="🔐"
+				/>
+				<MetricCard
+					label={copy.visible}
+					value={aggregate.categories.length - suppressedCount}
+					hint={copy.visibleHint}
+					icon="👁️"
+				/>
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] mt-2">
@@ -2394,10 +3198,15 @@ function ReportsPage() {
 							<div>{copy.status}</div>
 						</div>
 						{aggregate.categories.map((item) => (
-							<div className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr] hover:bg-kumo-tint/20 transition-all" key={item.code}>
+							<div
+								className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.2fr_.7fr_.7fr_.7fr] hover:bg-kumo-tint/20 transition-all"
+								key={item.code}
+							>
 								<div className="font-semibold text-kumo-default">
 									<div>{item.label}</div>
-									<div className="mt-1 break-all text-[10px] font-mono text-kumo-subtle font-normal">{maskSensitive(item.code, !item.suppressed)}</div>
+									<div className="mt-1 break-all text-[10px] font-mono text-kumo-subtle font-normal">
+										{maskSensitive(item.code, !item.suppressed)}
+									</div>
 								</div>
 								<div className="text-kumo-subtle font-medium">
 									{item.suppressed ? (
@@ -2406,14 +3215,19 @@ function ReportsPage() {
 										<div className="flex flex-col gap-1.5">
 											<span>{item.total}</span>
 											<div className="w-16 bg-kumo-line rounded-full h-1 overflow-hidden">
-												<div className="bg-kumo-brand h-full rounded-full" style={{ width: `${(item.verified / Math.max(item.total, 1)) * 100}%` }}></div>
+												<div
+													className="bg-kumo-brand h-full rounded-full"
+													style={{ width: `${(item.verified / Math.max(item.total, 1)) * 100}%` }}
+												></div>
 											</div>
 										</div>
 									)}
 								</div>
 								<div className="text-kumo-subtle font-semibold">{item.verified}</div>
 								<div>
-									<Pill tone={item.suppressed ? "warning" : "success"}>{item.suppressed ? copy.masked : copy.visible.toLowerCase()}</Pill>
+									<Pill tone={item.suppressed ? "warning" : "success"}>
+										{item.suppressed ? copy.masked : copy.visible.toLowerCase()}
+									</Pill>
 								</div>
 							</div>
 						))}
@@ -2423,7 +3237,9 @@ function ReportsPage() {
 				<Card title={copy.publicNote} description={copy.publicNoteDescription}>
 					<p className="text-sm leading-relaxed text-kumo-subtle">{aggregate.caveat}</p>
 					<div className="mt-4 rounded-xl border border-kumo-line bg-kumo-tint/15 p-4 text-xs text-kumo-subtle leading-relaxed space-y-1.5">
-						<div className="font-bold text-kumo-default uppercase tracking-wider">{copy.displayRule}</div>
+						<div className="font-bold text-kumo-default uppercase tracking-wider">
+							{copy.displayRule}
+						</div>
 						<div>{copy.displayRuleDescription}</div>
 					</div>
 				</Card>
@@ -2435,7 +3251,9 @@ function ReportsPage() {
 function AuditPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error, loading, reload } = usePluginData<AuditListResponse>("audit/list", { limit: 25 });
+	const { data, error, loading, reload } = usePluginData<AuditListResponse>("audit/list", {
+		limit: 25,
+	});
 
 	if (loading) return <LoadingState label={copy.loadingAuditLog} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
@@ -2452,7 +3270,10 @@ function AuditPage() {
 					</Button>
 				}
 			/>
-			<Card title="Chronological Log Activity" description="System audit records matching active security policies.">
+			<Card
+				title="Chronological Log Activity"
+				description="System audit records matching active security policies."
+			>
 				{!data?.items.length ? (
 					<EmptyState title={copy.noAuditEvents} description={copy.noAuditEventsDescription} />
 				) : (
@@ -2473,21 +3294,42 @@ function AuditPage() {
 								access: "🔐",
 							};
 							return (
-								<div className={cx("rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/35 transition-all shadow-sm flex gap-3.5 items-start", scopeColors[item.scope] || "border-l-4 border-l-kumo-subtle")} key={item.id}>
+								<div
+									className={cx(
+										"rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/35 transition-all shadow-sm flex gap-3.5 items-start",
+										scopeColors[item.scope] || "border-l-4 border-l-kumo-subtle",
+									)}
+									key={item.id}
+								>
 									<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label="scope icon">
 										{scopeIcons[item.scope] || "📋"}
 									</span>
 									<div className="min-w-0 flex-1">
 										<div className="flex flex-wrap items-center gap-2">
-											<span className="text-xs font-mono font-bold text-kumo-brand bg-kumo-tint px-2 py-0.5 rounded leading-none uppercase">{item.kind}</span>
-											<span className="text-xs text-kumo-subtle">• scope: <strong className="capitalize">{item.scope}</strong></span>
+											<span className="text-xs font-mono font-bold text-kumo-brand bg-kumo-tint px-2 py-0.5 rounded leading-none uppercase">
+												{item.kind}
+											</span>
+											<span className="text-xs text-kumo-subtle">
+												• scope: <strong className="capitalize">{item.scope}</strong>
+											</span>
 										</div>
-										<div className="mt-2 text-sm font-semibold text-kumo-default leading-relaxed">{item.summary}</div>
-								<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
-									<div><strong>Actor:</strong> {item.actor}</div>
-									{(item.userName || item.userId) ? <div><strong>{copy.userLabel}:</strong> {item.userName || item.userId}{item.userId ? ` (${item.userId})` : ""}</div> : null}
-									<div><strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}</div>
-								</div>
+										<div className="mt-2 text-sm font-semibold text-kumo-default leading-relaxed">
+											{item.summary}
+										</div>
+										<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
+											<div>
+												<strong>Actor:</strong> {item.actor}
+											</div>
+											{item.userName || item.userId ? (
+												<div>
+													<strong>{copy.userLabel}:</strong> {item.userName || item.userId}
+													{item.userId ? ` (${item.userId})` : ""}
+												</div>
+											) : null}
+											<div>
+												<strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}
+											</div>
+										</div>
 									</div>
 								</div>
 							);
@@ -2502,11 +3344,17 @@ function AuditPage() {
 function PermissionsPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error, loading, reload } = usePluginData<AccessPermissionsResponse>("access/permissions/list");
+	const { data, error, loading, reload } =
+		usePluginData<AccessPermissionsResponse>("access/permissions/list");
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
-	const [formState, setFormState] = React.useState({ slug: "", label: "", description: "", scope: "content" });
+	const [formState, setFormState] = React.useState({
+		slug: "",
+		label: "",
+		description: "",
+		scope: "content",
+	});
 
 	const savePermission = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -2531,23 +3379,47 @@ function PermissionsPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow={copy.accessEyebrow} title={copy.permissionCatalog} description={copy.permissionCatalogDescription} />
+			<PageHeader
+				eyebrow={copy.accessEyebrow}
+				title={copy.permissionCatalog}
+				description={copy.permissionCatalogDescription}
+			/>
 			<div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
 				<Card title={copy.addPermission} description={copy.addPermissionDescription}>
 					<form className="space-y-4" onSubmit={(event) => void savePermission(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
 						<Field label={copy.slug}>
-							<Input value={formState.slug} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, slug: event.target.value }))} />
+							<Input
+								value={formState.slug}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, slug: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.label}>
-							<Input value={formState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, label: event.target.value }))} />
+							<Input
+								value={formState.label}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, label: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.scope}>
-							<Input value={formState.scope} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, scope: event.target.value }))} />
+							<Input
+								value={formState.scope}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, scope: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.descriptionLabel}>
-							<InputArea value={formState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, description: event.target.value }))} />
+							<InputArea
+								value={formState.description}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, description: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" disabled={saving} type="submit">
 							{saving ? copy.saving : copy.savePermission}
@@ -2555,21 +3427,32 @@ function PermissionsPage() {
 					</form>
 				</Card>
 
-				<Card title={copy.existingPermissions} description={copy.existingPermissionsDescription(data?.items.length ?? 0)}>
+				<Card
+					title={copy.existingPermissions}
+					description={copy.existingPermissionsDescription(data?.items.length ?? 0)}
+				>
 					{!data?.items.length ? (
-						<EmptyState title={copy.noPermissionsYet} description={copy.noPermissionsYetDescription} />
+						<EmptyState
+							title={copy.noPermissionsYet}
+							description={copy.noPermissionsYetDescription}
+						/>
 					) : (
 						<div className="grid gap-3">
 							{data.items.map((item) => (
-								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
+								<div
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
+									key={item.slug}
+								>
 									<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-									<div className="font-medium text-kumo-default">{item.label}</div>
-									<Pill>{item.scope}</Pill>
+										<div className="font-medium text-kumo-default">{item.label}</div>
+										<Pill>{item.scope}</Pill>
+									</div>
+									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
+									<p className="mt-2 text-sm leading-6 text-kumo-subtle">
+										{item.description || copy.noDescriptionProvided}
+									</p>
 								</div>
-								<div className="mt-1 break-all text-sm text-kumo-subtle">{item.slug}</div>
-								<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || copy.noDescriptionProvided}</p>
-							</div>
-						))}
+							))}
 						</div>
 					)}
 				</Card>
@@ -2614,7 +3497,10 @@ function RolesPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/users/save", { userId: userState.userId, roles: fromCsv(userState.roles) });
+			await postPlugin("access/users/save", {
+				userId: userState.userId,
+				roles: fromCsv(userState.roles),
+			});
 			setUserState({ userId: "", roles: "" });
 			setNotice(copy.userRoleAssignmentSaved);
 			await reload();
@@ -2630,7 +3516,11 @@ function RolesPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow={copy.accessEyebrow} title={copy.rolesAndAssignments} description={copy.rolesAndAssignmentsDescription} />
+			<PageHeader
+				eyebrow={copy.accessEyebrow}
+				title={copy.rolesAndAssignments}
+				description={copy.rolesAndAssignmentsDescription}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
@@ -2638,13 +3528,28 @@ function RolesPage() {
 				<Card title={copy.addRole} description={copy.addRoleDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveRole(event)}>
 						<Field label={copy.roleSlug}>
-							<Input value={roleState.slug} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRoleState((current) => ({ ...current, slug: event.target.value }))} />
+							<Input
+								value={roleState.slug}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setRoleState((current) => ({ ...current, slug: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.label}>
-							<Input value={roleState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRoleState((current) => ({ ...current, label: event.target.value }))} />
+							<Input
+								value={roleState.label}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setRoleState((current) => ({ ...current, label: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.descriptionLabel}>
-							<InputArea value={roleState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setRoleState((current) => ({ ...current, description: event.target.value }))} />
+							<InputArea
+								value={roleState.description}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setRoleState((current) => ({ ...current, description: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" disabled={roleSaving} type="submit">
 							{roleSaving ? copy.saving : copy.saveRole}
@@ -2655,10 +3560,20 @@ function RolesPage() {
 				<Card title={copy.assignUserRoles} description={copy.assignUserRolesDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
 						<Field label={copy.userId}>
-							<Input value={userState.userId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserState((current) => ({ ...current, userId: event.target.value }))} />
+							<Input
+								value={userState.userId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setUserState((current) => ({ ...current, userId: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.roles}>
-							<Input value={userState.roles} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setUserState((current) => ({ ...current, roles: event.target.value }))} />
+							<Input
+								value={userState.roles}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setUserState((current) => ({ ...current, roles: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" disabled={userSaving} type="submit">
 							{userSaving ? copy.saving : copy.saveAssignment}
@@ -2674,26 +3589,44 @@ function RolesPage() {
 					) : (
 						<div className="space-y-3">
 							{data.roles.map((item) => (
-								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.slug}>
+								<div
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
+									key={item.slug}
+								>
 									<div className="font-medium text-kumo-default">{item.label}</div>
 									<div className="mt-1 text-sm text-kumo-subtle">{item.slug}</div>
-									<p className="mt-2 text-sm leading-6 text-kumo-subtle">{item.description || copy.noDescriptionProvided}</p>
+									<p className="mt-2 text-sm leading-6 text-kumo-subtle">
+										{item.description || copy.noDescriptionProvided}
+									</p>
 								</div>
 							))}
 						</div>
 					)}
 				</Card>
 
-				<Card title={copy.userAssignments} description={copy.userAssignmentsDescription(data?.userAssignments.length ?? 0)}>
+				<Card
+					title={copy.userAssignments}
+					description={copy.userAssignmentsDescription(data?.userAssignments.length ?? 0)}
+				>
 					{!data?.userAssignments.length ? (
-						<EmptyState title={copy.noAssignmentsYet} description={copy.noAssignmentsYetDescription} />
+						<EmptyState
+							title={copy.noAssignmentsYet}
+							description={copy.noAssignmentsYetDescription}
+						/>
 					) : (
 						<div className="space-y-3">
 							{data.userAssignments.map((item) => (
-								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.userId}>
+								<div
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
+									key={item.userId}
+								>
 									<div className="font-medium text-kumo-default">{item.userId}</div>
 									<div className="mt-2 flex flex-wrap gap-2">
-										{item.roles.length ? item.roles.map((role) => <Pill key={role}>{role}</Pill>) : <Pill tone="warning">{copy.noRolesPill}</Pill>}
+										{item.roles.length ? (
+											item.roles.map((role) => <Pill key={role}>{role}</Pill>)
+										) : (
+											<Pill tone="warning">{copy.noRolesPill}</Pill>
+										)}
 									</div>
 								</div>
 							))}
@@ -2727,7 +3660,9 @@ function MatrixPage() {
 	}, [data, selectedRole]);
 
 	const togglePermission = (slug: string, checked: boolean) => {
-		setSelectedPermissions((current) => (checked ? [...new Set([...current, slug])] : current.filter((item) => item !== slug)));
+		setSelectedPermissions((current) =>
+			checked ? [...new Set([...current, slug])] : current.filter((item) => item !== slug),
+		);
 	};
 
 	const saveMatrix = async () => {
@@ -2736,7 +3671,10 @@ function MatrixPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/matrix/save", { roleSlug: selectedRole, permissions: selectedPermissions });
+			await postPlugin("access/matrix/save", {
+				roleSlug: selectedRole,
+				permissions: selectedPermissions,
+			});
 			setNotice(copy.roleMatrixSaved);
 			await reload();
 		} catch (cause) {
@@ -2751,18 +3689,30 @@ function MatrixPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow={copy.accessEyebrow} title={copy.rolePermissionMatrix} description={copy.rolePermissionMatrixDescription} />
+			<PageHeader
+				eyebrow={copy.accessEyebrow}
+				title={copy.rolePermissionMatrix}
+				description={copy.rolePermissionMatrixDescription}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			{!data?.roles.length || !data.permissions.length ? (
-				<EmptyState title={copy.catalogIncomplete} description={copy.catalogIncompleteDescription} />
+				<EmptyState
+					title={copy.catalogIncomplete}
+					description={copy.catalogIncompleteDescription}
+				/>
 			) : (
 				<Card
 					title={copy.editMatrix}
 					description={copy.editMatrixDescription(selectedPermissions.length)}
 					actions={
-						<Button variant="primary" disabled={saving || !selectedRole} onClick={() => void saveMatrix()} type="button">
+						<Button
+							variant="primary"
+							disabled={saving || !selectedRole}
+							onClick={() => void saveMatrix()}
+							type="button"
+						>
 							{saving ? copy.saving : copy.saveMatrix}
 						</Button>
 					}
@@ -2783,11 +3733,26 @@ function MatrixPage() {
 						{data.permissions.map((permission) => {
 							const checked = selectedPermissions.includes(permission.slug);
 							return (
-								<label className={cx("flex cursor-pointer items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default transition", checked && "bg-kumo-tint/30")} key={permission.slug}>
-									<input type="checkbox" className="mt-1 accent-current" checked={checked} onChange={(event: React.ChangeEvent<HTMLInputElement>) => togglePermission(permission.slug, event.target.checked)} />
+								<label
+									className={cx(
+										"flex cursor-pointer items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default transition",
+										checked && "bg-kumo-tint/30",
+									)}
+									key={permission.slug}
+								>
+									<input
+										type="checkbox"
+										className="mt-1 accent-current"
+										checked={checked}
+										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+											togglePermission(permission.slug, event.target.checked)
+										}
+									/>
 									<span>
 										<span className="block font-medium text-kumo-default">{permission.label}</span>
-										<span className="mt-1 block break-all text-sm text-kumo-subtle">{permission.slug}</span>
+										<span className="mt-1 block break-all text-sm text-kumo-subtle">
+											{permission.slug}
+										</span>
 										<span className="mt-2 block">
 											<Pill>{permission.scope}</Pill>
 										</span>
@@ -2806,7 +3771,8 @@ function PreviewPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const { data: rolesData } = usePluginData<AccessRolesResponse>("access/roles/list");
-	const { data: permissionsData } = usePluginData<AccessPermissionsResponse>("access/permissions/list");
+	const { data: permissionsData } =
+		usePluginData<AccessPermissionsResponse>("access/permissions/list");
 	const [userId, setUserId] = React.useState("user-demo-editor");
 	const [permissionSlug, setPermissionSlug] = React.useState("content.read.public");
 	const [preview, setPreview] = React.useState<AccessPreviewResponse | null>(null);
@@ -2819,7 +3785,9 @@ function PreviewPage() {
 		setPreview(null);
 
 		try {
-			setPreview(await postPlugin<AccessPreviewResponse>("access/preview", { userId, permissionSlug }));
+			setPreview(
+				await postPlugin<AccessPreviewResponse>("access/preview", { userId, permissionSlug }),
+			);
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : copy.failedToPreviewAccess);
 		} finally {
@@ -2829,7 +3797,11 @@ function PreviewPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow={copy.accessEyebrow} title={copy.effectiveAccessPreview} description={copy.effectiveAccessPreviewDescription} />
+			<PageHeader
+				eyebrow={copy.accessEyebrow}
+				title={copy.effectiveAccessPreview}
+				description={copy.effectiveAccessPreviewDescription}
+			/>
 			<Card title={copy.previewInput} description={copy.previewInputDescription}>
 				<div className="grid gap-4 md:grid-cols-2">
 					<Field label={copy.user}>
@@ -2842,7 +3814,10 @@ function PreviewPage() {
 						</Select>
 					</Field>
 					<Field label={copy.permission}>
-						<Select value={permissionSlug} onValueChange={(value) => setPermissionSlug(value ?? "")}>
+						<Select
+							value={permissionSlug}
+							onValueChange={(value) => setPermissionSlug(value ?? "")}
+						>
 							{permissionsData?.items.map((item) => (
 								<Select.Option key={item.slug} value={item.slug}>
 									{item.slug}
@@ -2852,7 +3827,12 @@ function PreviewPage() {
 					</Field>
 				</div>
 				<div className="mt-4">
-					<Button variant="primary" disabled={running} onClick={() => void runPreview()} type="button">
+					<Button
+						variant="primary"
+						disabled={running}
+						onClick={() => void runPreview()}
+						type="button"
+					>
 						{running ? copy.loadingAccessPreview : copy.previewAccess}
 					</Button>
 				</div>
@@ -2862,7 +3842,9 @@ function PreviewPage() {
 			{preview ? (
 				<Card title={copy.decisionResult}>
 					<div className="mb-4">
-						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? copy.allowed : copy.denied}</Pill>
+						<Pill tone={preview.allowed ? "success" : "danger"}>
+							{preview.allowed ? copy.allowed : copy.denied}
+						</Pill>
 					</div>
 					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
 					<KeyValueList
@@ -2880,9 +3862,12 @@ function PreviewPage() {
 function AbacAttributesPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error, loading, reload } = usePluginData<AbacAttributesResponse>("abac/attributes/list");
-	const { data: subjectData, reload: reloadSubjects } = usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
-	const { data: resourceData, reload: reloadResources } = usePluginData<AbacAssignmentsResponse>("abac/resources/list");
+	const { data, error, loading, reload } =
+		usePluginData<AbacAttributesResponse>("abac/attributes/list");
+	const { data: subjectData, reload: reloadSubjects } =
+		usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
+	const { data: resourceData, reload: reloadResources } =
+		usePluginData<AbacAssignmentsResponse>("abac/resources/list");
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [attributeState, setAttributeState] = React.useState<{
@@ -2891,8 +3876,14 @@ function AbacAttributesPage() {
 		targetType: AbacTargetType;
 		description: string;
 	}>({ key: "", label: "", targetType: "context", description: "" });
-	const [subjectState, setSubjectState] = React.useState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
-	const [resourceState, setResourceState] = React.useState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
+	const [subjectState, setSubjectState] = React.useState({
+		subjectId: "",
+		attributes: '{"tenant_id":"tenant-a"}',
+	});
+	const [resourceState, setResourceState] = React.useState({
+		resourceId: "",
+		attributes: '{"resource_type":"policy"}',
+	});
 
 	const saveAttribute = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -2920,7 +3911,10 @@ function AbacAttributesPage() {
 		}
 
 		try {
-			await postPlugin("abac/subjects/save", { subjectId: subjectState.subjectId, attributes: parsed.data });
+			await postPlugin("abac/subjects/save", {
+				subjectId: subjectState.subjectId,
+				attributes: parsed.data,
+			});
 			setSubjectState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
 			setNotice(copy.subjectAttributesSaved);
 			await reloadSubjects();
@@ -2940,7 +3934,10 @@ function AbacAttributesPage() {
 		}
 
 		try {
-			await postPlugin("abac/resources/save", { resourceId: resourceState.resourceId, attributes: parsed.data });
+			await postPlugin("abac/resources/save", {
+				resourceId: resourceState.resourceId,
+				attributes: parsed.data,
+			});
 			setResourceState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
 			setNotice(copy.resourceAttributesSaved);
 			await reloadResources();
@@ -2954,7 +3951,11 @@ function AbacAttributesPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow={copy.abacEyebrow} title={copy.attributeCatalog} description={copy.attributeCatalogDescription} />
+			<PageHeader
+				eyebrow={copy.abacEyebrow}
+				title={copy.attributeCatalog}
+				description={copy.attributeCatalogDescription}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
@@ -2962,15 +3963,30 @@ function AbacAttributesPage() {
 				<Card title={copy.attributeDefinition}>
 					<form className="space-y-4" onSubmit={(event) => void saveAttribute(event)}>
 						<Field label={copy.key}>
-							<Input value={attributeState.key} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAttributeState((current) => ({ ...current, key: event.target.value }))} />
+							<Input
+								value={attributeState.key}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setAttributeState((current) => ({ ...current, key: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.label}>
-							<Input value={attributeState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAttributeState((current) => ({ ...current, label: event.target.value }))} />
+							<Input
+								value={attributeState.label}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setAttributeState((current) => ({ ...current, label: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.targetType}>
 							<Select
 								value={attributeState.targetType}
-								onValueChange={(value) => setAttributeState((current) => ({ ...current, targetType: (value as AbacTargetType | null) ?? "context" }))}
+								onValueChange={(value) =>
+									setAttributeState((current) => ({
+										...current,
+										targetType: (value as AbacTargetType | null) ?? "context",
+									}))
+								}
 							>
 								<Select.Option value="subject">{copy.subject}</Select.Option>
 								<Select.Option value="resource">{copy.resource}</Select.Option>
@@ -2978,7 +3994,12 @@ function AbacAttributesPage() {
 							</Select>
 						</Field>
 						<Field label={copy.descriptionLabel}>
-							<InputArea value={attributeState.description} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setAttributeState((current) => ({ ...current, description: event.target.value }))} />
+							<InputArea
+								value={attributeState.description}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setAttributeState((current) => ({ ...current, description: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" type="submit">
 							{copy.saveAttribute}
@@ -2989,10 +4010,20 @@ function AbacAttributesPage() {
 				<Card title={copy.subjectAssignment}>
 					<form className="space-y-4" onSubmit={(event) => void saveSubject(event)}>
 						<Field label={copy.subjectId}>
-							<Input value={subjectState.subjectId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSubjectState((current) => ({ ...current, subjectId: event.target.value }))} />
+							<Input
+								value={subjectState.subjectId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setSubjectState((current) => ({ ...current, subjectId: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.attributesJson} hint={copy.attributesJsonExampleSubject}>
-							<InputArea value={subjectState.attributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setSubjectState((current) => ({ ...current, attributes: event.target.value }))} />
+							<InputArea
+								value={subjectState.attributes}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setSubjectState((current) => ({ ...current, attributes: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" type="submit">
 							{copy.saveSubject}
@@ -3003,10 +4034,20 @@ function AbacAttributesPage() {
 				<Card title={copy.resourceAssignment}>
 					<form className="space-y-4" onSubmit={(event) => void saveResource(event)}>
 						<Field label={copy.resourceId}>
-							<Input value={resourceState.resourceId} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setResourceState((current) => ({ ...current, resourceId: event.target.value }))} />
+							<Input
+								value={resourceState.resourceId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setResourceState((current) => ({ ...current, resourceId: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.attributesJson} hint={copy.attributesJsonExampleResource}>
-							<InputArea value={resourceState.attributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setResourceState((current) => ({ ...current, attributes: event.target.value }))} />
+							<InputArea
+								value={resourceState.attributes}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setResourceState((current) => ({ ...current, attributes: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" type="submit">
 							{copy.saveResource}
@@ -3021,7 +4062,10 @@ function AbacAttributesPage() {
 						<EmptyState title={copy.noAttributes} description={copy.noAttributesDescription} />
 					) : (
 						data.items.map((item) => (
-							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.key}>
+							<div
+								className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
+								key={item.key}
+							>
 								<div className="font-medium text-kumo-default">{item.label}</div>
 								<div className="mt-1 text-sm text-kumo-subtle">{item.key}</div>
 								<div className="mt-2">
@@ -3036,9 +4080,18 @@ function AbacAttributesPage() {
 						<EmptyState title={copy.noSubjects} description={copy.noSubjectsDescription} />
 					) : (
 						subjectData.items.map((item, index) => (
-							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.subjectId ?? `subject-${index}`}>
-								<div className="font-medium text-kumo-default">{item.subjectId ?? copy.unknownSubject}</div>
-								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
+							<div
+								className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
+								key={item.subjectId ?? `subject-${index}`}
+							>
+								<div className="font-medium text-kumo-default">
+									{item.subjectId ?? copy.unknownSubject}
+								</div>
+								<div className="mt-1 break-all text-sm text-kumo-subtle">
+									{Object.entries(item.attributes)
+										.map(([key, value]) => `${key}=${value}`)
+										.join(", ")}
+								</div>
 							</div>
 						))
 					)}
@@ -3048,9 +4101,18 @@ function AbacAttributesPage() {
 						<EmptyState title={copy.noResources} description={copy.noResourcesDescription} />
 					) : (
 						resourceData.items.map((item, index) => (
-							<div className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default" key={item.resourceId ?? `resource-${index}`}>
-								<div className="font-medium text-kumo-default">{item.resourceId ?? copy.unknownResource}</div>
-								<div className="mt-1 break-all text-sm text-kumo-subtle">{Object.entries(item.attributes).map(([key, value]) => `${key}=${value}`).join(", ")}</div>
+							<div
+								className="mb-3 rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
+								key={item.resourceId ?? `resource-${index}`}
+							>
+								<div className="font-medium text-kumo-default">
+									{item.resourceId ?? copy.unknownResource}
+								</div>
+								<div className="mt-1 break-all text-sm text-kumo-subtle">
+									{Object.entries(item.attributes)
+										.map(([key, value]) => `${key}=${value}`)
+										.join(", ")}
+								</div>
 							</div>
 						))
 					)}
@@ -3063,7 +4125,8 @@ function AbacAttributesPage() {
 function AbacPoliciesPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	const { data, error, loading, reload } = usePluginData<AbacPoliciesResponse>("abac/policies/list");
+	const { data, error, loading, reload } =
+		usePluginData<AbacPoliciesResponse>("abac/policies/list");
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [formState, setFormState] = React.useState<{
@@ -3129,35 +4192,77 @@ function AbacPoliciesPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow={copy.abacEyebrow} title={copy.policyRules} description={copy.policyRulesDescription} />
+			<PageHeader
+				eyebrow={copy.abacEyebrow}
+				title={copy.policyRules}
+				description={copy.policyRulesDescription}
+			/>
 			<div className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
 				<Card title={copy.addPolicy} description={copy.addPolicyDescription}>
 					<form className="space-y-4" onSubmit={(event) => void savePolicy(event)}>
 						<Feedback message={notice} />
 						<Feedback message={saveError} tone="danger" />
 						<Field label={copy.policyId}>
-							<Input value={formState.id} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, id: event.target.value }))} />
+							<Input
+								value={formState.id}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, id: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.label}>
-							<Input value={formState.label} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, label: event.target.value }))} />
+							<Input
+								value={formState.label}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, label: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.effect}>
-							<Select value={formState.effect} onValueChange={(value) => setFormState((current) => ({ ...current, effect: (value as AbacEffect | null) ?? "allow" }))}>
+							<Select
+								value={formState.effect}
+								onValueChange={(value) =>
+									setFormState((current) => ({
+										...current,
+										effect: (value as AbacEffect | null) ?? "allow",
+									}))
+								}
+							>
 								<Select.Option value="allow">{copy.allow}</Select.Option>
 								<Select.Option value="deny">{copy.deny}</Select.Option>
 							</Select>
 						</Field>
 						<Field label={copy.actions} hint={copy.actionsHint}>
-							<Input value={formState.actions} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormState((current) => ({ ...current, actions: event.target.value }))} />
+							<Input
+								value={formState.actions}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, actions: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.requiredSubjectJson}>
-							<InputArea value={formState.requiredSubject} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredSubject: event.target.value }))} />
+							<InputArea
+								value={formState.requiredSubject}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, requiredSubject: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.requiredResourceJson}>
-							<InputArea value={formState.requiredResource} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredResource: event.target.value }))} />
+							<InputArea
+								value={formState.requiredResource}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, requiredResource: event.target.value }))
+								}
+							/>
 						</Field>
 						<Field label={copy.requiredContextJson}>
-							<InputArea value={formState.requiredContext} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setFormState((current) => ({ ...current, requiredContext: event.target.value }))} />
+							<InputArea
+								value={formState.requiredContext}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, requiredContext: event.target.value }))
+								}
+							/>
 						</Field>
 						<Button variant="primary" type="submit">
 							{copy.savePolicy}
@@ -3165,19 +4270,27 @@ function AbacPoliciesPage() {
 					</form>
 				</Card>
 
-				<Card title={copy.existingPolicies} description={copy.existingPoliciesDescription(data?.items.length ?? 0)}>
+				<Card
+					title={copy.existingPolicies}
+					description={copy.existingPoliciesDescription(data?.items.length ?? 0)}
+				>
 					{!data?.items.length ? (
 						<EmptyState title={copy.noPolicies} description={copy.noPoliciesDescription} />
 					) : (
 						<div className="space-y-3">
 							{data.items.map((item) => (
-								<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default" key={item.id}>
+								<div
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
+									key={item.id}
+								>
 									<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 										<div className="font-medium text-kumo-default">{item.label}</div>
 										<Pill tone={item.effect === "allow" ? "success" : "danger"}>{item.effect}</Pill>
 									</div>
 									<div className="mt-1 break-all text-sm text-kumo-subtle">{item.id}</div>
-									<div className="mt-2 text-sm text-kumo-subtle">{copy.actionsLabel}: {toCsv(item.actions) || copy.none}</div>
+									<div className="mt-2 text-sm text-kumo-subtle">
+										{copy.actionsLabel}: {toCsv(item.actions) || copy.none}
+									</div>
 								</div>
 							))}
 						</div>
@@ -3212,7 +4325,14 @@ function AbacPreviewPage() {
 
 		setRunning(true);
 		try {
-			setPreview(await postPlugin<AbacPreviewResponse>(route, { subjectId, resourceId, action, contextAttributes: parsed.data }));
+			setPreview(
+				await postPlugin<AbacPreviewResponse>(route, {
+					subjectId,
+					resourceId,
+					action,
+					contextAttributes: parsed.data,
+				}),
+			);
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : copy.failedToEvaluateAbacPolicy);
 		} finally {
@@ -3222,7 +4342,11 @@ function AbacPreviewPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow={copy.abacEyebrow} title={copy.decisionPreview} description={copy.decisionPreviewDescription} />
+			<PageHeader
+				eyebrow={copy.abacEyebrow}
+				title={copy.decisionPreview}
+				description={copy.decisionPreviewDescription}
+			/>
 			<Card title={copy.decisionInput}>
 				<div className="grid gap-4 md:grid-cols-2">
 					<Field label={copy.subject}>
@@ -3252,17 +4376,37 @@ function AbacPreviewPage() {
 				</div>
 				<div className="mt-4 grid gap-4 md:grid-cols-2">
 					<Field label={copy.action}>
-						<Input value={action} onChange={(event: React.ChangeEvent<HTMLInputElement>) => setAction(event.target.value)} />
+						<Input
+							value={action}
+							onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+								setAction(event.target.value)
+							}
+						/>
 					</Field>
 					<Field label={copy.contextAttributesJson}>
-						<InputArea value={contextAttributes} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setContextAttributes(event.target.value)} />
+						<InputArea
+							value={contextAttributes}
+							onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+								setContextAttributes(event.target.value)
+							}
+						/>
 					</Field>
 				</div>
 				<div className="mt-4 flex flex-wrap gap-3">
-					<Button variant="primary" disabled={running} onClick={() => void runPreview("abac/preview")} type="button">
+					<Button
+						variant="primary"
+						disabled={running}
+						onClick={() => void runPreview("abac/preview")}
+						type="button"
+					>
 						{running ? copy.loadingAbacDecision : copy.previewPolicy}
 					</Button>
-					<Button variant="secondary" disabled={running} onClick={() => void runPreview("abac/enforce-demo")} type="button">
+					<Button
+						variant="secondary"
+						disabled={running}
+						onClick={() => void runPreview("abac/enforce-demo")}
+						type="button"
+					>
 						{copy.runProtectedDemo}
 					</Button>
 				</div>
@@ -3272,7 +4416,9 @@ function AbacPreviewPage() {
 			{preview ? (
 				<Card title={copy.decisionResult}>
 					<div className="mb-4 flex items-center gap-2">
-						<Pill tone={preview.allowed ? "success" : "danger"}>{preview.allowed ? copy.allowed : copy.denied}</Pill>
+						<Pill tone={preview.allowed ? "success" : "danger"}>
+							{preview.allowed ? copy.allowed : copy.denied}
+						</Pill>
 						<Pill>{preview.effect}</Pill>
 					</div>
 					<p className="text-sm leading-6 text-kumo-subtle">{preview.reason}</p>
@@ -3301,12 +4447,14 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 				</label>
 			) : null}
 			<div className="flex items-center gap-3">
-				<Select value={current} onValueChange={(nextValue) => onChange(nextValue ?? "")}> 
+				<Select value={current} onValueChange={(nextValue) => onChange(nextValue ?? "")}>
 					<Select.Option value="draft">{copy.draft}</Select.Option>
 					<Select.Option value="review">{copy.review}</Select.Option>
 					<Select.Option value="approved">{copy.approved}</Select.Option>
 				</Select>
-				<Pill tone={tone}>{current === "approved" ? copy.approved : current === "review" ? copy.review : copy.draft}</Pill>
+				<Pill tone={tone}>
+					{current === "approved" ? copy.approved : current === "review" ? copy.review : copy.draft}
+				</Pill>
 			</div>
 		</div>
 	);
@@ -3331,11 +4479,44 @@ function ImportPage() {
 	const [promoting, setPromoting] = React.useState(false);
 
 	const sheets = ["Sheet1", "Sheet2_Templates", "Sheet3_References"];
-	
+
 	const stagingRows = [
-		{ id: "staged-01", code: "RI-102", label: "Masjid Raya Baiturrahman", entityType: "rumah_ibadah", sensitivity: "public_safe", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010001", publicSummary: "Masjid Raya Baiturrahman di desa referensi." },
-		{ id: "staged-02", code: "GA-205", label: "Ustadz H. Syukron", entityType: "guru_agama", sensitivity: "restricted", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010002", publicSummary: "Data pengajar ustadz referensi." },
-		{ id: "staged-03", code: "DS-502", label: "Slamet Rahardjo", entityType: "disabilitas", sensitivity: "highly_restricted", provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010003", publicSummary: "Data disabilitas di wilayah referensi." },
+		{
+			id: "staged-01",
+			code: "RI-102",
+			label: "Masjid Raya Baiturrahman",
+			entityType: "rumah_ibadah",
+			sensitivity: "public_safe",
+			provinceCode: "31",
+			regencyCode: "3171",
+			districtCode: "3171010",
+			villageCode: "3171010001",
+			publicSummary: "Masjid Raya Baiturrahman di desa referensi.",
+		},
+		{
+			id: "staged-02",
+			code: "GA-205",
+			label: "Ustadz H. Syukron",
+			entityType: "guru_agama",
+			sensitivity: "restricted",
+			provinceCode: "31",
+			regencyCode: "3171",
+			districtCode: "3171010",
+			villageCode: "3171010002",
+			publicSummary: "Data pengajar ustadz referensi.",
+		},
+		{
+			id: "staged-03",
+			code: "DS-502",
+			label: "Slamet Rahardjo",
+			entityType: "disabilitas",
+			sensitivity: "highly_restricted",
+			provinceCode: "31",
+			regencyCode: "3171",
+			districtCode: "3171010",
+			villageCode: "3171010003",
+			publicSummary: "Data disabilitas di wilayah referensi.",
+		},
 	];
 
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -3369,13 +4550,17 @@ function ImportPage() {
 
 			{/* Progress Steps Header */}
 			<div className="flex items-center gap-2 mb-6 border-b pb-4 overflow-x-auto text-xs font-semibold text-kumo-subtle">
-				<span className={importStep === 0 ? "text-kumo-brand font-bold" : ""}>1. Upload Workbook</span>
+				<span className={importStep === 0 ? "text-kumo-brand font-bold" : ""}>
+					1. Upload Workbook
+				</span>
 				<span>&rarr;</span>
 				<span className={importStep === 1 ? "text-kumo-brand font-bold" : ""}>2. Select Sheet</span>
 				<span>&rarr;</span>
 				<span className={importStep === 2 ? "text-kumo-brand font-bold" : ""}>3. Map Columns</span>
 				<span>&rarr;</span>
-				<span className={importStep === 3 ? "text-kumo-brand font-bold" : ""}>4. Preview & Validate</span>
+				<span className={importStep === 3 ? "text-kumo-brand font-bold" : ""}>
+					4. Preview & Validate
+				</span>
 				<span>&rarr;</span>
 				<span className={importStep === 4 ? "text-kumo-brand font-bold" : ""}>5. Promote</span>
 			</div>
@@ -3396,7 +4581,9 @@ function ImportPage() {
 								onChange={handleFileSelect}
 							/>
 							<label htmlFor="excel-file-upload" className="inline-block">
-								<span className="inline-flex items-center justify-center rounded-xl bg-kumo-brand px-4 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-kumo-brand/90 transition">{copy.selectFile}</span>
+								<span className="inline-flex items-center justify-center rounded-xl bg-kumo-brand px-4 py-2 text-sm font-semibold text-white cursor-pointer hover:bg-kumo-brand/90 transition">
+									{copy.selectFile}
+								</span>
 							</label>
 						</div>
 					</Card>
@@ -3405,17 +4592,28 @@ function ImportPage() {
 				{importStep === 1 && (
 					<Card title={copy.selectSheet}>
 						<div className="space-y-4">
-							<p className="text-sm text-kumo-subtle">Selected file: <strong>{fileName}</strong></p>
+							<p className="text-sm text-kumo-subtle">
+								Selected file: <strong>{fileName}</strong>
+							</p>
 							<Field label="Choose Spreadsheet Sheet">
-								<Select value={selectedSheet} onValueChange={(val) => setSelectedSheet(val ?? "Sheet1")}>
-									{sheets.map(sh => (
-										<Select.Option value={sh} key={sh}>{sh}</Select.Option>
+								<Select
+									value={selectedSheet}
+									onValueChange={(val) => setSelectedSheet(val ?? "Sheet1")}
+								>
+									{sheets.map((sh) => (
+										<Select.Option value={sh} key={sh}>
+											{sh}
+										</Select.Option>
 									))}
 								</Select>
 							</Field>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(0)}>Back</Button>
-								<Button variant="primary" onClick={() => setImportStep(2)}>Next</Button>
+								<Button variant="secondary" onClick={() => setImportStep(0)}>
+									Back
+								</Button>
+								<Button variant="primary" onClick={() => setImportStep(2)}>
+									Next
+								</Button>
 							</div>
 						</div>
 					</Card>
@@ -3424,40 +4622,82 @@ function ImportPage() {
 				{importStep === 2 && (
 					<Card title={copy.mapColumns}>
 						<div className="space-y-4">
-							<p className="text-sm text-kumo-subtle">Map Excel columns (A, B, C...) to SIKESRA fields:</p>
+							<p className="text-sm text-kumo-subtle">
+								Map Excel columns (A, B, C...) to SIKESRA fields:
+							</p>
 							<div className="grid gap-4 md:grid-cols-3">
 								<Field label="Entity Code (SIKESRA ID)">
-									<Input value={columnMappings.code} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, code: e.target.value }))} />
+									<Input
+										value={columnMappings.code}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, code: e.target.value }))
+										}
+									/>
 								</Field>
 								<Field label="Identity Label / Name">
-									<Input value={columnMappings.label} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, label: e.target.value }))} />
+									<Input
+										value={columnMappings.label}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, label: e.target.value }))
+										}
+									/>
 								</Field>
 								<Field label="Entity Type Column">
-									<Input value={columnMappings.entityType} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, entityType: e.target.value }))} />
+									<Input
+										value={columnMappings.entityType}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, entityType: e.target.value }))
+										}
+									/>
 								</Field>
 								<Field label="Sensitivity classification">
-									<Input value={columnMappings.sensitivity} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, sensitivity: e.target.value }))} />
+									<Input
+										value={columnMappings.sensitivity}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, sensitivity: e.target.value }))
+										}
+									/>
 								</Field>
 								<Field label="Village Code Column">
-									<Input value={columnMappings.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, villageCode: e.target.value }))} />
+									<Input
+										value={columnMappings.villageCode}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, villageCode: e.target.value }))
+										}
+									/>
 								</Field>
 								<Field label="Public Summary Column">
-									<Input value={columnMappings.publicSummary} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setColumnMappings(prev => ({ ...prev, publicSummary: e.target.value }))} />
+									<Input
+										value={columnMappings.publicSummary}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setColumnMappings((prev) => ({ ...prev, publicSummary: e.target.value }))
+										}
+									/>
 								</Field>
 							</div>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(1)}>Back</Button>
-								<Button variant="primary" onClick={() => {
-									setNotice(copy.mappingValidationPassed);
-									setImportStep(3);
-								}}>Validate & Next</Button>
+								<Button variant="secondary" onClick={() => setImportStep(1)}>
+									Back
+								</Button>
+								<Button
+									variant="primary"
+									onClick={() => {
+										setNotice(copy.mappingValidationPassed);
+										setImportStep(3);
+									}}
+								>
+									Validate & Next
+								</Button>
 							</div>
 						</div>
 					</Card>
 				)}
 
 				{importStep === 3 && (
-					<Card title={copy.previewStaging} description="Inspect valid rows staged for promote. Identifiers and types are verified.">
+					<Card
+						title={copy.previewStaging}
+						description="Inspect valid rows staged for promote. Identifiers and types are verified."
+					>
 						<div className="space-y-4">
 							<div className="overflow-x-auto rounded-xl border">
 								<table className="w-full text-xs text-left">
@@ -3477,14 +4717,20 @@ function ImportPage() {
 												<td className="p-3 font-medium text-kumo-default">{row.label}</td>
 												<td className="p-3 text-kumo-subtle">{row.entityType}</td>
 												<td className="p-3 text-kumo-subtle">{row.villageCode}</td>
-												<td className="p-3"><Pill tone={row.sensitivity === "public_safe" ? "success" : "warning"}>{row.sensitivity}</Pill></td>
+												<td className="p-3">
+													<Pill tone={row.sensitivity === "public_safe" ? "success" : "warning"}>
+														{row.sensitivity}
+													</Pill>
+												</td>
 											</tr>
 										))}
 									</tbody>
 								</table>
 							</div>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(2)}>Back</Button>
+								<Button variant="secondary" onClick={() => setImportStep(2)}>
+									Back
+								</Button>
 								<Button variant="primary" disabled={promoting} onClick={() => void handlePromote()}>
 									{promoting ? "Promoting..." : copy.promoteSelectedRows}
 								</Button>
@@ -3497,12 +4743,21 @@ function ImportPage() {
 					<Card title={copy.importReport}>
 						<div className="text-center p-6 space-y-4 bg-kumo-tint/20 rounded-xl text-kumo-default">
 							<div className="text-4xl">🎉</div>
-							<h3 className="font-semibold text-lg text-kumo-default">{copy.promotedSuccessfully}</h3>
-							<p className="text-xs text-kumo-subtle">Promoted {stagingRows.length} entities into SIKESRA Registry queue.</p>
-							<Button variant="primary" onClick={() => {
-								setNotice(null);
-								setImportStep(0);
-							}}>Upload New File</Button>
+							<h3 className="font-semibold text-lg text-kumo-default">
+								{copy.promotedSuccessfully}
+							</h3>
+							<p className="text-xs text-kumo-subtle">
+								Promoted {stagingRows.length} entities into SIKESRA Registry queue.
+							</p>
+							<Button
+								variant="primary"
+								onClick={() => {
+									setNotice(null);
+									setImportStep(0);
+								}}
+							>
+								Upload New File
+							</Button>
 						</div>
 					</Card>
 				)}
@@ -3520,8 +4775,12 @@ export const widgets: PluginAdminExports["widgets"] = {
 export function RegionsPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
-	
-	const { data: fetchedRegions, loading: loadingRegions, reload: reloadRegions } = usePluginData<AdministrativeProvince[]>("regions/get");
+
+	const {
+		data: fetchedRegions,
+		loading: loadingRegions,
+		reload: reloadRegions,
+	} = usePluginData<AdministrativeProvince[]>("regions/get");
 	const [regions, setRegions] = React.useState<AdministrativeProvince[]>([]);
 	const [saving, setSaving] = React.useState(false);
 	const [isDirty, setIsDirty] = React.useState(false);
@@ -3553,12 +4812,24 @@ export function RegionsPage() {
 	// Counts
 	const totalProvinces = regions.length;
 	const totalRegencies = regions.reduce((acc, p) => acc + (p.regencies?.length ?? 0), 0);
-	const totalDistricts = regions.reduce((acc, p) => acc + (p.regencies?.reduce((acc2, r) => acc2 + (r.districts?.length ?? 0), 0) ?? 0), 0);
-	const totalVillages = regions.reduce((acc, p) => acc + (p.regencies?.reduce((acc2, r) => acc2 + (r.districts?.reduce((acc3, d) => acc3 + (d.villages?.length ?? 0), 0) ?? 0), 0) ?? 0), 0);
+	const totalDistricts = regions.reduce(
+		(acc, p) => acc + (p.regencies?.reduce((acc2, r) => acc2 + (r.districts?.length ?? 0), 0) ?? 0),
+		0,
+	);
+	const totalVillages = regions.reduce(
+		(acc, p) =>
+			acc +
+			(p.regencies?.reduce(
+				(acc2, r) =>
+					acc2 + (r.districts?.reduce((acc3, d) => acc3 + (d.villages?.length ?? 0), 0) ?? 0),
+				0,
+			) ?? 0),
+		0,
+	);
 
-	const activeProvince = regions.find(p => p.code === selectedProvinceCode);
-	const activeRegency = activeProvince?.regencies?.find(r => r.code === selectedRegencyCode);
-	const activeDistrict = activeRegency?.districts?.find(d => d.code === selectedDistrictCode);
+	const activeProvince = regions.find((p) => p.code === selectedProvinceCode);
+	const activeRegency = activeProvince?.regencies?.find((r) => r.code === selectedRegencyCode);
+	const activeDistrict = activeRegency?.districts?.find((d) => d.code === selectedDistrictCode);
 
 	// CRUD functions
 	const handleSaveToBackend = async () => {
@@ -3593,16 +4864,22 @@ export function RegionsPage() {
 		if (code === oldCode) return true;
 
 		if (level === "province") {
-			return !regions.some(p => p.code === code);
+			return !regions.some((p) => p.code === code);
 		}
 		if (level === "regency") {
-			return !regions.some(p => p.regencies?.some(r => r.code === code));
+			return !regions.some((p) => p.regencies?.some((r) => r.code === code));
 		}
 		if (level === "district") {
-			return !regions.some(p => p.regencies?.some(r => r.districts?.some(d => d.code === code)));
+			return !regions.some((p) =>
+				p.regencies?.some((r) => r.districts?.some((d) => d.code === code)),
+			);
 		}
 		if (level === "village") {
-			return !regions.some(p => p.regencies?.some(r => r.districts?.some(d => d.villages?.some(v => v.code === code))));
+			return !regions.some((p) =>
+				p.regencies?.some((r) =>
+					r.districts?.some((d) => d.villages?.some((v) => v.code === code)),
+				),
+			);
 		}
 		return true;
 	};
@@ -3627,67 +4904,133 @@ export function RegionsPage() {
 
 		if (type === "add") {
 			if (level === "province") {
-				setRegions(prev => [...prev, { name, code, regencies: [] }]);
+				setRegions((prev) => [...prev, { name, code, regencies: [] }]);
 				setSelectedProvinceCode(code);
 			} else if (level === "regency") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: [...(p.regencies ?? []), { name, code, districts: [] }]
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: [...(p.regencies ?? []), { name, code, districts: [] }],
+								}
+							: p,
+					),
+				);
 				setSelectedRegencyCode(code);
 			} else if (level === "district") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-						...r,
-						districts: [...(r.districts ?? []), { name, code, villages: [] }]
-					} : r)
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: p.regencies.map((r) =>
+										r.code === selectedRegencyCode
+											? {
+													...r,
+													districts: [...(r.districts ?? []), { name, code, villages: [] }],
+												}
+											: r,
+									),
+								}
+							: p,
+					),
+				);
 				setSelectedDistrictCode(code);
 			} else if (level === "village") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-						...r,
-						districts: r.districts.map(d => d.code === selectedDistrictCode ? {
-							...d,
-							villages: [...(d.villages ?? []), { name, code }]
-						} : d)
-					} : r)
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: p.regencies.map((r) =>
+										r.code === selectedRegencyCode
+											? {
+													...r,
+													districts: r.districts.map((d) =>
+														d.code === selectedDistrictCode
+															? {
+																	...d,
+																	villages: [...(d.villages ?? []), { name, code }],
+																}
+															: d,
+													),
+												}
+											: r,
+									),
+								}
+							: p,
+					),
+				);
 				setSelectedVillageCode(code);
 			}
 		} else {
 			// Edit
 			if (level === "province") {
-				setRegions(prev => prev.map(p => p.code === oldCode ? { ...p, name, code } : p));
+				setRegions((prev) => prev.map((p) => (p.code === oldCode ? { ...p, name, code } : p)));
 				setSelectedProvinceCode(code);
 			} else if (level === "regency") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: p.regencies.map(r => r.code === oldCode ? { ...r, name, code } : r)
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: p.regencies.map((r) =>
+										r.code === oldCode ? { ...r, name, code } : r,
+									),
+								}
+							: p,
+					),
+				);
 				setSelectedRegencyCode(code);
 			} else if (level === "district") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-						...r,
-						districts: r.districts.map(d => d.code === oldCode ? { ...d, name, code } : d)
-					} : r)
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: p.regencies.map((r) =>
+										r.code === selectedRegencyCode
+											? {
+													...r,
+													districts: r.districts.map((d) =>
+														d.code === oldCode ? { ...d, name, code } : d,
+													),
+												}
+											: r,
+									),
+								}
+							: p,
+					),
+				);
 				setSelectedDistrictCode(code);
 			} else if (level === "village") {
-				setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-					...p,
-					regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-						...r,
-						districts: r.districts.map(d => d.code === selectedDistrictCode ? {
-							...d,
-							villages: d.villages.map(v => v.code === oldCode ? { ...v, name, code } : v)
-						} : d)
-					} : r)
-				} : p));
+				setRegions((prev) =>
+					prev.map((p) =>
+						p.code === selectedProvinceCode
+							? {
+									...p,
+									regencies: p.regencies.map((r) =>
+										r.code === selectedRegencyCode
+											? {
+													...r,
+													districts: r.districts.map((d) =>
+														d.code === selectedDistrictCode
+															? {
+																	...d,
+																	villages: d.villages.map((v) =>
+																		v.code === oldCode ? { ...v, name, code } : v,
+																	),
+																}
+															: d,
+													),
+												}
+											: r,
+									),
+								}
+							: p,
+					),
+				);
 				setSelectedVillageCode(code);
 			}
 		}
@@ -3695,14 +5038,17 @@ export function RegionsPage() {
 		setActiveForm(null);
 	};
 
-	const handleDeleteNode = (level: "province" | "regency" | "district" | "village", code: string) => {
+	const handleDeleteNode = (
+		level: "province" | "regency" | "district" | "village",
+		code: string,
+	) => {
 		if (!window.confirm(copy.deleteConfirm)) return;
 
 		setIsDirty(true);
 		setErrMsg(null);
 
 		if (level === "province") {
-			setRegions(prev => prev.filter(p => p.code !== code));
+			setRegions((prev) => prev.filter((p) => p.code !== code));
 			if (selectedProvinceCode === code) {
 				setSelectedProvinceCode("");
 				setSelectedRegencyCode("");
@@ -3710,45 +5056,80 @@ export function RegionsPage() {
 				setSelectedVillageCode("");
 			}
 		} else if (level === "regency") {
-			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-				...p,
-				regencies: p.regencies.filter(r => r.code !== code)
-			} : p));
+			setRegions((prev) =>
+				prev.map((p) =>
+					p.code === selectedProvinceCode
+						? {
+								...p,
+								regencies: p.regencies.filter((r) => r.code !== code),
+							}
+						: p,
+				),
+			);
 			if (selectedRegencyCode === code) {
 				setSelectedRegencyCode("");
 				setSelectedDistrictCode("");
 				setSelectedVillageCode("");
 			}
 		} else if (level === "district") {
-			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-				...p,
-				regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-					...r,
-					districts: r.districts.filter(d => d.code !== code)
-				} : r)
-			} : p));
+			setRegions((prev) =>
+				prev.map((p) =>
+					p.code === selectedProvinceCode
+						? {
+								...p,
+								regencies: p.regencies.map((r) =>
+									r.code === selectedRegencyCode
+										? {
+												...r,
+												districts: r.districts.filter((d) => d.code !== code),
+											}
+										: r,
+								),
+							}
+						: p,
+				),
+			);
 			if (selectedDistrictCode === code) {
 				setSelectedDistrictCode("");
 				setSelectedVillageCode("");
 			}
 		} else if (level === "village") {
-			setRegions(prev => prev.map(p => p.code === selectedProvinceCode ? {
-				...p,
-				regencies: p.regencies.map(r => r.code === selectedRegencyCode ? {
-					...r,
-					districts: r.districts.map(d => d.code === selectedDistrictCode ? {
-						...d,
-						villages: d.villages.filter(v => v.code !== code)
-					} : d)
-				} : r)
-			} : p));
+			setRegions((prev) =>
+				prev.map((p) =>
+					p.code === selectedProvinceCode
+						? {
+								...p,
+								regencies: p.regencies.map((r) =>
+									r.code === selectedRegencyCode
+										? {
+												...r,
+												districts: r.districts.map((d) =>
+													d.code === selectedDistrictCode
+														? {
+																...d,
+																villages: d.villages.filter((v) => v.code !== code),
+															}
+														: d,
+												),
+											}
+										: r,
+								),
+							}
+						: p,
+				),
+			);
 			if (selectedVillageCode === code) {
 				setSelectedVillageCode("");
 			}
 		}
 	};
 
-	if (loadingRegions) return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+	if (loadingRegions)
+		return (
+			<PageShell>
+				<LoadingState label={copy.loadingPluginOverview} />
+			</PageShell>
+		);
 
 	return (
 		<PageShell width="wide">
@@ -3763,7 +5144,11 @@ export function RegionsPage() {
 								Reset
 							</Button>
 						)}
-						<Button variant="primary" disabled={saving || !isDirty} onClick={() => void handleSaveToBackend()}>
+						<Button
+							variant="primary"
+							disabled={saving || !isDirty}
+							onClick={() => void handleSaveToBackend()}
+						>
 							{saving ? copy.saving : copy.saveRegions}
 						</Button>
 					</div>
@@ -3773,7 +5158,10 @@ export function RegionsPage() {
 			{isDirty && (
 				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2">
 					<span>⚠️</span>
-					<span>Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik tombol &quot;Simpan Perubahan Wilayah&quot; di atas untuk menyimpan.</span>
+					<span>
+						Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik
+						tombol &quot;Simpan Perubahan Wilayah&quot; di atas untuk menyimpan.
+					</span>
 				</div>
 			)}
 
@@ -3792,17 +5180,30 @@ export function RegionsPage() {
 				<section className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
 					<div className="border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 flex items-center justify-between">
 						<div>
-							<h2 className="text-sm font-semibold text-kumo-default">Explorer Wilayah Administratif Resmi</h2>
-							<p className="mt-0.5 text-xs text-kumo-subtle">Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini.</p>
+							<h2 className="text-sm font-semibold text-kumo-default">
+								Explorer Wilayah Administratif Resmi
+							</h2>
+							<p className="mt-0.5 text-xs text-kumo-subtle">
+								Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini.
+							</p>
 						</div>
 					</div>
 					<div className="p-5 grid gap-4 md:grid-cols-4 min-h-[400px]">
-						
 						{/* Provinces Column */}
 						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
-								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.province}</span>
-								<Button variant="secondary" size="xs" onClick={() => setActiveForm({ type: "add", level: "province", name: "", code: "" })}>+ Tambah</Button>
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
+									{copy.province}
+								</span>
+								<Button
+									variant="secondary"
+									size="xs"
+									onClick={() =>
+										setActiveForm({ type: "add", level: "province", name: "", code: "" })
+									}
+								>
+									+ Tambah
+								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{regions.map((p) => {
@@ -3814,7 +5215,7 @@ export function RegionsPage() {
 												"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 												isSelected
 													? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
-													: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+													: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40",
 											)}
 											onClick={() => {
 												setSelectedProvinceCode(p.code);
@@ -3834,7 +5235,13 @@ export function RegionsPage() {
 													title="Edit"
 													onClick={(e) => {
 														e.stopPropagation();
-														setActiveForm({ type: "edit", level: "province", oldCode: p.code, name: p.name, code: p.code });
+														setActiveForm({
+															type: "edit",
+															level: "province",
+															oldCode: p.code,
+															name: p.name,
+															code: p.code,
+														});
 													}}
 												>
 													✏️
@@ -3860,21 +5267,29 @@ export function RegionsPage() {
 						{/* Regencies Column */}
 						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
-								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.regency}</span>
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
+									{copy.regency}
+								</span>
 								<Button
 									variant="secondary"
 									size="xs"
 									disabled={!selectedProvinceCode}
-									onClick={() => setActiveForm({ type: "add", level: "regency", name: "", code: "" })}
+									onClick={() =>
+										setActiveForm({ type: "add", level: "regency", name: "", code: "" })
+									}
 								>
 									+ Tambah
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedProvinceCode ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih provinsi terlebih dahulu.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Pilih provinsi terlebih dahulu.
+									</div>
 								) : activeProvince?.regencies?.length === 0 ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data kabupaten.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Belum ada data kabupaten.
+									</div>
 								) : (
 									activeProvince?.regencies?.map((r) => {
 										const isSelected = r.code === selectedRegencyCode;
@@ -3885,7 +5300,7 @@ export function RegionsPage() {
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
 														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
-														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40",
 												)}
 												onClick={() => {
 													setSelectedRegencyCode(r.code);
@@ -3895,7 +5310,9 @@ export function RegionsPage() {
 											>
 												<div className="truncate pr-12">
 													<div>{r.name}</div>
-													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {r.code}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">
+														Kode: {r.code}
+													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
@@ -3904,7 +5321,13 @@ export function RegionsPage() {
 														title="Edit"
 														onClick={(e) => {
 															e.stopPropagation();
-															setActiveForm({ type: "edit", level: "regency", oldCode: r.code, name: r.name, code: r.code });
+															setActiveForm({
+																type: "edit",
+																level: "regency",
+																oldCode: r.code,
+																name: r.name,
+																code: r.code,
+															});
 														}}
 													>
 														✏️
@@ -3931,21 +5354,29 @@ export function RegionsPage() {
 						{/* Districts Column */}
 						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
-								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.district}</span>
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
+									{copy.district}
+								</span>
 								<Button
 									variant="secondary"
 									size="xs"
 									disabled={!selectedRegencyCode}
-									onClick={() => setActiveForm({ type: "add", level: "district", name: "", code: "" })}
+									onClick={() =>
+										setActiveForm({ type: "add", level: "district", name: "", code: "" })
+									}
 								>
 									+ Tambah
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedRegencyCode ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih kabupaten terlebih dahulu.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Pilih kabupaten terlebih dahulu.
+									</div>
 								) : activeRegency?.districts?.length === 0 ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data kecamatan.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Belum ada data kecamatan.
+									</div>
 								) : (
 									activeRegency?.districts?.map((d) => {
 										const isSelected = d.code === selectedDistrictCode;
@@ -3956,7 +5387,7 @@ export function RegionsPage() {
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
 														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
-														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40",
 												)}
 												onClick={() => {
 													setSelectedDistrictCode(d.code);
@@ -3965,7 +5396,9 @@ export function RegionsPage() {
 											>
 												<div className="truncate pr-12">
 													<div>{d.name}</div>
-													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {d.code}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">
+														Kode: {d.code}
+													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
@@ -3974,7 +5407,13 @@ export function RegionsPage() {
 														title="Edit"
 														onClick={(e) => {
 															e.stopPropagation();
-															setActiveForm({ type: "edit", level: "district", oldCode: d.code, name: d.name, code: d.code });
+															setActiveForm({
+																type: "edit",
+																level: "district",
+																oldCode: d.code,
+																name: d.name,
+																code: d.code,
+															});
 														}}
 													>
 														✏️
@@ -4001,21 +5440,29 @@ export function RegionsPage() {
 						{/* Villages Column */}
 						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
-								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">{copy.village}</span>
+								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
+									{copy.village}
+								</span>
 								<Button
 									variant="secondary"
 									size="xs"
 									disabled={!selectedDistrictCode}
-									onClick={() => setActiveForm({ type: "add", level: "village", name: "", code: "" })}
+									onClick={() =>
+										setActiveForm({ type: "add", level: "village", name: "", code: "" })
+									}
 								>
 									+ Tambah
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedDistrictCode ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Pilih kecamatan terlebih dahulu.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Pilih kecamatan terlebih dahulu.
+									</div>
 								) : activeDistrict?.villages?.length === 0 ? (
-									<div className="text-center text-xs text-kumo-subtle italic py-10">Belum ada data desa/kelurahan.</div>
+									<div className="text-center text-xs text-kumo-subtle italic py-10">
+										Belum ada data desa/kelurahan.
+									</div>
 								) : (
 									activeDistrict?.villages?.map((v) => {
 										const isSelected = v.code === selectedVillageCode;
@@ -4026,7 +5473,7 @@ export function RegionsPage() {
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
 														? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-bold shadow-sm"
-														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40"
+														: "bg-kumo-base border-kumo-line/60 text-kumo-default hover:bg-kumo-tint/40",
 												)}
 												onClick={() => {
 													setSelectedVillageCode(v.code);
@@ -4034,7 +5481,9 @@ export function RegionsPage() {
 											>
 												<div className="truncate pr-12">
 													<div>{v.name}</div>
-													<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {v.code}</div>
+													<div className="font-mono text-[9px] opacity-75 mt-0.5">
+														Kode: {v.code}
+													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
@@ -4043,7 +5492,13 @@ export function RegionsPage() {
 														title="Edit"
 														onClick={(e) => {
 															e.stopPropagation();
-															setActiveForm({ type: "edit", level: "village", oldCode: v.code, name: v.name, code: v.code });
+															setActiveForm({
+																type: "edit",
+																level: "village",
+																oldCode: v.code,
+																name: v.name,
+																code: v.code,
+															});
 														}}
 													>
 														✏️
@@ -4066,42 +5521,59 @@ export function RegionsPage() {
 								)}
 							</div>
 						</div>
-
 					</div>
 				</section>
 
 				{/* Editor Overlay Card */}
 				{activeForm && (
 					<Card
-						title={activeForm.type === "add" ? `${copy.addProvince.replace("Provinsi", "")} ${activeForm.level.toUpperCase()}` : `${copy.editNode} (${activeForm.level.toUpperCase()})`}
+						title={
+							activeForm.type === "add"
+								? `${copy.addProvince.replace("Provinsi", "")} ${activeForm.level.toUpperCase()}`
+								: `${copy.editNode} (${activeForm.level.toUpperCase()})`
+						}
 						description={`Masukkan nama dan kode unik untuk tingkat administratif ${activeForm.level}.`}
-						actions={<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>Tutup ✕</Button>}
+						actions={
+							<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>
+								Tutup ✕
+							</Button>
+						}
 					>
 						<form onSubmit={handleFormSubmit} className="space-y-4 max-w-md">
 							<Field label={copy.nodeName}>
 								<Input
 									value={activeForm.name}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, name: e.target.value } : null)}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setActiveForm((prev) => (prev ? { ...prev, name: e.target.value } : null))
+									}
 									placeholder="Nama wilayah"
 									required
 								/>
 							</Field>
-							<Field label={copy.nodeCode} hint="Pastikan kode unik dan sesuai dengan pedoman administratif (BPS/Kemendagri).">
+							<Field
+								label={copy.nodeCode}
+								hint="Pastikan kode unik dan sesuai dengan pedoman administratif (BPS/Kemendagri)."
+							>
 								<Input
 									value={activeForm.code}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, code: e.target.value } : null)}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setActiveForm((prev) => (prev ? { ...prev, code: e.target.value } : null))
+									}
 									placeholder="Kode wilayah"
 									required
 								/>
 							</Field>
 							<div className="flex gap-2 pt-2">
-								<Button variant="primary" type="submit">Konfirmasi</Button>
-								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>Batal</Button>
+								<Button variant="primary" type="submit">
+									Konfirmasi
+								</Button>
+								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>
+									Batal
+								</Button>
 							</div>
 						</form>
 					</Card>
 				)}
-
 			</div>
 		</PageShell>
 	);
@@ -4111,7 +5583,11 @@ export function DataTypesPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 
-	const { data: fetchedDataTypes, loading: loadingDataTypes, reload: reloadDataTypes } = usePluginData<SikesraParentType[]>("data-types/get");
+	const {
+		data: fetchedDataTypes,
+		loading: loadingDataTypes,
+		reload: reloadDataTypes,
+	} = usePluginData<SikesraParentType[]>("data-types/get");
 	const [dataTypes, setDataTypes] = React.useState<SikesraParentType[]>([]);
 	const [saving, setSaving] = React.useState(false);
 	const [isDirty, setIsDirty] = React.useState(false);
@@ -4146,7 +5622,7 @@ export function DataTypesPage() {
 	const totalParents = dataTypes.length;
 	const totalSubtypes = dataTypes.reduce((acc, p) => acc + (p.subTypes?.length ?? 0), 0);
 
-	const activeParent = dataTypes.find(p => p.id === selectedParentId);
+	const activeParent = dataTypes.find((p) => p.id === selectedParentId);
 
 	// CRUD functions
 	const handleSaveToBackend = async () => {
@@ -4181,10 +5657,10 @@ export function DataTypesPage() {
 		if (code === oldCode) return true;
 
 		if (level === "parent") {
-			return !dataTypes.some(p => p.code === code);
+			return !dataTypes.some((p) => p.code === code);
 		}
 		if (level === "subtype" && activeParent) {
-			return !activeParent.subTypes?.some(s => s.code === code);
+			return !activeParent.subTypes?.some((s) => s.code === code);
 		}
 		return true;
 	};
@@ -4192,7 +5668,7 @@ export function DataTypesPage() {
 	const validateIdUniqueness = (id: string, oldId?: string) => {
 		if (!id.trim()) return false;
 		if (id === oldId) return true;
-		return !dataTypes.some(p => p.id === id);
+		return !dataTypes.some((p) => p.id === id);
 	};
 
 	const handleFormSubmit = (e: React.FormEvent) => {
@@ -4228,7 +5704,7 @@ export function DataTypesPage() {
 		}
 
 		// Update state
-		setDataTypes(prev => {
+		setDataTypes((prev) => {
 			const updated = [...prev];
 			if (level === "parent") {
 				if (type === "add") {
@@ -4236,29 +5712,29 @@ export function DataTypesPage() {
 						id,
 						code,
 						label,
-						subTypes: []
+						subTypes: [],
 					});
 				} else {
-					const idx = updated.findIndex(p => p.id === oldId);
+					const idx = updated.findIndex((p) => p.id === oldId);
 					const existing = updated[idx];
 					if (idx !== -1 && existing) {
 						updated[idx] = {
 							id,
 							code,
 							label,
-							subTypes: existing.subTypes || []
+							subTypes: existing.subTypes || [],
 						};
 					}
 				}
 			} else if (level === "subtype" && selectedParentId) {
-				const parentIdx = updated.findIndex(p => p.id === selectedParentId);
+				const parentIdx = updated.findIndex((p) => p.id === selectedParentId);
 				const parent = updated[parentIdx];
 				if (parentIdx !== -1 && parent) {
 					const subTypes = parent.subTypes ? [...parent.subTypes] : [];
 					if (type === "add") {
 						subTypes.push({ code, label });
 					} else {
-						const subIdx = subTypes.findIndex(s => s.code === oldCode);
+						const subIdx = subTypes.findIndex((s) => s.code === oldCode);
 						if (subIdx !== -1) {
 							subTypes[subIdx] = { code, label };
 						}
@@ -4267,7 +5743,7 @@ export function DataTypesPage() {
 						id: parent.id,
 						code: parent.code,
 						label: parent.label,
-						subTypes
+						subTypes,
 					};
 				}
 			}
@@ -4286,21 +5762,21 @@ export function DataTypesPage() {
 	const handleDeleteNode = (level: "parent" | "subtype", codeOrId: string) => {
 		if (!confirm(copy.deleteConfirm)) return;
 
-		setDataTypes(prev => {
+		setDataTypes((prev) => {
 			const updated = [...prev];
 			if (level === "parent") {
-				const filtered = updated.filter(p => p.id !== codeOrId);
+				const filtered = updated.filter((p) => p.id !== codeOrId);
 				return filtered;
 			} else if (level === "subtype" && selectedParentId) {
-				const parentIdx = updated.findIndex(p => p.id === selectedParentId);
+				const parentIdx = updated.findIndex((p) => p.id === selectedParentId);
 				const parent = updated[parentIdx];
 				if (parentIdx !== -1 && parent) {
-					const subTypes = (parent.subTypes ?? []).filter(s => s.code !== codeOrId);
+					const subTypes = (parent.subTypes ?? []).filter((s) => s.code !== codeOrId);
 					updated[parentIdx] = {
 						id: parent.id,
 						code: parent.code,
 						label: parent.label,
-						subTypes
+						subTypes,
 					};
 				}
 			}
@@ -4314,7 +5790,11 @@ export function DataTypesPage() {
 	};
 
 	if (loadingDataTypes) {
-		return <PageShell><LoadingState label={copy.loadingPluginOverview} /></PageShell>;
+		return (
+			<PageShell>
+				<LoadingState label={copy.loadingPluginOverview} />
+			</PageShell>
+		);
 	}
 
 	return (
@@ -4330,7 +5810,11 @@ export function DataTypesPage() {
 								Reset
 							</Button>
 						)}
-						<Button variant="primary" disabled={saving || !isDirty} onClick={() => void handleSaveToBackend()}>
+						<Button
+							variant="primary"
+							disabled={saving || !isDirty}
+							onClick={() => void handleSaveToBackend()}
+						>
 							{saving ? copy.saving : copy.saveDataTypes}
 						</Button>
 					</div>
@@ -4340,18 +5824,31 @@ export function DataTypesPage() {
 			{isDirty && (
 				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2 mt-4">
 					<span>⚠️</span>
-					<span>Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol &quot;Simpan Perubahan Jenis Data&quot; di atas untuk menyimpan.</span>
+					<span>
+						Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol
+						&quot;Simpan Perubahan Jenis Data&quot; di atas untuk menyimpan.
+					</span>
 				</div>
 			)}
 
 			<div className="space-y-6 mt-6">
-				{successMsg && <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm">{successMsg}</div>}
-				{errMsg && <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm">{errMsg}</div>}
+				{successMsg && (
+					<div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm">
+						{successMsg}
+					</div>
+				)}
+				{errMsg && (
+					<div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm">
+						{errMsg}
+					</div>
+				)}
 
 				{/* Summary Cards */}
 				<div className="grid grid-cols-2 gap-4">
 					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
-						<div className="text-xs text-slate-400 uppercase tracking-wider">{copy.parentTypes}</div>
+						<div className="text-xs text-slate-400 uppercase tracking-wider">
+							{copy.parentTypes}
+						</div>
 						<div className="text-2xl font-bold mt-1 text-blue-400">{totalParents}</div>
 					</div>
 					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
@@ -4362,7 +5859,6 @@ export function DataTypesPage() {
 
 				<section className="bg-slate-900 border border-slate-800 rounded-lg p-6">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
 						{/* Parent Types Panel */}
 						<div className="space-y-4 border-r border-slate-800 pr-0 md:pr-6">
 							<div className="flex justify-between items-center">
@@ -4370,7 +5866,9 @@ export function DataTypesPage() {
 								<Button
 									variant="ghost"
 									size="xs"
-									onClick={() => setActiveForm({ type: "add", level: "parent", id: "", code: "", label: "" })}
+									onClick={() =>
+										setActiveForm({ type: "add", level: "parent", id: "", code: "", label: "" })
+									}
 								>
 									+ {copy.addParentType}
 								</Button>
@@ -4378,9 +5876,11 @@ export function DataTypesPage() {
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
 								{dataTypes.length === 0 ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">Belum ada jenis data induk</div>
+									<div className="text-sm text-slate-500 italic p-3 text-center">
+										Belum ada jenis data induk
+									</div>
 								) : (
-									dataTypes.map(p => {
+									dataTypes.map((p) => {
 										const isSelected = p.id === selectedParentId;
 										return (
 											<div
@@ -4397,11 +5897,21 @@ export function DataTypesPage() {
 													<div className="text-sm font-medium">{p.label}</div>
 													<div className="text-xs text-slate-500">({p.id})</div>
 												</div>
-												<div className="flex gap-1" onClick={e => e.stopPropagation()}>
+												<div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
 													<Button
 														variant="ghost"
 														size="xs"
-														onClick={() => setActiveForm({ type: "edit", level: "parent", oldId: p.id, oldCode: p.code, id: p.id, code: p.code, label: p.label })}
+														onClick={() =>
+															setActiveForm({
+																type: "edit",
+																level: "parent",
+																oldId: p.id,
+																oldCode: p.code,
+																id: p.id,
+																code: p.code,
+																label: p.label,
+															})
+														}
 													>
 														✏️
 													</Button>
@@ -4430,7 +5940,9 @@ export function DataTypesPage() {
 									<Button
 										variant="ghost"
 										size="xs"
-										onClick={() => setActiveForm({ type: "add", level: "subtype", code: "", label: "", id: "" })}
+										onClick={() =>
+											setActiveForm({ type: "add", level: "subtype", code: "", label: "", id: "" })
+										}
 									>
 										+ {copy.addSubtype}
 									</Button>
@@ -4439,11 +5951,15 @@ export function DataTypesPage() {
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
 								{!activeParent ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">Pilih jenis data induk terlebih dahulu</div>
+									<div className="text-sm text-slate-500 italic p-3 text-center">
+										Pilih jenis data induk terlebih dahulu
+									</div>
 								) : !activeParent.subTypes || activeParent.subTypes.length === 0 ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">Belum ada sub jenis data</div>
+									<div className="text-sm text-slate-500 italic p-3 text-center">
+										Belum ada sub jenis data
+									</div>
 								) : (
-									activeParent.subTypes.map(s => {
+									activeParent.subTypes.map((s) => {
 										return (
 											<div
 												key={s.code}
@@ -4457,7 +5973,16 @@ export function DataTypesPage() {
 													<Button
 														variant="ghost"
 														size="xs"
-														onClick={() => setActiveForm({ type: "edit", level: "subtype", oldCode: s.code, code: s.code, label: s.label, id: "" })}
+														onClick={() =>
+															setActiveForm({
+																type: "edit",
+																level: "subtype",
+																oldCode: s.code,
+																code: s.code,
+																label: s.label,
+																id: "",
+															})
+														}
 													>
 														✏️
 													</Button>
@@ -4475,54 +6000,78 @@ export function DataTypesPage() {
 								)}
 							</div>
 						</div>
-
 					</div>
 				</section>
 
 				{/* Editor Overlay Card */}
 				{activeForm && (
 					<Card
-						title={activeForm.type === "add" ? (activeForm.level === "parent" ? copy.addParentType : copy.addSubtype) : `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`}
+						title={
+							activeForm.type === "add"
+								? activeForm.level === "parent"
+									? copy.addParentType
+									: copy.addSubtype
+								: `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`
+						}
 						description={`Masukkan nama/label dan kode 2 digit unik.`}
-						actions={<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>Tutup ✕</Button>}
+						actions={
+							<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>
+								Tutup ✕
+							</Button>
+						}
 					>
 						<form onSubmit={handleFormSubmit} className="space-y-4 max-w-md">
 							<Field label="Label/Nama">
 								<Input
 									value={activeForm.label}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, label: e.target.value } : null)}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setActiveForm((prev) => (prev ? { ...prev, label: e.target.value } : null))
+									}
 									placeholder="Nama klasifikasi"
 									required
 								/>
 							</Field>
 							{activeForm.level === "parent" && (
-								<Field label="ID String" hint="Gunakan format lowercase dan underscore (contoh: rumah_ibadah).">
+								<Field
+									label="ID String"
+									hint="Gunakan format lowercase dan underscore (contoh: rumah_ibadah)."
+								>
 									<Input
 										value={activeForm.id}
-										onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, id: e.target.value } : null)}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+											setActiveForm((prev) => (prev ? { ...prev, id: e.target.value } : null))
+										}
 										placeholder="id_jenis_data"
 										required
 										disabled={activeForm.type === "edit"}
 									/>
 								</Field>
 							)}
-							<Field label="Kode (2 Digit)" hint="Harus berupa 2 karakter unik (contoh: 01, 02, 99).">
+							<Field
+								label="Kode (2 Digit)"
+								hint="Harus berupa 2 karakter unik (contoh: 01, 02, 99)."
+							>
 								<Input
 									value={activeForm.code}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setActiveForm(prev => prev ? { ...prev, code: e.target.value } : null)}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setActiveForm((prev) => (prev ? { ...prev, code: e.target.value } : null))
+									}
 									placeholder="01"
 									required
 									maxLength={2}
 								/>
 							</Field>
 							<div className="flex gap-2 pt-2">
-								<Button variant="primary" type="submit">Konfirmasi</Button>
-								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>Batal</Button>
+								<Button variant="primary" type="submit">
+									Konfirmasi
+								</Button>
+								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>
+									Batal
+								</Button>
 							</div>
 						</form>
 					</Card>
 				)}
-
 			</div>
 		</PageShell>
 	);

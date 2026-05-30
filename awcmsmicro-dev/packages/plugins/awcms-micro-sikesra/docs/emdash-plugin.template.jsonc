@@ -14,10 +14,10 @@
 	// Optional but recommended once the final home is known.
 	"repo": {
 		"url": "https://github.com/your-org/your-plugin-repo",
-		"directory": "."
+		"directory": ".",
 	},
 	"security": {
-		"url": "https://github.com/your-org/your-plugin-repo/security"
+		"url": "https://github.com/your-org/your-plugin-repo/security",
 	},
 
 	// Keep this trust contract minimal and accurate.
@@ -25,12 +25,12 @@
 	"allowedHosts": [],
 	"storage": {
 		"audit": {
-			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
-		}
+			"indexes": ["timestamp", "action", ["resource", "timestamp"]],
+		},
 	},
 
 	// Match this to the real admin UI surface the plugin exposes.
 	"admin": {
-		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }]
-	}
+		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }],
+	},
 }

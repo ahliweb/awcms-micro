@@ -14,8 +14,8 @@ function ensureLeadingSlash(path: string) {
 }
 
 function splitUrlParts(path: string) {
-  const match = path.match(URL_PARTS_REGEX);
-  return {
+	const match = path.match(URL_PARTS_REGEX);
+	return {
 		pathname: match?.[1] || "/",
 		suffix: match?.[2] || "",
 	};
@@ -29,7 +29,9 @@ export function isLocalizablePath(path: string) {
 	if (!path) return true;
 	if (isExternalUrl(path)) return false;
 	const normalized = ensureLeadingSlash(splitUrlParts(path).pathname);
-	return !NON_LOCALIZED_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
+	return !NON_LOCALIZED_PREFIXES.some(
+		(prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
+	);
 }
 
 export function stripLocalePrefix(path: string, options: LocalePathOptions) {
@@ -38,7 +40,8 @@ export function stripLocalePrefix(path: string, options: LocalePathOptions) {
 
 	for (const locale of options.locales) {
 		const localePrefix = `/${locale}`;
-		if (normalizedPath === localePrefix) return `/${suffix}`.replace(TRAILING_SLASH_REGEX, "") || "/";
+		if (normalizedPath === localePrefix)
+			return `/${suffix}`.replace(TRAILING_SLASH_REGEX, "") || "/";
 		if (normalizedPath.startsWith(`${localePrefix}/`)) {
 			return `${normalizedPath.slice(localePrefix.length)}${suffix}` || "/";
 		}
@@ -58,7 +61,9 @@ export function toLocalePath(path: string, targetLocale: string, options: Locale
 		return `${normalizedPath}${suffix}`;
 	}
 
-	return normalizedPath === "/" ? `/${targetLocale}${suffix}` : `/${targetLocale}${normalizedPath}${suffix}`;
+	return normalizedPath === "/"
+		? `/${targetLocale}${suffix}`
+		: `/${targetLocale}${normalizedPath}${suffix}`;
 }
 
 export function resolveEntrySlug(entry: { id: string; data: { slug?: unknown } }) {

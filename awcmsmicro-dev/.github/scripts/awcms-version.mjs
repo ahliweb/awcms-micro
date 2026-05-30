@@ -5,10 +5,7 @@ import path from "node:path";
 const mode = process.argv[2] ?? "status";
 const rootDir = process.cwd();
 const changesetDir = path.join(rootDir, ".awcms-changesets");
-const packageRoots = [
-	path.join(rootDir, "packages", "plugins"),
-	path.join(rootDir, "templates"),
-];
+const packageRoots = [path.join(rootDir, "packages", "plugins"), path.join(rootDir, "templates")];
 
 const changesetFrontmatterRe = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/;
 const changesetLineRe = /^"?(@awcms-micro\/[^"]+)"?:\s*(patch|minor|major)$/;
@@ -55,14 +52,21 @@ function parseChangesetFile(filePath, knownPackages) {
 		throw new Error(`Missing changeset body in ${path.basename(filePath)}`);
 	}
 	const releases = [];
-	for (const line of header.split(newlineRe).map((item) => item.trim()).filter(Boolean)) {
+	for (const line of header
+		.split(newlineRe)
+		.map((item) => item.trim())
+		.filter(Boolean)) {
 		const releaseMatch = line.match(changesetLineRe);
 		if (!releaseMatch) {
-			throw new Error(`Invalid changeset line ${JSON.stringify(line)} in ${path.basename(filePath)}`);
+			throw new Error(
+				`Invalid changeset line ${JSON.stringify(line)} in ${path.basename(filePath)}`,
+			);
 		}
 		const [, packageName, bump] = releaseMatch;
 		if (!knownPackages.has(packageName)) {
-			throw new Error(`Changeset ${path.basename(filePath)} references unknown AWCMS package ${packageName}`);
+			throw new Error(
+				`Changeset ${path.basename(filePath)} references unknown AWCMS package ${packageName}`,
+			);
 		}
 		releases.push({ packageName, bump });
 	}
@@ -124,7 +128,11 @@ function updateChangelog(packageDir, version, entries) {
 	}
 	const current = readFileSync(changelogPath, "utf8");
 	if (current.startsWith("# Changelog\n\n")) {
-		writeFileSync(changelogPath, `# Changelog\n\n${section}${current.slice("# Changelog\n\n".length)}`, "utf8");
+		writeFileSync(
+			changelogPath,
+			`# Changelog\n\n${section}${current.slice("# Changelog\n\n".length)}`,
+			"utf8",
+		);
 		return;
 	}
 	writeFileSync(changelogPath, `${section}${current}`, "utf8");
@@ -138,7 +146,9 @@ function summarizePending(changesets) {
 	console.log(`Pending AWCMS changesets: ${changesets.length}`);
 	for (const changeset of changesets) {
 		const file = path.basename(changeset.filePath);
-		const targets = changeset.releases.map((release) => `${release.packageName} (${release.bump})`).join(", ");
+		const targets = changeset.releases
+			.map((release) => `${release.packageName} (${release.bump})`)
+			.join(", ");
 		console.log(`- ${file}: ${targets}`);
 	}
 }
@@ -184,5 +194,7 @@ if (mode === "status") {
 } else if (mode === "version") {
 	applyVersioning(packages, changesets);
 } else {
-	throw new Error(`Unknown AWCMS release mode: ${JSON.stringify(mode)} (expected "status" or "version")`);
+	throw new Error(
+		`Unknown AWCMS release mode: ${JSON.stringify(mode)} (expected "status" or "version")`,
+	);
 }

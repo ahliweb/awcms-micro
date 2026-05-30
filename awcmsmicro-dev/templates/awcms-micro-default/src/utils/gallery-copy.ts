@@ -15,7 +15,8 @@ const GALLERY_COPY = {
 		pageDescription: "Published AWCMS-Micro photo and video galleries managed from EmDash.",
 		pageKicker: "Media Library",
 		pageHeading: "Photo and Video Gallery",
-		pageIntro: "Published galleries are stored in the EmDash collection layer and rendered publicly by the AWCMS-Micro template.",
+		pageIntro:
+			"Published galleries are stored in the EmDash collection layer and rendered publicly by the AWCMS-Micro template.",
 		noGalleries: "No galleries found.",
 	},
 	id: {
@@ -31,10 +32,12 @@ const GALLERY_COPY = {
 		placeholder: "Galeri",
 		featured: "Unggulan",
 		pageTitle: "Galeri",
-		pageDescription: "Galeri foto dan video AWCMS-Micro yang dipublikasikan dan dikelola dari EmDash.",
+		pageDescription:
+			"Galeri foto dan video AWCMS-Micro yang dipublikasikan dan dikelola dari EmDash.",
 		pageKicker: "Pustaka Media",
 		pageHeading: "Galeri Foto dan Video",
-		pageIntro: "Galeri yang dipublikasikan disimpan di lapisan koleksi EmDash dan dirender secara publik oleh template AWCMS-Micro.",
+		pageIntro:
+			"Galeri yang dipublikasikan disimpan di lapisan koleksi EmDash dan dirender secara publik oleh template AWCMS-Micro.",
 		noGalleries: "Belum ada galeri.",
 	},
 } as const;

@@ -16,41 +16,41 @@
 	"allowedHosts": [],
 	"storage": {
 		"auditEvents": {
-			"indexes": ["timestamp", "kind", "scope", ["scope", "timestamp"]]
+			"indexes": ["timestamp", "kind", "scope", ["scope", "timestamp"]],
 		},
 		"accessChangeEvents": {
-			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]]
+			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]],
 		},
 		"abacChangeEvents": {
-			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]]
+			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]],
 		},
 		"abacAttributeCatalog": {
-			"indexes": ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]]
+			"indexes": ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],
 		},
 		"abacPolicyRules": {
-			"indexes": ["id", "effect", "updatedAt", ["effect", "updatedAt"]]
+			"indexes": ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
 		},
 		"abacResourceAssignments": {
-			"indexes": ["resourceId", "updatedAt"]
+			"indexes": ["resourceId", "updatedAt"],
 		},
 		"abacSubjectAssignments": {
-			"indexes": ["subjectId", "updatedAt"]
+			"indexes": ["subjectId", "updatedAt"],
 		},
 		"contentSnapshots": {
-			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"]]
+			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"]],
 		},
 		"permissionCatalog": {
-			"indexes": ["slug", "scope", "updatedAt", ["scope", "updatedAt"]]
+			"indexes": ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],
 		},
 		"roleCatalog": {
-			"indexes": ["slug", "updatedAt"]
+			"indexes": ["slug", "updatedAt"],
 		},
 		"rolePermissionAssignments": {
-			"indexes": ["roleSlug", "updatedAt"]
+			"indexes": ["roleSlug", "updatedAt"],
 		},
 		"userRoleAssignments": {
-			"indexes": ["userId", "updatedAt"]
-		}
+			"indexes": ["userId", "updatedAt"],
+		},
 	},
 
 	"admin": {
@@ -68,12 +68,12 @@
 			{ "path": "/access/preview", "label": "Access Preview", "icon": "eye" },
 			{ "path": "/abac/attributes", "label": "ABAC Attributes", "icon": "sliders" },
 			{ "path": "/abac/policies", "label": "ABAC Policies", "icon": "shield" },
-			{ "path": "/abac/preview", "label": "ABAC Preview", "icon": "target" }
+			{ "path": "/abac/preview", "label": "ABAC Preview", "icon": "target" },
 		],
 		"widgets": [
 			{ "id": "governance-status", "title": "Governance Status", "size": "half" },
 			{ "id": "access-rights-health", "title": "Access Rights Health", "size": "half" },
-			{ "id": "abac-policy-status", "title": "ABAC Policy Status", "size": "half" }
-		]
-	}
+			{ "id": "abac-policy-status", "title": "ABAC Policy Status", "size": "half" },
+		],
+	},
 }

@@ -12,10 +12,12 @@ const GALLERY_COPY = {
 		placeholder: "Gallery",
 		featured: "Featured",
 		pageTitle: "Gallery",
-		pageDescription: "Published AWCMS-Micro photo and video galleries managed from EmDash on Cloudflare.",
+		pageDescription:
+			"Published AWCMS-Micro photo and video galleries managed from EmDash on Cloudflare.",
 		pageKicker: "Cloudflare Media",
 		pageHeading: "Photo and Video Gallery",
-		pageIntro: "Published galleries are stored in EmDash collections and rendered from the Cloudflare production template.",
+		pageIntro:
+			"Published galleries are stored in EmDash collections and rendered from the Cloudflare production template.",
 		noGalleries: "No galleries found.",
 	},
 	id: {
@@ -31,10 +33,12 @@ const GALLERY_COPY = {
 		placeholder: "Galeri",
 		featured: "Unggulan",
 		pageTitle: "Galeri",
-		pageDescription: "Galeri foto dan video AWCMS-Micro yang dipublikasikan dan dikelola dari EmDash di Cloudflare.",
+		pageDescription:
+			"Galeri foto dan video AWCMS-Micro yang dipublikasikan dan dikelola dari EmDash di Cloudflare.",
 		pageKicker: "Media Cloudflare",
 		pageHeading: "Galeri Foto dan Video",
-		pageIntro: "Galeri yang dipublikasikan disimpan di koleksi EmDash dan dirender dari template produksi Cloudflare.",
+		pageIntro:
+			"Galeri yang dipublikasikan disimpan di koleksi EmDash dan dirender dari template produksi Cloudflare.",
 		noGalleries: "Belum ada galeri.",
 	},
 } as const;

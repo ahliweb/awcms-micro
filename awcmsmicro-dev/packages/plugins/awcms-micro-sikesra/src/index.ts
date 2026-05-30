@@ -44,9 +44,7 @@ export function awcmsMicroExamplePlugin(
 	};
 }
 
-export function createPlugin(
-	_options: AwcmsMicroExamplePluginOptions = {},
-): ResolvedPlugin {
+export function createPlugin(_options: AwcmsMicroExamplePluginOptions = {}): ResolvedPlugin {
 	return definePlugin({
 		id: AWCMS_SIKESRA_PLUGIN_ID,
 		version,

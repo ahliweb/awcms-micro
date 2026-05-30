@@ -3,7 +3,10 @@ import type { MenuItem } from "emdash";
 const ITEM_SLUG_SANITIZE_REGEX = /[^a-z0-9]+/g;
 const ITEM_SLUG_TRIM_REGEX = /(^-|-$)/g;
 
-export type PublicMenuLoader = (menuName: string, locale: string) => Promise<MenuItem[] | undefined>;
+export type PublicMenuLoader = (
+	menuName: string,
+	locale: string,
+) => Promise<MenuItem[] | undefined>;
 
 function slugifyMenuItemLabel(label: string): string {
 	return label

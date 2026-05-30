@@ -19,21 +19,21 @@ Use this when the plugin is published from a subdirectory inside a larger intern
 	"keywords": ["awcms-micro", "emdash", "plugin", "internal"],
 	"repo": {
 		"url": "https://github.com/your-org/your-monorepo",
-		"directory": "packages/plugins/awcms-micro-sikesra"
+		"directory": "packages/plugins/awcms-micro-sikesra",
 	},
 	"security": {
-		"url": "https://github.com/your-org/your-monorepo/security"
+		"url": "https://github.com/your-org/your-monorepo/security",
 	},
 	"capabilities": [],
 	"allowedHosts": [],
 	"storage": {
 		"audit": {
-			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
-		}
+			"indexes": ["timestamp", "action", ["resource", "timestamp"]],
+		},
 	},
 	"admin": {
-		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }]
-	}
+		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }],
+	},
 }
 ```
 
@@ -54,21 +54,21 @@ Use this when the plugin has been moved into its own repository and published in
 	"keywords": ["awcms-micro", "emdash", "plugin", "tenant-ready"],
 	"repo": {
 		"url": "https://github.com/your-org/awcms-micro-sikesra-plugin",
-		"directory": "."
+		"directory": ".",
 	},
 	"security": {
-		"url": "https://security.example.com/products/awcms-micro-sikesra-plugin"
+		"url": "https://security.example.com/products/awcms-micro-sikesra-plugin",
 	},
 	"capabilities": [],
 	"allowedHosts": [],
 	"storage": {
 		"audit": {
-			"indexes": ["timestamp", "action", ["resource", "timestamp"]]
-		}
+			"indexes": ["timestamp", "action", ["resource", "timestamp"]],
+		},
 	},
 	"admin": {
-		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }]
-	}
+		"pages": [{ "path": "/overview", "label": "Overview", "icon": "stack" }],
+	},
 }
 ```
 

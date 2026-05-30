@@ -29,7 +29,9 @@ export function isLocalizablePath(path: string) {
 	if (!path) return true;
 	if (isExternalUrl(path)) return false;
 	const normalized = ensureLeadingSlash(splitUrlParts(path).pathname);
-	return !NON_LOCALIZED_PREFIXES.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`));
+	return !NON_LOCALIZED_PREFIXES.some(
+		(prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
+	);
 }
 
 export function stripLocalePrefix(path: string, options: LocalePathOptions) {
@@ -38,7 +40,8 @@ export function stripLocalePrefix(path: string, options: LocalePathOptions) {
 
 	for (const locale of options.locales) {
 		const localePrefix = `/${locale}`;
-		if (normalizedPath === localePrefix) return `/${suffix}`.replace(TRAILING_SLASH_REGEX, "") || "/";
+		if (normalizedPath === localePrefix)
+			return `/${suffix}`.replace(TRAILING_SLASH_REGEX, "") || "/";
 		if (normalizedPath.startsWith(`${localePrefix}/`)) {
 			return `${normalizedPath.slice(localePrefix.length)}${suffix}` || "/";
 		}

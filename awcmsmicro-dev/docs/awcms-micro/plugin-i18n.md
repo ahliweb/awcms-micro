@@ -10,38 +10,38 @@ Plugins define translation maps under the `i18n` property in their manifest. Eac
 
 ```json
 {
-  "id": "awcms-micro-sikesra",
-  "navigation": {
-    "groups": [
-      {
-        "id": "settings",
-        "labelKey": "awcms.nav.group.settings",
-        "fallbackLabel": "Settings",
-        "items": [
-          {
-            "id": "general",
-            "labelKey": "awcms.nav.general",
-            "fallbackLabel": "General Settings",
-            "path": "/settings"
-          }
-        ]
-      }
-    ]
-  },
-  "i18n": {
-    "defaultLocale": "en",
-    "supportedLocales": ["en", "id"],
-    "messages": {
-      "en": {
-        "awcms.nav.group.settings": "Settings",
-        "awcms.nav.general": "General Settings"
-      },
-      "id": {
-        "awcms.nav.group.settings": "Pengaturan",
-        "awcms.nav.general": "Pengaturan Umum"
-      }
-    }
-  }
+	"id": "awcms-micro-sikesra",
+	"navigation": {
+		"groups": [
+			{
+				"id": "settings",
+				"labelKey": "awcms.nav.group.settings",
+				"fallbackLabel": "Settings",
+				"items": [
+					{
+						"id": "general",
+						"labelKey": "awcms.nav.general",
+						"fallbackLabel": "General Settings",
+						"path": "/settings"
+					}
+				]
+			}
+		]
+	},
+	"i18n": {
+		"defaultLocale": "en",
+		"supportedLocales": ["en", "id"],
+		"messages": {
+			"en": {
+				"awcms.nav.group.settings": "Settings",
+				"awcms.nav.general": "General Settings"
+			},
+			"id": {
+				"awcms.nav.group.settings": "Pengaturan",
+				"awcms.nav.general": "Pengaturan Umum"
+			}
+		}
+	}
 }
 ```
 
@@ -60,8 +60,8 @@ When rendering, AWCMS-Micro resolves keys in the following strict fallback order
 import { resolveLabel } from "@awcms-micro/plugin-sikesra/navigation";
 
 const messages = {
-  en: { "nav.title": "English Title" },
-  id: { "nav.title": "Judul Indonesia" }
+	en: { "nav.title": "English Title" },
+	id: { "nav.title": "Judul Indonesia" },
 };
 
 // 1. Exact match for Indonesian

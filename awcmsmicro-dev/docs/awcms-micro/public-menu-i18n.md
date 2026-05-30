@@ -40,7 +40,7 @@ const hasChildren = item.children.length > 0;
 
 <li class="nav-item">
   <a href={item.url}>{item.label}</a>
-  
+
   {hasChildren && (
     <ul class="submenu">
       {item.children.map((child) => (

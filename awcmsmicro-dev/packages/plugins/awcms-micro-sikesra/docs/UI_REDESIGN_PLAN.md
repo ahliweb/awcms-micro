@@ -13,41 +13,51 @@ Dokumen ini mencatat rincian teknis perubahan UI yang dilakukan pada plugin SIKE
 ### 1. Shared Components
 
 #### `PageHeader`
+
 - Tambah gradient accent bar di bagian atas
 - Eyebrow badge dengan styling yang lebih menonjol
 - Layout action slot yang lebih baik di mobile dan desktop
 
 #### `Card`
+
 - Prop `icon` opsional untuk header section
 - Header section spacing yang lebih baik
 
 #### `MetricCard`
+
 - Prop `icon` dengan dukungan SVG
 - Display nilai yang lebih besar
 - Hint text yang lebih informatif
 
 #### `Pill` / `EntityTypePill`
+
 - Komponen baru yang memetakan tipe entitas ke warna unik
 - Ikon emoji per tipe entitas
 
 #### `Field`
+
 - Tanda asterisk `*` untuk field required
 - Styling hint yang lebih baik
 
 #### `LoadingState`
+
 - Spinner animasi menggantikan teks polos
 
 #### `EmptyState`
+
 - Ikon terpusat
 - Layout teks yang lebih engaging
 
 #### `ErrorState`
+
 - Visual yang lebih baik dengan ikon
 
 #### `Feedback`
+
 - Prefix ikon (✓ atau ✗)
 
 #### `SectionDivider` (Baru)
+
 - Komponen baru untuk pemisahan seksi dalam card
 
 ### 2. OverviewPage
@@ -90,14 +100,14 @@ Dokumen ini mencatat rincian teknis perubahan UI yang dilakukan pada plugin SIKE
 
 ```typescript
 const ENTITY_TYPE_COLORS = {
-  rumah_ibadah: { icon: "🕌", color: "blue" },
-  lembaga_keagamaan: { icon: "🏛️", color: "purple" },
-  pendidikan_keagamaan: { icon: "📚", color: "green" },
-  lks: { icon: "🤝", color: "teal" },
-  guru_agama: { icon: "👨‍🏫", color: "amber" },
-  anak_yatim: { icon: "🧒", color: "rose" },
-  disabilitas: { icon: "♿", color: "indigo" },
-  lansia_terlantar: { icon: "👴", color: "orange" },
+	rumah_ibadah: { icon: "🕌", color: "blue" },
+	lembaga_keagamaan: { icon: "🏛️", color: "purple" },
+	pendidikan_keagamaan: { icon: "📚", color: "green" },
+	lks: { icon: "🤝", color: "teal" },
+	guru_agama: { icon: "👨‍🏫", color: "amber" },
+	anak_yatim: { icon: "🧒", color: "rose" },
+	disabilitas: { icon: "♿", color: "indigo" },
+	lansia_terlantar: { icon: "👴", color: "orange" },
 };
 ```
 
@@ -111,7 +121,7 @@ const ENTITY_TYPE_COLORS = {
 ## Status Verifikasi
 
 - [ ] TypeScript typecheck lulus (`pnpm --filter @awcms-micro/plugin-sikesra typecheck`)
-- [ ] Build berhasil (`pnpm --filter @awcms-micro/plugin-sikesra build`)  
+- [ ] Build berhasil (`pnpm --filter @awcms-micro/plugin-sikesra build`)
 - [ ] Tests lulus (`pnpm --filter @awcms-micro/plugin-sikesra test`)
 - [ ] Visual review: Overview page
 - [ ] Visual review: Registry page (wizard)

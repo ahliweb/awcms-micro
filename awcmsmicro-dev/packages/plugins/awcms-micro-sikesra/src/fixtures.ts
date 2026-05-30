@@ -1,5 +1,10 @@
 export type SikesraSensitivity = "public_safe" | "internal" | "restricted" | "highly_restricted";
-export type SikesraUserLevel = "desa_kelurahan" | "kecamatan" | "sopd" | "kabupaten" | "admin_sikesra";
+export type SikesraUserLevel =
+	| "desa_kelurahan"
+	| "kecamatan"
+	| "sopd"
+	| "kabupaten"
+	| "admin_sikesra";
 
 export interface SikesraReferenceRegistryEntity {
 	id: string;
@@ -129,7 +134,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			verificationStage: "active_verified",
 			inputLevel: "desa_kelurahan",
 			supportingDocumentIds: ["doc-rumah-ibadah-01"],
-			publicSummary: "Rumah ibadah aktif dan sudah terverifikasi di wilayah administrasi referensi.",
+			publicSummary:
+				"Rumah ibadah aktif dan sudah terverifikasi di wilayah administrasi referensi.",
 		},
 		{
 			id: "registry-entity-guru-agama-01",
@@ -146,7 +152,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			verificationStage: "submitted_sopd",
 			inputLevel: "kecamatan",
 			supportingDocumentIds: ["doc-guru-agama-01", "doc-guru-agama-02"],
-			publicSummary: "Data tenaga pengajar disajikan dalam bentuk agregat aman tanpa identitas pribadi.",
+			publicSummary:
+				"Data tenaga pengajar disajikan dalam bentuk agregat aman tanpa identitas pribadi.",
 		},
 		{
 			id: "registry-entity-disabilitas-01",
@@ -241,7 +248,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			verifierRegionScope: "3171",
 			verifierOrgScope: "site-main",
 			result: "needs_review",
-			notes: "SOPD terkait menyelesaikan review substansi dan meneruskan ke kabupaten/admin SIKESRA.",
+			notes:
+				"SOPD terkait menyelesaikan review substansi dan meneruskan ke kabupaten/admin SIKESRA.",
 			createdAt: "2026-01-14T08:00:00.000Z",
 		},
 	],
@@ -254,21 +262,57 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 		caveat: "Public aggregate only exposes coarse counts and suppresses sensitive details.",
 	},
 	accessPermissions: [
-		{ slug: "registry.read.public", label: "Read Public Registry", description: "Read public-safe registry summaries." },
-		{ slug: "registry.review.submit", label: "Submit Reviews", description: "Submit records for verification review." },
-		{ slug: "audit.read.events", label: "Read Audit Events", description: "Inspect audit trails for governance activity." },
+		{
+			slug: "registry.read.public",
+			label: "Read Public Registry",
+			description: "Read public-safe registry summaries.",
+		},
+		{
+			slug: "registry.review.submit",
+			label: "Submit Reviews",
+			description: "Submit records for verification review.",
+		},
+		{
+			slug: "audit.read.events",
+			label: "Read Audit Events",
+			description: "Inspect audit trails for governance activity.",
+		},
 	],
 	accessRoles: [
 		{ slug: "operator", label: "Operator", description: "Operates the reference workflow." },
-		{ slug: "verifier", label: "Verifier", description: "Reviews and approves registry submissions." },
+		{
+			slug: "verifier",
+			label: "Verifier",
+			description: "Reviews and approves registry submissions.",
+		},
 	],
 	abacSubjects: [
-		{ id: "subject-village-officer", attributes: { tenant_id: "tenant-a", region_scope: "id-jakarta", role: "village_officer" } },
-		{ id: "subject-regency-officer", attributes: { tenant_id: "tenant-a", region_scope: "id-jakarta", role: "regency_officer" } },
+		{
+			id: "subject-village-officer",
+			attributes: { tenant_id: "tenant-a", region_scope: "id-jakarta", role: "village_officer" },
+		},
+		{
+			id: "subject-regency-officer",
+			attributes: { tenant_id: "tenant-a", region_scope: "id-jakarta", role: "regency_officer" },
+		},
 	],
 	abacResources: [
-		{ id: "resource-public-aggregate", attributes: { resource_type: "aggregate", resource_sensitivity: "public_safe", module_id: "registry" } },
-		{ id: "resource-sensitive-record", attributes: { resource_type: "registry_entity", resource_sensitivity: "highly_restricted", module_id: "registry" } },
+		{
+			id: "resource-public-aggregate",
+			attributes: {
+				resource_type: "aggregate",
+				resource_sensitivity: "public_safe",
+				module_id: "registry",
+			},
+		},
+		{
+			id: "resource-sensitive-record",
+			attributes: {
+				resource_type: "registry_entity",
+				resource_sensitivity: "highly_restricted",
+				module_id: "registry",
+			},
+		},
 	],
 	abacPolicies: [
 		{

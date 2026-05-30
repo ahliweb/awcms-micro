@@ -1,5 +1,6 @@
-import * as React from "react";
 import { LinkButton } from "@cloudflare/kumo";
+import * as React from "react";
+
 import type { NormalizedNavGroup } from "./normalize-admin-nav.js";
 import { resolveLabel, type TranslationMessages } from "./resolve-label.js";
 
@@ -23,14 +24,19 @@ export function PluginLocalNav({
 	description,
 }: PluginLocalNavProps) {
 	const fallbackTitle = locale.startsWith("id") ? "Operasi Plugin" : "Plugin Operations";
-	const fallbackDescription = locale.startsWith("id") ? "Akses dan kelola fitur dari konsol ini." : "Access and manage features from this console.";
+	const fallbackDescription = locale.startsWith("id")
+		? "Akses dan kelola fitur dari konsol ini."
+		: "Access and manage features from this console.";
 	const resolvedTitle = title || fallbackTitle;
 	const resolvedDescription = description || fallbackDescription;
-	const activeGroup = groups.find((group) =>
-		group.items.some((item) =>
-			currentPath.startsWith(item.path) || (item.children?.some((child) => currentPath.startsWith(child.path)))
-		)
-	) || groups[0];
+	const activeGroup =
+		groups.find((group) =>
+			group.items.some(
+				(item) =>
+					currentPath.startsWith(item.path) ||
+					item.children?.some((child) => currentPath.startsWith(child.path)),
+			),
+		) || groups[0];
 
 	if (!groups.length || !activeGroup) return null;
 
@@ -38,10 +44,15 @@ export function PluginLocalNav({
 		return resolveLabel(item.labelKey, item.fallbackLabel, messages, locale, defaultLocale);
 	};
 
-	const activeItem = activeGroup.items.find((item) =>
-		currentPath === item.path || currentPath.startsWith(item.path + "/") ||
-			(item.children?.some((child) => currentPath === child.path || currentPath.startsWith(child.path + "/")))
-	) || activeGroup.items[0];
+	const activeItem =
+		activeGroup.items.find(
+			(item) =>
+				currentPath === item.path ||
+				currentPath.startsWith(item.path + "/") ||
+				item.children?.some(
+					(child) => currentPath === child.path || currentPath.startsWith(child.path + "/"),
+				),
+		) || activeGroup.items[0];
 
 	return (
 		<section className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
@@ -52,9 +63,7 @@ export function PluginLocalNav({
 					</div>
 					<h2 className="mt-1 text-lg font-semibold text-kumo-default">{resolvedTitle}</h2>
 				</div>
-				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">
-					{resolvedDescription}
-				</p>
+				<p className="max-w-2xl text-sm leading-6 text-kumo-subtle">{resolvedDescription}</p>
 			</div>
 
 			<div className="mt-4 flex flex-wrap gap-2">

@@ -17,7 +17,13 @@
 			"labelSingular": "Post",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "featured_image", "label": "Featured Image", "type": "image" },
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true },
 				{ "slug": "excerpt", "label": "Excerpt", "type": "text" }
@@ -29,7 +35,13 @@
 			"labelSingular": "News Item",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "summary", "label": "Summary", "type": "text", "searchable": true },
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
 			]
@@ -61,13 +73,31 @@
 			"labelSingular": "Gallery",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "description", "label": "Description", "type": "text", "searchable": true },
 				{ "slug": "cover_image", "label": "Cover Image", "type": "image" },
-				{ "slug": "gallery_type", "label": "Gallery Type", "type": "select", "required": true, "validation": { "options": ["photo", "video", "mixed"] } },
+				{
+					"slug": "gallery_type",
+					"label": "Gallery Type",
+					"type": "select",
+					"required": true,
+					"validation": { "options": ["photo", "video", "mixed"] }
+				},
 				{ "slug": "event_date", "label": "Event Date", "type": "datetime" },
 				{ "slug": "location", "label": "Location", "type": "string", "searchable": true },
-				{ "slug": "layout_variant", "label": "Layout Variant", "type": "select", "required": true, "validation": { "options": ["grid", "masonry", "carousel", "slider"] } },
+				{
+					"slug": "layout_variant",
+					"label": "Layout Variant",
+					"type": "select",
+					"required": true,
+					"validation": { "options": ["grid", "masonry", "carousel", "slider"] }
+				},
 				{ "slug": "gallery_items", "label": "Gallery Items", "type": "json", "required": true },
 				{ "slug": "featured", "label": "Featured", "type": "boolean" }
 			]
@@ -214,7 +244,12 @@
 			"description": "Sidebar widgets for the public site",
 			"widgets": [
 				{ "type": "component", "componentId": "core:search", "title": "Search" },
-				{ "type": "component", "componentId": "core:recent-posts", "title": "Recent Posts", "settings": { "count": 5 } }
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Recent Posts",
+					"settings": { "count": 5 }
+				}
 			]
 		}
 	],
@@ -375,7 +410,10 @@
 				"data": {
 					"title": "Community Cleanup Gallery",
 					"description": "A mixed photo and video gallery demonstrating EmDash media fields, JSON gallery items, and public Astro rendering.",
-					"cover_image": { "src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80", "alt": "Volunteers gathered for a community event" },
+					"cover_image": {
+						"src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80",
+						"alt": "Volunteers gathered for a community event"
+					},
 					"gallery_type": "mixed",
 					"event_date": "2026-05-01T09:00:00.000Z",
 					"location": "AWCMS-Micro Community Hall",
@@ -413,7 +451,10 @@
 				"data": {
 					"title": "Galeri Kerja Bakti Komunitas",
 					"description": "Galeri foto dan video campuran yang mendemonstrasikan field media EmDash, item galeri JSON, dan render Astro publik.",
-					"cover_image": { "src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80", "alt": "Relawan berkumpul untuk acara komunitas" },
+					"cover_image": {
+						"src": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80",
+						"alt": "Relawan berkumpul untuk acara komunitas"
+					},
 					"gallery_type": "mixed",
 					"event_date": "2026-05-01T09:00:00.000Z",
 					"location": "Balai Komunitas AWCMS-Micro",

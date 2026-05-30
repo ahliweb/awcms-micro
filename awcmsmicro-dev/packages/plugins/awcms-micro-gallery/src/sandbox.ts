@@ -1,5 +1,6 @@
 import type { PluginContext, SandboxedPlugin } from "emdash/plugin";
 
+import { translateGallery, type GalleryTranslationKey } from "./i18n.js";
 import {
 	AWCMS_GALLERY_COLLECTION,
 	AWCMS_GALLERY_STORAGE_COLLECTION,
@@ -7,7 +8,6 @@ import {
 	validateGalleryContent,
 	validateGalleryItem,
 } from "./validation.js";
-import { translateGallery, type GalleryTranslationKey } from "./i18n.js";
 
 interface AdminState {
 	view: "list" | "create" | "edit";
@@ -22,7 +22,12 @@ interface MediaListItem {
 	name: string;
 }
 
-function settingsFromOptions(options: { maxImageBytes?: number; maxVideoBytes?: number; cloudflareImages?: boolean; cloudflareStream?: boolean; }) {
+function settingsFromOptions(options: {
+	maxImageBytes?: number;
+	maxVideoBytes?: number;
+	cloudflareImages?: boolean;
+	cloudflareStream?: boolean;
+}) {
 	return sanitizeGallerySettings({
 		maxImageBytes: options.maxImageBytes,
 		maxVideoBytes: options.maxVideoBytes,
@@ -47,7 +52,8 @@ function getGalleryItemsCount(entry: any): number {
 }
 
 async function loadMediaItems(pluginCtx: PluginContext, cursor?: string) {
-	if (!pluginCtx.media?.list) return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	if (!pluginCtx.media?.list)
+		return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
 	try {
 		return await pluginCtx.media.list({ limit: 10, cursor });
 	} catch {
@@ -56,7 +62,8 @@ async function loadMediaItems(pluginCtx: PluginContext, cursor?: string) {
 }
 
 async function loadGalleryItems(pluginCtx: PluginContext, cursor?: string) {
-	if (!pluginCtx.content?.list) return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
+	if (!pluginCtx.content?.list)
+		return { items: [] as any[], cursor: undefined as string | undefined, hasMore: false };
 	try {
 		return await pluginCtx.content.list(AWCMS_GALLERY_COLLECTION, { limit: 10, cursor });
 	} catch {
@@ -64,7 +71,10 @@ async function loadGalleryItems(pluginCtx: PluginContext, cursor?: string) {
 	}
 }
 
-function buildAdminErrorBlocks(locale: string, messageKey: GalleryTranslationKey = "gallery.no_entries") {
+function buildAdminErrorBlocks(
+	locale: string,
+	messageKey: GalleryTranslationKey = "gallery.no_entries",
+) {
 	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
 	return {
 		blocks: [
@@ -96,23 +106,60 @@ async function importMediaFromUrl(pluginCtx: PluginContext, sourceUrl: string, f
 	return pluginCtx.media.upload(safeFilename, contentType, bytes);
 }
 
-async function readSettings(pluginCtx: PluginContext, options: { maxImageBytes?: number; maxVideoBytes?: number; cloudflareImages?: boolean; cloudflareStream?: boolean; }) {
+async function readSettings(
+	pluginCtx: PluginContext,
+	options: {
+		maxImageBytes?: number;
+		maxVideoBytes?: number;
+		cloudflareImages?: boolean;
+		cloudflareStream?: boolean;
+	},
+) {
 	const defaults = settingsFromOptions(options);
 	const saved = (await pluginCtx.kv.get("settings")) as Record<string, unknown> | null;
 	return sanitizeGallerySettings({ ...defaults, ...saved });
 }
 
-async function writeAudit(pluginCtx: PluginContext, kind: string, summary: string, metadata: Record<string, unknown>) {
+async function writeAudit(
+	pluginCtx: PluginContext,
+	kind: string,
+	summary: string,
+	metadata: Record<string, unknown>,
+) {
 	const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-	const auditEvents = pluginCtx.storage.gallery_audit_events;
-	if (!auditEvents) return;
-	await auditEvents.put(id, {
-		id,
-		timestamp: new Date().toISOString(),
-		kind,
-		summary,
-		metadata,
-	});
+	const db = (pluginCtx as PluginContext & { db?: unknown }).db as any;
+	if (!db) return;
+
+	await ensureGalleryAuditTable(db);
+	const timestamp = new Date().toISOString();
+	await db
+		.insertInto(AWCMS_GALLERY_STORAGE_COLLECTION)
+		.values({
+			id,
+			timestamp,
+			kind,
+			summary,
+			metadata: JSON.stringify(metadata),
+			content_id: typeof metadata.contentId === "string" ? metadata.contentId : null,
+			created_at: timestamp,
+			updated_at: timestamp,
+		})
+		.execute();
+}
+
+async function ensureGalleryAuditTable(db: any) {
+	await db.schema
+		.createTable(AWCMS_GALLERY_STORAGE_COLLECTION)
+		.ifNotExists()
+		.addColumn("id", "text", (column: any) => column.primaryKey())
+		.addColumn("timestamp", "text", (column: any) => column.notNull())
+		.addColumn("kind", "text", (column: any) => column.notNull())
+		.addColumn("summary", "text", (column: any) => column.notNull())
+		.addColumn("metadata", "text", (column: any) => column.notNull())
+		.addColumn("content_id", "text")
+		.addColumn("created_at", "text", (column: any) => column.notNull())
+		.addColumn("updated_at", "text", (column: any) => column.notNull())
+		.execute();
 }
 
 interface PluginStorageRow {
@@ -122,7 +169,20 @@ interface PluginStorageRow {
 	updated_at?: string | null;
 }
 
-const AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS = [{ from: "auditEvents", to: AWCMS_GALLERY_STORAGE_COLLECTION } as const];
+interface GalleryAuditTableRow {
+	id: string;
+	timestamp: string;
+	kind: string;
+	summary: string;
+	metadata: string;
+	created_at?: string | null;
+	updated_at?: string | null;
+}
+
+const AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS = [
+	{ from: "auditEvents", to: AWCMS_GALLERY_STORAGE_COLLECTION },
+	{ from: "gallery_audit_events", to: AWCMS_GALLERY_STORAGE_COLLECTION },
+] as const;
 
 function toTimestamp(value: string | null | undefined): number {
 	if (!value) return -1;
@@ -130,7 +190,10 @@ function toTimestamp(value: string | null | undefined): number {
 	return Number.isNaN(parsed) ? -1 : parsed;
 }
 
-function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | undefined): boolean {
+function isLegacyRowNewer(
+	legacy: PluginStorageRow,
+	current: { created_at?: string | null; updated_at?: string | null } | undefined,
+): boolean {
 	if (!current) return true;
 	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
 	const currentUpdated = toTimestamp(current.updated_at ?? current.created_at ?? null);
@@ -140,6 +203,8 @@ function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | 
 async function migrateLegacyStorageCollections(pluginCtx: PluginContext) {
 	const db = (pluginCtx as PluginContext & { db?: unknown }).db as any;
 	if (!db) return;
+
+	await ensureGalleryAuditTable(db);
 
 	let migratedRows = 0;
 	for (const { from, to } of AWCMS_GALLERY_LEGACY_STORAGE_COLLECTIONS) {
@@ -153,28 +218,38 @@ async function migrateLegacyStorageCollections(pluginCtx: PluginContext) {
 		if (legacyRows.length === 0) continue;
 
 		const currentRows = (await db
-			.selectFrom("_plugin_storage")
-			.select(["id", "data", "created_at", "updated_at"])
-			.where("plugin_id", "=", "awcms-micro-gallery")
-			.where("collection", "=", to)
-			.execute()) as PluginStorageRow[];
+			.selectFrom(to)
+			.select(["id", "timestamp", "kind", "summary", "metadata", "created_at", "updated_at"])
+			.execute()) as GalleryAuditTableRow[];
 		const currentById = new Map(currentRows.map((row) => [row.id, row]));
 
 		for (const row of legacyRows) {
 			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
+			const parsed = JSON.parse(row.data) as {
+				timestamp?: string;
+				kind?: string;
+				summary?: string;
+				metadata?: Record<string, unknown>;
+			};
 			await db
-				.insertInto("_plugin_storage")
+				.insertInto(to)
 				.values({
-					plugin_id: "awcms-micro-gallery",
-					collection: to,
 					id: row.id,
-					data: row.data,
+					timestamp:
+						parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+					kind: parsed.kind ?? "gallery.legacy",
+					summary: parsed.summary ?? "Migrated gallery audit row",
+					metadata: JSON.stringify(parsed.metadata ?? {}),
 					created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
 					updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
 				})
 				.onConflict((oc: any) =>
-					oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
-						data: row.data,
+					oc.columns(["id"]).doUpdateSet({
+						timestamp:
+							parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						kind: parsed.kind ?? "gallery.legacy",
+						summary: parsed.summary ?? "Migrated gallery audit row",
+						metadata: JSON.stringify(parsed.metadata ?? {}),
 						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
 					}),
 				)
@@ -190,13 +265,22 @@ async function migrateLegacyStorageCollections(pluginCtx: PluginContext) {
 	}
 
 	if (migratedRows > 0) {
-		pluginCtx.log.info(`[awcms-micro-gallery] migrated legacy storage collections`, { migratedRows });
+		pluginCtx.log.info(`[awcms-micro-gallery] migrated legacy storage collections`, {
+			migratedRows,
+		});
 	}
 }
 
-async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, settings: ReturnType<typeof sanitizeGallerySettings>, locale: string | undefined, state: AdminState, toastMessage?: string) {
+async function buildAdminBlocks(
+	routeCtx: any,
+	pluginCtx: PluginContext,
+	settings: ReturnType<typeof sanitizeGallerySettings>,
+	locale: string | undefined,
+	state: AdminState,
+	toastMessage?: string,
+) {
 	const t = (key: GalleryTranslationKey) => translateGallery(key, locale);
-	
+
 	if (state.view === "create" || state.view === "edit") {
 		let entry: any = null;
 		if (state.view === "edit" && state.id && pluginCtx.content) {
@@ -205,9 +289,9 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 				if (result) {
 					entry = result.data;
 				}
-				} catch {
-					// Handle gracefully
-				}
+			} catch {
+				// Handle gracefully
+			}
 		}
 
 		return {
@@ -216,8 +300,8 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 				{
 					type: "actions",
 					elements: [
-						{ type: "button", label: t("gallery.back"), action_id: "nav_list", style: "secondary" }
-					]
+						{ type: "button", label: t("gallery.back"), action_id: "nav_list", style: "secondary" },
+					],
 				},
 				{ type: "divider" },
 				{
@@ -235,7 +319,7 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 							action_id: "description",
 							label: t("gallery.description_label"),
 							initial_value: entry?.description || "",
-							multiline: true
+							multiline: true,
 						},
 						{
 							type: "select",
@@ -244,9 +328,9 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 							options: [
 								{ label: "Photo", value: "photo" },
 								{ label: "Video", value: "video" },
-								{ label: "Mixed", value: "mixed" }
+								{ label: "Mixed", value: "mixed" },
 							],
-							initial_value: entry?.gallery_type || "photo"
+							initial_value: entry?.gallery_type || "photo",
 						},
 						{
 							type: "select",
@@ -256,21 +340,23 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 								{ label: "Grid", value: "grid" },
 								{ label: "Masonry", value: "masonry" },
 								{ label: "Carousel", value: "carousel" },
-								{ label: "Slider", value: "slider" }
+								{ label: "Slider", value: "slider" },
 							],
-							initial_value: entry?.layout_variant || "grid"
+							initial_value: entry?.layout_variant || "grid",
 						},
 						{
 							type: "date_input",
 							action_id: "event_date",
 							label: t("gallery.event_date_label"),
-							initial_value: entry?.event_date ? new Date(entry.event_date).toISOString().split("T")[0] : ""
+							initial_value: entry?.event_date
+								? new Date(entry.event_date).toISOString().split("T")[0]
+								: "",
 						},
 						{
 							type: "text_input",
 							action_id: "location",
 							label: t("gallery.location_label"),
-							initial_value: entry?.location || ""
+							initial_value: entry?.location || "",
 						},
 						{
 							type: "select",
@@ -278,13 +364,16 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 							label: t("gallery.cover_image_label"),
 							options: [],
 							optionsRoute: "media/list",
-							initial_value: typeof entry?.cover_image === "string" ? entry.cover_image : entry?.cover_image?.src || ""
+							initial_value:
+								typeof entry?.cover_image === "string"
+									? entry.cover_image
+									: entry?.cover_image?.src || "",
 						},
 						{
 							type: "toggle",
 							action_id: "featured",
 							label: t("gallery.featured_label"),
-							initial_value: entry?.featured === true
+							initial_value: entry?.featured === true,
 						},
 						{
 							type: "repeater",
@@ -299,32 +388,32 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 									label: t("gallery.item_type"),
 									options: [
 										{ label: "Image", value: "image" },
-										{ label: "Video", value: "video" }
-									]
+										{ label: "Video", value: "video" },
+									],
 								},
 								{
 									type: "select",
 									action_id: "src",
 									label: t("gallery.item_src"),
 									options: [],
-									optionsRoute: "media/list"
+									optionsRoute: "media/list",
 								},
 								{
 									type: "text_input",
 									action_id: "alt",
-									label: t("gallery.item_alt")
+									label: t("gallery.item_alt"),
 								},
 								{
 									type: "text_input",
 									action_id: "caption",
-									label: t("gallery.item_caption")
-								}
-							]
-						}
+									label: t("gallery.item_caption"),
+								},
+							],
+						},
 					],
-					submit: { label: t("gallery.save_gallery"), action_id: "save_gallery" }
-				}
-			]
+					submit: { label: t("gallery.save_gallery"), action_id: "save_gallery" },
+				},
+			],
 		};
 	}
 
@@ -336,19 +425,21 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 
 	const galleriesList = state.search
 		? galleryResult.items.filter((g: any) => {
-			const title = asString(g.data?.title).toLowerCase();
-			const desc = asString(g.data?.description).toLowerCase();
-			const loc = asString(g.data?.location).toLowerCase();
-			const query = state.search!.toLowerCase();
-			return title.includes(query) || desc.includes(query) || loc.includes(query);
-		})
+				const title = asString(g.data?.title).toLowerCase();
+				const desc = asString(g.data?.description).toLowerCase();
+				const loc = asString(g.data?.location).toLowerCase();
+				const query = state.search!.toLowerCase();
+				return title.includes(query) || desc.includes(query) || loc.includes(query);
+			})
 		: galleryResult.items;
 
 	const galleryRows = galleriesList.map((g: any) => ({
 		title: asString(g.data?.title, g.id),
 		description: asString(g.data?.description),
 		location: asString(g.data?.location, "-"),
-		date: g.data?.event_date ? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" }) : "-",
+		date: g.data?.event_date
+			? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" })
+			: "-",
 		type: asString(g.data?.gallery_type, "mixed"),
 		items: getGalleryItemsCount(g),
 		id: g.id,
@@ -372,18 +463,18 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 					action_id: "search_query",
 					label: t("gallery.search_label"),
 					initial_value: state.search || "",
-					placeholder: t("gallery.search_placeholder")
-				}
+					placeholder: t("gallery.search_placeholder"),
+				},
 			],
-			submit: { label: t("gallery.search"), action_id: "search_galleries" }
+			submit: { label: t("gallery.search"), action_id: "search_galleries" },
 		},
 		{
 			type: "actions",
 			elements: [
-				{ type: "button", label: t("gallery.create"), action_id: "nav_create", style: "primary" }
-			]
+				{ type: "button", label: t("gallery.create"), action_id: "nav_create", style: "primary" },
+			],
 		},
-		{ type: "divider" }
+		{ type: "divider" },
 	];
 
 	if (galleryRows.length === 0) {
@@ -399,14 +490,23 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 				{ key: "type", label: t("gallery.type_label"), format: "badge" },
 				{ key: "items", label: t("gallery.items_label"), format: "number" },
 			],
-		rows: galleryRows.map((row: { title: string; location: string; date: string; type: string; items: number; id: string }) => ({
-				title: row.title,
-				location: row.location,
-				date: row.date,
-				type: row.type,
-				items: row.items,
-				actions: row.id,
-			})),
+			rows: galleryRows.map(
+				(row: {
+					title: string;
+					location: string;
+					date: string;
+					type: string;
+					items: number;
+					id: string;
+				}) => ({
+					title: row.title,
+					location: row.location,
+					date: row.date,
+					type: row.type,
+					items: row.items,
+					actions: row.id,
+				}),
+			),
 			page_action_id: "load-galleries-page",
 			next_cursor: galleryResult.cursor,
 			empty_text: t("gallery.no_entries"),
@@ -418,10 +518,26 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 		{
 			type: "stats",
 			items: [
-				{ label: t("gallery.images"), value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB` },
-				{ label: t("gallery.videos"), value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB` },
-				{ label: t("gallery.cf_images"), value: settings.cloudflareImagesEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
-				{ label: t("gallery.cf_stream"), value: settings.cloudflareStreamEnabled ? t("gallery.value.enabled") : t("gallery.value.optional") },
+				{
+					label: t("gallery.images"),
+					value: `${Math.round(settings.maxImageBytes / 1024 / 1024)} MB`,
+				},
+				{
+					label: t("gallery.videos"),
+					value: `${Math.round(settings.maxVideoBytes / 1024 / 1024)} MB`,
+				},
+				{
+					label: t("gallery.cf_images"),
+					value: settings.cloudflareImagesEnabled
+						? t("gallery.value.enabled")
+						: t("gallery.value.optional"),
+				},
+				{
+					label: t("gallery.cf_stream"),
+					value: settings.cloudflareStreamEnabled
+						? t("gallery.value.enabled")
+						: t("gallery.value.optional"),
+				},
 			],
 		},
 		{
@@ -456,7 +572,7 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 				},
 			],
 			submit: { label: t("gallery.save"), action_id: "save_settings" },
-		}
+		},
 	];
 
 	const res: any = {
@@ -477,8 +593,18 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 								type: "form",
 								block_id: "gallery-media-import",
 								fields: [
-									{ type: "text_input", action_id: "source_url", label: t("gallery.media_source"), placeholder: "https://..." },
-									{ type: "text_input", action_id: "filename", label: t("gallery.media_filename"), placeholder: "photo.jpg" },
+									{
+										type: "text_input",
+										action_id: "source_url",
+										label: t("gallery.media_source"),
+										placeholder: "https://...",
+									},
+									{
+										type: "text_input",
+										action_id: "filename",
+										label: t("gallery.media_filename"),
+										placeholder: "photo.jpg",
+									},
 								],
 								submit: { label: t("gallery.media_import"), action_id: "import_media" },
 							},
@@ -499,9 +625,9 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 							},
 						],
 					},
-				]
-			}
-		]
+				],
+			},
+		],
 	};
 
 	if (toastMessage) {
@@ -514,14 +640,22 @@ async function buildAdminBlocks(routeCtx: any, pluginCtx: PluginContext, setting
 const sandboxPlugin: SandboxedPlugin = {
 	hooks: {
 		"content:beforeSave": {
-			handler: async (event: any, pluginCtx: PluginContext): Promise<void | Record<string, unknown>> => {
+			handler: async (
+				event: any,
+				pluginCtx: PluginContext,
+			): Promise<void | Record<string, unknown>> => {
 				if (event.collection !== AWCMS_GALLERY_COLLECTION) return event.content;
 				const settings = await readSettings(pluginCtx, {});
 				const result = validateGalleryContent(event.content, settings);
-				await writeAudit(pluginCtx, result.valid ? "gallery.validation.ok" : "gallery.validation.reject", "Validated gallery content before save", {
-					contentId: event.content?.id,
-					errors: result.errors,
-				});
+				await writeAudit(
+					pluginCtx,
+					result.valid ? "gallery.validation.ok" : "gallery.validation.reject",
+					"Validated gallery content before save",
+					{
+						contentId: event.content?.id,
+						errors: result.errors,
+					},
+				);
 				if (!result.valid) {
 					throw new Error(`Invalid gallery content: ${result.errors.join("; ")}`);
 				}
@@ -535,48 +669,94 @@ const sandboxPlugin: SandboxedPlugin = {
 		},
 	},
 	routes: {
-			admin: {
-				handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
-					const interaction = routeCtx.input as { type?: string; page?: string; action_id?: string; value?: string; values?: Record<string, unknown> };
-					const locale = routeCtx.request?.headers?.["accept-language"];
-					try {
-						const settings = await readSettings(pluginCtx, {});
-						let state = (await pluginCtx.kv.get("admin:state")) as AdminState | null;
-						if (!state || (interaction.type === "page_load" && interaction.page === "/")) {
-							state = { view: "list", search: "", cursor: undefined, mediaCursor: undefined };
+		admin: {
+			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
+				const interaction = routeCtx.input as {
+					type?: string;
+					page?: string;
+					action_id?: string;
+					value?: string;
+					values?: Record<string, unknown>;
+				};
+				const locale = routeCtx.request?.headers?.["accept-language"];
+				try {
+					const settings = await readSettings(pluginCtx, {});
+					let state = (await pluginCtx.kv.get("admin:state")) as AdminState | null;
+					if (!state || (interaction.type === "page_load" && interaction.page === "/")) {
+						state = { view: "list", search: "", cursor: undefined, mediaCursor: undefined };
+						await pluginCtx.kv.set("admin:state", state);
+					}
+
+					if (interaction.type === "block_action") {
+						if (interaction.action_id === "nav_create") {
+							state = {
+								view: "create",
+								search: state.search,
+								cursor: state.cursor,
+								mediaCursor: state.mediaCursor,
+							};
+							await pluginCtx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "nav_edit") {
+							state = {
+								view: "edit",
+								id: interaction.value,
+								search: state.search,
+								cursor: state.cursor,
+								mediaCursor: state.mediaCursor,
+							};
+							await pluginCtx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "nav_list") {
+							state = {
+								view: "list",
+								search: state.search,
+								cursor: state.cursor,
+								mediaCursor: state.mediaCursor,
+							};
+							await pluginCtx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "load-galleries-page") {
+							state = {
+								view: state.view,
+								id: state.id,
+								search: state.search,
+								cursor: interaction.value,
+								mediaCursor: state.mediaCursor,
+							};
+							await pluginCtx.kv.set("admin:state", state);
+						} else if (interaction.action_id === "load-media-page") {
+							state = {
+								view: state.view,
+								id: state.id,
+								search: state.search,
+								cursor: state.cursor,
+								mediaCursor: interaction.value,
+							};
 							await pluginCtx.kv.set("admin:state", state);
 						}
-
-						if (interaction.type === "block_action") {
-							if (interaction.action_id === "nav_create") {
-								state = { view: "create", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-								await pluginCtx.kv.set("admin:state", state);
-							} else if (interaction.action_id === "nav_edit") {
-								state = { view: "edit", id: interaction.value, search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-								await pluginCtx.kv.set("admin:state", state);
-							} else if (interaction.action_id === "nav_list") {
-								state = { view: "list", search: state.search, cursor: state.cursor, mediaCursor: state.mediaCursor };
-								await pluginCtx.kv.set("admin:state", state);
-							} else if (interaction.action_id === "load-galleries-page") {
-								state = { view: state.view, id: state.id, search: state.search, cursor: interaction.value, mediaCursor: state.mediaCursor };
-								await pluginCtx.kv.set("admin:state", state);
-							} else if (interaction.action_id === "load-media-page") {
-								state = { view: state.view, id: state.id, search: state.search, cursor: state.cursor, mediaCursor: interaction.value };
-								await pluginCtx.kv.set("admin:state", state);
-							}
-						} else if (interaction.type === "form_submit" && interaction.action_id === "save_settings") {
-							const newSettings = sanitizeGallerySettings(interaction.values ?? {});
-							await pluginCtx.kv.set("settings", newSettings);
-							await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings", { settings: newSettings });
-							return buildAdminBlocks(routeCtx, pluginCtx, newSettings, locale, state, translateGallery("gallery.saved", locale));
-						}
-
-						return buildAdminBlocks(routeCtx, pluginCtx, settings, locale, state, undefined);
-					} catch (error: any) {
-						pluginCtx.log.error(`Gallery admin route error: ${error.message}`);
-						return buildAdminErrorBlocks(locale);
+					} else if (
+						interaction.type === "form_submit" &&
+						interaction.action_id === "save_settings"
+					) {
+						const newSettings = sanitizeGallerySettings(interaction.values ?? {});
+						await pluginCtx.kv.set("settings", newSettings);
+						await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings", {
+							settings: newSettings,
+						});
+						return buildAdminBlocks(
+							routeCtx,
+							pluginCtx,
+							newSettings,
+							locale,
+							state,
+							translateGallery("gallery.saved", locale),
+						);
 					}
-				},
+
+					return buildAdminBlocks(routeCtx, pluginCtx, settings, locale, state, undefined);
+				} catch (error: any) {
+					pluginCtx.log.error(`Gallery admin route error: ${error.message}`);
+					return buildAdminErrorBlocks(locale);
+				}
+			},
 		},
 		settings: {
 			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
@@ -584,7 +764,9 @@ const sandboxPlugin: SandboxedPlugin = {
 					const body = (await routeCtx.request.json()) as Record<string, unknown>;
 					const settings = sanitizeGallerySettings(body);
 					await pluginCtx.kv.set("settings", settings);
-					await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings route", { settings });
+					await writeAudit(pluginCtx, "gallery.settings.update", "Updated gallery settings route", {
+						settings,
+					});
 					return { success: true, settings };
 				}
 				return { settings: await readSettings(pluginCtx, {}) };
@@ -617,9 +799,14 @@ const sandboxPlugin: SandboxedPlugin = {
 				const body = routeCtx.input || {};
 				const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl.trim() : "";
 				const filename = typeof body.filename === "string" ? body.filename.trim() : "";
-				if (!sourceUrl || !filename) return { success: false, error: "Missing sourceUrl or filename" };
+				if (!sourceUrl || !filename)
+					return { success: false, error: "Missing sourceUrl or filename" };
 				const uploaded = await importMediaFromUrl(pluginCtx, sourceUrl, filename);
-				await writeAudit(pluginCtx, "gallery.media.import", `Imported media ${filename}`, { sourceUrl, filename, mediaId: uploaded.mediaId });
+				await writeAudit(pluginCtx, "gallery.media.import", `Imported media ${filename}`, {
+					sourceUrl,
+					filename,
+					mediaId: uploaded.mediaId,
+				});
 				return { success: true, mediaId: uploaded.mediaId, url: uploaded.url };
 			},
 		},
@@ -630,7 +817,9 @@ const sandboxPlugin: SandboxedPlugin = {
 				const settings = await readSettings(pluginCtx, {});
 				const result = validateGalleryItem(item, 0, settings, locale);
 				if (!result.valid) {
-					await writeAudit(pluginCtx, "gallery.media.reject", "Rejected gallery media item", { errors: result.errors });
+					await writeAudit(pluginCtx, "gallery.media.reject", "Rejected gallery media item", {
+						errors: result.errors,
+					});
 					return { success: false, errors: result.errors };
 				}
 				await writeAudit(pluginCtx, "gallery.media.accept", "Accepted gallery media item", {});

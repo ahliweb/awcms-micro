@@ -28,7 +28,15 @@ export function adaptToEmdashPages(manifest: AwcmsModuleManifest): EmdashAdminPa
 		return pages;
 	}
 
-	const addItems = (items: Array<{ path: string; labelKey?: string; fallbackLabel: string; icon?: string; children?: any[] }>) => {
+	const addItems = (
+		items: Array<{
+			path: string;
+			labelKey?: string;
+			fallbackLabel: string;
+			icon?: string;
+			children?: any[];
+		}>,
+	) => {
 		for (const item of items) {
 			if (item.children?.length) {
 				addItems(item.children);

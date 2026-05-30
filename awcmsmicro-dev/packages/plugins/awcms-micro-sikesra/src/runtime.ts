@@ -66,8 +66,8 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201010017", name: "Sulung" },
 							{ code: "6201010018", name: "Tanjung Putri" },
 							{ code: "6201010019", name: "Tanjung Terantang" },
-							{ code: "6201010020", name: "Umpang" }
-						]
+							{ code: "6201010020", name: "Umpang" },
+						],
 					},
 					{
 						code: "620102",
@@ -83,8 +83,8 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201020008", name: "Riam" },
 							{ code: "6201020009", name: "Sambi" },
 							{ code: "6201020010", name: "Sukarami" },
-							{ code: "6201020011", name: "Sungai Dau" }
-						]
+							{ code: "6201020011", name: "Sungai Dau" },
+						],
 					},
 					{
 						code: "620103",
@@ -106,8 +106,8 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201030014", name: "Sukajaya" },
 							{ code: "6201030015", name: "Suka Makmur" },
 							{ code: "6201030016", name: "Sumber Mukti" },
-							{ code: "6201030017", name: "Tempayung" }
-						]
+							{ code: "6201030017", name: "Tempayung" },
+						],
 					},
 					{
 						code: "620104",
@@ -130,8 +130,8 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201040015", name: "Sungai Sekonyer" },
 							{ code: "6201040016", name: "Sungai Tendang" },
 							{ code: "6201040017", name: "Teluk Bogam" },
-							{ code: "6201040018", name: "Teluk Pulai" }
-						]
+							{ code: "6201040018", name: "Teluk Pulai" },
+						],
 					},
 					{
 						code: "620105",
@@ -153,8 +153,8 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201050014", name: "Sungai Hijau" },
 							{ code: "6201050015", name: "Sungai Kuning" },
 							{ code: "6201050016", name: "Sungai Pakit" },
-							{ code: "6201050017", name: "Sungai Pulau" }
-						]
+							{ code: "6201050017", name: "Sungai Pulau" },
+						],
 					},
 					{
 						code: "620106",
@@ -170,13 +170,13 @@ export const DEFAULT_REGION_TREE: AdministrativeProvince[] = [
 							{ code: "6201060008", name: "Purbasari" },
 							{ code: "6201060009", name: "Sumber Agung" },
 							{ code: "6201060010", name: "Sungai Rangit Jaya" },
-							{ code: "6201060011", name: "Terantang" }
-						]
-					}
-				]
-			}
-		]
-	}
+							{ code: "6201060011", name: "Terantang" },
+						],
+					},
+				],
+			},
+		],
+	},
 ];
 
 export interface SikesraSubType {
@@ -203,8 +203,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "04", label: "Pura" },
 			{ code: "05", label: "Wihara" },
 			{ code: "06", label: "Klenteng" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "lembaga_keagamaan",
@@ -215,8 +215,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "02", label: "DMI (Dewan Masjid Indonesia)" },
 			{ code: "03", label: "LPTQ" },
 			{ code: "04", label: "FKUB" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "pendidikan_keagamaan",
@@ -227,8 +227,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "02", label: "Madrasah" },
 			{ code: "03", label: "TPQ" },
 			{ code: "04", label: "Sekolah Minggu" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "lks",
@@ -238,8 +238,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "01", label: "Panti Asuhan" },
 			{ code: "02", label: "Panti Jompo" },
 			{ code: "03", label: "Rehabilitasi Sosial" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "guru_agama",
@@ -251,8 +251,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "03", label: "Guru Agama Katolik" },
 			{ code: "04", label: "Guru Agama Hindu" },
 			{ code: "05", label: "Guru Agama Buddha" },
-			{ code: "06", label: "Guru Agama Khonghucu" }
-		]
+			{ code: "06", label: "Guru Agama Khonghucu" },
+		],
 	},
 	{
 		id: "anak_yatim",
@@ -262,8 +262,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "01", label: "Yatim Piatu (Balita)" },
 			{ code: "02", label: "Yatim Piatu (Anak Sekolah)" },
 			{ code: "03", label: "Yatim Piatu (Remaja)" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "disabilitas",
@@ -274,8 +274,8 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 			{ code: "02", label: "Tuna Rungu / Wicara" },
 			{ code: "03", label: "Tuna Daksa" },
 			{ code: "04", label: "Tuna Grahita" },
-			{ code: "99", label: "Lainnya" }
-		]
+			{ code: "99", label: "Lainnya" },
+		],
 	},
 	{
 		id: "lansia_terlantar",
@@ -284,15 +284,20 @@ export const DEFAULT_DATA_TYPES: SikesraParentType[] = [
 		subTypes: [
 			{ code: "01", label: "Lansia Terlantar Mandiri" },
 			{ code: "02", label: "Lansia Terlantar Bedridden" },
-			{ code: "99", label: "Lainnya" }
-		]
-	}
+			{ code: "99", label: "Lainnya" },
+		],
+	},
 ];
 
 export const AWCMS_SIKESRA_PLUGIN_ID = "awcms-micro-sikesra";
 const AWCMS_SIKESRA_LEGACY_PLUGIN_ID = "awcms-micro-example";
 
-export const AWCMS_SIKESRA_CAPABILITIES = ["content:read", "content:write", "media:read", "media:write"] as const;
+export const AWCMS_SIKESRA_CAPABILITIES = [
+	"content:read",
+	"content:write",
+	"media:read",
+	"media:write",
+] as const;
 
 export const AWCMS_SIKESRA_ALLOWED_HOSTS: string[] = [];
 
@@ -316,7 +321,12 @@ export const AWCMS_SIKESRA_STORAGE = {
 		indexes: ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
 	},
 	sikesra_supporting_documents: {
-		indexes: ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
+		indexes: [
+			"registryEntityId",
+			"documentType",
+			"sensitivity",
+			["registryEntityId", "sensitivity"],
+		],
 	},
 	sikesra_verification_stage_state: {
 		indexes: ["registryEntityId", "stage", "updatedAt", ["registryEntityId", "updatedAt"]],
@@ -328,7 +338,13 @@ export const AWCMS_SIKESRA_STORAGE = {
 		indexes: ["subjectId", "updatedAt"],
 	},
 	sikesra_content_snapshots: {
-		indexes: ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
+		indexes: [
+			"collection",
+			"contentId",
+			"timestamp",
+			["collection", "timestamp"],
+			["contentId", "timestamp"],
+		],
 	},
 	sikesra_settings_state: {
 		indexes: ["key", "updatedAt"],
@@ -389,7 +405,10 @@ function toTimestamp(value: string | null | undefined): number {
 	return Number.isNaN(parsed) ? -1 : parsed;
 }
 
-function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | undefined): boolean {
+function isLegacyRowNewer(
+	legacy: PluginStorageRow,
+	current: PluginStorageRow | undefined,
+): boolean {
 	if (!current) return true;
 	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
 	const currentUpdated = toTimestamp(current.updated_at ?? current.created_at ?? null);
@@ -450,7 +469,9 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 	}
 
 	if (migratedRows > 0) {
-		ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] migrated legacy storage collections`, { migratedRows });
+		ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] migrated legacy storage collections`, {
+			migratedRows,
+		});
 	}
 }
 
@@ -478,8 +499,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						icon: "chart",
 						sortOrder: 10,
 						permission: "awcms:sikesra:dashboard:read",
-					}
-				]
+					},
+				],
 			},
 			{
 				id: "content-group",
@@ -516,8 +537,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						icon: "arrow-up-from-bracket",
 						sortOrder: 30,
 						permission: "awcms:sikesra:dashboard:read",
-					}
-				]
+					},
+				],
 			},
 			{
 				id: "governance-group",
@@ -554,8 +575,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						icon: "chart",
 						sortOrder: 30,
 						permission: "awcms:sikesra:audit:read",
-					}
-				]
+					},
+				],
 			},
 			{
 				id: "settings-group",
@@ -606,8 +627,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 								path: "/access/preview",
 								sortOrder: 40,
 								permission: "awcms:sikesra:preview:read",
-							}
-						]
+							},
+						],
 					},
 					{
 						id: "abac",
@@ -641,8 +662,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 								path: "/abac/preview",
 								sortOrder: 30,
 								permission: "awcms:sikesra:abac:read",
-							}
-						]
+							},
+						],
 					},
 					{
 						id: "regions",
@@ -661,31 +682,31 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 						icon: "list",
 						sortOrder: 40,
 						permission: "awcms:sikesra:settings:read",
-					}
-				]
-			}
-		]
+					},
+				],
+			},
+		],
 	},
 	i18n: {
 		defaultLocale: "en",
 		supportedLocales: ["en", "id"],
 		messages: {
-				en: {
-					"awcms.nav.group.dashboard": "Dashboard",
-					"awcms.nav.group.content": "Content",
-					"awcms.nav.group.governance": "Governance",
-					"awcms.nav.group.settings": "Settings",
-					"awcms.nav.overview": "Overview",
-					"awcms.nav.pages": "Pages",
-					"awcms.nav.documents": "Documents",
-					"awcms.nav.import": "Import Excel",
-					"awcms.nav.verification": "Verification",
-					"awcms.nav.audit": "Audit Log",
-					"awcms.nav.reports": "Reports",
-					"awcms.nav.access": "Access Control",
-					"awcms.nav.regions": "Official Regions",
-					"awcms.nav.dataTypes": "Sikesra Data Types",
-					"awcms.nav.permissions": "Permissions",
+			en: {
+				"awcms.nav.group.dashboard": "Dashboard",
+				"awcms.nav.group.content": "Content",
+				"awcms.nav.group.governance": "Governance",
+				"awcms.nav.group.settings": "Settings",
+				"awcms.nav.overview": "Overview",
+				"awcms.nav.pages": "Pages",
+				"awcms.nav.documents": "Documents",
+				"awcms.nav.import": "Import Excel",
+				"awcms.nav.verification": "Verification",
+				"awcms.nav.audit": "Audit Log",
+				"awcms.nav.reports": "Reports",
+				"awcms.nav.access": "Access Control",
+				"awcms.nav.regions": "Official Regions",
+				"awcms.nav.dataTypes": "Sikesra Data Types",
+				"awcms.nav.permissions": "Permissions",
 				"awcms.nav.roles": "Roles",
 				"awcms.nav.matrix": "Role Matrix",
 				"awcms.nav.accessPreview": "Access Preview",
@@ -697,7 +718,8 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.widget.accessRightsHealth": "Access Rights Health",
 				"awcms.meta.widget.abacPolicyStatus": "ABAC Policy Status",
 				"awcms.meta.settings.publicStatusLabel": "Public Status Label",
-				"awcms.meta.settings.publicStatusLabelDesc": "Shown by the plugin's public-safe status route.",
+				"awcms.meta.settings.publicStatusLabelDesc":
+					"Shown by the plugin's public-safe status route.",
 				"awcms.meta.settings.auditRetentionDays": "Audit Retention Days",
 				"awcms.meta.settings.auditRetentionDaysDesc": "Used by the demo cron cleanup summary.",
 				"awcms.meta.settings.governanceMode": "Governance Mode",
@@ -705,25 +727,33 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.settings.review": "Review",
 				"awcms.meta.settings.enforceDemo": "Enforce Demo",
 				"awcms.meta.settings.metadataCanonicalBase": "Metadata Canonical Base",
-				"awcms.meta.settings.metadataCanonicalBaseDesc": "Optional override for page metadata contributions.",
+				"awcms.meta.settings.metadataCanonicalBaseDesc":
+					"Optional override for page metadata contributions.",
 				"awcms.meta.settings.smallCellThreshold": "Small Cell Suppression Threshold",
-				"awcms.meta.settings.smallCellThresholdDesc": "Safety threshold below which counts are suppressed to protect privacy.",
+				"awcms.meta.settings.smallCellThresholdDesc":
+					"Safety threshold below which counts are suppressed to protect privacy.",
 				"awcms.meta.settings.sikesraPublicEnabled": "SIKESRA Public API Enabled",
-				"awcms.meta.settings.sikesraPublicEnabledDesc": "Enable or disable public aggregate access to SIKESRA stats.",
+				"awcms.meta.settings.sikesraPublicEnabledDesc":
+					"Enable or disable public aggregate access to SIKESRA stats.",
 				"awcms.meta.block.accessNote": "AWCMS Access Note",
-				"awcms.meta.block.accessNoteDesc": "Portable Text note block for access and governance guidance.",
+				"awcms.meta.block.accessNoteDesc":
+					"Portable Text note block for access and governance guidance.",
 				"awcms.meta.block.category": "AWCMS Micro",
 				"awcms.meta.field.statusBadge": "Status badge",
 				"awcms.meta.permission.readPublicContent": "Read Public Content",
-				"awcms.meta.permission.readPublicContentDesc": "Allows reading public-facing content surfaces.",
+				"awcms.meta.permission.readPublicContentDesc":
+					"Allows reading public-facing content surfaces.",
 				"awcms.meta.permission.reviewAndPublish": "Review And Publish",
-				"awcms.meta.permission.reviewAndPublishDesc": "Allows review workflows to approve and publish content.",
+				"awcms.meta.permission.reviewAndPublishDesc":
+					"Allows review workflows to approve and publish content.",
 				"awcms.meta.permission.readAuditEvents": "Read Audit Events",
-				"awcms.meta.permission.readAuditEventsDesc": "Allows operators to inspect governance and access audit events.",
+				"awcms.meta.permission.readAuditEventsDesc":
+					"Allows operators to inspect governance and access audit events.",
 				"awcms.meta.role.siteEditor": "Site Editor",
 				"awcms.meta.role.siteEditorDesc": "Editor role for content operations.",
 				"awcms.meta.role.governanceReviewer": "Governance Reviewer",
-				"awcms.meta.role.governanceReviewerDesc": "Reviewer role for governance and publishing approval.",
+				"awcms.meta.role.governanceReviewerDesc":
+					"Reviewer role for governance and publishing approval.",
 				"awcms.meta.abac.tenantId": "Tenant ID",
 				"awcms.meta.abac.tenantIdDesc": "Tenant identifier for the acting subject.",
 				"awcms.meta.abac.siteId": "Site ID",
@@ -742,8 +772,10 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.abac.regionScopeDesc": "Region scope for the decision context.",
 				"awcms.meta.abac.action": "Action",
 				"awcms.meta.abac.actionDesc": "Action under evaluation.",
-				"awcms.meta.abac.policy.allowPublishedReads": "Allow published content reads for the same tenant",
-				"awcms.meta.abac.policy.denyRestrictedGovernance": "Explicitly deny publishing restricted governance resources",
+				"awcms.meta.abac.policy.allowPublishedReads":
+					"Allow published content reads for the same tenant",
+				"awcms.meta.abac.policy.denyRestrictedGovernance":
+					"Explicitly deny publishing restricted governance resources",
 			},
 			id: {
 				"awcms.nav.group.dashboard": "Dasbor",
@@ -772,33 +804,43 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.widget.accessRightsHealth": "Kesehatan Hak Akses",
 				"awcms.meta.widget.abacPolicyStatus": "Status Kebijakan ABAC",
 				"awcms.meta.settings.publicStatusLabel": "Label Status Publik",
-				"awcms.meta.settings.publicStatusLabelDesc": "Ditampilkan oleh route status aman-publik plugin.",
+				"awcms.meta.settings.publicStatusLabelDesc":
+					"Ditampilkan oleh route status aman-publik plugin.",
 				"awcms.meta.settings.auditRetentionDays": "Hari Retensi Audit",
-				"awcms.meta.settings.auditRetentionDaysDesc": "Digunakan oleh ringkasan pembersihan cron demo.",
+				"awcms.meta.settings.auditRetentionDaysDesc":
+					"Digunakan oleh ringkasan pembersihan cron demo.",
 				"awcms.meta.settings.governanceMode": "Mode Tata Kelola",
 				"awcms.meta.settings.observe": "Observasi",
 				"awcms.meta.settings.review": "Tinjau",
 				"awcms.meta.settings.enforceDemo": "Terapkan Demo",
 				"awcms.meta.settings.metadataCanonicalBase": "Basis Canonical Metadata",
-				"awcms.meta.settings.metadataCanonicalBaseDesc": "Override opsional untuk kontribusi metadata halaman.",
+				"awcms.meta.settings.metadataCanonicalBaseDesc":
+					"Override opsional untuk kontribusi metadata halaman.",
 				"awcms.meta.settings.smallCellThreshold": "Batas Supresi Sel Kecil",
-				"awcms.meta.settings.smallCellThresholdDesc": "Batas keamanan minimum agar jumlah tidak disembunyikan untuk melindungi privasi.",
+				"awcms.meta.settings.smallCellThresholdDesc":
+					"Batas keamanan minimum agar jumlah tidak disembunyikan untuk melindungi privasi.",
 				"awcms.meta.settings.sikesraPublicEnabled": "API Publik SIKESRA Aktif",
-				"awcms.meta.settings.sikesraPublicEnabledDesc": "Aktifkan atau nonaktifkan akses agregat publik ke statistik SIKESRA.",
+				"awcms.meta.settings.sikesraPublicEnabledDesc":
+					"Aktifkan atau nonaktifkan akses agregat publik ke statistik SIKESRA.",
 				"awcms.meta.block.accessNote": "Catatan Akses AWCMS",
-				"awcms.meta.block.accessNoteDesc": "Blok catatan Portable Text untuk panduan akses dan tata kelola.",
+				"awcms.meta.block.accessNoteDesc":
+					"Blok catatan Portable Text untuk panduan akses dan tata kelola.",
 				"awcms.meta.block.category": "AWCMS Micro",
 				"awcms.meta.field.statusBadge": "Lencana status",
 				"awcms.meta.permission.readPublicContent": "Baca Konten Publik",
-				"awcms.meta.permission.readPublicContentDesc": "Memungkinkan membaca surface konten publik.",
+				"awcms.meta.permission.readPublicContentDesc":
+					"Memungkinkan membaca surface konten publik.",
 				"awcms.meta.permission.reviewAndPublish": "Tinjau dan Publikasikan",
-				"awcms.meta.permission.reviewAndPublishDesc": "Memungkinkan alur kerja review untuk menyetujui dan mempublikasikan konten.",
+				"awcms.meta.permission.reviewAndPublishDesc":
+					"Memungkinkan alur kerja review untuk menyetujui dan mempublikasikan konten.",
 				"awcms.meta.permission.readAuditEvents": "Baca Event Audit",
-				"awcms.meta.permission.readAuditEventsDesc": "Memungkinkan operator memeriksa event audit tata kelola dan akses.",
+				"awcms.meta.permission.readAuditEventsDesc":
+					"Memungkinkan operator memeriksa event audit tata kelola dan akses.",
 				"awcms.meta.role.siteEditor": "Editor Situs",
 				"awcms.meta.role.siteEditorDesc": "Peran editor untuk operasi konten.",
 				"awcms.meta.role.governanceReviewer": "Reviewer Tata Kelola",
-				"awcms.meta.role.governanceReviewerDesc": "Peran reviewer untuk tata kelola dan persetujuan publikasi.",
+				"awcms.meta.role.governanceReviewerDesc":
+					"Peran reviewer untuk tata kelola dan persetujuan publikasi.",
 				"awcms.meta.abac.tenantId": "ID Tenant",
 				"awcms.meta.abac.tenantIdDesc": "Pengenal tenant untuk subjek yang bertindak.",
 				"awcms.meta.abac.siteId": "ID Situs",
@@ -817,19 +859,36 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 				"awcms.meta.abac.regionScopeDesc": "Cakupan wilayah untuk konteks keputusan.",
 				"awcms.meta.abac.action": "Aksi",
 				"awcms.meta.abac.actionDesc": "Aksi yang sedang dievaluasi.",
-				"awcms.meta.abac.policy.allowPublishedReads": "Izinkan pembacaan konten terpublikasi untuk tenant yang sama",
-				"awcms.meta.abac.policy.denyRestrictedGovernance": "Tolak secara eksplisit publikasi sumber daya tata kelola yang dibatasi",
-			}
-		}
-	}
+				"awcms.meta.abac.policy.allowPublishedReads":
+					"Izinkan pembacaan konten terpublikasi untuk tenant yang sama",
+				"awcms.meta.abac.policy.denyRestrictedGovernance":
+					"Tolak secara eksplisit publikasi sumber daya tata kelola yang dibatasi",
+			},
+		},
+	},
 };
 
 export const AWCMS_SIKESRA_ADMIN_PAGES = adaptToEmdashPages(AWCMS_SIKESRA_MANIFEST);
 
 export const AWCMS_SIKESRA_ADMIN_WIDGETS = [
-	{ id: "governance-status", title: "Governance Status", titleKey: "awcms.meta.widget.governanceStatus", size: "half" as const },
-	{ id: "access-rights-health", title: "Access Rights Health", titleKey: "awcms.meta.widget.accessRightsHealth", size: "half" as const },
-	{ id: "abac-policy-status", title: "ABAC Policy Status", titleKey: "awcms.meta.widget.abacPolicyStatus", size: "half" as const },
+	{
+		id: "governance-status",
+		title: "Governance Status",
+		titleKey: "awcms.meta.widget.governanceStatus",
+		size: "half" as const,
+	},
+	{
+		id: "access-rights-health",
+		title: "Access Rights Health",
+		titleKey: "awcms.meta.widget.accessRightsHealth",
+		size: "half" as const,
+	},
+	{
+		id: "abac-policy-status",
+		title: "ABAC Policy Status",
+		titleKey: "awcms.meta.widget.abacPolicyStatus",
+		size: "half" as const,
+	},
 ];
 
 export const AWCMS_SIKESRA_SETTINGS_SCHEMA = {
@@ -1166,30 +1225,150 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 ];
 
 const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
-	{ key: "tenant_id", label: "Tenant ID", labelKey: "awcms.meta.abac.tenantId", targetType: "subject", description: "Tenant identifier for the acting subject.", descriptionKey: "awcms.meta.abac.tenantIdDesc", updatedAt: "" },
-	{ key: "site_id", label: "Site ID", labelKey: "awcms.meta.abac.siteId", targetType: "subject", description: "Site identifier for the acting subject.", descriptionKey: "awcms.meta.abac.siteIdDesc", updatedAt: "" },
-	{ key: "module_id", label: "Module ID", labelKey: "awcms.meta.abac.moduleId", targetType: "resource", description: "Module identifier for the resource.", descriptionKey: "awcms.meta.abac.moduleIdDesc", updatedAt: "" },
-	{ key: "resource_type", label: "Resource Type", labelKey: "awcms.meta.abac.resourceType", targetType: "resource", description: "Resource type used in ABAC evaluation.", descriptionKey: "awcms.meta.abac.resourceTypeDesc", updatedAt: "" },
-	{ key: "resource_status", label: "Resource Status", labelKey: "awcms.meta.abac.resourceStatus", targetType: "resource", description: "Workflow status of the resource.", descriptionKey: "awcms.meta.abac.resourceStatusDesc", updatedAt: "" },
-	{ key: "resource_sensitivity", label: "Resource Sensitivity", labelKey: "awcms.meta.abac.resourceSensitivity", targetType: "resource", description: "Sensitivity classification for the resource.", descriptionKey: "awcms.meta.abac.resourceSensitivityDesc", updatedAt: "" },
-	{ key: "owner_user_id", label: "Owner User ID", labelKey: "awcms.meta.abac.ownerUserId", targetType: "resource", description: "Owning user of the resource.", descriptionKey: "awcms.meta.abac.ownerUserIdDesc", updatedAt: "" },
-	{ key: "region_scope", label: "Region Scope", labelKey: "awcms.meta.abac.regionScope", targetType: "context", description: "Region scope for the decision context.", descriptionKey: "awcms.meta.abac.regionScopeDesc", updatedAt: "" },
-	{ key: "action", label: "Action", labelKey: "awcms.meta.abac.action", targetType: "context", description: "Action under evaluation.", descriptionKey: "awcms.meta.abac.actionDesc", updatedAt: "" },
+	{
+		key: "tenant_id",
+		label: "Tenant ID",
+		labelKey: "awcms.meta.abac.tenantId",
+		targetType: "subject",
+		description: "Tenant identifier for the acting subject.",
+		descriptionKey: "awcms.meta.abac.tenantIdDesc",
+		updatedAt: "",
+	},
+	{
+		key: "site_id",
+		label: "Site ID",
+		labelKey: "awcms.meta.abac.siteId",
+		targetType: "subject",
+		description: "Site identifier for the acting subject.",
+		descriptionKey: "awcms.meta.abac.siteIdDesc",
+		updatedAt: "",
+	},
+	{
+		key: "module_id",
+		label: "Module ID",
+		labelKey: "awcms.meta.abac.moduleId",
+		targetType: "resource",
+		description: "Module identifier for the resource.",
+		descriptionKey: "awcms.meta.abac.moduleIdDesc",
+		updatedAt: "",
+	},
+	{
+		key: "resource_type",
+		label: "Resource Type",
+		labelKey: "awcms.meta.abac.resourceType",
+		targetType: "resource",
+		description: "Resource type used in ABAC evaluation.",
+		descriptionKey: "awcms.meta.abac.resourceTypeDesc",
+		updatedAt: "",
+	},
+	{
+		key: "resource_status",
+		label: "Resource Status",
+		labelKey: "awcms.meta.abac.resourceStatus",
+		targetType: "resource",
+		description: "Workflow status of the resource.",
+		descriptionKey: "awcms.meta.abac.resourceStatusDesc",
+		updatedAt: "",
+	},
+	{
+		key: "resource_sensitivity",
+		label: "Resource Sensitivity",
+		labelKey: "awcms.meta.abac.resourceSensitivity",
+		targetType: "resource",
+		description: "Sensitivity classification for the resource.",
+		descriptionKey: "awcms.meta.abac.resourceSensitivityDesc",
+		updatedAt: "",
+	},
+	{
+		key: "owner_user_id",
+		label: "Owner User ID",
+		labelKey: "awcms.meta.abac.ownerUserId",
+		targetType: "resource",
+		description: "Owning user of the resource.",
+		descriptionKey: "awcms.meta.abac.ownerUserIdDesc",
+		updatedAt: "",
+	},
+	{
+		key: "region_scope",
+		label: "Region Scope",
+		labelKey: "awcms.meta.abac.regionScope",
+		targetType: "context",
+		description: "Region scope for the decision context.",
+		descriptionKey: "awcms.meta.abac.regionScopeDesc",
+		updatedAt: "",
+	},
+	{
+		key: "action",
+		label: "Action",
+		labelKey: "awcms.meta.abac.action",
+		targetType: "context",
+		description: "Action under evaluation.",
+		descriptionKey: "awcms.meta.abac.actionDesc",
+		updatedAt: "",
+	},
 ];
 
 const DEFAULT_ABAC_SUBJECTS: AbacSubjectAssignment[] = [
-	{ subjectId: "user-demo-editor", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
-	{ subjectId: "user-demo-reviewer", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" }, updatedAt: "" },
-	{ subjectId: "user-demo-village", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010002" }, updatedAt: "" },
-	{ subjectId: "user-demo-district", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010" }, updatedAt: "" },
-	{ subjectId: "user-demo-sopd", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" }, updatedAt: "" },
-	{ subjectId: "user-demo-regency", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" }, updatedAt: "" },
-	{ subjectId: "user-demo-sikesra-admin", attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "all" }, updatedAt: "" },
+	{
+		subjectId: "user-demo-editor",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-reviewer",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-village",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010002" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-district",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-sopd",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-regency",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" },
+		updatedAt: "",
+	},
+	{
+		subjectId: "user-demo-sikesra-admin",
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "all" },
+		updatedAt: "",
+	},
 ];
 
 const DEFAULT_ABAC_RESOURCES: AbacResourceAssignment[] = [
-	{ resourceId: "resource-public-post", attributes: { module_id: "content", resource_type: "post", resource_status: "published", resource_sensitivity: "public", owner_user_id: "user-demo-editor" }, updatedAt: "" },
-	{ resourceId: "resource-sensitive-policy", attributes: { module_id: "governance", resource_type: "policy", resource_status: "review", resource_sensitivity: "restricted", owner_user_id: "user-demo-reviewer" }, updatedAt: "" },
+	{
+		resourceId: "resource-public-post",
+		attributes: {
+			module_id: "content",
+			resource_type: "post",
+			resource_status: "published",
+			resource_sensitivity: "public",
+			owner_user_id: "user-demo-editor",
+		},
+		updatedAt: "",
+	},
+	{
+		resourceId: "resource-sensitive-policy",
+		attributes: {
+			module_id: "governance",
+			resource_type: "policy",
+			resource_status: "review",
+			resource_sensitivity: "restricted",
+			owner_user_id: "user-demo-reviewer",
+		},
+		updatedAt: "",
+	},
 ];
 
 const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
@@ -1314,7 +1493,9 @@ const VERIFICATION_STATE_KEY = "state:sikesraVerificationStages";
 
 function getNextVerificationStage(stage: VerificationStage): VerificationStage | null {
 	const index = VERIFICATION_STAGE_FLOW.indexOf(stage);
-	return index >= 0 && index < VERIFICATION_STAGE_FLOW.length - 1 ? (VERIFICATION_STAGE_FLOW[index + 1] ?? null) : null;
+	return index >= 0 && index < VERIFICATION_STAGE_FLOW.length - 1
+		? (VERIFICATION_STAGE_FLOW[index + 1] ?? null)
+		: null;
 }
 
 function getVerificationLevel(stage: VerificationStage): VerificationLevel {
@@ -1334,7 +1515,8 @@ function getAllowedVerifierLevels(level: VerificationLevel): VerificationUserLev
 }
 
 function getRevisionTargetStage(stage: VerificationStage): VerificationStage {
-	if (stage === "draft" || stage === "submitted_village" || stage === "verified_village") return "submitted_village";
+	if (stage === "draft" || stage === "submitted_village" || stage === "verified_village")
+		return "submitted_village";
 	if (stage === "submitted_district" || stage === "verified_district") return "submitted_village";
 	if (stage === "submitted_sopd" || stage === "verified_sopd") return "submitted_district";
 	if (stage === "submitted_regency" || stage === "active_verified") return "submitted_sopd";
@@ -1367,7 +1549,9 @@ function getRequestUserId(ctx: PluginContext) {
 async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return [];
-	const assignment = (await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null;
+	const assignment = (await ctx.storage.sikesra_user_role_assignments!.get(
+		userId,
+	)) as UserRoleAssignment | null;
 	if (!assignment) return [];
 	return assignment.roles
 		.map((roleSlug) => mapRoleSlugToVerifierLevel(roleSlug))
@@ -1377,23 +1561,32 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return null;
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(userId)) as AbacSubjectAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
+		userId,
+	)) as AbacSubjectAssignment | null;
 	return subject?.attributes.region_scope ?? null;
 }
 
 async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(userId)) as AbacSubjectAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
+		userId,
+	)) as AbacSubjectAssignment | null;
 	return {
 		verifierRegionScope: subject?.attributes.region_scope,
 		verifierOrgScope: subject?.attributes.site_id,
 	};
 }
 
-function filterVerificationItemsForLevels(items: VerificationListItem[], levels: VerificationUserLevel[]) {
+function filterVerificationItemsForLevels(
+	items: VerificationListItem[],
+	levels: VerificationUserLevel[],
+) {
 	if (levels.length === 0 || levels.includes("admin_sikesra")) return items;
-	return items.filter((item) => getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)));
+	return items.filter((item) =>
+		getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)),
+	);
 }
 
 function filterVerificationItemsForRegionScope(
@@ -1405,63 +1598,87 @@ function filterVerificationItemsForRegionScope(
 	return items.filter((item) => {
 		if (levels.includes("desa_kelurahan")) return item.region.villageCode === regionScope;
 		if (levels.includes("kecamatan")) return item.region.districtCode === regionScope;
-		if (levels.includes("sopd") || levels.includes("kabupaten")) return item.region.regencyCode === regionScope;
+		if (levels.includes("sopd") || levels.includes("kabupaten"))
+			return item.region.regencyCode === regionScope;
 		return true;
 	});
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
-	const legacy = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	const legacy =
+		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	if (legacy.length > 0) {
 		for (const entity of legacy) {
 			await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
 		}
 		await ctx.kv.delete("custom:registryEntities");
 	}
-	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(ctx.storage.sikesra_registry_entities!);
+	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
+		ctx.storage.sikesra_registry_entities!,
+	);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
 
 async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
-	const custom = (await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	const custom =
+		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	const next = [...custom.filter((item) => item.id !== entity.id), entity];
 	await ctx.kv.set("custom:registryEntities", next);
 	await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
 }
 
-async function getSupportingDocuments(ctx: PluginContext): Promise<SikesraReferenceSupportingDocument[]> {
-	const legacy = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+async function getSupportingDocuments(
+	ctx: PluginContext,
+): Promise<SikesraReferenceSupportingDocument[]> {
+	const legacy =
+		(await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	if (legacy.length > 0) {
 		for (const doc of legacy) {
 			await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
 		}
 		await ctx.kv.delete("custom:supportingDocuments");
 	}
-	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(ctx.storage.sikesra_supporting_documents!);
+	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
+		ctx.storage.sikesra_supporting_documents!,
+	);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
 
 async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
-	const custom = (await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+	const custom =
+		(await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	const next = [...custom.filter((item) => item.id !== doc.id), doc];
 	await ctx.kv.set("custom:supportingDocuments", next);
 	await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
 }
 
-async function listVerificationEvents(ctx: PluginContext): Promise<SikesraReferenceVerificationEvent[]> {
-	return listStorageValues<SikesraReferenceVerificationEvent>(ctx.storage.sikesra_verification_events!);
+async function listVerificationEvents(
+	ctx: PluginContext,
+): Promise<SikesraReferenceVerificationEvent[]> {
+	return listStorageValues<SikesraReferenceVerificationEvent>(
+		ctx.storage.sikesra_verification_events!,
+	);
 }
 
-async function appendVerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
+async function appendVerificationEvent(
+	ctx: PluginContext,
+	event: SikesraReferenceVerificationEvent,
+) {
 	await ctx.storage.sikesra_verification_events!.put(event.id, event);
 	await persistStateValue(ctx, "state:lastVerificationEventId", event.id);
 	return event;
 }
 
-async function getVerificationStageState(ctx: PluginContext): Promise<Record<string, VerificationStage>> {
+async function getVerificationStageState(
+	ctx: PluginContext,
+): Promise<Record<string, VerificationStage>> {
 	const entities = await getRegistryEntities(ctx);
-	const defaultState = Object.fromEntries(entities.map((entity) => [entity.id, entity.verificationStage])) as Record<string, VerificationStage>;
-	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(ctx.storage.sikesra_verification_stage_state!);
+	const defaultState = Object.fromEntries(
+		entities.map((entity) => [entity.id, entity.verificationStage]),
+	) as Record<string, VerificationStage>;
+	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(
+		ctx.storage.sikesra_verification_stage_state!,
+	);
 	if (storedRecords.length > 0) {
 		return {
 			...defaultState,
@@ -1483,7 +1700,10 @@ async function getVerificationStageState(ctx: PluginContext): Promise<Record<str
 	return defaultState;
 }
 
-async function setVerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
+async function setVerificationStageState(
+	ctx: PluginContext,
+	state: Record<string, VerificationStage>,
+) {
 	for (const [registryEntityId, stage] of Object.entries(state)) {
 		await ctx.storage.sikesra_verification_stage_state!.put(registryEntityId, {
 			registryEntityId,
@@ -1524,7 +1744,9 @@ function toIsoNow() {
 	return new Date().toISOString();
 }
 
-async function listStorageValues<T>(collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> }) {
+async function listStorageValues<T>(collection: {
+	query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
+}) {
 	const result = await collection.query({ limit: 200 });
 	return result.items.map((item) => item.data as T);
 }
@@ -1559,12 +1781,20 @@ async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
 	}
 }
 
-async function persistStateValue(ctx: PluginContext, key: string, value: StoredStateRecord["value"]) {
+async function persistStateValue(
+	ctx: PluginContext,
+	key: string,
+	value: StoredStateRecord["value"],
+) {
 	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
 	await ctx.storage.sikesra_plugin_state!.put(key, record);
 }
 
-async function readStateValue<T extends StoredStateRecord["value"]>(ctx: PluginContext, key: string, fallback: T): Promise<T> {
+async function readStateValue<T extends StoredStateRecord["value"]>(
+	ctx: PluginContext,
+	key: string,
+	fallback: T,
+): Promise<T> {
 	const stored = await getStoredState(ctx);
 	const record = stored.get(key);
 	return (record?.value as T | undefined) ?? fallback;
@@ -1615,7 +1845,8 @@ async function setSettings(ctx: PluginContext, input: unknown) {
 		publicStatusLabel: getString(input, "publicStatusLabel") ?? current.publicStatusLabel,
 		auditRetentionDays: getNumber(input, "auditRetentionDays") ?? current.auditRetentionDays,
 		governanceMode: getString(input, "governanceMode") ?? current.governanceMode,
-		metadataCanonicalBase: getString(input, "metadataCanonicalBase") ?? current.metadataCanonicalBase,
+		metadataCanonicalBase:
+			getString(input, "metadataCanonicalBase") ?? current.metadataCanonicalBase,
 		smallCellThreshold: getNumber(input, "smallCellThreshold") ?? current.smallCellThreshold,
 		sikesraPublicEnabled: getBoolean(input, "sikesraPublicEnabled") ?? current.sikesraPublicEnabled,
 	};
@@ -1632,7 +1863,9 @@ async function incrementCounter(ctx: PluginContext, key: string) {
 	return next;
 }
 
-export function createAuditRecord(input: Omit<ExampleAuditEvent, "id" | "timestamp">): ExampleAuditEvent {
+export function createAuditRecord(
+	input: Omit<ExampleAuditEvent, "id" | "timestamp">,
+): ExampleAuditEvent {
 	const timestamp = toIsoNow();
 	return {
 		id: `${timestamp}:${input.kind}:${Math.random().toString(36).slice(2, 8)}`,
@@ -1668,7 +1901,9 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, cursor?: string) 
 	});
 
 	return {
-		items: result.items.map((item: { id: string; data: unknown }) => item.data as ExampleAuditEvent),
+		items: result.items.map(
+			(item: { id: string; data: unknown }) => item.data as ExampleAuditEvent,
+		),
 		cursor: result.cursor,
 		hasMore: result.hasMore,
 	};
@@ -1697,7 +1932,11 @@ async function summarizePluginState(ctx: PluginContext) {
 	};
 }
 
-async function writeSnapshot(ctx: PluginContext, collection: string, content: Record<string, unknown>) {
+async function writeSnapshot(
+	ctx: PluginContext,
+	collection: string,
+	content: Record<string, unknown>,
+) {
 	const contentId = typeof content.id === "string" ? content.id : "unknown";
 	const snapshotId = `${collection}:${contentId}:${Date.now()}`;
 	await ctx.storage.sikesra_content_snapshots!.put(snapshotId, {
@@ -1738,7 +1977,10 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 	const existingRoleAssignments = await ctx.storage.sikesra_role_permission_assignments!.count();
 	if (existingRoleAssignments === 0) {
 		for (const item of DEFAULT_ROLE_ASSIGNMENTS) {
-			await ctx.storage.sikesra_role_permission_assignments!.put(item.roleSlug, touchUpdatedAt(item));
+			await ctx.storage.sikesra_role_permission_assignments!.put(
+				item.roleSlug,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 
@@ -1747,7 +1989,11 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 		for (const item of DEFAULT_USER_ROLE_ASSIGNMENTS) {
 			await ctx.storage.sikesra_user_role_assignments!.put(item.userId, touchUpdatedAt(item));
 		}
-		await persistStateValue(ctx, "state:lastPreviewUserId", DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "");
+		await persistStateValue(
+			ctx,
+			"state:lastPreviewUserId",
+			DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "",
+		);
 	}
 }
 
@@ -1769,7 +2015,10 @@ async function ensureAbacCatalogSeeded(ctx: PluginContext) {
 	const existingResources = await ctx.storage.sikesra_abac_resource_assignments!.count();
 	if (existingResources === 0) {
 		for (const item of DEFAULT_ABAC_RESOURCES) {
-			await ctx.storage.sikesra_abac_resource_assignments!.put(item.resourceId, touchUpdatedAt(item));
+			await ctx.storage.sikesra_abac_resource_assignments!.put(
+				item.resourceId,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 
@@ -1780,13 +2029,23 @@ async function ensureAbacCatalogSeeded(ctx: PluginContext) {
 		}
 	}
 
-	await persistStateValue(ctx, "state:lastAbacPreviewSubjectId", DEFAULT_ABAC_SUBJECTS[0]?.subjectId ?? "");
-	await persistStateValue(ctx, "state:lastAbacPreviewResourceId", DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "");
+	await persistStateValue(
+		ctx,
+		"state:lastAbacPreviewSubjectId",
+		DEFAULT_ABAC_SUBJECTS[0]?.subjectId ?? "",
+	);
+	await persistStateValue(
+		ctx,
+		"state:lastAbacPreviewResourceId",
+		DEFAULT_ABAC_RESOURCES[0]?.resourceId ?? "",
+	);
 }
 
 async function listCollectionValues<T>(
-	collection: { query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }> },
-	orderByField: string = "updatedAt"
+	collection: {
+		query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
+	},
+	orderByField: string = "updatedAt",
 ): Promise<T[]> {
 	const result = await collection.query({ orderBy: { [orderByField]: "desc" }, limit: 200 });
 	return result.items.map((item) => item.data as T);
@@ -1801,7 +2060,9 @@ async function listRoles(ctx: PluginContext) {
 }
 
 async function listRoleAssignments(ctx: PluginContext) {
-	return listCollectionValues<RolePermissionAssignment>(ctx.storage.sikesra_role_permission_assignments!);
+	return listCollectionValues<RolePermissionAssignment>(
+		ctx.storage.sikesra_role_permission_assignments!,
+	);
 }
 
 async function listUserRoleAssignments(ctx: PluginContext) {
@@ -1821,7 +2082,9 @@ async function listAbacSubjects(ctx: PluginContext) {
 }
 
 async function listAbacResources(ctx: PluginContext) {
-	return listCollectionValues<AbacResourceAssignment>(ctx.storage.sikesra_abac_resource_assignments!);
+	return listCollectionValues<AbacResourceAssignment>(
+		ctx.storage.sikesra_abac_resource_assignments!,
+	);
 }
 
 function getStringArray(value: unknown, key: string) {
@@ -1848,13 +2111,23 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	const roles = await listRoles(ctx);
 	const roleAssignments = await listRoleAssignments(ctx);
 	const userAssignments = await listUserRoleAssignments(ctx);
-	const changeEvents = await listCollectionValues<ExampleAuditEvent>(ctx.storage.sikesra_access_change_events!, "timestamp");
+	const changeEvents = await listCollectionValues<ExampleAuditEvent>(
+		ctx.storage.sikesra_access_change_events!,
+		"timestamp",
+	);
 
 	const rolesWithoutPermissions = roles
-		.filter((role) => !roleAssignments.some((assignment) => assignment.roleSlug === role.slug && assignment.permissions.length > 0))
+		.filter(
+			(role) =>
+				!roleAssignments.some(
+					(assignment) => assignment.roleSlug === role.slug && assignment.permissions.length > 0,
+				),
+		)
 		.map((role) => role.slug);
 
-	const usersWithoutRoles = userAssignments.filter((assignment) => assignment.roles.length === 0).map((assignment) => assignment.userId);
+	const usersWithoutRoles = userAssignments
+		.filter((assignment) => assignment.roles.length === 0)
+		.map((assignment) => assignment.userId);
 
 	return {
 		permissions,
@@ -1873,8 +2146,13 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	};
 }
 
-function collectMissingAttributes(required: Record<string, string>, available: Record<string, string>) {
-	return Object.entries(required).filter(([key]) => available[key] === undefined).map(([key]) => key);
+function collectMissingAttributes(
+	required: Record<string, string>,
+	available: Record<string, string>,
+) {
+	return Object.entries(required)
+		.filter(([key]) => available[key] === undefined)
+		.map(([key]) => key);
 }
 
 function allAttributesMatch(required: Record<string, string>, available: Record<string, string>) {
@@ -1887,7 +2165,10 @@ async function summarizeAbac(ctx: PluginContext) {
 	const policies = await listAbacPolicies(ctx);
 	const subjects = await listAbacSubjects(ctx);
 	const resources = await listAbacResources(ctx);
-	const events = await listCollectionValues<ExampleAuditEvent>(ctx.storage.sikesra_abac_change_events!, "timestamp");
+	const events = await listCollectionValues<ExampleAuditEvent>(
+		ctx.storage.sikesra_abac_change_events!,
+		"timestamp",
+	);
 
 	return {
 		attributes,
@@ -1932,13 +2213,19 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(subjectId)) as AbacSubjectAssignment | null;
-	const resource = (await ctx.storage.sikesra_abac_resource_assignments!.get(resourceId)) as AbacResourceAssignment | null;
+	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
+		subjectId,
+	)) as AbacSubjectAssignment | null;
+	const resource = (await ctx.storage.sikesra_abac_resource_assignments!.get(
+		resourceId,
+	)) as AbacResourceAssignment | null;
 
 	if (!subject || !resource) {
 		return {
 			allowed: false,
-			reason: !subject ? `No subject assignment found for ${subjectId}` : `No resource assignment found for ${resourceId}`,
+			reason: !subject
+				? `No subject assignment found for ${subjectId}`
+				: `No resource assignment found for ${resourceId}`,
 			matchedPolicyIds: [],
 			effect: "deny",
 			missingAttributes: [],
@@ -1994,7 +2281,10 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 
 	return {
 		allowed: false,
-		reason: missingAttributes.length > 0 ? `Missing required attributes: ${missingAttributes.join(", ")}` : `No matching allow policy for action ${action}`,
+		reason:
+			missingAttributes.length > 0
+				? `Missing required attributes: ${missingAttributes.join(", ")}`
+				: `No matching allow policy for action ${action}`,
 		matchedPolicyIds: [],
 		effect: "deny",
 		missingAttributes,
@@ -2016,7 +2306,9 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const userAssignment = (await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null;
+	const userAssignment = (await ctx.storage.sikesra_user_role_assignments!.get(
+		userId,
+	)) as UserRoleAssignment | null;
 	if (!userAssignment || userAssignment.roles.length === 0) {
 		return {
 			allowed: false,
@@ -2027,17 +2319,24 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 	}
 
 	const assignments = await Promise.all(
-		userAssignment.roles.map(async (roleSlug) =>
-			((await ctx.storage.sikesra_role_permission_assignments!.get(roleSlug)) as RolePermissionAssignment | null) ?? {
-				roleSlug,
-				permissions: [],
-				updatedAt: "",
-			},
+		userAssignment.roles.map(
+			async (roleSlug) =>
+				((await ctx.storage.sikesra_role_permission_assignments!.get(
+					roleSlug,
+				)) as RolePermissionAssignment | null) ?? {
+					roleSlug,
+					permissions: [],
+					updatedAt: "",
+				},
 		),
 	);
 
-	const effectivePermissions = [...new Set(assignments.flatMap((assignment) => assignment.permissions))].toSorted();
-	const matchedRoles = assignments.filter((assignment) => assignment.permissions.includes(permissionSlug)).map((assignment) => assignment.roleSlug);
+	const effectivePermissions = [
+		...new Set(assignments.flatMap((assignment) => assignment.permissions)),
+	].toSorted();
+	const matchedRoles = assignments
+		.filter((assignment) => assignment.permissions.includes(permissionSlug))
+		.map((assignment) => assignment.roleSlug);
 	const allowed = matchedRoles.length > 0;
 
 	return {
@@ -2068,7 +2367,8 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 	const state = await getVerificationStageState(ctx);
 
-	const dataTypes = (await ctx.kv.get<SikesraParentType[]>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
+	const dataTypes =
+		(await ctx.kv.get<SikesraParentType[]>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
 	const moduleTypes = dataTypes.map((t) => ({ code: t.id, label: t.label }));
 
 	const smallCellThreshold = settings.smallCellThreshold;
@@ -2076,15 +2376,13 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const entitiesList = await getRegistryEntities(ctx);
 
 	const categories = moduleTypes.map((mod) => {
-		const entities = entitiesList.filter(
-			(e) => e.entityType === mod.code
-		);
+		const entities = entitiesList.filter((e) => e.entityType === mod.code);
 		const eligibleEntities = entities.filter(
-			(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal"
+			(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal",
 		);
 		const total = eligibleEntities.length;
 		const verified = eligibleEntities.filter(
-			(e) => (state[e.id] ?? e.verificationStage) === "active_verified"
+			(e) => (state[e.id] ?? e.verificationStage) === "active_verified",
 		).length;
 		const suppressed = total < smallCellThreshold;
 
@@ -2103,7 +2401,8 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 		governanceMode: settings.governanceMode,
 		publicAggregate: {
 			categories,
-			caveat: "Public aggregate only exposes coarse counts and suppresses sensitive details when counts are suppressed.",
+			caveat:
+				"Public aggregate only exposes coarse counts and suppresses sensitive details when counts are suppressed.",
 		},
 	};
 };
@@ -2131,7 +2430,8 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			villageCode: getString(input, "villageCode") ?? "",
 		},
 		verificationStage: "submitted_village",
-		inputLevel: (getString(input, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
+		inputLevel:
+			(getString(input, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 		supportingDocumentIds: [],
 		publicSummary: getString(input, "publicSummary") ?? "",
 	};
@@ -2146,7 +2446,7 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			actor: actorFromRoute(ctx),
 			summary: `Created SIKESRA registry entity ${newEntity.code} - ${newEntity.label}`,
 			metadata: newEntity as unknown as Record<string, unknown>,
-		})
+		}),
 	);
 
 	return { success: true, item: newEntity };
@@ -2182,7 +2482,7 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			actor: actorFromRoute(ctx),
 			summary: `Uploaded document ${newDoc.title} classification ${newDoc.sensitivity}`,
 			metadata: newDoc as unknown as Record<string, unknown>,
-		})
+		}),
 	);
 
 	return { success: true, item: newDoc };
@@ -2197,7 +2497,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!Array.isArray(rows)) {
 		throw new Error("Invalid rows format");
 	}
-	
+
 	let count = 0;
 	for (const row of rows) {
 		const newEntity: SikesraReferenceRegistryEntity = {
@@ -2229,7 +2529,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			actor: actorFromRoute(ctx),
 			summary: `Promoted ${count} staged rows from Excel import to SIKESRA Registry`,
 			metadata: { count },
-		})
+		}),
 	);
 
 	return { success: true, count };
@@ -2276,7 +2576,11 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const regionScope = await getCurrentVerifierRegionScope(ctx);
 	const items = await listVerificationItems(ctx);
 	return {
-		items: filterVerificationItemsForRegionScope(filterVerificationItemsForLevels(items, currentVerifierLevels), currentVerifierLevels, regionScope),
+		items: filterVerificationItemsForRegionScope(
+			filterVerificationItemsForLevels(items, currentVerifierLevels),
+			currentVerifierLevels,
+			regionScope,
+		),
 		events: await listVerificationEvents(ctx),
 		currentVerifierLevels,
 	};
@@ -2285,20 +2589,38 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
-	const verifierLevel = (getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ?? inferVerifierLevel(actor);
-	const notes = getString(routeCtx.input, "notes") ?? "Advanced verification stage from the admin reference UI";
+	const verifierLevel =
+		(getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ??
+		inferVerifierLevel(actor);
+	const notes =
+		getString(routeCtx.input, "notes") ?? "Advanced verification stage from the admin reference UI";
 	const items = await listVerificationItems(ctx);
 	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
 
 	if (!item) {
-		return { success: false, error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` } };
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` },
+		};
 	}
 
 	if (!item.nextStage) {
-		return { success: false, error: { code: "INVALID_STATE", message: `Registry entity ${registryEntityId} is already at the final verification stage` } };
+		return {
+			success: false,
+			error: {
+				code: "INVALID_STATE",
+				message: `Registry entity ${registryEntityId} is already at the final verification stage`,
+			},
+		};
 	}
 	if (!verifierLevel) {
-		return { success: false, error: { code: "INVALID_LEVEL", message: `Verification level is required for ${registryEntityId}` } };
+		return {
+			success: false,
+			error: {
+				code: "INVALID_LEVEL",
+				message: `Verification level is required for ${registryEntityId}`,
+			},
+		};
 	}
 	const allowedVerifierLevels = getAllowedVerifierLevels(item.currentLevel);
 	if (!allowedVerifierLevels.includes(verifierLevel)) {
@@ -2365,16 +2687,29 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
-	const verifierLevel = (getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ?? inferVerifierLevel(actor);
-	const notes = getString(routeCtx.input, "notes") ?? "Returned to the previous verification level from the admin reference UI";
+	const verifierLevel =
+		(getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ??
+		inferVerifierLevel(actor);
+	const notes =
+		getString(routeCtx.input, "notes") ??
+		"Returned to the previous verification level from the admin reference UI";
 	const items = await listVerificationItems(ctx);
 	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
 
 	if (!item) {
-		return { success: false, error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` } };
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` },
+		};
 	}
 	if (!verifierLevel) {
-		return { success: false, error: { code: "INVALID_LEVEL", message: `Verification level is required for ${registryEntityId}` } };
+		return {
+			success: false,
+			error: {
+				code: "INVALID_LEVEL",
+				message: `Verification level is required for ${registryEntityId}`,
+			},
+		};
 	}
 	const allowedVerifierLevels = getAllowedVerifierLevels(item.currentLevel);
 	if (!allowedVerifierLevels.includes(verifierLevel)) {
@@ -2425,7 +2760,8 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	});
 
 	const updatedItems = await listVerificationItems(ctx);
-	const updatedItem = updatedItems.find((entry) => entry.registryEntityId === registryEntityId) ?? item;
+	const updatedItem =
+		updatedItems.find((entry) => entry.registryEntityId === registryEntityId) ?? item;
 	return {
 		success: true,
 		item: updatedItem,
@@ -2465,7 +2801,13 @@ const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => 
 	const label = getString(routeCtx.input, "label") ?? slug;
 	const description = getString(routeCtx.input, "description") ?? "";
 	const scope = getString(routeCtx.input, "scope") ?? "general";
-	const permission = touchUpdatedAt<AccessPermission>({ slug, label, description, scope, updatedAt: "" });
+	const permission = touchUpdatedAt<AccessPermission>({
+		slug,
+		label,
+		description,
+		scope,
+		updatedAt: "",
+	});
 	await ctx.storage.sikesra_permission_catalog!.put(slug, permission);
 	const event = createAuditRecord({
 		kind: "access.permission.save",
@@ -2538,7 +2880,11 @@ const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
 	const roleSlug = getString(routeCtx.input, "roleSlug") ?? "";
 	const permissions = getStringArray(routeCtx.input, "permissions");
-	const assignment = touchUpdatedAt<RolePermissionAssignment>({ roleSlug, permissions, updatedAt: "" });
+	const assignment = touchUpdatedAt<RolePermissionAssignment>({
+		roleSlug,
+		permissions,
+		updatedAt: "",
+	});
 	await ctx.storage.sikesra_role_permission_assignments!.put(roleSlug, assignment);
 	const event = createAuditRecord({
 		kind: "access.matrix.save",
@@ -2571,11 +2917,26 @@ const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAbacCatalogSeeded(ctx);
 	const key = getString(routeCtx.input, "key") ?? "";
 	const label = getString(routeCtx.input, "label") ?? key;
-	const targetType = (getString(routeCtx.input, "targetType") as AbacAttributeDefinition["targetType"] | undefined) ?? "context";
+	const targetType =
+		(getString(routeCtx.input, "targetType") as
+			| AbacAttributeDefinition["targetType"]
+			| undefined) ?? "context";
 	const description = getString(routeCtx.input, "description") ?? "";
-	const item = touchUpdatedAt<AbacAttributeDefinition>({ key, label, targetType, description, updatedAt: "" });
+	const item = touchUpdatedAt<AbacAttributeDefinition>({
+		key,
+		label,
+		targetType,
+		description,
+		updatedAt: "",
+	});
 	await ctx.storage.sikesra_abac_attribute_catalog!.put(key, item);
-	const event = createAuditRecord({ kind: "abac.attribute.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC attribute ${key}`, metadata: { ...item } });
+	const event = createAuditRecord({
+		kind: "abac.attribute.save",
+		scope: "abac",
+		actor: actorFromRoute(ctx),
+		summary: `Saved ABAC attribute ${key}`,
+		metadata: { ...item },
+	});
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
 	return { success: true, item };
@@ -2592,7 +2953,13 @@ const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacSubjectAssignment>({ subjectId, attributes, updatedAt: "" });
 	await ctx.storage.sikesra_abac_subject_assignments!.put(subjectId, item);
-	const event = createAuditRecord({ kind: "abac.subject.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC subject assignment for ${subjectId}`, metadata: { ...item } });
+	const event = createAuditRecord({
+		kind: "abac.subject.save",
+		scope: "abac",
+		actor: actorFromRoute(ctx),
+		summary: `Saved ABAC subject assignment for ${subjectId}`,
+		metadata: { ...item },
+	});
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
 	return { success: true, item };
@@ -2609,7 +2976,13 @@ const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacResourceAssignment>({ resourceId, attributes, updatedAt: "" });
 	await ctx.storage.sikesra_abac_resource_assignments!.put(resourceId, item);
-	const event = createAuditRecord({ kind: "abac.resource.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC resource assignment for ${resourceId}`, metadata: { ...item } });
+	const event = createAuditRecord({
+		kind: "abac.resource.save",
+		scope: "abac",
+		actor: actorFromRoute(ctx),
+		summary: `Saved ABAC resource assignment for ${resourceId}`,
+		metadata: { ...item },
+	});
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
 	return { success: true, item };
@@ -2624,14 +2997,30 @@ const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAbacCatalogSeeded(ctx);
 	const id = getString(routeCtx.input, "id") ?? "";
 	const label = getString(routeCtx.input, "label") ?? id;
-	const effect = (getString(routeCtx.input, "effect") as AbacPolicyRule["effect"] | undefined) ?? "allow";
+	const effect =
+		(getString(routeCtx.input, "effect") as AbacPolicyRule["effect"] | undefined) ?? "allow";
 	const actions = getStringArray(routeCtx.input, "actions");
 	const requiredSubject = getStringRecord(routeCtx.input, "requiredSubject");
 	const requiredResource = getStringRecord(routeCtx.input, "requiredResource");
 	const requiredContext = getStringRecord(routeCtx.input, "requiredContext");
-	const item = touchUpdatedAt<AbacPolicyRule>({ id, label, effect, actions, requiredSubject, requiredResource, requiredContext, updatedAt: "" });
+	const item = touchUpdatedAt<AbacPolicyRule>({
+		id,
+		label,
+		effect,
+		actions,
+		requiredSubject,
+		requiredResource,
+		requiredContext,
+		updatedAt: "",
+	});
 	await ctx.storage.sikesra_abac_policy_rules!.put(id, item);
-	const event = createAuditRecord({ kind: "abac.policy.save", scope: "abac", actor: actorFromRoute(ctx), summary: `Saved ABAC policy ${id}`, metadata: { ...item } });
+	const event = createAuditRecord({
+		kind: "abac.policy.save",
+		scope: "abac",
+		actor: actorFromRoute(ctx),
+		summary: `Saved ABAC policy ${id}`,
+		metadata: { ...item },
+	});
 	await appendAbacChangeEvent(ctx, event);
 	await appendAuditEvent(ctx, event);
 	return { success: true, item };
@@ -2644,9 +3033,19 @@ const abacPreviewRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const abacEnforceDemoRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const decision = await evaluateAbacDecision(ctx, routeCtx.input);
 	const contextAttributes = getStringRecord(routeCtx.input, "contextAttributes");
-	const sensitive = (contextAttributes.action ?? getString(routeCtx.input, "action") ?? "").includes("sensitive");
+	const sensitive = (
+		contextAttributes.action ??
+		getString(routeCtx.input, "action") ??
+		""
+	).includes("sensitive");
 	if (sensitive) {
-		const event = createAuditRecord({ kind: "abac.decision.audit", scope: "abac", actor: actorFromRoute(ctx), summary: `Audited ABAC decision for sensitive action ${contextAttributes.action ?? getString(routeCtx.input, "action") ?? "unknown"}`, metadata: decision as unknown as Record<string, unknown> });
+		const event = createAuditRecord({
+			kind: "abac.decision.audit",
+			scope: "abac",
+			actor: actorFromRoute(ctx),
+			summary: `Audited ABAC decision for sensitive action ${contextAttributes.action ?? getString(routeCtx.input, "action") ?? "unknown"}`,
+			metadata: decision as unknown as Record<string, unknown>,
+		});
 		await appendAbacChangeEvent(ctx, event);
 		await appendAuditEvent(ctx, event);
 	}
@@ -2748,7 +3147,14 @@ export function createNativeRoutes() {
 		routes[path] = {
 			public: entry.public,
 			handler: async (ctx) =>
-				entry.handler({ input: ctx.input, request: toSandboxRequest(ctx.request), requestMeta: ctx.requestMeta }, ctx),
+				entry.handler(
+					{
+						input: ctx.input,
+						request: toSandboxRequest(ctx.request),
+						requestMeta: ctx.requestMeta,
+					},
+					ctx,
+				),
 		};
 	}
 	return routes;
@@ -2961,7 +3367,11 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 		const settings = await getSettings(ctx);
 		const href = settings.metadataCanonicalBase || event.page.canonical || event.page.url;
 		return [
-			{ kind: "meta" as const, name: "awcms-micro:governance-mode", content: settings.governanceMode },
+			{
+				kind: "meta" as const,
+				name: "awcms-micro:governance-mode",
+				content: settings.governanceMode,
+			},
 			{ kind: "link" as const, rel: "canonical" as const, href, key: "awcms-micro-canonical" },
 		];
 	},

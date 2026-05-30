@@ -1,5 +1,6 @@
 import * as React from "react";
 import { vi, describe, expect, it, beforeEach } from "vitest";
+
 import { render } from "../utils/render.tsx";
 import { TestWrapper } from "../utils/test-helpers.tsx";
 
@@ -10,16 +11,32 @@ vi.mock("@cloudflare/kumo", () => {
 		),
 		{
 			Provider: ({ children }: React.PropsWithChildren) => <>{children}</>,
-			Header: ({ children }: React.PropsWithChildren) => <header data-sidebar="header">{children}</header>,
-			Content: ({ children }: React.PropsWithChildren) => <div data-sidebar="content">{children}</div>,
-			Footer: ({ children }: React.PropsWithChildren) => <footer data-sidebar="footer">{children}</footer>,
-			Group: ({ children }: React.PropsWithChildren) => <section data-sidebar="group">{children}</section>,
+			Header: ({ children }: React.PropsWithChildren) => (
+				<header data-sidebar="header">{children}</header>
+			),
+			Content: ({ children }: React.PropsWithChildren) => (
+				<div data-sidebar="content">{children}</div>
+			),
+			Footer: ({ children }: React.PropsWithChildren) => (
+				<footer data-sidebar="footer">{children}</footer>
+			),
+			Group: ({ children }: React.PropsWithChildren) => (
+				<section data-sidebar="group">{children}</section>
+			),
 			Menu: ({ children }: React.PropsWithChildren) => <nav data-sidebar="menu">{children}</nav>,
-			MenuItem: ({ children }: React.PropsWithChildren) => <div data-sidebar="menu-item">{children}</div>,
-			MenuBadge: ({ children }: React.PropsWithChildren) => <span data-sidebar="menu-badge">{children}</span>,
+			MenuItem: ({ children }: React.PropsWithChildren) => (
+				<div data-sidebar="menu-item">{children}</div>
+			),
+			MenuBadge: ({ children }: React.PropsWithChildren) => (
+				<span data-sidebar="menu-badge">{children}</span>
+			),
 			Separator: () => <div data-sidebar="separator" />,
-			GroupLabel: ({ children }: React.PropsWithChildren) => <div data-sidebar="group-label">{children}</div>,
-			GroupContent: ({ children }: React.PropsWithChildren) => <div data-sidebar="group-content">{children}</div>,
+			GroupLabel: ({ children }: React.PropsWithChildren) => (
+				<div data-sidebar="group-label">{children}</div>
+			),
+			GroupContent: ({ children }: React.PropsWithChildren) => (
+				<div data-sidebar="group-content">{children}</div>
+			),
 		},
 	);
 
@@ -31,7 +48,8 @@ vi.mock("@cloudflare/kumo", () => {
 });
 
 vi.mock("@tanstack/react-router", async () => {
-	const actual = await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
+	const actual =
+		await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
 	return {
 		...actual,
 		Link: ({ children, to, ...props }: any) => (
@@ -157,8 +175,9 @@ describe("SidebarNav helpers", () => {
 		);
 
 		await expect.element(screen.getByText("Dashboard")).toBeInTheDocument();
-		const groupLabels = Array.from(document.querySelectorAll('[data-sidebar="group-label"]'), (node) =>
-			node.textContent,
+		const groupLabels = Array.from(
+			document.querySelectorAll('[data-sidebar="group-label"]'),
+			(node) => node.textContent,
 		);
 		expect(groupLabels.slice(0, 2)).toEqual(["Alpha Plugin", "Docs"]);
 		await expect.element(screen.getByRole("link", { name: "Docs" })).toBeInTheDocument();

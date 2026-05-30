@@ -17,7 +17,13 @@
 			"labelSingular": "Post",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "featured_image", "label": "Featured Image", "type": "image" },
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true },
 				{ "slug": "excerpt", "label": "Excerpt", "type": "text" }
@@ -29,7 +35,13 @@
 			"labelSingular": "News Item",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "summary", "label": "Summary", "type": "text", "searchable": true },
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
 			]
@@ -40,7 +52,13 @@
 			"labelSingular": "Page",
 			"supports": ["drafts", "revisions", "search"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
 			]
 		},
@@ -50,13 +68,31 @@
 			"labelSingular": "Gallery",
 			"supports": ["drafts", "revisions", "search", "seo"],
 			"fields": [
-				{ "slug": "title", "label": "Title", "type": "string", "required": true, "searchable": true },
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
 				{ "slug": "description", "label": "Description", "type": "text", "searchable": true },
 				{ "slug": "cover_image", "label": "Cover Image", "type": "image" },
-				{ "slug": "gallery_type", "label": "Gallery Type", "type": "select", "required": true, "validation": { "options": ["photo", "video", "mixed"] } },
+				{
+					"slug": "gallery_type",
+					"label": "Gallery Type",
+					"type": "select",
+					"required": true,
+					"validation": { "options": ["photo", "video", "mixed"] }
+				},
 				{ "slug": "event_date", "label": "Event Date", "type": "datetime" },
 				{ "slug": "location", "label": "Location", "type": "string", "searchable": true },
-				{ "slug": "layout_variant", "label": "Layout Variant", "type": "select", "required": true, "validation": { "options": ["grid", "masonry", "carousel", "slider"] } },
+				{
+					"slug": "layout_variant",
+					"label": "Layout Variant",
+					"type": "select",
+					"required": true,
+					"validation": { "options": ["grid", "masonry", "carousel", "slider"] }
+				},
 				{ "slug": "gallery_items", "label": "Gallery Items", "type": "json", "required": true },
 				{ "slug": "featured", "label": "Featured", "type": "boolean" }
 			]
@@ -227,7 +263,12 @@
 			"description": "Sidebar widget area",
 			"widgets": [
 				{ "type": "component", "componentId": "core:search", "title": "Search" },
-				{ "type": "component", "componentId": "core:recent-posts", "title": "Recent Posts", "settings": { "count": 5 } }
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Recent Posts",
+					"settings": { "count": 5 }
+				}
 			]
 		}
 	],
@@ -396,7 +437,10 @@
 				"data": {
 					"title": "Cloudflare Media Gallery",
 					"description": "A Cloudflare-ready mixed gallery that can use EmDash media, R2 objects, Cloudflare Images, or Cloudflare Stream URLs without exposing private keys.",
-					"cover_image": { "src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80", "alt": "Team reviewing media assets on laptops" },
+					"cover_image": {
+						"src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+						"alt": "Team reviewing media assets on laptops"
+					},
 					"gallery_type": "mixed",
 					"event_date": "2026-05-10T10:30:00.000Z",
 					"location": "Cloudflare Production Template",
@@ -434,7 +478,10 @@
 				"data": {
 					"title": "Galeri Media Cloudflare",
 					"description": "Galeri campuran siap Cloudflare yang dapat menggunakan media EmDash, objek R2, Cloudflare Images, atau URL Cloudflare Stream tanpa mengekspos kunci privat.",
-					"cover_image": { "src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80", "alt": "Tim meninjau aset media di laptop" },
+					"cover_image": {
+						"src": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
+						"alt": "Tim meninjau aset media di laptop"
+					},
 					"gallery_type": "mixed",
 					"event_date": "2026-05-10T10:30:00.000Z",
 					"location": "Template Produksi Cloudflare",

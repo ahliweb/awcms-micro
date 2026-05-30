@@ -3,15 +3,14 @@ import { resolve } from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { awcmsMicroExamplePlugin } from "../src/index.js";
 import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
 } from "../src/admin.js";
-import sandboxPlugin from "../src/sandbox.js";
-import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
+import { awcmsMicroExamplePlugin } from "../src/index.js";
+import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
 import {
 	AWCMS_SIKESRA_ADMIN_PAGES,
 	AWCMS_SIKESRA_ADMIN_WIDGETS,
@@ -25,6 +24,7 @@ import {
 	createNativeRoutes,
 	createSharedHooks,
 } from "../src/runtime.js";
+import sandboxPlugin from "../src/sandbox.js";
 
 function parseJsoncObject<T>(source: string): T {
 	let output = "";
@@ -146,12 +146,14 @@ function createMockContext() {
 	};
 	const cloneRow = (row: DbRow) => ({ ...row });
 	const queryRows = (filters: Record<string, string>) =>
-		dbRows.filter((row) => {
-			for (const [key, value] of Object.entries(filters)) {
-				if ((row as Record<string, string>)[key] !== value) return false;
-			}
-			return true;
-		}).map(cloneRow);
+		dbRows
+			.filter((row) => {
+				for (const [key, value] of Object.entries(filters)) {
+					if ((row as Record<string, string>)[key] !== value) return false;
+				}
+				return true;
+			})
+			.map(cloneRow);
 	const seedDbRow = (row: DbRow) => {
 		dbRows.push(row);
 		syncCollectionMap(row);
@@ -298,7 +300,9 @@ function createMockContext() {
 				sikesra_content_snapshots: createCollection(collections.contentSnapshots),
 				sikesra_permission_catalog: createCollection(collections.permissionCatalog),
 				sikesra_role_catalog: createCollection(collections.roleCatalog),
-				sikesra_role_permission_assignments: createCollection(collections.rolePermissionAssignments),
+				sikesra_role_permission_assignments: createCollection(
+					collections.rolePermissionAssignments,
+				),
 				sikesra_user_role_assignments: createCollection(collections.userRoleAssignments),
 				sikesra_supporting_documents: createCollection(collections.supportingDocuments),
 				sikesra_verification_events: createCollection(collections.verificationEvents),
@@ -345,9 +349,22 @@ describe("awcms micro example plugin", () => {
 			]),
 		);
 		expect(Object.keys(storage).every((key) => key.startsWith("sikesra_"))).toBe(true);
-		expect(AWCMS_SIKESRA_STORAGE.sikesra_access_change_events.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
-		expect(AWCMS_SIKESRA_STORAGE.sikesra_abac_change_events.indexes).toEqual(["timestamp", "kind", "scope", ["scope", "timestamp"]]);
-		expect(AWCMS_SIKESRA_STORAGE.sikesra_content_snapshots.indexes).toContainEqual(["contentId", "timestamp"]);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_access_change_events.indexes).toEqual([
+			"timestamp",
+			"kind",
+			"scope",
+			["scope", "timestamp"],
+		]);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_abac_change_events.indexes).toEqual([
+			"timestamp",
+			"kind",
+			"scope",
+			["scope", "timestamp"],
+		]);
+		expect(AWCMS_SIKESRA_STORAGE.sikesra_content_snapshots.indexes).toContainEqual([
+			"contentId",
+			"timestamp",
+		]);
 		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
 		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
 	});
@@ -383,9 +400,15 @@ describe("awcms micro example plugin", () => {
 			},
 		});
 
-		await routes["state/touch"]!.handler({ ...ctx, request, input: { note: "stamp check" } } as any);
+		await routes["state/touch"]!.handler({
+			...ctx,
+			request,
+			input: { note: "stamp check" },
+		} as any);
 
-		const stored = [...collections.auditEvents.values()].find((item: any) => item.kind === "state.touch") as any;
+		const stored = [...collections.auditEvents.values()].find(
+			(item: any) => item.kind === "state.touch",
+		) as any;
 		expect(stored).toMatchObject({ userId: "user-123", userName: "Ada Lovelace" });
 	});
 
@@ -396,24 +419,26 @@ describe("awcms micro example plugin", () => {
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
 		expect(AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS[0]?.type).toBe("awcms-access-note");
 		expect(AWCMS_SIKESRA_FIELD_WIDGETS[0]?.name).toBe("status-badge");
-		expect(AWCMS_SIKESRA_ADMIN_PAGES.map((page) => page.path).toSorted()).toEqual([
-			"/abac/attributes",
-			"/abac/policies",
-			"/abac/preview",
-			"/access/matrix",
-			"/access/permissions",
-			"/access/preview",
-			"/access/roles",
-			"/audit",
-			"/data-types",
-			"/documents",
-			"/import",
-			"/overview",
-			"/regions",
-			"/registry",
-			"/reports",
-			"/verification",
-		].toSorted());
+		expect(AWCMS_SIKESRA_ADMIN_PAGES.map((page) => page.path).toSorted()).toEqual(
+			[
+				"/abac/attributes",
+				"/abac/policies",
+				"/abac/preview",
+				"/access/matrix",
+				"/access/permissions",
+				"/access/preview",
+				"/access/roles",
+				"/audit",
+				"/data-types",
+				"/documents",
+				"/import",
+				"/overview",
+				"/regions",
+				"/registry",
+				"/reports",
+				"/verification",
+			].toSorted(),
+		);
 	});
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
@@ -435,8 +460,18 @@ describe("awcms micro example plugin", () => {
 					href: "/parent",
 					permission: undefined,
 					children: [
-						{ id: "read-child", label: "Read child", href: "/parent/read", permission: "awcms:sikesra:parent:read" },
-						{ id: "write-child", label: "Write child", href: "/parent/write", permission: "awcms:sikesra:parent:write" },
+						{
+							id: "read-child",
+							label: "Read child",
+							href: "/parent/read",
+							permission: "awcms:sikesra:parent:read",
+						},
+						{
+							id: "write-child",
+							label: "Write child",
+							href: "/parent/write",
+							permission: "awcms:sikesra:parent:write",
+						},
 					],
 				},
 				{
@@ -444,7 +479,14 @@ describe("awcms micro example plugin", () => {
 					label: "Blocked",
 					href: "/blocked",
 					permission: "awcms:sikesra:blocked:write",
-					children: [{ id: "blocked-child", label: "Blocked child", href: "/blocked/child", permission: "awcms:sikesra:blocked:write" }],
+					children: [
+						{
+							id: "blocked-child",
+							label: "Blocked child",
+							href: "/blocked/child",
+							permission: "awcms:sikesra:blocked:write",
+						},
+					],
 				},
 			] as any,
 			(permission) => !permission || permission === "awcms:sikesra:parent:read",
@@ -460,9 +502,13 @@ describe("awcms micro example plugin", () => {
 		expect(SIKESRA_REFERENCE_FIXTURES.supportingDocuments).toHaveLength(4);
 		expect(SIKESRA_REFERENCE_FIXTURES.verificationEvents).toHaveLength(3);
 		expect(SIKESRA_REFERENCE_FIXTURES.publicAggregate.caveat).toContain("coarse counts");
-		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.verificationStage).toBe("active_verified");
+		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities[0]?.verificationStage).toBe(
+			"active_verified",
+		);
 		expect(SIKESRA_REFERENCE_FIXTURES.registryEntities[2]?.sensitivity).toBe("highly_restricted");
-		expect(SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.some((item) => item.suppressed)).toBe(true);
+		expect(
+			SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.some((item) => item.suppressed),
+		).toBe(true);
 		expect(SIKESRA_REFERENCE_FIXTURES.abacPolicies[0]?.effect).toBe("deny");
 	});
 
@@ -486,16 +532,30 @@ describe("awcms micro example plugin", () => {
 			},
 		} as any);
 
-		const publicResult = (await routes["public/status"]!.handler({ ...ctx, input: {} } as any)) as any;
-		expect(Object.keys(publicResult).toSorted()).toEqual(["governanceMode", "plugin", "publicAggregate", "status"]);
+		const publicResult = (await routes["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+		expect(Object.keys(publicResult).toSorted()).toEqual([
+			"governanceMode",
+			"plugin",
+			"publicAggregate",
+			"status",
+		]);
 		expect(publicResult.status).toBe("green");
 		expect(publicResult.plugin.visibility).toBe("public-safe");
 		expect(publicResult).not.toHaveProperty("storageKey");
 		expect(publicResult).not.toHaveProperty("userId");
 		expect(collections.settingsState.size).toBe(6);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
-		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({ key: "state:publicStatusHits", value: 1 });
-		expect(collections.settingsState.get("governanceMode")).toMatchObject({ key: "governanceMode", value: "observe" });
+		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({
+			key: "state:publicStatusHits",
+			value: 1,
+		});
+		expect(collections.settingsState.get("governanceMode")).toMatchObject({
+			key: "governanceMode",
+			value: "observe",
+		});
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
@@ -505,25 +565,30 @@ describe("awcms micro example plugin", () => {
 
 		const before = (await routes["verification/list"]!.handler({
 			...ctx,
-			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+			}),
 			input: {},
 		} as any)) as any;
-		expect(before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_sopd");
+		expect(
+			before.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")
+				?.verificationStage,
+		).toBe("submitted_sopd");
 		expect(before.currentVerifierLevels).toContain("sopd");
 		expect(before.items).toHaveLength(1);
 
-		const result = (await routes["verification/advance"]!.handler(
-			{
-				...ctx,
-				request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
-				input: {
-					registryEntityId: "registry-entity-guru-agama-01",
-					actor: "sopd-officer",
-					verifierLevel: "sopd",
-					notes: "Promoted from district review",
-				},
-			} as any,
-		)) as any;
+		const result = (await routes["verification/advance"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+			}),
+			input: {
+				registryEntityId: "registry-entity-guru-agama-01",
+				actor: "sopd-officer",
+				verifierLevel: "sopd",
+				notes: "Promoted from district review",
+			},
+		} as any)) as any;
 
 		expect(result.success).toBe(true);
 		expect(result.item.verificationStage).toBe("verified_sopd");
@@ -539,33 +604,41 @@ describe("awcms micro example plugin", () => {
 		expect(result.verificationEvent.verifierOrgScope).toBe("site-main");
 
 		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		const afterItem = after.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01");
+		const afterItem = after.items.find(
+			(item: any) => item.registryEntityId === "registry-entity-guru-agama-01",
+		);
 		expect(afterItem?.verificationStage).toBe("verified_sopd");
 		expect(afterItem?.currentLevel).toBe("kabupaten_admin");
 		expect(afterItem?.nextLevel).toBe("kabupaten_admin");
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 		expect(collections.verificationEvents.size).toBe(1);
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "verified_sopd" });
-		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({ key: "state:lastVerificationEventId", value: expect.stringContaining("registry-entity-guru-agama-01") });
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
+			registryEntityId: "registry-entity-guru-agama-01",
+			stage: "verified_sopd",
+		});
+		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({
+			key: "state:lastVerificationEventId",
+			value: expect.stringContaining("registry-entity-guru-agama-01"),
+		});
 	});
 
 	it("rejects verification advances from the wrong user level", async () => {
 		const { ctx, kvData } = createMockContext();
-		kvData.set("state:sikesraVerificationStages", { "registry-entity-guru-agama-01": "submitted_village" });
+		kvData.set("state:sikesraVerificationStages", {
+			"registry-entity-guru-agama-01": "submitted_village",
+		});
 		const routes = createNativeRoutes();
 
-		const result = (await routes["verification/advance"]!.handler(
-			{
-				...ctx,
-				input: {
-					registryEntityId: "registry-entity-guru-agama-01",
-					actor: "district-officer",
-					verifierLevel: "kecamatan",
-					notes: "Attempted from wrong level",
-				},
-			} as any,
-		)) as any;
+		const result = (await routes["verification/advance"]!.handler({
+			...ctx,
+			input: {
+				registryEntityId: "registry-entity-guru-agama-01",
+				actor: "district-officer",
+				verifierLevel: "kecamatan",
+				notes: "Attempted from wrong level",
+			},
+		} as any)) as any;
 
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("INVALID_LEVEL");
@@ -577,7 +650,9 @@ describe("awcms micro example plugin", () => {
 
 		const result = (await routes["verification/list"]!.handler({
 			...ctx,
-			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" } }),
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+			}),
 			input: {},
 		} as any)) as any;
 
@@ -593,7 +668,12 @@ describe("awcms micro example plugin", () => {
 			label: "Outside Scope Entity",
 			entityType: "guru_agama",
 			sensitivity: "restricted",
-			region: { provinceCode: "32", regencyCode: "3273", districtCode: "3273010", villageCode: "3273010001" },
+			region: {
+				provinceCode: "32",
+				regencyCode: "3273",
+				districtCode: "3273010",
+				villageCode: "3273010001",
+			},
 			verificationStage: "submitted_sopd",
 			inputLevel: "kecamatan",
 			supportingDocumentIds: [],
@@ -603,7 +683,9 @@ describe("awcms micro example plugin", () => {
 
 		const result = (await routes["verification/list"]!.handler({
 			...ctx,
-			request: new Request("https://example.test", { headers: { "X-Sikesra-User-Id": "user-demo-sopd" } }),
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+			}),
 			input: {},
 		} as any)) as any;
 
@@ -616,52 +698,67 @@ describe("awcms micro example plugin", () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const result = (await routes["verification/reject"]!.handler(
-			{
-				...ctx,
-				input: {
-					registryEntityId: "registry-entity-guru-agama-01",
-					actor: "sopd-officer",
-					verifierLevel: "sopd",
-					notes: "Returned to district for correction",
-				},
-			} as any,
-		)) as any;
+		const result = (await routes["verification/reject"]!.handler({
+			...ctx,
+			input: {
+				registryEntityId: "registry-entity-guru-agama-01",
+				actor: "sopd-officer",
+				verifierLevel: "sopd",
+				notes: "Returned to district for correction",
+			},
+		} as any)) as any;
 
 		expect(result.success).toBe(true);
 		expect(result.item.verificationStage).toBe("submitted_district");
 		expect(result.event.kind).toBe("verification.stage.reject");
 		expect(result.verificationEvent.result).toBe("needs_review");
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_district" });
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
+			registryEntityId: "registry-entity-guru-agama-01",
+			stage: "submitted_district",
+		});
 	});
 
 	it("records manual touch state in plugin storage", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const result = (await routes["state/touch"]!.handler(
-			{
-				...ctx,
-				input: { note: "manual review" },
-			} as any,
-		)) as any;
+		const result = (await routes["state/touch"]!.handler({
+			...ctx,
+			input: { note: "manual review" },
+		} as any)) as any;
 
 		expect(result.success).toBe(true);
 		expect(result.counter).toBe(1);
-		expect(collections.pluginState.get("state:lastManualTouch")).toMatchObject({ key: "state:lastManualTouch" });
-		expect(collections.pluginState.get("state:manualTouches")).toMatchObject({ key: "state:manualTouches", value: 1 });
+		expect(collections.pluginState.get("state:lastManualTouch")).toMatchObject({
+			key: "state:lastManualTouch",
+		});
+		expect(collections.pluginState.get("state:manualTouches")).toMatchObject({
+			key: "state:manualTouches",
+			value: 1,
+		});
 	});
 
 	it("migrates legacy verification state blobs into plugin storage on read", async () => {
 		const { ctx, collections, kvData } = createMockContext();
-		kvData.set("state:sikesraVerificationStages", { "registry-entity-guru-agama-01": "submitted_regency" });
+		kvData.set("state:sikesraVerificationStages", {
+			"registry-entity-guru-agama-01": "submitted_regency",
+		});
 		const routes = createNativeRoutes();
 
-		const result = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const result = (await routes["verification/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
 
-		expect(result.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")?.verificationStage).toBe("submitted_regency");
+		expect(
+			result.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")
+				?.verificationStage,
+		).toBe("submitted_regency");
 		expect(kvData.has("state:sikesraVerificationStages")).toBe(false);
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({ registryEntityId: "registry-entity-guru-agama-01", stage: "submitted_regency" });
+		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
+			registryEntityId: "registry-entity-guru-agama-01",
+			stage: "submitted_regency",
+		});
 	});
 
 	it("persists registry and document records in plugin storage", async () => {
@@ -697,11 +794,19 @@ describe("awcms micro example plugin", () => {
 		} as any);
 
 		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		const documents = (await routes["documents/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const documents = (await routes["documents/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
 
 		expect(registry.items.some((item: any) => item.id === "registry-entity-custom-01")).toBe(true);
-		expect(registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.verificationStage).toBe("submitted_village");
-		expect(registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel).toBe("admin_sikesra");
+		expect(
+			registry.items.find((item: any) => item.id === "registry-entity-custom-01")
+				?.verificationStage,
+		).toBe("submitted_village");
+		expect(
+			registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel,
+		).toBe("admin_sikesra");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
 		expect(collections.registryEntities.size).toBe(1);
 		expect(collections.supportingDocuments.size).toBe(1);
@@ -716,7 +821,12 @@ describe("awcms micro example plugin", () => {
 				label: "Legacy Registry Entity",
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
-				region: { provinceCode: "31", regencyCode: "3171", districtCode: "3171010", villageCode: "3171010001" },
+				region: {
+					provinceCode: "31",
+					regencyCode: "3171",
+					districtCode: "3171010",
+					villageCode: "3171010001",
+				},
 				verificationStage: "draft",
 				supportingDocumentIds: [],
 				publicSummary: "Legacy registry summary",
@@ -736,14 +846,23 @@ describe("awcms micro example plugin", () => {
 		const routes = createNativeRoutes();
 
 		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		const documents = (await routes["documents/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const documents = (await routes["documents/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
 
 		expect(registry.items.some((item: any) => item.id === "registry-entity-legacy-01")).toBe(true);
 		expect(documents.items.some((item: any) => item.id === "doc-legacy-01")).toBe(true);
 		expect(kvData.has("custom:registryEntities")).toBe(false);
 		expect(kvData.has("custom:supportingDocuments")).toBe(false);
-		expect(collections.registryEntities.get("registry-entity-legacy-01")).toMatchObject({ id: "registry-entity-legacy-01", code: "LG-001" });
-		expect(collections.supportingDocuments.get("doc-legacy-01")).toMatchObject({ id: "doc-legacy-01", registryEntityId: "registry-entity-legacy-01" });
+		expect(collections.registryEntities.get("registry-entity-legacy-01")).toMatchObject({
+			id: "registry-entity-legacy-01",
+			code: "LG-001",
+		});
+		expect(collections.supportingDocuments.get("doc-legacy-01")).toMatchObject({
+			id: "doc-legacy-01",
+			registryEntityId: "registry-entity-legacy-01",
+		});
 	});
 
 	it("records lifecycle and cron behavior", async () => {
@@ -758,7 +877,11 @@ describe("awcms micro example plugin", () => {
 
 		await activate!({} as any, ctx as any);
 		await cronHook!(
-			{ name: "governance-summary", schedule: "0 * * * *", triggeredAt: new Date().toISOString() } as any,
+			{
+				name: "governance-summary",
+				schedule: "0 * * * *",
+				triggeredAt: new Date().toISOString(),
+			} as any,
 			ctx as any,
 		);
 
@@ -766,13 +889,30 @@ describe("awcms micro example plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
 		expect(collections.roleCatalog.get("admin-sikesra")).toMatchObject({ slug: "admin-sikesra" });
-		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({ userId: "user-demo-village", roles: ["verifier-desa-kelurahan"] });
+		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({
+			userId: "user-demo-village",
+			roles: ["verifier-desa-kelurahan"],
+		});
 		expect(collections.pluginState.size).toBeGreaterThan(0);
-		expect(collections.pluginState.get("state:lastLifecycle")).toMatchObject({ key: "state:lastLifecycle", value: "plugin:activate" });
-		expect(collections.pluginState.get("state:lastCronAt")).toMatchObject({ key: "state:lastCronAt" });
-		expect(collections.pluginState.get("state:lastPreviewUserId")).toMatchObject({ key: "state:lastPreviewUserId", value: "user-demo-editor" });
-		expect(collections.pluginState.get("state:lastAbacPreviewSubjectId")).toMatchObject({ key: "state:lastAbacPreviewSubjectId", value: "user-demo-editor" });
-		expect(collections.pluginState.get("state:lastAbacPreviewResourceId")).toMatchObject({ key: "state:lastAbacPreviewResourceId", value: "resource-public-post" });
+		expect(collections.pluginState.get("state:lastLifecycle")).toMatchObject({
+			key: "state:lastLifecycle",
+			value: "plugin:activate",
+		});
+		expect(collections.pluginState.get("state:lastCronAt")).toMatchObject({
+			key: "state:lastCronAt",
+		});
+		expect(collections.pluginState.get("state:lastPreviewUserId")).toMatchObject({
+			key: "state:lastPreviewUserId",
+			value: "user-demo-editor",
+		});
+		expect(collections.pluginState.get("state:lastAbacPreviewSubjectId")).toMatchObject({
+			key: "state:lastAbacPreviewSubjectId",
+			value: "user-demo-editor",
+		});
+		expect(collections.pluginState.get("state:lastAbacPreviewResourceId")).toMatchObject({
+			key: "state:lastAbacPreviewResourceId",
+			value: "resource-public-post",
+		});
 	});
 
 	it("migrates legacy plugin storage collections into prefixed collections on activate", async () => {
@@ -818,11 +958,24 @@ describe("awcms micro example plugin", () => {
 
 		await activate!({} as any, ctx as any);
 
-		const auditList = (await createNativeRoutes()["audit/list"]!.handler({ ...ctx, input: {} } as any)) as any;
-		expect(auditList.items.some((item: any) => item.id === "audit-legacy-01" && item.summary === "Current audit row")).toBe(true);
+		const auditList = (await createNativeRoutes()["audit/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+		expect(
+			auditList.items.some(
+				(item: any) => item.id === "audit-legacy-01" && item.summary === "Current audit row",
+			),
+		).toBe(true);
 		expect(dbRows.some((row) => row.collection === "auditEvents")).toBe(false);
-		expect(dbRows.some((row) => row.collection === "sikesra_audit_events" && row.id === "audit-legacy-01")).toBe(true);
-		expect(collections.auditEvents.get("audit-legacy-01")).toMatchObject({ summary: "Current audit row" });
+		expect(
+			dbRows.some(
+				(row) => row.collection === "sikesra_audit_events" && row.id === "audit-legacy-01",
+			),
+		).toBe(true);
+		expect(collections.auditEvents.get("audit-legacy-01")).toMatchObject({
+			summary: "Current audit row",
+		});
 	});
 
 	it("records content and media hooks", async () => {
@@ -858,10 +1011,7 @@ describe("awcms micro example plugin", () => {
 			{ file: { name: "logo.png", type: "image/png", size: 1234 } } as any,
 			ctx as any,
 		);
-		await afterUpload!(
-			{ media: { id: "media-1", mimeType: "image/png" } } as any,
-			ctx as any,
-		);
+		await afterUpload!({ media: { id: "media-1", mimeType: "image/png" } } as any, ctx as any);
 
 		expect(collections.contentSnapshots.size).toBe(1);
 		expect(collections.auditEvents.size).toBeGreaterThanOrEqual(4);
@@ -871,58 +1021,51 @@ describe("awcms micro example plugin", () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const permissionsBefore = (await routes["access/permissions/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const permissionsBefore = (await routes["access/permissions/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
 		expect(permissionsBefore.items.length).toBeGreaterThan(0);
 
-		await routes["access/permissions/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					slug: "documents.review",
-					label: "Review Documents",
-					description: "Allows reviewing governed documents.",
-					scope: "documents",
-				},
-			} as any,
-		);
+		await routes["access/permissions/save"]!.handler({
+			...ctx,
+			input: {
+				slug: "documents.review",
+				label: "Review Documents",
+				description: "Allows reviewing governed documents.",
+				scope: "documents",
+			},
+		} as any);
 
-		await routes["access/roles/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					slug: "document-reviewer",
-					label: "Document Reviewer",
-					description: "Reviews controlled documents.",
-				},
-			} as any,
-		);
+		await routes["access/roles/save"]!.handler({
+			...ctx,
+			input: {
+				slug: "document-reviewer",
+				label: "Document Reviewer",
+				description: "Reviews controlled documents.",
+			},
+		} as any);
 
-		await routes["access/matrix/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					roleSlug: "document-reviewer",
-					permissions: ["documents.review", "audit.read.events"],
-				},
-			} as any,
-		);
+		await routes["access/matrix/save"]!.handler({
+			...ctx,
+			input: {
+				roleSlug: "document-reviewer",
+				permissions: ["documents.review", "audit.read.events"],
+			},
+		} as any);
 
-		await routes["access/users/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					userId: "user-demo-doc-reviewer",
-					roles: ["document-reviewer"],
-				},
-			} as any,
-		);
+		await routes["access/users/save"]!.handler({
+			...ctx,
+			input: {
+				userId: "user-demo-doc-reviewer",
+				roles: ["document-reviewer"],
+			},
+		} as any);
 
-		const preview = (await routes["access/preview"]!.handler(
-			{
-				...ctx,
-				input: { userId: "user-demo-doc-reviewer", permissionSlug: "documents.review" },
-			} as any,
-		)) as any;
+		const preview = (await routes["access/preview"]!.handler({
+			...ctx,
+			input: { userId: "user-demo-doc-reviewer", permissionSlug: "documents.review" },
+		} as any)) as any;
 
 		expect(preview.allowed).toBe(true);
 		expect(preview.matchedRoles).toContain("document-reviewer");
@@ -933,9 +1076,10 @@ describe("awcms micro example plugin", () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const preview = (await routes["access/preview"]!.handler(
-			{ ...ctx, input: { userId: "user-demo-editor", permissionSlug: "content.review.publish" } } as any,
-		)) as any;
+		const preview = (await routes["access/preview"]!.handler({
+			...ctx,
+			input: { userId: "user-demo-editor", permissionSlug: "content.review.publish" },
+		} as any)) as any;
 
 		expect(preview.allowed).toBe(false);
 		expect(preview.reason).toContain("not granted");
@@ -945,107 +1089,96 @@ describe("awcms micro example plugin", () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
-		const attributes = (await routes["abac/attributes/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const attributes = (await routes["abac/attributes/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
 		expect(attributes.items.length).toBeGreaterThan(0);
 
-		await routes["abac/attributes/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					key: "action",
-					label: "Action",
-					targetType: "context",
-					description: "Action under review",
-				},
-			} as any,
-		);
+		await routes["abac/attributes/save"]!.handler({
+			...ctx,
+			input: {
+				key: "action",
+				label: "Action",
+				targetType: "context",
+				description: "Action under review",
+			},
+		} as any);
 
-		await routes["abac/policies/save"]!.handler(
-			{
-				...ctx,
-				input: {
-					id: "allow-published-read-jakarta",
-					label: "Allow published read in Jakarta",
-					effect: "allow",
-					actions: ["content.read"],
-					requiredSubject: { tenant_id: "tenant-a" },
-					requiredResource: { resource_status: "published", resource_sensitivity: "public" },
-					requiredContext: { region_scope: "id-jakarta" },
-				},
-			} as any,
-		);
+		await routes["abac/policies/save"]!.handler({
+			...ctx,
+			input: {
+				id: "allow-published-read-jakarta",
+				label: "Allow published read in Jakarta",
+				effect: "allow",
+				actions: ["content.read"],
+				requiredSubject: { tenant_id: "tenant-a" },
+				requiredResource: { resource_status: "published", resource_sensitivity: "public" },
+				requiredContext: { region_scope: "id-jakarta" },
+			},
+		} as any);
 
-		const allow = (await routes["abac/preview"]!.handler(
-			{
-				...ctx,
-				input: {
-					subjectId: "user-demo-editor",
-					resourceId: "resource-public-post",
-					action: "content.read",
-					contextAttributes: { region_scope: "id-jakarta" },
-				},
-			} as any,
-		)) as any;
+		const allow = (await routes["abac/preview"]!.handler({
+			...ctx,
+			input: {
+				subjectId: "user-demo-editor",
+				resourceId: "resource-public-post",
+				action: "content.read",
+				contextAttributes: { region_scope: "id-jakarta" },
+			},
+		} as any)) as any;
 
 		expect(allow.allowed).toBe(true);
 		expect(allow.effect).toBe("allow");
 
-		const deny = (await routes["abac/preview"]!.handler(
-			{
-				...ctx,
-				input: {
-					subjectId: "user-demo-reviewer",
-					resourceId: "resource-sensitive-policy",
-					action: "content.publish_sensitive",
-					contextAttributes: {},
-				},
-			} as any,
-		)) as any;
+		const deny = (await routes["abac/preview"]!.handler({
+			...ctx,
+			input: {
+				subjectId: "user-demo-reviewer",
+				resourceId: "resource-sensitive-policy",
+				action: "content.publish_sensitive",
+				contextAttributes: {},
+			},
+		} as any)) as any;
 
 		expect(deny.allowed).toBe(false);
 		expect(deny.reason).toContain("Explicit deny");
 
-		const missing = (await routes["abac/preview"]!.handler(
-			{
-				...ctx,
-				input: {
-					subjectId: "user-demo-editor",
-					resourceId: "resource-public-post",
-					action: "content.read",
-					contextAttributes: {},
-				},
-			} as any,
-		)) as any;
+		const missing = (await routes["abac/preview"]!.handler({
+			...ctx,
+			input: {
+				subjectId: "user-demo-editor",
+				resourceId: "resource-public-post",
+				action: "content.read",
+				contextAttributes: {},
+			},
+		} as any)) as any;
 
 		expect(missing.allowed).toBe(false);
 		expect(missing.reason).toContain("Missing required attributes");
 
-		const regionMismatch = (await routes["abac/preview"]!.handler(
-			{
-				...ctx,
-				input: {
-					subjectId: "user-demo-editor",
-					resourceId: "resource-public-post",
-					action: "content.read",
-					contextAttributes: { region_scope: "id-bandung" },
-				},
-			} as any,
-		)) as any;
+		const regionMismatch = (await routes["abac/preview"]!.handler({
+			...ctx,
+			input: {
+				subjectId: "user-demo-editor",
+				resourceId: "resource-public-post",
+				action: "content.read",
+				contextAttributes: { region_scope: "id-bandung" },
+			},
+		} as any)) as any;
 
 		expect(regionMismatch.allowed).toBe(false);
 		expect(regionMismatch.reason).toBe("No matching allow policy for action content.read");
 
-		await routes["abac/enforce-demo"]!.handler(
-			{
-				...ctx,
-				input: {
-					subjectId: "user-demo-reviewer",
-					resourceId: "resource-sensitive-policy",
-					action: "content.publish_sensitive",
-					contextAttributes: { action: "content.publish_sensitive" },
-				},
-			} as any,
-		);
+		await routes["abac/enforce-demo"]!.handler({
+			...ctx,
+			input: {
+				subjectId: "user-demo-reviewer",
+				resourceId: "resource-sensitive-policy",
+				action: "content.publish_sensitive",
+				contextAttributes: { action: "content.publish_sensitive" },
+			},
+		} as any);
 
 		expect(collections.abacChangeEvents.size).toBeGreaterThanOrEqual(3);
 	});

@@ -6,7 +6,13 @@
 	"description": "Advanced gallery management helpers for AWCMS-Micro without modifying EmDash core.",
 	"entrypoint": "@awcms-micro/plugin-gallery/sandbox",
 	"format": "standard",
-	"capabilities": ["content:read", "content:write", "media:read", "media:write", "network:request:unrestricted"],
+	"capabilities": [
+		"content:read",
+		"content:write",
+		"media:read",
+		"media:write",
+		"network:request:unrestricted",
+	],
 	"adminPages": [{ "path": "/", "label": "Gallery", "labelKey": "gallery.label", "icon": "image" }],
 	"navigation": {
 		"groups": [
@@ -25,10 +31,10 @@
 						"fallbackLabel": "Gallery",
 						"path": "/",
 						"icon": "image",
-						"sortOrder": 10
-					}
-				]
-			}
-		]
-	}
+						"sortOrder": 10,
+					},
+				],
+			},
+		],
+	},
 }

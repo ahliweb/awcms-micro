@@ -60,22 +60,55 @@ const formatLimit = (limit: number) => `${limit}`;
 function createDefaultValidationCopy(locale: string | undefined): GalleryValidationCopy {
 	const isId = locale?.startsWith("id") ?? false;
 	return {
-		itemObject: (index) => (isId ? `Item ${formatIndex(index)} harus berupa objek` : `Item ${formatIndex(index)} must be an object`),
-		itemType: (index) => (isId ? `Tipe item ${formatIndex(index)} harus image atau video` : `Item ${formatIndex(index)} type must be image or video`),
-		itemSrc: (index) => (isId ? `Item ${formatIndex(index)} harus menggunakan URL media EmDash publik atau URL HTTPS` : `Item ${formatIndex(index)} must use a public EmDash media URL or HTTPS URL`),
-		imageMime: (index) => (isId ? `MIME type gambar item ${formatIndex(index)} harus diawali image/` : `Item ${formatIndex(index)} image MIME type must start with image/`),
-		videoMime: (index) => (isId ? `MIME type video item ${formatIndex(index)} harus diawali video/` : `Item ${formatIndex(index)} video MIME type must start with video/`),
-		imageSize: (index, limit) => (isId ? `Gambar item ${formatIndex(index)} melebihi batas ${formatLimit(limit)} byte` : `Item ${formatIndex(index)} image exceeds the ${formatLimit(limit)} byte limit`),
-		videoSize: (index, limit) => (isId ? `Video item ${formatIndex(index)} melebihi batas ${formatLimit(limit)} byte` : `Item ${formatIndex(index)} video exceeds the ${formatLimit(limit)} byte limit`),
-		imageAlt: (index) => (isId ? `Gambar item ${formatIndex(index)} memerlukan teks alt` : `Item ${formatIndex(index)} image requires alt text`),
-		videoCaption: (index) => (isId ? `Video item ${formatIndex(index)} memerlukan caption` : `Item ${formatIndex(index)} video requires a caption`),
+		itemObject: (index) =>
+			isId
+				? `Item ${formatIndex(index)} harus berupa objek`
+				: `Item ${formatIndex(index)} must be an object`,
+		itemType: (index) =>
+			isId
+				? `Tipe item ${formatIndex(index)} harus image atau video`
+				: `Item ${formatIndex(index)} type must be image or video`,
+		itemSrc: (index) =>
+			isId
+				? `Item ${formatIndex(index)} harus menggunakan URL media EmDash publik atau URL HTTPS`
+				: `Item ${formatIndex(index)} must use a public EmDash media URL or HTTPS URL`,
+		imageMime: (index) =>
+			isId
+				? `MIME type gambar item ${formatIndex(index)} harus diawali image/`
+				: `Item ${formatIndex(index)} image MIME type must start with image/`,
+		videoMime: (index) =>
+			isId
+				? `MIME type video item ${formatIndex(index)} harus diawali video/`
+				: `Item ${formatIndex(index)} video MIME type must start with video/`,
+		imageSize: (index, limit) =>
+			isId
+				? `Gambar item ${formatIndex(index)} melebihi batas ${formatLimit(limit)} byte`
+				: `Item ${formatIndex(index)} image exceeds the ${formatLimit(limit)} byte limit`,
+		videoSize: (index, limit) =>
+			isId
+				? `Video item ${formatIndex(index)} melebihi batas ${formatLimit(limit)} byte`
+				: `Item ${formatIndex(index)} video exceeds the ${formatLimit(limit)} byte limit`,
+		imageAlt: (index) =>
+			isId
+				? `Gambar item ${formatIndex(index)} memerlukan teks alt`
+				: `Item ${formatIndex(index)} image requires alt text`,
+		videoCaption: (index) =>
+			isId
+				? `Video item ${formatIndex(index)} memerlukan caption`
+				: `Item ${formatIndex(index)} video requires a caption`,
 		contentObject: isId ? "Konten galeri harus berupa objek" : "Gallery content must be an object",
 		titleRequired: isId ? "Judul galeri wajib diisi" : "Gallery title is required",
-		typeInvalid: isId ? "Tipe galeri harus photo, video, atau mixed" : "Gallery type must be photo, video, or mixed",
-		layoutInvalid: isId ? "Variant layout harus grid, masonry, carousel, atau slider" : "Layout variant must be grid, masonry, carousel, or slider",
+		typeInvalid: isId
+			? "Tipe galeri harus photo, video, atau mixed"
+			: "Gallery type must be photo, video, or mixed",
+		layoutInvalid: isId
+			? "Variant layout harus grid, masonry, carousel, atau slider"
+			: "Layout variant must be grid, masonry, carousel, or slider",
 		itemsArray: isId ? "Item galeri harus berupa array" : "Gallery items must be an array",
 		filenamePathSegments: (index) =>
-			isId ? `Nama file item ${formatIndex(index)} tidak boleh mengandung segmen path` : `Item ${formatIndex(index)} filename must not include path segments`,
+			isId
+				? `Nama file item ${formatIndex(index)} tidak boleh mengandung segmen path`
+				: `Item ${formatIndex(index)} filename must not include path segments`,
 		filenameCharset: (index) =>
 			isId
 				? `Nama file item ${formatIndex(index)} hanya boleh berisi huruf, angka, titik, strip, dan underscore`
@@ -99,7 +132,12 @@ function isSafePublicUrl(value: string): boolean {
 	return false;
 }
 
-function validateFilename(filename: string | undefined, index: number, errors: string[], copy: GalleryValidationCopy): void {
+function validateFilename(
+	filename: string | undefined,
+	index: number,
+	errors: string[],
+	copy: GalleryValidationCopy,
+): void {
 	if (!filename) return;
 	if (filename.includes("/") || filename.includes("\\") || filename.includes("..")) {
 		errors.push(copy.filenamePathSegments(index));

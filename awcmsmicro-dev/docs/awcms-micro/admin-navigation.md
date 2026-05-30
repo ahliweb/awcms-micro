@@ -22,50 +22,51 @@ Each plugin defines its navigation in its manifest:
 
 ```json
 {
-  "id": "awcms-micro-sikesra",
-  "name": "Example Plugin",
-  "navigation": {
-    "groups": [
-      {
-        "id": "governance",
-        "labelKey": "awcms.nav.group.governance",
-        "fallbackLabel": "Governance",
-        "sidebarPlacement": "after-dashboard",
-        "sidebarPriority": 10,
-        "items": [
-          {
-            "id": "overview",
-            "labelKey": "awcms.nav.overview",
-            "fallbackLabel": "Overview",
-            "path": "/overview",
-            "sortOrder": 10
-          },
-          {
-            "id": "access-control",
-            "labelKey": "awcms.nav.access",
-            "fallbackLabel": "Access Control",
-            "path": "/access/permissions",
-            "sortOrder": 20,
-            "children": [
-              {
-                "id": "permissions",
-                "labelKey": "awcms.nav.permissions",
-                "fallbackLabel": "Permissions",
-                "path": "/access/permissions",
-                "sortOrder": 10
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+	"id": "awcms-micro-sikesra",
+	"name": "Example Plugin",
+	"navigation": {
+		"groups": [
+			{
+				"id": "governance",
+				"labelKey": "awcms.nav.group.governance",
+				"fallbackLabel": "Governance",
+				"sidebarPlacement": "after-dashboard",
+				"sidebarPriority": 10,
+				"items": [
+					{
+						"id": "overview",
+						"labelKey": "awcms.nav.overview",
+						"fallbackLabel": "Overview",
+						"path": "/overview",
+						"sortOrder": 10
+					},
+					{
+						"id": "access-control",
+						"labelKey": "awcms.nav.access",
+						"fallbackLabel": "Access Control",
+						"path": "/access/permissions",
+						"sortOrder": 20,
+						"children": [
+							{
+								"id": "permissions",
+								"labelKey": "awcms.nav.permissions",
+								"fallbackLabel": "Permissions",
+								"path": "/access/permissions",
+								"sortOrder": 10
+							}
+						]
+					}
+				]
+			}
+		]
+	}
 }
 ```
 
 ## Navigation Normalizer (`normalizeAdminNav`)
 
 The normalizer processes raw manifests and ensures they are safe and sorted:
+
 - **Sorting**: Groups are sorted by `sidebarPriority` (lower priority values float to top). Items and children are sorted by `sortOrder`, falling back to label alphabetical order.
 - **Permission Filtering**: Interactive items require permissions (e.g. `awcms:example:permissions:read`). If the logged-in user lacks this permission, the item is removed.
 - **Duplicate ID Detection**: Detects and throws errors if duplicate Group, Item, or Child IDs are registered across plugins.

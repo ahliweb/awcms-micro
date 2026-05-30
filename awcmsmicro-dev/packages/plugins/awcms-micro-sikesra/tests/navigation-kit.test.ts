@@ -148,11 +148,13 @@ describe("AWCMS-Micro navigation kit", () => {
 			},
 		]);
 
-		expect(result.map((group) => ({
-			id: group.id,
-			sidebarPlacement: group.sidebarPlacement,
-			sidebarPriority: group.sidebarPriority,
-		}))).toEqual([
+		expect(
+			result.map((group) => ({
+				id: group.id,
+				sidebarPlacement: group.sidebarPlacement,
+				sidebarPriority: group.sidebarPriority,
+			})),
+		).toEqual([
 			{ id: "dashboard-group", sidebarPlacement: "after-dashboard", sidebarPriority: 10 },
 			{ id: "settings-group", sidebarPlacement: "before-emdash-default", sidebarPriority: 40 },
 		]);
@@ -193,13 +195,19 @@ describe("AWCMS-Micro navigation kit", () => {
 			],
 			{
 				hasPermission: (permission) => permissions.has(permission),
-			}
+			},
 		);
 
 		expect(groups[0]?.items).toHaveLength(1);
-		expect(resolveLabel("nav.title", "Default Title", { en: { "nav.title": "English Title" } }, "fr", "en")).toBe(
-			"English Title"
-		);
+		expect(
+			resolveLabel(
+				"nav.title",
+				"Default Title",
+				{ en: { "nav.title": "English Title" } },
+				"fr",
+				"en",
+			),
+		).toBe("English Title");
 	});
 
 	it("adapts grouped navigation to flat EmDash admin pages", () => {
@@ -225,11 +233,18 @@ describe("AWCMS-Micro navigation kit", () => {
 			},
 		});
 
-		expect(pages).toEqual([{ path: "/overview", label: "Overview", labelKey: "nav.overview", icon: undefined }]);
+		expect(pages).toEqual([
+			{ path: "/overview", label: "Overview", labelKey: "nav.overview", icon: undefined },
+		]);
 	});
 
 	it("assigns contextual icons to the SIKESRA sidebar groups", () => {
-		expect(AWCMS_SIKESRA_MANIFEST.navigation?.groups?.map((group) => ({ id: group.id, icon: group.icon }))).toEqual([
+		expect(
+			AWCMS_SIKESRA_MANIFEST.navigation?.groups?.map((group) => ({
+				id: group.id,
+				icon: group.icon,
+			})),
+		).toEqual([
 			{ id: "dashboard-group", icon: "chart" },
 			{ id: "content-group", icon: "file" },
 			{ id: "governance-group", icon: "shield" },

@@ -10,7 +10,7 @@ export const AwcmsAdminNavItemSchema: z.ZodType<any> = z.lazy(() =>
 		sortOrder: z.number().optional(),
 		permission: z.string().optional(),
 		children: z.array(AwcmsAdminNavItemSchema).optional(),
-	})
+	}),
 );
 
 export type AwcmsAdminNavItem = {

@@ -5,7 +5,7 @@ export function resolveLabel(
 	fallbackLabel: string,
 	messages: TranslationMessages | undefined,
 	requestedLocale: string,
-	defaultLocale: string = "en"
+	defaultLocale: string = "en",
 ): string {
 	if (messages) {
 		if (messages[requestedLocale]?.[labelKey]) {

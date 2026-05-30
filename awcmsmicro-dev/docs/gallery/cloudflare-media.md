@@ -6,7 +6,7 @@ The Cloudflare production template uses EmDash storage backed by R2:
 emdash({
 	database: d1({ binding: "DB", session: "auto" }),
 	storage: r2({ binding: "MEDIA" }),
-})
+});
 ```
 
 The `MEDIA` R2 binding is declared in `templates/awcms-micro-default-cloudflare/wrangler.jsonc`. Gallery JSON should store public URLs or EmDash media URLs only. Do not store private R2 keys, signed upload credentials, or API tokens in gallery content.

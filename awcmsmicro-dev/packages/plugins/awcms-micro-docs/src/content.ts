@@ -35,14 +35,24 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		intro:
 			"This plugin surfaces the workspace guidance that keeps AWCMS-Micro aligned with EmDash while preserving the approved downstream boundaries.",
 		prTitle: "Reference PRD",
-		prIntro: "The SIKESRA reference PRD frames the example standard without turning it into production SIKESRA code.",
+		prIntro:
+			"The SIKESRA reference PRD frames the example standard without turning it into production SIKESRA code.",
 		prBullets: [
 			"In scope: the docs boundary, the example plugin, both templates, and E2E coverage.",
 			"Reference goals: plugin/runtime shape, public-safe aggregate, registry and verification screens, masked fixtures, and validation guidance.",
 			"Execution order: document the standard, build the reference plugin and fixtures, align admin UI, align both templates, then harden E2E validation.",
 		],
 		prBacklogTitle: "Backlog map",
-		prBacklog: ["#51 PRD and execution standard", "#52 Reference plugin standard", "#54 Admin UI/UX reference", "#55 Data model and fixtures", "#56 Security tests", "#57 Public aggregate page", "#58 Cloudflare deployability", "#59 E2E validation"],
+		prBacklog: [
+			"#51 PRD and execution standard",
+			"#52 Reference plugin standard",
+			"#54 Admin UI/UX reference",
+			"#55 Data model and fixtures",
+			"#56 Security tests",
+			"#57 Public aggregate page",
+			"#58 Cloudflare deployability",
+			"#59 E2E validation",
+		],
 		openAdmin: "Open docs admin",
 		openDocsAdmin: "Open docs page",
 		viewPublicDocs: "View public docs",
@@ -67,7 +77,8 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 			},
 			{
 				title: "Protected boundaries",
-				intro: "AWCMS-Micro-owned work lives in explicit plugin, template, docs, demo, and release paths.",
+				intro:
+					"AWCMS-Micro-owned work lives in explicit plugin, template, docs, demo, and release paths.",
 				bullets: [
 					"Plugins: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, and `packages/plugins/awcms-micro-docs`.",
 					"Templates: `templates/awcms-micro-default` and `templates/awcms-micro-default-cloudflare`.",
@@ -79,10 +90,22 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		references: [
 			{ title: "README.md", description: "Root entry point for the workspace and sync model." },
 			{ title: "AGENTS.md", description: "Agent execution rules for the parent workspace." },
-			{ title: "docs/implementation-instructions.md", description: "How to work inside the maintenance layer." },
-			{ title: "docs/synchronization-workflow.md", description: "How upstream refreshes flow into the dev workspace." },
-			{ title: "docs/awcms-micro-implementation-boundaries.md", description: "The rebuild-safe path allowlist and preservation rules." },
-			{ title: "docs/operator-workflow.md", description: "Continuation vs fresh-clone guidance for operators." },
+			{
+				title: "docs/implementation-instructions.md",
+				description: "How to work inside the maintenance layer.",
+			},
+			{
+				title: "docs/synchronization-workflow.md",
+				description: "How upstream refreshes flow into the dev workspace.",
+			},
+			{
+				title: "docs/awcms-micro-implementation-boundaries.md",
+				description: "The rebuild-safe path allowlist and preservation rules.",
+			},
+			{
+				title: "docs/operator-workflow.md",
+				description: "Continuation vs fresh-clone guidance for operators.",
+			},
 		],
 	},
 	id: {
@@ -91,14 +114,24 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		intro:
 			"Plugin ini menampilkan panduan workspace yang menjaga AWCMS-Micro tetap selaras dengan EmDash sambil mempertahankan boundary downstream yang disetujui.",
 		prTitle: "PRD Referensi",
-		prIntro: "PRD referensi SIKESRA membingkai standar contoh tanpa mengubahnya menjadi kode SIKESRA produksi.",
+		prIntro:
+			"PRD referensi SIKESRA membingkai standar contoh tanpa mengubahnya menjadi kode SIKESRA produksi.",
 		prBullets: [
 			"Ruang lingkup: boundary docs, plugin contoh, kedua template, dan cakupan E2E.",
 			"Tujuan referensi: bentuk plugin/runtime, aggregate aman-publik, layar registry dan verifikasi, fixture yang dimasking, dan panduan validasi.",
 			"Urutan eksekusi: dokumentasikan standar, bangun plugin dan fixture referensi, selaraskan UI admin, selaraskan kedua template, lalu perkuat validasi E2E.",
 		],
 		prBacklogTitle: "Peta backlog",
-		prBacklog: ["#51 PRD dan standar eksekusi", "#52 Standar plugin referensi", "#54 Referensi UI/UX admin", "#55 Model data dan fixture", "#56 Tes keamanan", "#57 Halaman aggregate publik", "#58 Kesiapan deploy Cloudflare", "#59 Validasi E2E"],
+		prBacklog: [
+			"#51 PRD dan standar eksekusi",
+			"#52 Standar plugin referensi",
+			"#54 Referensi UI/UX admin",
+			"#55 Model data dan fixture",
+			"#56 Tes keamanan",
+			"#57 Halaman aggregate publik",
+			"#58 Kesiapan deploy Cloudflare",
+			"#59 Validasi E2E",
+		],
 		openAdmin: "Buka admin docs",
 		openDocsAdmin: "Buka halaman docs",
 		viewPublicDocs: "Lihat docs publik",
@@ -123,7 +156,8 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 			},
 			{
 				title: "Boundary yang dilindungi",
-				intro: "Pekerjaan milik AWCMS-Micro berada di path plugin, template, docs, demo, dan release yang eksplisit.",
+				intro:
+					"Pekerjaan milik AWCMS-Micro berada di path plugin, template, docs, demo, dan release yang eksplisit.",
 				bullets: [
 					"Plugin: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, dan `packages/plugins/awcms-micro-docs`.",
 					"Template: `templates/awcms-micro-default` dan `templates/awcms-micro-default-cloudflare`.",
@@ -133,12 +167,27 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		],
 		referencesTitle: "Dokumen referensi",
 		references: [
-			{ title: "README.md", description: "Pintu masuk root untuk workspace dan model sinkronisasi." },
+			{
+				title: "README.md",
+				description: "Pintu masuk root untuk workspace dan model sinkronisasi.",
+			},
 			{ title: "AGENTS.md", description: "Aturan eksekusi agent untuk parent workspace." },
-			{ title: "docs/implementation-instructions.md", description: "Cara bekerja di dalam lapisan maintenance." },
-			{ title: "docs/synchronization-workflow.md", description: "Cara refresh upstream mengalir ke workspace dev." },
-			{ title: "docs/awcms-micro-implementation-boundaries.md", description: "Allowlist path rebuild-safe dan aturan preservasi." },
-			{ title: "docs/operator-workflow.md", description: "Panduan continuation vs fresh-clone untuk operator." },
+			{
+				title: "docs/implementation-instructions.md",
+				description: "Cara bekerja di dalam lapisan maintenance.",
+			},
+			{
+				title: "docs/synchronization-workflow.md",
+				description: "Cara refresh upstream mengalir ke workspace dev.",
+			},
+			{
+				title: "docs/awcms-micro-implementation-boundaries.md",
+				description: "Allowlist path rebuild-safe dan aturan preservasi.",
+			},
+			{
+				title: "docs/operator-workflow.md",
+				description: "Panduan continuation vs fresh-clone untuk operator.",
+			},
 		],
 	},
 };

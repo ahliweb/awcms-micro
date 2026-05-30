@@ -2,8 +2,8 @@
 
 import { execFile, spawn } from "node:child_process";
 import { access, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { chromium, expect } from "@playwright/test";
@@ -18,8 +18,16 @@ const LOCAL_PORT = 4564;
 const CLOUDFARE_PORT = 4565;
 
 const templates = [
-	{ name: "awcms-micro-default", port: LOCAL_PORT, dir: resolve(ROOT, "templates/awcms-micro-default") },
-	{ name: "awcms-micro-default-cloudflare", port: CLOUDFARE_PORT, dir: resolve(ROOT, "templates/awcms-micro-default-cloudflare") },
+	{
+		name: "awcms-micro-default",
+		port: LOCAL_PORT,
+		dir: resolve(ROOT, "templates/awcms-micro-default"),
+	},
+	{
+		name: "awcms-micro-default-cloudflare",
+		port: CLOUDFARE_PORT,
+		dir: resolve(ROOT, "templates/awcms-micro-default-cloudflare"),
+	},
 ];
 
 async function buildTemplate(dir) {
@@ -94,11 +102,15 @@ function waitForServer(url, timeoutMs = 120_000) {
 }
 
 function startPreview(dir, port) {
-	const child = spawn("pnpm", ["exec", "astro", "preview", "--host", HOST, "--port", String(port)], {
-		cwd: dir,
-		env: { ...process.env, HOST, PORT: String(port) },
-		stdio: ["ignore", "pipe", "pipe"],
-	});
+	const child = spawn(
+		"pnpm",
+		["exec", "astro", "preview", "--host", HOST, "--port", String(port)],
+		{
+			cwd: dir,
+			env: { ...process.env, HOST, PORT: String(port) },
+			stdio: ["ignore", "pipe", "pipe"],
+		},
+	);
 
 	child.stdout.on("data", (data) => process.stdout.write(data));
 	child.stderr.on("data", (data) => process.stderr.write(data));
@@ -109,7 +121,12 @@ function startPreview(dir, port) {
 		ready: waitForServer(`http://${HOST}:${port}`),
 		async stop() {
 			child.kill("SIGTERM");
-			await Promise.race([exited, new Promise((resolveTimer) => setTimeout(resolveTimer, 5000)).then(() => child.kill("SIGKILL"))]);
+			await Promise.race([
+				exited,
+				new Promise((resolveTimer) => setTimeout(resolveTimer, 5000)).then(() =>
+					child.kill("SIGKILL"),
+				),
+			]);
 		},
 	};
 }
@@ -131,11 +148,18 @@ async function assertAccessibleNavigation(baseUrl, templateName) {
 		await expect(page.locator(".awcms-public-nav__submenu").first()).toBeVisible();
 
 		await page.keyboard.press("Tab");
-		const activeText = await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.textContent?.trim() ?? "" : ""));
+		const activeText = await page.evaluate(() =>
+			document.activeElement instanceof HTMLElement
+				? (document.activeElement.textContent?.trim() ?? "")
+				: "",
+		);
 		expect(activeText.length).toBeGreaterThan(0);
 
 		await page.goto(`${baseUrl}/aggregate`, { waitUntil: "networkidle" });
-		await expect(page.getByRole("link", { name: "Public Data" })).toHaveAttribute("aria-current", "page");
+		await expect(page.getByRole("link", { name: "Public Data" })).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
 	} catch (error) {
 		throw new Error(`${templateName}: ${error instanceof Error ? error.message : String(error)}`, {
 			cause: error,

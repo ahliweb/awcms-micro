@@ -5,13 +5,16 @@ const PUBLIC_COPY = {
 		notFoundMessage: "The requested page does not exist or is no longer published.",
 		returnHome: "Return to the homepage",
 		aggregateTitle: "Public Aggregate",
-		aggregateDescription: "A public-safe reference page that summarizes site content without exposing private records.",
+		aggregateDescription:
+			"A public-safe reference page that summarizes site content without exposing private records.",
 		aggregateKicker: "Reference",
 		aggregateHeading: (siteTitle: string) => `Public aggregate for ${siteTitle}`,
-		aggregateIntro: "This page demonstrates the AWCMS-Micro public-safe aggregate pattern. It shows coarse counts only and avoids personal identifiers, raw storage keys, or sensitive document details.",
+		aggregateIntro:
+			"This page demonstrates the AWCMS-Micro public-safe aggregate pattern. It shows coarse counts only and avoids personal identifiers, raw storage keys, or sensitive document details.",
 		summary: "Summary",
 		privacyNote: "Privacy note",
-		privacyNoteDescription: "The reference aggregate intentionally stays high level so it can be published publicly without revealing individual registry entities, verification events, or protected attributes.",
+		privacyNoteDescription:
+			"The reference aggregate intentionally stays high level so it can be published publicly without revealing individual registry entities, verification events, or protected attributes.",
 		openAdmin: "Open admin",
 		openAdminDescription: "to work with the underlying content and governance workflows.",
 		postsTitle: "Posts",
@@ -22,24 +25,30 @@ const PUBLIC_COPY = {
 		noNewsYet: "No news items yet.",
 		homeKicker: "AWCMS-Micro",
 		homeHeading: "A focused EmDash website and admin workflow for AWCMS-Micro.",
-		homeIntro: "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows.",
+		homeIntro:
+			"This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows.",
 		createPost: "Create Post",
 		createPage: "Create Page",
 		viewDocs: "View Docs",
 		viewPublicAggregate: "View Public Aggregate",
 		nestedMenuTitle: "Nested menu and mode demo",
 		publicNavigationExample: "Public navigation example",
-		publicNavigationDescription: "The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body.",
+		publicNavigationDescription:
+			"The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body.",
 		switchModeTitle: "Switch mode",
-		switchModeDescription: "The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself.",
+		switchModeDescription:
+			"The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself.",
 		switchModeButton: "Switch mode",
 		howConnectsTitle: "How the public site connects to admin",
 		publishFromEmdash: "Publish from EmDash",
-		publishFromEmdashDescription: "Posts, news, and pages created in the admin flow directly into the public routes below.",
+		publishFromEmdashDescription:
+			"Posts, news, and pages created in the admin flow directly into the public routes below.",
 		keepContentInSync: "Keep content in sync",
-		keepContentInSyncDescription: "Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders.",
+		keepContentInSyncDescription:
+			"Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders.",
 		extendWithAwcms: "Extend with AWCMS-Micro",
-		extendWithAwcmsDescription: "The checked-in template already registers the example plugin so local development can exercise governance, audit, and access workflows without Cloudflare.",
+		extendWithAwcmsDescription:
+			"The checked-in template already registers the example plugin so local development can exercise governance, audit, and access workflows without Cloudflare.",
 		editorWorkflowShortcuts: "Editor workflow shortcuts",
 		publishedPostsVisible: "Published posts currently visible on the public website.",
 		viewPosts: "View posts",
@@ -48,7 +57,8 @@ const PUBLIC_COPY = {
 		managedPagesVisible: "Managed pages such as About, implementation notes, and product info.",
 		viewAboutPage: "View about page",
 		safeAggregateLabel: "Safe aggregate",
-		safeAggregateDescription: "A public reference page summarises content without exposing sensitive identifiers.",
+		safeAggregateDescription:
+			"A public reference page summarises content without exposing sensitive identifiers.",
 		viewAggregatePage: "View aggregate page",
 		recentPosts: "Recent posts",
 		noPostsCreateOne: "No posts yet. Create one from the admin.",
@@ -66,13 +76,16 @@ const PUBLIC_COPY = {
 		notFoundMessage: "Halaman yang diminta tidak ada atau tidak lagi dipublikasikan.",
 		returnHome: "Kembali ke beranda",
 		aggregateTitle: "Agregat Publik",
-		aggregateDescription: "Halaman referensi aman-publik yang merangkum konten situs tanpa mengekspos data privat.",
+		aggregateDescription:
+			"Halaman referensi aman-publik yang merangkum konten situs tanpa mengekspos data privat.",
 		aggregateKicker: "Referensi",
 		aggregateHeading: (siteTitle: string) => `Agregat publik untuk ${siteTitle}`,
-		aggregateIntro: "Halaman ini mendemonstrasikan pola agregat aman-publik AWCMS-Micro. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal pribadi, kunci storage mentah, atau detail dokumen sensitif.",
+		aggregateIntro:
+			"Halaman ini mendemonstrasikan pola agregat aman-publik AWCMS-Micro. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal pribadi, kunci storage mentah, atau detail dokumen sensitif.",
 		summary: "Ringkasan",
 		privacyNote: "Catatan privasi",
-		privacyNoteDescription: "Agregat referensi ini sengaja tetap tingkat tinggi sehingga bisa dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi.",
+		privacyNoteDescription:
+			"Agregat referensi ini sengaja tetap tingkat tinggi sehingga bisa dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi.",
 		openAdmin: "Buka admin",
 		openAdminDescription: "untuk mengelola konten dan alur kerja tata kelola dasarnya.",
 		postsTitle: "Pos",
@@ -83,24 +96,30 @@ const PUBLIC_COPY = {
 		noNewsYet: "Belum ada berita.",
 		homeKicker: "AWCMS-Micro",
 		homeHeading: "Situs EmDash dan alur kerja admin yang terfokus untuk AWCMS-Micro.",
-		homeIntro: "Template pengembangan lokal ini menunjukkan bagaimana AWCMS-Micro menampilkan konten publik, menjaga core EmDash tetap utuh, dan mengarahkan editor ke antarmuka admin standar untuk konten, pengaturan, dan alur kerja tata kelola berbasis plugin.",
+		homeIntro:
+			"Template pengembangan lokal ini menunjukkan bagaimana AWCMS-Micro menampilkan konten publik, menjaga core EmDash tetap utuh, dan mengarahkan editor ke antarmuka admin standar untuk konten, pengaturan, dan alur kerja tata kelola berbasis plugin.",
 		createPost: "Buat Pos",
 		createPage: "Buat Halaman",
 		viewDocs: "Lihat Docs",
 		viewPublicAggregate: "Lihat Agregat Publik",
 		nestedMenuTitle: "Demo menu bertingkat dan mode",
 		publicNavigationExample: "Contoh navigasi publik",
-		publicNavigationDescription: "Navigasi utama di header sudah merender struktur menu yang di-seed, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman.",
+		publicNavigationDescription:
+			"Navigasi utama di header sudah merender struktur menu yang di-seed, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman.",
 		switchModeTitle: "Ganti mode",
-		switchModeDescription: "Kontrol di bawah ini mencerminkan toggle header dan memungkinkan pengunjung mengganti mode terang dan gelap langsung dari beranda.",
+		switchModeDescription:
+			"Kontrol di bawah ini mencerminkan toggle header dan memungkinkan pengunjung mengganti mode terang dan gelap langsung dari beranda.",
 		switchModeButton: "Ganti mode",
 		howConnectsTitle: "Bagaimana situs publik terhubung ke admin",
 		publishFromEmdash: "Publikasikan dari EmDash",
-		publishFromEmdashDescription: "Pos, berita, dan halaman yang dibuat di admin langsung mengalir ke route publik di bawah ini.",
+		publishFromEmdashDescription:
+			"Pos, berita, dan halaman yang dibuat di admin langsung mengalir ke route publik di bawah ini.",
 		keepContentInSync: "Jaga konten tetap sinkron",
-		keepContentInSyncDescription: "Menu, pencarian, identitas situs, dan konten widget dirender dari data EmDash alih-alih placeholder hard-coded.",
+		keepContentInSyncDescription:
+			"Menu, pencarian, identitas situs, dan konten widget dirender dari data EmDash alih-alih placeholder hard-coded.",
 		extendWithAwcms: "Perluas dengan AWCMS-Micro",
-		extendWithAwcmsDescription: "Template yang tersimpan ini sudah mendaftarkan plugin contoh sehingga pengembangan lokal dapat menjalankan alur kerja tata kelola, audit, dan akses tanpa Cloudflare.",
+		extendWithAwcmsDescription:
+			"Template yang tersimpan ini sudah mendaftarkan plugin contoh sehingga pengembangan lokal dapat menjalankan alur kerja tata kelola, audit, dan akses tanpa Cloudflare.",
 		editorWorkflowShortcuts: "Shortcut alur kerja editor",
 		publishedPostsVisible: "Pos terpublikasi yang saat ini terlihat di situs publik.",
 		viewPosts: "Lihat pos",
@@ -109,7 +128,8 @@ const PUBLIC_COPY = {
 		managedPagesVisible: "Halaman terkelola seperti About, catatan implementasi, dan info produk.",
 		viewAboutPage: "Lihat halaman tentang",
 		safeAggregateLabel: "Agregat aman",
-		safeAggregateDescription: "Halaman referensi publik yang merangkum konten tanpa mengekspos pengenal sensitif.",
+		safeAggregateDescription:
+			"Halaman referensi publik yang merangkum konten tanpa mengekspos pengenal sensitif.",
 		viewAggregatePage: "Lihat halaman agregat",
 		recentPosts: "Pos terbaru",
 		noPostsCreateOne: "Belum ada pos. Buat satu dari admin.",

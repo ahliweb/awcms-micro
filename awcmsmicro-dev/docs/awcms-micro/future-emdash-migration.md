@@ -17,9 +17,11 @@ To deprecate the compatibility rendering layer:
 
 1. **Enable the Native Flag**:
    In your workspace environment config or `.env` files, change:
+
    ```bash
    AWCMS_USE_EMDASH_ADMIN_NAV=true
    ```
+
    This tells the custom components to render nothing (or transparently pass-through) and switches core routing/sidebar registers to trust native EmDash handlers.
 
 2. **Remove Adapter Flatteners**:
