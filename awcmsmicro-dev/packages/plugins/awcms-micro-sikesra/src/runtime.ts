@@ -354,6 +354,105 @@ export const AWCMS_SIKESRA_STORAGE = {
 
 export const AWCMS_SIKESRA_DESCRIPTOR_STORAGE = AWCMS_SIKESRA_STORAGE;
 
+const AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS = [
+	{ from: "auditEvents", to: "sikesra_audit_events" },
+	{ from: "accessChangeEvents", to: "sikesra_access_change_events" },
+	{ from: "abacChangeEvents", to: "sikesra_abac_change_events" },
+	{ from: "registryEntities", to: "sikesra_registry_entities" },
+	{ from: "settingsState", to: "sikesra_settings_state" },
+	{ from: "pluginState", to: "sikesra_plugin_state" },
+	{ from: "verificationStageState", to: "sikesra_verification_stage_state" },
+	{ from: "abacAttributeCatalog", to: "sikesra_abac_attribute_catalog" },
+	{ from: "abacPolicyRules", to: "sikesra_abac_policy_rules" },
+	{ from: "abacResourceAssignments", to: "sikesra_abac_resource_assignments" },
+	{ from: "abacSubjectAssignments", to: "sikesra_abac_subject_assignments" },
+	{ from: "contentSnapshots", to: "sikesra_content_snapshots" },
+	{ from: "permissionCatalog", to: "sikesra_permission_catalog" },
+	{ from: "roleCatalog", to: "sikesra_role_catalog" },
+	{ from: "rolePermissionAssignments", to: "sikesra_role_permission_assignments" },
+	{ from: "userRoleAssignments", to: "sikesra_user_role_assignments" },
+	{ from: "supportingDocuments", to: "sikesra_supporting_documents" },
+	{ from: "verificationEvents", to: "sikesra_verification_events" },
+] as const;
+
+interface PluginStorageRow {
+	id: string;
+	data: string;
+	created_at?: string | null;
+	updated_at?: string | null;
+}
+
+function toTimestamp(value: string | null | undefined): number {
+	if (!value) return -1;
+	const parsed = Date.parse(value);
+	return Number.isNaN(parsed) ? -1 : parsed;
+}
+
+function isLegacyRowNewer(legacy: PluginStorageRow, current: PluginStorageRow | undefined): boolean {
+	if (!current) return true;
+	const legacyUpdated = toTimestamp(legacy.updated_at ?? legacy.created_at ?? null);
+	const currentUpdated = toTimestamp(current.updated_at ?? current.created_at ?? null);
+	return legacyUpdated > currentUpdated;
+}
+
+async function migrateLegacyStorageCollections(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+
+	if (!db) return;
+
+	let migratedRows = 0;
+	for (const { from, to } of AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS) {
+		const legacyRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+			.where("collection", "=", from)
+			.execute()) as PluginStorageRow[];
+
+		if (legacyRows.length === 0) continue;
+
+		const currentRows = (await db
+			.selectFrom("_plugin_storage")
+			.select(["id", "data", "created_at", "updated_at"])
+			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+			.where("collection", "=", to)
+			.execute()) as PluginStorageRow[];
+		const currentById = new Map(currentRows.map((row) => [row.id, row]));
+
+		for (const row of legacyRows) {
+			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
+			await db
+				.insertInto("_plugin_storage")
+				.values({
+					plugin_id: AWCMS_SIKESRA_PLUGIN_ID,
+					collection: to,
+					id: row.id,
+					data: row.data,
+					created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
+					updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+				})
+				.onConflict((oc: any) =>
+					oc.columns(["plugin_id", "collection", "id"]).doUpdateSet({
+						data: row.data,
+						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+					}),
+				)
+				.execute();
+			migratedRows += 1;
+		}
+
+		await db
+			.deleteFrom("_plugin_storage")
+			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
+			.where("collection", "=", from)
+			.execute();
+	}
+
+	if (migratedRows > 0) {
+		ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] migrated legacy storage collections`, { migratedRows });
+	}
+}
+
 export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 	id: "awcms-micro-sikesra",
 	name: "AWCMS-Micro Example Plugin",
@@ -2668,6 +2767,7 @@ function toSandboxRequest(request: Request): SandboxedRequest {
 
 const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:install": async (_event, ctx) => {
+		await migrateLegacyStorageCollections(ctx);
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
 		await persistStateValue(ctx, "state:lastLifecycle", "plugin:install");
@@ -2684,6 +2784,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 		);
 	},
 	"plugin:activate": async (_event, ctx) => {
+		await migrateLegacyStorageCollections(ctx);
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
 		await persistStateValue(ctx, "state:lastLifecycle", "plugin:activate");

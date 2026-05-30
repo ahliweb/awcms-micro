@@ -34,6 +34,8 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, E2E, and release-automation boundaries listed above
 
+Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names. For example, `awcms-micro-sikesra` uses `sikesra_...` collection names.
+
 Local bootstrap state used by sync and backup workflows is also preserved across rebuilds:
 
 - `awcmsmicro-dev/.env`
