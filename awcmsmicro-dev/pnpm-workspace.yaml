@@ -102,6 +102,7 @@ catalog:
   "@cloudflare/vitest-pool-workers": ^0.16.3
   "@cloudflare/workers-types": ^4.20260305.1
   "@iconify-json/ph": ^1.2.2
+  image-size: ^2.0.2
   "@lingui/babel-plugin-lingui-macro": ^5.9.4
   "@lingui/cli": ^5.9.4
   "@lingui/conf": ^5.9.4
@@ -138,6 +139,7 @@ catalog:
   "@tiptap/suggestion": ^3.20.0
   "@types/node": 24.10.13
   "@types/better-sqlite3": ^7.6.12
+  "@types/semver": ^7.7.1
   "@types/react": 19.2.14
   "@types/react-dom": 19.2.3
   astro: ^6.4.2
@@ -149,6 +151,7 @@ catalog:
   publint: 0.3.17
   react: 19.2.4
   react-dom: 19.2.4
+  semver: ^7.7.4
   tsdown: 0.20.3
   typescript: ^6.0.3
   vite: ^8.0.11

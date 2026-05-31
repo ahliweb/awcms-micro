@@ -33,27 +33,4 @@ describe("handleMediaList multi-MIME", () => {
 			"image/png",
 		]);
 	});
-
-	it("forwards the media search query", async () => {
-		const repo = new MediaRepository(ctx.db);
-		await repo.create({
-			filename: "winter-hike.jpg",
-			mimeType: "image/jpeg",
-			storageKey: "winter-hike.jpg",
-			alt: "Winter hike in the mountains",
-		});
-		await repo.create({
-			filename: "spring-fair.jpg",
-			mimeType: "image/jpeg",
-			storageKey: "spring-fair.jpg",
-			caption: "Spring fair opening parade",
-		});
-
-		const result = await handleMediaList(ctx.db, {
-			query: "parade",
-		});
-		if (!result.success) throw new Error("expected success");
-		expect(result.data.items).toHaveLength(1);
-		expect(result.data.items[0]?.filename).toBe("spring-fair.jpg");
-	});
 });

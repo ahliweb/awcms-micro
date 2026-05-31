@@ -52,7 +52,7 @@ msgstr ": از"
 msgid "(from {0})"
 msgstr "(از {0})"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:352
+#: packages/admin/src/components/RegistryPluginDetail.tsx:429
 msgid "(pre-release)"
 msgstr ""
 
@@ -60,7 +60,7 @@ msgstr ""
 msgid "(synced)"
 msgstr "(همگام‌شده)"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:355
+#: packages/admin/src/components/RegistryPluginDetail.tsx:432
 msgid "(too new)"
 msgstr ""
 
@@ -163,10 +163,22 @@ msgstr "{0, plural, one {# کاربر} other {# کاربر}}"
 msgid "{0, plural, one {field} other {fields}}"
 msgstr ""
 
+#. placeholder {0}: envLabel(m.key)
+#. placeholder {1}: m.required
+#. placeholder {2}: m.host
+#: packages/admin/src/components/RegistryPluginDetail.tsx:532
+msgid "{0} {1} required — you have {2}."
+msgstr ""
+
 #. placeholder {0}: menu.name
 #. placeholder {1}: /** * Menu List component * * Displays all menus with ability to create, edit, and delete. */ import { Button, Dialog, Input, Toast } from "@cloudflare/kumo"; import { plural } from "@lingui/core/macro"; import { Trans } from "@lingui/react/macro"; import { useLingui } from "@lingui/react/macro"; import { Plus, Pencil, Trash, List as ListIcon } from "@phosphor-icons/react"; import { X } from "@phosphor-icons/react"; import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; import { Link, useNavigate } from "@tanstack/react-router"; import * as React from "react"; import { fetchMenus, createMenu, deleteMenu } from "../lib/api"; import { fetchManifest } from "../lib/api/client.js"; import { ConfirmDialog } from "./ConfirmDialog.js"; import { DialogError, getMutationError } from "./DialogError.js"; import { LocaleSwitcher, useI18nConfig } from "./LocaleSwitcher.js"; import { RouterLinkButton } from "./RouterLinkButton.js"; export function MenuList() { const { t } = useLingui(); const queryClient = useQueryClient(); const navigate = useNavigate(); const toastManager = Toast.useToastManager(); const [isCreateOpen, setIsCreateOpen] = React.useState(false); const [deleteMenuName, setDeleteMenuName] = React.useState<string | null>(null); const [createError, setCreateError] = React.useState<string | null>(null); const { data: manifest } = useQuery({ queryKey: ["manifest"], queryFn: fetchManifest, }); const i18n = useI18nConfig(manifest); const [activeLocale, setActiveLocale] = React.useState<string | undefined>(undefined); React.useEffect(() => { if (i18n && !activeLocale) setActiveLocale(i18n.defaultLocale); }, [i18n, activeLocale]); const { data: menus, isLoading } = useQuery({ queryKey: ["menus", activeLocale], queryFn: () => fetchMenus({ locale: activeLocale }), }); const createMutation = useMutation({ mutationFn: createMenu, onSuccess: (menu) => { void queryClient.invalidateQueries({ queryKey: ["menus"] }); setIsCreateOpen(false); toastManager.add({ title: t`Menu created`, description: t`Menu "${menu.label}" has been created.`, }); void navigate({ to: "/menus/$name", params: { name: menu.name }, search: { locale: menu.locale }, }); }, onError: (error: Error) => { setCreateError(error.message); }, }); const deleteMutation = useMutation({ mutationFn: (name: string) => deleteMenu(name, { locale: activeLocale }), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["menus"] }); setDeleteMenuName(null); toastManager.add({ title: t`Menu deleted`, description: t`The menu has been deleted.`, }); }, }); const handleCreate = (e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); setCreateError(null); const formData = new FormData(e.currentTarget); const nameVal = formData.get("name"); const name = typeof nameVal === "string" ? nameVal : ""; const labelVal = formData.get("label"); const label = typeof labelVal === "string" ? labelVal : ""; createMutation.mutate({ name, label, locale: activeLocale }); }; if (isLoading) { return ( <div className="flex items-center justify-center h-64"> <div className="text-kumo-subtle">{t`Loading menus...`}</div> </div> ); } return ( <div className="space-y-6"> <div className="flex items-center justify-between gap-4 flex-wrap"> <div> <h1 className="text-3xl font-bold">{t`Menus`}</h1> <p className="text-kumo-subtle">{t`Manage navigation menus for your site`}</p> </div> <div className="flex items-center gap-2"> {i18n && activeLocale ? ( <LocaleSwitcher locales={i18n.locales} defaultLocale={i18n.defaultLocale} value={activeLocale} onChange={setActiveLocale} /> ) : null} </div> <Dialog.Root open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (!open) setCreateError(null); }} > <Dialog.Trigger render={(props) => ( <Button {...props} icon={<Plus />}> {t`Create Menu`} </Button> )} /> <Dialog className="p-6" size="lg"> <div className="flex items-start justify-between gap-4 mb-4"> <Dialog.Title className="text-lg font-semibold leading-none tracking-tight"> {t`Create New Menu`} </Dialog.Title> <Dialog.Close aria-label={t`Close`} render={(props) => ( <Button {...props} variant="ghost" shape="square" aria-label={t`Close`} className="absolute end-4 top-4" > <X className="h-4 w-4" /> <span className="sr-only">{t`Close`}</span> </Button> )} /> </div> <form onSubmit={handleCreate} className="space-y-4"> <div> <Input label={t`Name`} name="name" required placeholder="primary" pattern="[a-z0-9\-]+" title={t`Only lowercase letters, numbers, and hyphens`} /> <p className="text-sm text-kumo-subtle mt-1"> {t`URL-friendly identifier (e.g., "primary", "footer")`} </p> </div> <div> <Input label={t`Label`} name="label" required placeholder={t`Primary Navigation`} /> <p className="text-sm text-kumo-subtle mt-1">{t`Display name for admin interface`}</p> </div> <DialogError message={createError || getMutationError(createMutation.error)} /> <div className="flex justify-end gap-2"> <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}> {t`Cancel`} </Button> <Button type="submit" disabled={createMutation.isPending}> {createMutation.isPending ? t`Creating...` : t`Create`} </Button> </div> </form> </Dialog> </Dialog.Root> </div> {!menus || menus.length === 0 ? ( <div className="border rounded-lg p-12 text-center"> <ListIcon className="mx-auto h-12 w-12 text-kumo-subtle mb-4" /> <h3 className="text-lg font-semibold mb-2">{t`No menus yet`}</h3> <p className="text-kumo-subtle mb-4">{t`Create your first navigation menu to get started`}</p> <Button icon={<Plus />} onClick={() => setIsCreateOpen(true)}> {t`Create Menu`} </Button> </div> ) : ( <div className="grid gap-4"> {menus.map((menu) => ( <div key={menu.id} className="border rounded-lg p-6 flex items-center justify-between hover:bg-kumo-tint transition-colors" > <Link to="/menus/$name" params={{ name: menu.name }} search={{ locale: menu.locale }} className="flex-1" > <div> <h3 className="font-semibold text-lg"> {menu.label} {i18n ? ( <span className="ms-2 text-xs font-mono uppercase text-kumo-subtle"> {menu.locale} </span> ) : null} </h3> <p className="text-sm text-kumo-subtle"> <Trans> {menu.name} •{" "} {plural(menu.itemCount ?? 0, { one: "# item", other: "# items" })} </Trans> </p> </div> </Link> <div className="flex gap-2"> <RouterLinkButton to="/menus/$name" params={{ name: menu.name }} search={{ locale: menu.locale }} variant="outline" size="sm" icon={<Pencil />} > {t`Edit`} </RouterLinkButton> <Button variant="outline" size="sm" onClick={() => setDeleteMenuName(menu.name)} aria-label={t`Delete ${menu.name} menu`} > <Trash className="h-4 w-4" /> </Button> </div> </div> ))} </div> )} <ConfirmDialog open={deleteMenuName !== null} onClose={() => { setDeleteMenuName(null); deleteMutation.reset(); }} title={t`Delete Menu`} description={t`Are you sure you want to delete this menu? This will also delete all menu items. This action cannot be undone.`} confirmLabel={t`Delete`} pendingLabel={t`Deleting...`} isPending={deleteMutation.isPending} error={deleteMutation.error} onConfirm={() => deleteMenuName && deleteMutation.mutate(deleteMenuName)} /> </div> ); } 
 #: packages/admin/src/components/MenuList.tsx:215
 msgid "{0} • {1}"
+msgstr ""
+
+#. placeholder {0}: displayName ?? slug
+#: packages/admin/src/components/RegistryPluginDetail.tsx:365
+msgid "{0} banner"
 msgstr ""
 
 #. placeholder {0}: bestMatch?.detected.siteTitle || "WordPress site"
@@ -183,6 +195,11 @@ msgstr "{0} غیرفعال شد"
 #: packages/admin/src/components/PluginManager.tsx:305
 msgid "{0} has been removed"
 msgstr "{0} حذف شد"
+
+#. placeholder {0}: displayName ?? slug
+#: packages/admin/src/components/RegistryPluginDetail.tsx:377
+msgid "{0} icon"
+msgstr ""
 
 #. placeholder {0}: plugin.installCount.toLocaleString()
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:203
@@ -965,7 +982,7 @@ msgstr "مجوز دادن به دستگاه"
 msgid "Authorizing..."
 msgstr "در حال صدور مجوز..."
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:458
+#: packages/admin/src/components/RegistryPluginDetail.tsx:581
 msgid "Authors"
 msgstr ""
 
@@ -1033,7 +1050,7 @@ msgstr "بازگشت به ورود"
 msgid "Back to marketplace"
 msgstr "بازگشت به فروشگاه"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:559
+#: packages/admin/src/components/RegistryPluginDetail.tsx:682
 msgid "Back to plugins"
 msgstr ""
 
@@ -1862,7 +1879,7 @@ msgstr "قالب تاریخ"
 msgid "Decimal number"
 msgstr "عدد اعشاری"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:523
+#: packages/admin/src/components/RegistryPluginDetail.tsx:646
 msgid "Declared permissions"
 msgstr ""
 
@@ -2585,7 +2602,7 @@ msgstr "خطا در ذخیره بخش"
 msgid "Error updating widget"
 msgstr ""
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:415
+#: packages/admin/src/components/RegistryPluginDetail.tsx:492
 msgid "Every published release of this plugin has been withdrawn or could not be verified. Check back later, or contact the publisher."
 msgstr ""
 
@@ -2786,7 +2803,7 @@ msgstr ""
 msgid "Failed to fetch entry terms"
 msgstr ""
 
-#: packages/admin/src/lib/api/client.ts:208
+#: packages/admin/src/lib/api/client.ts:210
 msgid "Failed to fetch manifest"
 msgstr ""
 
@@ -2841,7 +2858,7 @@ msgid "Failed to import media"
 msgstr ""
 
 #: packages/admin/src/lib/api/marketplace.ts:160
-#: packages/admin/src/lib/api/registry.ts:455
+#: packages/admin/src/lib/api/registry.ts:593
 msgid "Failed to install plugin"
 msgstr ""
 
@@ -2999,7 +3016,7 @@ msgid "Failed to set entry terms"
 msgstr ""
 
 #: packages/admin/src/lib/api/marketplace.ts:192
-#: packages/admin/src/lib/api/registry.ts:594
+#: packages/admin/src/lib/api/registry.ts:732
 msgid "Failed to uninstall plugin"
 msgstr ""
 
@@ -3025,7 +3042,7 @@ msgid "Failed to update domain"
 msgstr "به‌روزرسانی دامنه ناموفق بود"
 
 #: packages/admin/src/lib/api/marketplace.ts:176
-#: packages/admin/src/lib/api/registry.ts:526
+#: packages/admin/src/lib/api/registry.ts:664
 msgid "Failed to update plugin"
 msgstr ""
 
@@ -3419,7 +3436,7 @@ msgid "Incompatible"
 msgstr "ناسازگار"
 
 #. placeholder {0}: formatDate(release.indexedAt)
-#: packages/admin/src/components/RegistryPluginDetail.tsx:325
+#: packages/admin/src/components/RegistryPluginDetail.tsx:402
 msgid "indexed {0}"
 msgstr ""
 
@@ -3486,7 +3503,7 @@ msgid "Instagram"
 msgstr "اینستاگرام"
 
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:193
-#: packages/admin/src/components/RegistryPluginDetail.tsx:373
+#: packages/admin/src/components/RegistryPluginDetail.tsx:450
 msgid "Install"
 msgstr "نصب"
 
@@ -3501,7 +3518,7 @@ msgstr "نصب مسدود شد"
 #: packages/admin/src/components/MarketplaceBrowse.tsx:261
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:174
 #: packages/admin/src/components/RegistryBrowse.tsx:198
-#: packages/admin/src/components/RegistryPluginDetail.tsx:365
+#: packages/admin/src/components/RegistryPluginDetail.tsx:442
 msgid "Installed"
 msgstr "نصب‌شده"
 
@@ -4356,7 +4373,7 @@ msgstr "فیلدی برای مقایسه وجود ندارد"
 msgid "No headings in document"
 msgstr "سرتیتری در سند نیست"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:413
+#: packages/admin/src/components/RegistryPluginDetail.tsx:490
 msgid "No installable releases"
 msgstr ""
 
@@ -4515,6 +4532,10 @@ msgstr ""
 #: packages/admin/src/components/TaxonomyManager.tsx:422
 msgid "None (top level)"
 msgstr "هیچ‌کدام (سطح بالا)"
+
+#: packages/admin/src/components/RegistryPluginDetail.tsx:525
+msgid "Not compatible with this environment"
+msgstr ""
 
 #: packages/admin/src/components/FieldEditor.tsx:162
 #: packages/admin/src/components/FieldEditor.tsx:581
@@ -4828,7 +4849,7 @@ msgstr ""
 msgid "Plugin not found"
 msgstr "افزونه یافت نشد"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:293
+#: packages/admin/src/components/RegistryPluginDetail.tsx:351
 msgid "Plugin not found. The publisher handle or slug may be incorrect."
 msgstr ""
 
@@ -4853,7 +4874,7 @@ msgstr ""
 msgid "Plugin uninstalled"
 msgstr "افزونه حذف نصب شد"
 
-#: packages/admin/src/lib/api/registry.ts:546
+#: packages/admin/src/lib/api/registry.ts:684
 msgid "Plugin update requires re-consent"
 msgstr ""
 
@@ -4882,7 +4903,7 @@ msgstr "نوشته‌ها"
 msgid "Posts Per Page"
 msgstr "نوشته در هر صفحه"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:327
+#: packages/admin/src/components/RegistryPluginDetail.tsx:404
 msgid "Pre-release"
 msgstr ""
 
@@ -4963,7 +4984,7 @@ msgstr "منتشرشده در {0}"
 msgid "Published At"
 msgstr "تاریخ انتشار"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:319
+#: packages/admin/src/components/RegistryPluginDetail.tsx:396
 msgid "Published by"
 msgstr ""
 
@@ -5085,7 +5106,7 @@ msgstr "ثبت‌نام لغو شد یا زمان آن به پایان رسید.
 msgid "Registry"
 msgstr ""
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:429
+#: packages/admin/src/components/RegistryPluginDetail.tsx:506
 msgid "Release is too new to install"
 msgstr ""
 
@@ -5486,6 +5507,7 @@ msgstr "محدوده‌ها: {0}"
 #. placeholder {0}: i + 1
 #. placeholder {0}: index + 1
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:244
+#: packages/admin/src/components/RegistryPluginDetail.tsx:551
 #: packages/admin/src/components/ThemeMarketplaceDetail.tsx:174
 #: packages/admin/src/components/ThemeMarketplaceDetail.tsx:293
 msgid "Screenshot {0}"
@@ -5506,6 +5528,7 @@ msgid "Screenshot viewer"
 msgstr "نمایشگر تصویر"
 
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:234
+#: packages/admin/src/components/RegistryPluginDetail.tsx:545
 #: packages/admin/src/components/ThemeMarketplaceDetail.tsx:164
 msgid "Screenshots"
 msgstr "تصاویر"
@@ -5676,7 +5699,7 @@ msgstr "بررسی امنیتی این افزونه را به‌عنوان اح�
 msgid "Security audit passed"
 msgstr "بررسی امنیتی موفق بود"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:491
+#: packages/admin/src/components/RegistryPluginDetail.tsx:614
 msgid "Security contacts"
 msgstr ""
 
@@ -6363,13 +6386,17 @@ msgstr "این شاه‌کلید از قبل روی این دستگاه ثبت �
 msgid "This plugin requires no special permissions."
 msgstr "این افزونه نیاز به مجوز خاصی ندارد."
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:398
+#: packages/admin/src/components/RegistryPluginDetail.tsx:475
 msgid "This publisher claims a name they couldn't prove they own — possibly impersonating someone else. Install is disabled. If you know the publisher and trust them, ask them to fix their identity setup before retrying."
 msgstr ""
 
 #: packages/admin/src/components/Redirects.tsx:551
 msgid "This redirect rule will be permanently removed."
 msgstr "این قانون    تغییر مسیر برای همیشه حذف خواهد شد."
+
+#: packages/admin/src/components/RegistryPluginDetail.tsx:527
+msgid "This release requires a newer environment than your site currently runs. Upgrade before installing."
+msgstr ""
 
 #: packages/admin/src/routes/bylines.tsx:500
 msgid "This removes the byline profile. Content byline links are removed and lead pointers are cleared."
@@ -6955,7 +6982,7 @@ msgid "Validation"
 msgstr "اعتبارسنجی"
 
 #: packages/admin/src/components/RegistryBrowse.tsx:186
-#: packages/admin/src/components/RegistryPluginDetail.tsx:314
+#: packages/admin/src/components/RegistryPluginDetail.tsx:391
 msgid "Verified publisher"
 msgstr ""
 
@@ -6973,12 +7000,12 @@ msgid "Verifying..."
 msgstr "در حال تأیید..."
 
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:321
-#: packages/admin/src/components/RegistryPluginDetail.tsx:334
+#: packages/admin/src/components/RegistryPluginDetail.tsx:411
 msgid "Version"
 msgstr "نسخه"
 
 #. placeholder {0}: release.version
-#: packages/admin/src/components/RegistryPluginDetail.tsx:325
+#: packages/admin/src/components/RegistryPluginDetail.tsx:402
 msgid "Version {0}"
 msgstr ""
 
@@ -7006,11 +7033,11 @@ msgstr "مشاهده {title} منتشرشده"
 msgid "View Site"
 msgstr "مشاهده وبسایت"
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:449
+#: packages/admin/src/components/RegistryPluginDetail.tsx:572
 msgid "View source"
 msgstr ""
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:681
+#: packages/admin/src/components/RegistryPluginDetail.tsx:815
 msgid "View the {license} license on spdx.org"
 msgstr ""
 
@@ -7032,7 +7059,7 @@ msgstr "هشدار"
 msgid "We couldn't connect to a WordPress site at {0}. This could mean the site isn't WordPress, the REST API is disabled, or the site isn't accessible."
 msgstr "نتوانستیم به وبسایت وردپرس در {0} متصل شویم. ممکن است وبسایت وردپرس نباشد، API REST غیرفعال باشد، یا وبسایت قابل دسترس نباشد."
 
-#: packages/admin/src/components/RegistryPluginDetail.tsx:396
+#: packages/admin/src/components/RegistryPluginDetail.tsx:473
 msgid "We couldn't verify this publisher's identity"
 msgstr ""
 
@@ -7058,7 +7085,7 @@ msgid "WebAuthn is not supported in this browser"
 msgstr "WebAuthn در این مرورگر پشتیبانی نمی‌شود"
 
 #: packages/admin/src/components/MarketplacePluginDetail.tsx:226
-#: packages/admin/src/components/RegistryPluginDetail.tsx:474
+#: packages/admin/src/components/RegistryPluginDetail.tsx:597
 msgid "Website"
 msgstr "وبسایت"
 
@@ -7290,7 +7317,7 @@ msgid "Your Role"
 msgstr "نقش شما"
 
 #. placeholder {0}: formatHoldback(config.policy?.minimumReleaseAgeSeconds ?? 0)
-#: packages/admin/src/components/RegistryPluginDetail.tsx:431
+#: packages/admin/src/components/RegistryPluginDetail.tsx:508
 msgid "Your site requires releases to be at least {0} old before they can be installed. This release will become installable later."
 msgstr ""
 

@@ -4,9 +4,9 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-05-31
+## Workspace Snapshot - 2026-06-01
 
-- EmDash upstream: `90ebf8a7af2004f24af58c88d7570a4a43af4a7b` from `emdash-latest/`
+- EmDash upstream: `413076fa455512cac87decbddbf6ac7de4f611df` from `emdash-latest/`
 - Root version: `0.1.0`
 
 ### Plugins

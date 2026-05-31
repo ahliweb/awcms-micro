@@ -55,7 +55,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
 	const result = await emdash.handleMediaList({
 		cursor: query.cursor,
 		limit: query.limit,
-		query: query.query,
 		mimeType: query.mimeType,
 	});
 

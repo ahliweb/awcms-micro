@@ -35,7 +35,7 @@ export function localMedia(config: LocalMediaConfig = {}): MediaProviderDescript
 		entrypoint: "emdash/media/local-runtime",
 		capabilities: {
 			browse: true,
-			search: true,
+			search: false, // TODO: Add search support
 			upload: true,
 			delete: true,
 		},
