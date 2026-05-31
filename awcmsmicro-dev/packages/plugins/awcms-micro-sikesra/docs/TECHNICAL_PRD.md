@@ -6,7 +6,7 @@ This document describes the technical implementation requirements for `@awcms-mi
 
 The plugin is an EmDash-compatible AWCMS-Micro downstream plugin for SIKESRA workflows. It must remain plugin-owned and must not move responsibilities into EmDash core.
 
-SIKESRA covers social, welfare, religious, institutional, document, verification, audit, import/export, RBAC/ABAC, custom attribute, and public-safe aggregate workflows.
+SIKESRA covers social, welfare, religious, institutional, document, verification, audit, import/export, RBAC/ABAC, typed frontend-backend-D1 integration, custom attribute, and public-safe aggregate workflows.
 
 ### Product Shape
 
@@ -22,54 +22,77 @@ SIKESRA covers social, welfare, religious, institutional, document, verification
 
 ```mermaid
 flowchart LR
-  Admin[Admin UI] --> Plugin[SIKESRA Plugin]
-  Plugin --> Registry[Registry]
-  Plugin --> Verification[Verification]
-  Plugin --> Documents[Documents]
-  Plugin --> ImportExport[Import and Export]
-  Plugin --> RBAC[SIKESRA RBAC]
-  Plugin --> ABAC[SIKESRA ABAC]
-  Plugin --> Audit[Audit]
-  Plugin --> D1[(sikesra_ D1 Tables)]
-  Plugin --> Public[Public Safe Aggregate]
-  Documents --> R2[(R2-compatible Storage)]
+  Admin[Admin UI] --> ApiClient[Typed API Client]
+  ApiClient --> Routes[Plugin Routes]
+  Routes --> Guard[Auth + RBAC + ABAC Guard]
+  Guard --> Services[Service Layer]
+  Services --> Repositories[Repository Layer]
+  Repositories --> D1[(sikesra_ D1 Tables)]
+  Services --> Serializers[Serializers + Masking]
+  Serializers --> Admin
+  Services --> Audit[Audit]
+  Documents[Document Workflow] --> R2[(R2-compatible Storage)]
+  Serializers --> Public[Public Safe Aggregate]
 ```
 
-## 2. Issue Backlog Alignment
+## 2. GitHub Issue System
 
-This PRD is aligned with GitHub issues #119 through #140.
+This repository uses sequenced GitHub issues as implementation contracts.
 
-| Issue | Requirement Area |
-| ---: | --- |
-| #119 | `sikesra_` naming policy |
-| #120 | D1 migration framework |
-| #121 | table-prefix validation |
-| #122 | D1 repository layer |
-| #123 | settings, regions, data types |
-| #124 | KV/plugin-storage to D1 migration |
-| #125 | registry tables for 8 modules |
-| #126 | registry routes to D1 |
-| #127 | 20-digit ID sequence |
-| #128 | verification workflow |
-| #129 | documents and R2 metadata |
-| #130 | staged import |
-| #131 | duplicate detection |
-| #132 | EmDash user-linked SIKESRA RBAC/ABAC |
-| #133 | audit redaction |
-| #134 | export workflow |
-| #135 | personal and non-personal field standards |
-| #136 | EmDash update/rebuild compatibility |
-| #137 | data preservation |
-| #138 | dynamic custom attributes |
-| #139 | CRUD and permanent delete governance |
-| #140 | final plugin identity |
+Issue title pattern:
 
-## 3. Functional Requirements
+```txt
+[PRODUCT][SEQ-XX][TYPE][PRIORITY] Title
+```
+
+For the repository issue standard, see:
+
+```txt
+docs/awcms-micro-github-issue-system.md
+```
+
+## 3. Issue Backlog Alignment
+
+This PRD is aligned with GitHub issues #119 through #143.
+
+| Order | Issue | Requirement Area |
+| ---: | ---: | --- |
+| 1 | #140 | final plugin identity |
+| 2 | #141 | admin dashboard route bug fix |
+| 3 | #142 | admin UI/UX design system |
+| 4 | #119 | `sikesra_` naming policy |
+| 5 | #121 | table-prefix validation |
+| 6 | #136 | EmDash update/rebuild compatibility |
+| 7 | #137 | data preservation |
+| 8 | #120 | D1 migration framework |
+| 9 | #122 | D1 repository layer |
+| 10 | #143 | typed frontend-backend-D1 integration contract |
+| 11 | #123 | settings, regions, data types |
+| 12 | #135 | personal and non-personal field standards |
+| 13 | #124 | KV/plugin-storage to D1 migration |
+| 14 | #125 | registry tables for 8 modules |
+| 15 | #132 | EmDash user-linked SIKESRA RBAC/ABAC |
+| 16 | #133 | audit redaction |
+| 17 | #126 | registry routes to D1 |
+| 18 | #127 | 20-digit ID sequence |
+| 19 | #128 | verification workflow |
+| 20 | #129 | documents and R2 metadata |
+| 21 | #130 | staged import |
+| 22 | #131 | duplicate detection |
+| 23 | #134 | export workflow |
+| 24 | #138 | dynamic custom attributes |
+| 25 | #139 | CRUD and highest-admin governance |
+
+Do not implement later workflow issues before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, typed integration, field-standard, RBAC/ABAC, and audit foundations are ready.
+
+## 4. Functional Requirements
 
 ### Core Features
 
 - expose a native plugin entry and a resolved plugin entry;
+- fix admin dashboard route safety so admin actions stay inside the plugin admin route;
 - provide grouped admin navigation placed above default EmDash menus where supported;
+- provide consistent admin UI/UX standards for all SIKESRA pages;
 - provide admin pages, widgets, and field widgets;
 - manage 8 core SIKESRA data modules;
 - support standard personal and non-personal fields;
@@ -87,7 +110,8 @@ This PRD is aligned with GitHub issues #119 through #140.
 - provide audit management and redaction;
 - provide a public-safe aggregate route;
 - support install, activate, deactivate, and uninstall lifecycle hooks;
-- record SIKESRA-owned data in SIKESRA-owned namespaces/tables.
+- record SIKESRA-owned data in SIKESRA-owned namespaces/tables;
+- integrate admin UI, API routes, services, repositories, serializers, and D1 through typed contracts.
 
 ### Non-Functional Requirements
 
@@ -97,7 +121,9 @@ This PRD is aligned with GitHub issues #119 through #140.
 - validation must be deterministic;
 - changes must remain additive unless a breaking package bump is intentional;
 - D1 migrations must be data-preserving by default;
-- plugin behavior must survive EmDash update/rebuild workflows.
+- plugin behavior must survive EmDash update/rebuild workflows;
+- API response envelopes must be consistent;
+- UI state must handle loading, empty, validation error, permission denied, ABAC denied, server error, and stale data.
 
 ### Security Requirements
 
@@ -106,10 +132,11 @@ This PRD is aligned with GitHub issues #119 through #140.
 - no secret values in tracked source or docs;
 - no unchecked public route exposure beyond explicit public-safe aggregate endpoints;
 - no public leakage of personal, sensitive personal, restricted, address, document, or internal storage data;
-- no destructive migration without explicit approval, backup, and rollback/recovery notes;
-- no permanent delete outside the highest-admin workflow.
+- no high-risk migration without explicit approval, backup, and recovery notes;
+- no high-impact lifecycle action outside the highest-admin governance workflow;
+- no raw D1 row returned directly to admin or public UI.
 
-## 4. Core Data Modules
+## 5. Core Data Modules
 
 The plugin must support these modules:
 
@@ -140,7 +167,7 @@ export policy
 public aggregate policy
 ```
 
-## 5. Field Classification
+## 6. Field Classification
 
 Every field must be classified as one of:
 
@@ -202,7 +229,7 @@ alamat_domisili_postal_code
 
 KTP address and domicile address are sensitive personal data.
 
-## 6. Architecture
+## 7. Architecture
 
 ### Implementation Files
 
@@ -213,6 +240,10 @@ KTP address and domicile address are sensitive personal data.
 - `src/permissions.ts`: permission helpers and catalog
 - `src/audit.ts`: audit recording helpers
 - `src/sandbox.ts`: sandbox-compatible server-side entry
+- `src/contracts/`: target typed request/response contracts from issue #143
+- `src/admin/api/`: target typed admin API client from issue #143
+- `src/services/`: target service layer from issue #143
+- `src/serializers/`: target serializer and masking layer from issue #143
 - `src/db/`: target D1 repository layer after issue #122
 - `migrations/`: target SIKESRA D1 migration folder after issue #120
 
@@ -220,19 +251,44 @@ KTP address and domicile address are sensitive personal data.
 
 ```mermaid
 flowchart TD
-  Config[EmDash plugin config] --> Entry[src/index.ts]
-  Entry --> Runtime[src/runtime.ts]
-  Runtime --> Admin[src/admin.tsx]
-  Runtime --> Repositories[src/db repositories]
+  Admin[Admin UI] --> ApiClient[src/admin/api]
+  ApiClient --> Routes[src/runtime.ts routes]
+  Routes --> Contracts[src/contracts]
+  Routes --> Guard[Trusted EmDash user + SIKESRA RBAC/ABAC]
+  Guard --> Services[src/services]
+  Services --> Repositories[src/db repositories]
   Repositories --> D1[(sikesra_ D1 Tables)]
-  Admin --> Routes[Plugin Routes]
-  Routes --> Repositories
-  Routes --> Audit[sikesra_audit_events]
+  Services --> Serializers[src/serializers]
+  Serializers --> Admin
+  Services --> Audit[sikesra_audit_events]
   Documents[Document Workflow] --> R2[R2-compatible Storage]
-  Routes --> Public[Public Safe Aggregate]
+  Serializers --> Public[Public Safe Aggregate]
 ```
 
-## 7. Database and Storage
+## 8. Frontend-Backend-D1 Integration Contract
+
+Issue #143 defines the required integration contract.
+
+Target flow:
+
+```txt
+Admin UI → typed API client → plugin route → trusted EmDash user → SIKESRA RBAC/ABAC guard → service layer → repository layer → sikesra_ D1 tables → serializer/masking → Admin UI
+```
+
+Contract requirements:
+
+- frontend and backend share typed request/response definitions where practical;
+- admin API client centralizes plugin API calls;
+- route handlers validate typed payloads;
+- services implement business workflow;
+- repositories perform D1 access;
+- serializers return safe view models;
+- public serializers are separate from admin serializers;
+- API response envelopes are consistent;
+- list endpoints share pagination, filtering, and sorting conventions;
+- form validation uses field standards and custom attribute definitions.
+
+## 9. Database and Storage
 
 ### Current Compatibility Layer
 
@@ -261,7 +317,7 @@ export jobs
 audit events
 RBAC and ABAC configuration
 custom attributes and values
-delete requests, snapshots, approvals, and events
+lifecycle governance records
 ```
 
 Minimum business table fields:
@@ -290,7 +346,7 @@ Document storage organization:
 tenants/{tenant_id}/sites/{site_id}/modules/sikesra/{classification}/{year}/{month}/{safe_filename}
 ```
 
-## 8. RBAC and ABAC
+## 10. RBAC and ABAC
 
 SIKESRA must use EmDash users as the trusted identity source.
 
@@ -314,7 +370,7 @@ data sensitivity/masking rule
 audit logging
 ```
 
-## 9. Custom Attributes
+## 11. Custom Attributes
 
 Custom attributes extend fixed field standards without replacing them.
 
@@ -341,7 +397,7 @@ program_scope
 
 Custom attributes must not override protected system fields.
 
-## 10. CRUD and Delete Governance
+## 12. CRUD and Lifecycle Governance
 
 Every feature group must define:
 
@@ -358,11 +414,10 @@ permanent_delete
 
 Soft delete is default.
 
-Permanent delete requires:
+High-impact lifecycle actions require:
 
 ```txt
 sikesra_super_admin
-sikesra.permanent_delete.execute
 reason
 confirmation
 snapshot
@@ -370,9 +425,9 @@ audit
 integrity check
 ```
 
-Permanent delete must never delete EmDash core users.
+Lifecycle governance must never affect EmDash core users.
 
-## 11. Public Aggregate
+## 13. Public Aggregate
 
 Public aggregate must be public-safe.
 
@@ -394,7 +449,7 @@ restricted custom attributes
 
 Small-cell suppression must be applied to vulnerable groups.
 
-## 12. Update and Rebuild Safety
+## 14. Update and Rebuild Safety
 
 The plugin must remain safe across:
 
@@ -416,14 +471,13 @@ awcms:sikesra:check-d1-prefix
 awcms:sikesra:check-routes
 awcms:sikesra:check-admin-pages
 awcms:sikesra:check-data-boundary
-awcms:sikesra:check-destructive-migrations
 awcms:sikesra:check-user-references
 awcms:sikesra:check-file-links
 awcms:sikesra:backup-inventory
 awcms:sikesra:validate-data-after-rebuild
 ```
 
-## 13. User Flow
+## 15. User Flow
 
 ### Operator Flow
 
@@ -445,13 +499,17 @@ awcms:sikesra:validate-data-after-rebuild
 3. confirm no EmDash core modification is required;
 4. confirm public routes expose only aggregate-safe data;
 5. confirm trusted EmDash user identity integration;
-6. confirm audit, masking, data preservation, and rebuild guardrails.
+6. confirm typed UI-backend-D1 contracts;
+7. confirm audit, masking, data preservation, and rebuild guardrails.
 
-## 14. Testing Constraints
+## 16. Testing Constraints
 
 Tests must cover:
 
 - plugin descriptor and identity;
+- admin route safety;
+- UI/UX component state where practical;
+- typed API envelope shape;
 - `sikesra_` prefix validation;
 - route registration;
 - admin page registration;
@@ -464,11 +522,14 @@ Tests must cover:
 - CRUD soft delete/restore/permanent delete denial;
 - data preservation after rebuild where fixtures are available.
 
-## 15. Acceptance Criteria
+## 17. Acceptance Criteria
 
 The plugin is production-ready only when:
 
 - plugin identity is finalized;
+- admin dashboard routes stay inside plugin admin routes;
+- UI/UX standards are implemented consistently;
+- typed frontend-backend-D1 contract exists;
 - all canonical tables use `sikesra_` prefix;
 - D1 migrations and repository layer exist;
 - all 8 modules support create, list, detail, update, verification, and reporting;
@@ -476,11 +537,11 @@ The plugin is production-ready only when:
 - public aggregate remains privacy-safe;
 - import/export/document workflows are controlled and audited;
 - custom attributes are supported safely;
-- CRUD and permanent delete governance is implemented;
+- CRUD and lifecycle governance is implemented;
 - data preservation and rebuild guardrails pass;
 - no SIKESRA-specific EmDash core modification is required.
 
-## 16. Out Of Scope
+## 18. Out Of Scope
 
 - replacing EmDash core auth;
 - deleting EmDash users from the SIKESRA plugin;
