@@ -6,7 +6,7 @@ This repository is the parent maintenance workspace for keeping AWCMS-Micro alig
 
 Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an implementation workspace that adopts EmDash 100% and includes only AWCMS-Micro plugins and templates that follow the AWCMS-Micro standard, without modifying EmDash core.
 
 AWCMS-Micro-specific product development in this maintenance workspace is limited to plugin and template boundaries. Root scripts and root documentation may change to support that workflow, but new product behavior should not be introduced through EmDash core forks or new shared core layers.
 
@@ -27,7 +27,7 @@ Keep these flows separate so root maintenance releases do not mix with package r
 ## Licensing
 
 - The root maintenance workspace is MIT licensed. See `LICENSE`.
-- AWCMS-Micro example plugins and templates use the AW Non-Commercial License 1.0 from `https://github.com/ahliweb/aw-non-commercial-license`.
+- AWCMS-Micro plugins and templates use the AW Non-Commercial License 1.0 from `https://github.com/ahliweb/aw-non-commercial-license` unless a package-level license says otherwise.
 - `docs/awcms-micro-licensing.md` explains how the root MIT license and package-level non-commercial license fit together.
 
 ## Root Structure
@@ -51,6 +51,29 @@ See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update 
 - When a task is too large, split it into smaller follow-up tasks or GitHub issues.
 - If a downstream source tweak must survive sync but does not belong in a plugin or template boundary, encode it as a patch under `awcmsmicro-dev/.awcms-patches/` so the rebuild script can reapply it automatically.
 
+## SIKESRA Plugin Governance
+
+The SIKESRA plugin is an AWCMS-Micro downstream plugin under:
+
+```txt
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/
+```
+
+SIKESRA development is tracked through GitHub issues #119 through #140. These issues define the current implementation backlog for plugin identity, D1 table isolation, repository layer, field standards, RBAC/ABAC, EmDash user references, document metadata, import/export, audit, data preservation, custom attributes, and CRUD governance.
+
+SIKESRA must follow these rules:
+
+- keep all SIKESRA-owned logic inside the plugin, templates, docs, scripts, tests, and approved downstream boundaries;
+- do not modify EmDash core for SIKESRA-specific behavior;
+- use dedicated D1 tables and plugin collections with the `sikesra_` prefix;
+- treat dedicated D1 tables as the production source of truth once the D1 migration issues are implemented;
+- use EmDash users as shared identity references, while storing SIKESRA roles, scopes, and ABAC policies in `sikesra_` tables;
+- keep public output aggregate-only and public-safe;
+- preserve SIKESRA data across EmDash updates, dependency reinstalls, workspace rebuilds, local template rebuilds, and Cloudflare rebuilds;
+- use soft delete by default and reserve permanent delete for the highest SIKESRA administrator workflow defined in issue #139.
+
+See `docs/awcms-micro-sikesra-plugin-governance.md` and `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md` before changing the SIKESRA plugin.
+
 ## Official Language
 
 English (US) is the official repository language for root documentation, root scripts, repository instructions, and AWCMS-Micro-specific repository governance text.
@@ -67,6 +90,7 @@ Exception:
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
 - `docs/operator-workflow.md`
@@ -122,12 +146,13 @@ The D1 mirror workflow for DBeaver is documented separately in `docs/awcms-micro
 - CLA enforcement is not active in this workspace.
 - Contributions are governed by repository review, issue tracking, and the standard approval flow used by maintainers.
 
-## AWCMS-Micro Example Additions
+## AWCMS-Micro Additions
 
-- Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
-- Example Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
-- Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
-- Example docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
+- Default template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
+- SIKESRA plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
+- Docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
+- Gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
