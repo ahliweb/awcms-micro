@@ -8,6 +8,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `synchronization-workflow.md`: operational workflow for updating `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 - `implementation-instructions.md`: implementation mandate, constraints, and task-splitting guidance
 - `awcms-micro-implementation-boundaries.md`: approved AWCMS-Micro implementation boundaries and preservation rules
+- `awcms-micro-github-issue-system.md`: repository issue-management standard, including `SEQ`, priority, dependency, and agent execution rules
 - `awcms-micro-sikesra-plugin-governance.md`: SIKESRA plugin governance, issue backlog mapping, D1 boundary, EmDash user reference rule, field standards, public aggregate rule, RBAC/ABAC, CRUD, and update/rebuild safety
 - `awcms-admin-branding.md`: admin branding persistence model and downstream patch overlay for sidebar footer versioning
 - `repository-assessment.md`: current repository assessment and prioritized development/documentation recommendations
@@ -19,7 +20,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-release-readiness-checklist.md`: release-readiness checks for promoting `awcmsmicro-dev/` into an independent repository state
 - `awcms-micro-root-versioning.md`: root-level AWCMS maintenance versioning and changelog flow, including the workspace snapshot for every plugin and template in `awcmsmicro-dev/`
 - `awcms-micro-versioning.md`: AWCMS-Micro-only downstream versioning and changelog flow for `@awcms-micro/*`, plus the workspace package-release boundary that keeps `awcmsmicro-dev/.changeset/` separate
-- `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS-Micro versioning automation rollout and local proof runs
+- `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS versioning automation rollout and local proof runs
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
@@ -31,7 +32,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
 - `upstream-sync/LAST_UPSTREAM_FETCH.md`: exact upstream revision copied into `emdash-latest/`
 - `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether a discovered issue belongs in downstream boundaries or upstream EmDash core
-- `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin sidebar ordering support
+- `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin-sidebar ordering support
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
 - `security/security-baseline.md`: security, privacy, ISO, and Indonesia compliance baseline documentation
 
@@ -40,29 +41,40 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 1. Read `repository-structure.md` to understand the parent repository layout.
 2. Read `synchronization-workflow.md` before refreshing either working tree.
 3. Read `awcms-micro-implementation-boundaries.md` before changing AWCMS-Micro custom boundaries.
-4. Read `awcms-micro-sikesra-plugin-governance.md` before changing the SIKESRA plugin.
-5. Read `awcms-admin-branding.md` before changing admin branding or persistent source-level overrides.
-6. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
-7. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
-8. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
-9. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
-10. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
-11. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
-12. Read `awcms-micro-prd.md` before changing product requirements, architecture, database, or user-flow assumptions.
-13. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
-14. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
-15. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
-16. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
-17. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
-18. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
-19. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
-20. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-21. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
-22. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-23. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-24. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
-25. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-26. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+4. Read `awcms-micro-github-issue-system.md` before creating, editing, or executing sequenced GitHub issues.
+5. Read `awcms-micro-sikesra-plugin-governance.md` before changing the SIKESRA plugin.
+6. Read `awcms-admin-branding.md` before changing admin branding or persistent source-level overrides.
+7. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
+8. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
+9. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
+10. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
+11. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
+12. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
+13. Read `awcms-micro-prd.md` before changing product requirements, architecture, database, or user-flow assumptions.
+14. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
+15. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
+16. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
+17. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
+18. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
+19. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
+20. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
+21. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+22. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
+23. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+24. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+25. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+26. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+27. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+
+## Issue System Summary
+
+Sequenced GitHub issues use this title pattern:
+
+```txt
+[PRODUCT][SEQ-XX][TYPE][PRIORITY] Title
+```
+
+`SEQ` controls execution order. Priority controls risk and urgency. For the SIKESRA plugin, the current ordered backlog is documented in `awcms-micro-github-issue-system.md` and mirrored in the SIKESRA governance docs.
 
 ## Language Policy
 
