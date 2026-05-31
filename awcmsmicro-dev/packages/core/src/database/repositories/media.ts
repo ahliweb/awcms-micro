@@ -39,6 +39,15 @@ function mimeMatchExpr(eb: ExpressionBuilder<Database, "media">, filters: string
 	);
 }
 
+function searchMediaExpr(eb: ExpressionBuilder<Database, "media">, query: string) {
+	const term = `%${escapeLike(query.toLowerCase())}%`;
+	return eb.or([
+		sql<SqlBool>`LOWER(filename) LIKE ${term} ESCAPE '\\'`,
+		sql<SqlBool>`LOWER(COALESCE(alt, '')) LIKE ${term} ESCAPE '\\'`,
+		sql<SqlBool>`LOWER(COALESCE(caption, '')) LIKE ${term} ESCAPE '\\'`,
+	]);
+}
+
 export type MediaStatus = "pending" | "ready" | "failed";
 
 export interface MediaItem {
@@ -78,6 +87,7 @@ export interface CreateMediaInput {
 export interface FindManyMediaOptions {
 	limit?: number;
 	cursor?: string;
+	query?: string;
 	/** Filter by MIME type. Pass a string for a single prefix/exact, or an array to match any. Strings ending with "/" are treated as LIKE prefix matches; others are exact equality. */
 	mimeType?: string | readonly string[];
 	status?: MediaStatus | "all"; // Filter by status, defaults to "ready"
@@ -248,6 +258,10 @@ export class MediaRepository {
 		const mimeFilters = normalizeMimeFilter(options.mimeType);
 		if (mimeFilters.length > 0) {
 			query = query.where((eb) => mimeMatchExpr(eb, mimeFilters));
+		}
+
+		if (options.query?.trim()) {
+			query = query.where((eb) => searchMediaExpr(eb, options.query!.trim()));
 		}
 
 		// Default to only showing ready items

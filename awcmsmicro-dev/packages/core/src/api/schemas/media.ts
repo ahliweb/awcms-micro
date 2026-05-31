@@ -20,6 +20,7 @@ const mimeTypeFilter = z
 
 export const mediaListQuery = cursorPaginationQuery
 	.extend({
+		query: z.string().optional(),
 		mimeType: mimeTypeFilter,
 	})
 	.meta({ id: "MediaListQuery" });

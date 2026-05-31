@@ -53,4 +53,37 @@ describeEachDialect("MediaRepository.findMany mimeType filter", (dialect) => {
 		const result = await repo.findMany({ mimeType: ["video/"] });
 		expect(result.items).toEqual([]);
 	});
+
+	it("filters by query across filename, alt, and caption", async () => {
+		const repo = new MediaRepository(ctx.db);
+		await repo.create({
+			filename: "sunset.jpg",
+			mimeType: "image/jpeg",
+			storageKey: "sunset.jpg",
+			alt: "Golden hour skyline",
+		});
+		await repo.create({
+			filename: "festival.mp4",
+			mimeType: "video/mp4",
+			storageKey: "festival.mp4",
+			caption: "Community festival recap",
+		});
+		await repo.create({
+			filename: "notes.pdf",
+			mimeType: "application/pdf",
+			storageKey: "notes.pdf",
+		});
+
+		const byFilename = await repo.findMany({ query: "sunset" });
+		expect(byFilename.items).toHaveLength(1);
+		expect(byFilename.items[0]?.filename).toBe("sunset.jpg");
+
+		const byAlt = await repo.findMany({ query: "skyline" });
+		expect(byAlt.items).toHaveLength(1);
+		expect(byAlt.items[0]?.filename).toBe("sunset.jpg");
+
+		const byCaption = await repo.findMany({ query: "festival" });
+		expect(byCaption.items).toHaveLength(1);
+		expect(byCaption.items[0]?.filename).toBe("festival.mp4");
+	});
 });

@@ -26,6 +26,7 @@ export async function handleMediaList(
 	params: {
 		cursor?: string;
 		limit?: number;
+		query?: string;
 		mimeType?: string | readonly string[];
 	},
 ): Promise<ApiResult<MediaListResponse>> {
@@ -34,6 +35,7 @@ export async function handleMediaList(
 		const result = await repo.findMany({
 			cursor: params.cursor,
 			limit: Math.min(params.limit || 50, 100),
+			query: params.query,
 			mimeType: params.mimeType,
 		});
 

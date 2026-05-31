@@ -49,8 +49,8 @@ export const createMediaProvider: CreateMediaProviderFn<LocalMediaRuntimeConfig>
 			const result = await repo.findMany({
 				cursor: options.cursor,
 				limit: options.limit,
+				query: options.query,
 				mimeType: options.mimeType,
-				// TODO: Add search support when capabilities.search is true
 			});
 
 			return {
