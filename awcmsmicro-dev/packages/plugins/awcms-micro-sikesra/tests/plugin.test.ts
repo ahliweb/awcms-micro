@@ -135,6 +135,28 @@ function createMockContext() {
 		updated_at: string;
 	};
 	const dbRows: DbRow[] = [];
+	function textValue(value: unknown, fallback = ""): string {
+		if (typeof value === "string") return value;
+		if (
+			typeof value === "number" ||
+			typeof value === "boolean" ||
+			typeof value === "bigint"
+		) {
+			return `${value}`;
+		}
+		return fallback;
+	}
+
+	function jsonTextValue(value: unknown, fallback = "{}"): string {
+		if (typeof value === "string") return value;
+		if (value == null) return fallback;
+		try {
+			return JSON.stringify(value);
+		} catch {
+			return fallback;
+		}
+	}
+
 	const syncCollectionMap = (row: DbRow) => {
 		const target = storageByCollectionName[row.collection];
 		if (!target) return;
@@ -153,7 +175,7 @@ function createMockContext() {
 		scope: row.scope,
 		actor: row.actor,
 		summary: row.summary,
-		metadata: JSON.parse(String(row.metadata ?? "{}")),
+		metadata: JSON.parse(jsonTextValue(row.metadata)),
 		userId: row.user_id ?? undefined,
 		userName: row.user_name ?? undefined,
 	});
@@ -222,27 +244,27 @@ function createMockContext() {
 					row =
 						_table === "sikesra_audit_events"
 							? {
-									id: String(nextRow.id ?? ""),
-									timestamp: String(nextRow.timestamp ?? ""),
-									kind: String(nextRow.kind ?? ""),
-									scope: String(nextRow.scope ?? ""),
-									actor: String(nextRow.actor ?? ""),
-									summary: String(nextRow.summary ?? ""),
-									metadata: String(nextRow.metadata ?? "{}"),
+									id: textValue(nextRow.id),
+									timestamp: textValue(nextRow.timestamp),
+									kind: textValue(nextRow.kind),
+									scope: textValue(nextRow.scope),
+									actor: textValue(nextRow.actor),
+									summary: textValue(nextRow.summary),
+									metadata: jsonTextValue(nextRow.metadata),
 									user_id: nextRow.user_id ?? null,
 									user_name: nextRow.user_name ?? null,
-									created_at: String(nextRow.created_at ?? ""),
-									updated_at: String(nextRow.updated_at ?? ""),
+									created_at: textValue(nextRow.created_at),
+									updated_at: textValue(nextRow.updated_at),
 								}
 							: {
-									plugin_id: String(nextRow.plugin_id ?? ""),
-									collection: String(nextRow.collection ?? ""),
-									id: String(nextRow.id ?? ""),
-									data: String(nextRow.data ?? "{}"),
-									created_at: String(nextRow.created_at ?? ""),
-									updated_at: String(nextRow.updated_at ?? ""),
+									plugin_id: textValue(nextRow.plugin_id),
+									collection: textValue(nextRow.collection),
+									id: textValue(nextRow.id),
+									data: jsonTextValue(nextRow.data),
+									created_at: textValue(nextRow.created_at),
+									updated_at: textValue(nextRow.updated_at),
 								};
-					const operation = {
+				const operation = {
 						onConflict(_handler: unknown) {
 							const statement = {
 								async execute() {
