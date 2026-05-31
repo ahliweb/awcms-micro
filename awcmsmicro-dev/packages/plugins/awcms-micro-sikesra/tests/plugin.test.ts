@@ -1344,17 +1344,23 @@ describe("awcms micro example plugin", () => {
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");
 		expect(Object.keys(manifest.storage).toSorted()).toEqual([
-			"abacAttributeCatalog",
-			"abacChangeEvents",
-			"abacPolicyRules",
-			"abacResourceAssignments",
-			"abacSubjectAssignments",
-			"accessChangeEvents",
-			"contentSnapshots",
-			"permissionCatalog",
-			"roleCatalog",
-			"rolePermissionAssignments",
-			"userRoleAssignments",
+			"sikesra_abac_attribute_catalog",
+			"sikesra_abac_change_events",
+			"sikesra_abac_policy_rules",
+			"sikesra_abac_resource_assignments",
+			"sikesra_abac_subject_assignments",
+			"sikesra_access_change_events",
+			"sikesra_content_snapshots",
+			"sikesra_permission_catalog",
+			"sikesra_plugin_state",
+			"sikesra_registry_entities",
+			"sikesra_role_catalog",
+			"sikesra_role_permission_assignments",
+			"sikesra_settings_state",
+			"sikesra_supporting_documents",
+			"sikesra_user_role_assignments",
+			"sikesra_verification_events",
+			"sikesra_verification_stage_state",
 		]);
 	});
 });

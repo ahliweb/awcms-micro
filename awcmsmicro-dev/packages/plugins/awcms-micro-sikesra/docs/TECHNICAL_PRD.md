@@ -162,31 +162,37 @@ The plugin uses plugin-owned storage namespaces rather than EmDash core schema c
 
 ### Storage Entities
 
-- `auditEvents`
-- `accessChangeEvents`
-- `abacChangeEvents`
-- `abacAttributeCatalog`
-- `abacPolicyRules`
-- `abacResourceAssignments`
-- `abacSubjectAssignments`
-- `contentSnapshots`
-- `permissionCatalog`
-- `roleCatalog`
-- `rolePermissionAssignments`
-- `userRoleAssignments`
+- `sikesra_audit_events`
+- `sikesra_access_change_events`
+- `sikesra_abac_change_events`
+- `sikesra_registry_entities`
+- `sikesra_settings_state`
+- `sikesra_plugin_state`
+- `sikesra_verification_stage_state`
+- `sikesra_abac_attribute_catalog`
+- `sikesra_abac_policy_rules`
+- `sikesra_abac_resource_assignments`
+- `sikesra_abac_subject_assignments`
+- `sikesra_content_snapshots`
+- `sikesra_permission_catalog`
+- `sikesra_role_catalog`
+- `sikesra_role_permission_assignments`
+- `sikesra_user_role_assignments`
+- `sikesra_supporting_documents`
+- `sikesra_verification_events`
 
 ### Logical Relationships
 
 ```mermaid
 erDiagram
-  roleCatalog ||--o{ rolePermissionAssignments : maps
-  permissionCatalog ||--o{ rolePermissionAssignments : grants
-  userRoleAssignments ||--o{ roleCatalog : assigns
-  abacAttributeCatalog ||--o{ abacPolicyRules : constrains
-  abacSubjectAssignments ||--o{ abacPolicyRules : evaluates
-  abacResourceAssignments ||--o{ abacPolicyRules : evaluates
-  auditEvents ||--o{ accessChangeEvents : captures
-  auditEvents ||--o{ abacChangeEvents : captures
+  sikesra_role_catalog ||--o{ sikesra_role_permission_assignments : maps
+  sikesra_permission_catalog ||--o{ sikesra_role_permission_assignments : grants
+  sikesra_user_role_assignments ||--o{ sikesra_role_catalog : assigns
+  sikesra_abac_attribute_catalog ||--o{ sikesra_abac_policy_rules : constrains
+  sikesra_abac_subject_assignments ||--o{ sikesra_abac_policy_rules : evaluates
+  sikesra_abac_resource_assignments ||--o{ sikesra_abac_policy_rules : evaluates
+  sikesra_audit_events ||--o{ sikesra_access_change_events : captures
+  sikesra_audit_events ||--o{ sikesra_abac_change_events : captures
 ```
 
 ### Schema Rules

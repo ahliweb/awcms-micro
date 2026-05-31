@@ -15,38 +15,56 @@
 	"capabilities": ["content:read", "content:write", "media:read", "media:write"],
 	"allowedHosts": [],
 	"storage": {
-		"accessChangeEvents": {
+		"sikesra_access_change_events": {
 			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]],
 		},
-		"abacChangeEvents": {
+		"sikesra_abac_change_events": {
 			"indexes": ["timestamp", "kind", "scope", ["kind", "timestamp"]],
 		},
-		"abacAttributeCatalog": {
+		"sikesra_registry_entities": {
+			"indexes": ["code", "entityType", "sensitivity", ["entityType", "sensitivity"]],
+		},
+		"sikesra_abac_attribute_catalog": {
 			"indexes": ["key", "targetType", "updatedAt", ["targetType", "updatedAt"]],
 		},
-		"abacPolicyRules": {
+		"sikesra_abac_policy_rules": {
 			"indexes": ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
 		},
-		"abacResourceAssignments": {
+		"sikesra_supporting_documents": {
+			"indexes": ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
+		},
+		"sikesra_verification_stage_state": {
+			"indexes": ["registryEntityId", "stage", "updatedAt", ["registryEntityId", "updatedAt"]],
+		},
+		"sikesra_abac_resource_assignments": {
 			"indexes": ["resourceId", "updatedAt"],
 		},
-		"abacSubjectAssignments": {
+		"sikesra_abac_subject_assignments": {
 			"indexes": ["subjectId", "updatedAt"],
 		},
-		"contentSnapshots": {
-			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"]],
+		"sikesra_content_snapshots": {
+			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
 		},
-		"permissionCatalog": {
+		"sikesra_settings_state": {
+			"indexes": ["key", "updatedAt"],
+		},
+		"sikesra_plugin_state": {
+			"indexes": ["key", "updatedAt"],
+		},
+		"sikesra_permission_catalog": {
 			"indexes": ["slug", "scope", "updatedAt", ["scope", "updatedAt"]],
 		},
-		"roleCatalog": {
+		"sikesra_role_catalog": {
 			"indexes": ["slug", "updatedAt"],
 		},
-		"rolePermissionAssignments": {
+		"sikesra_role_permission_assignments": {
 			"indexes": ["roleSlug", "updatedAt"],
 		},
-		"userRoleAssignments": {
+		"sikesra_user_role_assignments": {
 			"indexes": ["userId", "updatedAt"],
+		},
+		"sikesra_verification_events": {
+			"indexes": ["registryEntityId", "stage", "createdAt", ["registryEntityId", "createdAt"]],
 		},
 	},
 
