@@ -1,0 +1,543 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import { Image } from "emdash/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+
+interface GalleryEntry {
+	id: string;
+	slug: string;
+	status: string;
+	locale?: string;
+	translationOf?: string;
+	data: {
+		slug?: string;
+		title: string;
+		description?: string;
+		gallery_type: "photo" | "video" | "mixed";
+		layout_variant: "grid" | "masonry" | "carousel" | "slider";
+		event_date?: string;
+		location?: string;
+		featured?: boolean;
+		cover_image?: { src: string; alt?: string } | null;
+		gallery_items?: Array<{
+			type: "image" | "video";
+			src: string;
+			alt?: string;
+			caption?: string;
+			poster?: string;
+		}>;
+	};
+}
+
+function asImage(value: unknown) {
+	return value as any;
+}
+
+const slug = Astro.params.slug as string;
+
+const { entries: rawGalleries } = await getEmDashCollection("galleries", {
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+const galleries = rawGalleries as unknown as GalleryEntry[];
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
+const copy = getPublicCopy(currentLocale);
+
+const gallery = galleries.find((g) => resolveEntrySlug(g) === slug);
+
+if (!gallery) {
+	return Astro.redirect(toLocalePath("/gallery", currentLocale, localeOptions));
+}
+
+const galleryItems: Array<{
+	type: string;
+	src: string;
+	alt?: string;
+	caption?: string;
+	poster?: string;
+	mimeType?: string;
+}> = Array.isArray(gallery.data.gallery_items) ? (gallery.data.gallery_items as any[]) : [];
+
+const imageItems = galleryItems.filter((item) => item.type === "image");
+const videoItems = galleryItems.filter((item) => item.type === "video");
+
+function formatDate(dateValue: unknown) {
+	if (!dateValue) return null;
+	try {
+		return new Date(dateValue as string).toLocaleDateString(currentLocale, {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		});
+	} catch {
+		return null;
+	}
+}
+
+const formattedDate = formatDate(gallery.data.event_date);
+
+function getTypeLabel(type: string) {
+	if (type === "photo") return copy.galleryFilterPhoto;
+	if (type === "video") return copy.galleryFilterVideo;
+	return copy.galleryFilterMixed;
+}
+---
+
+<BaseLayout
+	title={gallery.data.title || copy.galleryTitle}
+	description={gallery.data.description}
+	content={{ collection: "galleries", id: gallery.id, slug }}
+	showFooterWidgets={false}
+>
+	<!-- Back navigation -->
+	<nav class="gallery-breadcrumb">
+		<a href={toLocalePath("/gallery", currentLocale, localeOptions)} class="breadcrumb-back" data-astro-prefetch="hover">
+			<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<polyline points="15 18 9 12 15 6"/>
+			</svg>
+			{copy.galleryBackToList}
+		</a>
+	</nav>
+
+	<!-- Gallery Hero -->
+	<section class="gallery-detail-hero">
+		{gallery.data.cover_image && (
+			<div class="gallery-detail-cover">
+				<Image
+					image={asImage(gallery.data.cover_image)}
+					class="gallery-detail-cover__img"
+					alt={gallery.data.title || "Gallery cover"}
+				/>
+				<div class="gallery-detail-cover__overlay" />
+			</div>
+		)}
+		<div class="gallery-detail-hero__content">
+			<span class={`gallery-type-badge gallery-type-badge--${gallery.data.gallery_type || "mixed"}`}>
+				{gallery.data.gallery_type === "video" ? "🎬" : gallery.data.gallery_type === "photo" ? "🖼️" : "✨"}
+				{getTypeLabel(gallery.data.gallery_type || "mixed")}
+			</span>
+			<h1 class="gallery-detail-hero__title">{gallery.data.title}</h1>
+			{gallery.data.description && (
+				<p class="gallery-detail-hero__desc">{gallery.data.description}</p>
+			)}
+			<div class="gallery-detail-hero__meta">
+				{formattedDate && (
+					<div class="meta-item">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+						<span class="meta-label">{copy.galleryEventDate}:</span>
+						<span>{formattedDate}</span>
+					</div>
+				)}
+				{gallery.data.location && (
+					<div class="meta-item">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+						<span class="meta-label">{copy.galleryLocation}:</span>
+						<span>{gallery.data.location}</span>
+					</div>
+				)}
+				<div class="meta-item">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+					<span class="meta-label">{copy.galleryItemsCount(galleryItems.length)}</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Gallery Items Grid -->
+	{galleryItems.length > 0 && (
+		<section class="gallery-items-section">
+			<h2 class="gallery-items-section__title">{copy.galleryItemsLabel}</h2>
+
+			{videoItems.length > 0 && (
+				<div class="gallery-items-group">
+					<h3 class="gallery-items-group__label">
+						<span class="group-label-icon">🎬</span> {copy.galleryVideoLabel}
+						<span class="group-count">({videoItems.length})</span>
+					</h3>
+					<div class="gallery-items-grid gallery-items-grid--video">
+						{videoItems.map((item, idx) => (
+							<div class="gallery-item gallery-item--video" id={`video-item-${idx}`}>
+								<div class="gallery-item__media">
+									<video
+										class="gallery-item__video"
+										controls
+										preload="none"
+										poster={item.poster}
+										aria-label={item.caption || item.alt || `Video ${idx + 1}`}
+									>
+										<source src={item.src} type={item.mimeType || "video/mp4"} />
+										{copy.galleryPlayVideo}
+									</video>
+								</div>
+								{(item.caption || item.alt) && (
+									<div class="gallery-item__caption">
+										<span class="caption-icon">▶</span>
+										{item.caption || item.alt}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			{imageItems.length > 0 && (
+				<div class="gallery-items-group">
+					<h3 class="gallery-items-group__label">
+						<span class="group-label-icon">🖼️</span> {copy.galleryPhotoLabel}
+						<span class="group-count">({imageItems.length})</span>
+					</h3>
+					<div class="gallery-items-grid">
+						{imageItems.map((item, idx) => (
+							<div class="gallery-item" id={`image-item-${idx}`}>
+								<div class="gallery-item__media">
+									<img
+										src={item.src}
+										alt={item.alt || item.caption || `Gallery image ${idx + 1}`}
+										class="gallery-item__img"
+										loading="lazy"
+										decoding="async"
+									/>
+									<div class="gallery-item__zoom-icon" aria-hidden="true">🔍</div>
+								</div>
+								{item.caption && (
+									<div class="gallery-item__caption">
+										{item.caption}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+		</section>
+	)}
+
+	<!-- Navigation Footer -->
+	<nav class="gallery-detail-nav">
+		<a href={toLocalePath("/gallery", currentLocale, localeOptions)} class="btn btn-secondary" data-astro-prefetch="hover">
+			← {copy.galleryViewAll}
+		</a>
+	</nav>
+</BaseLayout>
+
+<style>
+	/* Breadcrumb */
+	.gallery-breadcrumb {
+		padding: 0;
+		margin-bottom: 1.5rem;
+		background: transparent;
+		border: none;
+		box-shadow: none;
+	}
+
+	.breadcrumb-back {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--text-muted);
+		text-decoration: none;
+		padding: 0.5rem 0.85rem;
+		border: 1px solid var(--surface-border);
+		border-radius: 999px;
+		background: var(--surface-main);
+		transition: all 0.2s ease;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.breadcrumb-back:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		transform: translateX(-2px);
+	}
+
+	/* Hero Section */
+	.gallery-detail-hero {
+		position: relative;
+		padding: 0;
+		overflow: hidden;
+		min-height: 320px;
+	}
+
+	.gallery-detail-cover {
+		position: relative;
+		height: 380px;
+		overflow: hidden;
+		border-radius: 1.5rem 1.5rem 0 0;
+	}
+
+	.gallery-detail-cover__img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.gallery-detail-cover__overlay {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%);
+	}
+
+	.gallery-detail-hero__content {
+		padding: 2rem 2.5rem 2.5rem;
+	}
+
+	.gallery-type-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.35rem 1rem;
+		border-radius: 999px;
+		font-size: 0.8rem;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		margin-bottom: 1rem;
+	}
+
+	.gallery-type-badge--photo {
+		background: rgba(14, 165, 233, 0.12);
+		color: #0ea5e9;
+		border: 1px solid rgba(14, 165, 233, 0.25);
+	}
+
+	.gallery-type-badge--video {
+		background: rgba(217, 70, 239, 0.12);
+		color: #d946ef;
+		border: 1px solid rgba(217, 70, 239, 0.25);
+	}
+
+	.gallery-type-badge--mixed {
+		background: rgba(99, 102, 241, 0.12);
+		color: #6366f1;
+		border: 1px solid rgba(99, 102, 241, 0.25);
+	}
+
+	.gallery-detail-hero__title {
+		font-size: clamp(1.75rem, 4vw, 2.75rem);
+		font-weight: 800;
+		margin: 0 0 1rem;
+		line-height: 1.15;
+		letter-spacing: -0.02em;
+	}
+
+	.gallery-detail-hero__desc {
+		font-size: 1.05rem;
+		color: var(--text-muted);
+		margin: 0 0 1.5rem;
+		line-height: 1.7;
+		max-width: 52rem;
+	}
+
+	.gallery-detail-hero__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.25rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--surface-border);
+	}
+
+	.meta-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+	}
+
+	.meta-label {
+		font-weight: 600;
+		color: var(--text-main);
+	}
+
+	/* Gallery Items Section */
+	.gallery-items-section {
+		margin-top: 0.5rem;
+	}
+
+	.gallery-items-section__title {
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin: 0 0 2rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--surface-border);
+	}
+
+	.gallery-items-group {
+		margin-bottom: 2.5rem;
+	}
+
+	.gallery-items-group__label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1.1rem;
+		font-weight: 700;
+		margin: 0 0 1.25rem;
+		color: var(--text-main);
+	}
+
+	.group-label-icon {
+		font-size: 1.2rem;
+	}
+
+	.group-count {
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: var(--text-muted);
+	}
+
+	/* Items Grid */
+	.gallery-items-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		gap: 1.25rem;
+	}
+
+	.gallery-items-grid--video {
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+	}
+
+	.gallery-item {
+		display: flex;
+		flex-direction: column;
+		border-radius: 1rem;
+		overflow: hidden;
+		border: 1px solid var(--surface-border);
+		background: var(--surface-main);
+		box-shadow: var(--shadow-sm);
+		transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.gallery-item:hover {
+		transform: translateY(-4px);
+		box-shadow: var(--shadow-md);
+		border-color: rgba(99, 102, 241, 0.25);
+	}
+
+	.gallery-item__media {
+		position: relative;
+		overflow: hidden;
+		background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(217,70,239,0.05));
+	}
+
+	.gallery-item__img {
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+		display: block;
+		transition: transform 0.5s ease;
+	}
+
+	.gallery-item:hover .gallery-item__img {
+		transform: scale(1.05);
+	}
+
+	.gallery-item__zoom-icon {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%) scale(0);
+		font-size: 2rem;
+		opacity: 0;
+		transition: all 0.3s ease;
+	}
+
+	.gallery-item:hover .gallery-item__zoom-icon {
+		transform: translate(-50%, -50%) scale(1);
+		opacity: 0.9;
+	}
+
+	.gallery-item__video {
+		width: 100%;
+		display: block;
+		max-height: 280px;
+		background: #000;
+	}
+
+	.gallery-item__caption {
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		line-height: 1.5;
+		border-top: 1px solid var(--surface-border);
+		display: flex;
+		align-items: flex-start;
+		gap: 0.4rem;
+	}
+
+	.caption-icon {
+		font-size: 0.7rem;
+		margin-top: 0.2rem;
+		color: var(--accent);
+		flex-shrink: 0;
+	}
+
+	/* Navigation */
+	.gallery-detail-nav {
+		background: transparent;
+		border: none;
+		box-shadow: none;
+		padding: 1rem 0 0;
+		display: flex;
+		gap: 1rem;
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		border-radius: 999px;
+		font-weight: 700;
+		font-size: 0.95rem;
+		text-decoration: none;
+		transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+		border: 1px solid transparent;
+	}
+
+	.btn-secondary {
+		background: var(--surface-main);
+		color: var(--text-main);
+		border-color: var(--surface-border);
+		box-shadow: var(--shadow-sm);
+	}
+
+	.btn-secondary:hover {
+		border-color: var(--accent);
+		color: var(--accent);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	@media (max-width: 640px) {
+		.gallery-detail-cover {
+			height: 220px;
+		}
+
+		.gallery-detail-hero__content {
+			padding: 1.5rem;
+		}
+
+		.gallery-items-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.gallery-items-grid--video {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

@@ -4,6 +4,7 @@ templates/awcms-micro-default
 templates/awcms-micro-default-cloudflare
 packages/plugins/awcms-micro-sikesra
 packages/plugins/awcms-micro-docs
+packages/plugins/awcms-micro-gallery
 demos/awcms-micro-cloudflare
 docs/awcms-micro
 docs/package.json

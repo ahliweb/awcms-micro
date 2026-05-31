@@ -16,6 +16,7 @@
 	},
 	"dependencies": {
 		"@awcms-micro/plugin-docs": "workspace:*",
+		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@awcms-micro/plugin-sikesra": "workspace:*",
 		"@astrojs/node": "^10.1.1",
 		"@astrojs/react": "catalog:",
