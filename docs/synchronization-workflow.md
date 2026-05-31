@@ -63,7 +63,7 @@ Result:
 - removes stale files in `awcmsmicro-dev/` that no longer exist in `emdash-latest/`
 - preserves only the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`, including the workflow and Dependabot config under `awcmsmicro-dev/.github/`
 - preserves local bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when present
-- preserves local workspace database files such as `awcmsmicro-dev/data.db` when present so menu/content edits survive rebuilds
+- preserves local workspace database files such as `awcmsmicro-dev/templates/awcms-micro-default/data.db` when present so menu/content edits survive rebuilds
 - reapplies downstream patch overlays from `awcmsmicro-dev/.awcms-patches/` after the restore step so persistent source tweaks do not need to be recreated manually
 - refreshes `awcmsmicro-dev/pnpm-lock.yaml` after restore so workspace installs remain in frozen-lockfile sync
 - preserves workspace package-release metadata in `awcmsmicro-dev/.changeset/` alongside the approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt`

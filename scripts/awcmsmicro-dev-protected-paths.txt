@@ -10,7 +10,7 @@ docs/awcms-micro
 docs/gallery
 docs/package.json
 packages/blocks/playground/package.json
-data.db
+templates/awcms-micro-default/data.db
 e2e/awcms-micro
 .awcms-changesets
 .awcms-patches
