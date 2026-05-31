@@ -13,7 +13,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - run: corepack enable && corepack prepare pnpm@11.1.3 --activate
+      - run: corepack enable && corepack prepare pnpm@11.5.0 --activate
 
       - run: pnpm install --frozen-lockfile
 

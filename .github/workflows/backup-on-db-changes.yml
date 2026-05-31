@@ -24,7 +24,7 @@ permissions:
 
 env:
   NODE_VERSION: '22'
-  PNPM_VERSION: '11.1.3'
+  PNPM_VERSION: '11.5.0'
 
 jobs:
   backup-database:
