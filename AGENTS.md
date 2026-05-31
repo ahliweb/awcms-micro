@@ -57,6 +57,7 @@ Before creating, updating, or executing issue-driven work, read:
 
 ```txt
 docs/awcms-micro-github-issue-system.md
+docs/awcms-micro-mermaid-diagram-standard.md
 ```
 
 Required behavior:
@@ -64,8 +65,10 @@ Required behavior:
 - Follow `SEQ` order before issue creation order.
 - Treat `SEQ-XXA` as an inserted dependency between two existing sequence steps.
 - Treat `P0` as foundation, security, data safety, compatibility, or build-critical work.
-- Do not start later workflow issues before earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+- Do not start later workflow issues before earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, audit, and required diagram foundations are ready.
 - Read related issues before implementation.
+- Check whether Mermaid diagrams are required before creating or executing an issue.
+- Add or update Mermaid diagrams when work changes architecture, database schema, UI/UX flow, frontend-backend integration, security decision flow, deployment topology, migration, or data preservation.
 - Keep changes atomic and aligned with the issue acceptance criteria.
 - If a behavior change makes docs stale, update docs in the same PR or a focused follow-up docs PR.
 - Do not silently implement behavior that contradicts the current issue sequence.
@@ -79,6 +82,7 @@ Before changing code, docs, scripts, or generated outputs in this workspace, rea
 - `AGENTS.md`
 - `docs/README.md`
 - `docs/awcms-micro-github-issue-system.md`
+- `docs/awcms-micro-mermaid-diagram-standard.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
@@ -112,8 +116,9 @@ These rules apply to every plugin, template, database, UI/UX, API, integration, 
 - Use typed contracts when UI, API routes, backend services, and database models interact.
 - Use project-specific storage/table prefixes for project-owned data.
 - Keep public output public-safe and avoid exposing protected operational data.
+- Add Mermaid diagrams when design, architecture, database, UI/UX, integration, security, deployment, migration, or data preservation behavior changes.
 - Add tests or validation scripts whenever a rule is meant to survive rebuilds.
-- Keep README, AGENTS, PRD, and governance docs aligned with issue order and implemented behavior.
+- Keep README, AGENTS, PRD, diagrams, and governance docs aligned with issue order and implemented behavior.
 
 ## SIKESRA Plugin Rules
 
@@ -164,6 +169,7 @@ Required rules for agents:
 - `README.md`
 - `docs/README.md`
 - `docs/awcms-micro-github-issue-system.md`
+- `docs/awcms-micro-mermaid-diagram-standard.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-structure.md`
