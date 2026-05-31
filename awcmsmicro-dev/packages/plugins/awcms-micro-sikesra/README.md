@@ -20,6 +20,13 @@ The issue standard is documented in:
 docs/awcms-micro-github-issue-system.md
 ```
 
+Diagram requirements are documented in:
+
+```txt
+docs/awcms-micro-mermaid-diagram-standard.md
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
+```
+
 Sequenced issue title pattern:
 
 ```txt
@@ -32,6 +39,7 @@ Rules:
 - `P0/P1/P2/P3` controls risk and urgency.
 - Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency work without renumbering the whole backlog.
 - Do not start later workflow issues before earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+- Update SIKESRA Mermaid diagrams when an issue changes architecture, database/D1, UI/UX flow, frontend-backend integration, RBAC/ABAC, security, deployment, migration, or data preservation.
 
 ## Purpose
 
@@ -50,9 +58,11 @@ Before changing this plugin, read:
 README.md
 AGENTS.md
 docs/awcms-micro-github-issue-system.md
+docs/awcms-micro-mermaid-diagram-standard.md
 docs/awcms-micro-sikesra-plugin-governance.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
 ```
 
 Current ordered backlog:
@@ -226,6 +236,7 @@ During the transition, the old `awcmsMicroExamplePlugin` alias may still exist b
 
 For an end-to-end standalone site integration example, see `docs/STANDALONE_CONSUMPTION.md`.
 For a technical implementation PRD, see `docs/TECHNICAL_PRD.md`.
+For SIKESRA implementation diagrams, see `docs/MERMAID_DIAGRAMS.md`.
 For release-oriented checks, see `docs/INTERNAL_PUBLISH_CHECKLIST.md`.
 For the SIKESRA reference data model and fixtures, see `docs/SIKESRA_REFERENCE_DATA_MODEL.md`.
 
