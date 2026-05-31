@@ -2,7 +2,7 @@
 
 This document summarizes the repository-level governance rules for the AWCMS-Micro SIKESRA plugin.
 
-The detailed implementation backlog is tracked in GitHub issues #119 through #140.
+The detailed implementation backlog is tracked in GitHub issues #119 through #143 and follows the issue execution standard in `docs/awcms-micro-github-issue-system.md`.
 
 ## 1. Plugin Boundary
 
@@ -39,52 +39,70 @@ emdash-latest/packages/*
 
 Exception: an explicit upstream EmDash contribution may touch EmDash core, but it must be tracked as upstream work and must not be required for SIKESRA data safety.
 
-## 2. Issue Backlog Source of Truth
+## 2. GitHub Issue System
 
-The current SIKESRA roadmap is split into atomic GitHub issues:
+SIKESRA issues are implementation contracts.
 
-| Issue | Purpose |
-| ---: | --- |
-| #119 | Dedicated `sikesra_` D1 table and collection naming policy |
-| #120 | SIKESRA D1 migration framework |
-| #121 | D1 table prefix validation test |
-| #122 | D1 repository layer |
-| #123 | Core D1 tables for settings, data types, and regions |
-| #124 | Migration from KV/plugin storage to dedicated D1 tables |
-| #125 | Registry D1 tables for all 8 data modules |
-| #126 | Registry list/save route refactor to D1 |
-| #127 | D1-backed 20-digit SIKESRA ID sequence service |
-| #128 | Verification D1 tables and routes |
-| #129 | Document D1 tables and secure R2 metadata workflow |
-| #130 | D1-backed staged CSV/XLSX import workflow |
-| #131 | Duplicate detection and duplicate decisions |
-| #132 | SIKESRA RBAC/ABAC with EmDash user assignment |
-| #133 | Canonical D1 audit table and redaction policy |
-| #134 | D1 export job and controlled report/export workflow |
-| #135 | Standard personal and non-personal fields for all 8 modules |
-| #136 | EmDash update/rebuild compatibility guardrails |
-| #137 | Data preservation guardrails for update/rebuild safety |
-| #138 | Dynamic custom attributes by data type, subtype, entity, or SIKESRA ID |
-| #139 | Full CRUD and highest-admin permanent delete governance |
-| #140 | Final SIKESRA plugin identity and export name |
+Issue title pattern:
 
-## 3. Implementation Order
+```txt
+[SIKESRA][SEQ-XX][TYPE][PRIORITY] Title
+```
 
-Preferred execution order:
+Rules:
 
-1. #140: finalize plugin identity.
-2. #119 and #121: enforce `sikesra_` naming guardrails.
-3. #136 and #137: protect source compatibility and data preservation.
-4. #120 and #122: add D1 migrations and repository layer.
-5. #123, #124, and #125: create and migrate core D1 data.
-6. #126, #127, and #128: implement registry, ID generation, and verification.
-7. #129, #130, #131, #133, and #134: implement documents, import, duplicate detection, audit, and export.
-8. #132 and #135: align RBAC/ABAC and field standards.
-9. #138 and #139: implement custom attributes and CRUD/permanent delete governance.
+- `SEQ` controls execution order.
+- `P0/P1/P2/P3` controls risk and urgency.
+- Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency issues without renumbering the backlog.
+- Before executing an issue, read its related issues and the current sequence order.
+- When the issue order changes, update this document, `docs/awcms-micro-github-issue-system.md`, `README.md`, `AGENTS.md`, and plugin-local docs.
 
-Field standards from #135 should inform D1 table design in #125 and route refactoring in #126.
+## 3. Current Ordered Backlog
 
-## 4. D1 Data Boundary
+| Order | Issue | Purpose |
+| ---: | ---: | --- |
+| 1 | #140 | Final SIKESRA plugin identity and export name |
+| 2 | #141 | Admin dashboard route bug fix |
+| 3 | #142 | End-to-end admin UI/UX design system |
+| 4 | #119 | Dedicated `sikesra_` D1 table and collection naming policy |
+| 5 | #121 | D1 table prefix validation test |
+| 6 | #136 | EmDash update/rebuild compatibility guardrails |
+| 7 | #137 | Data preservation guardrails for update/rebuild safety |
+| 8 | #120 | SIKESRA D1 migration framework |
+| 9 | #122 | D1 repository layer |
+| 10 | #143 | Typed frontend-backend-D1 integration contract |
+| 11 | #123 | Core D1 tables for settings, data types, and regions |
+| 12 | #135 | Standard personal and non-personal fields for all 8 modules |
+| 13 | #124 | Migration from KV/plugin storage to dedicated D1 tables |
+| 14 | #125 | Registry D1 tables for all 8 data modules |
+| 15 | #132 | SIKESRA RBAC/ABAC with EmDash user assignment |
+| 16 | #133 | Canonical D1 audit table and redaction policy |
+| 17 | #126 | Registry list/save route refactor to D1 |
+| 18 | #127 | D1-backed 20-digit SIKESRA ID sequence service |
+| 19 | #128 | Verification D1 tables and routes |
+| 20 | #129 | Document D1 tables and secure R2 metadata workflow |
+| 21 | #130 | D1-backed staged CSV/XLSX import workflow |
+| 22 | #131 | Duplicate detection and duplicate decisions |
+| 23 | #134 | D1 export job and controlled report/export workflow |
+| 24 | #138 | Dynamic custom attributes by data type, subtype, entity, or SIKESRA ID |
+| 25 | #139 | Full CRUD and highest-admin governance |
+
+## 4. Execution Guidance
+
+Recommended phases:
+
+1. **Identity and immediate admin safety**: #140, #141.
+2. **UI/UX standard**: #142.
+3. **Naming and guardrails**: #119, #121, #136, #137.
+4. **D1 foundation**: #120, #122, #143, #123.
+5. **Data model and state migration**: #135, #124, #125.
+6. **Authorization and audit foundation**: #132, #133.
+7. **Core workflows**: #126, #127, #128, #129, #130, #131, #134.
+8. **Advanced extensibility and lifecycle governance**: #138, #139.
+
+Do not start later workflow implementation before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+
+## 5. D1 Data Boundary
 
 All canonical SIKESRA production tables must use the `sikesra_` prefix.
 
@@ -123,7 +141,25 @@ created_by
 updated_by
 ```
 
-## 5. EmDash User Reference Rule
+## 6. Frontend-Backend-D1 Contract
+
+Issue #143 defines the required integration contract.
+
+Target flow:
+
+```txt
+Admin UI → typed API client → plugin route → trusted EmDash user → SIKESRA RBAC/ABAC guard → service layer → repository layer → sikesra_ D1 tables → serializer/masking → Admin UI
+```
+
+Rules:
+
+- admin UI must use typed API clients instead of scattered raw `fetch()` calls;
+- plugin routes must validate request contracts before service/repository calls;
+- repository layer should be the only direct access point to `sikesra_` business tables;
+- serializers must prevent raw D1 rows from being returned to the UI;
+- public serializers must not expose personal, sensitive personal, restricted, address, document, or internal storage data.
+
+## 7. EmDash User Reference Rule
 
 SIKESRA must not create a separate user system.
 
@@ -136,7 +172,7 @@ Rules:
 - Do not delete EmDash users from the SIKESRA plugin.
 - If an EmDash user is removed or deactivated, preserve SIKESRA assignment history and mark/report the reference as inactive or orphaned.
 
-## 6. Field Standards
+## 8. Field Standards
 
 Every SIKESRA field must have a clear classification:
 
@@ -162,7 +198,7 @@ Rules:
 - Export of KTP or domicile address requires restricted export permission, reason, and audit.
 - Import mapping must distinguish KTP address fields and domicile address fields.
 
-## 7. Public Aggregate Rule
+## 9. Public Aggregate Rule
 
 SIKESRA public output must be aggregate-only and public-safe.
 
@@ -172,7 +208,7 @@ Rules:
 - Public output must not expose names, NIK/KIA, KK, phone numbers, emails, KTP addresses, domicile addresses, exact residential coordinates, sensitive welfare data, raw document metadata, or internal storage details.
 - Small-cell suppression must remain enabled for vulnerable groups.
 
-## 8. RBAC, ABAC, and CRUD
+## 10. RBAC, ABAC, and Lifecycle Governance
 
 SIKESRA authorization must enforce:
 
@@ -186,16 +222,14 @@ data sensitivity and masking policy
 audit logging for sensitive or mutating actions
 ```
 
-Delete policy:
+Lifecycle policy:
 
 - soft delete is the default;
 - restore is allowed where applicable;
-- permanent delete is exceptional;
-- permanent delete belongs only to the `sikesra_super_admin` workflow;
-- permanent delete must require reason, confirmation, snapshot, audit, and integrity check;
-- permanent delete must not delete EmDash users.
+- high-impact lifecycle actions require the dedicated governance workflow in #139;
+- governance actions must not affect EmDash core users.
 
-## 9. Update/Rebuild Safety
+## 11. Update/Rebuild Safety
 
 SIKESRA must remain safe across:
 
@@ -226,7 +260,7 @@ awcms:sikesra:validate-data-after-rebuild
 
 These scripts may be introduced incrementally, but every implemented script must be documented and testable.
 
-## 10. Validation Baseline
+## 12. Validation Baseline
 
 Plugin validation:
 
@@ -261,12 +295,12 @@ bash scripts/validate-awcmsmicro-boundaries.sh
 bash scripts/validate-awcmsmicro-dev.sh
 ```
 
-## 11. Non-Negotiable Rules
+## 13. Non-Negotiable Rules
 
 - Do not modify EmDash core for SIKESRA-specific behavior.
 - Do not store SIKESRA production data in unprefixed tables.
 - Do not expose personal or sensitive SIKESRA data publicly.
 - Do not trust client-provided SIKESRA user headers in production.
-- Do not use destructive migrations by default.
+- Do not use high-risk migrations by default.
 - Do not delete EmDash core users from SIKESRA.
-- Do not let rebuilds silently destroy, reset, expose, or corrupt SIKESRA data.
+- Do not let rebuilds silently reset, expose, or corrupt SIKESRA data.
