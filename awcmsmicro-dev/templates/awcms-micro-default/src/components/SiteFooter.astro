@@ -17,53 +17,112 @@ const localeOptions = {
 	locales: i18nConfig?.locales || ["en", "id"],
 };
 const copy = getPublicCopy(currentLocale);
+const currentYear = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-	<div class="footer-container">
-		<div class="footer-brand-col">
-			<span class="footer-brand-text">AWCMS-Micro</span>
-			<p class="footer-brand-desc">{copy.footerBrandDesc}</p>
-		</div>
-		
-		<div class="footer-links-grid">
-			<div class="footer-links-col">
-				<h4 class="footer-links-title">{copy.footerLinksProduct}</h4>
-				<ul class="footer-links-list">
-					<li><a href={toLocalePath("/", currentLocale, localeOptions)}>{copy.returnHome}</a></li>
-					<li><a href="#features">{copy.footerLinkFeatures}</a></li>
-					<li><a href="/gallery" data-astro-prefetch="hover">{copy.footerLinkGallery}</a></li>
-				</ul>
-			</div>
-			
-			<div class="footer-links-col">
-				<h4 class="footer-links-title">{copy.footerLinksResources}</h4>
-				<ul class="footer-links-list">
-					<li><a href="/docs" data-astro-prefetch="hover">{copy.footerLinkDocs}</a></li>
-					<li><a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkAggregate}</a></li>
-					<li><a href="/sikesra" data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
-				</ul>
-			</div>
-			
-			<div class="footer-links-col">
-				<h4 class="footer-links-title">{copy.footerLinksCompany}</h4>
-				<ul class="footer-links-list">
-					<li><a href="/about" data-astro-prefetch="hover">{copy.viewAboutPage}</a></li>
-					<li><a href="/privacy">{copy.footerLinkPrivacy}</a></li>
-					<li><a href="/terms">{copy.footerLinkTerms}</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
+	<!-- Top accent gradient bar -->
+	<div class="footer-accent-bar" aria-hidden="true"></div>
 
-	{showWidgets && (
-		<div class="footer-widgets-container">
-			<WidgetArea name="sidebar" />
+	<div class="footer-inner">
+		<div class="footer-container">
+			<!-- Brand Column -->
+			<div class="footer-brand-col">
+				<span class="footer-brand-text">AWCMS-Micro</span>
+				<p class="footer-brand-desc">{copy.footerBrandDesc}</p>
+				<div class="footer-brand-badges">
+					<a
+						href="https://github.com/ahliweb/awcms-micro"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="footer-badge-link"
+						aria-label={copy.footerGithub}
+					>
+						<svg class="footer-badge-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.57v-2c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.48 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.69.83.57C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+						</svg>
+						GitHub
+					</a>
+					<a
+						href="https://ahliweb.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="footer-badge-link footer-badge-link--ahliweb"
+						aria-label={copy.visitAhliweb}
+					>
+						<svg class="footer-badge-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<circle cx="12" cy="12" r="10"/>
+							<line x1="2" y1="12" x2="22" y2="12"/>
+							<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+						</svg>
+						ahliweb.com
+					</a>
+				</div>
+			</div>
+			
+			<div class="footer-links-grid">
+				<div class="footer-links-col">
+					<h4 class="footer-links-title">{copy.footerLinksProduct}</h4>
+					<ul class="footer-links-list">
+						<li><a href={toLocalePath("/", currentLocale, localeOptions)}>{copy.returnHome}</a></li>
+						<li><a href="#features">{copy.footerLinkFeatures}</a></li>
+						<li><a href="/gallery" data-astro-prefetch="hover">{copy.footerLinkGallery}</a></li>
+					</ul>
+				</div>
+				
+				<div class="footer-links-col">
+					<h4 class="footer-links-title">{copy.footerLinksResources}</h4>
+					<ul class="footer-links-list">
+						<li><a href="/docs" data-astro-prefetch="hover">{copy.footerLinkDocs}</a></li>
+						<li><a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkAggregate}</a></li>
+						<li><a href="/sikesra" data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
+					</ul>
+				</div>
+				
+				<div class="footer-links-col">
+					<h4 class="footer-links-title">{copy.footerLinksCompany}</h4>
+					<ul class="footer-links-list">
+						<li><a href="/about" data-astro-prefetch="hover">{copy.viewAboutPage}</a></li>
+						<li><a href="/privacy">{copy.footerLinkPrivacy}</a></li>
+						<li><a href="/terms">{copy.footerLinkTerms}</a></li>
+						<li>
+							<a href="/_emdash/admin/login?redirect=/_emdash/admin" class="footer-admin-link">
+								<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+									<polyline points="10 17 15 12 10 7"/>
+									<line x1="15" y1="12" x2="3" y2="12"/>
+								</svg>
+								{copy.footerAdminLogin}
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
 		</div>
-	)}
-	
-	<div class="footer-bottom">
-		<p class="footer-copyright">{copy.footerCopyright}</p>
+
+		{showWidgets && (
+			<div class="footer-widgets-container">
+				<WidgetArea name="sidebar" />
+			</div>
+		)}
+		
+		<div class="footer-bottom">
+			<p class="footer-copyright">
+				&copy; {currentYear} AWCMS-Micro. {copy.footerCopyright.replace(/^© \d{4} AWCMS-Micro\. /, "")}
+			</p>
+			<p class="footer-powered">
+				{copy.poweredBy}{" "}
+				<a
+					href="https://ahliweb.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="footer-ahliweb-link"
+					aria-label={copy.visitAhliweb}
+				>
+					ahliweb.com
+				</a>
+			</p>
+		</div>
 	</div>
 </footer>
 
@@ -71,10 +130,38 @@ const copy = getPublicCopy(currentLocale);
 	.site-footer {
 		background: var(--surface-main);
 		border-top: 1px solid var(--surface-border);
-		padding: 5rem 1.25rem 2.5rem;
 		transition: all 0.3s ease;
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
+		position: relative;
+		overflow: hidden;
+	}
+
+	/* Gradient top accent bar */
+	.footer-accent-bar {
+		height: 3px;
+		background: var(--gradient-primary);
+		opacity: 0.7;
+	}
+
+	/* Subtle background glow */
+	.site-footer::before {
+		content: "";
+		position: absolute;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 60%;
+		height: 300px;
+		background: radial-gradient(ellipse at center bottom, rgba(99, 102, 241, 0.06), transparent 70%);
+		pointer-events: none;
+		z-index: 0;
+	}
+
+	.footer-inner {
+		position: relative;
+		z-index: 1;
+		padding: 4rem 1.25rem 2.5rem;
 	}
 
 	.footer-container {
@@ -100,14 +187,54 @@ const copy = getPublicCopy(currentLocale);
 		-webkit-text-fill-color: transparent;
 		letter-spacing: -0.02em;
 		display: inline-block;
-		margin-bottom: 1rem;
+		margin-bottom: 0.85rem;
 	}
 
 	.footer-brand-desc {
 		font-size: 0.95rem;
 		line-height: 1.6;
 		color: var(--text-muted);
-		margin: 0;
+		margin: 0 0 1.5rem;
+	}
+
+	.footer-brand-badges {
+		display: flex;
+		gap: 0.65rem;
+		flex-wrap: wrap;
+	}
+
+	.footer-badge-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--text-muted);
+		background: rgba(99, 102, 241, 0.06);
+		border: 1px solid var(--surface-border);
+		padding: 0.35rem 0.85rem;
+		border-radius: 999px;
+		text-decoration: none;
+		transition: all 0.22s ease;
+	}
+
+	.footer-badge-link:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		background: rgba(99, 102, 241, 0.1);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+	}
+
+	.footer-badge-link--ahliweb:hover {
+		color: #0ea5e9;
+		border-color: #0ea5e9;
+		background: rgba(14, 165, 233, 0.08);
+		box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+	}
+
+	.footer-badge-icon {
+		flex-shrink: 0;
 	}
 
 	.footer-links-grid {
@@ -119,10 +246,10 @@ const copy = getPublicCopy(currentLocale);
 	}
 
 	.footer-links-title {
-		font-size: 0.85rem;
+		font-size: 0.8rem;
 		font-weight: 800;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.09em;
 		color: var(--text-main);
 		margin: 0 0 1.25rem;
 	}
@@ -141,11 +268,25 @@ const copy = getPublicCopy(currentLocale);
 		color: var(--text-muted);
 		text-decoration: none;
 		transition: all 0.2s ease;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
 	}
 
 	.footer-links-list a:hover {
 		color: var(--accent);
-		transform: translateX(2px);
+		transform: translateX(3px);
+	}
+
+	/* Admin login link in footer — subtle differentiation */
+	.footer-admin-link {
+		color: var(--text-muted) !important;
+		opacity: 0.75;
+	}
+
+	.footer-admin-link:hover {
+		color: var(--accent) !important;
+		opacity: 1;
 	}
 
 	.footer-widgets-container {
@@ -163,14 +304,52 @@ const copy = getPublicCopy(currentLocale);
 		padding-top: 2rem;
 		border-top: 1px solid var(--surface-border);
 		display: flex;
-		justify-content: center;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 0.75rem;
 	}
 
 	.footer-copyright {
 		font-size: 0.875rem;
 		color: var(--text-muted);
 		margin: 0;
-		text-align: center;
+	}
+
+	.footer-powered {
+		font-size: 0.875rem;
+		color: var(--text-muted);
+		margin: 0;
+		display: flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.footer-ahliweb-link {
+		font-weight: 700;
+		color: var(--accent);
+		text-decoration: none;
+		transition: all 0.2s ease;
+		position: relative;
+	}
+
+	.footer-ahliweb-link::after {
+		content: "";
+		position: absolute;
+		bottom: -1px;
+		left: 0;
+		width: 0;
+		height: 1px;
+		background: var(--gradient-primary);
+		transition: width 0.25s ease;
+	}
+
+	.footer-ahliweb-link:hover::after {
+		width: 100%;
+	}
+
+	.footer-ahliweb-link:hover {
+		color: var(--accent-hover);
 	}
 
 	@media (max-width: 768px) {
@@ -180,9 +359,22 @@ const copy = getPublicCopy(currentLocale);
 		}
 
 		.footer-links-grid {
-			grid-template-columns: 1fr;
+			grid-template-columns: repeat(2, 1fr);
 			gap: 1.5rem;
 			max-width: none;
+		}
+
+		.footer-bottom {
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.footer-links-grid {
+			grid-template-columns: 1fr;
+			gap: 1.5rem;
 		}
 	}
 </style>

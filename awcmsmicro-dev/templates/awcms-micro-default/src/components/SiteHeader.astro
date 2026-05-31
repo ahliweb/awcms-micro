@@ -23,7 +23,7 @@ const localeOptions = {
 const copy = getPublicCopy(currentLocale);
 ---
 
-<header class="site-header-nav">
+<header class="site-header-nav" id="site-header">
 	<div class="nav-container">
 		<a class="nav-brand" href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">
 			{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="brand-logo" /> : <span class="brand-text">{siteTitle}</span>}
@@ -47,7 +47,14 @@ const copy = getPublicCopy(currentLocale);
 				</div>
 				<div class="nav-actions">
 					<LanguageSwitcher content={content} />
-					<a href="/_emdash/admin/login?redirect=/_emdash/admin" class="admin-login-btn">{copy.adminLink}</a>
+					<a href="/_emdash/admin/login?redirect=/_emdash/admin" class="admin-login-btn" id="header-admin-login-btn">
+						<svg class="admin-login-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+							<polyline points="10 17 15 12 10 7"/>
+							<line x1="15" y1="12" x2="3" y2="12"/>
+						</svg>
+						{copy.adminLoginBtn}
+					</a>
 					<button id="theme-toggle" aria-label={copy.toggleTheme} class="theme-toggle-btn">
 						<span class="dark-icon" style="display:none;" title={copy.switchToLightMode}>🌙</span>
 						<span class="light-icon" style="display:none;" title={copy.switchToDarkMode}>☀️</span>
@@ -57,6 +64,22 @@ const copy = getPublicCopy(currentLocale);
 		</div>
 	</div>
 </header>
+
+<script is:inline>
+	(function () {
+		var header = document.getElementById("site-header");
+		if (!header) return;
+		function onScroll() {
+			if (window.scrollY > 10) {
+				header.classList.add("scrolled");
+			} else {
+				header.classList.remove("scrolled");
+			}
+		}
+		window.addEventListener("scroll", onScroll, { passive: true });
+		onScroll();
+	})();
+</script>
 
 <style is:global>
 	/* Make sure live search input in header looks modern */
@@ -100,11 +123,22 @@ const copy = getPublicCopy(currentLocale);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
 		border-bottom: 1px solid var(--surface-border);
-		transition: all 0.3s ease;
+		transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+	}
+
+	.site-header-nav.scrolled {
+		background: rgba(248, 250, 252, 0.92);
+		box-shadow: 0 4px 24px rgba(99, 102, 241, 0.10);
+		border-bottom-color: rgba(99, 102, 241, 0.22);
 	}
 
 	:root.dark .site-header-nav {
 		background: rgba(3, 7, 18, 0.75);
+	}
+
+	:root.dark .site-header-nav.scrolled {
+		background: rgba(3, 7, 18, 0.92);
+		box-shadow: 0 4px 24px rgba(99, 102, 241, 0.16);
 	}
 
 	.nav-container {
@@ -158,7 +192,8 @@ const copy = getPublicCopy(currentLocale);
 		height: 2px;
 		background-color: var(--text-main);
 		border-radius: 2px;
-		transition: all 0.3s ease;
+		transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+		transform-origin: center;
 	}
 
 	.nav-menu {
@@ -192,24 +227,39 @@ const copy = getPublicCopy(currentLocale);
 		gap: 0.75rem;
 	}
 
+	/* Admin Login Button */
 	.admin-login-btn {
-		font-size: 0.85rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.83rem;
 		font-weight: 700;
 		color: var(--text-main);
-		background: rgba(99, 102, 241, 0.08);
+		background: rgba(99, 102, 241, 0.07);
 		border: 1px solid var(--surface-border);
-		padding: 0.45rem 1.15rem;
+		padding: 0.45rem 1.05rem 0.45rem 0.85rem;
 		border-radius: 999px;
 		transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 		text-decoration: none;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+	}
+
+	.admin-login-icon {
+		flex-shrink: 0;
+		transition: transform 0.25s ease;
 	}
 
 	.admin-login-btn:hover {
 		background: var(--gradient-primary);
 		color: #ffffff;
 		border-color: transparent;
-		box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+		box-shadow: 0 4px 18px rgba(99, 102, 241, 0.28);
 		transform: translateY(-1px);
+	}
+
+	.admin-login-btn:hover .admin-login-icon {
+		transform: translateX(2px);
 	}
 
 	.theme-toggle-btn {
@@ -256,12 +306,14 @@ const copy = getPublicCopy(currentLocale);
 			display: flex;
 		}
 
+		/* Hamburger → X animation */
 		.menu-toggle-checkbox:checked ~ .menu-toggle-label .hamburger-bar:nth-child(1) {
 			transform: translateY(7px) rotate(45deg);
 		}
 
 		.menu-toggle-checkbox:checked ~ .menu-toggle-label .hamburger-bar:nth-child(2) {
 			opacity: 0;
+			transform: scaleX(0);
 		}
 
 		.menu-toggle-checkbox:checked ~ .menu-toggle-label .hamburger-bar:nth-child(3) {
@@ -287,6 +339,11 @@ const copy = getPublicCopy(currentLocale);
 		.nav-actions {
 			justify-content: space-between;
 			width: 100%;
+		}
+
+		.admin-login-btn {
+			flex-grow: 1;
+			justify-content: center;
 		}
 	}
 </style>
