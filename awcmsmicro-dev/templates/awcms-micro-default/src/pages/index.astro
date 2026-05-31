@@ -8,8 +8,6 @@ import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
 
 // Import new homepage components
 import HomeHero from "../components/HomeHero.astro";
-import FeatureGrid from "../components/FeatureGrid.astro";
-import UseCaseShowcase from "../components/UseCaseShowcase.astro";
 import HomeCTA from "../components/HomeCTA.astro";
 
 function asImage(value: unknown) {
@@ -74,11 +72,7 @@ const publicCounts = [
 	<!-- Hero Section -->
 	<HomeHero />
 
-	<!-- Features Grid Section -->
-	<div id="features">
-		<FeatureGrid />
-	</div>
-
+	<!-- Stats Counter Section -->
 	<section class="public-counts">
 		{publicCounts.map((item) => (
 			<div class="public-counts__card">
@@ -88,20 +82,15 @@ const publicCounts = [
 		))}
 	</section>
 
-	<!-- Use Cases Showcase Section -->
-	<UseCaseShowcase />
-
-	<!-- Editor shortcuts and content spotlights -->
+	<!-- Editor spotlights and content spotlights -->
 	<section class="admin-spotlights">
-		<div class="spotlight-card spotlight-card--actions">
-			<p class="spotlight-kicker">{copy.editorWorkflowShortcuts}</p>
-			<h2 class="spotlight-title">{copy.howConnectsTitle}</h2>
-			<p class="spotlight-copy">{copy.homeIntro}</p>
+		<div class="spotlight-card spotlight-card--welcome">
+			<p class="spotlight-kicker">{siteTitle}</p>
+			<h2 class="spotlight-title">{siteTagline}</h2>
+			<p class="spotlight-copy">{currentLocale.startsWith("id") ? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru, pengumuman berita penting, serta galeri kegiatan kami yang diperbarui secara langsung dari panel admin." : "Welcome to our official website. Here you can discover our latest articles, news announcements, and activity galleries updated directly from our admin panel."}</p>
 			<div class="spotlight-actions">
-				<a class="btn btn-primary" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
-				<a class="btn btn-secondary" href="/_emdash/admin/content/pages/new">{copy.createPage}</a>
-				<a class="btn btn-secondary" href="/docs" data-astro-prefetch="hover">{copy.viewDocs}</a>
-				<a class="btn btn-secondary" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.viewPublicAggregate}</a>
+				<a class="btn btn-primary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Jelajahi Artikel" : "Browse Articles"}</a>
+				<a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Baca Berita" : "Read News"}</a>
 			</div>
 		</div>
 
@@ -197,7 +186,7 @@ const publicCounts = [
 		-webkit-backdrop-filter: blur(12px);
 	}
 
-	.spotlight-card--actions {
+	.spotlight-card--welcome {
 		grid-column: span 1;
 	}
 
@@ -335,11 +324,7 @@ const publicCounts = [
 		color: var(--text-muted);
 	}
 
-	@media (min-width: 1024px) {
-		.spotlight-card--actions {
-			grid-column: span 2;
-		}
-	}
+
 
 	@media (max-width: 768px) {
 		.spotlight-list-item {

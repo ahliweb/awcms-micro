@@ -70,42 +70,12 @@ const publicCounts = [
 		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">{copy.homeHeading}</h1>
 		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">{copy.homeIntro}</p>
 		<div class="hero-actions" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/login?redirect=/_emdash/admin">{copy.openAdmin}</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/_emdash/admin/content/posts/new">{copy.createPost}</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href="/docs" data-astro-prefetch="hover">{copy.viewDocs}</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.publicAggregateLink}</a>
+			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Jelajahi Artikel" : "Browse Articles"}</a>
+			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Baca Berita" : "Read News"}</a>
 		</div>
   </section>
 
-	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1.5rem;">
-		<div class="card">
-			<p class="kicker">{copy.publicNavigationExample}</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.nestedPrimaryMenu}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.nestedPrimaryMenuDescription}</p>
-		</div>
-		<div class="card">
-			<p class="kicker">{copy.switchModeTitle}</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.lightDarkTheme}</h2>
-			<p style="color:var(--text-muted);margin-bottom:1rem;">{copy.lightDarkThemeDescription}</p>
-			<button class="btn btn-primary" id="page-theme-toggle" type="button" style="padding: 0.9rem 1.25rem;">{copy.switchModeButton}</button>
-		</div>
-	</section>
-
-	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1.5rem;">
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.cloudflareReady}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.cloudflareReadyDescription}</p>
-		</div>
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicAggregateTitle}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publicAggregateDescription}</p>
-		</div>
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.adminProtected}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.adminProtectedDescription}</p>
-		</div>
-	</section>
-
+	<!-- Stats Counter Section -->
 	<section class="stack-grid stack-grid--counts" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:2rem;">
 		{publicCounts.map((item) => (
 			<div class="card" style="padding:1rem 1.2rem;">
@@ -115,46 +85,63 @@ const publicCounts = [
 		))}
 	</section>
 
+	<!-- Welcome & Spotlight Section -->
 	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:2rem;">
-		<div class="card">
-			<p class="kicker">{copy.publicPagesTitle}</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicPagesDescription}</h2>
-			<div style="display:grid;gap:0.75rem;">
-				{featuredPages.map((page) => (
-					<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:flex;justify-content:space-between;gap:1rem;padding:0.9rem 1rem;border:1px solid var(--surface-border);border-radius:1rem;text-decoration:none;color:var(--text-main);background:var(--surface-main);">
-						<strong>{page.data.title}</strong>
-						<span style="color:var(--text-muted);">/{resolveEntrySlug(page)}</span>
-					</a>
-				))}
+		<!-- Welcome Card -->
+		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+			<div>
+				<p class="kicker">{siteTitle}</p>
+				<h2 style="font-size:1.3rem;margin-top:0;">{siteTagline}</h2>
+				<p style="color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6;">
+					{currentLocale.startsWith("id") 
+						? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru, pengumuman berita penting, serta galeri kegiatan kami yang diperbarui langsung dari panel admin." 
+						: "Welcome to our official website. Discover our latest articles, news announcements, and activity galleries updated directly from the admin panel."}
+				</p>
 			</div>
-			<p style="margin-top:1rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a></p>
-		</div>
-
-		<div class="card">
-			<p class="kicker">{copy.featuredGalleryTitle}</p>
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.featuredGalleryDescription}</h2>
-			{gallerySpotlight ? (
-				<a href={toLocalePath(`/gallery/${resolveEntrySlug(gallerySpotlight)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:grid;gap:0.75rem;text-decoration:none;color:var(--text-main);">
-					{gallerySpotlight.data.cover_image && <Image image={asImage(gallerySpotlight.data.cover_image)} style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:1rem;" />}
-					<strong>{gallerySpotlight.data.title}</strong>
-					<p style="margin:0;color:var(--text-muted);">{gallerySpotlight.data.description}</p>
+			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:auto;">
+				<a class="btn btn-primary" style="padding:0.75rem 1.25rem;font-size:0.95rem;" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{currentLocale.startsWith("id") ? "Artikel" : "Articles"}
 				</a>
-			) : null}
+				<a class="btn btn-secondary" style="padding:0.75rem 1.25rem;font-size:0.95rem;" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{currentLocale.startsWith("id") ? "Berita" : "News"}
+				</a>
+			</div>
 		</div>
-	</section>
 
-	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:3rem;">
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publishedFromAdmin}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publishedFromAdminDescription}</p>
+		<!-- Featured Pages Card -->
+		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+			<div>
+				<p class="kicker">{copy.publicPagesTitle}</p>
+				<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicPagesTitle}</h2>
+				<p style="color:var(--text-muted);margin-bottom:1.25rem;">{copy.publicPagesDescription}</p>
+				<div style="display:grid;gap:0.75rem;margin-bottom:1rem;">
+					{featuredPages.length === 0 ? <p style="color:var(--text-muted);margin:0;">{copy.noPostsYet}</p> : (
+						featuredPages.map((page) => (
+							<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:flex;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;border:1px solid var(--surface-border);border-radius:0.75rem;text-decoration:none;color:var(--text-main);background:var(--surface-main);font-size:0.925rem;font-weight:600;transition:all 0.2s ease;">
+								<span>{page.data.title}</span>
+								<span style="color:var(--text-muted);font-weight:normal;font-size:0.85rem;">/{resolveEntrySlug(page)}</span>
+							</a>
+						))
+					)}
+				</div>
+			</div>
+			<a style="font-weight:700;color:var(--accent);text-decoration:none;font-size:0.95rem;margin-top:auto;" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
 		</div>
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicSearchAndNavigation}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.publicSearchAndNavigationDescription}</p>
-		</div>
-		<div class="card">
-			<h2 style="font-size:1.3rem;margin-top:0;">{copy.operationalSurfaces}</h2>
-			<p style="color:var(--text-muted);margin-bottom:0;">{copy.operationalSurfacesDescription}</p>
+
+		<!-- Featured Gallery Card -->
+		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
+			<div>
+				<p class="kicker">{copy.featuredGalleryTitle}</p>
+				<h2 style="font-size:1.3rem;margin-top:0;">{copy.featuredGalleryTitle}</h2>
+				<p style="color:var(--text-muted);margin-bottom:1.25rem;">{copy.featuredGalleryDescription}</p>
+				{gallerySpotlight ? (
+					<a href={toLocalePath(`/gallery/${resolveEntrySlug(gallerySpotlight)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:grid;gap:0.6rem;text-decoration:none;color:var(--text-main);">
+						{gallerySpotlight.data.cover_image && <Image image={asImage(gallerySpotlight.data.cover_image)} style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0.75rem;" />}
+						<strong style="font-size:1rem;">{gallerySpotlight.data.title}</strong>
+						<p style="margin:0;color:var(--text-muted);font-size:0.875rem;line-height:1.55;">{gallerySpotlight.data.description}</p>
+					</a>
+				) : <p style="color:var(--text-muted);margin:0;">{copy.noPostsYet}</p>}
+			</div>
 		</div>
 	</section>
 
