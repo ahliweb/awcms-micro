@@ -93,7 +93,7 @@
     "tailwindcss": "^4.1.10",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^7.0.0",
+    "vite": "catalog:",
     "vitest": "catalog:",
     "vitest-browser-react": "^2.0.5"
   },
