@@ -8,6 +8,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `synchronization-workflow.md`: operational workflow for updating `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 - `implementation-instructions.md`: implementation mandate, constraints, and task-splitting guidance
 - `awcms-micro-implementation-boundaries.md`: approved AWCMS-Micro implementation boundaries and preservation rules
+- `awcms-micro-sikesra-plugin-governance.md`: SIKESRA plugin governance, issue backlog mapping, D1 boundary, EmDash user reference rule, field standards, public aggregate rule, RBAC/ABAC, CRUD, and update/rebuild safety
 - `awcms-admin-branding.md`: admin branding persistence model and downstream patch overlay for sidebar footer versioning
 - `repository-assessment.md`: current repository assessment and prioritized development/documentation recommendations
 - `decision-records.md`: lightweight index of major AWCMS-Micro repository decisions
@@ -39,28 +40,29 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 1. Read `repository-structure.md` to understand the parent repository layout.
 2. Read `synchronization-workflow.md` before refreshing either working tree.
 3. Read `awcms-micro-implementation-boundaries.md` before changing AWCMS-Micro custom boundaries.
-4. Read `awcms-admin-branding.md` before changing admin branding or persistent source-level overrides.
-5. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
-6. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
-7. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
-8. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
-9. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
-10. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
-11. Read `awcms-micro-prd.md` before changing product requirements, architecture, database, or user-flow assumptions.
-12. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
-13. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
-14. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
-15. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
-16. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
-17. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
-18. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
-19. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-20. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
-21. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-22. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-23. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
-24. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-25. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+4. Read `awcms-micro-sikesra-plugin-governance.md` before changing the SIKESRA plugin.
+5. Read `awcms-admin-branding.md` before changing admin branding or persistent source-level overrides.
+6. Read `awcmsmicro-dev-protected-paths.md` before changing the sync-safe allowlist.
+7. Read `implementation-instructions.md` before making AWCMS-Micro-specific changes.
+8. Read `repository-assessment.md` before planning new AWCMS-Micro development or documentation work.
+9. Read `decision-records.md` before changing a repository-shaping rule or boundary model.
+10. Read `awcms-micro-product-readme-draft.md` before preparing product-facing repository onboarding content.
+11. Read `awcms-micro-product-readme-final.md` before replacing the independent repository README.
+12. Read `awcms-micro-prd.md` before changing product requirements, architecture, database, or user-flow assumptions.
+13. Read `awcms-micro-repository-promotion-checklist.md` before promoting the maintained workspace into an independent repository state.
+14. Read `awcms-micro-release-readiness-checklist.md` before declaring the maintained workspace promotion-ready.
+15. Read `awcms-micro-root-versioning.md` before updating the workspace snapshot or the root maintenance changelog.
+16. Read `awcms-micro-versioning.md` before preparing AWCMS-Micro plugin or template releases.
+17. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
+18. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
+19. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
+20. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+21. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
+22. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+23. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+24. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+25. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+26. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Language Policy
 
