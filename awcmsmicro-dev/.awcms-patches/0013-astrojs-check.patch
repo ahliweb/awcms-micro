@@ -1,9 +1,0 @@
-diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
---- a/pnpm-workspace.yaml
-+++ b/pnpm-workspace.yaml
-@@ -66,4 +66,4 @@
- catalog:
-   "@arethetypeswrong/cli": ^0.18.2
--  "@astrojs/check": ^0.9.7
-+  "@astrojs/check": ^0.9.9
-   "@astrojs/cloudflare": ^13.5.3

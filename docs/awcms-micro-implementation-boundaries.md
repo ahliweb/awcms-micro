@@ -18,6 +18,8 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
 - `docs/gallery`
+- `docs/package.json`
+- `packages/blocks/playground/package.json`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
 - `.awcms-patches`
@@ -25,6 +27,8 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `.github/workflows`
 - `.github/scripts`
 - `.github/dependabot.yml`
+- `pnpm-workspace.yaml`
+- `infra/perf-monitor/package.json`
 - `packages/admin/src/components/Sidebar.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
 
@@ -78,6 +82,7 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - local bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
 - sidebar branding/header/footer, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
 - file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, and `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- workspace configuration persistence exceptions include `pnpm-workspace.yaml`, `docs/package.json`, `infra/perf-monitor/package.json`, and `packages/blocks/playground/package.json`
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
 - supported example plugin and template work in `awcmsmicro-dev/packages/plugins/` and `awcmsmicro-dev/templates/`
 - file-level AWCMS-Micro persistence exceptions for the admin sidebar and its regression test above
