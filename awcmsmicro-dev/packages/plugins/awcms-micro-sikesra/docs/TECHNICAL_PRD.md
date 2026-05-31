@@ -8,6 +8,13 @@ The plugin is an EmDash-compatible AWCMS-Micro downstream plugin for SIKESRA wor
 
 SIKESRA covers social, welfare, religious, institutional, document, verification, audit, import/export, RBAC/ABAC, typed frontend-backend-D1 integration, custom attribute, and public-safe aggregate workflows.
 
+For diagram standards, read:
+
+```txt
+docs/awcms-micro-mermaid-diagram-standard.md
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
+```
+
 ### Product Shape
 
 - package: `@awcms-micro/plugin-sikesra`
@@ -51,9 +58,11 @@ For the repository issue standard, see:
 docs/awcms-micro-github-issue-system.md
 ```
 
+Issue #144 adds repository-wide Mermaid diagram standards. SIKESRA-specific implementation diagrams are maintained in `docs/MERMAID_DIAGRAMS.md` inside this plugin package.
+
 ## 3. Issue Backlog Alignment
 
-This PRD is aligned with GitHub issues #119 through #143.
+This PRD is aligned with GitHub issues #119 through #144.
 
 | Order | Issue | Requirement Area |
 | ---: | ---: | --- |
@@ -82,8 +91,9 @@ This PRD is aligned with GitHub issues #119 through #143.
 | 23 | #134 | export workflow |
 | 24 | #138 | dynamic custom attributes |
 | 25 | #139 | CRUD and highest-admin governance |
+| 26 | #144 | Mermaid diagram standards |
 
-Do not implement later workflow issues before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, typed integration, field-standard, RBAC/ABAC, and audit foundations are ready.
+Do not implement later workflow issues before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, typed integration, field-standard, RBAC/ABAC, audit, and diagram foundations are ready.
 
 ## 4. Functional Requirements
 
@@ -111,7 +121,8 @@ Do not implement later workflow issues before the earlier identity, route, UI/UX
 - provide a public-safe aggregate route;
 - support install, activate, deactivate, and uninstall lifecycle hooks;
 - record SIKESRA-owned data in SIKESRA-owned namespaces/tables;
-- integrate admin UI, API routes, services, repositories, serializers, and D1 through typed contracts.
+- integrate admin UI, API routes, services, repositories, serializers, and D1 through typed contracts;
+- maintain Mermaid diagrams for architecture, database, UI/UX, integration, RBAC/ABAC, import/export, data preservation, and deployment.
 
 ### Non-Functional Requirements
 
@@ -246,6 +257,7 @@ KTP address and domicile address are sensitive personal data.
 - `src/serializers/`: target serializer and masking layer from issue #143
 - `src/db/`: target D1 repository layer after issue #122
 - `migrations/`: target SIKESRA D1 migration folder after issue #120
+- `docs/MERMAID_DIAGRAMS.md`: required diagram reference for SIKESRA implementation work
 
 ### Target Data Flow
 
@@ -331,6 +343,16 @@ deleted_at
 created_by
 updated_by
 ```
+
+### Database Diagrams
+
+The logical D1 ERD and related workflow diagrams are maintained in:
+
+```txt
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
+```
+
+D1/database implementation issues should update that file when relationships, table ownership, repository flows, or data preservation behavior changes.
 
 ### Storage Rules
 
@@ -500,7 +522,8 @@ awcms:sikesra:validate-data-after-rebuild
 4. confirm public routes expose only aggregate-safe data;
 5. confirm trusted EmDash user identity integration;
 6. confirm typed UI-backend-D1 contracts;
-7. confirm audit, masking, data preservation, and rebuild guardrails.
+7. confirm audit, masking, data preservation, and rebuild guardrails;
+8. confirm Mermaid diagrams are updated when architecture, database, UI/UX, integration, security, deployment, migration, or data preservation behavior changes.
 
 ## 16. Testing Constraints
 
@@ -539,6 +562,7 @@ The plugin is production-ready only when:
 - custom attributes are supported safely;
 - CRUD and lifecycle governance is implemented;
 - data preservation and rebuild guardrails pass;
+- SIKESRA Mermaid diagrams are maintained for PRD, database, UI/UX, integration, RBAC/ABAC, import/export, data preservation, and deployment flows;
 - no SIKESRA-specific EmDash core modification is required.
 
 ## 18. Out Of Scope
