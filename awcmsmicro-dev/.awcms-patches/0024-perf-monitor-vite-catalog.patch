@@ -1,0 +1,13 @@
+diff --git a/infra/perf-monitor/package.json b/infra/perf-monitor/package.json
+--- a/infra/perf-monitor/package.json
++++ b/infra/perf-monitor/package.json
+@@ -17,8 +17,8 @@
+ 	},
+ 	"devDependencies": {
+		"@cloudflare/vite-plugin": "^1.0.0",
+		"typescript": "catalog:",
+-		"vite": "^7.3.2",
++		"vite": "catalog:",
+		"wrangler": "catalog:"
+	}
+}

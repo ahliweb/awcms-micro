@@ -1,0 +1,13 @@
+diff --git a/docs/package.json b/docs/package.json
+--- a/docs/package.json
++++ b/docs/package.json
+@@ -23,8 +23,8 @@
+     "tailwindcss": "^4.1.18",
+     "wrangler": "catalog:",
+     "zod": "^4.4.1"
+   },
+   "overrides": {
+-    "vite": "^7"
++    "vite": "catalog:"
+   }
+ }
