@@ -20,6 +20,12 @@ It applies to all AWCMS-Micro work, including:
 
 SIKESRA is currently the most detailed example of this system, but the same standard must be used for every AWCMS-Micro project.
 
+For diagram requirements, also read:
+
+```txt
+docs/awcms-micro-mermaid-diagram-standard.md
+```
+
 ## 1. Purpose
 
 GitHub issues in this repository are not only reminders. They are implementation contracts used by maintainers, developers, and AI coding agents.
@@ -31,7 +37,8 @@ Issues must be:
 - specific about files, expected behavior, acceptance criteria, and validation commands;
 - explicit about EmDash compatibility and AWCMS-Micro boundaries;
 - safe for junior developers or lower-cost AI agents to execute without guessing architecture;
-- clear enough to connect product, UI/UX, frontend, backend, database, security, tests, and documentation work.
+- clear enough to connect product, UI/UX, frontend, backend, database, security, tests, and documentation work;
+- diagram-backed when the issue changes architecture, data model, UI/UX flow, integration, security, deployment, migration, or data preservation behavior.
 
 ## 2. Standard Issue Title Format
 
@@ -48,6 +55,7 @@ Examples:
 [TEMPLATE-DEFAULT][SEQ-03][UX][P1] Standardize public homepage section layout
 [CLOUDFLARE][SEQ-02][P0] Validate D1 and R2 bindings for production deployment
 [SECURITY][SEQ-01][P0] Add upload validation baseline for all media-enabled plugins
+[DOCS][SEQ-01][DOCS][P1] Add Mermaid diagram standards for PRD, database, UI/UX, integration, and deployment issues
 ```
 
 Allowed segments:
@@ -113,6 +121,7 @@ Goal
 Scope
 Related Issues
 Recommended Position In Execution Order
+Mermaid Diagrams
 Tasks
 Acceptance Criteria
 Required Tests
@@ -129,6 +138,7 @@ Expected Behavior
 Current Behavior
 Related Files
 Recommended Fix
+Mermaid Diagrams
 Acceptance Criteria
 Required Tests
 Validation Commands
@@ -142,6 +152,7 @@ Problem
 Goal
 Files To Update
 Documentation Requirements
+Mermaid Diagrams
 Acceptance Criteria
 Validation Commands
 ```
@@ -156,6 +167,7 @@ User Flows
 Component Requirements
 Accessibility Requirements
 Responsive Behavior
+Mermaid Diagrams
 Acceptance Criteria
 Required Tests
 Validation Commands
@@ -170,6 +182,7 @@ Affected Tables
 Migration Plan
 Repository/API Impact
 Data Preservation Rules
+Mermaid Diagrams
 Acceptance Criteria
 Required Tests
 Validation Commands
@@ -185,12 +198,49 @@ Backend Contract
 Database Contract
 Error Handling
 Security/RBAC/ABAC Requirements
+Mermaid Diagrams
 Acceptance Criteria
 Required Tests
 Validation Commands
 ```
 
-## 7. Dependency Rule
+## 7. Mermaid Diagram Rule
+
+Mermaid diagrams are required when an issue or document changes or defines:
+
+```txt
+product architecture
+module boundaries
+database schema or D1 tables
+migration or data preservation flow
+UI/UX journey or page flow
+form wizard flow
+frontend-backend-database integration
+RBAC/ABAC decision flow
+audit, masking, import, or export flow
+Cloudflare deployment topology
+rebuild or recovery path
+```
+
+For major issues, add:
+
+```md
+## Mermaid Diagrams
+
+Add or update diagrams for architecture, database, UI/UX, integration, security, deployment, or data flow where relevant.
+```
+
+For small isolated issues, add:
+
+```md
+## Mermaid Diagrams
+
+Not required because this issue changes only a small isolated behavior.
+```
+
+Use `docs/awcms-micro-mermaid-diagram-standard.md` for diagram type recommendations and examples.
+
+## 8. Dependency Rule
 
 Do not execute an issue that depends on unfinished foundation work unless the issue explicitly states it can run in parallel.
 
@@ -210,9 +260,10 @@ typed frontend-backend integration contract when UI and API work are involved
 field or schema standards
 RBAC/ABAC and permission model when protected data is involved
 audit/redaction model when sensitive data or mutation is involved
+Mermaid diagrams when architecture/database/UI/integration/security/deployment behavior is involved
 ```
 
-## 8. Issue as Source of Truth
+## 9. Issue as Source of Truth
 
 When an issue and old documentation disagree:
 
@@ -221,7 +272,7 @@ When an issue and old documentation disagree:
 3. leave a short note in the PR explaining which document was aligned;
 4. do not silently implement a behavior that contradicts the current issue sequence.
 
-## 9. Agent Execution Standard
+## 10. Agent Execution Standard
 
 Before executing an issue, an agent must:
 
@@ -229,12 +280,13 @@ Before executing an issue, an agent must:
 2. check related issues and sequence order;
 3. inspect current repository files;
 4. identify whether docs/scripts/tests must be updated;
-5. implement the smallest safe change;
-6. run or document required validation commands;
-7. avoid touching EmDash core unless explicitly allowed;
-8. update docs when behavior, issue order, or architecture changes.
+5. check whether Mermaid diagrams are required;
+6. implement the smallest safe change;
+7. run or document required validation commands;
+8. avoid touching EmDash core unless explicitly allowed;
+9. update docs when behavior, issue order, diagrams, or architecture changes.
 
-## 10. Project Backlog Registers
+## 11. Project Backlog Registers
 
 Each major AWCMS-Micro project should maintain an ordered backlog section in its governance documentation.
 
@@ -258,7 +310,7 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNAN
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md
 ```
 
-## 11. Current SIKESRA Example Backlog
+## 12. Current SIKESRA Example Backlog
 
 The current SIKESRA order is the active example of this issue system:
 
@@ -290,7 +342,7 @@ The current SIKESRA order is the active example of this issue system:
 | 24 | #138 | Dynamic custom attributes |
 | 25 | #139 | Full CRUD governance |
 
-## 12. Label Guidance
+## 13. Label Guidance
 
 Recommended labels when available:
 
@@ -313,6 +365,8 @@ abac
 frontend
 backend
 docs
+diagram
+mermaid
 test
 guardrail
 deployment
@@ -332,9 +386,9 @@ template-cloudflare
 
 Labels are helpful but not required for correctness. The issue title and body remain the source of truth.
 
-## 13. Documentation Alignment Rule
+## 14. Documentation Alignment Rule
 
-When an issue system rule, issue order, or project backlog changes, update the relevant docs.
+When an issue system rule, issue order, diagram requirement, or project backlog changes, update the relevant docs.
 
 For repository-wide issue rules, update:
 
@@ -343,6 +397,7 @@ README.md
 AGENTS.md
 docs/README.md
 docs/awcms-micro-github-issue-system.md
+docs/awcms-micro-mermaid-diagram-standard.md
 ```
 
 For project-specific issue order, update the matching project docs. Examples:
@@ -356,6 +411,6 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md
 
 Future plugins/templates should add their own governance docs or README sections when their backlog becomes large enough.
 
-## 14. Final Rule
+## 15. Final Rule
 
-Issues are execution contracts. Keep them atomic, ordered, testable, sync-safe, and aligned with documentation across all AWCMS-Micro projects.
+Issues are execution contracts. Keep them atomic, ordered, diagram-backed when needed, testable, sync-safe, and aligned with documentation across all AWCMS-Micro projects.
