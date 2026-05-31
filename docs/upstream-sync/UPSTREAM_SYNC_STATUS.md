@@ -33,6 +33,6 @@ Synced to EmDash `90ebf8a7`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 - `emdash-latest/` remains the clean upstream snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
-- Dependabot open alerts remain at 65 in `emdash-latest/` and 48 in `awcmsmicro-dev/`; the downstream marketplace, core, admin, blocks-playground, admin-dompurify, create-emdash-giget, and postcss changes are recorded separately in `DIVERGENCE_LOG.md`, while `docs/package.json`, `infra/perf-monitor/package.json`, and `packages/blocks/playground/package.json` are preserved through the rebuild allowlist.
+- Dependabot open alerts remain at 65 in `emdash-latest/` and 48 in `awcmsmicro-dev/`; the downstream marketplace, core, admin, blocks-playground, admin-dompurify, create-emdash-giget, postcss, and local `data.db` persistence changes are recorded separately in `DIVERGENCE_LOG.md`, while `docs/package.json`, `infra/perf-monitor/package.json`, `packages/blocks/playground/package.json`, and `data.db` are preserved through the rebuild allowlist.
 - The rebuilt workspace now keeps both `awcmsmicro-dev/.changeset/` and `awcmsmicro-dev/.awcms-changesets/` across syncs.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.
