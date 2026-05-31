@@ -2,11 +2,27 @@
 
 This document defines the issue-management standard used in the AWCMS-Micro repository.
 
-It is especially important for the SIKESRA plugin backlog, where many issues are intentionally split into small, ordered, atomic implementation steps.
+It applies to all AWCMS-Micro work, including:
+
+- plugins;
+- templates;
+- database and D1 work;
+- UI/UX;
+- frontend;
+- backend;
+- API and typed integration;
+- security and compliance;
+- Cloudflare deployment;
+- testing and QA;
+- documentation;
+- upstream sync and rebuild safety;
+- product roadmap and governance.
+
+SIKESRA is currently the most detailed example of this system, but the same standard must be used for every AWCMS-Micro project.
 
 ## 1. Purpose
 
-GitHub issues in this repository are not only reminders. They are the implementation contract used by maintainers, developers, and AI coding agents.
+GitHub issues in this repository are not only reminders. They are implementation contracts used by maintainers, developers, and AI coding agents.
 
 Issues must be:
 
@@ -14,28 +30,32 @@ Issues must be:
 - ordered when they depend on earlier architecture work;
 - specific about files, expected behavior, acceptance criteria, and validation commands;
 - explicit about EmDash compatibility and AWCMS-Micro boundaries;
-- safe for junior developers or lower-cost AI agents to execute without guessing architecture.
+- safe for junior developers or lower-cost AI agents to execute without guessing architecture;
+- clear enough to connect product, UI/UX, frontend, backend, database, security, tests, and documentation work.
 
 ## 2. Standard Issue Title Format
 
-Use this pattern for sequenced AWCMS-Micro plugin work:
+Use this pattern for sequenced AWCMS-Micro work:
 
 ```txt
-[PRODUCT][SEQ-XX][TYPE][PRIORITY] Title
+[PROJECT][SEQ-XX][TYPE][PRIORITY] Title
 ```
 
-Example:
+Examples:
 
 ```txt
 [SIKESRA][SEQ-07A][P0] Add typed frontend-backend-D1 integration contract for SIKESRA admin workflows
+[TEMPLATE-DEFAULT][SEQ-03][UX][P1] Standardize public homepage section layout
+[CLOUDFLARE][SEQ-02][P0] Validate D1 and R2 bindings for production deployment
+[SECURITY][SEQ-01][P0] Add upload validation baseline for all media-enabled plugins
 ```
 
 Allowed segments:
 
 ```txt
-PRODUCT  = SIKESRA, AWCMS, DOCS, SECURITY, CLOUDFLARE, etc.
+PROJECT  = SIKESRA, TEMPLATE-DEFAULT, TEMPLATE-CLOUDFLARE, PLUGIN-GALLERY, DB, SECURITY, CLOUDFLARE, DOCS, TEST, etc.
 SEQ      = SEQ-01, SEQ-01A, SEQ-07A, etc.
-TYPE     = BUG, DOCS, SECURITY, UX, DB, API, TEST, optional when priority is enough
+TYPE     = BUG, DOCS, SECURITY, UX, UI, DB, API, TEST, INTEGRATION, DEPLOYMENT, optional when priority is enough
 PRIORITY = P0, P1, P2, P3
 ```
 
@@ -49,7 +69,8 @@ Rules:
 - `SEQ-01A` means an urgent or parallel issue inserted after `SEQ-01` but before `SEQ-02`;
 - `SEQ-07A` means an issue inserted after `SEQ-07` but before `SEQ-08`;
 - do not renumber the entire backlog unless there is a strong reason;
-- when inserting a new issue, use suffix letters to preserve existing links and history.
+- when inserting a new issue, use suffix letters to preserve existing links and history;
+- every project may have its own sequence, but cross-project dependency must be stated in the issue body.
 
 ## 4. Priority Standard
 
@@ -57,14 +78,32 @@ Priority shows risk and timing:
 
 | Priority | Meaning |
 | --- | --- |
-| P0 | Foundation, security, data safety, build-breaking bug, or required before most other work |
+| P0 | Foundation, security, data safety, compatibility, build-breaking bug, or required before most other work |
 | P1 | Core feature or workflow required for product functionality |
-| P2 | Important governance, reporting, advanced workflow, or hardening |
+| P2 | Important governance, reporting, hardening, optimization, or advanced workflow |
 | P3 | Nice-to-have, cleanup, polish, documentation expansion, or later optimization |
 
 Priority does not replace `SEQ`. A later `SEQ` P0 may still depend on earlier P1/P2 work if the sequence says so.
 
-## 5. Required Issue Sections
+## 5. Type Standard
+
+Use issue type markers when they improve clarity:
+
+| Type | Use For |
+| --- | --- |
+| BUG | Incorrect behavior, broken navigation, broken build, regression |
+| UX | User flow, interaction model, information architecture |
+| UI | Visual component, layout, theme, responsive behavior |
+| DB | D1 schema, migrations, repositories, data model |
+| API | Route contracts, request/response shape, API behavior |
+| INTEGRATION | Frontend-backend-database integration, external service integration |
+| SECURITY | Access control, privacy, secrets, secure upload, compliance |
+| TEST | Unit, integration, Playwright, smoke, guardrail tests |
+| DOCS | README, AGENTS, architecture docs, runbooks |
+| DEPLOYMENT | Cloudflare, worker, Pages, D1/R2 bindings, environment validation |
+| GOVERNANCE | RBAC/ABAC, audit, lifecycle, approval, policy workflow |
+
+## 6. Required Issue Sections
 
 Implementation issues should include:
 
@@ -107,30 +146,73 @@ Acceptance Criteria
 Validation Commands
 ```
 
-## 6. Dependency Rule
+UI/UX issues should include:
+
+```txt
+Problem
+Goal
+Affected Pages
+User Flows
+Component Requirements
+Accessibility Requirements
+Responsive Behavior
+Acceptance Criteria
+Required Tests
+Validation Commands
+```
+
+Database issues should include:
+
+```txt
+Problem
+Goal
+Affected Tables
+Migration Plan
+Repository/API Impact
+Data Preservation Rules
+Acceptance Criteria
+Required Tests
+Validation Commands
+```
+
+Integration issues should include:
+
+```txt
+Problem
+Goal
+Frontend Contract
+Backend Contract
+Database Contract
+Error Handling
+Security/RBAC/ABAC Requirements
+Acceptance Criteria
+Required Tests
+Validation Commands
+```
+
+## 7. Dependency Rule
 
 Do not execute an issue that depends on unfinished foundation work unless the issue explicitly states it can run in parallel.
 
-For the SIKESRA plugin, do not start later workflow implementation before the following foundations are ready:
+For all AWCMS-Micro projects, check these foundations before starting workflow implementation:
 
 ```txt
-plugin identity
-admin route safety
+project identity and naming
+routing and navigation safety
 UI/UX standard
-sikesra_ naming rule
-prefix validation
-after-rebuild guardrails
-data preservation guardrails
-D1 migration framework
-D1 repository layer
-typed frontend-backend-D1 contract
-core D1 tables
-field standards
-RBAC/ABAC model
-audit/redaction model
+storage/database naming boundary
+validation or guardrail tests
+update/rebuild compatibility
+production data preservation
+migration framework when database work is involved
+repository or data-access layer when database work is involved
+typed frontend-backend integration contract when UI and API work are involved
+field or schema standards
+RBAC/ABAC and permission model when protected data is involved
+audit/redaction model when sensitive data or mutation is involved
 ```
 
-## 7. Issue as Source of Truth
+## 8. Issue as Source of Truth
 
 When an issue and old documentation disagree:
 
@@ -139,7 +221,7 @@ When an issue and old documentation disagree:
 3. leave a short note in the PR explaining which document was aligned;
 4. do not silently implement a behavior that contradicts the current issue sequence.
 
-## 8. Agent Execution Standard
+## 9. Agent Execution Standard
 
 Before executing an issue, an agent must:
 
@@ -152,9 +234,33 @@ Before executing an issue, an agent must:
 7. avoid touching EmDash core unless explicitly allowed;
 8. update docs when behavior, issue order, or architecture changes.
 
-## 9. SIKESRA Current Ordered Backlog
+## 10. Project Backlog Registers
 
-The current SIKESRA order is:
+Each major AWCMS-Micro project should maintain an ordered backlog section in its governance documentation.
+
+Required for:
+
+```txt
+plugins
+templates
+database/D1 initiatives
+UI/UX initiatives
+integration/API initiatives
+security/compliance initiatives
+Cloudflare deployment initiatives
+```
+
+For SIKESRA, the current ordered backlog is documented in:
+
+```txt
+docs/awcms-micro-sikesra-plugin-governance.md
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md
+```
+
+## 11. Current SIKESRA Example Backlog
+
+The current SIKESRA order is the active example of this issue system:
 
 | Order | Issue | Focus |
 | ---: | ---: | --- |
@@ -184,20 +290,22 @@ The current SIKESRA order is:
 | 24 | #138 | Dynamic custom attributes |
 | 25 | #139 | Full CRUD governance |
 
-## 10. Label Guidance
+## 12. Label Guidance
 
 Recommended labels when available:
 
 ```txt
-sikesra
 p0
 p1
 p2
+p3
 bug
 ux
+ui
 database
 d1
 api
+integration
 security
 audit
 rbac
@@ -207,25 +315,47 @@ backend
 docs
 test
 guardrail
+deployment
+cloudflare
+template
+plugin
+```
+
+Project-specific labels may also be used, for example:
+
+```txt
+sikesra
+plugin-gallery
+template-default
+template-cloudflare
 ```
 
 Labels are helpful but not required for correctness. The issue title and body remain the source of truth.
 
-## 11. Documentation Alignment Rule
+## 13. Documentation Alignment Rule
 
-When the SIKESRA issue order changes, update:
+When an issue system rule, issue order, or project backlog changes, update the relevant docs.
+
+For repository-wide issue rules, update:
 
 ```txt
 README.md
 AGENTS.md
 docs/README.md
 docs/awcms-micro-github-issue-system.md
+```
+
+For project-specific issue order, update the matching project docs. Examples:
+
+```txt
 docs/awcms-micro-sikesra-plugin-governance.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/README.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md
 ```
 
-## 12. Final Rule
+Future plugins/templates should add their own governance docs or README sections when their backlog becomes large enough.
 
-Issues are execution contracts. Keep them atomic, ordered, testable, sync-safe, and aligned with documentation.
+## 14. Final Rule
+
+Issues are execution contracts. Keep them atomic, ordered, testable, sync-safe, and aligned with documentation across all AWCMS-Micro projects.
