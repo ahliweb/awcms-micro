@@ -51,6 +51,37 @@ See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update 
 - When a task is too large, split it into smaller follow-up tasks or GitHub issues.
 - If a downstream source tweak must survive sync but does not belong in a plugin or template boundary, encode it as a patch under `awcmsmicro-dev/.awcms-patches/` so the rebuild script can reapply it automatically.
 
+## GitHub Issue Execution System
+
+GitHub issues in this repository are implementation contracts, not only reminders.
+
+The current standard is documented in:
+
+```txt
+docs/awcms-micro-github-issue-system.md
+```
+
+Sequenced issue title pattern:
+
+```txt
+[PRODUCT][SEQ-XX][TYPE][PRIORITY] Title
+```
+
+Examples:
+
+```txt
+[SIKESRA][SEQ-01A][BUG][P0] Fix admin dashboard Open module links to stay inside plugin admin routes
+[SIKESRA][SEQ-07A][P0] Add typed frontend-backend-D1 integration contract for SIKESRA admin workflows
+```
+
+Rules:
+
+- `SEQ` defines implementation order, not creation order.
+- `P0/P1/P2/P3` defines priority and risk.
+- Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency issues without renumbering the whole backlog.
+- Later workflow issues must not start before their earlier foundation, guardrail, integration, and data-boundary issues are ready.
+- When issue order changes, update the root docs and the plugin docs listed in `docs/awcms-micro-github-issue-system.md`.
+
 ## SIKESRA Plugin Governance
 
 The SIKESRA plugin is an AWCMS-Micro downstream plugin under:
@@ -59,7 +90,22 @@ The SIKESRA plugin is an AWCMS-Micro downstream plugin under:
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/
 ```
 
-SIKESRA development is tracked through GitHub issues #119 through #140. These issues define the current implementation backlog for plugin identity, D1 table isolation, repository layer, field standards, RBAC/ABAC, EmDash user references, document metadata, import/export, audit, data preservation, custom attributes, and CRUD governance.
+SIKESRA development is tracked through GitHub issues #119 through #143. These issues define the current implementation backlog for plugin identity, admin route safety, UI/UX standards, D1 table isolation, repository layer, frontend-backend-D1 integration, field standards, RBAC/ABAC, EmDash user references, document metadata, import/export, audit, data preservation, custom attributes, and CRUD governance.
+
+Current ordered SIKESRA execution begins with:
+
+```txt
+#140 plugin identity
+#141 admin dashboard route bug fix
+#142 admin UI/UX design system
+#119 sikesra_ naming policy
+#121 prefix validation test
+#136 EmDash update/rebuild compatibility
+#137 data preservation guardrails
+#120 D1 migration framework
+#122 D1 repository layer
+#143 typed frontend-backend-D1 integration contract
+```
 
 SIKESRA must follow these rules:
 
@@ -68,11 +114,12 @@ SIKESRA must follow these rules:
 - use dedicated D1 tables and plugin collections with the `sikesra_` prefix;
 - treat dedicated D1 tables as the production source of truth once the D1 migration issues are implemented;
 - use EmDash users as shared identity references, while storing SIKESRA roles, scopes, and ABAC policies in `sikesra_` tables;
+- connect admin UI, API routes, service layer, repository layer, serializers, and D1 tables through typed contracts;
 - keep public output aggregate-only and public-safe;
 - preserve SIKESRA data across EmDash updates, dependency reinstalls, workspace rebuilds, local template rebuilds, and Cloudflare rebuilds;
-- use soft delete by default and reserve permanent delete for the highest SIKESRA administrator workflow defined in issue #139.
+- use the SIKESRA governance workflow for any high-impact data lifecycle action.
 
-See `docs/awcms-micro-sikesra-plugin-governance.md` and `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md` before changing the SIKESRA plugin.
+See `docs/awcms-micro-github-issue-system.md`, `docs/awcms-micro-sikesra-plugin-governance.md`, and `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md` before changing the SIKESRA plugin.
 
 ## Official Language
 
@@ -90,6 +137,7 @@ Exception:
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/awcms-micro-github-issue-system.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
