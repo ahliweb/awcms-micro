@@ -2261,6 +2261,9 @@ importers:
       '@awcms-micro/plugin-docs':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-docs
+      '@awcms-micro/plugin-gallery':
+        specifier: workspace:*
+        version: link:../../packages/plugins/awcms-micro-gallery
       '@awcms-micro/plugin-sikesra':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-sikesra

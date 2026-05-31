@@ -20,6 +20,7 @@
 		"@astrojs/cloudflare": "catalog:",
 		"@astrojs/react": "catalog:",
 		"@awcms-micro/plugin-docs": "workspace:*",
+		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@awcms-micro/plugin-sikesra": "workspace:*",
 		"@emdash-cms/cloudflare": "workspace:*",
 		"astro": "catalog:",
