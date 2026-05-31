@@ -34,6 +34,27 @@ Within this parent workspace:
 - When work is too large for one pass, split it into smaller tracked tasks.
 - If useful, create GitHub issues so work can later be executed by a smaller or lower-cost AI model.
 
+## GitHub Issue System For Agents
+
+GitHub issues in this repository are implementation contracts.
+
+Before executing issue-driven work, read:
+
+```txt
+docs/awcms-micro-github-issue-system.md
+```
+
+Required behavior:
+
+- Follow `SEQ` order before issue creation order.
+- Treat `SEQ-XXA` as an inserted dependency between two existing sequence steps.
+- Treat `P0` as foundation, security, data safety, compatibility, or build-critical work.
+- Do not start later workflow issues before earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+- Read related issues before implementation.
+- Keep changes atomic and aligned with the issue acceptance criteria.
+- If a behavior change makes docs stale, update docs in the same PR or a focused follow-up docs PR.
+- Do not silently implement behavior that contradicts the current issue sequence.
+
 ## Required Reading For Agents
 
 Before changing code, docs, scripts, or generated outputs in this workspace, read:
@@ -41,6 +62,7 @@ Before changing code, docs, scripts, or generated outputs in this workspace, rea
 - `README.md`
 - `AGENTS.md`
 - `docs/README.md`
+- `docs/awcms-micro-github-issue-system.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
@@ -67,7 +89,22 @@ Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for t
 
 The SIKESRA plugin is a downstream AWCMS-Micro plugin, not an EmDash core feature. Work on it only inside approved downstream boundaries unless an issue explicitly requires a sync-safe root script or root documentation change.
 
-Current SIKESRA implementation backlog is tracked in GitHub issues #119 through #140. These issues are the source of truth for current SIKESRA requirements.
+Current SIKESRA implementation backlog is tracked in GitHub issues #119 through #143. These issues are the source of truth for current SIKESRA requirements.
+
+Current starting sequence:
+
+```txt
+#140 plugin identity
+#141 admin dashboard route bug fix
+#142 admin UI/UX design system
+#119 sikesra_ naming policy
+#121 prefix validation test
+#136 EmDash update/rebuild compatibility
+#137 data preservation guardrails
+#120 D1 migration framework
+#122 D1 repository layer
+#143 typed frontend-backend-D1 integration contract
+```
 
 Required rules for agents:
 
@@ -80,6 +117,7 @@ Required rules for agents:
 - Do not store SIKESRA canonical production data in generic EmDash core tables or unprefixed plugin collections.
 - Use EmDash users as shared identity references; do not duplicate, reset, or delete EmDash core user accounts from the SIKESRA plugin.
 - Store SIKESRA roles, permissions, scopes, user assignments, ABAC attributes, ABAC policies, and audit data in `sikesra_` tables.
+- Integrate admin UI, API routes, service layer, repository layer, serializers, and D1 tables through typed contracts.
 - Treat personal addresses as two distinct address groups: KTP address and domicile address.
 - Public APIs must expose aggregate-only, public-safe data and must not leak personal, sensitive personal, restricted, KTP address, domicile address, or raw document metadata.
 - Use soft delete by default. Permanent delete belongs only to the `sikesra_super_admin` workflow with reason, confirmation, snapshot, audit, and integrity check.
@@ -95,6 +133,7 @@ Required rules for agents:
 
 - `README.md`
 - `docs/README.md`
+- `docs/awcms-micro-github-issue-system.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-structure.md`
