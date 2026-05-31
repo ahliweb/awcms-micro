@@ -43,7 +43,10 @@ trustPolicyExclude:
   - "reselect@5.1.1" # provenance -> none (old pinned util)
 
 overrides:
+  fast-uri: 3.1.2
   express-rate-limit: 8.5.2
+  qs: 6.15.2
+  brace-expansion: 5.0.6
   # blockExoticSubdeps: infra/cache-demo's pkg.pr.new Astro preview pulls
   # this via URL. Remove when that preview pin is gone.
   "@astrojs/telemetry": "3.3.0"
