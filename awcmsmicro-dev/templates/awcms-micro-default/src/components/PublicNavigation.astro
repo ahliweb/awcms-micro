@@ -9,11 +9,21 @@ interface Props {
 
 const { name = "primary" } = Astro.props;
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || "en";
-const menu = await getMenu(name, { locale: currentLocale });
+let menu = await getMenu(name, { locale: currentLocale });
+
+// Fallback logic to check other standard menu names if the requested one is empty/not found
+if (!menu?.items.length) {
+	const fallbackName = name === "primary" ? "header" : "primary";
+	const fallbackMenu = await getMenu(fallbackName, { locale: currentLocale });
+	if (fallbackMenu?.items.length) {
+		menu = fallbackMenu;
+	}
+}
+
 const navLabel = currentLocale.startsWith("id") ? "Navigasi utama" : "Primary navigation";
 
 if (menu?.items.length) {
-	menu.items = await resolvePublicNavigationItems(menu.items, name, currentLocale, async (menuName, locale) => {
+	menu.items = await resolvePublicNavigationItems(menu.items, menu.name || name, currentLocale, async (menuName, locale) => {
 		const subMenu = await getMenu(menuName, { locale });
 		return subMenu?.items.length ? subMenu.items : undefined;
 	});
