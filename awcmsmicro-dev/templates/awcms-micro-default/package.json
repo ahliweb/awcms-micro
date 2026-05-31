@@ -19,7 +19,7 @@
 		"@awcms-micro/plugin-sikesra": "workspace:*",
 		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@astrojs/node": "^10.1.1",
-		"@astrojs/react": "^5.0.5",
+		"@astrojs/react": "catalog:",
 		"astro": "catalog:",
 		"better-sqlite3": "^12.8.0",
 		"emdash": "workspace:*",

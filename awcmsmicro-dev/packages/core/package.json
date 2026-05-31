@@ -214,7 +214,7 @@
     "@tiptap/suggestion": "catalog:",
     "@unpic/placeholder": "^0.1.2",
     "arctic": "^3.7.0",
-    "astro-portabletext": "^0.11.0",
+		"astro-portabletext": "^0.13.0",
     "better-sqlite3": "catalog:",
     "blurhash": "^2.0.5",
     "citty": "^0.1.6",
