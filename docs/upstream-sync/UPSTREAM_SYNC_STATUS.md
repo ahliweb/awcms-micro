@@ -4,27 +4,27 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `19c580240158747733b30c5f04a45bdf4df73518`
-- Sync date: `2026-05-29T08:20:23Z`
+- Upstream commit SHA: `01ce941672bbc55b1d290e83583fc9041eb5302c`
+- Sync date: `2026-05-31T01:07:43Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `19c58024`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, the downstream workspace validates cleanly on this host, and the rebuild allowlist now preserves `awcmsmicro-dev/.changeset/` so workspace package-release metadata survives future upstream rebuilds.
+Synced to EmDash `01ce9416`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, the downstream workspace validates cleanly on this host, and the rebuild allowlist continues to preserve `awcmsmicro-dev/.changeset/` so workspace package-release metadata survives future upstream rebuilds.
 
 ## Key Changes in This Sync
 
-- `fix(triage): use CLOUDFLARE_API_KEY (not _TOKEN) for the AI Gateway` in the upstream triage workflow
-- `fix(triage): run flue from repo root, not .flue/, so --root resolves correctly`
-- Downstream sync fix: preserve `awcmsmicro-dev/.changeset/` in the protected rebuild allowlist and root boundary documentation
+- `chore: update dependencies and migrate packages to version catalog` across the upstream workspace and lockfile
+- Dependency catalog refresh touched `packages/admin`, `packages/core`, `packages/plugins/embeds`, and `templates/awcms-micro-default`
+- Downstream sync state remains protected by the allowlist and validation workflow
 
 ## Validation Status
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` |
+| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `01ce9416` |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; approved AWCMS-Micro boundaries preserved |
 | Validation script execution | Passed | See `LAST_VALIDATION.md` |
 
