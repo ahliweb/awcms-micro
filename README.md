@@ -61,6 +61,8 @@ The current standard is documented in:
 docs/awcms-micro-github-issue-system.md
 ```
 
+The standard applies to all AWCMS-Micro project work, including plugins, templates, database/D1, UI/UX, frontend, backend, API, integrations, security, deployment, tests, and documentation.
+
 Sequenced issue title pattern:
 
 ```txt
@@ -71,7 +73,10 @@ Examples:
 
 ```txt
 [SIKESRA][SEQ-01A][BUG][P0] Fix admin dashboard Open module links to stay inside plugin admin routes
-[SIKESRA][SEQ-07A][P0] Add typed frontend-backend-D1 integration contract for SIKESRA admin workflows
+[TEMPLATE-DEFAULT][SEQ-03][UX][P1] Standardize public homepage section layout
+[PLUGIN-GALLERY][SEQ-02][API][P1] Add typed gallery media API contract
+[CLOUDFLARE][SEQ-02][DEPLOYMENT][P0] Validate D1 and R2 bindings for production deployment
+[SECURITY][SEQ-01][P0] Add upload validation baseline for all media-enabled plugins
 ```
 
 Rules:
@@ -80,7 +85,7 @@ Rules:
 - `P0/P1/P2/P3` defines priority and risk.
 - Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency issues without renumbering the whole backlog.
 - Later workflow issues must not start before their earlier foundation, guardrail, integration, and data-boundary issues are ready.
-- When issue order changes, update the root docs and the plugin docs listed in `docs/awcms-micro-github-issue-system.md`.
+- When issue order changes, update the root docs and any affected project docs listed in `docs/awcms-micro-github-issue-system.md`.
 
 ## SIKESRA Plugin Governance
 
