@@ -20,7 +20,8 @@ interface Props {
 }
 
 const { title, pageTitle, description, image, canonical, content, showFooterWidgets = true } = Astro.props;
-const { siteTitle, siteTagline, siteLogo } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const siteSettings = await getSiteSettings();
+const { siteTitle, siteTagline, siteLogo, hasCustomLogo, hasCustomFavicon } = resolveAwcmsMicroSiteIdentity(siteSettings);
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
@@ -32,6 +33,9 @@ const copy = getPublicCopy(currentLocale);
 const currentYear = new Date().getFullYear();
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
+const hasOgImage = !!image || !!siteSettings?.seo?.defaultOgImage?.url;
+const fallbackOgImageUrl = hasOgImage ? null : new URL("/awcms-logo.png", Astro.url.origin).toString();
+
 const pageCtx = createPublicPageContext({
 	Astro,
 	kind: content ? "content" : "custom",
@@ -54,6 +58,13 @@ const pageCtx = createPublicPageContext({
 		<title>{fullTitle}</title>
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
+		{!hasCustomFavicon && <link rel="icon" type="image/png" href="/awcms-logo.png" />}
+		{fallbackOgImageUrl && (
+			<>
+				<meta property="og:image" content={fallbackOgImageUrl} />
+				<meta name="twitter:image" content={fallbackOgImageUrl} />
+			</>
+		)}
 		<EmDashHead page={pageCtx} />
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 		<style>
@@ -220,6 +231,7 @@ const pageCtx = createPublicPageContext({
 			.nav-brand {
 				display: flex;
 				align-items: center;
+				gap: 0.625rem;
 				text-decoration: none;
 				flex-shrink: 0;
 			}
@@ -723,7 +735,8 @@ const pageCtx = createPublicPageContext({
 		<header class="site-header-nav" id="site-header">
 			<div class="nav-container">
 				<a class="nav-brand" href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">
-					{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="brand-logo" /> : <span class="brand-text">{siteTitle}</span>}
+					{siteLogo && <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="brand-logo" />}
+					{(!siteLogo || !hasCustomLogo) && <span class="brand-text">{siteTitle}</span>}
 				</a>
 
 				<input type="checkbox" id="menu-toggle" class="menu-toggle-checkbox" />

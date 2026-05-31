@@ -17,12 +17,16 @@ interface Props {
 }
 
 const { title, pageTitle, description, image, canonical, content, showFooterWidgets = true } = Astro.props;
-const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const siteSettings = await getSiteSettings();
+const { siteTitle, siteTagline, hasCustomFavicon } = resolveAwcmsMicroSiteIdentity(siteSettings);
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
+const hasOgImage = !!image || !!siteSettings?.seo?.defaultOgImage?.url;
+const fallbackOgImageUrl = hasOgImage ? null : new URL("/awcms-logo.png", Astro.url.origin).toString();
+
 const pageCtx = createPublicPageContext({
 	Astro,
 	kind: content ? "content" : "custom",
@@ -45,6 +49,13 @@ const pageCtx = createPublicPageContext({
 		<title>{fullTitle}</title>
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
+		{!hasCustomFavicon && <link rel="icon" type="image/png" href="/awcms-logo.png" />}
+		{fallbackOgImageUrl && (
+			<>
+				<meta property="og:image" content={fallbackOgImageUrl} />
+				<meta name="twitter:image" content={fallbackOgImageUrl} />
+			</>
+		)}
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />

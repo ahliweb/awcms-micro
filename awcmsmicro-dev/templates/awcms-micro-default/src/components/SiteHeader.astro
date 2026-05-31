@@ -12,7 +12,7 @@ interface Props {
 }
 
 const { content } = Astro.props;
-const { siteTitle, siteLogo } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const { siteTitle, siteLogo, hasCustomLogo } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
@@ -26,7 +26,8 @@ const copy = getPublicCopy(currentLocale);
 <header class="site-header-nav" id="site-header">
 	<div class="nav-container">
 		<a class="nav-brand" href={toLocalePath("/", currentLocale, localeOptions)} data-astro-prefetch="hover">
-			{siteLogo ? <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="brand-logo" /> : <span class="brand-text">{siteTitle}</span>}
+			{siteLogo && <img src={siteLogo.url} alt={siteLogo.alt || siteTitle} class="brand-logo" />}
+			{(!siteLogo || !hasCustomLogo) && <span class="brand-text">{siteTitle}</span>}
 		</a>
 
 		<input type="checkbox" id="menu-toggle" class="menu-toggle-checkbox" />
@@ -154,6 +155,7 @@ const copy = getPublicCopy(currentLocale);
 	.nav-brand {
 		display: flex;
 		align-items: center;
+		gap: 0.625rem;
 		text-decoration: none;
 		flex-shrink: 0;
 	}
