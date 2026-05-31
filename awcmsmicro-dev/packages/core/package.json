@@ -214,7 +214,7 @@
     "@tiptap/suggestion": "catalog:",
     "@unpic/placeholder": "^0.1.2",
     "arctic": "^3.7.0",
-		"astro-portabletext": "^0.13.0",
+    "astro-portabletext": "^0.11.0",
     "better-sqlite3": "catalog:",
     "blurhash": "^2.0.5",
     "citty": "^0.1.6",
@@ -263,7 +263,7 @@
     "publint": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.0.11",
+    "vite": "^6.0.0",
     "vitest": "catalog:",
     "zod-openapi": "^5.4.6"
   },
