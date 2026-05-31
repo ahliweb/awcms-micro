@@ -13,7 +13,7 @@ jobs:
       contents: read
     env:
       NODE_VERSION: ${{ vars.GITHUB_ACTION_NODE_VERSION || '22' }}
-      PNPM_VERSION: ${{ vars.GITHUB_ACTION_PNPM_VERSION || '11.1.3' }}
+      PNPM_VERSION: ${{ vars.GITHUB_ACTION_PNPM_VERSION || '11.5.0' }}
       WORKER_PACKAGE: ${{ vars.GITHUB_ACTION_WORKER_TEMPLATE_PACKAGE || '@awcms-micro/template-default-cloudflare' }}
 
     steps:
