@@ -61,6 +61,12 @@ The current standard is documented in:
 docs/awcms-micro-github-issue-system.md
 ```
 
+Diagram requirements are documented in:
+
+```txt
+docs/awcms-micro-mermaid-diagram-standard.md
+```
+
 The standard applies to all AWCMS-Micro project work, including plugins, templates, database/D1, UI/UX, frontend, backend, API, integrations, security, deployment, tests, and documentation.
 
 Sequenced issue title pattern:
@@ -77,6 +83,7 @@ Examples:
 [PLUGIN-GALLERY][SEQ-02][API][P1] Add typed gallery media API contract
 [CLOUDFLARE][SEQ-02][DEPLOYMENT][P0] Validate D1 and R2 bindings for production deployment
 [SECURITY][SEQ-01][P0] Add upload validation baseline for all media-enabled plugins
+[DOCS][SEQ-01][DOCS][P1] Add Mermaid diagram standards for PRD, database, UI/UX, integration, and deployment issues
 ```
 
 Rules:
@@ -85,6 +92,7 @@ Rules:
 - `P0/P1/P2/P3` defines priority and risk.
 - Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency issues without renumbering the whole backlog.
 - Later workflow issues must not start before their earlier foundation, guardrail, integration, and data-boundary issues are ready.
+- Mermaid diagrams are required when an issue changes architecture, database, UI/UX flow, frontend-backend integration, security flow, deployment topology, migration, or data preservation.
 - When issue order changes, update the root docs and any affected project docs listed in `docs/awcms-micro-github-issue-system.md`.
 
 ## SIKESRA Plugin Governance
@@ -124,7 +132,7 @@ SIKESRA must follow these rules:
 - preserve SIKESRA data across EmDash updates, dependency reinstalls, workspace rebuilds, local template rebuilds, and Cloudflare rebuilds;
 - use the SIKESRA governance workflow for any high-impact data lifecycle action.
 
-See `docs/awcms-micro-github-issue-system.md`, `docs/awcms-micro-sikesra-plugin-governance.md`, and `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md` before changing the SIKESRA plugin.
+See `docs/awcms-micro-github-issue-system.md`, `docs/awcms-micro-mermaid-diagram-standard.md`, `docs/awcms-micro-sikesra-plugin-governance.md`, and `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md` before changing the SIKESRA plugin.
 
 ## Official Language
 
@@ -143,6 +151,7 @@ Exception:
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/awcms-micro-github-issue-system.md`
+- `docs/awcms-micro-mermaid-diagram-standard.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
