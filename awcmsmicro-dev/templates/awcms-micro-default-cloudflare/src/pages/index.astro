@@ -14,7 +14,6 @@ const [
 	{ entries: posts, cacheHint: postsCacheHint },
 	{ entries: newsItems, cacheHint: newsCacheHint },
 	{ entries: pages, cacheHint: pagesCacheHint },
-	{ entries: galleries, cacheHint: galleriesCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", {
 		orderBy: { published_at: "desc" },
@@ -28,17 +27,12 @@ const [
 		orderBy: { published_at: "desc" },
 		limit: 6,
 	}),
-	getEmDashCollection("galleries", {
-		orderBy: { published_at: "desc" },
-		limit: 3,
-	}),
 ]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
 	Astro.cache.set(newsCacheHint);
 	Astro.cache.set(pagesCacheHint);
-	Astro.cache.set(galleriesCacheHint);
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
@@ -55,12 +49,10 @@ const spotlightPageSlugs = ["about", "public-site-guide", "publishing-workflow"]
 const featuredPages = spotlightPageSlugs
 	.map((slug) => pages.find((page) => resolveEntrySlug(page) === slug))
 	.filter((page): page is (typeof pages)[number] => Boolean(page));
-const gallerySpotlight = galleries.find((gallery) => gallery.data.featured === true) ?? galleries[0];
 const publicCounts = [
 	{ label: copy.counts.posts, value: posts.length },
 	{ label: copy.counts.news, value: newsItems.length },
 	{ label: copy.counts.pages, value: pages.length },
-	{ label: copy.counts.galleries, value: galleries.length },
 ];
 ---
 
@@ -94,8 +86,8 @@ const publicCounts = [
 				<h2 style="font-size:1.3rem;margin-top:0;">{siteTagline}</h2>
 				<p style="color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6;">
 					{currentLocale.startsWith("id") 
-						? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru, pengumuman berita penting, serta galeri kegiatan kami yang diperbarui langsung dari panel admin." 
-						: "Welcome to our official website. Discover our latest articles, news announcements, and activity galleries updated directly from the admin panel."}
+				? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru dan pengumuman berita penting yang diperbarui langsung dari panel admin." 
+				: "Welcome to our official website. Discover our latest articles and news announcements updated directly from the admin panel."}
 				</p>
 			</div>
 			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:auto;">
@@ -128,21 +120,6 @@ const publicCounts = [
 			<a style="font-weight:700;color:var(--accent);text-decoration:none;font-size:0.95rem;margin-top:auto;" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
 		</div>
 
-		<!-- Featured Gallery Card -->
-		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-			<div>
-				<p class="kicker">{copy.featuredGalleryTitle}</p>
-				<h2 style="font-size:1.3rem;margin-top:0;">{copy.featuredGalleryTitle}</h2>
-				<p style="color:var(--text-muted);margin-bottom:1.25rem;">{copy.featuredGalleryDescription}</p>
-				{gallerySpotlight ? (
-					<a href={toLocalePath(`/gallery/${resolveEntrySlug(gallerySpotlight)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:grid;gap:0.6rem;text-decoration:none;color:var(--text-main);">
-						{gallerySpotlight.data.cover_image && <Image image={asImage(gallerySpotlight.data.cover_image)} style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:0.75rem;" />}
-						<strong style="font-size:1rem;">{gallerySpotlight.data.title}</strong>
-						<p style="margin:0;color:var(--text-muted);font-size:0.875rem;line-height:1.55;">{gallerySpotlight.data.description}</p>
-					</a>
-				) : <p style="color:var(--text-muted);margin:0;">{copy.noPostsYet}</p>}
-			</div>
-		</div>
 	</section>
 
 	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">

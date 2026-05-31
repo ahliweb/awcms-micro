@@ -1,7 +1,6 @@
 import node from "@astrojs/node";
 import react from "@astrojs/react";
 import { awcmsMicroDocsPlugin } from "@awcms-micro/plugin-docs";
-import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
 import { defineConfig } from "astro/config";
 import emdash, { local } from "emdash/astro";
@@ -37,7 +36,6 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroExamplePlugin({ tenantId: "t-local-dev" }),
-				awcmsMicroGalleryPlugin({ maxImageBytes: 10485760, maxVideoBytes: 262144000 }),
 			],
 			admin: {
 				logo: "/awcms-logo.png",

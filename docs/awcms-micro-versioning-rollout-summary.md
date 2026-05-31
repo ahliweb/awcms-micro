@@ -20,7 +20,6 @@ It sits alongside the standard workspace package-release flow in `awcmsmicro-dev
 ## Covered Packages
 
 - `@awcms-micro/plugin-sikesra`
-- `@awcms-micro/plugin-gallery`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
 
@@ -35,7 +34,6 @@ Two local simulations were run successfully.
 
 ### Simulation 2
 
-- `@awcms-micro/plugin-gallery`: `0.0.2 -> 0.0.3`
 - `@awcms-micro/template-default-cloudflare`: `0.0.1 -> 0.1.0`
 
 In both simulations the script:

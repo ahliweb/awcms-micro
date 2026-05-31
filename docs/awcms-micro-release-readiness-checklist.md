@@ -57,9 +57,7 @@ Minimum recommended checks:
 3. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
 4. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
 5. `pnpm --filter @awcms-micro/plugin-sikesra test`
-6. `pnpm --filter @awcms-micro/plugin-gallery typecheck`
-7. `pnpm --filter @awcms-micro/plugin-gallery test`
-8. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
+6. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
 These commands are examples. Repeat the relevant plugin or template checks for every package in the current release scope, and add any surface-specific UI, backend, or database checks that apply.
 

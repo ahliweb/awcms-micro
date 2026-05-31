@@ -1,7 +1,6 @@
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import { awcmsMicroDocsPlugin } from "@awcms-micro/plugin-docs";
-import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
 import { d1, r2, sandbox } from "@emdash-cms/cloudflare";
 import { defineConfig } from "astro/config";
@@ -35,12 +34,6 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroExamplePlugin({ tenantId: "t-local-dev" }),
-				awcmsMicroGalleryPlugin({
-					maxImageBytes: 10485760,
-					maxVideoBytes: 262144000,
-					cloudflareImages: true,
-					cloudflareStream: true,
-				}),
 			],
 			sandboxed: [],
 			sandboxRunner: sandbox(),

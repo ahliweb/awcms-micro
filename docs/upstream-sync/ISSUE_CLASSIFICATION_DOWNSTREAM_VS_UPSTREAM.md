@@ -16,8 +16,6 @@ The entries below classify the admin-side issues that were directly observed dur
 
 | Issue | Current status | Why it is downstream-fixable |
 | --- | --- | --- |
-| `awcms-micro-gallery` admin page crashed with `Cannot read properties of undefined (reading 'map')` | Fixed downstream | The plugin emitted a `stats` block with `stats` instead of the renderer's expected `items`, and the faulty payload lived in `packages/plugins/awcms-micro-gallery/` |
-| Gallery plugin sandbox admin route used the same incorrect `stats` block shape | Fixed downstream | The mismatch lived in the downstream gallery plugin sandbox entry, not EmDash core |
 | Plugin admin pages needed locale-aware and boundary-safe navigation fixes after AWCMS-Micro public/admin routing changes | Fixed downstream | The affected links and route behavior lived in the isolated AWCMS-Micro template/plugin boundaries |
 | Plugin group ordering metadata for admin navigation | Fixed downstream | The downstream plugin manifest/navigation layer can already declare `sidebarPlacement` and `sidebarPriority` values, and `awcmsmicro-dev/packages/admin` now consumes them to render plugin groups immediately below Dashboard without changing EmDash core |
 
@@ -53,7 +51,7 @@ These issues can be fixed inside approved AWCMS-Micro plugin/template boundaries
 | Homepage rendered a second demo navigation tree | Fixed downstream | Duplicate render was removed from both downstream reference templates in `templates/awcms-micro-default*/src/pages/index.astro` |
 | Homepage collection queries were serial | Fixed downstream | Fetch ordering lived in the template page |
 | Footer widgets duplicated content summaries on list/index pages | Fixed downstream | Footer widget usage was a template layout choice |
-| Locale-aware public links across `/`, `/posts`, `/news`, `/gallery`, and content pages | Fixed downstream | URL generation lived in AWCMS-Micro template code |
+| Locale-aware public links across `/`, `/posts`, `/news`, and content pages | Fixed downstream | URL generation lived in AWCMS-Micro template code |
 | Perceived navigation latency from lack of speculative loading | Partially fixed downstream | Prefetch and lighter page composition are template-owned |
 
 ### Upstream-required

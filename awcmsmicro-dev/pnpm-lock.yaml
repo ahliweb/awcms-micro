@@ -1888,24 +1888,6 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(@vitest/browser-playwright@4.1.5)(@vitest/ui@4.1.5)(jsdom@26.1.0)(vite@8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.9.0))
 
-  packages/plugins/awcms-micro-gallery:
-    devDependencies:
-      '@types/node':
-        specifier: 24.10.13
-        version: 24.10.13
-      emdash:
-        specifier: workspace:*
-        version: link:../../core
-      tsdown:
-        specifier: ^0.20.3
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: ^4.1.5
-        version: 4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(@vitest/browser-playwright@4.1.5)(@vitest/ui@4.1.5)(jsdom@26.1.0)(vite@8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.9.0))
-
   packages/plugins/awcms-micro-sikesra:
     dependencies:
       '@lingui/react':
@@ -2218,9 +2200,6 @@ importers:
       '@awcms-micro/plugin-docs':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-docs
-      '@awcms-micro/plugin-gallery':
-        specifier: workspace:*
-        version: link:../../packages/plugins/awcms-micro-gallery
       '@awcms-micro/plugin-sikesra':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-sikesra
@@ -2261,9 +2240,6 @@ importers:
       '@awcms-micro/plugin-docs':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-docs
-      '@awcms-micro/plugin-gallery':
-        specifier: workspace:*
-        version: link:../../packages/plugins/awcms-micro-gallery
       '@awcms-micro/plugin-sikesra':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-sikesra

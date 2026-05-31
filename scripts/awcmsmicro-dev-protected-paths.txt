@@ -3,11 +3,9 @@
 templates/awcms-micro-default
 templates/awcms-micro-default-cloudflare
 packages/plugins/awcms-micro-sikesra
-packages/plugins/awcms-micro-gallery
 packages/plugins/awcms-micro-docs
 demos/awcms-micro-cloudflare
 docs/awcms-micro
-docs/gallery
 docs/package.json
 packages/blocks/playground/package.json
 templates/awcms-micro-default/data.db

@@ -15,7 +15,6 @@ This flow is intentionally separate from upstream EmDash Changesets.
 It covers:
 
 - `@awcms-micro/plugin-sikesra`
-- `@awcms-micro/plugin-gallery`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
 
@@ -39,7 +38,6 @@ Example:
 ```md
 ---
 "@awcms-micro/plugin-sikesra": minor
-"@awcms-micro/plugin-gallery": patch
 "@awcms-micro/template-default-example": patch
 ---
 

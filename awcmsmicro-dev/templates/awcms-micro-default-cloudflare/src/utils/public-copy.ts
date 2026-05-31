@@ -70,9 +70,6 @@ const PUBLIC_COPY = {
 			"Published pages are editable from the Pages collection and can be surfaced from the docs hub.",
 		managePagesInAdmin: "Manage pages in admin",
 		openPage: "Open page",
-		featuredGalleryTitle: "Gallery spotlight",
-		featuredGalleryDescription:
-			"A featured gallery shows how media-rich content, layout variants, and admin-managed assets render publicly.",
 		browseAllPosts: "Browse all posts ->",
 		browseAllNews: "Browse all news ->",
 		searchPlaceholder: "Search posts, pages, and news",
@@ -102,7 +99,7 @@ const PUBLIC_COPY = {
 		visitAhliweb: "Visit ahliweb.com",
 		footerCopyright: "\u00a9 2026 AWCMS-Micro. All rights reserved. Built with EmDash.",
 		footerPoweredBy: "Powered by",
-		counts: { posts: "Posts", news: "News", pages: "Pages", galleries: "Galleries" },
+		counts: { posts: "Posts", news: "News", pages: "Pages" },
 	},
 	id: {
 		notFoundTitle: "Tidak Ditemukan",
@@ -175,9 +172,6 @@ const PUBLIC_COPY = {
 			"Halaman terpublikasi dapat diedit dari koleksi Pages dan bisa ditampilkan dari hub docs.",
 		managePagesInAdmin: "Kelola halaman di admin",
 		openPage: "Buka halaman",
-		featuredGalleryTitle: "Sorotan galeri",
-		featuredGalleryDescription:
-			"Galeri unggulan menunjukkan bagaimana konten kaya media, variasi layout, dan aset yang dikelola admin dirender secara publik.",
 		browseAllPosts: "Lihat semua pos ->",
 		browseAllNews: "Lihat semua berita ->",
 		searchPlaceholder: "Cari pos, halaman, dan berita",
@@ -207,7 +201,7 @@ const PUBLIC_COPY = {
 		visitAhliweb: "Kunjungi ahliweb.com",
 		footerCopyright: "\u00a9 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
 		footerPoweredBy: "Didukung oleh",
-		counts: { posts: "Pos", news: "Berita", pages: "Halaman", galleries: "Galeri" },
+		counts: { posts: "Pos", news: "Berita", pages: "Halaman" },
 	},
 } as const;
 

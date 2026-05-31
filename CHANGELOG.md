@@ -11,8 +11,7 @@
 
 ### Plugins
 
-- `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
-- `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the example plugin surface stays aligned with the active locale.
+ - `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the example plugin surface stays aligned with the active locale.
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
@@ -27,7 +26,7 @@
 
 ### Templates
 
-- `@awcms-micro/template-default-cloudflare` `0.1.0` - Updates the AWCMS-Micro gallery and Cloudflare template release surfaces so the versioning flow covers both plugin-owned media helpers and the Cloudflare-first reference template.
+- `@awcms-micro/template-default-cloudflare` `0.1.0` - Updates the Cloudflare template release surfaces so the versioning flow covers the Cloudflare-first reference template.
 - `@awcms-micro/template-default-example` `0.0.2` - Adds plugin-owned navigation exports for the AWCMS-Micro example plugin and updates the default Node template guidance to match the plugin-and-template-only release model.
 - `@emdash-cms/template-blank` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/template-blog` `0.0.3` - latest changelog section: 0.0.3

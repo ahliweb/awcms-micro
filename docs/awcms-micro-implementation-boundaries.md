@@ -13,11 +13,9 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `templates/awcms-micro-default`
 - `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-sikesra`
-- `packages/plugins/awcms-micro-gallery`
 - `packages/plugins/awcms-micro-docs`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
-- `docs/gallery`
 - `docs/package.json`
 - `packages/blocks/playground/package.json`
 - `e2e/awcms-micro`
@@ -38,7 +36,7 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, E2E, and release-automation boundaries listed above
 
-Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names. For example, `awcms-micro-sikesra` uses `sikesra_...` collection names.
+Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names.
 
 Local bootstrap state used by sync and backup workflows is also preserved across rebuilds:
 

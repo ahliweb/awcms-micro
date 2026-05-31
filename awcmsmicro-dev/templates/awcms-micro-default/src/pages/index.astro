@@ -18,7 +18,6 @@ const [
 	{ entries: posts, cacheHint: postsCacheHint },
 	{ entries: newsItems, cacheHint: newsCacheHint },
 	{ entries: pages, cacheHint: pagesCacheHint },
-	{ entries: galleries, cacheHint: galleriesCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", {
 		orderBy: { published_at: "desc" },
@@ -32,17 +31,12 @@ const [
 		orderBy: { published_at: "desc" },
 		limit: 6,
 	}),
-	getEmDashCollection("galleries", {
-		orderBy: { published_at: "desc" },
-		limit: 3,
-	}),
 ]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
 	Astro.cache.set(newsCacheHint);
 	Astro.cache.set(pagesCacheHint);
-	Astro.cache.set(galleriesCacheHint);
 }
 
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
@@ -59,12 +53,10 @@ const spotlightPageSlugs = ["about", "public-site-guide", "publishing-workflow"]
 const featuredPages = spotlightPageSlugs
 	.map((slug) => pages.find((page) => resolveEntrySlug(page) === slug))
 	.filter((page): page is (typeof pages)[number] => Boolean(page));
-const gallerySpotlight = galleries.find((gallery) => gallery.data.featured === true) ?? galleries[0];
 const publicCounts = [
 	{ label: copy.counts.posts, value: posts.length },
 	{ label: copy.counts.news, value: newsItems.length },
 	{ label: copy.counts.pages, value: pages.length },
-	{ label: copy.counts.galleries, value: galleries.length },
 ];
 ---
 
@@ -87,7 +79,7 @@ const publicCounts = [
 		<div class="spotlight-card spotlight-card--welcome">
 			<p class="spotlight-kicker">{siteTitle}</p>
 			<h2 class="spotlight-title">{siteTagline}</h2>
-			<p class="spotlight-copy">{currentLocale.startsWith("id") ? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru, pengumuman berita penting, serta galeri kegiatan kami yang diperbarui secara langsung dari panel admin." : "Welcome to our official website. Here you can discover our latest articles, news announcements, and activity galleries updated directly from our admin panel."}</p>
+			<p class="spotlight-copy">{currentLocale.startsWith("id") ? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru dan pengumuman berita penting yang diperbarui secara langsung dari panel admin." : "Welcome to our official website. Here you can discover our latest articles and news announcements updated directly from our admin panel."}</p>
 			<div class="spotlight-actions">
 				<a class="btn btn-primary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Jelajahi Artikel" : "Browse Articles"}</a>
 				<a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Baca Berita" : "Read News"}</a>
@@ -111,21 +103,6 @@ const publicCounts = [
 			<a class="spotlight-admin-link" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
 		</div>
 
-		<div class="spotlight-card">
-			<p class="spotlight-kicker">{copy.featuredGalleryTitle}</p>
-			<h2 class="spotlight-title">{copy.featuredGalleryTitle}</h2>
-			<p class="spotlight-copy">{copy.featuredGalleryDescription}</p>
-			{gallerySpotlight ? (
-				<a class="spotlight-gallery" href={toLocalePath(`/gallery/${resolveEntrySlug(gallerySpotlight)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
-					{gallerySpotlight.data.cover_image && <Image image={asImage(gallerySpotlight.data.cover_image)} class="spotlight-gallery__image" />}
-					<div class="spotlight-gallery__body">
-						<strong>{gallerySpotlight.data.title}</strong>
-						<p>{gallerySpotlight.data.description}</p>
-						<span>{gallerySpotlight.data.location || resolveEntrySlug(gallerySpotlight)}</span>
-					</div>
-				</a>
-			) : <p class="no-content-msg">{copy.noPostsCreateOne}</p>}
-		</div>
 	</section>
 
 	<!-- Recent Content Grid (Posts & News) -->
@@ -292,39 +269,6 @@ const publicCounts = [
 		color: var(--accent);
 		text-decoration: none;
 	}
-
-	.spotlight-gallery {
-		display: grid;
-		gap: 1rem;
-		text-decoration: none;
-		color: var(--text-main);
-	}
-
-	.spotlight-gallery__image {
-		width: 100%;
-		border-radius: 1rem;
-		display: block;
-		aspect-ratio: 16 / 9;
-		object-fit: cover;
-	}
-
-	.spotlight-gallery__body {
-		display: grid;
-		gap: 0.35rem;
-	}
-
-	.spotlight-gallery__body p {
-		margin: 0;
-		color: var(--text-muted);
-		line-height: 1.55;
-	}
-
-	.spotlight-gallery__body span {
-		font-size: 0.85rem;
-		color: var(--text-muted);
-	}
-
-
 
 	@media (max-width: 768px) {
 		.spotlight-list-item {

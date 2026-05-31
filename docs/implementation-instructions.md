@@ -52,7 +52,6 @@ When choosing where a change belongs:
 - Security and compliance baselines live in `docs/security/`.
 - Example template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/` or `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`.
 - Example plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`.
-- Gallery-specific example work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/` and `awcmsmicro-dev/docs/gallery/`.
 - Docs-specific example work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-docs/` and `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
