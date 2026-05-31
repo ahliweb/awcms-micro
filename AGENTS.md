@@ -11,7 +11,7 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an example implementation that fully adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories in the product or runtime sense. It should serve as an implementation workspace that fully adopts EmDash 100% and includes only AWCMS-Micro plugins and templates that follow the AWCMS-Micro standard, without modifying EmDash core.
 
 Within this parent workspace:
 
@@ -47,6 +47,13 @@ Before changing code, docs, scripts, or generated outputs in this workspace, rea
 - `docs/repository-structure.md`
 - `docs/operator-workflow.md`
 
+Before changing the SIKESRA plugin, also read:
+
+- `docs/awcms-micro-sikesra-plugin-governance.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/README.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md`
+
 Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for the list of paths and change categories that must be preserved during `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
 
 ## Language Policy
@@ -55,6 +62,29 @@ Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for t
 - Preserve `emdash-latest/` exactly as upstream EmDash provides it, including non-US spelling or wording.
 - Allow `awcmsmicro-dev/` to inherit upstream wording when it is synchronized from `emdash-latest/`, unless there is a separate AWCMS-Micro-specific reason to change it.
 - All active plugins must default to English (`en`) and contain complete, ready-to-use Indonesian (`id`) translations for all key/label definitions.
+
+## SIKESRA Plugin Rules
+
+The SIKESRA plugin is a downstream AWCMS-Micro plugin, not an EmDash core feature. Work on it only inside approved downstream boundaries unless an issue explicitly requires a sync-safe root script or root documentation change.
+
+Current SIKESRA implementation backlog is tracked in GitHub issues #119 through #140. These issues are the source of truth for current SIKESRA requirements.
+
+Required rules for agents:
+
+- Finalize plugin identity as `AWCMS-Micro SIKESRA Plugin`; do not introduce new `example plugin` naming.
+- Keep the plugin slug stable as `awcms-micro-sikesra`.
+- Prefer `awcmsMicroSikesraPlugin`; keep `awcmsMicroExamplePlugin` only as a temporary deprecated alias while migration is required.
+- Do not modify EmDash core for SIKESRA-specific behavior.
+- Put SIKESRA canonical business data in dedicated `sikesra_` D1 tables once the D1 migration work is implemented.
+- Keep any plugin storage collection under the `sikesra_` prefix.
+- Do not store SIKESRA canonical production data in generic EmDash core tables or unprefixed plugin collections.
+- Use EmDash users as shared identity references; do not duplicate, reset, or delete EmDash core user accounts from the SIKESRA plugin.
+- Store SIKESRA roles, permissions, scopes, user assignments, ABAC attributes, ABAC policies, and audit data in `sikesra_` tables.
+- Treat personal addresses as two distinct address groups: KTP address and domicile address.
+- Public APIs must expose aggregate-only, public-safe data and must not leak personal, sensitive personal, restricted, KTP address, domicile address, or raw document metadata.
+- Use soft delete by default. Permanent delete belongs only to the `sikesra_super_admin` workflow with reason, confirmation, snapshot, audit, and integrity check.
+- Preserve SIKESRA data across EmDash updates, dependency reinstalls, workspace rebuilds, local template rebuilds, and Cloudflare rebuilds.
+- Add tests or validation scripts whenever a rule is meant to survive rebuilds.
 
 ## Plugin Admin Sidebar Policy
 
@@ -66,6 +96,7 @@ Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for t
 - `README.md`
 - `docs/README.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
