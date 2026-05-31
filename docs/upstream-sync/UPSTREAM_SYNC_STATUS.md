@@ -33,6 +33,6 @@ Synced to EmDash `90ebf8a7`. `emdash-latest/` and `awcmsmicro-dev/` both refresh
 - `emdash-latest/` remains the clean upstream snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
-- Dependabot open alerts now stand at 65 in `emdash-latest/` and 54 in `awcmsmicro-dev/` after the downstream marketplace and docs overlays.
+- Dependabot open alerts now stand at 65 in `emdash-latest/` and 46 in `awcmsmicro-dev/` after the downstream marketplace, docs, and perf-monitor overlays plus GitHub alert dismissals for the patched workspace alerts.
 - The rebuilt workspace now keeps both `awcmsmicro-dev/.changeset/` and `awcmsmicro-dev/.awcms-changesets/` across syncs.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.

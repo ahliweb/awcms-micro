@@ -62,6 +62,8 @@ This keeps AWCMS-Micro aligned with EmDash rather than turning `awcmsmicro-dev/`
 3. restore only the backed-up allowlisted paths
 4. reapply any patch overlays stored in `awcmsmicro-dev/.awcms-patches/`
 
+That means downstream fixes can live entirely in `awcmsmicro-dev/` without changing `emdash-latest/`, as long as they are captured in the protected path allowlist or a patch overlay and are documented in the divergence log.
+
 No arbitrary unknown paths are preserved.
 
 ## Preserved Change Categories

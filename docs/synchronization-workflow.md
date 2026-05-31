@@ -26,6 +26,13 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 10. Update root documentation if process, structure, or rules changed.
 11. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
+### Downstream Patch Policy
+
+- `emdash-latest/` stays upstream-faithful and should not be patched for downstream-only fixes.
+- `awcmsmicro-dev/` is the downstream implementation workspace; AWCMS-Micro-specific fixes may be applied there through the protected path allowlist and `awcmsmicro-dev/.awcms-patches/` overlays.
+- When a downstream patch fully remediates a Dependabot alert in `awcmsmicro-dev/`, document the patch in the divergence log and dismiss the matching GitHub alert as fixed with a short note referencing the overlay.
+- Keep patch overlays narrow, reviewable, and reproducible through `bash scripts/update-awcmsmicro-dev.sh`.
+
 ## Refresh `emdash-latest/`
 
 Run:
