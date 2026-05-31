@@ -36,9 +36,24 @@ Within this parent workspace:
 
 ## GitHub Issue System For Agents
 
-GitHub issues in this repository are implementation contracts.
+GitHub issues in this repository are implementation contracts for all AWCMS-Micro projects.
 
-Before executing issue-driven work, read:
+This standard applies to:
+
+- plugins;
+- templates;
+- database and D1 work;
+- UI/UX;
+- frontend;
+- backend;
+- API and integration contracts;
+- security and compliance;
+- Cloudflare deployment;
+- tests and QA;
+- documentation;
+- upstream sync and rebuild safety.
+
+Before creating, updating, or executing issue-driven work, read:
 
 ```txt
 docs/awcms-micro-github-issue-system.md
@@ -54,6 +69,7 @@ Required behavior:
 - Keep changes atomic and aligned with the issue acceptance criteria.
 - If a behavior change makes docs stale, update docs in the same PR or a focused follow-up docs PR.
 - Do not silently implement behavior that contradicts the current issue sequence.
+- For every large plugin/template/database/UI/API/security/deployment project, keep a project-specific ordered backlog in a README, governance doc, PRD, or issue index.
 
 ## Required Reading For Agents
 
@@ -76,6 +92,8 @@ Before changing the SIKESRA plugin, also read:
 - `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md`
 - `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md`
 
+For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
+
 Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for the list of paths and change categories that must be preserved during `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
 
 ## Language Policy
@@ -84,6 +102,18 @@ Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for t
 - Preserve `emdash-latest/` exactly as upstream EmDash provides it, including non-US spelling or wording.
 - Allow `awcmsmicro-dev/` to inherit upstream wording when it is synchronized from `emdash-latest/`, unless there is a separate AWCMS-Micro-specific reason to change it.
 - All active plugins must default to English (`en`) and contain complete, ready-to-use Indonesian (`id`) translations for all key/label definitions.
+
+## General AWCMS-Micro Project Rules
+
+These rules apply to every plugin, template, database, UI/UX, API, integration, security, deployment, and documentation project:
+
+- Keep custom behavior inside approved AWCMS-Micro boundaries.
+- Do not modify EmDash core for project-specific behavior unless an issue explicitly justifies it as upstream work.
+- Use typed contracts when UI, API routes, backend services, and database models interact.
+- Use project-specific storage/table prefixes for project-owned data.
+- Keep public output public-safe and avoid exposing protected operational data.
+- Add tests or validation scripts whenever a rule is meant to survive rebuilds.
+- Keep README, AGENTS, PRD, and governance docs aligned with issue order and implemented behavior.
 
 ## SIKESRA Plugin Rules
 
