@@ -1400,6 +1400,28 @@ describe("awcms micro sikesra plugin", () => {
 		expect(preview.reason).toContain("not granted");
 	});
 
+	it("validates ABAC attribute form-builder keys", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const invalidKey = (await routes["abac/attributes/save"]!.handler({
+			...ctx,
+			input: { key: "Owner User", label: "Owner User", targetType: "subject" },
+		} as any)) as any;
+		const invalidTarget = (await routes["abac/attributes/save"]!.handler({
+			...ctx,
+			input: { key: "owner_user", label: "Owner User", targetType: "global" },
+		} as any)) as any;
+
+		expect(invalidKey.success).toBe(false);
+		expect(invalidKey.error.message).toContain("snake_case");
+		expect(invalidTarget.success).toBe(false);
+		expect(invalidTarget.error.message).toContain("subject, resource, or context");
+		expect(collections.abacAttributeCatalog.has("Owner User")).toBe(false);
+		expect(collections.abacAttributeCatalog.has("owner_user")).toBe(false);
+		expect(collections.abacChangeEvents.size).toBe(0);
+	});
+
 	it("supports ABAC attribute, policy, preview, and sensitive-action audit flows", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

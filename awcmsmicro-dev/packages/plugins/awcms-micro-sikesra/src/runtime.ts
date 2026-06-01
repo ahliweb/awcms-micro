@@ -1498,6 +1498,8 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 };
 
 const ALLOWED_GOVERNANCE_MODES = new Set(["observe", "review", "enforceDemo"]);
+const ALLOWED_ABAC_TARGET_TYPES = new Set(["subject", "resource", "context"]);
+const ABAC_ATTRIBUTE_KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
 
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
@@ -3163,12 +3165,30 @@ const abacAttributesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAbacCatalogSeeded(ctx);
-	const key = getString(routeCtx.input, "key") ?? "";
+	const key = getString(routeCtx.input, "key")?.trim() ?? "";
+	if (!ABAC_ATTRIBUTE_KEY_PATTERN.test(key)) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "ABAC attribute key must use lowercase snake_case and start with a letter.",
+			},
+		};
+	}
 	const label = getString(routeCtx.input, "label") ?? key;
 	const targetType =
 		(getString(routeCtx.input, "targetType") as
 			| AbacAttributeDefinition["targetType"]
 			| undefined) ?? "context";
+	if (!ALLOWED_ABAC_TARGET_TYPES.has(targetType)) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "ABAC attribute target type must be subject, resource, or context.",
+			},
+		};
+	}
 	const description = getString(routeCtx.input, "description") ?? "";
 	const item = touchUpdatedAt<AbacAttributeDefinition>({
 		key,
