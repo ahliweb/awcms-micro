@@ -2253,13 +2253,19 @@ function filterVerificationItemsForRegionScope(
 	regionScope: string | null,
 ) {
 	if (!regionScope || regionScope === "all" || levels.includes("admin_sikesra")) return items;
-	return items.filter((item) => {
-		if (levels.includes("desa_kelurahan")) return item.region.villageCode === regionScope;
-		if (levels.includes("kecamatan")) return item.region.districtCode === regionScope;
-		if (levels.includes("sopd") || levels.includes("kabupaten"))
-			return item.region.regencyCode === regionScope;
-		return true;
-	});
+	return items.filter((item) => verificationItemMatchesRegionScope(item, levels, regionScope));
+}
+
+function verificationItemMatchesRegionScope(
+	item: VerificationListItem,
+	levels: VerificationUserLevel[],
+	regionScope: string | null | undefined,
+) {
+	if (!regionScope || regionScope === "all" || levels.includes("admin_sikesra")) return true;
+	if (levels.includes("desa_kelurahan")) return item.region.villageCode === regionScope;
+	if (levels.includes("kecamatan")) return item.region.districtCode === regionScope;
+	if (levels.includes("sopd") || levels.includes("kabupaten")) return item.region.regencyCode === regionScope;
+	return true;
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
@@ -2752,6 +2758,9 @@ function validateSupportingDocumentInput(doc: SikesraReferenceSupportingDocument
 	}
 	if (doc.checksumSha256 && !/^[a-f0-9]{64}$/i.test(doc.checksumSha256)) {
 		invalidFields.push("checksumSha256");
+	}
+	if (doc.safeFilename && !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(doc.safeFilename)) {
+		invalidFields.push("safeFilename");
 	}
 	return invalidFields;
 }
@@ -4553,6 +4562,34 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		supportingDocumentIds: [],
 		publicSummary: getString(input, "publicSummary") ?? "",
 	};
+	const duplicateOverrideReason = getString(input, "duplicateOverrideReason")?.trim() ?? "";
+	const duplicateEntity = (await getRegistryEntities(ctx)).find(
+		(entity) => entity.id !== newEntity.id && entity.code === newEntity.code,
+	);
+	if (duplicateEntity) {
+		await persistD1DuplicateCandidate(ctx, {
+			id: `registry:${newEntity.id}:duplicate-code:${duplicateEntity.id}`,
+			sourceType: "registry_entity",
+			sourceId: newEntity.id,
+			candidateType: "registry_entity",
+			candidateId: duplicateEntity.id,
+			entityType: newEntity.entityType,
+			score: 0.7,
+			riskLevel: "medium",
+			reasons: [`Registry code ${newEntity.code} already exists on ${duplicateEntity.id}`],
+		});
+		if (!duplicateOverrideReason) return createValidationError(["duplicateOverrideReason"]);
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "duplicate.override",
+				scope: "duplicates",
+				actor: actorFromRoute(ctx),
+				summary: `Overrode medium-risk duplicate registry code ${newEntity.code}`,
+				metadata: { sourceId: newEntity.id, candidateId: duplicateEntity.id, reason: duplicateOverrideReason },
+			}),
+		);
+	}
 
 	await saveRegistryEntity(ctx, newEntity);
 
@@ -4667,6 +4704,32 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 	const invalidFields = validateSupportingDocumentInput(newDoc);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const duplicateDocument = newDoc.checksumSha256
+		? (await getSupportingDocuments(ctx)).find(
+				(doc) => doc.id !== newDoc.id && doc.checksumSha256 === newDoc.checksumSha256,
+			)
+		: null;
+	if (duplicateDocument) {
+		await persistD1DuplicateCandidate(ctx, {
+			id: `document:${newDoc.id}:duplicate-checksum:${duplicateDocument.id}`,
+			sourceType: "document",
+			sourceId: newDoc.id,
+			candidateType: "document",
+			candidateId: duplicateDocument.id,
+			entityType: newDoc.documentType,
+			score: 1,
+			riskLevel: "high",
+			reasons: ["Document checksum matches an existing SIKESRA supporting document."],
+		});
+		return {
+			success: false,
+			error: {
+				code: "DUPLICATE_REVIEW_REQUIRED",
+				message: "High-risk duplicate document checksum requires review before save.",
+				details: { candidateId: duplicateDocument.id },
+			},
+		};
+	}
 
 	await saveSupportingDocument(ctx, newDoc);
 
@@ -5090,6 +5153,152 @@ async function markD1ImportRowPromoted(ctx: PluginContext, row: StagedImportRow,
 		.execute();
 }
 
+async function setD1ImportRowDuplicateStatus(
+	ctx: PluginContext,
+	stagingRowId: string,
+	duplicateStatus: StagedImportRow["duplicateStatus"],
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom || !db?.insertInto) return false;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
+		.select([
+			"id",
+			"batch_id",
+			"row_number",
+			"entity_type",
+			"subtype_code",
+			"raw_row_json",
+			"mapped_row_json",
+			"validation_status",
+			"validation_errors_json",
+			"promotion_status",
+			"promoted_registry_entity_id",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("id", "=", stagingRowId)
+		.where("deleted_at", "is", null)
+		.limit(1)
+		.execute()) as Array<Record<string, unknown>>;
+	const row = rows[0];
+	if (!row) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: row.id,
+			batch_id: row.batch_id,
+			row_number: row.row_number,
+			entity_type: row.entity_type,
+			subtype_code: row.subtype_code ?? null,
+			raw_row_json: row.raw_row_json,
+			mapped_row_json: row.mapped_row_json,
+			validation_status: row.validation_status,
+			validation_errors_json: row.validation_errors_json,
+			duplicate_status: duplicateStatus,
+			promotion_status: row.promotion_status,
+			promoted_registry_entity_id: row.promoted_registry_entity_id ?? null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actorFromRoute(ctx),
+			updated_by: actorFromRoute(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				duplicate_status: duplicateStatus,
+				updated_at: now,
+				updated_by: actorFromRoute(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+async function validateImportCustomAttributeValues(ctx: PluginContext, stagedRows: StagedImportRow[]) {
+	const definitions = await listD1CustomAttributeDefinitions(ctx);
+	const definitionByKey = new Map(definitions.map((definition) => [definition.key, definition]));
+	const invalidRows: Array<{ row: number; fields: string[] }> = [];
+	for (const stagedRow of stagedRows) {
+		const fields: string[] = [];
+		for (const [field, value] of Object.entries(stagedRow.mappedRow)) {
+			if (!field.startsWith("custom:")) continue;
+			const key = field.slice("custom:".length);
+			const definition = definitionByKey.get(key);
+			if (!definition?.isImportable) {
+				fields.push(field);
+				continue;
+			}
+			const valueInput = {
+				definitionId: definition.id,
+				registryEntityId: getString(stagedRow.mappedRow, "id") ?? `registry-entity-import-row-${stagedRow.rowNumber}`,
+				entityType: getString(stagedRow.mappedRow, "entityType"),
+				subtypeCode: getString(stagedRow.mappedRow, "subtypeCode"),
+				sikesraId20: getString(stagedRow.mappedRow, "sikesraId20") ?? getString(stagedRow.mappedRow, "sikesra_id_20"),
+				value,
+			};
+			if (validateCustomAttributeValueInput(valueInput, definition).length > 0) fields.push(field);
+		}
+		if (fields.length > 0) invalidRows.push({ row: stagedRow.rowNumber, fields });
+	}
+	return invalidRows;
+}
+
+async function persistImportCustomAttributeValues(ctx: PluginContext, registryEntity: SikesraReferenceRegistryEntity, row: Record<string, unknown>) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return;
+	const definitions = await listD1CustomAttributeDefinitions(ctx);
+	const definitionByKey = new Map(definitions.map((definition) => [definition.key, definition]));
+	const now = toIsoNow();
+	const actor = actorFromRoute(ctx);
+	for (const [field, value] of Object.entries(row)) {
+		if (!field.startsWith("custom:")) continue;
+		const key = field.slice("custom:".length);
+		const definition = definitionByKey.get(key);
+		if (!definition?.isImportable) continue;
+		const normalized = normalizeCustomAttributeValue(value, definition.dataType);
+		const id = `${registryEntity.id}:${definition.id}:import`;
+		await db
+			.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id,
+				attribute_definition_id: definition.id,
+				registry_entity_id: registryEntity.id,
+				sikesra_id_20: getString(row, "sikesraId20") ?? getString(row, "sikesra_id_20") ?? null,
+				value_text: normalized.valueText ?? null,
+				value_number: normalized.valueNumber ?? null,
+				value_boolean: normalized.valueBoolean == null ? null : normalized.valueBoolean ? 1 : 0,
+				value_date: normalized.valueDate ?? null,
+				value_datetime: normalized.valueDatetime ?? null,
+				value_json: normalized.valueJson === undefined ? null : JSON.stringify(normalized.valueJson),
+				value_hash: null,
+				value_display: normalized.valueDisplay,
+				sensitivity: definition.dataClass,
+				is_current: 1,
+				version: 1,
+				source: "import",
+				verification_stage: null,
+				verified_at: null,
+				verified_by: null,
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: actor,
+				updated_by: actor,
+			})
+			.onConflict((oc: any) => oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ value_display: normalized.valueDisplay, updated_at: now, updated_by: actor }))
+			.execute();
+		const metadata = { registryEntityId: registryEntity.id, definitionId: definition.id, key, valueRedacted: definition.dataClass !== "non_personal" };
+		await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.import.mapping", definitionId: definition.id, valueId: id, summary: `Imported custom attribute ${key}`, metadata });
+		await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.import.mapping", scope: "custom_attributes", actor, summary: `Imported custom attribute ${key}`, metadata }));
+	}
+}
+
 const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.import.create");
 	if (!permission.allowed) return { success: false, error: permission.error };
@@ -5151,6 +5360,17 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		};
 	}
+	const invalidCustomAttributeRows = await validateImportCustomAttributeValues(ctx, stagedRows);
+	if (invalidCustomAttributeRows.length > 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Import promotion is blocked while custom attribute mappings are invalid.",
+				details: { invalidRows: invalidCustomAttributeRows },
+			},
+		};
+	}
 
 	let count = 0;
 	for (const stagedRow of stagedRows.filter((row) => row.promotionStatus !== "promoted")) {
@@ -5175,6 +5395,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			publicSummary: getString(row, "publicSummary") ?? "",
 		};
 		await saveRegistryEntity(ctx, newEntity);
+		await persistImportCustomAttributeValues(ctx, newEntity, row);
 		await markD1ImportRowPromoted(ctx, stagedRow, newEntity.id);
 		count++;
 	}
@@ -5245,6 +5466,10 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		})
 		.execute();
 
+	if (["not_duplicate", "cleared", "false_positive"].includes(decision)) {
+		await setD1ImportRowDuplicateStatus(ctx, candidateId.replace(/:duplicate-code$/, ""), "cleared");
+	}
+
 	return { success: true, item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now } };
 };
 
@@ -5260,6 +5485,27 @@ function sanitizeExportFields(fields: string[], sensitivityLevel: string) {
 		};
 	}
 	return { allowedFields: uniqueFields, excludedFields: [] as string[] };
+}
+
+async function sanitizeCustomAttributeExportFields(ctx: PluginContext, fields: string[], sensitivityLevel: string) {
+	const definitions = await listD1CustomAttributeDefinitions(ctx);
+	const definitionByKey = new Map(definitions.map((definition) => [definition.key, definition]));
+	const allowedFields: string[] = [];
+	const excludedFields: string[] = [];
+	for (const field of fields) {
+		const key = field.slice("custom:".length);
+		const definition = definitionByKey.get(key);
+		const isAllowed =
+			definition?.isActive &&
+			definition.isExportable &&
+			(sensitivityLevel !== "public_safe" || (definition.publicSafe && definition.dataClass === "non_personal"));
+		if (isAllowed) {
+			allowedFields.push(field);
+			continue;
+		}
+		excludedFields.push(field);
+	}
+	return { allowedFields, excludedFields };
 }
 
 async function persistD1ExportJob(
@@ -5372,7 +5618,14 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const id = getString(input, "id") ?? `export-${Math.random().toString(36).slice(2, 10)}`;
 	const exportType = getString(input, "exportType") ?? "report";
 	const filters = isRecord(input.filters) ? input.filters : {};
-	const sanitized = sanitizeExportFields(requestedFields, sensitivityLevel);
+	const fixedFields = requestedFields.filter((field) => !field.startsWith("custom:"));
+	const customFields = requestedFields.filter((field) => field.startsWith("custom:"));
+	const sanitizedFixedFields = sanitizeExportFields(fixedFields, sensitivityLevel);
+	const sanitizedCustomFields = await sanitizeCustomAttributeExportFields(ctx, customFields, sensitivityLevel);
+	const sanitized = {
+		allowedFields: [...sanitizedFixedFields.allowedFields, ...sanitizedCustomFields.allowedFields],
+		excludedFields: [...sanitizedFixedFields.excludedFields, ...sanitizedCustomFields.excludedFields],
+	};
 	const resultSummary = {
 		allowedFields: sanitized.allowedFields,
 		excludedFields: sanitized.excludedFields,
@@ -5402,6 +5655,34 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			metadata: { id, exportType, sensitivityLevel, requestedFields, resultSummary },
 		}),
 	);
+	for (const field of sanitizedCustomFields.allowedFields) {
+		const key = field.slice("custom:".length);
+		await appendCustomAttributeChangeEvent(ctx, {
+			eventType: "custom_attribute.export.include",
+			summary: `Included custom attribute ${key} in export ${id}`,
+			metadata: { exportJobId: id, key, sensitivityLevel },
+		});
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "custom_attribute.export.include",
+				scope: "custom_attributes",
+				actor: actorUserId ?? actorFromRoute(ctx),
+				summary: `Included custom attribute ${key} in export ${id}`,
+				metadata: { exportJobId: id, key, sensitivityLevel },
+			}),
+		);
+	}
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "export.complete",
+			scope: "exports",
+			actor: actorUserId ?? actorFromRoute(ctx),
+			summary: `Completed SIKESRA export job ${id}`,
+			metadata: { id, exportType, sensitivityLevel, resultSummary },
+		}),
+	);
 
 	return { success: true, item: { id, exportType, sensitivityLevel, status: "completed", resultSummary } };
 };
@@ -5409,7 +5690,18 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const exportsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.report.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	return { items: await listD1ExportJobs(ctx) };
+	const items = await listD1ExportJobs(ctx);
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "export.access",
+			scope: "exports",
+			actor: getRequestUserId(ctx) ?? actorFromRoute(ctx),
+			summary: "Accessed SIKESRA export job list",
+			metadata: { count: items.length },
+		}),
+	);
+	return { items };
 };
 
 const CUSTOM_ATTRIBUTE_SCOPE_TYPES = [
@@ -5453,16 +5745,66 @@ const CUSTOM_ATTRIBUTE_PROTECTED_KEYS = new Set([
 	"created_at",
 	"updated_at",
 ]);
+const CUSTOM_ATTRIBUTE_KEY_PATTERN = /^[a-z][a-z0-9_]{1,63}$/;
+const CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN = /^\d{20}$/;
 
 function getBooleanFromInput(value: unknown, key: string, fallback = false) {
 	return getBoolean(value, key) ?? fallback;
 }
 
-function normalizeCustomAttributeValue(value: unknown) {
+function normalizeCustomAttributeValue(value: unknown, dataType = "string") {
+	if (dataType === "date" && typeof value === "string") return { valueDate: value, valueDisplay: value };
+	if (dataType === "datetime" && typeof value === "string") return { valueDatetime: value, valueDisplay: value };
 	if (typeof value === "string") return { valueText: value, valueDisplay: value };
 	if (typeof value === "number") return { valueNumber: value, valueDisplay: String(value) };
 	if (typeof value === "boolean") return { valueBoolean: value, valueDisplay: value ? "true" : "false" };
 	return { valueJson: value, valueDisplay: value == null ? "" : JSON.stringify(value) };
+}
+
+function validateCustomAttributeDefinitionInput(input: Record<string, unknown>, key: string, scope: string, dataClass: string, dataType: string) {
+	const invalidFields = [
+		...(key && CUSTOM_ATTRIBUTE_KEY_PATTERN.test(key) && !CUSTOM_ATTRIBUTE_PROTECTED_KEYS.has(key) ? [] : ["key"]),
+		...(CUSTOM_ATTRIBUTE_SCOPE_TYPES.includes(scope as any) ? [] : ["scope"]),
+		...(CUSTOM_ATTRIBUTE_DATA_CLASSES.includes(dataClass as any) ? [] : ["dataClass"]),
+		...(CUSTOM_ATTRIBUTE_DATA_TYPES.includes(dataType as any) ? [] : ["dataType"]),
+		...(getBooleanFromInput(input, "publicSafe") && dataClass !== "non_personal" ? ["publicSafe"] : []),
+	];
+	const entityType = getString(input, "entityType")?.trim();
+	const subtypeCode = getString(input, "subtypeCode")?.trim();
+	const targetRegistryEntityId = getString(input, "targetRegistryEntityId")?.trim();
+	const targetSikesraId20 = getString(input, "targetSikesraId20")?.trim();
+	const scopeValue = getString(input, "scopeValue")?.trim();
+	if (scope === "entity_type" && !entityType) invalidFields.push("entityType");
+	if (scope === "subtype" && !subtypeCode) invalidFields.push("subtypeCode");
+	if (scope === "registry_entity" && !targetRegistryEntityId) invalidFields.push("targetRegistryEntityId");
+	if (scope === "sikesra_id_20" && !CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(targetSikesraId20 ?? "")) invalidFields.push("targetSikesraId20");
+	if (["region_scope", "organization_scope", "program_scope"].includes(scope) && !scopeValue) invalidFields.push("scopeValue");
+	return [...new Set(invalidFields)];
+}
+
+function validateCustomAttributeValueInput(input: Record<string, unknown>, definition: Awaited<ReturnType<typeof listD1CustomAttributeDefinitions>>[number] | undefined) {
+	const invalidFields: string[] = [];
+	if (!definition || !definition.isActive) invalidFields.push("definitionId");
+	if (!definition) return invalidFields;
+	const value = input.value;
+	const enumValues = Array.isArray(definition?.enumValues) ? definition.enumValues : [];
+	const sikesraId20 = getString(input, "sikesraId20")?.trim();
+	if (definition.scope === "entity_type" && definition.entityType && getString(input, "entityType") !== definition.entityType) invalidFields.push("entityType");
+	if (definition.scope === "subtype" && definition.subtypeCode && getString(input, "subtypeCode") !== definition.subtypeCode) invalidFields.push("subtypeCode");
+	if (definition.scope === "registry_entity" && definition.targetRegistryEntityId && getString(input, "registryEntityId") !== definition.targetRegistryEntityId) invalidFields.push("registryEntityId");
+	if (definition.scope === "sikesra_id_20" && definition.targetSikesraId20 && sikesraId20 !== definition.targetSikesraId20) invalidFields.push("sikesraId20");
+	if (sikesraId20 && !CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(sikesraId20)) invalidFields.push("sikesraId20");
+	if (["string", "text", "region_code", "file_reference"].includes(definition.dataType) && typeof value !== "string") invalidFields.push("value");
+	if (definition.dataType === "number" && (typeof value !== "number" || !Number.isFinite(value))) invalidFields.push("value");
+	if (definition.dataType === "boolean" && typeof value !== "boolean") invalidFields.push("value");
+	if (definition.dataType === "date" && (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))) invalidFields.push("value");
+	if (definition.dataType === "datetime" && (typeof value !== "string" || Number.isNaN(Date.parse(value)))) invalidFields.push("value");
+	if (definition.dataType === "url" && (typeof value !== "string" || !/^https?:\/\//.test(value))) invalidFields.push("value");
+	if (definition.dataType === "email" && (typeof value !== "string" || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value))) invalidFields.push("value");
+	if (definition.dataType === "phone" && (typeof value !== "string" || !/^\+?[0-9 .-]{6,32}$/.test(value))) invalidFields.push("value");
+	if (definition.dataType === "enum" && (typeof value !== "string" || (enumValues.length > 0 && !enumValues.includes(value)))) invalidFields.push("value");
+	if (definition.dataType === "multi_enum" && (!Array.isArray(value) || !value.every((item) => typeof item === "string") || (enumValues.length > 0 && !value.every((item) => enumValues.includes(item as string))))) invalidFields.push("value");
+	return [...new Set(invalidFields)];
 }
 
 async function appendCustomAttributeChangeEvent(
@@ -5511,9 +5853,12 @@ async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
 			"target_sikesra_id_20",
 			"data_class",
 			"data_type",
+			"enum_values_json",
 			"public_safe",
 			"mask_by_default",
 			"is_active",
+			"is_importable",
+			"is_exportable",
 		])
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
@@ -5531,9 +5876,12 @@ async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
 		targetSikesraId20: typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
 		dataClass: String(row.data_class),
 		dataType: String(row.data_type),
+		enumValues: parseJsonArray(row.enum_values_json).filter((item): item is string => typeof item === "string"),
 		publicSafe: row.public_safe === 1,
 		maskByDefault: row.mask_by_default !== 0,
 		isActive: row.is_active !== 0,
+		isImportable: row.is_importable === 1,
+		isExportable: row.is_exportable === 1,
 	}));
 }
 
@@ -5552,13 +5900,7 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 	const scope = getString(input, "scope") ?? getString(input, "scopeType") ?? "global";
 	const dataClass = getString(input, "dataClass") ?? "non_personal";
 	const dataType = getString(input, "dataType") ?? "string";
-	const invalidFields = [
-		...(key && !CUSTOM_ATTRIBUTE_PROTECTED_KEYS.has(key) ? [] : ["key"]),
-		...(CUSTOM_ATTRIBUTE_SCOPE_TYPES.includes(scope as any) ? [] : ["scope"]),
-		...(CUSTOM_ATTRIBUTE_DATA_CLASSES.includes(dataClass as any) ? [] : ["dataClass"]),
-		...(CUSTOM_ATTRIBUTE_DATA_TYPES.includes(dataType as any) ? [] : ["dataType"]),
-		...(getBooleanFromInput(input, "publicSafe") && dataClass !== "non_personal" ? ["publicSafe"] : []),
-	];
+	const invalidFields = validateCustomAttributeDefinitionInput(input, key, scope, dataClass, dataType);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
@@ -5633,7 +5975,9 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." } };
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
 	const definition = definitions.find((item) => item.id === definitionId);
-	const normalized = normalizeCustomAttributeValue(input.value);
+	const invalidFields = validateCustomAttributeValueInput(input, definition);
+	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const normalized = normalizeCustomAttributeValue(input.value, definition?.dataType);
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const id = getString(input, "id") ?? `${registryEntityId}:${definitionId}`;
@@ -5649,8 +5993,8 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 			value_text: normalized.valueText ?? null,
 			value_number: normalized.valueNumber ?? null,
 			value_boolean: normalized.valueBoolean == null ? null : normalized.valueBoolean ? 1 : 0,
-			value_date: getString(input, "valueDate") ?? null,
-			value_datetime: getString(input, "valueDatetime") ?? null,
+			value_date: normalized.valueDate ?? getString(input, "valueDate") ?? null,
+			value_datetime: normalized.valueDatetime ?? getString(input, "valueDatetime") ?? null,
 			value_json: normalized.valueJson === undefined ? null : JSON.stringify(normalized.valueJson),
 			value_hash: null,
 			value_display: normalized.valueDisplay,
@@ -6189,6 +6533,8 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.verification.approve");
 	if (!permission.allowed) return { success: false, error: permission.error };
+	await ensureAccessCatalogSeeded(ctx);
+	await ensureAbacCatalogSeeded(ctx);
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
 	const verifierLevel =
@@ -6236,6 +6582,15 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	}
 	const nextStage = item.nextStage;
 	const { verifierRegionScope, verifierOrgScope } = await getCurrentVerifierScopeMetadata(ctx);
+	if (!verificationItemMatchesRegionScope(item, [verifierLevel], verifierRegionScope)) {
+		return {
+			success: false,
+			error: {
+				code: "FORBIDDEN",
+				message: `Verification for ${registryEntityId} is outside the verifier region scope.`,
+			},
+		};
+	}
 
 	const nextState = await getVerificationStageState(ctx);
 	nextState[registryEntityId] = item.nextStage;
@@ -6289,6 +6644,8 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.verification.reject");
 	if (!permission.allowed) return { success: false, error: permission.error };
+	await ensureAccessCatalogSeeded(ctx);
+	await ensureAbacCatalogSeeded(ctx);
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
 	const verifierLevel =
@@ -6335,6 +6692,15 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 
 	const targetStage = getRevisionTargetStage(item.verificationStage);
 	const { verifierRegionScope, verifierOrgScope } = await getCurrentVerifierScopeMetadata(ctx);
+	if (!verificationItemMatchesRegionScope(item, [verifierLevel], verifierRegionScope)) {
+		return {
+			success: false,
+			error: {
+				code: "FORBIDDEN",
+				message: `Verification for ${registryEntityId} is outside the verifier region scope.`,
+			},
+		};
+	}
 	const nextState = await getVerificationStageState(ctx);
 	nextState[registryEntityId] = targetStage;
 	await setVerificationStageState(ctx, nextState);

@@ -2664,6 +2664,55 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.items[0]?.registryEntityId).toBe("registry-entity-guru-agama-01");
 	});
 
+	it("denies out-of-region verification mutations", async () => {
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
+		collections.registryEntities.set("registry-entity-outside-scope", {
+			id: "registry-entity-outside-scope",
+			code: "OS-001",
+			label: "Outside Scope Entity",
+			entityType: "guru_agama",
+			sensitivity: "restricted",
+			region: {
+				provinceCode: "32",
+				regencyCode: "3273",
+				districtCode: "3273010",
+				villageCode: "3273010001",
+			},
+			verificationStage: "submitted_sopd",
+			inputLevel: "kecamatan",
+			supportingDocumentIds: [],
+			publicSummary: "Should not be mutable by Jakarta SOPD verifier.",
+		});
+		const routes = createNativeRoutes();
+		const sopdRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+		});
+
+		const advance = (await routes["verification/advance"]!.handler({
+			...ctx,
+			request: sopdRequest,
+			input: {
+				registryEntityId: "registry-entity-outside-scope",
+				verifierLevel: "sopd",
+				notes: "Attempted out-of-region advance",
+			},
+		} as any)) as any;
+		const reject = (await routes["verification/reject"]!.handler({
+			...ctx,
+			request: sopdRequest,
+			input: {
+				registryEntityId: "registry-entity-outside-scope",
+				verifierLevel: "sopd",
+				notes: "Attempted out-of-region rejection",
+			},
+		} as any)) as any;
+
+		expect(advance).toMatchObject({ success: false, error: { code: "FORBIDDEN" } });
+		expect(reject).toMatchObject({ success: false, error: { code: "FORBIDDEN" } });
+		expect(verificationStageTableRows).toHaveLength(0);
+		expect(verificationEventTableRows).toHaveLength(0);
+	});
+
 	it("returns verification to the previous review level on needs revision", async () => {
 		const { ctx, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
@@ -2870,6 +2919,72 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("requires a reason before overriding medium-risk registry duplicates", async () => {
+		const { ctx, registryEntityTableRows, duplicateCandidateTableRows, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-dup-medium-01",
+				code: "DUP-MED-001",
+				label: "Medium Duplicate One",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+		} as any);
+
+		const missingReason = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-dup-medium-02",
+				code: "DUP-MED-001",
+				label: "Medium Duplicate Two",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+		} as any)) as any;
+
+		expect(missingReason.success).toBe(false);
+		expect(missingReason.error.details.fields).toEqual(["duplicateOverrideReason"]);
+		expect(duplicateCandidateTableRows).toContainEqual(
+			expect.objectContaining({
+				source_id: "registry-dup-medium-02",
+				candidate_id: "registry-dup-medium-01",
+				risk_level: "medium",
+			}),
+		);
+
+		const overridden = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-dup-medium-02",
+				code: "DUP-MED-001",
+				label: "Medium Duplicate Two",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+				duplicateOverrideReason: "Separate institution with reused local code.",
+			},
+		} as any)) as any;
+
+		expect(overridden.success).toBe(true);
+		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-medium-02" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.override" }));
+	});
+
 	it("soft deletes, archives, and restores registry entities through CRUD governance", async () => {
 		const { ctx, registryEntityTableRows, auditTableRows } = createMockContext();
 		const routes = createNativeRoutes();
@@ -2958,23 +3073,77 @@ describe("awcms micro sikesra plugin", () => {
 				contentType: "application/x-msdownload",
 				fileSizeBytes: 99 * 1024 * 1024,
 				checksumSha256: "not-a-checksum",
+				safeFilename: "../secret.pdf",
 			},
 		} as any)) as any;
 
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("VALIDATION_ERROR");
-		expect(result.error.details.fields).toEqual([
+			expect(result.error.details.fields).toEqual([
 			"classification",
 			"contentType",
 			"fileSizeBytes",
 			"checksumSha256",
+			"safeFilename",
 		]);
 		expect(fileObjectTableRows).toHaveLength(0);
 		expect(supportingDocumentTableRows).toHaveLength(0);
 	});
 
+	it("blocks high-risk duplicate document checksums before D1 persistence", async () => {
+		const { ctx, duplicateCandidateTableRows, supportingDocumentTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		const checksum = "b".repeat(64);
+
+		await routes["documents/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "doc-duplicate-source",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Source Document",
+				classification: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: checksum,
+				safeFilename: "source.pdf",
+			},
+		} as any);
+
+		const duplicate = (await routes["documents/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "doc-duplicate-target",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Duplicate Document",
+				classification: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: checksum,
+				safeFilename: "target.pdf",
+			},
+		} as any)) as any;
+
+		expect(duplicate.success).toBe(false);
+		expect(duplicate.error.code).toBe("DUPLICATE_REVIEW_REQUIRED");
+		expect(duplicateCandidateTableRows).toContainEqual(
+			expect.objectContaining({
+				source_id: "doc-duplicate-target",
+				candidate_id: "doc-duplicate-source",
+				risk_level: "high",
+			}),
+		);
+		expect(supportingDocumentTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "doc-duplicate-target" }),
+		);
+	});
+
 	it("requires RBAC and ABAC before exposing restricted document metadata", async () => {
-		const { ctx, auditTableRows } = createMockContext();
+		const { ctx, auditTableRows, fileObjectTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 		const editorRequest = new Request("https://example.test", {
@@ -3021,6 +3190,14 @@ describe("awcms micro sikesra plugin", () => {
 			checksumSha256: "a".repeat(64),
 		});
 		expect(allowed.item.storageKey).toBeUndefined();
+		expect(fileObjectTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "doc-restricted-01:file",
+				storage_key: expect.stringMatching(
+					/^tenants\/t-local-dev\/sites\/default\/modules\/sikesra\/restricted\/\d{4}\/\d{2}\/secret\.pdf$/,
+				),
+			}),
+		);
 		expect(allowed.access.abac.allowed).toBe(true);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({
@@ -3166,13 +3343,29 @@ describe("awcms micro sikesra plugin", () => {
 		const {
 			ctx,
 			registryEntityTableRows,
+			customAttributeValueTableRows,
 			importBatchTableRows,
 			importStagingRowTableRows,
 			importMappingTemplateTableRows,
 			auditTableRows,
+			customAttributeChangeEventTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
+		await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-import-01",
+				key: "import_local_code",
+				label: "Import Local Code",
+				scope: "entity_type",
+				entityType: "rumah_ibadah",
+				dataClass: "non_personal",
+				dataType: "string",
+				isImportable: true,
+			},
+		} as any);
 		const rows = [
 			{
 				id: "registry-import-01",
@@ -3183,6 +3376,7 @@ describe("awcms micro sikesra plugin", () => {
 				regencyCode: "3171",
 				districtCode: "3171010",
 				villageCode: "3171010001",
+				"custom:import_local_code": "LC-001",
 			},
 		];
 
@@ -3221,6 +3415,15 @@ describe("awcms micro sikesra plugin", () => {
 		expect(registryEntityTableRows).toContainEqual(
 			expect.objectContaining({ id: "registry-import-01", code: "IMP-001" }),
 		);
+		expect(customAttributeValueTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "registry-import-01:custom-attr-import-01:import",
+				attribute_definition_id: "custom-attr-import-01",
+				registry_entity_id: "registry-import-01",
+				value_display: "LC-001",
+				source: "import",
+			}),
+		);
 		expect(importStagingRowTableRows).toContainEqual(
 			expect.objectContaining({
 				id: "batch-import-01:row:1",
@@ -3230,11 +3433,16 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.create" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.promote" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.import.mapping" }));
+		expect(customAttributeChangeEventTableRows).toContainEqual(
+			expect.objectContaining({ event_type: "custom_attribute.import.mapping" }),
+		);
 	});
 
 	it("stores duplicate candidates and blocks high-risk duplicate import promotion", async () => {
 		const {
 			ctx,
+			registryEntityTableRows,
 			duplicateCandidateTableRows,
 			duplicateDecisionTableRows,
 			importBatchTableRows,
@@ -3301,23 +3509,37 @@ describe("awcms micro sikesra plugin", () => {
 			input: {
 				id: "decision-dup-01",
 				candidateId: "batch-dup-01:row:2:duplicate-code",
-				decision: "confirmed_duplicate",
-				reason: "Same code in staged import file.",
+				decision: "not_duplicate",
+				reason: "Operator confirmed this row is a separate entity with a reused local code.",
 			},
 		} as any)) as any;
 		expect(decision.success).toBe(true);
 		expect(duplicateDecisionTableRows).toContainEqual(
-			expect.objectContaining({
-				id: "decision-dup-01",
-				candidate_id: "batch-dup-01:row:2:duplicate-code",
-				decision: "confirmed_duplicate",
-			}),
+				expect.objectContaining({
+					id: "decision-dup-01",
+					candidate_id: "batch-dup-01:row:2:duplicate-code",
+					decision: "not_duplicate",
+				}),
 		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-dup-01:row:2", duplicate_status: "cleared" }),
+		);
+
+		const promotedAfterDecision = (await routes["import/promote"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-dup-01" },
+		} as any)) as any;
+
+		expect(promotedAfterDecision.success).toBe(true);
+		expect(promotedAfterDecision.count).toBe(2);
+		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-01" }));
+		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-02" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.decision" }));
 	});
 
 	it("requires permission and reason for restricted export jobs", async () => {
-		const { ctx, exportJobTableRows } = createMockContext();
+		const { ctx, exportJobTableRows, auditTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const editorRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
@@ -3351,6 +3573,29 @@ describe("awcms micro sikesra plugin", () => {
 		expect(denied.success).toBe(false);
 		expect(denied.error.code).toBe("FORBIDDEN");
 		expect(exportJobTableRows).toHaveLength(0);
+
+		const allowed = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "export-restricted-01",
+				exportType: "registry",
+				requestedFields: ["code", "nik"],
+				sensitivityLevel: "restricted",
+				reason: "Case review",
+			},
+		} as any)) as any;
+
+		expect(allowed.success).toBe(true);
+		expect(exportJobTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "export-restricted-01",
+				sensitivity_level: "restricted",
+				reason: "Case review",
+			}),
+		);
+		expect(JSON.parse(String(exportJobTableRows[0]?.requested_fields_json))).toEqual(["code", "nik"]);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.complete" }));
 	});
 
 	it("creates audited D1 export jobs with public-safe field exclusion", async () => {
@@ -3392,6 +3637,7 @@ describe("awcms micro sikesra plugin", () => {
 			"alamat_ktp",
 		]);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.create" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.complete" }));
 
 		const listed = (await routes["exports/list"]!.handler({
 			...ctx,
@@ -3399,6 +3645,7 @@ describe("awcms micro sikesra plugin", () => {
 			input: {},
 		} as any)) as any;
 		expect(listed.items).toContainEqual(expect.objectContaining({ id: "export-job-01" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.access" }));
 	});
 
 	it("creates scoped custom attributes and masks sensitive values by default", async () => {
@@ -3425,6 +3672,7 @@ describe("awcms micro sikesra plugin", () => {
 				key: "sikesra_id_20",
 				label: "Protected",
 				scope: "entity_type",
+				entityType: "rumah_ibadah",
 				dataClass: "personal",
 				dataType: "string",
 				publicSafe: true,
@@ -3459,6 +3707,107 @@ describe("awcms micro sikesra plugin", () => {
 			}),
 		);
 
+		const missingScopeTarget = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-sikesra-id-invalid",
+				key: "specific_note_invalid",
+				label: "Specific Note Invalid",
+				scope: "sikesra_id_20",
+				dataClass: "non_personal",
+				dataType: "string",
+			},
+		} as any)) as any;
+		expect(missingScopeTarget.success).toBe(false);
+		expect(missingScopeTarget.error.details.fields).toEqual(["targetSikesraId20"]);
+
+		const scopedDefinitions = [
+			{
+				id: "custom-attr-public-export-01",
+				key: "public_program_code",
+				label: "Public Program Code",
+				scope: "global",
+				dataClass: "non_personal",
+				dataType: "string",
+				publicSafe: true,
+				isExportable: true,
+			},
+			{
+				id: "custom-attr-subtype-01",
+				key: "subtype_program_flag",
+				label: "Subtype Program Flag",
+				scope: "subtype",
+				entityType: "rumah_ibadah",
+				subtypeCode: "masjid",
+				dataClass: "non_personal",
+				dataType: "boolean",
+			},
+			{
+				id: "custom-attr-registry-01",
+				key: "registry_specific_note",
+				label: "Registry Specific Note",
+				scope: "registry_entity",
+				targetRegistryEntityId: "registry-entity-custom-01",
+				dataClass: "personal",
+				dataType: "text",
+			},
+			{
+				id: "custom-attr-sikesra-id-01",
+				key: "sikesra_id_specific_note",
+				label: "SIKESRA ID Specific Note",
+				scope: "sikesra_id_20",
+				targetSikesraId20: "62010100010102000001",
+				dataClass: "restricted",
+				dataType: "date",
+				isExportable: true,
+			},
+		];
+		for (const definition of scopedDefinitions) {
+			const result = (await routes["custom-attributes/definitions/save"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: definition,
+			} as any)) as any;
+			expect(result.success).toBe(true);
+		}
+		expect(customAttributeDefinitionTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "custom-attr-sikesra-id-01",
+				scope_type: "sikesra_id_20",
+				target_sikesra_id_20: "62010100010102000001",
+				data_type: "date",
+			}),
+		);
+
+		const publicCustomExport = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "export-custom-public-01",
+				exportType: "registry",
+				requestedFields: ["code", "custom:public_program_code", "custom:local_program_note", "custom:sikesra_id_specific_note"],
+				sensitivityLevel: "public_safe",
+			},
+		} as any)) as any;
+		expect(publicCustomExport.success).toBe(true);
+		expect(publicCustomExport.item.resultSummary.allowedFields).toEqual(["code", "custom:public_program_code"]);
+		expect(publicCustomExport.item.resultSummary.excludedFields).toEqual(["custom:local_program_note", "custom:sikesra_id_specific_note"]);
+
+		const restrictedCustomExport = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "export-custom-restricted-01",
+				exportType: "registry",
+				requestedFields: ["custom:sikesra_id_specific_note"],
+				sensitivityLevel: "restricted",
+				reason: "Authorized case review",
+			},
+		} as any)) as any;
+		expect(restrictedCustomExport.success).toBe(true);
+		expect(restrictedCustomExport.item.resultSummary.allowedFields).toEqual(["custom:sikesra_id_specific_note"]);
+
 		const sensitiveCustomValue = "Sensitive local note";
 		const savedValue = (await routes["custom-attributes/values/save"]!.handler({
 			...ctx,
@@ -3467,10 +3816,52 @@ describe("awcms micro sikesra plugin", () => {
 				id: "custom-value-01",
 				definitionId: "custom-attr-01",
 				registryEntityId: "registry-entity-custom-01",
+				entityType: "rumah_ibadah",
 				value: sensitiveCustomValue,
 			},
 		} as any)) as any;
-	expect(savedValue.success).toBe(true);
+		expect(savedValue.success).toBe(true);
+
+		const mismatchedScopedValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-sikesra-id-invalid",
+				definitionId: "custom-attr-sikesra-id-01",
+				registryEntityId: "registry-entity-custom-01",
+				sikesraId20: "62010100010102000002",
+				value: "2026-01-01",
+			},
+		} as any)) as any;
+		expect(mismatchedScopedValue.success).toBe(false);
+		expect(mismatchedScopedValue.error.details.fields).toEqual(["sikesraId20"]);
+
+		const invalidDateValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-sikesra-id-date-invalid",
+				definitionId: "custom-attr-sikesra-id-01",
+				registryEntityId: "registry-entity-custom-01",
+				sikesraId20: "62010100010102000001",
+				value: "not-a-date",
+			},
+		} as any)) as any;
+		expect(invalidDateValue.success).toBe(false);
+		expect(invalidDateValue.error.details.fields).toEqual(["value"]);
+
+		const savedSikesraIdValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-sikesra-id-01",
+				definitionId: "custom-attr-sikesra-id-01",
+				registryEntityId: "registry-entity-custom-01",
+				sikesraId20: "62010100010102000001",
+				value: "2026-01-01",
+			},
+		} as any)) as any;
+		expect(savedSikesraIdValue.success).toBe(true);
 		collections.rolePermissionAssignments.set("site-editor", {
 			roleSlug: "site-editor",
 			permissions: ["sikesra.custom_attribute.read"],
@@ -3485,6 +3876,14 @@ describe("awcms micro sikesra plugin", () => {
 				sensitivity: "sensitive_personal",
 			}),
 		);
+		expect(customAttributeValueTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "custom-value-sikesra-id-01",
+				sikesra_id_20: "62010100010102000001",
+				value_date: "2026-01-01",
+				sensitivity: "restricted",
+			}),
+		);
 
 		const masked = (await routes["custom-attributes/values/list"]!.handler({
 			...ctx,
@@ -3497,10 +3896,15 @@ describe("awcms micro sikesra plugin", () => {
 		expect(customAttributeChangeEventTableRows.length).toBeGreaterThanOrEqual(2);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.definition.save" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.value.save" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.export.include" }));
 		const valueAudit = auditTableRows.find((row) => row.kind === "custom_attribute.value.save")!;
+		const exportChangeEvent = customAttributeChangeEventTableRows.find(
+			(row) => row.event_type === "custom_attribute.export.include",
+		)!;
 		const valueChangeEvent = customAttributeChangeEventTableRows.find(
 			(row) => row.event_type === "custom_attribute.value.update",
 		)!;
+		expect(JSON.parse(String(exportChangeEvent.metadata_json))).toMatchObject({ key: "public_program_code" });
 		expect(JSON.stringify(JSON.parse(String(valueAudit.metadata_json)))).not.toContain(sensitiveCustomValue);
 		expect(JSON.stringify(JSON.parse(String(valueChangeEvent.metadata_json)))).not.toContain(sensitiveCustomValue);
 		expect(JSON.parse(String(valueAudit.metadata_json))).toMatchObject({ valueRedacted: true });
