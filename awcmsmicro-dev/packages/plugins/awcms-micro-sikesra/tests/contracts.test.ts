@@ -21,6 +21,15 @@ import type {
 	SikesraRoleAssignmentRequest,
 	SikesraVerificationDecisionRequest,
 } from "../src/contracts/index.js";
+import {
+	getSikesraFieldValidationSchema,
+	SIKESRA_DATA_MODULES,
+	SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS,
+	SIKESRA_FIELD_STANDARDS,
+	SIKESRA_KTP_ADDRESS_FIELD_KEYS,
+	SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS,
+	SIKESRA_SENSITIVE_BENEFICIARY_MODULES,
+} from "../src/field-standards.js";
 import { serializePublicAggregate, serializeRegistryListItem } from "../src/serializers/index.js";
 
 describe("SIKESRA integration contracts", () => {
@@ -81,14 +90,26 @@ describe("SIKESRA integration contracts", () => {
 			serializePublicAggregate({
 				statusLabel: "Public",
 				categories: [
-					{ key: "anak_yatim", label: "Anak Yatim", count: 2, suppressed: true, suppressionReason: "small_cell" },
+					{
+						key: "anak_yatim",
+						label: "Anak Yatim",
+						count: 2,
+						suppressed: true,
+						suppressionReason: "small_cell",
+					},
 				],
 			}),
 		).toEqual({
 			statusLabel: "Public",
 			updatedAt: undefined,
 			categories: [
-				{ key: "anak_yatim", label: "Anak Yatim", count: null, suppressed: true, suppressionReason: "small_cell" },
+				{
+					key: "anak_yatim",
+					label: "Anak Yatim",
+					count: null,
+					suppressed: true,
+					suppressionReason: "small_cell",
+				},
 			],
 		});
 	});
@@ -137,7 +158,16 @@ describe("SIKESRA integration contracts", () => {
 			validationRules: ["required"],
 		};
 
-		expect({ verification, document, importRequest, exportRequest, roleAssignment, abacPreview, auditList, field }).toMatchObject({
+		expect({
+			verification,
+			document,
+			importRequest,
+			exportRequest,
+			roleAssignment,
+			abacPreview,
+			auditList,
+			field,
+		}).toMatchObject({
 			verification: { registryEntityId: "registry-1" },
 			document: { classification: "restricted" },
 			importRequest: { batchId: "batch-1" },
@@ -190,7 +220,9 @@ describe("SIKESRA integration contracts", () => {
 				requestId: "req-p",
 			},
 		});
-		expect(sikesraAccessDecisionToError(sikesraAbacDenied("Outside region scope", "req-a"))).toEqual({
+		expect(
+			sikesraAccessDecisionToError(sikesraAbacDenied("Outside region scope", "req-a")),
+		).toEqual({
 			ok: false,
 			error: {
 				code: "SIKESRA_ABAC_DENIED",
@@ -198,5 +230,77 @@ describe("SIKESRA integration contracts", () => {
 				requestId: "req-a",
 			},
 		});
+	});
+});
+
+describe("SIKESRA field standard catalog", () => {
+	it("defines standards for all eight modules with complete metadata", () => {
+		expect(SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS.map((schema) => schema.module)).toEqual([
+			...SIKESRA_DATA_MODULES,
+		]);
+		for (const module of SIKESRA_DATA_MODULES) {
+			const standards = SIKESRA_FIELD_STANDARDS.filter((standard) => standard.module === module);
+			expect(standards.length, `${module} has field standards`).toBeGreaterThan(20);
+			for (const standard of standards) {
+				expect(standard.key).toBeTruthy();
+				expect(standard.label).toBeTruthy();
+				expect(standard.storageTable).toMatch(/^sikesra_/);
+				expect(standard.validationRules).toBeInstanceOf(Array);
+			}
+		}
+	});
+
+	it("keeps public-safe fields non-personal and unmasked", () => {
+		const publicSafeFields = SIKESRA_FIELD_STANDARDS.filter((standard) => standard.publicSafe);
+		expect(publicSafeFields.length).toBeGreaterThan(0);
+		expect(publicSafeFields.every((standard) => standard.dataClass === "non_personal")).toBe(true);
+		expect(publicSafeFields.every((standard) => !standard.maskByDefault)).toBe(true);
+	});
+
+	it("distinguishes KTP and domicile address validation for personal modules", () => {
+		for (const module of ["guru_agama", "anak_yatim", "disabilitas", "lansia_terlantar"] as const) {
+			const schema = getSikesraFieldValidationSchema(module);
+			expect(schema.ktpAddressFields).toEqual([...SIKESRA_KTP_ADDRESS_FIELD_KEYS]);
+			expect(schema.domicileAddressFields).toEqual([...SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS]);
+			for (const key of [
+				...SIKESRA_KTP_ADDRESS_FIELD_KEYS,
+				...SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS,
+			]) {
+				const standard = SIKESRA_FIELD_STANDARDS.find(
+					(field) => field.module === module && field.key === key,
+				);
+				expect(standard?.publicSafe, `${module}.${key} is not public-safe`).toBe(false);
+				expect(standard?.maskByDefault, `${module}.${key} masks by default`).toBe(true);
+				if (key !== "alamat_domisili_sama_dengan_ktp") {
+					expect(standard?.dataClass, `${module}.${key} is sensitive`).toBe("sensitive_personal");
+				}
+			}
+		}
+	});
+
+	it("covers one non-personal module, one personal module, and sensitive beneficiary modules", () => {
+		expect(getSikesraFieldValidationSchema("rumah_ibadah").publicSafeFields).toEqual(
+			expect.arrayContaining(["entity_type", "label", "verification_stage"]),
+		);
+		expect(getSikesraFieldValidationSchema("guru_agama").restrictedExportFields).toEqual(
+			expect.arrayContaining(["nik", "alamat_ktp_detail", "alamat_domisili_detail", "nomor_hp"]),
+		);
+		for (const module of SIKESRA_SENSITIVE_BENEFICIARY_MODULES) {
+			const schema = getSikesraFieldValidationSchema(module);
+			expect(schema.restrictedExportFields).toEqual(
+				expect.arrayContaining(["nomor_kk", "alamat_ktp_detail"]),
+			);
+			expect(schema.publicSafeFields).not.toContain("nama_lengkap");
+		}
+	});
+
+	it("uses field standards for import and export policy decisions", () => {
+		const schema = getSikesraFieldValidationSchema("anak_yatim");
+		expect(schema.importableFields).toContain("alamat_ktp_detail");
+		expect(schema.exportableFields).toContain("alamat_domisili_detail");
+		expect(schema.restrictedExportFields).toEqual(
+			expect.arrayContaining(["nik_kia", "nomor_kk", "nama_wali"]),
+		);
+		expect(schema.publicSafeFields).not.toContain("alamat_ktp_detail");
 	});
 });

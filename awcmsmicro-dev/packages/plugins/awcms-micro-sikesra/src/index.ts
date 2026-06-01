@@ -3,6 +3,25 @@ import { definePlugin } from "emdash";
 
 import { version } from "../package.json";
 export { SIKESRA_REFERENCE_FIXTURES } from "./fixtures.js";
+export {
+	getSikesraFieldStandardsForModule,
+	getSikesraFieldValidationSchema,
+	SIKESRA_DATA_MODULES,
+	SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS,
+	SIKESRA_FIELD_STANDARDS,
+	SIKESRA_KTP_ADDRESS_FIELD_KEYS,
+	SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS,
+	SIKESRA_PERSON_MODULES,
+	SIKESRA_SENSITIVE_BENEFICIARY_MODULES,
+} from "./field-standards.js";
+export type {
+	SikesraDataModule,
+	SikesraFieldDataClass,
+	SikesraFieldDataType,
+	SikesraFieldGroup,
+	SikesraFieldStandardDto,
+	SikesraModuleFieldValidationSchema,
+} from "./contracts/index.js";
 import {
 	AWCMS_SIKESRA_ADMIN_PAGES,
 	AWCMS_SIKESRA_ADMIN_WIDGETS,

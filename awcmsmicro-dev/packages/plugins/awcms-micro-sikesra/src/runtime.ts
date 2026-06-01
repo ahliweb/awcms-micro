@@ -372,6 +372,7 @@ export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
 	"sikesra_settings",
 	"sikesra_data_types",
 	"sikesra_data_subtypes",
+	"sikesra_field_standards",
 	"sikesra_regions",
 	"sikesra_official_regions",
 	"sikesra_local_regions",
@@ -2730,7 +2731,8 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			code: getString(row, "code")!,
 			label: getString(row, "label")!,
 			entityType: getString(row, "entityType")!,
-			sensitivity: (getString(row, "sensitivity") as SikesraSensitivity | undefined) ?? "public_safe",
+			sensitivity:
+				(getString(row, "sensitivity") as SikesraSensitivity | undefined) ?? "public_safe",
 			region: {
 				provinceCode: getString(row, "provinceCode")!,
 				regencyCode: getString(row, "regencyCode")!,
@@ -2738,7 +2740,8 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 				villageCode: getString(row, "villageCode")!,
 			},
 			verificationStage: "submitted_village",
-			inputLevel: (getString(row, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
+			inputLevel:
+				(getString(row, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 			supportingDocumentIds: [],
 			publicSummary: getString(row, "publicSummary") ?? "",
 		};

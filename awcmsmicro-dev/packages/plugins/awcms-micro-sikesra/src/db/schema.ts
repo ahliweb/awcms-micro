@@ -2,6 +2,7 @@ export const SIKESRA_D1_TABLES = {
 	settings: "sikesra_settings",
 	dataTypes: "sikesra_data_types",
 	dataSubtypes: "sikesra_data_subtypes",
+	fieldStandards: "sikesra_field_standards",
 	regions: "sikesra_regions",
 	officialRegions: "sikesra_official_regions",
 	localRegions: "sikesra_local_regions",
