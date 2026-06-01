@@ -10,7 +10,7 @@ It is a reference standard only. It does not change EmDash core and it does not 
 
 - Keep upstream EmDash untouched.
 - Keep AWCMS-Micro-owned work inside the approved `awcmsmicro-dev/` boundaries.
-- Use the example plugin and templates as reference implementations, not as a full SIKESRA product.
+- Use the SIKESRA plugin and templates as reference implementations, not as a full SIKESRA product.
 
 ## Reference Scope
 

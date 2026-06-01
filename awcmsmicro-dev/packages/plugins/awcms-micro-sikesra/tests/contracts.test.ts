@@ -258,6 +258,18 @@ describe("SIKESRA field standard catalog", () => {
 	});
 
 	it("distinguishes KTP and domicile address validation for personal modules", () => {
+		expect(SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS).toEqual([
+			"alamat_domisili_sama_dengan_ktp",
+			"alamat_domisili_province_code",
+			"alamat_domisili_regency_code",
+			"alamat_domisili_district_code",
+			"alamat_domisili_village_code",
+			"alamat_domisili_detail",
+			"alamat_domisili_rt",
+			"alamat_domisili_rw",
+			"alamat_domisili_postal_code",
+		]);
+
 		for (const module of ["guru_agama", "anak_yatim", "disabilitas", "lansia_terlantar"] as const) {
 			const schema = getSikesraFieldValidationSchema(module);
 			expect(schema.ktpAddressFields).toEqual([...SIKESRA_KTP_ADDRESS_FIELD_KEYS]);

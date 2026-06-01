@@ -16,7 +16,7 @@ This template exists as an AWCMS-Micro example only.
 - it does not replace EmDash built-in templates
 - it does not register itself into EmDash core
 - it does not add custom plugin or template loading mechanisms
-- the checked-in local workflow includes the AWCMS-Micro example plugin, but only through normal EmDash plugin registration
+- the checked-in local workflow includes the AWCMS-Micro SIKESRA plugin, but only through normal EmDash plugin registration
 
 ## Safe Adoption Path
 

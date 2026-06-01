@@ -7,7 +7,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - demonstrate AWCMS-Micro conventions in an isolated example folder
 - stay compatible with EmDash without modifying EmDash core
 - show an Astro-first public rendering baseline for a single-tenant-first site
-- include the AWCMS-Micro example plugin in the checked-in local workflow
+- include the AWCMS-Micro SIKESRA plugin in the checked-in local workflow
 - include the AWCMS-Micro docs plugin and public `/docs` route in the checked-in local workflow
 - expose a public-safe aggregate reference page for operator and reviewer guidance
 
@@ -47,11 +47,11 @@ This template is intentionally not registered into EmDash core. It can be copied
 2. Install dependencies with `pnpm install`.
 3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
 4. Start the site and confirm unauthenticated requests to `/_emdash/admin` redirect to `/_emdash/admin/login`.
-5. Review the checked-in example-plugin registration if you need the local governance workflow.
+5. Review the checked-in SIKESRA plugin registration if you need the local governance workflow.
 
 For a small docs index for this template, start with `docs/README.md`.
 For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
-If you are still working inside this parent workspace and want to attach the example plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-sikesra/docs/STANDALONE_CONSUMPTION.md`.
+If you are still working inside this parent workspace and want to attach the SIKESRA plugin from this repository to a standalone EmDash site, see `../../packages/plugins/awcms-micro-sikesra/docs/STANDALONE_CONSUMPTION.md`.
 If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse elsewhere, see `docs/PLUGIN_ENABLED_ASTRO_CONFIG.md`.
 
 ## Standalone Notes
@@ -65,7 +65,7 @@ If you want the exact plugin-enabled local `astro.config.mjs` shape for reuse el
 
 - package name: `@awcms-micro/template-default-example`
 - recommended local folder example: `templates/awcms-micro-default/`
-- related example plugin package: `@awcms-micro/plugin-sikesra`
+- related SIKESRA plugin package: `@awcms-micro/plugin-sikesra`
 - related docs plugin package: `@awcms-micro/plugin-docs`
 
 ## License

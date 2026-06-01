@@ -65,6 +65,7 @@ export function awcmsMicroSikesraPlugin(
 
 /**
  * @deprecated Use `awcmsMicroSikesraPlugin` instead.
+ * This alias exists only for temporary backward compatibility.
  */
 export const awcmsMicroExamplePlugin = awcmsMicroSikesraPlugin;
 

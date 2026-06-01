@@ -89,6 +89,6 @@ All backlog items linked above have been implemented and their corresponding Git
 
 - The reference plugin is buildable.
 - The public aggregate stays privacy-safe.
-- The templates register the example plugin.
+- The templates register the SIKESRA plugin.
 - Validation scripts pass.
 - This document links the rest of the SIKESRA work into atomic follow-up issues.

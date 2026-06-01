@@ -616,9 +616,10 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 
 export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 	id: "awcms-micro-sikesra",
-	name: "AWCMS-Micro Example Plugin",
-	version: "0.0.1",
-	description: "Access & audit demo plugin for AWCMS-Micro projects",
+	name: "AWCMS-Micro SIKESRA Plugin",
+	version: "0.1.1",
+	description:
+		"SIKESRA welfare and social-religious registry plugin for AWCMS-Micro projects.",
 	navigation: {
 		groups: [
 			{
@@ -2832,7 +2833,7 @@ const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			kind: "settings.update",
 			scope: "settings",
 			actor: actorFromRoute(ctx),
-			summary: "Updated example plugin settings",
+			summary: "Updated AWCMS-Micro SIKESRA plugin settings",
 			metadata: { ...next },
 		}),
 	);
@@ -3537,7 +3538,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 				kind: "plugin.install",
 				scope: "lifecycle",
 				actor: "system",
-				summary: "Installed the AWCMS-Micro example plugin",
+				summary: "Installed the AWCMS-Micro SIKESRA plugin",
 				metadata: {},
 			}),
 		);
@@ -3557,7 +3558,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 				kind: "plugin.activate",
 				scope: "lifecycle",
 				actor: "system",
-				summary: "Activated the AWCMS-Micro example plugin",
+				summary: "Activated the AWCMS-Micro SIKESRA plugin",
 				metadata: { cron: !!ctx.cron },
 			}),
 		);
@@ -3574,7 +3575,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 				kind: "plugin.deactivate",
 				scope: "lifecycle",
 				actor: "system",
-				summary: "Deactivated the AWCMS-Micro example plugin",
+				summary: "Deactivated the AWCMS-Micro SIKESRA plugin",
 				metadata: {},
 			}),
 		);
@@ -3591,7 +3592,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 				kind: "plugin.uninstall",
 				scope: "lifecycle",
 				actor: "system",
-				summary: "Uninstalled the AWCMS-Micro example plugin",
+				summary: "Uninstalled the AWCMS-Micro SIKESRA plugin",
 				metadata: { deleteData: event.deleteData },
 			}),
 		);

@@ -11,4 +11,4 @@ This folder collects the AWCMS-Micro-specific guidance for `awcms-micro-default`
 
 - `../../../packages/plugins/awcms-micro-sikesra/docs/STANDALONE_CONSUMPTION.md`: end-to-end plugin consumption flow for standalone EmDash sites
 
-Use the checked-in template files as the neutral default, then use these documents when you want to attach the example plugin or clarify standalone adoption details.
+Use the checked-in template files as the neutral default, then use these documents when you want to attach the SIKESRA plugin or clarify standalone adoption details.

@@ -42,7 +42,7 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 		prIntro:
 			"The SIKESRA reference PRD frames the example standard without turning it into production SIKESRA code.",
 		prBullets: [
-			"In scope: the docs boundary, the example plugin, both templates, and E2E coverage.",
+			"In scope: the docs boundary, the SIKESRA plugin, both templates, and E2E coverage.",
 			"Reference goals: plugin/runtime shape, public-safe aggregate, registry and verification screens, masked fixtures, and validation guidance.",
 			"Execution order: document the standard, build the reference plugin and fixtures, align admin UI, align both templates, then harden E2E validation.",
 		],

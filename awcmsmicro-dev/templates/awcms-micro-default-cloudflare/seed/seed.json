@@ -527,7 +527,7 @@
 				"status": "published",
 				"data": {
 					"title": "Governance Plugin Surface Ready",
-					"summary": "The AWCMS-Micro example plugin is connected through the standard EmDash plugin path for audit, access-rights, and ABAC demonstrations.",
+					"summary": "The AWCMS-Micro SIKESRA plugin is connected through the standard EmDash plugin path for audit, access-rights, and ABAC demonstrations.",
 					"content": [
 						{
 							"_type": "block",

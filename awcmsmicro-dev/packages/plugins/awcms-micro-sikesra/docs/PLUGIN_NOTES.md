@@ -2,7 +2,7 @@
 
 ## Scope
 
-This package demonstrates how AWCMS-Micro can add a trusted example plugin without changing EmDash core or modifying built-in plugin packages.
+This package demonstrates how AWCMS-Micro can add a trusted SIKESRA plugin without changing EmDash core or modifying built-in plugin packages.
 
 ## Highlights
 

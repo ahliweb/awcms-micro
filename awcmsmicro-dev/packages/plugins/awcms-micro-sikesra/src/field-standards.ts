@@ -47,6 +47,7 @@ export const SIKESRA_DOMICILE_ADDRESS_FIELD_KEYS = [
 	"alamat_domisili_sama_dengan_ktp",
 	"alamat_domisili_province_code",
 	"alamat_domisili_regency_code",
+	"alamat_domisili_district_code",
 	"alamat_domisili_village_code",
 	"alamat_domisili_detail",
 	"alamat_domisili_rt",

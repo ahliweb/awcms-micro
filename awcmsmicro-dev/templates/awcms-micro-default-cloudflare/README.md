@@ -104,7 +104,7 @@ For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
 
 - package name: `@awcms-micro/template-default-cloudflare`
 - recommended local folder example: `templates/awcms-micro-default-cloudflare/`
-- related example plugin packages: `@awcms-micro/plugin-docs`, `@awcms-micro/plugin-sikesra`, `@awcms-micro/plugin-gallery`
+- related plugin packages: `@awcms-micro/plugin-docs`, `@awcms-micro/plugin-sikesra`, `@awcms-micro/plugin-gallery`
 
 ## License
 

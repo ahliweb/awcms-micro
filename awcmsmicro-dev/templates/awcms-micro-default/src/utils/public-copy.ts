@@ -48,7 +48,7 @@ const PUBLIC_COPY = {
 			"Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders.",
 		extendWithAwcms: "Extend with AWCMS-Micro",
 		extendWithAwcmsDescription:
-			"The checked-in template already registers the example plugin so local development can exercise governance, audit, and access workflows without Cloudflare.",
+			"The checked-in template already registers the SIKESRA plugin so local development can exercise governance, audit, and access workflows without Cloudflare.",
 		editorWorkflowShortcuts: "Editor workflow shortcuts",
 		publishedPostsVisible: "Published posts currently visible on the public website.",
 		viewPosts: "View posts",

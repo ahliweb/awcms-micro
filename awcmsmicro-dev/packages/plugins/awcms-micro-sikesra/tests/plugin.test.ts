@@ -469,6 +469,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(descriptor.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
 		expect(awcmsMicroExamplePlugin()).toEqual(descriptor);
+		expect(descriptor.entrypoint).toBe("@awcms-micro/plugin-sikesra");
 		expect(Object.keys(storage)).toEqual(
 			expect.arrayContaining([
 				"sikesra_access_change_events",
@@ -1627,6 +1628,9 @@ describe("awcms micro sikesra plugin", () => {
 		const manifest = parseJsoncObject<any>(readFileSync(manifestPath, "utf8"));
 
 		expect(manifest.slug).toBe("awcms-micro-sikesra");
+		expect(manifest.name).toBe("AWCMS-Micro SIKESRA Plugin");
+		expect(manifest.name).not.toContain("Example Plugin");
+		expect(manifest.keywords).not.toContain("example");
 		expect(manifest.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
 		expect(manifest.admin.pages).toHaveLength(14);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
@@ -1651,5 +1655,24 @@ describe("awcms micro sikesra plugin", () => {
 			"sikesra_verification_events",
 			"sikesra_verification_stage_state",
 		]);
+	});
+
+	it("uses the SIKESRA factory in maintained templates", () => {
+		const localTemplateConfig = readFileSync(
+			resolve(import.meta.dirname, "../../../../templates/awcms-micro-default/astro.config.mjs"),
+			"utf8",
+		);
+		const cloudflareTemplateConfig = readFileSync(
+			resolve(
+				import.meta.dirname,
+				"../../../../templates/awcms-micro-default-cloudflare/astro.config.mjs",
+			),
+			"utf8",
+		);
+
+		for (const config of [localTemplateConfig, cloudflareTemplateConfig]) {
+			expect(config).toContain("awcmsMicroSikesraPlugin");
+			expect(config).not.toContain("awcmsMicroExamplePlugin");
+		}
 	});
 });
