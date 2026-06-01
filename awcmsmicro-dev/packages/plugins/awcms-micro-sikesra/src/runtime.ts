@@ -1529,6 +1529,12 @@ const DEFAULT_ACCESS_ROLES: AccessRole[] = [
 	})),
 ];
 
+const SIKESRA_VERIFICATION_ROUTE_PERMISSIONS = [
+	"sikesra.verification.read",
+	"sikesra.verification.approve",
+	"sikesra.verification.reject",
+] as const;
+
 const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	{
 		roleSlug: "site-editor",
@@ -1542,27 +1548,27 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	},
 	{
 		roleSlug: "verifier-desa-kelurahan",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-kecamatan",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-sopd",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-kabupaten",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "admin-sikesra",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
 		updatedAt: "",
 	},
 	{
@@ -4301,6 +4307,8 @@ async function markD1ImportRowPromoted(ctx: PluginContext, row: StagedImportRow,
 }
 
 const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.import.create");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const result = await createD1ImportBatch(ctx, routeCtx.input);
 	if (!result) return { success: false, error: { code: "VALIDATION_ERROR", message: "Invalid import rows." } };
 
@@ -4319,6 +4327,8 @@ const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.import.promote");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
@@ -4400,6 +4410,8 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) throw new Error("Invalid input format");
 	const candidateId = getString(input, "candidateId") ?? "";
@@ -4553,6 +4565,8 @@ async function listD1ExportJobs(ctx: PluginContext) {
 }
 
 const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const createPermission = await requireRoutePermission(ctx, "sikesra.export.create");
+	if (!createPermission.allowed) return { success: false, error: createPermission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) throw new Error("Invalid input format");
 	const requestedFields = Array.isArray(input.requestedFields)
@@ -4563,8 +4577,6 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (requestedFields.length === 0) return createValidationError(["requestedFields"]);
 	if (sensitivityLevel !== "public_safe" && !reason) return createValidationError(["reason"]);
 
-	const createPermission = await requireRoutePermission(ctx, "sikesra.export.create");
-	if (!createPermission.allowed) return { success: false, error: createPermission.error };
 	if (sensitivityLevel !== "public_safe") {
 		const restrictedPermission = await requireRoutePermission(ctx, "sikesra.export.restricted");
 		if (!restrictedPermission.allowed) return { success: false, error: restrictedPermission.error };
@@ -5271,10 +5283,14 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 };
 
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.settings.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	return getSettings(ctx);
 };
 
 const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.settings.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const publicStatusLabel = getString(routeCtx.input, "publicStatusLabel");
 	if (publicStatusLabel !== undefined && !publicStatusLabel.trim()) {
 		return {
@@ -5356,6 +5372,8 @@ const auditListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.dashboard.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const summary = await summarizePluginState(ctx);
 	const access = await summarizeAccessRights(ctx);
 	return {
@@ -5365,6 +5383,8 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.verification.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	await ensureAbacCatalogSeeded(ctx);
 	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
@@ -5382,6 +5402,8 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.verification.approve");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
 	const verifierLevel =
@@ -5480,6 +5502,8 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.verification.reject");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
 	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
 	const verifierLevel =
@@ -5593,11 +5617,15 @@ const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const accessPermissionsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	return { items: await listPermissions(ctx) };
 };
 
 const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const routePermission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!routePermission.allowed) return { success: false, error: routePermission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	const slug = getString(routeCtx.input, "slug") ?? "";
 	const label = getString(routeCtx.input, "label") ?? slug;
@@ -5624,6 +5652,8 @@ const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => 
 };
 
 const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	return {
 		roles: await listRoles(ctx),
@@ -5632,6 +5662,8 @@ const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	const slug = getString(routeCtx.input, "slug") ?? "";
 	const label = getString(routeCtx.input, "label") ?? slug;
@@ -5651,6 +5683,8 @@ const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	const userId = getString(routeCtx.input, "userId")?.trim() ?? "";
 	const roles = getStringArray(routeCtx.input, "roles");
@@ -5679,6 +5713,8 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 };
 
 const accessMatrixGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const access = await summarizeAccessRights(ctx);
 	return {
 		permissions: access.permissions,
@@ -5688,6 +5724,8 @@ const accessMatrixGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
 	const roleSlug = getString(routeCtx.input, "roleSlug")?.trim() ?? "";
 	const permissions = getStringArray(routeCtx.input, "permissions");
@@ -5719,21 +5757,29 @@ const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const accessPreviewRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const preview = await previewAccess(ctx, routeCtx.input);
 	return preview;
 };
 
 const accessHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const access = await summarizeAccessRights(ctx);
 	return access.health;
 };
 
 const abacAttributesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const abac = await summarizeAbac(ctx);
 	return { items: abac.attributes };
 };
 
 const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAbacCatalogSeeded(ctx);
 	const key = getString(routeCtx.input, "key")?.trim() ?? "";
 	if (!ABAC_ATTRIBUTE_KEY_PATTERN.test(key)) {
@@ -5781,11 +5827,15 @@ const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const abacSubjectsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const abac = await summarizeAbac(ctx);
 	return { items: abac.subjects };
 };
 
 const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAbacCatalogSeeded(ctx);
 	const subjectId = getString(routeCtx.input, "subjectId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
@@ -5804,11 +5854,15 @@ const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const abacResourcesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const abac = await summarizeAbac(ctx);
 	return { items: abac.resources };
 };
 
 const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAbacCatalogSeeded(ctx);
 	const resourceId = getString(routeCtx.input, "resourceId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
@@ -5827,11 +5881,15 @@ const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const abacPoliciesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const abac = await summarizeAbac(ctx);
 	return { items: abac.policies };
 };
 
 const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAbacCatalogSeeded(ctx);
 	const id = getString(routeCtx.input, "id")?.trim() ?? "";
 	if (!ABAC_POLICY_ID_PATTERN.test(id)) {
@@ -5889,10 +5947,14 @@ const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const abacPreviewRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	return evaluateAbacDecision(ctx, routeCtx.input);
 };
 
 const abacEnforceDemoRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const decision = await evaluateAbacDecision(ctx, routeCtx.input);
 	const contextAttributes = getStringRecord(routeCtx.input, "contextAttributes");
 	const sensitive = (
@@ -5915,11 +5977,15 @@ const abacEnforceDemoRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.abac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const abac = await summarizeAbac(ctx);
 	return abac.health;
 };
 
 const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.region.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const regions =
 		(await getD1RegionTree(ctx, "official")) ??
 		(await ctx.kv.get<unknown>("custom:regions")) ??
@@ -5928,6 +5994,8 @@ const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.region.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1RegionTree(ctx, input, "official");
 	if (!wroteD1) await ctx.kv.set("custom:regions", input);
@@ -5943,10 +6011,14 @@ const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const localRegionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.region.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	return (await getD1RegionTree(ctx, "local")) ?? (await ctx.kv.get<unknown>("custom:local-regions")) ?? [];
 };
 
 const localRegionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.region.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1RegionTree(ctx, input, "local");
 	if (!wroteD1) await ctx.kv.set("custom:local-regions", input);
@@ -6070,6 +6142,8 @@ async function persistD1RegionTree(ctx: PluginContext, input: unknown, source: "
 }
 
 const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.data_type.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const dataTypes =
 		(await getD1DataTypes(ctx)) ??
 		(await ctx.kv.get<unknown>("custom:data-types")) ??
@@ -6078,6 +6152,8 @@ const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.data_type.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1DataTypes(ctx, input);
 	if (!wroteD1) await ctx.kv.set("custom:data-types", input);

@@ -1677,9 +1677,11 @@ describe("awcms micro sikesra plugin", () => {
 	it("exposes public and protected routes", async () => {
 		const { ctx, collections, settingsTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				publicStatusLabel: "green",
 				auditRetentionDays: 14,
@@ -1726,6 +1728,7 @@ describe("awcms micro sikesra plugin", () => {
 	it("reads and writes SIKESRA data types through dedicated D1 catalog tables", async () => {
 		const { ctx, dataTypeTableRows, dataSubtypeTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 		const nextDataTypes = [
 			{
 				id: "rumah_ibadah",
@@ -1735,8 +1738,8 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["data-types/save"]!.handler({ ...ctx, input: nextDataTypes } as any);
-		const result = await routes["data-types/get"]!.handler({ ...ctx, input: {} } as any);
+		await routes["data-types/save"]!.handler({ ...ctx, request: adminRequest, input: nextDataTypes } as any);
+		const result = await routes["data-types/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
 
 		expect(result).toEqual(nextDataTypes);
 		expect(dataTypeTableRows).toHaveLength(1);
@@ -1761,6 +1764,7 @@ describe("awcms micro sikesra plugin", () => {
 	it("reads and writes official regions through dedicated D1 region tables", async () => {
 		const { ctx, officialRegionTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 		const nextRegions = [
 			{
 				code: "62",
@@ -1781,8 +1785,8 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["regions/save"]!.handler({ ...ctx, input: nextRegions } as any);
-		const result = await routes["regions/get"]!.handler({ ...ctx, input: {} } as any);
+		await routes["regions/save"]!.handler({ ...ctx, request: adminRequest, input: nextRegions } as any);
+		const result = await routes["regions/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
 
 		expect(result).toEqual(nextRegions);
 		expect(officialRegionTableRows).toHaveLength(4);
@@ -1799,6 +1803,7 @@ describe("awcms micro sikesra plugin", () => {
 	it("reads and writes local regions through dedicated D1 region tables", async () => {
 		const { ctx, localRegionTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 		const nextRegions = [
 			{
 				code: "local-rt-001",
@@ -1807,8 +1812,8 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["local-regions/save"]!.handler({ ...ctx, input: nextRegions } as any);
-		const result = await routes["local-regions/get"]!.handler({ ...ctx, input: {} } as any);
+		await routes["local-regions/save"]!.handler({ ...ctx, request: adminRequest, input: nextRegions } as any);
+		const result = await routes["local-regions/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
 
 		expect(result).toEqual(nextRegions);
 		expect(localRegionTableRows).toHaveLength(1);
@@ -1873,11 +1878,41 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
-	it("denies protected registry and document routes without trusted user identity", async () => {
+	it("denies protected admin routes without trusted user identity", async () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();
 
-		for (const key of ["registry/list", "registry/save", "documents/list", "documents/save"] as const) {
+		for (const key of [
+			"registry/list",
+			"registry/save",
+			"documents/list",
+			"documents/save",
+			"settings/get",
+			"settings/save",
+			"overview/summary",
+			"regions/get",
+			"regions/save",
+			"local-regions/get",
+			"local-regions/save",
+			"data-types/get",
+			"data-types/save",
+			"verification/list",
+			"verification/advance",
+			"verification/reject",
+			"import/create",
+			"import/promote",
+			"duplicates/decide",
+			"exports/create",
+			"exports/list",
+			"custom-attributes/definitions/list",
+			"custom-attributes/definitions/save",
+			"custom-attributes/values/list",
+			"custom-attributes/values/save",
+			"access/permissions/list",
+			"access/preview",
+			"abac/attributes/list",
+			"abac/preview",
+		] as const) {
 			const result = (await routes[key]!.handler({ ...ctx, input: {} } as any)) as any;
 			expect(result.success, key).toBe(false);
 			expect(result.error.code, key).toBe("UNAUTHENTICATED");
@@ -2040,9 +2075,11 @@ describe("awcms micro sikesra plugin", () => {
 	it("rejects unsafe public aggregate suppression settings", async () => {
 		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const result = (await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { smallCellThreshold: 0 },
 		} as any)) as any;
 
@@ -2056,13 +2093,16 @@ describe("awcms micro sikesra plugin", () => {
 	it("rejects unsafe governance settings", async () => {
 		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const invalidRetention = (await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { auditRetentionDays: 0 },
 		} as any)) as any;
 		const invalidMode = (await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { governanceMode: "deleteEverything" },
 		} as any)) as any;
 
@@ -2077,13 +2117,16 @@ describe("awcms micro sikesra plugin", () => {
 	it("rejects unsafe public settings", async () => {
 		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const emptyStatus = (await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { publicStatusLabel: " " },
 		} as any)) as any;
 		const unsafeCanonical = (await routes["settings/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { metadataCanonicalBase: "javascript:alert(1)" },
 		} as any)) as any;
 
@@ -2098,12 +2141,13 @@ describe("awcms micro sikesra plugin", () => {
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const sopdRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+		});
 
 		const before = (await routes["verification/list"]!.handler({
 			...ctx,
-			request: new Request("https://example.test", {
-				headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
-			}),
+			request: sopdRequest,
 			input: {},
 		} as any)) as any;
 		expect(
@@ -2115,9 +2159,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const result = (await routes["verification/advance"]!.handler({
 			...ctx,
-			request: new Request("https://example.test", {
-				headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
-			}),
+			request: sopdRequest,
 			input: {
 				registryEntityId: "registry-entity-guru-agama-01",
 				actor: "sopd-officer",
@@ -2139,7 +2181,11 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.verificationEvent.verifierRegionScope).toBe("3171");
 		expect(result.verificationEvent.verifierOrgScope).toBe("site-main");
 
-		const after = (await routes["verification/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const after = (await routes["verification/list"]!.handler({
+			...ctx,
+			request: createAdminRequest(),
+			input: {},
+		} as any)) as any;
 		const afterItem = after.items.find(
 			(item: any) => item.registryEntityId === "registry-entity-guru-agama-01",
 		);
@@ -2181,9 +2227,13 @@ describe("awcms micro sikesra plugin", () => {
 			"registry-entity-guru-agama-01": "submitted_village",
 		});
 		const routes = createNativeRoutes();
+		const districtRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-district" },
+		});
 
 		const result = (await routes["verification/advance"]!.handler({
 			...ctx,
+			request: districtRequest,
 			input: {
 				registryEntityId: "registry-entity-guru-agama-01",
 				actor: "district-officer",
@@ -2249,9 +2299,13 @@ describe("awcms micro sikesra plugin", () => {
 	it("returns verification to the previous review level on needs revision", async () => {
 		const { ctx, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const sopdRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+		});
 
 		const result = (await routes["verification/reject"]!.handler({
 			...ctx,
+			request: sopdRequest,
 			input: {
 				registryEntityId: "registry-entity-guru-agama-01",
 				actor: "sopd-officer",
@@ -2285,9 +2339,13 @@ describe("awcms micro sikesra plugin", () => {
 	it("requires reason notes when returning verification for revision", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const sopdRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+		});
 
 		const result = (await routes["verification/reject"]!.handler({
 			...ctx,
+			request: sopdRequest,
 			input: {
 				registryEntityId: "registry-entity-guru-agama-01",
 				actor: "sopd-officer",
@@ -2328,9 +2386,11 @@ describe("awcms micro sikesra plugin", () => {
 			"registry-entity-guru-agama-01": "submitted_regency",
 		});
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const result = (await routes["verification/list"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {},
 		} as any)) as any;
 
@@ -2676,9 +2736,11 @@ describe("awcms micro sikesra plugin", () => {
 	it("blocks import promotion while staged rows have validation errors", async () => {
 		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const result = (await routes["import/promote"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				rows: [
 					{
@@ -2717,6 +2779,7 @@ describe("awcms micro sikesra plugin", () => {
 			auditTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 		const rows = [
 			{
 				id: "registry-import-01",
@@ -2732,6 +2795,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const created = (await routes["import/create"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				batchId: "batch-import-01",
 				mappingTemplateId: "mapping-import-01",
@@ -2755,6 +2819,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const promoted = (await routes["import/promote"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { batchId: "batch-import-01" },
 		} as any)) as any;
 
@@ -2784,6 +2849,7 @@ describe("awcms micro sikesra plugin", () => {
 			auditTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 		const rows = [
 			{
 				id: "registry-dup-01",
@@ -2809,6 +2875,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["import/create"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { batchId: "batch-dup-01", entityType: "rumah_ibadah", rows },
 		} as any);
 
@@ -2829,6 +2896,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const promoted = (await routes["import/promote"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { batchId: "batch-dup-01" },
 		} as any)) as any;
 		expect(promoted.success).toBe(false);
@@ -2836,6 +2904,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const decision = (await routes["duplicates/decide"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id: "decision-dup-01",
 				candidateId: "batch-dup-01:row:2:duplicate-code",
@@ -3647,15 +3716,18 @@ describe("awcms micro sikesra plugin", () => {
 	it("supports access-rights catalog create, list, matrix, and preview flows", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const permissionsBefore = (await routes["access/permissions/list"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {},
 		} as any)) as any;
 		expect(permissionsBefore.items.length).toBeGreaterThan(0);
 
 		await routes["access/permissions/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				slug: "documents.review",
 				label: "Review Documents",
@@ -3666,6 +3738,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["access/roles/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				slug: "document-reviewer",
 				label: "Document Reviewer",
@@ -3675,6 +3748,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["access/matrix/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				roleSlug: "document-reviewer",
 				permissions: ["documents.review", "audit.read.events"],
@@ -3683,6 +3757,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["access/users/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				userId: "user-demo-doc-reviewer",
 				roles: ["document-reviewer"],
@@ -3691,6 +3766,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const preview = (await routes["access/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { userId: "user-demo-doc-reviewer", permissionSlug: "documents.review" },
 		} as any)) as any;
 
@@ -3702,13 +3778,16 @@ describe("awcms micro sikesra plugin", () => {
 	it("requires an EmDash user reference and SIKESRA role for user assignments", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const missingUser = (await routes["access/users/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { userId: " ", roles: ["document-reviewer"] },
 		} as any)) as any;
 		const missingRole = (await routes["access/users/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { userId: "user-demo-doc-reviewer", roles: [] },
 		} as any)) as any;
 
@@ -3724,13 +3803,16 @@ describe("awcms micro sikesra plugin", () => {
 	it("requires role and permissions for role matrix assignments", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const missingRole = (await routes["access/matrix/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { roleSlug: " ", permissions: ["documents.review"] },
 		} as any)) as any;
 		const missingPermissions = (await routes["access/matrix/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { roleSlug: "document-reviewer", permissions: [] },
 		} as any)) as any;
 
@@ -3745,9 +3827,11 @@ describe("awcms micro sikesra plugin", () => {
 	it("returns a deterministic denied access preview when roles do not grant the permission", async () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const preview = (await routes["access/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { userId: "user-demo-editor", permissionSlug: "content.review.publish" },
 		} as any)) as any;
 
@@ -3758,13 +3842,16 @@ describe("awcms micro sikesra plugin", () => {
 	it("validates ABAC attribute form-builder keys", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const invalidKey = (await routes["abac/attributes/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { key: "Owner User", label: "Owner User", targetType: "subject" },
 		} as any)) as any;
 		const invalidTarget = (await routes["abac/attributes/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { key: "owner_user", label: "Owner User", targetType: "global" },
 		} as any)) as any;
 
@@ -3780,17 +3867,21 @@ describe("awcms micro sikesra plugin", () => {
 	it("validates ABAC policy form-builder inputs", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const invalidId = (await routes["abac/policies/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { id: "Policy 1", effect: "allow", actions: ["content.read"] },
 		} as any)) as any;
 		const invalidEffect = (await routes["abac/policies/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { id: "policy_one", effect: "maybe", actions: ["content.read"] },
 		} as any)) as any;
 		const missingAction = (await routes["abac/policies/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: { id: "policy_two", effect: "allow", actions: [] },
 		} as any)) as any;
 
@@ -3808,15 +3899,18 @@ describe("awcms micro sikesra plugin", () => {
 	it("supports ABAC attribute, policy, preview, and sensitive-action audit flows", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		const attributes = (await routes["abac/attributes/list"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {},
 		} as any)) as any;
 		expect(attributes.items.length).toBeGreaterThan(0);
 
 		await routes["abac/attributes/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				key: "action",
 				label: "Action",
@@ -3827,6 +3921,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["abac/policies/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id: "allow-published-read-jakarta",
 				label: "Allow published read in Jakarta",
@@ -3840,6 +3935,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const allow = (await routes["abac/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				subjectId: "user-demo-editor",
 				resourceId: "resource-public-post",
@@ -3853,6 +3949,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const deny = (await routes["abac/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				subjectId: "user-demo-reviewer",
 				resourceId: "resource-sensitive-policy",
@@ -3866,6 +3963,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const missing = (await routes["abac/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				subjectId: "user-demo-editor",
 				resourceId: "resource-public-post",
@@ -3879,6 +3977,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const regionMismatch = (await routes["abac/preview"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				subjectId: "user-demo-editor",
 				resourceId: "resource-public-post",
@@ -3892,6 +3991,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["abac/enforce-demo"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				subjectId: "user-demo-reviewer",
 				resourceId: "resource-sensitive-policy",
