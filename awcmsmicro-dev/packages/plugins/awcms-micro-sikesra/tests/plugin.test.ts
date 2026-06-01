@@ -113,6 +113,18 @@ function createMockContext() {
 	};
 	const auditTableRows: Array<Record<string, unknown>> = [];
 	const registryEntityTableRows: Array<Record<string, unknown>> = [];
+	const codeSequenceTableRows: Array<Record<string, unknown>> = [];
+	const codeHistoryTableRows: Array<Record<string, unknown>> = [];
+	const moduleDetailTableRows: Record<string, Array<Record<string, unknown>>> = {
+		sikesra_rumah_ibadah_details: [],
+		sikesra_lembaga_keagamaan_details: [],
+		sikesra_pendidikan_keagamaan_details: [],
+		sikesra_lks_details: [],
+		sikesra_guru_agama_details: [],
+		sikesra_anak_yatim_details: [],
+		sikesra_disabilitas_details: [],
+		sikesra_lansia_terlantar_details: [],
+	};
 	const settingsTableRows: Array<Record<string, unknown>> = [];
 	const dataTypeTableRows: Array<Record<string, unknown>> = [];
 	const dataSubtypeTableRows: Array<Record<string, unknown>> = [];
@@ -214,6 +226,7 @@ function createMockContext() {
 		dbRows.push(row);
 		syncCollectionMap(row);
 	};
+	const isModuleDetailTable = (table: string) => Object.hasOwn(moduleDetailTableRows, table);
 	const upsertSettingsRow = (settingsRow: Record<string, unknown>) => {
 		const index = settingsTableRows.findIndex(
 			(existing) =>
@@ -274,6 +287,26 @@ function createMockContext() {
 					}
 					if (_table === "sikesra_registry_entities") {
 						return registryEntityTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_code_sequences") {
+						return codeSequenceTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (isModuleDetailTable(_table)) {
+						return moduleDetailTableRows[_table]!
 							.filter((row) => {
 								for (const [key, value] of Object.entries(filters)) {
 									if ((row as Record<string, unknown>)[key] !== value) return false;
@@ -364,6 +397,7 @@ function createMockContext() {
 							tenant_id: textValue(nextRow.tenant_id),
 							site_id: textValue(nextRow.site_id),
 							id: textValue(nextRow.id),
+							sikesra_id_20: nextRow.sikesra_id_20 ?? null,
 							code: textValue(nextRow.code),
 							label: textValue(nextRow.label),
 							entity_type: textValue(nextRow.entity_type),
@@ -376,6 +410,48 @@ function createMockContext() {
 							verification_stage: textValue(nextRow.verification_stage),
 							input_level: nextRow.input_level ?? null,
 							public_summary: nextRow.public_summary ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_code_sequences") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							sequence_key: textValue(nextRow.sequence_key),
+							last_value: Number(nextRow.last_value ?? 0),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_code_history") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							registry_entity_id: textValue(nextRow.registry_entity_id),
+							sikesra_id_20: textValue(nextRow.sikesra_id_20),
+							sequence_key: textValue(nextRow.sequence_key),
+							issued_at: textValue(nextRow.issued_at),
+							issued_by: nextRow.issued_by ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (isModuleDetailTable(_table)) {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							registry_entity_id: textValue(nextRow.registry_entity_id),
+							person_profile_id: nextRow.person_profile_id ?? null,
+							detail_json: textValue(nextRow.detail_json),
+							field_standard_version: textValue(nextRow.field_standard_version),
 							created_at: textValue(nextRow.created_at),
 							updated_at: textValue(nextRow.updated_at),
 							deleted_at: nextRow.deleted_at ?? null,
@@ -493,6 +569,18 @@ function createMockContext() {
 										upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_code_sequences") {
+										upsertD1CatalogRow(codeSequenceTableRows, ["tenant_id", "site_id", "sequence_key"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_code_history") {
+										upsertD1CatalogRow(codeHistoryTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (isModuleDetailTable(_table)) {
+										upsertD1CatalogRow(moduleDetailTableRows[_table]!, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_data_types") {
 										upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
@@ -550,6 +638,18 @@ function createMockContext() {
 							}
 							if (_table === "sikesra_registry_entities") {
 								upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_code_sequences") {
+								upsertD1CatalogRow(codeSequenceTableRows, ["tenant_id", "site_id", "sequence_key"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_code_history") {
+								upsertD1CatalogRow(codeHistoryTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								return;
+							}
+							if (isModuleDetailTable(_table)) {
+								upsertD1CatalogRow(moduleDetailTableRows[_table]!, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 								return;
 							}
 							if (_table === "sikesra_data_types") {
@@ -707,6 +807,9 @@ function createMockContext() {
 		dbRows,
 		auditTableRows,
 		registryEntityTableRows,
+		codeSequenceTableRows,
+		codeHistoryTableRows,
+		moduleDetailTableRows,
 		settingsTableRows,
 		dataTypeTableRows,
 		dataSubtypeTableRows,
@@ -1494,7 +1597,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("persists registry records in D1 and document records in plugin storage", async () => {
-		const { ctx, collections, registryEntityTableRows } = createMockContext();
+		const { ctx, collections, registryEntityTableRows, moduleDetailTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["registry/save"]!.handler({
@@ -1548,8 +1651,84 @@ describe("awcms micro sikesra plugin", () => {
 				verification_stage: "submitted_village",
 			}),
 		);
+		expect(moduleDetailTableRows.sikesra_rumah_ibadah_details).toContainEqual(
+			expect.objectContaining({
+				registry_entity_id: "registry-entity-custom-01",
+				field_standard_version: "draft",
+			}),
+		);
+		expect(
+			JSON.parse(String(moduleDetailTableRows.sikesra_rumah_ibadah_details![0]?.detail_json)),
+		).toMatchObject({ code: "CU-001", entityType: "rumah_ibadah" });
 		expect(collections.registryEntities.size).toBe(0);
 		expect(collections.supportingDocuments.size).toBe(1);
+	});
+
+	it.each([
+		["rumah_ibadah", "sikesra_rumah_ibadah_details"],
+		["lembaga_keagamaan", "sikesra_lembaga_keagamaan_details"],
+		["pendidikan_keagamaan", "sikesra_pendidikan_keagamaan_details"],
+		["lks", "sikesra_lks_details"],
+		["guru_agama", "sikesra_guru_agama_details"],
+		["anak_yatim", "sikesra_anak_yatim_details"],
+		["disabilitas", "sikesra_disabilitas_details"],
+		["lansia_terlantar", "sikesra_lansia_terlantar_details"],
+	])("stores %s registry details in the module D1 table", async (entityType, tableName) => {
+		const { ctx, moduleDetailTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const id = `registry-${entityType}`;
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			input: {
+				id,
+				code: `MD-${entityType}`,
+				label: `Module ${entityType}`,
+				entityType,
+				sensitivity: "internal",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+				publicSummary: `Summary ${entityType}`,
+			},
+		} as any);
+
+		expect(moduleDetailTableRows[tableName]!).toContainEqual(
+			expect.objectContaining({ registry_entity_id: id }),
+		);
+	});
+
+	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
+		const { ctx, registryEntityTableRows, codeSequenceTableRows, codeHistoryTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+
+		for (const id of ["registry-seq-01", "registry-seq-02"]) {
+			await routes["registry/save"]!.handler({
+				...ctx,
+				input: {
+					id,
+					code: id,
+					label: id,
+					entityType: "rumah_ibadah",
+					typeCode: "01",
+					subtypeCode: "02",
+					villageCode: "6201010001",
+				},
+			} as any);
+		}
+
+		expect(registryEntityTableRows.find((row) => row.id === "registry-seq-01")).toMatchObject({
+			sikesra_id_20: "62010100010102000001",
+		});
+		expect(registryEntityTableRows.find((row) => row.id === "registry-seq-02")).toMatchObject({
+			sikesra_id_20: "62010100010102000002",
+		});
+		expect(codeSequenceTableRows).toContainEqual(
+			expect.objectContaining({ sequence_key: "6201010001:01:02", last_value: 2 }),
+		);
+		expect(codeHistoryTableRows).toHaveLength(2);
+		expect(codeHistoryTableRows[0]?.sikesra_id_20).toHaveLength(20);
 	});
 
 	it("blocks import promotion while staged rows have validation errors", async () => {

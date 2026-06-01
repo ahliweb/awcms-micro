@@ -422,7 +422,19 @@ const AWCMS_SIKESRA_DATA_SUBTYPES_TABLE = "sikesra_data_subtypes";
 const AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE = "sikesra_official_regions";
 const AWCMS_SIKESRA_LOCAL_REGIONS_TABLE = "sikesra_local_regions";
 const AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE = "sikesra_registry_entities";
+const AWCMS_SIKESRA_CODE_SEQUENCES_TABLE = "sikesra_code_sequences";
+const AWCMS_SIKESRA_CODE_HISTORY_TABLE = "sikesra_code_history";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
+const AWCMS_SIKESRA_MODULE_DETAIL_TABLES: Record<string, string> = {
+	rumah_ibadah: "sikesra_rumah_ibadah_details",
+	lembaga_keagamaan: "sikesra_lembaga_keagamaan_details",
+	pendidikan_keagamaan: "sikesra_pendidikan_keagamaan_details",
+	lks: "sikesra_lks_details",
+	guru_agama: "sikesra_guru_agama_details",
+	anak_yatim: "sikesra_anak_yatim_details",
+	disabilitas: "sikesra_disabilitas_details",
+	lansia_terlantar: "sikesra_lansia_terlantar_details",
+};
 const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
 const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
 
@@ -1878,6 +1890,7 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 		.selectFrom(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
 		.select([
 			"id",
+			"sikesra_id_20",
 			"code",
 			"label",
 			"entity_type",
@@ -1897,6 +1910,7 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 		.where("deleted_at", "is", null)
 		.execute()) as Array<{
 		id: string;
+		sikesra_id_20?: string | null;
 		code: string;
 		label: string;
 		entity_type: string;
@@ -1912,6 +1926,7 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 
 	return rows.map((row) => ({
 		id: row.id,
+		sikesraId20: (row as any).sikesra_id_20 ?? undefined,
 		code: row.code,
 		label: row.label,
 		entityType: row.entity_type,
@@ -1940,6 +1955,7 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
 			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
 			id: entity.id,
+			sikesra_id_20: entity.sikesraId20 ?? null,
 			code: entity.code,
 			label: entity.label,
 			entity_type: entity.entityType,
@@ -1960,6 +1976,7 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 		})
 		.onConflict((oc: any) =>
 			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				sikesra_id_20: entity.sikesraId20 ?? null,
 				code: entity.code,
 				label: entity.label,
 				entity_type: entity.entityType,
@@ -1978,7 +1995,114 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 		)
 		.execute();
 
+	const detailTable = AWCMS_SIKESRA_MODULE_DETAIL_TABLES[entity.entityType];
+	if (detailTable) {
+		const detailRow: Record<string, unknown> = {
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			registry_entity_id: entity.id,
+			detail_json: JSON.stringify({
+				code: entity.code,
+				label: entity.label,
+				entityType: entity.entityType,
+				sensitivity: entity.sensitivity,
+				region: entity.region,
+				publicSummary: entity.publicSummary,
+			}),
+			field_standard_version: "draft",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: null,
+			updated_by: null,
+		};
+		if (["guru_agama", "anak_yatim", "disabilitas", "lansia_terlantar"].includes(entity.entityType)) {
+			detailRow.person_profile_id = null;
+		}
+
+		await db
+			.insertInto(detailTable)
+			.values(detailRow)
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "registry_entity_id"]).doUpdateSet({
+					detail_json: detailRow.detail_json,
+					field_standard_version: "draft",
+					updated_at: now,
+					deleted_at: null,
+					updated_by: null,
+				}),
+			)
+			.execute();
+	}
+
 	return true;
+}
+
+async function generateD1SikesraId20(
+	ctx: PluginContext,
+	params: { registryEntityId: string; villageCode: string; typeCode: string; subtypeCode: string; actor?: string },
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom || !db?.insertInto) return null;
+	if (!/^\d{10}$/.test(params.villageCode)) return null;
+	if (!/^\d{2}$/.test(params.typeCode)) return null;
+	if (!/^\d{2}$/.test(params.subtypeCode)) return null;
+
+	const sequenceKey = `${params.villageCode}:${params.typeCode}:${params.subtypeCode}`;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_CODE_SEQUENCES_TABLE)
+		.select(["sequence_key", "last_value"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("sequence_key", "=", sequenceKey)
+		.execute()) as Array<{ sequence_key: string; last_value: number | string }>;
+	const nextValue = Number(rows[0]?.last_value ?? 0) + 1;
+	const now = toIsoNow();
+	const sikesraId20 = `${params.villageCode}${params.typeCode}${params.subtypeCode}${String(nextValue).padStart(6, "0")}`;
+
+	await db
+		.insertInto(AWCMS_SIKESRA_CODE_SEQUENCES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			sequence_key: sequenceKey,
+			last_value: nextValue,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: params.actor ?? null,
+			updated_by: params.actor ?? null,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "sequence_key"]).doUpdateSet({
+				last_value: nextValue,
+				updated_at: now,
+				deleted_at: null,
+				updated_by: params.actor ?? null,
+			}),
+		)
+		.execute();
+
+	await db
+		.insertInto(AWCMS_SIKESRA_CODE_HISTORY_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${params.registryEntityId}:${sikesraId20}`,
+			registry_entity_id: params.registryEntityId,
+			sikesra_id_20: sikesraId20,
+			sequence_key: sequenceKey,
+			issued_at: now,
+			issued_by: params.actor ?? null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: params.actor ?? null,
+			updated_by: params.actor ?? null,
+		})
+		.execute();
+
+	return sikesraId20;
 }
 
 async function getSupportingDocuments(
@@ -3038,8 +3162,19 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
 	}
+	const id = getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`;
+	const sikesraId20 =
+		getString(input, "sikesraId20") ??
+		(await generateD1SikesraId20(ctx, {
+			registryEntityId: id,
+			villageCode: getString(input, "villageCode") ?? "",
+			typeCode: getString(input, "typeCode") ?? "",
+			subtypeCode: getString(input, "subtypeCode") ?? "",
+			actor: actorFromRoute(ctx),
+		}));
 	const newEntity: SikesraReferenceRegistryEntity = {
-		id: getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
+		id,
+		sikesraId20: sikesraId20 ?? undefined,
 		code: getString(input, "code") ?? "",
 		label: getString(input, "label") ?? "Untitled Registry Entity",
 		entityType: getString(input, "entityType") ?? "rumah_ibadah",

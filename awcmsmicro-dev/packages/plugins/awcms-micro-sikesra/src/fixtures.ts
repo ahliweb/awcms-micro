@@ -8,6 +8,7 @@ export type SikesraUserLevel =
 
 export interface SikesraReferenceRegistryEntity {
 	id: string;
+	sikesraId20?: string;
 	code: string;
 	label: string;
 	entityType: string;
