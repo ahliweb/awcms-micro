@@ -13,8 +13,13 @@ These paths are relative to `awcmsmicro-dev/`:
 - `templates/awcms-micro-default`
 - `templates/awcms-micro-default-cloudflare`
 - `packages/plugins/awcms-micro-sikesra`
+- `packages/plugins/awcms-micro-docs`
+- `packages/plugins/awcms-micro-gallery`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
+- `docs/package.json`
+- `packages/blocks/playground/package.json`
+- `templates/awcms-micro-default/data.db`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
 - `.awcms-patches`
@@ -22,6 +27,16 @@ These paths are relative to `awcmsmicro-dev/`:
 - `.github/workflows`
 - `.github/scripts`
 - `.github/dependabot.yml`
+- `pnpm-workspace.yaml`
+- `infra/perf-monitor/package.json`
+- `AGENTS.md`
+- `.env`
+- `.env.age`
+- `packages/admin/src/components/Sidebar.tsx`
+- `packages/admin/src/components/Shell.tsx`
+- `packages/admin/src/components/AdminCommandPalette.tsx`
+- `packages/admin/tests/components/Sidebar.test.tsx`
+- `packages/admin/tests/components/AdminCommandPalette.test.tsx`
 
 ## How Rebuild Preservation Works
 

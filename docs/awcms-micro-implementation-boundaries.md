@@ -19,6 +19,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `docs/awcms-micro`
 - `docs/package.json`
 - `packages/blocks/playground/package.json`
+- `templates/awcms-micro-default/data.db`
 - `e2e/awcms-micro`
 - `.awcms-changesets`
 - `.awcms-patches`
@@ -28,8 +29,14 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `.github/dependabot.yml`
 - `pnpm-workspace.yaml`
 - `infra/perf-monitor/package.json`
+- `AGENTS.md`
+- `.env`
+- `.env.age`
 - `packages/admin/src/components/Sidebar.tsx`
+- `packages/admin/src/components/Shell.tsx`
+- `packages/admin/src/components/AdminCommandPalette.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
+- `packages/admin/tests/components/AdminCommandPalette.test.tsx`
 
 These are the active product-development boundaries:
 

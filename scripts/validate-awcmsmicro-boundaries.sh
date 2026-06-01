@@ -17,14 +17,21 @@ REQUIRED_PATHS=(
 	"templates/awcms-micro-default-cloudflare"
 	"packages/plugins/awcms-micro-sikesra"
 	"packages/plugins/awcms-micro-docs"
+	"packages/plugins/awcms-micro-gallery"
 	"demos/awcms-micro-cloudflare"
 	"docs/awcms-micro"
+	"docs/package.json"
+	"packages/blocks/playground/package.json"
+	"templates/awcms-micro-default/data.db"
 	"e2e/awcms-micro"
 	".awcms-changesets"
+	".awcms-patches"
 	".changeset"
 	".github/workflows"
 	".github/scripts"
 	".github/dependabot.yml"
+	"pnpm-workspace.yaml"
+	"infra/perf-monitor/package.json"
 	"AGENTS.md"
 )
 
@@ -44,6 +51,7 @@ LOCAL_STATE_PATHS=(
 
 LOCAL_STATE_DOCS=(
 	"$ROOT_DIR/README.md"
+	"$ROOT_DIR/docs/awcmsmicro-dev-protected-paths.md"
 	"$ROOT_DIR/docs/repository-structure.md"
 	"$ROOT_DIR/docs/implementation-instructions.md"
 	"$ROOT_DIR/docs/operator-workflow.md"
@@ -53,15 +61,15 @@ LOCAL_STATE_DOCS=(
 ROOT_DOCS=(
 	"$ROOT_DIR/README.md"
 	"$ROOT_DIR/docs/README.md"
+	"$ROOT_DIR/docs/awcmsmicro-dev-protected-paths.md"
 	"$ROOT_DIR/docs/repository-structure.md"
 	"$ROOT_DIR/docs/synchronization-workflow.md"
 	"$ROOT_DIR/docs/implementation-instructions.md"
 )
 
 PATH_REFERENCE_DOCS=(
-	"$ROOT_DIR/README.md"
-	"$ROOT_DIR/docs/repository-structure.md"
-	"$ROOT_DIR/docs/implementation-instructions.md"
+	"$ROOT_DIR/docs/awcms-micro-implementation-boundaries.md"
+	"$ROOT_DIR/docs/awcmsmicro-dev-protected-paths.md"
 )
 
 log() {
@@ -130,6 +138,7 @@ log "Checking admin navigation persistence overlays"
 for relative_path in "${ADMIN_NAV_PERSISTENCE_PATHS[@]}"; do
 	require_contains "$relative_path" "$BOUNDARIES_DOC"
 	require_contains "$relative_path" "$ALLOWLIST_FILE"
+	require_contains "$relative_path" "$ROOT_DIR/docs/awcmsmicro-dev-protected-paths.md"
 	dir_path="$ROOT_DIR/awcmsmicro-dev/$relative_path"
 	require_path "$dir_path"
 done
