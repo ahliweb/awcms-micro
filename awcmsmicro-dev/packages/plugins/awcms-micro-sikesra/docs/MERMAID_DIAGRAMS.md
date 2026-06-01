@@ -74,6 +74,7 @@ erDiagram
   sikesra_registry_entities ||--o{ sikesra_disabilitas_details : details
   sikesra_registry_entities ||--o{ sikesra_lansia_terlantar_details : details
   sikesra_registry_entities ||--o{ sikesra_supporting_documents : has
+  sikesra_file_objects ||--o{ sikesra_supporting_documents : stores
   sikesra_registry_entities ||--o{ sikesra_verification_events : verifies
   sikesra_registry_entities ||--o{ sikesra_custom_attribute_values : extends
   sikesra_registry_entities ||--o{ sikesra_audit_events : audits
