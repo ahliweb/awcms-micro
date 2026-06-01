@@ -2713,6 +2713,16 @@ const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const smallCellThreshold = getNumber(routeCtx.input, "smallCellThreshold");
+	if (smallCellThreshold !== undefined && smallCellThreshold < 1) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Small-cell suppression threshold must be at least 1.",
+			},
+		};
+	}
 	const next = await setSettings(ctx, routeCtx.input);
 	await appendAuditEvent(
 		ctx,

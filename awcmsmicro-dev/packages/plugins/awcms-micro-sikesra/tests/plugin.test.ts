@@ -736,6 +736,22 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("rejects unsafe public aggregate suppression settings", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["settings/save"]!.handler({
+			...ctx,
+			input: { smallCellThreshold: 0 },
+		} as any)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("VALIDATION_ERROR");
+		expect(result.error.message).toContain("Small-cell suppression threshold");
+		expect(collections.settingsState.has("smallCellThreshold")).toBe(false);
+		expect(collections.auditEvents.size).toBe(0);
+	});
+
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
