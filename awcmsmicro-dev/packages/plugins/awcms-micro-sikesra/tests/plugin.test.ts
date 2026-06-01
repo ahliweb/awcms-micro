@@ -1296,6 +1296,28 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
 	});
 
+	it("requires an EmDash user reference and SIKESRA role for user assignments", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const missingUser = (await routes["access/users/save"]!.handler({
+			...ctx,
+			input: { userId: " ", roles: ["document-reviewer"] },
+		} as any)) as any;
+		const missingRole = (await routes["access/users/save"]!.handler({
+			...ctx,
+			input: { userId: "user-demo-doc-reviewer", roles: [] },
+		} as any)) as any;
+
+		expect(missingUser.success).toBe(false);
+		expect(missingUser.error.code).toBe("VALIDATION_ERROR");
+		expect(missingRole.success).toBe(false);
+		expect(missingRole.error.message).toContain("EmDash user reference");
+		expect(collections.userRoleAssignments.has("")).toBe(false);
+		expect(collections.userRoleAssignments.has("user-demo-doc-reviewer")).toBe(false);
+		expect(collections.accessChangeEvents.size).toBe(0);
+	});
+
 	it("returns a deterministic denied access preview when roles do not grant the permission", async () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();

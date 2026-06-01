@@ -3027,8 +3027,17 @@ const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 
 const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
-	const userId = getString(routeCtx.input, "userId") ?? "";
+	const userId = getString(routeCtx.input, "userId")?.trim() ?? "";
 	const roles = getStringArray(routeCtx.input, "roles");
+	if (!userId || roles.length === 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "EmDash user reference and at least one SIKESRA role are required.",
+			},
+		};
+	}
 	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, updatedAt: "" });
 	await ctx.storage.sikesra_user_role_assignments!.put(userId, assignment);
 	await persistStateValue(ctx, "state:lastPreviewUserId", userId);
