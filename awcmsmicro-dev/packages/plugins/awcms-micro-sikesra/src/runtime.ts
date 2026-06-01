@@ -2536,6 +2536,9 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 			total: suppressed ? 0 : total,
 			verified: suppressed ? 0 : verified,
 			suppressed,
+			suppressionReason: suppressed
+				? `Count is below the configured small-cell threshold of ${smallCellThreshold}.`
+				: null,
 		};
 	});
 

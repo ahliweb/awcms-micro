@@ -710,6 +710,13 @@ describe("awcms micro sikesra plugin", () => {
 		]);
 		expect(publicResult.status).toBe("green");
 		expect(publicResult.plugin.visibility).toBe("public-safe");
+		expect(publicResult.publicAggregate.categories[0]).toMatchObject({
+			total: 0,
+			verified: 0,
+			suppressed: true,
+			suppressionReason: "Count is below the configured small-cell threshold of 3.",
+		});
+		expect(JSON.stringify(publicResult)).not.toContain("registry-entity-");
 		expect(publicResult).not.toHaveProperty("storageKey");
 		expect(publicResult).not.toHaveProperty("userId");
 		expect(collections.settingsState.size).toBe(6);
