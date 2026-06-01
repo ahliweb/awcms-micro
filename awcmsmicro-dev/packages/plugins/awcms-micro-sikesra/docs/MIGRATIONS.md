@@ -21,12 +21,12 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0006_sikesra_verification.sql
 0007_sikesra_imports.sql
 0008_sikesra_deduplication.sql
+0009_sikesra_access_abac.sql
 ```
 
 The remaining migration files from issue #120 should be added as separate atomic slices in sequence:
 
 ```txt
-0009_sikesra_access_abac.sql
 0010_sikesra_exports_audit.sql
 ```
 
