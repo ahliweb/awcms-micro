@@ -82,7 +82,12 @@ erDiagram
   sikesra_import_batches ||--o{ sikesra_import_staging_rows : stages
   sikesra_duplicate_candidates ||--o{ sikesra_duplicate_decisions : decides
   sikesra_export_jobs ||--o{ sikesra_audit_events : audits
+  sikesra_custom_attribute_definitions ||--o{ sikesra_custom_attribute_values : defines
+  sikesra_custom_attribute_definitions ||--o{ sikesra_custom_attribute_change_events : changes
   sikesra_registry_entities ||--o{ sikesra_custom_attribute_values : extends
+  sikesra_delete_requests ||--o{ sikesra_delete_snapshots : snapshots
+  sikesra_delete_requests ||--o{ sikesra_delete_approvals : approves
+  sikesra_delete_requests ||--o{ sikesra_delete_events : records
   sikesra_registry_entities ||--o{ sikesra_audit_events : audits
 
   sikesra_permission_catalog ||--o{ sikesra_role_permission_assignments : grants
@@ -203,7 +208,47 @@ Purpose:
 - guide issue #134;
 - ensure sensitive field handling is explicit.
 
-## 9. Data Preservation After Rebuild
+## 9. Custom Attribute Extension Flow
+
+```mermaid
+flowchart TD
+  Admin[Authorized admin] --> Definition[Create or update definition]
+  Definition --> Scope[Attach scope]
+  Scope --> Validate[Validate protected keys and data class]
+  Validate --> Values[Save registry or SIKESRA ID values]
+  Values --> Mask{Sensitive or restricted?}
+  Mask -->|Yes| Redacted[Mask by default]
+  Mask -->|No| Display[Display value]
+  Values --> ChangeEvent[Write change event]
+  ChangeEvent --> Audit[Write audit event]
+```
+
+Purpose:
+
+- guide issue #138;
+- keep fixed field standards canonical while dynamic values stay in `sikesra_custom_attribute_*` tables;
+- show where masking and audit are applied.
+
+## 10. Permanent Delete Governance Flow
+
+```mermaid
+flowchart TD
+  Request[Permanent delete request] --> Validate[Validate SIKESRA-owned target]
+  Validate --> Permission[Require sikesra_super_admin permission]
+  Permission --> Reason[Require reason and confirmation phrase]
+  Reason --> Snapshot[Create delete snapshot]
+  Snapshot --> Event[Write delete event]
+  Event --> Audit[Write audit event]
+  Audit --> Review[Await approval or execution workflow]
+```
+
+Purpose:
+
+- guide issue #139;
+- show permanent delete as request-first and snapshot-first;
+- keep EmDash core users outside SIKESRA destructive operations.
+
+## 11. Data Preservation After Rebuild
 
 ```mermaid
 flowchart TD
@@ -220,7 +265,7 @@ Purpose:
 - guide issue #137;
 - keep data safety visible during EmDash update and rebuild.
 
-## 10. Cloudflare D1/R2 Topology
+## 12. Cloudflare D1/R2 Topology
 
 ```mermaid
 flowchart LR
@@ -237,6 +282,6 @@ Purpose:
 - guide Cloudflare template validation;
 - show how admin, public, D1, and R2 connect.
 
-## 11. Maintenance Rule
+## 13. Maintenance Rule
 
 When a SIKESRA issue changes architecture, database, UI/UX, integration, security, deployment, migration, or data preservation behavior, update the relevant diagram in this document or explain why no diagram update is required.

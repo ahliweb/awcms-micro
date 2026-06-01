@@ -9,6 +9,15 @@ import {
 	filterPluginHeaderMenu,
 } from "../src/admin.js";
 import {
+	isSikesraAdminHref,
+	SIKESRA_ADMIN_ROUTE_BASE,
+	SIKESRA_OPERATOR_WORKFLOW_STEPS,
+	SIKESRA_PAGE_ANATOMY,
+	SIKESRA_STANDARD_EMPTY_STATES,
+	SIKESRA_STATUS_BADGES,
+	toSikesraAdminHref,
+} from "../src/admin/ui-standards.js";
+import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
 	maskSensitiveBySensitivity,
@@ -1736,6 +1745,33 @@ describe("awcms micro sikesra plugin", () => {
 				"abac/preview",
 			]),
 		);
+	});
+
+	it("declares issue #142 admin UI/UX route and interaction standards", () => {
+		expect(SIKESRA_ADMIN_ROUTE_BASE).toBe("/_emdash/admin/plugins/awcms-micro-sikesra");
+		expect(toSikesraAdminHref("registry")).toBe(
+			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
+		);
+		expect(toSikesraAdminHref("/verification")).toBe(
+			"/_emdash/admin/plugins/awcms-micro-sikesra/verification",
+		);
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.every((card) => isSikesraAdminHref(card.href))).toBe(
+			true,
+		);
+		expect(SIKESRA_OPERATOR_WORKFLOW_STEPS).toEqual([
+			"Configure",
+			"Input or Import",
+			"Validate",
+			"Verify",
+			"Publish Aggregate",
+			"Report or Export",
+			"Audit or Govern",
+		]);
+		expect(SIKESRA_PAGE_ANATOMY).toContain("Empty, loading, and error states");
+		expect(SIKESRA_STATUS_BADGES).toEqual(
+			expect.arrayContaining(["Public Safe", "Sensitive", "Restricted", "Orphaned User"]),
+		);
+		expect(SIKESRA_STANDARD_EMPTY_STATES).toContain("No import batch");
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {

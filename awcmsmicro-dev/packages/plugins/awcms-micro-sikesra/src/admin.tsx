@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import { getExampleAdminCopy } from "./admin-copy.js";
+import { toSikesraAdminHref } from "./admin/ui-standards.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
@@ -22,8 +23,6 @@ import {
 	DEFAULT_DATA_TYPES,
 	type SikesraParentType,
 } from "./runtime.js";
-
-const PLUGIN_ADMIN_BASE = `/_emdash/admin/plugins/${AWCMS_SIKESRA_PLUGIN_ID}`;
 
 interface AdministrativeRegion {
 	code: string;
@@ -284,7 +283,6 @@ interface FieldWidgetProps {
 function getDashboardModuleCards(locale: string | undefined): DashboardModuleCard[] {
 	const copy = getExampleAdminCopy(locale);
 	const cards = copy.dashboardCards;
-	const pluginAdminPath = (path: string) => `${PLUGIN_ADMIN_BASE}${path}`;
 	return [
 		{
 			id: "rumah_ibadah",
@@ -292,7 +290,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[0]!.description,
 			status: cards[0]!.status,
 			badge: cards[0]!.badge,
-			href: pluginAdminPath("/registry"),
+			href: toSikesraAdminHref("/registry"),
 		},
 		{
 			id: "lembaga_keagamaan",
@@ -300,7 +298,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[1]!.description,
 			status: cards[1]!.status,
 			badge: cards[1]!.badge,
-			href: pluginAdminPath("/registry"),
+			href: toSikesraAdminHref("/registry"),
 		},
 		{
 			id: "pendidikan_keagamaan",
@@ -308,7 +306,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[2]!.description,
 			status: cards[2]!.status,
 			badge: cards[2]!.badge,
-			href: pluginAdminPath("/verification"),
+			href: toSikesraAdminHref("/verification"),
 		},
 		{
 			id: "lks",
@@ -316,7 +314,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[3]!.description,
 			status: cards[3]!.status,
 			badge: cards[3]!.badge,
-			href: pluginAdminPath("/reports"),
+			href: toSikesraAdminHref("/reports"),
 		},
 		{
 			id: "guru_agama",
@@ -324,7 +322,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[4]!.description,
 			status: cards[4]!.status,
 			badge: cards[4]!.badge,
-			href: pluginAdminPath("/access/roles"),
+			href: toSikesraAdminHref("/access/roles"),
 		},
 		{
 			id: "anak_yatim",
@@ -332,7 +330,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[5]!.description,
 			status: cards[5]!.status,
 			badge: cards[5]!.badge,
-			href: pluginAdminPath("/audit"),
+			href: toSikesraAdminHref("/audit"),
 		},
 		{
 			id: "disabilitas",
@@ -340,7 +338,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[6]!.description,
 			status: cards[6]!.status,
 			badge: cards[6]!.badge,
-			href: pluginAdminPath("/abac/preview"),
+			href: toSikesraAdminHref("/abac/preview"),
 		},
 		{
 			id: "lansia_terlantar",
@@ -348,7 +346,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[7]!.description,
 			status: cards[7]!.status,
 			badge: cards[7]!.badge,
-			href: pluginAdminPath("/documents"),
+			href: toSikesraAdminHref("/documents"),
 		},
 	];
 }
