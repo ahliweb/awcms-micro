@@ -68,10 +68,14 @@ export type {
 } from "./custom-attribute-contracts.js";
 export type {
 	SikesraPermanentDeleteRequest,
+	SikesraCrudFeaturePolicy,
 	SikesraCrudMutationMeta,
+	SikesraCrudOperationName,
+	SikesraCrudOperationPolicy,
 	SikesraRestoreRequest,
 	SikesraSoftDeleteRequest,
 } from "./crud-contracts.js";
+export { SIKESRA_CRUD_FEATURE_POLICIES } from "./crud-contracts.js";
 export type { SikesraContractRouteContext, SikesraContractValidator } from "./route-handler.js";
 export { handleSikesraContractRoute, requireStringField } from "./route-handler.js";
 export type { SikesraUiState, SikesraUiStateStatus } from "./ui-state.js";

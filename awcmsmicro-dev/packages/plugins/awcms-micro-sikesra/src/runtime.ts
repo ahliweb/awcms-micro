@@ -440,6 +440,7 @@ const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE = "sikesra_custom_attribu
 const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE = "sikesra_custom_attribute_values";
 const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_CHANGE_EVENTS_TABLE = "sikesra_custom_attribute_change_events";
 const AWCMS_SIKESRA_DELETE_REQUESTS_TABLE = "sikesra_delete_requests";
+const AWCMS_SIKESRA_DELETE_APPROVALS_TABLE = "sikesra_delete_approvals";
 const AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE = "sikesra_delete_snapshots";
 const AWCMS_SIKESRA_DELETE_EVENTS_TABLE = "sikesra_delete_events";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
@@ -1275,6 +1276,106 @@ export interface AbacPolicyRule {
 	updatedAt: string;
 }
 
+const DEFAULT_SIKESRA_CRUD_PERMISSION_SLUGS = [
+	"sikesra.registry.soft_delete",
+	"sikesra.registry.restore",
+	"sikesra.registry.permanent_delete",
+	"sikesra.person.create",
+	"sikesra.person.read",
+	"sikesra.person.read_sensitive",
+	"sikesra.person.update",
+	"sikesra.person.soft_delete",
+	"sikesra.person.restore",
+	"sikesra.person.permanent_delete",
+	"sikesra.module_detail.create",
+	"sikesra.module_detail.read",
+	"sikesra.module_detail.update",
+	"sikesra.module_detail.soft_delete",
+	"sikesra.module_detail.restore",
+	"sikesra.module_detail.permanent_delete",
+	"sikesra.document.create",
+	"sikesra.document.update",
+	"sikesra.document.soft_delete",
+	"sikesra.document.restore",
+	"sikesra.document.permanent_delete",
+	"sikesra.file_metadata.read",
+	"sikesra.file_metadata.create",
+	"sikesra.file_metadata.update",
+	"sikesra.file_metadata.soft_delete",
+	"sikesra.file_metadata.restore",
+	"sikesra.file_metadata.permanent_delete",
+	"sikesra.import.read",
+	"sikesra.import.update",
+	"sikesra.import.soft_delete",
+	"sikesra.import.restore",
+	"sikesra.import.permanent_delete",
+	"sikesra.export.read",
+	"sikesra.export.update",
+	"sikesra.export.cancel",
+	"sikesra.export.soft_delete",
+	"sikesra.export.restore",
+	"sikesra.export.permanent_delete",
+	"sikesra.report.configure",
+	"sikesra.verification.create",
+	"sikesra.verification.update",
+	"sikesra.verification.soft_delete",
+	"sikesra.verification.restore",
+	"sikesra.verification.permanent_delete",
+	"sikesra.settings.create",
+	"sikesra.settings.soft_delete",
+	"sikesra.settings.restore",
+	"sikesra.settings.permanent_delete",
+	"sikesra.region.create",
+	"sikesra.region.read",
+	"sikesra.region.update",
+	"sikesra.region.soft_delete",
+	"sikesra.region.restore",
+	"sikesra.region.permanent_delete",
+	"sikesra.data_type.create",
+	"sikesra.data_type.read",
+	"sikesra.data_type.update",
+	"sikesra.data_type.soft_delete",
+	"sikesra.data_type.restore",
+	"sikesra.data_type.permanent_delete",
+	"sikesra.field_standard.create",
+	"sikesra.field_standard.read",
+	"sikesra.field_standard.update",
+	"sikesra.field_standard.soft_delete",
+	"sikesra.field_standard.restore",
+	"sikesra.field_standard.permanent_delete",
+	"sikesra.custom_attribute.soft_delete",
+	"sikesra.custom_attribute.restore",
+	"sikesra.custom_attribute.permanent_delete",
+	"sikesra.custom_attribute_value.create",
+	"sikesra.custom_attribute_value.read",
+	"sikesra.custom_attribute_value.update",
+	"sikesra.custom_attribute_value.soft_delete",
+	"sikesra.custom_attribute_value.restore",
+	"sikesra.custom_attribute_value.permanent_delete",
+	"sikesra.rbac.create",
+	"sikesra.rbac.read",
+	"sikesra.rbac.update",
+	"sikesra.rbac.soft_delete",
+	"sikesra.rbac.restore",
+	"sikesra.rbac.permanent_delete",
+	"sikesra.abac.create",
+	"sikesra.abac.read",
+	"sikesra.abac.update",
+	"sikesra.abac.soft_delete",
+	"sikesra.abac.restore",
+	"sikesra.abac.permanent_delete",
+	"sikesra.user_assignment.create",
+	"sikesra.user_assignment.read",
+	"sikesra.user_assignment.update",
+	"sikesra.user_assignment.soft_delete",
+	"sikesra.user_assignment.restore",
+	"sikesra.user_assignment.permanent_delete",
+	"sikesra.audit.export",
+	"sikesra.audit.retention_purge_request",
+	"sikesra.audit.retention_purge_approve",
+	"sikesra.audit.retention_purge_execute",
+] as const;
+
 const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 	{
 		slug: "content.read.public",
@@ -1348,6 +1449,7 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 		"sikesra.permanent_delete.review",
 		"sikesra.permanent_delete.cancel",
 		"sikesra.permanent_delete.execute",
+		...DEFAULT_SIKESRA_CRUD_PERMISSION_SLUGS,
 	].map((slug) => ({
 		slug,
 		label: slug,
@@ -1469,7 +1571,8 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 			(permission) =>
 				permission.slug.startsWith("sikesra.") &&
 				!permission.slug.startsWith("sikesra.permanent_delete.") &&
-				!permission.slug.endsWith(".permanent_delete"),
+				!permission.slug.endsWith(".permanent_delete") &&
+				!permission.slug.startsWith("sikesra.audit.retention_purge_"),
 		).map((permission) => permission.slug),
 		updatedAt: "",
 	},
@@ -1487,6 +1590,9 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 			"sikesra.permanent_delete.review",
 			"sikesra.permanent_delete.cancel",
 			"sikesra.permanent_delete.execute",
+			"sikesra.audit.retention_purge_request",
+			"sikesra.audit.retention_purge_approve",
+			"sikesra.audit.retention_purge_execute",
 		],
 		updatedAt: "",
 	},
@@ -1969,11 +2075,14 @@ async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRe
 	await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
 }
 
-async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
+async function getD1RegistryEntities(
+	ctx: PluginContext,
+	options: { includeDeleted?: boolean } = {},
+): Promise<Array<SikesraReferenceRegistryEntity & { deletedAt?: string | null }>> {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return [];
 
-	const rows = (await db
+	let query = db
 		.selectFrom(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
 		.select([
 			"id",
@@ -1993,9 +2102,9 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 			"deleted_at",
 		])
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("deleted_at", "is", null)
-		.execute()) as Array<{
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID);
+	if (!options.includeDeleted) query = query.where("deleted_at", "is", null);
+	const rows = (await query.execute()) as Array<{
 		id: string;
 		sikesra_id_20?: string | null;
 		code: string;
@@ -2009,6 +2118,7 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 		verification_stage: SikesraReferenceRegistryEntity["verificationStage"];
 		input_level?: VerificationUserLevel | null;
 		public_summary?: string | null;
+		deleted_at?: string | null;
 	}>;
 
 	return rows.map((row) => ({
@@ -2028,7 +2138,55 @@ async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferen
 		inputLevel: row.input_level ?? "desa_kelurahan",
 		supportingDocumentIds: [],
 		publicSummary: row.public_summary ?? "",
+		deletedAt: row.deleted_at ?? null,
 	}));
+}
+
+async function updateD1RegistryEntityDeletedAt(
+	ctx: PluginContext,
+	input: { id: string; deletedAt: string | null; actor: string | null },
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const existing = (await getD1RegistryEntities(ctx, { includeDeleted: true })).find(
+		(entity) => entity.id === input.id,
+	);
+	if (!existing) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: existing.id,
+			sikesra_id_20: existing.sikesraId20 ?? null,
+			code: existing.code,
+			label: existing.label,
+			entity_type: existing.entityType,
+			subtype_code: null,
+			sensitivity: existing.sensitivity,
+			province_code: existing.region.provinceCode || null,
+			regency_code: existing.region.regencyCode || null,
+			district_code: existing.region.districtCode || null,
+			village_code: existing.region.villageCode || null,
+			verification_stage: existing.verificationStage,
+			input_level: existing.inputLevel,
+			public_summary: existing.publicSummary,
+			created_at: now,
+			updated_at: now,
+			deleted_at: input.deletedAt,
+			created_by: null,
+			updated_by: input.actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				updated_at: now,
+				deleted_at: input.deletedAt,
+				updated_by: input.actor,
+			}),
+		)
+		.execute();
+	return true;
 }
 
 async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
@@ -3590,6 +3748,15 @@ const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return { items: entities };
 };
 
+const registryArchiveListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const entities = (await getD1RegistryEntities(ctx, { includeDeleted: true })).filter(
+		(entity) => entity.deletedAt,
+	);
+	return { items: entities };
+};
+
 const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
 	if (!isRecord(input)) {
@@ -3639,6 +3806,36 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	);
 
 	return { success: true, item: newEntity };
+};
+
+const registrySoftDeleteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.soft_delete");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const id = getString(input, "id") ?? "";
+	const reason = getString(input, "reason")?.trim() ?? "";
+	if (!id || !reason) return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const deleted = await updateD1RegistryEntityDeletedAt(ctx, { id, deletedAt: toIsoNow(), actor });
+	if (!deleted) return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.soft_delete", scope: "registry", actor, summary: `Soft deleted SIKESRA registry entity ${id}`, metadata: { id, reason } }));
+	return { success: true, item: { id, deleted: true } };
+};
+
+const registryRestoreRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.restore");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const id = getString(input, "id") ?? "";
+	const reason = getString(input, "reason")?.trim() ?? "";
+	if (!id || !reason) return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const restored = await updateD1RegistryEntityDeletedAt(ctx, { id, deletedAt: null, actor });
+	if (!restored) return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.restore", scope: "registry", actor, summary: `Restored SIKESRA registry entity ${id}`, metadata: { id, reason } }));
+	return { success: true, item: { id, restored: true } };
 };
 
 const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -4849,6 +5046,222 @@ const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, c
 	};
 };
 
+const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.approve");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const deleteRequestId = getString(input, "deleteRequestId") ?? "";
+	const decision = getString(input, "decision") ?? "approved";
+	const notes = getString(input, "notes") ?? "";
+	const invalidFields = [
+		...(deleteRequestId ? [] : ["deleteRequestId"]),
+		...(["approved", "rejected"].includes(decision) ? [] : ["decision"]),
+		...(decision === "rejected" && !notes.trim() ? ["notes"] : []),
+	];
+	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto || !db?.selectFrom) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	const requestRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.select(["id", "target_table", "target_record_id", "target_type", "reason", "risk_level", "requested_by", "requested_at", "status"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("id", "=", deleteRequestId)
+		.execute()) as Array<Record<string, unknown>>;
+	const requestRow = requestRows[0];
+	if (!requestRow) return { success: false, error: { code: "NOT_FOUND", message: "Delete request was not found." } };
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const approvalId = getString(input, "id") ?? `${deleteRequestId}:approval:${decision}`;
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_APPROVALS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: approvalId,
+			delete_request_id: deleteRequestId,
+			approval_level: "super_admin",
+			approved_by: actor,
+			approved_at: now,
+			decision,
+			notes,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.values({
+			...requestRow,
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: deleteRequestId,
+			status: decision,
+			updated_at: now,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				status: decision,
+				updated_at: now,
+				updated_by: actor,
+			}),
+		)
+		.execute();
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${approvalId}:event`,
+			delete_request_id: deleteRequestId,
+			event_kind: decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject",
+			actor_user_id: actor,
+			summary: `Permanent delete request ${deleteRequestId} ${decision}`,
+			metadata_json: JSON.stringify({ deleteRequestId, decision, notes }),
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+	await appendAuditEvent(ctx, createAuditRecord({ kind: decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject", scope: "crud", actor, summary: `Permanent delete request ${deleteRequestId} ${decision}`, metadata: { deleteRequestId, decision, notes } }));
+	return { success: true, item: { id: approvalId, deleteRequestId, decision } };
+};
+
+const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.execute");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const deleteRequestId = getString(input, "deleteRequestId") ?? "";
+	const confirmation = getString(input, "confirmation") ?? "";
+	if (!deleteRequestId || confirmation !== "PERMANENT DELETE") {
+		return createValidationError([
+			...(deleteRequestId ? [] : ["deleteRequestId"]),
+			...(confirmation === "PERMANENT DELETE" ? [] : ["confirmation"]),
+		]);
+	}
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom || !db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	const requestRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.select(["id", "target_table", "target_record_id", "target_type", "status"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("id", "=", deleteRequestId)
+		.execute()) as Array<Record<string, unknown>>;
+	const requestRow = requestRows[0];
+	if (!requestRow) return { success: false, error: { code: "NOT_FOUND", message: "Delete request was not found." } };
+	if (requestRow.status !== "approved") return { success: false, error: { code: "DELETE_NOT_APPROVED", message: "Permanent delete request must be approved before execution." } };
+	const targetTable = String(requestRow.target_table ?? "");
+	const targetRecordId = String(requestRow.target_record_id ?? "");
+	const blockedFields = [
+		...(SIKESRA_OWNED_DELETE_TABLES.has(targetTable as any) ? [] : ["targetTable"]),
+		...(targetTable.startsWith("_emdash") || targetTable.includes("user") ? ["targetTable"] : []),
+	];
+	if (blockedFields.length > 0) return createValidationError([...new Set(blockedFields)]);
+	if (targetTable === AWCMS_SIKESRA_AUDIT_TABLE) {
+		return { success: false, error: { code: "AUDIT_RETENTION_PURGE_REQUIRED", message: "Audit events require the retention purge workflow, not ordinary permanent delete." } };
+	}
+	const blockingReferences: string[] = [];
+	if (targetTable === AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE) {
+		const documents = (await db
+			.selectFrom(AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE)
+			.select(["id"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("registry_entity_id", "=", targetRecordId)
+			.execute()) as Array<Record<string, unknown>>;
+		const verificationEvents = (await db
+			.selectFrom(AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE)
+			.select(["id"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("registry_entity_id", "=", targetRecordId)
+			.execute()) as Array<Record<string, unknown>>;
+		if (documents.length > 0) blockingReferences.push("supporting_documents");
+		if (verificationEvents.length > 0) blockingReferences.push("verification_events");
+	}
+	if (blockingReferences.length > 0) {
+		const now = toIsoNow();
+		const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+		await db
+			.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: `${deleteRequestId}:blocked:${blockingReferences.join("-")}`,
+				delete_request_id: deleteRequestId,
+				event_kind: "crud.permanent_delete.blocked",
+				actor_user_id: actor,
+				summary: `Permanent delete blocked for ${targetTable}/${targetRecordId}`,
+				metadata_json: JSON.stringify({ targetTable, targetRecordId, blockingReferences }),
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: actor,
+				updated_by: actor,
+			})
+			.execute();
+		await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.blocked", scope: "crud", actor, summary: `Permanent delete blocked for ${targetTable}/${targetRecordId}`, metadata: { deleteRequestId, targetTable, targetRecordId, blockingReferences } }));
+		return { success: false, error: { code: "DELETE_BLOCKED_REFERENCES", message: "Permanent delete is blocked by protected references.", details: { references: blockingReferences } } };
+	}
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	if (!db?.deleteFrom) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 delete support is required for permanent delete execution." } };
+	await db
+		.deleteFrom(targetTable)
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("id", "=", targetRecordId)
+		.execute();
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.values({
+			...requestRow,
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: deleteRequestId,
+			status: "executed",
+			updated_at: now,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				status: "executed",
+				updated_at: now,
+				updated_by: actor,
+			}),
+		)
+		.execute();
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${deleteRequestId}:executed`,
+			delete_request_id: deleteRequestId,
+			event_kind: "crud.permanent_delete.execute",
+			actor_user_id: actor,
+			summary: `Permanent delete executed for ${targetTable}/${targetRecordId}`,
+			metadata_json: JSON.stringify({ targetTable, targetRecordId }),
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.execute", scope: "crud", actor, summary: `Permanent delete executed for ${targetTable}/${targetRecordId}`, metadata: { deleteRequestId, targetTable, targetRecordId } }));
+	return { success: true, item: { deleteRequestId, targetTable, targetRecordId, status: "executed" } };
+};
+
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return getSettings(ctx);
 };
@@ -5766,6 +6179,9 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"public/status": { public: true, handler: publicStatusRoute },
 	"registry/list": { handler: registryListRoute },
 	"registry/save": { handler: registrySaveRoute },
+	"registry/archive/list": { handler: registryArchiveListRoute },
+	"registry/soft-delete": { handler: registrySoftDeleteRoute },
+	"registry/restore": { handler: registryRestoreRoute },
 	"documents/list": { handler: documentsListRoute },
 	"documents/save": { handler: documentsSaveRoute },
 	"documents/access": { handler: documentsAccessRoute },
@@ -5780,6 +6196,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"custom-attributes/values/save": { handler: customAttributeValuesSaveRoute },
 	"crud/permanent-delete/request": { handler: permanentDeleteRequestRoute },
 	"crud/permanent-delete/requests/list": { handler: permanentDeleteRequestsListRoute },
+	"crud/permanent-delete/approve": { handler: permanentDeleteApproveRoute },
+	"crud/permanent-delete/execute": { handler: permanentDeleteExecuteRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },

@@ -27,7 +27,11 @@ import {
 	maskSensitiveBySensitivity,
 } from "../src/fixtures.js";
 import { awcmsMicroExamplePlugin, awcmsMicroSikesraPlugin } from "../src/index.js";
-import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
+import {
+	AWCMS_SIKESRA_CRUD_PERMISSION_LIST,
+	AWCMS_SIKESRA_PERMISSION_LIST,
+} from "../src/permissions.js";
+import { SIKESRA_CRUD_FEATURE_POLICIES } from "../src/contracts/index.js";
 import {
 	AWCMS_SIKESRA_ADMIN_PAGES,
 	AWCMS_SIKESRA_ADMIN_WIDGETS,
@@ -155,6 +159,7 @@ function createMockContext() {
 	const customAttributeValueTableRows: Array<Record<string, unknown>> = [];
 	const customAttributeChangeEventTableRows: Array<Record<string, unknown>> = [];
 	const deleteRequestTableRows: Array<Record<string, unknown>> = [];
+	const deleteApprovalTableRows: Array<Record<string, unknown>> = [];
 	const deleteSnapshotTableRows: Array<Record<string, unknown>> = [];
 	const deleteEventTableRows: Array<Record<string, unknown>> = [];
 	const verificationStageTableRows: Array<Record<string, unknown>> = [];
@@ -806,6 +811,8 @@ function createMockContext() {
 						row = { ...nextRow };
 					} else if (_table === "sikesra_delete_requests") {
 						row = { ...nextRow };
+					} else if (_table === "sikesra_delete_approvals") {
+						row = { ...nextRow };
 					} else if (_table === "sikesra_delete_snapshots") {
 						row = { ...nextRow };
 					} else if (_table === "sikesra_delete_events") {
@@ -956,6 +963,10 @@ function createMockContext() {
 										upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_delete_approvals") {
+										upsertD1CatalogRow(deleteApprovalTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_delete_snapshots") {
 										upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
@@ -1087,6 +1098,10 @@ function createMockContext() {
 									upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
 								}
+								if (_table === "sikesra_delete_approvals") {
+									upsertD1CatalogRow(deleteApprovalTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
 								if (_table === "sikesra_delete_snapshots") {
 									upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
@@ -1131,6 +1146,21 @@ function createMockContext() {
 					return query;
 				},
 				async execute() {
+					if (_table === "sikesra_registry_entities") {
+						for (let index = registryEntityTableRows.length - 1; index >= 0; index -= 1) {
+							const row = registryEntityTableRows[index]!;
+							let matches = true;
+							for (const [key, value] of Object.entries(filters)) {
+								if ((row as Record<string, string>)[key] !== value) {
+									matches = false;
+									break;
+								}
+							}
+							if (!matches) continue;
+							registryEntityTableRows.splice(index, 1);
+						}
+						return;
+					}
 					if (_table === "sikesra_audit_events") {
 						for (let index = auditTableRows.length - 1; index >= 0; index -= 1) {
 							const row = auditTableRows[index]!;
@@ -1258,6 +1288,7 @@ function createMockContext() {
 		customAttributeValueTableRows,
 		customAttributeChangeEventTableRows,
 		deleteRequestTableRows,
+		deleteApprovalTableRows,
 		deleteSnapshotTableRows,
 		deleteEventTableRows,
 		verificationStageTableRows,
@@ -1349,6 +1380,59 @@ describe("awcms micro sikesra plugin", () => {
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.restore");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.archive");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.permanent_delete");
+		for (const permission of AWCMS_SIKESRA_CRUD_PERMISSION_LIST) {
+			expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain(permission);
+		}
+	});
+
+	it("declares issue #139 CRUD governance policies for every feature group", () => {
+		const expectedOperations = [
+			"create",
+			"read_list",
+			"read_detail",
+			"update",
+			"soft_delete",
+			"restore",
+			"archive",
+			"permanent_delete",
+		];
+		expect(SIKESRA_CRUD_FEATURE_POLICIES.map((policy) => policy.feature)).toEqual(
+			expect.arrayContaining([
+				"registry",
+				"person",
+				"module_detail",
+				"document",
+				"file_metadata",
+				"import",
+				"export",
+				"verification",
+				"settings",
+				"region",
+				"data_type",
+				"field_standard",
+				"custom_attribute",
+				"custom_attribute_value",
+				"rbac",
+				"abac",
+				"user_assignment",
+				"audit",
+			]),
+		);
+		for (const policy of SIKESRA_CRUD_FEATURE_POLICIES) {
+			expect(policy.tables.every((table) => table.startsWith("sikesra_"))).toBe(true);
+			expect(policy.operations.map((operation) => operation.operation)).toEqual(expectedOperations);
+			for (const operation of policy.operations) {
+				expect(operation.permissionSlug.startsWith("sikesra.")).toBe(true);
+				expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain(operation.permissionSlug);
+				expect(operation.auditEventKind).toMatch(/^crud\./);
+			}
+			const permanentDelete = policy.operations.find((operation) => operation.operation === "permanent_delete")!;
+			expect(permanentDelete.allowedRoles).toEqual(["sikesra_super_admin"]);
+			expect(permanentDelete.requiresReason).toBe(true);
+			expect(permanentDelete.requiresConfirmation).toBe(true);
+			expect(permanentDelete.requiresBackupSnapshot).toBe(true);
+			expect(permanentDelete.allowedWhenReferencedByOtherRecords).toBe(false);
+		}
 	});
 
 	it("creates structured audit records", () => {
@@ -1731,6 +1815,9 @@ describe("awcms micro sikesra plugin", () => {
 				"public/status",
 				"registry/list",
 				"registry/save",
+				"registry/archive/list",
+				"registry/soft-delete",
+				"registry/restore",
 				"documents/list",
 				"documents/save",
 				"documents/access",
@@ -1745,6 +1832,8 @@ describe("awcms micro sikesra plugin", () => {
 				"custom-attributes/values/save",
 				"crud/permanent-delete/request",
 				"crud/permanent-delete/requests/list",
+				"crud/permanent-delete/approve",
+				"crud/permanent-delete/execute",
 				"dashboard/summary",
 				"overview/summary",
 				"verification/list",
@@ -2226,6 +2315,80 @@ describe("awcms micro sikesra plugin", () => {
 				classification: "internal",
 			}),
 		);
+	});
+
+	it("soft deletes, archives, and restores registry entities through CRUD governance", async () => {
+		const { ctx, registryEntityTableRows, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const hooks = createSharedHooks();
+		const activate =
+			typeof hooks?.["plugin:activate"] === "function"
+				? hooks["plugin:activate"]
+				: hooks?.["plugin:activate"]?.handler;
+		await activate!({} as any, ctx as any);
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-crud-01",
+				code: "CRUD-001",
+				label: "CRUD Registry Entity",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+				publicSummary: "CRUD summary",
+			},
+		} as any);
+
+		const softDeleted = (await routes["registry/soft-delete"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-crud-01", reason: "Duplicate training data" },
+		} as any)) as any;
+		expect(softDeleted.success).toBe(true);
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at).toBeTruthy();
+
+		const activeAfterDelete = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(activeAfterDelete.items.some((item: any) => item.id === "registry-entity-crud-01")).toBe(false);
+
+		const archive = (await routes["registry/archive/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(archive.items).toContainEqual(
+			expect.objectContaining({ id: "registry-entity-crud-01" }),
+		);
+
+		const restored = (await routes["registry/restore"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-crud-01", reason: "Restored after review" },
+		} as any)) as any;
+		expect(restored.success).toBe(true);
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at).toBeNull();
+
+		const activeAfterRestore = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(activeAfterRestore.items).toContainEqual(
+			expect.objectContaining({ id: "registry-entity-crud-01" }),
+		);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "crud.soft_delete" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "crud.restore" }));
 	});
 
 	it("validates document metadata before D1 persistence", async () => {
@@ -2751,8 +2914,11 @@ describe("awcms micro sikesra plugin", () => {
 			ctx,
 			collections,
 			deleteRequestTableRows,
+			deleteApprovalTableRows,
 			deleteSnapshotTableRows,
 			deleteEventTableRows,
+			registryEntityTableRows,
+			supportingDocumentTableRows,
 			auditTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
@@ -2856,6 +3022,116 @@ describe("awcms micro sikesra plugin", () => {
 				targetRecordId: "registry-entity-custom-01",
 				status: "requested",
 			}),
+		);
+
+		const approved = (await routes["crud/permanent-delete/approve"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-01:approval:01",
+				deleteRequestId: "delete-request-01",
+				decision: "approved",
+				notes: "Snapshot reviewed before execution.",
+			},
+		} as any)) as any;
+		expect(approved.success).toBe(true);
+		expect(deleteApprovalTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "delete-request-01:approval:01",
+				delete_request_id: "delete-request-01",
+				approval_level: "super_admin",
+				decision: "approved",
+			}),
+		);
+		expect(deleteRequestTableRows).toContainEqual(
+			expect.objectContaining({ id: "delete-request-01", status: "approved" }),
+		);
+		expect(deleteEventTableRows).toContainEqual(
+			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.approve" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "crud.permanent_delete.approve" }),
+		);
+
+	supportingDocumentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "doc-blocking-delete-01",
+			registry_entity_id: "registry-entity-custom-01",
+		});
+		const blockedExecution = (await routes["crud/permanent-delete/execute"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				deleteRequestId: "delete-request-01",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(blockedExecution.success).toBe(false);
+		expect(blockedExecution.error.code).toBe("DELETE_BLOCKED_REFERENCES");
+		expect(blockedExecution.error.details.references).toContain("supporting_documents");
+		expect(deleteEventTableRows).toContainEqual(
+			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.blocked" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "crud.permanent_delete.blocked" }),
+		);
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "registry-entity-execute-01",
+				code: "DELETE-EXEC-01",
+				label: "Delete Execution Candidate",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+		} as any);
+		await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-02",
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-execute-01",
+				targetType: "registry_entity",
+				reason: "Duplicate test-only row",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any);
+		await routes["crud/permanent-delete/approve"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-02:approval:01",
+				deleteRequestId: "delete-request-02",
+				decision: "approved",
+				notes: "No protected references found.",
+			},
+		} as any);
+		const executed = (await routes["crud/permanent-delete/execute"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				deleteRequestId: "delete-request-02",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(executed.success).toBe(true);
+		expect(registryEntityTableRows.some((row) => row.id === "registry-entity-execute-01")).toBe(false);
+		expect(deleteRequestTableRows).toContainEqual(
+			expect.objectContaining({ id: "delete-request-02", status: "executed" }),
+		);
+		expect(deleteEventTableRows).toContainEqual(
+			expect.objectContaining({ delete_request_id: "delete-request-02", event_kind: "crud.permanent_delete.execute" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "crud.permanent_delete.execute" }),
 		);
 	});
 
@@ -2977,11 +3253,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(sikesraAdminAssignment?.permissions).not.toContain(
 			"sikesra.lifecycle.permanent_delete",
 		);
+		expect(sikesraAdminAssignment?.permissions).not.toContain("sikesra.registry.permanent_delete");
+		expect(sikesraAdminAssignment?.permissions).not.toContain("sikesra.audit.retention_purge_execute");
 		expect(collections.rolePermissionAssignments.get("sikesra_super_admin")).toMatchObject({
 			roleSlug: "sikesra_super_admin",
 			permissions: expect.arrayContaining([
 				"sikesra.lifecycle.permanent_delete",
 				"sikesra.permanent_delete.request",
+				"sikesra.audit.retention_purge_execute",
 			]),
 		});
 		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({
