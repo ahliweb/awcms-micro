@@ -5,8 +5,11 @@ import { createScopedRepository, type SikesraScopedRow } from "./scoped-reposito
 export interface SikesraRegistryEntityRow extends SikesraScopedRow {
 	id: string;
 	code: string;
+	label?: string;
 	entity_type: string;
 	verification_stage: string;
+	sensitivity?: string;
+	public_summary?: string;
 }
 
 export function createRegistryRepository(db: SikesraD1Database, scope: SikesraRepositoryScope) {
