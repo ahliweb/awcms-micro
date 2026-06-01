@@ -3,6 +3,7 @@ import { join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { SIKESRA_D1_TABLES } from "../src/db/index.js";
 import { AWCMS_SIKESRA_D1_TABLE_NAMES } from "../src/runtime.js";
 
 const MIGRATIONS_DIR = resolve(import.meta.dirname, "../migrations");
@@ -35,6 +36,23 @@ describe("SIKESRA D1 migration prefix policy", () => {
 			}
 			for (const match of sql.matchAll(CREATE_TRIGGER_PATTERN)) {
 				expect(match[1], `${file} creates non-SIKESRA trigger`).toMatch(/^trg_sikesra_/);
+			}
+		}
+	});
+
+	it("keeps created migration tables in the repository and runtime table catalogs", () => {
+		const repositoryTables = new Set<string>(Object.values(SIKESRA_D1_TABLES));
+		const runtimeTables = new Set<string>(AWCMS_SIKESRA_D1_TABLE_NAMES);
+
+		for (const { file, sql } of readMigrationSqlFiles()) {
+			for (const match of sql.matchAll(CREATE_TABLE_PATTERN)) {
+				const table = match[1] ?? "";
+				expect(repositoryTables.has(table), `${file} creates table missing from repository catalog`).toBe(
+					true,
+				);
+				expect(runtimeTables.has(table), `${file} creates table missing from runtime catalog`).toBe(
+					true,
+				);
 			}
 		}
 	});

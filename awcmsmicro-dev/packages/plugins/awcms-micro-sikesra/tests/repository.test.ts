@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { SikesraD1Database } from "../src/db/index.js";
 import {
 	assertSikesraTableName,
+	createSikesraRepositories,
 	createRegistryRepository,
 	SIKESRA_D1_TABLES,
 } from "../src/db/index.js";
@@ -60,5 +61,25 @@ describe("SIKESRA D1 repositories", () => {
 	it("rejects non-SIKESRA table names", () => {
 		expect(() => assertSikesraTableName("users")).toThrow(/sikesra_/);
 		expect(() => assertSikesraTableName(SIKESRA_D1_TABLES.auditEvents)).not.toThrow();
+	});
+
+	it("creates domain repositories that only target SIKESRA tables", () => {
+		const { db } = createRecordingDb();
+		const repositories = createSikesraRepositories(db, { tenantId: "tenant-1", siteId: "site-1" });
+
+		expect(Object.keys(repositories)).toEqual([
+			"settings",
+			"regions",
+			"registry",
+			"verification",
+			"documents",
+			"imports",
+			"access",
+			"abac",
+			"audit",
+		]);
+		expect(Object.values(repositories).every((repository) => repository.table.startsWith("sikesra_"))).toBe(
+			true,
+		);
 	});
 });
