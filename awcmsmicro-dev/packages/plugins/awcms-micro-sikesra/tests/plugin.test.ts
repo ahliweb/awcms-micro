@@ -579,9 +579,21 @@ describe("awcms micro sikesra plugin", () => {
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
 		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS).toHaveLength(8);
-		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS[0]?.href).toBe(
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.map((card) => card.href)).toEqual([
 			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
-		);
+			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/verification",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/reports",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/access/roles",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/audit",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/abac/preview",
+			"/_emdash/admin/plugins/awcms-micro-sikesra/documents",
+		]);
+		expect(
+			AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.every((card) =>
+				card.href.startsWith("/_emdash/admin/plugins/awcms-micro-sikesra/"),
+			),
+		).toBe(true);
 		expect(AWCMS_SIKESRA_PLUGIN_HEADER_MENU.map((item) => item.label)).toEqual([
 			"Overview",
 			"Data Entry",
