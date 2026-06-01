@@ -1,10 +1,8 @@
 diff --git a/packages/core/package.json b/packages/core/package.json
 --- a/packages/core/package.json
 +++ b/packages/core/package.json
-@@ -260,9 +260,9 @@
-     "@types/sanitize-html": "^2.16.0",
-     "@types/sax": "^1.2.7",
-     "@vitest/ui": "^4.1.5",
+@@ -262,7 +262,7 @@
+     "@vitest/ui": "^4.1.7",
      "publint": "catalog:",
      "tsdown": "catalog:",
      "typescript": "catalog:",

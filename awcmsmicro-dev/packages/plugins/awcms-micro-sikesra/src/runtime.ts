@@ -17,6 +17,18 @@ import {
 } from "./fixtures.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
+const SIKESRA_VILLAGE_CODE_PATTERN = /^\d{10}$/;
+const SIKESRA_TYPE_CODE_PATTERN = /^\d{2}$/;
+const SIKESRA_SUBTYPE_CODE_PATTERN = /^\d{2}$/;
+const SIKESRA_ID_20_PATTERN = /^\d{20}$/;
+const SIKESRA_DOCUMENT_CHECKSUM_PATTERN = /^[a-f0-9]{64}$/i;
+const SIKESRA_SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
+const SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN = /:duplicate-code$/;
+const CUSTOM_ATTRIBUTE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const CUSTOM_ATTRIBUTE_URL_PATTERN = /^https?:\/\//;
+const CUSTOM_ATTRIBUTE_EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const CUSTOM_ATTRIBUTE_PHONE_PATTERN = /^\+?[0-9 .-]{6,32}$/;
+
 export interface AdministrativeRegion {
 	code: string;
 	name: string;
@@ -2510,9 +2522,9 @@ async function generateD1SikesraId20(
 ) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom || !db?.insertInto) return null;
-	if (!/^\d{10}$/.test(params.villageCode)) return null;
-	if (!/^\d{2}$/.test(params.typeCode)) return null;
-	if (!/^\d{2}$/.test(params.subtypeCode)) return null;
+	if (!SIKESRA_VILLAGE_CODE_PATTERN.test(params.villageCode)) return null;
+	if (!SIKESRA_TYPE_CODE_PATTERN.test(params.typeCode)) return null;
+	if (!SIKESRA_SUBTYPE_CODE_PATTERN.test(params.subtypeCode)) return null;
 
 	const sequenceKey = `${params.villageCode}:${params.typeCode}:${params.subtypeCode}`;
 	const rows = (await db
@@ -2580,7 +2592,7 @@ async function correctD1SikesraId20(
 ) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return null;
-	if (!/^\d{20}$/.test(params.nextSikesraId20)) return null;
+	if (!SIKESRA_ID_20_PATTERN.test(params.nextSikesraId20)) return null;
 	const existing = (await getD1RegistryEntities(ctx, { includeDeleted: true })).find(
 		(entity) => entity.id === params.registryEntityId,
 	);
@@ -2756,10 +2768,10 @@ function validateSupportingDocumentInput(doc: SikesraReferenceSupportingDocument
 	) {
 		invalidFields.push("fileSizeBytes");
 	}
-	if (doc.checksumSha256 && !/^[a-f0-9]{64}$/i.test(doc.checksumSha256)) {
+	if (doc.checksumSha256 && !SIKESRA_DOCUMENT_CHECKSUM_PATTERN.test(doc.checksumSha256)) {
 		invalidFields.push("checksumSha256");
 	}
-	if (doc.safeFilename && !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(doc.safeFilename)) {
+	if (doc.safeFilename && !SIKESRA_SAFE_FILENAME_PATTERN.test(doc.safeFilename)) {
 		invalidFields.push("safeFilename");
 	}
 	return invalidFields;
@@ -4617,7 +4629,7 @@ const registrySikesraIdCorrectRoute: SharedRouteHandler = async (routeCtx, ctx) 
 	const reason = getString(input, "reason")?.trim() ?? "";
 	const invalidFields = [
 		...(registryEntityId ? [] : ["registryEntityId"]),
-		...(/^\d{20}$/.test(nextSikesraId20) ? [] : ["sikesraId20"]),
+		...(SIKESRA_ID_20_PATTERN.test(nextSikesraId20) ? [] : ["sikesraId20"]),
 		...(reason ? [] : ["reason"]),
 	];
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
@@ -5467,7 +5479,7 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		.execute();
 
 	if (["not_duplicate", "cleared", "false_positive"].includes(decision)) {
-		await setD1ImportRowDuplicateStatus(ctx, candidateId.replace(/:duplicate-code$/, ""), "cleared");
+		await setD1ImportRowDuplicateStatus(ctx, candidateId.replace(SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN, ""), "cleared");
 	}
 
 	return { success: true, item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now } };
@@ -5797,11 +5809,11 @@ function validateCustomAttributeValueInput(input: Record<string, unknown>, defin
 	if (["string", "text", "region_code", "file_reference"].includes(definition.dataType) && typeof value !== "string") invalidFields.push("value");
 	if (definition.dataType === "number" && (typeof value !== "number" || !Number.isFinite(value))) invalidFields.push("value");
 	if (definition.dataType === "boolean" && typeof value !== "boolean") invalidFields.push("value");
-	if (definition.dataType === "date" && (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))) invalidFields.push("value");
+	if (definition.dataType === "date" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_DATE_PATTERN.test(value))) invalidFields.push("value");
 	if (definition.dataType === "datetime" && (typeof value !== "string" || Number.isNaN(Date.parse(value)))) invalidFields.push("value");
-	if (definition.dataType === "url" && (typeof value !== "string" || !/^https?:\/\//.test(value))) invalidFields.push("value");
-	if (definition.dataType === "email" && (typeof value !== "string" || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value))) invalidFields.push("value");
-	if (definition.dataType === "phone" && (typeof value !== "string" || !/^\+?[0-9 .-]{6,32}$/.test(value))) invalidFields.push("value");
+	if (definition.dataType === "url" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_URL_PATTERN.test(value))) invalidFields.push("value");
+	if (definition.dataType === "email" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_EMAIL_PATTERN.test(value))) invalidFields.push("value");
+	if (definition.dataType === "phone" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_PHONE_PATTERN.test(value))) invalidFields.push("value");
 	if (definition.dataType === "enum" && (typeof value !== "string" || (enumValues.length > 0 && !enumValues.includes(value)))) invalidFields.push("value");
 	if (definition.dataType === "multi_enum" && (!Array.isArray(value) || !value.every((item) => typeof item === "string") || (enumValues.length > 0 && !value.every((item) => enumValues.includes(item as string))))) invalidFields.push("value");
 	return [...new Set(invalidFields)];

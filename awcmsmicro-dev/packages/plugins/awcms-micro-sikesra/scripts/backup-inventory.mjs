@@ -6,13 +6,12 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const pluginDir = resolve(scriptDir, "..");
 const packageJson = JSON.parse(readFileSync(resolve(pluginDir, "package.json"), "utf8"));
 const schemaSource = readFileSync(resolve(pluginDir, "src/db/schema.ts"), "utf8");
+const schemaTablePattern = /:\s*"(sikesra_[a-z0-9_]+)"/g;
 const migrationFiles = readdirSync(resolve(pluginDir, "migrations")).filter((file) =>
 	file.endsWith(".sql"),
 );
 
-const d1Tables = [...schemaSource.matchAll(/:\s*"(sikesra_[a-z0-9_]+)"/g)].map(
-	(match) => match[1],
-);
+const d1Tables = Array.from(schemaSource.matchAll(schemaTablePattern), (match) => match[1]);
 const requiredProtectedTables = [
 	"sikesra_registry_entities",
 	"sikesra_person_profiles",

@@ -16,6 +16,8 @@ const requiredReferenceTables = [
 const forbiddenUserOwnershipPattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?(?:sikesra_users|users|_emdash_users)[`"]?/i;
 const emdashUserMutationPattern = /\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users)["']/;
 const clientUserHeaderPattern = /X-Sikesra-User-/i;
+const sourceFilePattern = /\.(ts|tsx|js|mjs)$/;
+const clientUserHeaderDevAllowPattern = /allowClientUserHeadersInDev/;
 
 function readSql() {
 	if (!existsSync(migrationsDir)) return "";
@@ -32,7 +34,7 @@ function walkFiles(dir, files = []) {
 		const path = join(dir, entry);
 		const stat = statSync(path);
 		if (stat.isDirectory()) walkFiles(path, files);
-		else if (stat.isFile() && /\.(ts|tsx|js|mjs)$/.test(entry)) files.push(path);
+		else if (stat.isFile() && sourceFilePattern.test(entry)) files.push(path);
 	}
 	return files;
 }
@@ -60,7 +62,7 @@ for (const file of walkFiles(srcDir)) {
 	if (
 		clientUserHeaderPattern.test(source) &&
 		!file.endsWith("src/admin/api/client.ts") &&
-		!/allowClientUserHeadersInDev/.test(source)
+		!clientUserHeaderDevAllowPattern.test(source)
 	) {
 		violations.push(`source references untrusted client SIKESRA user headers: ${file.replace(`${pluginDir}/`, "")}`);
 	}

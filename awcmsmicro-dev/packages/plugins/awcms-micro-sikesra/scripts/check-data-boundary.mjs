@@ -11,11 +11,12 @@ const srcDir = resolve(pluginDir, "src");
 const createTablePattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const schemaTablePattern = /:\s*"(sikesra_[a-z0-9_]+)"/g;
 const coreTableWritePattern = /\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users|_emdash_sessions|_emdash_accounts)["']/;
+const sourceFilePattern = /\.(ts|tsx|js|mjs)$/;
 const ignoredDirs = new Set(["dist", "node_modules", ".git", ".astro", ".vite", ".wrangler"]);
 
 function readSchemaTables() {
 	const source = readFileSync(schemaPath, "utf8");
-	return new Set([...source.matchAll(schemaTablePattern)].map((match) => match[1]));
+	return new Set(Array.from(source.matchAll(schemaTablePattern), (match) => match[1]));
 }
 
 function readMigrationTables() {
@@ -35,7 +36,7 @@ function walkFiles(dir, files = []) {
 		const path = join(dir, entry);
 		const stat = statSync(path);
 		if (stat.isDirectory()) walkFiles(path, files);
-		else if (stat.isFile() && /\.(ts|tsx|js|mjs)$/.test(entry)) files.push(path);
+		else if (stat.isFile() && sourceFilePattern.test(entry)) files.push(path);
 	}
 	return files;
 }

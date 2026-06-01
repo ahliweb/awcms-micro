@@ -8,5 +8,5 @@ diff --git a/packages/admin/package.json b/packages/admin/package.json
 -    "vite": "^7.0.0",
 +    "vite": "catalog:",
      "vitest": "catalog:",
-     "vitest-browser-react": "^2.0.5"
+     "vitest-browser-react": "^2.2.0"
    },
