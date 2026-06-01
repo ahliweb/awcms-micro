@@ -7,9 +7,9 @@
 	"publisher": "example.com", // Replace before any internal or public publish.
 	"author": { "name": "AWCMS-Micro" },
 	// Add `security` and `repo` when the final standalone package location is known.
-	"name": "AWCMS-Micro Example Plugin",
-	"description": "Access & audit demo plugin for AWCMS-Micro projects, demonstrating current EmDash plugin extension points without modifying EmDash core.",
-	"keywords": ["awcms-micro", "emdash", "plugin", "example", "tenant-ready"],
+	"name": "AWCMS-Micro SIKESRA Plugin",
+	"description": "AWCMS-Micro downstream SIKESRA plugin for EmDash-compatible projects, demonstrating plugin extension points without modifying EmDash core.",
+	"keywords": ["awcms-micro", "sikesra", "emdash", "plugin", "tenant-ready"],
 
 	// Keep this trust contract aligned with the real runtime surface before release.
 	"capabilities": ["content:read", "content:write", "media:read", "media:write"],

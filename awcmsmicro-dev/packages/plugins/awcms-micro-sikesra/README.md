@@ -8,7 +8,7 @@ SIKESRA is a downstream AWCMS-Micro plugin for social, welfare, religious, insti
 
 This package currently contains the SIKESRA plugin boundary, admin UI, routes, hooks, storage declarations, fixtures, and reference workflows. The production-grade implementation backlog is tracked through GitHub issues #119 through #143.
 
-The plugin is moving from an earlier example/demo identity into the dedicated SIKESRA identity. New code should use `awcmsMicroSikesraPlugin` once issue #140 is implemented. The old `awcmsMicroExamplePlugin` export may remain only as a temporary deprecated compatibility alias.
+The plugin now uses the dedicated SIKESRA identity. New code should use `awcmsMicroSikesraPlugin`. The old `awcmsMicroExamplePlugin` export remains only as a temporary deprecated compatibility alias.
 
 ## GitHub Issue System
 

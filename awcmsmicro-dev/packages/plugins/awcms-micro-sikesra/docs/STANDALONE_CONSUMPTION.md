@@ -4,11 +4,11 @@ This guide shows how to consume `@awcms-micro/plugin-sikesra` from a standalone 
 
 ## Supported Integration Model
 
-This example plugin is a native in-process plugin.
+This SIKESRA plugin is a native in-process plugin.
 
 - Use it in `plugins: []` inside `emdash({...})`.
 - Do not treat it as a sandboxed plugin.
-- Import the named factory `awcmsMicroExamplePlugin()` from `@awcms-micro/plugin-sikesra`.
+- Import the named factory `awcmsMicroSikesraPlugin()` from `@awcms-micro/plugin-sikesra`.
 
 ## Option A: Local Workspace Package
 
@@ -78,7 +78,7 @@ import { defineConfig } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
-import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
+import { awcmsMicroSikesraPlugin } from "@awcms-micro/plugin-sikesra";
 
 export default defineConfig({
 	output: "server",
@@ -91,7 +91,7 @@ export default defineConfig({
 				directory: "./uploads",
 				baseUrl: "/_emdash/api/media/file",
 			}),
-			plugins: [awcmsMicroExamplePlugin()],
+			plugins: [awcmsMicroSikesraPlugin()],
 		}),
 	],
 });
@@ -99,7 +99,7 @@ export default defineConfig({
 
 Notes:
 
-- The current example factory accepts optional options, but the checked-in example implementation does not use them yet.
+- The current SIKESRA factory accepts optional options, but the checked-in implementation does not use them yet.
 - The plugin belongs in `plugins: []`, not `sandboxed: []`.
 
 ## Keep Standard EmDash Boilerplate

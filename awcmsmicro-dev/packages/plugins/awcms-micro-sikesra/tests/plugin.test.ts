@@ -9,7 +9,7 @@ import {
 	filterPluginHeaderMenu,
 } from "../src/admin.js";
 import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
-import { awcmsMicroExamplePlugin } from "../src/index.js";
+import { awcmsMicroExamplePlugin, awcmsMicroSikesraPlugin } from "../src/index.js";
 import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
 import {
 	AWCMS_SIKESRA_ADMIN_PAGES,
@@ -453,15 +453,16 @@ function createMockContext() {
 	};
 }
 
-describe("awcms micro example plugin", () => {
+describe("awcms micro sikesra plugin", () => {
 	it("builds a descriptor without touching EmDash core", () => {
-		const descriptor = awcmsMicroExamplePlugin();
+		const descriptor = awcmsMicroSikesraPlugin();
 		const storage = descriptor.storage ?? {};
 
 		expect(descriptor.id).toBe("awcms-micro-sikesra");
 		expect(descriptor.adminEntry).toBe("@awcms-micro/plugin-sikesra/admin");
 		expect(descriptor.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
 		expect(descriptor.storage).toEqual(AWCMS_SIKESRA_DESCRIPTOR_STORAGE);
+		expect(awcmsMicroExamplePlugin()).toEqual(descriptor);
 		expect(Object.keys(storage)).toEqual(
 			expect.arrayContaining([
 				"sikesra_access_change_events",
@@ -578,7 +579,9 @@ describe("awcms micro example plugin", () => {
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
 		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS).toHaveLength(8);
-		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS[0]?.href).toBe("/registry");
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS[0]?.href).toBe(
+			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
+		);
 		expect(AWCMS_SIKESRA_PLUGIN_HEADER_MENU.map((item) => item.label)).toEqual([
 			"Overview",
 			"Data Entry",

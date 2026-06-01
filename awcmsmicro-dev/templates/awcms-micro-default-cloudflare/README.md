@@ -94,7 +94,7 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 
 ## Notes
 
-- The example plugin is currently registered through `plugins: [awcmsMicroExamplePlugin()]`.
+- The SIKESRA plugin is currently registered through `plugins: [awcmsMicroSikesraPlugin()]`.
 - The Worker Loader binding is already prepared even though this template does not yet register sandboxed plugins.
 - This template is intentionally separate from upstream EmDash templates and does not overwrite them.
 

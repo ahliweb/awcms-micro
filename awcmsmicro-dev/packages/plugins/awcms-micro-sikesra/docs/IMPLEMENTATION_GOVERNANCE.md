@@ -19,7 +19,7 @@ Temporary deprecated alias: awcmsMicroExamplePlugin
 Rules:
 
 - Keep the plugin slug stable as `awcms-micro-sikesra`.
-- New code must use `awcmsMicroSikesraPlugin` after issue #140 is implemented.
+- New code must use `awcmsMicroSikesraPlugin`.
 - `awcmsMicroExamplePlugin` may remain only as a temporary deprecated compatibility alias.
 - Do not introduce new `Example Plugin` wording except inside explicit migration/deprecation notes.
 

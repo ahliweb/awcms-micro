@@ -24,7 +24,7 @@ import { defineConfig } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
 
-import { awcmsMicroExamplePlugin } from "@awcms-micro/plugin-sikesra";
+import { awcmsMicroSikesraPlugin } from "@awcms-micro/plugin-sikesra";
 
 export default defineConfig({
 	output: "server",
@@ -42,7 +42,7 @@ export default defineConfig({
 				baseUrl: "/_emdash/api/media/file",
 			}),
 			siteUrl: "https://example.awcms-micro.local",
-			plugins: [awcmsMicroExamplePlugin()],
+			plugins: [awcmsMicroSikesraPlugin()],
 		}),
 	],
 	devToolbar: { enabled: false },
@@ -51,7 +51,7 @@ export default defineConfig({
 
 ## Notes
 
-- The example plugin is an in-process plugin, so it belongs in `plugins: []`.
+- The SIKESRA plugin is an in-process plugin, so it belongs in `plugins: []`.
 - Do not move it to `sandboxed: []`.
 - Review `siteUrl`, SQLite location, and uploads path before production use.
-- The current example plugin factory accepts optional options, but the checked-in implementation does not use them yet.
+- The current SIKESRA factory accepts optional options, but the checked-in implementation does not use them yet.

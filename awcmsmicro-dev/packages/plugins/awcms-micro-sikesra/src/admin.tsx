@@ -14,9 +14,15 @@ import {
 	type SikesraUserLevel,
 } from "./fixtures.js";
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
-import { AWCMS_SIKESRA_MANIFEST, DEFAULT_DATA_TYPES, type SikesraParentType } from "./runtime.js";
+import {
+	AWCMS_SIKESRA_MANIFEST,
+	AWCMS_SIKESRA_PLUGIN_ID,
+	DEFAULT_DATA_TYPES,
+	type SikesraParentType,
+} from "./runtime.js";
 
 const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
+const PLUGIN_ADMIN_BASE = `/_emdash/admin/plugins/${AWCMS_SIKESRA_PLUGIN_ID}`;
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 interface AdministrativeRegion {
@@ -278,6 +284,7 @@ interface FieldWidgetProps {
 function getDashboardModuleCards(locale: string | undefined): DashboardModuleCard[] {
 	const copy = getExampleAdminCopy(locale);
 	const cards = copy.dashboardCards;
+	const pluginAdminPath = (path: string) => `${PLUGIN_ADMIN_BASE}${path}`;
 	return [
 		{
 			id: "registry",
@@ -285,7 +292,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[0]!.description,
 			status: cards[0]!.status,
 			badge: cards[0]!.badge,
-			href: "/registry",
+			href: pluginAdminPath("/registry"),
 		},
 		{
 			id: "institutions",
@@ -293,7 +300,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[1]!.description,
 			status: cards[1]!.status,
 			badge: cards[1]!.badge,
-			href: "/registry",
+			href: pluginAdminPath("/registry"),
 		},
 		{
 			id: "education",
@@ -301,7 +308,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[2]!.description,
 			status: cards[2]!.status,
 			badge: cards[2]!.badge,
-			href: "/verification",
+			href: pluginAdminPath("/verification"),
 		},
 		{
 			id: "welfare",
@@ -309,7 +316,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[3]!.description,
 			status: cards[3]!.status,
 			badge: cards[3]!.badge,
-			href: "/reports",
+			href: pluginAdminPath("/reports"),
 		},
 		{
 			id: "teachers",
@@ -317,7 +324,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[4]!.description,
 			status: cards[4]!.status,
 			badge: cards[4]!.badge,
-			href: "/access/roles",
+			href: pluginAdminPath("/access/roles"),
 		},
 		{
 			id: "orphans",
@@ -325,7 +332,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[5]!.description,
 			status: cards[5]!.status,
 			badge: cards[5]!.badge,
-			href: "/audit",
+			href: pluginAdminPath("/audit"),
 		},
 		{
 			id: "disabilities",
@@ -333,7 +340,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[6]!.description,
 			status: cards[6]!.status,
 			badge: cards[6]!.badge,
-			href: "/abac/preview",
+			href: pluginAdminPath("/abac/preview"),
 		},
 		{
 			id: "elderly",
@@ -341,7 +348,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			description: cards[7]!.description,
 			status: cards[7]!.status,
 			badge: cards[7]!.badge,
-			href: "/documents",
+			href: pluginAdminPath("/documents"),
 		},
 	];
 }

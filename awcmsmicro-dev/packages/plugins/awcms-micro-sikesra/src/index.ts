@@ -19,14 +19,14 @@ import {
 	createSharedHooks,
 } from "./runtime.js";
 
-export interface AwcmsMicroExamplePluginOptions {
+export interface AwcmsMicroSikesraPluginOptions {
 	tenantId?: string;
 	siteId?: string;
 }
 
-export function awcmsMicroExamplePlugin(
-	options: AwcmsMicroExamplePluginOptions = {},
-): PluginDescriptor<AwcmsMicroExamplePluginOptions> {
+export function awcmsMicroSikesraPlugin(
+	options: AwcmsMicroSikesraPluginOptions = {},
+): PluginDescriptor<AwcmsMicroSikesraPluginOptions> {
 	return {
 		id: AWCMS_SIKESRA_PLUGIN_ID,
 		version,
@@ -44,7 +44,12 @@ export function awcmsMicroExamplePlugin(
 	};
 }
 
-export function createPlugin(_options: AwcmsMicroExamplePluginOptions = {}): ResolvedPlugin {
+/**
+ * @deprecated Use `awcmsMicroSikesraPlugin` instead.
+ */
+export const awcmsMicroExamplePlugin = awcmsMicroSikesraPlugin;
+
+export function createPlugin(_options: AwcmsMicroSikesraPluginOptions = {}): ResolvedPlugin {
 	return definePlugin({
 		id: AWCMS_SIKESRA_PLUGIN_ID,
 		version,
