@@ -998,6 +998,34 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.supportingDocuments.size).toBe(1);
 	});
 
+	it("blocks import promotion while staged rows have validation errors", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["import/promote"]!.handler({
+			...ctx,
+			input: {
+				rows: [
+					{
+						code: "",
+						label: "Invalid Import Row",
+						entityType: "rumah_ibadah",
+						provinceCode: "31",
+						regencyCode: "3171",
+						districtCode: "3171010",
+						villageCode: "3171010001",
+					},
+				],
+			},
+		} as any)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("VALIDATION_ERROR");
+		expect(result.error.details.invalidRows).toEqual([{ row: 1, fields: ["code"] }]);
+		expect(collections.registryEntities.size).toBe(0);
+		expect(collections.auditEvents.size).toBe(0);
+	});
+
 	it("migrates legacy registry and document blobs into plugin storage on read", async () => {
 		const { ctx, collections, kvData } = createMockContext();
 		kvData.set("custom:registryEntities", [

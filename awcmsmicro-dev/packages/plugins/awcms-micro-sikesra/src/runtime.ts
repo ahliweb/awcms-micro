@@ -2642,24 +2642,50 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		throw new Error("Invalid rows format");
 	}
 
+	const requiredFields = [
+		"code",
+		"label",
+		"entityType",
+		"provinceCode",
+		"regencyCode",
+		"districtCode",
+		"villageCode",
+	];
+	const invalidRows = rows.flatMap((row, index) => {
+		if (!isRecord(row)) return [{ row: index + 1, fields: ["row"] }];
+		const fields = requiredFields.filter((field) => !getString(row, field)?.trim());
+		return fields.length > 0 ? [{ row: index + 1, fields }] : [];
+	});
+	if (invalidRows.length > 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Import promotion is blocked while staged rows have validation errors.",
+				details: { invalidRows },
+			},
+		};
+	}
+
 	let count = 0;
 	for (const row of rows) {
+		if (!isRecord(row)) continue;
 		const newEntity: SikesraReferenceRegistryEntity = {
-			id: row.id ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
-			code: row.code ?? "",
-			label: row.label ?? "Imported Entity",
-			entityType: row.entityType ?? "rumah_ibadah",
-			sensitivity: (row.sensitivity as SikesraSensitivity) ?? "public_safe",
+			id: getString(row, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
+			code: getString(row, "code")!,
+			label: getString(row, "label")!,
+			entityType: getString(row, "entityType")!,
+			sensitivity: (getString(row, "sensitivity") as SikesraSensitivity | undefined) ?? "public_safe",
 			region: {
-				provinceCode: row.provinceCode ?? "",
-				regencyCode: row.regencyCode ?? "",
-				districtCode: row.districtCode ?? "",
-				villageCode: row.villageCode ?? "",
+				provinceCode: getString(row, "provinceCode")!,
+				regencyCode: getString(row, "regencyCode")!,
+				districtCode: getString(row, "districtCode")!,
+				villageCode: getString(row, "villageCode")!,
 			},
 			verificationStage: "submitted_village",
-			inputLevel: (row.inputLevel as VerificationUserLevel | undefined) ?? "desa_kelurahan",
+			inputLevel: (getString(row, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 			supportingDocumentIds: [],
-			publicSummary: row.publicSummary ?? "",
+			publicSummary: getString(row, "publicSummary") ?? "",
 		};
 		await saveRegistryEntity(ctx, newEntity);
 		count++;
