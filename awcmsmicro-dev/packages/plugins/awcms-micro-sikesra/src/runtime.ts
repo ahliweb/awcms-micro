@@ -420,6 +420,7 @@ const AWCMS_SIKESRA_SETTINGS_TABLE = "sikesra_settings";
 const AWCMS_SIKESRA_DATA_TYPES_TABLE = "sikesra_data_types";
 const AWCMS_SIKESRA_DATA_SUBTYPES_TABLE = "sikesra_data_subtypes";
 const AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE = "sikesra_official_regions";
+const AWCMS_SIKESRA_LOCAL_REGIONS_TABLE = "sikesra_local_regions";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
 const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
@@ -1244,6 +1245,37 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 		scope: "audit",
 		updatedAt: "",
 	},
+	...[
+		"sikesra.dashboard.read",
+		"sikesra.registry.read",
+		"sikesra.registry.create",
+		"sikesra.registry.update",
+		"sikesra.registry.delete_soft",
+		"sikesra.registry.read_sensitive",
+		"sikesra.document.read",
+		"sikesra.document.upload",
+		"sikesra.document.read_restricted",
+		"sikesra.import.create",
+		"sikesra.import.validate",
+		"sikesra.import.promote",
+		"sikesra.verification.read",
+		"sikesra.verification.approve",
+		"sikesra.verification.reject",
+		"sikesra.report.read",
+		"sikesra.export.create",
+		"sikesra.export.restricted",
+		"sikesra.audit.read",
+		"sikesra.settings.read",
+		"sikesra.settings.update",
+		"sikesra.rbac.manage",
+		"sikesra.abac.manage",
+	].map((slug) => ({
+		slug,
+		label: slug,
+		description: `Allows ${slug}.`,
+		scope: slug.split(".")[1] ?? "sikesra",
+		updatedAt: "",
+	})),
 ];
 
 const DEFAULT_ACCESS_ROLES: AccessRole[] = [
@@ -1293,6 +1325,26 @@ const DEFAULT_ACCESS_ROLES: AccessRole[] = [
 		description: "Administrative override role for SIKESRA verification and publication.",
 		updatedAt: "",
 	},
+	...[
+		"sikesra_admin",
+		"sikesra_operator_kabupaten",
+		"sikesra_verifikator_kabupaten",
+		"sikesra_verifikator_sopd",
+		"sikesra_verifikator_kecamatan",
+		"sikesra_verifikator_desa_kelurahan",
+		"sikesra_operator_desa_kelurahan",
+		"sikesra_viewer_laporan",
+		"sikesra_viewer_publikasi",
+		"sikesra_auditor",
+	].map((slug) => ({
+		slug,
+		label: slug
+			.split("_")
+			.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+			.join(" "),
+		description: `SIKESRA operational role: ${slug}.`,
+		updatedAt: "",
+	})),
 ];
 
 const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
@@ -1329,6 +1381,18 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	{
 		roleSlug: "admin-sikesra",
 		permissions: ["content.read.public", "content.review.publish", "audit.read.events"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "sikesra_admin",
+		permissions: DEFAULT_ACCESS_PERMISSIONS.filter((permission) => permission.slug.startsWith("sikesra.")).map(
+			(permission) => permission.slug,
+		),
+		updatedAt: "",
+	},
+	{
+		roleSlug: "sikesra_auditor",
+		permissions: ["sikesra.audit.read", "sikesra.report.read"],
 		updatedAt: "",
 	},
 ];
@@ -1947,7 +2011,10 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 	if (customDataTypes && (await persistD1DataTypes(ctx, customDataTypes))) migrated += 1;
 
 	const customRegions = await ctx.kv.get<unknown>("custom:regions");
-	if (customRegions && (await persistD1RegionTree(ctx, customRegions))) migrated += 1;
+	if (customRegions && (await persistD1RegionTree(ctx, customRegions, "official"))) migrated += 1;
+
+	const customLocalRegions = await ctx.kv.get<unknown>("custom:local-regions");
+	if (customLocalRegions && (await persistD1RegionTree(ctx, customLocalRegions, "local"))) migrated += 1;
 
 	const storedVerificationRows = await listStorageValues<StoredVerificationStageRecord>(
 		ctx.storage.sikesra_verification_stage_state!,
@@ -2197,7 +2264,7 @@ export function createAuditRecord(
 		scope: input.scope,
 		actor: input.actor,
 		summary: input.summary,
-		metadata: input.metadata,
+		metadata: redactAuditMetadata(input.metadata) as Record<string, unknown>,
 	};
 }
 
@@ -2214,6 +2281,9 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 
 	await ensureAuditEventTable(db);
 	const timestamp = toIsoNow();
+	const metadata = redactAuditMetadata(record.metadata ?? {}) as Record<string, unknown>;
+	record.metadata = metadata;
+
 	await db
 		.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
 		.values({
@@ -2223,7 +2293,7 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 			scope: record.scope,
 			actor: record.actor,
 			summary: record.summary,
-			metadata: JSON.stringify(record.metadata ?? {}),
+			metadata: JSON.stringify(metadata),
 			user_id: record.userId ?? null,
 			user_name: record.userName ?? null,
 			created_at: timestamp,
@@ -2232,7 +2302,7 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 		.execute();
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
-	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, record.metadata);
+	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, metadata);
 	return record;
 }
 
@@ -2332,6 +2402,22 @@ async function appendAccessChangeEvent(ctx: PluginContext, record: ExampleAuditE
 
 function touchUpdatedAt<T extends { updatedAt: string }>(value: T): T {
 	return { ...value, updatedAt: toIsoNow() };
+}
+
+const AUDIT_REDACTED_VALUE = "[REDACTED]";
+const AUDIT_SENSITIVE_KEY_PATTERN =
+	/(nik|kia|nomor_kk|no_kk|phone|telepon|email|alamat|ktp|domisili|latitude|longitude|coordinate|storage_key|checksum|file_name|mime_type|raw_document|document_metadata)/i;
+
+function redactAuditMetadata(value: unknown): unknown {
+	if (Array.isArray(value)) return value.map((item) => redactAuditMetadata(item));
+	if (!isRecord(value)) return value;
+
+	return Object.fromEntries(
+		Object.entries(value).map(([key, entry]) => [
+			key,
+			AUDIT_SENSITIVE_KEY_PATTERN.test(key) ? AUDIT_REDACTED_VALUE : redactAuditMetadata(entry),
+		]),
+	);
 }
 
 async function ensureAccessCatalogSeeded(ctx: PluginContext) {
@@ -3589,7 +3675,7 @@ const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const regions =
-		(await getD1RegionTree(ctx)) ??
+		(await getD1RegionTree(ctx, "official")) ??
 		(await ctx.kv.get<unknown>("custom:regions")) ??
 		DEFAULT_REGION_TREE;
 	return regions;
@@ -3597,13 +3683,32 @@ const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
-	const wroteD1 = await persistD1RegionTree(ctx, input);
+	const wroteD1 = await persistD1RegionTree(ctx, input, "official");
 	if (!wroteD1) await ctx.kv.set("custom:regions", input);
 	const event = createAuditRecord({
 		kind: "settings.regions.update",
 		scope: "settings",
 		actor: actorFromRoute(ctx),
 		summary: "Updated official administrative regions list",
+		metadata: { updatedCount: Array.isArray(input) ? input.length : 0 },
+	});
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: input };
+};
+
+const localRegionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	return (await getD1RegionTree(ctx, "local")) ?? (await ctx.kv.get<unknown>("custom:local-regions")) ?? [];
+};
+
+const localRegionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	const wroteD1 = await persistD1RegionTree(ctx, input, "local");
+	if (!wroteD1) await ctx.kv.set("custom:local-regions", input);
+	const event = createAuditRecord({
+		kind: "settings.local-regions.update",
+		scope: "settings",
+		actor: actorFromRoute(ctx),
+		summary: "Updated local administrative regions list",
 		metadata: { updatedCount: Array.isArray(input) ? input.length : 0 },
 	});
 	await appendAuditEvent(ctx, event);
@@ -3617,12 +3722,16 @@ type D1RegionRow = {
 	name: string;
 };
 
-async function getD1RegionTree(ctx: PluginContext): Promise<AdministrativeProvince[] | null> {
+async function getD1RegionTree(
+	ctx: PluginContext,
+	source: "official" | "local",
+): Promise<AdministrativeProvince[] | null> {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return null;
+	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE)
+		.selectFrom(table)
 		.select(["code", "parent_code", "level", "name"])
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
@@ -3660,9 +3769,10 @@ async function getD1RegionTree(ctx: PluginContext): Promise<AdministrativeProvin
 		}));
 }
 
-async function persistD1RegionTree(ctx: PluginContext, input: unknown) {
+async function persistD1RegionTree(ctx: PluginContext, input: unknown, source: "official" | "local") {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto || !Array.isArray(input)) return false;
+	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const now = toIsoNow();
 	const rows: Array<{ code: string; parentCode: string | null; level: string; name: string }> = [];
@@ -3680,8 +3790,9 @@ async function persistD1RegionTree(ctx: PluginContext, input: unknown) {
 	}
 
 	for (const row of rows) {
+		const sourceColumn = source === "official" ? { official_source: "operator_import" } : { local_type: "operator_defined" };
 		await db
-			.insertInto(AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE)
+			.insertInto(table)
 			.values({
 				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
 				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
@@ -3689,7 +3800,7 @@ async function persistD1RegionTree(ctx: PluginContext, input: unknown) {
 				parent_code: row.parentCode,
 				level: row.level,
 				name: row.name,
-				official_source: "operator_import",
+				...sourceColumn,
 				status: "active",
 				created_at: now,
 				updated_at: now,
@@ -3700,7 +3811,7 @@ async function persistD1RegionTree(ctx: PluginContext, input: unknown) {
 					parent_code: row.parentCode,
 					level: row.level,
 					name: row.name,
-					official_source: "operator_import",
+					...sourceColumn,
 					status: "active",
 					updated_at: now,
 					deleted_at: null,
@@ -3842,6 +3953,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"settings/save": { handler: settingsSaveRoute },
 	"regions/get": { handler: regionsGetRoute },
 	"regions/save": { handler: regionsSaveRoute },
+	"local-regions/get": { handler: localRegionsGetRoute },
+	"local-regions/save": { handler: localRegionsSaveRoute },
 	"data-types/get": { handler: dataTypesGetRoute },
 	"data-types/save": { handler: dataTypesSaveRoute },
 	"audit/list": { handler: auditListRoute },

@@ -25,9 +25,10 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0010_sikesra_exports_audit.sql
 0011_sikesra_core_region_sources.sql
 0012_sikesra_field_standards.sql
+0013_sikesra_registry_query_indexes.sql
 ```
 
-All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage.
+All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage. Migration `0013` adds the explicit registry and module-detail query indexes required by issue #125.
 
 ## Seed Files
 

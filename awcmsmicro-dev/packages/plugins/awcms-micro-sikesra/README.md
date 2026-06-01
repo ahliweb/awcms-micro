@@ -248,7 +248,7 @@ For the SIKESRA reference data model and fixtures, see `docs/SIKESRA_REFERENCE_D
 - Documents routes: `documents/list`, `documents/save`
 - Import route: `import/promote`
 - Verification routes: `verification/list`, `verification/advance`, `verification/reject`
-- Settings routes: `settings/get`, `settings/save`, `regions/get`, `regions/save`, `data-types/get`, `data-types/save`
+- Settings routes: `settings/get`, `settings/save`, `regions/get`, `regions/save`, `local-regions/get`, `local-regions/save`, `data-types/get`, `data-types/save`
 - Audit routes: `audit/list`
 - Access-rights routes: `access/permissions/list`, `access/permissions/save`, `access/roles/list`, `access/roles/save`, `access/users/save`, `access/matrix/get`, `access/matrix/save`, `access/preview`, `access/health`
 - ABAC routes: `abac/attributes/list`, `abac/attributes/save`, `abac/subjects/list`, `abac/subjects/save`, `abac/resources/list`, `abac/resources/save`, `abac/policies/list`, `abac/policies/save`, `abac/preview`, `abac/enforce-demo`, `abac/health`

@@ -38,6 +38,18 @@ Orphaned or inactive references must be reported for review. They must not be de
 
 SIKESRA migrations are data-preserving by default.
 
+## Runtime State D1 Migration
+
+Issue #124 makes dedicated D1 tables the canonical runtime-state storage when a D1 binding is available:
+
+- `sikesra_settings` stores settings previously held in plugin storage;
+- `sikesra_official_regions` stores the official administrative region tree previously held in `custom:regions`;
+- `sikesra_local_regions` stores operator-defined local/service region trees previously held in `custom:local-regions`;
+- `sikesra_data_types` and `sikesra_data_subtypes` store data type catalogs previously held in `custom:data-types`;
+- `sikesra_verification_stage_state` stores verification stage state previously held in plugin storage or `state:sikesraVerificationStages`.
+
+During `plugin:install` and `plugin:activate`, legacy KV/plugin-storage values are copied into the dedicated D1 tables and a `runtime-state.d1-migration` audit event is recorded in `sikesra_audit_events`. KV and plugin storage remain compatibility fallbacks only when D1 access is unavailable; new canonical writes use D1 first and do not write KV when D1 persistence succeeds.
+
 Required patterns:
 
 ```sql

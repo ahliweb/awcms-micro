@@ -11,4 +11,5 @@ export const SIKESRA_MIGRATION_FILES = [
 	"0010_sikesra_exports_audit.sql",
 	"0011_sikesra_core_region_sources.sql",
 	"0012_sikesra_field_standards.sql",
+	"0013_sikesra_registry_query_indexes.sql",
 ] as const;

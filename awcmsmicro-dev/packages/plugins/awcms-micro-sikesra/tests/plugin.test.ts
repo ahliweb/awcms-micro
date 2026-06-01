@@ -116,6 +116,7 @@ function createMockContext() {
 	const dataTypeTableRows: Array<Record<string, unknown>> = [];
 	const dataSubtypeTableRows: Array<Record<string, unknown>> = [];
 	const officialRegionTableRows: Array<Record<string, unknown>> = [];
+	const localRegionTableRows: Array<Record<string, unknown>> = [];
 	const verificationStageTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
 		sikesra_audit_events: collections.auditEvents,
@@ -300,6 +301,16 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_local_regions") {
+						return localRegionTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
@@ -381,6 +392,20 @@ function createMockContext() {
 							updated_at: textValue(nextRow.updated_at),
 							deleted_at: nextRow.deleted_at ?? null,
 						};
+					} else if (_table === "sikesra_local_regions") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							code: textValue(nextRow.code),
+							parent_code: nextRow.parent_code ?? null,
+							level: textValue(nextRow.level),
+							name: textValue(nextRow.name),
+							local_type: textValue(nextRow.local_type),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
 					} else if (_table === "sikesra_verification_stage_state") {
 						row = {
 							tenant_id: textValue(nextRow.tenant_id),
@@ -438,6 +463,10 @@ function createMockContext() {
 										upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_local_regions") {
+										upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_verification_stage_state") {
 										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 										return;
@@ -487,6 +516,10 @@ function createMockContext() {
 							}
 							if (_table === "sikesra_official_regions") {
 								upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_local_regions") {
+								upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
 								return;
 							}
 							if (_table === "sikesra_verification_stage_state") {
@@ -631,6 +664,7 @@ function createMockContext() {
 		dataTypeTableRows,
 		dataSubtypeTableRows,
 		officialRegionTableRows,
+		localRegionTableRows,
 		verificationStageTableRows,
 		seedDbRow,
 		kvData,
@@ -708,6 +742,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:dashboard:read");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:audit:read");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("awcms:sikesra:permissions:write");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.registry.read");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.verification.approve");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.rbac.manage");
 	});
 
 	it("creates structured audit records", () => {
@@ -723,6 +760,36 @@ describe("awcms micro sikesra plugin", () => {
 		expect(record.scope).toBe("settings");
 		expect(record.actor).toBe("system");
 		expect(record.summary).toBe("Updated settings");
+	});
+
+	it("redacts sensitive audit metadata values", () => {
+		const record = createAuditRecord({
+			kind: "registry.entity.create",
+			scope: "registry",
+			actor: "system",
+			summary: "Created sensitive entity",
+			metadata: {
+				label: "Safe label",
+				nik: "3201010101010001",
+				alamat_ktp_detail: "Jl. Rahasia 1",
+				documentMetadata: {
+					storage_key: "private/raw.pdf",
+					checksum: "sha256-secret",
+				},
+			},
+		});
+
+		expect(record.metadata).toMatchObject({
+			label: "Safe label",
+			nik: "[REDACTED]",
+			alamat_ktp_detail: "[REDACTED]",
+			documentMetadata: {
+				storage_key: "[REDACTED]",
+				checksum: "[REDACTED]",
+			},
+		});
+		expect(JSON.stringify(record.metadata)).not.toContain("3201010101010001");
+		expect(JSON.stringify(record.metadata)).not.toContain("private/raw.pdf");
 	});
 
 	it("stamps audit events with request user headers", async () => {
@@ -1004,6 +1071,31 @@ describe("awcms micro sikesra plugin", () => {
 		expect(kvData.has("custom:regions")).toBe(false);
 	});
 
+	it("reads and writes local regions through dedicated D1 region tables", async () => {
+		const { ctx, localRegionTableRows, kvData } = createMockContext();
+		const routes = createNativeRoutes();
+		const nextRegions = [
+			{
+				code: "local-rt-001",
+				name: "RW 01 Local Service Area",
+				regencies: [],
+			},
+		];
+
+		await routes["local-regions/save"]!.handler({ ...ctx, input: nextRegions } as any);
+		const result = await routes["local-regions/get"]!.handler({ ...ctx, input: {} } as any);
+
+		expect(result).toEqual(nextRegions);
+		expect(localRegionTableRows).toHaveLength(1);
+		expect(localRegionTableRows[0]).toMatchObject({
+			code: "local-rt-001",
+			level: "province",
+			local_type: "operator_defined",
+			status: "active",
+		});
+		expect(kvData.has("custom:local-regions")).toBe(false);
+	});
+
 	it("registers required SIKESRA plugin routes", () => {
 		const routes = createNativeRoutes();
 
@@ -1024,6 +1116,8 @@ describe("awcms micro sikesra plugin", () => {
 				"settings/save",
 				"regions/get",
 				"regions/save",
+				"local-regions/get",
+				"local-regions/save",
 				"data-types/get",
 				"data-types/save",
 				"audit/list",
@@ -1485,6 +1579,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(1);
 		expect(collections.permissionCatalog.size).toBeGreaterThan(0);
 		expect(collections.roleCatalog.get("admin-sikesra")).toMatchObject({ slug: "admin-sikesra" });
+		expect(collections.roleCatalog.get("sikesra_admin")).toMatchObject({ slug: "sikesra_admin" });
+		expect(collections.permissionCatalog.get("sikesra.registry.read")).toMatchObject({
+			slug: "sikesra.registry.read",
+		});
+		expect(collections.rolePermissionAssignments.get("sikesra_admin")).toMatchObject({
+			roleSlug: "sikesra_admin",
+			permissions: expect.arrayContaining(["sikesra.registry.read", "sikesra.rbac.manage"]),
+		});
 		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({
 			userId: "user-demo-village",
 			roles: ["verifier-desa-kelurahan"],
@@ -1593,6 +1695,7 @@ describe("awcms micro sikesra plugin", () => {
 			dataTypeTableRows,
 			dataSubtypeTableRows,
 			officialRegionTableRows,
+			localRegionTableRows,
 			verificationStageTableRows,
 		} = createMockContext();
 		const hooks = createSharedHooks();
@@ -1632,6 +1735,13 @@ describe("awcms micro sikesra plugin", () => {
 				],
 			},
 		]);
+		kvData.set("custom:local-regions", [
+			{
+				code: "local-service-area-01",
+				name: "Local Service Area 01",
+				regencies: [],
+			},
+		]);
 		kvData.set("state:sikesraVerificationStages", {
 			"registry-entity-02": "verified_kabupaten",
 		});
@@ -1657,6 +1767,13 @@ describe("awcms micro sikesra plugin", () => {
 				expect.objectContaining({ code: "3204", parent_code: "32", level: "regency" }),
 				expect.objectContaining({ code: "320401", parent_code: "3204", level: "district" }),
 			]),
+		);
+		expect(localRegionTableRows).toContainEqual(
+			expect.objectContaining({
+				code: "local-service-area-01",
+				level: "province",
+				local_type: "operator_defined",
+			}),
 		);
 		expect(verificationStageTableRows).toEqual(
 			expect.arrayContaining([
