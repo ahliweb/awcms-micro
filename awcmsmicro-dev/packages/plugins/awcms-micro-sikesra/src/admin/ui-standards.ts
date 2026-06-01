@@ -21,6 +21,35 @@ export const SIKESRA_OPERATOR_WORKFLOW_STEPS = [
 	"Audit or Govern",
 ] as const;
 
+export const SIKESRA_OVERVIEW_SECTIONS = [
+	"System readiness banner",
+	"Operational KPIs",
+	"Workflow shortcuts",
+	"Eight module cards",
+	"Public aggregate preview",
+] as const;
+
+export const SIKESRA_OVERVIEW_KPIS = [
+	"Total records",
+	"Draft records",
+	"Pending verification",
+	"Verified records",
+	"Incomplete documents",
+	"Import batches waiting review",
+	"Restricted export requests",
+	"Audit events requiring review",
+] as const;
+
+export const SIKESRA_OVERVIEW_SHORTCUTS = [
+	{ label: "Add record", href: toSikesraAdminHref("registry/new"), permissionSlug: "sikesra.registry.create" },
+	{ label: "Import data", href: toSikesraAdminHref("import"), permissionSlug: "sikesra.import.create" },
+	{ label: "Verification queue", href: toSikesraAdminHref("verification"), permissionSlug: "sikesra.verification.read" },
+	{ label: "Duplicate review", href: toSikesraAdminHref("import"), permissionSlug: "sikesra.import.validate" },
+	{ label: "Reports", href: toSikesraAdminHref("reports"), permissionSlug: "sikesra.report.read" },
+	{ label: "Access management", href: toSikesraAdminHref("access/roles"), permissionSlug: "sikesra.rbac.read" },
+	{ label: "Audit", href: toSikesraAdminHref("audit"), permissionSlug: "sikesra.audit.read" },
+] as const;
+
 export const SIKESRA_PAGE_ANATOMY = [
 	"Page header",
 	"Purpose description",
@@ -59,6 +88,59 @@ export const SIKESRA_STANDARD_EMPTY_STATES = [
 	"No audit event",
 	"No user assignment",
 	"No ABAC policy",
+] as const;
+
+export const SIKESRA_REQUIRED_ADMIN_PAGE_PATHS = [
+	"/overview",
+	"/registry",
+	"/registry/new",
+	"/registry/:id",
+	"/documents",
+	"/import",
+	"/verification",
+	"/reports",
+	"/audit",
+	"/access/users",
+	"/access/roles",
+	"/access/permissions",
+	"/access/matrix",
+	"/access/scopes",
+	"/access/preview",
+	"/abac/attributes",
+	"/abac/policies",
+	"/abac/preview",
+	"/regions",
+	"/data-types",
+	"/field-standards",
+	"/custom-attributes/definitions",
+	"/custom-attributes/values",
+	"/delete-requests",
+	"/archives",
+	"/settings",
+] as const;
+
+export const SIKESRA_REQUIRED_ADMIN_COMPONENTS = [
+	"SikesraPageHeader",
+	"SikesraStatusBanner",
+	"SikesraMetricCard",
+	"SikesraModuleCard",
+	"SikesraFilterBar",
+	"SikesraDataTable",
+	"SikesraDetailDrawer",
+	"SikesraStepper",
+	"SikesraFieldGroup",
+	"SikesraSensitiveField",
+	"SikesraMaskedValue",
+	"SikesraRevealButton",
+	"SikesraStatusBadge",
+	"SikesraScopeBadge",
+	"SikesraAuditTimeline",
+	"SikesraEmptyState",
+	"SikesraErrorState",
+	"SikesraConfirmDialog",
+	"SikesraReasonInput",
+	"SikesraAccessPreviewPanel",
+	"SikesraAbacDecisionPanel",
 ] as const;
 
 export type SikesraStatusTone = "neutral" | "info" | "success" | "warning" | "danger" | "restricted";
@@ -142,4 +224,97 @@ export function getSikesraPageState(input: {
 	if (input.error) return "error";
 	if ((input.itemCount ?? 0) === 0) return "empty";
 	return "ready";
+}
+
+export type SikesraCrudActionKind = "create" | "edit" | "soft_delete" | "restore" | "archive" | "permanent_delete";
+
+export interface SikesraCrudActionDefinition {
+	kind: SikesraCrudActionKind;
+	label: string;
+	permissionSlug: string;
+	requiresReason: boolean;
+	requiresConfirmation: boolean;
+	destructive: boolean;
+	hiddenByDefault: boolean;
+}
+
+export const SIKESRA_CRUD_ACTIONS: SikesraCrudActionDefinition[] = [
+	{
+		kind: "create",
+		label: "Create",
+		permissionSlug: "sikesra.registry.create",
+		requiresReason: false,
+		requiresConfirmation: false,
+		destructive: false,
+		hiddenByDefault: false,
+	},
+	{
+		kind: "edit",
+		label: "Edit",
+		permissionSlug: "sikesra.registry.update",
+		requiresReason: false,
+		requiresConfirmation: false,
+		destructive: false,
+		hiddenByDefault: false,
+	},
+	{
+		kind: "soft_delete",
+		label: "Soft delete",
+		permissionSlug: "sikesra.registry.soft_delete",
+		requiresReason: true,
+		requiresConfirmation: false,
+		destructive: true,
+		hiddenByDefault: false,
+	},
+	{
+		kind: "restore",
+		label: "Restore",
+		permissionSlug: "sikesra.registry.restore",
+		requiresReason: true,
+		requiresConfirmation: false,
+		destructive: false,
+		hiddenByDefault: false,
+	},
+	{
+		kind: "archive",
+		label: "Archive",
+		permissionSlug: "sikesra.lifecycle.archive",
+		requiresReason: true,
+		requiresConfirmation: false,
+		destructive: true,
+		hiddenByDefault: false,
+	},
+	{
+		kind: "permanent_delete",
+		label: "Permanent delete",
+		permissionSlug: "sikesra.permanent_delete.execute",
+		requiresReason: true,
+		requiresConfirmation: true,
+		destructive: true,
+		hiddenByDefault: true,
+	},
+];
+
+export function getSikesraCrudActionState(input: {
+	action: SikesraCrudActionKind;
+	permissions: readonly string[];
+	abacAllowed?: boolean;
+	archived?: boolean;
+	superAdmin?: boolean;
+}) {
+	const definition = SIKESRA_CRUD_ACTIONS.find((action) => action.kind === input.action);
+	if (!definition) return { visible: false, enabled: false, reason: "Unknown action." };
+	if (definition.kind === "restore" && !input.archived) {
+		return { visible: false, enabled: false, reason: "Restore is shown only for archived records." };
+	}
+	if (definition.kind === "permanent_delete" && !input.superAdmin) {
+		return { visible: false, enabled: false, reason: "Permanent delete is hidden unless highest-admin workflow is active." };
+	}
+	if (!input.permissions.includes(definition.permissionSlug)) {
+		return { visible: !definition.hiddenByDefault, enabled: false, reason: `Missing permission ${definition.permissionSlug}.` };
+	}
+	if (input.abacAllowed === false) {
+		return { visible: true, enabled: false, reason: "ABAC scope does not allow this action." };
+	}
+	return { visible: true, enabled: true, reason: "Action allowed." };
 }

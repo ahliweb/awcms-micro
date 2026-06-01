@@ -154,6 +154,32 @@ Custom attribute UI should act like a controlled form builder. Protected keys mu
 
 Archive, restore, permanent delete, restricted export, and sensitive reveal workflows must require high-friction confirmation when required by the related governance issue.
 
+Permission-aware CRUD action state is centralized in:
+
+```txt
+src/admin/ui-standards.ts
+```
+
+The standard action model covers:
+
+```txt
+create
+edit
+soft_delete
+restore
+archive
+permanent_delete
+```
+
+UI rules:
+
+- create and edit are visible when their permissions are granted;
+- soft delete and archive require reason-aware destructive treatment;
+- restore is visible only for archived records;
+- permanent delete is hidden by default and visible only in the highest-admin governance workflow;
+- ABAC denial must keep the action visible only when useful for context, disabled with a safe reason;
+- every destructive or sensitive action must have an audit-visible outcome.
+
 ## 6. Privacy and Safety Controls
 
 Sensitive and restricted information must be visible as a state without exposing the underlying value.

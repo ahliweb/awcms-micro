@@ -2,13 +2,13 @@
 	"$schema": "https://emdashcms.com/schemas/emdash-plugin.schema.json",
 
 	"slug": "awcms-micro-sikesra",
-	"version": "0.0.1",
+	"version": "0.1.1",
 	"license": "LicenseRef-AW-NC-1.0",
-	"publisher": "example.com", // Replace before any internal or public publish.
-	"author": { "name": "AWCMS-Micro" },
+	"publisher": "ahliweb.co.id",
+	"author": { "name": "AWCMS-Micro / AhliWeb" },
 	// Add `security` and `repo` when the final standalone package location is known.
 	"name": "AWCMS-Micro SIKESRA Plugin",
-	"description": "AWCMS-Micro downstream SIKESRA plugin for EmDash-compatible projects, demonstrating plugin extension points without modifying EmDash core.",
+	"description": "SIKESRA welfare and social-religious registry plugin for AWCMS-Micro, including region-scoped registry data, verification workflow, documents, import/export, RBAC/ABAC, audit, and public-safe aggregate reporting.",
 	"keywords": ["awcms-micro", "sikesra", "emdash", "plugin", "tenant-ready"],
 
 	// Keep this trust contract aligned with the real runtime surface before release.

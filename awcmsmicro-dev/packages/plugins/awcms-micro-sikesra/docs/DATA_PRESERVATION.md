@@ -19,6 +19,22 @@ Protected categories include:
 - custom attribute definitions and values;
 - delete/archive/governance requests.
 
+## Table Ownership
+
+All canonical SIKESRA tables are owned by the plugin. References to EmDash users, external region codes, R2 object keys, or government identifiers are values stored inside SIKESRA-owned tables; they do not transfer ownership to EmDash core or an external system.
+
+| Category | Tables | Ownership |
+| --- | --- | --- |
+| Runtime configuration | `sikesra_settings`, `sikesra_data_types`, `sikesra_data_subtypes`, `sikesra_field_standards` | `owned_by_sikesra` |
+| Region catalogs | `sikesra_regions`, `sikesra_official_regions`, `sikesra_local_regions`, `sikesra_region_aliases` | `owned_by_sikesra` with `external_reference` values for official codes |
+| Registry and people | `sikesra_registry_entities`, `sikesra_person_profiles`, `sikesra_entity_people`, `sikesra_rumah_ibadah_details`, `sikesra_lembaga_keagamaan_details`, `sikesra_pendidikan_keagamaan_details`, `sikesra_lks_details`, `sikesra_guru_agama_details`, `sikesra_anak_yatim_details`, `sikesra_disabilitas_details`, `sikesra_lansia_terlantar_details` | `owned_by_sikesra` |
+| Sequence and history | `sikesra_code_sequences`, `sikesra_code_history` | `owned_by_sikesra` |
+| Documents and files | `sikesra_supporting_documents`, `sikesra_file_objects` | `owned_by_sikesra` with `external_reference` values for R2 object keys/checksums |
+| Verification | `sikesra_verification_stage_state`, `sikesra_verification_events` | `owned_by_sikesra` |
+| Import/export/review | `sikesra_import_batches`, `sikesra_import_staging_rows`, `sikesra_import_mapping_templates`, `sikesra_duplicate_candidates`, `sikesra_duplicate_decisions`, `sikesra_export_jobs` | `owned_by_sikesra` |
+| RBAC and ABAC | `sikesra_permission_catalog`, `sikesra_role_catalog`, `sikesra_role_permission_assignments`, `sikesra_user_role_assignments`, `sikesra_user_scope_assignments`, `sikesra_abac_attribute_catalog`, `sikesra_abac_subject_assignments`, `sikesra_abac_resource_assignments`, `sikesra_abac_policy_rules` | `owned_by_sikesra`; `emdash_user_id` columns are `reference_to_emdash` |
+| Audit and governance | `sikesra_audit_events`, `sikesra_custom_attribute_definitions`, `sikesra_custom_attribute_values`, `sikesra_custom_attribute_change_events`, `sikesra_delete_requests`, `sikesra_delete_approvals`, `sikesra_delete_snapshots`, `sikesra_delete_events` | `owned_by_sikesra` |
+
 ## Shared EmDash User References
 
 SIKESRA references EmDash user IDs. It must not duplicate, reset, mutate, or delete EmDash core user records.
@@ -33,6 +49,8 @@ unknown
 ```
 
 Orphaned or inactive references must be reported for review. They must not be deleted automatically.
+
+When an EmDash user role changes, SIKESRA must keep its own role and scope assignments unchanged until an authorized SIKESRA workflow updates them. EmDash global roles may affect authentication or broad admin access, but they must not silently reset `sikesra_user_role_assignments`, `sikesra_user_scope_assignments`, ABAC subject assignments, or historical audit actor snapshots.
 
 ## Migration Safety Rules
 
@@ -112,6 +130,25 @@ Before a migration or rebuild that may affect SIKESRA data, record:
 - EmDash upstream commit/version;
 - migration file checksums.
 
+## Snapshot Comparison Baseline
+
+Before and after a high-risk rebuild, compare these values where D1/R2 access is available:
+
+- required table existence;
+- row count per protected `sikesra_` table;
+- stable-record checksums for representative registry, person, document, verification, audit, RBAC, ABAC, import, export, custom-attribute, and delete-governance rows;
+- registry entity count;
+- person profile count;
+- document metadata count;
+- verification event count;
+- audit event count;
+- user assignment count;
+- ABAC policy count;
+- import batch count;
+- export job count.
+
 ## Recovery Rule
 
 If validation detects missing rows, broken references, missing document metadata, or unexpected zero counts after rebuild, stop the migration/rebuild promotion and restore from the latest verified backup before continuing.
+
+Recovery must preserve append-only history. Do not repair audit/history loss by truncating or reseeding `sikesra_audit_events`, `sikesra_verification_events`, `sikesra_code_history`, `sikesra_duplicate_decisions`, or `sikesra_export_jobs`; restore from backup and then apply a forward-only repair migration or administrative correction note.

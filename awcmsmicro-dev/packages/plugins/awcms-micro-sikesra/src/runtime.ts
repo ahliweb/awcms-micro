@@ -3744,6 +3744,8 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const entities = await getRegistryEntities(ctx);
 	return { items: entities };
 };
@@ -3758,6 +3760,8 @@ const registryArchiveListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.create");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
@@ -3839,11 +3843,15 @@ const registryRestoreRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.document.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const docs = await getSupportingDocuments(ctx);
 	return { items: docs };
 };
 
 const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.document.upload");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");

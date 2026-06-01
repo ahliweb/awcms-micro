@@ -8,6 +8,10 @@ SIKESRA canonical logic belongs inside:
 
 ```txt
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/
+awcmsmicro-dev/templates/awcms-micro-default/
+awcmsmicro-dev/templates/awcms-micro-default-cloudflare/
+awcmsmicro-dev/docs/awcms-micro/
+awcmsmicro-dev/.awcms-changesets/
 ```
 
 SIKESRA canonical logic must not be placed in upstream EmDash core/admin locations such as:
@@ -15,6 +19,8 @@ SIKESRA canonical logic must not be placed in upstream EmDash core/admin locatio
 ```txt
 emdash-latest/packages/core/
 emdash-latest/packages/admin/
+awcmsmicro-dev/packages/core/
+awcmsmicro-dev/packages/admin/
 ```
 
 ## Boundary Validation Command
@@ -26,6 +32,30 @@ pnpm awcms:sikesra:check-boundary
 ```
 
 The command fails if SIKESRA references are found under upstream EmDash core/admin paths.
+
+## D1 Migration Preservation Checklist
+
+Every SIKESRA migration must remain under `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/` and must follow these rules:
+
+- create only `sikesra_` tables;
+- create only `idx_sikesra_` indexes;
+- create only `trg_sikesra_` triggers;
+- use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` for local/dev/preview idempotency;
+- avoid destructive SQL in historical migrations;
+- add forward-only follow-up migrations for schema changes;
+- keep `src/db/migrations.ts`, `src/db/schema.ts`, and runtime table catalogs aligned.
+
+## Cloudflare Rebuild Checklist
+
+When Cloudflare template behavior, bindings, storage, D1, public routes, or admin routes change, run:
+
+```bash
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare validate:cloudflare-env
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare typecheck
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build
+```
+
+The rebuild must preserve the SIKESRA plugin registration, admin route, public route, D1 binding usage, R2/media binding usage, and sandbox runner support.
 
 ## Current Validation Baseline
 
@@ -52,6 +82,17 @@ Every EmDash update or AWCMS-Micro rebuild must verify:
 - document metadata keeps `sikesra_supporting_documents` linked to `sikesra_file_objects`;
 - public aggregate routes expose only public-safe aggregate data;
 - local and Cloudflare templates typecheck and build.
+
+## Rollback Steps
+
+If an EmDash sync or rebuild breaks SIKESRA compatibility:
+
+- stop deployment before applying migrations or publishing the broken template;
+- preserve current D1/R2 backups and run `pnpm awcms:sikesra:backup-inventory` where environment access is available;
+- revert only the failing sync/rebuild changes, not historical SIKESRA data migrations;
+- restore the last passing SIKESRA plugin/template artifact set;
+- rerun `pnpm awcms:sikesra:validate-after-emdash-sync` and the relevant template build checks;
+- document any required downstream workaround in `awcmsmicro-dev/docs/awcms-micro/divergence-log.md` before retrying the sync.
 
 ## Production User Identity Rule
 

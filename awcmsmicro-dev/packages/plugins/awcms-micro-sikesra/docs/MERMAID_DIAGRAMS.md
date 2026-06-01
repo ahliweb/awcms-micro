@@ -237,15 +237,22 @@ flowchart TD
   Validate --> Permission[Require sikesra_super_admin permission]
   Permission --> Reason[Require reason and confirmation phrase]
   Reason --> Snapshot[Create delete snapshot]
-  Snapshot --> Event[Write delete event]
-  Event --> Audit[Write audit event]
-  Audit --> Review[Await approval or execution workflow]
+  Snapshot --> RequestEvent[Write request event and audit]
+  RequestEvent --> Review[Review request]
+  Review --> Approve{Approved?}
+  Approve -->|No| Reject[Record rejection event and audit]
+  Approve -->|Yes| References{Protected references?}
+  References -->|Yes| Block[Block execution and audit]
+  References -->|No| AuditTarget{Audit table?}
+  AuditTarget -->|Yes| Retention[Use retention-purge workflow]
+  AuditTarget -->|No| Execute[Delete SIKESRA-owned row]
+  Execute --> ExecuteEvent[Write execute event and audit]
 ```
 
 Purpose:
 
 - guide issue #139;
-- show permanent delete as request-first and snapshot-first;
+- show permanent delete as request-first, snapshot-first, approval-gated, and reference-checked;
 - keep EmDash core users outside SIKESRA destructive operations.
 
 ## 11. Data Preservation After Rebuild

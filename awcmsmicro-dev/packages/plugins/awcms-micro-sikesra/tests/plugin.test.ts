@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
+import packageJson from "../package.json" with { type: "json" };
 import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
@@ -12,11 +13,18 @@ import {
 	isSikesraAdminHref,
 	createSikesraEmptyState,
 	createSikesraMaskedValueState,
+	getSikesraCrudActionState,
 	getSikesraPageState,
 	getSikesraStatusTone,
+	SIKESRA_CRUD_ACTIONS,
 	SIKESRA_ADMIN_ROUTE_BASE,
 	SIKESRA_OPERATOR_WORKFLOW_STEPS,
+	SIKESRA_OVERVIEW_KPIS,
+	SIKESRA_OVERVIEW_SECTIONS,
+	SIKESRA_OVERVIEW_SHORTCUTS,
 	SIKESRA_PAGE_ANATOMY,
+	SIKESRA_REQUIRED_ADMIN_COMPONENTS,
+	SIKESRA_REQUIRED_ADMIN_PAGE_PATHS,
 	SIKESRA_STANDARD_EMPTY_STATES,
 	SIKESRA_STATUS_BADGES,
 	toSikesraAdminHref,
@@ -104,6 +112,12 @@ function parseJsoncObject<T>(source: string): T {
 	}
 
 	return JSON.parse(output.replace(/,\s*([}\]])/g, "$1")) as T;
+}
+
+function createAdminRequest() {
+	return new Request("https://example.test", {
+		headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+	});
 }
 
 function createMockContext() {
@@ -1859,6 +1873,17 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("denies protected registry and document routes without trusted user identity", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+
+		for (const key of ["registry/list", "registry/save", "documents/list", "documents/save"] as const) {
+			const result = (await routes[key]!.handler({ ...ctx, input: {} } as any)) as any;
+			expect(result.success, key).toBe(false);
+			expect(result.error.code, key).toBe("UNAUTHENTICATED");
+		}
+	});
+
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
 		expect(SIKESRA_ADMIN_ROUTE_BASE).toBe("/_emdash/admin/plugins/awcms-micro-sikesra");
 		expect(toSikesraAdminHref("registry")).toBe(
@@ -1879,11 +1904,54 @@ describe("awcms micro sikesra plugin", () => {
 			"Report or Export",
 			"Audit or Govern",
 		]);
+		expect(SIKESRA_OVERVIEW_SECTIONS).toEqual([
+			"System readiness banner",
+			"Operational KPIs",
+			"Workflow shortcuts",
+			"Eight module cards",
+			"Public aggregate preview",
+		]);
+		expect(SIKESRA_OVERVIEW_KPIS).toEqual(
+			expect.arrayContaining([
+				"Total records",
+				"Pending verification",
+				"Incomplete documents",
+				"Restricted export requests",
+				"Audit events requiring review",
+			]),
+		);
+		expect(SIKESRA_OVERVIEW_SHORTCUTS.every((shortcut) => isSikesraAdminHref(shortcut.href))).toBe(true);
+		expect(SIKESRA_OVERVIEW_SHORTCUTS.map((shortcut) => shortcut.permissionSlug)).toEqual(
+			expect.arrayContaining(["sikesra.registry.create", "sikesra.import.create", "sikesra.audit.read"]),
+		);
 		expect(SIKESRA_PAGE_ANATOMY).toContain("Empty, loading, and error states");
 		expect(SIKESRA_STATUS_BADGES).toEqual(
 			expect.arrayContaining(["Public Safe", "Sensitive", "Restricted", "Orphaned User"]),
 		);
 		expect(SIKESRA_STANDARD_EMPTY_STATES).toContain("No import batch");
+		expect(SIKESRA_REQUIRED_ADMIN_PAGE_PATHS).toEqual(
+			expect.arrayContaining([
+				"/overview",
+				"/registry",
+				"/registry/new",
+				"/registry/:id",
+				"/custom-attributes/definitions",
+				"/custom-attributes/values",
+				"/delete-requests",
+				"/archives",
+			]),
+		);
+		expect(SIKESRA_REQUIRED_ADMIN_PAGE_PATHS.every((path) => path.startsWith("/"))).toBe(true);
+		expect(SIKESRA_REQUIRED_ADMIN_COMPONENTS).toEqual(
+			expect.arrayContaining([
+				"SikesraPageHeader",
+				"SikesraStepper",
+				"SikesraMaskedValue",
+				"SikesraRevealButton",
+				"SikesraConfirmDialog",
+				"SikesraAbacDecisionPanel",
+			]),
+		);
 	});
 
 	it("standardizes issue #142 status, masking, empty, and page states", () => {
@@ -1918,6 +1986,55 @@ describe("awcms micro sikesra plugin", () => {
 		expect(getSikesraPageState({ error: new Error("failed") })).toBe("error");
 		expect(getSikesraPageState({ itemCount: 0 })).toBe("empty");
 		expect(getSikesraPageState({ itemCount: 1 })).toBe("ready");
+	});
+
+	it("standardizes permission-aware issue #142 CRUD action states", () => {
+		expect(SIKESRA_CRUD_ACTIONS.map((action) => action.kind)).toEqual([
+			"create",
+			"edit",
+			"soft_delete",
+			"restore",
+			"archive",
+			"permanent_delete",
+		]);
+		expect(getSikesraCrudActionState({ action: "soft_delete", permissions: [] })).toEqual({
+			visible: true,
+			enabled: false,
+			reason: "Missing permission sikesra.registry.soft_delete.",
+		});
+		expect(
+			getSikesraCrudActionState({
+				action: "restore",
+				permissions: ["sikesra.registry.restore"],
+				archived: false,
+			}),
+		).toEqual({ visible: false, enabled: false, reason: "Restore is shown only for archived records." });
+		expect(
+			getSikesraCrudActionState({
+				action: "restore",
+				permissions: ["sikesra.registry.restore"],
+				archived: true,
+			}),
+		).toEqual({ visible: true, enabled: true, reason: "Action allowed." });
+		expect(
+			getSikesraCrudActionState({
+				action: "permanent_delete",
+				permissions: ["sikesra.permanent_delete.execute"],
+				superAdmin: false,
+			}),
+		).toEqual({
+			visible: false,
+			enabled: false,
+			reason: "Permanent delete is hidden unless highest-admin workflow is active.",
+		});
+		expect(
+			getSikesraCrudActionState({
+				action: "permanent_delete",
+				permissions: ["sikesra.permanent_delete.execute"],
+				superAdmin: true,
+				abacAllowed: false,
+			}),
+		).toEqual({ visible: true, enabled: false, reason: "ABAC scope does not allow this action." });
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
@@ -2238,9 +2355,11 @@ describe("awcms micro sikesra plugin", () => {
 			supportingDocumentTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		await routes["registry/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id: "registry-entity-custom-01",
 				code: "CU-001",
@@ -2258,6 +2377,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		await routes["documents/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id: "doc-custom-01",
 				registryEntityId: "registry-entity-custom-01",
@@ -2267,9 +2387,14 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		} as any);
 
-		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const registry = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
 		const documents = (await routes["documents/list"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {},
 		} as any)) as any;
 
@@ -2326,9 +2451,7 @@ describe("awcms micro sikesra plugin", () => {
 				? hooks["plugin:activate"]
 				: hooks?.["plugin:activate"]?.handler;
 		await activate!({} as any, ctx as any);
-		const adminRequest = new Request("https://example.test", {
-			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
-		});
+		const adminRequest = createAdminRequest();
 
 		await routes["registry/save"]!.handler({
 			...ctx,
@@ -2397,6 +2520,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		const result = (await routes["documents/save"]!.handler({
 			...ctx,
+			request: createAdminRequest(),
 			input: {
 				id: "doc-invalid-01",
 				registryEntityId: "registry-entity-custom-01",
@@ -2424,15 +2548,14 @@ describe("awcms micro sikesra plugin", () => {
 	it("requires RBAC and ABAC before exposing restricted document metadata", async () => {
 		const { ctx, auditTableRows } = createMockContext();
 		const routes = createNativeRoutes();
-		const adminRequest = new Request("https://example.test", {
-			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
-		});
+		const adminRequest = createAdminRequest();
 		const editorRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
 		});
 
 		await routes["documents/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id: "doc-restricted-01",
 				registryEntityId: "registry-entity-custom-01",
@@ -2492,9 +2615,11 @@ describe("awcms micro sikesra plugin", () => {
 		const { ctx, moduleDetailTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const id = `registry-${entityType}`;
+		const adminRequest = createAdminRequest();
 
 		await routes["registry/save"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {
 				id,
 				code: `MD-${entityType}`,
@@ -2517,10 +2642,12 @@ describe("awcms micro sikesra plugin", () => {
 	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
 		const { ctx, registryEntityTableRows, codeSequenceTableRows, codeHistoryTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
 		for (const id of ["registry-seq-01", "registry-seq-02"]) {
 			await routes["registry/save"]!.handler({
 				...ctx,
+				request: adminRequest,
 				input: {
 					id,
 					code: id,
@@ -3174,10 +3301,16 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		]);
 		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
 
-		const registry = (await routes["registry/list"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const registry = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
 		const documents = (await routes["documents/list"]!.handler({
 			...ctx,
+			request: adminRequest,
 			input: {},
 		} as any)) as any;
 
@@ -3780,7 +3913,13 @@ describe("awcms micro sikesra plugin", () => {
 		const manifest = parseJsoncObject<any>(readFileSync(manifestPath, "utf8"));
 
 		expect(manifest.slug).toBe("awcms-micro-sikesra");
+		expect(manifest.version).toBe(packageJson.version);
+		expect(manifest.publisher).toBe("ahliweb.co.id");
+		expect(manifest.author.name).toBe("AWCMS-Micro / AhliWeb");
 		expect(manifest.name).toBe("AWCMS-Micro SIKESRA Plugin");
+		expect(manifest.description).toContain("SIKESRA welfare and social-religious registry plugin");
+		expect(manifest.description).not.toContain("demo");
+		expect(manifest.description).not.toContain("demonstrating");
 		expect(manifest.name).not.toContain("Example Plugin");
 		expect(manifest.keywords).not.toContain("example");
 		expect(manifest.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);

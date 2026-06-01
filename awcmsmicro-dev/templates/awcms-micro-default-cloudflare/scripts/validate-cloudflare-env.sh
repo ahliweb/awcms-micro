@@ -37,7 +37,9 @@ require_contains() {
 require_not_contains() {
 	local needle="$1"
 	local path="$2"
-	rg -F --quiet "$needle" "$path" && fail "Unexpected '$needle' in $path"
+	if rg -F --quiet "$needle" "$path"; then
+		fail "Unexpected '$needle' in $path"
+	fi
 }
 
 require_file "$WRANGLER_FILE"

@@ -425,6 +425,42 @@ permanent_delete
 
 Soft delete is default.
 
+The plugin exposes a machine-readable CRUD policy registry in:
+
+```txt
+src/contracts/crud-contracts.ts
+```
+
+Every feature group must have policies for all eight operations above. Current governed feature groups are:
+
+```txt
+registry
+person
+module_detail
+file_metadata
+import
+export
+verification
+settings
+region
+data_type
+field_standard
+custom_attribute
+custom_attribute_value
+rbac
+abac
+user_assignment
+audit
+```
+
+Registry CRUD routes currently implement the first runtime slice:
+
+```txt
+registry/archive/list
+registry/soft-delete
+registry/restore
+```
+
 High-impact lifecycle actions require:
 
 ```txt
@@ -435,6 +471,24 @@ snapshot
 audit
 integrity check
 ```
+
+Permanent delete governance routes currently implement:
+
+```txt
+crud/permanent-delete/request
+crud/permanent-delete/requests/list
+crud/permanent-delete/approve
+crud/permanent-delete/execute
+```
+
+Execution is intentionally guarded:
+
+- only `sikesra_super_admin` with explicit permanent-delete permission can approve or execute;
+- target tables must be SIKESRA-owned `sikesra_` tables;
+- EmDash core user tables and SIKESRA user-reference assignment safety rules must not be bypassed;
+- audit events require the separate retention-purge workflow and are not ordinary permanent-delete targets;
+- registry permanent delete is blocked when supporting documents or verification events reference the entity;
+- unreferenced approved SIKESRA-owned registry rows can be permanently deleted with delete event and audit event records.
 
 Lifecycle governance must never affect EmDash core users.
 

@@ -20,6 +20,22 @@ export interface SikesraPermanentDeleteRequest extends SikesraCrudMutationMeta {
 	targetSikesraId20?: string;
 }
 
+export interface SikesraPermanentDeleteListRequest {
+	status?: "requested" | "approved" | "rejected" | "executed";
+}
+
+export interface SikesraPermanentDeleteApprovalRequest extends SikesraCrudMutationMeta {
+	id?: string;
+	deleteRequestId: string;
+	decision: "approved" | "rejected";
+	notes?: string;
+}
+
+export interface SikesraPermanentDeleteExecutionRequest extends SikesraCrudMutationMeta {
+	deleteRequestId: string;
+	confirmation: "PERMANENT DELETE";
+}
+
 export type SikesraCrudOperationName =
 	| "create"
 	| "read_list"

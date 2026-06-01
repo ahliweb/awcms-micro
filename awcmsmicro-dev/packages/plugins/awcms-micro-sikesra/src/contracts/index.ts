@@ -68,6 +68,9 @@ export type {
 } from "./custom-attribute-contracts.js";
 export type {
 	SikesraPermanentDeleteRequest,
+	SikesraPermanentDeleteApprovalRequest,
+	SikesraPermanentDeleteExecutionRequest,
+	SikesraPermanentDeleteListRequest,
 	SikesraCrudFeaturePolicy,
 	SikesraCrudMutationMeta,
 	SikesraCrudOperationName,
