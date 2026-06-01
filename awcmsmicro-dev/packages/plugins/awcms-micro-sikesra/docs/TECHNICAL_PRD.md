@@ -370,6 +370,12 @@ The logical D1 ERD and related workflow diagrams are maintained in:
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
 ```
 
+The SIKESRA D1 migration runner notes are maintained in:
+
+```txt
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MIGRATIONS.md
+```
+
 D1/database implementation issues should update that file when relationships, table ownership, repository flows, or data preservation behavior changes.
 
 ### Storage Rules
