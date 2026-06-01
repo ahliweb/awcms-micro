@@ -61,6 +61,7 @@
 		"vitest": "^4.1.5"
 	},
 	"scripts": {
+		"awcms:sikesra:check-boundary": "node scripts/check-boundary.mjs",
 		"build": "tsdown",
 		"dev": "tsdown --watch",
 		"prepare": "node --run build",
