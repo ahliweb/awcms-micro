@@ -318,6 +318,8 @@ interface AbacHealthResponse {
 
 interface CustomAttributeDefinitionItem extends SikesraCustomAttributeDefinitionDto {
 	isActive?: boolean;
+	isImportable?: boolean;
+	isExportable?: boolean;
 }
 
 interface CustomAttributeValueItem {
@@ -344,6 +346,36 @@ interface ArchivedRegistryEntity extends SikesraReferenceRegistryEntity {
 
 interface RegistryArchiveResponse {
 	items: ArchivedRegistryEntity[];
+}
+
+type RegistryCustomAttributeContext = {
+	entityType?: string;
+	subtypeCode?: string;
+	registryEntityId?: string;
+	sikesraId20?: string;
+	region?: Partial<SikesraReferenceRegistryEntity["region"]>;
+};
+
+function customAttributeAppliesToRegistry(definition: CustomAttributeDefinitionItem, context: RegistryCustomAttributeContext) {
+	if (definition.isActive === false) return false;
+	if (definition.scope === "global") return true;
+	if (definition.scope === "entity_type") return !definition.entityType || definition.entityType === context.entityType;
+	if (definition.scope === "subtype") return !definition.subtypeCode || definition.subtypeCode === context.subtypeCode;
+	if (definition.scope === "registry_entity") return definition.targetRegistryEntityId === context.registryEntityId;
+	if (definition.scope === "sikesra_id_20") return definition.targetSikesraId20 === context.sikesraId20;
+	if (definition.scope === "region_scope") {
+		const scopeValue = definition.scopeValue;
+		return Boolean(
+			scopeValue &&
+				[
+					context.region?.provinceCode,
+					context.region?.regencyCode,
+					context.region?.districtCode,
+					context.region?.villageCode,
+				].includes(scopeValue),
+		);
+	}
+	return false;
 }
 
 interface PermanentDeleteRequestItem {
@@ -943,9 +975,12 @@ function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 
 function RegistryCreatePage() {
 	const contract = getSikesraPageContract("/registry/new");
+	const { data: customDefinitions } =
+		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [customValues, setCustomValues] = React.useState<Record<string, string>>({});
 	const [formState, setFormState] = React.useState({
 		label: "",
 		code: "",
@@ -958,6 +993,18 @@ function RegistryCreatePage() {
 		sensitivity: "public_safe" as SikesraSensitivity,
 		publicSummary: "",
 	});
+	const applicableCustomDefinitions = (customDefinitions?.items ?? []).filter((definition) =>
+		customAttributeAppliesToRegistry(definition, {
+			entityType: formState.entityType,
+			subtypeCode: formState.subtypeCode,
+			region: {
+				provinceCode: formState.provinceCode,
+				regencyCode: formState.regencyCode,
+				districtCode: formState.districtCode,
+				villageCode: formState.villageCode,
+			},
+		}),
+	);
 
 	const saveRegistry = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -966,6 +1013,22 @@ function RegistryCreatePage() {
 		setSaveError(null);
 		try {
 			const result = await postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>("registry/save", formState);
+			if (result.item) {
+				for (const definition of applicableCustomDefinitions) {
+					const value = customValues[definition.id]?.trim();
+					if (!value) continue;
+					await postPlugin("custom-attributes/values/save", {
+						definitionId: definition.id,
+						ownerType: "registry_entity",
+						ownerId: result.item.id,
+						registryEntityId: result.item.id,
+						sikesraId20: result.item.sikesraId20,
+						entityType: result.item.entityType,
+						subtypeCode: formState.subtypeCode,
+						value,
+					});
+				}
+			}
 			setNotice(`Registry record saved${result.item?.sikesraId20 ? ` with SIKESRA ID ${result.item.sikesraId20}` : ""}.`);
 			setFormState((current) => ({
 				...current,
@@ -973,6 +1036,7 @@ function RegistryCreatePage() {
 				code: "",
 				publicSummary: "",
 			}));
+			setCustomValues({});
 		} catch (cause) {
 			setSaveError(cause instanceof Error ? cause.message : "Failed to save registry record.");
 		} finally {
@@ -1068,6 +1132,30 @@ function RegistryCreatePage() {
 								}
 							/>
 						</Field>
+						{applicableCustomDefinitions.length > 0 ? (
+							<div className="rounded-2xl border border-kumo-line bg-kumo-tint/20 p-4">
+								<div className="text-sm font-semibold text-kumo-default">Applicable custom attributes</div>
+								<p className="mt-1 text-xs text-kumo-subtle">
+									These fields are loaded from active definitions that match the selected module, subtype, region, or record scope.
+								</p>
+								<div className="mt-4 grid gap-4 md:grid-cols-2">
+									{applicableCustomDefinitions.map((definition) => (
+										<Field
+											key={definition.id}
+											label={definition.label}
+											hint={`${definition.scope} · ${definition.dataType} · ${definition.dataClass}`}
+										>
+											<Input
+												value={customValues[definition.id] ?? ""}
+												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+													setCustomValues((current) => ({ ...current, [definition.id]: event.target.value }))
+												}
+											/>
+										</Field>
+									))}
+								</div>
+							</div>
+						) : null}
 						<Button variant="primary" type="submit" disabled={saving}>
 							{saving ? "Saving..." : "Save registry record"}
 						</Button>
@@ -1088,8 +1176,28 @@ function RegistryCreatePage() {
 function RegistryDetailPage() {
 	const contract = getSikesraPageContract("/registry/:id");
 	const { data, error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const { data: customDefinitions } =
+		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
+	const { data: customValues } =
+		usePluginData<CustomAttributeValuesResponse>("custom-attributes/values/list");
 	const [selectedId, setSelectedId] = React.useState("");
 	const selected = data?.items.find((item) => item.id === selectedId) ?? data?.items[0];
+	const applicableCustomDefinitions = selected
+		? (customDefinitions?.items ?? []).filter((definition) =>
+				customAttributeAppliesToRegistry(definition, {
+					entityType: selected.entityType,
+					registryEntityId: selected.id,
+					sikesraId20: selected.sikesraId20,
+					region: selected.region,
+				}),
+			)
+		: [];
+	const customDefinitionById = new Map(applicableCustomDefinitions.map((definition) => [definition.id, definition]));
+	const selectedCustomValues = (customValues?.items ?? []).filter(
+		(value) =>
+			customDefinitionById.has(value.definitionId) &&
+			(value.registryEntityId === selected?.id || (selected?.sikesraId20 && value.sikesraId20 === selected.sikesraId20)),
+	);
 
 	React.useEffect(() => {
 		if (!selectedId && data?.items[0]?.id) setSelectedId(data.items[0].id);
@@ -1152,6 +1260,35 @@ function RegistryDetailPage() {
 								<span>District: {selected.region.districtCode || "-"}</span>
 								<span>Village: {selected.region.villageCode || "-"}</span>
 							</div>
+						</Card>
+						<Card title="Applicable custom attributes" description="Dynamic fields are filtered by module, record, SIKESRA ID, and region scope.">
+							{applicableCustomDefinitions.length === 0 ? (
+								<EmptyState title="No applicable custom attributes" description="Create an active definition that matches this registry record to show dynamic fields here." />
+							) : (
+								<div className="space-y-3">
+									{applicableCustomDefinitions.map((definition) => {
+										const value = selectedCustomValues.find((item) => item.definitionId === definition.id);
+										return (
+											<div key={definition.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+												<div className="flex flex-wrap items-start justify-between gap-3">
+													<div>
+														<div className="font-semibold text-kumo-default">{definition.label}</div>
+														<div className="mt-1 font-mono text-xs text-kumo-subtle">{definition.key}</div>
+													</div>
+													<div className="flex flex-wrap gap-2">
+														<Badge variant="outline">{definition.scope}</Badge>
+														<Pill tone={definition.dataClass === "non_personal" ? "success" : "warning"}>{definition.dataClass}</Pill>
+														{value ? <Pill tone={value.masked ? "warning" : "success"}>{value.masked ? "Masked" : "Visible"}</Pill> : null}
+													</div>
+												</div>
+												<div className="mt-3 rounded-lg bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default">
+													{value?.valueDisplay ?? "No value saved for this registry record."}
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							)}
 						</Card>
 					</div>
 				</div>

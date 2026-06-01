@@ -6061,6 +6061,14 @@ const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx
 };
 
 const SIKESRA_OWNED_DELETE_TABLES = new Set(AWCMS_SIKESRA_D1_TABLE_NAMES);
+const SIKESRA_USER_ASSIGNMENT_DELETE_TABLES = new Set([
+	AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE,
+	AWCMS_SIKESRA_USER_SCOPE_ASSIGNMENTS_TABLE,
+]);
+
+function blocksEmDashUserDeleteTarget(targetTable: string) {
+	return targetTable.startsWith("_emdash") || (targetTable.includes("user") && !SIKESRA_USER_ASSIGNMENT_DELETE_TABLES.has(targetTable));
+}
 
 const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
@@ -6076,7 +6084,7 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		...(reason ? [] : ["reason"]),
 		...(confirmation === "PERMANENT DELETE" ? [] : ["confirmation"]),
 	];
-	if (targetTable.startsWith("_emdash") || targetTable.includes("user")) invalidFields.push("targetTable");
+	if (blocksEmDashUserDeleteTarget(targetTable)) invalidFields.push("targetTable");
 	if (invalidFields.length > 0) return createValidationError([...new Set(invalidFields)]);
 
 	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.execute");
@@ -6312,7 +6320,7 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	const targetRecordId = String(requestRow.target_record_id ?? "");
 	const blockedFields = [
 		...(SIKESRA_OWNED_DELETE_TABLES.has(targetTable as any) ? [] : ["targetTable"]),
-		...(targetTable.startsWith("_emdash") || targetTable.includes("user") ? ["targetTable"] : []),
+		...(blocksEmDashUserDeleteTarget(targetTable) ? ["targetTable"] : []),
 	];
 	if (blockedFields.length > 0) return createValidationError([...new Set(blockedFields)]);
 	if (targetTable === AWCMS_SIKESRA_AUDIT_TABLE) {

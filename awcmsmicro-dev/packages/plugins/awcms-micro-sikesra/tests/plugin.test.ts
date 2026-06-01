@@ -1364,6 +1364,38 @@ function createMockContext() {
 						}
 						return;
 					}
+					if (_table === "sikesra_user_role_assignments") {
+						for (let index = userRoleAssignmentTableRows.length - 1; index >= 0; index -= 1) {
+							const row = userRoleAssignmentTableRows[index]!;
+							let matches = true;
+							for (const [key, value] of Object.entries(filters)) {
+								if ((row as Record<string, string>)[key] !== value) {
+									matches = false;
+									break;
+								}
+							}
+							if (!matches) continue;
+							collections.userRoleAssignments.delete(String(row.emdash_user_id ?? row.user_id ?? row.id));
+							userRoleAssignmentTableRows.splice(index, 1);
+						}
+						return;
+					}
+					if (_table === "sikesra_user_scope_assignments") {
+						for (let index = userScopeAssignmentTableRows.length - 1; index >= 0; index -= 1) {
+							const row = userScopeAssignmentTableRows[index]!;
+							let matches = true;
+							for (const [key, value] of Object.entries(filters)) {
+								if ((row as Record<string, string>)[key] !== value) {
+									matches = false;
+									break;
+								}
+							}
+							if (!matches) continue;
+							collections.userScopeAssignments.delete(String(row.id));
+							userScopeAssignmentTableRows.splice(index, 1);
+						}
+						return;
+					}
 					for (let index = dbRows.length - 1; index >= 0; index -= 1) {
 						const row = dbRows[index]!;
 						let matches = true;
@@ -3920,6 +3952,7 @@ describe("awcms micro sikesra plugin", () => {
 			deleteEventTableRows,
 			registryEntityTableRows,
 			supportingDocumentTableRows,
+			userRoleAssignmentTableRows,
 			auditTableRows,
 		} = createMockContext();
 		const routes = createNativeRoutes();
@@ -4133,6 +4166,57 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.execute" }),
+		);
+
+		userRoleAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "assignment-delete-01",
+			emdash_user_id: "user-demo-doc-reviewer",
+			role_slug: "sikesra_viewer_laporan",
+			is_active: 0,
+			deleted_at: "2026-01-01T00:00:00.000Z",
+		});
+		collections.userRoleAssignments.set("user-demo-doc-reviewer", {
+			userId: "user-demo-doc-reviewer",
+			roles: ["sikesra_viewer_laporan"],
+			isActive: false,
+		});
+		await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-03",
+				targetTable: "sikesra_user_role_assignments",
+				targetRecordId: "assignment-delete-01",
+				targetType: "user_assignment",
+				reason: "Expired inactive SIKESRA assignment after retention review",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any);
+		await routes["crud/permanent-delete/approve"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-03:approval:01",
+				deleteRequestId: "delete-request-03",
+				decision: "approved",
+				notes: "Assignment-only deletion; EmDash user remains untouched.",
+			},
+		} as any);
+		const assignmentExecuted = (await routes["crud/permanent-delete/execute"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				deleteRequestId: "delete-request-03",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(assignmentExecuted.success).toBe(true);
+		expect(userRoleAssignmentTableRows.some((row) => row.id === "assignment-delete-01")).toBe(false);
+		expect(await ctx.users.get("user-demo-doc-reviewer")).toMatchObject({ id: "user-demo-doc-reviewer" });
+		expect(deleteEventTableRows).toContainEqual(
+			expect.objectContaining({ delete_request_id: "delete-request-03", event_kind: "crud.permanent_delete.execute" }),
 		);
 	});
 
