@@ -1,2 +1,13 @@
 export type { SikesraAdminApiPath, SikesraAdminApiRequest, SikesraAdminUserHeaderSource } from "./client.js";
 export { createSikesraAdminApiHeaders, postSikesraPlugin, SIKESRA_PLUGIN_API_BASE } from "./client.js";
+export { previewAbac } from "./abac-api.js";
+export { previewAccess, saveUserRoles } from "./access-api.js";
+export { listAuditEvents } from "./audit-api.js";
+export type { SikesraCrudApiContract } from "./crud-api.js";
+export type { SikesraCustomAttributesApiContract } from "./custom-attributes-api.js";
+export { listDocuments, saveDocument } from "./documents-api.js";
+export type { SikesraExportApiContract } from "./export-api.js";
+export { promoteImportRows } from "./import-api.js";
+export { listRegistry, saveRegistry } from "./registry-api.js";
+export { getSettings, saveSettings } from "./settings-api.js";
+export { advanceVerification, listVerification, rejectVerification } from "./verification-api.js";
