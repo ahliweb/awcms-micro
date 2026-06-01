@@ -8,6 +8,7 @@ import { getExampleAdminCopy } from "./admin-copy.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
+	maskSensitiveBySensitivity,
 	type SikesraReferenceRegistryEntity,
 	type SikesraSensitivity,
 	type SikesraReferenceSupportingDocument,
@@ -3026,7 +3027,7 @@ function DocumentsPage() {
 										<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
 											<div>
 												<strong>Entity:</strong>{" "}
-												{maskSensitive(doc.registryEntityId, doc.sensitivity === "public_safe")}
+												{maskSensitiveBySensitivity(doc.registryEntityId, doc.sensitivity)}
 											</div>
 											<div>
 												<strong>Issued:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}

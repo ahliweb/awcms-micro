@@ -117,6 +117,14 @@ export function maskSensitive(value: string | null | undefined, allowed: boolean
 	return allowed ? value : "••••••";
 }
 
+export function maskSensitiveBySensitivity(
+	value: string | null | undefined,
+	sensitivity: SikesraSensitivity,
+	revealAllowed = false,
+) {
+	return maskSensitive(value, revealAllowed || sensitivity === "public_safe");
+}
+
 export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 	registryEntities: [
 		{

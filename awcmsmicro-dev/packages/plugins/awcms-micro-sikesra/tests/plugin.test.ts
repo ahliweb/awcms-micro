@@ -8,7 +8,11 @@ import {
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
 } from "../src/admin.js";
-import { SIKESRA_REFERENCE_FIXTURES, maskSensitive } from "../src/fixtures.js";
+import {
+	SIKESRA_REFERENCE_FIXTURES,
+	maskSensitive,
+	maskSensitiveBySensitivity,
+} from "../src/fixtures.js";
 import { awcmsMicroExamplePlugin, awcmsMicroSikesraPlugin } from "../src/index.js";
 import { AWCMS_SIKESRA_PERMISSION_LIST } from "../src/permissions.js";
 import {
@@ -666,6 +670,18 @@ describe("awcms micro sikesra plugin", () => {
 		expect(maskSensitive("0912345678", true)).toBe("0912345678");
 		expect(maskSensitive("0912345678", false)).toBe("••••••");
 		expect(maskSensitive(undefined, false)).toBeNull();
+	});
+
+	it("defaults non-public SIKESRA records to masked output", () => {
+		for (const doc of SIKESRA_REFERENCE_FIXTURES.supportingDocuments) {
+			const expected = doc.sensitivity === "public_safe" ? doc.registryEntityId : "••••••";
+
+			expect(maskSensitiveBySensitivity(doc.registryEntityId, doc.sensitivity)).toBe(expected);
+		}
+
+		expect(maskSensitiveBySensitivity("registry-entity-guru-agama-01", "restricted", true)).toBe(
+			"registry-entity-guru-agama-01",
+		);
 	});
 
 	it("exposes public and protected routes", async () => {
