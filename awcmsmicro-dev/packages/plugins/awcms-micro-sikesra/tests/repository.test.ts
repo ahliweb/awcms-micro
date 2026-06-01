@@ -82,4 +82,24 @@ describe("SIKESRA D1 repositories", () => {
 			true,
 		);
 	});
+
+	it("reads and writes settings through the dedicated SIKESRA D1 settings table", async () => {
+		const { calls, db } = createRecordingDb([{ key: "publicStatusLabel", value_json: '"Online"' }]);
+		const repository = createSikesraRepositories(db, { tenantId: "tenant-1", siteId: "site-1" }).settings;
+
+		await expect(repository.getJsonByKey<string>("publicStatusLabel")).resolves.toBe("Online");
+		await repository.upsertJson("publicStatusLabel", "Ready");
+
+		expect(calls[0]?.query).toContain("FROM sikesra_settings");
+		expect(calls[0]?.query).toContain("key = ?");
+		expect(calls[0]?.bindings).toEqual(["tenant-1", "site-1", "publicStatusLabel"]);
+		expect(calls[1]?.query).toContain("INSERT INTO sikesra_settings");
+		expect(calls[1]?.query).toContain("ON CONFLICT(tenant_id, site_id, key)");
+		expect(calls[1]?.bindings.slice(0, 4)).toEqual([
+			"tenant-1",
+			"site-1",
+			"publicStatusLabel",
+			'"Ready"',
+		]);
+	});
 });

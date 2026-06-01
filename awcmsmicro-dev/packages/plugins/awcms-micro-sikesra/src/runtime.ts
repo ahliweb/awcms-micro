@@ -1687,7 +1687,12 @@ function mapRoleSlugToVerifierLevel(roleSlug: string): VerificationUserLevel | n
 	return null;
 }
 
+function allowClientUserHeadersInDev() {
+	return (import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD !== true;
+}
+
 function getRequestUserId(ctx: PluginContext) {
+	if (!allowClientUserHeadersInDev()) return null;
 	const req = (ctx as any).request as Request | undefined;
 	return req?.headers.get("X-Sikesra-User-Id") ?? null;
 }
@@ -2026,7 +2031,7 @@ export function createAuditRecord(
 
 async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	const req = (ctx as any).request as Request | undefined;
-	if (req) {
+	if (req && allowClientUserHeadersInDev()) {
 		const userId = req.headers.get("X-Sikesra-User-Id");
 		const userName = req.headers.get("X-Sikesra-User-Name");
 		if (userId) record.userId = userId;

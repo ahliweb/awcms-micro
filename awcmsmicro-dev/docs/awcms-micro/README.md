@@ -11,6 +11,8 @@ Use it only for AWCMS-Micro-owned documentation.
 - `navigation-standard.md`: layered public and plugin navigation standard for AWCMS-Micro templates and the SIKESRA plugin
 - `navigation-release-notes.md`: concise release notes for the navigation standard and validation paths
 - `admin-navigation.md`: plugin-owned admin navigation compatibility guidance
+- `upstream-sync.md`: SIKESRA-specific checks for EmDash update and rebuild workflows
+- `divergence-log.md`: downstream divergence notes that must survive future sync work
 - `plugin-i18n.md`: label resolution and plugin i18n behavior
 - `sikesra-reference-prd.md`: SIKESRA reference PRD and backlog map for the AWCMS-Micro example standard
 - `sikesra-reference-standard.md`: SIKESRA-grade reference scope, implementation order, and guardrails for the SIKESRA plugin and templates

@@ -1,29 +1,18 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const pluginDir = resolve(scriptDir, "..");
 const packageJson = JSON.parse(readFileSync(resolve(pluginDir, "package.json"), "utf8"));
+const schemaSource = readFileSync(resolve(pluginDir, "src/db/schema.ts"), "utf8");
+const migrationFiles = readdirSync(resolve(pluginDir, "migrations")).filter((file) =>
+	file.endsWith(".sql"),
+);
 
-const d1Tables = [
-	"sikesra_settings",
-	"sikesra_data_types",
-	"sikesra_regions",
-	"sikesra_registry_entities",
-	"sikesra_person_profiles",
-	"sikesra_supporting_documents",
-	"sikesra_verification_events",
-	"sikesra_import_batches",
-	"sikesra_import_rows",
-	"sikesra_export_jobs",
-	"sikesra_audit_events",
-	"sikesra_user_role_assignments",
-	"sikesra_abac_policy_rules",
-	"sikesra_custom_attribute_definitions",
-	"sikesra_custom_attribute_values",
-	"sikesra_delete_requests",
-];
+const d1Tables = [...schemaSource.matchAll(/:\s*"(sikesra_[a-z0-9_]+)"/g)].map(
+	(match) => match[1],
+);
 const storageCollections = [
 	"sikesra_access_change_events",
 	"sikesra_abac_change_events",
@@ -52,6 +41,7 @@ const inventory = {
 	},
 	d1Tables,
 	storageCollections,
+	migrationFiles,
 	notes: [
 		"Record row counts per sikesra_ table before production rebuilds.",
 		"Record R2 object inventory for SIKESRA document prefixes when R2 is configured.",

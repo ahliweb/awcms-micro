@@ -63,11 +63,24 @@ Run from the SIKESRA plugin package:
 
 ```bash
 pnpm awcms:sikesra:check-d1-prefix
+pnpm awcms:sikesra:check-data-boundary
 pnpm awcms:sikesra:check-destructive-migrations
+pnpm awcms:sikesra:check-user-references
+pnpm awcms:sikesra:check-file-links
 pnpm awcms:sikesra:backup-inventory
+pnpm awcms:sikesra:validate-data-after-rebuild
 pnpm test
 pnpm typecheck
 ```
+
+## Implemented Guardrails
+
+- `check-data-boundary` verifies every schema and migration table uses `sikesra_`, every migration table is cataloged, and SIKESRA source does not write to EmDash user tables.
+- `check-user-references` verifies role, scope, and ABAC subject tables use `emdash_user_id` references and that SIKESRA does not create duplicate user tables.
+- `check-file-links` verifies document metadata tables include file-object links, classification, validation status, checksums, and supporting indexes.
+- `validate-data-after-rebuild` runs the data-boundary, destructive-migration, user-reference, file-link, and backup-inventory checks as a post-rebuild safety gate.
+
+These scripts are static/local guards. Production row-count and R2 object checks must use the generated backup inventory plus environment-specific D1/R2 export tooling before high-risk rebuilds.
 
 ## Backup Inventory Baseline
 

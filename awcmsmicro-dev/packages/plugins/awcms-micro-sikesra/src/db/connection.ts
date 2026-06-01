@@ -6,6 +6,7 @@ export interface SikesraD1PreparedStatement<T = unknown> {
 	bind(...values: unknown[]): SikesraD1PreparedStatement<T>;
 	all(): Promise<SikesraD1Result<T>>;
 	first(): Promise<T | null>;
+	run?(): Promise<unknown>;
 }
 
 export interface SikesraD1Database {
