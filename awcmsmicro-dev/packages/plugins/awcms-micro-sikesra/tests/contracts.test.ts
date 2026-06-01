@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
 	normalizeSikesraPagination,
+	handleSikesraContractRoute,
+	requireStringField,
 	sikesraError,
 	sikesraOk,
 	SIKESRA_ERROR_CODES,
@@ -141,6 +143,38 @@ describe("SIKESRA integration contracts", () => {
 			abacPreview: { action: "registry.read" },
 			auditList: { kind: "registry.update" },
 			field: { storageTable: "sikesra_registry_entities" },
+		});
+	});
+
+	it("maps route validation failures into safe API errors", async () => {
+		await expect(
+			handleSikesraContractRoute(
+				{ input: { label: "" }, requestId: "req-1" },
+				(input) => requireStringField(input, "label"),
+				async (label) => ({ label }),
+			),
+		).resolves.toEqual({
+			ok: false,
+			error: {
+				code: "SIKESRA_VALIDATION_ERROR",
+				message: "Invalid SIKESRA request payload.",
+				fieldErrors: { label: ["Required"] },
+				requestId: "req-1",
+			},
+		});
+	});
+
+	it("wraps route handler output in a request-scoped success envelope", async () => {
+		await expect(
+			handleSikesraContractRoute(
+				{ input: { label: " Masjid " }, requestId: "req-2" },
+				(input) => requireStringField(input, "label"),
+				async (label) => ({ label }),
+			),
+		).resolves.toEqual({
+			ok: true,
+			data: { label: "Masjid" },
+			meta: { requestId: "req-2" },
 		});
 	});
 });
