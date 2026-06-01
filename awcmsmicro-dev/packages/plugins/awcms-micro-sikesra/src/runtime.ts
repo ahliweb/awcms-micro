@@ -2834,9 +2834,7 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const verifierLevel =
 		(getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ??
 		inferVerifierLevel(actor);
-	const notes =
-		getString(routeCtx.input, "notes") ??
-		"Returned to the previous verification level from the admin reference UI";
+	const notes = getString(routeCtx.input, "notes")?.trim() ?? "";
 	const items = await listVerificationItems(ctx);
 	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
 
@@ -2852,6 +2850,15 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			error: {
 				code: "INVALID_LEVEL",
 				message: `Verification level is required for ${registryEntityId}`,
+			},
+		};
+	}
+	if (!notes) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Reason notes are required before returning verification for revision.",
 			},
 		};
 	}

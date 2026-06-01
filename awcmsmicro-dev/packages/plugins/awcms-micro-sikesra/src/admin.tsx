@@ -2498,7 +2498,13 @@ function VerificationPage() {
 		setMutationError(null);
 		setStatusMessage(null);
 
-		const notes = actionNotes[entityId] || "Verification processed via admin console";
+		const rawNotes = actionNotes[entityId]?.trim() ?? "";
+		if (actionType === "needs_revision" && !rawNotes) {
+			setMutationError(copy.verificationRevisionReasonRequired);
+			setSubmittingId(null);
+			return;
+		}
+		const notes = rawNotes || "Verification processed via admin console";
 
 		try {
 			const item = queue.find((entry) => entry.registryEntityId === entityId);

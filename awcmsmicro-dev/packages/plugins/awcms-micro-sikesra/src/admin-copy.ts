@@ -174,6 +174,8 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			assignedVerifierLevels: "Level verifikator aktif",
 			verificationReadOnly:
 				"Aksi verifikasi hanya muncul jika level user aktif cocok dengan tahap review saat ini.",
+			verificationRevisionReasonRequired:
+				"Catatan alasan wajib diisi sebelum mengembalikan verifikasi untuk revisi.",
 			regionScope: "Scope wilayah",
 			orgScope: "Scope instansi",
 			verifierLevel: "Level verifikator",
@@ -680,6 +682,8 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		assignedVerifierLevels: "Active verifier levels",
 		verificationReadOnly:
 			"Verification actions only appear when the signed-in user level matches the current review stage.",
+		verificationRevisionReasonRequired:
+			"Reason notes are required before returning verification for revision.",
 		regionScope: "Region scope",
 		orgScope: "Organization scope",
 		verifierLevel: "Verifier level",

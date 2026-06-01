@@ -884,6 +884,26 @@ describe("awcms micro sikesra plugin", () => {
 		});
 	});
 
+	it("requires reason notes when returning verification for revision", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["verification/reject"]!.handler({
+			...ctx,
+			input: {
+				registryEntityId: "registry-entity-guru-agama-01",
+				actor: "sopd-officer",
+				verifierLevel: "sopd",
+				notes: "  ",
+			},
+		} as any)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("VALIDATION_ERROR");
+		expect(result.error.message).toContain("Reason notes are required");
+		expect(collections.verificationStageState.has("registry-entity-guru-agama-01")).toBe(false);
+	});
+
 	it("records manual touch state in plugin storage", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
