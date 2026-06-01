@@ -416,6 +416,9 @@ export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
 ] as const;
 
 const AWCMS_SIKESRA_AUDIT_TABLE = "sikesra_audit_events";
+const AWCMS_SIKESRA_SETTINGS_TABLE = "sikesra_settings";
+const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
+const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
 
 const AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS = [
 	{ from: "auditEvents", to: "sikesra_audit_events" },
@@ -1903,9 +1906,35 @@ async function listStorageValues<T>(collection: {
 }
 
 async function getStoredSettings(ctx: PluginContext) {
+	const d1Settings = await getD1Settings(ctx);
+	if (d1Settings.size > 0) return d1Settings;
+
 	const records = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
 	const map = new Map<string, StoredSettingRecord>();
 	for (const record of records) map.set(record.key, record);
+	return map;
+}
+
+async function getD1Settings(ctx: PluginContext) {
+	const map = new Map<string, StoredSettingRecord>();
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return map;
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_SETTINGS_TABLE)
+		.select(["key", "value_json", "updated_at"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.execute()) as Array<{ key: string; value_json: string; updated_at?: string | null }>;
+
+	for (const row of rows) {
+		map.set(row.key, {
+			key: row.key,
+			value: JSON.parse(row.value_json) as StoredSettingRecord["value"],
+			updatedAt: row.updated_at ?? toIsoNow(),
+		});
+	}
+
 	return map;
 }
 
@@ -1927,9 +1956,41 @@ async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
 		{ key: "sikesraPublicEnabled", value: next.sikesraPublicEnabled, updatedAt: now },
 	];
 
+	const wroteD1 = await persistD1Settings(ctx, records, now);
+	if (wroteD1) return;
+
 	for (const record of records) {
 		await ctx.storage.sikesra_settings_state!.put(record.key, record);
 	}
+}
+
+async function persistD1Settings(ctx: PluginContext, records: StoredSettingRecord[], now: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+
+	for (const record of records) {
+		await db
+			.insertInto(AWCMS_SIKESRA_SETTINGS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				key: record.key,
+				value_json: JSON.stringify(record.value),
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "key"]).doUpdateSet({
+					value_json: JSON.stringify(record.value),
+					updated_at: now,
+					deleted_at: null,
+				}),
+			)
+			.execute();
+	}
+
+	return true;
 }
 
 async function persistStateValue(

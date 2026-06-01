@@ -112,6 +112,7 @@ function createMockContext() {
 		verificationEvents: new Map<string, unknown>(),
 	};
 	const auditTableRows: Array<Record<string, unknown>> = [];
+	const settingsTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
 		sikesra_audit_events: collections.auditEvents,
 		sikesra_access_change_events: collections.accessChangeEvents,
@@ -207,6 +208,16 @@ function createMockContext() {
 		dbRows.push(row);
 		syncCollectionMap(row);
 	};
+	const upsertSettingsRow = (settingsRow: Record<string, unknown>) => {
+		const index = settingsTableRows.findIndex(
+			(existing) =>
+				existing.tenant_id === settingsRow.tenant_id &&
+				existing.site_id === settingsRow.site_id &&
+				existing.key === settingsRow.key,
+		);
+		if (index >= 0) settingsTableRows[index] = settingsRow;
+		else settingsTableRows.push(settingsRow);
+	};
 	const db = {
 		schema: {
 			createTable: vi.fn(() => schemaBuilder),
@@ -238,6 +249,16 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_settings") {
+						return settingsTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					return queryRows(filters);
 				},
 			};
@@ -261,15 +282,25 @@ function createMockContext() {
 									user_name: nextRow.user_name ?? null,
 									created_at: textValue(nextRow.created_at),
 									updated_at: textValue(nextRow.updated_at),
-								}
-							: {
+							}
+							: _table === "sikesra_settings"
+								? {
+										tenant_id: textValue(nextRow.tenant_id),
+										site_id: textValue(nextRow.site_id),
+										key: textValue(nextRow.key),
+										value_json: textValue(nextRow.value_json),
+										created_at: textValue(nextRow.created_at),
+										updated_at: textValue(nextRow.updated_at),
+										deleted_at: nextRow.deleted_at ?? null,
+									}
+								: {
 									plugin_id: textValue(nextRow.plugin_id),
 									collection: textValue(nextRow.collection),
 									id: textValue(nextRow.id),
 									data: jsonTextValue(nextRow.data),
 									created_at: textValue(nextRow.created_at),
 									updated_at: textValue(nextRow.updated_at),
-								};
+									};
 				const operation = {
 						onConflict(_handler: unknown) {
 							const statement = {
@@ -286,6 +317,10 @@ function createMockContext() {
 											auditTableRows.push(auditRow);
 										}
 										collections.auditEvents.set(String(auditRow.id), auditRowToData(auditRow));
+										return;
+									}
+									if (_table === "sikesra_settings") {
+										upsertSettingsRow(row as Record<string, unknown>);
 										return;
 									}
 									const storedRow = row as DbRow;
@@ -317,6 +352,10 @@ function createMockContext() {
 									auditTableRows.push(auditRow);
 								}
 								collections.auditEvents.set(String(auditRow.id), auditRowToData(auditRow));
+								return;
+							}
+							if (_table === "sikesra_settings") {
+								upsertSettingsRow(row as Record<string, unknown>);
 								return;
 							}
 							const storedRow = row as DbRow;
@@ -453,6 +492,7 @@ function createMockContext() {
 		db,
 		dbRows,
 		auditTableRows,
+		settingsTableRows,
 		seedDbRow,
 		kvData,
 		cron,
@@ -547,7 +587,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("stamps audit events with request user headers", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, settingsTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const request = new Request("https://example.test", {
 			headers: {
@@ -704,7 +744,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("exposes public and protected routes", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, settingsTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["settings/save"]!.handler({
@@ -738,15 +778,16 @@ describe("awcms micro sikesra plugin", () => {
 		expect(JSON.stringify(publicResult)).not.toContain("registry-entity-");
 		expect(publicResult).not.toHaveProperty("storageKey");
 		expect(publicResult).not.toHaveProperty("userId");
-		expect(collections.settingsState.size).toBe(6);
+		expect(settingsTableRows).toHaveLength(6);
+		expect(collections.settingsState.size).toBe(0);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
 		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({
 			key: "state:publicStatusHits",
 			value: 1,
 		});
-		expect(collections.settingsState.get("governanceMode")).toMatchObject({
+		expect(settingsTableRows.find((row) => row.key === "governanceMode")).toMatchObject({
 			key: "governanceMode",
-			value: "observe",
+			value_json: '"observe"',
 		});
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
