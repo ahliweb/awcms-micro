@@ -417,6 +417,10 @@ export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
 
 const AWCMS_SIKESRA_AUDIT_TABLE = "sikesra_audit_events";
 const AWCMS_SIKESRA_SETTINGS_TABLE = "sikesra_settings";
+const AWCMS_SIKESRA_DATA_TYPES_TABLE = "sikesra_data_types";
+const AWCMS_SIKESRA_DATA_SUBTYPES_TABLE = "sikesra_data_subtypes";
+const AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE = "sikesra_official_regions";
+const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
 const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
 
@@ -1830,6 +1834,9 @@ async function getVerificationStageState(
 	const defaultState = Object.fromEntries(
 		entities.map((entity) => [entity.id, entity.verificationStage]),
 	) as Record<string, VerificationStage>;
+	const d1State = await getD1VerificationStageState(ctx);
+	if (Object.keys(d1State).length > 0) return { ...defaultState, ...d1State };
+
 	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(
 		ctx.storage.sikesra_verification_stage_state!,
 	);
@@ -1854,10 +1861,31 @@ async function getVerificationStageState(
 	return defaultState;
 }
 
+async function getD1VerificationStageState(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return {} as Record<string, VerificationStage>;
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
+		.select(["registry_entity_id", "stage"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("status", "=", "pending")
+		.execute()) as Array<{ registry_entity_id: string; stage: VerificationStage }>;
+
+	return Object.fromEntries(rows.map((row) => [row.registry_entity_id, row.stage])) as Record<
+		string,
+		VerificationStage
+	>;
+}
+
 async function setVerificationStageState(
 	ctx: PluginContext,
 	state: Record<string, VerificationStage>,
 ) {
+	const wroteD1 = await persistD1VerificationStageState(ctx, state);
+	if (wroteD1) return;
+
 	for (const [registryEntityId, stage] of Object.entries(state)) {
 		await ctx.storage.sikesra_verification_stage_state!.put(registryEntityId, {
 			registryEntityId,
@@ -1866,6 +1894,89 @@ async function setVerificationStageState(
 		});
 	}
 	await ctx.kv.set(VERIFICATION_STATE_KEY, state);
+}
+
+async function persistD1VerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+
+	const now = toIsoNow();
+	for (const [registryEntityId, stage] of Object.entries(state)) {
+		const nextStage = getNextVerificationStage(stage);
+		await db
+			.insertInto(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				registry_entity_id: registryEntityId,
+				stage,
+				current_level: getVerificationLevel(stage),
+				next_level: nextStage ? getVerificationLevel(nextStage) : null,
+				status: "pending",
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "registry_entity_id"]).doUpdateSet({
+					stage,
+					current_level: getVerificationLevel(stage),
+					next_level: nextStage ? getVerificationLevel(nextStage) : null,
+					status: "pending",
+					updated_at: now,
+					deleted_at: null,
+				}),
+			)
+			.execute();
+	}
+
+	return true;
+}
+
+async function migrateRuntimeStateToD1(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return;
+
+	let migrated = 0;
+	const storedSettings = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
+	if (storedSettings.length > 0) {
+		if (await persistD1Settings(ctx, storedSettings, toIsoNow())) migrated += storedSettings.length;
+	}
+
+	const customDataTypes = await ctx.kv.get<unknown>("custom:data-types");
+	if (customDataTypes && (await persistD1DataTypes(ctx, customDataTypes))) migrated += 1;
+
+	const customRegions = await ctx.kv.get<unknown>("custom:regions");
+	if (customRegions && (await persistD1RegionTree(ctx, customRegions))) migrated += 1;
+
+	const storedVerificationRows = await listStorageValues<StoredVerificationStageRecord>(
+		ctx.storage.sikesra_verification_stage_state!,
+	);
+	if (storedVerificationRows.length > 0) {
+		const state = Object.fromEntries(
+			storedVerificationRows.map((row) => [row.registryEntityId, row.stage]),
+		) as Record<string, VerificationStage>;
+		if (await persistD1VerificationStageState(ctx, state)) migrated += storedVerificationRows.length;
+	}
+
+	const legacyVerificationState = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
+	if (legacyVerificationState && (await persistD1VerificationStageState(ctx, legacyVerificationState))) {
+		migrated += Object.keys(legacyVerificationState).length;
+		await ctx.kv.delete(VERIFICATION_STATE_KEY);
+	}
+
+	if (migrated > 0) {
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "runtime-state.d1-migration",
+				scope: "migration",
+				actor: "system",
+				summary: "Migrated SIKESRA runtime state to dedicated D1 tables",
+				metadata: { migrated },
+			}),
+		);
+	}
 }
 
 async function listVerificationItems(ctx: PluginContext): Promise<VerificationListItem[]> {
@@ -3477,13 +3588,17 @@ const abacHealthRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	const regions = (await ctx.kv.get<unknown>("custom:regions")) ?? DEFAULT_REGION_TREE;
+	const regions =
+		(await getD1RegionTree(ctx)) ??
+		(await ctx.kv.get<unknown>("custom:regions")) ??
+		DEFAULT_REGION_TREE;
 	return regions;
 };
 
 const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
-	await ctx.kv.set("custom:regions", input);
+	const wroteD1 = await persistD1RegionTree(ctx, input);
+	if (!wroteD1) await ctx.kv.set("custom:regions", input);
 	const event = createAuditRecord({
 		kind: "settings.regions.update",
 		scope: "settings",
@@ -3495,14 +3610,120 @@ const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, item: input };
 };
 
+type D1RegionRow = {
+	code: string;
+	parent_code?: string | null;
+	level: string;
+	name: string;
+};
+
+async function getD1RegionTree(ctx: PluginContext): Promise<AdministrativeProvince[] | null> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE)
+		.select(["code", "parent_code", "level", "name"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("status", "=", "active")
+		.execute()) as D1RegionRow[];
+
+	if (rows.length === 0) return null;
+
+	const byParent = new Map<string, D1RegionRow[]>();
+	for (const row of rows) {
+		const parent = row.parent_code ?? "";
+		byParent.set(parent, [...(byParent.get(parent) ?? []), row]);
+	}
+
+	return (byParent.get("") ?? [])
+		.filter((row) => row.level === "province")
+		.map((province) => ({
+			code: province.code,
+			name: province.name,
+			regencies: (byParent.get(province.code) ?? [])
+				.filter((row) => row.level === "regency")
+				.map((regency) => ({
+					code: regency.code,
+					name: regency.name,
+					districts: (byParent.get(regency.code) ?? [])
+						.filter((row) => row.level === "district")
+						.map((district) => ({
+							code: district.code,
+							name: district.name,
+							villages: (byParent.get(district.code) ?? [])
+								.filter((row) => row.level === "village")
+								.map((village) => ({ code: village.code, name: village.name })),
+						})),
+				})),
+		}));
+}
+
+async function persistD1RegionTree(ctx: PluginContext, input: unknown) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto || !Array.isArray(input)) return false;
+
+	const now = toIsoNow();
+	const rows: Array<{ code: string; parentCode: string | null; level: string; name: string }> = [];
+	for (const province of input as AdministrativeProvince[]) {
+		rows.push({ code: province.code, parentCode: null, level: "province", name: province.name });
+		for (const regency of province.regencies ?? []) {
+			rows.push({ code: regency.code, parentCode: province.code, level: "regency", name: regency.name });
+			for (const district of regency.districts ?? []) {
+				rows.push({ code: district.code, parentCode: regency.code, level: "district", name: district.name });
+				for (const village of district.villages ?? []) {
+					rows.push({ code: village.code, parentCode: district.code, level: "village", name: village.name });
+				}
+			}
+		}
+	}
+
+	for (const row of rows) {
+		await db
+			.insertInto(AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				code: row.code,
+				parent_code: row.parentCode,
+				level: row.level,
+				name: row.name,
+				official_source: "operator_import",
+				status: "active",
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "code"]).doUpdateSet({
+					parent_code: row.parentCode,
+					level: row.level,
+					name: row.name,
+					official_source: "operator_import",
+					status: "active",
+					updated_at: now,
+					deleted_at: null,
+				}),
+			)
+			.execute();
+	}
+
+	return true;
+}
+
 const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	const dataTypes = (await ctx.kv.get<unknown>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
+	const dataTypes =
+		(await getD1DataTypes(ctx)) ??
+		(await ctx.kv.get<unknown>("custom:data-types")) ??
+		DEFAULT_DATA_TYPES;
 	return dataTypes;
 };
 
 const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
-	await ctx.kv.set("custom:data-types", input);
+	const wroteD1 = await persistD1DataTypes(ctx, input);
+	if (!wroteD1) await ctx.kv.set("custom:data-types", input);
 	const event = createAuditRecord({
 		kind: "settings.data-types.update",
 		scope: "settings",
@@ -3513,6 +3734,97 @@ const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await appendAuditEvent(ctx, event);
 	return { success: true, item: input };
 };
+
+async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] | null> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+
+	const typeRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DATA_TYPES_TABLE)
+		.select(["id", "code", "label"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("status", "=", "active")
+		.execute()) as Array<{ id: string; code: string; label: string }>;
+
+	if (typeRows.length === 0) return null;
+
+	const subtypeRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
+		.select(["data_type_id", "code", "label"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("status", "=", "active")
+		.execute()) as Array<{ data_type_id: string; code: string; label: string }>;
+
+	return typeRows.map((type) => ({
+		id: type.id,
+		code: type.code,
+		label: type.label,
+		subTypes: subtypeRows
+			.filter((subtype) => subtype.data_type_id === type.id)
+			.map((subtype) => ({ code: subtype.code, label: subtype.label })),
+	}));
+}
+
+async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto || !Array.isArray(input)) return false;
+
+	const now = toIsoNow();
+	for (const item of input as SikesraParentType[]) {
+		await db
+			.insertInto(AWCMS_SIKESRA_DATA_TYPES_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: item.id,
+				code: item.code,
+				label: item.label,
+				status: "active",
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					code: item.code,
+					label: item.label,
+					status: "active",
+					updated_at: now,
+					deleted_at: null,
+				}),
+			)
+			.execute();
+
+		for (const subtype of item.subTypes) {
+			await db
+				.insertInto(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
+				.values({
+					tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+					site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+					data_type_id: item.id,
+					code: subtype.code,
+					label: subtype.label,
+					status: "active",
+					created_at: now,
+					updated_at: now,
+					deleted_at: null,
+				})
+				.onConflict((oc: any) =>
+					oc.columns(["tenant_id", "site_id", "data_type_id", "code"]).doUpdateSet({
+						label: subtype.label,
+						status: "active",
+						updated_at: now,
+						deleted_at: null,
+					}),
+				)
+				.execute();
+		}
+	}
+
+	return true;
+}
 
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
@@ -3594,6 +3906,7 @@ function toSandboxRequest(request: Request): SandboxedRequest {
 const sharedHooks: SandboxedPlugin["hooks"] = {
 	"plugin:install": async (_event, ctx) => {
 		await migrateLegacyStorageCollections(ctx);
+		await migrateRuntimeStateToD1(ctx);
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
 		await persistStateValue(ctx, "state:lastLifecycle", "plugin:install");
@@ -3611,6 +3924,7 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	},
 	"plugin:activate": async (_event, ctx) => {
 		await migrateLegacyStorageCollections(ctx);
+		await migrateRuntimeStateToD1(ctx);
 		await ensureAccessCatalogSeeded(ctx);
 		await ensureAbacCatalogSeeded(ctx);
 		await persistStateValue(ctx, "state:lastLifecycle", "plugin:activate");

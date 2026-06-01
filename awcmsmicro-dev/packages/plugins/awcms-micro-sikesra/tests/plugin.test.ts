@@ -113,6 +113,10 @@ function createMockContext() {
 	};
 	const auditTableRows: Array<Record<string, unknown>> = [];
 	const settingsTableRows: Array<Record<string, unknown>> = [];
+	const dataTypeTableRows: Array<Record<string, unknown>> = [];
+	const dataSubtypeTableRows: Array<Record<string, unknown>> = [];
+	const officialRegionTableRows: Array<Record<string, unknown>> = [];
+	const verificationStageTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
 		sikesra_audit_events: collections.auditEvents,
 		sikesra_access_change_events: collections.accessChangeEvents,
@@ -218,6 +222,13 @@ function createMockContext() {
 		if (index >= 0) settingsTableRows[index] = settingsRow;
 		else settingsTableRows.push(settingsRow);
 	};
+	const upsertD1CatalogRow = (rows: Array<Record<string, unknown>>, keys: string[], row: Record<string, unknown>) => {
+		const index = rows.findIndex((existing) =>
+			keys.every((key) => existing[key] === row[key]),
+		);
+		if (index >= 0) rows[index] = row;
+		else rows.push(row);
+	};
 	const db = {
 		schema: {
 			createTable: vi.fn(() => schemaBuilder),
@@ -259,6 +270,46 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_data_types") {
+						return dataTypeTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_data_subtypes") {
+						return dataSubtypeTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_official_regions") {
+						return officialRegionTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_verification_stage_state") {
+						return verificationStageTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					return queryRows(filters);
 				},
 			};
@@ -268,40 +319,92 @@ function createMockContext() {
 			let row: DbRow | Record<string, unknown> | null = null;
 			return {
 				values(nextRow: Record<string, unknown>) {
-					row =
-						_table === "sikesra_audit_events"
-							? {
-									id: textValue(nextRow.id),
-									timestamp: textValue(nextRow.timestamp),
-									kind: textValue(nextRow.kind),
-									scope: textValue(nextRow.scope),
-									actor: textValue(nextRow.actor),
-									summary: textValue(nextRow.summary),
-									metadata: jsonTextValue(nextRow.metadata),
-									user_id: nextRow.user_id ?? null,
-									user_name: nextRow.user_name ?? null,
-									created_at: textValue(nextRow.created_at),
-									updated_at: textValue(nextRow.updated_at),
-							}
-							: _table === "sikesra_settings"
-								? {
-										tenant_id: textValue(nextRow.tenant_id),
-										site_id: textValue(nextRow.site_id),
-										key: textValue(nextRow.key),
-										value_json: textValue(nextRow.value_json),
-										created_at: textValue(nextRow.created_at),
-										updated_at: textValue(nextRow.updated_at),
-										deleted_at: nextRow.deleted_at ?? null,
-									}
-								: {
-									plugin_id: textValue(nextRow.plugin_id),
-									collection: textValue(nextRow.collection),
-									id: textValue(nextRow.id),
-									data: jsonTextValue(nextRow.data),
-									created_at: textValue(nextRow.created_at),
-									updated_at: textValue(nextRow.updated_at),
-									};
-				const operation = {
+					if (_table === "sikesra_audit_events") {
+						row = {
+							id: textValue(nextRow.id),
+							timestamp: textValue(nextRow.timestamp),
+							kind: textValue(nextRow.kind),
+							scope: textValue(nextRow.scope),
+							actor: textValue(nextRow.actor),
+							summary: textValue(nextRow.summary),
+							metadata: jsonTextValue(nextRow.metadata),
+							user_id: nextRow.user_id ?? null,
+							user_name: nextRow.user_name ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+						};
+					} else if (_table === "sikesra_settings") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							key: textValue(nextRow.key),
+							value_json: textValue(nextRow.value_json),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else if (_table === "sikesra_data_types") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							code: textValue(nextRow.code),
+							label: textValue(nextRow.label),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else if (_table === "sikesra_data_subtypes") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							data_type_id: textValue(nextRow.data_type_id),
+							code: textValue(nextRow.code),
+							label: textValue(nextRow.label),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else if (_table === "sikesra_official_regions") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							code: textValue(nextRow.code),
+							parent_code: nextRow.parent_code ?? null,
+							level: textValue(nextRow.level),
+							name: textValue(nextRow.name),
+							official_source: textValue(nextRow.official_source),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else if (_table === "sikesra_verification_stage_state") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							registry_entity_id: textValue(nextRow.registry_entity_id),
+							stage: textValue(nextRow.stage),
+							current_level: textValue(nextRow.current_level),
+							next_level: nextRow.next_level ?? null,
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else {
+						row = {
+							plugin_id: textValue(nextRow.plugin_id),
+							collection: textValue(nextRow.collection),
+							id: textValue(nextRow.id),
+							data: jsonTextValue(nextRow.data),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+						};
+					}
+					const operation = {
 						onConflict(_handler: unknown) {
 							const statement = {
 								async execute() {
@@ -321,6 +424,22 @@ function createMockContext() {
 									}
 									if (_table === "sikesra_settings") {
 										upsertSettingsRow(row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_data_types") {
+										upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_data_subtypes") {
+										upsertD1CatalogRow(dataSubtypeTableRows, ["tenant_id", "site_id", "data_type_id", "code"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_official_regions") {
+										upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_verification_stage_state") {
+										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 										return;
 									}
 									const storedRow = row as DbRow;
@@ -356,6 +475,22 @@ function createMockContext() {
 							}
 							if (_table === "sikesra_settings") {
 								upsertSettingsRow(row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_data_types") {
+								upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_data_subtypes") {
+								upsertD1CatalogRow(dataSubtypeTableRows, ["tenant_id", "site_id", "data_type_id", "code"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_official_regions") {
+								upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_verification_stage_state") {
+								upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 								return;
 							}
 							const storedRow = row as DbRow;
@@ -493,6 +628,10 @@ function createMockContext() {
 		dbRows,
 		auditTableRows,
 		settingsTableRows,
+		dataTypeTableRows,
+		dataSubtypeTableRows,
+		officialRegionTableRows,
+		verificationStageTableRows,
 		seedDbRow,
 		kvData,
 		cron,
@@ -792,6 +931,79 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("reads and writes SIKESRA data types through dedicated D1 catalog tables", async () => {
+		const { ctx, dataTypeTableRows, dataSubtypeTableRows, kvData } = createMockContext();
+		const routes = createNativeRoutes();
+		const nextDataTypes = [
+			{
+				id: "rumah_ibadah",
+				code: "01",
+				label: "Rumah Ibadah",
+				subTypes: [{ code: "01", label: "Masjid" }],
+			},
+		];
+
+		await routes["data-types/save"]!.handler({ ...ctx, input: nextDataTypes } as any);
+		const result = await routes["data-types/get"]!.handler({ ...ctx, input: {} } as any);
+
+		expect(result).toEqual(nextDataTypes);
+		expect(dataTypeTableRows).toHaveLength(1);
+		expect(dataSubtypeTableRows).toHaveLength(1);
+		expect(dataTypeTableRows[0]).toMatchObject({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "rumah_ibadah",
+			code: "01",
+			label: "Rumah Ibadah",
+			status: "active",
+		});
+		expect(dataSubtypeTableRows[0]).toMatchObject({
+			data_type_id: "rumah_ibadah",
+			code: "01",
+			label: "Masjid",
+			status: "active",
+		});
+		expect(kvData.has("custom:data-types")).toBe(false);
+	});
+
+	it("reads and writes official regions through dedicated D1 region tables", async () => {
+		const { ctx, officialRegionTableRows, kvData } = createMockContext();
+		const routes = createNativeRoutes();
+		const nextRegions = [
+			{
+				code: "62",
+				name: "Kalimantan Tengah",
+				regencies: [
+					{
+						code: "6201",
+						name: "Kotawaringin Barat",
+						districts: [
+							{
+								code: "620101",
+								name: "Arut Selatan",
+								villages: [{ code: "6201010001", name: "Kelurahan Baru" }],
+							},
+						],
+					},
+				],
+			},
+		];
+
+		await routes["regions/save"]!.handler({ ...ctx, input: nextRegions } as any);
+		const result = await routes["regions/get"]!.handler({ ...ctx, input: {} } as any);
+
+		expect(result).toEqual(nextRegions);
+		expect(officialRegionTableRows).toHaveLength(4);
+		expect(officialRegionTableRows.map((row) => row.level)).toEqual([
+			"province",
+			"regency",
+			"district",
+			"village",
+		]);
+		expect(officialRegionTableRows[1]).toMatchObject({ code: "6201", parent_code: "62" });
+		expect(kvData.has("custom:regions")).toBe(false);
+	});
+
 	it("registers required SIKESRA plugin routes", () => {
 		const routes = createNativeRoutes();
 
@@ -827,7 +1039,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, verificationStageTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const result = (await routes["settings/save"]!.handler({
@@ -843,7 +1055,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe governance settings", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, verificationStageTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const invalidRetention = (await routes["settings/save"]!.handler({
@@ -885,7 +1097,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("advances one verification stage and persists the new state", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, verificationStageTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const before = (await routes["verification/list"]!.handler({
@@ -938,10 +1150,17 @@ describe("awcms micro sikesra plugin", () => {
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 		expect(collections.verificationEvents.size).toBe(1);
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
-			registryEntityId: "registry-entity-guru-agama-01",
+		expect(
+			verificationStageTableRows.find(
+				(row) => row.registry_entity_id === "registry-entity-guru-agama-01",
+			),
+		).toMatchObject({
+			registry_entity_id: "registry-entity-guru-agama-01",
 			stage: "verified_sopd",
+			current_level: "kabupaten_admin",
+			next_level: "kabupaten_admin",
 		});
+		expect(collections.verificationStageState.size).toBe(0);
 		expect(collections.pluginState.get("state:lastVerificationEventId")).toMatchObject({
 			key: "state:lastVerificationEventId",
 			value: expect.stringContaining("registry-entity-guru-agama-01"),
@@ -1020,7 +1239,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("returns verification to the previous review level on needs revision", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, verificationStageTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const result = (await routes["verification/reject"]!.handler({
@@ -1037,8 +1256,12 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.item.verificationStage).toBe("submitted_district");
 		expect(result.event.kind).toBe("verification.stage.reject");
 		expect(result.verificationEvent.result).toBe("needs_review");
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
-			registryEntityId: "registry-entity-guru-agama-01",
+		expect(
+			verificationStageTableRows.find(
+				(row) => row.registry_entity_id === "registry-entity-guru-agama-01",
+			),
+		).toMatchObject({
+			registry_entity_id: "registry-entity-guru-agama-01",
 			stage: "submitted_district",
 		});
 	});
@@ -1359,6 +1582,98 @@ describe("awcms micro sikesra plugin", () => {
 			kind: "current.audit",
 			summary: "Current audit row",
 		});
+	});
+
+	it("migrates legacy runtime state into dedicated D1 tables on activate", async () => {
+		const {
+			ctx,
+			collections,
+			kvData,
+			settingsTableRows,
+			dataTypeTableRows,
+			dataSubtypeTableRows,
+			officialRegionTableRows,
+			verificationStageTableRows,
+		} = createMockContext();
+		const hooks = createSharedHooks();
+		const activate =
+			typeof hooks?.["plugin:activate"] === "function"
+				? hooks["plugin:activate"]
+				: hooks?.["plugin:activate"]?.handler;
+
+		collections.settingsState.set("siteName", {
+			key: "siteName",
+			value: "Legacy SIKESRA",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		collections.verificationStageState.set("registry-entity-01", {
+			registryEntityId: "registry-entity-01",
+			stage: "verified_sopd",
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		kvData.set("custom:data-types", [
+			{
+				id: "legacy-type",
+				code: "LEGACY",
+				label: "Legacy Type",
+				subTypes: [{ code: "legacy-subtype", label: "Legacy Subtype" }],
+			},
+		]);
+		kvData.set("custom:regions", [
+			{
+				code: "32",
+				name: "Jawa Barat",
+				regencies: [
+					{
+						code: "3204",
+						name: "Kabupaten Bandung",
+						districts: [{ code: "320401", name: "Soreang", villages: [] }],
+					},
+				],
+			},
+		]);
+		kvData.set("state:sikesraVerificationStages", {
+			"registry-entity-02": "verified_kabupaten",
+		});
+
+		await activate!({} as any, ctx as any);
+
+		expect(settingsTableRows).toContainEqual(
+			expect.objectContaining({ key: "siteName", value_json: JSON.stringify("Legacy SIKESRA") }),
+		);
+		expect(dataTypeTableRows).toContainEqual(
+			expect.objectContaining({ id: "legacy-type", code: "LEGACY", label: "Legacy Type" }),
+		);
+		expect(dataSubtypeTableRows).toContainEqual(
+			expect.objectContaining({
+				data_type_id: "legacy-type",
+				code: "legacy-subtype",
+				label: "Legacy Subtype",
+			}),
+		);
+		expect(officialRegionTableRows).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ code: "32", level: "province", name: "Jawa Barat" }),
+				expect.objectContaining({ code: "3204", parent_code: "32", level: "regency" }),
+				expect.objectContaining({ code: "320401", parent_code: "3204", level: "district" }),
+			]),
+		);
+		expect(verificationStageTableRows).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					registry_entity_id: "registry-entity-01",
+					stage: "verified_sopd",
+					current_level: "kabupaten_admin",
+				}),
+				expect.objectContaining({
+					registry_entity_id: "registry-entity-02",
+					stage: "verified_kabupaten",
+					current_level: "tampil",
+				}),
+			]),
+		);
+		expect(kvData.has("state:sikesraVerificationStages")).toBe(false);
+		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
 	it("records content and media hooks", async () => {
