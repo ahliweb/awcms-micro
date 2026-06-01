@@ -401,8 +401,8 @@ Rules:
 - do not create duplicate SIKESRA users;
 - do not mutate or delete EmDash core user records;
 - store SIKESRA role/scope assignments in `sikesra_` tables;
-- use trusted EmDash auth/session context for production identity;
-- client-provided SIKESRA user headers may not be trusted in production.
+- use trusted EmDash auth/session context passed through private plugin route context for production identity;
+- client-provided SIKESRA user headers may not be trusted in production and may not override trusted route context identity in development tests.
 
 Route enforcement must include:
 

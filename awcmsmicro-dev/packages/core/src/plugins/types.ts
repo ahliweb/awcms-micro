@@ -370,6 +370,17 @@ export interface UserInfo {
 }
 
 /**
+ * Trusted authenticated EmDash user snapshot for plugin route handlers.
+ * This is derived from core auth/session state, not client-provided headers.
+ */
+export interface PluginRouteUser {
+	id: string;
+	email?: string;
+	name?: string | null;
+	role?: number;
+}
+
+/**
  * User access interface - requires read:users capability
  */
 export interface UserAccess {
@@ -1059,6 +1070,8 @@ export interface RouteContext<TInput = unknown> extends PluginContext {
 	request: Request;
 	/** Normalized request metadata (IP, user agent, geo) */
 	requestMeta: RequestMeta;
+	/** Trusted authenticated EmDash user for private plugin routes, when available. */
+	user?: PluginRouteUser;
 }
 
 /**

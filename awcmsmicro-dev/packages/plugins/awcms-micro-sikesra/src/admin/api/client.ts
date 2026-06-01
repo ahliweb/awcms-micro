@@ -41,6 +41,8 @@ export type SikesraAdminApiPath =
 	| "access/roles/list"
 	| "access/roles/save"
 	| "access/users/save"
+	| "access/scopes/list"
+	| "access/scopes/save"
 	| "access/matrix/get"
 	| "access/matrix/save"
 	| "access/preview"

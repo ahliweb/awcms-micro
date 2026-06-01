@@ -204,7 +204,9 @@ Rules:
 - Store SIKESRA user-role and user-scope assignments in `sikesra_` tables.
 - Reference EmDash user IDs from SIKESRA assignment rows.
 - If an EmDash user becomes inactive or missing, preserve assignment history and mark/report the reference as inactive or orphaned.
+- Production route handlers must prefer the trusted EmDash route context user exposed by core private plugin API dispatch.
 - Do not trust client-provided `X-Sikesra-User-*` headers in production.
+- Development-only `X-Sikesra-User-*` headers must never override a trusted route context user.
 
 ## 10. RBAC and ABAC
 

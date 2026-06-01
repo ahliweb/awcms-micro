@@ -2778,7 +2778,13 @@ export class EmDashRuntime {
 		return null;
 	}
 
-	async handlePluginApiRoute(pluginId: string, _method: string, path: string, request: Request) {
+	async handlePluginApiRoute(
+		pluginId: string,
+		_method: string,
+		path: string,
+		request: Request,
+		user?: { id: string; email?: string; name?: string | null; role?: number },
+	) {
 		if (!this.isPluginEnabled(pluginId)) {
 			return {
 				success: false,
@@ -2806,7 +2812,7 @@ export class EmDashRuntime {
 				// No body or not JSON
 			}
 
-			return routeRegistry.invoke(pluginId, routeKey, { request, body });
+			return routeRegistry.invoke(pluginId, routeKey, { request, body, user });
 		}
 
 		// Check sandboxed (marketplace) plugins second

@@ -65,7 +65,15 @@ const handleRequest: APIRoute = async ({ params, request, locals }) => {
 		}
 	}
 
-	const result = await emdash.handlePluginApiRoute(pluginId, method, `/${path}`, request);
+	const trustedUser = user
+		? {
+				id: user.id,
+				email: user.email,
+				name: user.name,
+				role: user.role,
+			}
+		: undefined;
+	const result = await emdash.handlePluginApiRoute(pluginId, method, `/${path}`, request, trustedUser);
 
 	if (!result.success) {
 		const code = result.error?.code ?? "PLUGIN_ERROR";

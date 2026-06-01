@@ -148,6 +148,7 @@ function createMockContext() {
 		roleCatalog: new Map<string, unknown>(),
 		rolePermissionAssignments: new Map<string, unknown>(),
 		userRoleAssignments: new Map<string, unknown>(),
+		userScopeAssignments: new Map<string, unknown>(),
 		supportingDocuments: new Map<string, unknown>(),
 		verificationEvents: new Map<string, unknown>(),
 	};
@@ -204,6 +205,7 @@ function createMockContext() {
 		sikesra_role_catalog: collections.roleCatalog,
 		sikesra_role_permission_assignments: collections.rolePermissionAssignments,
 		sikesra_user_role_assignments: collections.userRoleAssignments,
+		sikesra_user_scope_assignments: collections.userScopeAssignments,
 		sikesra_supporting_documents: collections.supportingDocuments,
 		sikesra_verification_events: collections.verificationEvents,
 	};
@@ -1282,6 +1284,7 @@ function createMockContext() {
 					collections.rolePermissionAssignments,
 				),
 				sikesra_user_role_assignments: createCollection(collections.userRoleAssignments),
+				sikesra_user_scope_assignments: createCollection(collections.userScopeAssignments),
 				sikesra_supporting_documents: createCollection(collections.supportingDocuments),
 				sikesra_verification_events: createCollection(collections.verificationEvents),
 			},
@@ -1886,6 +1889,7 @@ describe("awcms micro sikesra plugin", () => {
 				"audit/list",
 				"access/permissions/list",
 				"access/roles/list",
+				"access/scopes/list",
 				"access/matrix/get",
 				"access/preview",
 				"abac/attributes/list",
@@ -1926,6 +1930,8 @@ describe("awcms micro sikesra plugin", () => {
 			"custom-attributes/values/list",
 			"custom-attributes/values/save",
 			"access/permissions/list",
+			"access/scopes/list",
+			"access/scopes/save",
 			"access/preview",
 			"abac/attributes/list",
 			"abac/preview",
@@ -1934,6 +1940,38 @@ describe("awcms micro sikesra plugin", () => {
 			expect(result.success, key).toBe(false);
 			expect(result.error.code, key).toBe("UNAUTHENTICATED");
 		}
+	});
+
+	it("prefers trusted EmDash route context identity over spoofed SIKESRA headers", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const spoofedAdminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+
+		const denied = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: spoofedAdminRequest,
+			user: { id: "user-demo-editor", email: "editor@example.test", name: "Editor", role: 40 },
+			input: {},
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+		expect(denied.error.code).toBe("FORBIDDEN");
+
+		const allowed = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-editor" },
+			}),
+			user: {
+				id: "user-demo-sikesra-admin",
+				email: "admin@example.test",
+				name: "SIKESRA Admin",
+				role: 50,
+			},
+			input: {},
+		} as any)) as any;
+		expect(allowed.items).toBeDefined();
 	});
 
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
@@ -3908,6 +3946,77 @@ describe("awcms micro sikesra plugin", () => {
 		expect(preview.allowed).toBe(true);
 		expect(preview.matchedRoles).toContain("document-reviewer");
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
+	});
+
+	it("supports EmDash user region and organization scope assignments", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const saved = (await routes["access/scopes/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				userId: "user-demo-doc-reviewer",
+				regionScopeType: "regency",
+				regionScopeCode: "3372",
+				organizationScopeType: "sopd",
+				organizationScopeCode: "dinsos",
+				isActive: true,
+				validFrom: "2026-01-01",
+				validUntil: "2026-12-31",
+			},
+		} as any)) as any;
+
+		const list = (await routes["access/scopes/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+
+		expect(saved.success).toBe(true);
+		expect(saved.item).toMatchObject({
+			userId: "user-demo-doc-reviewer",
+			regionScopeType: "regency",
+			regionScopeCode: "3372",
+			organizationScopeType: "sopd",
+			organizationScopeCode: "dinsos",
+		});
+		expect(list.items.some((item: any) => item.userId === "user-demo-doc-reviewer")).toBe(true);
+		expect(collections.userScopeAssignments.has("user-demo-doc-reviewer")).toBe(true);
+		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(1);
+		expect(collections.auditEvents.size).toBeGreaterThanOrEqual(1);
+	});
+
+	it("validates EmDash user scope assignments", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const missingUser = (await routes["access/scopes/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: " ", regionScopeType: "regency", organizationScopeType: "sopd" },
+		} as any)) as any;
+		const invalidRegion = (await routes["access/scopes/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: "user-demo-doc-reviewer", regionScopeType: "planet" },
+		} as any)) as any;
+		const invalidOrganization = (await routes["access/scopes/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: "user-demo-doc-reviewer", organizationScopeType: "unknown_org" },
+		} as any)) as any;
+
+		expect(missingUser.success).toBe(false);
+		expect(missingUser.error.message).toContain("EmDash user reference");
+		expect(invalidRegion.success).toBe(false);
+		expect(invalidRegion.error.message).toContain("region scope");
+		expect(invalidOrganization.success).toBe(false);
+		expect(invalidOrganization.error.message).toContain("organization scope");
+		expect(collections.userScopeAssignments.has("user-demo-doc-reviewer")).toBe(false);
+		expect(collections.accessChangeEvents.size).toBe(0);
 	});
 
 	it("requires an EmDash user reference and SIKESRA role for user assignments", async () => {

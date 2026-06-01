@@ -193,6 +193,18 @@ interface UserRoleAssignmentItem {
 	updatedAt: string;
 }
 
+interface UserScopeAssignmentItem {
+	userId: string;
+	regionScopeType: string;
+	regionScopeCode: string;
+	organizationScopeType: string;
+	organizationScopeCode: string;
+	isActive: boolean;
+	validFrom: string;
+	validUntil: string;
+	updatedAt: string;
+}
+
 interface RolePermissionAssignmentItem {
 	roleSlug: string;
 	permissions: string[];
@@ -206,6 +218,11 @@ interface AccessPermissionsResponse {
 interface AccessRolesResponse {
 	roles: AccessRoleItem[];
 	userAssignments: UserRoleAssignmentItem[];
+	scopeAssignments?: UserScopeAssignmentItem[];
+}
+
+interface AccessScopesResponse {
+	items: UserScopeAssignmentItem[];
 }
 
 interface AccessMatrixResponse {
@@ -226,6 +243,7 @@ interface AccessHealthResponse {
 	roleCount: number;
 	assignmentCount: number;
 	userAssignmentCount: number;
+	scopeAssignmentCount?: number;
 	rolesWithoutPermissions: string[];
 	usersWithoutRoles: string[];
 }
@@ -1221,12 +1239,13 @@ function AccessUsersPage() {
 
 function AccessScopesPage() {
 	const contract = getSikesraPageContract("/access/scopes");
-	const { data, error, loading, reload } = usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
+	const { data, error, loading, reload } = usePluginData<AccessScopesResponse>("access/scopes/list");
 	const [scopeState, setScopeState] = React.useState({
-		subjectId: "",
-		regionScope: "all",
-		organizationScope: "all",
-		programScope: "all",
+		userId: "",
+		regionScopeType: "all",
+		regionScopeCode: "",
+		organizationScopeType: "all",
+		organizationScopeCode: "",
 	});
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -1238,19 +1257,18 @@ function AccessScopesPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("abac/subjects/save", {
-				subjectId: scopeState.subjectId,
-				attributes: {
-					region_scope: scopeState.regionScope,
-					organization_scope: scopeState.organizationScope,
-					program_scope: scopeState.programScope,
-				},
+			await postPlugin("access/scopes/save", scopeState);
+			setNotice("User region and organization scopes saved for the EmDash user reference.");
+			setScopeState({
+				userId: "",
+				regionScopeType: "all",
+				regionScopeCode: "",
+				organizationScopeType: "all",
+				organizationScopeCode: "",
 			});
-			setNotice("User scope attributes saved for ABAC evaluation.");
-			setScopeState({ subjectId: "", regionScope: "all", organizationScope: "all", programScope: "all" });
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save scope attributes.");
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save user scopes.");
 		} finally {
 			setSaving(false);
 		}
@@ -1265,42 +1283,49 @@ function AccessScopesPage() {
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-				<Card title="Assign ABAC scopes" description="Scopes are stored as SIKESRA subject attributes for EmDash user references.">
+				<Card title="Assign user scopes" description="Scopes are stored as SIKESRA user-scope assignments for EmDash user references.">
 					<form className="space-y-4" onSubmit={(event) => void saveScope(event)}>
 						<Field label="EmDash user ID">
 							<Input
-								value={scopeState.subjectId}
+								value={scopeState.userId}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, subjectId: event.target.value }))
+									setScopeState((current) => ({ ...current, userId: event.target.value }))
 								}
 								required
 							/>
 						</Field>
-						<Field label="Region scope">
+						<Field label="Region scope type">
 							<Input
-								value={scopeState.regionScope}
+								value={scopeState.regionScopeType}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, regionScope: event.target.value }))
+									setScopeState((current) => ({ ...current, regionScopeType: event.target.value }))
 								}
 								required
 							/>
 						</Field>
-						<Field label="Organization scope">
+						<Field label="Region scope code">
 							<Input
-								value={scopeState.organizationScope}
+								value={scopeState.regionScopeCode}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, organizationScope: event.target.value }))
+									setScopeState((current) => ({ ...current, regionScopeCode: event.target.value }))
+								}
+							/>
+						</Field>
+						<Field label="Organization scope type">
+							<Input
+								value={scopeState.organizationScopeType}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setScopeState((current) => ({ ...current, organizationScopeType: event.target.value }))
 								}
 								required
 							/>
 						</Field>
-						<Field label="Program scope">
+						<Field label="Organization scope code">
 							<Input
-								value={scopeState.programScope}
+								value={scopeState.organizationScopeCode}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, programScope: event.target.value }))
+									setScopeState((current) => ({ ...current, organizationScopeCode: event.target.value }))
 								}
-								required
 							/>
 						</Field>
 						<Button variant="primary" type="submit" disabled={saving}>
@@ -1308,18 +1333,18 @@ function AccessScopesPage() {
 						</Button>
 					</form>
 				</Card>
-				<Card title="Current scope attributes" description="These attributes feed access preview and ABAC decisions.">
+				<Card title="Current user scopes" description="These assignments constrain SIKESRA region and organization access.">
 					{!data?.items.length ? (
-						<EmptyState title={contract.emptyState} description="Assign region, organization, or program scopes to a user reference." />
+						<EmptyState title={contract.emptyState} description="Assign region or organization scopes to an EmDash user reference." />
 					) : (
 						<div className="grid gap-3 md:grid-cols-2">
 							{data.items.map((item) => (
-								<div key={item.subjectId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
-									<div className="font-semibold text-kumo-default">{item.subjectId}</div>
+								<div key={item.userId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="font-semibold text-kumo-default">{item.userId}</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle">
-										<span>Region: {item.attributes.region_scope ?? "-"}</span>
-										<span>Organization: {item.attributes.organization_scope ?? "-"}</span>
-										<span>Program: {item.attributes.program_scope ?? "-"}</span>
+										<span>Region: {item.regionScopeType} {item.regionScopeCode || "all"}</span>
+										<span>Organization: {item.organizationScopeType} {item.organizationScopeCode || "all"}</span>
+										<span>Status: {item.isActive ? "Active" : "Inactive"}</span>
 									</div>
 								</div>
 							))}

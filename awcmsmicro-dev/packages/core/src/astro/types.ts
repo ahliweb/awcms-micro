@@ -389,6 +389,7 @@ export interface EmDashHandlers {
 		method: string,
 		path: string,
 		request: Request,
+		user?: { id: string; email?: string; name?: string | null; role?: number },
 	) => Promise<HandlerResponse>;
 
 	// Public-only plugin API route handler for SSR page components.

@@ -154,6 +154,14 @@ export interface SandboxedRequest {
 	headers: Record<string, string>;
 }
 
+/** Trusted authenticated EmDash user snapshot exposed to plugin routes. */
+export interface SandboxedRouteUser {
+	id: string;
+	email?: string;
+	name?: string | null;
+	role?: number;
+}
+
 /**
  * Context passed to a route handler. Routes get an extra `routeCtx`
  * argument with the call-site input + the originating request, in
@@ -166,6 +174,7 @@ export interface SandboxedRouteContext {
 	input: unknown;
 	request: SandboxedRequest;
 	requestMeta?: unknown;
+	user?: SandboxedRouteUser;
 }
 
 /**

@@ -10,7 +10,7 @@
 
 import { PluginContextFactory, type PluginContextFactoryOptions } from "./context.js";
 import { extractRequestMeta } from "./request-meta.js";
-import type { ResolvedPlugin, RouteContext, PluginRoute } from "./types.js";
+import type { ResolvedPlugin, RouteContext, PluginRoute, PluginRouteUser } from "./types.js";
 
 /**
  * Route metadata (public flag) without the handler.
@@ -42,6 +42,8 @@ export interface InvokeRouteOptions {
 	request: Request;
 	/** Request body (already parsed) */
 	body?: unknown;
+	/** Trusted authenticated EmDash user resolved by core auth/session middleware. */
+	user?: PluginRouteUser;
 }
 
 /**
@@ -102,6 +104,7 @@ export class PluginRouteHandler {
 			input: validatedInput,
 			request: options.request,
 			requestMeta: extractRequestMeta(options.request, this.trustedProxyHeaders),
+			...(options.user ? { user: options.user } : {}),
 		};
 
 		// Execute handler

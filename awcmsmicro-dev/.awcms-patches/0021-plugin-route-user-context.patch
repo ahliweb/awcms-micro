@@ -1,0 +1,161 @@
+diff --git a/packages/core/src/astro/routes/api/plugins/[pluginId]/[...path].ts b/packages/core/src/astro/routes/api/plugins/[pluginId]/[...path].ts
+index b295a64..42f3002 100644
+--- a/packages/core/src/astro/routes/api/plugins/[pluginId]/[...path].ts
++++ b/packages/core/src/astro/routes/api/plugins/[pluginId]/[...path].ts
+@@ -65,7 +65,15 @@ const handleRequest: APIRoute = async ({ params, request, locals }) => {
+ 		}
+ 	}
+ 
+-	const result = await emdash.handlePluginApiRoute(pluginId, method, `/${path}`, request);
++	const trustedUser = user
++		? {
++				id: user.id,
++				email: user.email,
++				name: user.name,
++				role: user.role,
++			}
++		: undefined;
++	const result = await emdash.handlePluginApiRoute(pluginId, method, `/${path}`, request, trustedUser);
+ 
+ 	if (!result.success) {
+ 		const code = result.error?.code ?? "PLUGIN_ERROR";
+diff --git a/packages/core/src/astro/types.ts b/packages/core/src/astro/types.ts
+index 3a2f51a..b9630af 100644
+--- a/packages/core/src/astro/types.ts
++++ b/packages/core/src/astro/types.ts
+@@ -389,6 +389,7 @@ export interface EmDashHandlers {
+ 		method: string,
+ 		path: string,
+ 		request: Request,
++		user?: { id: string; email?: string; name?: string | null; role?: number },
+ 	) => Promise<HandlerResponse>;
+ 
+ 	// Public-only plugin API route handler for SSR page components.
+diff --git a/packages/core/src/emdash-runtime.ts b/packages/core/src/emdash-runtime.ts
+index e88c575..d6c3223 100644
+--- a/packages/core/src/emdash-runtime.ts
++++ b/packages/core/src/emdash-runtime.ts
+@@ -2778,7 +2778,13 @@ export class EmDashRuntime {
+ 		return null;
+ 	}
+ 
+-	async handlePluginApiRoute(pluginId: string, _method: string, path: string, request: Request) {
++	async handlePluginApiRoute(
++		pluginId: string,
++		_method: string,
++		path: string,
++		request: Request,
++		user?: { id: string; email?: string; name?: string | null; role?: number },
++	) {
+ 		if (!this.isPluginEnabled(pluginId)) {
+ 			return {
+ 				success: false,
+@@ -2806,7 +2812,7 @@ export class EmDashRuntime {
+ 				// No body or not JSON
+ 			}
+ 
+-			return routeRegistry.invoke(pluginId, routeKey, { request, body });
++			return routeRegistry.invoke(pluginId, routeKey, { request, body, user });
+ 		}
+ 
+ 		// Check sandboxed (marketplace) plugins second
+diff --git a/packages/core/src/plugin-types.ts b/packages/core/src/plugin-types.ts
+index 506e832..8151280 100644
+--- a/packages/core/src/plugin-types.ts
++++ b/packages/core/src/plugin-types.ts
+@@ -154,6 +154,14 @@ export interface SandboxedRequest {
+ 	headers: Record<string, string>;
+ }
+ 
++/** Trusted authenticated EmDash user snapshot exposed to plugin routes. */
++export interface SandboxedRouteUser {
++	id: string;
++	email?: string;
++	name?: string | null;
++	role?: number;
++}
++
+ /**
+  * Context passed to a route handler. Routes get an extra `routeCtx`
+  * argument with the call-site input + the originating request, in
+@@ -166,6 +174,7 @@ export interface SandboxedRouteContext {
+ 	input: unknown;
+ 	request: SandboxedRequest;
+ 	requestMeta?: unknown;
++	user?: SandboxedRouteUser;
+ }
+ 
+ /**
+diff --git a/packages/core/src/plugins/adapt-sandbox-entry.ts b/packages/core/src/plugins/adapt-sandbox-entry.ts
+index aa5c877..77f3a02 100644
+--- a/packages/core/src/plugins/adapt-sandbox-entry.ts
++++ b/packages/core/src/plugins/adapt-sandbox-entry.ts
+@@ -220,6 +220,7 @@ export function adaptSandboxEntry(
+ 						input: ctx.input,
+ 						request: requestShape,
+ 						requestMeta: ctx.requestMeta,
++						user: ctx.user,
+ 					};
+ 					const { input: _, request: __, requestMeta: ___, ...pluginCtx } = ctx;
+ 					return handler(routeCtx, pluginCtx);
+diff --git a/packages/core/src/plugins/routes.ts b/packages/core/src/plugins/routes.ts
+index 3f76ec0..2c798af 100644
+--- a/packages/core/src/plugins/routes.ts
++++ b/packages/core/src/plugins/routes.ts
+@@ -10,7 +10,7 @@
+ 
+ import { PluginContextFactory, type PluginContextFactoryOptions } from "./context.js";
+ import { extractRequestMeta } from "./request-meta.js";
+-import type { ResolvedPlugin, RouteContext, PluginRoute } from "./types.js";
++import type { ResolvedPlugin, RouteContext, PluginRoute, PluginRouteUser } from "./types.js";
+ 
+ /**
+  * Route metadata (public flag) without the handler.
+@@ -42,6 +42,8 @@ export interface InvokeRouteOptions {
+ 	request: Request;
+ 	/** Request body (already parsed) */
+ 	body?: unknown;
++	/** Trusted authenticated EmDash user resolved by core auth/session middleware. */
++	user?: PluginRouteUser;
+ }
+ 
+ /**
+@@ -102,6 +104,7 @@ export class PluginRouteHandler {
+ 			input: validatedInput,
+ 			request: options.request,
+ 			requestMeta: extractRequestMeta(options.request, this.trustedProxyHeaders),
++			...(options.user ? { user: options.user } : {}),
+ 		};
+ 
+ 		// Execute handler
+diff --git a/packages/core/src/plugins/types.ts b/packages/core/src/plugins/types.ts
+index b743ed1..bacf59d 100644
+--- a/packages/core/src/plugins/types.ts
++++ b/packages/core/src/plugins/types.ts
+@@ -369,6 +369,17 @@ export interface UserInfo {
+ 	createdAt: string;
+ }
+ 
++/**
++ * Trusted authenticated EmDash user snapshot for plugin route handlers.
++ * This is derived from core auth/session state, not client-provided headers.
++ */
++export interface PluginRouteUser {
++	id: string;
++	email?: string;
++	name?: string | null;
++	role?: number;
++}
++
+ /**
+  * User access interface - requires read:users capability
+  */
+@@ -1059,6 +1070,8 @@ export interface RouteContext<TInput = unknown> extends PluginContext {
+ 	request: Request;
+ 	/** Normalized request metadata (IP, user agent, geo) */
+ 	requestMeta: RequestMeta;
++	/** Trusted authenticated EmDash user for private plugin routes, when available. */
++	user?: PluginRouteUser;
+ }
+ 
+ /**

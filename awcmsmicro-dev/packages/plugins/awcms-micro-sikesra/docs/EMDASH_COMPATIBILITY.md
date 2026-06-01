@@ -23,6 +23,14 @@ awcmsmicro-dev/packages/core/
 awcmsmicro-dev/packages/admin/
 ```
 
+Persistent source-level downstream tweaks that are explicitly approved for AWCMS-Micro compatibility must be stored as narrow patch overlays in:
+
+```txt
+awcmsmicro-dev/.awcms-patches/
+```
+
+Issue #145 uses this exception to pass a trusted EmDash user snapshot from the authenticated private plugin API route into plugin route context. The overlay is not SIKESRA business logic; it is a compatibility bridge so SIKESRA RBAC/ABAC can use EmDash session identity without trusting client headers.
+
 ## Boundary Validation Command
 
 Run from the SIKESRA plugin package:
@@ -96,7 +104,13 @@ If an EmDash sync or rebuild breaks SIKESRA compatibility:
 
 ## Production User Identity Rule
 
-Development fixtures may use `X-Sikesra-User-*` headers for local route tests. Production runtime must not trust those client-provided headers; trusted EmDash session identity and SIKESRA RBAC/ABAC integration are required by the later user-assignment issue.
+Private SIKESRA plugin routes must read production identity from the trusted EmDash route context user derived from `locals.user`. Development fixtures may use `X-Sikesra-User-*` headers only when the runtime is not production, and those headers must never override a trusted route context user.
+
+The #145 patch overlay must preserve this dispatch chain across rebuilds:
+
+```txt
+EmDash private plugin API route -> handlePluginApiRoute(..., user) -> PluginRouteRegistry.invoke({ user }) -> RouteContext.user -> SIKESRA RBAC/ABAC guard
+```
 
 ## Known Compatibility Risks
 

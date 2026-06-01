@@ -361,6 +361,9 @@ export const AWCMS_SIKESRA_STORAGE = {
 	sikesra_user_role_assignments: {
 		indexes: ["userId", "updatedAt"],
 	},
+	sikesra_user_scope_assignments: {
+		indexes: ["userId", "regionScopeType", "organizationScopeType", "updatedAt"],
+	},
 	sikesra_verification_events: {
 		indexes: ["registryEntityId", "stage", "createdAt", ["registryEntityId", "createdAt"]],
 	},
@@ -1339,6 +1342,18 @@ export interface UserRoleAssignment {
 	updatedAt: string;
 }
 
+export interface UserScopeAssignment {
+	userId: string;
+	regionScopeType: string;
+	regionScopeCode: string;
+	organizationScopeType: string;
+	organizationScopeCode: string;
+	isActive: boolean;
+	validFrom: string;
+	validUntil: string;
+	updatedAt: string;
+}
+
 export interface AbacAttributeDefinition {
 	key: string;
 	label: string;
@@ -1739,6 +1754,42 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 	},
 ];
 
+const DEFAULT_USER_SCOPE_ASSIGNMENTS: UserScopeAssignment[] = [
+	{
+		userId: "user-demo-village",
+		regionScopeType: "village",
+		regionScopeCode: "3372010001",
+		organizationScopeType: "desa_kelurahan",
+		organizationScopeCode: "3372010001",
+		isActive: true,
+		validFrom: "",
+		validUntil: "",
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-district",
+		regionScopeType: "district",
+		regionScopeCode: "337201",
+		organizationScopeType: "kecamatan",
+		organizationScopeCode: "337201",
+		isActive: true,
+		validFrom: "",
+		validUntil: "",
+		updatedAt: "",
+	},
+	{
+		userId: "user-demo-sikesra-admin",
+		regionScopeType: "all",
+		regionScopeCode: "",
+		organizationScopeType: "kabupaten_admin",
+		organizationScopeCode: "all",
+		isActive: true,
+		validFrom: "",
+		validUntil: "",
+		updatedAt: "",
+	},
+];
+
 const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
 	{
 		key: "tenant_id",
@@ -1945,6 +1996,24 @@ const ALLOWED_ABAC_TARGET_TYPES = new Set(["subject", "resource", "context"]);
 const ALLOWED_ABAC_POLICY_EFFECTS = new Set(["allow", "deny"]);
 const ABAC_ATTRIBUTE_KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
 const ABAC_POLICY_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
+const ALLOWED_REGION_SCOPE_TYPES = new Set([
+	"all",
+	"province",
+	"regency",
+	"district",
+	"village",
+	"custom_region",
+]);
+const ALLOWED_ORGANIZATION_SCOPE_TYPES = new Set([
+	"all",
+	"kabupaten_admin",
+	"sopd",
+	"kecamatan",
+	"desa_kelurahan",
+	"lks",
+	"lembaga_keagamaan",
+	"pendidikan_keagamaan",
+]);
 
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
@@ -2009,6 +2078,8 @@ function getBoolean(value: unknown, key: string): boolean | undefined {
 }
 
 function actorFromRoute(ctx: any): string {
+	const userId = getRequestUserId(ctx);
+	if (userId) return `user:${userId}`;
 	const ip = ctx.requestMeta?.ip;
 	return typeof ip === "string" && ip ? `request:${ip}` : "request:unknown";
 }
@@ -2087,6 +2158,8 @@ function allowClientUserHeadersInDev() {
 }
 
 function getRequestUserId(ctx: PluginContext) {
+	const trustedUser = (ctx as PluginContext & { user?: { id?: unknown } }).user;
+	if (typeof trustedUser?.id === "string" && trustedUser.id) return trustedUser.id;
 	if (!allowClientUserHeadersInDev()) return null;
 	const req = (ctx as any).request as Request | undefined;
 	return req?.headers.get("X-Sikesra-User-Id") ?? null;
@@ -3413,6 +3486,13 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 			DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "",
 		);
 	}
+
+	const existingScopeAssignments = await ctx.storage.sikesra_user_scope_assignments!.count();
+	if (existingScopeAssignments === 0) {
+		for (const item of DEFAULT_USER_SCOPE_ASSIGNMENTS) {
+			await ctx.storage.sikesra_user_scope_assignments!.put(item.userId, touchUpdatedAt(item));
+		}
+	}
 }
 
 async function ensureAbacCatalogSeeded(ctx: PluginContext) {
@@ -3487,6 +3567,10 @@ async function listUserRoleAssignments(ctx: PluginContext) {
 	return listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments!);
 }
 
+async function listUserScopeAssignments(ctx: PluginContext) {
+	return listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments!);
+}
+
 async function listAbacAttributes(ctx: PluginContext) {
 	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog!);
 }
@@ -3529,6 +3613,7 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	const roles = await listRoles(ctx);
 	const roleAssignments = await listRoleAssignments(ctx);
 	const userAssignments = await listUserRoleAssignments(ctx);
+	const scopeAssignments = await listUserScopeAssignments(ctx);
 	const changeEvents = await listCollectionValues<ExampleAuditEvent>(
 		ctx.storage.sikesra_access_change_events!,
 		"timestamp",
@@ -3552,12 +3637,14 @@ async function summarizeAccessRights(ctx: PluginContext) {
 		roles,
 		roleAssignments,
 		userAssignments,
+		scopeAssignments,
 		changeEvents,
 		health: {
 			permissionCount: permissions.length,
 			roleCount: roles.length,
 			assignmentCount: roleAssignments.length,
 			userAssignmentCount: userAssignments.length,
+			scopeAssignmentCount: scopeAssignments.length,
 			rolesWithoutPermissions,
 			usersWithoutRoles,
 		},
@@ -5755,6 +5842,7 @@ const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return {
 		roles: await listRoles(ctx),
 		userAssignments: await listUserRoleAssignments(ctx),
+		scopeAssignments: await listUserScopeAssignments(ctx),
 	};
 };
 
@@ -5802,6 +5890,69 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 		scope: "access-rights",
 		actor: actorFromRoute(ctx),
 		summary: `Saved user role assignment for ${userId}`,
+		metadata: { ...assignment },
+	});
+	await appendAccessChangeEvent(ctx, event);
+	await appendAuditEvent(ctx, event);
+	return { success: true, item: assignment };
+};
+
+const accessScopesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	await ensureAccessCatalogSeeded(ctx);
+	return { items: await listUserScopeAssignments(ctx) };
+};
+
+const accessScopesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	await ensureAccessCatalogSeeded(ctx);
+	const userId = getString(routeCtx.input, "userId")?.trim() ?? "";
+	const regionScopeType = getString(routeCtx.input, "regionScopeType")?.trim() ?? "all";
+	const regionScopeCode = getString(routeCtx.input, "regionScopeCode")?.trim() ?? "";
+	const organizationScopeType = getString(routeCtx.input, "organizationScopeType")?.trim() ?? "all";
+	const organizationScopeCode = getString(routeCtx.input, "organizationScopeCode")?.trim() ?? "";
+	const isActive = getBoolean(routeCtx.input, "isActive") ?? true;
+	const validFrom = getString(routeCtx.input, "validFrom")?.trim() ?? "";
+	const validUntil = getString(routeCtx.input, "validUntil")?.trim() ?? "";
+
+	if (!userId) {
+		return {
+			success: false,
+			error: { code: "VALIDATION_ERROR", message: "EmDash user reference is required." },
+		};
+	}
+	if (!ALLOWED_REGION_SCOPE_TYPES.has(regionScopeType)) {
+		return {
+			success: false,
+			error: { code: "VALIDATION_ERROR", message: "Unsupported SIKESRA region scope type." },
+		};
+	}
+	if (!ALLOWED_ORGANIZATION_SCOPE_TYPES.has(organizationScopeType)) {
+		return {
+			success: false,
+			error: { code: "VALIDATION_ERROR", message: "Unsupported SIKESRA organization scope type." },
+		};
+	}
+
+	const assignment = touchUpdatedAt<UserScopeAssignment>({
+		userId,
+		regionScopeType,
+		regionScopeCode,
+		organizationScopeType,
+		organizationScopeCode,
+		isActive,
+		validFrom,
+		validUntil,
+		updatedAt: "",
+	});
+	await ctx.storage.sikesra_user_scope_assignments!.put(userId, assignment);
+	const event = createAuditRecord({
+		kind: "access.user-scope.save",
+		scope: "access-rights",
+		actor: actorFromRoute(ctx),
+		summary: `Saved user scope assignment for ${userId}`,
 		metadata: { ...assignment },
 	});
 	await appendAccessChangeEvent(ctx, event);
@@ -6399,6 +6550,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"access/roles/list": { handler: accessRolesListRoute },
 	"access/roles/save": { handler: accessRolesSaveRoute },
 	"access/users/save": { handler: accessUserAssignmentsSaveRoute },
+	"access/scopes/list": { handler: accessScopesListRoute },
+	"access/scopes/save": { handler: accessScopesSaveRoute },
 	"access/matrix/get": { handler: accessMatrixGetRoute },
 	"access/matrix/save": { handler: accessMatrixSaveRoute },
 	"access/preview": { handler: accessPreviewRoute },
