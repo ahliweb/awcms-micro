@@ -258,6 +258,7 @@ KTP address and domicile address are sensitive personal data.
 - `src/db/`: target D1 repository layer after issue #122
 - `migrations/`: target SIKESRA D1 migration folder after issue #120
 - `docs/MERMAID_DIAGRAMS.md`: required diagram reference for SIKESRA implementation work
+- `docs/UI_UX_DESIGN_STANDARD.md`: admin UI/UX standard from issue #142
 
 ### Target Data Flow
 

@@ -310,7 +310,25 @@ lansia_terlantar
 
 Personal/sensitive modules should normalize person data into `sikesra_person_profiles` where appropriate.
 
-## 13. Dynamic Custom Attributes
+## 13. Admin UI/UX Standard
+
+Issue #142 defines the SIKESRA admin UI/UX standard.
+
+The source of truth is:
+
+```txt
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/UI_UX_DESIGN_STANDARD.md
+```
+
+Rules:
+
+- keep all admin actions inside `/_emdash/admin/plugins/awcms-micro-sikesra/...`;
+- use one operator journey: configure, input or import, validate, verify, publish aggregate, report or export, audit or govern;
+- show privacy and masking states before exposing sensitive data;
+- keep high-risk actions permission-aware and audit-ready;
+- add tests when UI links, workflow steppers, masking, reveal controls, or governance actions are implemented.
+
+## 14. Dynamic Custom Attributes
 
 Custom attributes from issue #138 extend fixed fields without replacing them.
 
@@ -330,7 +348,7 @@ Rules:
 - sensitive custom attributes must be masked by default;
 - custom attributes must survive rebuilds.
 
-## 14. Public Aggregate Safety
+## 15. Public Aggregate Safety
 
 Public routes must return only public-safe aggregate data.
 
@@ -352,7 +370,7 @@ restricted custom attribute values
 
 Small-cell suppression must remain enabled for vulnerable categories.
 
-## 15. Documents and File Metadata
+## 16. Documents and File Metadata
 
 Documents use SIKESRA-specific D1 metadata and R2-compatible storage organization.
 
@@ -368,7 +386,7 @@ Rules:
 - file metadata must include classification, checksum, file type, file size, and linked registry entity;
 - restricted document access requires RBAC/ABAC and audit.
 
-## 16. Import and Export
+## 17. Import and Export
 
 Import must be staged.
 
@@ -390,7 +408,7 @@ Rules:
 - public reports may use only public-safe non-personal aggregate fields;
 - export jobs must be recorded in `sikesra_export_jobs`.
 
-## 17. CRUD and Lifecycle Governance
+## 18. CRUD and Lifecycle Governance
 
 All features must define:
 
@@ -420,7 +438,7 @@ integrity check
 
 Lifecycle governance must never affect EmDash core users.
 
-## 18. Update and Rebuild Safety
+## 19. Update and Rebuild Safety
 
 SIKESRA must remain safe across:
 
@@ -448,7 +466,7 @@ awcms:sikesra:backup-inventory
 awcms:sikesra:validate-data-after-rebuild
 ```
 
-## 19. Validation
+## 20. Validation
 
 Baseline validation:
 
@@ -473,6 +491,6 @@ pnpm typecheck
 pnpm build
 ```
 
-## 20. Final Rule
+## 21. Final Rule
 
 SIKESRA must remain an EmDash-compatible AWCMS-Micro plugin. Custom behavior belongs in plugin, template, docs, scripts, tests, and approved downstream boundaries, not in EmDash core.
