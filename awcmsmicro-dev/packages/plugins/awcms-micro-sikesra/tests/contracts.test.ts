@@ -4,8 +4,11 @@ import {
 	normalizeSikesraPagination,
 	handleSikesraContractRoute,
 	requireStringField,
+	sikesraAbacDenied,
+	sikesraAccessDecisionToError,
 	sikesraError,
 	sikesraOk,
+	sikesraPermissionDenied,
 	SIKESRA_ERROR_CODES,
 } from "../src/contracts/index.js";
 import type {
@@ -175,6 +178,25 @@ describe("SIKESRA integration contracts", () => {
 			ok: true,
 			data: { label: "Masjid" },
 			meta: { requestId: "req-2" },
+		});
+	});
+
+	it("maps permission and ABAC denials into distinct safe error envelopes", () => {
+		expect(sikesraAccessDecisionToError(sikesraPermissionDenied("Missing role", "req-p"))).toEqual({
+			ok: false,
+			error: {
+				code: "SIKESRA_PERMISSION_DENIED",
+				message: "Missing role",
+				requestId: "req-p",
+			},
+		});
+		expect(sikesraAccessDecisionToError(sikesraAbacDenied("Outside region scope", "req-a"))).toEqual({
+			ok: false,
+			error: {
+				code: "SIKESRA_ABAC_DENIED",
+				message: "Outside region scope",
+				requestId: "req-a",
+			},
 		});
 	});
 });

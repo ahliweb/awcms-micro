@@ -1,5 +1,7 @@
 export type { SikesraApiError, SikesraApiResponse, SikesraApiSuccess } from "./api.js";
 export { sikesraError, sikesraOk } from "./api.js";
+export type { SikesraAccessDecision, SikesraTrustedIdentity } from "./access-decision.js";
+export { sikesraAbacDenied, sikesraAccessDecisionToError, sikesraPermissionDenied } from "./access-decision.js";
 export type { SikesraApiErrorBody, SikesraApiWarning, SikesraErrorCode } from "./errors.js";
 export { SIKESRA_ERROR_CODES } from "./errors.js";
 export type { SikesraPagination, SikesraPaginationRequest, SikesraSortDirection } from "./pagination.js";
