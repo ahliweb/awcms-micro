@@ -2719,6 +2719,7 @@ packages:
 
   '@astrojs/cloudflare@https://pkg.pr.new/@astrojs/cloudflare@94d342d':
     resolution: {tarball: https://pkg.pr.new/@astrojs/cloudflare@94d342d}
+    integrity: sha512-Bt+G512Dr1SqYdsza6HOLP2azfHg0m5UE0s6SBGX77g+ThFV95Nai5boyM8HO3jVpqwVPPh+5ycMptjrtzv7Yg==
     version: 13.1.10
     peerDependencies:
       astro: ^6.0.0
