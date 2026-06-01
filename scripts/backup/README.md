@@ -67,7 +67,7 @@ shred -u scripts/backup/.backup-config
 | `R2_BUCKET_NAME`        | Cloudflare R2 bucket         | `awcms-micro-backups`    |
 | `CLOUDFLARE_API_TOKEN`  | Cloudflare API token         | `abc123...`              |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID        | `def456...`              |
-| `D1_DATABASE_NAME`      | D1 database to backup        | `awcms-micro-db`         |
+| `D1_DATABASE_NAME`      | D1 database to backup        | `awcms-micro-d1-20260530` |
 | `BACKUP_PASSPHRASE`     | Master encryption key        | `your-secure-passphrase` |
 | `BACKUP_CRON_SCHEDULE`  | Backup schedule (cron)       | `0 2 * * *`              |
 | `BACKUP_SSH_KEYS`       | Include SSH keys in backup   | `true`                   |
