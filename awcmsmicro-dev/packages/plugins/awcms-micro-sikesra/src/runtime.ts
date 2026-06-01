@@ -3130,8 +3130,17 @@ const accessMatrixGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
-	const roleSlug = getString(routeCtx.input, "roleSlug") ?? "";
+	const roleSlug = getString(routeCtx.input, "roleSlug")?.trim() ?? "";
 	const permissions = getStringArray(routeCtx.input, "permissions");
+	if (!roleSlug || permissions.length === 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Role slug and at least one permission are required for the role matrix.",
+			},
+		};
+	}
 	const assignment = touchUpdatedAt<RolePermissionAssignment>({
 		roleSlug,
 		permissions,

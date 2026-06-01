@@ -1387,6 +1387,27 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.accessChangeEvents.size).toBe(0);
 	});
 
+	it("requires role and permissions for role matrix assignments", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const missingRole = (await routes["access/matrix/save"]!.handler({
+			...ctx,
+			input: { roleSlug: " ", permissions: ["documents.review"] },
+		} as any)) as any;
+		const missingPermissions = (await routes["access/matrix/save"]!.handler({
+			...ctx,
+			input: { roleSlug: "document-reviewer", permissions: [] },
+		} as any)) as any;
+
+		expect(missingRole.success).toBe(false);
+		expect(missingRole.error.code).toBe("VALIDATION_ERROR");
+		expect(missingPermissions.success).toBe(false);
+		expect(missingPermissions.error.message).toContain("at least one permission");
+		expect(collections.rolePermissionAssignments.has("document-reviewer")).toBe(false);
+		expect(collections.accessChangeEvents.size).toBe(0);
+	});
+
 	it("returns a deterministic denied access preview when roles do not grant the permission", async () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();
