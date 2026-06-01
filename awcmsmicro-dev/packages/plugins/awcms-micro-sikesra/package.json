@@ -66,6 +66,7 @@
 		"awcms:sikesra:check-destructive-migrations": "node scripts/check-destructive-migrations.mjs",
 		"awcms:sikesra:check-routes": "vitest run tests/plugin.test.ts -t 'registers required SIKESRA plugin routes'",
 		"awcms:sikesra:check-admin-pages": "vitest run tests/plugin.test.ts -t 'declares admin pages'",
+		"awcms:sikesra:backup-inventory": "node scripts/backup-inventory.mjs",
 		"awcms:sikesra:validate-after-emdash-sync": "pnpm awcms:sikesra:check-boundary && pnpm awcms:sikesra:check-d1-prefix && pnpm awcms:sikesra:check-destructive-migrations && pnpm awcms:sikesra:check-routes && pnpm awcms:sikesra:check-admin-pages && pnpm typecheck && pnpm test && pnpm build",
 		"build": "tsdown",
 		"dev": "tsdown --watch",

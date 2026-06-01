@@ -64,6 +64,7 @@ Run from the SIKESRA plugin package:
 ```bash
 pnpm awcms:sikesra:check-d1-prefix
 pnpm awcms:sikesra:check-destructive-migrations
+pnpm awcms:sikesra:backup-inventory
 pnpm test
 pnpm typecheck
 ```
