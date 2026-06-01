@@ -46,3 +46,5 @@ export type {
 export type { SikesraCrudMutationMeta, SikesraRestoreRequest, SikesraSoftDeleteRequest } from "./crud-contracts.js";
 export type { SikesraContractRouteContext, SikesraContractValidator } from "./route-handler.js";
 export { handleSikesraContractRoute, requireStringField } from "./route-handler.js";
+export type { SikesraUiState, SikesraUiStateStatus } from "./ui-state.js";
+export { createSikesraUiState } from "./ui-state.js";
