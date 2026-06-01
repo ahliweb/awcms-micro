@@ -23,9 +23,26 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0008_sikesra_deduplication.sql
 0009_sikesra_access_abac.sql
 0010_sikesra_exports_audit.sql
+0011_sikesra_core_region_sources.sql
 ```
 
-All migration files requested by issue #120 are present. Later issue work should add new forward-only migrations only when it needs additive schema changes.
+All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table.
+
+## Seed Files
+
+Seed files live in:
+
+```txt
+awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/seeds/
+```
+
+Current seed files:
+
+```txt
+kotawaringin-barat-core.sql
+```
+
+Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values before applying seeds to local or remote D1.
 
 ## Migration Rules
 

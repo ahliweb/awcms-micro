@@ -373,6 +373,8 @@ export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
 	"sikesra_data_types",
 	"sikesra_data_subtypes",
 	"sikesra_regions",
+	"sikesra_official_regions",
+	"sikesra_local_regions",
 	"sikesra_region_aliases",
 	"sikesra_registry_entities",
 	"sikesra_person_profiles",

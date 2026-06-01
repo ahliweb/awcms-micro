@@ -9,4 +9,5 @@ export const SIKESRA_MIGRATION_FILES = [
 	"0008_sikesra_deduplication.sql",
 	"0009_sikesra_access_abac.sql",
 	"0010_sikesra_exports_audit.sql",
+	"0011_sikesra_core_region_sources.sql",
 ] as const;

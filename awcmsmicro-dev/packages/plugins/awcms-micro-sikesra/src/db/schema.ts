@@ -3,6 +3,8 @@ export const SIKESRA_D1_TABLES = {
 	dataTypes: "sikesra_data_types",
 	dataSubtypes: "sikesra_data_subtypes",
 	regions: "sikesra_regions",
+	officialRegions: "sikesra_official_regions",
+	localRegions: "sikesra_local_regions",
 	regionAliases: "sikesra_region_aliases",
 	registryEntities: "sikesra_registry_entities",
 	personProfiles: "sikesra_person_profiles",
