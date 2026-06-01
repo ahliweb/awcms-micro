@@ -190,6 +190,7 @@ interface AccessRoleItem {
 interface UserRoleAssignmentItem {
 	userId: string;
 	roles: string[];
+	isActive: boolean;
 	updatedAt: string;
 }
 
@@ -219,6 +220,19 @@ interface AccessRolesResponse {
 	roles: AccessRoleItem[];
 	userAssignments: UserRoleAssignmentItem[];
 	scopeAssignments?: UserScopeAssignmentItem[];
+}
+
+interface EmDashUserReferenceItem {
+	id: string;
+	email: string;
+	name: string | null;
+	role: number;
+	createdAt: string;
+}
+
+interface EmDashUsersResponse {
+	items: EmDashUserReferenceItem[];
+	nextCursor?: string;
 }
 
 interface AccessScopesResponse {
@@ -1149,7 +1163,8 @@ function RegistryDetailPage() {
 function AccessUsersPage() {
 	const contract = getSikesraPageContract("/access/users");
 	const { data, error, loading, reload } = usePluginData<AccessRolesResponse>("access/roles/list");
-	const [userState, setUserState] = React.useState({ userId: "", roles: "" });
+	const { data: usersData } = usePluginData<EmDashUsersResponse>("access/users/list", { limit: 100 });
+	const [userState, setUserState] = React.useState({ userId: "", roles: "", isActive: true });
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [saving, setSaving] = React.useState(false);
@@ -1163,8 +1178,9 @@ function AccessUsersPage() {
 			await postPlugin("access/users/save", {
 				userId: userState.userId,
 				roles: fromCsv(userState.roles),
+				isActive: userState.isActive,
 			});
-			setUserState({ userId: "", roles: "" });
+			setUserState({ userId: "", roles: "", isActive: true });
 			setNotice("EmDash user role assignment saved with SIKESRA audit tracking.");
 			await reload();
 		} catch (cause) {
@@ -1176,6 +1192,7 @@ function AccessUsersPage() {
 
 	if (loading) return <LoadingState label="Loading SIKESRA user assignments..." />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+	const emdashUsers = usersData?.items ?? [];
 
 	return (
 		<PageShell width="wide">
@@ -1187,12 +1204,20 @@ function AccessUsersPage() {
 					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
 						<Field label="EmDash user ID">
 							<Input
+								list="sikesra-emdash-users"
 								value={userState.userId}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 									setUserState((current) => ({ ...current, userId: event.target.value }))
 								}
 								required
 							/>
+							<datalist id="sikesra-emdash-users">
+								{emdashUsers.map((user) => (
+									<option key={user.id} value={user.id}>
+										{user.name ? `${user.name} <${user.email}>` : user.email}
+									</option>
+								))}
+							</datalist>
 						</Field>
 						<Field label="Role slugs" hint="Comma-separated SIKESRA role slugs.">
 							<Input
@@ -1203,6 +1228,16 @@ function AccessUsersPage() {
 								required
 							/>
 						</Field>
+						<label className="flex items-center gap-2 text-sm text-kumo-default">
+							<input
+								type="checkbox"
+								checked={userState.isActive}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setUserState((current) => ({ ...current, isActive: event.target.checked }))
+								}
+							/>
+							Active assignment
+						</label>
 						<Button variant="primary" type="submit" disabled={saving}>
 							{saving ? "Saving..." : "Save assignment"}
 						</Button>
@@ -1219,6 +1254,7 @@ function AccessUsersPage() {
 									<div className="mt-2 flex flex-wrap gap-2">
 										{item.roles.map((role) => <Pill key={role}>{role}</Pill>)}
 									</div>
+									<div className="mt-3"><Pill tone={item.isActive ? "success" : "warning"}>{item.isActive ? "Active" : "Inactive"}</Pill></div>
 									<div className="mt-3 text-xs text-kumo-subtle">Updated {formatDateTime(item.updatedAt, "en")}</div>
 								</div>
 							))}
@@ -1226,6 +1262,26 @@ function AccessUsersPage() {
 					)}
 				</Card>
 			</div>
+			<Card title="EmDash users" description="Read-only trusted users exposed by EmDash for assignment reference.">
+				{emdashUsers.length === 0 ? (
+					<EmptyState title="No EmDash users available" description="The plugin can still save assignments by exact EmDash user ID." />
+				) : (
+					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+						{emdashUsers.map((user) => (
+							<button
+								key={user.id}
+								type="button"
+								className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-start transition hover:border-kumo-brand"
+								onClick={() => setUserState((current) => ({ ...current, userId: user.id }))}
+							>
+								<div className="font-semibold text-kumo-default">{user.name || user.email}</div>
+								<div className="mt-1 text-xs text-kumo-subtle">{user.email}</div>
+								<div className="mt-3 font-mono text-xs text-kumo-subtle">{user.id}</div>
+							</button>
+						))}
+					</div>
+				)}
+			</Card>
 			<Card title="Available roles" description="Use these slugs in the user assignment form.">
 				<div className="flex flex-wrap gap-2">
 					{data?.roles.map((role) => (

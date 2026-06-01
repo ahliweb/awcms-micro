@@ -297,6 +297,7 @@ export const AWCMS_SIKESRA_CAPABILITIES = [
 	"content:write",
 	"media:read",
 	"media:write",
+	"users:read",
 ] as const;
 
 export const AWCMS_SIKESRA_ALLOWED_HOSTS: string[] = [];
@@ -431,6 +432,15 @@ const AWCMS_SIKESRA_LOCAL_REGIONS_TABLE = "sikesra_local_regions";
 const AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE = "sikesra_registry_entities";
 const AWCMS_SIKESRA_CODE_SEQUENCES_TABLE = "sikesra_code_sequences";
 const AWCMS_SIKESRA_CODE_HISTORY_TABLE = "sikesra_code_history";
+const AWCMS_SIKESRA_PERMISSION_CATALOG_TABLE = "sikesra_permission_catalog";
+const AWCMS_SIKESRA_ROLE_CATALOG_TABLE = "sikesra_role_catalog";
+const AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE = "sikesra_role_permission_assignments";
+const AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE = "sikesra_user_role_assignments";
+const AWCMS_SIKESRA_USER_SCOPE_ASSIGNMENTS_TABLE = "sikesra_user_scope_assignments";
+const AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE = "sikesra_abac_subject_assignments";
+const AWCMS_SIKESRA_ABAC_RESOURCE_ASSIGNMENTS_TABLE = "sikesra_abac_resource_assignments";
+const AWCMS_SIKESRA_ABAC_POLICY_RULES_TABLE = "sikesra_abac_policy_rules";
+const AWCMS_SIKESRA_ABAC_ATTRIBUTE_CATALOG_TABLE = "sikesra_abac_attribute_catalog";
 const AWCMS_SIKESRA_FILE_OBJECTS_TABLE = "sikesra_file_objects";
 const AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE = "sikesra_supporting_documents";
 const AWCMS_SIKESRA_IMPORT_BATCHES_TABLE = "sikesra_import_batches";
@@ -1339,6 +1349,7 @@ export interface RolePermissionAssignment {
 export interface UserRoleAssignment {
 	userId: string;
 	roles: string[];
+	isActive: boolean;
 	updatedAt: string;
 }
 
@@ -1720,36 +1731,43 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 	{
 		userId: "user-demo-editor",
 		roles: ["site-editor"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-reviewer",
 		roles: ["governance-reviewer"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-village",
 		roles: ["verifier-desa-kelurahan"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-district",
 		roles: ["verifier-kecamatan"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-sopd",
 		roles: ["verifier-sopd"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-regency",
 		roles: ["verifier-kabupaten"],
+		isActive: true,
 		updatedAt: "",
 	},
 	{
 		userId: "user-demo-sikesra-admin",
 		roles: ["admin-sikesra", "sikesra_admin"],
+		isActive: true,
 		updatedAt: "",
 	},
 ];
@@ -2057,6 +2075,27 @@ interface VerificationListItem {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseJsonObject(value: unknown, fallback: Record<string, string> = {}) {
+	try {
+		const parsed = typeof value === "string" ? JSON.parse(value) : value;
+		if (!isRecord(parsed)) return fallback;
+		return Object.fromEntries(
+			Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+		);
+	} catch {
+		return fallback;
+	}
+}
+
+function parseJsonArray(value: unknown) {
+	try {
+		const parsed = typeof value === "string" ? JSON.parse(value) : value;
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
 }
 
 function getString(value: unknown, key: string): string | undefined {
@@ -2513,6 +2552,9 @@ async function generateD1SikesraId20(
 			registry_entity_id: params.registryEntityId,
 			sikesra_id_20: sikesraId20,
 			sequence_key: sequenceKey,
+			event_type: "issued",
+			previous_sikesra_id_20: null,
+			correction_reason: null,
 			issued_at: now,
 			issued_by: params.actor ?? null,
 			created_at: now,
@@ -2524,6 +2566,45 @@ async function generateD1SikesraId20(
 		.execute();
 
 	return sikesraId20;
+}
+
+async function correctD1SikesraId20(
+	ctx: PluginContext,
+	params: { registryEntityId: string; nextSikesraId20: string; reason: string; actor?: string },
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return null;
+	if (!/^\d{20}$/.test(params.nextSikesraId20)) return null;
+	const existing = (await getD1RegistryEntities(ctx, { includeDeleted: true })).find(
+		(entity) => entity.id === params.registryEntityId,
+	);
+	if (!existing) return null;
+	const previousSikesraId20 = existing.sikesraId20 ?? null;
+	const sequenceKey = `${params.nextSikesraId20.slice(0, 10)}:${params.nextSikesraId20.slice(10, 12)}:${params.nextSikesraId20.slice(12, 14)}`;
+	const now = toIsoNow();
+	await saveRegistryEntity(ctx, { ...existing, sikesraId20: params.nextSikesraId20 });
+	await db
+		.insertInto(AWCMS_SIKESRA_CODE_HISTORY_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${params.registryEntityId}:correction:${now}`,
+			registry_entity_id: params.registryEntityId,
+			sikesra_id_20: params.nextSikesraId20,
+			sequence_key: sequenceKey,
+			event_type: "correction",
+			previous_sikesra_id_20: previousSikesraId20,
+			correction_reason: params.reason,
+			issued_at: now,
+			issued_by: params.actor ?? null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: params.actor ?? null,
+			updated_by: params.actor ?? null,
+		})
+		.execute();
+	return { previousSikesraId20, nextSikesraId20: params.nextSikesraId20 };
 }
 
 async function getSupportingDocuments(
@@ -3571,6 +3652,477 @@ async function listUserScopeAssignments(ctx: PluginContext) {
 	return listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments!);
 }
 
+async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+		.select(["emdash_user_id", "sikesra_role_slug", "updated_at"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("emdash_user_id", "=", userId)
+		.where("is_active", "=", 1)
+		.execute()) as Array<{ emdash_user_id: string; sikesra_role_slug: string; updated_at?: string }>;
+	if (rows.length === 0) return null;
+	return {
+		userId,
+		roles: [...new Set(rows.map((row) => row.sikesra_role_slug).filter(Boolean))],
+		isActive: true,
+		updatedAt: rows[0]?.updated_at ?? "",
+	} satisfies UserRoleAssignment;
+}
+
+async function getD1RolePermissionAssignment(ctx: PluginContext, roleSlug: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
+		.select(["role_slug", "permission_slug", "effect", "updated_at"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("role_slug", "=", roleSlug)
+		.where("effect", "=", "allow")
+		.execute()) as Array<{ role_slug: string; permission_slug: string; effect: string; updated_at?: string }>;
+	if (rows.length === 0) return null;
+	return {
+		roleSlug,
+		permissions: [...new Set(rows.map((row) => row.permission_slug).filter(Boolean))],
+		updatedAt: rows[0]?.updated_at ?? "",
+	} satisfies RolePermissionAssignment;
+}
+
+async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserRoleAssignment) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	for (const roleSlug of assignment.roles) {
+		await db
+			.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: `${assignment.userId}:${roleSlug}`,
+				emdash_user_id: assignment.userId,
+				sikesra_role_slug: roleSlug,
+				is_active: assignment.isActive ? 1 : 0,
+				valid_from: null,
+				valid_until: null,
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: getRequestUserId(ctx),
+				updated_by: getRequestUserId(ctx),
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					emdash_user_id: assignment.userId,
+					sikesra_role_slug: roleSlug,
+					is_active: assignment.isActive ? 1 : 0,
+					updated_at: now,
+					deleted_at: null,
+					updated_by: getRequestUserId(ctx),
+				}),
+			)
+			.execute();
+	}
+	return true;
+}
+
+async function persistD1PermissionCatalogItem(ctx: PluginContext, permission: AccessPermission) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_PERMISSION_CATALOG_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			slug: permission.slug,
+			scope: permission.scope,
+			label: permission.label,
+			description: permission.description || null,
+			status: "active",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: getRequestUserId(ctx),
+			updated_by: getRequestUserId(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "slug"]).doUpdateSet({
+				scope: permission.scope,
+				label: permission.label,
+				description: permission.description || null,
+				status: "active",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: getRequestUserId(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+async function persistD1RoleCatalogItem(ctx: PluginContext, role: AccessRole) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_ROLE_CATALOG_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			slug: role.slug,
+			label: role.label,
+			description: role.description || null,
+			status: "active",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: getRequestUserId(ctx),
+			updated_by: getRequestUserId(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "slug"]).doUpdateSet({
+				label: role.label,
+				description: role.description || null,
+				status: "active",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: getRequestUserId(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+async function persistD1RolePermissionAssignment(ctx: PluginContext, assignment: RolePermissionAssignment) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	for (const permissionSlug of assignment.permissions) {
+		await db
+			.insertInto(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				role_slug: assignment.roleSlug,
+				permission_slug: permissionSlug,
+				effect: "allow",
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: getRequestUserId(ctx),
+				updated_by: getRequestUserId(ctx),
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "role_slug", "permission_slug"]).doUpdateSet({
+					effect: "allow",
+					updated_at: now,
+					deleted_at: null,
+					updated_by: getRequestUserId(ctx),
+				}),
+			)
+			.execute();
+	}
+	return true;
+}
+
+async function persistD1UserScopeAssignment(ctx: PluginContext, assignment: UserScopeAssignment) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_USER_SCOPE_ASSIGNMENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: assignment.userId,
+			emdash_user_id: assignment.userId,
+			region_scope_type: assignment.regionScopeType,
+			region_scope_code: assignment.regionScopeCode || null,
+			organization_scope_type: assignment.organizationScopeType,
+			organization_scope_code: assignment.organizationScopeCode || null,
+			is_active: assignment.isActive ? 1 : 0,
+			valid_from: assignment.validFrom || null,
+			valid_until: assignment.validUntil || null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: getRequestUserId(ctx),
+			updated_by: getRequestUserId(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				region_scope_type: assignment.regionScopeType,
+				region_scope_code: assignment.regionScopeCode || null,
+				organization_scope_type: assignment.organizationScopeType,
+				organization_scope_code: assignment.organizationScopeCode || null,
+				is_active: assignment.isActive ? 1 : 0,
+				valid_from: assignment.validFrom || null,
+				valid_until: assignment.validUntil || null,
+				updated_at: now,
+				deleted_at: null,
+				updated_by: getRequestUserId(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+function splitD1PolicyResourceConditions(value: unknown) {
+	let parsed: Record<string, unknown> = {};
+	try {
+		const candidate = typeof value === "string" ? JSON.parse(value) : value;
+		if (isRecord(candidate)) parsed = candidate;
+	} catch {
+		parsed = {};
+	}
+	const contextCandidate = parsed.__context;
+	const { __context: _context, ...requiredResource } = parsed;
+	return {
+		requiredResource: Object.fromEntries(
+			Object.entries(requiredResource).filter(
+				(entry): entry is [string, string] => typeof entry[1] === "string",
+			),
+		),
+		requiredContext: isRecord(contextCandidate)
+			? Object.fromEntries(
+					Object.entries(contextCandidate).filter(
+						(entry): entry is [string, string] => typeof entry[1] === "string",
+					),
+				)
+			: {},
+	};
+}
+
+async function getD1AbacSubjectAssignment(ctx: PluginContext, subjectId: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
+		.select(["emdash_user_id", "attribute_key", "attribute_value", "updated_at"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("emdash_user_id", "=", subjectId)
+		.execute()) as Array<{ emdash_user_id: string; attribute_key: string; attribute_value: string; updated_at?: string }>;
+	if (rows.length === 0) return null;
+	return {
+		subjectId,
+		attributes: Object.fromEntries(rows.map((row) => [row.attribute_key, row.attribute_value])),
+		updatedAt: rows[0]?.updated_at ?? "",
+	} satisfies AbacSubjectAssignment;
+}
+
+async function getD1AbacResourceAssignment(ctx: PluginContext, resourceId: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_ABAC_RESOURCE_ASSIGNMENTS_TABLE)
+		.select(["resource_id", "attribute_key", "attribute_value", "updated_at"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("resource_id", "=", resourceId)
+		.execute()) as Array<{ resource_id: string; attribute_key: string; attribute_value: string; updated_at?: string }>;
+	if (rows.length === 0) return null;
+	return {
+		resourceId,
+		attributes: Object.fromEntries(rows.map((row) => [row.attribute_key, row.attribute_value])),
+		updatedAt: rows[0]?.updated_at ?? "",
+	} satisfies AbacResourceAssignment;
+}
+
+async function listD1AbacPolicies(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_ABAC_POLICY_RULES_TABLE)
+		.select([
+			"id",
+			"effect",
+			"actions_json",
+			"subject_conditions_json",
+			"resource_conditions_json",
+			"updated_at",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("status", "=", "active")
+		.execute()) as Array<{
+		id: string;
+		effect: "allow" | "deny";
+		actions_json: string;
+		subject_conditions_json: string;
+		resource_conditions_json: string;
+		updated_at?: string;
+	}>;
+	if (rows.length === 0) return null;
+	return rows.map((row) => {
+		const { requiredResource, requiredContext } = splitD1PolicyResourceConditions(
+			row.resource_conditions_json,
+		);
+		return {
+			id: row.id,
+			label: row.id,
+			effect: row.effect,
+			actions: parseJsonArray(row.actions_json).filter(
+				(action): action is string => typeof action === "string",
+			),
+			requiredSubject: parseJsonObject(row.subject_conditions_json, {}),
+			requiredResource,
+			requiredContext,
+			updatedAt: row.updated_at ?? "",
+		} satisfies AbacPolicyRule;
+	});
+}
+
+async function persistD1AbacSubjectAssignment(ctx: PluginContext, assignment: AbacSubjectAssignment) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	for (const [key, value] of Object.entries(assignment.attributes)) {
+		await db
+			.insertInto(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: `${assignment.subjectId}:${key}`,
+				emdash_user_id: assignment.subjectId,
+				attribute_key: key,
+				attribute_value: value,
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: getRequestUserId(ctx),
+				updated_by: getRequestUserId(ctx),
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					attribute_value: value,
+					updated_at: now,
+					deleted_at: null,
+					updated_by: getRequestUserId(ctx),
+				}),
+			)
+			.execute();
+	}
+	return true;
+}
+
+async function persistD1AbacAttributeDefinition(ctx: PluginContext, attribute: AbacAttributeDefinition) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_ABAC_ATTRIBUTE_CATALOG_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			key: attribute.key,
+			target_type: attribute.targetType,
+			data_type: "string",
+			label: attribute.label,
+			description: attribute.description || null,
+			status: "active",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: getRequestUserId(ctx),
+			updated_by: getRequestUserId(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "key", "target_type"]).doUpdateSet({
+				data_type: "string",
+				label: attribute.label,
+				description: attribute.description || null,
+				status: "active",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: getRequestUserId(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+async function persistD1AbacResourceAssignment(ctx: PluginContext, assignment: AbacResourceAssignment) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	for (const [key, value] of Object.entries(assignment.attributes)) {
+		await db
+			.insertInto(AWCMS_SIKESRA_ABAC_RESOURCE_ASSIGNMENTS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: `${assignment.resourceId}:${key}`,
+				resource_type: "sikesra_resource",
+				resource_id: assignment.resourceId,
+				attribute_key: key,
+				attribute_value: value,
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: getRequestUserId(ctx),
+				updated_by: getRequestUserId(ctx),
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					attribute_value: value,
+					updated_at: now,
+					deleted_at: null,
+					updated_by: getRequestUserId(ctx),
+				}),
+			)
+			.execute();
+	}
+	return true;
+}
+
+async function persistD1AbacPolicyRule(ctx: PluginContext, policy: AbacPolicyRule) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_ABAC_POLICY_RULES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: policy.id,
+			effect: policy.effect,
+			actions_json: JSON.stringify(policy.actions),
+			subject_conditions_json: JSON.stringify(policy.requiredSubject),
+			resource_conditions_json: JSON.stringify({
+				...policy.requiredResource,
+				__context: policy.requiredContext,
+			}),
+			priority: 100,
+			status: "active",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: getRequestUserId(ctx),
+			updated_by: getRequestUserId(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				effect: policy.effect,
+				actions_json: JSON.stringify(policy.actions),
+				subject_conditions_json: JSON.stringify(policy.requiredSubject),
+				resource_conditions_json: JSON.stringify({
+					...policy.requiredResource,
+					__context: policy.requiredContext,
+				}),
+				status: "active",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: getRequestUserId(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
 async function listAbacAttributes(ctx: PluginContext) {
 	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog!);
 }
@@ -3718,12 +4270,16 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
-		subjectId,
-	)) as AbacSubjectAssignment | null;
-	const resource = (await ctx.storage.sikesra_abac_resource_assignments!.get(
-		resourceId,
-	)) as AbacResourceAssignment | null;
+	const subject =
+		(await getD1AbacSubjectAssignment(ctx, subjectId)) ??
+		((await ctx.storage.sikesra_abac_subject_assignments!.get(
+			subjectId,
+		)) as AbacSubjectAssignment | null);
+	const resource =
+		(await getD1AbacResourceAssignment(ctx, resourceId)) ??
+		((await ctx.storage.sikesra_abac_resource_assignments!.get(
+			resourceId,
+		)) as AbacResourceAssignment | null);
 
 	if (!subject || !resource) {
 		return {
@@ -3737,7 +4293,16 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const policies = await listAbacPolicies(ctx);
+	const d1Policies = await listD1AbacPolicies(ctx);
+	const storagePolicies = await listAbacPolicies(ctx);
+	const policies = d1Policies
+		? [
+				...storagePolicies.filter(
+					(policy) => !d1Policies.some((d1Policy) => d1Policy.id === policy.id),
+				),
+				...d1Policies,
+			]
+		: storagePolicies;
 	const relevantPolicies = policies.filter((policy) => policy.actions.includes(action));
 	let missingAttributes: string[] = [];
 	const matchedAllowPolicies: string[] = [];
@@ -3811,9 +4376,9 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const userAssignment = (await ctx.storage.sikesra_user_role_assignments!.get(
-		userId,
-	)) as UserRoleAssignment | null;
+	const userAssignment =
+		(await getD1UserRoleAssignment(ctx, userId)) ??
+		((await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null);
 	if (!userAssignment || userAssignment.roles.length === 0) {
 		return {
 			allowed: false,
@@ -3824,16 +4389,19 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 	}
 
 	const assignments = await Promise.all(
-		userAssignment.roles.map(
-			async (roleSlug) =>
+		userAssignment.roles.map(async (roleSlug) => {
+			const d1Assignment = await getD1RolePermissionAssignment(ctx, roleSlug);
+			if (d1Assignment) return d1Assignment;
+			return (
 				((await ctx.storage.sikesra_role_permission_assignments!.get(
 					roleSlug,
 				)) as RolePermissionAssignment | null) ?? {
 					roleSlug,
 					permissions: [],
 					updatedAt: "",
-				},
-		),
+				}
+			);
+		}),
 	);
 
 	const effectivePermissions = [
@@ -4000,6 +4568,38 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	);
 
 	return { success: true, item: newEntity };
+};
+
+const registrySikesraIdCorrectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.registry.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const registryEntityId = getString(input, "registryEntityId")?.trim() ?? "";
+	const nextSikesraId20 = getString(input, "sikesraId20")?.trim() ?? "";
+	const reason = getString(input, "reason")?.trim() ?? "";
+	const invalidFields = [
+		...(registryEntityId ? [] : ["registryEntityId"]),
+		...(/^\d{20}$/.test(nextSikesraId20) ? [] : ["sikesraId20"]),
+		...(reason ? [] : ["reason"]),
+	];
+	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const corrected = await correctD1SikesraId20(ctx, { registryEntityId, nextSikesraId20, reason, actor });
+	if (!corrected) {
+		return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
+	}
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "registry.sikesra_id.correct",
+			scope: "registry",
+			actor,
+			summary: `Corrected SIKESRA ID for registry entity ${registryEntityId}`,
+			metadata: { registryEntityId, previousSikesraId20: corrected.previousSikesraId20, nextSikesraId20, reason },
+		}),
+	);
+	return { success: true, item: { registryEntityId, ...corrected } };
 };
 
 const registrySoftDeleteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -5069,8 +5669,9 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 		})
 		.onConflict((oc: any) => oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ value_display: normalized.valueDisplay, updated_at: now, updated_by: actor }))
 		.execute();
-	await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.value.update", definitionId, valueId: id, summary: `Saved custom attribute value ${id}`, metadata: { id, definitionId, registryEntityId, value: input.value } });
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.value.save", scope: "custom_attributes", actor, summary: `Saved custom attribute value ${id}`, metadata: { id, definitionId, registryEntityId, value: input.value } }));
+	const auditMetadata = { id, definitionId, registryEntityId, valueRedacted: true };
+	await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.value.update", definitionId, valueId: id, summary: `Saved custom attribute value ${id}`, metadata: auditMetadata });
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.value.save", scope: "custom_attributes", actor, summary: `Saved custom attribute value ${id}`, metadata: auditMetadata }));
 	return { success: true, item: { id, definitionId, registryEntityId, valueDisplay: normalized.valueDisplay } };
 };
 
@@ -5822,6 +6423,7 @@ const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => 
 		scope,
 		updatedAt: "",
 	});
+	await persistD1PermissionCatalogItem(ctx, permission);
 	await ctx.storage.sikesra_permission_catalog!.put(slug, permission);
 	const event = createAuditRecord({
 		kind: "access.permission.save",
@@ -5846,6 +6448,24 @@ const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	};
 };
 
+const accessUsersListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const limit = Math.min(Math.max(Number(getNumber(routeCtx.input, "limit") ?? 50), 1), 100);
+	const cursor = getString(routeCtx.input, "cursor");
+	const users = await ctx.users?.list({ limit, cursor });
+	return {
+		items: (users?.items ?? []).map((user) => ({
+			id: user.id,
+			email: user.email,
+			name: user.name,
+			role: user.role,
+			createdAt: user.createdAt,
+		})),
+		nextCursor: users?.nextCursor,
+	};
+};
+
 const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
@@ -5854,6 +6474,7 @@ const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const label = getString(routeCtx.input, "label") ?? slug;
 	const description = getString(routeCtx.input, "description") ?? "";
 	const role = touchUpdatedAt<AccessRole>({ slug, label, description, updatedAt: "" });
+	await persistD1RoleCatalogItem(ctx, role);
 	await ctx.storage.sikesra_role_catalog!.put(slug, role);
 	const event = createAuditRecord({
 		kind: "access.role.save",
@@ -5873,6 +6494,7 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	await ensureAccessCatalogSeeded(ctx);
 	const userId = getString(routeCtx.input, "userId")?.trim() ?? "";
 	const roles = getStringArray(routeCtx.input, "roles");
+	const isActive = getBoolean(routeCtx.input, "isActive") ?? true;
 	if (!userId || roles.length === 0) {
 		return {
 			success: false,
@@ -5882,8 +6504,13 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 			},
 		};
 	}
-	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, updatedAt: "" });
-	await ctx.storage.sikesra_user_role_assignments!.put(userId, assignment);
+	const assignment = touchUpdatedAt<UserRoleAssignment>({ userId, roles, isActive, updatedAt: "" });
+	await persistD1UserRoleAssignment(ctx, assignment);
+	if (assignment.isActive) {
+		await ctx.storage.sikesra_user_role_assignments!.put(userId, assignment);
+	} else {
+		await ctx.storage.sikesra_user_role_assignments!.delete(userId);
+	}
 	await persistStateValue(ctx, "state:lastPreviewUserId", userId);
 	const event = createAuditRecord({
 		kind: "access.user-assignment.save",
@@ -5947,6 +6574,7 @@ const accessScopesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		validUntil,
 		updatedAt: "",
 	});
+	await persistD1UserScopeAssignment(ctx, assignment);
 	await ctx.storage.sikesra_user_scope_assignments!.put(userId, assignment);
 	const event = createAuditRecord({
 		kind: "access.user-scope.save",
@@ -5991,6 +6619,7 @@ const accessMatrixSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		permissions,
 		updatedAt: "",
 	});
+	await persistD1RolePermissionAssignment(ctx, assignment);
 	await ctx.storage.sikesra_role_permission_assignments!.put(roleSlug, assignment);
 	const event = createAuditRecord({
 		kind: "access.matrix.save",
@@ -6061,6 +6690,7 @@ const abacAttributesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		description,
 		updatedAt: "",
 	});
+	await persistD1AbacAttributeDefinition(ctx, item);
 	await ctx.storage.sikesra_abac_attribute_catalog!.put(key, item);
 	const event = createAuditRecord({
 		kind: "abac.attribute.save",
@@ -6088,6 +6718,7 @@ const abacSubjectsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const subjectId = getString(routeCtx.input, "subjectId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacSubjectAssignment>({ subjectId, attributes, updatedAt: "" });
+	await persistD1AbacSubjectAssignment(ctx, item);
 	await ctx.storage.sikesra_abac_subject_assignments!.put(subjectId, item);
 	const event = createAuditRecord({
 		kind: "abac.subject.save",
@@ -6115,6 +6746,7 @@ const abacResourcesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const resourceId = getString(routeCtx.input, "resourceId") ?? "";
 	const attributes = getStringRecord(routeCtx.input, "attributes");
 	const item = touchUpdatedAt<AbacResourceAssignment>({ resourceId, attributes, updatedAt: "" });
+	await persistD1AbacResourceAssignment(ctx, item);
 	await ctx.storage.sikesra_abac_resource_assignments!.put(resourceId, item);
 	const event = createAuditRecord({
 		kind: "abac.resource.save",
@@ -6181,6 +6813,7 @@ const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		requiredContext,
 		updatedAt: "",
 	});
+	await persistD1AbacPolicyRule(ctx, item);
 	await ctx.storage.sikesra_abac_policy_rules!.put(id, item);
 	const event = createAuditRecord({
 		kind: "abac.policy.save",
@@ -6511,6 +7144,7 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"public/status": { public: true, handler: publicStatusRoute },
 	"registry/list": { handler: registryListRoute },
 	"registry/save": { handler: registrySaveRoute },
+	"registry/sikesra-id/correct": { handler: registrySikesraIdCorrectRoute },
 	"registry/archive/list": { handler: registryArchiveListRoute },
 	"registry/soft-delete": { handler: registrySoftDeleteRoute },
 	"registry/restore": { handler: registryRestoreRoute },
@@ -6549,6 +7183,7 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"access/permissions/save": { handler: accessPermissionsSaveRoute },
 	"access/roles/list": { handler: accessRolesListRoute },
 	"access/roles/save": { handler: accessRolesSaveRoute },
+	"access/users/list": { handler: accessUsersListRoute },
 	"access/users/save": { handler: accessUserAssignmentsSaveRoute },
 	"access/scopes/list": { handler: accessScopesListRoute },
 	"access/scopes/save": { handler: accessScopesSaveRoute },

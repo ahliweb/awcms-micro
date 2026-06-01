@@ -179,9 +179,18 @@ function createMockContext() {
 	const duplicateCandidateTableRows: Array<Record<string, unknown>> = [];
 	const duplicateDecisionTableRows: Array<Record<string, unknown>> = [];
 	const exportJobTableRows: Array<Record<string, unknown>> = [];
+	const permissionCatalogTableRows: Array<Record<string, unknown>> = [];
+	const roleCatalogTableRows: Array<Record<string, unknown>> = [];
+	const abacAttributeCatalogTableRows: Array<Record<string, unknown>> = [];
 	const customAttributeDefinitionTableRows: Array<Record<string, unknown>> = [];
 	const customAttributeValueTableRows: Array<Record<string, unknown>> = [];
 	const customAttributeChangeEventTableRows: Array<Record<string, unknown>> = [];
+	const rolePermissionAssignmentTableRows: Array<Record<string, unknown>> = [];
+	const userRoleAssignmentTableRows: Array<Record<string, unknown>> = [];
+	const userScopeAssignmentTableRows: Array<Record<string, unknown>> = [];
+	const abacSubjectAssignmentTableRows: Array<Record<string, unknown>> = [];
+	const abacResourceAssignmentTableRows: Array<Record<string, unknown>> = [];
+	const abacPolicyRuleTableRows: Array<Record<string, unknown>> = [];
 	const deleteRequestTableRows: Array<Record<string, unknown>> = [];
 	const deleteApprovalTableRows: Array<Record<string, unknown>> = [];
 	const deleteSnapshotTableRows: Array<Record<string, unknown>> = [];
@@ -483,6 +492,66 @@ function createMockContext() {
 				})
 				.map((row) => ({ ...row }));
 		}
+		if (_table === "sikesra_role_permission_assignments") {
+			return rolePermissionAssignmentTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_user_role_assignments") {
+			return userRoleAssignmentTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_user_scope_assignments") {
+			return userScopeAssignmentTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_abac_subject_assignments") {
+			return abacSubjectAssignmentTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_abac_resource_assignments") {
+			return abacResourceAssignmentTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_abac_policy_rules") {
+			return abacPolicyRuleTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
+					}
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
 		if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
@@ -574,6 +643,9 @@ function createMockContext() {
 							registry_entity_id: textValue(nextRow.registry_entity_id),
 							sikesra_id_20: textValue(nextRow.sikesra_id_20),
 							sequence_key: textValue(nextRow.sequence_key),
+							event_type: textValue(nextRow.event_type ?? "issued"),
+							previous_sikesra_id_20: nextRow.previous_sikesra_id_20 ?? null,
+							correction_reason: nextRow.correction_reason ?? null,
 							issued_at: textValue(nextRow.issued_at),
 							issued_by: nextRow.issued_by ?? null,
 							created_at: textValue(nextRow.created_at),
@@ -828,11 +900,29 @@ function createMockContext() {
 							created_by: nextRow.created_by ?? null,
 							updated_by: nextRow.updated_by ?? null,
 						};
+					} else if (_table === "sikesra_permission_catalog") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_role_catalog") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_abac_attribute_catalog") {
+						row = { ...nextRow };
 					} else if (_table === "sikesra_custom_attribute_definitions") {
 						row = { ...nextRow };
 					} else if (_table === "sikesra_custom_attribute_values") {
 						row = { ...nextRow };
 					} else if (_table === "sikesra_custom_attribute_change_events") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_role_permission_assignments") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_user_role_assignments") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_user_scope_assignments") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_abac_subject_assignments") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_abac_resource_assignments") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_abac_policy_rules") {
 						row = { ...nextRow };
 					} else if (_table === "sikesra_delete_requests") {
 						row = { ...nextRow };
@@ -972,6 +1062,18 @@ function createMockContext() {
 										upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_permission_catalog") {
+										upsertD1CatalogRow(permissionCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_role_catalog") {
+										upsertD1CatalogRow(roleCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_abac_attribute_catalog") {
+										upsertD1CatalogRow(abacAttributeCatalogTableRows, ["tenant_id", "site_id", "key", "target_type"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_custom_attribute_definitions") {
 										upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
@@ -982,6 +1084,30 @@ function createMockContext() {
 									}
 									if (_table === "sikesra_custom_attribute_change_events") {
 										upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_role_permission_assignments") {
+										upsertD1CatalogRow(rolePermissionAssignmentTableRows, ["tenant_id", "site_id", "role_slug", "permission_slug"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_user_role_assignments") {
+										upsertD1CatalogRow(userRoleAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_user_scope_assignments") {
+										upsertD1CatalogRow(userScopeAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_abac_subject_assignments") {
+										upsertD1CatalogRow(abacSubjectAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_abac_resource_assignments") {
+										upsertD1CatalogRow(abacResourceAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_abac_policy_rules") {
+										upsertD1CatalogRow(abacPolicyRuleTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
 									if (_table === "sikesra_delete_requests") {
@@ -1107,6 +1233,18 @@ function createMockContext() {
 									upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
 								}
+								if (_table === "sikesra_permission_catalog") {
+									upsertD1CatalogRow(permissionCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_role_catalog") {
+									upsertD1CatalogRow(roleCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_abac_attribute_catalog") {
+									upsertD1CatalogRow(abacAttributeCatalogTableRows, ["tenant_id", "site_id", "key", "target_type"], row as Record<string, unknown>);
+									return;
+								}
 								if (_table === "sikesra_custom_attribute_definitions") {
 									upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
@@ -1117,6 +1255,30 @@ function createMockContext() {
 								}
 								if (_table === "sikesra_custom_attribute_change_events") {
 									upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_role_permission_assignments") {
+									upsertD1CatalogRow(rolePermissionAssignmentTableRows, ["tenant_id", "site_id", "role_slug", "permission_slug"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_user_role_assignments") {
+									upsertD1CatalogRow(userRoleAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_user_scope_assignments") {
+									upsertD1CatalogRow(userScopeAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_abac_subject_assignments") {
+									upsertD1CatalogRow(abacSubjectAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_abac_resource_assignments") {
+									upsertD1CatalogRow(abacResourceAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_abac_policy_rules") {
+									upsertD1CatalogRow(abacPolicyRuleTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
 								}
 								if (_table === "sikesra_delete_requests") {
@@ -1224,6 +1386,22 @@ function createMockContext() {
 		schedule: vi.fn(async () => {}),
 		cancel: vi.fn(async () => {}),
 	};
+	const emdashUsers = [
+		{
+			id: "user-demo-sikesra-admin",
+			email: "admin@example.test",
+			name: "SIKESRA Admin",
+			role: 3,
+			createdAt: "2026-01-01T00:00:00.000Z",
+		},
+		{
+			id: "user-demo-doc-reviewer",
+			email: "reviewer@example.test",
+			name: "Document Reviewer",
+			role: 2,
+			createdAt: "2026-01-02T00:00:00.000Z",
+		},
+	];
 
 	const createCollection = (store: Map<string, unknown>) => ({
 		put: vi.fn(async (id: string, value: unknown) => {
@@ -1247,6 +1425,13 @@ function createMockContext() {
 			input: {},
 			db,
 			cron,
+			users: {
+				get: vi.fn(async (id: string) => emdashUsers.find((user) => user.id === id) ?? null),
+				getByEmail: vi.fn(
+					async (email: string) => emdashUsers.find((user) => user.email === email) ?? null,
+				),
+				list: vi.fn(async () => ({ items: emdashUsers, nextCursor: undefined })),
+			},
 			log: {
 				info: vi.fn(),
 				warn: vi.fn(),
@@ -1310,9 +1495,18 @@ function createMockContext() {
 		duplicateCandidateTableRows,
 		duplicateDecisionTableRows,
 		exportJobTableRows,
+		permissionCatalogTableRows,
+		roleCatalogTableRows,
+		abacAttributeCatalogTableRows,
 		customAttributeDefinitionTableRows,
 		customAttributeValueTableRows,
 		customAttributeChangeEventTableRows,
+		rolePermissionAssignmentTableRows,
+		userRoleAssignmentTableRows,
+		userScopeAssignmentTableRows,
+		abacSubjectAssignmentTableRows,
+		abacResourceAssignmentTableRows,
+		abacPolicyRuleTableRows,
 		deleteRequestTableRows,
 		deleteApprovalTableRows,
 		deleteSnapshotTableRows,
@@ -1854,6 +2048,7 @@ describe("awcms micro sikesra plugin", () => {
 				"public/status",
 				"registry/list",
 				"registry/save",
+				"registry/sikesra-id/correct",
 				"registry/archive/list",
 				"registry/soft-delete",
 				"registry/restore",
@@ -2873,7 +3068,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
-		const { ctx, registryEntityTableRows, codeSequenceTableRows, codeHistoryTableRows } = createMockContext();
+		const { ctx, registryEntityTableRows, codeSequenceTableRows, codeHistoryTableRows, auditTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -2904,6 +3099,31 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(codeHistoryTableRows).toHaveLength(2);
 		expect(codeHistoryTableRows[0]?.sikesra_id_20).toHaveLength(20);
+
+		const corrected = (await routes["registry/sikesra-id/correct"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				registryEntityId: "registry-seq-01",
+				sikesraId20: "62010100010304000009",
+				reason: "Corrected source subtype after document verification.",
+			},
+		} as any)) as any;
+
+		expect(corrected.success).toBe(true);
+		expect(registryEntityTableRows.find((row) => row.id === "registry-seq-01")).toMatchObject({
+			sikesra_id_20: "62010100010304000009",
+		});
+		expect(codeHistoryTableRows).toContainEqual(
+			expect.objectContaining({
+				registry_entity_id: "registry-seq-01",
+				sikesra_id_20: "62010100010304000009",
+				previous_sikesra_id_20: "62010100010102000001",
+				event_type: "correction",
+				correction_reason: "Corrected source subtype after document verification.",
+			}),
+		);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.sikesra_id.correct" }));
 	});
 
 	it("blocks import promotion while staged rows have validation errors", async () => {
@@ -3239,6 +3459,7 @@ describe("awcms micro sikesra plugin", () => {
 			}),
 		);
 
+		const sensitiveCustomValue = "Sensitive local note";
 		const savedValue = (await routes["custom-attributes/values/save"]!.handler({
 			...ctx,
 			request: adminRequest,
@@ -3246,7 +3467,7 @@ describe("awcms micro sikesra plugin", () => {
 				id: "custom-value-01",
 				definitionId: "custom-attr-01",
 				registryEntityId: "registry-entity-custom-01",
-				value: "Sensitive local note",
+				value: sensitiveCustomValue,
 			},
 		} as any)) as any;
 	expect(savedValue.success).toBe(true);
@@ -3276,6 +3497,13 @@ describe("awcms micro sikesra plugin", () => {
 		expect(customAttributeChangeEventTableRows.length).toBeGreaterThanOrEqual(2);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.definition.save" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.value.save" }));
+		const valueAudit = auditTableRows.find((row) => row.kind === "custom_attribute.value.save")!;
+		const valueChangeEvent = customAttributeChangeEventTableRows.find(
+			(row) => row.event_type === "custom_attribute.value.update",
+		)!;
+		expect(JSON.stringify(JSON.parse(String(valueAudit.metadata_json)))).not.toContain(sensitiveCustomValue);
+		expect(JSON.stringify(JSON.parse(String(valueChangeEvent.metadata_json)))).not.toContain(sensitiveCustomValue);
+		expect(JSON.parse(String(valueAudit.metadata_json))).toMatchObject({ valueRedacted: true });
 	});
 
 	it("requires super-admin permission, confirmation, snapshot, and review access for permanent delete requests", async () => {
@@ -3887,7 +4115,15 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("supports access-rights catalog create, list, matrix, and preview flows", async () => {
-		const { ctx, collections } = createMockContext();
+		const {
+			ctx,
+			collections,
+			permissionCatalogTableRows,
+			roleCatalogTableRows,
+			rolePermissionAssignmentTableRows,
+			userRoleAssignmentTableRows,
+		} =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -3897,6 +4133,20 @@ describe("awcms micro sikesra plugin", () => {
 			input: {},
 		} as any)) as any;
 		expect(permissionsBefore.items.length).toBeGreaterThan(0);
+
+		const users = (await routes["access/users/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { limit: 100 },
+		} as any)) as any;
+		expect(users.items).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: "user-demo-doc-reviewer",
+					email: "reviewer@example.test",
+				}),
+			]),
+		);
 
 		await routes["access/permissions/save"]!.handler({
 			...ctx,
@@ -3936,6 +4186,8 @@ describe("awcms micro sikesra plugin", () => {
 				roles: ["document-reviewer"],
 			},
 		} as any);
+		collections.rolePermissionAssignments.delete("document-reviewer");
+		collections.userRoleAssignments.delete("user-demo-doc-reviewer");
 
 		const preview = (await routes["access/preview"]!.handler({
 			...ctx,
@@ -3945,11 +4197,38 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(preview.allowed).toBe(true);
 		expect(preview.matchedRoles).toContain("document-reviewer");
+		expect(permissionCatalogTableRows.some((row) => row.slug === "documents.review")).toBe(true);
+		expect(roleCatalogTableRows.some((row) => row.slug === "document-reviewer")).toBe(true);
+		expect(rolePermissionAssignmentTableRows.some((row) => row.permission_slug === "documents.review")).toBe(
+			true,
+		);
+		expect(userRoleAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-doc-reviewer")).toBe(
+			true,
+		);
+
+		await routes["access/users/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				userId: "user-demo-doc-reviewer",
+				roles: ["document-reviewer"],
+				isActive: false,
+			},
+		} as any);
+
+		const inactivePreview = (await routes["access/preview"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: "user-demo-doc-reviewer", permissionSlug: "documents.review" },
+		} as any)) as any;
+
+		expect(inactivePreview.allowed).toBe(false);
+		expect(userRoleAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-doc-reviewer" && row.is_active === 0)).toBe(true);
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
 	});
 
 	it("supports EmDash user region and organization scope assignments", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, userScopeAssignmentTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -3984,6 +4263,17 @@ describe("awcms micro sikesra plugin", () => {
 		});
 		expect(list.items.some((item: any) => item.userId === "user-demo-doc-reviewer")).toBe(true);
 		expect(collections.userScopeAssignments.has("user-demo-doc-reviewer")).toBe(true);
+		expect(userScopeAssignmentTableRows).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					emdash_user_id: "user-demo-doc-reviewer",
+					region_scope_type: "regency",
+					region_scope_code: "3372",
+					organization_scope_type: "sopd",
+					organization_scope_code: "dinsos",
+				}),
+			]),
+		);
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(1);
 		expect(collections.auditEvents.size).toBeGreaterThanOrEqual(1);
 	});
@@ -4141,7 +4431,14 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("supports ABAC attribute, policy, preview, and sensitive-action audit flows", async () => {
-		const { ctx, collections } = createMockContext();
+		const {
+			ctx,
+			collections,
+			abacAttributeCatalogTableRows,
+			abacSubjectAssignmentTableRows,
+			abacResourceAssignmentTableRows,
+			abacPolicyRuleTableRows,
+		} = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -4176,6 +4473,25 @@ describe("awcms micro sikesra plugin", () => {
 				requiredContext: { region_scope: "id-jakarta" },
 			},
 		} as any);
+		await routes["abac/subjects/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				subjectId: "user-demo-editor",
+				attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+			},
+		} as any);
+		await routes["abac/resources/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				resourceId: "resource-public-post",
+				attributes: { resource_status: "published", resource_sensitivity: "public" },
+			},
+		} as any);
+		collections.abacSubjectAssignments.delete("user-demo-editor");
+		collections.abacResourceAssignments.delete("resource-public-post");
+		collections.abacPolicyRules.delete("allow-published-read-jakarta");
 
 		const allow = (await routes["abac/preview"]!.handler({
 			...ctx,
@@ -4190,6 +4506,16 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(allow.allowed).toBe(true);
 		expect(allow.effect).toBe("allow");
+		expect(abacAttributeCatalogTableRows.some((row) => row.key === "action")).toBe(true);
+		expect(abacSubjectAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-editor")).toBe(
+			true,
+		);
+		expect(abacResourceAssignmentTableRows.some((row) => row.resource_id === "resource-public-post")).toBe(
+			true,
+		);
+		expect(abacPolicyRuleTableRows.some((row) => row.id === "allow-published-read-jakarta")).toBe(
+			true,
+		);
 
 		const deny = (await routes["abac/preview"]!.handler({
 			...ctx,
