@@ -62,10 +62,12 @@ export type {
 	SikesraModuleFieldValidationSchema,
 } from "./field-standard-contracts.js";
 export type {
+	SikesraCustomAttributeDefinitionRequest,
 	SikesraCustomAttributeDefinitionDto,
 	SikesraCustomAttributeValueRequest,
 } from "./custom-attribute-contracts.js";
 export type {
+	SikesraPermanentDeleteRequest,
 	SikesraCrudMutationMeta,
 	SikesraRestoreRequest,
 	SikesraSoftDeleteRequest,

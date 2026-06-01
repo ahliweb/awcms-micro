@@ -40,6 +40,13 @@ export const SIKESRA_D1_TABLES = {
 	abacPolicies: "sikesra_abac_policy_rules",
 	auditEvents: "sikesra_audit_events",
 	exportJobs: "sikesra_export_jobs",
+	customAttributeDefinitions: "sikesra_custom_attribute_definitions",
+	customAttributeValues: "sikesra_custom_attribute_values",
+	customAttributeChangeEvents: "sikesra_custom_attribute_change_events",
+	deleteRequests: "sikesra_delete_requests",
+	deleteApprovals: "sikesra_delete_approvals",
+	deleteSnapshots: "sikesra_delete_snapshots",
+	deleteEvents: "sikesra_delete_events",
 } as const;
 
 export type SikesraD1TableName = (typeof SIKESRA_D1_TABLES)[keyof typeof SIKESRA_D1_TABLES];

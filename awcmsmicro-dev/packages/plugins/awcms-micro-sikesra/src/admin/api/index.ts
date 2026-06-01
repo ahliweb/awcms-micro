@@ -4,8 +4,16 @@ export { previewAbac } from "./abac-api.js";
 export { previewAccess, saveUserRoles } from "./access-api.js";
 export { listAuditEvents } from "./audit-api.js";
 export type { SikesraCrudApiContract } from "./crud-api.js";
+export { requestPermanentDelete } from "./crud-api.js";
 export type { SikesraCustomAttributesApiContract } from "./custom-attributes-api.js";
+export {
+	listCustomAttributeDefinitions,
+	listCustomAttributeValues,
+	saveCustomAttributeDefinition,
+	saveCustomAttributeValue,
+} from "./custom-attributes-api.js";
 export { accessDocument, listDocuments, saveDocument } from "./documents-api.js";
+export { createExportJob, listExportJobs } from "./export-api.js";
 export type { SikesraExportApiContract } from "./export-api.js";
 export { createImportBatch, promoteImportRows } from "./import-api.js";
 export { listRegistry, saveRegistry } from "./registry-api.js";

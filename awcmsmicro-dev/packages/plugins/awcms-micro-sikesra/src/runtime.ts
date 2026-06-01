@@ -412,7 +412,11 @@ export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
 	"sikesra_abac_policy_rules",
 	"sikesra_custom_attribute_definitions",
 	"sikesra_custom_attribute_values",
+	"sikesra_custom_attribute_change_events",
 	"sikesra_delete_requests",
+	"sikesra_delete_approvals",
+	"sikesra_delete_snapshots",
+	"sikesra_delete_events",
 ] as const;
 
 const AWCMS_SIKESRA_AUDIT_TABLE = "sikesra_audit_events";
@@ -431,6 +435,13 @@ const AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE = "sikesra_import_staging_rows";
 const AWCMS_SIKESRA_IMPORT_MAPPING_TEMPLATES_TABLE = "sikesra_import_mapping_templates";
 const AWCMS_SIKESRA_DUPLICATE_CANDIDATES_TABLE = "sikesra_duplicate_candidates";
 const AWCMS_SIKESRA_DUPLICATE_DECISIONS_TABLE = "sikesra_duplicate_decisions";
+const AWCMS_SIKESRA_EXPORT_JOBS_TABLE = "sikesra_export_jobs";
+const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE = "sikesra_custom_attribute_definitions";
+const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE = "sikesra_custom_attribute_values";
+const AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_CHANGE_EVENTS_TABLE = "sikesra_custom_attribute_change_events";
+const AWCMS_SIKESRA_DELETE_REQUESTS_TABLE = "sikesra_delete_requests";
+const AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE = "sikesra_delete_snapshots";
+const AWCMS_SIKESRA_DELETE_EVENTS_TABLE = "sikesra_delete_events";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE = "sikesra_verification_events";
 const AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS = [
@@ -1316,6 +1327,19 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 		"sikesra.settings.update",
 		"sikesra.rbac.manage",
 		"sikesra.abac.manage",
+		"sikesra.custom_attribute.read",
+		"sikesra.custom_attribute.create",
+		"sikesra.custom_attribute.update",
+		"sikesra.custom_attribute.delete_soft",
+		"sikesra.custom_attribute.manage_system",
+		"sikesra.custom_attribute.read_sensitive",
+		"sikesra.custom_attribute.export",
+		"sikesra.custom_attribute.import",
+		"sikesra.permanent_delete.request",
+		"sikesra.permanent_delete.approve",
+		"sikesra.permanent_delete.review",
+		"sikesra.permanent_delete.cancel",
+		"sikesra.permanent_delete.execute",
 	].map((slug) => ({
 		slug,
 		label: slug,
@@ -1383,6 +1407,7 @@ const DEFAULT_ACCESS_ROLES: AccessRole[] = [
 		"sikesra_viewer_laporan",
 		"sikesra_viewer_publikasi",
 		"sikesra_auditor",
+		"sikesra_super_admin",
 	].map((slug) => ({
 		slug,
 		label: slug
@@ -1432,14 +1457,27 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	},
 	{
 		roleSlug: "sikesra_admin",
-		permissions: DEFAULT_ACCESS_PERMISSIONS.filter((permission) => permission.slug.startsWith("sikesra.")).map(
-			(permission) => permission.slug,
-		),
+		permissions: DEFAULT_ACCESS_PERMISSIONS.filter(
+			(permission) =>
+				permission.slug.startsWith("sikesra.") &&
+				!permission.slug.startsWith("sikesra.permanent_delete."),
+		).map((permission) => permission.slug),
 		updatedAt: "",
 	},
 	{
 		roleSlug: "sikesra_auditor",
 		permissions: ["sikesra.audit.read", "sikesra.report.read"],
+		updatedAt: "",
+	},
+	{
+		roleSlug: "sikesra_super_admin",
+		permissions: [
+			"sikesra.permanent_delete.request",
+			"sikesra.permanent_delete.approve",
+			"sikesra.permanent_delete.review",
+			"sikesra.permanent_delete.cancel",
+			"sikesra.permanent_delete.execute",
+		],
 		updatedAt: "",
 	},
 ];
@@ -4199,6 +4237,566 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now } };
 };
 
+const EXPORT_SENSITIVE_FIELD_PATTERN =
+	/(nik|kia|nomor_kk|no_kk|phone|telepon|email|alamat|ktp|domisili|latitude|longitude|coordinate|storage|checksum|document|file)/i;
+
+function sanitizeExportFields(fields: string[], sensitivityLevel: string) {
+	const uniqueFields = [...new Set(fields.map((field) => field.trim()).filter(Boolean))];
+	if (sensitivityLevel === "public_safe") {
+		return {
+			allowedFields: uniqueFields.filter((field) => !EXPORT_SENSITIVE_FIELD_PATTERN.test(field)),
+			excludedFields: uniqueFields.filter((field) => EXPORT_SENSITIVE_FIELD_PATTERN.test(field)),
+		};
+	}
+	return { allowedFields: uniqueFields, excludedFields: [] as string[] };
+}
+
+async function persistD1ExportJob(
+	ctx: PluginContext,
+	params: {
+		id: string;
+		actorUserId: string | null;
+		actorName: string | null;
+		exportType: string;
+		entityType: string | null;
+		requestedFields: string[];
+		filters: Record<string, unknown>;
+		sensitivityLevel: string;
+		reason: string | null;
+		status: string;
+		resultSummary: Record<string, unknown>;
+	},
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_EXPORT_JOBS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: params.id,
+			actor_user_id: params.actorUserId,
+			actor_name: params.actorName,
+			export_type: params.exportType,
+			entity_type: params.entityType,
+			requested_fields_json: JSON.stringify(params.requestedFields),
+			filters_json: JSON.stringify(params.filters),
+			sensitivity_level: params.sensitivityLevel,
+			reason: params.reason,
+			status: params.status,
+			file_object_id: null,
+			result_summary_json: JSON.stringify(params.resultSummary),
+			error_message: null,
+			requested_at: now,
+			completed_at: params.status === "completed" ? now : null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: params.actorUserId,
+			updated_by: params.actorUserId,
+		})
+		.execute();
+	return true;
+}
+
+async function listD1ExportJobs(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_EXPORT_JOBS_TABLE)
+		.select([
+			"id",
+			"actor_user_id",
+			"export_type",
+			"requested_fields_json",
+			"sensitivity_level",
+			"reason",
+			"status",
+			"result_summary_json",
+			"requested_at",
+			"completed_at",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.orderBy("requested_at", "desc")
+		.execute()) as Array<Record<string, unknown>>;
+
+	return rows.map((row) => ({
+		id: String(row.id),
+		actorUserId: typeof row.actor_user_id === "string" ? row.actor_user_id : undefined,
+		exportType: String(row.export_type),
+		requestedFields: JSON.parse(String(row.requested_fields_json ?? "[]")),
+		sensitivityLevel: String(row.sensitivity_level),
+		reason: typeof row.reason === "string" ? row.reason : undefined,
+		status: String(row.status),
+		resultSummary: JSON.parse(String(row.result_summary_json ?? "{}")),
+		requestedAt: String(row.requested_at),
+		completedAt: typeof row.completed_at === "string" ? row.completed_at : undefined,
+	}));
+}
+
+const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const requestedFields = Array.isArray(input.requestedFields)
+		? input.requestedFields.filter((field): field is string => typeof field === "string")
+		: [];
+	const sensitivityLevel = getString(input, "sensitivityLevel") ?? "public_safe";
+	const reason = getString(input, "reason")?.trim() ?? "";
+	if (requestedFields.length === 0) return createValidationError(["requestedFields"]);
+	if (sensitivityLevel !== "public_safe" && !reason) return createValidationError(["reason"]);
+
+	const createPermission = await requireRoutePermission(ctx, "sikesra.export.create");
+	if (!createPermission.allowed) return { success: false, error: createPermission.error };
+	if (sensitivityLevel !== "public_safe") {
+		const restrictedPermission = await requireRoutePermission(ctx, "sikesra.export.restricted");
+		if (!restrictedPermission.allowed) return { success: false, error: restrictedPermission.error };
+	}
+
+	const actorUserId = getRequestUserId(ctx);
+	const req = (ctx as any).request as Request | undefined;
+	const actorName = req?.headers.get("X-Sikesra-User-Name") ?? actorUserId;
+	const id = getString(input, "id") ?? `export-${Math.random().toString(36).slice(2, 10)}`;
+	const exportType = getString(input, "exportType") ?? "report";
+	const filters = isRecord(input.filters) ? input.filters : {};
+	const sanitized = sanitizeExportFields(requestedFields, sensitivityLevel);
+	const resultSummary = {
+		allowedFields: sanitized.allowedFields,
+		excludedFields: sanitized.excludedFields,
+		maskingPolicy: sensitivityLevel === "public_safe" ? "exclude_sensitive_fields" : "restricted_permission_required",
+	};
+
+	await persistD1ExportJob(ctx, {
+		id,
+		actorUserId,
+		actorName,
+		exportType,
+		entityType: getString(input, "entityType") ?? null,
+		requestedFields,
+		filters,
+		sensitivityLevel,
+		reason: reason || null,
+		status: "completed",
+		resultSummary,
+	});
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "export.create",
+			scope: "exports",
+			actor: actorUserId ?? actorFromRoute(ctx),
+			summary: `Created SIKESRA export job ${id}`,
+			metadata: { id, exportType, sensitivityLevel, requestedFields, resultSummary },
+		}),
+	);
+
+	return { success: true, item: { id, exportType, sensitivityLevel, status: "completed", resultSummary } };
+};
+
+const exportsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.report.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	return { items: await listD1ExportJobs(ctx) };
+};
+
+const CUSTOM_ATTRIBUTE_SCOPE_TYPES = [
+	"global",
+	"entity_type",
+	"subtype",
+	"registry_entity",
+	"sikesra_id_20",
+	"region_scope",
+	"organization_scope",
+	"program_scope",
+] as const;
+const CUSTOM_ATTRIBUTE_DATA_TYPES = [
+	"string",
+	"number",
+	"boolean",
+	"date",
+	"datetime",
+	"enum",
+	"multi_enum",
+	"json",
+	"text",
+	"url",
+	"email",
+	"phone",
+	"region_code",
+	"file_reference",
+] as const;
+const CUSTOM_ATTRIBUTE_DATA_CLASSES = [
+	"non_personal",
+	"personal",
+	"sensitive_personal",
+	"restricted",
+] as const;
+const CUSTOM_ATTRIBUTE_PROTECTED_KEYS = new Set([
+	"id",
+	"tenant_id",
+	"site_id",
+	"sikesra_id_20",
+	"verification_stage",
+	"created_at",
+	"updated_at",
+]);
+
+function getBooleanFromInput(value: unknown, key: string, fallback = false) {
+	return getBoolean(value, key) ?? fallback;
+}
+
+function normalizeCustomAttributeValue(value: unknown) {
+	if (typeof value === "string") return { valueText: value, valueDisplay: value };
+	if (typeof value === "number") return { valueNumber: value, valueDisplay: String(value) };
+	if (typeof value === "boolean") return { valueBoolean: value, valueDisplay: value ? "true" : "false" };
+	return { valueJson: value, valueDisplay: value == null ? "" : JSON.stringify(value) };
+}
+
+async function appendCustomAttributeChangeEvent(
+	ctx: PluginContext,
+	params: { eventType: string; definitionId?: string; valueId?: string; summary: string; metadata: Record<string, unknown> },
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return;
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	await db
+		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_CHANGE_EVENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${now}:${params.eventType}:${Math.random().toString(36).slice(2, 8)}`,
+			event_type: params.eventType,
+			definition_id: params.definitionId ?? null,
+			value_id: params.valueId ?? null,
+			actor_user_id: actor,
+			summary: params.summary,
+			metadata_json: JSON.stringify(redactAuditMetadata(params.metadata)),
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+}
+
+async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
+		.select([
+			"id",
+			"attribute_key",
+			"label",
+			"scope_type",
+			"scope_value",
+			"entity_type",
+			"subtype_code",
+			"target_registry_entity_id",
+			"target_sikesra_id_20",
+			"data_class",
+			"data_type",
+			"public_safe",
+			"mask_by_default",
+			"is_active",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.execute()) as Array<Record<string, unknown>>;
+	return rows.map((row) => ({
+		id: String(row.id),
+		key: String(row.attribute_key),
+		label: String(row.label),
+		scope: String(row.scope_type),
+		scopeValue: typeof row.scope_value === "string" ? row.scope_value : undefined,
+		entityType: typeof row.entity_type === "string" ? row.entity_type : undefined,
+		subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
+		targetRegistryEntityId: typeof row.target_registry_entity_id === "string" ? row.target_registry_entity_id : undefined,
+		targetSikesraId20: typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
+		dataClass: String(row.data_class),
+		dataType: String(row.data_type),
+		publicSafe: row.public_safe === 1,
+		maskByDefault: row.mask_by_default !== 0,
+		isActive: row.is_active !== 0,
+	}));
+}
+
+const customAttributeDefinitionsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.custom_attribute.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	return { items: await listD1CustomAttributeDefinitions(ctx) };
+};
+
+const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const permission = await requireRoutePermission(ctx, getString(input, "id") ? "sikesra.custom_attribute.update" : "sikesra.custom_attribute.create");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const key = getString(input, "key") ?? getString(input, "attributeKey") ?? "";
+	const scope = getString(input, "scope") ?? getString(input, "scopeType") ?? "global";
+	const dataClass = getString(input, "dataClass") ?? "non_personal";
+	const dataType = getString(input, "dataType") ?? "string";
+	const invalidFields = [
+		...(key && !CUSTOM_ATTRIBUTE_PROTECTED_KEYS.has(key) ? [] : ["key"]),
+		...(CUSTOM_ATTRIBUTE_SCOPE_TYPES.includes(scope as any) ? [] : ["scope"]),
+		...(CUSTOM_ATTRIBUTE_DATA_CLASSES.includes(dataClass as any) ? [] : ["dataClass"]),
+		...(CUSTOM_ATTRIBUTE_DATA_TYPES.includes(dataType as any) ? [] : ["dataType"]),
+		...(getBooleanFromInput(input, "publicSafe") && dataClass !== "non_personal" ? ["publicSafe"] : []),
+	];
+	if (invalidFields.length > 0) return createValidationError(invalidFields);
+
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." } };
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const id = getString(input, "id") ?? `custom-attribute-${Math.random().toString(36).slice(2, 10)}`;
+	await db
+		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id,
+			attribute_key: key,
+			label: getString(input, "label") ?? key,
+			description: getString(input, "description") ?? null,
+			scope_type: scope,
+			scope_value: getString(input, "scopeValue") ?? null,
+			entity_type: getString(input, "entityType") ?? null,
+			subtype_code: getString(input, "subtypeCode") ?? null,
+			target_registry_entity_id: getString(input, "targetRegistryEntityId") ?? null,
+			target_sikesra_id_20: getString(input, "targetSikesraId20") ?? null,
+			field_group: getString(input, "fieldGroup") ?? null,
+			data_class: dataClass,
+			data_type: dataType,
+			required: getBooleanFromInput(input, "required") ? 1 : 0,
+			default_value_json: JSON.stringify(input.defaultValue ?? null),
+			enum_values_json: JSON.stringify(Array.isArray(input.enumValues) ? input.enumValues : []),
+			validation_rules_json: JSON.stringify(isRecord(input.validationRules) ? input.validationRules : {}),
+			placeholder: getString(input, "placeholder") ?? null,
+			help_text: getString(input, "helpText") ?? null,
+			sort_order: getNumber(input, "sortOrder") ?? 0,
+			is_active: getBooleanFromInput(input, "isActive", true) ? 1 : 0,
+			is_system: getBooleanFromInput(input, "isSystem") ? 1 : 0,
+			is_searchable: getBooleanFromInput(input, "isSearchable") ? 1 : 0,
+			is_filterable: getBooleanFromInput(input, "isFilterable") ? 1 : 0,
+			is_importable: getBooleanFromInput(input, "isImportable") ? 1 : 0,
+			is_exportable: getBooleanFromInput(input, "isExportable") ? 1 : 0,
+			public_safe: getBooleanFromInput(input, "publicSafe") ? 1 : 0,
+			mask_by_default: getBooleanFromInput(input, "maskByDefault", dataClass !== "non_personal") ? 1 : 0,
+			valid_from: getString(input, "validFrom") ?? null,
+			valid_until: getString(input, "validUntil") ?? null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ label: getString(input, "label") ?? key, updated_at: now, updated_by: actor }),
+		)
+		.execute();
+	await appendCustomAttributeChangeEvent(ctx, {
+		eventType: getString(input, "id") ? "custom_attribute.definition.update" : "custom_attribute.definition.create",
+		definitionId: id,
+		summary: `Saved custom attribute definition ${key}`,
+		metadata: { id, key, scope, dataClass, dataType },
+	});
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.definition.save", scope: "custom_attributes", actor, summary: `Saved custom attribute definition ${key}`, metadata: { id, key, dataClass } }));
+	return { success: true, item: { id, key, label: getString(input, "label") ?? key, scope, dataClass, dataType } };
+};
+
+const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const permission = await requireRoutePermission(ctx, "sikesra.custom_attribute.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const definitionId = getString(input, "definitionId") ?? "";
+	const registryEntityId = getString(input, "registryEntityId") ?? getString(input, "ownerId") ?? "";
+	if (!definitionId || !registryEntityId) return createValidationError([...(definitionId ? [] : ["definitionId"]), ...(registryEntityId ? [] : ["registryEntityId"])]);
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." } };
+	const definitions = await listD1CustomAttributeDefinitions(ctx);
+	const definition = definitions.find((item) => item.id === definitionId);
+	const normalized = normalizeCustomAttributeValue(input.value);
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const id = getString(input, "id") ?? `${registryEntityId}:${definitionId}`;
+	await db
+		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id,
+			attribute_definition_id: definitionId,
+			registry_entity_id: registryEntityId,
+			sikesra_id_20: getString(input, "sikesraId20") ?? null,
+			value_text: normalized.valueText ?? null,
+			value_number: normalized.valueNumber ?? null,
+			value_boolean: normalized.valueBoolean == null ? null : normalized.valueBoolean ? 1 : 0,
+			value_date: getString(input, "valueDate") ?? null,
+			value_datetime: getString(input, "valueDatetime") ?? null,
+			value_json: normalized.valueJson === undefined ? null : JSON.stringify(normalized.valueJson),
+			value_hash: null,
+			value_display: normalized.valueDisplay,
+			sensitivity: definition?.dataClass ?? "sensitive_personal",
+			is_current: 1,
+			version: 1,
+			source: getString(input, "source") ?? "manual",
+			verification_stage: getString(input, "verificationStage") ?? null,
+			verified_at: null,
+			verified_by: null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) => oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ value_display: normalized.valueDisplay, updated_at: now, updated_by: actor }))
+		.execute();
+	await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.value.update", definitionId, valueId: id, summary: `Saved custom attribute value ${id}`, metadata: { id, definitionId, registryEntityId, value: input.value } });
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.value.save", scope: "custom_attributes", actor, summary: `Saved custom attribute value ${id}`, metadata: { id, definitionId, registryEntityId, value: input.value } }));
+	return { success: true, item: { id, definitionId, registryEntityId, valueDisplay: normalized.valueDisplay } };
+};
+
+const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.custom_attribute.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const sensitivePermission = await requireRoutePermission(ctx, "sikesra.custom_attribute.read_sensitive");
+	const canReadSensitive = sensitivePermission.allowed;
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return { items: [] };
+	const definitions = await listD1CustomAttributeDefinitions(ctx);
+	const definitionById = new Map(definitions.map((definition) => [definition.id, definition]));
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
+		.select([
+			"id",
+			"attribute_definition_id",
+			"registry_entity_id",
+			"sikesra_id_20",
+			"value_display",
+			"sensitivity",
+			"is_current",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.execute()) as Array<Record<string, unknown>>;
+	return {
+		items: rows.map((row) => {
+			const definition = definitionById.get(String(row.attribute_definition_id));
+			const masked = !canReadSensitive && (definition?.maskByDefault || row.sensitivity !== "non_personal");
+			return {
+				id: String(row.id),
+				definitionId: String(row.attribute_definition_id),
+				registryEntityId: typeof row.registry_entity_id === "string" ? row.registry_entity_id : undefined,
+				sikesraId20: typeof row.sikesra_id_20 === "string" ? row.sikesra_id_20 : undefined,
+				valueDisplay: masked ? AUDIT_REDACTED_VALUE : String(row.value_display ?? ""),
+				sensitivity: String(row.sensitivity),
+				masked,
+			};
+		}),
+	};
+};
+
+const SIKESRA_OWNED_DELETE_TABLES = new Set(AWCMS_SIKESRA_D1_TABLE_NAMES);
+
+const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const targetTable = getString(input, "targetTable") ?? "";
+	const targetRecordId = getString(input, "targetRecordId") ?? "";
+	const targetType = getString(input, "targetType") ?? "registry_entity";
+	const reason = getString(input, "reason")?.trim() ?? "";
+	const confirmation = getString(input, "confirmation") ?? "";
+	const invalidFields = [
+		...(SIKESRA_OWNED_DELETE_TABLES.has(targetTable as any) ? [] : ["targetTable"]),
+		...(targetRecordId ? [] : ["targetRecordId"]),
+		...(reason ? [] : ["reason"]),
+		...(confirmation === "PERMANENT DELETE" ? [] : ["confirmation"]),
+	];
+	if (targetTable.startsWith("_emdash") || targetTable.includes("user")) invalidFields.push("targetTable");
+	if (invalidFields.length > 0) return createValidationError([...new Set(invalidFields)]);
+
+	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.execute");
+	if (!permission.allowed) return { success: false, error: permission.error };
+
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const id = getString(input, "id") ?? `delete-request-${Math.random().toString(36).slice(2, 10)}`;
+	const snapshotId = `${id}:snapshot`;
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id,
+			target_table: targetTable,
+			target_record_id: targetRecordId,
+			target_sikesra_id_20: getString(input, "targetSikesraId20") ?? null,
+			target_type: targetType,
+			operation_type: "permanent_delete",
+			reason,
+			risk_level: "high",
+			requested_by: actor,
+			requested_at: now,
+			status: "requested",
+			expires_at: null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+	const snapshot = { targetTable, targetRecordId, targetType, capturedAt: now, pendingIntegrityCheck: true };
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: snapshotId,
+			delete_request_id: id,
+			target_table: targetTable,
+			target_record_id: targetRecordId,
+			snapshot_json: JSON.stringify(snapshot),
+			related_records_json: "[]",
+			checksum: null,
+			created_by: actor,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+		})
+		.execute();
+	await db
+		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: `${id}:requested`,
+			delete_request_id: id,
+			event_kind: "crud.permanent_delete.request",
+			actor_user_id: actor,
+			summary: `Permanent delete requested for ${targetTable}/${targetRecordId}`,
+			metadata_json: JSON.stringify({ targetTable, targetRecordId, reason }),
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.request", scope: "crud", actor, summary: `Permanent delete requested for ${targetTable}/${targetRecordId}`, metadata: { id, targetTable, targetRecordId, reason } }));
+	return { success: true, item: { id, snapshotId, targetTable, targetRecordId, status: "requested" } };
+};
+
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return getSettings(ctx);
 };
@@ -5122,6 +5720,13 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"import/create": { handler: importCreateRoute },
 	"import/promote": { handler: importPromoteRoute },
 	"duplicates/decide": { handler: duplicateDecisionRoute },
+	"exports/create": { handler: exportsCreateRoute },
+	"exports/list": { handler: exportsListRoute },
+	"custom-attributes/definitions/list": { handler: customAttributeDefinitionsListRoute },
+	"custom-attributes/definitions/save": { handler: customAttributeDefinitionsSaveRoute },
+	"custom-attributes/values/list": { handler: customAttributeValuesListRoute },
+	"custom-attributes/values/save": { handler: customAttributeValuesSaveRoute },
+	"crud/permanent-delete/request": { handler: permanentDeleteRequestRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },

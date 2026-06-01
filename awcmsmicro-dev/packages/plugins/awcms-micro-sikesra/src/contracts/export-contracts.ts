@@ -7,7 +7,9 @@ export interface SikesraExportJobListRequest extends SikesraPaginationRequest {
 }
 
 export interface SikesraExportCreateRequest {
+	id?: string;
 	exportType: string;
+	entityType?: string;
 	requestedFields: string[];
 	filters?: Record<string, unknown>;
 	sensitivityLevel: string;
@@ -19,6 +21,8 @@ export interface SikesraExportJobDto {
 	exportType: string;
 	status: string;
 	sensitivityLevel: string;
+	requestedFields?: string[];
+	resultSummary?: Record<string, unknown>;
 	requestedAt: string;
 	completedAt?: string;
 }

@@ -137,6 +137,13 @@ function createMockContext() {
 	const importMappingTemplateTableRows: Array<Record<string, unknown>> = [];
 	const duplicateCandidateTableRows: Array<Record<string, unknown>> = [];
 	const duplicateDecisionTableRows: Array<Record<string, unknown>> = [];
+	const exportJobTableRows: Array<Record<string, unknown>> = [];
+	const customAttributeDefinitionTableRows: Array<Record<string, unknown>> = [];
+	const customAttributeValueTableRows: Array<Record<string, unknown>> = [];
+	const customAttributeChangeEventTableRows: Array<Record<string, unknown>> = [];
+	const deleteRequestTableRows: Array<Record<string, unknown>> = [];
+	const deleteSnapshotTableRows: Array<Record<string, unknown>> = [];
+	const deleteEventTableRows: Array<Record<string, unknown>> = [];
 	const verificationStageTableRows: Array<Record<string, unknown>> = [];
 	const verificationEventTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
@@ -385,6 +392,36 @@ function createMockContext() {
 					}
 					if (_table === "sikesra_import_staging_rows") {
 						return importStagingRowTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_export_jobs") {
+						return exportJobTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_custom_attribute_definitions") {
+						return customAttributeDefinitionTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_custom_attribute_values") {
+						return customAttributeValueTableRows
 							.filter((row) => {
 								for (const [key, value] of Object.entries(filters)) {
 									if ((row as Record<string, unknown>)[key] !== value) return false;
@@ -713,6 +750,43 @@ function createMockContext() {
 							created_by: nextRow.created_by ?? null,
 							updated_by: nextRow.updated_by ?? null,
 						};
+					} else if (_table === "sikesra_export_jobs") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							actor_user_id: nextRow.actor_user_id ?? null,
+							actor_name: nextRow.actor_name ?? null,
+							export_type: textValue(nextRow.export_type),
+							entity_type: nextRow.entity_type ?? null,
+							requested_fields_json: textValue(nextRow.requested_fields_json),
+							filters_json: textValue(nextRow.filters_json),
+							sensitivity_level: textValue(nextRow.sensitivity_level),
+							reason: nextRow.reason ?? null,
+							status: textValue(nextRow.status),
+							file_object_id: nextRow.file_object_id ?? null,
+							result_summary_json: textValue(nextRow.result_summary_json),
+							error_message: nextRow.error_message ?? null,
+							requested_at: textValue(nextRow.requested_at),
+							completed_at: nextRow.completed_at ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_custom_attribute_definitions") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_custom_attribute_values") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_custom_attribute_change_events") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_delete_requests") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_delete_snapshots") {
+						row = { ...nextRow };
+					} else if (_table === "sikesra_delete_events") {
+						row = { ...nextRow };
 					} else if (_table === "sikesra_verification_stage_state") {
 						row = {
 							tenant_id: textValue(nextRow.tenant_id),
@@ -839,6 +913,34 @@ function createMockContext() {
 										upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_export_jobs") {
+										upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_custom_attribute_definitions") {
+										upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_custom_attribute_values") {
+										upsertD1CatalogRow(customAttributeValueTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_custom_attribute_change_events") {
+										upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_delete_requests") {
+										upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_delete_snapshots") {
+										upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_delete_events") {
+										upsertD1CatalogRow(deleteEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_verification_stage_state") {
 										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 										return;
@@ -940,6 +1042,34 @@ function createMockContext() {
 								}
 								if (_table === "sikesra_duplicate_decisions") {
 									upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_export_jobs") {
+									upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_custom_attribute_definitions") {
+									upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_custom_attribute_values") {
+									upsertD1CatalogRow(customAttributeValueTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_custom_attribute_change_events") {
+									upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_delete_requests") {
+									upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_delete_snapshots") {
+									upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_delete_events") {
+									upsertD1CatalogRow(deleteEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
 								}
 								if (_table === "sikesra_verification_stage_state") {
@@ -1100,6 +1230,13 @@ function createMockContext() {
 		importMappingTemplateTableRows,
 		duplicateCandidateTableRows,
 		duplicateDecisionTableRows,
+		exportJobTableRows,
+		customAttributeDefinitionTableRows,
+		customAttributeValueTableRows,
+		customAttributeChangeEventTableRows,
+		deleteRequestTableRows,
+		deleteSnapshotTableRows,
+		deleteEventTableRows,
 		verificationStageTableRows,
 		verificationEventTableRows,
 		seedDbRow,
@@ -1569,6 +1706,13 @@ describe("awcms micro sikesra plugin", () => {
 				"import/create",
 				"import/promote",
 				"duplicates/decide",
+				"exports/create",
+				"exports/list",
+				"custom-attributes/definitions/list",
+				"custom-attributes/definitions/save",
+				"custom-attributes/values/list",
+				"custom-attributes/values/save",
+				"crud/permanent-delete/request",
 				"dashboard/summary",
 				"overview/summary",
 				"verification/list",
@@ -2325,6 +2469,271 @@ describe("awcms micro sikesra plugin", () => {
 			}),
 		);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.decision" }));
+	});
+
+	it("requires permission and reason for restricted export jobs", async () => {
+		const { ctx, exportJobTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const editorRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
+		});
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+
+		const missingReason = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				exportType: "registry",
+				requestedFields: ["code", "nik"],
+				sensitivityLevel: "restricted",
+			},
+		} as any)) as any;
+		expect(missingReason.success).toBe(false);
+		expect(missingReason.error.details.fields).toEqual(["reason"]);
+
+		const denied = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: editorRequest,
+			input: {
+				exportType: "registry",
+				requestedFields: ["code", "nik"],
+				sensitivityLevel: "restricted",
+				reason: "Case review",
+			},
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+		expect(denied.error.code).toBe("FORBIDDEN");
+		expect(exportJobTableRows).toHaveLength(0);
+	});
+
+	it("creates audited D1 export jobs with public-safe field exclusion", async () => {
+		const { ctx, exportJobTableRows, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin", "X-Sikesra-User-Name": "Admin" },
+		});
+
+		const created = (await routes["exports/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "export-job-01",
+				exportType: "registry",
+				entityType: "rumah_ibadah",
+				requestedFields: ["code", "label", "nik", "alamat_ktp"],
+				sensitivityLevel: "public_safe",
+			},
+		} as any)) as any;
+
+		expect(created.success).toBe(true);
+		expect(created.item.resultSummary).toMatchObject({
+			allowedFields: ["code", "label"],
+			excludedFields: ["nik", "alamat_ktp"],
+		});
+		expect(exportJobTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "export-job-01",
+				actor_user_id: "user-demo-sikesra-admin",
+				sensitivity_level: "public_safe",
+				status: "completed",
+			}),
+		);
+		expect(JSON.parse(String(exportJobTableRows[0]?.requested_fields_json))).toEqual([
+			"code",
+			"label",
+			"nik",
+			"alamat_ktp",
+		]);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.create" }));
+
+		const listed = (await routes["exports/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(listed.items).toContainEqual(expect.objectContaining({ id: "export-job-01" }));
+	});
+
+	it("creates scoped custom attributes and masks sensitive values by default", async () => {
+		const {
+			ctx,
+			collections,
+			customAttributeDefinitionTableRows,
+			customAttributeValueTableRows,
+			customAttributeChangeEventTableRows,
+			auditTableRows,
+		} = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+		const editorRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
+		});
+
+		const invalid = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				key: "sikesra_id_20",
+				label: "Protected",
+				scope: "entity_type",
+				dataClass: "personal",
+				dataType: "string",
+				publicSafe: true,
+			},
+		} as any)) as any;
+		expect(invalid.success).toBe(false);
+		expect(invalid.error.details.fields).toEqual(["key", "publicSafe"]);
+
+		const savedDefinition = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-01",
+				key: "local_program_note",
+				label: "Local Program Note",
+				scope: "entity_type",
+				entityType: "rumah_ibadah",
+				dataClass: "sensitive_personal",
+				dataType: "text",
+				maskByDefault: true,
+				isExportable: false,
+			},
+		} as any)) as any;
+		expect(savedDefinition.success).toBe(true);
+		expect(customAttributeDefinitionTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "custom-attr-01",
+				attribute_key: "local_program_note",
+				scope_type: "entity_type",
+				entity_type: "rumah_ibadah",
+				data_class: "sensitive_personal",
+			}),
+		);
+
+		const savedValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-01",
+				definitionId: "custom-attr-01",
+				registryEntityId: "registry-entity-custom-01",
+				value: "Sensitive local note",
+			},
+		} as any)) as any;
+	expect(savedValue.success).toBe(true);
+		collections.rolePermissionAssignments.set("site-editor", {
+			roleSlug: "site-editor",
+			permissions: ["sikesra.custom_attribute.read"],
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		expect(customAttributeValueTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "custom-value-01",
+				attribute_definition_id: "custom-attr-01",
+				registry_entity_id: "registry-entity-custom-01",
+				value_display: "Sensitive local note",
+				sensitivity: "sensitive_personal",
+			}),
+		);
+
+		const masked = (await routes["custom-attributes/values/list"]!.handler({
+			...ctx,
+			request: editorRequest,
+			input: {},
+		} as any)) as any;
+		expect(masked.items).toContainEqual(
+			expect.objectContaining({ id: "custom-value-01", valueDisplay: "[REDACTED]", masked: true }),
+		);
+		expect(customAttributeChangeEventTableRows.length).toBeGreaterThanOrEqual(2);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.definition.save" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.value.save" }));
+	});
+
+	it("requires super-admin permission, confirmation, and snapshot for permanent delete requests", async () => {
+		const {
+			ctx,
+			collections,
+			deleteRequestTableRows,
+			deleteSnapshotTableRows,
+			deleteEventTableRows,
+			auditTableRows,
+		} = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+		const superAdminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-super-admin" },
+		});
+
+		const missingConfirmation = (await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-custom-01",
+				targetType: "registry_entity",
+				reason: "Wrong test data",
+				confirmation: "DELETE",
+			},
+		} as any)) as any;
+		expect(missingConfirmation.success).toBe(false);
+		expect(missingConfirmation.error.details.fields).toEqual(["confirmation"]);
+
+		const denied = (await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-custom-01",
+				targetType: "registry_entity",
+				reason: "Wrong test data",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+		expect(denied.error.code).toBe("FORBIDDEN");
+
+		collections.userRoleAssignments.set("user-demo-super-admin", {
+			userId: "user-demo-super-admin",
+			roles: ["sikesra_super_admin"],
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		const allowed = (await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-01",
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-custom-01",
+				targetType: "registry_entity",
+				reason: "Wrong test data",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+
+		expect(allowed.success).toBe(true);
+		expect(deleteRequestTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "delete-request-01",
+				target_table: "sikesra_registry_entities",
+				operation_type: "permanent_delete",
+				requested_by: "user-demo-super-admin",
+			}),
+		);
+		expect(deleteSnapshotTableRows).toContainEqual(
+			expect.objectContaining({ id: "delete-request-01:snapshot", delete_request_id: "delete-request-01" }),
+		);
+		expect(deleteEventTableRows).toContainEqual(
+			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.request" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "crud.permanent_delete.request" }),
+		);
 	});
 
 	it("migrates legacy registry blobs into D1 and document blobs into plugin storage on read", async () => {

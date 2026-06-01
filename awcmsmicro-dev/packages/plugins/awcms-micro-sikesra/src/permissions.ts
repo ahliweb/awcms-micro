@@ -38,6 +38,19 @@ export const AWCMS_SIKESRA_PERMISSIONS = {
 	sikesraSettingsUpdate: "sikesra.settings.update",
 	sikesraRbacManage: "sikesra.rbac.manage",
 	sikesraAbacManage: "sikesra.abac.manage",
+	sikesraCustomAttributeRead: "sikesra.custom_attribute.read",
+	sikesraCustomAttributeCreate: "sikesra.custom_attribute.create",
+	sikesraCustomAttributeUpdate: "sikesra.custom_attribute.update",
+	sikesraCustomAttributeDeleteSoft: "sikesra.custom_attribute.delete_soft",
+	sikesraCustomAttributeManageSystem: "sikesra.custom_attribute.manage_system",
+	sikesraCustomAttributeReadSensitive: "sikesra.custom_attribute.read_sensitive",
+	sikesraCustomAttributeExport: "sikesra.custom_attribute.export",
+	sikesraCustomAttributeImport: "sikesra.custom_attribute.import",
+	sikesraPermanentDeleteRequest: "sikesra.permanent_delete.request",
+	sikesraPermanentDeleteApprove: "sikesra.permanent_delete.approve",
+	sikesraPermanentDeleteReview: "sikesra.permanent_delete.review",
+	sikesraPermanentDeleteCancel: "sikesra.permanent_delete.cancel",
+	sikesraPermanentDeleteExecute: "sikesra.permanent_delete.execute",
 } as const;
 
 export const AWCMS_SIKESRA_PERMISSION_LIST = Object.values(AWCMS_SIKESRA_PERMISSIONS);
