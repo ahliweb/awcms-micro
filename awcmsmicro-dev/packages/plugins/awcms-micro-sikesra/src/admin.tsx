@@ -7,10 +7,17 @@ import * as React from "react";
 import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import {
+	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
 	SIKESRA_PAGE_PATTERN_CONTRACTS,
 	toSikesraAdminHref,
 	type SikesraPagePatternContract,
 } from "./admin/ui-standards.js";
+import type {
+	SikesraCustomAttributeDefinitionDto,
+	SikesraCustomAttributeDefinitionRequest,
+	SikesraCustomAttributeValueRequest,
+} from "./contracts/index.js";
+import { SIKESRA_FIELD_STANDARDS, SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS } from "./field-standards.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
@@ -50,6 +57,15 @@ type GovernanceMode = "observe" | "review" | "enforce-demo";
 type AbacTargetType = "subject" | "resource" | "context";
 type AbacEffect = "allow" | "deny";
 
+interface SikesraSettingsState {
+	publicStatusLabel: string;
+	auditRetentionDays: number;
+	governanceMode: string;
+	metadataCanonicalBase: string;
+	smallCellThreshold: number;
+	sikesraPublicEnabled: boolean;
+}
+
 interface DashboardModuleCard {
 	id: string;
 	title: string;
@@ -68,14 +84,7 @@ interface PluginHeaderMenuItem {
 }
 
 interface SummaryResponse {
-	settings: {
-		publicStatusLabel: string;
-		auditRetentionDays: number;
-		governanceMode: string;
-		metadataCanonicalBase: string;
-		smallCellThreshold: number;
-		sikesraPublicEnabled: boolean;
-	};
+	settings: SikesraSettingsState;
 	counters: {
 		auditCount: number;
 		lifecycleCount: number;
@@ -273,6 +282,54 @@ interface AbacHealthResponse {
 	subjectCount: number;
 	resourceCount: number;
 	explicitDenyCount: number;
+}
+
+interface CustomAttributeDefinitionItem extends SikesraCustomAttributeDefinitionDto {
+	isActive?: boolean;
+}
+
+interface CustomAttributeValueItem {
+	id: string;
+	definitionId: string;
+	registryEntityId?: string;
+	sikesraId20?: string;
+	valueDisplay: string;
+	sensitivity: string;
+	masked: boolean;
+}
+
+interface CustomAttributeDefinitionsResponse {
+	items: CustomAttributeDefinitionItem[];
+}
+
+interface CustomAttributeValuesResponse {
+	items: CustomAttributeValueItem[];
+}
+
+interface ArchivedRegistryEntity extends SikesraReferenceRegistryEntity {
+	deletedAt?: string;
+}
+
+interface RegistryArchiveResponse {
+	items: ArchivedRegistryEntity[];
+}
+
+interface PermanentDeleteRequestItem {
+	id: string;
+	targetTable: string;
+	targetRecordId: string;
+	targetSikesraId20?: string;
+	targetType: string;
+	operationType: string;
+	reason: string;
+	riskLevel: string;
+	requestedBy: string;
+	requestedAt: string;
+	status: string;
+}
+
+interface PermanentDeleteRequestsResponse {
+	items: PermanentDeleteRequestItem[];
 }
 
 interface FieldWidgetProps {
@@ -853,43 +910,1339 @@ function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 }
 
 function RegistryCreatePage() {
-	return <ContractAlignedPage path="/registry/new" />;
+	const contract = getSikesraPageContract("/registry/new");
+	const [saving, setSaving] = React.useState(false);
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [formState, setFormState] = React.useState({
+		label: "",
+		code: "",
+		entityType: "rumah_ibadah",
+		subtypeCode: "",
+		provinceCode: "",
+		regencyCode: "",
+		districtCode: "",
+		villageCode: "",
+		sensitivity: "public_safe" as SikesraSensitivity,
+		publicSummary: "",
+	});
+
+	const saveRegistry = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			const result = await postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>("registry/save", formState);
+			setNotice(`Registry record saved${result.item?.sikesraId20 ? ` with SIKESRA ID ${result.item.sikesraId20}` : ""}.`);
+			setFormState((current) => ({
+				...current,
+				label: "",
+				code: "",
+				publicSummary: "",
+			}));
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save registry record.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA registry wizard" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+				<Card title="Create registry draft" description="Save a draft-style record that enters the SIKESRA verification workflow.">
+					<form className="space-y-4" onSubmit={(event) => void saveRegistry(event)}>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Name / label">
+								<Input
+									value={formState.label}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, label: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+							<Field label="Local code">
+								<Input
+									value={formState.code}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, code: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+						</div>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Module">
+								<Select
+									value={formState.entityType}
+									onValueChange={(value) => setFormState((current) => ({ ...current, entityType: value ?? "rumah_ibadah" }))}
+								>
+									{DEFAULT_DATA_TYPES.map((type) => (
+										<Select.Option key={type.id} value={type.id}>{type.label}</Select.Option>
+									))}
+								</Select>
+							</Field>
+							<Field label="Subtype code">
+								<Input
+									value={formState.subtypeCode}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, subtypeCode: event.target.value }))
+									}
+								/>
+							</Field>
+						</div>
+						<div className="grid gap-4 md:grid-cols-4">
+							{(
+								[
+								["provinceCode", "Province"],
+								["regencyCode", "Regency"],
+								["districtCode", "District"],
+								["villageCode", "Village"],
+							] as Array<["provinceCode" | "regencyCode" | "districtCode" | "villageCode", string]>
+							).map(([key, label]) => (
+								<Field key={key} label={label}>
+									<Input
+										value={formState[key as keyof typeof formState] as string}
+										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+											setFormState((current) => ({ ...current, [key]: event.target.value }))
+										}
+									/>
+								</Field>
+							))}
+						</div>
+						<Field label="Sensitivity">
+							<Select
+								value={formState.sensitivity}
+								onValueChange={(value) =>
+									setFormState((current) => ({ ...current, sensitivity: (value as SikesraSensitivity | null) ?? "public_safe" }))
+								}
+							>
+								<Select.Option value="public_safe">Public safe</Select.Option>
+								<Select.Option value="internal">Internal</Select.Option>
+								<Select.Option value="restricted">Restricted</Select.Option>
+								<Select.Option value="highly_restricted">Highly restricted</Select.Option>
+							</Select>
+						</Field>
+						<Field label="Public summary" hint="Public-safe summary only; do not include personal or document metadata.">
+							<InputArea
+								value={formState.publicSummary}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, publicSummary: event.target.value }))
+								}
+							/>
+						</Field>
+						<Button variant="primary" type="submit" disabled={saving}>
+							{saving ? "Saving..." : "Save registry record"}
+						</Button>
+					</form>
+				</Card>
+				<Card title="Wizard safeguards" description="The full registry workflow requires these steps before verification.">
+					<div className="space-y-3">
+						{contract.anatomy.map((item) => (
+							<div key={item} className="rounded-xl border border-kumo-line bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default">{item}</div>
+						))}
+					</div>
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function RegistryDetailPage() {
-	return <ContractAlignedPage path="/registry/:id" />;
+	const contract = getSikesraPageContract("/registry/:id");
+	const { data, error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
+	const [selectedId, setSelectedId] = React.useState("");
+	const selected = data?.items.find((item) => item.id === selectedId) ?? data?.items[0];
+
+	React.useEffect(() => {
+		if (!selectedId && data?.items[0]?.id) setSelectedId(data.items[0].id);
+	}, [data?.items, selectedId]);
+
+	if (loading) return <LoadingState label="Loading registry detail..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA registry detail" title={contract.title} description={contract.purpose} />
+			{!data?.items.length || !selected ? (
+				<EmptyState title={contract.emptyState} description="Create a registry record before reviewing detail state." />
+			) : (
+				<div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+					<Card title="Select record" description="Review one registry entity without leaving table context.">
+						<div className="space-y-2">
+							{data.items.map((item) => (
+								<button
+									key={item.id}
+									type="button"
+									onClick={() => setSelectedId(item.id)}
+									className={cx(
+										"w-full rounded-xl border px-3 py-2 text-start text-sm transition",
+										selected.id === item.id ? "border-kumo-brand bg-kumo-tint text-kumo-default" : "border-kumo-line bg-kumo-base text-kumo-subtle",
+									)}
+								>
+									<div className="font-semibold">{item.label}</div>
+									<div className="mt-1 font-mono text-xs">{item.code || item.id}</div>
+								</button>
+							))}
+						</div>
+					</Card>
+					<div className="space-y-6">
+						<Card title={selected.label} description="Masked detail, verification state, document links, and audit context.">
+							<div className="grid gap-4 md:grid-cols-3">
+								<MetricCard label="Module" value={selected.entityType} />
+								<MetricCard label="Verification" value={selected.verificationStage} />
+								<MetricCard label="Documents" value={selected.supportingDocumentIds.length} />
+							</div>
+							<div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
+								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
+									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">SIKESRA ID</div>
+									<div className="mt-1 font-mono text-kumo-default">{selected.sikesraId20 ?? "Pending generation"}</div>
+								</div>
+								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
+									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Sensitivity</div>
+									<div className="mt-1"><Pill tone={selected.sensitivity === "public_safe" ? "success" : "warning"}>{selected.sensitivity}</Pill></div>
+								</div>
+							</div>
+							<div className="mt-5 rounded-xl border border-kumo-line bg-kumo-base p-4">
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Public-safe summary</div>
+								<p className="mt-2 text-sm leading-6 text-kumo-default">{selected.publicSummary || "No public-safe summary supplied."}</p>
+							</div>
+						</Card>
+						<Card title="Region and audit context" description="Detail view keeps regional scope visible for RBAC/ABAC review.">
+							<div className="grid gap-3 text-sm md:grid-cols-4">
+								<span>Province: {selected.region.provinceCode || "-"}</span>
+								<span>Regency: {selected.region.regencyCode || "-"}</span>
+								<span>District: {selected.region.districtCode || "-"}</span>
+								<span>Village: {selected.region.villageCode || "-"}</span>
+							</div>
+						</Card>
+					</div>
+				</div>
+			)}
+		</PageShell>
+	);
 }
 
 function AccessUsersPage() {
-	return <ContractAlignedPage path="/access/users" />;
+	const contract = getSikesraPageContract("/access/users");
+	const { data, error, loading, reload } = usePluginData<AccessRolesResponse>("access/roles/list");
+	const [userState, setUserState] = React.useState({ userId: "", roles: "" });
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [saving, setSaving] = React.useState(false);
+
+	const saveUserAssignment = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("access/users/save", {
+				userId: userState.userId,
+				roles: fromCsv(userState.roles),
+			});
+			setUserState({ userId: "", roles: "" });
+			setNotice("EmDash user role assignment saved with SIKESRA audit tracking.");
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save user assignment.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading SIKESRA user assignments..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA access" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+				<Card title="Assign roles to EmDash user" description="Use trusted EmDash user IDs as references; do not duplicate user accounts.">
+					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
+						<Field label="EmDash user ID">
+							<Input
+								value={userState.userId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setUserState((current) => ({ ...current, userId: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Role slugs" hint="Comma-separated SIKESRA role slugs.">
+							<Input
+								value={userState.roles}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setUserState((current) => ({ ...current, roles: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Button variant="primary" type="submit" disabled={saving}>
+							{saving ? "Saving..." : "Save assignment"}
+						</Button>
+					</form>
+				</Card>
+				<Card title="Current user assignments" description="Role assignments are SIKESRA-owned references to EmDash users.">
+					{!data?.userAssignments.length ? (
+						<EmptyState title={contract.emptyState} description="Assign a SIKESRA role to an EmDash user reference." />
+					) : (
+						<div className="grid gap-3 md:grid-cols-2">
+							{data.userAssignments.map((item) => (
+								<div key={item.userId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="font-semibold text-kumo-default">{item.userId}</div>
+									<div className="mt-2 flex flex-wrap gap-2">
+										{item.roles.map((role) => <Pill key={role}>{role}</Pill>)}
+									</div>
+									<div className="mt-3 text-xs text-kumo-subtle">Updated {formatDateTime(item.updatedAt, "en")}</div>
+								</div>
+							))}
+						</div>
+					)}
+				</Card>
+			</div>
+			<Card title="Available roles" description="Use these slugs in the user assignment form.">
+				<div className="flex flex-wrap gap-2">
+					{data?.roles.map((role) => (
+						<Badge key={role.slug} variant="outline">{role.slug}</Badge>
+					))}
+				</div>
+			</Card>
+		</PageShell>
+	);
 }
 
 function AccessScopesPage() {
-	return <ContractAlignedPage path="/access/scopes" />;
+	const contract = getSikesraPageContract("/access/scopes");
+	const { data, error, loading, reload } = usePluginData<AbacAssignmentsResponse>("abac/subjects/list");
+	const [scopeState, setScopeState] = React.useState({
+		subjectId: "",
+		regionScope: "all",
+		organizationScope: "all",
+		programScope: "all",
+	});
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [saving, setSaving] = React.useState(false);
+
+	const saveScope = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("abac/subjects/save", {
+				subjectId: scopeState.subjectId,
+				attributes: {
+					region_scope: scopeState.regionScope,
+					organization_scope: scopeState.organizationScope,
+					program_scope: scopeState.programScope,
+				},
+			});
+			setNotice("User scope attributes saved for ABAC evaluation.");
+			setScopeState({ subjectId: "", regionScope: "all", organizationScope: "all", programScope: "all" });
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save scope attributes.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading SIKESRA access scopes..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA access" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
+				<Card title="Assign ABAC scopes" description="Scopes are stored as SIKESRA subject attributes for EmDash user references.">
+					<form className="space-y-4" onSubmit={(event) => void saveScope(event)}>
+						<Field label="EmDash user ID">
+							<Input
+								value={scopeState.subjectId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setScopeState((current) => ({ ...current, subjectId: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Region scope">
+							<Input
+								value={scopeState.regionScope}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setScopeState((current) => ({ ...current, regionScope: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Organization scope">
+							<Input
+								value={scopeState.organizationScope}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setScopeState((current) => ({ ...current, organizationScope: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Program scope">
+							<Input
+								value={scopeState.programScope}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setScopeState((current) => ({ ...current, programScope: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Button variant="primary" type="submit" disabled={saving}>
+							{saving ? "Saving..." : "Save scopes"}
+						</Button>
+					</form>
+				</Card>
+				<Card title="Current scope attributes" description="These attributes feed access preview and ABAC decisions.">
+					{!data?.items.length ? (
+						<EmptyState title={contract.emptyState} description="Assign region, organization, or program scopes to a user reference." />
+					) : (
+						<div className="grid gap-3 md:grid-cols-2">
+							{data.items.map((item) => (
+								<div key={item.subjectId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="font-semibold text-kumo-default">{item.subjectId}</div>
+									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle">
+										<span>Region: {item.attributes.region_scope ?? "-"}</span>
+										<span>Organization: {item.attributes.organization_scope ?? "-"}</span>
+										<span>Program: {item.attributes.program_scope ?? "-"}</span>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function FieldStandardsPage() {
-	return <ContractAlignedPage path="/field-standards" />;
+	const contract = getSikesraPageContract("/field-standards");
+	const [moduleFilter, setModuleFilter] = React.useState("all");
+	const [classFilter, setClassFilter] = React.useState("all");
+	const filteredStandards = SIKESRA_FIELD_STANDARDS.filter((standard) => {
+		const matchesModule = moduleFilter === "all" || standard.module === moduleFilter;
+		const matchesClass = classFilter === "all" || standard.dataClass === classFilter;
+		return matchesModule && matchesClass;
+	});
+	const activeSchema =
+		moduleFilter === "all"
+			? null
+			: SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS.find((schema) => schema.module === moduleFilter);
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA field contract" title={contract.title} description={contract.purpose} />
+			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+				<Card title="Field catalog" description="Canonical fields by module, data class, storage table, and public/export policy.">
+					<div className="mb-4 grid gap-4 md:grid-cols-2">
+						<Field label="Module">
+							<Select value={moduleFilter} onValueChange={(value) => setModuleFilter(value ?? "all")}>
+								<Select.Option value="all">All modules</Select.Option>
+								{DEFAULT_DATA_TYPES.map((type) => (
+									<Select.Option key={type.id} value={type.id}>
+										{type.label}
+									</Select.Option>
+								))}
+							</Select>
+						</Field>
+						<Field label="Data class">
+							<Select value={classFilter} onValueChange={(value) => setClassFilter(value ?? "all")}>
+								<Select.Option value="all">All data classes</Select.Option>
+								<Select.Option value="non_personal">Non-personal</Select.Option>
+								<Select.Option value="personal">Personal</Select.Option>
+								<Select.Option value="sensitive_personal">Sensitive personal</Select.Option>
+								<Select.Option value="restricted">Restricted</Select.Option>
+							</Select>
+						</Field>
+					</div>
+					<div className="overflow-hidden rounded-xl border border-kumo-line">
+						<div className="grid grid-cols-[minmax(220px,1.3fr)_140px_150px_160px_180px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+							<span>Field</span>
+							<span>Module</span>
+							<span>Data class</span>
+							<span>Storage</span>
+							<span>Policy</span>
+						</div>
+						<div className="max-h-[680px] divide-y divide-kumo-line overflow-auto">
+							{filteredStandards.map((standard) => (
+								<div
+									key={`${standard.module}:${standard.key}`}
+									className="grid grid-cols-[minmax(220px,1.3fr)_140px_150px_160px_180px] gap-3 px-4 py-3 text-sm text-kumo-default"
+								>
+									<div>
+										<div className="font-semibold">{standard.label}</div>
+										<div className="mt-1 font-mono text-xs text-kumo-subtle">{standard.key}</div>
+									</div>
+									<span className="text-kumo-subtle">{standard.module}</span>
+									<div>
+										<Pill tone={standard.dataClass === "non_personal" ? "success" : "warning"}>
+											{standard.dataClass}
+										</Pill>
+									</div>
+									<span className="font-mono text-xs text-kumo-subtle">{standard.storageTable}</span>
+									<div className="flex flex-wrap gap-1.5">
+										{standard.required ? <Badge variant="secondary">Required</Badge> : null}
+										{standard.importable ? <Badge variant="outline">Import</Badge> : null}
+										{standard.exportable ? <Badge variant="outline">Export</Badge> : null}
+										{standard.publicSafe ? <Badge variant="secondary">Public safe</Badge> : null}
+										{standard.maskByDefault ? <Badge variant="outline">Masked</Badge> : null}
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</Card>
+
+				<Card title="Validation summary" description="Module-level import/export and privacy constraints.">
+					{activeSchema ? (
+						<div className="space-y-4 text-sm text-kumo-default">
+							<div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Required</div>
+								<div className="mt-2 flex flex-wrap gap-1.5">
+									{activeSchema.requiredFields.map((field) => (
+										<Badge key={field} variant="outline">{field}</Badge>
+									))}
+								</div>
+							</div>
+							<div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Address groups</div>
+								<div className="mt-2 grid gap-2 text-xs text-kumo-subtle">
+									<span>KTP fields: {activeSchema.ktpAddressFields.length}</span>
+									<span>Domicile fields: {activeSchema.domicileAddressFields.length}</span>
+								</div>
+							</div>
+							<div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Restricted export</div>
+								<div className="mt-2 flex flex-wrap gap-1.5">
+									{activeSchema.restrictedExportFields.map((field) => (
+										<Badge key={field} variant="secondary">{field}</Badge>
+									))}
+								</div>
+							</div>
+						</div>
+					) : (
+						<EmptyState
+							title="Select a module"
+							description="Choose one SIKESRA module to review required fields, KTP and domicile address groups, and restricted export rules."
+						/>
+					)}
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function CustomAttributeDefinitionsPage() {
-	return <ContractAlignedPage path="/custom-attributes/definitions" />;
+	const contract = getSikesraPageContract("/custom-attributes/definitions");
+	const { data, error, loading, reload } =
+		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [saving, setSaving] = React.useState(false);
+	const [formState, setFormState] = React.useState<SikesraCustomAttributeDefinitionRequest>({
+		key: "",
+		label: "",
+		scope: "entity_type",
+		entityType: "rumah_ibadah",
+		dataClass: "non_personal",
+		dataType: "string",
+		publicSafe: false,
+		maskByDefault: false,
+		isImportable: true,
+		isExportable: false,
+	});
+
+	const saveDefinition = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+
+		try {
+			await postPlugin("custom-attributes/definitions/save", formState);
+			setFormState((current) => ({
+				...current,
+				key: "",
+				label: "",
+				description: "",
+			}));
+			setNotice("Custom attribute definition saved with audit tracking.");
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save custom attribute definition.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading custom attribute definitions..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA UI/UX standard" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+
+			<div className="grid gap-6 xl:grid-cols-[minmax(360px,0.85fr)_minmax(0,1.15fr)]">
+				<Card
+					title="Controlled attribute builder"
+					description="Create scoped fields with validation, privacy, import, and export rules."
+				>
+					<div className="mb-4 grid gap-2 sm:grid-cols-5">
+						{SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.map((step, index) => (
+							<div key={step.id} className="rounded-xl border border-kumo-line bg-kumo-tint/30 p-3">
+								<div className="text-[10px] font-semibold uppercase tracking-wider text-kumo-subtle">
+									Step {index + 1}
+								</div>
+								<div className="mt-1 text-xs font-semibold text-kumo-default">{step.label}</div>
+							</div>
+						))}
+					</div>
+
+					<form className="space-y-4" onSubmit={(event) => void saveDefinition(event)}>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Attribute key" hint="Use lowercase snake_case. Protected SIKESRA keys are blocked.">
+								<Input
+									value={formState.key ?? ""}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, key: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+							<Field label="Label">
+								<Input
+									value={formState.label ?? ""}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, label: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+						</div>
+						<Field label="Description">
+							<InputArea
+								value={formState.description ?? ""}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, description: event.target.value }))
+								}
+							/>
+						</Field>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Scope">
+								<Select
+									value={formState.scope ?? "entity_type"}
+									onValueChange={(value) =>
+										setFormState((current) => ({ ...current, scope: value ?? "entity_type" }))
+									}
+								>
+									<Select.Option value="global">Global</Select.Option>
+									<Select.Option value="entity_type">Entity Type</Select.Option>
+									<Select.Option value="subtype">Subtype</Select.Option>
+									<Select.Option value="registry_entity">Registry Entity</Select.Option>
+									<Select.Option value="sikesra_id_20">SIKESRA ID</Select.Option>
+								</Select>
+							</Field>
+							<Field label="Entity type">
+								<Select
+									value={formState.entityType ?? "rumah_ibadah"}
+									onValueChange={(value) =>
+										setFormState((current) => ({ ...current, entityType: value ?? "rumah_ibadah" }))
+									}
+								>
+									{DEFAULT_DATA_TYPES.map((type) => (
+										<Select.Option key={type.id} value={type.id}>
+											{type.label}
+										</Select.Option>
+									))}
+								</Select>
+							</Field>
+						</div>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Data class">
+								<Select
+									value={formState.dataClass ?? "non_personal"}
+									onValueChange={(value) =>
+										setFormState((current) => ({
+											...current,
+											dataClass: (value as SikesraCustomAttributeDefinitionRequest["dataClass"]) ?? "non_personal",
+											publicSafe: value === "non_personal" ? current.publicSafe : false,
+											maskByDefault: value === "non_personal" ? current.maskByDefault : true,
+										}))
+									}
+								>
+									<Select.Option value="non_personal">Non-personal</Select.Option>
+									<Select.Option value="personal">Personal</Select.Option>
+									<Select.Option value="sensitive_personal">Sensitive personal</Select.Option>
+									<Select.Option value="restricted">Restricted</Select.Option>
+								</Select>
+							</Field>
+							<Field label="Data type">
+								<Select
+									value={formState.dataType ?? "string"}
+									onValueChange={(value) =>
+										setFormState((current) => ({ ...current, dataType: value ?? "string" }))
+									}
+								>
+									<Select.Option value="string">String</Select.Option>
+									<Select.Option value="text">Text</Select.Option>
+									<Select.Option value="number">Number</Select.Option>
+									<Select.Option value="boolean">Boolean</Select.Option>
+									<Select.Option value="date">Date</Select.Option>
+									<Select.Option value="json">JSON</Select.Option>
+								</Select>
+							</Field>
+						</div>
+						<div className="grid gap-3 md:grid-cols-2">
+							{(
+								[
+								["publicSafe", "Public-safe aggregate"],
+								["maskByDefault", "Mask by default"],
+								["isImportable", "Importable"],
+								["isExportable", "Exportable"],
+							] as Array<[keyof SikesraCustomAttributeDefinitionRequest, string]>
+							).map(([key, label]) => (
+								<label
+									key={key}
+									className="flex items-center justify-between gap-3 rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default"
+								>
+									<span>{label}</span>
+									<input
+										type="checkbox"
+										checked={Boolean(formState[key as keyof SikesraCustomAttributeDefinitionRequest])}
+										disabled={key === "publicSafe" && formState.dataClass !== "non_personal"}
+										onChange={(event) =>
+											setFormState((current) => ({ ...current, [key]: event.target.checked }))
+										}
+									/>
+								</label>
+							))}
+						</div>
+						<Button variant="primary" type="submit" disabled={saving}>
+							{saving ? "Saving..." : "Save custom attribute"}
+						</Button>
+					</form>
+				</Card>
+
+				<Card title="Definitions" description="Active custom attributes with privacy and scope badges.">
+					{!data?.items.length ? (
+						<EmptyState title={contract.emptyState} description="Create a controlled custom field to extend registry forms." />
+					) : (
+						<div className="space-y-3">
+							{data.items.map((item) => (
+								<div key={item.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="flex flex-wrap items-start justify-between gap-3">
+										<div>
+											<div className="font-semibold text-kumo-default">{item.label}</div>
+											<div className="mt-1 font-mono text-xs text-kumo-subtle">{item.key}</div>
+										</div>
+										<div className="flex flex-wrap gap-2">
+											<Badge variant="secondary">{item.scope}</Badge>
+											<Badge variant="outline">{item.dataType}</Badge>
+											<Pill tone={item.dataClass === "non_personal" ? "success" : "warning"}>
+												{item.dataClass}
+											</Pill>
+										</div>
+									</div>
+									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
+										<span>Entity: {item.entityType ?? "Any"}</span>
+										<span>Public safe: {item.publicSafe ? "Yes" : "No"}</span>
+										<span>Masked: {item.maskByDefault ? "Yes" : "No"}</span>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function CustomAttributeValuesPage() {
-	return <ContractAlignedPage path="/custom-attributes/values" />;
+	const contract = getSikesraPageContract("/custom-attributes/values");
+	const { data: definitions } =
+		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
+	const { data, error, loading, reload } =
+		usePluginData<CustomAttributeValuesResponse>("custom-attributes/values/list");
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [saving, setSaving] = React.useState(false);
+	const [formState, setFormState] = React.useState<SikesraCustomAttributeValueRequest>({
+		definitionId: "",
+		ownerType: "registry_entity",
+		ownerId: "",
+		registryEntityId: "",
+		value: "",
+	});
+
+	React.useEffect(() => {
+		const firstDefinitionId = definitions?.items[0]?.id;
+		if (firstDefinitionId && !formState.definitionId) {
+			setFormState((current) => ({ ...current, definitionId: firstDefinitionId }));
+		}
+	}, [definitions?.items, formState.definitionId]);
+
+	const saveValue = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+
+		try {
+			await postPlugin("custom-attributes/values/save", {
+				...formState,
+				registryEntityId: formState.registryEntityId || formState.ownerId,
+			});
+			setNotice("Custom attribute value saved with masking policy applied.");
+			setFormState((current) => ({ ...current, ownerId: "", registryEntityId: "", value: "" }));
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save custom attribute value.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading custom attribute values..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA UI/UX standard" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+
+			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
+				<Card title="Assign value" description="Attach custom values to a registry entity or SIKESRA ID.">
+					<form className="space-y-4" onSubmit={(event) => void saveValue(event)}>
+						<Field label="Definition">
+							<Select
+								value={formState.definitionId}
+								onValueChange={(value) =>
+									setFormState((current) => ({ ...current, definitionId: value ?? "" }))
+								}
+							>
+								{definitions?.items.map((item) => (
+									<Select.Option key={item.id} value={item.id}>
+										{item.label}
+									</Select.Option>
+								))}
+							</Select>
+						</Field>
+						<Field label="Registry entity ID">
+							<Input
+								value={formState.registryEntityId ?? ""}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({
+										...current,
+										ownerId: event.target.value,
+										registryEntityId: event.target.value,
+									}))
+								}
+								required
+							/>
+						</Field>
+						<Field label="SIKESRA 20-digit ID" hint="Optional link for ID-specific attributes.">
+							<Input
+								value={formState.sikesraId20 ?? ""}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, sikesraId20: event.target.value }))
+								}
+							/>
+						</Field>
+						<Field label="Value">
+							<InputArea
+								value={String(formState.value ?? "")}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setFormState((current) => ({ ...current, value: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Button variant="primary" type="submit" disabled={saving || !definitions?.items.length}>
+							{saving ? "Saving..." : "Save value"}
+						</Button>
+					</form>
+				</Card>
+
+				<Card title="Current values" description="Masked values stay redacted unless sensitive-read access is granted.">
+					{!data?.items.length ? (
+						<EmptyState title={contract.emptyState} description="Save a custom value to review masking and ownership." />
+					) : (
+						<div className="space-y-3">
+							{data.items.map((item) => (
+								<div key={item.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="flex flex-wrap items-start justify-between gap-3">
+										<div>
+											<div className="font-mono text-xs text-kumo-subtle">{item.id}</div>
+											<div className="mt-1 text-sm font-semibold text-kumo-default">{item.valueDisplay}</div>
+										</div>
+										<div className="flex flex-wrap gap-2">
+											<Badge variant="outline">{item.sensitivity}</Badge>
+											<Pill tone={item.masked ? "warning" : "success"}>{item.masked ? "Masked" : "Visible"}</Pill>
+										</div>
+									</div>
+									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
+										<span>Definition: {item.definitionId}</span>
+										<span>Registry: {item.registryEntityId ?? "-"}</span>
+										<span>SIKESRA ID: {item.sikesraId20 ?? "-"}</span>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function DeleteRequestsPage() {
-	return <ContractAlignedPage path="/delete-requests" />;
+	const contract = getSikesraPageContract("/delete-requests");
+	const { data, error, loading, reload } =
+		usePluginData<PermanentDeleteRequestsResponse>("crud/permanent-delete/requests/list", {});
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [requestState, setRequestState] = React.useState({
+		targetTable: "sikesra_registry_entities",
+		targetRecordId: "",
+		targetType: "registry_entity",
+		reason: "",
+		confirmation: "",
+	});
+	const [decisionState, setDecisionState] = React.useState<Record<string, { notes: string; confirmation: string }>>({});
+	const [busyId, setBusyId] = React.useState<string | null>(null);
+
+	const requestDelete = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setBusyId("request");
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("crud/permanent-delete/request", requestState);
+			setNotice("Permanent delete request created with snapshot review pending.");
+			setRequestState((current) => ({ ...current, targetRecordId: "", reason: "", confirmation: "" }));
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to create delete request.");
+		} finally {
+			setBusyId(null);
+		}
+	};
+
+	const decideDelete = async (item: PermanentDeleteRequestItem, decision: "approved" | "rejected") => {
+		setBusyId(`${item.id}:${decision}`);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("crud/permanent-delete/approve", {
+				deleteRequestId: item.id,
+				decision,
+				notes: decisionState[item.id]?.notes ?? "",
+			});
+			setNotice(`Permanent delete request ${decision}.`);
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : `Failed to mark request ${decision}.`);
+		} finally {
+			setBusyId(null);
+		}
+	};
+
+	const executeDelete = async (item: PermanentDeleteRequestItem) => {
+		setBusyId(`${item.id}:execute`);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("crud/permanent-delete/execute", {
+				deleteRequestId: item.id,
+				confirmation: decisionState[item.id]?.confirmation,
+			});
+			setNotice("Permanent delete request executed after confirmation.");
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to execute delete request.");
+		} finally {
+			setBusyId(null);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading permanent delete requests..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA governance" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+
+			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
+				<Card title="Create delete request" description="Highest-admin workflow requires reason, snapshot, and exact confirmation.">
+					<form className="space-y-4" onSubmit={(event) => void requestDelete(event)}>
+						<Field label="Target table">
+							<Input
+								value={requestState.targetTable}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setRequestState((current) => ({ ...current, targetTable: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Target record ID">
+							<Input
+								value={requestState.targetRecordId}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setRequestState((current) => ({ ...current, targetRecordId: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Reason" hint="Required for audit review.">
+							<InputArea
+								value={requestState.reason}
+								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+									setRequestState((current) => ({ ...current, reason: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Field label="Confirmation phrase" hint="Type PERMANENT DELETE to create the request.">
+							<Input
+								value={requestState.confirmation}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setRequestState((current) => ({ ...current, confirmation: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<Button variant="primary" type="submit" disabled={busyId === "request"}>
+							{busyId === "request" ? "Requesting..." : "Create request"}
+						</Button>
+					</form>
+				</Card>
+
+				<Card title="Review queue" description="Approve, reject, or execute with high-friction confirmation.">
+					{!data?.items.length ? (
+						<EmptyState title={contract.emptyState} description="No permanent delete requests are waiting for review." />
+					) : (
+						<div className="space-y-4">
+							{data.items.map((item) => (
+								<div key={item.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+									<div className="flex flex-wrap items-start justify-between gap-3">
+										<div>
+											<div className="font-semibold text-kumo-default">{item.targetRecordId}</div>
+											<div className="mt-1 font-mono text-xs text-kumo-subtle">{item.targetTable}</div>
+										</div>
+										<div className="flex flex-wrap gap-2">
+											<Badge variant="outline">{item.riskLevel}</Badge>
+											<Pill tone={item.status === "approved" ? "warning" : item.status === "executed" ? "danger" : "neutral"}>
+												{item.status}
+											</Pill>
+										</div>
+									</div>
+									<p className="mt-3 text-sm text-kumo-subtle">{item.reason}</p>
+									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
+										<span>Requested by: {item.requestedBy}</span>
+										<span>Requested: {formatDateTime(item.requestedAt, "en")}</span>
+										<span>Type: {item.targetType}</span>
+									</div>
+									<div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+										<Input
+											value={decisionState[item.id]?.notes ?? ""}
+											placeholder="Decision notes"
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setDecisionState((current) => ({
+													...current,
+													[item.id]: { notes: event.target.value, confirmation: current[item.id]?.confirmation ?? "" },
+												}))
+											}
+										/>
+										<div className="flex flex-wrap gap-2">
+											<Button size="sm" variant="secondary" type="button" onClick={() => void decideDelete(item, "approved")}>
+												Approve
+											</Button>
+											<Button size="sm" variant="secondary" type="button" onClick={() => void decideDelete(item, "rejected")}>
+												Reject
+											</Button>
+										</div>
+									</div>
+									<div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+										<Input
+											value={decisionState[item.id]?.confirmation ?? ""}
+											placeholder="PERMANENT DELETE"
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setDecisionState((current) => ({
+													...current,
+													[item.id]: { notes: current[item.id]?.notes ?? "", confirmation: event.target.value },
+												}))
+											}
+										/>
+										<Button size="sm" variant="primary" type="button" onClick={() => void executeDelete(item)}>
+											Execute
+										</Button>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function ArchivesPage() {
-	return <ContractAlignedPage path="/archives" />;
+	const contract = getSikesraPageContract("/archives");
+	const { data, error, loading, reload } =
+		usePluginData<RegistryArchiveResponse>("registry/archive/list", {});
+	const [restoreReasons, setRestoreReasons] = React.useState<Record<string, string>>({});
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [restoringId, setRestoringId] = React.useState<string | null>(null);
+
+	const restoreEntity = async (entity: ArchivedRegistryEntity) => {
+		setRestoringId(entity.id);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("registry/restore", { id: entity.id, reason: restoreReasons[entity.id] ?? "" });
+			setNotice(`Restored archived registry entity ${entity.code || entity.id}.`);
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to restore archived registry entity.");
+		} finally {
+			setRestoringId(null);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading archived registry entities..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell width="wide">
+			<PageHeader eyebrow="SIKESRA governance" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+			<Card title="Archived registry records" description="Restore actions require a reason and are audited.">
+				{!data?.items.length ? (
+					<EmptyState title={contract.emptyState} description="No archived registry records are available for restore." />
+				) : (
+					<div className="space-y-4">
+						{data.items.map((entity) => (
+							<div key={entity.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+								<div className="flex flex-wrap items-start justify-between gap-3">
+									<div>
+										<div className="font-semibold text-kumo-default">{entity.label}</div>
+										<div className="mt-1 font-mono text-xs text-kumo-subtle">{entity.code || entity.id}</div>
+									</div>
+									<div className="flex flex-wrap gap-2">
+										<Badge variant="outline">{entity.entityType}</Badge>
+										<Pill tone="neutral">Archived</Pill>
+									</div>
+								</div>
+								<p className="mt-3 text-sm text-kumo-subtle">{entity.publicSummary || "Archived registry entity pending restore review."}</p>
+								<div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+									<Input
+										value={restoreReasons[entity.id] ?? ""}
+										placeholder="Restore reason"
+										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+											setRestoreReasons((current) => ({ ...current, [entity.id]: event.target.value }))
+										}
+									/>
+									<Button
+										size="sm"
+										variant="primary"
+										type="button"
+										disabled={restoringId === entity.id}
+										onClick={() => void restoreEntity(entity)}
+									>
+										{restoringId === entity.id ? "Restoring..." : "Restore"}
+									</Button>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+			</Card>
+		</PageShell>
+	);
 }
 
 function SettingsPage() {
-	return <ContractAlignedPage path="/settings" />;
+	const contract = getSikesraPageContract("/settings");
+	const { data, error, loading, reload } = usePluginData<SikesraSettingsState>("settings/get", {});
+	const [saving, setSaving] = React.useState(false);
+	const [notice, setNotice] = React.useState<string | null>(null);
+	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [formState, setFormState] = React.useState({
+		publicStatusLabel: "healthy",
+		auditRetentionDays: "30",
+		governanceMode: "review" as GovernanceMode,
+		metadataCanonicalBase: "",
+		smallCellThreshold: "3",
+		sikesraPublicEnabled: true,
+	});
+
+	React.useEffect(() => {
+		if (!data) return;
+		setFormState({
+			publicStatusLabel: data.publicStatusLabel,
+			auditRetentionDays: String(data.auditRetentionDays),
+			governanceMode: (data.governanceMode as GovernanceMode) ?? "review",
+			metadataCanonicalBase: data.metadataCanonicalBase,
+			smallCellThreshold: String(data.smallCellThreshold ?? 3),
+			sikesraPublicEnabled: data.sikesraPublicEnabled !== false,
+		});
+	}, [data]);
+
+	const saveSettings = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSaving(true);
+		setNotice(null);
+		setSaveError(null);
+		try {
+			await postPlugin("settings/save", {
+				publicStatusLabel: formState.publicStatusLabel.trim(),
+				auditRetentionDays: Number(formState.auditRetentionDays),
+				governanceMode: formState.governanceMode,
+				metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
+				smallCellThreshold: Number(formState.smallCellThreshold),
+				sikesraPublicEnabled: formState.sikesraPublicEnabled,
+			});
+			setNotice("SIKESRA settings saved with audit tracking.");
+			await reload();
+		} catch (cause) {
+			setSaveError(cause instanceof Error ? cause.message : "Failed to save SIKESRA settings.");
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	if (loading) return <LoadingState label="Loading SIKESRA settings..." />;
+	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	return (
+		<PageShell>
+			<PageHeader eyebrow="SIKESRA configuration" title={contract.title} description={contract.purpose} />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+				<Card title="Public and governance settings" description="Controls public-safe status, aggregate safety, and audit retention.">
+					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
+						<Field label="Public status label">
+							<Input
+								value={formState.publicStatusLabel}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, publicStatusLabel: event.target.value }))
+								}
+								required
+							/>
+						</Field>
+						<div className="grid gap-4 md:grid-cols-2">
+							<Field label="Audit retention days">
+								<Input
+									type="number"
+									min={1}
+									value={formState.auditRetentionDays}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, auditRetentionDays: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+							<Field label="Small-cell threshold" hint="Counts below this value are suppressed in public aggregate output.">
+								<Input
+									type="number"
+									min={1}
+									value={formState.smallCellThreshold}
+									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+										setFormState((current) => ({ ...current, smallCellThreshold: event.target.value }))
+									}
+									required
+								/>
+							</Field>
+						</div>
+						<Field label="Governance mode">
+							<Select
+								value={formState.governanceMode}
+								onValueChange={(value) =>
+									setFormState((current) => ({
+										...current,
+										governanceMode: (value as GovernanceMode | null) ?? "review",
+									}))
+								}
+							>
+								<Select.Option value="observe">Observe</Select.Option>
+								<Select.Option value="review">Review</Select.Option>
+								<Select.Option value="enforce-demo">Enforce Demo</Select.Option>
+							</Select>
+						</Field>
+						<Field label="Metadata canonical base" hint="Optional HTTP or HTTPS base URL.">
+							<Input
+								value={formState.metadataCanonicalBase}
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+									setFormState((current) => ({ ...current, metadataCanonicalBase: event.target.value }))
+								}
+							/>
+						</Field>
+						<label className="flex items-center justify-between gap-3 rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default">
+							<span>Enable public-safe SIKESRA aggregate API</span>
+							<input
+								type="checkbox"
+								checked={formState.sikesraPublicEnabled}
+								onChange={(event) =>
+									setFormState((current) => ({ ...current, sikesraPublicEnabled: event.target.checked }))
+								}
+							/>
+						</label>
+						<Button variant="primary" type="submit" disabled={saving}>
+							{saving ? "Saving..." : "Save settings"}
+						</Button>
+					</form>
+				</Card>
+				<Card title="Safety summary" description="Current public and privacy controls.">
+					<div className="space-y-3 text-sm text-kumo-default">
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Public API</span>
+							<Pill tone={formState.sikesraPublicEnabled ? "success" : "warning"}>
+								{formState.sikesraPublicEnabled ? "Enabled" : "Disabled"}
+							</Pill>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Suppression threshold</span>
+							<Badge variant="outline">{formState.smallCellThreshold}</Badge>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Governance</span>
+							<Badge variant="secondary">{formState.governanceMode}</Badge>
+						</div>
+						<EmptyState
+							title="Public-safe aggregate only"
+							description="Settings cannot expose personal, sensitive, restricted, KTP, domicile, or document metadata through public output."
+						/>
+					</div>
+				</Card>
+			</div>
+		</PageShell>
+	);
 }
 
 function Feedback({
