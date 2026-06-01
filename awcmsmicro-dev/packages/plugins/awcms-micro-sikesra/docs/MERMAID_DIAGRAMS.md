@@ -80,6 +80,7 @@ erDiagram
   sikesra_import_mapping_templates ||--o{ sikesra_import_batches : maps
   sikesra_import_batches ||--o{ sikesra_import_staging_rows : stages
   sikesra_duplicate_candidates ||--o{ sikesra_duplicate_decisions : decides
+  sikesra_export_jobs ||--o{ sikesra_audit_events : audits
   sikesra_registry_entities ||--o{ sikesra_custom_attribute_values : extends
   sikesra_registry_entities ||--o{ sikesra_audit_events : audits
 
