@@ -773,6 +773,27 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBe(0);
 	});
 
+	it("rejects unsafe public settings", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const emptyStatus = (await routes["settings/save"]!.handler({
+			...ctx,
+			input: { publicStatusLabel: " " },
+		} as any)) as any;
+		const unsafeCanonical = (await routes["settings/save"]!.handler({
+			...ctx,
+			input: { metadataCanonicalBase: "javascript:alert(1)" },
+		} as any)) as any;
+
+		expect(emptyStatus.success).toBe(false);
+		expect(emptyStatus.error.message).toContain("Public status label");
+		expect(unsafeCanonical.success).toBe(false);
+		expect(unsafeCanonical.error.message).toContain("HTTP or HTTPS URL");
+		expect(collections.settingsState.size).toBe(0);
+		expect(collections.auditEvents.size).toBe(0);
+	});
+
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

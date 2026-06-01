@@ -2715,6 +2715,33 @@ const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const publicStatusLabel = getString(routeCtx.input, "publicStatusLabel");
+	if (publicStatusLabel !== undefined && !publicStatusLabel.trim()) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Public status label must not be empty.",
+			},
+		};
+	}
+	const metadataCanonicalBase = getString(routeCtx.input, "metadataCanonicalBase");
+	if (metadataCanonicalBase?.trim()) {
+		try {
+			const parsed = new URL(metadataCanonicalBase);
+			if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+				throw new Error("Unsupported canonical URL protocol");
+			}
+		} catch {
+			return {
+				success: false,
+				error: {
+					code: "VALIDATION_ERROR",
+					message: "Metadata canonical base must be an HTTP or HTTPS URL.",
+				},
+			};
+		}
+	}
 	const auditRetentionDays = getNumber(routeCtx.input, "auditRetentionDays");
 	if (auditRetentionDays !== undefined && auditRetentionDays < 1) {
 		return {
