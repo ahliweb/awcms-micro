@@ -8,6 +8,7 @@ import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
+	normalizeSummaryResponse,
 	pages as sikesraAdminPages,
 } from "../src/admin.js";
 import {
@@ -1812,6 +1813,22 @@ describe("awcms micro sikesra plugin", () => {
 				"/verification",
 			].toSorted(),
 		);
+	});
+
+	it("normalizes partial admin summary responses before rendering counters", () => {
+		const summary = normalizeSummaryResponse({ settings: {} });
+
+		expect(summary?.counters).toEqual({
+			auditCount: 0,
+			lifecycleCount: 0,
+			publicHits: 0,
+		});
+		expect(summary?.settings).toMatchObject({
+			publicStatusLabel: "healthy",
+			auditRetentionDays: 30,
+			governanceMode: "review",
+		});
+		expect(summary?.recentEvents).toEqual([]);
 	});
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
