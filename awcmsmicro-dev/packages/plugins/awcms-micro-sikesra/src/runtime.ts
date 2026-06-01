@@ -1327,6 +1327,14 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 		"sikesra.settings.update",
 		"sikesra.rbac.manage",
 		"sikesra.abac.manage",
+		"sikesra.lifecycle.create",
+		"sikesra.lifecycle.read_list",
+		"sikesra.lifecycle.read_detail",
+		"sikesra.lifecycle.update",
+		"sikesra.lifecycle.soft_delete",
+		"sikesra.lifecycle.restore",
+		"sikesra.lifecycle.archive",
+		"sikesra.lifecycle.permanent_delete",
 		"sikesra.custom_attribute.read",
 		"sikesra.custom_attribute.create",
 		"sikesra.custom_attribute.update",
@@ -1460,7 +1468,8 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 		permissions: DEFAULT_ACCESS_PERMISSIONS.filter(
 			(permission) =>
 				permission.slug.startsWith("sikesra.") &&
-				!permission.slug.startsWith("sikesra.permanent_delete."),
+				!permission.slug.startsWith("sikesra.permanent_delete.") &&
+				!permission.slug.endsWith(".permanent_delete"),
 		).map((permission) => permission.slug),
 		updatedAt: "",
 	},
@@ -1472,6 +1481,7 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	{
 		roleSlug: "sikesra_super_admin",
 		permissions: [
+			"sikesra.lifecycle.permanent_delete",
 			"sikesra.permanent_delete.request",
 			"sikesra.permanent_delete.approve",
 			"sikesra.permanent_delete.review",
@@ -4797,6 +4807,48 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	return { success: true, item: { id, snapshotId, targetTable, targetRecordId, status: "requested" } };
 };
 
+const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.review");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return { items: [] };
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+		.select([
+			"id",
+			"target_table",
+			"target_record_id",
+			"target_sikesra_id_20",
+			"target_type",
+			"operation_type",
+			"reason",
+			"risk_level",
+			"requested_by",
+			"requested_at",
+			"status",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.orderBy("requested_at", "desc")
+		.execute()) as Array<Record<string, unknown>>;
+	return {
+		items: rows.map((row) => ({
+			id: String(row.id),
+			targetTable: String(row.target_table),
+			targetRecordId: String(row.target_record_id),
+			targetSikesraId20: typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
+			targetType: String(row.target_type),
+			operationType: String(row.operation_type),
+			reason: String(row.reason),
+			riskLevel: String(row.risk_level),
+			requestedBy: String(row.requested_by),
+			requestedAt: String(row.requested_at),
+			status: String(row.status),
+		})),
+	};
+};
+
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	return getSettings(ctx);
 };
@@ -5727,6 +5779,7 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"custom-attributes/values/list": { handler: customAttributeValuesListRoute },
 	"custom-attributes/values/save": { handler: customAttributeValuesSaveRoute },
 	"crud/permanent-delete/request": { handler: permanentDeleteRequestRoute },
+	"crud/permanent-delete/requests/list": { handler: permanentDeleteRequestsListRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },

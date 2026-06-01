@@ -60,3 +60,86 @@ export const SIKESRA_STANDARD_EMPTY_STATES = [
 	"No user assignment",
 	"No ABAC policy",
 ] as const;
+
+export type SikesraStatusTone = "neutral" | "info" | "success" | "warning" | "danger" | "restricted";
+
+export const SIKESRA_STATUS_BADGE_TONES: Record<(typeof SIKESRA_STATUS_BADGES)[number], SikesraStatusTone> = {
+	Draft: "neutral",
+	"Needs Review": "warning",
+	"Pending Desa": "info",
+	"Pending Kecamatan": "info",
+	"Pending SOPD": "info",
+	"Pending Kabupaten": "info",
+	Verified: "success",
+	Rejected: "danger",
+	"Needs Revision": "warning",
+	Archived: "neutral",
+	Suppressed: "warning",
+	"Public Safe": "success",
+	Sensitive: "danger",
+	Restricted: "restricted",
+	"Orphaned User": "warning",
+};
+
+export function getSikesraStatusTone(label: string): SikesraStatusTone {
+	return SIKESRA_STATUS_BADGE_TONES[label as (typeof SIKESRA_STATUS_BADGES)[number]] ?? "neutral";
+}
+
+export interface SikesraMaskedValueState {
+	displayValue: string;
+	masked: boolean;
+	revealAllowed: boolean;
+	reason: string;
+}
+
+export function createSikesraMaskedValueState(
+	value: unknown,
+	options: { sensitive?: boolean; revealAllowed?: boolean; maskLabel?: string } = {},
+): SikesraMaskedValueState {
+	const sensitive = options.sensitive === true;
+	const revealAllowed = options.revealAllowed === true;
+	if (sensitive && !revealAllowed) {
+		return {
+			displayValue: options.maskLabel ?? "[REDACTED]",
+			masked: true,
+			revealAllowed: false,
+			reason: "Sensitive value is masked until reveal permission is granted.",
+		};
+	}
+	return {
+		displayValue: value == null ? "" : String(value),
+		masked: false,
+		revealAllowed,
+		reason: sensitive ? "Reveal permission granted." : "Value is public-safe for this surface.",
+	};
+}
+
+export interface SikesraEmptyStateModel {
+	title: string;
+	description: string;
+	recommendedAction?: string;
+	permissionRequired?: string;
+}
+
+export function createSikesraEmptyState(
+	title: (typeof SIKESRA_STANDARD_EMPTY_STATES)[number],
+	description: string,
+	options: Pick<SikesraEmptyStateModel, "recommendedAction" | "permissionRequired"> = {},
+): SikesraEmptyStateModel {
+	return { title, description, ...options };
+}
+
+export type SikesraPageState = "loading" | "empty" | "ready" | "permission_denied" | "error";
+
+export function getSikesraPageState(input: {
+	loading?: boolean;
+	error?: unknown;
+	permissionDenied?: boolean;
+	itemCount?: number;
+}): SikesraPageState {
+	if (input.loading) return "loading";
+	if (input.permissionDenied) return "permission_denied";
+	if (input.error) return "error";
+	if ((input.itemCount ?? 0) === 0) return "empty";
+	return "ready";
+}

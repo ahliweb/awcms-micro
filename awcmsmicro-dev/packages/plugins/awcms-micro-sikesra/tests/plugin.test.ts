@@ -10,6 +10,10 @@ import {
 } from "../src/admin.js";
 import {
 	isSikesraAdminHref,
+	createSikesraEmptyState,
+	createSikesraMaskedValueState,
+	getSikesraPageState,
+	getSikesraStatusTone,
 	SIKESRA_ADMIN_ROUTE_BASE,
 	SIKESRA_OPERATOR_WORKFLOW_STEPS,
 	SIKESRA_PAGE_ANATOMY,
@@ -429,17 +433,27 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
-					if (_table === "sikesra_custom_attribute_values") {
-						return customAttributeValueTableRows
-							.filter((row) => {
-								for (const [key, value] of Object.entries(filters)) {
-									if ((row as Record<string, unknown>)[key] !== value) return false;
+		if (_table === "sikesra_custom_attribute_values") {
+			return customAttributeValueTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
 								}
 								return true;
-							})
-							.map((row) => ({ ...row }));
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_delete_requests") {
+			return deleteRequestTableRows
+				.filter((row) => {
+					for (const [key, value] of Object.entries(filters)) {
+						if ((row as Record<string, unknown>)[key] !== value) return false;
 					}
-					if (_table === "sikesra_verification_stage_state") {
+					return true;
+				})
+				.map((row) => ({ ...row }));
+		}
+		if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
 								for (const [key, value] of Object.entries(filters)) {
@@ -1327,6 +1341,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.registry.read");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.verification.approve");
 		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.rbac.manage");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.create");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.read_list");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.read_detail");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.update");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.soft_delete");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.restore");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.archive");
+		expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain("sikesra.lifecycle.permanent_delete");
 	});
 
 	it("creates structured audit records", () => {
@@ -1722,6 +1744,7 @@ describe("awcms micro sikesra plugin", () => {
 				"custom-attributes/values/list",
 				"custom-attributes/values/save",
 				"crud/permanent-delete/request",
+				"crud/permanent-delete/requests/list",
 				"dashboard/summary",
 				"overview/summary",
 				"verification/list",
@@ -1772,6 +1795,40 @@ describe("awcms micro sikesra plugin", () => {
 			expect.arrayContaining(["Public Safe", "Sensitive", "Restricted", "Orphaned User"]),
 		);
 		expect(SIKESRA_STANDARD_EMPTY_STATES).toContain("No import batch");
+	});
+
+	it("standardizes issue #142 status, masking, empty, and page states", () => {
+		expect(getSikesraStatusTone("Verified")).toBe("success");
+		expect(getSikesraStatusTone("Restricted")).toBe("restricted");
+		expect(getSikesraStatusTone("Unknown Status")).toBe("neutral");
+
+		expect(createSikesraMaskedValueState("secret", { sensitive: true })).toEqual({
+			displayValue: "[REDACTED]",
+			masked: true,
+			revealAllowed: false,
+			reason: "Sensitive value is masked until reveal permission is granted.",
+		});
+		expect(
+			createSikesraMaskedValueState("secret", { sensitive: true, revealAllowed: true }),
+		).toMatchObject({ displayValue: "secret", masked: false, revealAllowed: true });
+
+		expect(
+			createSikesraEmptyState("No import batch", "Upload a CSV or XLSX file to begin.", {
+				recommendedAction: "Start import",
+				permissionRequired: "sikesra.import.create",
+			}),
+		).toEqual({
+			title: "No import batch",
+			description: "Upload a CSV or XLSX file to begin.",
+			recommendedAction: "Start import",
+			permissionRequired: "sikesra.import.create",
+		});
+
+		expect(getSikesraPageState({ loading: true })).toBe("loading");
+		expect(getSikesraPageState({ permissionDenied: true })).toBe("permission_denied");
+		expect(getSikesraPageState({ error: new Error("failed") })).toBe("error");
+		expect(getSikesraPageState({ itemCount: 0 })).toBe("empty");
+		expect(getSikesraPageState({ itemCount: 1 })).toBe("ready");
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
@@ -2689,7 +2746,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.value.save" }));
 	});
 
-	it("requires super-admin permission, confirmation, and snapshot for permanent delete requests", async () => {
+	it("requires super-admin permission, confirmation, snapshot, and review access for permanent delete requests", async () => {
 		const {
 			ctx,
 			collections,
@@ -2769,6 +2826,36 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.request" }),
+		);
+
+		const listDenied = (await routes["crud/permanent-delete/requests/list"]!.handler({
+			...ctx,
+			input: {},
+			request: new Request("https://example.test", {
+				headers: {
+					"X-Sikesra-User-Id": "user-demo-village",
+				},
+			}),
+		} as any)) as { success: false; error: { code: string } };
+		expect(listDenied.success).toBe(false);
+		expect(listDenied.error.code).toBe("FORBIDDEN");
+
+		const listAllowed = (await routes["crud/permanent-delete/requests/list"]!.handler({
+			...ctx,
+			input: {},
+			request: new Request("https://example.test", {
+				headers: {
+					"X-Sikesra-User-Id": "user-demo-super-admin",
+				},
+			}),
+		} as any)) as { items: Array<{ id: string; targetTable: string; targetRecordId: string; status: string }> };
+		expect(listAllowed.items).toContainEqual(
+			expect.objectContaining({
+				id: "delete-request-01",
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-custom-01",
+				status: "requested",
+			}),
 		);
 	});
 
@@ -2877,7 +2964,25 @@ describe("awcms micro sikesra plugin", () => {
 		});
 		expect(collections.rolePermissionAssignments.get("sikesra_admin")).toMatchObject({
 			roleSlug: "sikesra_admin",
-			permissions: expect.arrayContaining(["sikesra.registry.read", "sikesra.rbac.manage"]),
+			permissions: expect.arrayContaining([
+				"sikesra.registry.read",
+				"sikesra.rbac.manage",
+				"sikesra.lifecycle.create",
+				"sikesra.lifecycle.read_detail",
+			]),
+		});
+		const sikesraAdminAssignment = collections.rolePermissionAssignments.get("sikesra_admin") as
+			| { permissions: string[] }
+			| undefined;
+		expect(sikesraAdminAssignment?.permissions).not.toContain(
+			"sikesra.lifecycle.permanent_delete",
+		);
+		expect(collections.rolePermissionAssignments.get("sikesra_super_admin")).toMatchObject({
+			roleSlug: "sikesra_super_admin",
+			permissions: expect.arrayContaining([
+				"sikesra.lifecycle.permanent_delete",
+				"sikesra.permanent_delete.request",
+			]),
 		});
 		expect(collections.userRoleAssignments.get("user-demo-village")).toMatchObject({
 			userId: "user-demo-village",
