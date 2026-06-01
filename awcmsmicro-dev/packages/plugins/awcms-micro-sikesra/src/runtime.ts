@@ -1499,7 +1499,9 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 
 const ALLOWED_GOVERNANCE_MODES = new Set(["observe", "review", "enforceDemo"]);
 const ALLOWED_ABAC_TARGET_TYPES = new Set(["subject", "resource", "context"]);
+const ALLOWED_ABAC_POLICY_EFFECTS = new Set(["allow", "deny"]);
 const ABAC_ATTRIBUTE_KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
+const ABAC_POLICY_ID_PATTERN = /^[a-z][a-z0-9_-]*$/;
 
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
@@ -3263,11 +3265,35 @@ const abacPoliciesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 const abacPoliciesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAbacCatalogSeeded(ctx);
-	const id = getString(routeCtx.input, "id") ?? "";
+	const id = getString(routeCtx.input, "id")?.trim() ?? "";
+	if (!ABAC_POLICY_ID_PATTERN.test(id)) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "ABAC policy ID must use a lowercase slug and start with a letter.",
+			},
+		};
+	}
 	const label = getString(routeCtx.input, "label") ?? id;
 	const effect =
 		(getString(routeCtx.input, "effect") as AbacPolicyRule["effect"] | undefined) ?? "allow";
 	const actions = getStringArray(routeCtx.input, "actions");
+	if (!ALLOWED_ABAC_POLICY_EFFECTS.has(effect)) {
+		return {
+			success: false,
+			error: { code: "VALIDATION_ERROR", message: "ABAC policy effect must be allow or deny." },
+		};
+	}
+	if (actions.length === 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "ABAC policy must include at least one action.",
+			},
+		};
+	}
 	const requiredSubject = getStringRecord(routeCtx.input, "requiredSubject");
 	const requiredResource = getStringRecord(routeCtx.input, "requiredResource");
 	const requiredContext = getStringRecord(routeCtx.input, "requiredContext");

@@ -1422,6 +1422,34 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.abacChangeEvents.size).toBe(0);
 	});
 
+	it("validates ABAC policy form-builder inputs", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const invalidId = (await routes["abac/policies/save"]!.handler({
+			...ctx,
+			input: { id: "Policy 1", effect: "allow", actions: ["content.read"] },
+		} as any)) as any;
+		const invalidEffect = (await routes["abac/policies/save"]!.handler({
+			...ctx,
+			input: { id: "policy_one", effect: "maybe", actions: ["content.read"] },
+		} as any)) as any;
+		const missingAction = (await routes["abac/policies/save"]!.handler({
+			...ctx,
+			input: { id: "policy_two", effect: "allow", actions: [] },
+		} as any)) as any;
+
+		expect(invalidId.success).toBe(false);
+		expect(invalidId.error.message).toContain("lowercase slug");
+		expect(invalidEffect.success).toBe(false);
+		expect(invalidEffect.error.message).toContain("allow or deny");
+		expect(missingAction.success).toBe(false);
+		expect(missingAction.error.message).toContain("at least one action");
+		expect(collections.abacPolicyRules.has("policy_one")).toBe(false);
+		expect(collections.abacPolicyRules.has("policy_two")).toBe(false);
+		expect(collections.abacChangeEvents.size).toBe(0);
+	});
+
 	it("supports ABAC attribute, policy, preview, and sensitive-action audit flows", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
