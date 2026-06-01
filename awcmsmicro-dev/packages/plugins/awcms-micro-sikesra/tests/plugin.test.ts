@@ -750,6 +750,40 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("registers required SIKESRA plugin routes", () => {
+		const routes = createNativeRoutes();
+
+		expect(Object.keys(routes)).toEqual(
+			expect.arrayContaining([
+				"public/status",
+				"registry/list",
+				"registry/save",
+				"documents/list",
+				"documents/save",
+				"import/promote",
+				"dashboard/summary",
+				"overview/summary",
+				"verification/list",
+				"verification/advance",
+				"verification/reject",
+				"settings/get",
+				"settings/save",
+				"regions/get",
+				"regions/save",
+				"data-types/get",
+				"data-types/save",
+				"audit/list",
+				"access/permissions/list",
+				"access/roles/list",
+				"access/matrix/get",
+				"access/preview",
+				"abac/attributes/list",
+				"abac/policies/list",
+				"abac/preview",
+			]),
+		);
+	});
+
 	it("rejects unsafe public aggregate suppression settings", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
