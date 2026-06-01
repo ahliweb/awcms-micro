@@ -41,6 +41,12 @@ export interface SikesraReferenceSupportingDocument {
 	documentType: string;
 	title: string;
 	sensitivity: SikesraSensitivity;
+	contentType?: string;
+	fileSizeBytes?: number;
+	checksumSha256?: string;
+	originalFilename?: string;
+	safeFilename?: string;
+	validationStatus?: "pending" | "valid" | "invalid";
 	issuedAt: string;
 	verifiedBy: string;
 }

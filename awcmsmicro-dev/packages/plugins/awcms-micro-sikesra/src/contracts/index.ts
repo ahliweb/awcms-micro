@@ -30,12 +30,14 @@ export type {
 	SikesraVerificationListRequest,
 } from "./verification-contracts.js";
 export type {
+	SikesraDocumentAccessRequest,
 	SikesraDocumentDto,
 	SikesraDocumentMetadataRequest,
 	SikesraDocumentsListRequest,
 } from "./documents-contracts.js";
 export type {
 	SikesraImportBatchDto,
+	SikesraImportCreateRequest,
 	SikesraImportBatchListRequest,
 	SikesraImportPromotionRequest,
 } from "./import-contracts.js";

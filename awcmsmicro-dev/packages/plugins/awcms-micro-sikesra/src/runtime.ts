@@ -426,8 +426,24 @@ const AWCMS_SIKESRA_CODE_SEQUENCES_TABLE = "sikesra_code_sequences";
 const AWCMS_SIKESRA_CODE_HISTORY_TABLE = "sikesra_code_history";
 const AWCMS_SIKESRA_FILE_OBJECTS_TABLE = "sikesra_file_objects";
 const AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE = "sikesra_supporting_documents";
+const AWCMS_SIKESRA_IMPORT_BATCHES_TABLE = "sikesra_import_batches";
+const AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE = "sikesra_import_staging_rows";
+const AWCMS_SIKESRA_IMPORT_MAPPING_TEMPLATES_TABLE = "sikesra_import_mapping_templates";
+const AWCMS_SIKESRA_DUPLICATE_CANDIDATES_TABLE = "sikesra_duplicate_candidates";
+const AWCMS_SIKESRA_DUPLICATE_DECISIONS_TABLE = "sikesra_duplicate_decisions";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE = "sikesra_verification_events";
+const AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS = [
+	"public_safe",
+	"internal",
+	"restricted",
+] as const;
+const AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES = [
+	"application/pdf",
+	"image/jpeg",
+	"image/png",
+] as const;
+const AWCMS_SIKESRA_DOCUMENT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const AWCMS_SIKESRA_MODULE_DETAIL_TABLES: Record<string, string> = {
 	rumah_ibadah: "sikesra_rumah_ibadah_details",
 	lembaga_keagamaan: "sikesra_lembaga_keagamaan_details",
@@ -1636,6 +1652,26 @@ const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
 		requiredContext: {},
 		updatedAt: "",
 	},
+	{
+		id: "allow-sikesra-document-read",
+		label: "Allow SIKESRA document reads for same tenant subjects",
+		effect: "allow",
+		actions: ["sikesra.document.read"],
+		requiredSubject: { tenant_id: "tenant-a", site_id: "site-main" },
+		requiredResource: { module_id: "sikesra", resource_type: "document" },
+		requiredContext: {},
+		updatedAt: "",
+	},
+	{
+		id: "allow-sikesra-document-read-restricted-admin",
+		label: "Allow restricted SIKESRA document reads for all-region subjects",
+		effect: "allow",
+		actions: ["sikesra.document.read_restricted"],
+		requiredSubject: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "all" },
+		requiredResource: { module_id: "sikesra", resource_type: "document" },
+		requiredContext: {},
+		updatedAt: "",
+	},
 ];
 
 const DEFAULT_SETTINGS: ExampleSettings = {
@@ -2153,6 +2189,7 @@ async function getD1SupportingDocuments(
 			"document_type",
 			"title",
 			"classification",
+			"validation_status",
 			"issued_at",
 			"created_by",
 		])
@@ -2167,20 +2204,104 @@ async function getD1SupportingDocuments(
 		document_type: string;
 		title: string;
 		classification: SikesraSensitivity;
+		validation_status?: SikesraReferenceSupportingDocument["validationStatus"] | null;
 		issued_at?: string | null;
 		created_by?: string | null;
 	}>;
 
-	return rows.map((row) => ({
-		id: row.id,
-		registryEntityId: row.registry_entity_id,
-		fileObjectId: row.file_object_id ?? undefined,
-		documentType: row.document_type,
-		title: row.title,
-		sensitivity: row.classification,
-		issuedAt: row.issued_at ?? "",
-		verifiedBy: row.created_by ?? "system",
-	}));
+	return Promise.all(
+		rows.map(async (row) => {
+			const fileObject = row.file_object_id
+				? await getD1FileObject(ctx, row.file_object_id)
+				: null;
+			return {
+				id: row.id,
+				registryEntityId: row.registry_entity_id,
+				fileObjectId: row.file_object_id ?? undefined,
+				documentType: row.document_type,
+				title: row.title,
+				sensitivity: row.classification,
+				contentType: fileObject?.content_type,
+				fileSizeBytes: fileObject?.file_size_bytes,
+				checksumSha256: fileObject?.checksum_sha256 ?? undefined,
+				originalFilename: fileObject?.original_filename,
+				safeFilename: fileObject?.safe_filename,
+				validationStatus: row.validation_status ?? "pending",
+				issuedAt: row.issued_at ?? "",
+				verifiedBy: row.created_by ?? "system",
+			};
+		}),
+	);
+}
+
+async function getD1FileObject(ctx: PluginContext, id: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return null;
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_FILE_OBJECTS_TABLE)
+		.select([
+			"id",
+			"original_filename",
+			"safe_filename",
+			"content_type",
+			"file_size_bytes",
+			"checksum_sha256",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("id", "=", id)
+		.where("deleted_at", "is", null)
+		.limit(1)
+		.execute()) as Array<{
+		id: string;
+		original_filename: string;
+		safe_filename: string;
+		content_type: string;
+		file_size_bytes: number;
+		checksum_sha256?: string | null;
+	}>;
+
+	return rows[0] ?? null;
+}
+
+function validateSupportingDocumentInput(doc: SikesraReferenceSupportingDocument) {
+	const invalidFields: string[] = [];
+	if (!doc.registryEntityId) invalidFields.push("registryEntityId");
+	if (!doc.title) invalidFields.push("title");
+	if (!doc.documentType) invalidFields.push("documentType");
+	if (!AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS.includes(doc.sensitivity as any)) {
+		invalidFields.push("classification");
+	}
+	if (
+		doc.contentType &&
+		!AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES.includes(doc.contentType as any)
+	) {
+		invalidFields.push("contentType");
+	}
+	if (
+		doc.fileSizeBytes != null &&
+		(!Number.isInteger(doc.fileSizeBytes) ||
+			doc.fileSizeBytes < 0 ||
+			doc.fileSizeBytes > AWCMS_SIKESRA_DOCUMENT_MAX_FILE_SIZE_BYTES)
+	) {
+		invalidFields.push("fileSizeBytes");
+	}
+	if (doc.checksumSha256 && !/^[a-f0-9]{64}$/i.test(doc.checksumSha256)) {
+		invalidFields.push("checksumSha256");
+	}
+	return invalidFields;
+}
+
+function createValidationError(fields: string[]) {
+	return {
+		success: false,
+		error: {
+			code: "VALIDATION_ERROR",
+			message: `Invalid document metadata: ${fields.join(", ")}`,
+			details: { fields },
+		},
+	};
 }
 
 async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
@@ -2189,7 +2310,8 @@ async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraRefer
 
 	const now = doc.issuedAt || toIsoNow();
 	const fileObjectId = doc.fileObjectId ?? `${doc.id}:file`;
-	const safeFilename = `${doc.id}.metadata`;
+	const safeFilename = doc.safeFilename ?? `${doc.id}.metadata`;
+	const validationStatus = doc.validationStatus ?? "pending";
 	await db
 		.insertInto(AWCMS_SIKESRA_FILE_OBJECTS_TABLE)
 		.values({
@@ -2199,14 +2321,14 @@ async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraRefer
 			storage_provider: "r2",
 			storage_bucket: null,
 			storage_key: `tenants/${AWCMS_SIKESRA_DEFAULT_TENANT_ID}/sites/${AWCMS_SIKESRA_DEFAULT_SITE_ID}/modules/sikesra/${doc.sensitivity}/${now.slice(0, 4)}/${now.slice(5, 7)}/${safeFilename}`,
-			original_filename: doc.title,
+			original_filename: doc.originalFilename ?? doc.title,
 			safe_filename: safeFilename,
-			content_type: "application/octet-stream",
-			file_extension: null,
-			file_size_bytes: 0,
-			checksum_sha256: null,
+			content_type: doc.contentType ?? "application/pdf",
+			file_extension: safeFilename.includes(".") ? safeFilename.split(".").pop() : null,
+			file_size_bytes: doc.fileSizeBytes ?? 0,
+			checksum_sha256: doc.checksumSha256 ?? null,
 			classification: doc.sensitivity,
-			validation_status: "pending",
+			validation_status: validationStatus,
 			validation_notes: null,
 			created_at: now,
 			updated_at: now,
@@ -2217,7 +2339,7 @@ async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraRefer
 		.onConflict((oc: any) =>
 			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
 				classification: doc.sensitivity,
-				validation_status: "pending",
+				validation_status: validationStatus,
 				updated_at: now,
 				deleted_at: null,
 				updated_by: doc.verifiedBy,
@@ -2236,7 +2358,7 @@ async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraRefer
 			document_type: doc.documentType,
 			title: doc.title,
 			classification: doc.sensitivity,
-			validation_status: "pending",
+			validation_status: validationStatus,
 			verification_stage: "draft",
 			issuer: null,
 			issued_at: doc.issuedAt,
@@ -2265,6 +2387,43 @@ async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraRefer
 		.execute();
 
 	return true;
+}
+
+async function findSupportingDocument(ctx: PluginContext, id: string) {
+	const docs = await getSupportingDocuments(ctx);
+	return docs.find((doc) => doc.id === id) ?? null;
+}
+
+async function ensureDocumentAbacResource(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+	await ensureAbacCatalogSeeded(ctx);
+	const assignment = touchUpdatedAt<AbacResourceAssignment>({
+		resourceId: doc.id,
+		attributes: {
+			module_id: "sikesra",
+			resource_type: "document",
+			resource_status: doc.validationStatus ?? "pending",
+			resource_sensitivity: doc.sensitivity,
+			owner_user_id: doc.verifiedBy,
+		},
+		updatedAt: "",
+	});
+	await ctx.storage.sikesra_abac_resource_assignments!.put(doc.id, assignment);
+	return assignment;
+}
+
+function toSafeDocumentAccessResponse(doc: SikesraReferenceSupportingDocument) {
+	return {
+		id: doc.id,
+		registryEntityId: doc.registryEntityId,
+		documentType: doc.documentType,
+		title: doc.title,
+		classification: doc.sensitivity,
+		validationStatus: doc.validationStatus ?? "pending",
+		fileObjectId: doc.fileObjectId,
+		contentType: doc.contentType,
+		fileSizeBytes: doc.fileSizeBytes,
+		checksumSha256: doc.checksumSha256,
+	};
 }
 
 async function listVerificationEvents(
@@ -3444,15 +3603,27 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
 	}
+	const sensitivity =
+		(getString(input, "sensitivity") as SikesraSensitivity | undefined) ??
+		(getString(input, "classification") as SikesraSensitivity | undefined) ??
+		"public_safe";
 	const newDoc: SikesraReferenceSupportingDocument = {
 		id: getString(input, "id") ?? `doc-${Math.random().toString(36).slice(2, 10)}`,
 		registryEntityId: getString(input, "registryEntityId") ?? "",
 		documentType: getString(input, "documentType") ?? "surat_keterangan",
 		title: getString(input, "title") ?? "Untitled Document",
-		sensitivity: (getString(input, "sensitivity") as SikesraSensitivity) ?? "public_safe",
+		sensitivity,
+		fileObjectId: getString(input, "fileObjectId"),
+		contentType: getString(input, "contentType"),
+		fileSizeBytes: getNumber(input, "fileSizeBytes"),
+		checksumSha256: getString(input, "checksumSha256"),
+		originalFilename: getString(input, "originalFilename"),
+		safeFilename: getString(input, "safeFilename"),
 		issuedAt: toIsoNow(),
 		verifiedBy: actorFromRoute(ctx),
 	};
+	const invalidFields = validateSupportingDocumentInput(newDoc);
+	if (invalidFields.length > 0) return createValidationError(invalidFields);
 
 	await saveSupportingDocument(ctx, newDoc);
 
@@ -3470,30 +3641,446 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, item: newDoc };
 };
 
+const documentsAccessRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const id = getString(input, "id") ?? "";
+	if (!id) return createValidationError(["id"]);
+
+	const doc = await findSupportingDocument(ctx, id);
+	if (!doc) {
+		return { success: false, error: { code: "NOT_FOUND", message: "Document not found." } };
+	}
+
+	const permissionSlug =
+		doc.sensitivity === "public_safe" ? "sikesra.document.read" : "sikesra.document.read_restricted";
+	const permission = await requireRoutePermission(ctx, permissionSlug);
+	if (!permission.allowed) return { success: false, error: permission.error };
+
+	await ensureDocumentAbacResource(ctx, doc);
+	const userId = getRequestUserId(ctx) ?? "";
+	const abac = await evaluateAbacDecision(ctx, {
+		subjectId: userId,
+		resourceId: doc.id,
+		action: permissionSlug,
+		contextAttributes: {},
+	});
+	if (!abac.allowed) {
+		return { success: false, error: { code: "FORBIDDEN", message: abac.reason } };
+	}
+
+	if (doc.sensitivity !== "public_safe") {
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "document.access.restricted",
+				scope: "documents",
+				actor: userId,
+				summary: `Restricted document metadata accessed: ${doc.id}`,
+				metadata: {
+					documentId: doc.id,
+					registryEntityId: doc.registryEntityId,
+					classification: doc.sensitivity,
+					matchedPolicyIds: abac.matchedPolicyIds,
+				},
+			}),
+		);
+	}
+
+	return { success: true, item: toSafeDocumentAccessResponse(doc), access: { abac } };
+};
+
+const IMPORT_REQUIRED_FIELDS = [
+	"code",
+	"label",
+	"entityType",
+	"provinceCode",
+	"regencyCode",
+	"districtCode",
+	"villageCode",
+];
+
+type ImportValidationIssue = { row: number; fields: string[] };
+type StagedImportRow = {
+	id: string;
+	batchId: string;
+	rowNumber: number;
+	entityType: string;
+	subtypeCode?: string;
+	rawRow: Record<string, unknown>;
+	mappedRow: Record<string, unknown>;
+	validationStatus: "valid" | "invalid";
+	validationErrors: string[];
+	duplicateStatus: "unchecked" | "duplicate_risk" | "cleared";
+	promotionStatus: "not_promoted" | "promoted";
+	promotedRegistryEntityId?: string;
+};
+
+async function persistD1DuplicateCandidate(
+	ctx: PluginContext,
+	params: {
+		id: string;
+		sourceType: string;
+		sourceId: string;
+		candidateType: string;
+		candidateId: string;
+		entityType?: string;
+		score: number;
+		riskLevel: "medium" | "high";
+		reasons: string[];
+	},
+) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_DUPLICATE_CANDIDATES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: params.id,
+			source_type: params.sourceType,
+			source_id: params.sourceId,
+			candidate_type: params.candidateType,
+			candidate_id: params.candidateId,
+			entity_type: params.entityType ?? null,
+			score: params.score,
+			risk_level: params.riskLevel,
+			reason_json: JSON.stringify(params.reasons),
+			status: "open",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actorFromRoute(ctx),
+			updated_by: actorFromRoute(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				score: params.score,
+				risk_level: params.riskLevel,
+				reason_json: JSON.stringify(params.reasons),
+				status: "open",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: actorFromRoute(ctx),
+			}),
+		)
+		.execute();
+	return true;
+}
+
+function validateImportRows(rows: unknown[]): ImportValidationIssue[] {
+	return rows.flatMap((row, index) => {
+		if (!isRecord(row)) return [{ row: index + 1, fields: ["row"] }];
+		const fields = IMPORT_REQUIRED_FIELDS.filter((field) => !getString(row, field)?.trim());
+		return fields.length > 0 ? [{ row: index + 1, fields }] : [];
+	});
+}
+
+async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto || !isRecord(input) || !Array.isArray(input.rows)) return null;
+	const rows = input.rows;
+	const now = toIsoNow();
+	const batchId = getString(input, "batchId") ?? `import-batch-${Math.random().toString(36).slice(2, 10)}`;
+	const firstRow = rows.find((row): row is Record<string, unknown> => isRecord(row));
+	const entityType = getString(input, "entityType") ?? getString(firstRow, "entityType") ?? "unknown";
+	const subtypeCode = getString(input, "subtypeCode") ?? getString(firstRow, "subtypeCode");
+	const mappingTemplateId =
+		getString(input, "mappingTemplateId") ?? `${batchId}:mapping-template`;
+	const invalidRows = validateImportRows(rows);
+	const invalidRowNumbers = new Set(invalidRows.map((row) => row.row));
+	const actor = actorFromRoute(ctx);
+	const seenCodes = new Map<string, number>();
+	let duplicateRiskRows = 0;
+
+	await db
+		.insertInto(AWCMS_SIKESRA_IMPORT_MAPPING_TEMPLATES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: mappingTemplateId,
+			name: getString(input, "mappingTemplateName") ?? `Mapping for ${batchId}`,
+			entity_type: entityType,
+			subtype_code: subtypeCode ?? null,
+			file_format: getString(input, "fileFormat") ?? "xlsx",
+			mapping_json: JSON.stringify(isRecord(input.mapping) ? input.mapping : {}),
+			status: "active",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				mapping_json: JSON.stringify(isRecord(input.mapping) ? input.mapping : {}),
+				updated_at: now,
+				deleted_at: null,
+				updated_by: actor,
+			}),
+		)
+		.execute();
+
+	await db
+		.insertInto(AWCMS_SIKESRA_IMPORT_BATCHES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: batchId,
+			mapping_template_id: mappingTemplateId,
+			entity_type: entityType,
+			subtype_code: subtypeCode ?? null,
+			file_object_id: getString(input, "fileObjectId") ?? null,
+			status: invalidRows.length > 0 ? "validation_failed" : "validated",
+			total_rows: rows.length,
+			valid_rows: rows.length - invalidRows.length,
+			invalid_rows: invalidRows.length,
+			duplicate_risk_rows: 0,
+			promoted_rows: 0,
+			source_filename: getString(input, "sourceFilename") ?? null,
+			error_summary_json: JSON.stringify({ invalidRows }),
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				status: invalidRows.length > 0 ? "validation_failed" : "validated",
+				total_rows: rows.length,
+				valid_rows: rows.length - invalidRows.length,
+				invalid_rows: invalidRows.length,
+				error_summary_json: JSON.stringify({ invalidRows }),
+				updated_at: now,
+				deleted_at: null,
+				updated_by: actor,
+			}),
+		)
+		.execute();
+
+	for (const [index, row] of rows.entries()) {
+		const rowNumber = index + 1;
+		const rawRow = isRecord(row) ? row : { value: row };
+		const rowEntityType = getString(rawRow, "entityType") ?? entityType;
+		const rowSubtypeCode = getString(rawRow, "subtypeCode") ?? subtypeCode;
+		const rowIssues = invalidRows.find((issue) => issue.row === rowNumber)?.fields ?? [];
+		const code = getString(rawRow, "code");
+		const duplicateRowNumber = code ? seenCodes.get(code) : undefined;
+		const duplicateStatus = duplicateRowNumber ? "duplicate_risk" : "unchecked";
+		if (code) seenCodes.set(code, rowNumber);
+		if (duplicateRowNumber) {
+			duplicateRiskRows++;
+			await persistD1DuplicateCandidate(ctx, {
+				id: `${batchId}:row:${rowNumber}:duplicate-code`,
+				sourceType: "import_row",
+				sourceId: `${batchId}:row:${rowNumber}`,
+				candidateType: "import_row",
+				candidateId: `${batchId}:row:${duplicateRowNumber}`,
+				entityType: rowEntityType,
+				score: 1,
+				riskLevel: "high",
+				reasons: [`Duplicate import code ${code} also appears on row ${duplicateRowNumber}`],
+			});
+		}
+		await db
+			.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: `${batchId}:row:${rowNumber}`,
+				batch_id: batchId,
+				row_number: rowNumber,
+				entity_type: rowEntityType,
+				subtype_code: rowSubtypeCode ?? null,
+				raw_row_json: JSON.stringify(rawRow),
+				mapped_row_json: JSON.stringify(rawRow),
+				validation_status: invalidRowNumbers.has(rowNumber) ? "invalid" : "valid",
+				validation_errors_json: JSON.stringify(rowIssues),
+				duplicate_status: duplicateStatus,
+				promotion_status: "not_promoted",
+				promoted_registry_entity_id: null,
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: actor,
+				updated_by: actor,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					mapped_row_json: JSON.stringify(rawRow),
+					validation_status: invalidRowNumbers.has(rowNumber) ? "invalid" : "valid",
+					validation_errors_json: JSON.stringify(rowIssues),
+					duplicate_status: duplicateStatus,
+					promotion_status: "not_promoted",
+					updated_at: now,
+					deleted_at: null,
+					updated_by: actor,
+				}),
+			)
+			.execute();
+	}
+
+	if (duplicateRiskRows > 0) {
+		await db
+			.insertInto(AWCMS_SIKESRA_IMPORT_BATCHES_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: batchId,
+				mapping_template_id: mappingTemplateId,
+				entity_type: entityType,
+				subtype_code: subtypeCode ?? null,
+				file_object_id: getString(input, "fileObjectId") ?? null,
+				status: "duplicate_review",
+				total_rows: rows.length,
+				valid_rows: rows.length - invalidRows.length,
+				invalid_rows: invalidRows.length,
+				duplicate_risk_rows: duplicateRiskRows,
+				promoted_rows: 0,
+				source_filename: getString(input, "sourceFilename") ?? null,
+				error_summary_json: JSON.stringify({ invalidRows }),
+				created_at: now,
+				updated_at: now,
+				deleted_at: null,
+				created_by: actor,
+				updated_by: actor,
+			})
+			.onConflict((oc: any) =>
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					status: "duplicate_review",
+					duplicate_risk_rows: duplicateRiskRows,
+					updated_at: now,
+					updated_by: actor,
+				}),
+			)
+			.execute();
+	}
+
+	return { batchId, mappingTemplateId, totalRows: rows.length, invalidRows, duplicateRiskRows };
+}
+
+async function getD1ImportStagingRows(ctx: PluginContext, batchId: string): Promise<StagedImportRow[]> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [] as StagedImportRow[];
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
+		.select([
+			"id",
+			"batch_id",
+			"row_number",
+			"entity_type",
+			"subtype_code",
+			"raw_row_json",
+			"mapped_row_json",
+			"validation_status",
+			"validation_errors_json",
+			"duplicate_status",
+			"promotion_status",
+			"promoted_registry_entity_id",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("batch_id", "=", batchId)
+		.where("deleted_at", "is", null)
+		.orderBy("row_number", "asc")
+		.execute()) as Array<Record<string, unknown>>;
+
+	return rows.map((row): StagedImportRow => ({
+		id: String(row.id),
+		batchId: String(row.batch_id),
+		rowNumber: Number(row.row_number),
+		entityType: String(row.entity_type),
+		subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
+		rawRow: JSON.parse(String(row.raw_row_json ?? "{}")),
+		mappedRow: JSON.parse(String(row.mapped_row_json ?? "{}")),
+		validationStatus: row.validation_status === "valid" ? "valid" : "invalid",
+		validationErrors: JSON.parse(String(row.validation_errors_json ?? "[]")),
+		duplicateStatus:
+			row.duplicate_status === "duplicate_risk" || row.duplicate_status === "cleared"
+				? row.duplicate_status
+				: "unchecked",
+		promotionStatus: row.promotion_status === "promoted" ? "promoted" : "not_promoted",
+		promotedRegistryEntityId:
+			typeof row.promoted_registry_entity_id === "string"
+				? row.promoted_registry_entity_id
+				: undefined,
+	}));
+}
+
+async function markD1ImportRowPromoted(ctx: PluginContext, row: StagedImportRow, registryEntityId: string) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return;
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: row.id,
+			batch_id: row.batchId,
+			row_number: row.rowNumber,
+			entity_type: row.entityType,
+			subtype_code: row.subtypeCode ?? null,
+			raw_row_json: JSON.stringify(row.rawRow),
+			mapped_row_json: JSON.stringify(row.mappedRow),
+			validation_status: row.validationStatus,
+			validation_errors_json: JSON.stringify(row.validationErrors),
+			duplicate_status: row.duplicateStatus,
+			promotion_status: "promoted",
+			promoted_registry_entity_id: registryEntityId,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actorFromRoute(ctx),
+			updated_by: actorFromRoute(ctx),
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				promotion_status: "promoted",
+				promoted_registry_entity_id: registryEntityId,
+				updated_at: now,
+				updated_by: actorFromRoute(ctx),
+			}),
+		)
+		.execute();
+}
+
+const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const result = await createD1ImportBatch(ctx, routeCtx.input);
+	if (!result) return { success: false, error: { code: "VALIDATION_ERROR", message: "Invalid import rows." } };
+
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "registry.import.create",
+			scope: "registry",
+			actor: actorFromRoute(ctx),
+			summary: `Created SIKESRA import batch ${result.batchId}`,
+			metadata: { batchId: result.batchId, totalRows: result.totalRows, invalidRows: result.invalidRows },
+		}),
+	);
+
+	return { success: true, ...result };
+};
+
 const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
 	}
-	const rows = input.rows;
-	if (!Array.isArray(rows)) {
-		throw new Error("Invalid rows format");
+	let batchId = getString(input, "batchId");
+	if (!batchId && Array.isArray(input.rows)) {
+		const created = await createD1ImportBatch(ctx, input);
+		batchId = created?.batchId;
 	}
+	if (!batchId) return { success: false, error: { code: "VALIDATION_ERROR", message: "Import batch is required before promotion." } };
 
-	const requiredFields = [
-		"code",
-		"label",
-		"entityType",
-		"provinceCode",
-		"regencyCode",
-		"districtCode",
-		"villageCode",
-	];
-	const invalidRows = rows.flatMap((row, index) => {
-		if (!isRecord(row)) return [{ row: index + 1, fields: ["row"] }];
-		const fields = requiredFields.filter((field) => !getString(row, field)?.trim());
-		return fields.length > 0 ? [{ row: index + 1, fields }] : [];
-	});
+	const stagedRows = await getD1ImportStagingRows(ctx, batchId);
+	const invalidRows = stagedRows
+		.filter((row) => row.validationStatus !== "valid")
+		.map((row) => ({ row: row.rowNumber, fields: row.validationErrors }));
 	if (invalidRows.length > 0) {
 		return {
 			success: false,
@@ -3504,10 +4091,23 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		};
 	}
+	const duplicateRiskRows = stagedRows
+		.filter((row) => row.duplicateStatus === "duplicate_risk")
+		.map((row) => row.rowNumber);
+	if (duplicateRiskRows.length > 0) {
+		return {
+			success: false,
+			error: {
+				code: "DUPLICATE_REVIEW_REQUIRED",
+				message: "Duplicate-risk rows require a decision before promotion.",
+				details: { duplicateRiskRows },
+			},
+		};
+	}
 
 	let count = 0;
-	for (const row of rows) {
-		if (!isRecord(row)) continue;
+	for (const stagedRow of stagedRows.filter((row) => row.promotionStatus !== "promoted")) {
+		const row = stagedRow.mappedRow;
 		const newEntity: SikesraReferenceRegistryEntity = {
 			id: getString(row, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
 			code: getString(row, "code")!,
@@ -3528,6 +4128,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			publicSummary: getString(row, "publicSummary") ?? "",
 		};
 		await saveRegistryEntity(ctx, newEntity);
+		await markD1ImportRowPromoted(ctx, stagedRow, newEntity.id);
 		count++;
 	}
 
@@ -3538,11 +4139,64 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			scope: "registry",
 			actor: actorFromRoute(ctx),
 			summary: `Promoted ${count} staged rows from Excel import to SIKESRA Registry`,
-			metadata: { count },
+			metadata: { batchId, count },
 		}),
 	);
 
-	return { success: true, count };
+	return { success: true, batchId, count };
+};
+
+const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const input = routeCtx.input;
+	if (!isRecord(input)) throw new Error("Invalid input format");
+	const candidateId = getString(input, "candidateId") ?? "";
+	const decision = getString(input, "decision") ?? "";
+	const reason = getString(input, "reason") ?? "";
+	if (!candidateId || !decision || !reason.trim()) {
+		return createValidationError([
+			...(candidateId ? [] : ["candidateId"]),
+			...(decision ? [] : ["decision"]),
+			...(reason.trim() ? [] : ["reason"]),
+		]);
+	}
+
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) {
+		return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for duplicate decisions." } };
+	}
+	const now = toIsoNow();
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
+	const id = getString(input, "id") ?? `${candidateId}:decision:${Date.now()}`;
+	const audit = createAuditRecord({
+		kind: "duplicate.decision",
+		scope: "duplicates",
+		actor,
+		summary: `Recorded duplicate decision ${decision} for ${candidateId}`,
+		metadata: { candidateId, decision, reason },
+	});
+	await appendAuditEvent(ctx, audit);
+
+	await db
+		.insertInto(AWCMS_SIKESRA_DUPLICATE_DECISIONS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id,
+			candidate_id: candidateId,
+			decision,
+			reason,
+			decided_by: actor,
+			decided_at: now,
+			audit_event_id: audit.id,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: actor,
+			updated_by: actor,
+		})
+		.execute();
+
+	return { success: true, item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now } };
 };
 
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -4464,7 +5118,10 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"registry/save": { handler: registrySaveRoute },
 	"documents/list": { handler: documentsListRoute },
 	"documents/save": { handler: documentsSaveRoute },
+	"documents/access": { handler: documentsAccessRoute },
+	"import/create": { handler: importCreateRoute },
 	"import/promote": { handler: importPromoteRoute },
+	"duplicates/decide": { handler: duplicateDecisionRoute },
 	"dashboard/summary": { handler: overviewSummaryRoute },
 	"overview/summary": { handler: overviewSummaryRoute },
 	"verification/list": { handler: verificationListRoute },

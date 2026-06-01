@@ -132,6 +132,11 @@ function createMockContext() {
 	const localRegionTableRows: Array<Record<string, unknown>> = [];
 	const fileObjectTableRows: Array<Record<string, unknown>> = [];
 	const supportingDocumentTableRows: Array<Record<string, unknown>> = [];
+	const importBatchTableRows: Array<Record<string, unknown>> = [];
+	const importStagingRowTableRows: Array<Record<string, unknown>> = [];
+	const importMappingTemplateTableRows: Array<Record<string, unknown>> = [];
+	const duplicateCandidateTableRows: Array<Record<string, unknown>> = [];
+	const duplicateDecisionTableRows: Array<Record<string, unknown>> = [];
 	const verificationStageTableRows: Array<Record<string, unknown>> = [];
 	const verificationEventTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
@@ -368,6 +373,26 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_file_objects") {
+						return fileObjectTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_import_staging_rows") {
+						return importStagingRowTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
@@ -589,6 +614,105 @@ function createMockContext() {
 							created_by: nextRow.created_by ?? null,
 							updated_by: nextRow.updated_by ?? null,
 						};
+					} else if (_table === "sikesra_import_mapping_templates") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							name: textValue(nextRow.name),
+							entity_type: textValue(nextRow.entity_type),
+							subtype_code: nextRow.subtype_code ?? null,
+							file_format: textValue(nextRow.file_format),
+							mapping_json: textValue(nextRow.mapping_json),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_import_batches") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							mapping_template_id: nextRow.mapping_template_id ?? null,
+							entity_type: textValue(nextRow.entity_type),
+							subtype_code: nextRow.subtype_code ?? null,
+							file_object_id: nextRow.file_object_id ?? null,
+							status: textValue(nextRow.status),
+							total_rows: Number(nextRow.total_rows ?? 0),
+							valid_rows: Number(nextRow.valid_rows ?? 0),
+							invalid_rows: Number(nextRow.invalid_rows ?? 0),
+							duplicate_risk_rows: Number(nextRow.duplicate_risk_rows ?? 0),
+							promoted_rows: Number(nextRow.promoted_rows ?? 0),
+							source_filename: nextRow.source_filename ?? null,
+							error_summary_json: textValue(nextRow.error_summary_json),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_import_staging_rows") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							batch_id: textValue(nextRow.batch_id),
+							row_number: Number(nextRow.row_number ?? 0),
+							entity_type: textValue(nextRow.entity_type),
+							subtype_code: nextRow.subtype_code ?? null,
+							raw_row_json: textValue(nextRow.raw_row_json),
+							mapped_row_json: textValue(nextRow.mapped_row_json),
+							validation_status: textValue(nextRow.validation_status),
+							validation_errors_json: textValue(nextRow.validation_errors_json),
+							duplicate_status: textValue(nextRow.duplicate_status),
+							promotion_status: textValue(nextRow.promotion_status),
+							promoted_registry_entity_id: nextRow.promoted_registry_entity_id ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_duplicate_candidates") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							source_type: textValue(nextRow.source_type),
+							source_id: textValue(nextRow.source_id),
+							candidate_type: textValue(nextRow.candidate_type),
+							candidate_id: textValue(nextRow.candidate_id),
+							entity_type: nextRow.entity_type ?? null,
+							score: Number(nextRow.score ?? 0),
+							risk_level: textValue(nextRow.risk_level),
+							reason_json: textValue(nextRow.reason_json),
+							status: textValue(nextRow.status),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_duplicate_decisions") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							candidate_id: textValue(nextRow.candidate_id),
+							decision: textValue(nextRow.decision),
+							reason: textValue(nextRow.reason),
+							decided_by: nextRow.decided_by ?? null,
+							decided_at: textValue(nextRow.decided_at),
+							audit_event_id: nextRow.audit_event_id ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
 					} else if (_table === "sikesra_verification_stage_state") {
 						row = {
 							tenant_id: textValue(nextRow.tenant_id),
@@ -695,6 +819,26 @@ function createMockContext() {
 										upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_import_mapping_templates") {
+										upsertD1CatalogRow(importMappingTemplateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_import_batches") {
+										upsertD1CatalogRow(importBatchTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_import_staging_rows") {
+										upsertD1CatalogRow(importStagingRowTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_duplicate_candidates") {
+										upsertD1CatalogRow(duplicateCandidateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_duplicate_decisions") {
+										upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_verification_stage_state") {
 										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 										return;
@@ -776,6 +920,26 @@ function createMockContext() {
 								}
 								if (_table === "sikesra_supporting_documents") {
 									upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_import_mapping_templates") {
+									upsertD1CatalogRow(importMappingTemplateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_import_batches") {
+									upsertD1CatalogRow(importBatchTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_import_staging_rows") {
+									upsertD1CatalogRow(importStagingRowTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_duplicate_candidates") {
+									upsertD1CatalogRow(duplicateCandidateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_duplicate_decisions") {
+									upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 									return;
 								}
 								if (_table === "sikesra_verification_stage_state") {
@@ -931,6 +1095,11 @@ function createMockContext() {
 		localRegionTableRows,
 		fileObjectTableRows,
 		supportingDocumentTableRows,
+		importBatchTableRows,
+		importStagingRowTableRows,
+		importMappingTemplateTableRows,
+		duplicateCandidateTableRows,
+		duplicateDecisionTableRows,
 		verificationStageTableRows,
 		verificationEventTableRows,
 		seedDbRow,
@@ -1396,7 +1565,10 @@ describe("awcms micro sikesra plugin", () => {
 				"registry/save",
 				"documents/list",
 				"documents/save",
+				"documents/access",
+				"import/create",
 				"import/promote",
+				"duplicates/decide",
 				"dashboard/summary",
 				"overview/summary",
 				"verification/list",
@@ -1460,7 +1632,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public settings", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const emptyStatus = (await routes["settings/save"]!.handler({
@@ -1819,6 +1991,94 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("validates document metadata before D1 persistence", async () => {
+		const { ctx, fileObjectTableRows, supportingDocumentTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const result = (await routes["documents/save"]!.handler({
+			...ctx,
+			input: {
+				id: "doc-invalid-01",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Invalid Document",
+				classification: "secret",
+				contentType: "application/x-msdownload",
+				fileSizeBytes: 99 * 1024 * 1024,
+				checksumSha256: "not-a-checksum",
+			},
+		} as any)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("VALIDATION_ERROR");
+		expect(result.error.details.fields).toEqual([
+			"classification",
+			"contentType",
+			"fileSizeBytes",
+			"checksumSha256",
+		]);
+		expect(fileObjectTableRows).toHaveLength(0);
+		expect(supportingDocumentTableRows).toHaveLength(0);
+	});
+
+	it("requires RBAC and ABAC before exposing restricted document metadata", async () => {
+		const { ctx, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+		const editorRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
+		});
+
+		await routes["documents/save"]!.handler({
+			...ctx,
+			input: {
+				id: "doc-restricted-01",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Restricted Document",
+				classification: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: "a".repeat(64),
+				originalFilename: "secret.pdf",
+				safeFilename: "secret.pdf",
+			},
+		} as any);
+
+		const denied = (await routes["documents/access"]!.handler({
+			...ctx,
+			request: editorRequest,
+			input: { id: "doc-restricted-01" },
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+		expect(denied.error.code).toBe("FORBIDDEN");
+
+		const allowed = (await routes["documents/access"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "doc-restricted-01" },
+		} as any)) as any;
+
+		expect(allowed.success).toBe(true);
+		expect(allowed.item).toMatchObject({
+			id: "doc-restricted-01",
+			classification: "restricted",
+			contentType: "application/pdf",
+			fileSizeBytes: 2048,
+			checksumSha256: "a".repeat(64),
+		});
+		expect(allowed.item.storageKey).toBeUndefined();
+		expect(allowed.access.abac.allowed).toBe(true);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({
+				kind: "document.access.restricted",
+				actor_user_id: "user-demo-sikesra-admin",
+			}),
+		);
+	});
+
 	it.each([
 		["rumah_ibadah", "sikesra_rumah_ibadah_details"],
 		["lembaga_keagamaan", "sikesra_lembaga_keagamaan_details"],
@@ -1887,7 +2147,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("blocks import promotion while staged rows have validation errors", async () => {
-		const { ctx, collections } = createMockContext();
+		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const result = (await routes["import/promote"]!.handler({
@@ -1910,8 +2170,161 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("VALIDATION_ERROR");
 		expect(result.error.details.invalidRows).toEqual([{ row: 1, fields: ["code"] }]);
+		expect(importBatchTableRows).toContainEqual(
+			expect.objectContaining({ status: "validation_failed", invalid_rows: 1 }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ validation_status: "invalid", validation_errors_json: '["code"]' }),
+		);
 		expect(collections.registryEntities.size).toBe(0);
 		expect(collections.auditEvents.size).toBe(0);
+	});
+
+	it("creates a D1 staged import batch before promoting valid rows", async () => {
+		const {
+			ctx,
+			registryEntityTableRows,
+			importBatchTableRows,
+			importStagingRowTableRows,
+			importMappingTemplateTableRows,
+			auditTableRows,
+		} = createMockContext();
+		const routes = createNativeRoutes();
+		const rows = [
+			{
+				id: "registry-import-01",
+				code: "IMP-001",
+				label: "Imported Row",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+		];
+
+		const created = (await routes["import/create"]!.handler({
+			...ctx,
+			input: {
+				batchId: "batch-import-01",
+				mappingTemplateId: "mapping-import-01",
+				entityType: "rumah_ibadah",
+				mapping: { code: "Kode", label: "Nama" },
+				rows,
+			},
+		} as any)) as any;
+
+		expect(created.success).toBe(true);
+		expect(created.batchId).toBe("batch-import-01");
+		expect(importMappingTemplateTableRows).toContainEqual(
+			expect.objectContaining({ id: "mapping-import-01", entity_type: "rumah_ibadah" }),
+		);
+		expect(importBatchTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-import-01", status: "validated", total_rows: 1 }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ batch_id: "batch-import-01", validation_status: "valid" }),
+		);
+
+		const promoted = (await routes["import/promote"]!.handler({
+			...ctx,
+			input: { batchId: "batch-import-01" },
+		} as any)) as any;
+
+		expect(promoted.success).toBe(true);
+		expect(promoted.count).toBe(1);
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({ id: "registry-import-01", code: "IMP-001" }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "batch-import-01:row:1",
+				promotion_status: "promoted",
+				promoted_registry_entity_id: "registry-import-01",
+			}),
+		);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.create" }));
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.promote" }));
+	});
+
+	it("stores duplicate candidates and blocks high-risk duplicate import promotion", async () => {
+		const {
+			ctx,
+			duplicateCandidateTableRows,
+			duplicateDecisionTableRows,
+			importBatchTableRows,
+			importStagingRowTableRows,
+			auditTableRows,
+		} = createMockContext();
+		const routes = createNativeRoutes();
+		const rows = [
+			{
+				id: "registry-dup-01",
+				code: "DUP-001",
+				label: "Duplicate One",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+			{
+				id: "registry-dup-02",
+				code: "DUP-001",
+				label: "Duplicate Two",
+				entityType: "rumah_ibadah",
+				provinceCode: "31",
+				regencyCode: "3171",
+				districtCode: "3171010",
+				villageCode: "3171010001",
+			},
+		];
+
+		await routes["import/create"]!.handler({
+			...ctx,
+			input: { batchId: "batch-dup-01", entityType: "rumah_ibadah", rows },
+		} as any);
+
+		expect(importBatchTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-dup-01", status: "duplicate_review", duplicate_risk_rows: 1 }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-dup-01:row:2", duplicate_status: "duplicate_risk" }),
+		);
+		expect(duplicateCandidateTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "batch-dup-01:row:2:duplicate-code",
+				source_type: "import_row",
+				candidate_id: "batch-dup-01:row:1",
+				risk_level: "high",
+			}),
+		);
+
+		const promoted = (await routes["import/promote"]!.handler({
+			...ctx,
+			input: { batchId: "batch-dup-01" },
+		} as any)) as any;
+		expect(promoted.success).toBe(false);
+		expect(promoted.error.code).toBe("DUPLICATE_REVIEW_REQUIRED");
+
+		const decision = (await routes["duplicates/decide"]!.handler({
+			...ctx,
+			input: {
+				id: "decision-dup-01",
+				candidateId: "batch-dup-01:row:2:duplicate-code",
+				decision: "confirmed_duplicate",
+				reason: "Same code in staged import file.",
+			},
+		} as any)) as any;
+		expect(decision.success).toBe(true);
+		expect(duplicateDecisionTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "decision-dup-01",
+				candidate_id: "batch-dup-01:row:2:duplicate-code",
+				decision: "confirmed_duplicate",
+			}),
+		);
+		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.decision" }));
 	});
 
 	it("migrates legacy registry blobs into D1 and document blobs into plugin storage on read", async () => {

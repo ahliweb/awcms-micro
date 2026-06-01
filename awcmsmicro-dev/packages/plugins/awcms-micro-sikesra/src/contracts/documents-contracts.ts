@@ -12,6 +12,15 @@ export interface SikesraDocumentMetadataRequest {
 	documentType: string;
 	classification: string;
 	fileObjectId?: string;
+	contentType?: string;
+	fileSizeBytes?: number;
+	checksumSha256?: string;
+	originalFilename?: string;
+	safeFilename?: string;
+}
+
+export interface SikesraDocumentAccessRequest {
+	id: string;
 }
 
 export interface SikesraDocumentDto {
@@ -21,4 +30,8 @@ export interface SikesraDocumentDto {
 	documentType: string;
 	classification: string;
 	validationStatus: string;
+	fileObjectId?: string;
+	contentType?: string;
+	fileSizeBytes?: number;
+	checksumSha256?: string;
 }

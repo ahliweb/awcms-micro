@@ -11,6 +11,19 @@ export interface SikesraImportPromotionRequest {
 	rows?: unknown[];
 }
 
+export interface SikesraImportCreateRequest {
+	batchId?: string;
+	entityType?: string;
+	subtypeCode?: string;
+	mappingTemplateId?: string;
+	mappingTemplateName?: string;
+	fileFormat?: string;
+	sourceFilename?: string;
+	fileObjectId?: string;
+	mapping?: Record<string, string>;
+	rows: unknown[];
+}
+
 export interface SikesraImportBatchDto {
 	id: string;
 	entityType: string;
