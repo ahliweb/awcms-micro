@@ -752,6 +752,27 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBe(0);
 	});
 
+	it("rejects unsafe governance settings", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const invalidRetention = (await routes["settings/save"]!.handler({
+			...ctx,
+			input: { auditRetentionDays: 0 },
+		} as any)) as any;
+		const invalidMode = (await routes["settings/save"]!.handler({
+			...ctx,
+			input: { governanceMode: "deleteEverything" },
+		} as any)) as any;
+
+		expect(invalidRetention.success).toBe(false);
+		expect(invalidRetention.error.message).toContain("Audit retention days");
+		expect(invalidMode.success).toBe(false);
+		expect(invalidMode.error.message).toContain("Governance mode");
+		expect(collections.settingsState.size).toBe(0);
+		expect(collections.auditEvents.size).toBe(0);
+	});
+
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

@@ -1497,6 +1497,8 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 	sikesraPublicEnabled: true,
 };
 
+const ALLOWED_GOVERNANCE_MODES = new Set(["observe", "review", "enforceDemo"]);
+
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
 type VerificationStage =
@@ -2713,6 +2715,26 @@ const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 };
 
 const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const auditRetentionDays = getNumber(routeCtx.input, "auditRetentionDays");
+	if (auditRetentionDays !== undefined && auditRetentionDays < 1) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Audit retention days must be at least 1.",
+			},
+		};
+	}
+	const governanceMode = getString(routeCtx.input, "governanceMode");
+	if (governanceMode !== undefined && !ALLOWED_GOVERNANCE_MODES.has(governanceMode)) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Governance mode must be observe, review, or enforceDemo.",
+			},
+		};
+	}
 	const smallCellThreshold = getNumber(routeCtx.input, "smallCellThreshold");
 	if (smallCellThreshold !== undefined && smallCellThreshold < 1) {
 		return {
