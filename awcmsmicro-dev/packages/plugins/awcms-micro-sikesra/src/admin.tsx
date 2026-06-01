@@ -1,9 +1,10 @@
 import { Badge, Button, Input, InputArea, LinkButton, Select } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react";
 import type { PluginAdminExports } from "emdash";
-import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
+import { apiFetch } from "emdash/plugin-utils";
 import * as React from "react";
 
+import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
@@ -22,9 +23,7 @@ import {
 	type SikesraParentType,
 } from "./runtime.js";
 
-const PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 const PLUGIN_ADMIN_BASE = `/_emdash/admin/plugins/${AWCMS_SIKESRA_PLUGIN_ID}`;
-const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 interface AdministrativeRegion {
 	code: string;
@@ -508,30 +507,18 @@ async function getCachedUser(): Promise<{ id: string; name?: string } | null> {
 	return cachedUserPromise;
 }
 
-async function postPlugin<T>(path: string, payload: unknown = {}) {
+async function postPlugin<T>(path: SikesraAdminApiPath, payload: unknown = {}) {
 	const copy = getExampleAdminCopy(getCurrentAdminLocale());
 	const user = await getCachedUser();
-	const headers: Record<string, string> = { ...JSON_HEADERS };
-	if (user) {
-		headers["X-Sikesra-User-Id"] = user.id;
-		if (user.name) {
-			headers["X-Sikesra-User-Name"] = user.name;
-		}
-	}
-	const response = await apiFetch(`${PLUGIN_API_BASE}/${path}`, {
-		method: "POST",
-		headers,
-		body: JSON.stringify(payload),
+	return postSikesraPlugin<T>({
+		path,
+		payload,
+		user,
+		requestFailedMessage: copy.requestFailed,
 	});
-
-	if (!response.ok) {
-		throw new Error(await getErrorMessage(response, copy.requestFailed));
-	}
-
-	return parseApiResponse<T>(response);
 }
 
-function usePluginData<T>(path: string, payload: unknown = {}) {
+function usePluginData<T>(path: SikesraAdminApiPath, payload: unknown = {}) {
 	const payloadKey = JSON.stringify(payload ?? {});
 	const [data, setData] = React.useState<T | null>(null);
 	const [error, setError] = React.useState<string | null>(null);
