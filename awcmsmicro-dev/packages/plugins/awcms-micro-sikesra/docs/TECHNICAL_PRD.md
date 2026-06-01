@@ -303,6 +303,23 @@ Contract requirements:
 
 ## 9. Database and Storage
 
+### SIKESRA D1 Table and Collection Naming Rule
+
+All SIKESRA-owned D1 tables and plugin storage collections MUST use the `sikesra_` prefix.
+
+Required examples include:
+
+```txt
+sikesra_registry_entities
+sikesra_supporting_documents
+sikesra_verification_events
+sikesra_audit_events
+sikesra_import_batches
+sikesra_export_jobs
+```
+
+Do not create SIKESRA production tables without the `sikesra_` prefix. Do not store canonical SIKESRA business data in generic EmDash tables, generic plugin tables, or shared plugin collections unless it is only for compatibility, migration, or temporary fallback. The canonical production source of truth for SIKESRA must be dedicated D1 tables with the `sikesra_` prefix.
+
 ### Current Compatibility Layer
 
 The plugin currently uses plugin-owned storage collections and selected D1 support for audit compatibility. Existing collection names must remain prefixed with `sikesra_`.

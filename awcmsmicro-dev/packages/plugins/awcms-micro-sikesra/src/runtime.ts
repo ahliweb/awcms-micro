@@ -368,6 +368,25 @@ export const AWCMS_SIKESRA_STORAGE = {
 
 export const AWCMS_SIKESRA_DESCRIPTOR_STORAGE = AWCMS_SIKESRA_STORAGE;
 
+export const AWCMS_SIKESRA_D1_TABLE_NAMES = [
+	"sikesra_settings",
+	"sikesra_data_types",
+	"sikesra_regions",
+	"sikesra_registry_entities",
+	"sikesra_person_profiles",
+	"sikesra_supporting_documents",
+	"sikesra_verification_events",
+	"sikesra_import_batches",
+	"sikesra_import_rows",
+	"sikesra_export_jobs",
+	"sikesra_audit_events",
+	"sikesra_user_role_assignments",
+	"sikesra_abac_policy_rules",
+	"sikesra_custom_attribute_definitions",
+	"sikesra_custom_attribute_values",
+	"sikesra_delete_requests",
+] as const;
+
 const AWCMS_SIKESRA_AUDIT_TABLE = "sikesra_audit_events";
 
 const AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS = [

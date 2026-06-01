@@ -20,6 +20,7 @@ import {
 	AWCMS_SIKESRA_ADMIN_WIDGETS,
 	AWCMS_SIKESRA_CAPABILITIES,
 	AWCMS_SIKESRA_DESCRIPTOR_STORAGE,
+	AWCMS_SIKESRA_D1_TABLE_NAMES,
 	AWCMS_SIKESRA_FIELD_WIDGETS,
 	AWCMS_SIKESRA_PLUGIN_ID,
 	AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS,
@@ -490,6 +491,19 @@ describe("awcms micro sikesra plugin", () => {
 			]),
 		);
 		expect(Object.keys(storage).every((key) => key.startsWith("sikesra_"))).toBe(true);
+		expect(AWCMS_SIKESRA_D1_TABLE_NAMES.every((table) => table.startsWith("sikesra_"))).toBe(
+			true,
+		);
+		expect(AWCMS_SIKESRA_D1_TABLE_NAMES).toEqual(
+			expect.arrayContaining([
+				"sikesra_registry_entities",
+				"sikesra_supporting_documents",
+				"sikesra_verification_events",
+				"sikesra_audit_events",
+				"sikesra_import_batches",
+				"sikesra_export_jobs",
+			]),
+		);
 		expect(AWCMS_SIKESRA_STORAGE.sikesra_access_change_events.indexes).toEqual([
 			"timestamp",
 			"kind",
