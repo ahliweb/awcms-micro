@@ -45,6 +45,23 @@ const REQUIRED_REGISTRY_INDEXES = [
 	"idx_sikesra_entities_code",
 ] as const;
 
+const REQUIRED_AUDIT_COLUMNS = [
+	"id",
+	"tenant_id",
+	"site_id",
+	"timestamp",
+	"kind",
+	"scope",
+	"actor_user_id",
+	"actor_name",
+	"summary",
+	"metadata_json",
+	"request_id",
+	"ip_hash",
+	"user_agent_hash",
+	"created_at",
+] as const;
+
 function readMigrationSqlFiles() {
 	if (!existsSync(MIGRATIONS_DIR)) return [];
 	return readdirSync(MIGRATIONS_DIR)
@@ -126,6 +143,14 @@ describe("SIKESRA D1 migration prefix policy", () => {
 		const sql = readAllMigrationSql();
 		for (const index of REQUIRED_REGISTRY_INDEXES) {
 			expect(sql, `${index} missing`).toMatch(new RegExp(`CREATE\\s+INDEX\\s+IF\\s+NOT\\s+EXISTS\\s+${index}\\b`, "i"));
+		}
+	});
+
+	it("defines canonical audit event columns required by issue #133", () => {
+		const definition = getTableDefinition(readAllMigrationSql(), "sikesra_audit_events");
+		expect(definition).not.toBe("");
+		for (const column of REQUIRED_AUDIT_COLUMNS) {
+			expect(definition, `sikesra_audit_events missing ${column}`).toContain(column);
 		}
 	});
 });

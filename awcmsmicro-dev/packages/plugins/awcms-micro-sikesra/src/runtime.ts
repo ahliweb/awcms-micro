@@ -421,6 +421,7 @@ const AWCMS_SIKESRA_DATA_TYPES_TABLE = "sikesra_data_types";
 const AWCMS_SIKESRA_DATA_SUBTYPES_TABLE = "sikesra_data_subtypes";
 const AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE = "sikesra_official_regions";
 const AWCMS_SIKESRA_LOCAL_REGIONS_TABLE = "sikesra_local_regions";
+const AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE = "sikesra_registry_entities";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
 const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
@@ -454,17 +455,22 @@ interface PluginStorageRow {
 }
 
 interface SikesraAuditEventRow {
+	tenant_id?: string;
+	site_id?: string;
 	id: string;
 	timestamp: string;
 	kind: string;
 	scope: string;
-	actor: string;
+	actor?: string;
+	actor_user_id?: string | null;
+	actor_name?: string | null;
 	summary: string;
-	metadata: string;
-	user_id?: string | null;
-	user_name?: string | null;
+	metadata?: string;
+	metadata_json?: string;
+	request_id?: string | null;
+	ip_hash?: string | null;
+	user_agent_hash?: string | null;
 	created_at?: string | null;
-	updated_at?: string | null;
 }
 
 function toTimestamp(value: string | null | undefined): number {
@@ -487,17 +493,21 @@ async function ensureAuditEventTable(db: any) {
 	await db.schema
 		.createTable(AWCMS_SIKESRA_AUDIT_TABLE)
 		.ifNotExists()
-		.addColumn("id", "text", (column: any) => column.primaryKey())
+		.addColumn("tenant_id", "text", (column: any) => column.notNull())
+		.addColumn("site_id", "text", (column: any) => column.notNull())
+		.addColumn("id", "text", (column: any) => column.notNull())
 		.addColumn("timestamp", "text", (column: any) => column.notNull())
 		.addColumn("kind", "text", (column: any) => column.notNull())
 		.addColumn("scope", "text", (column: any) => column.notNull())
-		.addColumn("actor", "text", (column: any) => column.notNull())
+		.addColumn("actor_user_id", "text")
+		.addColumn("actor_name", "text")
 		.addColumn("summary", "text", (column: any) => column.notNull())
-		.addColumn("metadata", "text", (column: any) => column.notNull())
-		.addColumn("user_id", "text")
-		.addColumn("user_name", "text")
+		.addColumn("metadata_json", "text", (column: any) => column.notNull())
+		.addColumn("redaction_policy", "text", (column: any) => column.notNull())
+		.addColumn("request_id", "text")
+		.addColumn("ip_hash", "text")
+		.addColumn("user_agent_hash", "text")
 		.addColumn("created_at", "text", (column: any) => column.notNull())
-		.addColumn("updated_at", "text", (column: any) => column.notNull())
 		.execute();
 }
 
@@ -528,11 +538,11 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 							"timestamp",
 							"kind",
 							"scope",
-							"actor",
+							"actor_user_id",
+							"actor_name",
 							"summary",
-							"metadata",
+							"metadata_json",
 							"created_at",
-							"updated_at",
 						])
 						.execute()) as SikesraAuditEventRow[])
 				: ((await db
@@ -547,34 +557,40 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
 			if (to === AWCMS_SIKESRA_AUDIT_TABLE) {
 				const parsed = JSON.parse(row.data) as Partial<SikesraAuditEventRow>;
+				const timestamp = parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString();
+				const actorName = parsed.actor_name ?? parsed.actor ?? "system";
+				const metadata = redactAuditMetadata(
+					parsed.metadata_json ? JSON.parse(parsed.metadata_json) : (parsed as any).metadata ?? {},
+				) as Record<string, unknown>;
 				await db
 					.insertInto(to)
 					.values({
+						tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+						site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
 						id: row.id,
-						timestamp:
-							parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						timestamp,
 						kind: parsed.kind ?? "legacy.audit",
 						scope: parsed.scope ?? "lifecycle",
-						actor: parsed.actor ?? "system",
+						actor_user_id: parsed.actor_user_id ?? null,
+						actor_name: actorName,
 						summary: parsed.summary ?? "Migrated audit row",
-						metadata: JSON.stringify(parsed.metadata ?? {}),
-						user_id: parsed.user_id ?? null,
-						user_name: parsed.user_name ?? null,
+						metadata_json: JSON.stringify(metadata),
+						redaction_policy: "sikesra_default_redacted",
+						request_id: null,
+						ip_hash: null,
+						user_agent_hash: null,
 						created_at: row.created_at ?? row.updated_at ?? new Date().toISOString(),
-						updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
 					})
 					.onConflict((oc: any) =>
-						oc.columns(["id"]).doUpdateSet({
-							timestamp:
-								parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString(),
+						oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+							timestamp,
 							kind: parsed.kind ?? "legacy.audit",
 							scope: parsed.scope ?? "lifecycle",
-							actor: parsed.actor ?? "system",
+							actor_user_id: parsed.actor_user_id ?? null,
+							actor_name: actorName,
 							summary: parsed.summary ?? "Migrated audit row",
-							metadata: JSON.stringify(parsed.metadata ?? {}),
-							user_id: parsed.user_id ?? null,
-							user_name: parsed.user_name ?? null,
-							updated_at: row.updated_at ?? row.created_at ?? new Date().toISOString(),
+							metadata_json: JSON.stringify(metadata),
+							redaction_policy: "sikesra_default_redacted",
 						}),
 					)
 					.execute();
@@ -1430,7 +1446,7 @@ const DEFAULT_USER_ROLE_ASSIGNMENTS: UserRoleAssignment[] = [
 	},
 	{
 		userId: "user-demo-sikesra-admin",
-		roles: ["admin-sikesra"],
+		roles: ["admin-sikesra", "sikesra_admin"],
 		updatedAt: "",
 	},
 ];
@@ -1827,14 +1843,17 @@ function filterVerificationItemsForRegionScope(
 }
 
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
+	const d1Entities = await getD1RegistryEntities(ctx);
 	const legacy =
 		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	if (legacy.length > 0) {
-		for (const entity of legacy) {
-			await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
-		}
+		for (const entity of legacy) await saveRegistryEntity(ctx, entity);
 		await ctx.kv.delete("custom:registryEntities");
 	}
+	if (d1Entities.length > 0 || legacy.length > 0) {
+		return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, d1Entities, legacy);
+	}
+
 	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
 		ctx.storage.sikesra_registry_entities!,
 	);
@@ -1842,11 +1861,124 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 }
 
 async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
+	if (await persistD1RegistryEntity(ctx, entity)) return;
+
 	const custom =
 		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
 	const next = [...custom.filter((item) => item.id !== entity.id), entity];
 	await ctx.kv.set("custom:registryEntities", next);
 	await ctx.storage.sikesra_registry_entities!.put(entity.id, entity);
+}
+
+async function getD1RegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
+		.select([
+			"id",
+			"code",
+			"label",
+			"entity_type",
+			"subtype_code",
+			"sensitivity",
+			"province_code",
+			"regency_code",
+			"district_code",
+			"village_code",
+			"verification_stage",
+			"input_level",
+			"public_summary",
+			"deleted_at",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.execute()) as Array<{
+		id: string;
+		code: string;
+		label: string;
+		entity_type: string;
+		sensitivity: SikesraSensitivity;
+		province_code?: string | null;
+		regency_code?: string | null;
+		district_code?: string | null;
+		village_code?: string | null;
+		verification_stage: SikesraReferenceRegistryEntity["verificationStage"];
+		input_level?: VerificationUserLevel | null;
+		public_summary?: string | null;
+	}>;
+
+	return rows.map((row) => ({
+		id: row.id,
+		code: row.code,
+		label: row.label,
+		entityType: row.entity_type,
+		sensitivity: row.sensitivity,
+		region: {
+			provinceCode: row.province_code ?? "",
+			regencyCode: row.regency_code ?? "",
+			districtCode: row.district_code ?? "",
+			villageCode: row.village_code ?? "",
+		},
+		verificationStage: row.verification_stage,
+		inputLevel: row.input_level ?? "desa_kelurahan",
+		supportingDocumentIds: [],
+		publicSummary: row.public_summary ?? "",
+	}));
+}
+
+async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+
+	const now = toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: entity.id,
+			code: entity.code,
+			label: entity.label,
+			entity_type: entity.entityType,
+			subtype_code: null,
+			sensitivity: entity.sensitivity,
+			province_code: entity.region.provinceCode || null,
+			regency_code: entity.region.regencyCode || null,
+			district_code: entity.region.districtCode || null,
+			village_code: entity.region.villageCode || null,
+			verification_stage: entity.verificationStage,
+			input_level: entity.inputLevel,
+			public_summary: entity.publicSummary,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: null,
+			updated_by: null,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				code: entity.code,
+				label: entity.label,
+				entity_type: entity.entityType,
+				sensitivity: entity.sensitivity,
+				province_code: entity.region.provinceCode || null,
+				regency_code: entity.region.regencyCode || null,
+				district_code: entity.region.districtCode || null,
+				village_code: entity.region.villageCode || null,
+				verification_stage: entity.verificationStage,
+				input_level: entity.inputLevel,
+				public_summary: entity.publicSummary,
+				updated_at: now,
+				deleted_at: null,
+				updated_by: null,
+			}),
+		)
+		.execute();
+
+	return true;
 }
 
 async function getSupportingDocuments(
@@ -2287,17 +2419,21 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	await db
 		.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
 		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
 			id: record.id,
 			timestamp,
 			kind: record.kind,
 			scope: record.scope,
-			actor: record.actor,
+			actor_user_id: record.userId ?? null,
+			actor_name: record.userName ?? record.actor,
 			summary: record.summary,
-			metadata: JSON.stringify(metadata),
-			user_id: record.userId ?? null,
-			user_name: record.userName ?? null,
+			metadata_json: JSON.stringify(metadata),
+			redaction_policy: "sikesra_default_redacted",
+			request_id: null,
+			ip_hash: null,
+			user_agent_hash: null,
 			created_at: timestamp,
-			updated_at: timestamp,
 		})
 		.execute();
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
@@ -2320,17 +2456,20 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string)
 	const rows = (await db
 		.selectFrom(AWCMS_SIKESRA_AUDIT_TABLE)
 		.select([
+			"tenant_id",
+			"site_id",
 			"id",
 			"timestamp",
 			"kind",
 			"scope",
-			"actor",
+			"actor_user_id",
+			"actor_name",
 			"summary",
-			"metadata",
-			"user_id",
-			"user_name",
+			"metadata_json",
+			"request_id",
+			"ip_hash",
+			"user_agent_hash",
 			"created_at",
-			"updated_at",
 		])
 		.orderBy("timestamp", "desc")
 		.orderBy("id", "desc")
@@ -2343,11 +2482,11 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string)
 			timestamp: item.timestamp,
 			kind: item.kind,
 			scope: item.scope,
-			actor: item.actor,
+			actor: item.actor_name ?? item.actor ?? "system",
 			summary: item.summary,
-			metadata: JSON.parse(item.metadata) as Record<string, unknown>,
-			userId: item.user_id ?? undefined,
-			userName: item.user_name ?? undefined,
+			metadata: JSON.parse(item.metadata_json ?? item.metadata ?? "{}") as Record<string, unknown>,
+			userId: item.actor_user_id ?? undefined,
+			userName: item.actor_name ?? undefined,
 		})),
 		cursor: undefined,
 		hasMore: false,
@@ -2810,6 +2949,24 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 	};
 }
 
+async function requireRoutePermission(ctx: PluginContext, permissionSlug: string) {
+	const userId = getRequestUserId(ctx);
+	if (!userId) {
+		return {
+			allowed: false,
+			error: { code: "UNAUTHENTICATED", message: "Trusted EmDash user identity is required." },
+		};
+	}
+
+	const decision = await previewAccess(ctx, { userId, permissionSlug });
+	if (decision.allowed) return { allowed: true };
+
+	return {
+		allowed: false,
+		error: { code: "FORBIDDEN", message: decision.reason },
+	};
+}
+
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	await incrementCounter(ctx, "state:publicStatusHits");
 	const settings = await getSettings(ctx);
@@ -3104,6 +3261,9 @@ const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const auditListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const access = await requireRoutePermission(ctx, "sikesra.audit.read");
+	if (!access.allowed) return { success: false, error: access.error };
+
 	const limit = Math.min(getNumber(routeCtx.input, "limit") ?? 20, 50);
 	const cursor = getString(routeCtx.input, "cursor");
 	return listAuditEvents(ctx, limit, cursor);

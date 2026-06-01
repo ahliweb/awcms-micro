@@ -4,9 +4,16 @@ import { createScopedRepository, type SikesraScopedRow } from "./scoped-reposito
 
 export interface SikesraAuditEventRow extends SikesraScopedRow {
 	id: string;
+	timestamp: string;
 	kind: string;
 	scope: string;
+	actor_user_id: string | null;
+	actor_name: string | null;
 	summary: string;
+	metadata_json: string;
+	request_id: string | null;
+	ip_hash: string | null;
+	user_agent_hash: string | null;
 }
 
 export function createAuditRepository(db: SikesraD1Database, scope: SikesraRepositoryScope) {

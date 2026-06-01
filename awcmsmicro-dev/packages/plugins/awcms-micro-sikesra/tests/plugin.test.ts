@@ -112,6 +112,7 @@ function createMockContext() {
 		verificationEvents: new Map<string, unknown>(),
 	};
 	const auditTableRows: Array<Record<string, unknown>> = [];
+	const registryEntityTableRows: Array<Record<string, unknown>> = [];
 	const settingsTableRows: Array<Record<string, unknown>> = [];
 	const dataTypeTableRows: Array<Record<string, unknown>> = [];
 	const dataSubtypeTableRows: Array<Record<string, unknown>> = [];
@@ -185,11 +186,11 @@ function createMockContext() {
 		timestamp: row.timestamp,
 		kind: row.kind,
 		scope: row.scope,
-		actor: row.actor,
+		actor: row.actor_name ?? row.actor,
 		summary: row.summary,
-		metadata: JSON.parse(jsonTextValue(row.metadata)),
-		userId: row.user_id ?? undefined,
-		userName: row.user_name ?? undefined,
+		metadata: JSON.parse(jsonTextValue(row.metadata_json ?? row.metadata)),
+		userId: row.actor_user_id ?? row.user_id ?? undefined,
+		userName: row.actor_name ?? row.user_name ?? undefined,
 	});
 	const schemaBuilder = {
 		ifNotExists() {
@@ -271,6 +272,16 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_registry_entities") {
+						return registryEntityTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_data_types") {
 						return dataTypeTableRows
 							.filter((row) => {
@@ -332,17 +343,44 @@ function createMockContext() {
 				values(nextRow: Record<string, unknown>) {
 					if (_table === "sikesra_audit_events") {
 						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
 							id: textValue(nextRow.id),
 							timestamp: textValue(nextRow.timestamp),
 							kind: textValue(nextRow.kind),
 							scope: textValue(nextRow.scope),
-							actor: textValue(nextRow.actor),
+							actor_user_id: nextRow.actor_user_id ?? null,
+							actor_name: nextRow.actor_name ?? null,
 							summary: textValue(nextRow.summary),
-							metadata: jsonTextValue(nextRow.metadata),
-							user_id: nextRow.user_id ?? null,
-							user_name: nextRow.user_name ?? null,
+							metadata_json: jsonTextValue(nextRow.metadata_json),
+							redaction_policy: textValue(nextRow.redaction_policy),
+							request_id: nextRow.request_id ?? null,
+							ip_hash: nextRow.ip_hash ?? null,
+							user_agent_hash: nextRow.user_agent_hash ?? null,
+							created_at: textValue(nextRow.created_at),
+						};
+					} else if (_table === "sikesra_registry_entities") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							code: textValue(nextRow.code),
+							label: textValue(nextRow.label),
+							entity_type: textValue(nextRow.entity_type),
+							subtype_code: nextRow.subtype_code ?? null,
+							sensitivity: textValue(nextRow.sensitivity),
+							province_code: nextRow.province_code ?? null,
+							regency_code: nextRow.regency_code ?? null,
+							district_code: nextRow.district_code ?? null,
+							village_code: nextRow.village_code ?? null,
+							verification_stage: textValue(nextRow.verification_stage),
+							input_level: nextRow.input_level ?? null,
+							public_summary: nextRow.public_summary ?? null,
 							created_at: textValue(nextRow.created_at),
 							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
 						};
 					} else if (_table === "sikesra_settings") {
 						row = {
@@ -451,6 +489,10 @@ function createMockContext() {
 										upsertSettingsRow(row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_registry_entities") {
+										upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_data_types") {
 										upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
@@ -504,6 +546,10 @@ function createMockContext() {
 							}
 							if (_table === "sikesra_settings") {
 								upsertSettingsRow(row as Record<string, unknown>);
+								return;
+							}
+							if (_table === "sikesra_registry_entities") {
+								upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 								return;
 							}
 							if (_table === "sikesra_data_types") {
@@ -660,6 +706,7 @@ function createMockContext() {
 		db,
 		dbRows,
 		auditTableRows,
+		registryEntityTableRows,
 		settingsTableRows,
 		dataTypeTableRows,
 		dataSubtypeTableRows,
@@ -812,6 +859,29 @@ describe("awcms micro sikesra plugin", () => {
 			(item: any) => item.kind === "state.touch",
 		) as any;
 		expect(stored).toMatchObject({ userId: "user-123", userName: "Ada Lovelace" });
+	});
+
+	it("requires SIKESRA audit permission for audit list", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const denied = (await routes["audit/list"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+		expect(denied).toMatchObject({
+			success: false,
+			error: { code: "UNAUTHENTICATED" },
+		});
+
+		const allowed = (await routes["audit/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+			}),
+			input: {},
+		} as any)) as any;
+		expect(allowed.items).toBeDefined();
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
@@ -1423,8 +1493,8 @@ describe("awcms micro sikesra plugin", () => {
 		});
 	});
 
-	it("persists registry and document records in plugin storage", async () => {
-		const { ctx, collections } = createMockContext();
+	it("persists registry records in D1 and document records in plugin storage", async () => {
+		const { ctx, collections, registryEntityTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["registry/save"]!.handler({
@@ -1470,7 +1540,15 @@ describe("awcms micro sikesra plugin", () => {
 			registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel,
 		).toBe("admin_sikesra");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
-		expect(collections.registryEntities.size).toBe(1);
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "registry-entity-custom-01",
+				code: "CU-001",
+				entity_type: "rumah_ibadah",
+				verification_stage: "submitted_village",
+			}),
+		);
+		expect(collections.registryEntities.size).toBe(0);
 		expect(collections.supportingDocuments.size).toBe(1);
 	});
 
@@ -1502,8 +1580,8 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBe(0);
 	});
 
-	it("migrates legacy registry and document blobs into plugin storage on read", async () => {
-		const { ctx, collections, kvData } = createMockContext();
+	it("migrates legacy registry blobs into D1 and document blobs into plugin storage on read", async () => {
+		const { ctx, collections, kvData, registryEntityTableRows } = createMockContext();
 		kvData.set("custom:registryEntities", [
 			{
 				id: "registry-entity-legacy-01",
@@ -1545,8 +1623,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(documents.items.some((item: any) => item.id === "doc-legacy-01")).toBe(true);
 		expect(kvData.has("custom:registryEntities")).toBe(false);
 		expect(kvData.has("custom:supportingDocuments")).toBe(false);
-		expect(collections.registryEntities.get("registry-entity-legacy-01")).toMatchObject({
-			id: "registry-entity-legacy-01",
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "registry-entity-legacy-01",
+				code: "LG-001",
+			}),
+		);
+		expect(collections.registryEntities.get("registry-entity-legacy-01")).toBeUndefined();
+		expect(registry.items.find((item: any) => item.id === "registry-entity-legacy-01")).toMatchObject({
 			code: "LG-001",
 		});
 		expect(collections.supportingDocuments.get("doc-legacy-01")).toMatchObject({
@@ -1671,6 +1755,9 @@ describe("awcms micro sikesra plugin", () => {
 
 		const auditList = (await createNativeRoutes()["audit/list"]!.handler({
 			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+			}),
 			input: {},
 		} as any)) as any;
 		expect(
