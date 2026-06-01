@@ -288,7 +288,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 	const pluginAdminPath = (path: string) => `${PLUGIN_ADMIN_BASE}${path}`;
 	return [
 		{
-			id: "registry",
+			id: "rumah_ibadah",
 			title: cards[0]!.title,
 			description: cards[0]!.description,
 			status: cards[0]!.status,
@@ -296,7 +296,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/registry"),
 		},
 		{
-			id: "institutions",
+			id: "lembaga_keagamaan",
 			title: cards[1]!.title,
 			description: cards[1]!.description,
 			status: cards[1]!.status,
@@ -304,7 +304,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/registry"),
 		},
 		{
-			id: "education",
+			id: "pendidikan_keagamaan",
 			title: cards[2]!.title,
 			description: cards[2]!.description,
 			status: cards[2]!.status,
@@ -312,7 +312,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/verification"),
 		},
 		{
-			id: "welfare",
+			id: "lks",
 			title: cards[3]!.title,
 			description: cards[3]!.description,
 			status: cards[3]!.status,
@@ -320,7 +320,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/reports"),
 		},
 		{
-			id: "teachers",
+			id: "guru_agama",
 			title: cards[4]!.title,
 			description: cards[4]!.description,
 			status: cards[4]!.status,
@@ -328,7 +328,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/access/roles"),
 		},
 		{
-			id: "orphans",
+			id: "anak_yatim",
 			title: cards[5]!.title,
 			description: cards[5]!.description,
 			status: cards[5]!.status,
@@ -336,7 +336,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/audit"),
 		},
 		{
-			id: "disabilities",
+			id: "disabilitas",
 			title: cards[6]!.title,
 			description: cards[6]!.description,
 			status: cards[6]!.status,
@@ -344,7 +344,7 @@ function getDashboardModuleCards(locale: string | undefined): DashboardModuleCar
 			href: pluginAdminPath("/abac/preview"),
 		},
 		{
-			id: "elderly",
+			id: "lansia_terlantar",
 			title: cards[7]!.title,
 			description: cards[7]!.description,
 			status: cards[7]!.status,

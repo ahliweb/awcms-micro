@@ -24,6 +24,7 @@ import {
 	AWCMS_SIKESRA_PLUGIN_ID,
 	AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS,
 	AWCMS_SIKESRA_STORAGE,
+	DEFAULT_DATA_TYPES,
 	createAuditRecord,
 	createNativeRoutes,
 	createSharedHooks,
@@ -583,6 +584,9 @@ describe("awcms micro sikesra plugin", () => {
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
 		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS).toHaveLength(8);
+		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.map((card) => card.id)).toEqual(
+			DEFAULT_DATA_TYPES.map((type) => type.id),
+		);
 		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.map((card) => card.href)).toEqual([
 			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
 			"/_emdash/admin/plugins/awcms-micro-sikesra/registry",
