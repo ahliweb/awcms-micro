@@ -6,7 +6,11 @@ import * as React from "react";
 
 import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import { getExampleAdminCopy } from "./admin-copy.js";
-import { toSikesraAdminHref } from "./admin/ui-standards.js";
+import {
+	SIKESRA_PAGE_PATTERN_CONTRACTS,
+	toSikesraAdminHref,
+	type SikesraPagePatternContract,
+} from "./admin/ui-standards.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
@@ -778,6 +782,114 @@ function EmptyState({ title, description }: { title: string; description: string
 			<div className="mt-1 max-w-sm text-sm text-kumo-subtle">{description}</div>
 		</div>
 	);
+}
+
+type SikesraAdminPagePath = SikesraPagePatternContract["path"];
+
+function getSikesraPageContract(path: SikesraAdminPagePath): SikesraPagePatternContract {
+	const contract = SIKESRA_PAGE_PATTERN_CONTRACTS.find((item) => item.path === path);
+	if (!contract) {
+		throw new Error(`Missing SIKESRA page contract for ${path}`);
+	}
+	return contract;
+}
+
+function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
+	const contract = getSikesraPageContract(path);
+	return (
+		<PageShell width="wide">
+			<PageHeader
+				eyebrow="SIKESRA UI/UX standard"
+				title={contract.title}
+				description={contract.purpose}
+			/>
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+				<Card
+					title="Page anatomy"
+					description="This page follows the canonical SIKESRA admin interaction contract."
+				>
+					<div className="grid gap-3 sm:grid-cols-2">
+						{contract.anatomy.map((item) => (
+							<div
+								key={item}
+								className="rounded-xl border border-kumo-line bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default"
+							>
+								{item}
+							</div>
+						))}
+					</div>
+				</Card>
+				<Card title="Workflow safeguards" description="Required permissions, privacy, and audit friction.">
+					<div className="space-y-3 text-sm text-kumo-default">
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Permission</span>
+							<Badge variant="secondary">{contract.primaryPermissionSlug ?? "standard"}</Badge>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Workflow</span>
+							<Badge variant="outline">{contract.workflowModel ?? "standard"}</Badge>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Privacy indicators</span>
+							<Pill tone={contract.requiresPrivacyIndicators ? "warning" : "neutral"}>
+								{contract.requiresPrivacyIndicators ? "Required" : "Standard"}
+							</Pill>
+						</div>
+						<div className="flex items-center justify-between gap-3">
+							<span className="text-kumo-subtle">Reason flow</span>
+							<Pill tone={contract.requiresReasonFlow ? "warning" : "neutral"}>
+								{contract.requiresReasonFlow ? "Required" : "Standard"}
+							</Pill>
+						</div>
+						<EmptyState
+							title={contract.emptyState}
+							description={`Use ${toSikesraAdminHref(path)} for the protected admin route.`}
+						/>
+					</div>
+				</Card>
+			</div>
+		</PageShell>
+	);
+}
+
+function RegistryCreatePage() {
+	return <ContractAlignedPage path="/registry/new" />;
+}
+
+function RegistryDetailPage() {
+	return <ContractAlignedPage path="/registry/:id" />;
+}
+
+function AccessUsersPage() {
+	return <ContractAlignedPage path="/access/users" />;
+}
+
+function AccessScopesPage() {
+	return <ContractAlignedPage path="/access/scopes" />;
+}
+
+function FieldStandardsPage() {
+	return <ContractAlignedPage path="/field-standards" />;
+}
+
+function CustomAttributeDefinitionsPage() {
+	return <ContractAlignedPage path="/custom-attributes/definitions" />;
+}
+
+function CustomAttributeValuesPage() {
+	return <ContractAlignedPage path="/custom-attributes/values" />;
+}
+
+function DeleteRequestsPage() {
+	return <ContractAlignedPage path="/delete-requests" />;
+}
+
+function ArchivesPage() {
+	return <ContractAlignedPage path="/archives" />;
+}
+
+function SettingsPage() {
+	return <ContractAlignedPage path="/settings" />;
 }
 
 function Feedback({
@@ -6080,20 +6192,30 @@ export const pages: PluginAdminExports["pages"] = {
 	"/": OverviewPage,
 	"/overview": OverviewPage,
 	"/registry": RegistryPage,
+	"/registry/new": RegistryCreatePage,
+	"/registry/:id": RegistryDetailPage,
 	"/verification": VerificationPage,
 	"/documents": DocumentsPage,
 	"/reports": ReportsPage,
 	"/import": ImportPage,
 	"/audit": AuditPage,
+	"/access/users": AccessUsersPage,
 	"/access/permissions": PermissionsPage,
 	"/access/roles": RolesPage,
 	"/access/matrix": MatrixPage,
+	"/access/scopes": AccessScopesPage,
 	"/access/preview": PreviewPage,
 	"/abac/attributes": AbacAttributesPage,
 	"/abac/policies": AbacPoliciesPage,
 	"/abac/preview": AbacPreviewPage,
 	"/regions": RegionsPage,
 	"/data-types": DataTypesPage,
+	"/field-standards": FieldStandardsPage,
+	"/custom-attributes/definitions": CustomAttributeDefinitionsPage,
+	"/custom-attributes/values": CustomAttributeValuesPage,
+	"/delete-requests": DeleteRequestsPage,
+	"/archives": ArchivesPage,
+	"/settings": SettingsPage,
 };
 
 export const fields: PluginAdminExports["fields"] = {

@@ -90,6 +90,119 @@ export const SIKESRA_STANDARD_EMPTY_STATES = [
 	"No ABAC policy",
 ] as const;
 
+export interface SikesraWorkflowStepDefinition {
+	id: string;
+	label: string;
+	description: string;
+	permissionSlug?: string;
+	requiresReason?: boolean;
+	requiresAudit?: boolean;
+	privacyCheck?: boolean;
+}
+
+export const SIKESRA_REGISTRY_WIZARD_STEPS: SikesraWorkflowStepDefinition[] = [
+	{ id: "module", label: "Select module and subtype", description: "Choose one of the eight SIKESRA modules and its subtype.", permissionSlug: "sikesra.registry.create" },
+	{ id: "region", label: "Select official or local region", description: "Attach province, regency, district, village, and optional local service scope." },
+	{ id: "identity", label: "Fill core identity", description: "Capture label, SIKESRA ID input hints, public summary, and verification starting state." },
+	{ id: "details", label: "Fill personal or institution details", description: "Render module-specific fields from the field standard catalog.", privacyCheck: true },
+	{ id: "addresses", label: "Fill KTP and domicile address", description: "Show KTP and domicile address groups when the selected module stores person data.", privacyCheck: true },
+	{ id: "custom-attributes", label: "Fill dynamic custom attributes", description: "Render active custom attributes scoped to the module, subtype, region, organization, or SIKESRA ID." },
+	{ id: "documents", label: "Attach document metadata", description: "Add document checklist items, classification, checksum, and linked file metadata.", permissionSlug: "sikesra.document.upload", privacyCheck: true },
+	{ id: "review", label: "Review validation and privacy", description: "Confirm validation status, masking, public-safe flags, and audit impact before save.", requiresAudit: true },
+];
+
+export const SIKESRA_IMPORT_WORKFLOW_STEPS: SikesraWorkflowStepDefinition[] = [
+	{ id: "upload", label: "Upload", description: "Select a CSV or XLSX file and expected SIKESRA module.", permissionSlug: "sikesra.import.create" },
+	{ id: "preview", label: "Preview", description: "Show row counts, headers, unmapped columns, and detected sensitive columns." },
+	{ id: "map", label: "Map columns", description: "Map source columns to known field standards, including KTP and domicile address groups." },
+	{ id: "validate", label: "Validate", description: "Run required-field, type, sensitivity, and module-specific validation.", permissionSlug: "sikesra.import.validate" },
+	{ id: "duplicate-review", label: "Duplicate review", description: "Require decisions for duplicate-risk rows before promotion.", requiresReason: true, requiresAudit: true },
+	{ id: "promote", label: "Promote valid rows", description: "Promote only valid and reviewed staged rows into canonical D1 tables.", permissionSlug: "sikesra.import.promote", requiresAudit: true },
+	{ id: "summary", label: "Summary", description: "Show promoted, skipped, invalid, duplicate-risk, and audit totals." },
+];
+
+export const SIKESRA_VERIFICATION_QUEUE_TABS = [
+	{ id: "desa_kelurahan", label: "Desa/Kelurahan", permissionSlug: "sikesra.verification.read" },
+	{ id: "kecamatan", label: "Kecamatan", permissionSlug: "sikesra.verification.read" },
+	{ id: "sopd", label: "SOPD", permissionSlug: "sikesra.verification.read" },
+	{ id: "kabupaten_admin", label: "Kabupaten/Admin", permissionSlug: "sikesra.verification.read" },
+] as const;
+
+export const SIKESRA_ACCESS_ASSIGNMENT_STEPS: SikesraWorkflowStepDefinition[] = [
+	{ id: "select-user", label: "Select EmDash user", description: "Search or select an existing trusted EmDash user reference.", permissionSlug: "sikesra.rbac.manage" },
+	{ id: "assign-role", label: "Assign SIKESRA role", description: "Attach one or more SIKESRA operational roles without modifying EmDash core user tables.", permissionSlug: "sikesra.rbac.manage", requiresAudit: true },
+	{ id: "assign-region-scope", label: "Assign region scope", description: "Choose all, province, regency, district, village, or custom region scope.", permissionSlug: "sikesra.rbac.manage", requiresAudit: true },
+	{ id: "assign-organization-scope", label: "Assign organization scope", description: "Choose SOPD, LKS, lembaga, pendidikan, or other organization scope where required.", permissionSlug: "sikesra.rbac.manage", requiresAudit: true },
+	{ id: "preview", label: "Preview effective access", description: "Show effective permissions, ABAC decision, inactive/orphaned status, and denial reasons.", permissionSlug: "sikesra.rbac.manage" },
+];
+
+export const SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS: SikesraWorkflowStepDefinition[] = [
+	{ id: "scope", label: "Choose scope", description: "Set global, data type, subtype, entity, SIKESRA ID, region, organization, or program scope." },
+	{ id: "field", label: "Configure field", description: "Set key, label, data type, validation, placeholder, help text, and sort order." },
+	{ id: "privacy", label: "Configure privacy", description: "Set data class, masking, public-safe, importable, and exportable flags.", privacyCheck: true },
+	{ id: "preview", label: "Preview form impact", description: "Preview how the attribute appears in registry forms and import/export mappings." },
+	{ id: "save", label: "Save with audit", description: "Save only after protected-key, privacy, and impact checks pass.", permissionSlug: "sikesra.custom_attribute.create", requiresAudit: true },
+];
+
+export const SIKESRA_GOVERNANCE_REVIEW_STEPS: SikesraWorkflowStepDefinition[] = [
+	{ id: "request", label: "Create request", description: "Capture target, affected records, reason, and confirmation phrase.", permissionSlug: "sikesra.permanent_delete.request", requiresReason: true, requiresAudit: true },
+	{ id: "snapshot", label: "Review snapshot", description: "Show redacted record snapshot and protected references before approval.", privacyCheck: true },
+	{ id: "approve", label: "Approve or reject", description: "Highest-admin reviewer records a decision with notes.", permissionSlug: "sikesra.permanent_delete.approve", requiresReason: true, requiresAudit: true },
+	{ id: "execute", label: "Execute final action", description: "Execute only approved requests after confirmation and integrity checks.", permissionSlug: "sikesra.permanent_delete.execute", requiresReason: true, requiresAudit: true },
+];
+
+export const SIKESRA_ACCESSIBILITY_CHECKLIST = [
+	"Keyboard navigation works for tables, steppers, dialogs, drawers, and menus.",
+	"Every form control has a visible or programmatic label.",
+	"Error text is connected to the field it describes.",
+	"Icon-only actions have ARIA labels.",
+	"Status is communicated with text, not color alone.",
+	"Light and dark mode contrast remains readable.",
+] as const;
+
+export interface SikesraPagePatternContract {
+	path: (typeof SIKESRA_REQUIRED_ADMIN_PAGE_PATHS)[number];
+	title: string;
+	purpose: string;
+	primaryPermissionSlug?: string;
+	anatomy: readonly (typeof SIKESRA_PAGE_ANATOMY)[number][];
+	emptyState: (typeof SIKESRA_STANDARD_EMPTY_STATES)[number];
+	workflowModel?: "overview" | "registry-wizard" | "import" | "verification" | "access" | "abac" | "custom-attributes" | "governance";
+	requiresPrivacyIndicators?: boolean;
+	requiresReasonFlow?: boolean;
+}
+
+const DEFAULT_PAGE_ANATOMY = [...SIKESRA_PAGE_ANATOMY] as const;
+
+export const SIKESRA_PAGE_PATTERN_CONTRACTS: SikesraPagePatternContract[] = [
+	{ path: "/overview", title: "Overview", purpose: "Show readiness, KPIs, workflow shortcuts, module cards, and public aggregate preview.", primaryPermissionSlug: "sikesra.dashboard.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "overview" },
+	{ path: "/registry", title: "Registry", purpose: "List and filter all eight SIKESRA modules with masked sensitive columns.", primaryPermissionSlug: "sikesra.registry.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", requiresPrivacyIndicators: true },
+	{ path: "/registry/new", title: "Create Registry Record", purpose: "Guide operators through module, region, identity, details, documents, and review steps.", primaryPermissionSlug: "sikesra.registry.create", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "registry-wizard", requiresPrivacyIndicators: true },
+	{ path: "/registry/:id", title: "Registry Detail", purpose: "Show record detail, masked sensitive values, documents, verification state, and audit trail.", primaryPermissionSlug: "sikesra.registry.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", requiresPrivacyIndicators: true },
+	{ path: "/documents", title: "Documents", purpose: "Manage document metadata, classification, validation status, and controlled access.", primaryPermissionSlug: "sikesra.document.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No documents uploaded", requiresPrivacyIndicators: true },
+	{ path: "/import", title: "Import", purpose: "Run staged upload, preview, mapping, validation, duplicate review, promotion, and summary.", primaryPermissionSlug: "sikesra.import.create", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No import batch", workflowModel: "import", requiresReasonFlow: true },
+	{ path: "/verification", title: "Verification", purpose: "Review queue items by level, scope, module, pending age, and document completeness.", primaryPermissionSlug: "sikesra.verification.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No pending verification", workflowModel: "verification", requiresReasonFlow: true },
+	{ path: "/reports", title: "Reports", purpose: "Create reports and exports with public-safe defaults and restricted export friction.", primaryPermissionSlug: "sikesra.report.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", requiresPrivacyIndicators: true, requiresReasonFlow: true },
+	{ path: "/audit", title: "Audit", purpose: "Review redacted audit events, sensitive access events, and lifecycle timelines.", primaryPermissionSlug: "sikesra.audit.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No audit event", requiresPrivacyIndicators: true },
+	{ path: "/access/users", title: "Access Users", purpose: "Assign SIKESRA roles and scopes to trusted EmDash user references.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/access/roles", title: "Access Roles", purpose: "Manage SIKESRA role catalog and user assignments.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/access/permissions", title: "Access Permissions", purpose: "Review permission catalog and permission scope grouping.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/access/matrix", title: "Access Matrix", purpose: "Map roles to permissions and identify missing assignments.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/access/scopes", title: "Access Scopes", purpose: "Assign region and organization scopes for EmDash user references.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/access/preview", title: "Access Preview", purpose: "Preview effective permissions and denial reasons for a user reference.", primaryPermissionSlug: "sikesra.rbac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No user assignment", workflowModel: "access" },
+	{ path: "/abac/attributes", title: "ABAC Attributes", purpose: "Manage subject, resource, and context attributes for policy decisions.", primaryPermissionSlug: "sikesra.abac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No ABAC policy", workflowModel: "abac" },
+	{ path: "/abac/policies", title: "ABAC Policies", purpose: "Manage explicit allow and deny policies with safe previews.", primaryPermissionSlug: "sikesra.abac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No ABAC policy", workflowModel: "abac" },
+	{ path: "/abac/preview", title: "ABAC Preview", purpose: "Simulate ABAC decisions for user, resource, action, and context attributes.", primaryPermissionSlug: "sikesra.abac.manage", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No ABAC policy", workflowModel: "abac" },
+	{ path: "/regions", title: "Regions", purpose: "Manage official and local region trees used by registry and access scopes.", primaryPermissionSlug: "sikesra.region.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet" },
+	{ path: "/data-types", title: "Data Types", purpose: "Manage SIKESRA module and subtype catalogs.", primaryPermissionSlug: "sikesra.data_type.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet" },
+	{ path: "/field-standards", title: "Field Standards", purpose: "Review field definitions, data classes, storage tables, masking, import, and export rules.", primaryPermissionSlug: "sikesra.field_standard.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", requiresPrivacyIndicators: true },
+	{ path: "/custom-attributes/definitions", title: "Custom Attribute Definitions", purpose: "Create controlled custom fields with scope, validation, privacy, and impact preview.", primaryPermissionSlug: "sikesra.custom_attribute.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "custom-attributes", requiresPrivacyIndicators: true },
+	{ path: "/custom-attributes/values", title: "Custom Attribute Values", purpose: "Review custom values with masking, sensitivity, and current-value indicators.", primaryPermissionSlug: "sikesra.custom_attribute.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "custom-attributes", requiresPrivacyIndicators: true },
+	{ path: "/delete-requests", title: "Delete Requests", purpose: "Review highest-admin permanent-delete requests, snapshots, approvals, and execution status.", primaryPermissionSlug: "sikesra.permanent_delete.review", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "governance", requiresReasonFlow: true },
+	{ path: "/archives", title: "Archives", purpose: "Review archived records and restore actions with reason-aware audit outcomes.", primaryPermissionSlug: "sikesra.lifecycle.archive", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet", workflowModel: "governance", requiresReasonFlow: true },
+	{ path: "/settings", title: "Settings", purpose: "Manage public status, safety thresholds, governance mode, and metadata configuration.", primaryPermissionSlug: "sikesra.settings.read", anatomy: DEFAULT_PAGE_ANATOMY, emptyState: "No records yet" },
+];
+
 export const SIKESRA_REQUIRED_ADMIN_PAGE_PATHS = [
 	"/overview",
 	"/registry",

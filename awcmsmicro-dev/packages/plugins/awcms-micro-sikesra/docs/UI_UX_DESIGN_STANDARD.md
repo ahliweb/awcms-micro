@@ -73,6 +73,8 @@ Empty, loading, and error states
 
 Small pages may omit sections only when the page has no corresponding workflow need.
 
+The canonical page contract registry is `SIKESRA_PAGE_PATTERN_CONTRACTS` in `src/admin/ui-standards.ts`. Every required admin page must have a contract with title, purpose, permission, page anatomy, empty state, and any workflow/privacy/reason requirements.
+
 ## 5. Standard Page Patterns
 
 ### Overview
@@ -116,6 +118,8 @@ Review validation and privacy classification
 Save draft or submit to verification
 ```
 
+The canonical implementation model is `SIKESRA_REGISTRY_WIZARD_STEPS` in `src/admin/ui-standards.ts`. UI pages must use or mirror that model so route permissions, privacy checks, document upload checks, and final review/audit messaging stay consistent.
+
 ### Verification
 
 Verification UI should use queue-based workflows with level, region, module, document completeness, and pending-age filters.
@@ -136,11 +140,15 @@ Upload -> Preview -> Map columns -> Validate -> Duplicate review -> Promote vali
 
 Promotion must be blocked while validation errors remain.
 
+The canonical implementation model is `SIKESRA_IMPORT_WORKFLOW_STEPS`. Duplicate review requires a reason and audit-visible decision before promotion.
+
 ### RBAC and ABAC
 
 Access UI should separate users, roles, permissions, scopes, role matrix, ABAC policies, access preview, and ABAC preview.
 
 EmDash users are selected as references. SIKESRA must not create a duplicate user system.
+
+The canonical assignment model is `SIKESRA_ACCESS_ASSIGNMENT_STEPS`: select EmDash user, assign SIKESRA role, assign region scope, assign organization scope, and preview effective access.
 
 ### Audit
 
@@ -150,9 +158,13 @@ Audit UI should default to redacted metadata, support safe filters, and expose s
 
 Custom attribute UI should act like a controlled form builder. Protected keys must be blocked, masking must be explicit, and impact must be shown before edit or deactivation.
 
+The canonical form-builder model is `SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS`: scope, field, privacy, preview, and save with audit.
+
 ### CRUD Governance
 
 Archive, restore, permanent delete, restricted export, and sensitive reveal workflows must require high-friction confirmation when required by the related governance issue.
+
+The canonical highest-risk review model is `SIKESRA_GOVERNANCE_REVIEW_STEPS`: create request, review snapshot, approve or reject, and execute final action.
 
 Permission-aware CRUD action state is centralized in:
 
@@ -237,6 +249,8 @@ SIKESRA admin UI must provide:
 - field-level error text connected to inputs;
 - light and dark mode readability;
 - status text in addition to color.
+
+The machine-readable checklist is `SIKESRA_ACCESSIBILITY_CHECKLIST` and should be used by tests and future page implementations.
 
 ## 9. Component Standard
 

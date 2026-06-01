@@ -8,6 +8,7 @@ import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
+	pages as sikesraAdminPages,
 } from "../src/admin.js";
 import {
 	isSikesraAdminHref,
@@ -16,17 +17,25 @@ import {
 	getSikesraCrudActionState,
 	getSikesraPageState,
 	getSikesraStatusTone,
+	SIKESRA_ACCESS_ASSIGNMENT_STEPS,
+	SIKESRA_ACCESSIBILITY_CHECKLIST,
+	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
 	SIKESRA_CRUD_ACTIONS,
+	SIKESRA_GOVERNANCE_REVIEW_STEPS,
+	SIKESRA_IMPORT_WORKFLOW_STEPS,
 	SIKESRA_ADMIN_ROUTE_BASE,
 	SIKESRA_OPERATOR_WORKFLOW_STEPS,
 	SIKESRA_OVERVIEW_KPIS,
 	SIKESRA_OVERVIEW_SECTIONS,
 	SIKESRA_OVERVIEW_SHORTCUTS,
 	SIKESRA_PAGE_ANATOMY,
+	SIKESRA_PAGE_PATTERN_CONTRACTS,
+	SIKESRA_REGISTRY_WIZARD_STEPS,
 	SIKESRA_REQUIRED_ADMIN_COMPONENTS,
 	SIKESRA_REQUIRED_ADMIN_PAGE_PATHS,
 	SIKESRA_STANDARD_EMPTY_STATES,
 	SIKESRA_STATUS_BADGES,
+	SIKESRA_VERIFICATION_QUEUE_TABS,
 	toSikesraAdminHref,
 } from "../src/admin/ui-standards.js";
 import {
@@ -1540,7 +1549,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
-		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(16);
+		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(24);
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[1]?.id).toBe("access-rights-health");
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[2]?.id).toBe("abac-policy-status");
@@ -1555,14 +1564,22 @@ describe("awcms micro sikesra plugin", () => {
 				"/access/permissions",
 				"/access/preview",
 				"/access/roles",
+				"/access/scopes",
+				"/access/users",
+				"/archives",
 				"/audit",
+				"/custom-attributes/definitions",
+				"/custom-attributes/values",
 				"/data-types",
+				"/delete-requests",
 				"/documents",
+				"/field-standards",
 				"/import",
 				"/overview",
 				"/regions",
 				"/registry",
 				"/reports",
+				"/settings",
 				"/verification",
 			].toSorted(),
 		);
@@ -2070,6 +2087,124 @@ describe("awcms micro sikesra plugin", () => {
 				abacAllowed: false,
 			}),
 		).toEqual({ visible: true, enabled: false, reason: "ABAC scope does not allow this action." });
+	});
+
+	it("standardizes issue #142 operator workflow models", () => {
+		expect(SIKESRA_REGISTRY_WIZARD_STEPS.map((step) => step.id)).toEqual([
+			"module",
+			"region",
+			"identity",
+			"details",
+			"addresses",
+			"custom-attributes",
+			"documents",
+			"review",
+		]);
+		expect(SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "addresses")?.privacyCheck).toBe(true);
+		expect(SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "documents")?.permissionSlug).toBe("sikesra.document.upload");
+
+		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.map((step) => step.id)).toEqual([
+			"upload",
+			"preview",
+			"map",
+			"validate",
+			"duplicate-review",
+			"promote",
+			"summary",
+		]);
+		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "duplicate-review")?.requiresReason).toBe(true);
+		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "promote")?.permissionSlug).toBe("sikesra.import.promote");
+
+		expect(SIKESRA_VERIFICATION_QUEUE_TABS.map((tab) => tab.id)).toEqual([
+			"desa_kelurahan",
+			"kecamatan",
+			"sopd",
+			"kabupaten_admin",
+		]);
+		expect(SIKESRA_VERIFICATION_QUEUE_TABS.every((tab) => tab.permissionSlug === "sikesra.verification.read")).toBe(true);
+
+		expect(SIKESRA_ACCESS_ASSIGNMENT_STEPS.map((step) => step.id)).toEqual([
+			"select-user",
+			"assign-role",
+			"assign-region-scope",
+			"assign-organization-scope",
+			"preview",
+		]);
+		expect(SIKESRA_ACCESS_ASSIGNMENT_STEPS.every((step) => step.permissionSlug === "sikesra.rbac.manage")).toBe(true);
+
+		expect(SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.map((step) => step.id)).toEqual([
+			"scope",
+			"field",
+			"privacy",
+			"preview",
+			"save",
+		]);
+		expect(SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.find((step) => step.id === "privacy")?.privacyCheck).toBe(true);
+
+		expect(SIKESRA_GOVERNANCE_REVIEW_STEPS.map((step) => step.id)).toEqual([
+			"request",
+			"snapshot",
+			"approve",
+			"execute",
+		]);
+		expect(SIKESRA_GOVERNANCE_REVIEW_STEPS.every((step) => step.requiresAudit || step.privacyCheck)).toBe(true);
+		expect(SIKESRA_ACCESSIBILITY_CHECKLIST).toEqual(
+			expect.arrayContaining([
+				"Keyboard navigation works for tables, steppers, dialogs, drawers, and menus.",
+				"Status is communicated with text, not color alone.",
+			]),
+		);
+	});
+
+	it("standardizes issue #142 page pattern contracts", () => {
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.map((contract) => contract.path).toSorted()).toEqual(
+			[...SIKESRA_REQUIRED_ADMIN_PAGE_PATHS].toSorted(),
+		);
+		expect(Object.keys(sikesraAdminPages ?? {}).toSorted()).toEqual(
+			["/", ...SIKESRA_REQUIRED_ADMIN_PAGE_PATHS].toSorted(),
+		);
+		expect(AWCMS_SIKESRA_ADMIN_PAGES.map((page) => page.path)).toEqual(
+			expect.arrayContaining([
+				"/field-standards",
+				"/custom-attributes/definitions",
+				"/custom-attributes/values",
+				"/access/users",
+				"/access/scopes",
+				"/delete-requests",
+				"/archives",
+				"/settings",
+			]),
+		);
+		for (const contract of SIKESRA_PAGE_PATTERN_CONTRACTS) {
+			expect(contract.title, `${contract.path} title`).toBeTruthy();
+			expect(contract.purpose, `${contract.path} purpose`).toBeTruthy();
+			expect(contract.anatomy, `${contract.path} anatomy`).toEqual([...SIKESRA_PAGE_ANATOMY]);
+			expect(SIKESRA_STANDARD_EMPTY_STATES).toContain(contract.emptyState);
+		}
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/registry/new")).toMatchObject({
+			workflowModel: "registry-wizard",
+			requiresPrivacyIndicators: true,
+		});
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/import")).toMatchObject({
+			workflowModel: "import",
+			requiresReasonFlow: true,
+		});
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/verification")).toMatchObject({
+			workflowModel: "verification",
+			requiresReasonFlow: true,
+		});
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/access/users")).toMatchObject({
+			workflowModel: "access",
+			primaryPermissionSlug: "sikesra.rbac.manage",
+		});
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/custom-attributes/definitions")).toMatchObject({
+			workflowModel: "custom-attributes",
+			requiresPrivacyIndicators: true,
+		});
+		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/delete-requests")).toMatchObject({
+			workflowModel: "governance",
+			requiresReasonFlow: true,
+		});
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
@@ -4023,7 +4158,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(manifest.name).not.toContain("Example Plugin");
 		expect(manifest.keywords).not.toContain("example");
 		expect(manifest.capabilities).toEqual([...AWCMS_SIKESRA_CAPABILITIES]);
-		expect(manifest.admin.pages).toHaveLength(14);
+		expect(manifest.admin.pages.map((page: { path: string }) => page.path).toSorted()).toEqual(
+			[...SIKESRA_REQUIRED_ADMIN_PAGE_PATHS].toSorted(),
+		);
 		expect(manifest.admin.widgets[0].id).toBe("governance-status");
 		expect(manifest.admin.widgets[1].id).toBe("access-rights-health");
 		expect(manifest.admin.widgets[2].id).toBe("abac-policy-status");
