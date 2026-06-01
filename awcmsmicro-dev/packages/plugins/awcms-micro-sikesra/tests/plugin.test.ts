@@ -130,7 +130,10 @@ function createMockContext() {
 	const dataSubtypeTableRows: Array<Record<string, unknown>> = [];
 	const officialRegionTableRows: Array<Record<string, unknown>> = [];
 	const localRegionTableRows: Array<Record<string, unknown>> = [];
+	const fileObjectTableRows: Array<Record<string, unknown>> = [];
+	const supportingDocumentTableRows: Array<Record<string, unknown>> = [];
 	const verificationStageTableRows: Array<Record<string, unknown>> = [];
+	const verificationEventTableRows: Array<Record<string, unknown>> = [];
 	const storageByCollectionName: Record<string, Map<string, unknown>> = {
 		sikesra_audit_events: collections.auditEvents,
 		sikesra_access_change_events: collections.accessChangeEvents,
@@ -355,11 +358,31 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_supporting_documents") {
+						return supportingDocumentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
 								for (const [key, value] of Object.entries(filters)) {
 									if ((row as Record<string, string>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_verification_events") {
+						return verificationEventTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
 								}
 								return true;
 							})
@@ -520,6 +543,52 @@ function createMockContext() {
 							updated_at: textValue(nextRow.updated_at),
 							deleted_at: nextRow.deleted_at ?? null,
 						};
+					} else if (_table === "sikesra_file_objects") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							storage_provider: textValue(nextRow.storage_provider),
+							storage_bucket: nextRow.storage_bucket ?? null,
+							storage_key: textValue(nextRow.storage_key),
+							original_filename: textValue(nextRow.original_filename),
+							safe_filename: textValue(nextRow.safe_filename),
+							content_type: textValue(nextRow.content_type),
+							file_extension: nextRow.file_extension ?? null,
+							file_size_bytes: Number(nextRow.file_size_bytes ?? 0),
+							checksum_sha256: nextRow.checksum_sha256 ?? null,
+							classification: textValue(nextRow.classification),
+							validation_status: textValue(nextRow.validation_status),
+							validation_notes: nextRow.validation_notes ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
+					} else if (_table === "sikesra_supporting_documents") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							registry_entity_id: textValue(nextRow.registry_entity_id),
+							file_object_id: textValue(nextRow.file_object_id),
+							document_type: textValue(nextRow.document_type),
+							title: textValue(nextRow.title),
+							classification: textValue(nextRow.classification),
+							validation_status: textValue(nextRow.validation_status),
+							verification_stage: textValue(nextRow.verification_stage),
+							issuer: nextRow.issuer ?? null,
+							issued_at: nextRow.issued_at ?? null,
+							expires_at: nextRow.expires_at ?? null,
+							access_policy: textValue(nextRow.access_policy),
+							metadata_json: textValue(nextRow.metadata_json),
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
+						};
 					} else if (_table === "sikesra_verification_stage_state") {
 						row = {
 							tenant_id: textValue(nextRow.tenant_id),
@@ -532,6 +601,27 @@ function createMockContext() {
 							created_at: textValue(nextRow.created_at),
 							updated_at: textValue(nextRow.updated_at),
 							deleted_at: nextRow.deleted_at ?? null,
+						};
+					} else if (_table === "sikesra_verification_events") {
+						row = {
+							tenant_id: textValue(nextRow.tenant_id),
+							site_id: textValue(nextRow.site_id),
+							id: textValue(nextRow.id),
+							registry_entity_id: textValue(nextRow.registry_entity_id),
+							from_stage: nextRow.from_stage ?? null,
+							to_stage: textValue(nextRow.to_stage),
+							verifier_level: textValue(nextRow.verifier_level),
+							verifier_user_id: nextRow.verifier_user_id ?? null,
+							decision: textValue(nextRow.decision),
+							reason: nextRow.reason ?? null,
+							notes: nextRow.notes ?? null,
+							region_scope_code: nextRow.region_scope_code ?? null,
+							audit_event_id: nextRow.audit_event_id ?? null,
+							created_at: textValue(nextRow.created_at),
+							updated_at: textValue(nextRow.updated_at),
+							deleted_at: nextRow.deleted_at ?? null,
+							created_by: nextRow.created_by ?? null,
+							updated_by: nextRow.updated_by ?? null,
 						};
 					} else {
 						row = {
@@ -597,8 +687,20 @@ function createMockContext() {
 										upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
 										return;
 									}
+									if (_table === "sikesra_file_objects") {
+										upsertD1CatalogRow(fileObjectTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_supporting_documents") {
+										upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										return;
+									}
 									if (_table === "sikesra_verification_stage_state") {
 										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+										return;
+									}
+									if (_table === "sikesra_verification_events") {
+										upsertD1CatalogRow(verificationEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 										return;
 									}
 									const storedRow = row as DbRow;
@@ -664,12 +766,24 @@ function createMockContext() {
 								upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
 								return;
 							}
-							if (_table === "sikesra_local_regions") {
-								upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+								if (_table === "sikesra_local_regions") {
+									upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_file_objects") {
+									upsertD1CatalogRow(fileObjectTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_supporting_documents") {
+									upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+									return;
+								}
+								if (_table === "sikesra_verification_stage_state") {
+								upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
 								return;
 							}
-							if (_table === "sikesra_verification_stage_state") {
-								upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+							if (_table === "sikesra_verification_events") {
+								upsertD1CatalogRow(verificationEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
 								return;
 							}
 							const storedRow = row as DbRow;
@@ -815,7 +929,10 @@ function createMockContext() {
 		dataSubtypeTableRows,
 		officialRegionTableRows,
 		localRegionTableRows,
+		fileObjectTableRows,
+		supportingDocumentTableRows,
 		verificationStageTableRows,
+		verificationEventTableRows,
 		seedDbRow,
 		kvData,
 		cron,
@@ -1306,7 +1423,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
-		const { ctx, collections, verificationStageTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const result = (await routes["settings/save"]!.handler({
@@ -1322,7 +1439,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe governance settings", async () => {
-		const { ctx, collections, verificationStageTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const invalidRetention = (await routes["settings/save"]!.handler({
@@ -1364,7 +1481,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("advances one verification stage and persists the new state", async () => {
-		const { ctx, collections, verificationStageTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const before = (await routes["verification/list"]!.handler({
@@ -1416,7 +1533,16 @@ describe("awcms micro sikesra plugin", () => {
 		expect(afterItem?.nextLevel).toBe("kabupaten_admin");
 		expect(after.events).toHaveLength(1);
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
-		expect(collections.verificationEvents.size).toBe(1);
+		expect(collections.verificationEvents.size).toBe(0);
+		expect(verificationEventTableRows).toContainEqual(
+			expect.objectContaining({
+				registry_entity_id: "registry-entity-guru-agama-01",
+				to_stage: "verified_sopd",
+				decision: "approved",
+				verifier_level: "sopd",
+				region_scope_code: "3171",
+			}),
+		);
 		expect(
 			verificationStageTableRows.find(
 				(row) => row.registry_entity_id === "registry-entity-guru-agama-01",
@@ -1506,7 +1632,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("returns verification to the previous review level on needs revision", async () => {
-		const { ctx, verificationStageTableRows } = createMockContext();
+		const { ctx, verificationStageTableRows, verificationEventTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 
 		const result = (await routes["verification/reject"]!.handler({
@@ -1523,6 +1649,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.item.verificationStage).toBe("submitted_district");
 		expect(result.event.kind).toBe("verification.stage.reject");
 		expect(result.verificationEvent.result).toBe("needs_review");
+		expect(verificationEventTableRows).toContainEqual(
+			expect.objectContaining({
+				registry_entity_id: "registry-entity-guru-agama-01",
+				to_stage: "submitted_district",
+				decision: "needs_review",
+				verifier_level: "sopd",
+			}),
+		);
 		expect(
 			verificationStageTableRows.find(
 				(row) => row.registry_entity_id === "registry-entity-guru-agama-01",
@@ -1597,7 +1731,14 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("persists registry records in D1 and document records in plugin storage", async () => {
-		const { ctx, collections, registryEntityTableRows, moduleDetailTableRows } = createMockContext();
+		const {
+			ctx,
+			collections,
+			registryEntityTableRows,
+			moduleDetailTableRows,
+			fileObjectTableRows,
+			supportingDocumentTableRows,
+		} = createMockContext();
 		const routes = createNativeRoutes();
 
 		await routes["registry/save"]!.handler({
@@ -1661,7 +1802,21 @@ describe("awcms micro sikesra plugin", () => {
 			JSON.parse(String(moduleDetailTableRows.sikesra_rumah_ibadah_details![0]?.detail_json)),
 		).toMatchObject({ code: "CU-001", entityType: "rumah_ibadah" });
 		expect(collections.registryEntities.size).toBe(0);
-		expect(collections.supportingDocuments.size).toBe(1);
+		expect(collections.supportingDocuments.size).toBe(0);
+		expect(supportingDocumentTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "doc-custom-01",
+				registry_entity_id: "registry-entity-custom-01",
+				document_type: "surat_keterangan",
+				classification: "internal",
+			}),
+		);
+		expect(fileObjectTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "doc-custom-01:file",
+				classification: "internal",
+			}),
+		);
 	});
 
 	it.each([
@@ -1760,7 +1915,14 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("migrates legacy registry blobs into D1 and document blobs into plugin storage on read", async () => {
-		const { ctx, collections, kvData, registryEntityTableRows } = createMockContext();
+		const {
+			ctx,
+			collections,
+			kvData,
+			registryEntityTableRows,
+			fileObjectTableRows,
+			supportingDocumentTableRows,
+		} = createMockContext();
 		kvData.set("custom:registryEntities", [
 			{
 				id: "registry-entity-legacy-01",
@@ -1812,10 +1974,19 @@ describe("awcms micro sikesra plugin", () => {
 		expect(registry.items.find((item: any) => item.id === "registry-entity-legacy-01")).toMatchObject({
 			code: "LG-001",
 		});
-		expect(collections.supportingDocuments.get("doc-legacy-01")).toMatchObject({
-			id: "doc-legacy-01",
-			registryEntityId: "registry-entity-legacy-01",
-		});
+		expect(collections.supportingDocuments.get("doc-legacy-01")).toBeUndefined();
+		expect(supportingDocumentTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "doc-legacy-01",
+				registry_entity_id: "registry-entity-legacy-01",
+			}),
+		);
+		expect(fileObjectTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "doc-legacy-01:file",
+				classification: "internal",
+			}),
+		);
 	});
 
 	it("records lifecycle and cron behavior", async () => {

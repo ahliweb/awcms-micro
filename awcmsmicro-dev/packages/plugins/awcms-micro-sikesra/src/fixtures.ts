@@ -37,6 +37,7 @@ export interface SikesraReferenceRegistryEntity {
 export interface SikesraReferenceSupportingDocument {
 	id: string;
 	registryEntityId: string;
+	fileObjectId?: string;
 	documentType: string;
 	title: string;
 	sensitivity: SikesraSensitivity;

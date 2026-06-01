@@ -424,7 +424,10 @@ const AWCMS_SIKESRA_LOCAL_REGIONS_TABLE = "sikesra_local_regions";
 const AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE = "sikesra_registry_entities";
 const AWCMS_SIKESRA_CODE_SEQUENCES_TABLE = "sikesra_code_sequences";
 const AWCMS_SIKESRA_CODE_HISTORY_TABLE = "sikesra_code_history";
+const AWCMS_SIKESRA_FILE_OBJECTS_TABLE = "sikesra_file_objects";
+const AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE = "sikesra_supporting_documents";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
+const AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE = "sikesra_verification_events";
 const AWCMS_SIKESRA_MODULE_DETAIL_TABLES: Record<string, string> = {
 	rumah_ibadah: "sikesra_rumah_ibadah_details",
 	lembaga_keagamaan: "sikesra_lembaga_keagamaan_details",
@@ -2108,14 +2111,17 @@ async function generateD1SikesraId20(
 async function getSupportingDocuments(
 	ctx: PluginContext,
 ): Promise<SikesraReferenceSupportingDocument[]> {
+	const d1Documents = await getD1SupportingDocuments(ctx);
 	const legacy =
 		(await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	if (legacy.length > 0) {
-		for (const doc of legacy) {
-			await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
-		}
+		for (const doc of legacy) await saveSupportingDocument(ctx, doc);
 		await ctx.kv.delete("custom:supportingDocuments");
 	}
+	if (d1Documents.length > 0 || legacy.length > 0) {
+		return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, d1Documents, legacy);
+	}
+
 	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
 		ctx.storage.sikesra_supporting_documents!,
 	);
@@ -2123,6 +2129,8 @@ async function getSupportingDocuments(
 }
 
 async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+	if (await persistD1SupportingDocument(ctx, doc)) return;
+
 	const custom =
 		(await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
 	const next = [...custom.filter((item) => item.id !== doc.id), doc];
@@ -2130,9 +2138,141 @@ async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceS
 	await ctx.storage.sikesra_supporting_documents!.put(doc.id, doc);
 }
 
+async function getD1SupportingDocuments(
+	ctx: PluginContext,
+): Promise<SikesraReferenceSupportingDocument[]> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE)
+		.select([
+			"id",
+			"registry_entity_id",
+			"file_object_id",
+			"document_type",
+			"title",
+			"classification",
+			"issued_at",
+			"created_by",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.orderBy("created_at", "desc")
+		.execute()) as Array<{
+		id: string;
+		registry_entity_id: string;
+		file_object_id?: string | null;
+		document_type: string;
+		title: string;
+		classification: SikesraSensitivity;
+		issued_at?: string | null;
+		created_by?: string | null;
+	}>;
+
+	return rows.map((row) => ({
+		id: row.id,
+		registryEntityId: row.registry_entity_id,
+		fileObjectId: row.file_object_id ?? undefined,
+		documentType: row.document_type,
+		title: row.title,
+		sensitivity: row.classification,
+		issuedAt: row.issued_at ?? "",
+		verifiedBy: row.created_by ?? "system",
+	}));
+}
+
+async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+
+	const now = doc.issuedAt || toIsoNow();
+	const fileObjectId = doc.fileObjectId ?? `${doc.id}:file`;
+	const safeFilename = `${doc.id}.metadata`;
+	await db
+		.insertInto(AWCMS_SIKESRA_FILE_OBJECTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: fileObjectId,
+			storage_provider: "r2",
+			storage_bucket: null,
+			storage_key: `tenants/${AWCMS_SIKESRA_DEFAULT_TENANT_ID}/sites/${AWCMS_SIKESRA_DEFAULT_SITE_ID}/modules/sikesra/${doc.sensitivity}/${now.slice(0, 4)}/${now.slice(5, 7)}/${safeFilename}`,
+			original_filename: doc.title,
+			safe_filename: safeFilename,
+			content_type: "application/octet-stream",
+			file_extension: null,
+			file_size_bytes: 0,
+			checksum_sha256: null,
+			classification: doc.sensitivity,
+			validation_status: "pending",
+			validation_notes: null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: doc.verifiedBy,
+			updated_by: doc.verifiedBy,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				classification: doc.sensitivity,
+				validation_status: "pending",
+				updated_at: now,
+				deleted_at: null,
+				updated_by: doc.verifiedBy,
+			}),
+		)
+		.execute();
+
+	await db
+		.insertInto(AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: doc.id,
+			registry_entity_id: doc.registryEntityId,
+			file_object_id: fileObjectId,
+			document_type: doc.documentType,
+			title: doc.title,
+			classification: doc.sensitivity,
+			validation_status: "pending",
+			verification_stage: "draft",
+			issuer: null,
+			issued_at: doc.issuedAt,
+			expires_at: null,
+			access_policy: "rbac_abac_required",
+			metadata_json: "{}",
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: doc.verifiedBy,
+			updated_by: doc.verifiedBy,
+		})
+		.onConflict((oc: any) =>
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				registry_entity_id: doc.registryEntityId,
+				file_object_id: fileObjectId,
+				document_type: doc.documentType,
+				title: doc.title,
+				classification: doc.sensitivity,
+				issued_at: doc.issuedAt,
+				updated_at: now,
+				deleted_at: null,
+				updated_by: doc.verifiedBy,
+			}),
+		)
+		.execute();
+
+	return true;
+}
+
 async function listVerificationEvents(
 	ctx: PluginContext,
 ): Promise<SikesraReferenceVerificationEvent[]> {
+	const d1Events = await getD1VerificationEvents(ctx);
+	if (d1Events.length > 0) return d1Events;
+
 	return listStorageValues<SikesraReferenceVerificationEvent>(
 		ctx.storage.sikesra_verification_events!,
 	);
@@ -2142,9 +2282,95 @@ async function appendVerificationEvent(
 	ctx: PluginContext,
 	event: SikesraReferenceVerificationEvent,
 ) {
+	if (await persistD1VerificationEvent(ctx, event)) {
+		await persistStateValue(ctx, "state:lastVerificationEventId", event.id);
+		return event;
+	}
+
 	await ctx.storage.sikesra_verification_events!.put(event.id, event);
 	await persistStateValue(ctx, "state:lastVerificationEventId", event.id);
 	return event;
+}
+
+async function getD1VerificationEvents(ctx: PluginContext): Promise<SikesraReferenceVerificationEvent[]> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+
+	const rows = (await db
+		.selectFrom(AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE)
+		.select([
+			"id",
+			"registry_entity_id",
+			"from_stage",
+			"to_stage",
+			"verifier_level",
+			"verifier_user_id",
+			"decision",
+			"notes",
+			"region_scope_code",
+			"created_at",
+		])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("deleted_at", "is", null)
+		.orderBy("created_at", "desc")
+		.execute()) as Array<{
+		id: string;
+		registry_entity_id: string;
+		from_stage?: VerificationStage | null;
+		to_stage: VerificationStage;
+		verifier_level: VerificationUserLevel;
+		verifier_user_id?: string | null;
+		decision: SikesraReferenceVerificationEvent["result"];
+		notes?: string | null;
+		region_scope_code?: string | null;
+		created_at: string;
+	}>;
+
+	return rows.map((row) => ({
+		id: row.id,
+		registryEntityId: row.registry_entity_id,
+		stage: row.to_stage,
+		actor: row.verifier_user_id ?? "system",
+		verifierLevel: row.verifier_level,
+		verifierRegionScope: row.region_scope_code ?? undefined,
+		result: row.decision,
+		notes: row.notes ?? "",
+		createdAt: row.created_at,
+	}));
+}
+
+async function persistD1VerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.insertInto) return false;
+
+	const currentState = await getVerificationStageState(ctx);
+	const now = event.createdAt || toIsoNow();
+	await db
+		.insertInto(AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE)
+		.values({
+			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			id: event.id,
+			registry_entity_id: event.registryEntityId,
+			from_stage: currentState[event.registryEntityId] ?? null,
+			to_stage: event.stage,
+			verifier_level: event.verifierLevel ?? event.inputLevel ?? "admin_sikesra",
+			verifier_user_id: event.actor,
+			decision: event.result,
+			reason: event.result,
+			notes: event.notes,
+			region_scope_code: event.verifierRegionScope ?? null,
+			audit_event_id: null,
+			created_at: now,
+			updated_at: now,
+			deleted_at: null,
+			created_by: event.actor,
+			updated_by: event.actor,
+		})
+		.execute();
+
+	return true;
 }
 
 async function getVerificationStageState(
