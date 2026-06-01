@@ -1,5 +1,9 @@
 # AWCMS-Micro Changelog
 
+## 0.1.1 - 2026-06-01
+
+- Aligns the rebuild-protection documentation and boundary validator with the full AWCMS-Micro protected path allowlist.
+
 ## 0.1.0 - 2026-05-28
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
@@ -7,11 +11,13 @@
 ## Workspace Snapshot - 2026-06-01
 
 - EmDash upstream: `413076fa455512cac87decbddbf6ac7de4f611df` from `emdash-latest/`
-- Root version: `0.1.0`
+- Root version: `0.1.1`
 
 ### Plugins
 
- - `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the example plugin surface stays aligned with the active locale.
+- `@awcms-micro/plugin-docs` `0.0.1` - (no changelog yet)
+- `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
+- `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the SIKESRA plugin surface stays aligned with the active locale.
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
@@ -26,8 +32,8 @@
 
 ### Templates
 
-- `@awcms-micro/template-default-cloudflare` `0.1.0` - Updates the Cloudflare template release surfaces so the versioning flow covers the Cloudflare-first reference template.
-- `@awcms-micro/template-default-example` `0.0.2` - Adds plugin-owned navigation exports for the AWCMS-Micro example plugin and updates the default Node template guidance to match the plugin-and-template-only release model.
+- `@awcms-micro/template-default-cloudflare` `0.1.0` - Updates the AWCMS-Micro gallery and Cloudflare template release surfaces so the versioning flow covers both plugin-owned media helpers and the Cloudflare-first reference template.
+- `@awcms-micro/template-default-example` `0.0.2` - Adds plugin-owned navigation exports for the AWCMS-Micro SIKESRA plugin and updates the default Node template guidance to match the plugin-and-template-only release model.
 - `@emdash-cms/template-blank` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/template-blog` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/template-blog-cloudflare` `0.0.3` - latest changelog section: 0.0.3
