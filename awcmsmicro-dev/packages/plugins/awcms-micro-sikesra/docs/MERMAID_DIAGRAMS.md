@@ -65,6 +65,14 @@ Purpose:
 ```mermaid
 erDiagram
   sikesra_registry_entities ||--o{ sikesra_person_profiles : links
+  sikesra_registry_entities ||--o{ sikesra_rumah_ibadah_details : details
+  sikesra_registry_entities ||--o{ sikesra_lembaga_keagamaan_details : details
+  sikesra_registry_entities ||--o{ sikesra_pendidikan_keagamaan_details : details
+  sikesra_registry_entities ||--o{ sikesra_lks_details : details
+  sikesra_registry_entities ||--o{ sikesra_guru_agama_details : details
+  sikesra_registry_entities ||--o{ sikesra_anak_yatim_details : details
+  sikesra_registry_entities ||--o{ sikesra_disabilitas_details : details
+  sikesra_registry_entities ||--o{ sikesra_lansia_terlantar_details : details
   sikesra_registry_entities ||--o{ sikesra_supporting_documents : has
   sikesra_registry_entities ||--o{ sikesra_verification_events : verifies
   sikesra_registry_entities ||--o{ sikesra_custom_attribute_values : extends

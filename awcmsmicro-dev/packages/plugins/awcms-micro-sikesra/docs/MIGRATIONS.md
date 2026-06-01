@@ -16,12 +16,12 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0001_sikesra_settings_and_catalog.sql
 0002_sikesra_regions.sql
 0003_sikesra_registry_core.sql
+0004_sikesra_detail_tables.sql
 ```
 
 The remaining migration files from issue #120 should be added as separate atomic slices in sequence:
 
 ```txt
-0004_sikesra_detail_tables.sql
 0005_sikesra_documents.sql
 0006_sikesra_verification.sql
 0007_sikesra_imports.sql
