@@ -6,6 +6,16 @@ import {
 	sikesraOk,
 	SIKESRA_ERROR_CODES,
 } from "../src/contracts/index.js";
+import type {
+	SikesraAbacPreviewRequest,
+	SikesraAuditListRequest,
+	SikesraDocumentMetadataRequest,
+	SikesraExportCreateRequest,
+	SikesraFieldStandardDto,
+	SikesraImportPromotionRequest,
+	SikesraRoleAssignmentRequest,
+	SikesraVerificationDecisionRequest,
+} from "../src/contracts/index.js";
 import { serializePublicAggregate, serializeRegistryListItem } from "../src/serializers/index.js";
 
 describe("SIKESRA integration contracts", () => {
@@ -75,6 +85,62 @@ describe("SIKESRA integration contracts", () => {
 			categories: [
 				{ key: "anak_yatim", label: "Anak Yatim", count: null, suppressed: true, suppressionReason: "small_cell" },
 			],
+		});
+	});
+
+	it("exposes typed domain request contracts for major workflows", () => {
+		const verification: SikesraVerificationDecisionRequest = {
+			registryEntityId: "registry-1",
+			verifierLevel: "desa_kelurahan",
+			reason: "Complete evidence",
+		};
+		const document: SikesraDocumentMetadataRequest = {
+			registryEntityId: "registry-1",
+			title: "Surat Keterangan",
+			documentType: "surat_keterangan",
+			classification: "restricted",
+		};
+		const importRequest: SikesraImportPromotionRequest = { batchId: "batch-1", rowIds: ["row-1"] };
+		const exportRequest: SikesraExportCreateRequest = {
+			exportType: "report",
+			requestedFields: ["entity_type"],
+			sensitivityLevel: "public_safe",
+		};
+		const roleAssignment: SikesraRoleAssignmentRequest = {
+			emdashUserId: "user-1",
+			roles: ["sikesra_admin"],
+		};
+		const abacPreview: SikesraAbacPreviewRequest = {
+			subjectId: "user-1",
+			resourceId: "registry-1",
+			action: "registry.read",
+		};
+		const auditList: SikesraAuditListRequest = { kind: "registry.update" };
+		const field: SikesraFieldStandardDto = {
+			key: "label",
+			label: "Label",
+			module: "rumah_ibadah",
+			fieldGroup: "core",
+			dataClass: "non_personal",
+			required: true,
+			dataType: "string",
+			storageTable: "sikesra_registry_entities",
+			importable: true,
+			exportable: true,
+			publicSafe: true,
+			maskByDefault: false,
+			validationRules: ["required"],
+		};
+
+		expect({ verification, document, importRequest, exportRequest, roleAssignment, abacPreview, auditList, field }).toMatchObject({
+			verification: { registryEntityId: "registry-1" },
+			document: { classification: "restricted" },
+			importRequest: { batchId: "batch-1" },
+			exportRequest: { requestedFields: ["entity_type"] },
+			roleAssignment: { emdashUserId: "user-1" },
+			abacPreview: { action: "registry.read" },
+			auditList: { kind: "registry.update" },
+			field: { storageTable: "sikesra_registry_entities" },
 		});
 	});
 });
