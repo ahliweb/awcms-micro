@@ -40,6 +40,7 @@ import {
 	SIKESRA_VERIFICATION_QUEUE_TABS,
 	toSikesraAdminHref,
 } from "../src/admin/ui-standards.js";
+import { SIKESRA_CRUD_FEATURE_POLICIES } from "../src/contracts/index.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
@@ -50,7 +51,6 @@ import {
 	AWCMS_SIKESRA_CRUD_PERMISSION_LIST,
 	AWCMS_SIKESRA_PERMISSION_LIST,
 } from "../src/permissions.js";
-import { SIKESRA_CRUD_FEATURE_POLICIES } from "../src/contracts/index.js";
 import {
 	AWCMS_SIKESRA_ADMIN_PAGES,
 	AWCMS_SIKESRA_ADMIN_WIDGETS,
@@ -231,11 +231,7 @@ function createMockContext() {
 	const dbRows: DbRow[] = [];
 	function textValue(value: unknown, fallback = ""): string {
 		if (typeof value === "string") return value;
-		if (
-			typeof value === "number" ||
-			typeof value === "boolean" ||
-			typeof value === "bigint"
-		) {
+		if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
 			return `${value}`;
 		}
 		return fallback;
@@ -306,10 +302,12 @@ function createMockContext() {
 		if (index >= 0) settingsTableRows[index] = settingsRow;
 		else settingsTableRows.push(settingsRow);
 	};
-	const upsertD1CatalogRow = (rows: Array<Record<string, unknown>>, keys: string[], row: Record<string, unknown>) => {
-		const index = rows.findIndex((existing) =>
-			keys.every((key) => existing[key] === row[key]),
-		);
+	const upsertD1CatalogRow = (
+		rows: Array<Record<string, unknown>>,
+		keys: string[],
+		row: Record<string, unknown>,
+	) => {
+		const index = rows.findIndex((existing) => keys.every((key) => existing[key] === row[key]));
 		if (index >= 0) rows[index] = row;
 		else rows.push(row);
 	};
@@ -375,14 +373,12 @@ function createMockContext() {
 							.map((row) => ({ ...row }));
 					}
 					if (isModuleDetailTable(_table)) {
-						return moduleDetailTableRows[_table]!
-							.filter((row) => {
-								for (const [key, value] of Object.entries(filters)) {
-									if ((row as Record<string, unknown>)[key] !== value) return false;
-								}
-								return true;
-							})
-							.map((row) => ({ ...row }));
+						return moduleDetailTableRows[_table]!.filter((row) => {
+							for (const [key, value] of Object.entries(filters)) {
+								if ((row as Record<string, unknown>)[key] !== value) return false;
+							}
+							return true;
+						}).map((row) => ({ ...row }));
 					}
 					if (_table === "sikesra_data_types") {
 						return dataTypeTableRows
@@ -474,87 +470,87 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
-		if (_table === "sikesra_custom_attribute_values") {
-			return customAttributeValueTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_custom_attribute_values") {
+						return customAttributeValueTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
 								}
 								return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_delete_requests") {
-			return deleteRequestTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_role_permission_assignments") {
-			return rolePermissionAssignmentTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_delete_requests") {
+						return deleteRequestTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_user_role_assignments") {
-			return userRoleAssignmentTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_role_permission_assignments") {
+						return rolePermissionAssignmentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_user_scope_assignments") {
-			return userScopeAssignmentTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_user_role_assignments") {
+						return userRoleAssignmentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_abac_subject_assignments") {
-			return abacSubjectAssignmentTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_user_scope_assignments") {
+						return userScopeAssignmentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_abac_resource_assignments") {
-			return abacResourceAssignmentTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_abac_subject_assignments") {
+						return abacSubjectAssignmentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_abac_policy_rules") {
-			return abacPolicyRuleTableRows
-				.filter((row) => {
-					for (const [key, value] of Object.entries(filters)) {
-						if ((row as Record<string, unknown>)[key] !== value) return false;
+					if (_table === "sikesra_abac_resource_assignments") {
+						return abacResourceAssignmentTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
 					}
-					return true;
-				})
-				.map((row) => ({ ...row }));
-		}
-		if (_table === "sikesra_verification_stage_state") {
+					if (_table === "sikesra_abac_policy_rules") {
+						return abacPolicyRuleTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_verification_stage_state") {
 						return verificationStageTableRows
 							.filter((row) => {
 								for (const [key, value] of Object.entries(filters)) {
@@ -1001,139 +997,275 @@ function createMockContext() {
 										return;
 									}
 									if (_table === "sikesra_registry_entities") {
-										upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											registryEntityTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_code_sequences") {
-										upsertD1CatalogRow(codeSequenceTableRows, ["tenant_id", "site_id", "sequence_key"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											codeSequenceTableRows,
+											["tenant_id", "site_id", "sequence_key"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_code_history") {
-										upsertD1CatalogRow(codeHistoryTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											codeHistoryTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (isModuleDetailTable(_table)) {
-										upsertD1CatalogRow(moduleDetailTableRows[_table]!, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											moduleDetailTableRows[_table]!,
+											["tenant_id", "site_id", "registry_entity_id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_data_types") {
-										upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											dataTypeTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_data_subtypes") {
-										upsertD1CatalogRow(dataSubtypeTableRows, ["tenant_id", "site_id", "data_type_id", "code"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											dataSubtypeTableRows,
+											["tenant_id", "site_id", "data_type_id", "code"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_official_regions") {
-										upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											officialRegionTableRows,
+											["tenant_id", "site_id", "code"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_local_regions") {
-										upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											localRegionTableRows,
+											["tenant_id", "site_id", "code"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_file_objects") {
-										upsertD1CatalogRow(fileObjectTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											fileObjectTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_supporting_documents") {
-										upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											supportingDocumentTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_import_mapping_templates") {
-										upsertD1CatalogRow(importMappingTemplateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											importMappingTemplateTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_import_batches") {
-										upsertD1CatalogRow(importBatchTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											importBatchTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_import_staging_rows") {
-										upsertD1CatalogRow(importStagingRowTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											importStagingRowTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_duplicate_candidates") {
-										upsertD1CatalogRow(duplicateCandidateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											duplicateCandidateTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_duplicate_decisions") {
-										upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											duplicateDecisionTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_export_jobs") {
-										upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											exportJobTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_permission_catalog") {
-										upsertD1CatalogRow(permissionCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											permissionCatalogTableRows,
+											["tenant_id", "site_id", "slug"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_role_catalog") {
-										upsertD1CatalogRow(roleCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											roleCatalogTableRows,
+											["tenant_id", "site_id", "slug"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_abac_attribute_catalog") {
-										upsertD1CatalogRow(abacAttributeCatalogTableRows, ["tenant_id", "site_id", "key", "target_type"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											abacAttributeCatalogTableRows,
+											["tenant_id", "site_id", "key", "target_type"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_custom_attribute_definitions") {
-										upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											customAttributeDefinitionTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_custom_attribute_values") {
-										upsertD1CatalogRow(customAttributeValueTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											customAttributeValueTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_custom_attribute_change_events") {
-										upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											customAttributeChangeEventTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_role_permission_assignments") {
-										upsertD1CatalogRow(rolePermissionAssignmentTableRows, ["tenant_id", "site_id", "role_slug", "permission_slug"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											rolePermissionAssignmentTableRows,
+											["tenant_id", "site_id", "role_slug", "permission_slug"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_user_role_assignments") {
-										upsertD1CatalogRow(userRoleAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											userRoleAssignmentTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_user_scope_assignments") {
-										upsertD1CatalogRow(userScopeAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											userScopeAssignmentTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_abac_subject_assignments") {
-										upsertD1CatalogRow(abacSubjectAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											abacSubjectAssignmentTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_abac_resource_assignments") {
-										upsertD1CatalogRow(abacResourceAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											abacResourceAssignmentTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_abac_policy_rules") {
-										upsertD1CatalogRow(abacPolicyRuleTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											abacPolicyRuleTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_delete_requests") {
-										upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											deleteRequestTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_delete_approvals") {
-										upsertD1CatalogRow(deleteApprovalTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											deleteApprovalTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_delete_snapshots") {
-										upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											deleteSnapshotTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_delete_events") {
-										upsertD1CatalogRow(deleteEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											deleteEventTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_verification_stage_state") {
-										upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											verificationStageTableRows,
+											["tenant_id", "site_id", "registry_entity_id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									if (_table === "sikesra_verification_events") {
-										upsertD1CatalogRow(verificationEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+										upsertD1CatalogRow(
+											verificationEventTableRows,
+											["tenant_id", "site_id", "id"],
+											row as Record<string, unknown>,
+										);
 										return;
 									}
 									const storedRow = row as DbRow;
@@ -1172,139 +1304,275 @@ function createMockContext() {
 								return;
 							}
 							if (_table === "sikesra_registry_entities") {
-								upsertD1CatalogRow(registryEntityTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									registryEntityTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_code_sequences") {
-								upsertD1CatalogRow(codeSequenceTableRows, ["tenant_id", "site_id", "sequence_key"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									codeSequenceTableRows,
+									["tenant_id", "site_id", "sequence_key"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_code_history") {
-								upsertD1CatalogRow(codeHistoryTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									codeHistoryTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (isModuleDetailTable(_table)) {
-								upsertD1CatalogRow(moduleDetailTableRows[_table]!, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									moduleDetailTableRows[_table]!,
+									["tenant_id", "site_id", "registry_entity_id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_data_types") {
-								upsertD1CatalogRow(dataTypeTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									dataTypeTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_data_subtypes") {
-								upsertD1CatalogRow(dataSubtypeTableRows, ["tenant_id", "site_id", "data_type_id", "code"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									dataSubtypeTableRows,
+									["tenant_id", "site_id", "data_type_id", "code"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_official_regions") {
-								upsertD1CatalogRow(officialRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									officialRegionTableRows,
+									["tenant_id", "site_id", "code"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
-								if (_table === "sikesra_local_regions") {
-									upsertD1CatalogRow(localRegionTableRows, ["tenant_id", "site_id", "code"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_file_objects") {
-									upsertD1CatalogRow(fileObjectTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_supporting_documents") {
-									upsertD1CatalogRow(supportingDocumentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_import_mapping_templates") {
-									upsertD1CatalogRow(importMappingTemplateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_import_batches") {
-									upsertD1CatalogRow(importBatchTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_import_staging_rows") {
-									upsertD1CatalogRow(importStagingRowTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_duplicate_candidates") {
-									upsertD1CatalogRow(duplicateCandidateTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_duplicate_decisions") {
-									upsertD1CatalogRow(duplicateDecisionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_export_jobs") {
-									upsertD1CatalogRow(exportJobTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_permission_catalog") {
-									upsertD1CatalogRow(permissionCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_role_catalog") {
-									upsertD1CatalogRow(roleCatalogTableRows, ["tenant_id", "site_id", "slug"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_abac_attribute_catalog") {
-									upsertD1CatalogRow(abacAttributeCatalogTableRows, ["tenant_id", "site_id", "key", "target_type"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_custom_attribute_definitions") {
-									upsertD1CatalogRow(customAttributeDefinitionTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_custom_attribute_values") {
-									upsertD1CatalogRow(customAttributeValueTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_custom_attribute_change_events") {
-									upsertD1CatalogRow(customAttributeChangeEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_role_permission_assignments") {
-									upsertD1CatalogRow(rolePermissionAssignmentTableRows, ["tenant_id", "site_id", "role_slug", "permission_slug"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_user_role_assignments") {
-									upsertD1CatalogRow(userRoleAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_user_scope_assignments") {
-									upsertD1CatalogRow(userScopeAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_abac_subject_assignments") {
-									upsertD1CatalogRow(abacSubjectAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_abac_resource_assignments") {
-									upsertD1CatalogRow(abacResourceAssignmentTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_abac_policy_rules") {
-									upsertD1CatalogRow(abacPolicyRuleTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_delete_requests") {
-									upsertD1CatalogRow(deleteRequestTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_delete_approvals") {
-									upsertD1CatalogRow(deleteApprovalTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_delete_snapshots") {
-									upsertD1CatalogRow(deleteSnapshotTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_delete_events") {
-									upsertD1CatalogRow(deleteEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
-									return;
-								}
-								if (_table === "sikesra_verification_stage_state") {
-								upsertD1CatalogRow(verificationStageTableRows, ["tenant_id", "site_id", "registry_entity_id"], row as Record<string, unknown>);
+							if (_table === "sikesra_local_regions") {
+								upsertD1CatalogRow(
+									localRegionTableRows,
+									["tenant_id", "site_id", "code"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_file_objects") {
+								upsertD1CatalogRow(
+									fileObjectTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_supporting_documents") {
+								upsertD1CatalogRow(
+									supportingDocumentTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_import_mapping_templates") {
+								upsertD1CatalogRow(
+									importMappingTemplateTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_import_batches") {
+								upsertD1CatalogRow(
+									importBatchTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_import_staging_rows") {
+								upsertD1CatalogRow(
+									importStagingRowTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_duplicate_candidates") {
+								upsertD1CatalogRow(
+									duplicateCandidateTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_duplicate_decisions") {
+								upsertD1CatalogRow(
+									duplicateDecisionTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_export_jobs") {
+								upsertD1CatalogRow(
+									exportJobTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_permission_catalog") {
+								upsertD1CatalogRow(
+									permissionCatalogTableRows,
+									["tenant_id", "site_id", "slug"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_role_catalog") {
+								upsertD1CatalogRow(
+									roleCatalogTableRows,
+									["tenant_id", "site_id", "slug"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_abac_attribute_catalog") {
+								upsertD1CatalogRow(
+									abacAttributeCatalogTableRows,
+									["tenant_id", "site_id", "key", "target_type"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_custom_attribute_definitions") {
+								upsertD1CatalogRow(
+									customAttributeDefinitionTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_custom_attribute_values") {
+								upsertD1CatalogRow(
+									customAttributeValueTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_custom_attribute_change_events") {
+								upsertD1CatalogRow(
+									customAttributeChangeEventTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_role_permission_assignments") {
+								upsertD1CatalogRow(
+									rolePermissionAssignmentTableRows,
+									["tenant_id", "site_id", "role_slug", "permission_slug"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_user_role_assignments") {
+								upsertD1CatalogRow(
+									userRoleAssignmentTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_user_scope_assignments") {
+								upsertD1CatalogRow(
+									userScopeAssignmentTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_abac_subject_assignments") {
+								upsertD1CatalogRow(
+									abacSubjectAssignmentTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_abac_resource_assignments") {
+								upsertD1CatalogRow(
+									abacResourceAssignmentTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_abac_policy_rules") {
+								upsertD1CatalogRow(
+									abacPolicyRuleTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_delete_requests") {
+								upsertD1CatalogRow(
+									deleteRequestTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_delete_approvals") {
+								upsertD1CatalogRow(
+									deleteApprovalTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_delete_snapshots") {
+								upsertD1CatalogRow(
+									deleteSnapshotTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_delete_events") {
+								upsertD1CatalogRow(
+									deleteEventTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
+								return;
+							}
+							if (_table === "sikesra_verification_stage_state") {
+								upsertD1CatalogRow(
+									verificationStageTableRows,
+									["tenant_id", "site_id", "registry_entity_id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							if (_table === "sikesra_verification_events") {
-								upsertD1CatalogRow(verificationEventTableRows, ["tenant_id", "site_id", "id"], row as Record<string, unknown>);
+								upsertD1CatalogRow(
+									verificationEventTableRows,
+									["tenant_id", "site_id", "id"],
+									row as Record<string, unknown>,
+								);
 								return;
 							}
 							const storedRow = row as DbRow;
@@ -1377,7 +1645,9 @@ function createMockContext() {
 								}
 							}
 							if (!matches) continue;
-							collections.userRoleAssignments.delete(String(row.emdash_user_id ?? row.user_id ?? row.id));
+							collections.userRoleAssignments.delete(
+								String(row.emdash_user_id ?? row.user_id ?? row.id),
+							);
 							userRoleAssignmentTableRows.splice(index, 1);
 						}
 						return;
@@ -1586,9 +1856,7 @@ describe("awcms micro sikesra plugin", () => {
 			]),
 		);
 		expect(Object.keys(storage).every((key) => key.startsWith("sikesra_"))).toBe(true);
-		expect(AWCMS_SIKESRA_D1_TABLE_NAMES.every((table) => table.startsWith("sikesra_"))).toBe(
-			true,
-		);
+		expect(AWCMS_SIKESRA_D1_TABLE_NAMES.every((table) => table.startsWith("sikesra_"))).toBe(true);
 		expect(AWCMS_SIKESRA_D1_TABLE_NAMES).toEqual(
 			expect.arrayContaining([
 				"sikesra_registry_entities",
@@ -1680,7 +1948,9 @@ describe("awcms micro sikesra plugin", () => {
 				expect(AWCMS_SIKESRA_PERMISSION_LIST).toContain(operation.permissionSlug);
 				expect(operation.auditEventKind).toMatch(/^crud\./);
 			}
-			const permanentDelete = policy.operations.find((operation) => operation.operation === "permanent_delete")!;
+			const permanentDelete = policy.operations.find(
+				(operation) => operation.operation === "permanent_delete",
+			)!;
 			expect(permanentDelete.allowedRoles).toEqual(["sikesra_super_admin"]);
 			expect(permanentDelete.requiresReason).toBe(true);
 			expect(permanentDelete.requiresConfirmation).toBe(true);
@@ -2014,8 +2284,16 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["data-types/save"]!.handler({ ...ctx, request: adminRequest, input: nextDataTypes } as any);
-		const result = await routes["data-types/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
+		await routes["data-types/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: nextDataTypes,
+		} as any);
+		const result = await routes["data-types/get"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any);
 
 		expect(result).toEqual(nextDataTypes);
 		expect(dataTypeTableRows).toHaveLength(1);
@@ -2061,8 +2339,16 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["regions/save"]!.handler({ ...ctx, request: adminRequest, input: nextRegions } as any);
-		const result = await routes["regions/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
+		await routes["regions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: nextRegions,
+		} as any);
+		const result = await routes["regions/get"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any);
 
 		expect(result).toEqual(nextRegions);
 		expect(officialRegionTableRows).toHaveLength(4);
@@ -2088,8 +2374,16 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		];
 
-		await routes["local-regions/save"]!.handler({ ...ctx, request: adminRequest, input: nextRegions } as any);
-		const result = await routes["local-regions/get"]!.handler({ ...ctx, request: adminRequest, input: {} } as any);
+		await routes["local-regions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: nextRegions,
+		} as any);
+		const result = await routes["local-regions/get"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any);
 
 		expect(result).toEqual(nextRegions);
 		expect(localRegionTableRows).toHaveLength(1);
@@ -2303,9 +2597,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(toSikesraAdminHref("/verification")).toBe(
 			"/_emdash/admin/plugins/awcms-micro-sikesra/verification",
 		);
-		expect(AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.every((card) => isSikesraAdminHref(card.href))).toBe(
-			true,
-		);
+		expect(
+			AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.every((card) => isSikesraAdminHref(card.href)),
+		).toBe(true);
 		expect(SIKESRA_OPERATOR_WORKFLOW_STEPS).toEqual([
 			"Configure",
 			"Input or Import",
@@ -2331,9 +2625,15 @@ describe("awcms micro sikesra plugin", () => {
 				"Audit events requiring review",
 			]),
 		);
-		expect(SIKESRA_OVERVIEW_SHORTCUTS.every((shortcut) => isSikesraAdminHref(shortcut.href))).toBe(true);
+		expect(SIKESRA_OVERVIEW_SHORTCUTS.every((shortcut) => isSikesraAdminHref(shortcut.href))).toBe(
+			true,
+		);
 		expect(SIKESRA_OVERVIEW_SHORTCUTS.map((shortcut) => shortcut.permissionSlug)).toEqual(
-			expect.arrayContaining(["sikesra.registry.create", "sikesra.import.create", "sikesra.audit.read"]),
+			expect.arrayContaining([
+				"sikesra.registry.create",
+				"sikesra.import.create",
+				"sikesra.audit.read",
+			]),
 		);
 		expect(SIKESRA_PAGE_ANATOMY).toContain("Empty, loading, and error states");
 		expect(SIKESRA_STATUS_BADGES).toEqual(
@@ -2419,7 +2719,11 @@ describe("awcms micro sikesra plugin", () => {
 				permissions: ["sikesra.registry.restore"],
 				archived: false,
 			}),
-		).toEqual({ visible: false, enabled: false, reason: "Restore is shown only for archived records." });
+		).toEqual({
+			visible: false,
+			enabled: false,
+			reason: "Restore is shown only for archived records.",
+		});
 		expect(
 			getSikesraCrudActionState({
 				action: "restore",
@@ -2459,8 +2763,12 @@ describe("awcms micro sikesra plugin", () => {
 			"documents",
 			"review",
 		]);
-		expect(SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "addresses")?.privacyCheck).toBe(true);
-		expect(SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "documents")?.permissionSlug).toBe("sikesra.document.upload");
+		expect(
+			SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "addresses")?.privacyCheck,
+		).toBe(true);
+		expect(
+			SIKESRA_REGISTRY_WIZARD_STEPS.find((step) => step.id === "documents")?.permissionSlug,
+		).toBe("sikesra.document.upload");
 
 		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.map((step) => step.id)).toEqual([
 			"upload",
@@ -2471,8 +2779,12 @@ describe("awcms micro sikesra plugin", () => {
 			"promote",
 			"summary",
 		]);
-		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "duplicate-review")?.requiresReason).toBe(true);
-		expect(SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "promote")?.permissionSlug).toBe("sikesra.import.promote");
+		expect(
+			SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "duplicate-review")?.requiresReason,
+		).toBe(true);
+		expect(
+			SIKESRA_IMPORT_WORKFLOW_STEPS.find((step) => step.id === "promote")?.permissionSlug,
+		).toBe("sikesra.import.promote");
 
 		expect(SIKESRA_VERIFICATION_QUEUE_TABS.map((tab) => tab.id)).toEqual([
 			"desa_kelurahan",
@@ -2480,7 +2792,11 @@ describe("awcms micro sikesra plugin", () => {
 			"sopd",
 			"kabupaten_admin",
 		]);
-		expect(SIKESRA_VERIFICATION_QUEUE_TABS.every((tab) => tab.permissionSlug === "sikesra.verification.read")).toBe(true);
+		expect(
+			SIKESRA_VERIFICATION_QUEUE_TABS.every(
+				(tab) => tab.permissionSlug === "sikesra.verification.read",
+			),
+		).toBe(true);
 
 		expect(SIKESRA_ACCESS_ASSIGNMENT_STEPS.map((step) => step.id)).toEqual([
 			"select-user",
@@ -2489,7 +2805,11 @@ describe("awcms micro sikesra plugin", () => {
 			"assign-organization-scope",
 			"preview",
 		]);
-		expect(SIKESRA_ACCESS_ASSIGNMENT_STEPS.every((step) => step.permissionSlug === "sikesra.rbac.manage")).toBe(true);
+		expect(
+			SIKESRA_ACCESS_ASSIGNMENT_STEPS.every(
+				(step) => step.permissionSlug === "sikesra.rbac.manage",
+			),
+		).toBe(true);
 
 		expect(SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.map((step) => step.id)).toEqual([
 			"scope",
@@ -2498,7 +2818,9 @@ describe("awcms micro sikesra plugin", () => {
 			"preview",
 			"save",
 		]);
-		expect(SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.find((step) => step.id === "privacy")?.privacyCheck).toBe(true);
+		expect(
+			SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.find((step) => step.id === "privacy")?.privacyCheck,
+		).toBe(true);
 
 		expect(SIKESRA_GOVERNANCE_REVIEW_STEPS.map((step) => step.id)).toEqual([
 			"request",
@@ -2506,7 +2828,9 @@ describe("awcms micro sikesra plugin", () => {
 			"approve",
 			"execute",
 		]);
-		expect(SIKESRA_GOVERNANCE_REVIEW_STEPS.every((step) => step.requiresAudit || step.privacyCheck)).toBe(true);
+		expect(
+			SIKESRA_GOVERNANCE_REVIEW_STEPS.every((step) => step.requiresAudit || step.privacyCheck),
+		).toBe(true);
 		expect(SIKESRA_ACCESSIBILITY_CHECKLIST).toEqual(
 			expect.arrayContaining([
 				"Keyboard navigation works for tables, steppers, dialogs, drawers, and menus.",
@@ -2540,34 +2864,49 @@ describe("awcms micro sikesra plugin", () => {
 			expect(contract.anatomy, `${contract.path} anatomy`).toEqual([...SIKESRA_PAGE_ANATOMY]);
 			expect(SIKESRA_STANDARD_EMPTY_STATES).toContain(contract.emptyState);
 		}
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/registry/new")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/registry/new"),
+		).toMatchObject({
 			workflowModel: "registry-wizard",
 			requiresPrivacyIndicators: true,
 		});
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/import")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/import"),
+		).toMatchObject({
 			workflowModel: "import",
 			requiresReasonFlow: true,
 		});
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/verification")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/verification"),
+		).toMatchObject({
 			workflowModel: "verification",
 			requiresReasonFlow: true,
 		});
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/access/users")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/access/users"),
+		).toMatchObject({
 			workflowModel: "access",
 			primaryPermissionSlug: "sikesra.rbac.manage",
 		});
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/custom-attributes/definitions")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find(
+				(contract) => contract.path === "/custom-attributes/definitions",
+			),
+		).toMatchObject({
 			workflowModel: "custom-attributes",
 			requiresPrivacyIndicators: true,
 		});
-		expect(SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/delete-requests")).toMatchObject({
+		expect(
+			SIKESRA_PAGE_PATTERN_CONTRACTS.find((contract) => contract.path === "/delete-requests"),
+		).toMatchObject({
 			workflowModel: "governance",
 			requiresReasonFlow: true,
 		});
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -2585,7 +2924,8 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe governance settings", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -2609,7 +2949,8 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public settings", async () => {
-		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
+		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -2633,7 +2974,8 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("advances one verification stage and persists the new state", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const sopdRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
@@ -2823,7 +3165,8 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("denies out-of-region verification mutations", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } = createMockContext();
+		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+			createMockContext();
 		collections.registryEntities.set("registry-entity-outside-scope", {
 			id: "registry-entity-outside-scope",
 			code: "OS-001",
@@ -3078,7 +3421,8 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("requires a reason before overriding medium-risk registry duplicates", async () => {
-		const { ctx, registryEntityTableRows, duplicateCandidateTableRows, auditTableRows } = createMockContext();
+		const { ctx, registryEntityTableRows, duplicateCandidateTableRows, auditTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -3139,7 +3483,9 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 
 		expect(overridden.success).toBe(true);
-		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-medium-02" }));
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({ id: "registry-dup-medium-02" }),
+		);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.override" }));
 	});
 
@@ -3177,14 +3523,18 @@ describe("awcms micro sikesra plugin", () => {
 			input: { id: "registry-entity-crud-01", reason: "Duplicate training data" },
 		} as any)) as any;
 		expect(softDeleted.success).toBe(true);
-		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at).toBeTruthy();
+		expect(
+			registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at,
+		).toBeTruthy();
 
 		const activeAfterDelete = (await routes["registry/list"]!.handler({
 			...ctx,
 			request: adminRequest,
 			input: {},
 		} as any)) as any;
-		expect(activeAfterDelete.items.some((item: any) => item.id === "registry-entity-crud-01")).toBe(false);
+		expect(activeAfterDelete.items.some((item: any) => item.id === "registry-entity-crud-01")).toBe(
+			false,
+		);
 
 		const archive = (await routes["registry/archive/list"]!.handler({
 			...ctx,
@@ -3201,7 +3551,9 @@ describe("awcms micro sikesra plugin", () => {
 			input: { id: "registry-entity-crud-01", reason: "Restored after review" },
 		} as any)) as any;
 		expect(restored.success).toBe(true);
-		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at).toBeNull();
+		expect(
+			registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at,
+		).toBeNull();
 
 		const activeAfterRestore = (await routes["registry/list"]!.handler({
 			...ctx,
@@ -3237,7 +3589,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("VALIDATION_ERROR");
-			expect(result.error.details.fields).toEqual([
+		expect(result.error.details.fields).toEqual([
 			"classification",
 			"contentType",
 			"fileSizeBytes",
@@ -3403,7 +3755,13 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
-		const { ctx, registryEntityTableRows, codeSequenceTableRows, codeHistoryTableRows, auditTableRows } = createMockContext();
+		const {
+			ctx,
+			registryEntityTableRows,
+			codeSequenceTableRows,
+			codeHistoryTableRows,
+			auditTableRows,
+		} = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -3458,11 +3816,14 @@ describe("awcms micro sikesra plugin", () => {
 				correction_reason: "Corrected source subtype after document verification.",
 			}),
 		);
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.sikesra_id.correct" }));
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "registry.sikesra_id.correct" }),
+		);
 	});
 
 	it("blocks import promotion while staged rows have validation errors", async () => {
-		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } = createMockContext();
+		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } =
+			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -3589,9 +3950,15 @@ describe("awcms micro sikesra plugin", () => {
 				promoted_registry_entity_id: "registry-import-01",
 			}),
 		);
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.create" }));
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "registry.import.promote" }));
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.import.mapping" }));
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "registry.import.create" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "registry.import.promote" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "custom_attribute.import.mapping" }),
+		);
 		expect(customAttributeChangeEventTableRows).toContainEqual(
 			expect.objectContaining({ event_type: "custom_attribute.import.mapping" }),
 		);
@@ -3639,7 +4006,11 @@ describe("awcms micro sikesra plugin", () => {
 		} as any);
 
 		expect(importBatchTableRows).toContainEqual(
-			expect.objectContaining({ id: "batch-dup-01", status: "duplicate_review", duplicate_risk_rows: 1 }),
+			expect.objectContaining({
+				id: "batch-dup-01",
+				status: "duplicate_review",
+				duplicate_risk_rows: 1,
+			}),
 		);
 		expect(importStagingRowTableRows).toContainEqual(
 			expect.objectContaining({ id: "batch-dup-01:row:2", duplicate_status: "duplicate_risk" }),
@@ -3673,11 +4044,11 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 		expect(decision.success).toBe(true);
 		expect(duplicateDecisionTableRows).toContainEqual(
-				expect.objectContaining({
-					id: "decision-dup-01",
-					candidate_id: "batch-dup-01:row:2:duplicate-code",
-					decision: "not_duplicate",
-				}),
+			expect.objectContaining({
+				id: "decision-dup-01",
+				candidate_id: "batch-dup-01:row:2:duplicate-code",
+				decision: "not_duplicate",
+			}),
 		);
 		expect(importStagingRowTableRows).toContainEqual(
 			expect.objectContaining({ id: "batch-dup-01:row:2", duplicate_status: "cleared" }),
@@ -3691,8 +4062,12 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(promotedAfterDecision.success).toBe(true);
 		expect(promotedAfterDecision.count).toBe(2);
-		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-01" }));
-		expect(registryEntityTableRows).toContainEqual(expect.objectContaining({ id: "registry-dup-02" }));
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({ id: "registry-dup-01" }),
+		);
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({ id: "registry-dup-02" }),
+		);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "duplicate.decision" }));
 	});
 
@@ -3752,7 +4127,10 @@ describe("awcms micro sikesra plugin", () => {
 				reason: "Case review",
 			}),
 		);
-		expect(JSON.parse(String(exportJobTableRows[0]?.requested_fields_json))).toEqual(["code", "nik"]);
+		expect(JSON.parse(String(exportJobTableRows[0]?.requested_fields_json))).toEqual([
+			"code",
+			"nik",
+		]);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.complete" }));
 	});
 
@@ -3944,13 +4322,24 @@ describe("awcms micro sikesra plugin", () => {
 			input: {
 				id: "export-custom-public-01",
 				exportType: "registry",
-				requestedFields: ["code", "custom:public_program_code", "custom:local_program_note", "custom:sikesra_id_specific_note"],
+				requestedFields: [
+					"code",
+					"custom:public_program_code",
+					"custom:local_program_note",
+					"custom:sikesra_id_specific_note",
+				],
 				sensitivityLevel: "public_safe",
 			},
 		} as any)) as any;
 		expect(publicCustomExport.success).toBe(true);
-		expect(publicCustomExport.item.resultSummary.allowedFields).toEqual(["code", "custom:public_program_code"]);
-		expect(publicCustomExport.item.resultSummary.excludedFields).toEqual(["custom:local_program_note", "custom:sikesra_id_specific_note"]);
+		expect(publicCustomExport.item.resultSummary.allowedFields).toEqual([
+			"code",
+			"custom:public_program_code",
+		]);
+		expect(publicCustomExport.item.resultSummary.excludedFields).toEqual([
+			"custom:local_program_note",
+			"custom:sikesra_id_specific_note",
+		]);
 
 		const restrictedCustomExport = (await routes["exports/create"]!.handler({
 			...ctx,
@@ -3964,7 +4353,9 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		} as any)) as any;
 		expect(restrictedCustomExport.success).toBe(true);
-		expect(restrictedCustomExport.item.resultSummary.allowedFields).toEqual(["custom:sikesra_id_specific_note"]);
+		expect(restrictedCustomExport.item.resultSummary.allowedFields).toEqual([
+			"custom:sikesra_id_specific_note",
+		]);
 
 		const sensitiveCustomValue = "Sensitive local note";
 		const savedValue = (await routes["custom-attributes/values/save"]!.handler({
@@ -4052,9 +4443,15 @@ describe("awcms micro sikesra plugin", () => {
 			expect.objectContaining({ id: "custom-value-01", valueDisplay: "[REDACTED]", masked: true }),
 		);
 		expect(customAttributeChangeEventTableRows.length).toBeGreaterThanOrEqual(2);
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.definition.save" }));
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.value.save" }));
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "custom_attribute.export.include" }));
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "custom_attribute.definition.save" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "custom_attribute.value.save" }),
+		);
+		expect(auditTableRows).toContainEqual(
+			expect.objectContaining({ kind: "custom_attribute.export.include" }),
+		);
 		const valueAudit = auditTableRows.find((row) => row.kind === "custom_attribute.value.save")!;
 		const exportChangeEvent = customAttributeChangeEventTableRows.find(
 			(row) => row.event_type === "custom_attribute.export.include",
@@ -4062,9 +4459,15 @@ describe("awcms micro sikesra plugin", () => {
 		const valueChangeEvent = customAttributeChangeEventTableRows.find(
 			(row) => row.event_type === "custom_attribute.value.update",
 		)!;
-		expect(JSON.parse(String(exportChangeEvent.metadata_json))).toMatchObject({ key: "public_program_code" });
-		expect(JSON.stringify(JSON.parse(String(valueAudit.metadata_json)))).not.toContain(sensitiveCustomValue);
-		expect(JSON.stringify(JSON.parse(String(valueChangeEvent.metadata_json)))).not.toContain(sensitiveCustomValue);
+		expect(JSON.parse(String(exportChangeEvent.metadata_json))).toMatchObject({
+			key: "public_program_code",
+		});
+		expect(JSON.stringify(JSON.parse(String(valueAudit.metadata_json)))).not.toContain(
+			sensitiveCustomValue,
+		);
+		expect(JSON.stringify(JSON.parse(String(valueChangeEvent.metadata_json)))).not.toContain(
+			sensitiveCustomValue,
+		);
 		expect(JSON.parse(String(valueAudit.metadata_json))).toMatchObject({ valueRedacted: true });
 	});
 
@@ -4145,10 +4548,16 @@ describe("awcms micro sikesra plugin", () => {
 			}),
 		);
 		expect(deleteSnapshotTableRows).toContainEqual(
-			expect.objectContaining({ id: "delete-request-01:snapshot", delete_request_id: "delete-request-01" }),
+			expect.objectContaining({
+				id: "delete-request-01:snapshot",
+				delete_request_id: "delete-request-01",
+			}),
 		);
 		expect(deleteEventTableRows).toContainEqual(
-			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.request" }),
+			expect.objectContaining({
+				delete_request_id: "delete-request-01",
+				event_kind: "crud.permanent_delete.request",
+			}),
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.request" }),
@@ -4174,7 +4583,9 @@ describe("awcms micro sikesra plugin", () => {
 					"X-Sikesra-User-Id": "user-demo-super-admin",
 				},
 			}),
-		} as any)) as { items: Array<{ id: string; targetTable: string; targetRecordId: string; status: string }> };
+		} as any)) as {
+			items: Array<{ id: string; targetTable: string; targetRecordId: string; status: string }>;
+		};
 		expect(listAllowed.items).toContainEqual(
 			expect.objectContaining({
 				id: "delete-request-01",
@@ -4207,13 +4618,16 @@ describe("awcms micro sikesra plugin", () => {
 			expect.objectContaining({ id: "delete-request-01", status: "approved" }),
 		);
 		expect(deleteEventTableRows).toContainEqual(
-			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.approve" }),
+			expect.objectContaining({
+				delete_request_id: "delete-request-01",
+				event_kind: "crud.permanent_delete.approve",
+			}),
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.approve" }),
 		);
 
-	supportingDocumentTableRows.push({
+		supportingDocumentTableRows.push({
 			tenant_id: "t-local-dev",
 			site_id: "default",
 			id: "doc-blocking-delete-01",
@@ -4231,7 +4645,10 @@ describe("awcms micro sikesra plugin", () => {
 		expect(blockedExecution.error.code).toBe("DELETE_BLOCKED_REFERENCES");
 		expect(blockedExecution.error.details.references).toContain("supporting_documents");
 		expect(deleteEventTableRows).toContainEqual(
-			expect.objectContaining({ delete_request_id: "delete-request-01", event_kind: "crud.permanent_delete.blocked" }),
+			expect.objectContaining({
+				delete_request_id: "delete-request-01",
+				event_kind: "crud.permanent_delete.blocked",
+			}),
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.blocked" }),
@@ -4283,12 +4700,17 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		} as any)) as any;
 		expect(executed.success).toBe(true);
-		expect(registryEntityTableRows.some((row) => row.id === "registry-entity-execute-01")).toBe(false);
+		expect(registryEntityTableRows.some((row) => row.id === "registry-entity-execute-01")).toBe(
+			false,
+		);
 		expect(deleteRequestTableRows).toContainEqual(
 			expect.objectContaining({ id: "delete-request-02", status: "executed" }),
 		);
 		expect(deleteEventTableRows).toContainEqual(
-			expect.objectContaining({ delete_request_id: "delete-request-02", event_kind: "crud.permanent_delete.execute" }),
+			expect.objectContaining({
+				delete_request_id: "delete-request-02",
+				event_kind: "crud.permanent_delete.execute",
+			}),
 		);
 		expect(auditTableRows).toContainEqual(
 			expect.objectContaining({ kind: "crud.permanent_delete.execute" }),
@@ -4339,10 +4761,17 @@ describe("awcms micro sikesra plugin", () => {
 			},
 		} as any)) as any;
 		expect(assignmentExecuted.success).toBe(true);
-		expect(userRoleAssignmentTableRows.some((row) => row.id === "assignment-delete-01")).toBe(false);
-		expect(await ctx.users.get("user-demo-doc-reviewer")).toMatchObject({ id: "user-demo-doc-reviewer" });
+		expect(userRoleAssignmentTableRows.some((row) => row.id === "assignment-delete-01")).toBe(
+			false,
+		);
+		expect(await ctx.users.get("user-demo-doc-reviewer")).toMatchObject({
+			id: "user-demo-doc-reviewer",
+		});
 		expect(deleteEventTableRows).toContainEqual(
-			expect.objectContaining({ delete_request_id: "delete-request-03", event_kind: "crud.permanent_delete.execute" }),
+			expect.objectContaining({
+				delete_request_id: "delete-request-03",
+				event_kind: "crud.permanent_delete.execute",
+			}),
 		);
 	});
 
@@ -4409,7 +4838,9 @@ describe("awcms micro sikesra plugin", () => {
 			}),
 		);
 		expect(collections.registryEntities.get("registry-entity-legacy-01")).toBeUndefined();
-		expect(registry.items.find((item: any) => item.id === "registry-entity-legacy-01")).toMatchObject({
+		expect(
+			registry.items.find((item: any) => item.id === "registry-entity-legacy-01"),
+		).toMatchObject({
 			code: "LG-001",
 		});
 		expect(collections.supportingDocuments.get("doc-legacy-01")).toBeUndefined();
@@ -4467,11 +4898,11 @@ describe("awcms micro sikesra plugin", () => {
 		const sikesraAdminAssignment = collections.rolePermissionAssignments.get("sikesra_admin") as
 			| { permissions: string[] }
 			| undefined;
-		expect(sikesraAdminAssignment?.permissions).not.toContain(
-			"sikesra.lifecycle.permanent_delete",
-		);
+		expect(sikesraAdminAssignment?.permissions).not.toContain("sikesra.lifecycle.permanent_delete");
 		expect(sikesraAdminAssignment?.permissions).not.toContain("sikesra.registry.permanent_delete");
-		expect(sikesraAdminAssignment?.permissions).not.toContain("sikesra.audit.retention_purge_execute");
+		expect(sikesraAdminAssignment?.permissions).not.toContain(
+			"sikesra.audit.retention_purge_execute",
+		);
 		expect(collections.rolePermissionAssignments.get("sikesra_super_admin")).toMatchObject({
 			roleSlug: "sikesra_super_admin",
 			permissions: expect.arrayContaining([
@@ -4736,8 +5167,7 @@ describe("awcms micro sikesra plugin", () => {
 			roleCatalogTableRows,
 			rolePermissionAssignmentTableRows,
 			userRoleAssignmentTableRows,
-		} =
-			createMockContext();
+		} = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -4813,12 +5243,12 @@ describe("awcms micro sikesra plugin", () => {
 		expect(preview.matchedRoles).toContain("document-reviewer");
 		expect(permissionCatalogTableRows.some((row) => row.slug === "documents.review")).toBe(true);
 		expect(roleCatalogTableRows.some((row) => row.slug === "document-reviewer")).toBe(true);
-		expect(rolePermissionAssignmentTableRows.some((row) => row.permission_slug === "documents.review")).toBe(
-			true,
-		);
-		expect(userRoleAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-doc-reviewer")).toBe(
-			true,
-		);
+		expect(
+			rolePermissionAssignmentTableRows.some((row) => row.permission_slug === "documents.review"),
+		).toBe(true);
+		expect(
+			userRoleAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-doc-reviewer"),
+		).toBe(true);
 
 		await routes["access/users/save"]!.handler({
 			...ctx,
@@ -4837,7 +5267,11 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 
 		expect(inactivePreview.allowed).toBe(false);
-		expect(userRoleAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-doc-reviewer" && row.is_active === 0)).toBe(true);
+		expect(
+			userRoleAssignmentTableRows.some(
+				(row) => row.emdash_user_id === "user-demo-doc-reviewer" && row.is_active === 0,
+			),
+		).toBe(true);
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
 	});
 
@@ -5121,12 +5555,12 @@ describe("awcms micro sikesra plugin", () => {
 		expect(allow.allowed).toBe(true);
 		expect(allow.effect).toBe("allow");
 		expect(abacAttributeCatalogTableRows.some((row) => row.key === "action")).toBe(true);
-		expect(abacSubjectAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-editor")).toBe(
-			true,
-		);
-		expect(abacResourceAssignmentTableRows.some((row) => row.resource_id === "resource-public-post")).toBe(
-			true,
-		);
+		expect(
+			abacSubjectAssignmentTableRows.some((row) => row.emdash_user_id === "user-demo-editor"),
+		).toBe(true);
+		expect(
+			abacResourceAssignmentTableRows.some((row) => row.resource_id === "resource-public-post"),
+		).toBe(true);
 		expect(abacPolicyRuleTableRows.some((row) => row.id === "allow-published-read-jakarta")).toBe(
 			true,
 		);

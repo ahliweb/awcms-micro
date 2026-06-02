@@ -78,14 +78,17 @@ describe("SIKESRA D1 repositories", () => {
 			"abac",
 			"audit",
 		]);
-		expect(Object.values(repositories).every((repository) => repository.table.startsWith("sikesra_"))).toBe(
-			true,
-		);
+		expect(
+			Object.values(repositories).every((repository) => repository.table.startsWith("sikesra_")),
+		).toBe(true);
 	});
 
 	it("reads and writes settings through the dedicated SIKESRA D1 settings table", async () => {
 		const { calls, db } = createRecordingDb([{ key: "publicStatusLabel", value_json: '"Online"' }]);
-		const repository = createSikesraRepositories(db, { tenantId: "tenant-1", siteId: "site-1" }).settings;
+		const repository = createSikesraRepositories(db, {
+			tenantId: "tenant-1",
+			siteId: "site-1",
+		}).settings;
 
 		await expect(repository.getJsonByKey<string>("publicStatusLabel")).resolves.toBe("Online");
 		await repository.upsertJson("publicStatusLabel", "Ready");

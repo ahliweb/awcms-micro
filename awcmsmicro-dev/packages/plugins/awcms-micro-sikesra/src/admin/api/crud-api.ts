@@ -18,18 +18,46 @@ export type SikesraCrudApiContract =
 
 type RequestOptions<TPayload> = Omit<SikesraAdminApiRequest<TPayload>, "path" | "payload">;
 
-export function requestPermanentDelete<TResponse>(payload: SikesraPermanentDeleteRequest, options: RequestOptions<SikesraPermanentDeleteRequest>) {
-	return postSikesraPlugin<TResponse, SikesraPermanentDeleteRequest>({ ...options, path: "crud/permanent-delete/request", payload });
+export function requestPermanentDelete<TResponse>(
+	payload: SikesraPermanentDeleteRequest,
+	options: RequestOptions<SikesraPermanentDeleteRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraPermanentDeleteRequest>({
+		...options,
+		path: "crud/permanent-delete/request",
+		payload,
+	});
 }
 
-export function listPermanentDeleteRequests<TResponse>(payload: SikesraPermanentDeleteListRequest, options: RequestOptions<SikesraPermanentDeleteListRequest>) {
-	return postSikesraPlugin<TResponse, SikesraPermanentDeleteListRequest>({ ...options, path: "crud/permanent-delete/requests/list", payload });
+export function listPermanentDeleteRequests<TResponse>(
+	payload: SikesraPermanentDeleteListRequest,
+	options: RequestOptions<SikesraPermanentDeleteListRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraPermanentDeleteListRequest>({
+		...options,
+		path: "crud/permanent-delete/requests/list",
+		payload,
+	});
 }
 
-export function approvePermanentDelete<TResponse>(payload: SikesraPermanentDeleteApprovalRequest, options: RequestOptions<SikesraPermanentDeleteApprovalRequest>) {
-	return postSikesraPlugin<TResponse, SikesraPermanentDeleteApprovalRequest>({ ...options, path: "crud/permanent-delete/approve", payload });
+export function approvePermanentDelete<TResponse>(
+	payload: SikesraPermanentDeleteApprovalRequest,
+	options: RequestOptions<SikesraPermanentDeleteApprovalRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraPermanentDeleteApprovalRequest>({
+		...options,
+		path: "crud/permanent-delete/approve",
+		payload,
+	});
 }
 
-export function executePermanentDelete<TResponse>(payload: SikesraPermanentDeleteExecutionRequest, options: RequestOptions<SikesraPermanentDeleteExecutionRequest>) {
-	return postSikesraPlugin<TResponse, SikesraPermanentDeleteExecutionRequest>({ ...options, path: "crud/permanent-delete/execute", payload });
+export function executePermanentDelete<TResponse>(
+	payload: SikesraPermanentDeleteExecutionRequest,
+	options: RequestOptions<SikesraPermanentDeleteExecutionRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraPermanentDeleteExecutionRequest>({
+		...options,
+		path: "crud/permanent-delete/execute",
+		payload,
+	});
 }

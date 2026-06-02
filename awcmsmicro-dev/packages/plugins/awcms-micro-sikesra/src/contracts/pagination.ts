@@ -18,7 +18,9 @@ export interface SikesraPagination {
 	nextCursor?: string;
 }
 
-export function normalizeSikesraPagination(input: SikesraPaginationRequest = {}): Required<Pick<SikesraPaginationRequest, "page" | "pageSize" | "sortDirection">> {
+export function normalizeSikesraPagination(
+	input: SikesraPaginationRequest = {},
+): Required<Pick<SikesraPaginationRequest, "page" | "pageSize" | "sortDirection">> {
 	return {
 		page: Math.max(1, Math.trunc(input.page ?? 1)),
 		pageSize: Math.min(100, Math.max(1, Math.trunc(input.pageSize ?? 25))),

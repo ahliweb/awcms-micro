@@ -1,4 +1,8 @@
-import { sikesraOk, type SikesraApiSuccess, type SikesraRegistryListItemDto } from "../contracts/index.js";
+import {
+	sikesraOk,
+	type SikesraApiSuccess,
+	type SikesraRegistryListItemDto,
+} from "../contracts/index.js";
 import type { SikesraScopedRepository } from "../db/index.js";
 import type { SikesraRegistryEntityRow } from "../db/repositories/registry-repository.js";
 import { serializeRegistryListItem } from "../serializers/index.js";

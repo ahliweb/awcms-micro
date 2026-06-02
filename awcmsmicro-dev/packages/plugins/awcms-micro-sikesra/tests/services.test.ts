@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { createSikesraUiState } from "../src/contracts/index.js";
 import type { SikesraScopedRepository } from "../src/db/index.js";
 import type { SikesraRegistryEntityRow } from "../src/db/repositories/registry-repository.js";
-import { createSikesraUiState } from "../src/contracts/index.js";
 import {
 	createAbacService,
 	createAccessService,
@@ -69,20 +69,52 @@ describe("SIKESRA services", () => {
 			data: {
 				statusLabel: "Public",
 				updatedAt: undefined,
-				categories: [{ key: "lks", label: "LKS", count: null, suppressed: true, suppressionReason: undefined }],
+				categories: [
+					{ key: "lks", label: "LKS", count: null, suppressed: true, suppressionReason: undefined },
+				],
 			},
 		});
 	});
 
 	it("defines service boundaries for remaining workflow domains", async () => {
-		await expect(createVerificationService().advance({ registryEntityId: "r1", verifierLevel: "desa" })).resolves.toMatchObject({ ok: false });
-		await expect(createDocumentService().saveMetadata({ registryEntityId: "r1", title: "Doc", documentType: "pdf", classification: "restricted" })).resolves.toMatchObject({ ok: false });
-		await expect(createImportService().promote({ batchId: "b1" })).resolves.toMatchObject({ ok: false });
-		await expect(createExportService().create({ exportType: "report", requestedFields: [], sensitivityLevel: "public_safe" })).resolves.toMatchObject({ ok: false });
-		await expect(createAccessService().preview({ userId: "u1", permissionSlug: "sikesra.registry.read" })).resolves.toMatchObject({ ok: false });
-		await expect(createAbacService().preview({ subjectId: "u1", resourceId: "r1", action: "read" })).resolves.toMatchObject({ ok: false });
-		await expect(createCustomAttributeService().saveValue({ definitionId: "d1", ownerType: "registry", ownerId: "r1", value: "x" })).resolves.toMatchObject({ ok: false });
-		await expect(createCrudGovernanceService().softDelete({ id: "r1", reason: "duplicate" })).resolves.toMatchObject({ ok: false });
+		await expect(
+			createVerificationService().advance({ registryEntityId: "r1", verifierLevel: "desa" }),
+		).resolves.toMatchObject({ ok: false });
+		await expect(
+			createDocumentService().saveMetadata({
+				registryEntityId: "r1",
+				title: "Doc",
+				documentType: "pdf",
+				classification: "restricted",
+			}),
+		).resolves.toMatchObject({ ok: false });
+		await expect(createImportService().promote({ batchId: "b1" })).resolves.toMatchObject({
+			ok: false,
+		});
+		await expect(
+			createExportService().create({
+				exportType: "report",
+				requestedFields: [],
+				sensitivityLevel: "public_safe",
+			}),
+		).resolves.toMatchObject({ ok: false });
+		await expect(
+			createAccessService().preview({ userId: "u1", permissionSlug: "sikesra.registry.read" }),
+		).resolves.toMatchObject({ ok: false });
+		await expect(
+			createAbacService().preview({ subjectId: "u1", resourceId: "r1", action: "read" }),
+		).resolves.toMatchObject({ ok: false });
+		await expect(
+			createCustomAttributeService().saveValue({
+				definitionId: "d1",
+				ownerType: "registry",
+				ownerId: "r1",
+				value: "x",
+			}),
+		).resolves.toMatchObject({ ok: false });
+		await expect(
+			createCrudGovernanceService().softDelete({ id: "r1", reason: "duplicate" }),
+		).resolves.toMatchObject({ ok: false });
 	});
 
 	it("redacts audit events through the audit service boundary", () => {

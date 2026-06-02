@@ -9,5 +9,9 @@ export interface SikesraAbacPolicyRuleRow extends SikesraScopedRow {
 }
 
 export function createAbacRepository(db: SikesraD1Database, scope: SikesraRepositoryScope) {
-	return createScopedRepository<SikesraAbacPolicyRuleRow>(db, scope, SIKESRA_D1_TABLES.abacPolicies);
+	return createScopedRepository<SikesraAbacPolicyRuleRow>(
+		db,
+		scope,
+		SIKESRA_D1_TABLES.abacPolicies,
+	);
 }

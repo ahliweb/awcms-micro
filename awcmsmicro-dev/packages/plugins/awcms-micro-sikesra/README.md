@@ -68,33 +68,33 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/UI_UX_DESIGN_STANDARD.m
 
 Current ordered backlog:
 
-| Order | Issue | Purpose |
-| ---: | ---: | --- |
-| 1 | #140 | Final plugin identity and export name |
-| 2 | #141 | Admin dashboard route bug fix |
-| 3 | #142 | End-to-end admin UI/UX design system |
-| 4 | #119 | Dedicated `sikesra_` D1 table and collection naming policy |
-| 5 | #121 | D1 table prefix validation test |
-| 6 | #136 | EmDash update/rebuild compatibility guardrails |
-| 7 | #137 | Data preservation guardrails |
-| 8 | #120 | SIKESRA D1 migration framework |
-| 9 | #122 | D1 repository layer |
-| 10 | #143 | Typed frontend-backend-D1 integration contract |
-| 11 | #123 | Core D1 tables for settings, data types, and regions |
-| 12 | #135 | Standard personal and non-personal fields |
-| 13 | #124 | Migration from KV/plugin storage to D1 |
-| 14 | #125 | Registry D1 tables for all 8 data modules |
-| 15 | #132 | SIKESRA RBAC/ABAC with EmDash user assignment |
-| 16 | #133 | Canonical D1 audit table and redaction policy |
-| 17 | #126 | Registry list/save route refactor to D1 |
-| 18 | #127 | D1-backed 20-digit SIKESRA ID sequence service |
-| 19 | #128 | Verification D1 tables and routes |
-| 20 | #129 | Document D1 tables and secure R2 metadata workflow |
-| 21 | #130 | D1-backed staged CSV/XLSX import workflow |
-| 22 | #131 | Duplicate detection and duplicate decisions |
-| 23 | #134 | D1 export job and controlled report/export workflow |
-| 24 | #138 | Dynamic custom attributes by data type, subtype, entity, or SIKESRA ID |
-| 25 | #139 | Full CRUD and highest-admin governance |
+| Order | Issue | Purpose                                                                |
+| ----: | ----: | ---------------------------------------------------------------------- |
+|     1 |  #140 | Final plugin identity and export name                                  |
+|     2 |  #141 | Admin dashboard route bug fix                                          |
+|     3 |  #142 | End-to-end admin UI/UX design system                                   |
+|     4 |  #119 | Dedicated `sikesra_` D1 table and collection naming policy             |
+|     5 |  #121 | D1 table prefix validation test                                        |
+|     6 |  #136 | EmDash update/rebuild compatibility guardrails                         |
+|     7 |  #137 | Data preservation guardrails                                           |
+|     8 |  #120 | SIKESRA D1 migration framework                                         |
+|     9 |  #122 | D1 repository layer                                                    |
+|    10 |  #143 | Typed frontend-backend-D1 integration contract                         |
+|    11 |  #123 | Core D1 tables for settings, data types, and regions                   |
+|    12 |  #135 | Standard personal and non-personal fields                              |
+|    13 |  #124 | Migration from KV/plugin storage to D1                                 |
+|    14 |  #125 | Registry D1 tables for all 8 data modules                              |
+|    15 |  #132 | SIKESRA RBAC/ABAC with EmDash user assignment                          |
+|    16 |  #133 | Canonical D1 audit table and redaction policy                          |
+|    17 |  #126 | Registry list/save route refactor to D1                                |
+|    18 |  #127 | D1-backed 20-digit SIKESRA ID sequence service                         |
+|    19 |  #128 | Verification D1 tables and routes                                      |
+|    20 |  #129 | Document D1 tables and secure R2 metadata workflow                     |
+|    21 |  #130 | D1-backed staged CSV/XLSX import workflow                              |
+|    22 |  #131 | Duplicate detection and duplicate decisions                            |
+|    23 |  #134 | D1 export job and controlled report/export workflow                    |
+|    24 |  #138 | Dynamic custom attributes by data type, subtype, entity, or SIKESRA ID |
+|    25 |  #139 | Full CRUD and highest-admin governance                                 |
 
 ## What It Provides Now
 
@@ -218,9 +218,7 @@ Local template example after issue #140:
 ```ts
 import { awcmsMicroSikesraPlugin } from "@awcms-micro/plugin-sikesra";
 
-plugins: [
-  awcmsMicroSikesraPlugin({ tenantId: "t-local-dev" }),
-]
+plugins: [awcmsMicroSikesraPlugin({ tenantId: "t-local-dev" })];
 ```
 
 During the transition, the old `awcmsMicroExamplePlugin` alias may still exist but should not be used in new code.

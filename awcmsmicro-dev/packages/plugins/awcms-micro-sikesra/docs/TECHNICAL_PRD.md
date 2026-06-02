@@ -64,34 +64,34 @@ Issue #144 adds repository-wide Mermaid diagram standards. SIKESRA-specific impl
 
 This PRD is aligned with GitHub issues #119 through #144.
 
-| Order | Issue | Requirement Area |
-| ---: | ---: | --- |
-| 1 | #140 | final plugin identity |
-| 2 | #141 | admin dashboard route bug fix |
-| 3 | #142 | admin UI/UX design system |
-| 4 | #119 | `sikesra_` naming policy |
-| 5 | #121 | table-prefix validation |
-| 6 | #136 | EmDash update/rebuild compatibility |
-| 7 | #137 | data preservation |
-| 8 | #120 | D1 migration framework |
-| 9 | #122 | D1 repository layer |
-| 10 | #143 | typed frontend-backend-D1 integration contract |
-| 11 | #123 | settings, regions, data types |
-| 12 | #135 | personal and non-personal field standards |
-| 13 | #124 | KV/plugin-storage to D1 migration |
-| 14 | #125 | registry tables for 8 modules |
-| 15 | #132 | EmDash user-linked SIKESRA RBAC/ABAC |
-| 16 | #133 | audit redaction |
-| 17 | #126 | registry routes to D1 |
-| 18 | #127 | 20-digit ID sequence |
-| 19 | #128 | verification workflow |
-| 20 | #129 | documents and R2 metadata |
-| 21 | #130 | staged import |
-| 22 | #131 | duplicate detection |
-| 23 | #134 | export workflow |
-| 24 | #138 | dynamic custom attributes |
-| 25 | #139 | CRUD and highest-admin governance |
-| 26 | #144 | Mermaid diagram standards |
+| Order | Issue | Requirement Area                               |
+| ----: | ----: | ---------------------------------------------- |
+|     1 |  #140 | final plugin identity                          |
+|     2 |  #141 | admin dashboard route bug fix                  |
+|     3 |  #142 | admin UI/UX design system                      |
+|     4 |  #119 | `sikesra_` naming policy                       |
+|     5 |  #121 | table-prefix validation                        |
+|     6 |  #136 | EmDash update/rebuild compatibility            |
+|     7 |  #137 | data preservation                              |
+|     8 |  #120 | D1 migration framework                         |
+|     9 |  #122 | D1 repository layer                            |
+|    10 |  #143 | typed frontend-backend-D1 integration contract |
+|    11 |  #123 | settings, regions, data types                  |
+|    12 |  #135 | personal and non-personal field standards      |
+|    13 |  #124 | KV/plugin-storage to D1 migration              |
+|    14 |  #125 | registry tables for 8 modules                  |
+|    15 |  #132 | EmDash user-linked SIKESRA RBAC/ABAC           |
+|    16 |  #133 | audit redaction                                |
+|    17 |  #126 | registry routes to D1                          |
+|    18 |  #127 | 20-digit ID sequence                           |
+|    19 |  #128 | verification workflow                          |
+|    20 |  #129 | documents and R2 metadata                      |
+|    21 |  #130 | staged import                                  |
+|    22 |  #131 | duplicate detection                            |
+|    23 |  #134 | export workflow                                |
+|    24 |  #138 | dynamic custom attributes                      |
+|    25 |  #139 | CRUD and highest-admin governance              |
+|    26 |  #144 | Mermaid diagram standards                      |
 
 Do not implement later workflow issues before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, typed integration, field-standard, RBAC/ABAC, audit, and diagram foundations are ready.
 

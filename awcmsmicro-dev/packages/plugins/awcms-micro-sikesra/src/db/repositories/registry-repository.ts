@@ -13,5 +13,9 @@ export interface SikesraRegistryEntityRow extends SikesraScopedRow {
 }
 
 export function createRegistryRepository(db: SikesraD1Database, scope: SikesraRepositoryScope) {
-	return createScopedRepository<SikesraRegistryEntityRow>(db, scope, SIKESRA_D1_TABLES.registryEntities);
+	return createScopedRepository<SikesraRegistryEntityRow>(
+		db,
+		scope,
+		SIKESRA_D1_TABLES.registryEntities,
+	);
 }

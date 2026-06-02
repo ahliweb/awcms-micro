@@ -11,7 +11,10 @@ const flattenKeys = (value, prefix = "") =>
 	});
 
 const readContexts = async (locale) => {
-	const catalog = await readFile(new URL(`../src/locales/${locale}/messages.po`, import.meta.url), "utf8");
+	const catalog = await readFile(
+		new URL(`../src/locales/${locale}/messages.po`, import.meta.url),
+		"utf8",
+	);
 	return Array.from(catalog.matchAll(/^msgctxt "((?:\\.|[^"\\])*)"$/gm), (match) =>
 		match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\"),
 	);
@@ -21,6 +24,10 @@ test("PO catalogs cover every Cloudflare template copy key", async () => {
 	const expectedKeys = flattenKeys(AWCMS_MICRO_CLOUDFLARE_PUBLIC_COPY.en).toSorted();
 
 	for (const locale of ["en", "id"]) {
-		assert.deepEqual((await readContexts(locale)).toSorted(), expectedKeys, `${locale} PO catalog keys drifted`);
+		assert.deepEqual(
+			(await readContexts(locale)).toSorted(),
+			expectedKeys,
+			`${locale} PO catalog keys drifted`,
+		);
 	}
 });

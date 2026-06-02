@@ -53,7 +53,11 @@ export interface SikesraCrudOperationPolicy {
 	requiredAbacScope: "none" | "record" | "region" | "organization";
 	requiredRegionScope: boolean;
 	requiredOrganizationScope: boolean;
-	sensitivityRule: "public_safe" | "masked_by_default" | "restricted" | "append_first_retention_only";
+	sensitivityRule:
+		| "public_safe"
+		| "masked_by_default"
+		| "restricted"
+		| "append_first_retention_only";
 	auditEventKind: string;
 	requiresReason: boolean;
 	requiresConfirmation: boolean;
@@ -90,7 +94,8 @@ const MUTATING_OPERATIONS = new Set<SikesraCrudOperationName>([
 ]);
 
 function permissionFor(featurePermissionBase: string, operation: SikesraCrudOperationName) {
-	if (operation === "read_list" || operation === "read_detail") return `${featurePermissionBase}.read`;
+	if (operation === "read_list" || operation === "read_detail")
+		return `${featurePermissionBase}.read`;
 	if (operation === "archive") return "sikesra.lifecycle.archive";
 	return `${featurePermissionBase}.${operation}`;
 }
@@ -113,7 +118,9 @@ function createCrudFeaturePolicy(input: {
 			return {
 				operation,
 				permissionSlug: permissionFor(input.permissionBase, operation),
-				allowedRoles: permanentDelete ? ["sikesra_super_admin"] : ["sikesra_admin", "sikesra_super_admin"],
+				allowedRoles: permanentDelete
+					? ["sikesra_super_admin"]
+					: ["sikesra_admin", "sikesra_super_admin"],
 				requiredAbacScope: input.requiredAbacScope ?? "record",
 				requiredRegionScope: input.requiredRegionScope ?? false,
 				requiredOrganizationScope: input.requiredOrganizationScope ?? false,
@@ -175,7 +182,11 @@ export const SIKESRA_CRUD_FEATURE_POLICIES: SikesraCrudFeaturePolicy[] = [
 	createCrudFeaturePolicy({
 		feature: "import",
 		permissionBase: "sikesra.import",
-		tables: ["sikesra_import_batches", "sikesra_import_staging_rows", "sikesra_import_mapping_templates"],
+		tables: [
+			"sikesra_import_batches",
+			"sikesra_import_staging_rows",
+			"sikesra_import_mapping_templates",
+		],
 	}),
 	createCrudFeaturePolicy({
 		feature: "export",
@@ -197,7 +208,12 @@ export const SIKESRA_CRUD_FEATURE_POLICIES: SikesraCrudFeaturePolicy[] = [
 	createCrudFeaturePolicy({
 		feature: "region",
 		permissionBase: "sikesra.region",
-		tables: ["sikesra_regions", "sikesra_official_regions", "sikesra_local_regions", "sikesra_region_aliases"],
+		tables: [
+			"sikesra_regions",
+			"sikesra_official_regions",
+			"sikesra_local_regions",
+			"sikesra_region_aliases",
+		],
 	}),
 	createCrudFeaturePolicy({
 		feature: "data_type",
@@ -225,7 +241,11 @@ export const SIKESRA_CRUD_FEATURE_POLICIES: SikesraCrudFeaturePolicy[] = [
 	createCrudFeaturePolicy({
 		feature: "rbac",
 		permissionBase: "sikesra.rbac",
-		tables: ["sikesra_permission_catalog", "sikesra_role_catalog", "sikesra_role_permission_assignments"],
+		tables: [
+			"sikesra_permission_catalog",
+			"sikesra_role_catalog",
+			"sikesra_role_permission_assignments",
+		],
 		requiredAbacScope: "none",
 	}),
 	createCrudFeaturePolicy({
@@ -251,14 +271,19 @@ export const SIKESRA_CRUD_FEATURE_POLICIES: SikesraCrudFeaturePolicy[] = [
 		operations: CRUD_OPERATIONS.map((operation) => ({
 			operation,
 			permissionSlug:
-				operation === "permanent_delete" ? "sikesra.audit.retention_purge_execute" : "sikesra.audit.read",
+				operation === "permanent_delete"
+					? "sikesra.audit.retention_purge_execute"
+					: "sikesra.audit.read",
 			allowedRoles:
-				operation === "permanent_delete" ? ["sikesra_super_admin"] : ["sikesra_auditor", "sikesra_super_admin"],
+				operation === "permanent_delete"
+					? ["sikesra_super_admin"]
+					: ["sikesra_auditor", "sikesra_super_admin"],
 			requiredAbacScope: "none",
 			requiredRegionScope: false,
 			requiredOrganizationScope: false,
 			sensitivityRule: "append_first_retention_only",
-			auditEventKind: operation === "permanent_delete" ? "crud.retention_purge.execute" : `crud.${operation}`,
+			auditEventKind:
+				operation === "permanent_delete" ? "crud.retention_purge.execute" : `crud.${operation}`,
 			requiresReason: MUTATING_OPERATIONS.has(operation),
 			requiresConfirmation: operation === "permanent_delete",
 			requiresBackupSnapshot: operation === "permanent_delete",

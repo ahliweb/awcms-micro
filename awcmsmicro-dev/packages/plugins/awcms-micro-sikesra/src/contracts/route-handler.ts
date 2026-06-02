@@ -8,7 +8,9 @@ export interface SikesraContractRouteContext<TInput = unknown> {
 
 export type SikesraContractValidator<TInput, TParsed> = (
 	input: TInput,
-) => { ok: true; data: TParsed } | { ok: false; fieldErrors: Record<string, string[]>; message?: string };
+) =>
+	| { ok: true; data: TParsed }
+	| { ok: false; fieldErrors: Record<string, string[]>; message?: string };
 
 export async function handleSikesraContractRoute<TInput, TParsed, TData>(
 	context: SikesraContractRouteContext<TInput>,

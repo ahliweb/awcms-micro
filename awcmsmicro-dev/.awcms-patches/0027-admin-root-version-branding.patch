@@ -1,0 +1,54 @@
+diff --git a/packages/admin/tsdown.config.ts b/packages/admin/tsdown.config.ts
+--- a/packages/admin/tsdown.config.ts
++++ b/packages/admin/tsdown.config.ts
+@@ -1,8 +1,39 @@
+ import { transformAsync } from "@babel/core";
++import { existsSync, readFileSync } from "node:fs";
++import { execSync } from "node:child_process";
+ import type { Plugin } from "rolldown";
+ import { defineConfig } from "tsdown";
+ 
+ const JS_TS_RE = /\.[jt]sx?$/;
++const CHANGELOG_VERSION_RE = /^##\s+([^\s]+)/m;
++const ROOT_VERSION_PATHS = [new URL("../../../VERSION", import.meta.url), new URL("../../VERSION", import.meta.url)];
++const ROOT_CHANGELOG_PATHS = [
++	new URL("../../../CHANGELOG.md", import.meta.url),
++	new URL("../../CHANGELOG.md", import.meta.url),
++];
++
++function readFirstExisting(paths: URL[]): string | undefined {
++	for (const path of paths) {
++		if (existsSync(path)) return readFileSync(path, "utf8").trim();
++	}
++}
++
++function readRootVersion(): string {
++	const version = readFirstExisting(ROOT_VERSION_PATHS);
++	if (version) return version;
++
++	const changelog = readFirstExisting(ROOT_CHANGELOG_PATHS);
++	const latestChangelogVersion = changelog?.match(CHANGELOG_VERSION_RE)?.[1];
++	return latestChangelogVersion || "0.0.0";
++}
++
++function readRootCommit(): string {
++	try {
++		return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
++	} catch {
++		return "";
++	}
++}
+ 
+ function linguiMacroPlugin(): Plugin {
+ 	return {
+@@ -30,6 +61,10 @@ export default defineConfig({
+ 	clean: true,
+ 	platform: "browser",
+ 	plugins: [linguiMacroPlugin()],
++	define: {
++		"import.meta.env.AWCMS_ROOT_VERSION": JSON.stringify(readRootVersion()),
++		"import.meta.env.AWCMS_ROOT_COMMIT": JSON.stringify(readRootCommit()),
++	},
+ 	// @tiptap/suggestion is intentionally bundled (devDependency)
+ 	inlineOnly: false,
+ 	external: [

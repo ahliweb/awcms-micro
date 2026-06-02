@@ -1,7 +1,9 @@
 import type { SikesraRegistryListItemDto } from "../contracts/index.js";
 import type { SikesraRegistryEntityRow } from "../db/repositories/registry-repository.js";
 
-export function serializeRegistryListItem(row: SikesraRegistryEntityRow): SikesraRegistryListItemDto {
+export function serializeRegistryListItem(
+	row: SikesraRegistryEntityRow,
+): SikesraRegistryListItemDto {
 	return {
 		id: row.id,
 		code: row.code,

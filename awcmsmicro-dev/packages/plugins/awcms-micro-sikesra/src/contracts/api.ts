@@ -18,10 +18,7 @@ export interface SikesraApiError {
 
 export type SikesraApiResponse<T> = SikesraApiSuccess<T> | SikesraApiError;
 
-export function sikesraOk<T>(
-	data: T,
-	meta?: SikesraApiSuccess<T>["meta"],
-): SikesraApiSuccess<T> {
+export function sikesraOk<T>(data: T, meta?: SikesraApiSuccess<T>["meta"]): SikesraApiSuccess<T> {
 	return meta ? { ok: true, data, meta } : { ok: true, data };
 }
 

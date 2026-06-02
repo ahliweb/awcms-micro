@@ -19,6 +19,9 @@ export interface SikesraUiState<TData = unknown> {
 	requestId?: string;
 }
 
-export function createSikesraUiState<TData>(status: SikesraUiStateStatus, data?: TData): SikesraUiState<TData> {
+export function createSikesraUiState<TData>(
+	status: SikesraUiStateStatus,
+	data?: TData,
+): SikesraUiState<TData> {
 	return data === undefined ? { status } : { status, data };
 }

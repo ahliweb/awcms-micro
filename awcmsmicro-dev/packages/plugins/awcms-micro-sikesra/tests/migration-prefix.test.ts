@@ -76,7 +76,10 @@ function readAllMigrationSql() {
 }
 
 function getTableDefinition(sql: string, table: string) {
-	const match = new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}\\s*\\(([\\s\\S]*?)\\n\\);`, "i").exec(sql);
+	const match = new RegExp(
+		`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}\\s*\\(([\\s\\S]*?)\\n\\);`,
+		"i",
+	).exec(sql);
 	return match?.[1] ?? "";
 }
 
@@ -142,7 +145,9 @@ describe("SIKESRA D1 migration prefix policy", () => {
 	it("declares issue #125 registry query indexes", () => {
 		const sql = readAllMigrationSql();
 		for (const index of REQUIRED_REGISTRY_INDEXES) {
-			expect(sql, `${index} missing`).toMatch(new RegExp(`CREATE\\s+INDEX\\s+IF\\s+NOT\\s+EXISTS\\s+${index}\\b`, "i"));
+			expect(sql, `${index} missing`).toMatch(
+				new RegExp(`CREATE\\s+INDEX\\s+IF\\s+NOT\\s+EXISTS\\s+${index}\\b`, "i"),
+			);
 		}
 	});
 

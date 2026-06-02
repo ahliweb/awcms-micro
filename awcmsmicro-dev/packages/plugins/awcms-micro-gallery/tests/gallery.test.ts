@@ -2,13 +2,13 @@ import { readFile } from "node:fs/promises";
 
 import { describe, expect, it, vi } from "vitest";
 
+import { translateGallery } from "../src/i18n.js";
 import {
 	awcmsMicroGalleryPlugin,
 	createPlugin,
 	validateGalleryContent,
 	validateGalleryItem,
 } from "../src/index.js";
-import { translateGallery } from "../src/i18n.js";
 import { AWCMS_GALLERY_PO_LOCALE_MESSAGES } from "../src/locales/messages.js";
 import sandboxPlugin from "../src/sandbox.js";
 
@@ -246,9 +246,10 @@ describe("awcms micro gallery plugin", () => {
 				`${locale} PO catalog keys drifted`,
 			).toEqual(expectedKeys);
 			for (const entry of entries) {
-				expect(placeholders(entry.msgstr), `${locale} placeholder drift in ${entry.msgctxt}`).toEqual(
-					placeholders(entry.msgid),
-				);
+				expect(
+					placeholders(entry.msgstr),
+					`${locale} placeholder drift in ${entry.msgctxt}`,
+				).toEqual(placeholders(entry.msgid));
 			}
 		}
 	});

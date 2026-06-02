@@ -13,8 +13,10 @@ const requiredReferenceTables = [
 	"sikesra_user_scope_assignments",
 	"sikesra_abac_subject_assignments",
 ];
-const forbiddenUserOwnershipPattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?(?:sikesra_users|users|_emdash_users)[`"]?/i;
-const emdashUserMutationPattern = /\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users)["']/;
+const forbiddenUserOwnershipPattern =
+	/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?(?:sikesra_users|users|_emdash_users)[`"]?/i;
+const emdashUserMutationPattern =
+	/\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users)["']/;
 const clientUserHeaderPattern = /X-Sikesra-User-/i;
 const sourceFilePattern = /\.(ts|tsx|js|mjs)$/;
 const clientUserHeaderDevAllowPattern = /allowClientUserHeadersInDev/;
@@ -43,7 +45,10 @@ const sql = readSql();
 const violations = [];
 
 for (const table of requiredReferenceTables) {
-	const tableBlock = new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}[\\s\\S]*?;`, "i").exec(sql)?.[0] ?? "";
+	const tableBlock =
+		new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}[\\s\\S]*?;`, "i").exec(
+			sql,
+		)?.[0] ?? "";
 	if (!tableBlock) violations.push(`missing EmDash user reference table: ${table}`);
 	else if (!/emdash_user_id\s+TEXT\s+NOT\s+NULL/i.test(tableBlock)) {
 		violations.push(`${table} must reference emdash_user_id as a required value`);
@@ -64,7 +69,9 @@ for (const file of walkFiles(srcDir)) {
 		!file.endsWith("src/admin/api/client.ts") &&
 		!clientUserHeaderDevAllowPattern.test(source)
 	) {
-		violations.push(`source references untrusted client SIKESRA user headers: ${file.replace(`${pluginDir}/`, "")}`);
+		violations.push(
+			`source references untrusted client SIKESRA user headers: ${file.replace(`${pluginDir}/`, "")}`,
+		);
 	}
 }
 

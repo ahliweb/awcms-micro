@@ -65,33 +65,33 @@ Do not move SIKESRA-specific logic into EmDash core packages.
 
 Recommended issue order:
 
-| Order | Issue | Purpose |
-| ---: | ---: | --- |
-| 1 | #140 | Final plugin identity and export name |
-| 2 | #141 | Admin dashboard route bug fix |
-| 3 | #142 | End-to-end admin UI/UX design system |
-| 4 | #119 | Dedicated `sikesra_` D1 table and collection naming policy |
-| 5 | #121 | D1 table prefix validation test |
-| 6 | #136 | EmDash update/rebuild compatibility guardrails |
-| 7 | #137 | Data preservation guardrails |
-| 8 | #120 | SIKESRA D1 migration framework |
-| 9 | #122 | D1 repository layer |
-| 10 | #143 | Typed frontend-backend-D1 integration contract |
-| 11 | #123 | Core D1 tables |
-| 12 | #135 | Field standards |
-| 13 | #124 | Migration from KV/plugin storage to D1 |
-| 14 | #125 | Registry D1 tables |
-| 15 | #132 | SIKESRA RBAC/ABAC with EmDash user assignment |
-| 16 | #133 | Canonical D1 audit table and redaction policy |
-| 17 | #126 | Registry list/save route refactor to D1 |
-| 18 | #127 | D1-backed 20-digit SIKESRA ID sequence service |
-| 19 | #128 | Verification D1 tables and routes |
-| 20 | #129 | Document D1 tables and secure R2 metadata workflow |
-| 21 | #130 | D1-backed staged CSV/XLSX import workflow |
-| 22 | #131 | Duplicate detection and duplicate decisions |
-| 23 | #134 | D1 export job and controlled report/export workflow |
-| 24 | #138 | Dynamic custom attributes |
-| 25 | #139 | Full CRUD and highest-admin governance |
+| Order | Issue | Purpose                                                    |
+| ----: | ----: | ---------------------------------------------------------- |
+|     1 |  #140 | Final plugin identity and export name                      |
+|     2 |  #141 | Admin dashboard route bug fix                              |
+|     3 |  #142 | End-to-end admin UI/UX design system                       |
+|     4 |  #119 | Dedicated `sikesra_` D1 table and collection naming policy |
+|     5 |  #121 | D1 table prefix validation test                            |
+|     6 |  #136 | EmDash update/rebuild compatibility guardrails             |
+|     7 |  #137 | Data preservation guardrails                               |
+|     8 |  #120 | SIKESRA D1 migration framework                             |
+|     9 |  #122 | D1 repository layer                                        |
+|    10 |  #143 | Typed frontend-backend-D1 integration contract             |
+|    11 |  #123 | Core D1 tables                                             |
+|    12 |  #135 | Field standards                                            |
+|    13 |  #124 | Migration from KV/plugin storage to D1                     |
+|    14 |  #125 | Registry D1 tables                                         |
+|    15 |  #132 | SIKESRA RBAC/ABAC with EmDash user assignment              |
+|    16 |  #133 | Canonical D1 audit table and redaction policy              |
+|    17 |  #126 | Registry list/save route refactor to D1                    |
+|    18 |  #127 | D1-backed 20-digit SIKESRA ID sequence service             |
+|    19 |  #128 | Verification D1 tables and routes                          |
+|    20 |  #129 | Document D1 tables and secure R2 metadata workflow         |
+|    21 |  #130 | D1-backed staged CSV/XLSX import workflow                  |
+|    22 |  #131 | Duplicate detection and duplicate decisions                |
+|    23 |  #134 | D1 export job and controlled report/export workflow        |
+|    24 |  #138 | Dynamic custom attributes                                  |
+|    25 |  #139 | Full CRUD and highest-admin governance                     |
 
 Do not start later workflow work before earlier identity, admin route safety, UI/UX, naming, guardrail, migration, repository, integration contract, field-standard, RBAC/ABAC, and audit foundations are ready.
 

@@ -9,5 +9,9 @@ export interface SikesraUserRoleAssignmentRow extends SikesraScopedRow {
 }
 
 export function createAccessRepository(db: SikesraD1Database, scope: SikesraRepositoryScope) {
-	return createScopedRepository<SikesraUserRoleAssignmentRow>(db, scope, SIKESRA_D1_TABLES.userRoles);
+	return createScopedRepository<SikesraUserRoleAssignmentRow>(
+		db,
+		scope,
+		SIKESRA_D1_TABLES.userRoles,
+	);
 }

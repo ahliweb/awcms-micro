@@ -471,11 +471,7 @@ const AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE = "sikesra_delete_snapshots";
 const AWCMS_SIKESRA_DELETE_EVENTS_TABLE = "sikesra_delete_events";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE = "sikesra_verification_events";
-const AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS = [
-	"public_safe",
-	"internal",
-	"restricted",
-] as const;
+const AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS = ["public_safe", "internal", "restricted"] as const;
 const AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES = [
 	"application/pdf",
 	"image/jpeg",
@@ -626,10 +622,13 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 			if (!isLegacyRowNewer(row, currentById.get(row.id))) continue;
 			if (to === AWCMS_SIKESRA_AUDIT_TABLE) {
 				const parsed = JSON.parse(row.data) as Partial<SikesraAuditEventRow>;
-				const timestamp = parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString();
+				const timestamp =
+					parsed.timestamp ?? row.updated_at ?? row.created_at ?? new Date().toISOString();
 				const actorName = parsed.actor_name ?? parsed.actor ?? "system";
 				const metadata = redactAuditMetadata(
-					parsed.metadata_json ? JSON.parse(parsed.metadata_json) : (parsed as any).metadata ?? {},
+					parsed.metadata_json
+						? JSON.parse(parsed.metadata_json)
+						: ((parsed as any).metadata ?? {}),
 				) as Record<string, unknown>;
 				await db
 					.insertInto(to)
@@ -711,8 +710,7 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 	id: "awcms-micro-sikesra",
 	name: "AWCMS-Micro SIKESRA Plugin",
 	version: "0.1.1",
-	description:
-		"SIKESRA welfare and social-religious registry plugin for AWCMS-Micro projects.",
+	description: "SIKESRA welfare and social-religious registry plugin for AWCMS-Micro projects.",
 	navigation: {
 		groups: [
 			{
@@ -1495,27 +1493,52 @@ const DEFAULT_ROLE_ASSIGNMENTS: RolePermissionAssignment[] = [
 	},
 	{
 		roleSlug: "verifier-desa-kelurahan",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
+		permissions: [
+			"content.read.public",
+			"content.review.publish",
+			"audit.read.events",
+			...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS,
+		],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-kecamatan",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
+		permissions: [
+			"content.read.public",
+			"content.review.publish",
+			"audit.read.events",
+			...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS,
+		],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-sopd",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
+		permissions: [
+			"content.read.public",
+			"content.review.publish",
+			"audit.read.events",
+			...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS,
+		],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "verifier-kabupaten",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
+		permissions: [
+			"content.read.public",
+			"content.review.publish",
+			"audit.read.events",
+			...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS,
+		],
 		updatedAt: "",
 	},
 	{
 		roleSlug: "admin-sikesra",
-		permissions: ["content.read.public", "content.review.publish", "audit.read.events", ...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS],
+		permissions: [
+			"content.read.public",
+			"content.review.publish",
+			"audit.read.events",
+			...SIKESRA_VERIFICATION_ROUTE_PERMISSIONS,
+		],
 		updatedAt: "",
 	},
 	{
@@ -1906,7 +1929,9 @@ function parseJsonObject(value: unknown, fallback: Record<string, string> = {}) 
 		const parsed = typeof value === "string" ? JSON.parse(value) : value;
 		if (!isRecord(parsed)) return fallback;
 		return Object.fromEntries(
-			Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+			Object.entries(parsed).filter(
+				(entry): entry is [string, string] => typeof entry[1] === "string",
+			),
 		);
 	} catch {
 		return fallback;
@@ -2121,7 +2146,8 @@ function verificationItemMatchesRegionScope(
 	if (!regionScope || regionScope === "all" || levels.includes("admin_sikesra")) return true;
 	if (levels.includes("desa_kelurahan")) return item.region.villageCode === regionScope;
 	if (levels.includes("kecamatan")) return item.region.districtCode === regionScope;
-	if (levels.includes("sopd") || levels.includes("kabupaten")) return item.region.regencyCode === regionScope;
+	if (levels.includes("sopd") || levels.includes("kabupaten"))
+		return item.region.regencyCode === regionScope;
 	return true;
 }
 
@@ -2339,7 +2365,9 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 			created_by: null,
 			updated_by: null,
 		};
-		if (["guru_agama", "anak_yatim", "disabilitas", "lansia_terlantar"].includes(entity.entityType)) {
+		if (
+			["guru_agama", "anak_yatim", "disabilitas", "lansia_terlantar"].includes(entity.entityType)
+		) {
 			detailRow.person_profile_id = null;
 		}
 
@@ -2363,7 +2391,13 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 
 async function generateD1SikesraId20(
 	ctx: PluginContext,
-	params: { registryEntityId: string; villageCode: string; typeCode: string; subtypeCode: string; actor?: string },
+	params: {
+		registryEntityId: string;
+		villageCode: string;
+		typeCode: string;
+		subtypeCode: string;
+		actor?: string;
+	},
 ) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom || !db?.insertInto) return null;
@@ -2537,9 +2571,7 @@ async function getD1SupportingDocuments(
 
 	return Promise.all(
 		rows.map(async (row) => {
-			const fileObject = row.file_object_id
-				? await getD1FileObject(ctx, row.file_object_id)
-				: null;
+			const fileObject = row.file_object_id ? await getD1FileObject(ctx, row.file_object_id) : null;
 			return {
 				id: row.id,
 				registryEntityId: row.registry_entity_id,
@@ -2599,10 +2631,7 @@ function validateSupportingDocumentInput(doc: SikesraReferenceSupportingDocument
 	if (!AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS.includes(doc.sensitivity as any)) {
 		invalidFields.push("classification");
 	}
-	if (
-		doc.contentType &&
-		!AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES.includes(doc.contentType as any)
-	) {
+	if (doc.contentType && !AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES.includes(doc.contentType as any)) {
 		invalidFields.push("contentType");
 	}
 	if (
@@ -2633,7 +2662,10 @@ function createValidationError(fields: string[]) {
 	};
 }
 
-async function persistD1SupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+async function persistD1SupportingDocument(
+	ctx: PluginContext,
+	doc: SikesraReferenceSupportingDocument,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 
@@ -2723,7 +2755,10 @@ async function findSupportingDocument(ctx: PluginContext, id: string) {
 	return docs.find((doc) => doc.id === id) ?? null;
 }
 
-async function ensureDocumentAbacResource(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
+async function ensureDocumentAbacResource(
+	ctx: PluginContext,
+	doc: SikesraReferenceSupportingDocument,
+) {
 	await ensureAbacCatalogSeeded(ctx);
 	const assignment = touchUpdatedAt<AbacResourceAssignment>({
 		resourceId: doc.id,
@@ -2780,7 +2815,9 @@ async function appendVerificationEvent(
 	return event;
 }
 
-async function getD1VerificationEvents(ctx: PluginContext): Promise<SikesraReferenceVerificationEvent[]> {
+async function getD1VerificationEvents(
+	ctx: PluginContext,
+): Promise<SikesraReferenceVerificationEvent[]> {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return [];
 
@@ -2828,7 +2865,10 @@ async function getD1VerificationEvents(ctx: PluginContext): Promise<SikesraRefer
 	}));
 }
 
-async function persistD1VerificationEvent(ctx: PluginContext, event: SikesraReferenceVerificationEvent) {
+async function persistD1VerificationEvent(
+	ctx: PluginContext,
+	event: SikesraReferenceVerificationEvent,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 
@@ -2934,7 +2974,10 @@ async function setVerificationStageState(
 	await ctx.kv.set(VERIFICATION_STATE_KEY, state);
 }
 
-async function persistD1VerificationStageState(ctx: PluginContext, state: Record<string, VerificationStage>) {
+async function persistD1VerificationStageState(
+	ctx: PluginContext,
+	state: Record<string, VerificationStage>,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 
@@ -2976,7 +3019,9 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 	if (!db?.insertInto) return;
 
 	let migrated = 0;
-	const storedSettings = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
+	const storedSettings = await listStorageValues<StoredSettingRecord>(
+		ctx.storage.sikesra_settings_state!,
+	);
 	if (storedSettings.length > 0) {
 		if (await persistD1Settings(ctx, storedSettings, toIsoNow())) migrated += storedSettings.length;
 	}
@@ -2988,7 +3033,8 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 	if (customRegions && (await persistD1RegionTree(ctx, customRegions, "official"))) migrated += 1;
 
 	const customLocalRegions = await ctx.kv.get<unknown>("custom:local-regions");
-	if (customLocalRegions && (await persistD1RegionTree(ctx, customLocalRegions, "local"))) migrated += 1;
+	if (customLocalRegions && (await persistD1RegionTree(ctx, customLocalRegions, "local")))
+		migrated += 1;
 
 	const storedVerificationRows = await listStorageValues<StoredVerificationStageRecord>(
 		ctx.storage.sikesra_verification_stage_state!,
@@ -2997,11 +3043,16 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 		const state = Object.fromEntries(
 			storedVerificationRows.map((row) => [row.registryEntityId, row.stage]),
 		) as Record<string, VerificationStage>;
-		if (await persistD1VerificationStageState(ctx, state)) migrated += storedVerificationRows.length;
+		if (await persistD1VerificationStageState(ctx, state))
+			migrated += storedVerificationRows.length;
 	}
 
-	const legacyVerificationState = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
-	if (legacyVerificationState && (await persistD1VerificationStageState(ctx, legacyVerificationState))) {
+	const legacyVerificationState =
+		await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
+	if (
+		legacyVerificationState &&
+		(await persistD1VerificationStageState(ctx, legacyVerificationState))
+	) {
 		migrated += Object.keys(legacyVerificationState).length;
 		await ctx.kv.delete(VERIFICATION_STATE_KEY);
 	}
@@ -3061,7 +3112,9 @@ async function getStoredSettings(ctx: PluginContext) {
 	const d1Settings = await getD1Settings(ctx);
 	if (d1Settings.size > 0) return d1Settings;
 	if (canUseLegacyRuntimeStateFallback(ctx)) {
-		const records = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
+		const records = await listStorageValues<StoredSettingRecord>(
+			ctx.storage.sikesra_settings_state!,
+		);
 		const map = new Map<string, StoredSettingRecord>();
 		for (const record of records) map.set(record.key, record);
 		return map;
@@ -3536,7 +3589,11 @@ async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
 		.where("emdash_user_id", "=", userId)
 		.where("is_active", "=", 1)
-		.execute()) as Array<{ emdash_user_id: string; sikesra_role_slug: string; updated_at?: string }>;
+		.execute()) as Array<{
+		emdash_user_id: string;
+		sikesra_role_slug: string;
+		updated_at?: string;
+	}>;
 	if (rows.length === 0) return null;
 	return {
 		userId,
@@ -3556,7 +3613,12 @@ async function getD1RolePermissionAssignment(ctx: PluginContext, roleSlug: strin
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
 		.where("role_slug", "=", roleSlug)
 		.where("effect", "=", "allow")
-		.execute()) as Array<{ role_slug: string; permission_slug: string; effect: string; updated_at?: string }>;
+		.execute()) as Array<{
+		role_slug: string;
+		permission_slug: string;
+		effect: string;
+		updated_at?: string;
+	}>;
 	if (rows.length === 0) return null;
 	return {
 		roleSlug,
@@ -3670,7 +3732,10 @@ async function persistD1RoleCatalogItem(ctx: PluginContext, role: AccessRole) {
 	return true;
 }
 
-async function persistD1RolePermissionAssignment(ctx: PluginContext, assignment: RolePermissionAssignment) {
+async function persistD1RolePermissionAssignment(
+	ctx: PluginContext,
+	assignment: RolePermissionAssignment,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
@@ -3779,7 +3844,12 @@ async function getD1AbacSubjectAssignment(ctx: PluginContext, subjectId: string)
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
 		.where("emdash_user_id", "=", subjectId)
-		.execute()) as Array<{ emdash_user_id: string; attribute_key: string; attribute_value: string; updated_at?: string }>;
+		.execute()) as Array<{
+		emdash_user_id: string;
+		attribute_key: string;
+		attribute_value: string;
+		updated_at?: string;
+	}>;
 	if (rows.length === 0) return null;
 	return {
 		subjectId,
@@ -3797,7 +3867,12 @@ async function getD1AbacResourceAssignment(ctx: PluginContext, resourceId: strin
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
 		.where("resource_id", "=", resourceId)
-		.execute()) as Array<{ resource_id: string; attribute_key: string; attribute_value: string; updated_at?: string }>;
+		.execute()) as Array<{
+		resource_id: string;
+		attribute_key: string;
+		attribute_value: string;
+		updated_at?: string;
+	}>;
 	if (rows.length === 0) return null;
 	return {
 		resourceId,
@@ -3850,7 +3925,10 @@ async function listD1AbacPolicies(ctx: PluginContext) {
 	});
 }
 
-async function persistD1AbacSubjectAssignment(ctx: PluginContext, assignment: AbacSubjectAssignment) {
+async function persistD1AbacSubjectAssignment(
+	ctx: PluginContext,
+	assignment: AbacSubjectAssignment,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
@@ -3883,7 +3961,10 @@ async function persistD1AbacSubjectAssignment(ctx: PluginContext, assignment: Ab
 	return true;
 }
 
-async function persistD1AbacAttributeDefinition(ctx: PluginContext, attribute: AbacAttributeDefinition) {
+async function persistD1AbacAttributeDefinition(
+	ctx: PluginContext,
+	attribute: AbacAttributeDefinition,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
@@ -3919,7 +4000,10 @@ async function persistD1AbacAttributeDefinition(ctx: PluginContext, attribute: A
 	return true;
 }
 
-async function persistD1AbacResourceAssignment(ctx: PluginContext, assignment: AbacResourceAssignment) {
+async function persistD1AbacResourceAssignment(
+	ctx: PluginContext,
+	assignment: AbacResourceAssignment,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
@@ -4455,7 +4539,11 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 				scope: "duplicates",
 				actor: actorFromRoute(ctx),
 				summary: `Overrode medium-risk duplicate registry code ${newEntity.code}`,
-				metadata: { sourceId: newEntity.id, candidateId: duplicateEntity.id, reason: duplicateOverrideReason },
+				metadata: {
+					sourceId: newEntity.id,
+					candidateId: duplicateEntity.id,
+					reason: duplicateOverrideReason,
+				},
 			}),
 		);
 	}
@@ -4491,9 +4579,17 @@ const registrySikesraIdCorrectRoute: SharedRouteHandler = async (routeCtx, ctx) 
 	];
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
-	const corrected = await correctD1SikesraId20(ctx, { registryEntityId, nextSikesraId20, reason, actor });
+	const corrected = await correctD1SikesraId20(ctx, {
+		registryEntityId,
+		nextSikesraId20,
+		reason,
+		actor,
+	});
 	if (!corrected) {
-		return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: "Registry entity was not found." },
+		};
 	}
 	await appendAuditEvent(
 		ctx,
@@ -4502,7 +4598,12 @@ const registrySikesraIdCorrectRoute: SharedRouteHandler = async (routeCtx, ctx) 
 			scope: "registry",
 			actor,
 			summary: `Corrected SIKESRA ID for registry entity ${registryEntityId}`,
-			metadata: { registryEntityId, previousSikesraId20: corrected.previousSikesraId20, nextSikesraId20, reason },
+			metadata: {
+				registryEntityId,
+				previousSikesraId20: corrected.previousSikesraId20,
+				nextSikesraId20,
+				reason,
+			},
 		}),
 	);
 	return { success: true, item: { registryEntityId, ...corrected } };
@@ -4515,11 +4616,25 @@ const registrySoftDeleteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) throw new Error("Invalid input format");
 	const id = getString(input, "id") ?? "";
 	const reason = getString(input, "reason")?.trim() ?? "";
-	if (!id || !reason) return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
+	if (!id || !reason)
+		return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const deleted = await updateD1RegistryEntityDeletedAt(ctx, { id, deletedAt: toIsoNow(), actor });
-	if (!deleted) return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.soft_delete", scope: "registry", actor, summary: `Soft deleted SIKESRA registry entity ${id}`, metadata: { id, reason } }));
+	if (!deleted)
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: "Registry entity was not found." },
+		};
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "crud.soft_delete",
+			scope: "registry",
+			actor,
+			summary: `Soft deleted SIKESRA registry entity ${id}`,
+			metadata: { id, reason },
+		}),
+	);
 	return { success: true, item: { id, deleted: true } };
 };
 
@@ -4530,11 +4645,25 @@ const registryRestoreRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) throw new Error("Invalid input format");
 	const id = getString(input, "id") ?? "";
 	const reason = getString(input, "reason")?.trim() ?? "";
-	if (!id || !reason) return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
+	if (!id || !reason)
+		return createValidationError([...(id ? [] : ["id"]), ...(reason ? [] : ["reason"])]);
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const restored = await updateD1RegistryEntityDeletedAt(ctx, { id, deletedAt: null, actor });
-	if (!restored) return { success: false, error: { code: "NOT_FOUND", message: "Registry entity was not found." } };
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.restore", scope: "registry", actor, summary: `Restored SIKESRA registry entity ${id}`, metadata: { id, reason } }));
+	if (!restored)
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: "Registry entity was not found." },
+		};
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "crud.restore",
+			scope: "registry",
+			actor,
+			summary: `Restored SIKESRA registry entity ${id}`,
+			metadata: { id, reason },
+		}),
+	);
 	return { success: true, item: { id, restored: true } };
 };
 
@@ -4628,7 +4757,9 @@ const documentsAccessRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	}
 
 	const permissionSlug =
-		doc.sensitivity === "public_safe" ? "sikesra.document.read" : "sikesra.document.read_restricted";
+		doc.sensitivity === "public_safe"
+			? "sikesra.document.read"
+			: "sikesra.document.read_restricted";
 	const permission = await requireRoutePermission(ctx, permissionSlug);
 	if (!permission.allowed) return { success: false, error: permission.error };
 
@@ -4757,12 +4888,13 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 	if (!db?.insertInto || !isRecord(input) || !Array.isArray(input.rows)) return null;
 	const rows = input.rows;
 	const now = toIsoNow();
-	const batchId = getString(input, "batchId") ?? `import-batch-${Math.random().toString(36).slice(2, 10)}`;
+	const batchId =
+		getString(input, "batchId") ?? `import-batch-${Math.random().toString(36).slice(2, 10)}`;
 	const firstRow = rows.find((row): row is Record<string, unknown> => isRecord(row));
-	const entityType = getString(input, "entityType") ?? getString(firstRow, "entityType") ?? "unknown";
+	const entityType =
+		getString(input, "entityType") ?? getString(firstRow, "entityType") ?? "unknown";
 	const subtypeCode = getString(input, "subtypeCode") ?? getString(firstRow, "subtypeCode");
-	const mappingTemplateId =
-		getString(input, "mappingTemplateId") ?? `${batchId}:mapping-template`;
+	const mappingTemplateId = getString(input, "mappingTemplateId") ?? `${batchId}:mapping-template`;
 	const invalidRows = validateImportRows(rows);
 	const invalidRowNumbers = new Set(invalidRows.map((row) => row.row));
 	const actor = actorFromRoute(ctx);
@@ -4936,7 +5068,10 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 	return { batchId, mappingTemplateId, totalRows: rows.length, invalidRows, duplicateRiskRows };
 }
 
-async function getD1ImportStagingRows(ctx: PluginContext, batchId: string): Promise<StagedImportRow[]> {
+async function getD1ImportStagingRows(
+	ctx: PluginContext,
+	batchId: string,
+): Promise<StagedImportRow[]> {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return [] as StagedImportRow[];
 	const rows = (await db
@@ -4962,29 +5097,35 @@ async function getD1ImportStagingRows(ctx: PluginContext, batchId: string): Prom
 		.orderBy("row_number", "asc")
 		.execute()) as Array<Record<string, unknown>>;
 
-	return rows.map((row): StagedImportRow => ({
-		id: String(row.id),
-		batchId: String(row.batch_id),
-		rowNumber: Number(row.row_number),
-		entityType: String(row.entity_type),
-		subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
-		rawRow: JSON.parse(String(row.raw_row_json ?? "{}")),
-		mappedRow: JSON.parse(String(row.mapped_row_json ?? "{}")),
-		validationStatus: row.validation_status === "valid" ? "valid" : "invalid",
-		validationErrors: JSON.parse(String(row.validation_errors_json ?? "[]")),
-		duplicateStatus:
-			row.duplicate_status === "duplicate_risk" || row.duplicate_status === "cleared"
-				? row.duplicate_status
-				: "unchecked",
-		promotionStatus: row.promotion_status === "promoted" ? "promoted" : "not_promoted",
-		promotedRegistryEntityId:
-			typeof row.promoted_registry_entity_id === "string"
-				? row.promoted_registry_entity_id
-				: undefined,
-	}));
+	return rows.map(
+		(row): StagedImportRow => ({
+			id: String(row.id),
+			batchId: String(row.batch_id),
+			rowNumber: Number(row.row_number),
+			entityType: String(row.entity_type),
+			subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
+			rawRow: JSON.parse(String(row.raw_row_json ?? "{}")),
+			mappedRow: JSON.parse(String(row.mapped_row_json ?? "{}")),
+			validationStatus: row.validation_status === "valid" ? "valid" : "invalid",
+			validationErrors: JSON.parse(String(row.validation_errors_json ?? "[]")),
+			duplicateStatus:
+				row.duplicate_status === "duplicate_risk" || row.duplicate_status === "cleared"
+					? row.duplicate_status
+					: "unchecked",
+			promotionStatus: row.promotion_status === "promoted" ? "promoted" : "not_promoted",
+			promotedRegistryEntityId:
+				typeof row.promoted_registry_entity_id === "string"
+					? row.promoted_registry_entity_id
+					: undefined,
+		}),
+	);
 }
 
-async function markD1ImportRowPromoted(ctx: PluginContext, row: StagedImportRow, registryEntityId: string) {
+async function markD1ImportRowPromoted(
+	ctx: PluginContext,
+	row: StagedImportRow,
+	registryEntityId: string,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return;
 	const now = toIsoNow();
@@ -5087,7 +5228,10 @@ async function setD1ImportRowDuplicateStatus(
 	return true;
 }
 
-async function validateImportCustomAttributeValues(ctx: PluginContext, stagedRows: StagedImportRow[]) {
+async function validateImportCustomAttributeValues(
+	ctx: PluginContext,
+	stagedRows: StagedImportRow[],
+) {
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
 	const definitionByKey = new Map(definitions.map((definition) => [definition.key, definition]));
 	const invalidRows: Array<{ row: number; fields: string[] }> = [];
@@ -5103,10 +5247,14 @@ async function validateImportCustomAttributeValues(ctx: PluginContext, stagedRow
 			}
 			const valueInput = {
 				definitionId: definition.id,
-				registryEntityId: getString(stagedRow.mappedRow, "id") ?? `registry-entity-import-row-${stagedRow.rowNumber}`,
+				registryEntityId:
+					getString(stagedRow.mappedRow, "id") ??
+					`registry-entity-import-row-${stagedRow.rowNumber}`,
 				entityType: getString(stagedRow.mappedRow, "entityType"),
 				subtypeCode: getString(stagedRow.mappedRow, "subtypeCode"),
-				sikesraId20: getString(stagedRow.mappedRow, "sikesraId20") ?? getString(stagedRow.mappedRow, "sikesra_id_20"),
+				sikesraId20:
+					getString(stagedRow.mappedRow, "sikesraId20") ??
+					getString(stagedRow.mappedRow, "sikesra_id_20"),
 				value,
 			};
 			if (validateCustomAttributeValueInput(valueInput, definition).length > 0) fields.push(field);
@@ -5116,7 +5264,11 @@ async function validateImportCustomAttributeValues(ctx: PluginContext, stagedRow
 	return invalidRows;
 }
 
-async function persistImportCustomAttributeValues(ctx: PluginContext, registryEntity: SikesraReferenceRegistryEntity, row: Record<string, unknown>) {
+async function persistImportCustomAttributeValues(
+	ctx: PluginContext,
+	registryEntity: SikesraReferenceRegistryEntity,
+	row: Record<string, unknown>,
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return;
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
@@ -5144,7 +5296,8 @@ async function persistImportCustomAttributeValues(ctx: PluginContext, registryEn
 				value_boolean: normalized.valueBoolean == null ? null : normalized.valueBoolean ? 1 : 0,
 				value_date: normalized.valueDate ?? null,
 				value_datetime: normalized.valueDatetime ?? null,
-				value_json: normalized.valueJson === undefined ? null : JSON.stringify(normalized.valueJson),
+				value_json:
+					normalized.valueJson === undefined ? null : JSON.stringify(normalized.valueJson),
 				value_hash: null,
 				value_display: normalized.valueDisplay,
 				sensitivity: definition.dataClass,
@@ -5160,11 +5313,39 @@ async function persistImportCustomAttributeValues(ctx: PluginContext, registryEn
 				created_by: actor,
 				updated_by: actor,
 			})
-			.onConflict((oc: any) => oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ value_display: normalized.valueDisplay, updated_at: now, updated_by: actor }))
+			.onConflict((oc: any) =>
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						value_display: normalized.valueDisplay,
+						updated_at: now,
+						updated_by: actor,
+					}),
+			)
 			.execute();
-		const metadata = { registryEntityId: registryEntity.id, definitionId: definition.id, key, valueRedacted: definition.dataClass !== "non_personal" };
-		await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.import.mapping", definitionId: definition.id, valueId: id, summary: `Imported custom attribute ${key}`, metadata });
-		await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.import.mapping", scope: "custom_attributes", actor, summary: `Imported custom attribute ${key}`, metadata }));
+		const metadata = {
+			registryEntityId: registryEntity.id,
+			definitionId: definition.id,
+			key,
+			valueRedacted: definition.dataClass !== "non_personal",
+		};
+		await appendCustomAttributeChangeEvent(ctx, {
+			eventType: "custom_attribute.import.mapping",
+			definitionId: definition.id,
+			valueId: id,
+			summary: `Imported custom attribute ${key}`,
+			metadata,
+		});
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "custom_attribute.import.mapping",
+				scope: "custom_attributes",
+				actor,
+				summary: `Imported custom attribute ${key}`,
+				metadata,
+			}),
+		);
 	}
 }
 
@@ -5172,7 +5353,8 @@ const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.import.create");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const result = await createD1ImportBatch(ctx, routeCtx.input);
-	if (!result) return { success: false, error: { code: "VALIDATION_ERROR", message: "Invalid import rows." } };
+	if (!result)
+		return { success: false, error: { code: "VALIDATION_ERROR", message: "Invalid import rows." } };
 
 	await appendAuditEvent(
 		ctx,
@@ -5181,7 +5363,11 @@ const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			scope: "registry",
 			actor: actorFromRoute(ctx),
 			summary: `Created SIKESRA import batch ${result.batchId}`,
-			metadata: { batchId: result.batchId, totalRows: result.totalRows, invalidRows: result.invalidRows },
+			metadata: {
+				batchId: result.batchId,
+				totalRows: result.totalRows,
+				invalidRows: result.invalidRows,
+			},
 		}),
 	);
 
@@ -5200,7 +5386,11 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		const created = await createD1ImportBatch(ctx, input);
 		batchId = created?.batchId;
 	}
-	if (!batchId) return { success: false, error: { code: "VALIDATION_ERROR", message: "Import batch is required before promotion." } };
+	if (!batchId)
+		return {
+			success: false,
+			error: { code: "VALIDATION_ERROR", message: "Import batch is required before promotion." },
+		};
 
 	const stagedRows = await getD1ImportStagingRows(ctx, batchId);
 	const invalidRows = stagedRows
@@ -5301,7 +5491,10 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) {
-		return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for duplicate decisions." } };
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for duplicate decisions." },
+		};
 	}
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
@@ -5336,10 +5529,17 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		.execute();
 
 	if (["not_duplicate", "cleared", "false_positive"].includes(decision)) {
-		await setD1ImportRowDuplicateStatus(ctx, candidateId.replace(SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN, ""), "cleared");
+		await setD1ImportRowDuplicateStatus(
+			ctx,
+			candidateId.replace(SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN, ""),
+			"cleared",
+		);
 	}
 
-	return { success: true, item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now } };
+	return {
+		success: true,
+		item: { id, candidateId, decision, reason, decidedBy: actor, decidedAt: now },
+	};
 };
 
 const EXPORT_SENSITIVE_FIELD_PATTERN =
@@ -5356,7 +5556,11 @@ function sanitizeExportFields(fields: string[], sensitivityLevel: string) {
 	return { allowedFields: uniqueFields, excludedFields: [] as string[] };
 }
 
-async function sanitizeCustomAttributeExportFields(ctx: PluginContext, fields: string[], sensitivityLevel: string) {
+async function sanitizeCustomAttributeExportFields(
+	ctx: PluginContext,
+	fields: string[],
+	sensitivityLevel: string,
+) {
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
 	const definitionByKey = new Map(definitions.map((definition) => [definition.key, definition]));
 	const allowedFields: string[] = [];
@@ -5367,7 +5571,8 @@ async function sanitizeCustomAttributeExportFields(ctx: PluginContext, fields: s
 		const isAllowed =
 			definition?.isActive &&
 			definition.isExportable &&
-			(sensitivityLevel !== "public_safe" || (definition.publicSafe && definition.dataClass === "non_personal"));
+			(sensitivityLevel !== "public_safe" ||
+				(definition.publicSafe && definition.dataClass === "non_personal"));
 		if (isAllowed) {
 			allowedFields.push(field);
 			continue;
@@ -5490,15 +5695,25 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const fixedFields = requestedFields.filter((field) => !field.startsWith("custom:"));
 	const customFields = requestedFields.filter((field) => field.startsWith("custom:"));
 	const sanitizedFixedFields = sanitizeExportFields(fixedFields, sensitivityLevel);
-	const sanitizedCustomFields = await sanitizeCustomAttributeExportFields(ctx, customFields, sensitivityLevel);
+	const sanitizedCustomFields = await sanitizeCustomAttributeExportFields(
+		ctx,
+		customFields,
+		sensitivityLevel,
+	);
 	const sanitized = {
 		allowedFields: [...sanitizedFixedFields.allowedFields, ...sanitizedCustomFields.allowedFields],
-		excludedFields: [...sanitizedFixedFields.excludedFields, ...sanitizedCustomFields.excludedFields],
+		excludedFields: [
+			...sanitizedFixedFields.excludedFields,
+			...sanitizedCustomFields.excludedFields,
+		],
 	};
 	const resultSummary = {
 		allowedFields: sanitized.allowedFields,
 		excludedFields: sanitized.excludedFields,
-		maskingPolicy: sensitivityLevel === "public_safe" ? "exclude_sensitive_fields" : "restricted_permission_required",
+		maskingPolicy:
+			sensitivityLevel === "public_safe"
+				? "exclude_sensitive_fields"
+				: "restricted_permission_required",
 	};
 
 	await persistD1ExportJob(ctx, {
@@ -5553,7 +5768,10 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		}),
 	);
 
-	return { success: true, item: { id, exportType, sensitivityLevel, status: "completed", resultSummary } };
+	return {
+		success: true,
+		item: { id, exportType, sensitivityLevel, status: "completed", resultSummary },
+	};
 };
 
 const exportsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -5622,21 +5840,34 @@ function getBooleanFromInput(value: unknown, key: string, fallback = false) {
 }
 
 function normalizeCustomAttributeValue(value: unknown, dataType = "string") {
-	if (dataType === "date" && typeof value === "string") return { valueDate: value, valueDisplay: value };
-	if (dataType === "datetime" && typeof value === "string") return { valueDatetime: value, valueDisplay: value };
+	if (dataType === "date" && typeof value === "string")
+		return { valueDate: value, valueDisplay: value };
+	if (dataType === "datetime" && typeof value === "string")
+		return { valueDatetime: value, valueDisplay: value };
 	if (typeof value === "string") return { valueText: value, valueDisplay: value };
 	if (typeof value === "number") return { valueNumber: value, valueDisplay: String(value) };
-	if (typeof value === "boolean") return { valueBoolean: value, valueDisplay: value ? "true" : "false" };
+	if (typeof value === "boolean")
+		return { valueBoolean: value, valueDisplay: value ? "true" : "false" };
 	return { valueJson: value, valueDisplay: value == null ? "" : JSON.stringify(value) };
 }
 
-function validateCustomAttributeDefinitionInput(input: Record<string, unknown>, key: string, scope: string, dataClass: string, dataType: string) {
+function validateCustomAttributeDefinitionInput(
+	input: Record<string, unknown>,
+	key: string,
+	scope: string,
+	dataClass: string,
+	dataType: string,
+) {
 	const invalidFields = [
-		...(key && CUSTOM_ATTRIBUTE_KEY_PATTERN.test(key) && !CUSTOM_ATTRIBUTE_PROTECTED_KEYS.has(key) ? [] : ["key"]),
+		...(key && CUSTOM_ATTRIBUTE_KEY_PATTERN.test(key) && !CUSTOM_ATTRIBUTE_PROTECTED_KEYS.has(key)
+			? []
+			: ["key"]),
 		...(CUSTOM_ATTRIBUTE_SCOPE_TYPES.includes(scope as any) ? [] : ["scope"]),
 		...(CUSTOM_ATTRIBUTE_DATA_CLASSES.includes(dataClass as any) ? [] : ["dataClass"]),
 		...(CUSTOM_ATTRIBUTE_DATA_TYPES.includes(dataType as any) ? [] : ["dataType"]),
-		...(getBooleanFromInput(input, "publicSafe") && dataClass !== "non_personal" ? ["publicSafe"] : []),
+		...(getBooleanFromInput(input, "publicSafe") && dataClass !== "non_personal"
+			? ["publicSafe"]
+			: []),
 	];
 	const entityType = getString(input, "entityType")?.trim();
 	const subtypeCode = getString(input, "subtypeCode")?.trim();
@@ -5645,40 +5876,111 @@ function validateCustomAttributeDefinitionInput(input: Record<string, unknown>, 
 	const scopeValue = getString(input, "scopeValue")?.trim();
 	if (scope === "entity_type" && !entityType) invalidFields.push("entityType");
 	if (scope === "subtype" && !subtypeCode) invalidFields.push("subtypeCode");
-	if (scope === "registry_entity" && !targetRegistryEntityId) invalidFields.push("targetRegistryEntityId");
-	if (scope === "sikesra_id_20" && !CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(targetSikesraId20 ?? "")) invalidFields.push("targetSikesraId20");
-	if (["region_scope", "organization_scope", "program_scope"].includes(scope) && !scopeValue) invalidFields.push("scopeValue");
+	if (scope === "registry_entity" && !targetRegistryEntityId)
+		invalidFields.push("targetRegistryEntityId");
+	if (
+		scope === "sikesra_id_20" &&
+		!CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(targetSikesraId20 ?? "")
+	)
+		invalidFields.push("targetSikesraId20");
+	if (["region_scope", "organization_scope", "program_scope"].includes(scope) && !scopeValue)
+		invalidFields.push("scopeValue");
 	return [...new Set(invalidFields)];
 }
 
-function validateCustomAttributeValueInput(input: Record<string, unknown>, definition: Awaited<ReturnType<typeof listD1CustomAttributeDefinitions>>[number] | undefined) {
+function validateCustomAttributeValueInput(
+	input: Record<string, unknown>,
+	definition: Awaited<ReturnType<typeof listD1CustomAttributeDefinitions>>[number] | undefined,
+) {
 	const invalidFields: string[] = [];
 	if (!definition || !definition.isActive) invalidFields.push("definitionId");
 	if (!definition) return invalidFields;
 	const value = input.value;
 	const enumValues = Array.isArray(definition?.enumValues) ? definition.enumValues : [];
 	const sikesraId20 = getString(input, "sikesraId20")?.trim();
-	if (definition.scope === "entity_type" && definition.entityType && getString(input, "entityType") !== definition.entityType) invalidFields.push("entityType");
-	if (definition.scope === "subtype" && definition.subtypeCode && getString(input, "subtypeCode") !== definition.subtypeCode) invalidFields.push("subtypeCode");
-	if (definition.scope === "registry_entity" && definition.targetRegistryEntityId && getString(input, "registryEntityId") !== definition.targetRegistryEntityId) invalidFields.push("registryEntityId");
-	if (definition.scope === "sikesra_id_20" && definition.targetSikesraId20 && sikesraId20 !== definition.targetSikesraId20) invalidFields.push("sikesraId20");
-	if (sikesraId20 && !CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(sikesraId20)) invalidFields.push("sikesraId20");
-	if (["string", "text", "region_code", "file_reference"].includes(definition.dataType) && typeof value !== "string") invalidFields.push("value");
-	if (definition.dataType === "number" && (typeof value !== "number" || !Number.isFinite(value))) invalidFields.push("value");
+	if (
+		definition.scope === "entity_type" &&
+		definition.entityType &&
+		getString(input, "entityType") !== definition.entityType
+	)
+		invalidFields.push("entityType");
+	if (
+		definition.scope === "subtype" &&
+		definition.subtypeCode &&
+		getString(input, "subtypeCode") !== definition.subtypeCode
+	)
+		invalidFields.push("subtypeCode");
+	if (
+		definition.scope === "registry_entity" &&
+		definition.targetRegistryEntityId &&
+		getString(input, "registryEntityId") !== definition.targetRegistryEntityId
+	)
+		invalidFields.push("registryEntityId");
+	if (
+		definition.scope === "sikesra_id_20" &&
+		definition.targetSikesraId20 &&
+		sikesraId20 !== definition.targetSikesraId20
+	)
+		invalidFields.push("sikesraId20");
+	if (sikesraId20 && !CUSTOM_ATTRIBUTE_SIKESRA_ID_PATTERN.test(sikesraId20))
+		invalidFields.push("sikesraId20");
+	if (
+		["string", "text", "region_code", "file_reference"].includes(definition.dataType) &&
+		typeof value !== "string"
+	)
+		invalidFields.push("value");
+	if (definition.dataType === "number" && (typeof value !== "number" || !Number.isFinite(value)))
+		invalidFields.push("value");
 	if (definition.dataType === "boolean" && typeof value !== "boolean") invalidFields.push("value");
-	if (definition.dataType === "date" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_DATE_PATTERN.test(value))) invalidFields.push("value");
-	if (definition.dataType === "datetime" && (typeof value !== "string" || Number.isNaN(Date.parse(value)))) invalidFields.push("value");
-	if (definition.dataType === "url" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_URL_PATTERN.test(value))) invalidFields.push("value");
-	if (definition.dataType === "email" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_EMAIL_PATTERN.test(value))) invalidFields.push("value");
-	if (definition.dataType === "phone" && (typeof value !== "string" || !CUSTOM_ATTRIBUTE_PHONE_PATTERN.test(value))) invalidFields.push("value");
-	if (definition.dataType === "enum" && (typeof value !== "string" || (enumValues.length > 0 && !enumValues.includes(value)))) invalidFields.push("value");
-	if (definition.dataType === "multi_enum" && (!Array.isArray(value) || !value.every((item) => typeof item === "string") || (enumValues.length > 0 && !value.every((item) => enumValues.includes(item as string))))) invalidFields.push("value");
+	if (
+		definition.dataType === "date" &&
+		(typeof value !== "string" || !CUSTOM_ATTRIBUTE_DATE_PATTERN.test(value))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "datetime" &&
+		(typeof value !== "string" || Number.isNaN(Date.parse(value)))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "url" &&
+		(typeof value !== "string" || !CUSTOM_ATTRIBUTE_URL_PATTERN.test(value))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "email" &&
+		(typeof value !== "string" || !CUSTOM_ATTRIBUTE_EMAIL_PATTERN.test(value))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "phone" &&
+		(typeof value !== "string" || !CUSTOM_ATTRIBUTE_PHONE_PATTERN.test(value))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "enum" &&
+		(typeof value !== "string" || (enumValues.length > 0 && !enumValues.includes(value)))
+	)
+		invalidFields.push("value");
+	if (
+		definition.dataType === "multi_enum" &&
+		(!Array.isArray(value) ||
+			!value.every((item) => typeof item === "string") ||
+			(enumValues.length > 0 && !value.every((item) => enumValues.includes(item as string))))
+	)
+		invalidFields.push("value");
 	return [...new Set(invalidFields)];
 }
 
 async function appendCustomAttributeChangeEvent(
 	ctx: PluginContext,
-	params: { eventType: string; definitionId?: string; valueId?: string; summary: string; metadata: Record<string, unknown> },
+	params: {
+		eventType: string;
+		definitionId?: string;
+		valueId?: string;
+		summary: string;
+		metadata: Record<string, unknown>;
+	},
 ) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return;
@@ -5741,11 +6043,15 @@ async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
 		scopeValue: typeof row.scope_value === "string" ? row.scope_value : undefined,
 		entityType: typeof row.entity_type === "string" ? row.entity_type : undefined,
 		subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
-		targetRegistryEntityId: typeof row.target_registry_entity_id === "string" ? row.target_registry_entity_id : undefined,
-		targetSikesraId20: typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
+		targetRegistryEntityId:
+			typeof row.target_registry_entity_id === "string" ? row.target_registry_entity_id : undefined,
+		targetSikesraId20:
+			typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
 		dataClass: String(row.data_class),
 		dataType: String(row.data_type),
-		enumValues: parseJsonArray(row.enum_values_json).filter((item): item is string => typeof item === "string"),
+		enumValues: parseJsonArray(row.enum_values_json).filter(
+			(item): item is string => typeof item === "string",
+		),
 		publicSafe: row.public_safe === 1,
 		maskByDefault: row.mask_by_default !== 0,
 		isActive: row.is_active !== 0,
@@ -5763,20 +6069,34 @@ const customAttributeDefinitionsListRoute: SharedRouteHandler = async (_routeCtx
 const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const input = routeCtx.input;
 	if (!isRecord(input)) throw new Error("Invalid input format");
-	const permission = await requireRoutePermission(ctx, getString(input, "id") ? "sikesra.custom_attribute.update" : "sikesra.custom_attribute.create");
+	const permission = await requireRoutePermission(
+		ctx,
+		getString(input, "id") ? "sikesra.custom_attribute.update" : "sikesra.custom_attribute.create",
+	);
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const key = getString(input, "key") ?? getString(input, "attributeKey") ?? "";
 	const scope = getString(input, "scope") ?? getString(input, "scopeType") ?? "global";
 	const dataClass = getString(input, "dataClass") ?? "non_personal";
 	const dataType = getString(input, "dataType") ?? "string";
-	const invalidFields = validateCustomAttributeDefinitionInput(input, key, scope, dataClass, dataType);
+	const invalidFields = validateCustomAttributeDefinitionInput(
+		input,
+		key,
+		scope,
+		dataClass,
+		dataType,
+	);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." } };
+	if (!db?.insertInto)
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." },
+		};
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
-	const id = getString(input, "id") ?? `custom-attribute-${Math.random().toString(36).slice(2, 10)}`;
+	const id =
+		getString(input, "id") ?? `custom-attribute-${Math.random().toString(36).slice(2, 10)}`;
 	await db
 		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
 		.values({
@@ -5798,7 +6118,9 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			required: getBooleanFromInput(input, "required") ? 1 : 0,
 			default_value_json: JSON.stringify(input.defaultValue ?? null),
 			enum_values_json: JSON.stringify(Array.isArray(input.enumValues) ? input.enumValues : []),
-			validation_rules_json: JSON.stringify(isRecord(input.validationRules) ? input.validationRules : {}),
+			validation_rules_json: JSON.stringify(
+				isRecord(input.validationRules) ? input.validationRules : {},
+			),
 			placeholder: getString(input, "placeholder") ?? null,
 			help_text: getString(input, "helpText") ?? null,
 			sort_order: getNumber(input, "sortOrder") ?? 0,
@@ -5809,7 +6131,9 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			is_importable: getBooleanFromInput(input, "isImportable") ? 1 : 0,
 			is_exportable: getBooleanFromInput(input, "isExportable") ? 1 : 0,
 			public_safe: getBooleanFromInput(input, "publicSafe") ? 1 : 0,
-			mask_by_default: getBooleanFromInput(input, "maskByDefault", dataClass !== "non_personal") ? 1 : 0,
+			mask_by_default: getBooleanFromInput(input, "maskByDefault", dataClass !== "non_personal")
+				? 1
+				: 0,
 			valid_from: getString(input, "validFrom") ?? null,
 			valid_until: getString(input, "validUntil") ?? null,
 			created_at: now,
@@ -5819,17 +6143,37 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ label: getString(input, "label") ?? key, updated_at: now, updated_by: actor }),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					label: getString(input, "label") ?? key,
+					updated_at: now,
+					updated_by: actor,
+				}),
 		)
 		.execute();
 	await appendCustomAttributeChangeEvent(ctx, {
-		eventType: getString(input, "id") ? "custom_attribute.definition.update" : "custom_attribute.definition.create",
+		eventType: getString(input, "id")
+			? "custom_attribute.definition.update"
+			: "custom_attribute.definition.create",
 		definitionId: id,
 		summary: `Saved custom attribute definition ${key}`,
 		metadata: { id, key, scope, dataClass, dataType },
 	});
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.definition.save", scope: "custom_attributes", actor, summary: `Saved custom attribute definition ${key}`, metadata: { id, key, dataClass } }));
-	return { success: true, item: { id, key, label: getString(input, "label") ?? key, scope, dataClass, dataType } };
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "custom_attribute.definition.save",
+			scope: "custom_attributes",
+			actor,
+			summary: `Saved custom attribute definition ${key}`,
+			metadata: { id, key, dataClass },
+		}),
+	);
+	return {
+		success: true,
+		item: { id, key, label: getString(input, "label") ?? key, scope, dataClass, dataType },
+	};
 };
 
 const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -5838,10 +6182,19 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	const permission = await requireRoutePermission(ctx, "sikesra.custom_attribute.update");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const definitionId = getString(input, "definitionId") ?? "";
-	const registryEntityId = getString(input, "registryEntityId") ?? getString(input, "ownerId") ?? "";
-	if (!definitionId || !registryEntityId) return createValidationError([...(definitionId ? [] : ["definitionId"]), ...(registryEntityId ? [] : ["registryEntityId"])]);
+	const registryEntityId =
+		getString(input, "registryEntityId") ?? getString(input, "ownerId") ?? "";
+	if (!definitionId || !registryEntityId)
+		return createValidationError([
+			...(definitionId ? [] : ["definitionId"]),
+			...(registryEntityId ? [] : ["registryEntityId"]),
+		]);
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." } };
+	if (!db?.insertInto)
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for custom attributes." },
+		};
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
 	const definition = definitions.find((item) => item.id === definitionId);
 	const invalidFields = validateCustomAttributeValueInput(input, definition);
@@ -5880,18 +6233,47 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 			created_by: actor,
 			updated_by: actor,
 		})
-		.onConflict((oc: any) => oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({ value_display: normalized.valueDisplay, updated_at: now, updated_by: actor }))
+		.onConflict((oc: any) =>
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					value_display: normalized.valueDisplay,
+					updated_at: now,
+					updated_by: actor,
+				}),
+		)
 		.execute();
 	const auditMetadata = { id, definitionId, registryEntityId, valueRedacted: true };
-	await appendCustomAttributeChangeEvent(ctx, { eventType: "custom_attribute.value.update", definitionId, valueId: id, summary: `Saved custom attribute value ${id}`, metadata: auditMetadata });
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "custom_attribute.value.save", scope: "custom_attributes", actor, summary: `Saved custom attribute value ${id}`, metadata: auditMetadata }));
-	return { success: true, item: { id, definitionId, registryEntityId, valueDisplay: normalized.valueDisplay } };
+	await appendCustomAttributeChangeEvent(ctx, {
+		eventType: "custom_attribute.value.update",
+		definitionId,
+		valueId: id,
+		summary: `Saved custom attribute value ${id}`,
+		metadata: auditMetadata,
+	});
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "custom_attribute.value.save",
+			scope: "custom_attributes",
+			actor,
+			summary: `Saved custom attribute value ${id}`,
+			metadata: auditMetadata,
+		}),
+	);
+	return {
+		success: true,
+		item: { id, definitionId, registryEntityId, valueDisplay: normalized.valueDisplay },
+	};
 };
 
 const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.custom_attribute.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	const sensitivePermission = await requireRoutePermission(ctx, "sikesra.custom_attribute.read_sensitive");
+	const sensitivePermission = await requireRoutePermission(
+		ctx,
+		"sikesra.custom_attribute.read_sensitive",
+	);
 	const canReadSensitive = sensitivePermission.allowed;
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return { items: [] };
@@ -5915,11 +6297,13 @@ const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx
 	return {
 		items: rows.map((row) => {
 			const definition = definitionById.get(String(row.attribute_definition_id));
-			const masked = !canReadSensitive && (definition?.maskByDefault || row.sensitivity !== "non_personal");
+			const masked =
+				!canReadSensitive && (definition?.maskByDefault || row.sensitivity !== "non_personal");
 			return {
 				id: String(row.id),
 				definitionId: String(row.attribute_definition_id),
-				registryEntityId: typeof row.registry_entity_id === "string" ? row.registry_entity_id : undefined,
+				registryEntityId:
+					typeof row.registry_entity_id === "string" ? row.registry_entity_id : undefined,
 				sikesraId20: typeof row.sikesra_id_20 === "string" ? row.sikesra_id_20 : undefined,
 				valueDisplay: masked ? AUDIT_REDACTED_VALUE : String(row.value_display ?? ""),
 				sensitivity: String(row.sensitivity),
@@ -5936,7 +6320,10 @@ const SIKESRA_USER_ASSIGNMENT_DELETE_TABLES = new Set([
 ]);
 
 function blocksEmDashUserDeleteTarget(targetTable: string) {
-	return targetTable.startsWith("_emdash") || (targetTable.includes("user") && !SIKESRA_USER_ASSIGNMENT_DELETE_TABLES.has(targetTable));
+	return (
+		targetTable.startsWith("_emdash") ||
+		(targetTable.includes("user") && !SIKESRA_USER_ASSIGNMENT_DELETE_TABLES.has(targetTable))
+	);
 }
 
 const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -5960,7 +6347,11 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	if (!permission.allowed) return { success: false, error: permission.error };
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	if (!db?.insertInto)
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." },
+		};
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const id = getString(input, "id") ?? `delete-request-${Math.random().toString(36).slice(2, 10)}`;
@@ -5989,7 +6380,13 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.execute();
-	const snapshot = { targetTable, targetRecordId, targetType, capturedAt: now, pendingIntegrityCheck: true };
+	const snapshot = {
+		targetTable,
+		targetRecordId,
+		targetType,
+		capturedAt: now,
+		pendingIntegrityCheck: true,
+	};
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE)
 		.values({
@@ -6026,8 +6423,20 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.execute();
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.request", scope: "crud", actor, summary: `Permanent delete requested for ${targetTable}/${targetRecordId}`, metadata: { id, targetTable, targetRecordId, reason } }));
-	return { success: true, item: { id, snapshotId, targetTable, targetRecordId, status: "requested" } };
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "crud.permanent_delete.request",
+			scope: "crud",
+			actor,
+			summary: `Permanent delete requested for ${targetTable}/${targetRecordId}`,
+			metadata: { id, targetTable, targetRecordId, reason },
+		}),
+	);
+	return {
+		success: true,
+		item: { id, snapshotId, targetTable, targetRecordId, status: "requested" },
+	};
 };
 
 const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -6060,7 +6469,8 @@ const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, c
 			id: String(row.id),
 			targetTable: String(row.target_table),
 			targetRecordId: String(row.target_record_id),
-			targetSikesraId20: typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
+			targetSikesraId20:
+				typeof row.target_sikesra_id_20 === "string" ? row.target_sikesra_id_20 : undefined,
 			targetType: String(row.target_type),
 			operationType: String(row.operation_type),
 			reason: String(row.reason),
@@ -6087,16 +6497,34 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	];
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto || !db?.selectFrom) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	if (!db?.insertInto || !db?.selectFrom)
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." },
+		};
 	const requestRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
-		.select(["id", "target_table", "target_record_id", "target_type", "reason", "risk_level", "requested_by", "requested_at", "status"])
+		.select([
+			"id",
+			"target_table",
+			"target_record_id",
+			"target_type",
+			"reason",
+			"risk_level",
+			"requested_by",
+			"requested_at",
+			"status",
+		])
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
 		.where("id", "=", deleteRequestId)
 		.execute()) as Array<Record<string, unknown>>;
 	const requestRow = requestRows[0];
-	if (!requestRow) return { success: false, error: { code: "NOT_FOUND", message: "Delete request was not found." } };
+	if (!requestRow)
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: "Delete request was not found." },
+		};
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const approvalId = getString(input, "id") ?? `${deleteRequestId}:approval:${decision}`;
@@ -6145,7 +6573,8 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
 			id: `${approvalId}:event`,
 			delete_request_id: deleteRequestId,
-			event_kind: decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject",
+			event_kind:
+				decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject",
 			actor_user_id: actor,
 			summary: `Permanent delete request ${deleteRequestId} ${decision}`,
 			metadata_json: JSON.stringify({ deleteRequestId, decision, notes }),
@@ -6156,7 +6585,17 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.execute();
-	await appendAuditEvent(ctx, createAuditRecord({ kind: decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject", scope: "crud", actor, summary: `Permanent delete request ${deleteRequestId} ${decision}`, metadata: { deleteRequestId, decision, notes } }));
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind:
+				decision === "approved" ? "crud.permanent_delete.approve" : "crud.permanent_delete.reject",
+			scope: "crud",
+			actor,
+			summary: `Permanent delete request ${deleteRequestId} ${decision}`,
+			metadata: { deleteRequestId, decision, notes },
+		}),
+	);
 	return { success: true, item: { id: approvalId, deleteRequestId, decision } };
 };
 
@@ -6174,7 +6613,11 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		]);
 	}
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.selectFrom || !db?.insertInto) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." } };
+	if (!db?.selectFrom || !db?.insertInto)
+		return {
+			success: false,
+			error: { code: "STORAGE_UNAVAILABLE", message: "D1 is required for delete governance." },
+		};
 	const requestRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
 		.select(["id", "target_table", "target_record_id", "target_type", "status"])
@@ -6183,8 +6626,19 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		.where("id", "=", deleteRequestId)
 		.execute()) as Array<Record<string, unknown>>;
 	const requestRow = requestRows[0];
-	if (!requestRow) return { success: false, error: { code: "NOT_FOUND", message: "Delete request was not found." } };
-	if (requestRow.status !== "approved") return { success: false, error: { code: "DELETE_NOT_APPROVED", message: "Permanent delete request must be approved before execution." } };
+	if (!requestRow)
+		return {
+			success: false,
+			error: { code: "NOT_FOUND", message: "Delete request was not found." },
+		};
+	if (requestRow.status !== "approved")
+		return {
+			success: false,
+			error: {
+				code: "DELETE_NOT_APPROVED",
+				message: "Permanent delete request must be approved before execution.",
+			},
+		};
 	const targetTable = String(requestRow.target_table ?? "");
 	const targetRecordId = String(requestRow.target_record_id ?? "");
 	const blockedFields = [
@@ -6193,7 +6647,14 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	];
 	if (blockedFields.length > 0) return createValidationError([...new Set(blockedFields)]);
 	if (targetTable === AWCMS_SIKESRA_AUDIT_TABLE) {
-		return { success: false, error: { code: "AUDIT_RETENTION_PURGE_REQUIRED", message: "Audit events require the retention purge workflow, not ordinary permanent delete." } };
+		return {
+			success: false,
+			error: {
+				code: "AUDIT_RETENTION_PURGE_REQUIRED",
+				message:
+					"Audit events require the retention purge workflow, not ordinary permanent delete.",
+			},
+		};
 	}
 	const blockingReferences: string[] = [];
 	if (targetTable === AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE) {
@@ -6235,12 +6696,35 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 				updated_by: actor,
 			})
 			.execute();
-		await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.blocked", scope: "crud", actor, summary: `Permanent delete blocked for ${targetTable}/${targetRecordId}`, metadata: { deleteRequestId, targetTable, targetRecordId, blockingReferences } }));
-		return { success: false, error: { code: "DELETE_BLOCKED_REFERENCES", message: "Permanent delete is blocked by protected references.", details: { references: blockingReferences } } };
+		await appendAuditEvent(
+			ctx,
+			createAuditRecord({
+				kind: "crud.permanent_delete.blocked",
+				scope: "crud",
+				actor,
+				summary: `Permanent delete blocked for ${targetTable}/${targetRecordId}`,
+				metadata: { deleteRequestId, targetTable, targetRecordId, blockingReferences },
+			}),
+		);
+		return {
+			success: false,
+			error: {
+				code: "DELETE_BLOCKED_REFERENCES",
+				message: "Permanent delete is blocked by protected references.",
+				details: { references: blockingReferences },
+			},
+		};
 	}
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
-	if (!db?.deleteFrom) return { success: false, error: { code: "STORAGE_UNAVAILABLE", message: "D1 delete support is required for permanent delete execution." } };
+	if (!db?.deleteFrom)
+		return {
+			success: false,
+			error: {
+				code: "STORAGE_UNAVAILABLE",
+				message: "D1 delete support is required for permanent delete execution.",
+			},
+		};
 	await db
 		.deleteFrom(targetTable)
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
@@ -6284,8 +6768,20 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.execute();
-	await appendAuditEvent(ctx, createAuditRecord({ kind: "crud.permanent_delete.execute", scope: "crud", actor, summary: `Permanent delete executed for ${targetTable}/${targetRecordId}`, metadata: { deleteRequestId, targetTable, targetRecordId } }));
-	return { success: true, item: { deleteRequestId, targetTable, targetRecordId, status: "executed" } };
+	await appendAuditEvent(
+		ctx,
+		createAuditRecord({
+			kind: "crud.permanent_delete.execute",
+			scope: "crud",
+			actor,
+			summary: `Permanent delete executed for ${targetTable}/${targetRecordId}`,
+			metadata: { deleteRequestId, targetTable, targetRecordId },
+		}),
+	);
+	return {
+		success: true,
+		item: { deleteRequestId, targetTable, targetRecordId, status: "executed" },
+	};
 };
 
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -7176,7 +7672,10 @@ async function getD1RegionTree(
 ): Promise<AdministrativeProvince[] | null> {
 	if (!assertRuntimeD1Available(ctx, "selectFrom", `${source} regions`)) return null;
 	const db = getRuntimeD1(ctx);
-	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
+	const table =
+		source === "official"
+			? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE
+			: AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const rows = (await db
 		.selectFrom(table)
@@ -7217,29 +7716,54 @@ async function getD1RegionTree(
 		}));
 }
 
-async function persistD1RegionTree(ctx: PluginContext, input: unknown, source: "official" | "local") {
+async function persistD1RegionTree(
+	ctx: PluginContext,
+	input: unknown,
+	source: "official" | "local",
+) {
 	if (!Array.isArray(input)) return false;
 	if (!assertRuntimeD1Available(ctx, "insertInto", `${source} regions`)) return false;
 	const db = getRuntimeD1(ctx);
-	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
+	const table =
+		source === "official"
+			? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE
+			: AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const now = toIsoNow();
 	const rows: Array<{ code: string; parentCode: string | null; level: string; name: string }> = [];
 	for (const province of input as AdministrativeProvince[]) {
 		rows.push({ code: province.code, parentCode: null, level: "province", name: province.name });
 		for (const regency of province.regencies ?? []) {
-			rows.push({ code: regency.code, parentCode: province.code, level: "regency", name: regency.name });
+			rows.push({
+				code: regency.code,
+				parentCode: province.code,
+				level: "regency",
+				name: regency.name,
+			});
 			for (const district of regency.districts ?? []) {
-				rows.push({ code: district.code, parentCode: regency.code, level: "district", name: district.name });
+				rows.push({
+					code: district.code,
+					parentCode: regency.code,
+					level: "district",
+					name: district.name,
+				});
 				for (const village of district.villages ?? []) {
-					rows.push({ code: village.code, parentCode: district.code, level: "village", name: village.name });
+					rows.push({
+						code: village.code,
+						parentCode: district.code,
+						level: "village",
+						name: village.name,
+					});
 				}
 			}
 		}
 	}
 
 	for (const row of rows) {
-		const sourceColumn = source === "official" ? { official_source: "operator_import" } : { local_type: "operator_defined" };
+		const sourceColumn =
+			source === "official"
+				? { official_source: "operator_import" }
+				: { local_type: "operator_defined" };
 		await db
 			.insertInto(table)
 			.values({
@@ -7277,7 +7801,9 @@ const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const dataTypes =
 		(await getD1DataTypes(ctx)) ??
-		(canUseLegacyRuntimeStateFallback(ctx) ? await ctx.kv.get<unknown>("custom:data-types") : null) ??
+		(canUseLegacyRuntimeStateFallback(ctx)
+			? await ctx.kv.get<unknown>("custom:data-types")
+			: null) ??
 		DEFAULT_DATA_TYPES;
 	return dataTypes;
 };

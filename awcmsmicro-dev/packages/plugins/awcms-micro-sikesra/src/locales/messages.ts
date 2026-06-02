@@ -3,7 +3,8 @@ import type { TranslationMessages } from "../navigation/resolve-label.js";
 const SIKESRA_ADMIN_COPY_MESSAGES = {
 	en: {
 		navTitle: "Plugin Operations Center",
-		navDescription: "Reference navigation for registry, verification, reports, access, and ABAC flows.",
+		navDescription:
+			"Reference navigation for registry, verification, reports, access, and ABAC flows.",
 		never: "Never",
 		somethingWentWrong: "Something went wrong",
 		retry: "Retry",
@@ -495,7 +496,8 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 			},
 			{
 				title: "Abandoned Elderly",
-				description: "Keep high-sensitivity examples available without exposing public identifiers.",
+				description:
+					"Keep high-sensitivity examples available without exposing public identifiers.",
 				status: "Locked",
 				badge: "Docs",
 			},
@@ -727,8 +729,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 			"Aliran berbasis storage yang menampilkan perilaku plugin, aktor, scope, dan timestamp.",
 		loadingAuditLog: "Memuat log audit...",
 		noAuditEvents: "Belum ada event audit",
-		noAuditEventsDescription:
-			"Aksi plugin akan muncul di sini setelah hook atau route dijalankan.",
+		noAuditEventsDescription: "Aksi plugin akan muncul di sini setelah hook atau route dijalankan.",
 		summary: "Ringkasan",
 		scopeActor: "Scope / aktor",
 		time: "Waktu",
@@ -781,8 +782,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		rolePermissionMatrixDescription:
 			"Petakan izin ke peran dalam katalog milik plugin. Pratinjau ini tidak menggantikan otorisasi core EmDash.",
 		catalogIncomplete: "Katalog belum lengkap",
-		catalogIncompleteDescription:
-			"Buat minimal satu peran dan satu izin sebelum mengedit matriks.",
+		catalogIncompleteDescription: "Buat minimal satu peran dan satu izin sebelum mengedit matriks.",
 		editMatrix: "Edit matriks",
 		editMatrixDescription: (count: number) => `${count} izin dipilih untuk peran saat ini.`,
 		saveMatrix: "Simpan matriks",
@@ -1018,7 +1018,9 @@ const adminCopyMessageKeys = (value: unknown, path: string): string[] => {
 		return value.flatMap((item, index) => adminCopyMessageKeys(item, `${path}.${index}`));
 	}
 	if (value && typeof value === "object") {
-		return Object.entries(value).flatMap(([key, item]) => adminCopyMessageKeys(item, `${path}.${key}`));
+		return Object.entries(value).flatMap(([key, item]) =>
+			adminCopyMessageKeys(item, `${path}.${key}`),
+		);
 	}
 	return [];
 };
@@ -1075,7 +1077,8 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.meta.settings.review": "Review",
 		"awcms.meta.settings.enforceDemo": "Enforce Demo",
 		"awcms.meta.settings.metadataCanonicalBase": "Metadata Canonical Base",
-		"awcms.meta.settings.metadataCanonicalBaseDesc": "Optional override for page metadata contributions.",
+		"awcms.meta.settings.metadataCanonicalBaseDesc":
+			"Optional override for page metadata contributions.",
 		"awcms.meta.settings.smallCellThreshold": "Small Cell Suppression Threshold",
 		"awcms.meta.settings.smallCellThresholdDesc":
 			"Safety threshold below which counts are suppressed to protect privacy.",
@@ -1159,7 +1162,8 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.meta.widget.accessRightsHealth": "Kesehatan Hak Akses",
 		"awcms.meta.widget.abacPolicyStatus": "Status Kebijakan ABAC",
 		"awcms.meta.settings.publicStatusLabel": "Label Status Publik",
-		"awcms.meta.settings.publicStatusLabelDesc": "Ditampilkan oleh route status aman-publik plugin.",
+		"awcms.meta.settings.publicStatusLabelDesc":
+			"Ditampilkan oleh route status aman-publik plugin.",
 		"awcms.meta.settings.auditRetentionDays": "Hari Retensi Audit",
 		"awcms.meta.settings.auditRetentionDaysDesc": "Digunakan oleh ringkasan pembersihan cron demo.",
 		"awcms.meta.settings.governanceMode": "Mode Tata Kelola",

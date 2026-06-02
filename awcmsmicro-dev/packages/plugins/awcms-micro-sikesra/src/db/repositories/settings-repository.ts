@@ -7,7 +7,10 @@ export interface SikesraSettingsRow extends SikesraScopedRow {
 	value_json: string;
 }
 
-async function executeMutation(statement: { run?: () => Promise<unknown>; all: () => Promise<unknown> }) {
+async function executeMutation(statement: {
+	run?: () => Promise<unknown>;
+	all: () => Promise<unknown>;
+}) {
 	if (statement.run) return statement.run();
 	return statement.all();
 }

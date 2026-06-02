@@ -79,8 +79,13 @@ vi.mock("../../src/lib/plugin-context", () => ({
 	usePluginAdmins: () => mockedPluginAdmins,
 }));
 
-const { buildSidebarPluginGroups, humanizePluginLabel, resolveSidebarIcon, SidebarNav } =
-	await import("../../src/components/Sidebar");
+const {
+	buildSidebarPluginGroups,
+	formatSidebarFooterLabel,
+	humanizePluginLabel,
+	resolveSidebarIcon,
+	SidebarNav,
+} = await import("../../src/components/Sidebar");
 
 describe("SidebarNav helpers", () => {
 	it("humanizes plugin labels and resolves icons", () => {
@@ -90,6 +95,22 @@ describe("SidebarNav helpers", () => {
 		expect(resolveSidebarIcon("shield")).toBeDefined();
 		expect(resolveSidebarIcon("code")).toBeDefined();
 		expect(resolveSidebarIcon("unknown-icon")).toBeDefined();
+	});
+
+	it("renders injected AWCMS root version before the EmDash manifest version", () => {
+		expect(
+			formatSidebarFooterLabel(
+				{
+					collections: {},
+					plugins: {},
+					taxonomies: [],
+					version: "0.16.1",
+					commit: "upstream",
+					admin: { siteName: "AWCMS" },
+				},
+				{ version: "0.1.3", commit: "b3a3113" },
+			),
+		).toBe("AWCMS v0.1.3 (b3a3113) EmDash v0.16.1 (upstream)");
 	});
 
 	it("sorts plugin groups alphabetically and keeps page icons contextual", () => {

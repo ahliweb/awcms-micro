@@ -24,7 +24,9 @@ export function createScopedRepository<T extends SikesraScopedRow>(
 		table,
 		async listActive() {
 			const statement = db
-				.prepare<T>(`SELECT * FROM ${table} WHERE tenant_id = ? AND site_id = ? AND deleted_at IS NULL`)
+				.prepare<T>(
+					`SELECT * FROM ${table} WHERE tenant_id = ? AND site_id = ? AND deleted_at IS NULL`,
+				)
 				.bind(scope.tenantId, scope.siteId);
 			const result = await statement.all();
 			return result.results ?? [];

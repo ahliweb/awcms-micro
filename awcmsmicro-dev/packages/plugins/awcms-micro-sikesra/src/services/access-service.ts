@@ -1,4 +1,7 @@
-import type { SikesraAccessPreviewRequest, SikesraRoleAssignmentRequest } from "../contracts/index.js";
+import type {
+	SikesraAccessPreviewRequest,
+	SikesraRoleAssignmentRequest,
+} from "../contracts/index.js";
 import { serviceNotImplemented, type SikesraServiceResult } from "./service-result.js";
 
 export interface SikesraAccessService {

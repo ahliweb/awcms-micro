@@ -1,6 +1,8 @@
 import type { SikesraPublicAggregateDto } from "../contracts/index.js";
 
-export function serializePublicAggregate(input: SikesraPublicAggregateDto): SikesraPublicAggregateDto {
+export function serializePublicAggregate(
+	input: SikesraPublicAggregateDto,
+): SikesraPublicAggregateDto {
 	return {
 		statusLabel: input.statusLabel,
 		updatedAt: input.updatedAt,

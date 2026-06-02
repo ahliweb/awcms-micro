@@ -199,7 +199,8 @@ export const AWCMS_MICRO_CLOUDFLARE_PUBLIC_COPY = {
 		footerGithub: "Lihat di GitHub",
 		poweredBy: "Didukung oleh",
 		visitAhliweb: "Kunjungi ahliweb.com",
-		footerCopyright: "© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
+		footerCopyright:
+			"© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
 		footerPoweredBy: "Didukung oleh",
 		counts: { posts: "Pos", news: "Berita", pages: "Halaman" },
 	},

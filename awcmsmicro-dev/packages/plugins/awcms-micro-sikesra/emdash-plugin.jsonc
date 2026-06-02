@@ -31,7 +31,12 @@
 			"indexes": ["id", "effect", "updatedAt", ["effect", "updatedAt"]],
 		},
 		"sikesra_supporting_documents": {
-			"indexes": ["registryEntityId", "documentType", "sensitivity", ["registryEntityId", "sensitivity"]],
+			"indexes": [
+				"registryEntityId",
+				"documentType",
+				"sensitivity",
+				["registryEntityId", "sensitivity"],
+			],
 		},
 		"sikesra_verification_stage_state": {
 			"indexes": ["registryEntityId", "stage", "updatedAt", ["registryEntityId", "updatedAt"]],
@@ -43,7 +48,13 @@
 			"indexes": ["subjectId", "updatedAt"],
 		},
 		"sikesra_content_snapshots": {
-			"indexes": ["collection", "contentId", "timestamp", ["collection", "timestamp"], ["contentId", "timestamp"]],
+			"indexes": [
+				"collection",
+				"contentId",
+				"timestamp",
+				["collection", "timestamp"],
+				["contentId", "timestamp"],
+			],
 		},
 		"sikesra_settings_state": {
 			"indexes": ["key", "updatedAt"],
@@ -91,8 +102,16 @@
 			{ "path": "/regions", "label": "Regions", "icon": "globe" },
 			{ "path": "/data-types", "label": "Data Types", "icon": "list" },
 			{ "path": "/field-standards", "label": "Field Standards", "icon": "list" },
-			{ "path": "/custom-attributes/definitions", "label": "Custom Attribute Definitions", "icon": "sliders" },
-			{ "path": "/custom-attributes/values", "label": "Custom Attribute Values", "icon": "sliders" },
+			{
+				"path": "/custom-attributes/definitions",
+				"label": "Custom Attribute Definitions",
+				"icon": "sliders",
+			},
+			{
+				"path": "/custom-attributes/values",
+				"label": "Custom Attribute Values",
+				"icon": "sliders",
+			},
 			{ "path": "/delete-requests", "label": "Delete Requests", "icon": "trash" },
 			{ "path": "/archives", "label": "Archives", "icon": "archive" },
 			{ "path": "/settings", "label": "Settings", "icon": "gear" },

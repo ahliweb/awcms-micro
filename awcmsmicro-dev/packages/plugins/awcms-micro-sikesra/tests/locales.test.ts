@@ -74,7 +74,9 @@ const copyShape = (value: unknown, path = "root") => {
 	};
 
 	visit(value, path);
-	return Object.fromEntries([...shape.entries()].toSorted(([left], [right]) => left.localeCompare(right)));
+	return Object.fromEntries(
+		[...shape.entries()].toSorted(([left], [right]) => left.localeCompare(right)),
+	);
 };
 
 describe("SIKESRA PO catalogs", () => {
@@ -85,9 +87,8 @@ describe("SIKESRA PO catalogs", () => {
 			expect(
 				(await readCatalog(locale))
 					.map((entry) => entry.msgctxt)
-					.filter(
-						(key): key is string =>
-							Boolean(key?.startsWith("awcms.nav.") || key?.startsWith("awcms.meta.")),
+					.filter((key): key is string =>
+						Boolean(key?.startsWith("awcms.nav.") || key?.startsWith("awcms.meta.")),
 					)
 					.toSorted(),
 				`${locale} PO runtime catalog keys drifted`,
@@ -112,9 +113,10 @@ describe("SIKESRA PO catalogs", () => {
 	it("preserves placeholders between source and translated strings", async () => {
 		for (const locale of ["en", "id"] as const) {
 			for (const entry of await readCatalog(locale)) {
-				expect(placeholders(entry.msgstr), `${locale} placeholder drift in ${entry.msgctxt}`).toEqual(
-					placeholders(entry.msgid),
-				);
+				expect(
+					placeholders(entry.msgstr),
+					`${locale} placeholder drift in ${entry.msgctxt}`,
+				).toEqual(placeholders(entry.msgid));
 			}
 		}
 	});

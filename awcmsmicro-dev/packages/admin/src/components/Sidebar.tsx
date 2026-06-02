@@ -220,6 +220,36 @@ export function resolveSidebarIcon(iconKey?: string): React.ElementType {
 	}
 }
 
+interface AwcmsRootVersionInfo {
+	version?: string;
+	commit?: string;
+}
+
+function getAwcmsRootVersionInfo(): AwcmsRootVersionInfo {
+	return {
+		version: import.meta.env.AWCMS_ROOT_VERSION,
+		commit: import.meta.env.AWCMS_ROOT_COMMIT,
+	};
+}
+
+function formatAwcmsRootVersionLabel(rootVersion: AwcmsRootVersionInfo): string {
+	const version = rootVersion.version?.trim() || "0.0.0";
+	const commit = rootVersion.commit?.trim();
+	return `AWCMS v${version}${commit ? ` (${commit})` : ""}`;
+}
+
+export function formatSidebarFooterLabel(
+	manifest: SidebarNavProps["manifest"],
+	rootVersion: AwcmsRootVersionInfo = getAwcmsRootVersionInfo(),
+): string {
+	const siteName = manifest.admin?.siteName || "AWCMS";
+	const emdashVersion = manifest.version || "0.0.0";
+	const emdashCommit = manifest.commit ? ` (${manifest.commit})` : "";
+	const awcmsRootVersionLabel = formatAwcmsRootVersionLabel(rootVersion);
+	const awcmsLabel = siteName === "AWCMS" ? awcmsRootVersionLabel : `${siteName} ${awcmsRootVersionLabel}`;
+	return `${awcmsLabel} EmDash v${emdashVersion}${emdashCommit}`;
+}
+
 export function buildSidebarPluginGroups(
 	manifest: SidebarNavProps["manifest"],
 	pluginAdmins: Record<string, { pages?: Record<string, unknown> }>,
@@ -270,6 +300,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 	const location = useLocation();
 	const currentPath = location.pathname;
 	const pluginAdmins = usePluginAdmins();
+	const footerLabel = formatSidebarFooterLabel(manifest);
 
 	const { data: user } = useCurrentUser();
 	const userRole = user?.role ?? 0;
@@ -585,10 +616,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				</KumoSidebar.Content>
 
 				<KumoSidebar.Footer>
-					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">
-						{manifest.admin?.siteName || "EmDash CMS"} v{manifest.version || "0.0.0"}
-						{manifest.commit && ` (${manifest.commit})`}
-					</p>
+					<p className="emdash-nav-label px-3 py-2 text-[11px] text-white/30">{footerLabel}</p>
 				</KumoSidebar.Footer>
 			</KumoSidebar>
 		</>

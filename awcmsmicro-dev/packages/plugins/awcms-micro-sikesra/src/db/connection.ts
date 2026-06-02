@@ -18,7 +18,9 @@ export interface SikesraRepositoryScope {
 	siteId: string;
 }
 
-export function requireSikesraD1Database(db: SikesraD1Database | null | undefined): SikesraD1Database {
+export function requireSikesraD1Database(
+	db: SikesraD1Database | null | undefined,
+): SikesraD1Database {
 	if (!db) {
 		throw new Error("SIKESRA D1 database binding is required for repository access.");
 	}

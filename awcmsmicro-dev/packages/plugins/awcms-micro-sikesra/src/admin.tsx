@@ -4,8 +4,8 @@ import type { PluginAdminExports } from "emdash";
 import { apiFetch } from "emdash/plugin-utils";
 import * as React from "react";
 
-import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import { getExampleAdminCopy } from "./admin-copy.js";
+import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
 import {
 	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
 	SIKESRA_PAGE_PATTERN_CONTRACTS,
@@ -17,7 +17,10 @@ import type {
 	SikesraCustomAttributeDefinitionRequest,
 	SikesraCustomAttributeValueRequest,
 } from "./contracts/index.js";
-import { SIKESRA_FIELD_STANDARDS, SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS } from "./field-standards.js";
+import {
+	SIKESRA_FIELD_STANDARDS,
+	SIKESRA_MODULE_FIELD_VALIDATION_SCHEMAS,
+} from "./field-standards.js";
 import {
 	SIKESRA_REFERENCE_FIXTURES,
 	maskSensitive,
@@ -428,23 +431,30 @@ type RegistryCustomAttributeContext = {
 	region?: Partial<SikesraReferenceRegistryEntity["region"]>;
 };
 
-function customAttributeAppliesToRegistry(definition: CustomAttributeDefinitionItem, context: RegistryCustomAttributeContext) {
+function customAttributeAppliesToRegistry(
+	definition: CustomAttributeDefinitionItem,
+	context: RegistryCustomAttributeContext,
+) {
 	if (definition.isActive === false) return false;
 	if (definition.scope === "global") return true;
-	if (definition.scope === "entity_type") return !definition.entityType || definition.entityType === context.entityType;
-	if (definition.scope === "subtype") return !definition.subtypeCode || definition.subtypeCode === context.subtypeCode;
-	if (definition.scope === "registry_entity") return definition.targetRegistryEntityId === context.registryEntityId;
-	if (definition.scope === "sikesra_id_20") return definition.targetSikesraId20 === context.sikesraId20;
+	if (definition.scope === "entity_type")
+		return !definition.entityType || definition.entityType === context.entityType;
+	if (definition.scope === "subtype")
+		return !definition.subtypeCode || definition.subtypeCode === context.subtypeCode;
+	if (definition.scope === "registry_entity")
+		return definition.targetRegistryEntityId === context.registryEntityId;
+	if (definition.scope === "sikesra_id_20")
+		return definition.targetSikesraId20 === context.sikesraId20;
 	if (definition.scope === "region_scope") {
 		const scopeValue = definition.scopeValue;
 		return Boolean(
 			scopeValue &&
-				[
-					context.region?.provinceCode,
-					context.region?.regencyCode,
-					context.region?.districtCode,
-					context.region?.villageCode,
-				].includes(scopeValue),
+			[
+				context.region?.provinceCode,
+				context.region?.regencyCode,
+				context.region?.districtCode,
+				context.region?.villageCode,
+			].includes(scopeValue),
 		);
 	}
 	return false;
@@ -1012,7 +1022,10 @@ function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 						))}
 					</div>
 				</Card>
-				<Card title="Workflow safeguards" description="Required permissions, privacy, and audit friction.">
+				<Card
+					title="Workflow safeguards"
+					description="Required permissions, privacy, and audit friction."
+				>
 					<div className="space-y-3 text-sm text-kumo-default">
 						<div className="flex items-center justify-between gap-3">
 							<span className="text-kumo-subtle">Permission</span>
@@ -1047,8 +1060,9 @@ function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 
 function RegistryCreatePage() {
 	const contract = getSikesraPageContract("/registry/new");
-	const { data: customDefinitions } =
-		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
+	const { data: customDefinitions } = usePluginData<CustomAttributeDefinitionsResponse>(
+		"custom-attributes/definitions/list",
+	);
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -1084,7 +1098,10 @@ function RegistryCreatePage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			const result = await postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>("registry/save", formState);
+			const result = await postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>(
+				"registry/save",
+				formState,
+			);
 			if (result.item) {
 				for (const definition of applicableCustomDefinitions) {
 					const value = customValues[definition.id]?.trim();
@@ -1101,7 +1118,9 @@ function RegistryCreatePage() {
 					});
 				}
 			}
-			setNotice(`Registry record saved${result.item?.sikesraId20 ? ` with SIKESRA ID ${result.item.sikesraId20}` : ""}.`);
+			setNotice(
+				`Registry record saved${result.item?.sikesraId20 ? ` with SIKESRA ID ${result.item.sikesraId20}` : ""}.`,
+			);
 			setFormState((current) => ({
 				...current,
 				label: "",
@@ -1118,11 +1137,18 @@ function RegistryCreatePage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA registry wizard" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA registry wizard"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-				<Card title="Create registry draft" description="Save a draft-style record that enters the SIKESRA verification workflow.">
+				<Card
+					title="Create registry draft"
+					description="Save a draft-style record that enters the SIKESRA verification workflow."
+				>
 					<form className="space-y-4" onSubmit={(event) => void saveRegistry(event)}>
 						<div className="grid gap-4 md:grid-cols-2">
 							<Field label="Name / label">
@@ -1148,10 +1174,14 @@ function RegistryCreatePage() {
 							<Field label="Module">
 								<Select
 									value={formState.entityType}
-									onValueChange={(value) => setFormState((current) => ({ ...current, entityType: value ?? "rumah_ibadah" }))}
+									onValueChange={(value) =>
+										setFormState((current) => ({ ...current, entityType: value ?? "rumah_ibadah" }))
+									}
 								>
 									{DEFAULT_DATA_TYPES.map((type) => (
-										<Select.Option key={type.id} value={type.id}>{type.label}</Select.Option>
+										<Select.Option key={type.id} value={type.id}>
+											{type.label}
+										</Select.Option>
 									))}
 								</Select>
 							</Field>
@@ -1167,11 +1197,13 @@ function RegistryCreatePage() {
 						<div className="grid gap-4 md:grid-cols-4">
 							{(
 								[
-								["provinceCode", "Province"],
-								["regencyCode", "Regency"],
-								["districtCode", "District"],
-								["villageCode", "Village"],
-							] as Array<["provinceCode" | "regencyCode" | "districtCode" | "villageCode", string]>
+									["provinceCode", "Province"],
+									["regencyCode", "Regency"],
+									["districtCode", "District"],
+									["villageCode", "Village"],
+								] as Array<
+									["provinceCode" | "regencyCode" | "districtCode" | "villageCode", string]
+								>
 							).map(([key, label]) => (
 								<Field key={key} label={label}>
 									<Input
@@ -1187,7 +1219,10 @@ function RegistryCreatePage() {
 							<Select
 								value={formState.sensitivity}
 								onValueChange={(value) =>
-									setFormState((current) => ({ ...current, sensitivity: (value as SikesraSensitivity | null) ?? "public_safe" }))
+									setFormState((current) => ({
+										...current,
+										sensitivity: (value as SikesraSensitivity | null) ?? "public_safe",
+									}))
 								}
 							>
 								<Select.Option value="public_safe">Public safe</Select.Option>
@@ -1196,7 +1231,10 @@ function RegistryCreatePage() {
 								<Select.Option value="highly_restricted">Highly restricted</Select.Option>
 							</Select>
 						</Field>
-						<Field label="Public summary" hint="Public-safe summary only; do not include personal or document metadata.">
+						<Field
+							label="Public summary"
+							hint="Public-safe summary only; do not include personal or document metadata."
+						>
 							<InputArea
 								value={formState.publicSummary}
 								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -1206,9 +1244,12 @@ function RegistryCreatePage() {
 						</Field>
 						{applicableCustomDefinitions.length > 0 ? (
 							<div className="rounded-2xl border border-kumo-line bg-kumo-tint/20 p-4">
-								<div className="text-sm font-semibold text-kumo-default">Applicable custom attributes</div>
+								<div className="text-sm font-semibold text-kumo-default">
+									Applicable custom attributes
+								</div>
 								<p className="mt-1 text-xs text-kumo-subtle">
-									These fields are loaded from active definitions that match the selected module, subtype, region, or record scope.
+									These fields are loaded from active definitions that match the selected module,
+									subtype, region, or record scope.
 								</p>
 								<div className="mt-4 grid gap-4 md:grid-cols-2">
 									{applicableCustomDefinitions.map((definition) => (
@@ -1220,7 +1261,10 @@ function RegistryCreatePage() {
 											<Input
 												value={customValues[definition.id] ?? ""}
 												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-													setCustomValues((current) => ({ ...current, [definition.id]: event.target.value }))
+													setCustomValues((current) => ({
+														...current,
+														[definition.id]: event.target.value,
+													}))
 												}
 											/>
 										</Field>
@@ -1233,10 +1277,18 @@ function RegistryCreatePage() {
 						</Button>
 					</form>
 				</Card>
-				<Card title="Wizard safeguards" description="The full registry workflow requires these steps before verification.">
+				<Card
+					title="Wizard safeguards"
+					description="The full registry workflow requires these steps before verification."
+				>
 					<div className="space-y-3">
 						{contract.anatomy.map((item) => (
-							<div key={item} className="rounded-xl border border-kumo-line bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default">{item}</div>
+							<div
+								key={item}
+								className="rounded-xl border border-kumo-line bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default"
+							>
+								{item}
+							</div>
 						))}
 					</div>
 				</Card>
@@ -1247,11 +1299,15 @@ function RegistryCreatePage() {
 
 function RegistryDetailPage() {
 	const contract = getSikesraPageContract("/registry/:id");
-	const { data, error, loading, reload } = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
-	const { data: customDefinitions } =
-		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
-	const { data: customValues } =
-		usePluginData<CustomAttributeValuesResponse>("custom-attributes/values/list");
+	const { data, error, loading, reload } = usePluginData<{
+		items: SikesraReferenceRegistryEntity[];
+	}>("registry/list");
+	const { data: customDefinitions } = usePluginData<CustomAttributeDefinitionsResponse>(
+		"custom-attributes/definitions/list",
+	);
+	const { data: customValues } = usePluginData<CustomAttributeValuesResponse>(
+		"custom-attributes/values/list",
+	);
 	const [selectedId, setSelectedId] = React.useState("");
 	const selected = data?.items.find((item) => item.id === selectedId) ?? data?.items[0];
 	const applicableCustomDefinitions = selected
@@ -1264,11 +1320,14 @@ function RegistryDetailPage() {
 				}),
 			)
 		: [];
-	const customDefinitionById = new Map(applicableCustomDefinitions.map((definition) => [definition.id, definition]));
+	const customDefinitionById = new Map(
+		applicableCustomDefinitions.map((definition) => [definition.id, definition]),
+	);
 	const selectedCustomValues = (customValues?.items ?? []).filter(
 		(value) =>
 			customDefinitionById.has(value.definitionId) &&
-			(value.registryEntityId === selected?.id || (selected?.sikesraId20 && value.sikesraId20 === selected.sikesraId20)),
+			(value.registryEntityId === selected?.id ||
+				(selected?.sikesraId20 && value.sikesraId20 === selected.sikesraId20)),
 	);
 
 	React.useEffect(() => {
@@ -1280,12 +1339,22 @@ function RegistryDetailPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA registry detail" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA registry detail"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			{!data?.items.length || !selected ? (
-				<EmptyState title={contract.emptyState} description="Create a registry record before reviewing detail state." />
+				<EmptyState
+					title={contract.emptyState}
+					description="Create a registry record before reviewing detail state."
+				/>
 			) : (
 				<div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-					<Card title="Select record" description="Review one registry entity without leaving table context.">
+					<Card
+						title="Select record"
+						description="Review one registry entity without leaving table context."
+					>
 						<div className="space-y-2">
 							{data.items.map((item) => (
 								<button
@@ -1294,7 +1363,9 @@ function RegistryDetailPage() {
 									onClick={() => setSelectedId(item.id)}
 									className={cx(
 										"w-full rounded-xl border px-3 py-2 text-start text-sm transition",
-										selected.id === item.id ? "border-kumo-brand bg-kumo-tint text-kumo-default" : "border-kumo-line bg-kumo-base text-kumo-subtle",
+										selected.id === item.id
+											? "border-kumo-brand bg-kumo-tint text-kumo-default"
+											: "border-kumo-line bg-kumo-base text-kumo-subtle",
 									)}
 								>
 									<div className="font-semibold">{item.label}</div>
@@ -1304,7 +1375,10 @@ function RegistryDetailPage() {
 						</div>
 					</Card>
 					<div className="space-y-6">
-						<Card title={selected.label} description="Masked detail, verification state, document links, and audit context.">
+						<Card
+							title={selected.label}
+							description="Masked detail, verification state, document links, and audit context."
+						>
 							<div className="grid gap-4 md:grid-cols-3">
 								<MetricCard label="Module" value={selected.entityType} />
 								<MetricCard label="Verification" value={selected.verificationStage} />
@@ -1312,20 +1386,37 @@ function RegistryDetailPage() {
 							</div>
 							<div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
 								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
-									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">SIKESRA ID</div>
-									<div className="mt-1 font-mono text-kumo-default">{selected.sikesraId20 ?? "Pending generation"}</div>
+									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+										SIKESRA ID
+									</div>
+									<div className="mt-1 font-mono text-kumo-default">
+										{selected.sikesraId20 ?? "Pending generation"}
+									</div>
 								</div>
 								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
-									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Sensitivity</div>
-									<div className="mt-1"><Pill tone={selected.sensitivity === "public_safe" ? "success" : "warning"}>{selected.sensitivity}</Pill></div>
+									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+										Sensitivity
+									</div>
+									<div className="mt-1">
+										<Pill tone={selected.sensitivity === "public_safe" ? "success" : "warning"}>
+											{selected.sensitivity}
+										</Pill>
+									</div>
 								</div>
 							</div>
 							<div className="mt-5 rounded-xl border border-kumo-line bg-kumo-base p-4">
-								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Public-safe summary</div>
-								<p className="mt-2 text-sm leading-6 text-kumo-default">{selected.publicSummary || "No public-safe summary supplied."}</p>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+									Public-safe summary
+								</div>
+								<p className="mt-2 text-sm leading-6 text-kumo-default">
+									{selected.publicSummary || "No public-safe summary supplied."}
+								</p>
 							</div>
 						</Card>
-						<Card title="Region and audit context" description="Detail view keeps regional scope visible for RBAC/ABAC review.">
+						<Card
+							title="Region and audit context"
+							description="Detail view keeps regional scope visible for RBAC/ABAC review."
+						>
 							<div className="grid gap-3 text-sm md:grid-cols-4">
 								<span>Province: {selected.region.provinceCode || "-"}</span>
 								<span>Regency: {selected.region.regencyCode || "-"}</span>
@@ -1333,24 +1424,47 @@ function RegistryDetailPage() {
 								<span>Village: {selected.region.villageCode || "-"}</span>
 							</div>
 						</Card>
-						<Card title="Applicable custom attributes" description="Dynamic fields are filtered by module, record, SIKESRA ID, and region scope.">
+						<Card
+							title="Applicable custom attributes"
+							description="Dynamic fields are filtered by module, record, SIKESRA ID, and region scope."
+						>
 							{applicableCustomDefinitions.length === 0 ? (
-								<EmptyState title="No applicable custom attributes" description="Create an active definition that matches this registry record to show dynamic fields here." />
+								<EmptyState
+									title="No applicable custom attributes"
+									description="Create an active definition that matches this registry record to show dynamic fields here."
+								/>
 							) : (
 								<div className="space-y-3">
 									{applicableCustomDefinitions.map((definition) => {
-										const value = selectedCustomValues.find((item) => item.definitionId === definition.id);
+										const value = selectedCustomValues.find(
+											(item) => item.definitionId === definition.id,
+										);
 										return (
-											<div key={definition.id} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+											<div
+												key={definition.id}
+												className="rounded-xl border border-kumo-line bg-kumo-base p-4"
+											>
 												<div className="flex flex-wrap items-start justify-between gap-3">
 													<div>
-														<div className="font-semibold text-kumo-default">{definition.label}</div>
-														<div className="mt-1 font-mono text-xs text-kumo-subtle">{definition.key}</div>
+														<div className="font-semibold text-kumo-default">
+															{definition.label}
+														</div>
+														<div className="mt-1 font-mono text-xs text-kumo-subtle">
+															{definition.key}
+														</div>
 													</div>
 													<div className="flex flex-wrap gap-2">
 														<Badge variant="outline">{definition.scope}</Badge>
-														<Pill tone={definition.dataClass === "non_personal" ? "success" : "warning"}>{definition.dataClass}</Pill>
-														{value ? <Pill tone={value.masked ? "warning" : "success"}>{value.masked ? "Masked" : "Visible"}</Pill> : null}
+														<Pill
+															tone={definition.dataClass === "non_personal" ? "success" : "warning"}
+														>
+															{definition.dataClass}
+														</Pill>
+														{value ? (
+															<Pill tone={value.masked ? "warning" : "success"}>
+																{value.masked ? "Masked" : "Visible"}
+															</Pill>
+														) : null}
 													</div>
 												</div>
 												<div className="mt-3 rounded-lg bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default">
@@ -1372,7 +1486,9 @@ function RegistryDetailPage() {
 function AccessUsersPage() {
 	const contract = getSikesraPageContract("/access/users");
 	const { data, error, loading, reload } = usePluginData<AccessRolesResponse>("access/roles/list");
-	const { data: usersData } = usePluginData<EmDashUsersResponse>("access/users/list", { limit: 100 });
+	const { data: usersData } = usePluginData<EmDashUsersResponse>("access/users/list", {
+		limit: 100,
+	});
 	const [userState, setUserState] = React.useState({ userId: "", roles: "", isActive: true });
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -1409,7 +1525,10 @@ function AccessUsersPage() {
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-				<Card title="Assign roles to EmDash user" description="Use trusted EmDash user IDs as references; do not duplicate user accounts.">
+				<Card
+					title="Assign roles to EmDash user"
+					description="Use trusted EmDash user IDs as references; do not duplicate user accounts."
+				>
 					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
 						<Field label="EmDash user ID">
 							<Input
@@ -1452,28 +1571,51 @@ function AccessUsersPage() {
 						</Button>
 					</form>
 				</Card>
-				<Card title="Current user assignments" description="Role assignments are SIKESRA-owned references to EmDash users.">
+				<Card
+					title="Current user assignments"
+					description="Role assignments are SIKESRA-owned references to EmDash users."
+				>
 					{!data?.userAssignments.length ? (
-						<EmptyState title={contract.emptyState} description="Assign a SIKESRA role to an EmDash user reference." />
+						<EmptyState
+							title={contract.emptyState}
+							description="Assign a SIKESRA role to an EmDash user reference."
+						/>
 					) : (
 						<div className="grid gap-3 md:grid-cols-2">
 							{data.userAssignments.map((item) => (
-								<div key={item.userId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+								<div
+									key={item.userId}
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4"
+								>
 									<div className="font-semibold text-kumo-default">{item.userId}</div>
 									<div className="mt-2 flex flex-wrap gap-2">
-										{item.roles.map((role) => <Pill key={role}>{role}</Pill>)}
+										{item.roles.map((role) => (
+											<Pill key={role}>{role}</Pill>
+										))}
 									</div>
-									<div className="mt-3"><Pill tone={item.isActive ? "success" : "warning"}>{item.isActive ? "Active" : "Inactive"}</Pill></div>
-									<div className="mt-3 text-xs text-kumo-subtle">Updated {formatDateTime(item.updatedAt, "en")}</div>
+									<div className="mt-3">
+										<Pill tone={item.isActive ? "success" : "warning"}>
+											{item.isActive ? "Active" : "Inactive"}
+										</Pill>
+									</div>
+									<div className="mt-3 text-xs text-kumo-subtle">
+										Updated {formatDateTime(item.updatedAt, "en")}
+									</div>
 								</div>
 							))}
 						</div>
 					)}
 				</Card>
 			</div>
-			<Card title="EmDash users" description="Read-only trusted users exposed by EmDash for assignment reference.">
+			<Card
+				title="EmDash users"
+				description="Read-only trusted users exposed by EmDash for assignment reference."
+			>
 				{emdashUsers.length === 0 ? (
-					<EmptyState title="No EmDash users available" description="The plugin can still save assignments by exact EmDash user ID." />
+					<EmptyState
+						title="No EmDash users available"
+						description="The plugin can still save assignments by exact EmDash user ID."
+					/>
 				) : (
 					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
 						{emdashUsers.map((user) => (
@@ -1494,7 +1636,9 @@ function AccessUsersPage() {
 			<Card title="Available roles" description="Use these slugs in the user assignment form.">
 				<div className="flex flex-wrap gap-2">
 					{data?.roles.map((role) => (
-						<Badge key={role.slug} variant="outline">{role.slug}</Badge>
+						<Badge key={role.slug} variant="outline">
+							{role.slug}
+						</Badge>
 					))}
 				</div>
 			</Card>
@@ -1504,7 +1648,8 @@ function AccessUsersPage() {
 
 function AccessScopesPage() {
 	const contract = getSikesraPageContract("/access/scopes");
-	const { data, error, loading, reload } = usePluginData<AccessScopesResponse>("access/scopes/list");
+	const { data, error, loading, reload } =
+		usePluginData<AccessScopesResponse>("access/scopes/list");
 	const [scopeState, setScopeState] = React.useState({
 		userId: "",
 		regionScopeType: "all",
@@ -1548,7 +1693,10 @@ function AccessScopesPage() {
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-				<Card title="Assign user scopes" description="Scopes are stored as SIKESRA user-scope assignments for EmDash user references.">
+				<Card
+					title="Assign user scopes"
+					description="Scopes are stored as SIKESRA user-scope assignments for EmDash user references."
+				>
 					<form className="space-y-4" onSubmit={(event) => void saveScope(event)}>
 						<Field label="EmDash user ID">
 							<Input
@@ -1580,7 +1728,10 @@ function AccessScopesPage() {
 							<Input
 								value={scopeState.organizationScopeType}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, organizationScopeType: event.target.value }))
+									setScopeState((current) => ({
+										...current,
+										organizationScopeType: event.target.value,
+									}))
 								}
 								required
 							/>
@@ -1589,7 +1740,10 @@ function AccessScopesPage() {
 							<Input
 								value={scopeState.organizationScopeCode}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setScopeState((current) => ({ ...current, organizationScopeCode: event.target.value }))
+									setScopeState((current) => ({
+										...current,
+										organizationScopeCode: event.target.value,
+									}))
 								}
 							/>
 						</Field>
@@ -1598,17 +1752,31 @@ function AccessScopesPage() {
 						</Button>
 					</form>
 				</Card>
-				<Card title="Current user scopes" description="These assignments constrain SIKESRA region and organization access.">
+				<Card
+					title="Current user scopes"
+					description="These assignments constrain SIKESRA region and organization access."
+				>
 					{!data?.items.length ? (
-						<EmptyState title={contract.emptyState} description="Assign region or organization scopes to an EmDash user reference." />
+						<EmptyState
+							title={contract.emptyState}
+							description="Assign region or organization scopes to an EmDash user reference."
+						/>
 					) : (
 						<div className="grid gap-3 md:grid-cols-2">
 							{data.items.map((item) => (
-								<div key={item.userId} className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+								<div
+									key={item.userId}
+									className="rounded-xl border border-kumo-line bg-kumo-base p-4"
+								>
 									<div className="font-semibold text-kumo-default">{item.userId}</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle">
-										<span>Region: {item.regionScopeType} {item.regionScopeCode || "all"}</span>
-										<span>Organization: {item.organizationScopeType} {item.organizationScopeCode || "all"}</span>
+										<span>
+											Region: {item.regionScopeType} {item.regionScopeCode || "all"}
+										</span>
+										<span>
+											Organization: {item.organizationScopeType}{" "}
+											{item.organizationScopeCode || "all"}
+										</span>
 										<span>Status: {item.isActive ? "Active" : "Inactive"}</span>
 									</div>
 								</div>
@@ -1637,12 +1805,22 @@ function FieldStandardsPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA field contract" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA field contract"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-				<Card title="Field catalog" description="Canonical fields by module, data class, storage table, and public/export policy.">
+				<Card
+					title="Field catalog"
+					description="Canonical fields by module, data class, storage table, and public/export policy."
+				>
 					<div className="mb-4 grid gap-4 md:grid-cols-2">
 						<Field label="Module">
-							<Select value={moduleFilter} onValueChange={(value) => setModuleFilter(value ?? "all")}>
+							<Select
+								value={moduleFilter}
+								onValueChange={(value) => setModuleFilter(value ?? "all")}
+							>
 								<Select.Option value="all">All modules</Select.Option>
 								{DEFAULT_DATA_TYPES.map((type) => (
 									<Select.Option key={type.id} value={type.id}>
@@ -1685,7 +1863,9 @@ function FieldStandardsPage() {
 											{standard.dataClass}
 										</Pill>
 									</div>
-									<span className="font-mono text-xs text-kumo-subtle">{standard.storageTable}</span>
+									<span className="font-mono text-xs text-kumo-subtle">
+										{standard.storageTable}
+									</span>
 									<div className="flex flex-wrap gap-1.5">
 										{standard.required ? <Badge variant="secondary">Required</Badge> : null}
 										{standard.importable ? <Badge variant="outline">Import</Badge> : null}
@@ -1699,29 +1879,42 @@ function FieldStandardsPage() {
 					</div>
 				</Card>
 
-				<Card title="Validation summary" description="Module-level import/export and privacy constraints.">
+				<Card
+					title="Validation summary"
+					description="Module-level import/export and privacy constraints."
+				>
 					{activeSchema ? (
 						<div className="space-y-4 text-sm text-kumo-default">
 							<div>
-								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Required</div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+									Required
+								</div>
 								<div className="mt-2 flex flex-wrap gap-1.5">
 									{activeSchema.requiredFields.map((field) => (
-										<Badge key={field} variant="outline">{field}</Badge>
+										<Badge key={field} variant="outline">
+											{field}
+										</Badge>
 									))}
 								</div>
 							</div>
 							<div>
-								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Address groups</div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+									Address groups
+								</div>
 								<div className="mt-2 grid gap-2 text-xs text-kumo-subtle">
 									<span>KTP fields: {activeSchema.ktpAddressFields.length}</span>
 									<span>Domicile fields: {activeSchema.domicileAddressFields.length}</span>
 								</div>
 							</div>
 							<div>
-								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Restricted export</div>
+								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
+									Restricted export
+								</div>
 								<div className="mt-2 flex flex-wrap gap-1.5">
 									{activeSchema.restrictedExportFields.map((field) => (
-										<Badge key={field} variant="secondary">{field}</Badge>
+										<Badge key={field} variant="secondary">
+											{field}
+										</Badge>
 									))}
 								</div>
 							</div>
@@ -1740,8 +1933,9 @@ function FieldStandardsPage() {
 
 function CustomAttributeDefinitionsPage() {
 	const contract = getSikesraPageContract("/custom-attributes/definitions");
-	const { data, error, loading, reload } =
-		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
+	const { data, error, loading, reload } = usePluginData<CustomAttributeDefinitionsResponse>(
+		"custom-attributes/definitions/list",
+	);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [saving, setSaving] = React.useState(false);
@@ -1775,7 +1969,9 @@ function CustomAttributeDefinitionsPage() {
 			setNotice("Custom attribute definition saved with audit tracking.");
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save custom attribute definition.");
+			setSaveError(
+				cause instanceof Error ? cause.message : "Failed to save custom attribute definition.",
+			);
 		} finally {
 			setSaving(false);
 		}
@@ -1786,7 +1982,11 @@ function CustomAttributeDefinitionsPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA UI/UX standard" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA UI/UX standard"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
@@ -1808,7 +2008,10 @@ function CustomAttributeDefinitionsPage() {
 
 					<form className="space-y-4" onSubmit={(event) => void saveDefinition(event)}>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Attribute key" hint="Use lowercase snake_case. Protected SIKESRA keys are blocked.">
+							<Field
+								label="Attribute key"
+								hint="Use lowercase snake_case. Protected SIKESRA keys are blocked."
+							>
 								<Input
 									value={formState.key ?? ""}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1872,7 +2075,9 @@ function CustomAttributeDefinitionsPage() {
 									onValueChange={(value) =>
 										setFormState((current) => ({
 											...current,
-											dataClass: (value as SikesraCustomAttributeDefinitionRequest["dataClass"]) ?? "non_personal",
+											dataClass:
+												(value as SikesraCustomAttributeDefinitionRequest["dataClass"]) ??
+												"non_personal",
 											publicSafe: value === "non_personal" ? current.publicSafe : false,
 											maskByDefault: value === "non_personal" ? current.maskByDefault : true,
 										}))
@@ -1903,11 +2108,11 @@ function CustomAttributeDefinitionsPage() {
 						<div className="grid gap-3 md:grid-cols-2">
 							{(
 								[
-								["publicSafe", "Public-safe aggregate"],
-								["maskByDefault", "Mask by default"],
-								["isImportable", "Importable"],
-								["isExportable", "Exportable"],
-							] as Array<[keyof SikesraCustomAttributeDefinitionRequest, string]>
+									["publicSafe", "Public-safe aggregate"],
+									["maskByDefault", "Mask by default"],
+									["isImportable", "Importable"],
+									["isExportable", "Exportable"],
+								] as Array<[keyof SikesraCustomAttributeDefinitionRequest, string]>
 							).map(([key, label]) => (
 								<label
 									key={key}
@@ -1916,7 +2121,9 @@ function CustomAttributeDefinitionsPage() {
 									<span>{label}</span>
 									<input
 										type="checkbox"
-										checked={Boolean(formState[key as keyof SikesraCustomAttributeDefinitionRequest])}
+										checked={Boolean(
+											formState[key as keyof SikesraCustomAttributeDefinitionRequest],
+										)}
 										disabled={key === "publicSafe" && formState.dataClass !== "non_personal"}
 										onChange={(event) =>
 											setFormState((current) => ({ ...current, [key]: event.target.checked }))
@@ -1931,9 +2138,15 @@ function CustomAttributeDefinitionsPage() {
 					</form>
 				</Card>
 
-				<Card title="Definitions" description="Active custom attributes with privacy and scope badges.">
+				<Card
+					title="Definitions"
+					description="Active custom attributes with privacy and scope badges."
+				>
 					{!data?.items.length ? (
-						<EmptyState title={contract.emptyState} description="Create a controlled custom field to extend registry forms." />
+						<EmptyState
+							title={contract.emptyState}
+							description="Create a controlled custom field to extend registry forms."
+						/>
 					) : (
 						<div className="space-y-3">
 							{data.items.map((item) => (
@@ -1968,10 +2181,12 @@ function CustomAttributeDefinitionsPage() {
 
 function CustomAttributeValuesPage() {
 	const contract = getSikesraPageContract("/custom-attributes/values");
-	const { data: definitions } =
-		usePluginData<CustomAttributeDefinitionsResponse>("custom-attributes/definitions/list");
-	const { data, error, loading, reload } =
-		usePluginData<CustomAttributeValuesResponse>("custom-attributes/values/list");
+	const { data: definitions } = usePluginData<CustomAttributeDefinitionsResponse>(
+		"custom-attributes/definitions/list",
+	);
+	const { data, error, loading, reload } = usePluginData<CustomAttributeValuesResponse>(
+		"custom-attributes/values/list",
+	);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [saving, setSaving] = React.useState(false);
@@ -2005,7 +2220,9 @@ function CustomAttributeValuesPage() {
 			setFormState((current) => ({ ...current, ownerId: "", registryEntityId: "", value: "" }));
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save custom attribute value.");
+			setSaveError(
+				cause instanceof Error ? cause.message : "Failed to save custom attribute value.",
+			);
 		} finally {
 			setSaving(false);
 		}
@@ -2016,12 +2233,19 @@ function CustomAttributeValuesPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA UI/UX standard" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA UI/UX standard"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
-				<Card title="Assign value" description="Attach custom values to a registry entity or SIKESRA ID.">
+				<Card
+					title="Assign value"
+					description="Attach custom values to a registry entity or SIKESRA ID."
+				>
 					<form className="space-y-4" onSubmit={(event) => void saveValue(event)}>
 						<Field label="Definition">
 							<Select
@@ -2073,9 +2297,15 @@ function CustomAttributeValuesPage() {
 					</form>
 				</Card>
 
-				<Card title="Current values" description="Masked values stay redacted unless sensitive-read access is granted.">
+				<Card
+					title="Current values"
+					description="Masked values stay redacted unless sensitive-read access is granted."
+				>
 					{!data?.items.length ? (
-						<EmptyState title={contract.emptyState} description="Save a custom value to review masking and ownership." />
+						<EmptyState
+							title={contract.emptyState}
+							description="Save a custom value to review masking and ownership."
+						/>
 					) : (
 						<div className="space-y-3">
 							{data.items.map((item) => (
@@ -2083,11 +2313,15 @@ function CustomAttributeValuesPage() {
 									<div className="flex flex-wrap items-start justify-between gap-3">
 										<div>
 											<div className="font-mono text-xs text-kumo-subtle">{item.id}</div>
-											<div className="mt-1 text-sm font-semibold text-kumo-default">{item.valueDisplay}</div>
+											<div className="mt-1 text-sm font-semibold text-kumo-default">
+												{item.valueDisplay}
+											</div>
 										</div>
 										<div className="flex flex-wrap gap-2">
 											<Badge variant="outline">{item.sensitivity}</Badge>
-											<Pill tone={item.masked ? "warning" : "success"}>{item.masked ? "Masked" : "Visible"}</Pill>
+											<Pill tone={item.masked ? "warning" : "success"}>
+												{item.masked ? "Masked" : "Visible"}
+											</Pill>
 										</div>
 									</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
@@ -2107,8 +2341,10 @@ function CustomAttributeValuesPage() {
 
 function DeleteRequestsPage() {
 	const contract = getSikesraPageContract("/delete-requests");
-	const { data, error, loading, reload } =
-		usePluginData<PermanentDeleteRequestsResponse>("crud/permanent-delete/requests/list", {});
+	const { data, error, loading, reload } = usePluginData<PermanentDeleteRequestsResponse>(
+		"crud/permanent-delete/requests/list",
+		{},
+	);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [requestState, setRequestState] = React.useState({
@@ -2118,7 +2354,9 @@ function DeleteRequestsPage() {
 		reason: "",
 		confirmation: "",
 	});
-	const [decisionState, setDecisionState] = React.useState<Record<string, { notes: string; confirmation: string }>>({});
+	const [decisionState, setDecisionState] = React.useState<
+		Record<string, { notes: string; confirmation: string }>
+	>({});
 	const [busyId, setBusyId] = React.useState<string | null>(null);
 
 	const requestDelete = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -2129,7 +2367,12 @@ function DeleteRequestsPage() {
 		try {
 			await postPlugin("crud/permanent-delete/request", requestState);
 			setNotice("Permanent delete request created with snapshot review pending.");
-			setRequestState((current) => ({ ...current, targetRecordId: "", reason: "", confirmation: "" }));
+			setRequestState((current) => ({
+				...current,
+				targetRecordId: "",
+				reason: "",
+				confirmation: "",
+			}));
 			await reload();
 		} catch (cause) {
 			setSaveError(cause instanceof Error ? cause.message : "Failed to create delete request.");
@@ -2138,7 +2381,10 @@ function DeleteRequestsPage() {
 		}
 	};
 
-	const decideDelete = async (item: PermanentDeleteRequestItem, decision: "approved" | "rejected") => {
+	const decideDelete = async (
+		item: PermanentDeleteRequestItem,
+		decision: "approved" | "rejected",
+	) => {
 		setBusyId(`${item.id}:${decision}`);
 		setNotice(null);
 		setSaveError(null);
@@ -2180,12 +2426,19 @@ function DeleteRequestsPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA governance" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA governance"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
 			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
-				<Card title="Create delete request" description="Highest-admin workflow requires reason, snapshot, and exact confirmation.">
+				<Card
+					title="Create delete request"
+					description="Highest-admin workflow requires reason, snapshot, and exact confirmation."
+				>
 					<form className="space-y-4" onSubmit={(event) => void requestDelete(event)}>
 						<Field label="Target table">
 							<Input
@@ -2229,9 +2482,15 @@ function DeleteRequestsPage() {
 					</form>
 				</Card>
 
-				<Card title="Review queue" description="Approve, reject, or execute with high-friction confirmation.">
+				<Card
+					title="Review queue"
+					description="Approve, reject, or execute with high-friction confirmation."
+				>
 					{!data?.items.length ? (
-						<EmptyState title={contract.emptyState} description="No permanent delete requests are waiting for review." />
+						<EmptyState
+							title={contract.emptyState}
+							description="No permanent delete requests are waiting for review."
+						/>
 					) : (
 						<div className="space-y-4">
 							{data.items.map((item) => (
@@ -2239,11 +2498,21 @@ function DeleteRequestsPage() {
 									<div className="flex flex-wrap items-start justify-between gap-3">
 										<div>
 											<div className="font-semibold text-kumo-default">{item.targetRecordId}</div>
-											<div className="mt-1 font-mono text-xs text-kumo-subtle">{item.targetTable}</div>
+											<div className="mt-1 font-mono text-xs text-kumo-subtle">
+												{item.targetTable}
+											</div>
 										</div>
 										<div className="flex flex-wrap gap-2">
 											<Badge variant="outline">{item.riskLevel}</Badge>
-											<Pill tone={item.status === "approved" ? "warning" : item.status === "executed" ? "danger" : "neutral"}>
+											<Pill
+												tone={
+													item.status === "approved"
+														? "warning"
+														: item.status === "executed"
+															? "danger"
+															: "neutral"
+												}
+											>
 												{item.status}
 											</Pill>
 										</div>
@@ -2261,15 +2530,28 @@ function DeleteRequestsPage() {
 											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 												setDecisionState((current) => ({
 													...current,
-													[item.id]: { notes: event.target.value, confirmation: current[item.id]?.confirmation ?? "" },
+													[item.id]: {
+														notes: event.target.value,
+														confirmation: current[item.id]?.confirmation ?? "",
+													},
 												}))
 											}
 										/>
 										<div className="flex flex-wrap gap-2">
-											<Button size="sm" variant="secondary" type="button" onClick={() => void decideDelete(item, "approved")}>
+											<Button
+												size="sm"
+												variant="secondary"
+												type="button"
+												onClick={() => void decideDelete(item, "approved")}
+											>
 												Approve
 											</Button>
-											<Button size="sm" variant="secondary" type="button" onClick={() => void decideDelete(item, "rejected")}>
+											<Button
+												size="sm"
+												variant="secondary"
+												type="button"
+												onClick={() => void decideDelete(item, "rejected")}
+											>
 												Reject
 											</Button>
 										</div>
@@ -2281,11 +2563,19 @@ function DeleteRequestsPage() {
 											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 												setDecisionState((current) => ({
 													...current,
-													[item.id]: { notes: current[item.id]?.notes ?? "", confirmation: event.target.value },
+													[item.id]: {
+														notes: current[item.id]?.notes ?? "",
+														confirmation: event.target.value,
+													},
 												}))
 											}
 										/>
-										<Button size="sm" variant="primary" type="button" onClick={() => void executeDelete(item)}>
+										<Button
+											size="sm"
+											variant="primary"
+											type="button"
+											onClick={() => void executeDelete(item)}
+										>
 											Execute
 										</Button>
 									</div>
@@ -2301,8 +2591,10 @@ function DeleteRequestsPage() {
 
 function ArchivesPage() {
 	const contract = getSikesraPageContract("/archives");
-	const { data, error, loading, reload } =
-		usePluginData<RegistryArchiveResponse>("registry/archive/list", {});
+	const { data, error, loading, reload } = usePluginData<RegistryArchiveResponse>(
+		"registry/archive/list",
+		{},
+	);
 	const [restoreReasons, setRestoreReasons] = React.useState<Record<string, string>>({});
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
@@ -2313,11 +2605,16 @@ function ArchivesPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("registry/restore", { id: entity.id, reason: restoreReasons[entity.id] ?? "" });
+			await postPlugin("registry/restore", {
+				id: entity.id,
+				reason: restoreReasons[entity.id] ?? "",
+			});
 			setNotice(`Restored archived registry entity ${entity.code || entity.id}.`);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to restore archived registry entity.");
+			setSaveError(
+				cause instanceof Error ? cause.message : "Failed to restore archived registry entity.",
+			);
 		} finally {
 			setRestoringId(null);
 		}
@@ -2328,12 +2625,22 @@ function ArchivesPage() {
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA governance" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA governance"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
-			<Card title="Archived registry records" description="Restore actions require a reason and are audited.">
+			<Card
+				title="Archived registry records"
+				description="Restore actions require a reason and are audited."
+			>
 				{!data?.items.length ? (
-					<EmptyState title={contract.emptyState} description="No archived registry records are available for restore." />
+					<EmptyState
+						title={contract.emptyState}
+						description="No archived registry records are available for restore."
+					/>
 				) : (
 					<div className="space-y-4">
 						{data.items.map((entity) => (
@@ -2341,20 +2648,27 @@ function ArchivesPage() {
 								<div className="flex flex-wrap items-start justify-between gap-3">
 									<div>
 										<div className="font-semibold text-kumo-default">{entity.label}</div>
-										<div className="mt-1 font-mono text-xs text-kumo-subtle">{entity.code || entity.id}</div>
+										<div className="mt-1 font-mono text-xs text-kumo-subtle">
+											{entity.code || entity.id}
+										</div>
 									</div>
 									<div className="flex flex-wrap gap-2">
 										<Badge variant="outline">{entity.entityType}</Badge>
 										<Pill tone="neutral">Archived</Pill>
 									</div>
 								</div>
-								<p className="mt-3 text-sm text-kumo-subtle">{entity.publicSummary || "Archived registry entity pending restore review."}</p>
+								<p className="mt-3 text-sm text-kumo-subtle">
+									{entity.publicSummary || "Archived registry entity pending restore review."}
+								</p>
 								<div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
 									<Input
 										value={restoreReasons[entity.id] ?? ""}
 										placeholder="Restore reason"
 										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-											setRestoreReasons((current) => ({ ...current, [entity.id]: event.target.value }))
+											setRestoreReasons((current) => ({
+												...current,
+												[entity.id]: event.target.value,
+											}))
 										}
 									/>
 									<Button
@@ -2431,11 +2745,18 @@ function SettingsPage() {
 
 	return (
 		<PageShell>
-			<PageHeader eyebrow="SIKESRA configuration" title={contract.title} description={contract.purpose} />
+			<PageHeader
+				eyebrow="SIKESRA configuration"
+				title={contract.title}
+				description={contract.purpose}
+			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-				<Card title="Public and governance settings" description="Controls public-safe status, aggregate safety, and audit retention.">
+				<Card
+					title="Public and governance settings"
+					description="Controls public-safe status, aggregate safety, and audit retention."
+				>
 					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
 						<Field label="Public status label">
 							<Input
@@ -2453,18 +2774,27 @@ function SettingsPage() {
 									min={1}
 									value={formState.auditRetentionDays}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({ ...current, auditRetentionDays: event.target.value }))
+										setFormState((current) => ({
+											...current,
+											auditRetentionDays: event.target.value,
+										}))
 									}
 									required
 								/>
 							</Field>
-							<Field label="Small-cell threshold" hint="Counts below this value are suppressed in public aggregate output.">
+							<Field
+								label="Small-cell threshold"
+								hint="Counts below this value are suppressed in public aggregate output."
+							>
 								<Input
 									type="number"
 									min={1}
 									value={formState.smallCellThreshold}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({ ...current, smallCellThreshold: event.target.value }))
+										setFormState((current) => ({
+											...current,
+											smallCellThreshold: event.target.value,
+										}))
 									}
 									required
 								/>
@@ -2489,7 +2819,10 @@ function SettingsPage() {
 							<Input
 								value={formState.metadataCanonicalBase}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setFormState((current) => ({ ...current, metadataCanonicalBase: event.target.value }))
+									setFormState((current) => ({
+										...current,
+										metadataCanonicalBase: event.target.value,
+									}))
 								}
 							/>
 						</Field>
@@ -2499,7 +2832,10 @@ function SettingsPage() {
 								type="checkbox"
 								checked={formState.sikesraPublicEnabled}
 								onChange={(event) =>
-									setFormState((current) => ({ ...current, sikesraPublicEnabled: event.target.checked }))
+									setFormState((current) => ({
+										...current,
+										sikesraPublicEnabled: event.target.checked,
+									}))
 								}
 							/>
 						</label>

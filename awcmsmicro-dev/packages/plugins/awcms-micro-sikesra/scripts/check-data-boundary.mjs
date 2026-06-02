@@ -10,7 +10,8 @@ const srcDir = resolve(pluginDir, "src");
 
 const createTablePattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const schemaTablePattern = /:\s*"(sikesra_[a-z0-9_]+)"/g;
-const coreTableWritePattern = /\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users|_emdash_sessions|_emdash_accounts)["']/;
+const coreTableWritePattern =
+	/\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users|_emdash_sessions|_emdash_accounts)["']/;
 const sourceFilePattern = /\.(ts|tsx|js|mjs)$/;
 const ignoredDirs = new Set(["dist", "node_modules", ".git", ".astro", ".vite", ".wrangler"]);
 
@@ -51,17 +52,21 @@ for (const table of schemaTables) {
 
 for (const [table, file] of migrationTables) {
 	if (!table.startsWith("sikesra_")) violations.push(`${file} creates non-SIKESRA table: ${table}`);
-	if (!schemaTables.has(table)) violations.push(`${file} creates table missing from schema catalog: ${table}`);
+	if (!schemaTables.has(table))
+		violations.push(`${file} creates table missing from schema catalog: ${table}`);
 }
 
 for (const table of schemaTables) {
-	if (!migrationTables.has(table)) violations.push(`schema table missing from migrations: ${table}`);
+	if (!migrationTables.has(table))
+		violations.push(`schema table missing from migrations: ${table}`);
 }
 
 for (const file of walkFiles(srcDir)) {
 	const source = readFileSync(file, "utf8");
 	if (coreTableWritePattern.test(source)) {
-		violations.push(`source writes to EmDash/core user table: ${file.replace(`${pluginDir}/`, "")}`);
+		violations.push(
+			`source writes to EmDash/core user table: ${file.replace(`${pluginDir}/`, "")}`,
+		);
 	}
 }
 

@@ -19,4 +19,7 @@ export { createSettingsRepository } from "./repositories/settings-repository.js"
 export { createVerificationRepository } from "./repositories/verification-repository.js";
 export { createSikesraRepositories } from "./repositories/index.js";
 export { createScopedRepository } from "./repositories/scoped-repository.js";
-export type { SikesraScopedRepository, SikesraScopedRow } from "./repositories/scoped-repository.js";
+export type {
+	SikesraScopedRepository,
+	SikesraScopedRow,
+} from "./repositories/scoped-repository.js";

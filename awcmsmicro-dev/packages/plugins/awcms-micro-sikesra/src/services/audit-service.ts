@@ -8,7 +8,10 @@ export interface SikesraAuditService {
 export function createAuditService(): SikesraAuditService {
 	return {
 		redact(event) {
-			return serviceOk({ ...event, redactionPolicy: event.redactionPolicy || "sikesra_default_redacted" });
+			return serviceOk({
+				...event,
+				redactionPolicy: event.redactionPolicy || "sikesra_default_redacted",
+			});
 		},
 	};
 }

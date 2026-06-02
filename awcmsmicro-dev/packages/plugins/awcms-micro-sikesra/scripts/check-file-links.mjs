@@ -15,7 +15,11 @@ function readSql() {
 }
 
 function tableBlock(sql, table) {
-	return new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}[\\s\\S]*?;`, "i").exec(sql)?.[0] ?? "";
+	return (
+		new RegExp(`CREATE\\s+TABLE\\s+IF\\s+NOT\\s+EXISTS\\s+${table}[\\s\\S]*?;`, "i").exec(
+			sql,
+		)?.[0] ?? ""
+	);
 }
 
 const sql = readSql();
@@ -32,7 +36,12 @@ for (const column of ["storage_key", "checksum_sha256", "classification", "valid
 	}
 }
 
-for (const column of ["registry_entity_id", "file_object_id", "classification", "validation_status"]) {
+for (const column of [
+	"registry_entity_id",
+	"file_object_id",
+	"classification",
+	"validation_status",
+]) {
 	if (documents && !new RegExp(`\\b${column}\\b`, "i").test(documents)) {
 		violations.push(`sikesra_supporting_documents missing ${column}`);
 	}
