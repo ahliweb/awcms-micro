@@ -773,3 +773,139 @@ msgstr "Aktor"
 msgctxt "awcms.adminCopy.created"
 msgid "Created"
 msgstr "Dibuat"
+
+msgctxt "awcms.adminCopy.documentsEyebrow"
+msgid "Documents"
+msgstr "Dokumen"
+
+msgctxt "awcms.adminCopy.documentsTitle"
+msgid "Supporting documents"
+msgstr "Dokumen pendukung"
+
+msgctxt "awcms.adminCopy.documentsDescription"
+msgid "Document metadata for the registry reference model, including sensitivity classification and verification source."
+msgstr "Metadata dokumen untuk model referensi registry, termasuk klasifikasi sensitivitas dan sumber verifikasi."
+
+msgctxt "awcms.adminCopy.documentsMetric"
+msgid "Documents"
+msgstr "Dokumen"
+
+msgctxt "awcms.adminCopy.documentsMetricHint"
+msgid "Reference document metadata"
+msgstr "Metadata dokumen referensi"
+
+msgctxt "awcms.adminCopy.sensitiveDocs"
+msgid "Sensitive docs"
+msgstr "Dokumen sensitif"
+
+msgctxt "awcms.adminCopy.sensitiveDocsHint"
+msgid "Records that should remain masked"
+msgstr "Record yang harus tetap dimasking"
+
+msgctxt "awcms.adminCopy.verifiedSources"
+msgid "Verified sources"
+msgstr "Sumber terverifikasi"
+
+msgctxt "awcms.adminCopy.verifiedSourcesHint"
+msgid "Unique verifier identifiers"
+msgstr "Pengidentifikasi verifier yang unik"
+
+msgctxt "awcms.adminCopy.documentCatalog"
+msgid "Document catalog"
+msgstr "Katalog dokumen"
+
+msgctxt "awcms.adminCopy.documentCatalogDescription"
+msgid "The linked entity identifier is masked unless the document is explicitly public-safe."
+msgstr "Pengenal entitas tertaut dimasking kecuali dokumen secara eksplisit aman-publik."
+
+msgctxt "awcms.adminCopy.entity"
+msgid "Entity"
+msgstr "Entitas"
+
+msgctxt "awcms.adminCopy.issued"
+msgid "Issued"
+msgstr "Diterbitkan"
+
+msgctxt "awcms.adminCopy.verifiedBy"
+msgid "Verified by"
+msgstr "Diverifikasi oleh"
+
+msgctxt "awcms.adminCopy.reportsEyebrow"
+msgid "Reports"
+msgstr "Laporan"
+
+msgctxt "awcms.adminCopy.reportsTitle"
+msgid "Public aggregate"
+msgstr "Agregat publik"
+
+msgctxt "awcms.adminCopy.reportsDescription"
+msgid "A public-safe reporting surface that exposes only coarse counts and avoids private identifiers or sensitive record details."
+msgstr "Surface pelaporan aman-publik yang hanya menampilkan hitungan kasar dan menghindari pengenal privat atau detail record sensitif."
+
+msgctxt "awcms.adminCopy.categories"
+msgid "Categories"
+msgstr "Kategori"
+
+msgctxt "awcms.adminCopy.categoriesHint"
+msgid "Public-safe summary buckets"
+msgstr "Bucket ringkasan aman-publik"
+
+msgctxt "awcms.adminCopy.suppressed"
+msgid "Suppressed"
+msgstr "Disupresi"
+
+msgctxt "awcms.adminCopy.suppressedHint"
+msgid "Buckets hidden from public detail"
+msgstr "Bucket yang disembunyikan dari detail publik"
+
+msgctxt "awcms.adminCopy.visible"
+msgid "Visible"
+msgstr "Terlihat"
+
+msgctxt "awcms.adminCopy.visibleHint"
+msgid "Buckets safe to display openly"
+msgstr "Bucket yang aman ditampilkan terbuka"
+
+msgctxt "awcms.adminCopy.aggregateCategories"
+msgid "Aggregate categories"
+msgstr "Kategori agregat"
+
+msgctxt "awcms.adminCopy.aggregateCategoriesDescription"
+msgid "Counts are shown only when the category is not suppressed."
+msgstr "Jumlah hanya ditampilkan ketika kategori tidak disupresi."
+
+msgctxt "awcms.adminCopy.category"
+msgid "Category"
+msgstr "Kategori"
+
+msgctxt "awcms.adminCopy.total"
+msgid "Total"
+msgstr "Total"
+
+msgctxt "awcms.adminCopy.verified"
+msgid "Verified"
+msgstr "Terverifikasi"
+
+msgctxt "awcms.adminCopy.status"
+msgid "Status"
+msgstr "Status"
+
+msgctxt "awcms.adminCopy.masked"
+msgid "masked"
+msgstr "dimasking"
+
+msgctxt "awcms.adminCopy.publicNote"
+msgid "Public note"
+msgstr "Catatan publik"
+
+msgctxt "awcms.adminCopy.publicNoteDescription"
+msgid "The caveat explains why the aggregate is safe for public display."
+msgstr "Catatan ini menjelaskan mengapa agregat aman untuk ditampilkan secara publik."
+
+msgctxt "awcms.adminCopy.displayRule"
+msgid "Display rule"
+msgstr "Aturan tampil"
+
+msgctxt "awcms.adminCopy.displayRuleDescription"
+msgid "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
+msgstr "Bucket yang dimasking tetap diringkas tetapi tidak mengungkap detail tingkat entitas, sesuai pola agregat aman-publik."

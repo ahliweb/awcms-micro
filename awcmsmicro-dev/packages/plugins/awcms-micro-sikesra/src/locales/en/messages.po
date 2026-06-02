@@ -773,3 +773,139 @@ msgstr "Actor"
 msgctxt "awcms.adminCopy.created"
 msgid "Created"
 msgstr "Created"
+
+msgctxt "awcms.adminCopy.documentsEyebrow"
+msgid "Documents"
+msgstr "Documents"
+
+msgctxt "awcms.adminCopy.documentsTitle"
+msgid "Supporting documents"
+msgstr "Supporting documents"
+
+msgctxt "awcms.adminCopy.documentsDescription"
+msgid "Document metadata for the registry reference model, including sensitivity classification and verification source."
+msgstr "Document metadata for the registry reference model, including sensitivity classification and verification source."
+
+msgctxt "awcms.adminCopy.documentsMetric"
+msgid "Documents"
+msgstr "Documents"
+
+msgctxt "awcms.adminCopy.documentsMetricHint"
+msgid "Reference document metadata"
+msgstr "Reference document metadata"
+
+msgctxt "awcms.adminCopy.sensitiveDocs"
+msgid "Sensitive docs"
+msgstr "Sensitive docs"
+
+msgctxt "awcms.adminCopy.sensitiveDocsHint"
+msgid "Records that should remain masked"
+msgstr "Records that should remain masked"
+
+msgctxt "awcms.adminCopy.verifiedSources"
+msgid "Verified sources"
+msgstr "Verified sources"
+
+msgctxt "awcms.adminCopy.verifiedSourcesHint"
+msgid "Unique verifier identifiers"
+msgstr "Unique verifier identifiers"
+
+msgctxt "awcms.adminCopy.documentCatalog"
+msgid "Document catalog"
+msgstr "Document catalog"
+
+msgctxt "awcms.adminCopy.documentCatalogDescription"
+msgid "The linked entity identifier is masked unless the document is explicitly public-safe."
+msgstr "The linked entity identifier is masked unless the document is explicitly public-safe."
+
+msgctxt "awcms.adminCopy.entity"
+msgid "Entity"
+msgstr "Entity"
+
+msgctxt "awcms.adminCopy.issued"
+msgid "Issued"
+msgstr "Issued"
+
+msgctxt "awcms.adminCopy.verifiedBy"
+msgid "Verified by"
+msgstr "Verified by"
+
+msgctxt "awcms.adminCopy.reportsEyebrow"
+msgid "Reports"
+msgstr "Reports"
+
+msgctxt "awcms.adminCopy.reportsTitle"
+msgid "Public aggregate"
+msgstr "Public aggregate"
+
+msgctxt "awcms.adminCopy.reportsDescription"
+msgid "A public-safe reporting surface that exposes only coarse counts and avoids private identifiers or sensitive record details."
+msgstr "A public-safe reporting surface that exposes only coarse counts and avoids private identifiers or sensitive record details."
+
+msgctxt "awcms.adminCopy.categories"
+msgid "Categories"
+msgstr "Categories"
+
+msgctxt "awcms.adminCopy.categoriesHint"
+msgid "Public-safe summary buckets"
+msgstr "Public-safe summary buckets"
+
+msgctxt "awcms.adminCopy.suppressed"
+msgid "Suppressed"
+msgstr "Suppressed"
+
+msgctxt "awcms.adminCopy.suppressedHint"
+msgid "Buckets hidden from public detail"
+msgstr "Buckets hidden from public detail"
+
+msgctxt "awcms.adminCopy.visible"
+msgid "Visible"
+msgstr "Visible"
+
+msgctxt "awcms.adminCopy.visibleHint"
+msgid "Buckets safe to display openly"
+msgstr "Buckets safe to display openly"
+
+msgctxt "awcms.adminCopy.aggregateCategories"
+msgid "Aggregate categories"
+msgstr "Aggregate categories"
+
+msgctxt "awcms.adminCopy.aggregateCategoriesDescription"
+msgid "Counts are shown only when the category is not suppressed."
+msgstr "Counts are shown only when the category is not suppressed."
+
+msgctxt "awcms.adminCopy.category"
+msgid "Category"
+msgstr "Category"
+
+msgctxt "awcms.adminCopy.total"
+msgid "Total"
+msgstr "Total"
+
+msgctxt "awcms.adminCopy.verified"
+msgid "Verified"
+msgstr "Verified"
+
+msgctxt "awcms.adminCopy.status"
+msgid "Status"
+msgstr "Status"
+
+msgctxt "awcms.adminCopy.masked"
+msgid "masked"
+msgstr "masked"
+
+msgctxt "awcms.adminCopy.publicNote"
+msgid "Public note"
+msgstr "Public note"
+
+msgctxt "awcms.adminCopy.publicNoteDescription"
+msgid "The caveat explains why the aggregate is safe for public display."
+msgstr "The caveat explains why the aggregate is safe for public display."
+
+msgctxt "awcms.adminCopy.displayRule"
+msgid "Display rule"
+msgstr "Display rule"
+
+msgctxt "awcms.adminCopy.displayRuleDescription"
+msgid "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
+msgstr "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
