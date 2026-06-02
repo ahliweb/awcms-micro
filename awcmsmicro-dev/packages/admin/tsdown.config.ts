@@ -6,10 +6,15 @@ import { defineConfig } from "tsdown";
 
 const JS_TS_RE = /\.[jt]sx?$/;
 const CHANGELOG_VERSION_RE = /^##\s+([^\s]+)/m;
+const UPSTREAM_SHA_RE = /^\s*- Upstream commit SHA: (.+)$/m;
 const ROOT_VERSION_PATHS = [new URL("../../../VERSION", import.meta.url), new URL("../../VERSION", import.meta.url)];
 const ROOT_CHANGELOG_PATHS = [
 	new URL("../../../CHANGELOG.md", import.meta.url),
 	new URL("../../CHANGELOG.md", import.meta.url),
+];
+const EMDASH_UPSTREAM_METADATA_PATHS = [
+	new URL("../../../docs/upstream-sync/LAST_UPSTREAM_FETCH.md", import.meta.url),
+	new URL("../../docs/upstream-sync/LAST_UPSTREAM_FETCH.md", import.meta.url),
 ];
 
 function readFirstExisting(paths: URL[]): string | undefined {
@@ -33,6 +38,15 @@ function readRootCommit(): string {
 	} catch {
 		return "";
 	}
+}
+
+function shortCommit(value: string | undefined): string {
+	return value?.trim().slice(0, 7) || "";
+}
+
+function readEmDashCommit(): string {
+	const metadata = readFirstExisting(EMDASH_UPSTREAM_METADATA_PATHS);
+	return shortCommit(metadata?.match(UPSTREAM_SHA_RE)?.[1]);
 }
 
 function linguiMacroPlugin(): Plugin {
@@ -64,6 +78,7 @@ export default defineConfig({
 	define: {
 		"import.meta.env.AWCMS_ROOT_VERSION": JSON.stringify(readRootVersion()),
 		"import.meta.env.AWCMS_ROOT_COMMIT": JSON.stringify(readRootCommit()),
+		"import.meta.env.AWCMS_EMDASH_COMMIT": JSON.stringify(readEmDashCommit()),
 	},
 	// @tiptap/suggestion is intentionally bundled (devDependency)
 	inlineOnly: false,

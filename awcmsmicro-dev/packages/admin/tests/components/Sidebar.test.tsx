@@ -108,11 +108,11 @@ describe("SidebarNav helpers", () => {
 					commit: "upstream",
 					admin: { siteName: "Custom Admin" },
 				},
-				{ version: "0.1.3", commit: "b3a3113" },
+				{ version: "0.1.3", commit: "b3a3113", emdashCommit: "47c445b" },
 			),
 		).toEqual({
 			awcms: "AWCMS v0.1.3 (b3a3113)",
-			emdash: "EmDash v0.16.1 (upstream)",
+			emdash: "EmDash v0.16.1 (47c445b)",
 		});
 	});
 

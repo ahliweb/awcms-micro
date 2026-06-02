@@ -223,12 +223,14 @@ export function resolveSidebarIcon(iconKey?: string): React.ElementType {
 interface AwcmsRootVersionInfo {
 	version?: string;
 	commit?: string;
+	emdashCommit?: string;
 }
 
 function getAwcmsRootVersionInfo(): AwcmsRootVersionInfo {
 	return {
 		version: import.meta.env.AWCMS_ROOT_VERSION,
 		commit: import.meta.env.AWCMS_ROOT_COMMIT,
+		emdashCommit: import.meta.env.AWCMS_EMDASH_COMMIT,
 	};
 }
 
@@ -243,7 +245,8 @@ export function formatSidebarFooterLabels(
 	rootVersion: AwcmsRootVersionInfo = getAwcmsRootVersionInfo(),
 ): { awcms: string; emdash: string } {
 	const emdashVersion = manifest.version || "0.0.0";
-	const emdashCommit = manifest.commit ? ` (${manifest.commit})` : "";
+	const emdashCommitValue = rootVersion.emdashCommit?.trim() || manifest.commit?.trim();
+	const emdashCommit = emdashCommitValue ? ` (${emdashCommitValue})` : "";
 	return {
 		awcms: formatAwcmsRootVersionLabel(rootVersion),
 		emdash: `EmDash v${emdashVersion}${emdashCommit}`,
@@ -428,6 +431,11 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			.emdash-sidebar details > summary {
 				list-style: none;
 				cursor: pointer;
+				margin: 0;
+			}
+			.emdash-sidebar [data-sidebar="group"] {
+				gap: 0.25rem !important;
+				padding-block: 0 !important;
 			}
 			.emdash-sidebar details > summary::-webkit-details-marker {
 				display: none;
@@ -442,6 +450,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				text-transform: uppercase;
 				letter-spacing: 0.06em;
 				font-weight: 600;
+				padding-block: 0.25rem;
 				padding-inline: 0.75rem;
 			}
 			.emdash-sidebar [data-sidebar="group-label"] svg {
@@ -453,7 +462,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			/* Separators */
 			.emdash-sidebar [data-sidebar="separator"] {
 				border-color: rgba(255,255,255,0.06) !important;
-				margin: 0.5rem 0.75rem;
+				margin: 0.375rem 0.75rem;
 			}
 			/* Header/footer borders */
 			.emdash-sidebar [data-sidebar="header"] {
