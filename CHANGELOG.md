@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.4 - 2026-06-02
+
+- Render the admin sidebar footer as separate AWCMS root and EmDash version lines, and document the required automatic root version/changelog update rule for future root-level changes.
 ## 0.1.3 - 2026-06-01
 
 - Re-encrypts the backup configuration with the current D1 database name and fixes non-interactive backup config encryption.
@@ -19,7 +22,7 @@
 ## Workspace Snapshot - 2026-06-02
 
 - EmDash upstream: `47c445b947938e29aee571efe22fbd013fb016d5` from `emdash-latest/`
-- Root version: `0.1.3`
+- Root version: `0.1.4`
 
 ### Plugins
 

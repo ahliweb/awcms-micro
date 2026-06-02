@@ -47,6 +47,7 @@ See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update 
 - Rebuild `awcmsmicro-dev/` from `emdash-latest/` before AWCMS-Micro-specific implementation work.
 - Do not treat this repository as a runtime host for nested products.
 - Keep root documentation synchronized with the actual workflow and folder layout.
+- For every root-level documentation, script, governance, synchronization, or protected admin branding change, add a root `.awcms-changesets/*.md` entry and run `bash scripts/awcms-root-versioning.sh version` so `VERSION`, `CHANGELOG.md`, and the workspace snapshot update automatically.
 - Work step by step using small, atomic changes.
 - When a task is too large, split it into smaller follow-up tasks or GitHub issues.
 - If a downstream source tweak must survive sync but does not belong in a plugin or template boundary, encode it as a patch under `awcmsmicro-dev/.awcms-patches/` so the rebuild script can reapply it automatically.

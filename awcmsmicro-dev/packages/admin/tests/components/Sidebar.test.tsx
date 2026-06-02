@@ -81,7 +81,7 @@ vi.mock("../../src/lib/plugin-context", () => ({
 
 const {
 	buildSidebarPluginGroups,
-	formatSidebarFooterLabel,
+	formatSidebarFooterLabels,
 	humanizePluginLabel,
 	resolveSidebarIcon,
 	SidebarNav,
@@ -97,20 +97,23 @@ describe("SidebarNav helpers", () => {
 		expect(resolveSidebarIcon("unknown-icon")).toBeDefined();
 	});
 
-	it("renders the AWCMS admin version before the EmDash manifest version", () => {
+	it("renders AWCMS root and EmDash versions as separate footer lines", () => {
 		expect(
-			formatSidebarFooterLabel(
+			formatSidebarFooterLabels(
 				{
 					collections: {},
 					plugins: {},
 					taxonomies: [],
 					version: "0.16.1",
 					commit: "upstream",
-					admin: { siteName: "AWCMS" },
+					admin: { siteName: "Custom Admin" },
 				},
 				{ version: "0.1.3", commit: "b3a3113" },
 			),
-		).toBe("AWCMS v0.16.1 (b3a3113) EmDash v0.16.1 (upstream)");
+		).toEqual({
+			awcms: "AWCMS v0.1.3 (b3a3113)",
+			emdash: "EmDash v0.16.1 (upstream)",
+		});
 	});
 
 	it("sorts plugin groups alphabetically and keeps page icons contextual", () => {

@@ -54,6 +54,16 @@ The lower-level Node script remains available for direct changeset processing wh
 
 For workspace snapshots, keep the EmDash revision in sync with `docs/upstream-sync/LAST_UPSTREAM_FETCH.md` and update the plugin/template inventory when package versions change.
 
+## Automatic Update Rule
+
+Every root-level documentation, script, governance, synchronization, or protected admin branding change must include a root `.awcms-changesets/*.md` entry. Before final validation, run:
+
+```bash
+bash scripts/awcms-root-versioning.sh version
+```
+
+The wrapper is the required automatic update path for these changes because it consumes pending root changesets, updates `VERSION`, prepends `CHANGELOG.md`, and refreshes the workspace snapshot in one step.
+
 ## Boundary Rule
 
 - keep root-level maintenance release notes in the root `.awcms-changesets/` boundary

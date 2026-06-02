@@ -8,7 +8,7 @@ Document how the AWCMS admin branding survives EmDash synchronization without re
 
 - Sidebar header logo: configured through template `admin.logo` settings in `awcmsmicro-dev/templates/`
 - Sidebar title/site name: configured through template `admin.siteName` settings in `awcmsmicro-dev/templates/`
-- Sidebar footer version: applied as a downstream source patch plus protected `Sidebar.tsx` override that renders the current AWCMS admin/manifest version before the EmDash manifest version, while preserving the injected AWCMS build commit when available
+- Sidebar footer version: applied as a downstream source patch plus protected `Sidebar.tsx` override that renders two lines: `AWCMS` with the root maintenance version from `VERSION` or the latest `CHANGELOG.md` section, then the EmDash manifest version on the second line
 
 ## Preservation Model
 
@@ -27,3 +27,7 @@ When a future AWCMS-Micro customization must persist across syncs, prefer one of
 3. update the sync workflow docs if the preservation model changes
 
 Do not rely on unprotected, ad hoc edits inside `awcmsmicro-dev/` source files.
+
+## Version Update Rule
+
+Every root-level documentation, script, governance, or protected admin branding change must add a root `.awcms-changesets/*.md` entry and run `bash scripts/awcms-root-versioning.sh version` before final validation so `VERSION`, `CHANGELOG.md`, and the workspace snapshot stay current automatically.
