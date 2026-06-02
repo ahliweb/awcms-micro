@@ -71,7 +71,7 @@ CLOUDFLARE_WORKER_CUSTOM_DOMAIN=false
 CLOUDFLARE_WORKER_OBSERVABILITY=true
 
 CLOUDFLARE_WORKER_D1_BINDING="DB"
-CLOUDFLARE_WORKER_D1_DATABASE_NAME="awcms-micro-d1"
+CLOUDFLARE_WORKER_D1_DATABASE_NAME="awcms-micro-d1-20260530"
 CLOUDFLARE_WORKER_D1_DATABASE_ID="df3281e0-4066-4da8-8911-1a0ed60a4562"
 
 CLOUDFLARE_WORKER_R2_BINDING="MEDIA"
@@ -94,7 +94,7 @@ CLOUDFLARE_ACCOUNT_ID="your-cloudflare-account-id"
 # Cloudflare D1 (Database)
 # ---------------------------------------------------------------------------
 # D1 database name to backup.
-D1_DATABASE_NAME="awcms-micro-db"
+D1_DATABASE_NAME="awcms-micro-d1-20260530"
 
 # Backup retention - how many backups to keep
 D1_BACKUP_KEEP_COUNT=7

@@ -126,7 +126,7 @@ backup_database() {
             output_file="${output_file}.sql"
             echo -e "${BLUE}Exporting D1 database: $DB_NAME${NC}" >&2
             mapfile -t D1_TABLES < <(
-                wrangler d1 execute "$DB_NAME" --remote --json --command "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '_emdash_%' AND name NOT LIKE '_emdash_fts_%' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE VIRTUAL TABLE%' ORDER BY name;" |
+                wrangler d1 execute "$DB_NAME" --remote --json --command "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_emdash_fts_%' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE VIRTUAL TABLE%' ORDER BY name;" |
                 node -e 'const fs = require("node:fs"); const input = fs.readFileSync(0, "utf8"); const idx = input.search(/[\[{]/); if (idx >= 0) process.stdout.write(input.slice(idx));' |
                 jq -r '.[0].results[].name'
             )
@@ -194,7 +194,7 @@ if [ "$DRY_RUN" = true ]; then
     echo -e "${YELLOW}[DRY RUN] Would upload to: r2://$R2_BUCKET/$R2_KEY${NC}"
 else
     echo -e "${BLUE}Uploading to R2: $R2_BUCKET/$R2_KEY${NC}"
-    wrangler r2 object put "$R2_BUCKET/$R2_KEY" --file "$BACKUP_FILE" --remote
+    wrangler r2 object put "$R2_BUCKET/$R2_KEY" --file "$BACKUP_FILE" --remote -y
     echo -e "${GREEN}Uploaded to: r2://$R2_BUCKET/$R2_KEY${NC}"
 fi
 
@@ -206,7 +206,7 @@ if [ "$DRY_RUN" = true ]; then
 else
     # List backups, sort, delete oldest beyond keep count
     mapfile -t OLD_BACKUPS < <(
-        wrangler r2 object list "$R2_BUCKET" --prefix "$R2_PREFIX/" --format json 2>/dev/null |
+        wrangler r2 object list "$R2_BUCKET" --prefix "$R2_PREFIX/" --remote --format json 2>/dev/null |
         jq -r '.objects[].key' |
         sort |
         head -n -$KEEP_COUNT
@@ -215,7 +215,7 @@ else
     if [ ${#OLD_BACKUPS[@]} -gt 0 ]; then
         for old_key in "${OLD_BACKUPS[@]}"; do
             echo -e "${YELLOW}Deleting old backup: $old_key${NC}"
-            wrangler r2 object delete "$R2_BUCKET/$old_key"
+            wrangler r2 object delete "$R2_BUCKET/$old_key" --remote -y
         done
         echo -e "${GREEN}Cleaned up ${#OLD_BACKUPS[@]} old backup(s).${NC}"
     else

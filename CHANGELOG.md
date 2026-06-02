@@ -1,5 +1,13 @@
 # AWCMS-Micro Changelog
 
+## 0.1.3 - 2026-06-01
+
+- Re-encrypts the backup configuration with the current D1 database name and fixes non-interactive backup config encryption.
+
+## 0.1.2 - 2026-06-01
+
+- Fixes backup workflows to target the current `awcms-micro-d1-20260530` D1 database and route D1 exports through the shared backup script.
+
 ## 0.1.1 - 2026-06-01
 
 - Aligns the rebuild-protection documentation and boundary validator with the full AWCMS-Micro protected path allowlist.
@@ -11,7 +19,7 @@
 ## Workspace Snapshot - 2026-06-01
 
 - EmDash upstream: `d43a3808fbef4e2e0e2881428d57c6336eb33e51` from `emdash-latest/`
-- Root version: `0.1.1`
+- Root version: `0.1.3`
 
 ### Plugins
 

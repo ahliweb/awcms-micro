@@ -98,6 +98,8 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 
 If a change does not fit one of these categories, do not assume it should survive rebuilds.
 
+Active patch overlays under `awcmsmicro-dev/.awcms-patches/` must be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md`. This keeps source-level overrides auditable without expanding the protected allowlist to broad upstream-owned files.
+
 ## Compatibility Guardrail
 
 This boundary preserves EmDash compatibility by keeping upstream behavior in upstream-owned locations and confining AWCMS-Micro example work to explicitly approved paths.
@@ -115,11 +117,12 @@ When adding a new AWCMS-Micro plugin, template, demo, docs area, or test boundar
 
 1. place it inside an existing approved custom path when possible
 2. if it is a persistent source-level change that must survive rebuilds, encode it as a patch file under `awcmsmicro-dev/.awcms-patches/`
-3. if a new boundary is required, add it to `scripts/awcmsmicro-dev-protected-paths.txt`
-4. if preserving the change requires updating rebuild or validation scripts, make those script/doc changes before the next `update-awcmsmicro-dev.sh` run
-5. update this document and the root workflow docs in the same change
-6. run `bash scripts/update-awcmsmicro-dev.sh`
-7. run `bash scripts/validate-awcmsmicro-boundaries.sh`
+3. record active patch overlays in `docs/upstream-sync/DIVERGENCE_LOG.md`
+4. if a new boundary is required, add it to `scripts/awcmsmicro-dev-protected-paths.txt`
+5. if preserving the change requires updating rebuild or validation scripts, make those script/doc changes before the next `update-awcmsmicro-dev.sh` run
+6. update this document and the root workflow docs in the same change
+7. run `bash scripts/update-awcmsmicro-dev.sh`
+8. run `bash scripts/validate-awcmsmicro-boundaries.sh`
 
 Do not preserve upstream overrides by adding random paths to the allowlist.
 

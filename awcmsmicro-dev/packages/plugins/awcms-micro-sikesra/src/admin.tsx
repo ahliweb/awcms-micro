@@ -103,6 +103,68 @@ interface SummaryResponse {
 	}>;
 }
 
+const DEFAULT_SUMMARY_SETTINGS: SikesraSettingsState = {
+	publicStatusLabel: "healthy",
+	auditRetentionDays: 30,
+	governanceMode: "review",
+	metadataCanonicalBase: "",
+	smallCellThreshold: 3,
+	sikesraPublicEnabled: true,
+};
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function numberOrDefault(value: unknown, fallback: number): number {
+	return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+export function normalizeSummaryResponse(value: unknown): SummaryResponse | null {
+	if (!isObjectRecord(value)) return null;
+
+	const rawSettings: Record<string, unknown> = isObjectRecord(value.settings) ? value.settings : {};
+	const rawCounters: Record<string, unknown> = isObjectRecord(value.counters) ? value.counters : {};
+
+	return {
+		...value,
+		settings: {
+			publicStatusLabel:
+				typeof rawSettings.publicStatusLabel === "string"
+					? rawSettings.publicStatusLabel
+					: DEFAULT_SUMMARY_SETTINGS.publicStatusLabel,
+			auditRetentionDays: numberOrDefault(
+				rawSettings.auditRetentionDays,
+				DEFAULT_SUMMARY_SETTINGS.auditRetentionDays,
+			),
+			governanceMode:
+				typeof rawSettings.governanceMode === "string"
+					? rawSettings.governanceMode
+					: DEFAULT_SUMMARY_SETTINGS.governanceMode,
+			metadataCanonicalBase:
+				typeof rawSettings.metadataCanonicalBase === "string"
+					? rawSettings.metadataCanonicalBase
+					: DEFAULT_SUMMARY_SETTINGS.metadataCanonicalBase,
+			smallCellThreshold: numberOrDefault(
+				rawSettings.smallCellThreshold,
+				DEFAULT_SUMMARY_SETTINGS.smallCellThreshold,
+			),
+			sikesraPublicEnabled:
+				typeof rawSettings.sikesraPublicEnabled === "boolean"
+					? rawSettings.sikesraPublicEnabled
+					: DEFAULT_SUMMARY_SETTINGS.sikesraPublicEnabled,
+		},
+		counters: {
+			auditCount: numberOrDefault(rawCounters.auditCount, 0),
+			lifecycleCount: numberOrDefault(rawCounters.lifecycleCount, 0),
+			publicHits: numberOrDefault(rawCounters.publicHits, 0),
+		},
+		lastCronAt: typeof value.lastCronAt === "string" ? value.lastCronAt : null,
+		lastLifecycle: typeof value.lastLifecycle === "string" ? value.lastLifecycle : null,
+		recentEvents: Array.isArray(value.recentEvents) ? value.recentEvents : [],
+	};
+}
+
 interface AuditListResponse {
 	items: Array<{
 		id: string;
@@ -2506,20 +2568,21 @@ function GovernanceWidget() {
 
 	if (loading) return <LoadingState label={copy.loadingGovernanceStatus} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data)
+	const summary = normalizeSummaryResponse(data);
+	if (!summary)
 		return <EmptyState title={copy.noStatusYet} description={copy.noStatusYetDescription} />;
 
 	return (
 		<div className="space-y-3">
 			<div className="grid grid-cols-3 gap-2 text-sm">
-				<MetricCard label={copy.audit} value={data.counters.auditCount} />
-				<MetricCard label={copy.lifecycle} value={data.counters.lifecycleCount} />
-				<MetricCard label={copy.publicHits} value={data.counters.publicHits} />
+				<MetricCard label={copy.audit} value={summary.counters.auditCount} />
+				<MetricCard label={copy.lifecycle} value={summary.counters.lifecycleCount} />
+				<MetricCard label={copy.publicHits} value={summary.counters.publicHits} />
 			</div>
 			<KeyValueList
 				items={[
-					[copy.mode, <Pill key="mode">{data.settings.governanceMode}</Pill>],
-					[copy.lastLifecycle, formatDateTime(data.lastLifecycle, i18n.locale)],
+					[copy.mode, <Pill key="mode">{summary.settings.governanceMode}</Pill>],
+					[copy.lastLifecycle, formatDateTime(summary.lastLifecycle, i18n.locale)],
 				]}
 			/>
 			<Button variant="ghost" size="sm" onClick={() => void reload()} type="button">
@@ -2695,14 +2758,15 @@ function OverviewPage() {
 	});
 
 	React.useEffect(() => {
-		if (!data) return;
+		const summary = normalizeSummaryResponse(data);
+		if (!summary) return;
 		setFormState({
-			publicStatusLabel: data.settings.publicStatusLabel,
-			auditRetentionDays: String(data.settings.auditRetentionDays),
-			governanceMode: (data.settings.governanceMode as GovernanceMode) ?? "review",
-			metadataCanonicalBase: data.settings.metadataCanonicalBase,
-			smallCellThreshold: String(data.settings.smallCellThreshold ?? 3),
-			sikesraPublicEnabled: data.settings.sikesraPublicEnabled !== false,
+			publicStatusLabel: summary.settings.publicStatusLabel,
+			auditRetentionDays: String(summary.settings.auditRetentionDays),
+			governanceMode: (summary.settings.governanceMode as GovernanceMode) ?? "review",
+			metadataCanonicalBase: summary.settings.metadataCanonicalBase,
+			smallCellThreshold: String(summary.settings.smallCellThreshold ?? 3),
+			sikesraPublicEnabled: summary.settings.sikesraPublicEnabled !== false,
 		});
 	}, [data]);
 
@@ -2732,7 +2796,8 @@ function OverviewPage() {
 
 	if (loading) return <LoadingState label={copy.loadingPluginOverview} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
-	if (!data)
+	const summary = normalizeSummaryResponse(data);
+	if (!summary)
 		return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
 	const dashboardCards = getDashboardModuleCards(i18n.locale);
 
@@ -2754,20 +2819,20 @@ function OverviewPage() {
 			<div className="grid gap-5 md:grid-cols-3 mt-2">
 				<MetricCard
 					label={copy.auditEventsStored}
-					value={data.counters.auditCount}
+					value={summary.counters.auditCount}
 					hint={copy.auditEventsStoredHint}
 					icon="📋"
 				/>
 				<MetricCard
 					label={copy.lifecycleTriggers}
-					value={data.counters.lifecycleCount}
-					hint={copy.lastRecorded(formatDateTime(data.lastLifecycle, i18n.locale))}
+					value={summary.counters.lifecycleCount}
+					hint={copy.lastRecorded(formatDateTime(summary.lastLifecycle, i18n.locale))}
 					icon="⚙️"
 				/>
 				<MetricCard
 					label={copy.publicApiHits}
-					value={data.counters.publicHits}
-					hint={copy.lastCron(formatDateTime(data.lastCronAt, i18n.locale))}
+					value={summary.counters.publicHits}
+					hint={copy.lastCron(formatDateTime(summary.lastCronAt, i18n.locale))}
 					icon="🌐"
 				/>
 			</div>
@@ -2934,7 +2999,7 @@ function OverviewPage() {
 								{saving ? copy.saving : copy.saveSettings}
 							</Button>
 							<span className="text-xs text-kumo-subtle">
-								{copy.modeLabel(data.settings.governanceMode)}
+								{copy.modeLabel(summary.settings.governanceMode)}
 							</span>
 						</div>
 					</form>
@@ -2943,14 +3008,14 @@ function OverviewPage() {
 				<Card title={copy.currentStatus}>
 					<KeyValueList
 						items={[
-							[copy.statusLabel, data.settings.publicStatusLabel || copy.notSet],
-							[copy.retention, copy.retentionDays(data.settings.auditRetentionDays)],
-							[copy.governance, <Pill key="governance">{data.settings.governanceMode}</Pill>],
-							[copy.canonicalBase, data.settings.metadataCanonicalBase || copy.notSet],
-							[copy.smallCellThreshold, String(data.settings.smallCellThreshold ?? 3)],
+							[copy.statusLabel, summary.settings.publicStatusLabel || copy.notSet],
+							[copy.retention, copy.retentionDays(summary.settings.auditRetentionDays)],
+							[copy.governance, <Pill key="governance">{summary.settings.governanceMode}</Pill>],
+							[copy.canonicalBase, summary.settings.metadataCanonicalBase || copy.notSet],
+							[copy.smallCellThreshold, String(summary.settings.smallCellThreshold ?? 3)],
 							[
 								copy.sikesraPublicEnabled,
-								data.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled,
+								summary.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled,
 							],
 						]}
 					/>
@@ -2958,11 +3023,11 @@ function OverviewPage() {
 			</div>
 
 			<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
-				{data.recentEvents.length === 0 ? (
+				{summary.recentEvents.length === 0 ? (
 					<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
 				) : (
 					<div className="space-y-2">
-						{data.recentEvents.map((item) => (
+						{summary.recentEvents.map((item) => (
 							<div
 								className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
 								key={item.id}

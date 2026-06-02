@@ -68,8 +68,63 @@ if [ ${#PASSPHRASE} -lt 8 ]; then
     exit 1
 fi
 
-# Encrypt
-age --passphrase --output "$ENCRYPTED_FILE" "$CONFIG_FILE" 2>/dev/null
+# Encrypt. age asks for the passphrase twice when encrypting with --passphrase.
+TEMP_ENCRYPTED_FILE="$(mktemp "$SCRIPT_DIR/.backup-config.age.XXXXXX")"
+cleanup() {
+    rm -f "$TEMP_ENCRYPTED_FILE"
+}
+trap cleanup EXIT
+
+if [ -t 0 ]; then
+    age --passphrase --output "$TEMP_ENCRYPTED_FILE" "$CONFIG_FILE" 2>/dev/null
+else
+    PASSPHRASE="$PASSPHRASE" python3 - "$CONFIG_FILE" "$TEMP_ENCRYPTED_FILE" <<'PY'
+import os
+import pty
+import subprocess
+import sys
+import time
+
+config_file = sys.argv[1]
+encrypted_file = sys.argv[2]
+passphrase = os.environ["PASSPHRASE"]
+
+master_fd, slave_fd = pty.openpty()
+try:
+    process = subprocess.Popen(
+        ["age", "--passphrase", "--output", encrypted_file, config_file],
+        stdin=slave_fd,
+        stdout=slave_fd,
+        stderr=slave_fd,
+        close_fds=True,
+    )
+    os.close(slave_fd)
+    slave_fd = None
+
+    sent = 0
+    deadline = time.time() + 30
+    while process.poll() is None and time.time() < deadline:
+        try:
+            data = os.read(master_fd, 4096)
+        except OSError:
+            break
+        if not data:
+            break
+        if sent < 2 and (b"passphrase" in data.lower() or b"confirm" in data.lower()):
+            os.write(master_fd, (passphrase + "\n").encode())
+            sent += 1
+
+    return_code = process.wait(timeout=10)
+    if return_code != 0:
+        raise SystemExit(return_code)
+finally:
+    if slave_fd is not None:
+        os.close(slave_fd)
+    os.close(master_fd)
+PY
+fi
+mv "$TEMP_ENCRYPTED_FILE" "$ENCRYPTED_FILE"
+trap - EXIT
 
 if [ -f "$ENCRYPTED_FILE" ]; then
     echo -e "${GREEN}Config encrypted: $ENCRYPTED_FILE${NC}"

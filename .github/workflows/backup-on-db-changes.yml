@@ -33,7 +33,7 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      D1_DATABASE_NAME: awcms-micro-d1
+      D1_DATABASE_NAME: awcms-micro-d1-20260530
       R2_BUCKET_NAME: awcms-micro-backups
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
 
@@ -46,59 +46,8 @@ jobs:
       - name: Install wrangler
         run: npm install -g wrangler
 
-      - name: Export D1 database
-        run: |
-          # Get list of non-FTS tables
-          TABLES=$(wrangler d1 execute "$D1_DATABASE_NAME" --remote --command "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_emdash_fts_%' ORDER BY name;" 2>/dev/null | jq -r '.[0].results[].name' | tr '\n' ' ')
-          
-          echo "Exporting tables: $TABLES"
-          
-          # Build table arguments
-          TABLE_ARGS=""
-          for TABLE in $TABLES; do
-            TABLE_ARGS="$TABLE_ARGS --table $TABLE"
-          done
-          
-          # Export
-          wrangler d1 export "$D1_DATABASE_NAME" --remote --output /tmp/backup.sql $TABLE_ARGS -y
-
-      - name: Encrypt backup
-        run: |
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          openssl enc -aes-256-cbc -salt -pbkdf2 \
-            -in /tmp/backup.sql \
-            -out "/tmp/backup-${TIMESTAMP}.sql.enc" \
-            -pass pass:"$BACKUP_PASSPHRASE"
-          
-          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
-
-      - name: Upload to R2
-        run: |
-          wrangler r2 object put "$R2_BUCKET_NAME/backups/db/backup-${TIMESTAMP}.sql.enc" \
-            --file "/tmp/backup-${TIMESTAMP}.sql.enc" \
-            --remote -y
-
-      - name: Cleanup old backups (keep last 7)
-        run: |
-          BACKUPS=$(wrangler r2 object list "$R2_BUCKET_NAME" --prefix "backups/db/" --remote --format json 2>/dev/null | jq -r '.objects[].key' | sort)
-          BACKUP_COUNT=$(echo "$BACKUPS" | wc -l)
-          
-          if [ "$BACKUP_COUNT" -gt 7 ]; then
-            OLD_BACKUPS=$(echo "$BACKUPS" | head -n -7)
-            echo "Removing old backups:"
-            echo "$OLD_BACKUPS"
-            while read -r KEY; do
-              wrangler r2 object delete "$R2_BUCKET_NAME/$KEY" --remote -y
-            done <<< "$OLD_BACKUPS"
-          else
-            echo "Keeping all $BACKUP_COUNT backups (under limit)"
-          fi
-
-      - name: Secure cleanup
-        if: always()
-        run: |
-          shred -u /tmp/backup.sql 2>/dev/null || rm -f /tmp/backup.sql
-          rm -f /tmp/backup-*.sql.enc
+      - name: Backup D1 database
+        run: bash scripts/backup/backup-db.sh --type d1 --name "$D1_DATABASE_NAME" --bucket "$R2_BUCKET_NAME" --keep 7
 
   notify:
     name: Notify Result
