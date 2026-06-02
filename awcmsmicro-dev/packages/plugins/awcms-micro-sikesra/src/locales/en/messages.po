@@ -121,3 +121,491 @@ msgstr "ABAC Preview"
 msgctxt "awcms.nav.settings"
 msgid "Settings"
 msgstr "Settings"
+
+msgctxt "awcms.adminCopy.navTitle"
+msgid "Plugin Operations Center"
+msgstr "Plugin Operations Center"
+
+msgctxt "awcms.adminCopy.navDescription"
+msgid "Reference navigation for registry, verification, reports, access, and ABAC flows."
+msgstr "Reference navigation for registry, verification, reports, access, and ABAC flows."
+
+msgctxt "awcms.adminCopy.never"
+msgid "Never"
+msgstr "Never"
+
+msgctxt "awcms.adminCopy.somethingWentWrong"
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+msgctxt "awcms.adminCopy.retry"
+msgid "Retry"
+msgstr "Retry"
+
+msgctxt "awcms.adminCopy.refresh"
+msgid "Refresh"
+msgstr "Refresh"
+
+msgctxt "awcms.adminCopy.loadingGovernanceStatus"
+msgid "Loading governance status..."
+msgstr "Loading governance status..."
+
+msgctxt "awcms.adminCopy.loadingAccessHealth"
+msgid "Loading access health..."
+msgstr "Loading access health..."
+
+msgctxt "awcms.adminCopy.loadingAbacStatus"
+msgid "Loading ABAC status..."
+msgstr "Loading ABAC status..."
+
+msgctxt "awcms.adminCopy.loadingPluginOverview"
+msgid "Loading plugin overview..."
+msgstr "Loading plugin overview..."
+
+msgctxt "awcms.adminCopy.noStatusYet"
+msgid "No status yet"
+msgstr "No status yet"
+
+msgctxt "awcms.adminCopy.noStatusYetDescription"
+msgid "The plugin did not return summary data."
+msgstr "The plugin did not return summary data."
+
+msgctxt "awcms.adminCopy.noHealthData"
+msgid "No health data"
+msgstr "No health data"
+
+msgctxt "awcms.adminCopy.noHealthDataDescription"
+msgid "The access catalog did not return health data."
+msgstr "The access catalog did not return health data."
+
+msgctxt "awcms.adminCopy.noAbacData"
+msgid "No ABAC data"
+msgstr "No ABAC data"
+
+msgctxt "awcms.adminCopy.noAbacDataDescription"
+msgid "The ABAC routes did not return health data."
+msgstr "The ABAC routes did not return health data."
+
+msgctxt "awcms.adminCopy.noOverviewData"
+msgid "No overview data"
+msgstr "No overview data"
+
+msgctxt "awcms.adminCopy.noOverviewDataDescription"
+msgid "The plugin did not return overview data."
+msgstr "The plugin did not return overview data."
+
+msgctxt "awcms.adminCopy.audit"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.lifecycle"
+msgid "Lifecycle"
+msgstr "Lifecycle"
+
+msgctxt "awcms.adminCopy.publicHits"
+msgid "Public hits"
+msgstr "Public hits"
+
+msgctxt "awcms.adminCopy.mode"
+msgid "Mode"
+msgstr "Mode"
+
+msgctxt "awcms.adminCopy.lastLifecycle"
+msgid "Last lifecycle"
+msgstr "Last lifecycle"
+
+msgctxt "awcms.adminCopy.permissions"
+msgid "Permissions"
+msgstr "Permissions"
+
+msgctxt "awcms.adminCopy.roles"
+msgid "Roles"
+msgstr "Roles"
+
+msgctxt "awcms.adminCopy.matrices"
+msgid "Matrices"
+msgstr "Matrices"
+
+msgctxt "awcms.adminCopy.users"
+msgid "Users"
+msgstr "Users"
+
+msgctxt "awcms.adminCopy.reviewNeeded"
+msgid "Review needed"
+msgstr "Review needed"
+
+msgctxt "awcms.adminCopy.healthy"
+msgid "Healthy"
+msgstr "Healthy"
+
+msgctxt "awcms.adminCopy.catalogGapSummary"
+msgid "{rolesWithoutPermissions} role(s) without permissions and {usersWithoutRoles} user assignment(s) without roles."
+msgstr "{rolesWithoutPermissions} role(s) without permissions and {usersWithoutRoles} user assignment(s) without roles."
+
+msgctxt "awcms.adminCopy.catalogGapNone"
+msgid "No obvious catalog health gaps detected."
+msgstr "No obvious catalog health gaps detected."
+
+msgctxt "awcms.adminCopy.attributes"
+msgid "Attributes"
+msgstr "Attributes"
+
+msgctxt "awcms.adminCopy.policies"
+msgid "Policies"
+msgstr "Policies"
+
+msgctxt "awcms.adminCopy.subjects"
+msgid "Subjects"
+msgstr "Subjects"
+
+msgctxt "awcms.adminCopy.resources"
+msgid "Resources"
+msgstr "Resources"
+
+msgctxt "awcms.adminCopy.key"
+msgid "Key"
+msgstr "Key"
+
+msgctxt "awcms.adminCopy.context"
+msgid "Context"
+msgstr "Context"
+
+msgctxt "awcms.adminCopy.explicitDenyPolicies"
+msgid "Explicit deny policies: {count}"
+msgstr "Explicit deny policies: {count}"
+
+msgctxt "awcms.adminCopy.overviewEyebrow"
+msgid "AWCMS-Micro plugin"
+msgstr "AWCMS-Micro plugin"
+
+msgctxt "awcms.adminCopy.overviewTitle"
+msgid "Plugin Operations Center"
+msgstr "Plugin Operations Center"
+
+msgctxt "awcms.adminCopy.overviewDescription"
+msgid "Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
+msgstr "Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
+
+msgctxt "awcms.adminCopy.refreshDashboard"
+msgid "Refresh Dashboard"
+msgstr "Refresh Dashboard"
+
+msgctxt "awcms.adminCopy.overviewSuccess"
+msgid "Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database."
+msgstr "Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database."
+
+msgctxt "awcms.adminCopy.auditEventsStored"
+msgid "Audit Events Stored"
+msgstr "Audit Events Stored"
+
+msgctxt "awcms.adminCopy.auditEventsStoredHint"
+msgid "Tracks all critical plugin activity"
+msgstr "Tracks all critical plugin activity"
+
+msgctxt "awcms.adminCopy.lifecycleTriggers"
+msgid "Lifecycle Triggers"
+msgstr "Lifecycle Triggers"
+
+msgctxt "awcms.adminCopy.lastRecorded"
+msgid "Last recorded: {value}"
+msgstr "Last recorded: {value}"
+
+msgctxt "awcms.adminCopy.publicApiHits"
+msgid "Public API Hits"
+msgstr "Public API Hits"
+
+msgctxt "awcms.adminCopy.lastCron"
+msgid "Last chron: {value}"
+msgstr "Last chron: {value}"
+
+msgctxt "awcms.adminCopy.openModule"
+msgid "Open module"
+msgstr "Open module"
+
+msgctxt "awcms.adminCopy.pluginConfiguration"
+msgid "Plugin Configuration"
+msgstr "Plugin Configuration"
+
+msgctxt "awcms.adminCopy.pluginConfigurationDescription"
+msgid "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
+msgstr "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
+
+msgctxt "awcms.adminCopy.publicStatusLabel"
+msgid "Public status label"
+msgstr "Public status label"
+
+msgctxt "awcms.adminCopy.publicStatusLabelHint"
+msgid "Shown by the public-safe status route."
+msgstr "Shown by the public-safe status route."
+
+msgctxt "awcms.adminCopy.smallCellThreshold"
+msgid "Small cell suppression threshold"
+msgstr "Small cell suppression threshold"
+
+msgctxt "awcms.adminCopy.smallCellThresholdHint"
+msgid "Minimum entity count below which totals are suppressed for privacy (example: 3)."
+msgstr "Minimum entity count below which totals are suppressed for privacy (example: 3)."
+
+msgctxt "awcms.adminCopy.sikesraPublicEnabled"
+msgid "SIKESRA Public API"
+msgstr "SIKESRA Public API"
+
+msgctxt "awcms.adminCopy.sikesraPublicEnabledHint"
+msgid "Enable or disable public data recapitulation."
+msgstr "Enable or disable public data recapitulation."
+
+msgctxt "awcms.adminCopy.enabled"
+msgid "Enabled"
+msgstr "Enabled"
+
+msgctxt "awcms.adminCopy.disabled"
+msgid "Disabled"
+msgstr "Disabled"
+
+msgctxt "awcms.adminCopy.auditRetentionDays"
+msgid "Audit retention days"
+msgstr "Audit retention days"
+
+msgctxt "awcms.adminCopy.auditRetentionDaysHint"
+msgid "Use a positive number. Example: 30."
+msgstr "Use a positive number. Example: 30."
+
+msgctxt "awcms.adminCopy.governanceMode"
+msgid "Governance mode"
+msgstr "Governance mode"
+
+msgctxt "awcms.adminCopy.governanceModeHint"
+msgid "Observe logs only, review, or run the demo enforcement path."
+msgstr "Observe logs only, review, or run the demo enforcement path."
+
+msgctxt "awcms.adminCopy.observe"
+msgid "Observe"
+msgstr "Observe"
+
+msgctxt "awcms.adminCopy.review"
+msgid "Review"
+msgstr "Review"
+
+msgctxt "awcms.adminCopy.enforceDemo"
+msgid "Enforce demo"
+msgstr "Enforce demo"
+
+msgctxt "awcms.adminCopy.metadataCanonicalBase"
+msgid "Metadata canonical base"
+msgstr "Metadata canonical base"
+
+msgctxt "awcms.adminCopy.metadataCanonicalBaseHint"
+msgid "Optional base URL for page metadata examples."
+msgstr "Optional base URL for page metadata examples."
+
+msgctxt "awcms.adminCopy.saving"
+msgid "Saving..."
+msgstr "Saving..."
+
+msgctxt "awcms.adminCopy.saveSettings"
+msgid "Save settings"
+msgstr "Save settings"
+
+msgctxt "awcms.adminCopy.modeLabel"
+msgid "Mode: {value}"
+msgstr "Mode: {value}"
+
+msgctxt "awcms.adminCopy.currentStatus"
+msgid "Current status"
+msgstr "Current status"
+
+msgctxt "awcms.adminCopy.statusLabel"
+msgid "Status label"
+msgstr "Status label"
+
+msgctxt "awcms.adminCopy.notSet"
+msgid "Not set"
+msgstr "Not set"
+
+msgctxt "awcms.adminCopy.retention"
+msgid "Retention"
+msgstr "Retention"
+
+msgctxt "awcms.adminCopy.retentionDays"
+msgid "{value} day(s)"
+msgstr "{value} day(s)"
+
+msgctxt "awcms.adminCopy.governance"
+msgid "Governance"
+msgstr "Governance"
+
+msgctxt "awcms.adminCopy.canonicalBase"
+msgid "Canonical base"
+msgstr "Canonical base"
+
+msgctxt "awcms.adminCopy.recentAuditEvents"
+msgid "Recent audit events"
+msgstr "Recent audit events"
+
+msgctxt "awcms.adminCopy.recentAuditEventsDescription"
+msgid "Latest plugin activity, useful for quick verification after changing settings."
+msgstr "Latest plugin activity, useful for quick verification after changing settings."
+
+msgctxt "awcms.adminCopy.noRecentEvents"
+msgid "No recent events"
+msgstr "No recent events"
+
+msgctxt "awcms.adminCopy.noRecentEventsDescription"
+msgid "Trigger plugin actions to populate the audit stream."
+msgstr "Trigger plugin actions to populate the audit stream."
+
+msgctxt "awcms.adminCopy.settingsSavedSuccessfully"
+msgid "Settings saved successfully."
+msgstr "Settings saved successfully."
+
+msgctxt "awcms.adminCopy.failedToSaveSettings"
+msgid "Failed to save settings"
+msgstr "Failed to save settings"
+
+msgctxt "awcms.adminCopy.registryEyebrow"
+msgid "Registry"
+msgstr "Registry"
+
+msgctxt "awcms.adminCopy.registryTitle"
+msgid "Registry intake and verification"
+msgstr "Registry intake and verification"
+
+msgctxt "awcms.adminCopy.registryDescription"
+msgid "Reference UI for onboarding registry entities, tracking their region scope, and showing how sensitive identifiers stay masked until the review step."
+msgstr "Reference UI for onboarding registry entities, tracking their region scope, and showing how sensitive identifiers stay masked until the review step."
+
+msgctxt "awcms.adminCopy.registryEntities"
+msgid "Registry entities"
+msgstr "Registry entities"
+
+msgctxt "awcms.adminCopy.registryEntitiesHint"
+msgid "Reference records in the sample queue"
+msgstr "Reference records in the sample queue"
+
+msgctxt "awcms.adminCopy.verifiedRecords"
+msgid "Verified records"
+msgstr "Verified records"
+
+msgctxt "awcms.adminCopy.verifiedRecordsHint"
+msgid "Records that reached active verification"
+msgstr "Records that reached active verification"
+
+msgctxt "awcms.adminCopy.restrictedEntries"
+msgid "Restricted entries"
+msgstr "Restricted entries"
+
+msgctxt "awcms.adminCopy.restrictedEntriesHint"
+msgid "Rows that require masking in operator views"
+msgstr "Rows that require masking in operator views"
+
+msgctxt "awcms.adminCopy.registryQueue"
+msgid "Registry queue"
+msgstr "Registry queue"
+
+msgctxt "awcms.adminCopy.registryQueueDescription"
+msgid "Deterministic SIKESRA reference records with stage, sensitivity, and region scope."
+msgstr "Deterministic SIKESRA reference records with stage, sensitivity, and region scope."
+
+msgctxt "awcms.adminCopy.progressiveInputWizard"
+msgid "Progressive input wizard"
+msgstr "Progressive input wizard"
+
+msgctxt "awcms.adminCopy.progressiveInputWizardDescription"
+msgid "A compact operator flow that stages the data entry and only reveals the reference code at the final review step."
+msgstr "A compact operator flow that stages the data entry and only reveals the reference code at the final review step."
+
+msgctxt "awcms.adminCopy.stepLabel"
+msgid "Step {step}: {label}"
+msgstr "Step {step}: {label}"
+
+msgctxt "awcms.adminCopy.registryStepIdentity"
+msgid "Start with identity details and a human-readable label."
+msgstr "Start with identity details and a human-readable label."
+
+msgctxt "awcms.adminCopy.registryStepRegion"
+msgid "Add region scope fields so reviewers can check jurisdiction boundaries."
+msgstr "Add region scope fields so reviewers can check jurisdiction boundaries."
+
+msgctxt "awcms.adminCopy.registryStepDocuments"
+msgid "Attach documents and keep the sensitive metadata out of the public view."
+msgstr "Attach documents and keep the sensitive metadata out of the public view."
+
+msgctxt "awcms.adminCopy.registryStepReview"
+msgid "Review the masked reference code and verify the final stage before activation."
+msgstr "Review the masked reference code and verify the final stage before activation."
+
+msgctxt "awcms.adminCopy.registryLabel"
+msgid "Registry label"
+msgstr "Registry label"
+
+msgctxt "awcms.adminCopy.registryLabelHint"
+msgid "Reference entry name shown to operators."
+msgstr "Reference entry name shown to operators."
+
+msgctxt "awcms.adminCopy.provinceCode"
+msgid "Province code"
+msgstr "Province code"
+
+msgctxt "awcms.adminCopy.provinceCodeHint"
+msgid "Administrative region code."
+msgstr "Administrative region code."
+
+msgctxt "awcms.adminCopy.sensitivity"
+msgid "Sensitivity"
+msgstr "Sensitivity"
+
+msgctxt "awcms.adminCopy.sensitivityHint"
+msgid "Controls masking and public exposure."
+msgstr "Controls masking and public exposure."
+
+msgctxt "awcms.adminCopy.publicSafe"
+msgid "Public safe"
+msgstr "Public safe"
+
+msgctxt "awcms.adminCopy.internal"
+msgid "Internal"
+msgstr "Internal"
+
+msgctxt "awcms.adminCopy.restricted"
+msgid "Restricted"
+msgstr "Restricted"
+
+msgctxt "awcms.adminCopy.highlyRestricted"
+msgid "Highly restricted"
+msgstr "Highly restricted"
+
+msgctxt "awcms.adminCopy.preview"
+msgid "Preview"
+msgstr "Preview"
+
+msgctxt "awcms.adminCopy.code"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "awcms.adminCopy.label"
+msgid "Label"
+msgstr "Label"
+
+msgctxt "awcms.adminCopy.region"
+msgid "Region"
+msgstr "Region"
+
+msgctxt "awcms.adminCopy.untitledRegistryEntity"
+msgid "Untitled registry entity"
+msgstr "Untitled registry entity"
+
+msgctxt "awcms.adminCopy.previous"
+msgid "Previous"
+msgstr "Previous"
+
+msgctxt "awcms.adminCopy.next"
+msgid "Next"
+msgstr "Next"
+
+msgctxt "awcms.adminCopy.activeReferenceRecord"
+msgid "Active reference record"
+msgstr "Active reference record"
+
+msgctxt "awcms.adminCopy.verificationAdvanceNote"
+msgid "Advanced from the reference verification UI"
+msgstr "Advanced from the reference verification UI"

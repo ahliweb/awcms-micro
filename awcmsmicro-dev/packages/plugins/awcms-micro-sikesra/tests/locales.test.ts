@@ -2,7 +2,11 @@ import { readFile } from "node:fs/promises";
 
 import { describe, expect, it } from "vitest";
 
-import { SIKESRA_PO_LOCALE_MESSAGES } from "../src/locales/messages.js";
+import { getExampleAdminCopy } from "../src/admin-copy.js";
+import {
+	SIKESRA_ADMIN_COPY_MESSAGE_KEYS,
+	SIKESRA_PO_LOCALE_MESSAGES,
+} from "../src/locales/messages.js";
 
 type PoEntry = {
 	msgctxt?: string;
@@ -43,14 +47,61 @@ const readCatalog = async (locale: "en" | "id") =>
 const placeholders = (value = "") =>
 	Array.from(value.matchAll(/\{[A-Za-z0-9_]+\}|<\/?\d+>/g), String).sort();
 
-	describe("SIKESRA PO catalogs", () => {
+const copyShape = (value: unknown, path = "root") => {
+	const shape = new Map<string, string>();
+
+	const visit = (current: unknown, currentPath: string) => {
+		if (Array.isArray(current)) {
+			shape.set(currentPath, `array:${current.length}`);
+			current.forEach((item, index) => visit(item, `${currentPath}[${index}]`));
+			return;
+		}
+
+		if (typeof current === "function") {
+			shape.set(currentPath, `function:${current.length}`);
+			return;
+		}
+
+		if (current && typeof current === "object") {
+			shape.set(currentPath, "object");
+			for (const [key, item] of Object.entries(current)) {
+				visit(item, `${currentPath}.${key}`);
+			}
+			return;
+		}
+
+		shape.set(currentPath, typeof current);
+	};
+
+	visit(value, path);
+	return Object.fromEntries([...shape.entries()].sort(([left], [right]) => left.localeCompare(right)));
+};
+
+describe("SIKESRA PO catalogs", () => {
 	it("cover every compiled navigation adapter key", async () => {
 		const expectedKeys = Object.keys(SIKESRA_PO_LOCALE_MESSAGES.en ?? {}).toSorted();
 
 		for (const locale of ["en", "id"] as const) {
 			expect(
-				(await readCatalog(locale)).map((entry) => entry.msgctxt).toSorted(),
+				(await readCatalog(locale))
+					.map((entry) => entry.msgctxt)
+					.filter((key): key is string => key?.startsWith("awcms.nav.") ?? false)
+					.toSorted(),
 				`${locale} PO catalog keys drifted`,
+			).toEqual(expectedKeys);
+		}
+	});
+
+	it("cover every migrated admin-copy adapter key", async () => {
+		const expectedKeys = SIKESRA_ADMIN_COPY_MESSAGE_KEYS.toSorted();
+
+		for (const locale of ["en", "id"] as const) {
+			expect(
+				(await readCatalog(locale))
+					.map((entry) => entry.msgctxt)
+					.filter((key): key is string => key?.startsWith("awcms.adminCopy.") ?? false)
+					.toSorted(),
+				`${locale} PO admin-copy keys drifted`,
 			).toEqual(expectedKeys);
 		}
 	});
@@ -63,5 +114,9 @@ const placeholders = (value = "") =>
 				);
 			}
 		}
+	});
+
+	it("keeps the temporary admin-copy adapter shape aligned across en and id", () => {
+		expect(copyShape(getExampleAdminCopy("id"))).toEqual(copyShape(getExampleAdminCopy("en")));
 	});
 });

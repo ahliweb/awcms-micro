@@ -121,3 +121,491 @@ msgstr "Pratinjau ABAC"
 msgctxt "awcms.nav.settings"
 msgid "Settings"
 msgstr "Pengaturan"
+
+msgctxt "awcms.adminCopy.navTitle"
+msgid "Plugin Operations Center"
+msgstr "Pusat Operasi Plugin"
+
+msgctxt "awcms.adminCopy.navDescription"
+msgid "Reference navigation for registry, verification, reports, access, and ABAC flows."
+msgstr "Navigasi referensi untuk alur registry, verifikasi, laporan, akses, dan ABAC."
+
+msgctxt "awcms.adminCopy.never"
+msgid "Never"
+msgstr "Tidak pernah"
+
+msgctxt "awcms.adminCopy.somethingWentWrong"
+msgid "Something went wrong"
+msgstr "Terjadi kesalahan"
+
+msgctxt "awcms.adminCopy.retry"
+msgid "Retry"
+msgstr "Coba lagi"
+
+msgctxt "awcms.adminCopy.refresh"
+msgid "Refresh"
+msgstr "Segarkan"
+
+msgctxt "awcms.adminCopy.loadingGovernanceStatus"
+msgid "Loading governance status..."
+msgstr "Memuat status tata kelola..."
+
+msgctxt "awcms.adminCopy.loadingAccessHealth"
+msgid "Loading access health..."
+msgstr "Memuat kesehatan akses..."
+
+msgctxt "awcms.adminCopy.loadingAbacStatus"
+msgid "Loading ABAC status..."
+msgstr "Memuat status ABAC..."
+
+msgctxt "awcms.adminCopy.loadingPluginOverview"
+msgid "Loading plugin overview..."
+msgstr "Memuat ringkasan plugin..."
+
+msgctxt "awcms.adminCopy.noStatusYet"
+msgid "No status yet"
+msgstr "Belum ada status"
+
+msgctxt "awcms.adminCopy.noStatusYetDescription"
+msgid "The plugin did not return summary data."
+msgstr "Plugin belum mengembalikan data ringkasan."
+
+msgctxt "awcms.adminCopy.noHealthData"
+msgid "No health data"
+msgstr "Belum ada data kesehatan"
+
+msgctxt "awcms.adminCopy.noHealthDataDescription"
+msgid "The access catalog did not return health data."
+msgstr "Katalog akses belum mengembalikan data kesehatan."
+
+msgctxt "awcms.adminCopy.noAbacData"
+msgid "No ABAC data"
+msgstr "Belum ada data ABAC"
+
+msgctxt "awcms.adminCopy.noAbacDataDescription"
+msgid "The ABAC routes did not return health data."
+msgstr "Route ABAC belum mengembalikan data kesehatan."
+
+msgctxt "awcms.adminCopy.noOverviewData"
+msgid "No overview data"
+msgstr "Belum ada data ringkasan"
+
+msgctxt "awcms.adminCopy.noOverviewDataDescription"
+msgid "The plugin did not return overview data."
+msgstr "Plugin belum mengembalikan data ringkasan."
+
+msgctxt "awcms.adminCopy.audit"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.lifecycle"
+msgid "Lifecycle"
+msgstr "Siklus hidup"
+
+msgctxt "awcms.adminCopy.publicHits"
+msgid "Public hits"
+msgstr "Hit publik"
+
+msgctxt "awcms.adminCopy.mode"
+msgid "Mode"
+msgstr "Mode"
+
+msgctxt "awcms.adminCopy.lastLifecycle"
+msgid "Last lifecycle"
+msgstr "Siklus hidup terakhir"
+
+msgctxt "awcms.adminCopy.permissions"
+msgid "Permissions"
+msgstr "Izin"
+
+msgctxt "awcms.adminCopy.roles"
+msgid "Roles"
+msgstr "Peran"
+
+msgctxt "awcms.adminCopy.matrices"
+msgid "Matrices"
+msgstr "Matriks"
+
+msgctxt "awcms.adminCopy.users"
+msgid "Users"
+msgstr "Pengguna"
+
+msgctxt "awcms.adminCopy.reviewNeeded"
+msgid "Review needed"
+msgstr "Perlu ditinjau"
+
+msgctxt "awcms.adminCopy.healthy"
+msgid "Healthy"
+msgstr "Sehat"
+
+msgctxt "awcms.adminCopy.catalogGapSummary"
+msgid "{rolesWithoutPermissions} role(s) without permissions and {usersWithoutRoles} user assignment(s) without roles."
+msgstr "{rolesWithoutPermissions} peran tanpa izin dan {usersWithoutRoles} penugasan pengguna tanpa peran."
+
+msgctxt "awcms.adminCopy.catalogGapNone"
+msgid "No obvious catalog health gaps detected."
+msgstr "Tidak ada gap kesehatan katalog yang terlihat."
+
+msgctxt "awcms.adminCopy.attributes"
+msgid "Attributes"
+msgstr "Atribut"
+
+msgctxt "awcms.adminCopy.policies"
+msgid "Policies"
+msgstr "Kebijakan"
+
+msgctxt "awcms.adminCopy.subjects"
+msgid "Subjects"
+msgstr "Subjek"
+
+msgctxt "awcms.adminCopy.resources"
+msgid "Resources"
+msgstr "Sumber daya"
+
+msgctxt "awcms.adminCopy.key"
+msgid "Key"
+msgstr "Kunci"
+
+msgctxt "awcms.adminCopy.context"
+msgid "Context"
+msgstr "Konteks"
+
+msgctxt "awcms.adminCopy.explicitDenyPolicies"
+msgid "Explicit deny policies: {count}"
+msgstr "Kebijakan deny eksplisit: {count}"
+
+msgctxt "awcms.adminCopy.overviewEyebrow"
+msgid "AWCMS-Micro plugin"
+msgstr "Plugin AWCMS-Micro"
+
+msgctxt "awcms.adminCopy.overviewTitle"
+msgid "Plugin Operations Center"
+msgstr "Pusat Operasi Plugin"
+
+msgctxt "awcms.adminCopy.overviewDescription"
+msgid "Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
+msgstr "Selamat datang di plugin demonstrasi AWCMS-Micro. Konsol ini memungkinkan Anda mengelola log audit, event lifecycle, dan simulasi kebijakan Role-Based dan Attribute-Based Access Control (RBAC/ABAC) secara aman tanpa mengubah core EmDash."
+
+msgctxt "awcms.adminCopy.refreshDashboard"
+msgid "Refresh Dashboard"
+msgstr "Segarkan dasbor"
+
+msgctxt "awcms.adminCopy.overviewSuccess"
+msgid "Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database."
+msgstr "Dasbor berhasil diinisialisasi. Semua sub-sistem plugin (Audit, RBAC, ABAC) aktif penuh dan terhubung ke database dasar."
+
+msgctxt "awcms.adminCopy.auditEventsStored"
+msgid "Audit Events Stored"
+msgstr "Event audit tersimpan"
+
+msgctxt "awcms.adminCopy.auditEventsStoredHint"
+msgid "Tracks all critical plugin activity"
+msgstr "Melacak semua aktivitas plugin yang kritis"
+
+msgctxt "awcms.adminCopy.lifecycleTriggers"
+msgid "Lifecycle Triggers"
+msgstr "Pemicu lifecycle"
+
+msgctxt "awcms.adminCopy.lastRecorded"
+msgid "Last recorded: {value}"
+msgstr "Terakhir tercatat: {value}"
+
+msgctxt "awcms.adminCopy.publicApiHits"
+msgid "Public API Hits"
+msgstr "Hit API publik"
+
+msgctxt "awcms.adminCopy.lastCron"
+msgid "Last chron: {value}"
+msgstr "Cron terakhir: {value}"
+
+msgctxt "awcms.adminCopy.openModule"
+msgid "Open module"
+msgstr "Buka modul"
+
+msgctxt "awcms.adminCopy.pluginConfiguration"
+msgid "Plugin Configuration"
+msgstr "Konfigurasi plugin"
+
+msgctxt "awcms.adminCopy.pluginConfigurationDescription"
+msgid "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
+msgstr "Kelola pengaturan global untuk plugin ini. Pengaturan ini menentukan perilaku route status publik dan alur kerja tata kelola."
+
+msgctxt "awcms.adminCopy.publicStatusLabel"
+msgid "Public status label"
+msgstr "Label status publik"
+
+msgctxt "awcms.adminCopy.publicStatusLabelHint"
+msgid "Shown by the public-safe status route."
+msgstr "Ditampilkan oleh route status aman-publik."
+
+msgctxt "awcms.adminCopy.smallCellThreshold"
+msgid "Small cell suppression threshold"
+msgstr "Batas supresi sel kecil"
+
+msgctxt "awcms.adminCopy.smallCellThresholdHint"
+msgid "Minimum entity count below which totals are suppressed for privacy (example: 3)."
+msgstr "Jumlah entitas minimum di bawah batas ini akan disembunyikan untuk privasi (contoh: 3)."
+
+msgctxt "awcms.adminCopy.sikesraPublicEnabled"
+msgid "SIKESRA Public API"
+msgstr "API Publik SIKESRA"
+
+msgctxt "awcms.adminCopy.sikesraPublicEnabledHint"
+msgid "Enable or disable public data recapitulation."
+msgstr "Aktifkan atau nonaktifkan rekapitulasi data secara publik."
+
+msgctxt "awcms.adminCopy.enabled"
+msgid "Enabled"
+msgstr "Aktif"
+
+msgctxt "awcms.adminCopy.disabled"
+msgid "Disabled"
+msgstr "Nonaktif"
+
+msgctxt "awcms.adminCopy.auditRetentionDays"
+msgid "Audit retention days"
+msgstr "Hari retensi audit"
+
+msgctxt "awcms.adminCopy.auditRetentionDaysHint"
+msgid "Use a positive number. Example: 30."
+msgstr "Gunakan angka positif. Contoh: 30."
+
+msgctxt "awcms.adminCopy.governanceMode"
+msgid "Governance mode"
+msgstr "Mode tata kelola"
+
+msgctxt "awcms.adminCopy.governanceModeHint"
+msgid "Observe logs only, review, or run the demo enforcement path."
+msgstr "Hanya observasi log, review, atau jalankan jalur enforcement demo."
+
+msgctxt "awcms.adminCopy.observe"
+msgid "Observe"
+msgstr "Observasi"
+
+msgctxt "awcms.adminCopy.review"
+msgid "Review"
+msgstr "Tinjau"
+
+msgctxt "awcms.adminCopy.enforceDemo"
+msgid "Enforce demo"
+msgstr "Terapkan demo"
+
+msgctxt "awcms.adminCopy.metadataCanonicalBase"
+msgid "Metadata canonical base"
+msgstr "Basis canonical metadata"
+
+msgctxt "awcms.adminCopy.metadataCanonicalBaseHint"
+msgid "Optional base URL for page metadata examples."
+msgstr "URL dasar opsional untuk contoh metadata halaman."
+
+msgctxt "awcms.adminCopy.saving"
+msgid "Saving..."
+msgstr "Menyimpan..."
+
+msgctxt "awcms.adminCopy.saveSettings"
+msgid "Save settings"
+msgstr "Simpan pengaturan"
+
+msgctxt "awcms.adminCopy.modeLabel"
+msgid "Mode: {value}"
+msgstr "Mode: {value}"
+
+msgctxt "awcms.adminCopy.currentStatus"
+msgid "Current status"
+msgstr "Status saat ini"
+
+msgctxt "awcms.adminCopy.statusLabel"
+msgid "Status label"
+msgstr "Label status"
+
+msgctxt "awcms.adminCopy.notSet"
+msgid "Not set"
+msgstr "Belum diatur"
+
+msgctxt "awcms.adminCopy.retention"
+msgid "Retention"
+msgstr "Retensi"
+
+msgctxt "awcms.adminCopy.retentionDays"
+msgid "{value} day(s)"
+msgstr "{value} hari"
+
+msgctxt "awcms.adminCopy.governance"
+msgid "Governance"
+msgstr "Tata kelola"
+
+msgctxt "awcms.adminCopy.canonicalBase"
+msgid "Canonical base"
+msgstr "Basis canonical"
+
+msgctxt "awcms.adminCopy.recentAuditEvents"
+msgid "Recent audit events"
+msgstr "Event audit terbaru"
+
+msgctxt "awcms.adminCopy.recentAuditEventsDescription"
+msgid "Latest plugin activity, useful for quick verification after changing settings."
+msgstr "Aktivitas plugin terbaru, berguna untuk verifikasi cepat setelah mengubah pengaturan."
+
+msgctxt "awcms.adminCopy.noRecentEvents"
+msgid "No recent events"
+msgstr "Belum ada event terbaru"
+
+msgctxt "awcms.adminCopy.noRecentEventsDescription"
+msgid "Trigger plugin actions to populate the audit stream."
+msgstr "Picu aksi plugin untuk mengisi aliran audit."
+
+msgctxt "awcms.adminCopy.settingsSavedSuccessfully"
+msgid "Settings saved successfully."
+msgstr "Pengaturan berhasil disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveSettings"
+msgid "Failed to save settings"
+msgstr "Gagal menyimpan pengaturan"
+
+msgctxt "awcms.adminCopy.registryEyebrow"
+msgid "Registry"
+msgstr "Registry"
+
+msgctxt "awcms.adminCopy.registryTitle"
+msgid "Registry intake and verification"
+msgstr "Intake dan verifikasi registry"
+
+msgctxt "awcms.adminCopy.registryDescription"
+msgid "Reference UI for onboarding registry entities, tracking their region scope, and showing how sensitive identifiers stay masked until the review step."
+msgstr "UI referensi untuk onboarding entitas registry, melacak cakupan wilayah, dan menunjukkan bagaimana pengenal sensitif tetap dimasking sampai tahap review."
+
+msgctxt "awcms.adminCopy.registryEntities"
+msgid "Registry entities"
+msgstr "Entitas registry"
+
+msgctxt "awcms.adminCopy.registryEntitiesHint"
+msgid "Reference records in the sample queue"
+msgstr "Record referensi dalam antrean sampel"
+
+msgctxt "awcms.adminCopy.verifiedRecords"
+msgid "Verified records"
+msgstr "Record terverifikasi"
+
+msgctxt "awcms.adminCopy.verifiedRecordsHint"
+msgid "Records that reached active verification"
+msgstr "Record yang mencapai verifikasi aktif"
+
+msgctxt "awcms.adminCopy.restrictedEntries"
+msgid "Restricted entries"
+msgstr "Entri terbatas"
+
+msgctxt "awcms.adminCopy.restrictedEntriesHint"
+msgid "Rows that require masking in operator views"
+msgstr "Baris yang memerlukan masking di tampilan operator"
+
+msgctxt "awcms.adminCopy.registryQueue"
+msgid "Registry queue"
+msgstr "Antrean registry"
+
+msgctxt "awcms.adminCopy.registryQueueDescription"
+msgid "Deterministic SIKESRA reference records with stage, sensitivity, and region scope."
+msgstr "Record referensi SIKESRA yang deterministik dengan tahap, sensitivitas, dan cakupan wilayah."
+
+msgctxt "awcms.adminCopy.progressiveInputWizard"
+msgid "Progressive input wizard"
+msgstr "Wizard input progresif"
+
+msgctxt "awcms.adminCopy.progressiveInputWizardDescription"
+msgid "A compact operator flow that stages the data entry and only reveals the reference code at the final review step."
+msgstr "Alur operator ringkas yang menahapkan entri data dan hanya menampilkan kode referensi pada tahap tinjauan akhir."
+
+msgctxt "awcms.adminCopy.stepLabel"
+msgid "Step {step}: {label}"
+msgstr "Langkah {step}: {label}"
+
+msgctxt "awcms.adminCopy.registryStepIdentity"
+msgid "Start with identity details and a human-readable label."
+msgstr "Mulai dengan detail identitas dan label yang mudah dibaca manusia."
+
+msgctxt "awcms.adminCopy.registryStepRegion"
+msgid "Add region scope fields so reviewers can check jurisdiction boundaries."
+msgstr "Tambahkan field cakupan wilayah agar reviewer bisa memeriksa batas yurisdiksi."
+
+msgctxt "awcms.adminCopy.registryStepDocuments"
+msgid "Attach documents and keep the sensitive metadata out of the public view."
+msgstr "Lampirkan dokumen dan simpan metadata sensitif di luar tampilan publik."
+
+msgctxt "awcms.adminCopy.registryStepReview"
+msgid "Review the masked reference code and verify the final stage before activation."
+msgstr "Tinjau kode referensi yang dimasking dan verifikasi tahap akhir sebelum aktivasi."
+
+msgctxt "awcms.adminCopy.registryLabel"
+msgid "Registry label"
+msgstr "Label registry"
+
+msgctxt "awcms.adminCopy.registryLabelHint"
+msgid "Reference entry name shown to operators."
+msgstr "Nama entri referensi yang ditampilkan ke operator."
+
+msgctxt "awcms.adminCopy.provinceCode"
+msgid "Province code"
+msgstr "Kode provinsi"
+
+msgctxt "awcms.adminCopy.provinceCodeHint"
+msgid "Administrative region code."
+msgstr "Kode wilayah administratif."
+
+msgctxt "awcms.adminCopy.sensitivity"
+msgid "Sensitivity"
+msgstr "Sensitivitas"
+
+msgctxt "awcms.adminCopy.sensitivityHint"
+msgid "Controls masking and public exposure."
+msgstr "Mengontrol masking dan eksposur publik."
+
+msgctxt "awcms.adminCopy.publicSafe"
+msgid "Public safe"
+msgstr "Publik aman"
+
+msgctxt "awcms.adminCopy.internal"
+msgid "Internal"
+msgstr "Internal"
+
+msgctxt "awcms.adminCopy.restricted"
+msgid "Restricted"
+msgstr "Terbatas"
+
+msgctxt "awcms.adminCopy.highlyRestricted"
+msgid "Highly restricted"
+msgstr "Sangat terbatas"
+
+msgctxt "awcms.adminCopy.preview"
+msgid "Preview"
+msgstr "Pratinjau"
+
+msgctxt "awcms.adminCopy.code"
+msgid "Code"
+msgstr "Kode"
+
+msgctxt "awcms.adminCopy.label"
+msgid "Label"
+msgstr "Label"
+
+msgctxt "awcms.adminCopy.region"
+msgid "Region"
+msgstr "Wilayah"
+
+msgctxt "awcms.adminCopy.untitledRegistryEntity"
+msgid "Untitled registry entity"
+msgstr "Entitas registry tanpa judul"
+
+msgctxt "awcms.adminCopy.previous"
+msgid "Previous"
+msgstr "Sebelumnya"
+
+msgctxt "awcms.adminCopy.next"
+msgid "Next"
+msgstr "Berikutnya"
+
+msgctxt "awcms.adminCopy.activeReferenceRecord"
+msgid "Active reference record"
+msgstr "Record referensi aktif"
+
+msgctxt "awcms.adminCopy.verificationAdvanceNote"
+msgid "Advanced from the reference verification UI"
+msgstr "Dimajukan dari UI verifikasi referensi."

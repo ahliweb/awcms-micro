@@ -1,4 +1,8 @@
+import { getSikesraAdminCopyMessages } from "./locales/messages.js";
+
 export function getExampleAdminCopy(locale: string | undefined) {
+	const poCopy: Record<string, unknown> = getSikesraAdminCopyMessages(locale);
+
 	if (locale?.startsWith("id")) {
 		return {
 			navTitle: "Pusat Operasi Plugin",
@@ -93,6 +97,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			noRecentEventsDescription: "Picu aksi plugin untuk mengisi aliran audit.",
 			settingsSavedSuccessfully: "Pengaturan berhasil disimpan.",
 			failedToSaveSettings: "Gagal menyimpan pengaturan",
+			...poCopy,
 			registrySteps: [
 				"Jenis Data",
 				"Wilayah Resmi",
@@ -602,6 +607,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		noRecentEventsDescription: "Trigger plugin actions to populate the audit stream.",
 		settingsSavedSuccessfully: "Settings saved successfully.",
 		failedToSaveSettings: "Failed to save settings",
+		...poCopy,
 		registrySteps: [
 			"Data Type",
 			"Official Region",
