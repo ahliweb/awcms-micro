@@ -5,28 +5,28 @@
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
 - Upstream commit SHA: `d43a3808fbef4e2e0e2881428d57c6336eb33e51`
-- Sync date: `2026-06-01T22:26:25Z`
+- Sync date: `2026-06-02T03:10:30Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `d43a3808`. `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay after context updates for the latest upstream package files, and the downstream workspace validates cleanly on this host.
+Synced to EmDash `d43a3808`. Upstream `main` still resolves to the previously recorded commit, `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay cleanly, and the downstream workspace validates cleanly on this host.
 
 ## Key Changes in This Sync
 
-- Upstream EmDash refreshed to `d43a3808` and was replayed into `awcmsmicro-dev/` through the protected-path rebuild workflow
-- Updated downstream patch overlay contexts for `0007-core-vite.patch` and `0008-admin-vite.patch` so the catalog-based Vite security posture still replays against the latest upstream package manifests
-- Adapted the preserved admin sidebar overlay to the current Kumo `Sidebar` API while keeping plugin groups positioned directly below Dashboard
-- Hoisted SIKESRA validation regexes and guard-script patterns to satisfy the latest upstream lint rules without changing SIKESRA data behavior
+- Upstream EmDash refreshed to `d43a3808`; no newer upstream commit was available during this pass
+- Rebuilt `awcmsmicro-dev/` from `emdash-latest/` through the protected-path rebuild workflow
+- Replayed all active downstream patch overlays after the rebuild
+- Refreshed `awcmsmicro-dev/pnpm-lock.yaml` to match the rebuilt workspace
 - Downstream sync state remains protected by the allowlist, patch overlay workflow, and validation workflow
 
 ## Validation Status
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `d43a3808` |
+| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `d43a3808`; no newer commit was available |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; approved AWCMS-Micro boundaries preserved |
 | Validation script execution | Passed | See `LAST_VALIDATION.md` |
 
