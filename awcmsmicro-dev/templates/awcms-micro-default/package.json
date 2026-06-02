@@ -12,7 +12,8 @@
 		"build": "astro build",
 		"preview": "astro preview",
 		"start": "node ./dist/server/entry.mjs",
-		"typecheck": "astro check"
+		"typecheck": "astro check",
+		"test": "node --test tests/locales.test.mjs"
 	},
 	"dependencies": {
 		"@awcms-micro/plugin-docs": "workspace:*",

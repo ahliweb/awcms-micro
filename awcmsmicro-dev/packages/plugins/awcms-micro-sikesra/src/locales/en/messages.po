@@ -1,89 +1,123 @@
+msgctxt "awcms.nav.group.dashboard"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgctxt "awcms.nav.group.content"
 msgid "Content"
 msgstr "Content"
 
+msgctxt "awcms.nav.group.governance"
 msgid "Governance"
 msgstr "Governance"
 
+msgctxt "awcms.nav.group.settings"
 msgid "Settings"
 msgstr "Settings"
 
+msgctxt "awcms.nav.overview"
 msgid "Overview"
 msgstr "Overview"
 
+msgctxt "awcms.nav.pages"
 msgid "Pages"
 msgstr "Pages"
 
+msgctxt "awcms.nav.documents"
 msgid "Documents"
 msgstr "Documents"
 
+msgctxt "awcms.nav.fieldStandards"
 msgid "Field Standards"
 msgstr "Field Standards"
 
+msgctxt "awcms.nav.import"
 msgid "Import Excel"
 msgstr "Import Excel"
 
+msgctxt "awcms.nav.customAttributes"
 msgid "Custom Attributes"
 msgstr "Custom Attributes"
 
+msgctxt "awcms.nav.customAttributeDefinitions"
 msgid "Definitions"
 msgstr "Definitions"
 
+msgctxt "awcms.nav.customAttributeValues"
 msgid "Values"
 msgstr "Values"
 
+msgctxt "awcms.nav.verification"
 msgid "Verification"
 msgstr "Verification"
 
+msgctxt "awcms.nav.audit"
 msgid "Audit Log"
 msgstr "Audit Log"
 
+msgctxt "awcms.nav.reports"
 msgid "Reports"
 msgstr "Reports"
 
+msgctxt "awcms.nav.archives"
 msgid "Archives"
 msgstr "Archives"
 
+msgctxt "awcms.nav.deleteRequests"
 msgid "Delete Requests"
 msgstr "Delete Requests"
 
+msgctxt "awcms.nav.access"
 msgid "Access Control"
 msgstr "Access Control"
 
+msgctxt "awcms.nav.regions"
 msgid "Official Regions"
 msgstr "Official Regions"
 
+msgctxt "awcms.nav.dataTypes"
 msgid "Sikesra Data Types"
 msgstr "Sikesra Data Types"
 
+msgctxt "awcms.nav.users"
 msgid "Users"
 msgstr "Users"
 
+msgctxt "awcms.nav.permissions"
 msgid "Permissions"
 msgstr "Permissions"
 
+msgctxt "awcms.nav.roles"
 msgid "Roles"
 msgstr "Roles"
 
+msgctxt "awcms.nav.matrix"
 msgid "Role Matrix"
 msgstr "Role Matrix"
 
+msgctxt "awcms.nav.scopes"
 msgid "Scopes"
 msgstr "Scopes"
 
+msgctxt "awcms.nav.accessPreview"
 msgid "Access Preview"
 msgstr "Access Preview"
 
+msgctxt "awcms.nav.abac"
 msgid "ABAC"
 msgstr "ABAC"
 
+msgctxt "awcms.nav.abacAttributes"
 msgid "Attributes"
 msgstr "Attributes"
 
+msgctxt "awcms.nav.abacPolicies"
 msgid "Policies"
 msgstr "Policies"
 
+msgctxt "awcms.nav.abacPreview"
 msgid "ABAC Preview"
 msgstr "ABAC Preview"
+
+msgctxt "awcms.nav.settings"
+msgid "Settings"
+msgstr "Settings"

@@ -1,89 +1,123 @@
+msgctxt "awcms.nav.group.dashboard"
 msgid "Dashboard"
 msgstr "Dasbor"
 
+msgctxt "awcms.nav.group.content"
 msgid "Content"
 msgstr "Konten"
 
+msgctxt "awcms.nav.group.governance"
 msgid "Governance"
 msgstr "Tata Kelola"
 
+msgctxt "awcms.nav.group.settings"
 msgid "Settings"
 msgstr "Pengaturan"
 
+msgctxt "awcms.nav.overview"
 msgid "Overview"
 msgstr "Ikhtisar"
 
+msgctxt "awcms.nav.pages"
 msgid "Pages"
 msgstr "Halaman"
 
+msgctxt "awcms.nav.documents"
 msgid "Documents"
 msgstr "Dokumen"
 
+msgctxt "awcms.nav.fieldStandards"
 msgid "Field Standards"
 msgstr "Standar Field"
 
+msgctxt "awcms.nav.import"
 msgid "Import Excel"
 msgstr "Impor Excel"
 
+msgctxt "awcms.nav.customAttributes"
 msgid "Custom Attributes"
 msgstr "Atribut Kustom"
 
+msgctxt "awcms.nav.customAttributeDefinitions"
 msgid "Definitions"
 msgstr "Definisi"
 
+msgctxt "awcms.nav.customAttributeValues"
 msgid "Values"
 msgstr "Nilai"
 
+msgctxt "awcms.nav.verification"
 msgid "Verification"
 msgstr "Verifikasi"
 
+msgctxt "awcms.nav.audit"
 msgid "Audit Log"
 msgstr "Log Audit"
 
+msgctxt "awcms.nav.reports"
 msgid "Reports"
 msgstr "Laporan"
 
+msgctxt "awcms.nav.archives"
 msgid "Archives"
 msgstr "Arsip"
 
+msgctxt "awcms.nav.deleteRequests"
 msgid "Delete Requests"
 msgstr "Permintaan Hapus"
 
+msgctxt "awcms.nav.access"
 msgid "Access Control"
 msgstr "Kontrol Akses"
 
+msgctxt "awcms.nav.regions"
 msgid "Official Regions"
 msgstr "Wilayah Resmi"
 
+msgctxt "awcms.nav.dataTypes"
 msgid "Sikesra Data Types"
 msgstr "Jenis Data Sikesra"
 
+msgctxt "awcms.nav.users"
 msgid "Users"
 msgstr "Pengguna"
 
+msgctxt "awcms.nav.permissions"
 msgid "Permissions"
 msgstr "Izin"
 
+msgctxt "awcms.nav.roles"
 msgid "Roles"
 msgstr "Peran"
 
+msgctxt "awcms.nav.matrix"
 msgid "Role Matrix"
 msgstr "Matriks Peran"
 
+msgctxt "awcms.nav.scopes"
 msgid "Scopes"
 msgstr "Cakupan"
 
+msgctxt "awcms.nav.accessPreview"
 msgid "Access Preview"
 msgstr "Pratinjau Akses"
 
+msgctxt "awcms.nav.abac"
 msgid "ABAC"
 msgstr "ABAC"
 
+msgctxt "awcms.nav.abacAttributes"
 msgid "Attributes"
 msgstr "Atribut"
 
+msgctxt "awcms.nav.abacPolicies"
 msgid "Policies"
 msgstr "Kebijakan"
 
+msgctxt "awcms.nav.abacPreview"
 msgid "ABAC Preview"
 msgstr "Pratinjau ABAC"
+
+msgctxt "awcms.nav.settings"
+msgid "Settings"
+msgstr "Pengaturan"

@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,7 +9,46 @@ import {
 	validateGalleryItem,
 } from "../src/index.js";
 import { translateGallery } from "../src/i18n.js";
+import { AWCMS_GALLERY_PO_LOCALE_MESSAGES } from "../src/locales/messages.js";
 import sandboxPlugin from "../src/sandbox.js";
+
+type PoEntry = {
+	msgctxt?: string;
+	msgid?: string;
+	msgstr?: string;
+};
+
+const unescapePo = (value: string) => value.replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+
+const parsePoEntries = (catalog: string) => {
+	const entries: PoEntry[] = [];
+	let current: PoEntry = {};
+
+	for (const line of catalog.split("\n")) {
+		const match = /^(msgctxt|msgid|msgstr) "((?:\\.|[^"\\])*)"$/.exec(line);
+		if (!match) continue;
+		const field = match[1] as keyof PoEntry;
+		const value = match[2] ?? "";
+		if (field === "msgctxt" && (current.msgid || current.msgstr)) {
+			entries.push(current);
+			current = {};
+		}
+		current[field as keyof PoEntry] = unescapePo(value);
+		if (field === "msgstr") {
+			entries.push(current);
+			current = {};
+		}
+	}
+
+	return entries;
+};
+
+const readCatalog = async (locale: "en" | "id") =>
+	parsePoEntries(
+		await readFile(new URL(`../src/locales/${locale}/messages.po`, import.meta.url), "utf8"),
+	);
+
+const placeholders = (value = "") => [...value.matchAll(/\{[A-Za-z0-9_]+\}|<\/?\d+>/g)].map(String).sort();
 
 function createMockContext() {
 	const kv = new Map<string, unknown>();
@@ -192,6 +233,23 @@ describe("awcms micro gallery plugin", () => {
 		expect(translateGallery("gallery.title", "en")).toBe("AWCMS-Micro Gallery");
 		expect(translateGallery("gallery.title", "id")).toBe("Galeri AWCMS-Micro");
 		expect(translateGallery("gallery.error.imageSize", "id")).toContain("{limit}");
+	});
+
+	it("keeps Gallery PO catalogs synchronized with the compiled adapter", async () => {
+		const expectedKeys = Object.keys(AWCMS_GALLERY_PO_LOCALE_MESSAGES.en).toSorted();
+
+		for (const locale of ["en", "id"] as const) {
+			const entries = await readCatalog(locale);
+			expect(
+				entries.map((entry) => entry.msgctxt).toSorted(),
+				`${locale} PO catalog keys drifted`,
+			).toEqual(expectedKeys);
+			for (const entry of entries) {
+				expect(placeholders(entry.msgstr), `${locale} placeholder drift in ${entry.msgctxt}`).toEqual(
+					placeholders(entry.msgid),
+				);
+			}
+		}
 	});
 
 	it("exports a sandbox plugin object", () => {

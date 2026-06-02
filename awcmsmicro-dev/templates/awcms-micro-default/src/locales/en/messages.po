@@ -1,17 +1,579 @@
-msgid "AWCMS-Micro"
-msgstr "AWCMS-Micro"
+msgctxt "notFoundTitle"
+msgid "Page Not Found"
+msgstr "Page Not Found"
 
+msgctxt "notFoundDescription"
+msgid "The requested AWCMS-Micro page was not found."
+msgstr "The requested AWCMS-Micro page was not found."
+
+msgctxt "notFoundMessage"
+msgid "The requested page does not exist or is no longer published."
+msgstr "The requested page does not exist or is no longer published."
+
+msgctxt "returnHome"
+msgid "Return to the homepage"
+msgstr "Return to the homepage"
+
+msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Public Aggregate"
 
+msgctxt "aggregateDescription"
+msgid "A public-safe reference page that summarizes site content without exposing private records."
+msgstr "A public-safe reference page that summarizes site content without exposing private records."
+
+msgctxt "aggregateKicker"
+msgid "Reference"
+msgstr "Reference"
+
+msgctxt "aggregateHeading"
 msgid "Public aggregate for {siteTitle}"
 msgstr "Public aggregate for {siteTitle}"
 
+msgctxt "aggregateIntro"
+msgid "This page demonstrates the AWCMS-Micro public-safe aggregate pattern. It shows coarse counts only and avoids personal identifiers, raw storage keys, or sensitive document details."
+msgstr "This page demonstrates the AWCMS-Micro public-safe aggregate pattern. It shows coarse counts only and avoids personal identifiers, raw storage keys, or sensitive document details."
+
+msgctxt "summary"
+msgid "Summary"
+msgstr "Summary"
+
+msgctxt "privacyNote"
+msgid "Privacy note"
+msgstr "Privacy note"
+
+msgctxt "privacyNoteDescription"
+msgid "The reference aggregate intentionally stays high level so it can be published publicly without revealing individual registry entities, verification events, or protected attributes."
+msgstr "The reference aggregate intentionally stays high level so it can be published publicly without revealing individual registry entities, verification events, or protected attributes."
+
+msgctxt "openAdmin"
+msgid "Open admin"
+msgstr "Open admin"
+
+msgctxt "openAdminDescription"
+msgid "to work with the underlying content and governance workflows."
+msgstr "to work with the underlying content and governance workflows."
+
+msgctxt "postsTitle"
+msgid "Posts"
+msgstr "Posts"
+
+msgctxt "postsDescription"
+msgid "Published AWCMS-Micro posts managed from the EmDash admin."
+msgstr "Published AWCMS-Micro posts managed from the EmDash admin."
+
+msgctxt "noPostsYet"
+msgid "No posts yet."
+msgstr "No posts yet."
+
+msgctxt "newsTitle"
+msgid "News"
+msgstr "News"
+
+msgctxt "newsDescription"
+msgid "Operational and product news from AWCMS-Micro."
+msgstr "Operational and product news from AWCMS-Micro."
+
+msgctxt "noNewsYet"
+msgid "No news items yet."
+msgstr "No news items yet."
+
+msgctxt "homeKicker"
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgctxt "homeHeading"
+msgid "A focused EmDash website and admin workflow for AWCMS-Micro."
+msgstr "A focused EmDash website and admin workflow for AWCMS-Micro."
+
+msgctxt "homeIntro"
+msgid "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
+msgstr "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
+
+msgctxt "createPost"
+msgid "Create Post"
+msgstr "Create Post"
+
+msgctxt "createPage"
+msgid "Create Page"
+msgstr "Create Page"
+
+msgctxt "viewDocs"
+msgid "View Docs"
+msgstr "View Docs"
+
+msgctxt "viewPublicAggregate"
+msgid "View Public Aggregate"
+msgstr "View Public Aggregate"
+
+msgctxt "nestedMenuTitle"
+msgid "Nested menu and mode demo"
+msgstr "Nested menu and mode demo"
+
+msgctxt "publicNavigationExample"
+msgid "Public navigation example"
+msgstr "Public navigation example"
+
+msgctxt "publicNavigationDescription"
+msgid "The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body."
+msgstr "The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body."
+
+msgctxt "switchModeTitle"
+msgid "Switch mode"
+msgstr "Switch mode"
+
+msgctxt "switchModeDescription"
+msgid "The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself."
+msgstr "The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself."
+
+msgctxt "switchModeButton"
+msgid "Switch mode"
+msgstr "Switch mode"
+
+msgctxt "howConnectsTitle"
+msgid "How the public site connects to admin"
+msgstr "How the public site connects to admin"
+
+msgctxt "publishFromEmdash"
+msgid "Publish from EmDash"
+msgstr "Publish from EmDash"
+
+msgctxt "publishFromEmdashDescription"
+msgid "Posts, news, and pages created in the admin flow directly into the public routes below."
+msgstr "Posts, news, and pages created in the admin flow directly into the public routes below."
+
+msgctxt "keepContentInSync"
+msgid "Keep content in sync"
+msgstr "Keep content in sync"
+
+msgctxt "keepContentInSyncDescription"
+msgid "Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders."
+msgstr "Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders."
+
+msgctxt "extendWithAwcms"
+msgid "Extend with AWCMS-Micro"
+msgstr "Extend with AWCMS-Micro"
+
+msgctxt "extendWithAwcmsDescription"
+msgid "The checked-in template already registers the SIKESRA plugin so local development can exercise governance, audit, and access workflows without Cloudflare."
+msgstr "The checked-in template already registers the SIKESRA plugin so local development can exercise governance, audit, and access workflows without Cloudflare."
+
+msgctxt "editorWorkflowShortcuts"
+msgid "Editor workflow shortcuts"
+msgstr "Editor workflow shortcuts"
+
+msgctxt "publishedPostsVisible"
+msgid "Published posts currently visible on the public website."
+msgstr "Published posts currently visible on the public website."
+
+msgctxt "viewPosts"
+msgid "View posts"
+msgstr "View posts"
+
+msgctxt "newsWorkflowVisible"
+msgid "News updates connected to the same publishing workflow."
+msgstr "News updates connected to the same publishing workflow."
+
+msgctxt "viewNews"
+msgid "View news"
+msgstr "View news"
+
+msgctxt "managedPagesVisible"
+msgid "Managed pages such as About, implementation notes, and product info."
+msgstr "Managed pages such as About, implementation notes, and product info."
+
+msgctxt "viewAboutPage"
+msgid "View about page"
+msgstr "View about page"
+
+msgctxt "safeAggregateLabel"
+msgid "Safe aggregate"
+msgstr "Safe aggregate"
+
+msgctxt "safeAggregateDescription"
+msgid "A public reference page summarises content without exposing sensitive identifiers."
+msgstr "A public reference page summarises content without exposing sensitive identifiers."
+
+msgctxt "viewAggregatePage"
+msgid "View aggregate page"
+msgstr "View aggregate page"
+
+msgctxt "recentPosts"
+msgid "Recent posts"
+msgstr "Recent posts"
+
+msgctxt "noPostsCreateOne"
+msgid "No posts yet. Create one from the admin."
+msgstr "No posts yet. Create one from the admin."
+
+msgctxt "latestNews"
+msgid "Latest news"
+msgstr "Latest news"
+
+msgctxt "searchPlaceholder"
 msgid "Search posts, pages, and news"
 msgstr "Search posts, pages, and news"
 
+msgctxt "adminLink"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "adminLoginBtn"
 msgid "Admin Login"
 msgstr "Admin Login"
 
+msgctxt "toggleTheme"
 msgid "Toggle Theme"
 msgstr "Toggle Theme"
+
+msgctxt "switchToLightMode"
+msgid "Switch to Light Mode"
+msgstr "Switch to Light Mode"
+
+msgctxt "switchToDarkMode"
+msgid "Switch to Dark Mode"
+msgstr "Switch to Dark Mode"
+
+msgctxt "heroTitle"
+msgid "Build Anything on a Resilient Foundation"
+msgstr "Build Anything on a Resilient Foundation"
+
+msgctxt "heroSubtitle"
+msgid "AWCMS-Micro combines the absolute reliability of single-tenant architecture with the flexible extension model of EmDash. Fully integrated, zero core modifications, completely tenant-ready."
+msgstr "AWCMS-Micro combines the absolute reliability of single-tenant architecture with the flexible extension model of EmDash. Fully integrated, zero core modifications, completely tenant-ready."
+
+msgctxt "heroCtaPrimary"
+msgid "Explore Admin"
+msgstr "Explore Admin"
+
+msgctxt "heroCtaSecondary"
+msgid "Read Documentation"
+msgstr "Read Documentation"
+
+msgctxt "featuresTitle"
+msgid "Engineered for Every Use Case"
+msgstr "Engineered for Every Use Case"
+
+msgctxt "featuresSubtitle"
+msgid "From standard marketing sites to complex data backends, AWCMS-Micro provides a unified development experience."
+msgstr "From standard marketing sites to complex data backends, AWCMS-Micro provides a unified development experience."
+
+msgctxt "featureCmsTitle"
+msgid "Modern CMS"
+msgstr "Modern CMS"
+
+msgctxt "featureCmsDesc"
+msgid "Flexible content structures for blogs, news, and pages with instant preview and publishing."
+msgstr "Flexible content structures for blogs, news, and pages with instant preview and publishing."
+
+msgctxt "featureShopTitle"
+msgid "E-Commerce Ready"
+msgstr "E-Commerce Ready"
+
+msgctxt "featureShopDesc"
+msgid "Secure transactions, product galleries, and inventory management powered by custom microservices."
+msgstr "Secure transactions, product galleries, and inventory management powered by custom microservices."
+
+msgctxt "featureAppTitle"
+msgid "Custom Web Apps"
+msgstr "Custom Web Apps"
+
+msgctxt "featureAppDesc"
+msgid "Robust APIs and serverless workflows to power tailored web portals and business applications."
+msgstr "Robust APIs and serverless workflows to power tailored web portals and business applications."
+
+msgctxt "featureAdminTitle"
+msgid "Admin Center"
+msgstr "Admin Center"
+
+msgctxt "featureAdminDesc"
+msgid "A complete, customizable backoffice portal for data entry, audits, and governance workflows."
+msgstr "A complete, customizable backoffice portal for data entry, audits, and governance workflows."
+
+msgctxt "featureMobileTitle"
+msgid "Mobile Backend"
+msgstr "Mobile Backend"
+
+msgctxt "featureMobileDesc"
+msgid "Ultra-fast REST and GraphQL endpoints designed to feed native Android and iOS applications."
+msgstr "Ultra-fast REST and GraphQL endpoints designed to feed native Android and iOS applications."
+
+msgctxt "featureIotAiTitle"
+msgid "IoT & AI Integrations"
+msgstr "IoT & AI Integrations"
+
+msgctxt "featureIotAiDesc"
+msgid "Real-time sensor pipelines, agent webhooks, and AI model orchestration out of the box."
+msgstr "Real-time sensor pipelines, agent webhooks, and AI model orchestration out of the box."
+
+msgctxt "useCasesTitle"
+msgid "Concrete Implementations"
+msgstr "Concrete Implementations"
+
+msgctxt "useCasesSubtitle"
+msgid "See how AWCMS-Micro templates and plugins adapt to your architectural demands."
+msgstr "See how AWCMS-Micro templates and plugins adapt to your architectural demands."
+
+msgctxt "useCaseCmsHeading"
+msgid "1. Headless Website CMS"
+msgstr "1. Headless Website CMS"
+
+msgctxt "useCaseCmsText"
+msgid "Manage content with standard EmDash collections and deliver it statically or dynamically. Astro-powered frontend provides optimal load times and top-tier SEO performance."
+msgstr "Manage content with standard EmDash collections and deliver it statically or dynamically. Astro-powered frontend provides optimal load times and top-tier SEO performance."
+
+msgctxt "useCaseShopHeading"
+msgid "2. Secure E-Commerce"
+msgstr "2. Secure E-Commerce"
+
+msgctxt "useCaseShopText"
+msgid "Implement product feeds, interactive search, and secure checkouts. Leverage Cloudflare KV or durable storage to build performant, globally-distributed storefronts."
+msgstr "Implement product feeds, interactive search, and secure checkouts. Leverage Cloudflare KV or durable storage to build performant, globally-distributed storefronts."
+
+msgctxt "useCaseAppHeading"
+msgid "3. Enterprise Web Portals"
+msgstr "3. Enterprise Web Portals"
+
+msgctxt "useCaseAppText"
+msgid "Construct responsive layouts and workflows with full support for user authorization, settings, and third-party API integrations."
+msgstr "Construct responsive layouts and workflows with full support for user authorization, settings, and third-party API integrations."
+
+msgctxt "useCaseAdminHeading"
+msgid "4. Multi-Tenant Admin Portals"
+msgstr "4. Multi-Tenant Admin Portals"
+
+msgctxt "useCaseAdminText"
+msgid "AWCMS-Micro includes a powerful admin dashboard featuring localized interfaces, collapsible sidebar groups, and extensible widgets."
+msgstr "AWCMS-Micro includes a powerful admin dashboard featuring localized interfaces, collapsible sidebar groups, and extensible widgets."
+
+msgctxt "useCaseMobileHeading"
+msgid "5. Mobile & IoT Backend"
+msgstr "5. Mobile & IoT Backend"
+
+msgctxt "useCaseMobileText"
+msgid "Serve as a high-performance backend. Provide API endpoints with sub-millisecond response times, secure authentication, and real-time data sync."
+msgstr "Serve as a high-performance backend. Provide API endpoints with sub-millisecond response times, secure authentication, and real-time data sync."
+
+msgctxt "useCaseAiHeading"
+msgid "6. AI-Powered Workflows"
+msgstr "6. AI-Powered Workflows"
+
+msgctxt "useCaseAiText"
+msgid "Run intelligent agents, monitor logs, and trigger automated workflows based on database events and webhooks."
+msgstr "Run intelligent agents, monitor logs, and trigger automated workflows based on database events and webhooks."
+
+msgctxt "ctaTitle"
+msgid "Ready to accelerate your next project?"
+msgstr "Ready to accelerate your next project?"
+
+msgctxt "ctaSubtitle"
+msgid "Deploy AWCMS-Micro on Cloudflare Pages or run it locally in seconds. Join developers building resilient applications."
+msgstr "Deploy AWCMS-Micro on Cloudflare Pages or run it locally in seconds. Join developers building resilient applications."
+
+msgctxt "ctaPrimary"
+msgid "Get Started Now"
+msgstr "Get Started Now"
+
+msgctxt "ctaSecondary"
+msgid "View on GitHub"
+msgstr "View on GitHub"
+
+msgctxt "footerBrandDesc"
+msgid "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and secure."
+msgstr "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and secure."
+
+msgctxt "footerLinksProduct"
+msgid "Product"
+msgstr "Product"
+
+msgctxt "footerLinksResources"
+msgid "Resources"
+msgstr "Resources"
+
+msgctxt "footerLinksCompany"
+msgid "Company"
+msgstr "Company"
+
+msgctxt "footerLinkFeatures"
+msgid "Features"
+msgstr "Features"
+
+msgctxt "footerLinkDocs"
+msgid "Docs"
+msgstr "Docs"
+
+msgctxt "footerLinkAggregate"
+msgid "Aggregate"
+msgstr "Aggregate"
+
+msgctxt "footerLinkSikesra"
+msgid "Sikesra App"
+msgstr "Sikesra App"
+
+msgctxt "footerLinkPrivacy"
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+msgctxt "footerLinkTerms"
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+msgctxt "footerAdminLogin"
+msgid "Admin Login"
+msgstr "Admin Login"
+
+msgctxt "footerGithub"
+msgid "View on GitHub"
+msgstr "View on GitHub"
+
+msgctxt "poweredBy"
+msgid "Powered by"
+msgstr "Powered by"
+
+msgctxt "visitAhliweb"
+msgid "Visit ahliweb.com"
+msgstr "Visit ahliweb.com"
+
+msgctxt "footerCopyright"
+msgid "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+msgstr "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+
+msgctxt "footerPoweredBy"
+msgid "Powered by"
+msgstr "Powered by"
+
+msgctxt "featuredPagesTitle"
+msgid "Featured pages"
+msgstr "Featured pages"
+
+msgctxt "featuredPagesDescription"
+msgid "Published pages are editable from the Pages collection and can be promoted into the public navigation."
+msgstr "Published pages are editable from the Pages collection and can be promoted into the public navigation."
+
+msgctxt "publicPagesTitle"
+msgid "Public reference pages"
+msgstr "Public reference pages"
+
+msgctxt "publicPagesDescription"
+msgid "Useful pages managed in the standard Pages collection and linked from the public site."
+msgstr "Useful pages managed in the standard Pages collection and linked from the public site."
+
+msgctxt "managePagesInAdmin"
+msgid "Manage pages in admin"
+msgstr "Manage pages in admin"
+
+msgctxt "openPage"
+msgid "Open page"
+msgstr "Open page"
+
+msgctxt "counts.posts"
+msgid "Posts"
+msgstr "Posts"
+
+msgctxt "counts.news"
+msgid "News"
+msgstr "News"
+
+msgctxt "counts.pages"
+msgid "Pages"
+msgstr "Pages"
+
+msgctxt "counts.galleries"
+msgid "Galleries"
+msgstr "Galleries"
+
+msgctxt "galleryTitle"
+msgid "Gallery"
+msgstr "Gallery"
+
+msgctxt "galleryDescription"
+msgid "Explore our collection of photos and videos."
+msgstr "Explore our collection of photos and videos."
+
+msgctxt "galleryKicker"
+msgid "Media & Gallery"
+msgstr "Media & Gallery"
+
+msgctxt "galleryNavLabel"
+msgid "Gallery"
+msgstr "Gallery"
+
+msgctxt "galleryListHeading"
+msgid "Photo & Video Gallery"
+msgstr "Photo & Video Gallery"
+
+msgctxt "galleryListIntro"
+msgid "Browse our curated collections of photos and videos from events, activities, and highlights."
+msgstr "Browse our curated collections of photos and videos from events, activities, and highlights."
+
+msgctxt "galleryFilterAll"
+msgid "All"
+msgstr "All"
+
+msgctxt "galleryFilterPhoto"
+msgid "Photos"
+msgstr "Photos"
+
+msgctxt "galleryFilterVideo"
+msgid "Videos"
+msgstr "Videos"
+
+msgctxt "galleryFilterMixed"
+msgid "Mixed"
+msgstr "Mixed"
+
+msgctxt "galleryItemsCount"
+msgid "{count} item"
+msgstr "{count} item(s)"
+
+msgctxt "noGalleryYet"
+msgid "No galleries yet. Check back soon."
+msgstr "No galleries yet. Check back soon."
+
+msgctxt "galleryViewAll"
+msgid "View All Galleries"
+msgstr "View All Galleries"
+
+msgctxt "galleryBackToList"
+msgid "Back to Gallery"
+msgstr "Back to Gallery"
+
+msgctxt "galleryEventDate"
+msgid "Event Date"
+msgstr "Event Date"
+
+msgctxt "galleryLocation"
+msgid "Location"
+msgstr "Location"
+
+msgctxt "galleryType"
+msgid "Type"
+msgstr "Type"
+
+msgctxt "galleryItemsLabel"
+msgid "Items in this gallery"
+msgstr "Items in this gallery"
+
+msgctxt "galleryPhotoLabel"
+msgid "Photo"
+msgstr "Photo"
+
+msgctxt "galleryVideoLabel"
+msgid "Video"
+msgstr "Video"
+
+msgctxt "galleryPlayVideo"
+msgid "Play video"
+msgstr "Play video"
+
+msgctxt "featuredGalleryTitle"
+msgid "Featured Gallery"
+msgstr "Featured Gallery"
+
+msgctxt "featuredGalleryDescription"
+msgid "View our featured gallery collection managed from the admin panel."
+msgstr "View our featured gallery collection managed from the admin panel."
+
+msgctxt "galleryLinkFooter"
+msgid "Gallery"
+msgstr "Gallery"

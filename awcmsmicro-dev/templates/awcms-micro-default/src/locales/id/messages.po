@@ -1,17 +1,579 @@
-msgid "AWCMS-Micro"
-msgstr "AWCMS-Micro"
+msgctxt "notFoundTitle"
+msgid "Page Not Found"
+msgstr "Halaman Tidak Ditemukan"
 
+msgctxt "notFoundDescription"
+msgid "The requested AWCMS-Micro page was not found."
+msgstr "Halaman AWCMS-Micro yang diminta tidak ditemukan."
+
+msgctxt "notFoundMessage"
+msgid "The requested page does not exist or is no longer published."
+msgstr "Halaman yang diminta tidak ada atau tidak lagi dipublikasikan."
+
+msgctxt "returnHome"
+msgid "Return to the homepage"
+msgstr "Kembali ke beranda"
+
+msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Agregat Publik"
 
+msgctxt "aggregateDescription"
+msgid "A public-safe reference page that summarizes site content without exposing private records."
+msgstr "Halaman referensi aman-publik yang merangkum konten situs tanpa mengekspos data privat."
+
+msgctxt "aggregateKicker"
+msgid "Reference"
+msgstr "Referensi"
+
+msgctxt "aggregateHeading"
 msgid "Public aggregate for {siteTitle}"
 msgstr "Agregat publik untuk {siteTitle}"
 
+msgctxt "aggregateIntro"
+msgid "This page demonstrates the AWCMS-Micro public-safe aggregate pattern. It shows coarse counts only and avoids personal identifiers, raw storage keys, or sensitive document details."
+msgstr "Halaman ini mendemonstrasikan pola agregat aman-publik AWCMS-Micro. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal pribadi, kunci storage mentah, atau detail dokumen sensitif."
+
+msgctxt "summary"
+msgid "Summary"
+msgstr "Ringkasan"
+
+msgctxt "privacyNote"
+msgid "Privacy note"
+msgstr "Catatan privasi"
+
+msgctxt "privacyNoteDescription"
+msgid "The reference aggregate intentionally stays high level so it can be published publicly without revealing individual registry entities, verification events, or protected attributes."
+msgstr "Agregat referensi ini sengaja tetap tingkat tinggi sehingga bisa dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi."
+
+msgctxt "openAdmin"
+msgid "Open admin"
+msgstr "Buka admin"
+
+msgctxt "openAdminDescription"
+msgid "to work with the underlying content and governance workflows."
+msgstr "untuk mengelola konten dan alur kerja tata kelola dasarnya."
+
+msgctxt "postsTitle"
+msgid "Posts"
+msgstr "Pos"
+
+msgctxt "postsDescription"
+msgid "Published AWCMS-Micro posts managed from the EmDash admin."
+msgstr "Pos AWCMS-Micro yang dipublikasikan dan dikelola dari admin EmDash."
+
+msgctxt "noPostsYet"
+msgid "No posts yet."
+msgstr "Belum ada pos."
+
+msgctxt "newsTitle"
+msgid "News"
+msgstr "Berita"
+
+msgctxt "newsDescription"
+msgid "Operational and product news from AWCMS-Micro."
+msgstr "Berita operasional dan produk dari AWCMS-Micro."
+
+msgctxt "noNewsYet"
+msgid "No news items yet."
+msgstr "Belum ada berita."
+
+msgctxt "homeKicker"
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgctxt "homeHeading"
+msgid "A focused EmDash website and admin workflow for AWCMS-Micro."
+msgstr "Situs EmDash dan alur kerja admin yang terfokus untuk AWCMS-Micro."
+
+msgctxt "homeIntro"
+msgid "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
+msgstr "Template pengembangan lokal ini menunjukkan bagaimana AWCMS-Micro menampilkan konten publik, menjaga core EmDash tetap utuh, dan mengarahkan editor ke antarmuka admin standar untuk konten, pengaturan, dan alur kerja tata kelola berbasis plugin."
+
+msgctxt "createPost"
+msgid "Create Post"
+msgstr "Buat Pos"
+
+msgctxt "createPage"
+msgid "Create Page"
+msgstr "Buat Halaman"
+
+msgctxt "viewDocs"
+msgid "View Docs"
+msgstr "Lihat Docs"
+
+msgctxt "viewPublicAggregate"
+msgid "View Public Aggregate"
+msgstr "Lihat Agregat Publik"
+
+msgctxt "nestedMenuTitle"
+msgid "Nested menu and mode demo"
+msgstr "Demo menu bertingkat dan mode"
+
+msgctxt "publicNavigationExample"
+msgid "Public navigation example"
+msgstr "Contoh navigasi publik"
+
+msgctxt "publicNavigationDescription"
+msgid "The primary navigation in the header already renders the seeded menu structure, including nested items, so visitors can move across the site without a second menu render inside the page body."
+msgstr "Navigasi utama di header sudah merender struktur menu yang di-seed, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman."
+
+msgctxt "switchModeTitle"
+msgid "Switch mode"
+msgstr "Ganti mode"
+
+msgctxt "switchModeDescription"
+msgid "The control below mirrors the header toggle and lets visitors flip light and dark mode from the homepage itself."
+msgstr "Kontrol di bawah ini mencerminkan toggle header dan memungkinkan pengunjung mengganti mode terang dan gelap langsung dari beranda."
+
+msgctxt "switchModeButton"
+msgid "Switch mode"
+msgstr "Ganti mode"
+
+msgctxt "howConnectsTitle"
+msgid "How the public site connects to admin"
+msgstr "Bagaimana situs publik terhubung ke admin"
+
+msgctxt "publishFromEmdash"
+msgid "Publish from EmDash"
+msgstr "Publikasikan dari EmDash"
+
+msgctxt "publishFromEmdashDescription"
+msgid "Posts, news, and pages created in the admin flow directly into the public routes below."
+msgstr "Pos, berita, dan halaman yang dibuat di admin langsung mengalir ke route publik di bawah ini."
+
+msgctxt "keepContentInSync"
+msgid "Keep content in sync"
+msgstr "Jaga konten tetap sinkron"
+
+msgctxt "keepContentInSyncDescription"
+msgid "Menus, search, site identity, and widget content render from EmDash data instead of hard-coded placeholders."
+msgstr "Menu, pencarian, identitas situs, dan konten widget dirender dari data EmDash alih-alih placeholder hard-coded."
+
+msgctxt "extendWithAwcms"
+msgid "Extend with AWCMS-Micro"
+msgstr "Perluas dengan AWCMS-Micro"
+
+msgctxt "extendWithAwcmsDescription"
+msgid "The checked-in template already registers the SIKESRA plugin so local development can exercise governance, audit, and access workflows without Cloudflare."
+msgstr "Template yang tersimpan ini sudah mendaftarkan plugin contoh sehingga pengembangan lokal dapat menjalankan alur kerja tata kelola, audit, dan akses tanpa Cloudflare."
+
+msgctxt "editorWorkflowShortcuts"
+msgid "Editor workflow shortcuts"
+msgstr "Shortcut alur kerja editor"
+
+msgctxt "publishedPostsVisible"
+msgid "Published posts currently visible on the public website."
+msgstr "Pos terpublikasi yang saat ini terlihat di situs publik."
+
+msgctxt "viewPosts"
+msgid "View posts"
+msgstr "Lihat pos"
+
+msgctxt "newsWorkflowVisible"
+msgid "News updates connected to the same publishing workflow."
+msgstr "Pembaruan berita yang terhubung ke alur kerja publikasi yang sama."
+
+msgctxt "viewNews"
+msgid "View news"
+msgstr "Lihat berita"
+
+msgctxt "managedPagesVisible"
+msgid "Managed pages such as About, implementation notes, and product info."
+msgstr "Halaman terkelola seperti About, catatan implementasi, dan info produk."
+
+msgctxt "viewAboutPage"
+msgid "View about page"
+msgstr "Lihat halaman tentang"
+
+msgctxt "safeAggregateLabel"
+msgid "Safe aggregate"
+msgstr "Agregat aman"
+
+msgctxt "safeAggregateDescription"
+msgid "A public reference page summarises content without exposing sensitive identifiers."
+msgstr "Halaman referensi publik yang merangkum konten tanpa mengekspos pengenal sensitif."
+
+msgctxt "viewAggregatePage"
+msgid "View aggregate page"
+msgstr "Lihat halaman agregat"
+
+msgctxt "recentPosts"
+msgid "Recent posts"
+msgstr "Pos terbaru"
+
+msgctxt "noPostsCreateOne"
+msgid "No posts yet. Create one from the admin."
+msgstr "Belum ada pos. Buat satu dari admin."
+
+msgctxt "latestNews"
+msgid "Latest news"
+msgstr "Berita terbaru"
+
+msgctxt "searchPlaceholder"
 msgid "Search posts, pages, and news"
 msgstr "Cari pos, halaman, dan berita"
 
+msgctxt "adminLink"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "adminLoginBtn"
 msgid "Admin Login"
 msgstr "Login Admin"
 
+msgctxt "toggleTheme"
 msgid "Toggle Theme"
 msgstr "Ganti Tema"
+
+msgctxt "switchToLightMode"
+msgid "Switch to Light Mode"
+msgstr "Ganti ke Mode Terang"
+
+msgctxt "switchToDarkMode"
+msgid "Switch to Dark Mode"
+msgstr "Ganti ke Mode Gelap"
+
+msgctxt "heroTitle"
+msgid "Build Anything on a Resilient Foundation"
+msgstr "Bangun Apa Saja di Atas Fondasi yang Tangguh"
+
+msgctxt "heroSubtitle"
+msgid "AWCMS-Micro combines the absolute reliability of single-tenant architecture with the flexible extension model of EmDash. Fully integrated, zero core modifications, completely tenant-ready."
+msgstr "AWCMS-Micro menggabungkan keandalan mutlak arsitektur single-tenant dengan model ekstensi EmDash yang fleksibel. Terintegrasi penuh, tanpa modifikasi core, siap untuk multi-tenant."
+
+msgctxt "heroCtaPrimary"
+msgid "Explore Admin"
+msgstr "Jelajahi Admin"
+
+msgctxt "heroCtaSecondary"
+msgid "Read Documentation"
+msgstr "Baca Dokumentasi"
+
+msgctxt "featuresTitle"
+msgid "Engineered for Every Use Case"
+msgstr "Didesain untuk Segala Kebutuhan"
+
+msgctxt "featuresSubtitle"
+msgid "From standard marketing sites to complex data backends, AWCMS-Micro provides a unified development experience."
+msgstr "Dari situs web pemasaran standar hingga backend data yang kompleks, AWCMS-Micro menyediakan pengalaman pengembangan yang terpadu."
+
+msgctxt "featureCmsTitle"
+msgid "Modern CMS"
+msgstr "CMS Modern"
+
+msgctxt "featureCmsDesc"
+msgid "Flexible content structures for blogs, news, and pages with instant preview and publishing."
+msgstr "Struktur konten fleksibel untuk blog, berita, dan halaman dengan pratinjau dan publikasi instan."
+
+msgctxt "featureShopTitle"
+msgid "E-Commerce Ready"
+msgstr "Siap E-Commerce"
+
+msgctxt "featureShopDesc"
+msgid "Secure transactions, product galleries, and inventory management powered by custom microservices."
+msgstr "Transaksi aman, galeri produk, dan manajemen inventaris yang didukung oleh microservices kustom."
+
+msgctxt "featureAppTitle"
+msgid "Custom Web Apps"
+msgstr "Aplikasi Web Kustom"
+
+msgctxt "featureAppDesc"
+msgid "Robust APIs and serverless workflows to power tailored web portals and business applications."
+msgstr "API tangguh dan alur kerja serverless untuk mendukung portal web kustom dan aplikasi bisnis."
+
+msgctxt "featureAdminTitle"
+msgid "Admin Center"
+msgstr "Pusat Admin"
+
+msgctxt "featureAdminDesc"
+msgid "A complete, customizable backoffice portal for data entry, audits, and governance workflows."
+msgstr "Portal backoffice lengkap yang dapat disesuaikan untuk entri data, audit, dan alur kerja tata kelola."
+
+msgctxt "featureMobileTitle"
+msgid "Mobile Backend"
+msgstr "Backend Mobile"
+
+msgctxt "featureMobileDesc"
+msgid "Ultra-fast REST and GraphQL endpoints designed to feed native Android and iOS applications."
+msgstr "Endpoint REST dan GraphQL super cepat yang dirancang untuk mendukung aplikasi native Android dan iOS."
+
+msgctxt "featureIotAiTitle"
+msgid "IoT & AI Integrations"
+msgstr "Integrasi IoT & AI"
+
+msgctxt "featureIotAiDesc"
+msgid "Real-time sensor pipelines, agent webhooks, and AI model orchestration out of the box."
+msgstr "Pipeline sensor real-time, webhook agen, dan orkestrasi model AI langsung dari kotak."
+
+msgctxt "useCasesTitle"
+msgid "Concrete Implementations"
+msgstr "Implementasi Nyata"
+
+msgctxt "useCasesSubtitle"
+msgid "See how AWCMS-Micro templates and plugins adapt to your architectural demands."
+msgstr "Lihat bagaimana template dan plugin AWCMS-Micro menyesuaikan dengan kebutuhan arsitektur Anda."
+
+msgctxt "useCaseCmsHeading"
+msgid "1. Headless Website CMS"
+msgstr "1. CMS Website Headless"
+
+msgctxt "useCaseCmsText"
+msgid "Manage content with standard EmDash collections and deliver it statically or dynamically. Astro-powered frontend provides optimal load times and top-tier SEO performance."
+msgstr "Kelola konten dengan koleksi EmDash standar dan sajikan secara statis atau dinamis. Frontend bertenaga Astro memberikan waktu muat optimal dan performa SEO terbaik."
+
+msgctxt "useCaseShopHeading"
+msgid "2. Secure E-Commerce"
+msgstr "2. E-Commerce yang Aman"
+
+msgctxt "useCaseShopText"
+msgid "Implement product feeds, interactive search, and secure checkouts. Leverage Cloudflare KV or durable storage to build performant, globally-distributed storefronts."
+msgstr "Implementasikan feed produk, pencarian interaktif, dan checkout aman. Manfaatkan Cloudflare KV atau penyimpanan tahan lama untuk membangun toko global berperforma tinggi."
+
+msgctxt "useCaseAppHeading"
+msgid "3. Enterprise Web Portals"
+msgstr "3. Portal Web Perusahaan"
+
+msgctxt "useCaseAppText"
+msgid "Construct responsive layouts and workflows with full support for user authorization, settings, and third-party API integrations."
+msgstr "Bangun tata letak dan alur kerja responsif dengan dukungan penuh untuk otorisasi pengguna, pengaturan, dan integrasi API pihak ketiga."
+
+msgctxt "useCaseAdminHeading"
+msgid "4. Multi-Tenant Admin Portals"
+msgstr "4. Portal Admin Multi-Tenant"
+
+msgctxt "useCaseAdminText"
+msgid "AWCMS-Micro includes a powerful admin dashboard featuring localized interfaces, collapsible sidebar groups, and extensible widgets."
+msgstr "AWCMS-Micro menyertakan dasbor admin canggih yang menampilkan antarmuka terlokalisasi, grup sidebar yang dapat diciutkan, dan widget yang dapat diperluas."
+
+msgctxt "useCaseMobileHeading"
+msgid "5. Mobile & IoT Backend"
+msgstr "5. Backend Mobile & IoT"
+
+msgctxt "useCaseMobileText"
+msgid "Serve as a high-performance backend. Provide API endpoints with sub-millisecond response times, secure authentication, and real-time data sync."
+msgstr "Berfungsi sebagai backend berkinerja tinggi. Sediakan endpoint API dengan waktu respons sub-milidetik, otentikasi aman, dan sinkronisasi data real-time."
+
+msgctxt "useCaseAiHeading"
+msgid "6. AI-Powered Workflows"
+msgstr "6. Alur Kerja Bertenaga AI"
+
+msgctxt "useCaseAiText"
+msgid "Run intelligent agents, monitor logs, and trigger automated workflows based on database events and webhooks."
+msgstr "Jalankan agen cerdas, pantau log, dan picu alur kerja otomatis berdasarkan event database dan webhook."
+
+msgctxt "ctaTitle"
+msgid "Ready to accelerate your next project?"
+msgstr "Siap mempercepat proyek Anda berikutnya?"
+
+msgctxt "ctaSubtitle"
+msgid "Deploy AWCMS-Micro on Cloudflare Pages or run it locally in seconds. Join developers building resilient applications."
+msgstr "Deploy AWCMS-Micro di Cloudflare Pages atau jalankan secara lokal dalam hitungan detik. Bergabunglah dengan pengembang yang membangun aplikasi tangguh."
+
+msgctxt "ctaPrimary"
+msgid "Get Started Now"
+msgstr "Mulai Sekarang"
+
+msgctxt "ctaSecondary"
+msgid "View on GitHub"
+msgstr "Lihat di GitHub"
+
+msgctxt "footerBrandDesc"
+msgid "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and secure."
+msgstr "Template web dan plugin tangguh yang dibangun di atas EmDash. Ringan, cepat, dan aman."
+
+msgctxt "footerLinksProduct"
+msgid "Product"
+msgstr "Produk"
+
+msgctxt "footerLinksResources"
+msgid "Resources"
+msgstr "Sumber Daya"
+
+msgctxt "footerLinksCompany"
+msgid "Company"
+msgstr "Perusahaan"
+
+msgctxt "footerLinkFeatures"
+msgid "Features"
+msgstr "Fitur"
+
+msgctxt "footerLinkDocs"
+msgid "Docs"
+msgstr "Dokumentasi"
+
+msgctxt "footerLinkAggregate"
+msgid "Aggregate"
+msgstr "Agregat"
+
+msgctxt "footerLinkSikesra"
+msgid "Sikesra App"
+msgstr "Aplikasi Sikesra"
+
+msgctxt "footerLinkPrivacy"
+msgid "Privacy Policy"
+msgstr "Kebijakan Privasi"
+
+msgctxt "footerLinkTerms"
+msgid "Terms of Service"
+msgstr "Ketentuan Layanan"
+
+msgctxt "footerAdminLogin"
+msgid "Admin Login"
+msgstr "Login Admin"
+
+msgctxt "footerGithub"
+msgid "View on GitHub"
+msgstr "Lihat di GitHub"
+
+msgctxt "poweredBy"
+msgid "Powered by"
+msgstr "Didukung oleh"
+
+msgctxt "visitAhliweb"
+msgid "Visit ahliweb.com"
+msgstr "Kunjungi ahliweb.com"
+
+msgctxt "footerCopyright"
+msgid "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+msgstr "© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash."
+
+msgctxt "footerPoweredBy"
+msgid "Powered by"
+msgstr "Didukung oleh"
+
+msgctxt "featuredPagesTitle"
+msgid "Featured pages"
+msgstr "Halaman unggulan"
+
+msgctxt "featuredPagesDescription"
+msgid "Published pages are editable from the Pages collection and can be promoted into the public navigation."
+msgstr "Halaman terpublikasi dapat diedit dari koleksi Pages dan dipromosikan ke navigasi publik."
+
+msgctxt "publicPagesTitle"
+msgid "Public reference pages"
+msgstr "Halaman referensi publik"
+
+msgctxt "publicPagesDescription"
+msgid "Useful pages managed in the standard Pages collection and linked from the public site."
+msgstr "Halaman berguna yang dikelola di koleksi Pages standar dan ditautkan dari situs publik."
+
+msgctxt "managePagesInAdmin"
+msgid "Manage pages in admin"
+msgstr "Kelola halaman di admin"
+
+msgctxt "openPage"
+msgid "Open page"
+msgstr "Buka halaman"
+
+msgctxt "counts.posts"
+msgid "Posts"
+msgstr "Pos"
+
+msgctxt "counts.news"
+msgid "News"
+msgstr "Berita"
+
+msgctxt "counts.pages"
+msgid "Pages"
+msgstr "Halaman"
+
+msgctxt "counts.galleries"
+msgid "Galleries"
+msgstr "Galeri"
+
+msgctxt "galleryTitle"
+msgid "Gallery"
+msgstr "Galeri"
+
+msgctxt "galleryDescription"
+msgid "Explore our collection of photos and videos."
+msgstr "Jelajahi koleksi foto dan video kami."
+
+msgctxt "galleryKicker"
+msgid "Media & Gallery"
+msgstr "Media & Galeri"
+
+msgctxt "galleryNavLabel"
+msgid "Gallery"
+msgstr "Galeri"
+
+msgctxt "galleryListHeading"
+msgid "Photo & Video Gallery"
+msgstr "Galeri Foto & Video"
+
+msgctxt "galleryListIntro"
+msgid "Browse our curated collections of photos and videos from events, activities, and highlights."
+msgstr "Telusuri koleksi foto dan video pilihan dari berbagai acara, kegiatan, dan momen penting kami."
+
+msgctxt "galleryFilterAll"
+msgid "All"
+msgstr "Semua"
+
+msgctxt "galleryFilterPhoto"
+msgid "Photos"
+msgstr "Foto"
+
+msgctxt "galleryFilterVideo"
+msgid "Videos"
+msgstr "Video"
+
+msgctxt "galleryFilterMixed"
+msgid "Mixed"
+msgstr "Campuran"
+
+msgctxt "galleryItemsCount"
+msgid "{count} item"
+msgstr "{count} item"
+
+msgctxt "noGalleryYet"
+msgid "No galleries yet. Check back soon."
+msgstr "Belum ada galeri. Kunjungi kembali nanti."
+
+msgctxt "galleryViewAll"
+msgid "View All Galleries"
+msgstr "Lihat Semua Galeri"
+
+msgctxt "galleryBackToList"
+msgid "Back to Gallery"
+msgstr "Kembali ke Galeri"
+
+msgctxt "galleryEventDate"
+msgid "Event Date"
+msgstr "Tanggal Acara"
+
+msgctxt "galleryLocation"
+msgid "Location"
+msgstr "Lokasi"
+
+msgctxt "galleryType"
+msgid "Type"
+msgstr "Jenis"
+
+msgctxt "galleryItemsLabel"
+msgid "Items in this gallery"
+msgstr "Item dalam galeri ini"
+
+msgctxt "galleryPhotoLabel"
+msgid "Photo"
+msgstr "Foto"
+
+msgctxt "galleryVideoLabel"
+msgid "Video"
+msgstr "Video"
+
+msgctxt "galleryPlayVideo"
+msgid "Play video"
+msgstr "Putar video"
+
+msgctxt "featuredGalleryTitle"
+msgid "Featured Gallery"
+msgstr "Galeri Unggulan"
+
+msgctxt "featuredGalleryDescription"
+msgid "View our featured gallery collection managed from the admin panel."
+msgstr "Lihat koleksi galeri unggulan kami yang dikelola dari panel admin."
+
+msgctxt "galleryLinkFooter"
+msgid "Gallery"
+msgstr "Galeri"
