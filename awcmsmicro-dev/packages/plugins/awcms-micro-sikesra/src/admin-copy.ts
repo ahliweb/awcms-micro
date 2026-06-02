@@ -97,7 +97,6 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			noRecentEventsDescription: "Picu aksi plugin untuk mengisi aliran audit.",
 			settingsSavedSuccessfully: "Pengaturan berhasil disimpan.",
 			failedToSaveSettings: "Gagal menyimpan pengaturan",
-			...poCopy,
 			registrySteps: [
 				"Jenis Data",
 				"Wilayah Resmi",
@@ -511,6 +510,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			failedToSaveDataTypes: "Gagal memperbarui data klasifikasi jenis data.",
 			invalidTypeCode: "Kode harus berupa 2 digit angka/karakter unik.",
 			userLabel: "Pengguna",
+			...poCopy,
 		};
 	}
 
@@ -607,7 +607,6 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		noRecentEventsDescription: "Trigger plugin actions to populate the audit stream.",
 		settingsSavedSuccessfully: "Settings saved successfully.",
 		failedToSaveSettings: "Failed to save settings",
-		...poCopy,
 		registrySteps: [
 			"Data Type",
 			"Official Region",
@@ -1016,5 +1015,6 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		failedToSaveDataTypes: "Failed to update SIKESRA classification data.",
 		invalidTypeCode: "Code must be a unique 2-digit number/alphanumeric.",
 		userLabel: "User",
+		...poCopy,
 	};
 }

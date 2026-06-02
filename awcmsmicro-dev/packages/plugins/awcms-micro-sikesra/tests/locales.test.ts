@@ -78,16 +78,19 @@ const copyShape = (value: unknown, path = "root") => {
 };
 
 describe("SIKESRA PO catalogs", () => {
-	it("cover every compiled navigation adapter key", async () => {
+	it("cover every compiled runtime adapter key", async () => {
 		const expectedKeys = Object.keys(SIKESRA_PO_LOCALE_MESSAGES.en ?? {}).toSorted();
 
 		for (const locale of ["en", "id"] as const) {
 			expect(
 				(await readCatalog(locale))
 					.map((entry) => entry.msgctxt)
-					.filter((key): key is string => key?.startsWith("awcms.nav.") ?? false)
+					.filter(
+						(key): key is string =>
+							Boolean(key?.startsWith("awcms.nav.") || key?.startsWith("awcms.meta.")),
+					)
 					.toSorted(),
-				`${locale} PO catalog keys drifted`,
+				`${locale} PO runtime catalog keys drifted`,
 			).toEqual(expectedKeys);
 		}
 	});

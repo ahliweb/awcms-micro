@@ -240,7 +240,7 @@ For a technical implementation PRD, see `docs/TECHNICAL_PRD.md`.
 For SIKESRA implementation diagrams, see `docs/MERMAID_DIAGRAMS.md`.
 For release-oriented checks, see `docs/INTERNAL_PUBLISH_CHECKLIST.md`.
 For the SIKESRA reference data model and fixtures, see `docs/SIKESRA_REFERENCE_DATA_MODEL.md`.
-For the current PO catalog migration plan, see `docs/I18N_MIGRATION.md`.
+For the current PO-backed admin, navigation, runtime metadata, and temporary adapter coverage, see `docs/I18N_MIGRATION.md`.
 
 ## Demonstrated Routes And Hooks
 

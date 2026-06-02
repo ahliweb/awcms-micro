@@ -122,6 +122,210 @@ msgctxt "awcms.nav.settings"
 msgid "Settings"
 msgstr "Settings"
 
+msgctxt "awcms.meta.widget.governanceStatus"
+msgid "Governance Status"
+msgstr "Governance Status"
+
+msgctxt "awcms.meta.widget.accessRightsHealth"
+msgid "Access Rights Health"
+msgstr "Access Rights Health"
+
+msgctxt "awcms.meta.widget.abacPolicyStatus"
+msgid "ABAC Policy Status"
+msgstr "ABAC Policy Status"
+
+msgctxt "awcms.meta.settings.publicStatusLabel"
+msgid "Public Status Label"
+msgstr "Public Status Label"
+
+msgctxt "awcms.meta.settings.publicStatusLabelDesc"
+msgid "Shown by the plugin's public-safe status route."
+msgstr "Shown by the plugin's public-safe status route."
+
+msgctxt "awcms.meta.settings.auditRetentionDays"
+msgid "Audit Retention Days"
+msgstr "Audit Retention Days"
+
+msgctxt "awcms.meta.settings.auditRetentionDaysDesc"
+msgid "Used by the demo cron cleanup summary."
+msgstr "Used by the demo cron cleanup summary."
+
+msgctxt "awcms.meta.settings.governanceMode"
+msgid "Governance Mode"
+msgstr "Governance Mode"
+
+msgctxt "awcms.meta.settings.observe"
+msgid "Observe"
+msgstr "Observe"
+
+msgctxt "awcms.meta.settings.review"
+msgid "Review"
+msgstr "Review"
+
+msgctxt "awcms.meta.settings.enforceDemo"
+msgid "Enforce Demo"
+msgstr "Enforce Demo"
+
+msgctxt "awcms.meta.settings.metadataCanonicalBase"
+msgid "Metadata Canonical Base"
+msgstr "Metadata Canonical Base"
+
+msgctxt "awcms.meta.settings.metadataCanonicalBaseDesc"
+msgid "Optional override for page metadata contributions."
+msgstr "Optional override for page metadata contributions."
+
+msgctxt "awcms.meta.settings.smallCellThreshold"
+msgid "Small Cell Suppression Threshold"
+msgstr "Small Cell Suppression Threshold"
+
+msgctxt "awcms.meta.settings.smallCellThresholdDesc"
+msgid "Safety threshold below which counts are suppressed to protect privacy."
+msgstr "Safety threshold below which counts are suppressed to protect privacy."
+
+msgctxt "awcms.meta.settings.sikesraPublicEnabled"
+msgid "SIKESRA Public API Enabled"
+msgstr "SIKESRA Public API Enabled"
+
+msgctxt "awcms.meta.settings.sikesraPublicEnabledDesc"
+msgid "Enable or disable public aggregate access to SIKESRA stats."
+msgstr "Enable or disable public aggregate access to SIKESRA stats."
+
+msgctxt "awcms.meta.block.accessNote"
+msgid "AWCMS Access Note"
+msgstr "AWCMS Access Note"
+
+msgctxt "awcms.meta.block.accessNoteDesc"
+msgid "Portable Text note block for access and governance guidance."
+msgstr "Portable Text note block for access and governance guidance."
+
+msgctxt "awcms.meta.block.category"
+msgid "AWCMS Micro"
+msgstr "AWCMS Micro"
+
+msgctxt "awcms.meta.field.statusBadge"
+msgid "Status badge"
+msgstr "Status badge"
+
+msgctxt "awcms.meta.permission.readPublicContent"
+msgid "Read Public Content"
+msgstr "Read Public Content"
+
+msgctxt "awcms.meta.permission.readPublicContentDesc"
+msgid "Allows reading public-facing content surfaces."
+msgstr "Allows reading public-facing content surfaces."
+
+msgctxt "awcms.meta.permission.reviewAndPublish"
+msgid "Review And Publish"
+msgstr "Review And Publish"
+
+msgctxt "awcms.meta.permission.reviewAndPublishDesc"
+msgid "Allows review workflows to approve and publish content."
+msgstr "Allows review workflows to approve and publish content."
+
+msgctxt "awcms.meta.permission.readAuditEvents"
+msgid "Read Audit Events"
+msgstr "Read Audit Events"
+
+msgctxt "awcms.meta.permission.readAuditEventsDesc"
+msgid "Allows operators to inspect governance and access audit events."
+msgstr "Allows operators to inspect governance and access audit events."
+
+msgctxt "awcms.meta.role.siteEditor"
+msgid "Site Editor"
+msgstr "Site Editor"
+
+msgctxt "awcms.meta.role.siteEditorDesc"
+msgid "Editor role for content operations."
+msgstr "Editor role for content operations."
+
+msgctxt "awcms.meta.role.governanceReviewer"
+msgid "Governance Reviewer"
+msgstr "Governance Reviewer"
+
+msgctxt "awcms.meta.role.governanceReviewerDesc"
+msgid "Reviewer role for governance and publishing approval."
+msgstr "Reviewer role for governance and publishing approval."
+
+msgctxt "awcms.meta.abac.tenantId"
+msgid "Tenant ID"
+msgstr "Tenant ID"
+
+msgctxt "awcms.meta.abac.tenantIdDesc"
+msgid "Tenant identifier for the acting subject."
+msgstr "Tenant identifier for the acting subject."
+
+msgctxt "awcms.meta.abac.siteId"
+msgid "Site ID"
+msgstr "Site ID"
+
+msgctxt "awcms.meta.abac.siteIdDesc"
+msgid "Site identifier for the acting subject."
+msgstr "Site identifier for the acting subject."
+
+msgctxt "awcms.meta.abac.moduleId"
+msgid "Module ID"
+msgstr "Module ID"
+
+msgctxt "awcms.meta.abac.moduleIdDesc"
+msgid "Module identifier for the resource."
+msgstr "Module identifier for the resource."
+
+msgctxt "awcms.meta.abac.resourceType"
+msgid "Resource Type"
+msgstr "Resource Type"
+
+msgctxt "awcms.meta.abac.resourceTypeDesc"
+msgid "Resource type used in ABAC evaluation."
+msgstr "Resource type used in ABAC evaluation."
+
+msgctxt "awcms.meta.abac.resourceStatus"
+msgid "Resource Status"
+msgstr "Resource Status"
+
+msgctxt "awcms.meta.abac.resourceStatusDesc"
+msgid "Workflow status of the resource."
+msgstr "Workflow status of the resource."
+
+msgctxt "awcms.meta.abac.resourceSensitivity"
+msgid "Resource Sensitivity"
+msgstr "Resource Sensitivity"
+
+msgctxt "awcms.meta.abac.resourceSensitivityDesc"
+msgid "Sensitivity classification for the resource."
+msgstr "Sensitivity classification for the resource."
+
+msgctxt "awcms.meta.abac.ownerUserId"
+msgid "Owner User ID"
+msgstr "Owner User ID"
+
+msgctxt "awcms.meta.abac.ownerUserIdDesc"
+msgid "Owning user of the resource."
+msgstr "Owning user of the resource."
+
+msgctxt "awcms.meta.abac.regionScope"
+msgid "Region Scope"
+msgstr "Region Scope"
+
+msgctxt "awcms.meta.abac.regionScopeDesc"
+msgid "Region scope for the decision context."
+msgstr "Region scope for the decision context."
+
+msgctxt "awcms.meta.abac.action"
+msgid "Action"
+msgstr "Action"
+
+msgctxt "awcms.meta.abac.actionDesc"
+msgid "Action under evaluation."
+msgstr "Action under evaluation."
+
+msgctxt "awcms.meta.abac.policy.allowPublishedReads"
+msgid "Allow published content reads for the same tenant"
+msgstr "Allow published content reads for the same tenant"
+
+msgctxt "awcms.meta.abac.policy.denyRestrictedGovernance"
+msgid "Explicitly deny publishing restricted governance resources"
+msgstr "Explicitly deny publishing restricted governance resources"
+
 msgctxt "awcms.adminCopy.navTitle"
 msgid "Plugin Operations Center"
 msgstr "Plugin Operations Center"
@@ -1721,3 +1925,175 @@ msgstr "Code must be a unique 2-digit number/alphanumeric."
 msgctxt "awcms.adminCopy.userLabel"
 msgid "User"
 msgstr "User"
+
+msgctxt "awcms.adminCopy.registrySteps.0"
+msgid "Data Type"
+msgstr "Data Type"
+
+msgctxt "awcms.adminCopy.registrySteps.1"
+msgid "Official Region"
+msgstr "Official Region"
+
+msgctxt "awcms.adminCopy.registrySteps.2"
+msgid "Local Region"
+msgstr "Local Region"
+
+msgctxt "awcms.adminCopy.registrySteps.3"
+msgid "Identity"
+msgstr "Identity"
+
+msgctxt "awcms.adminCopy.registrySteps.4"
+msgid "Core Attributes"
+msgstr "Core Attributes"
+
+msgctxt "awcms.adminCopy.registrySteps.5"
+msgid "Module Details"
+msgstr "Module Details"
+
+msgctxt "awcms.adminCopy.registrySteps.6"
+msgid "Caregiver"
+msgstr "Caregiver"
+
+msgctxt "awcms.adminCopy.registrySteps.7"
+msgid "Documents"
+msgstr "Documents"
+
+msgctxt "awcms.adminCopy.registrySteps.8"
+msgid "Validation"
+msgstr "Validation"
+
+msgctxt "awcms.adminCopy.registrySteps.9"
+msgid "Generate ID"
+msgstr "Generate ID"
+
+msgctxt "awcms.adminCopy.registrySteps.10"
+msgid "Review & Submit"
+msgstr "Review & Submit"
+
+msgctxt "awcms.adminCopy.dashboardCards.0.title"
+msgid "Worship Places"
+msgstr "Worship Places"
+
+msgctxt "awcms.adminCopy.dashboardCards.0.description"
+msgid "Register worship place records and keep region scope visible for operators."
+msgstr "Register worship place records and keep region scope visible for operators."
+
+msgctxt "awcms.adminCopy.dashboardCards.0.status"
+msgid "Ready"
+msgstr "Ready"
+
+msgctxt "awcms.adminCopy.dashboardCards.0.badge"
+msgid "Core"
+msgstr "Core"
+
+msgctxt "awcms.adminCopy.dashboardCards.1.title"
+msgid "Religious Institutions"
+msgstr "Religious Institutions"
+
+msgctxt "awcms.adminCopy.dashboardCards.1.description"
+msgid "Track institutional records and their verification progress."
+msgstr "Track institutional records and their verification progress."
+
+msgctxt "awcms.adminCopy.dashboardCards.1.status"
+msgid "Ready"
+msgstr "Ready"
+
+msgctxt "awcms.adminCopy.dashboardCards.1.badge"
+msgid "Core"
+msgstr "Core"
+
+msgctxt "awcms.adminCopy.dashboardCards.2.title"
+msgid "Religious Education"
+msgstr "Religious Education"
+
+msgctxt "awcms.adminCopy.dashboardCards.2.description"
+msgid "Keep education entries staged for verification and reporting."
+msgstr "Keep education entries staged for verification and reporting."
+
+msgctxt "awcms.adminCopy.dashboardCards.2.status"
+msgid "Review"
+msgstr "Review"
+
+msgctxt "awcms.adminCopy.dashboardCards.2.badge"
+msgid "Queue"
+msgstr "Queue"
+
+msgctxt "awcms.adminCopy.dashboardCards.3.title"
+msgid "Social Welfare Institutions"
+msgstr "Social Welfare Institutions"
+
+msgctxt "awcms.adminCopy.dashboardCards.3.description"
+msgid "Review welfare-related records with public-safe aggregation in mind."
+msgstr "Review welfare-related records with public-safe aggregation in mind."
+
+msgctxt "awcms.adminCopy.dashboardCards.3.status"
+msgid "Ready"
+msgstr "Ready"
+
+msgctxt "awcms.adminCopy.dashboardCards.3.badge"
+msgid "Report"
+msgstr "Report"
+
+msgctxt "awcms.adminCopy.dashboardCards.4.title"
+msgid "Religion Teachers"
+msgstr "Religion Teachers"
+
+msgctxt "awcms.adminCopy.dashboardCards.4.description"
+msgid "Keep staff metadata aligned with the access and verification workflow."
+msgstr "Keep staff metadata aligned with the access and verification workflow."
+
+msgctxt "awcms.adminCopy.dashboardCards.4.status"
+msgid "Ready"
+msgstr "Ready"
+
+msgctxt "awcms.adminCopy.dashboardCards.4.badge"
+msgid "Access"
+msgstr "Access"
+
+msgctxt "awcms.adminCopy.dashboardCards.5.title"
+msgid "Orphans"
+msgstr "Orphans"
+
+msgctxt "awcms.adminCopy.dashboardCards.5.description"
+msgid "Reference child-support records with careful masking and audit traces."
+msgstr "Reference child-support records with careful masking and audit traces."
+
+msgctxt "awcms.adminCopy.dashboardCards.5.status"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.dashboardCards.5.badge"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.dashboardCards.6.title"
+msgid "Disabilities"
+msgstr "Disabilities"
+
+msgctxt "awcms.adminCopy.dashboardCards.6.description"
+msgid "Manage sensitive records with ABAC-ready preview surfaces."
+msgstr "Manage sensitive records with ABAC-ready preview surfaces."
+
+msgctxt "awcms.adminCopy.dashboardCards.6.status"
+msgid "Restricted"
+msgstr "Restricted"
+
+msgctxt "awcms.adminCopy.dashboardCards.6.badge"
+msgid "ABAC"
+msgstr "ABAC"
+
+msgctxt "awcms.adminCopy.dashboardCards.7.title"
+msgid "Abandoned Elderly"
+msgstr "Abandoned Elderly"
+
+msgctxt "awcms.adminCopy.dashboardCards.7.description"
+msgid "Keep high-sensitivity examples available without exposing public identifiers."
+msgstr "Keep high-sensitivity examples available without exposing public identifiers."
+
+msgctxt "awcms.adminCopy.dashboardCards.7.status"
+msgid "Locked"
+msgstr "Locked"
+
+msgctxt "awcms.adminCopy.dashboardCards.7.badge"
+msgid "Docs"
+msgstr "Docs"

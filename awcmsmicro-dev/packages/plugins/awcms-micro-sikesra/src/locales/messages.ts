@@ -437,6 +437,69 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		failedToSaveDataTypes: "Failed to update SIKESRA classification data.",
 		invalidTypeCode: "Code must be a unique 2-digit number/alphanumeric.",
 		userLabel: "User",
+		registrySteps: [
+			"Data Type",
+			"Official Region",
+			"Local Region",
+			"Identity",
+			"Core Attributes",
+			"Module Details",
+			"Caregiver",
+			"Documents",
+			"Validation",
+			"Generate ID",
+			"Review & Submit",
+		],
+		dashboardCards: [
+			{
+				title: "Worship Places",
+				description: "Register worship place records and keep region scope visible for operators.",
+				status: "Ready",
+				badge: "Core",
+			},
+			{
+				title: "Religious Institutions",
+				description: "Track institutional records and their verification progress.",
+				status: "Ready",
+				badge: "Core",
+			},
+			{
+				title: "Religious Education",
+				description: "Keep education entries staged for verification and reporting.",
+				status: "Review",
+				badge: "Queue",
+			},
+			{
+				title: "Social Welfare Institutions",
+				description: "Review welfare-related records with public-safe aggregation in mind.",
+				status: "Ready",
+				badge: "Report",
+			},
+			{
+				title: "Religion Teachers",
+				description: "Keep staff metadata aligned with the access and verification workflow.",
+				status: "Ready",
+				badge: "Access",
+			},
+			{
+				title: "Orphans",
+				description: "Reference child-support records with careful masking and audit traces.",
+				status: "Audit",
+				badge: "Audit",
+			},
+			{
+				title: "Disabilities",
+				description: "Manage sensitive records with ABAC-ready preview surfaces.",
+				status: "Restricted",
+				badge: "ABAC",
+			},
+			{
+				title: "Abandoned Elderly",
+				description: "Keep high-sensitivity examples available without exposing public identifiers.",
+				status: "Locked",
+				badge: "Docs",
+			},
+		],
 	},
 	id: {
 		navTitle: "Pusat Operasi Plugin",
@@ -876,6 +939,72 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		failedToSaveDataTypes: "Gagal memperbarui data klasifikasi jenis data.",
 		invalidTypeCode: "Kode harus berupa 2 digit angka/karakter unik.",
 		userLabel: "Pengguna",
+		registrySteps: [
+			"Jenis Data",
+			"Wilayah Resmi",
+			"Wilayah Rinci",
+			"Identitas Utama",
+			"Atribut Inti",
+			"Detail Modul",
+			"Pengurus",
+			"Dokumen",
+			"Validasi",
+			"ID SIKESRA",
+			"Tinjauan",
+		],
+		dashboardCards: [
+			{
+				title: "Rumah Ibadah",
+				description:
+					"Daftarkan data rumah ibadah dan jaga visibilitas cakupan wilayah untuk operator.",
+				status: "Siap",
+				badge: "Inti",
+			},
+			{
+				title: "Lembaga Keagamaan",
+				description: "Lacak data kelembagaan dan progres verifikasinya.",
+				status: "Siap",
+				badge: "Inti",
+			},
+			{
+				title: "Pendidikan Keagamaan",
+				description: "Jaga entri pendidikan tetap bertahap untuk verifikasi dan pelaporan.",
+				status: "Tinjau",
+				badge: "Antrean",
+			},
+			{
+				title: "Lembaga Kesejahteraan Sosial",
+				description:
+					"Tinjau data terkait kesejahteraan dengan mempertimbangkan agregasi aman-publik.",
+				status: "Siap",
+				badge: "Laporan",
+			},
+			{
+				title: "Guru Agama",
+				description: "Jaga metadata staf tetap selaras dengan alur akses dan verifikasi.",
+				status: "Siap",
+				badge: "Akses",
+			},
+			{
+				title: "Yatim Piatu",
+				description: "Referensi data dukungan anak dengan masking yang hati-hati dan jejak audit.",
+				status: "Audit",
+				badge: "Audit",
+			},
+			{
+				title: "Disabilitas",
+				description: "Kelola data sensitif dengan surface preview yang siap ABAC.",
+				status: "Terbatas",
+				badge: "ABAC",
+			},
+			{
+				title: "Lansia Terlantar",
+				description:
+					"Jaga contoh sensitivitas tinggi tetap tersedia tanpa mengekspos identitas publik.",
+				status: "Terkunci",
+				badge: "Docs",
+			},
+		],
 	},
 } as const;
 
@@ -883,8 +1012,20 @@ export function getSikesraAdminCopyMessages(locale: string | undefined) {
 	return locale?.startsWith("id") ? SIKESRA_ADMIN_COPY_MESSAGES.id : SIKESRA_ADMIN_COPY_MESSAGES.en;
 }
 
-export const SIKESRA_ADMIN_COPY_MESSAGE_KEYS = Object.keys(SIKESRA_ADMIN_COPY_MESSAGES.en).map(
-	(key) => `awcms.adminCopy.${key}`,
+const adminCopyMessageKeys = (value: unknown, path: string): string[] => {
+	if (typeof value === "string" || typeof value === "function") return [path];
+	if (Array.isArray(value)) {
+		return value.flatMap((item, index) => adminCopyMessageKeys(item, `${path}.${index}`));
+	}
+	if (value && typeof value === "object") {
+		return Object.entries(value).flatMap(([key, item]) => adminCopyMessageKeys(item, `${path}.${key}`));
+	}
+	return [];
+};
+
+export const SIKESRA_ADMIN_COPY_MESSAGE_KEYS = adminCopyMessageKeys(
+	SIKESRA_ADMIN_COPY_MESSAGES.en,
+	"awcms.adminCopy",
 );
 
 // Temporary compiled PO adapter. Keep this synchronized with src/locales/*/messages.po
@@ -922,6 +1063,65 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.nav.abacPolicies": "Policies",
 		"awcms.nav.abacPreview": "ABAC Preview",
 		"awcms.nav.settings": "Settings",
+		"awcms.meta.widget.governanceStatus": "Governance Status",
+		"awcms.meta.widget.accessRightsHealth": "Access Rights Health",
+		"awcms.meta.widget.abacPolicyStatus": "ABAC Policy Status",
+		"awcms.meta.settings.publicStatusLabel": "Public Status Label",
+		"awcms.meta.settings.publicStatusLabelDesc": "Shown by the plugin's public-safe status route.",
+		"awcms.meta.settings.auditRetentionDays": "Audit Retention Days",
+		"awcms.meta.settings.auditRetentionDaysDesc": "Used by the demo cron cleanup summary.",
+		"awcms.meta.settings.governanceMode": "Governance Mode",
+		"awcms.meta.settings.observe": "Observe",
+		"awcms.meta.settings.review": "Review",
+		"awcms.meta.settings.enforceDemo": "Enforce Demo",
+		"awcms.meta.settings.metadataCanonicalBase": "Metadata Canonical Base",
+		"awcms.meta.settings.metadataCanonicalBaseDesc": "Optional override for page metadata contributions.",
+		"awcms.meta.settings.smallCellThreshold": "Small Cell Suppression Threshold",
+		"awcms.meta.settings.smallCellThresholdDesc":
+			"Safety threshold below which counts are suppressed to protect privacy.",
+		"awcms.meta.settings.sikesraPublicEnabled": "SIKESRA Public API Enabled",
+		"awcms.meta.settings.sikesraPublicEnabledDesc":
+			"Enable or disable public aggregate access to SIKESRA stats.",
+		"awcms.meta.block.accessNote": "AWCMS Access Note",
+		"awcms.meta.block.accessNoteDesc":
+			"Portable Text note block for access and governance guidance.",
+		"awcms.meta.block.category": "AWCMS Micro",
+		"awcms.meta.field.statusBadge": "Status badge",
+		"awcms.meta.permission.readPublicContent": "Read Public Content",
+		"awcms.meta.permission.readPublicContentDesc": "Allows reading public-facing content surfaces.",
+		"awcms.meta.permission.reviewAndPublish": "Review And Publish",
+		"awcms.meta.permission.reviewAndPublishDesc":
+			"Allows review workflows to approve and publish content.",
+		"awcms.meta.permission.readAuditEvents": "Read Audit Events",
+		"awcms.meta.permission.readAuditEventsDesc":
+			"Allows operators to inspect governance and access audit events.",
+		"awcms.meta.role.siteEditor": "Site Editor",
+		"awcms.meta.role.siteEditorDesc": "Editor role for content operations.",
+		"awcms.meta.role.governanceReviewer": "Governance Reviewer",
+		"awcms.meta.role.governanceReviewerDesc":
+			"Reviewer role for governance and publishing approval.",
+		"awcms.meta.abac.tenantId": "Tenant ID",
+		"awcms.meta.abac.tenantIdDesc": "Tenant identifier for the acting subject.",
+		"awcms.meta.abac.siteId": "Site ID",
+		"awcms.meta.abac.siteIdDesc": "Site identifier for the acting subject.",
+		"awcms.meta.abac.moduleId": "Module ID",
+		"awcms.meta.abac.moduleIdDesc": "Module identifier for the resource.",
+		"awcms.meta.abac.resourceType": "Resource Type",
+		"awcms.meta.abac.resourceTypeDesc": "Resource type used in ABAC evaluation.",
+		"awcms.meta.abac.resourceStatus": "Resource Status",
+		"awcms.meta.abac.resourceStatusDesc": "Workflow status of the resource.",
+		"awcms.meta.abac.resourceSensitivity": "Resource Sensitivity",
+		"awcms.meta.abac.resourceSensitivityDesc": "Sensitivity classification for the resource.",
+		"awcms.meta.abac.ownerUserId": "Owner User ID",
+		"awcms.meta.abac.ownerUserIdDesc": "Owning user of the resource.",
+		"awcms.meta.abac.regionScope": "Region Scope",
+		"awcms.meta.abac.regionScopeDesc": "Region scope for the decision context.",
+		"awcms.meta.abac.action": "Action",
+		"awcms.meta.abac.actionDesc": "Action under evaluation.",
+		"awcms.meta.abac.policy.allowPublishedReads":
+			"Allow published content reads for the same tenant",
+		"awcms.meta.abac.policy.denyRestrictedGovernance":
+			"Explicitly deny publishing restricted governance resources",
 	},
 	id: {
 		"awcms.nav.group.dashboard": "Dasbor",
@@ -955,5 +1155,65 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.nav.abacPolicies": "Kebijakan",
 		"awcms.nav.abacPreview": "Pratinjau ABAC",
 		"awcms.nav.settings": "Pengaturan",
+		"awcms.meta.widget.governanceStatus": "Status Tata Kelola",
+		"awcms.meta.widget.accessRightsHealth": "Kesehatan Hak Akses",
+		"awcms.meta.widget.abacPolicyStatus": "Status Kebijakan ABAC",
+		"awcms.meta.settings.publicStatusLabel": "Label Status Publik",
+		"awcms.meta.settings.publicStatusLabelDesc": "Ditampilkan oleh route status aman-publik plugin.",
+		"awcms.meta.settings.auditRetentionDays": "Hari Retensi Audit",
+		"awcms.meta.settings.auditRetentionDaysDesc": "Digunakan oleh ringkasan pembersihan cron demo.",
+		"awcms.meta.settings.governanceMode": "Mode Tata Kelola",
+		"awcms.meta.settings.observe": "Observasi",
+		"awcms.meta.settings.review": "Tinjau",
+		"awcms.meta.settings.enforceDemo": "Terapkan Demo",
+		"awcms.meta.settings.metadataCanonicalBase": "Basis Canonical Metadata",
+		"awcms.meta.settings.metadataCanonicalBaseDesc":
+			"Override opsional untuk kontribusi metadata halaman.",
+		"awcms.meta.settings.smallCellThreshold": "Batas Supresi Sel Kecil",
+		"awcms.meta.settings.smallCellThresholdDesc":
+			"Batas keamanan minimum agar jumlah tidak disembunyikan untuk melindungi privasi.",
+		"awcms.meta.settings.sikesraPublicEnabled": "API Publik SIKESRA Aktif",
+		"awcms.meta.settings.sikesraPublicEnabledDesc":
+			"Aktifkan atau nonaktifkan akses agregat publik ke statistik SIKESRA.",
+		"awcms.meta.block.accessNote": "Catatan Akses AWCMS",
+		"awcms.meta.block.accessNoteDesc":
+			"Blok catatan Portable Text untuk panduan akses dan tata kelola.",
+		"awcms.meta.block.category": "AWCMS Micro",
+		"awcms.meta.field.statusBadge": "Lencana status",
+		"awcms.meta.permission.readPublicContent": "Baca Konten Publik",
+		"awcms.meta.permission.readPublicContentDesc": "Memungkinkan membaca surface konten publik.",
+		"awcms.meta.permission.reviewAndPublish": "Tinjau dan Publikasikan",
+		"awcms.meta.permission.reviewAndPublishDesc":
+			"Memungkinkan alur kerja review untuk menyetujui dan mempublikasikan konten.",
+		"awcms.meta.permission.readAuditEvents": "Baca Event Audit",
+		"awcms.meta.permission.readAuditEventsDesc":
+			"Memungkinkan operator memeriksa event audit tata kelola dan akses.",
+		"awcms.meta.role.siteEditor": "Editor Situs",
+		"awcms.meta.role.siteEditorDesc": "Peran editor untuk operasi konten.",
+		"awcms.meta.role.governanceReviewer": "Reviewer Tata Kelola",
+		"awcms.meta.role.governanceReviewerDesc":
+			"Peran reviewer untuk tata kelola dan persetujuan publikasi.",
+		"awcms.meta.abac.tenantId": "ID Tenant",
+		"awcms.meta.abac.tenantIdDesc": "Pengenal tenant untuk subjek yang bertindak.",
+		"awcms.meta.abac.siteId": "ID Situs",
+		"awcms.meta.abac.siteIdDesc": "Pengenal situs untuk subjek yang bertindak.",
+		"awcms.meta.abac.moduleId": "ID Modul",
+		"awcms.meta.abac.moduleIdDesc": "Pengenal modul untuk sumber daya.",
+		"awcms.meta.abac.resourceType": "Tipe Sumber Daya",
+		"awcms.meta.abac.resourceTypeDesc": "Tipe sumber daya yang digunakan dalam evaluasi ABAC.",
+		"awcms.meta.abac.resourceStatus": "Status Sumber Daya",
+		"awcms.meta.abac.resourceStatusDesc": "Status alur kerja dari sumber daya.",
+		"awcms.meta.abac.resourceSensitivity": "Sensitivitas Sumber Daya",
+		"awcms.meta.abac.resourceSensitivityDesc": "Klasifikasi sensitivitas untuk sumber daya.",
+		"awcms.meta.abac.ownerUserId": "ID Pengguna Pemilik",
+		"awcms.meta.abac.ownerUserIdDesc": "Pengguna pemilik dari sumber daya.",
+		"awcms.meta.abac.regionScope": "Cakupan Wilayah",
+		"awcms.meta.abac.regionScopeDesc": "Cakupan wilayah untuk konteks keputusan.",
+		"awcms.meta.abac.action": "Aksi",
+		"awcms.meta.abac.actionDesc": "Aksi yang sedang dievaluasi.",
+		"awcms.meta.abac.policy.allowPublishedReads":
+			"Izinkan pembacaan konten terpublikasi untuk tenant yang sama",
+		"awcms.meta.abac.policy.denyRestrictedGovernance":
+			"Tolak secara eksplisit publikasi sumber daya tata kelola yang dibatasi",
 	},
 };

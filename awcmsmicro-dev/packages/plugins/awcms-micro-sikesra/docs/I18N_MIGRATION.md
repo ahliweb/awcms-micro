@@ -2,16 +2,16 @@
 
 ## Current PO-Backed Surface
 
-SIKESRA now keeps its main plugin navigation labels in Lingui-compatible PO catalogs:
+SIKESRA now keeps its main plugin navigation and runtime metadata labels in Lingui-compatible PO catalogs:
 
 ```txt
 src/locales/en/messages.po
 src/locales/id/messages.po
 ```
 
-The runtime manifest uses `src/locales/messages.ts` as a temporary compiled PO adapter so existing EmDash plugin metadata and navigation behavior continue to work while the plugin moves toward generated catalog output during publish.
+The runtime manifest uses `src/locales/messages.ts` as a temporary compiled PO adapter so existing EmDash plugin metadata and navigation behavior continue to work while the plugin moves toward generated catalog output during publish. Runtime manifest `i18n.messages` now reads directly from that compiled adapter instead of adding inline metadata labels.
 
-Reviewed `admin-copy.ts` migration slices are also represented in the PO catalogs under `awcms.adminCopy.*` contexts and compiled through `src/locales/messages.ts`. Migrated slices currently cover the plugin operation center, status/loading states, overview dashboard summary, settings panel copy, registry/wizard scalar labels, verification queue scalar labels, documents/reports scalar labels, audit scalar labels, access-rights scalar labels, ABAC scalar labels, import scalar labels, official-region scalar labels, and data-type scalar labels.
+Reviewed `admin-copy.ts` migration slices are also represented in the PO catalogs under `awcms.adminCopy.*` contexts and compiled through `src/locales/messages.ts`. Migrated slices currently cover the plugin operation center, status/loading states, overview dashboard summary, settings panel copy, registry/wizard scalar labels, registry step labels, dashboard card copy, verification queue scalar labels, documents/reports scalar labels, audit scalar labels, access-rights scalar labels, ABAC scalar labels, import scalar labels, official-region scalar labels, and data-type scalar labels.
 
 ## Temporary Compatibility Adapter
 
@@ -25,7 +25,6 @@ Do not add new user-facing strings only to `admin-copy.ts` unless the string is 
 
 Move these groups from `admin-copy.ts` into PO catalogs in follow-up slices:
 
-- registry step arrays and nested dashboard card copy
 - validation, toast, empty-state, and error messages
 
 ## Validation
