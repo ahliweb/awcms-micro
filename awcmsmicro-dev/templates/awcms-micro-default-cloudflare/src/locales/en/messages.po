@@ -1,17 +1,347 @@
-msgid "AWCMS-Micro"
-msgstr "AWCMS-Micro"
+msgctxt "notFoundTitle"
+msgid "Not Found"
+msgstr "Not Found"
 
+msgctxt "notFoundDescription"
+msgid "The requested page could not be found."
+msgstr "The requested page could not be found."
+
+msgctxt "notFoundMessage"
+msgid "The requested page does not exist in this AWCMS-Micro Cloudflare example."
+msgstr "The requested page does not exist in this AWCMS-Micro Cloudflare example."
+
+msgctxt "returnHome"
+msgid "Return home"
+msgstr "Return home"
+
+msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Public Aggregate"
 
+msgctxt "aggregateDescription"
+msgid "A public-safe summary page for the AWCMS-Micro Cloudflare template."
+msgstr "A public-safe summary page for the AWCMS-Micro Cloudflare template."
+
+msgctxt "aggregateKicker"
+msgid "Reference"
+msgstr "Reference"
+
+msgctxt "aggregateHeading"
 msgid "Public aggregate for {siteTitle}"
 msgstr "Public aggregate for {siteTitle}"
 
+msgctxt "aggregateIntro"
+msgid "This page demonstrates the public-safe aggregate pattern. It exposes only coarse counts and avoids sensitive identifiers, raw storage keys, or private registry data."
+msgstr "This page demonstrates the public-safe aggregate pattern. It exposes only coarse counts and avoids sensitive identifiers, raw storage keys, or private registry data."
+
+msgctxt "summary"
+msgid "Summary"
+msgstr "Summary"
+
+msgctxt "privacyNote"
+msgid "Privacy note"
+msgstr "Privacy note"
+
+msgctxt "privacyNoteDescription"
+msgid "This aggregate stays high level so it can be published without revealing individual registry entities, verification events, or protected attributes."
+msgstr "This aggregate stays high level so it can be published without revealing individual registry entities, verification events, or protected attributes."
+
+msgctxt "openAdmin"
+msgid "Open admin"
+msgstr "Open admin"
+
+msgctxt "openAdminDescription"
+msgid "to work with the underlying content and governance workflows."
+msgstr "to work with the underlying content and governance workflows."
+
+msgctxt "postsTitle"
+msgid "All Posts"
+msgstr "All Posts"
+
+msgctxt "postsHeading"
+msgid "Posts"
+msgstr "Posts"
+
+msgctxt "postsDescription"
+msgid "Published posts from the AWCMS-Micro Cloudflare example."
+msgstr "Published posts from the AWCMS-Micro Cloudflare example."
+
+msgctxt "noPostsYet"
+msgid "No posts yet."
+msgstr "No posts yet."
+
+msgctxt "newsTitle"
+msgid "News"
+msgstr "News"
+
+msgctxt "newsDescription"
+msgid "News updates from the AWCMS-Micro Cloudflare example."
+msgstr "News updates from the AWCMS-Micro Cloudflare example."
+
+msgctxt "noNewsYet"
+msgid "No news items yet."
+msgstr "No news items yet."
+
+msgctxt "homeKicker"
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgctxt "homeHeading"
+msgid "Public content, admin workflows, and Cloudflare delivery."
+msgstr "Public content, admin workflows, and Cloudflare delivery."
+
+msgctxt "homeIntro"
+msgid "A concise public site for published content, simple editing, and example governance surfaces."
+msgstr "A concise public site for published content, simple editing, and example governance surfaces."
+
+msgctxt "createPost"
+msgid "Create Post"
+msgstr "Create Post"
+
+msgctxt "createPage"
+msgid "Create Page"
+msgstr "Create Page"
+
+msgctxt "viewDocs"
+msgid "View Docs"
+msgstr "View Docs"
+
+msgctxt "pluginConsole"
+msgid "Plugin Console"
+msgstr "Plugin Console"
+
+msgctxt "publicAggregateLink"
+msgid "Public Aggregate"
+msgstr "Public Aggregate"
+
+msgctxt "publicNavigationExample"
+msgid "Public navigation example"
+msgstr "Public navigation example"
+
+msgctxt "nestedPrimaryMenu"
+msgid "Nested primary menu"
+msgstr "Nested primary menu"
+
+msgctxt "nestedPrimaryMenuDescription"
+msgid "The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body."
+msgstr "The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body."
+
+msgctxt "switchModeTitle"
+msgid "Switch mode"
+msgstr "Switch mode"
+
+msgctxt "lightDarkTheme"
+msgid "Light and dark theme"
+msgstr "Light and dark theme"
+
+msgctxt "lightDarkThemeDescription"
+msgid "Use the homepage control below to toggle the same theme state managed by the header button."
+msgstr "Use the homepage control below to toggle the same theme state managed by the header button."
+
+msgctxt "switchModeButton"
+msgid "Switch mode"
+msgstr "Switch mode"
+
+msgctxt "cloudflareReady"
+msgid "Cloudflare-ready"
+msgstr "Cloudflare-ready"
+
+msgctxt "cloudflareReadyDescription"
+msgid "Ready for D1, R2, Workers, observability, and the `awcms-micro.ahlikoding.com` deployment route."
+msgstr "Ready for D1, R2, Workers, observability, and the `awcms-micro.ahlikoding.com` deployment route."
+
+msgctxt "pluginEnabled"
+msgid "Plugin-enabled"
+msgstr "Plugin-enabled"
+
+msgctxt "pluginEnabledDescription"
+msgid "Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples."
+msgstr "Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples."
+
+msgctxt "publicAggregateTitle"
+msgid "Public aggregate"
+msgstr "Public aggregate"
+
+msgctxt "publicAggregateDescription"
+msgid "Provides a public-safe summary page that exposes only high-level counts, not private registry details."
+msgstr "Provides a public-safe summary page that exposes only high-level counts, not private registry details."
+
+msgctxt "adminProtected"
+msgid "Admin protected"
+msgstr "Admin protected"
+
+msgctxt "adminProtectedDescription"
+msgid "Unauthenticated visits are pushed to `/_emdash/admin/login` before the admin shell renders."
+msgstr "Unauthenticated visits are pushed to `/_emdash/admin/login` before the admin shell renders."
+
+msgctxt "publishedFromAdmin"
+msgid "Published from admin"
+msgstr "Published from admin"
+
+msgctxt "publishedFromAdminDescription"
+msgid "Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish."
+msgstr "Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish."
+
+msgctxt "publicSearchAndNavigation"
+msgid "Public search and navigation"
+msgstr "Public search and navigation"
+
+msgctxt "publicSearchAndNavigationDescription"
+msgid "Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders."
+msgstr "Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders."
+
+msgctxt "operationalSurfaces"
+msgid "Operational surfaces"
+msgstr "Operational surfaces"
+
+msgctxt "operationalSurfacesDescription"
+msgid "Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment."
+msgstr "Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment."
+
+msgctxt "recentPosts"
+msgid "Recent Posts"
+msgstr "Recent Posts"
+
+msgctxt "latestNews"
+msgid "Latest News"
+msgstr "Latest News"
+
+msgctxt "managedPages"
+msgid "Managed Pages"
+msgstr "Managed Pages"
+
+msgctxt "publicPagesTitle"
+msgid "Public reference pages"
+msgstr "Public reference pages"
+
+msgctxt "publicPagesDescription"
+msgid "Published pages are editable from the Pages collection and can be surfaced from the docs hub."
+msgstr "Published pages are editable from the Pages collection and can be surfaced from the docs hub."
+
+msgctxt "managePagesInAdmin"
+msgid "Manage pages in admin"
+msgstr "Manage pages in admin"
+
+msgctxt "openPage"
+msgid "Open page"
+msgstr "Open page"
+
+msgctxt "browseAllPosts"
+msgid "Browse all posts ->"
+msgstr "Browse all posts ->"
+
+msgctxt "browseAllNews"
+msgid "Browse all news ->"
+msgstr "Browse all news ->"
+
+msgctxt "searchPlaceholder"
 msgid "Search posts, pages, and news"
 msgstr "Search posts, pages, and news"
 
+msgctxt "adminLink"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "adminLoginBtn"
 msgid "Admin Login"
 msgstr "Admin Login"
 
+msgctxt "pluginStatus"
 msgid "Plugin Status"
 msgstr "Plugin Status"
+
+msgctxt "pluginOverview"
+msgid "Plugin Overview"
+msgstr "Plugin Overview"
+
+msgctxt "toggleTheme"
+msgid "Toggle Theme"
+msgstr "Toggle Theme"
+
+msgctxt "switchToLightMode"
+msgid "Switch to Light Mode"
+msgstr "Switch to Light Mode"
+
+msgctxt "switchToDarkMode"
+msgid "Switch to Dark Mode"
+msgstr "Switch to Dark Mode"
+
+msgctxt "footerBrandDesc"
+msgid "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and Cloudflare-ready."
+msgstr "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and Cloudflare-ready."
+
+msgctxt "footerLinksProduct"
+msgid "Product"
+msgstr "Product"
+
+msgctxt "footerLinksResources"
+msgid "Resources"
+msgstr "Resources"
+
+msgctxt "footerLinksCompany"
+msgid "Company"
+msgstr "Company"
+
+msgctxt "footerLinkFeatures"
+msgid "Features"
+msgstr "Features"
+
+msgctxt "footerLinkDocs"
+msgid "Docs"
+msgstr "Docs"
+
+msgctxt "footerLinkAggregate"
+msgid "Aggregate"
+msgstr "Aggregate"
+
+msgctxt "footerLinkSikesra"
+msgid "Sikesra App"
+msgstr "Sikesra App"
+
+msgctxt "footerLinkPrivacy"
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+msgctxt "footerLinkTerms"
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
+msgctxt "viewAboutPage"
+msgid "View about page"
+msgstr "View about page"
+
+msgctxt "footerAdminLogin"
+msgid "Admin Login"
+msgstr "Admin Login"
+
+msgctxt "footerGithub"
+msgid "View on GitHub"
+msgstr "View on GitHub"
+
+msgctxt "poweredBy"
+msgid "Powered by"
+msgstr "Powered by"
+
+msgctxt "visitAhliweb"
+msgid "Visit ahliweb.com"
+msgstr "Visit ahliweb.com"
+
+msgctxt "footerCopyright"
+msgid "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+msgstr "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+
+msgctxt "footerPoweredBy"
+msgid "Powered by"
+msgstr "Powered by"
+
+msgctxt "counts.posts"
+msgid "Posts"
+msgstr "Posts"
+
+msgctxt "counts.news"
+msgid "News"
+msgstr "News"
+
+msgctxt "counts.pages"
+msgid "Pages"
+msgstr "Pages"

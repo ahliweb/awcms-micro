@@ -1,17 +1,347 @@
-msgid "AWCMS-Micro"
-msgstr "AWCMS-Micro"
+msgctxt "notFoundTitle"
+msgid "Not Found"
+msgstr "Tidak Ditemukan"
 
+msgctxt "notFoundDescription"
+msgid "The requested page could not be found."
+msgstr "Halaman yang diminta tidak dapat ditemukan."
+
+msgctxt "notFoundMessage"
+msgid "The requested page does not exist in this AWCMS-Micro Cloudflare example."
+msgstr "Halaman yang diminta tidak ada di contoh Cloudflare AWCMS-Micro ini."
+
+msgctxt "returnHome"
+msgid "Return home"
+msgstr "Kembali ke beranda"
+
+msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Agregat Publik"
 
+msgctxt "aggregateDescription"
+msgid "A public-safe summary page for the AWCMS-Micro Cloudflare template."
+msgstr "Halaman ringkasan aman-publik untuk template Cloudflare AWCMS-Micro."
+
+msgctxt "aggregateKicker"
+msgid "Reference"
+msgstr "Referensi"
+
+msgctxt "aggregateHeading"
 msgid "Public aggregate for {siteTitle}"
 msgstr "Agregat publik untuk {siteTitle}"
 
+msgctxt "aggregateIntro"
+msgid "This page demonstrates the public-safe aggregate pattern. It exposes only coarse counts and avoids sensitive identifiers, raw storage keys, or private registry data."
+msgstr "Halaman ini mendemonstrasikan pola agregat aman-publik. Halaman ini hanya menampilkan hitungan tingkat tinggi dan menghindari pengenal sensitif, kunci storage mentah, atau data registry privat."
+
+msgctxt "summary"
+msgid "Summary"
+msgstr "Ringkasan"
+
+msgctxt "privacyNote"
+msgid "Privacy note"
+msgstr "Catatan privasi"
+
+msgctxt "privacyNoteDescription"
+msgid "This aggregate stays high level so it can be published without revealing individual registry entities, verification events, or protected attributes."
+msgstr "Agregat ini tetap berada pada level tinggi sehingga dapat dipublikasikan tanpa mengungkap entitas registry individual, event verifikasi, atau atribut yang dilindungi."
+
+msgctxt "openAdmin"
+msgid "Open admin"
+msgstr "Buka admin"
+
+msgctxt "openAdminDescription"
+msgid "to work with the underlying content and governance workflows."
+msgstr "untuk mengelola konten dan alur kerja tata kelola dasarnya."
+
+msgctxt "postsTitle"
+msgid "All Posts"
+msgstr "Semua Pos"
+
+msgctxt "postsHeading"
+msgid "Posts"
+msgstr "Pos"
+
+msgctxt "postsDescription"
+msgid "Published posts from the AWCMS-Micro Cloudflare example."
+msgstr "Pos yang dipublikasikan dari contoh Cloudflare AWCMS-Micro."
+
+msgctxt "noPostsYet"
+msgid "No posts yet."
+msgstr "Belum ada pos."
+
+msgctxt "newsTitle"
+msgid "News"
+msgstr "Berita"
+
+msgctxt "newsDescription"
+msgid "News updates from the AWCMS-Micro Cloudflare example."
+msgstr "Pembaruan berita dari contoh Cloudflare AWCMS-Micro."
+
+msgctxt "noNewsYet"
+msgid "No news items yet."
+msgstr "Belum ada berita."
+
+msgctxt "homeKicker"
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgctxt "homeHeading"
+msgid "Public content, admin workflows, and Cloudflare delivery."
+msgstr "Konten publik, workflow admin, dan delivery Cloudflare."
+
+msgctxt "homeIntro"
+msgid "A concise public site for published content, simple editing, and example governance surfaces."
+msgstr "Situs publik yang ringkas untuk konten terpublikasi, pengeditan mudah, dan surface tata kelola contoh."
+
+msgctxt "createPost"
+msgid "Create Post"
+msgstr "Buat Pos"
+
+msgctxt "createPage"
+msgid "Create Page"
+msgstr "Buat Halaman"
+
+msgctxt "viewDocs"
+msgid "View Docs"
+msgstr "Lihat Docs"
+
+msgctxt "pluginConsole"
+msgid "Plugin Console"
+msgstr "Konsol Plugin"
+
+msgctxt "publicAggregateLink"
+msgid "Public Aggregate"
+msgstr "Agregat Publik"
+
+msgctxt "publicNavigationExample"
+msgid "Public navigation example"
+msgstr "Contoh navigasi publik"
+
+msgctxt "nestedPrimaryMenu"
+msgid "Nested primary menu"
+msgstr "Menu utama bertingkat"
+
+msgctxt "nestedPrimaryMenuDescription"
+msgid "The primary navigation in the sticky header uses the seeded menu structure directly, including nested items, so visitors can move across the site without a second menu render inside the page body."
+msgstr "Navigasi utama di header lengket menggunakan struktur menu hasil seed secara langsung, termasuk item bertingkat, sehingga pengunjung bisa bergerak di seluruh situs tanpa render menu kedua di dalam isi halaman."
+
+msgctxt "switchModeTitle"
+msgid "Switch mode"
+msgstr "Ganti mode"
+
+msgctxt "lightDarkTheme"
+msgid "Light and dark theme"
+msgstr "Tema terang dan gelap"
+
+msgctxt "lightDarkThemeDescription"
+msgid "Use the homepage control below to toggle the same theme state managed by the header button."
+msgstr "Gunakan kontrol beranda di bawah ini untuk mengganti state tema yang sama dengan yang dikelola tombol header."
+
+msgctxt "switchModeButton"
+msgid "Switch mode"
+msgstr "Ganti mode"
+
+msgctxt "cloudflareReady"
+msgid "Cloudflare-ready"
+msgstr "Siap Cloudflare"
+
+msgctxt "cloudflareReadyDescription"
+msgid "Ready for D1, R2, Workers, observability, and the `awcms-micro.ahlikoding.com` deployment route."
+msgstr "Siap untuk D1, R2, Workers, observability, dan route deployment `awcms-micro.ahlikoding.com`."
+
+msgctxt "pluginEnabled"
+msgid "Plugin-enabled"
+msgstr "Plugin aktif"
+
+msgctxt "pluginEnabledDescription"
+msgid "Registers `@awcms-micro/plugin-sikesra` through the normal EmDash plugin path for audit, access-rights, and ABAC examples."
+msgstr "Mendaftarkan `@awcms-micro/plugin-sikesra` melalui jalur plugin EmDash normal untuk contoh audit, hak akses, dan ABAC."
+
+msgctxt "publicAggregateTitle"
+msgid "Public aggregate"
+msgstr "Agregat publik"
+
+msgctxt "publicAggregateDescription"
+msgid "Provides a public-safe summary page that exposes only high-level counts, not private registry details."
+msgstr "Menyediakan halaman ringkasan aman-publik yang hanya mengekspos hitungan tingkat tinggi, bukan detail registry privat."
+
+msgctxt "adminProtected"
+msgid "Admin protected"
+msgstr "Admin terlindungi"
+
+msgctxt "adminProtectedDescription"
+msgid "Unauthenticated visits are pushed to `/_emdash/admin/login` before the admin shell renders."
+msgstr "Kunjungan tanpa autentikasi diarahkan ke `/_emdash/admin/login` sebelum shell admin dirender."
+
+msgctxt "publishedFromAdmin"
+msgid "Published from admin"
+msgstr "Dipublikasikan dari admin"
+
+msgctxt "publishedFromAdminDescription"
+msgid "Posts, pages, and news created in EmDash are displayed by the public site routes immediately after publish."
+msgstr "Pos, halaman, dan berita yang dibuat di EmDash langsung ditampilkan oleh route situs publik setelah publish."
+
+msgctxt "publicSearchAndNavigation"
+msgid "Public search and navigation"
+msgstr "Pencarian dan navigasi publik"
+
+msgctxt "publicSearchAndNavigationDescription"
+msgid "Menus, site identity, and live search are all reading from EmDash-managed content rather than template placeholders."
+msgstr "Menu, identitas situs, dan live search semuanya membaca dari konten yang dikelola EmDash, bukan placeholder template."
+
+msgctxt "operationalSurfaces"
+msgid "Operational surfaces"
+msgstr "Surface operasional"
+
+msgctxt "operationalSurfacesDescription"
+msgid "Editors can jump from the public website into content creation, settings, and plugin dashboards without leaving the same deployment."
+msgstr "Editor dapat berpindah dari situs publik ke pembuatan konten, pengaturan, dan dasbor plugin tanpa meninggalkan deployment yang sama."
+
+msgctxt "recentPosts"
+msgid "Recent Posts"
+msgstr "Pos Terbaru"
+
+msgctxt "latestNews"
+msgid "Latest News"
+msgstr "Berita Terbaru"
+
+msgctxt "managedPages"
+msgid "Managed Pages"
+msgstr "Halaman Terkelola"
+
+msgctxt "publicPagesTitle"
+msgid "Public reference pages"
+msgstr "Halaman referensi publik"
+
+msgctxt "publicPagesDescription"
+msgid "Published pages are editable from the Pages collection and can be surfaced from the docs hub."
+msgstr "Halaman terpublikasi dapat diedit dari koleksi Pages dan bisa ditampilkan dari hub docs."
+
+msgctxt "managePagesInAdmin"
+msgid "Manage pages in admin"
+msgstr "Kelola halaman di admin"
+
+msgctxt "openPage"
+msgid "Open page"
+msgstr "Buka halaman"
+
+msgctxt "browseAllPosts"
+msgid "Browse all posts ->"
+msgstr "Lihat semua pos ->"
+
+msgctxt "browseAllNews"
+msgid "Browse all news ->"
+msgstr "Lihat semua berita ->"
+
+msgctxt "searchPlaceholder"
 msgid "Search posts, pages, and news"
 msgstr "Cari pos, halaman, dan berita"
 
+msgctxt "adminLink"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "adminLoginBtn"
 msgid "Admin Login"
 msgstr "Login Admin"
 
+msgctxt "pluginStatus"
 msgid "Plugin Status"
 msgstr "Status Plugin"
+
+msgctxt "pluginOverview"
+msgid "Plugin Overview"
+msgstr "Ringkasan Plugin"
+
+msgctxt "toggleTheme"
+msgid "Toggle Theme"
+msgstr "Ganti Tema"
+
+msgctxt "switchToLightMode"
+msgid "Switch to Light Mode"
+msgstr "Ganti ke Mode Terang"
+
+msgctxt "switchToDarkMode"
+msgid "Switch to Dark Mode"
+msgstr "Ganti ke Mode Gelap"
+
+msgctxt "footerBrandDesc"
+msgid "Resilient web templates and plugins built on top of EmDash. Lightweight, fast, and Cloudflare-ready."
+msgstr "Template web dan plugin tangguh yang dibangun di atas EmDash. Ringan, cepat, dan siap Cloudflare."
+
+msgctxt "footerLinksProduct"
+msgid "Product"
+msgstr "Produk"
+
+msgctxt "footerLinksResources"
+msgid "Resources"
+msgstr "Sumber Daya"
+
+msgctxt "footerLinksCompany"
+msgid "Company"
+msgstr "Perusahaan"
+
+msgctxt "footerLinkFeatures"
+msgid "Features"
+msgstr "Fitur"
+
+msgctxt "footerLinkDocs"
+msgid "Docs"
+msgstr "Dokumentasi"
+
+msgctxt "footerLinkAggregate"
+msgid "Aggregate"
+msgstr "Agregat"
+
+msgctxt "footerLinkSikesra"
+msgid "Sikesra App"
+msgstr "Aplikasi Sikesra"
+
+msgctxt "footerLinkPrivacy"
+msgid "Privacy Policy"
+msgstr "Kebijakan Privasi"
+
+msgctxt "footerLinkTerms"
+msgid "Terms of Service"
+msgstr "Ketentuan Layanan"
+
+msgctxt "viewAboutPage"
+msgid "View about page"
+msgstr "Lihat halaman tentang"
+
+msgctxt "footerAdminLogin"
+msgid "Admin Login"
+msgstr "Login Admin"
+
+msgctxt "footerGithub"
+msgid "View on GitHub"
+msgstr "Lihat di GitHub"
+
+msgctxt "poweredBy"
+msgid "Powered by"
+msgstr "Didukung oleh"
+
+msgctxt "visitAhliweb"
+msgid "Visit ahliweb.com"
+msgstr "Kunjungi ahliweb.com"
+
+msgctxt "footerCopyright"
+msgid "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash."
+msgstr "© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash."
+
+msgctxt "footerPoweredBy"
+msgid "Powered by"
+msgstr "Didukung oleh"
+
+msgctxt "counts.posts"
+msgid "Posts"
+msgstr "Pos"
+
+msgctxt "counts.news"
+msgid "News"
+msgstr "Berita"
+
+msgctxt "counts.pages"
+msgid "Pages"
+msgstr "Halaman"
