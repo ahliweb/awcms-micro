@@ -232,8 +232,11 @@ function getAwcmsRootVersionInfo(): AwcmsRootVersionInfo {
 	};
 }
 
-function formatAwcmsRootVersionLabel(rootVersion: AwcmsRootVersionInfo): string {
-	const version = rootVersion.version?.trim() || "0.0.0";
+function formatAwcmsRootVersionLabel(
+	rootVersion: AwcmsRootVersionInfo,
+	displayVersion?: string,
+): string {
+	const version = displayVersion?.trim() || rootVersion.version?.trim() || "0.0.0";
 	const commit = rootVersion.commit?.trim();
 	return `AWCMS v${version}${commit ? ` (${commit})` : ""}`;
 }
@@ -245,7 +248,7 @@ export function formatSidebarFooterLabel(
 	const siteName = manifest.admin?.siteName || "AWCMS";
 	const emdashVersion = manifest.version || "0.0.0";
 	const emdashCommit = manifest.commit ? ` (${manifest.commit})` : "";
-	const awcmsRootVersionLabel = formatAwcmsRootVersionLabel(rootVersion);
+	const awcmsRootVersionLabel = formatAwcmsRootVersionLabel(rootVersion, manifest.version);
 	const awcmsLabel = siteName === "AWCMS" ? awcmsRootVersionLabel : `${siteName} ${awcmsRootVersionLabel}`;
 	return `${awcmsLabel} EmDash v${emdashVersion}${emdashCommit}`;
 }
@@ -414,6 +417,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			/* Classic dark chrome — override kumo tokens within the sidebar */
 			.emdash-sidebar {
 				--color-kumo-base: #1d2327;
+				--sidebar-bg: #1d2327;
 				--color-kumo-tint: rgba(255,255,255,0.1);
 				--color-kumo-line: rgba(255,255,255,0.08);
 				--color-kumo-brand: #2271b1;
@@ -424,6 +428,16 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				color: #fff !important;
 				border-color: rgba(255,255,255,0.08) !important;
 			}
+			.emdash-sidebar details > summary {
+				list-style: none;
+				cursor: pointer;
+			}
+			.emdash-sidebar details > summary::-webkit-details-marker {
+				display: none;
+			}
+			.emdash-sidebar details > summary::marker {
+				content: "";
+			}
 			/* Group labels — uppercase muted style */
 			.emdash-sidebar [data-sidebar="group-label"] {
 				color: rgba(255,255,255,0.45) !important;
@@ -431,8 +445,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				text-transform: uppercase;
 				letter-spacing: 0.06em;
 				font-weight: 600;
-				padding-left: 0.75rem;
-				padding-right: 0.75rem;
+				padding-inline: 0.75rem;
 			}
 			.emdash-sidebar [data-sidebar="group-label"] svg {
 				color: rgba(255,255,255,0.3);

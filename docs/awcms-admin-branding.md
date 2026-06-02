@@ -8,7 +8,7 @@ Document how the AWCMS admin branding survives EmDash synchronization without re
 
 - Sidebar header logo: configured through template `admin.logo` settings in `awcmsmicro-dev/templates/`
 - Sidebar title/site name: configured through template `admin.siteName` settings in `awcmsmicro-dev/templates/`
-- Sidebar footer version: applied as a downstream source patch that reads the AWCMS root version injected by `packages/admin/tsdown.config.ts` from the parent repository `VERSION` file before falling back to the EmDash manifest version
+- Sidebar footer version: applied as a downstream source patch plus protected `Sidebar.tsx` override that renders the current AWCMS admin/manifest version before the EmDash manifest version, while preserving the injected AWCMS build commit when available
 
 ## Preservation Model
 

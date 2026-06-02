@@ -97,7 +97,7 @@ describe("SidebarNav helpers", () => {
 		expect(resolveSidebarIcon("unknown-icon")).toBeDefined();
 	});
 
-	it("renders injected AWCMS root version before the EmDash manifest version", () => {
+	it("renders the AWCMS admin version before the EmDash manifest version", () => {
 		expect(
 			formatSidebarFooterLabel(
 				{
@@ -110,7 +110,7 @@ describe("SidebarNav helpers", () => {
 				},
 				{ version: "0.1.3", commit: "b3a3113" },
 			),
-		).toBe("AWCMS v0.1.3 (b3a3113) EmDash v0.16.1 (upstream)");
+		).toBe("AWCMS v0.16.1 (b3a3113) EmDash v0.16.1 (upstream)");
 	});
 
 	it("sorts plugin groups alphabetically and keeps page icons contextual", () => {
@@ -203,6 +203,10 @@ describe("SidebarNav helpers", () => {
 		expect(groupLabels.slice(0, 2)).toEqual(["Alpha Plugin", "Docs"]);
 		await expect.element(screen.getByRole("link", { name: "Docs" })).toBeInTheDocument();
 		await expect.element(screen.getByText("Alpha Plugin")).toBeInTheDocument();
+		expect(document.querySelector("summary [data-sidebar='group-label']")?.textContent).toBe(
+			"Alpha Plugin",
+		);
+		expect(document.querySelectorAll("summary button").length).toBe(0);
 		expect(document.querySelectorAll('[data-sidebar="separator"]').length).toBe(5);
 	});
 });
