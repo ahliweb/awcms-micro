@@ -1,0 +1,89 @@
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Content"
+msgstr "Content"
+
+msgid "Governance"
+msgstr "Governance"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Overview"
+msgstr "Overview"
+
+msgid "Pages"
+msgstr "Pages"
+
+msgid "Documents"
+msgstr "Documents"
+
+msgid "Field Standards"
+msgstr "Field Standards"
+
+msgid "Import Excel"
+msgstr "Import Excel"
+
+msgid "Custom Attributes"
+msgstr "Custom Attributes"
+
+msgid "Definitions"
+msgstr "Definitions"
+
+msgid "Values"
+msgstr "Values"
+
+msgid "Verification"
+msgstr "Verification"
+
+msgid "Audit Log"
+msgstr "Audit Log"
+
+msgid "Reports"
+msgstr "Reports"
+
+msgid "Archives"
+msgstr "Archives"
+
+msgid "Delete Requests"
+msgstr "Delete Requests"
+
+msgid "Access Control"
+msgstr "Access Control"
+
+msgid "Official Regions"
+msgstr "Official Regions"
+
+msgid "Sikesra Data Types"
+msgstr "Sikesra Data Types"
+
+msgid "Users"
+msgstr "Users"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Roles"
+msgstr "Roles"
+
+msgid "Role Matrix"
+msgstr "Role Matrix"
+
+msgid "Scopes"
+msgstr "Scopes"
+
+msgid "Access Preview"
+msgstr "Access Preview"
+
+msgid "ABAC"
+msgstr "ABAC"
+
+msgid "Attributes"
+msgstr "Attributes"
+
+msgid "Policies"
+msgstr "Policies"
+
+msgid "ABAC Preview"
+msgstr "ABAC Preview"

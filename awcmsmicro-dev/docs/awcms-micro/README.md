@@ -14,5 +14,6 @@ Use it only for AWCMS-Micro-owned documentation.
 - `upstream-sync.md`: SIKESRA-specific checks for EmDash update and rebuild workflows
 - `divergence-log.md`: downstream divergence notes that must survive future sync work
 - `plugin-i18n.md`: label resolution and plugin i18n behavior
+- `i18n-po-translation-standard.md`: Lingui-compatible gettext PO catalog standard for AWCMS-Micro plugins and templates
 - `sikesra-reference-prd.md`: SIKESRA reference PRD and backlog map for the AWCMS-Micro example standard
 - `sikesra-reference-standard.md`: SIKESRA-grade reference scope, implementation order, and guardrails for the SIKESRA plugin and templates

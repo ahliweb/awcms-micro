@@ -12,6 +12,7 @@ import {
 	adaptToEmdashPages,
 	resolveLabel,
 } from "../src/navigation.js";
+import { SIKESRA_PO_LOCALE_MESSAGES } from "../src/locales/messages.js";
 import { AWCMS_SIKESRA_MANIFEST } from "../src/runtime.js";
 
 describe("AWCMS-Micro navigation kit", () => {
@@ -250,5 +251,13 @@ describe("AWCMS-Micro navigation kit", () => {
 			{ id: "governance-group", icon: "shield" },
 			{ id: "settings-group", icon: "gear" },
 		]);
+	});
+
+	it("loads SIKESRA navigation labels through the PO catalog adapter", () => {
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en["awcms.nav.overview"]).toBe("Overview");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id["awcms.nav.overview"]).toBe("Ikhtisar");
+		expect(AWCMS_SIKESRA_MANIFEST.i18n?.messages?.id?.["awcms.nav.audit"]).toBe(
+			"Log Audit",
+		);
 	});
 });

@@ -1,0 +1,89 @@
+msgid "Dashboard"
+msgstr "Dasbor"
+
+msgid "Content"
+msgstr "Konten"
+
+msgid "Governance"
+msgstr "Tata Kelola"
+
+msgid "Settings"
+msgstr "Pengaturan"
+
+msgid "Overview"
+msgstr "Ikhtisar"
+
+msgid "Pages"
+msgstr "Halaman"
+
+msgid "Documents"
+msgstr "Dokumen"
+
+msgid "Field Standards"
+msgstr "Standar Field"
+
+msgid "Import Excel"
+msgstr "Impor Excel"
+
+msgid "Custom Attributes"
+msgstr "Atribut Kustom"
+
+msgid "Definitions"
+msgstr "Definisi"
+
+msgid "Values"
+msgstr "Nilai"
+
+msgid "Verification"
+msgstr "Verifikasi"
+
+msgid "Audit Log"
+msgstr "Log Audit"
+
+msgid "Reports"
+msgstr "Laporan"
+
+msgid "Archives"
+msgstr "Arsip"
+
+msgid "Delete Requests"
+msgstr "Permintaan Hapus"
+
+msgid "Access Control"
+msgstr "Kontrol Akses"
+
+msgid "Official Regions"
+msgstr "Wilayah Resmi"
+
+msgid "Sikesra Data Types"
+msgstr "Jenis Data Sikesra"
+
+msgid "Users"
+msgstr "Pengguna"
+
+msgid "Permissions"
+msgstr "Izin"
+
+msgid "Roles"
+msgstr "Peran"
+
+msgid "Role Matrix"
+msgstr "Matriks Peran"
+
+msgid "Scopes"
+msgstr "Cakupan"
+
+msgid "Access Preview"
+msgstr "Pratinjau Akses"
+
+msgid "ABAC"
+msgstr "ABAC"
+
+msgid "Attributes"
+msgstr "Atribut"
+
+msgid "Policies"
+msgstr "Kebijakan"
+
+msgid "ABAC Preview"
+msgstr "Pratinjau ABAC"
