@@ -909,3 +909,39 @@ msgstr "Display rule"
 msgctxt "awcms.adminCopy.displayRuleDescription"
 msgid "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
 msgstr "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
+
+msgctxt "awcms.adminCopy.auditEyebrow"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.auditTitle"
+msgid "Event history"
+msgstr "Event history"
+
+msgctxt "awcms.adminCopy.auditDescription"
+msgid "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
+msgstr "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
+
+msgctxt "awcms.adminCopy.loadingAuditLog"
+msgid "Loading audit log..."
+msgstr "Loading audit log..."
+
+msgctxt "awcms.adminCopy.noAuditEvents"
+msgid "No audit events"
+msgstr "No audit events"
+
+msgctxt "awcms.adminCopy.noAuditEventsDescription"
+msgid "Plugin actions will appear here after hooks or routes run."
+msgstr "Plugin actions will appear here after hooks or routes run."
+
+msgctxt "awcms.adminCopy.summary"
+msgid "Summary"
+msgstr "Summary"
+
+msgctxt "awcms.adminCopy.scopeActor"
+msgid "Scope / actor"
+msgstr "Scope / actor"
+
+msgctxt "awcms.adminCopy.time"
+msgid "Time"
+msgstr "Time"

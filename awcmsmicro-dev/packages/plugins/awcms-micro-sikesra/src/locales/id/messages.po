@@ -909,3 +909,39 @@ msgstr "Aturan tampil"
 msgctxt "awcms.adminCopy.displayRuleDescription"
 msgid "Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern."
 msgstr "Bucket yang dimasking tetap diringkas tetapi tidak mengungkap detail tingkat entitas, sesuai pola agregat aman-publik."
+
+msgctxt "awcms.adminCopy.auditEyebrow"
+msgid "Audit"
+msgstr "Audit"
+
+msgctxt "awcms.adminCopy.auditTitle"
+msgid "Event history"
+msgstr "Riwayat event"
+
+msgctxt "awcms.adminCopy.auditDescription"
+msgid "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
+msgstr "Aliran berbasis storage yang menampilkan perilaku plugin, aktor, scope, dan timestamp."
+
+msgctxt "awcms.adminCopy.loadingAuditLog"
+msgid "Loading audit log..."
+msgstr "Memuat log audit..."
+
+msgctxt "awcms.adminCopy.noAuditEvents"
+msgid "No audit events"
+msgstr "Belum ada event audit"
+
+msgctxt "awcms.adminCopy.noAuditEventsDescription"
+msgid "Plugin actions will appear here after hooks or routes run."
+msgstr "Aksi plugin akan muncul di sini setelah hook atau route dijalankan."
+
+msgctxt "awcms.adminCopy.summary"
+msgid "Summary"
+msgstr "Ringkasan"
+
+msgctxt "awcms.adminCopy.scopeActor"
+msgid "Scope / actor"
+msgstr "Scope / aktor"
+
+msgctxt "awcms.adminCopy.time"
+msgid "Time"
+msgstr "Waktu"

@@ -219,6 +219,16 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		displayRule: "Display rule",
 		displayRuleDescription:
 			"Masked buckets remain summarized but do not reveal entity-level details, matching the public-safe aggregate pattern.",
+		auditEyebrow: "Audit",
+		auditTitle: "Event history",
+		auditDescription:
+			"Storage-backed stream showing plugin behavior, actors, scopes, and timestamps.",
+		loadingAuditLog: "Loading audit log...",
+		noAuditEvents: "No audit events",
+		noAuditEventsDescription: "Plugin actions will appear here after hooks or routes run.",
+		summary: "Summary",
+		scopeActor: "Scope / actor",
+		time: "Time",
 	},
 	id: {
 		navTitle: "Pusat Operasi Plugin",
@@ -440,6 +450,17 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		displayRule: "Aturan tampil",
 		displayRuleDescription:
 			"Bucket yang dimasking tetap diringkas tetapi tidak mengungkap detail tingkat entitas, sesuai pola agregat aman-publik.",
+		auditEyebrow: "Audit",
+		auditTitle: "Riwayat event",
+		auditDescription:
+			"Aliran berbasis storage yang menampilkan perilaku plugin, aktor, scope, dan timestamp.",
+		loadingAuditLog: "Memuat log audit...",
+		noAuditEvents: "Belum ada event audit",
+		noAuditEventsDescription:
+			"Aksi plugin akan muncul di sini setelah hook atau route dijalankan.",
+		summary: "Ringkasan",
+		scopeActor: "Scope / aktor",
+		time: "Waktu",
 	},
 } as const;
 

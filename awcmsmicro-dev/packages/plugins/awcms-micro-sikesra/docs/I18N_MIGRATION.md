@@ -11,7 +11,7 @@ src/locales/id/messages.po
 
 The runtime manifest uses `src/locales/messages.ts` as a temporary compiled PO adapter so existing EmDash plugin metadata and navigation behavior continue to work while the plugin moves toward generated catalog output during publish.
 
-Reviewed `admin-copy.ts` migration slices are also represented in the PO catalogs under `awcms.adminCopy.*` contexts and compiled through `src/locales/messages.ts`. Migrated slices currently cover the plugin operation center, status/loading states, overview dashboard summary, settings panel copy, registry/wizard scalar labels, verification queue scalar labels, and documents/reports scalar labels.
+Reviewed `admin-copy.ts` migration slices are also represented in the PO catalogs under `awcms.adminCopy.*` contexts and compiled through `src/locales/messages.ts`. Migrated slices currently cover the plugin operation center, status/loading states, overview dashboard summary, settings panel copy, registry/wizard scalar labels, verification queue scalar labels, documents/reports scalar labels, and audit scalar labels.
 
 ## Temporary Compatibility Adapter
 
@@ -26,7 +26,6 @@ Do not add new user-facing strings only to `admin-copy.ts` unless the string is 
 Move these groups from `admin-copy.ts` into PO catalogs in follow-up slices:
 
 - registry step arrays and nested dashboard card copy
-- audit and settings labels
 - access-rights and ABAC labels
 - validation, toast, empty-state, and error messages
 
