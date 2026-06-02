@@ -4,31 +4,31 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `8712b7efa5bbb061c0083956623c454c97f4e894`
-- Sync date: `2026-06-02T08:11:07Z`
+- Upstream commit SHA: `47c445b947938e29aee571efe22fbd013fb016d5`
+- Sync date: `2026-06-02T11:59:30Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `8712b7e`. Upstream `main` moved from `d43a3808` to `8712b7e`; `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay cleanly under pnpm `11.5.0`, and the downstream workspace validates cleanly on this host after the locale guardrail lint fix.
+Synced to EmDash `47c445b`. Upstream `main` moved from `8712b7e` to `47c445b`; `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay cleanly under pnpm `11.5.0`, and the downstream workspace validates cleanly on this host after the SIKESRA locale guardrail type/lint fix.
 
 ## Key Changes in This Sync
 
-- Upstream EmDash refreshed to `8712b7e`, including the upstream Thai admin locale changeset and locale catalog
+- Upstream EmDash refreshed to `47c445b`, including upstream byline picker search, byline debounce, locale-aware tags, and sticky editor toolbar changesets
 - Rebuilt `awcmsmicro-dev/` from `emdash-latest/` through the protected-path rebuild workflow
 - Replayed all active downstream patch overlays after the rebuild, including the pnpm `11.5.0` package-manager overlay
 - Refreshed `awcmsmicro-dev/pnpm-lock.yaml` to match the rebuilt workspace under pnpm `11.5.0`
 - Downstream sync state remains protected by the allowlist, patch overlay workflow, and validation workflow
-- Current open Dependabot alerts after this refresh and downstream dismissal pass: 63 total, all under `emdash-latest/`; `awcmsmicro-dev/` has 0 open Dependabot alerts as of `2026-06-02T08:34:43Z`
+- Current open Dependabot alerts after this refresh and downstream dismissal pass: 63 total, all under `emdash-latest/`; `awcmsmicro-dev/` has 0 open Dependabot alerts as of `2026-06-02T11:59:30Z`
 - Locally remediated the downstream lockfile resolutions for the active `awcmsmicro-dev/` alert set: `@hono/node-server@1.19.13`, `ajv@8.20.0`, `defu@6.1.7`, `h3@1.15.11`, `markdown-it@14.2.0`, `rollup@4.61.0`, `simple-git@3.36.0`, and `yaml@2.9.0`
 
 ## Validation Status
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `8712b7e` |
+| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `47c445b` |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; approved AWCMS-Micro boundaries preserved; 16 downstream overlays replayed |
 | Validation script execution | Passed | See `LAST_VALIDATION.md` |
 

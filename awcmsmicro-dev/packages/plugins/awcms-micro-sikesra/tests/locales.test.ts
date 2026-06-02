@@ -74,7 +74,7 @@ const copyShape = (value: unknown, path = "root") => {
 	};
 
 	visit(value, path);
-	return Object.fromEntries([...shape.entries()].sort(([left], [right]) => left.localeCompare(right)));
+	return Object.fromEntries([...shape.entries()].toSorted(([left], [right]) => left.localeCompare(right)));
 };
 
 describe("SIKESRA PO catalogs", () => {

@@ -18,7 +18,7 @@
 
 ## Workspace Snapshot - 2026-06-02
 
-- EmDash upstream: `8712b7efa5bbb061c0083956623c454c97f4e894` from `emdash-latest/`
+- EmDash upstream: `47c445b947938e29aee571efe22fbd013fb016d5` from `emdash-latest/`
 - Root version: `0.1.3`
 
 ### Plugins

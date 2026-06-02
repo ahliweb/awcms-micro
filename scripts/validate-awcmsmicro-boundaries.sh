@@ -245,8 +245,12 @@ for patch_file_path in "${patch_overlay_files[@]}"; do
 	require_contains "$patch_file" "$DIVERGENCE_LOG"
 done
 
-log "Checking unprotected downstream drift"
-check_unprotected_downstream_drift
+if [[ "${AWCMS_SKIP_UNPROTECTED_DRIFT_CHECK:-0}" == "1" ]]; then
+	log "Skipping unprotected downstream drift check for pre-sync overwrite path"
+else
+	log "Checking unprotected downstream drift"
+	check_unprotected_downstream_drift
+fi
 
 log "Checking sync allowlist strategy"
 require_contains 'check-runtime-prereqs.sh' "$SYNC_SCRIPT"

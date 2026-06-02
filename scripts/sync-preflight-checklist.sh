@@ -164,4 +164,4 @@ printf '%s\n' '[sync preflight] 3. Confirm protected paths, docs, local config b
 printf '%s\n' '[sync preflight] 4. Confirm rebuild and validation are safe to run.'
 printf '%s\n' "[sync preflight] Workspace: $ROOT_DIR"
 
-bash "$ROOT_DIR/scripts/validate-awcmsmicro-boundaries.sh"
+AWCMS_SKIP_UNPROTECTED_DRIFT_CHECK=1 bash "$ROOT_DIR/scripts/validate-awcmsmicro-boundaries.sh"
