@@ -324,6 +324,16 @@ interface AccessHealthResponse {
 	usersWithoutRoles: string[];
 }
 
+export function normalizeAccessHealthResponse(data: AccessHealthResponse): AccessHealthResponse {
+	return {
+		...data,
+		rolesWithoutPermissions: Array.isArray(data.rolesWithoutPermissions)
+			? data.rolesWithoutPermissions
+			: [],
+		usersWithoutRoles: Array.isArray(data.usersWithoutRoles) ? data.usersWithoutRoles : [],
+	};
+}
+
 interface AbacAttributeItem {
 	key: string;
 	label: string;
@@ -2602,15 +2612,16 @@ function AccessRightsHealthWidget() {
 	if (!data)
 		return <EmptyState title={copy.noHealthData} description={copy.noHealthDataDescription} />;
 
-	const hasGaps = data.rolesWithoutPermissions.length > 0 || data.usersWithoutRoles.length > 0;
+	const health = normalizeAccessHealthResponse(data);
+	const hasGaps = health.rolesWithoutPermissions.length > 0 || health.usersWithoutRoles.length > 0;
 
 	return (
 		<div className="space-y-3">
 			<div className="grid grid-cols-2 gap-2 text-sm">
-				<MetricCard label={copy.permissions} value={data.permissionCount} />
-				<MetricCard label={copy.roles} value={data.roleCount} />
-				<MetricCard label={copy.matrices} value={data.assignmentCount} />
-				<MetricCard label={copy.users} value={data.userAssignmentCount} />
+				<MetricCard label={copy.permissions} value={health.permissionCount} />
+				<MetricCard label={copy.roles} value={health.roleCount} />
+				<MetricCard label={copy.matrices} value={health.assignmentCount} />
+				<MetricCard label={copy.users} value={health.userAssignmentCount} />
 			</div>
 			<div className="text-sm">
 				<Pill tone={hasGaps ? "warning" : "success"}>
@@ -2619,8 +2630,8 @@ function AccessRightsHealthWidget() {
 				<p className="mt-2 text-kumo-subtle">
 					{hasGaps
 						? copy.catalogGapSummary(
-								data.rolesWithoutPermissions.length,
-								data.usersWithoutRoles.length,
+								health.rolesWithoutPermissions.length,
+								health.usersWithoutRoles.length,
 							)
 						: copy.catalogGapNone}
 				</p>

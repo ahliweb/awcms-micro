@@ -8,6 +8,7 @@ import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
 	filterPluginHeaderMenu,
+	normalizeAccessHealthResponse,
 	normalizeSummaryResponse,
 	pages as sikesraAdminPages,
 } from "../src/admin.js";
@@ -1829,6 +1830,18 @@ describe("awcms micro sikesra plugin", () => {
 			governanceMode: "review",
 		});
 		expect(summary?.recentEvents).toEqual([]);
+	});
+
+	it("normalizes partial access health responses before rendering gap counts", () => {
+		const health = normalizeAccessHealthResponse({
+			permissionCount: 2,
+			roleCount: 1,
+			assignmentCount: 0,
+			userAssignmentCount: 0,
+		} as Parameters<typeof normalizeAccessHealthResponse>[0]);
+
+		expect(health.rolesWithoutPermissions).toEqual([]);
+		expect(health.usersWithoutRoles).toEqual([]);
 	});
 
 	it("declares dashboard module cards and a filtered header menu model", () => {
