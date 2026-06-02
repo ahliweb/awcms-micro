@@ -103,6 +103,84 @@ require_contains() {
 	rg -F --quiet -- "$needle" "$path" || fail "Expected '$needle' in $path"
 }
 
+patch_target_paths() {
+	local patch_file
+	shopt -s nullglob
+	for patch_file in "$ROOT_DIR"/awcmsmicro-dev/.awcms-patches/*.patch; do
+		while IFS= read -r patch_line; do
+			if [[ "$patch_line" =~ ^diff[[:space:]]--git[[:space:]]a/([^[:space:]]+) ]]; then
+				printf '%s\n' "${BASH_REMATCH[1]}"
+			fi
+		done < "$patch_file"
+	done
+	shopt -u nullglob
+}
+
+is_patch_target_path() {
+	local candidate="$1"
+	local target
+	while IFS= read -r target; do
+		if [[ "$candidate" == "$target" ]]; then
+			return 0
+		fi
+	done < <(patch_target_paths)
+	return 1
+}
+
+check_unprotected_downstream_drift() {
+	local rsync_args=()
+	local relative_path
+	while IFS= read -r relative_path || [[ -n "$relative_path" ]]; do
+		if [[ -z "$relative_path" || "$relative_path" == \#* ]]; then
+			continue
+		fi
+		rsync_args+=("--exclude=$relative_path")
+	done < "$ALLOWLIST_FILE"
+
+	local drift_output
+	drift_output="$(rsync -anic --delete \
+		--exclude='.git' \
+		--exclude='node_modules' \
+		--exclude='dist' \
+		--exclude='.astro' \
+		--exclude='.wrangler' \
+		--exclude='.vite' \
+		--exclude='.mf' \
+		"${rsync_args[@]}" \
+		"$ROOT_DIR/emdash-latest/" "$ROOT_DIR/awcmsmicro-dev/")"
+
+	local line
+	while IFS= read -r line; do
+		local itemized_change
+		if [[ -z "$line" ]]; then
+			continue
+		fi
+
+		if [[ "$line" =~ ^\*deleting[[:space:]]+(.+)$ ]]; then
+			relative_path="${BASH_REMATCH[1]}"
+			if git -C "$ROOT_DIR" ls-files --error-unmatch "awcmsmicro-dev/$relative_path" >/dev/null 2>&1; then
+				fail "Tracked unprotected downstream-only path would be deleted on rebuild: awcmsmicro-dev/$relative_path"
+			fi
+			continue
+		fi
+
+		if [[ "$line" =~ ^.{11}[[:space:]]+(.+)$ ]]; then
+			itemized_change="${line:0:11}"
+			relative_path="${BASH_REMATCH[1]}"
+			if [[ "$itemized_change" != '>'* ]]; then
+				continue
+			fi
+			if [[ "$itemized_change" != *c* && "$itemized_change" != *s* ]]; then
+				continue
+			fi
+			if is_patch_target_path "$relative_path"; then
+				continue
+			fi
+			fail "Unprotected downstream content drift is not covered by a patch overlay: awcmsmicro-dev/$relative_path"
+		fi
+	done <<< "$drift_output"
+}
+
 if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
 	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
 	export AWCMS_RUNTIME_PREREQS_CHECKED=1
@@ -166,6 +244,9 @@ for patch_file_path in "${patch_overlay_files[@]}"; do
 	require_file "$patch_file_path"
 	require_contains "$patch_file" "$DIVERGENCE_LOG"
 done
+
+log "Checking unprotected downstream drift"
+check_unprotected_downstream_drift
 
 log "Checking sync allowlist strategy"
 require_contains 'check-runtime-prereqs.sh' "$SYNC_SCRIPT"

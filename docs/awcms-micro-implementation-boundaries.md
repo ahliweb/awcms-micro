@@ -101,6 +101,8 @@ If a change does not fit one of these categories, do not assume it should surviv
 
 Active patch overlays under `awcmsmicro-dev/.awcms-patches/` must be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md`. This keeps source-level overrides auditable without expanding the protected allowlist to broad upstream-owned files.
 
+`bash scripts/validate-awcmsmicro-boundaries.sh` also dry-runs an unprotected `emdash-latest/` to `awcmsmicro-dev/` rebuild comparison. Any tracked downstream-only file outside the allowlist, or any unprotected content drift not covered by an active patch overlay, fails validation before the next real rebuild can overwrite it silently. Untracked generated/local artifacts are not treated as protected changes.
+
 ## Compatibility Guardrail
 
 This boundary preserves EmDash compatibility by keeping upstream behavior in upstream-owned locations and confining AWCMS-Micro example work to explicitly approved paths.

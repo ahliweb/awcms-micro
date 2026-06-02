@@ -53,6 +53,8 @@ This keeps `emdash-latest/` disposable and upstream-faithful while preserving ex
 
 Patch overlays under `.awcms-patches/` are the protection mechanism for narrow source-level downstream overrides whose target files should otherwise remain upstream-owned. Do not add those target files to the allowlist unless the downstream version of the whole file must be restored before patch replay. Active overlay files must also be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md` so rebuild-sensitive changes have an auditable reason and review trigger.
 
+Boundary validation dry-runs the rebuild comparison outside this allowlist. Tracked downstream-only files outside approved paths, and unprotected content drift that is not listed as a patch target in `.awcms-patches/`, fail validation. Untracked generated files and other local artifacts are disposable and should not be added to this allowlist.
+
 ## Rules
 
 - Add new protected paths only when they are AWCMS-Micro-owned implementation areas.
