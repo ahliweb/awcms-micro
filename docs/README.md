@@ -24,6 +24,7 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-versioning-rollout-summary.md`: concise summary of the AWCMS versioning automation rollout and local proof runs
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file
+- `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`: sync-safe AWCMS-Micro PO catalog standard for all plugin and template translations
 - `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
 - `operator-workflow.md`: also documents `continuation` vs `fresh-clone` update mode and the fresh-clone prompt details
 - `backup/gitlab-mirror-setup.md`: GitLab PAT-based mirror setup and recovery notes
@@ -60,13 +61,14 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 19. Read `awcms-micro-versioning-rollout-summary.md` to review the implemented AWCMS versioning rollout and proof runs.
 20. Read `awcms-micro-licensing.md` before changing package or manifest license metadata.
 21. Read `awcms-micro-d1-mirror-sync.md` before connecting DBeaver to the local mirror or syncing D1 changes.
-22. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
-23. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
-24. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
-25. Read `upstream-sync/README.md` before reviewing sync state or divergence.
-26. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
-27. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-28. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+22. Read `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md` before adding or changing AWCMS-Micro plugin or template translations.
+23. Read `operator-workflow.md` for the shortest end-to-end maintenance and promotion path.
+24. Read `backup/gitlab-mirror-setup.md` and `security/backup-restore.md` before changing backup, mirror, or recovery flows.
+25. Read `nested-navigation-public-and-plugin-header.md` before implementing public dropdown menus or plugin-owned header navigation.
+26. Read `upstream-sync/README.md` before reviewing sync state or divergence.
+27. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
+28. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
+29. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Issue System Summary
 
@@ -85,3 +87,7 @@ English (US) is the official language for this root documentation set.
 Exception:
 
 - content preserved from upstream EmDash may retain upstream wording and spelling
+
+## Translation Standard
+
+AWCMS-Micro plugins and templates must use Lingui-compatible gettext PO catalogs for user-facing translations. English (`en`) is the source locale, and active plugins/templates must include reviewed Indonesian (`id`) catalogs. The canonical standard is `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.

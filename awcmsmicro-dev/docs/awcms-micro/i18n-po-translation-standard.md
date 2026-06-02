@@ -38,6 +38,18 @@ English (`en`) is the source locale. Indonesian (`id`) is required for active AW
 
 If upstream EmDash later provides an official plugin or template i18n API, AWCMS-Micro catalogs should be connected through an adapter instead of becoming a permanent fork-level translation system.
 
+## Governance Surfaces
+
+This standard must be referenced by the root and project-level guidance that agents and maintainers use before changing plugin or template copy:
+
+- root `README.md` and `AGENTS.md`
+- root docs that describe implementation boundaries, repository structure, synchronization, and operator workflow
+- `awcmsmicro-dev/AGENTS.md`
+- each active plugin or template README when that package owns user-facing strings
+- project governance or PRD docs when translation behavior is part of acceptance criteria
+
+When a plugin or template adds user-facing strings, update the matching PO catalogs in the same atomic change unless the issue explicitly scopes that work to a follow-up migration slice.
+
 ## PO File Rules
 
 Each PO entry uses English source text as `msgid` and the locale translation as `msgstr`.

@@ -72,6 +72,7 @@ node awcmsmicro-dev/.github/scripts/awcms-version.mjs status
 - If the change is AWCMS-Micro product behavior, put it in plugin or template boundaries only.
 - If the change affects process, structure, deployment guidance, or security guidance, update root docs and scripts.
 - If the change affects package release metadata, keep `awcmsmicro-dev/.changeset/` for workspace packages and `awcmsmicro-dev/.awcms-changesets/` for downstream `@awcms-micro/*` packages.
+- If the change adds or changes user-facing plugin/template copy, update the matching PO catalogs under `src/locales/{en,id}/messages.po` and follow `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
 
 ## Promotion Path
 
@@ -99,6 +100,7 @@ When preparing the independent `awcms-micro` repository state:
 - `docs/upstream-sync/COMPATIBILITY_MATRIX.md`
 - `docs/deployment/cloudflare.md`
 - `docs/security/security-baseline.md`
+- `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`
 
 ## Operating Principle
 

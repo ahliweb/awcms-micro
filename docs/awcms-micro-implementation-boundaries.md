@@ -92,6 +92,7 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - local workspace database persistence includes `awcmsmicro-dev/templates/awcms-micro-default/data.db` when present, so menu/content edits can survive rebuilds via the protected-path restore step
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
 - supported example plugin and template work in `awcmsmicro-dev/packages/plugins/` and `awcmsmicro-dev/templates/`
+- plugin and template PO translation catalogs under each project boundary at `src/locales/{en,id}/messages.po`
 - file-level AWCMS-Micro persistence exceptions for the admin sidebar and its regression test above
 - supporting docs, demos, and E2E assets under the approved custom paths listed above
 - root maintenance snapshot updates, including `CHANGELOG.md` and the latest plugin/template version notes

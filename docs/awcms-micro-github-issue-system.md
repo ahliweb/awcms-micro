@@ -102,6 +102,7 @@ Use issue type markers when they improve clarity:
 | BUG | Incorrect behavior, broken navigation, broken build, regression |
 | UX | User flow, interaction model, information architecture |
 | UI | Visual component, layout, theme, responsive behavior |
+| I18N | Plugin/template PO catalogs, locale adapters, translation QA, pseudo-locale checks |
 | DB | D1 schema, migrations, repositories, data model |
 | API | Route contracts, request/response shape, API behavior |
 | INTEGRATION | Frontend-backend-database integration, external service integration |
@@ -153,6 +154,21 @@ Goal
 Files To Update
 Documentation Requirements
 Mermaid Diagrams
+Acceptance Criteria
+Validation Commands
+```
+
+Translation issues should include:
+
+```txt
+Problem
+Goal
+Affected Plugins Or Templates
+Catalog Paths
+Source Locale
+Target Locales
+Adapter Or Compilation Path
+Human Review Requirement
 Acceptance Criteria
 Validation Commands
 ```
@@ -258,6 +274,7 @@ migration framework when database work is involved
 repository or data-access layer when database work is involved
 typed frontend-backend integration contract when UI and API work are involved
 field or schema standards
+PO catalog translation standard when plugin/template user-facing copy is involved
 RBAC/ABAC and permission model when protected data is involved
 audit/redaction model when sensitive data or mutation is involved
 Mermaid diagrams when architecture/database/UI/integration/security/deployment behavior is involved
@@ -365,6 +382,7 @@ abac
 frontend
 backend
 docs
+i18n
 diagram
 mermaid
 test

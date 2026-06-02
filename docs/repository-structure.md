@@ -73,6 +73,7 @@ Expected root scripts:
 - Preserved workflow scripts boundary: `awcmsmicro-dev/.github/scripts/`
 - Preserved Dependabot config: `awcmsmicro-dev/.github/dependabot.yml`
 - Preserved dev-workspace agent guidance: `awcmsmicro-dev/AGENTS.md`
+- AWCMS-Micro PO translation standard: `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`
 
 These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
 
@@ -108,6 +109,17 @@ Exceptions:
 
 - `emdash-latest/` preserves upstream EmDash wording as-is
 - `awcmsmicro-dev/` may inherit upstream wording when synchronized from `emdash-latest/`
+
+## Translation Standard
+
+AWCMS-Micro-owned plugin and template translations belong inside their project boundaries as Lingui-compatible gettext PO catalogs:
+
+```txt
+awcmsmicro-dev/packages/plugins/<plugin-id>/src/locales/{en,id}/messages.po
+awcmsmicro-dev/templates/<template-id>/src/locales/{en,id}/messages.po
+```
+
+The authoritative rules live in `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
 
 ## Design Principle
 

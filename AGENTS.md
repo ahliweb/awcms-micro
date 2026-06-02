@@ -162,7 +162,8 @@ Required rules for agents:
 ## AWCMS-Micro I18N Rules
 
 - AWCMS-Micro plugins and templates must use Lingui-compatible gettext PO catalogs for user-facing translation work; follow `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
-- Active plugins and templates must keep English (`en`) source catalogs and complete, reviewed Indonesian (`id`) translations for key labels and user-facing strings.
+- Plugin catalogs must live at `awcmsmicro-dev/packages/plugins/<plugin-id>/src/locales/{en,id}/messages.po`; template catalogs must live at `awcmsmicro-dev/templates/<template-id>/src/locales/{en,id}/messages.po`.
+- Active plugins and templates must keep English (`en`) source catalogs and complete, reviewed Indonesian (`id`) translations for navigation, settings, validation messages, accessibility text, public template copy, key labels, and other user-facing strings.
 - Do not add new plugin or template translations only as inline manifest `i18n.messages` maps or code-level copy objects unless they are temporary compatibility adapters during migration.
 - Preserve placeholders such as `{error}` and XML-style tags such as `<0>` and `</0>` exactly in translations.
 - AI-assisted translations require fluent or native speaker review and UI preview before they are treated as ready.

@@ -70,6 +70,14 @@ When choosing where a change belongs:
 - Accept inherited upstream wording in `awcmsmicro-dev/` when it comes from synchronization rather than AWCMS-Micro-specific authorship.
 - Active example plugins and templates must default to English (`en`) and provide a full Indonesian translation (`id`).
 
+## Translation Rule
+
+- AWCMS-Micro plugin translations must live in `awcmsmicro-dev/packages/plugins/<plugin-id>/src/locales/{en,id}/messages.po`.
+- AWCMS-Micro template translations must live in `awcmsmicro-dev/templates/<template-id>/src/locales/{en,id}/messages.po`.
+- Use Lingui-compatible gettext PO catalogs as the authoritative translation source for user-facing plugin and template strings.
+- Do not add new translations only as inline manifest `i18n.messages` maps or code-level copy objects unless they are temporary migration adapters.
+- Follow `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md` before adding or changing plugin or template translation behavior.
+
 ## Plugin Sidebar Layout & Grouping Rules
 
 - Active plugins must have their admin sidebar menus displayed at the top, directly below the Dashboard and before the default EmDash menus.

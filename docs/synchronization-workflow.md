@@ -111,6 +111,7 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Keep persistent source-level downstream tweaks as patch overlays in `awcmsmicro-dev/.awcms-patches/` instead of relying on unprotected source edits.
 - If preserving a downstream tweak requires sync, update, or validation script changes, make those script/doc changes first and only then rerun the rebuild.
 - Keep new product behavior in plugins and templates instead of introducing a parallel shared core implementation layer.
+- Keep AWCMS-Micro plugin and template translations in project-local Lingui-compatible PO catalogs under `src/locales/{en,id}/messages.po`; follow `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
 - Keep changes atomic so upstream sync and downstream adaptation can be reviewed separately.
 - When a sync or adaptation effort is too large, split it into smaller GitHub issues.
 - Keep AWCMS-Micro-specific release automation inputs inside preserved boundaries such as `.awcms-changesets/` and `.github/scripts/`.
@@ -123,3 +124,4 @@ This wrapper refreshes `emdash-latest/`, rebuilds `awcmsmicro-dev/`, runs valida
 - Keep root-level workflow and governance documentation in English (US).
 - Do not rewrite `emdash-latest/` content to normalize spelling, because it must remain faithful to upstream EmDash.
 - Allow `awcmsmicro-dev/` to inherit upstream wording when it is rebuilt from `emdash-latest/`.
+- For AWCMS-Micro-owned plugin and template strings, English (`en`) is the PO source locale and Indonesian (`id`) is required for active plugins/templates.

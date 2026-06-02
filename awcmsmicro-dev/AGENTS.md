@@ -291,6 +291,18 @@ Common mistakes:
 
 Server-side error messages are English-only for now. Keep error codes stable (`SCREAMING_SNAKE_CASE`); the admin maps codes to localized messages client-side.
 
+## AWCMS-Micro Plugin And Template Translations
+
+AWCMS-Micro-owned plugins and templates must use Lingui-compatible gettext PO catalogs as the authoritative translation inventory for user-facing strings.
+
+- Plugin catalogs: `packages/plugins/<plugin-id>/src/locales/{en,id}/messages.po`.
+- Template catalogs: `templates/<template-id>/src/locales/{en,id}/messages.po`.
+- English (`en`) is the source locale; active AWCMS-Micro plugins and templates must include reviewed Indonesian (`id`) translations.
+- Do not add new plugin/template translations only as inline manifest `i18n.messages` maps or code-level copy objects unless they are temporary migration adapters.
+- Preserve placeholders such as `{error}` and XML-style tags such as `<0>` and `</0>` exactly in `msgstr` values.
+
+Follow `docs/awcms-micro/i18n-po-translation-standard.md` before adding or changing AWCMS-Micro plugin or template translation behavior.
+
 ## Admin UI: RTL-safe Tailwind
 
 The admin supports RTL locales. Use logical Tailwind classes, never physical:

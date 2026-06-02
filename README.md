@@ -143,6 +143,25 @@ Exception:
 - `emdash-latest/` must remain as an upstream-faithful EmDash snapshot and should preserve upstream wording as-is, including non-US spelling when present.
 - `awcmsmicro-dev/` may mirror upstream wording when it is rebuilt from `emdash-latest/` as part of synchronization work.
 
+## Translation Standard
+
+AWCMS-Micro plugins and templates must use Lingui-compatible gettext PO catalogs for user-facing translation work.
+
+Standard catalog locations:
+
+```txt
+awcmsmicro-dev/packages/plugins/<plugin-id>/src/locales/en/messages.po
+awcmsmicro-dev/packages/plugins/<plugin-id>/src/locales/id/messages.po
+awcmsmicro-dev/templates/<template-id>/src/locales/en/messages.po
+awcmsmicro-dev/templates/<template-id>/src/locales/id/messages.po
+```
+
+English (`en`) is the source locale. Active plugins and templates must include complete, reviewed Indonesian (`id`) translations for user-facing labels, navigation, settings, validation text, accessibility text, and public template copy.
+
+Do not add new plugin or template translations only as inline manifest `i18n.messages` maps or code-level copy objects unless they are temporary compatibility adapters during migration. Keep placeholders such as `{error}` and XML-style tags such as `<0>` and `</0>` unchanged in `msgstr` values.
+
+The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
+
 ## Core Documentation
 
 - `docs/README.md`
