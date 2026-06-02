@@ -945,3 +945,779 @@ msgstr "Scope / actor"
 msgctxt "awcms.adminCopy.time"
 msgid "Time"
 msgstr "Time"
+
+msgctxt "awcms.adminCopy.loadingPermissions"
+msgid "Loading permissions..."
+msgstr "Loading permissions..."
+
+msgctxt "awcms.adminCopy.accessEyebrow"
+msgid "Access"
+msgstr "Access"
+
+msgctxt "awcms.adminCopy.permissionCatalog"
+msgid "Permission catalog"
+msgstr "Permission catalog"
+
+msgctxt "awcms.adminCopy.permissionCatalogDescription"
+msgid "Create plugin-owned permissions with explicit slugs, labels, scopes, and descriptions."
+msgstr "Create plugin-owned permissions with explicit slugs, labels, scopes, and descriptions."
+
+msgctxt "awcms.adminCopy.addPermission"
+msgid "Add permission"
+msgstr "Add permission"
+
+msgctxt "awcms.adminCopy.addPermissionDescription"
+msgid "Use stable dot-separated slugs such as content.read.public."
+msgstr "Use stable dot-separated slugs such as content.read.public."
+
+msgctxt "awcms.adminCopy.slug"
+msgid "Slug"
+msgstr "Slug"
+
+msgctxt "awcms.adminCopy.scope"
+msgid "Scope"
+msgstr "Scope"
+
+msgctxt "awcms.adminCopy.descriptionLabel"
+msgid "Description"
+msgstr "Description"
+
+msgctxt "awcms.adminCopy.savePermission"
+msgid "Save permission"
+msgstr "Save permission"
+
+msgctxt "awcms.adminCopy.permissionSaved"
+msgid "Permission saved."
+msgstr "Permission saved."
+
+msgctxt "awcms.adminCopy.failedToSavePermission"
+msgid "Failed to save permission"
+msgstr "Failed to save permission"
+
+msgctxt "awcms.adminCopy.existingPermissions"
+msgid "Existing permissions"
+msgstr "Existing permissions"
+
+msgctxt "awcms.adminCopy.existingPermissionsDescription"
+msgid "{count} permission(s) in the plugin catalog."
+msgstr "{count} permission(s) in the plugin catalog."
+
+msgctxt "awcms.adminCopy.noPermissionsYet"
+msgid "No permissions yet"
+msgstr "No permissions yet"
+
+msgctxt "awcms.adminCopy.noPermissionsYetDescription"
+msgid "Create a permission to begin building the role matrix."
+msgstr "Create a permission to begin building the role matrix."
+
+msgctxt "awcms.adminCopy.noDescriptionProvided"
+msgid "No description provided."
+msgstr "No description provided."
+
+msgctxt "awcms.adminCopy.loadingRoles"
+msgid "Loading roles..."
+msgstr "Loading roles..."
+
+msgctxt "awcms.adminCopy.rolesAndAssignments"
+msgid "Roles and assignments"
+msgstr "Roles and assignments"
+
+msgctxt "awcms.adminCopy.rolesAndAssignmentsDescription"
+msgid "Manage plugin-owned role definitions and assign users to demo roles."
+msgstr "Manage plugin-owned role definitions and assign users to demo roles."
+
+msgctxt "awcms.adminCopy.addRole"
+msgid "Add role"
+msgstr "Add role"
+
+msgctxt "awcms.adminCopy.addRoleDescription"
+msgid "Create reusable role labels before mapping permissions."
+msgstr "Create reusable role labels before mapping permissions."
+
+msgctxt "awcms.adminCopy.roleSlug"
+msgid "Role slug"
+msgstr "Role slug"
+
+msgctxt "awcms.adminCopy.saveRole"
+msgid "Save role"
+msgstr "Save role"
+
+msgctxt "awcms.adminCopy.roleSaved"
+msgid "Role saved."
+msgstr "Role saved."
+
+msgctxt "awcms.adminCopy.failedToSaveRole"
+msgid "Failed to save role"
+msgstr "Failed to save role"
+
+msgctxt "awcms.adminCopy.assignUserRoles"
+msgid "Assign user roles"
+msgstr "Assign user roles"
+
+msgctxt "awcms.adminCopy.assignUserRolesDescription"
+msgid "Use comma-separated role slugs, for example editor, reviewer."
+msgstr "Use comma-separated role slugs, for example editor, reviewer."
+
+msgctxt "awcms.adminCopy.userId"
+msgid "User ID"
+msgstr "User ID"
+
+msgctxt "awcms.adminCopy.saveAssignment"
+msgid "Save assignment"
+msgstr "Save assignment"
+
+msgctxt "awcms.adminCopy.userRoleAssignmentSaved"
+msgid "User role assignment saved."
+msgstr "User role assignment saved."
+
+msgctxt "awcms.adminCopy.failedToSaveUserAssignment"
+msgid "Failed to save user assignment"
+msgstr "Failed to save user assignment"
+
+msgctxt "awcms.adminCopy.rolesTitle"
+msgid "Roles"
+msgstr "Roles"
+
+msgctxt "awcms.adminCopy.rolesDescription"
+msgid "{count} role(s) available."
+msgstr "{count} role(s) available."
+
+msgctxt "awcms.adminCopy.noRolesYet"
+msgid "No roles yet"
+msgstr "No roles yet"
+
+msgctxt "awcms.adminCopy.noRolesYetDescription"
+msgid "Create a role before assigning permissions."
+msgstr "Create a role before assigning permissions."
+
+msgctxt "awcms.adminCopy.userAssignments"
+msgid "User assignments"
+msgstr "User assignments"
+
+msgctxt "awcms.adminCopy.userAssignmentsDescription"
+msgid "{count} user assignment(s)."
+msgstr "{count} user assignment(s)."
+
+msgctxt "awcms.adminCopy.noAssignmentsYet"
+msgid "No assignments yet"
+msgstr "No assignments yet"
+
+msgctxt "awcms.adminCopy.noAssignmentsYetDescription"
+msgid "Assign a user to one or more roles."
+msgstr "Assign a user to one or more roles."
+
+msgctxt "awcms.adminCopy.noRolesPill"
+msgid "No roles"
+msgstr "No roles"
+
+msgctxt "awcms.adminCopy.loadingRoleMatrix"
+msgid "Loading role matrix..."
+msgstr "Loading role matrix..."
+
+msgctxt "awcms.adminCopy.rolePermissionMatrix"
+msgid "Role and permission matrix"
+msgstr "Role and permission matrix"
+
+msgctxt "awcms.adminCopy.rolePermissionMatrixDescription"
+msgid "Map permissions to roles in the plugin-owned catalog. This preview does not replace EmDash core authorization."
+msgstr "Map permissions to roles in the plugin-owned catalog. This preview does not replace EmDash core authorization."
+
+msgctxt "awcms.adminCopy.catalogIncomplete"
+msgid "Catalog incomplete"
+msgstr "Catalog incomplete"
+
+msgctxt "awcms.adminCopy.catalogIncompleteDescription"
+msgid "Create at least one role and one permission before editing the matrix."
+msgstr "Create at least one role and one permission before editing the matrix."
+
+msgctxt "awcms.adminCopy.editMatrix"
+msgid "Edit matrix"
+msgstr "Edit matrix"
+
+msgctxt "awcms.adminCopy.editMatrixDescription"
+msgid "{count} permission(s) selected for the current role."
+msgstr "{count} permission(s) selected for the current role."
+
+msgctxt "awcms.adminCopy.saveMatrix"
+msgid "Save matrix"
+msgstr "Save matrix"
+
+msgctxt "awcms.adminCopy.roleMatrixSaved"
+msgid "Role matrix saved."
+msgstr "Role matrix saved."
+
+msgctxt "awcms.adminCopy.failedToSaveMatrix"
+msgid "Failed to save matrix"
+msgstr "Failed to save matrix"
+
+msgctxt "awcms.adminCopy.role"
+msgid "Role"
+msgstr "Role"
+
+msgctxt "awcms.adminCopy.loadingAccessPreview"
+msgid "Checking..."
+msgstr "Checking..."
+
+msgctxt "awcms.adminCopy.effectiveAccessPreview"
+msgid "Effective access preview"
+msgstr "Effective access preview"
+
+msgctxt "awcms.adminCopy.effectiveAccessPreviewDescription"
+msgid "Simulate whether a user has a plugin-owned permission based on current role assignments."
+msgstr "Simulate whether a user has a plugin-owned permission based on current role assignments."
+
+msgctxt "awcms.adminCopy.previewInput"
+msgid "Preview input"
+msgstr "Preview input"
+
+msgctxt "awcms.adminCopy.previewInputDescription"
+msgid "Select a user and permission, then run the deterministic access preview."
+msgstr "Select a user and permission, then run the deterministic access preview."
+
+msgctxt "awcms.adminCopy.user"
+msgid "User"
+msgstr "User"
+
+msgctxt "awcms.adminCopy.permission"
+msgid "Permission"
+msgstr "Permission"
+
+msgctxt "awcms.adminCopy.previewAccess"
+msgid "Preview access"
+msgstr "Preview access"
+
+msgctxt "awcms.adminCopy.failedToPreviewAccess"
+msgid "Failed to preview access"
+msgstr "Failed to preview access"
+
+msgctxt "awcms.adminCopy.decisionResult"
+msgid "Decision result"
+msgstr "Decision result"
+
+msgctxt "awcms.adminCopy.allowed"
+msgid "Allowed"
+msgstr "Allowed"
+
+msgctxt "awcms.adminCopy.denied"
+msgid "Denied"
+msgstr "Denied"
+
+msgctxt "awcms.adminCopy.matchedRoles"
+msgid "Matched roles"
+msgstr "Matched roles"
+
+msgctxt "awcms.adminCopy.effectivePermissions"
+msgid "Effective permissions"
+msgstr "Effective permissions"
+
+msgctxt "awcms.adminCopy.none"
+msgid "None"
+msgstr "None"
+
+msgctxt "awcms.adminCopy.stage"
+msgid "Stage"
+msgstr "Stage"
+
+msgctxt "awcms.adminCopy.jsonObjectExampleError"
+msgid "Use a JSON object, for example {\"tenant_id\":\"tenant-a\"}."
+msgstr "Use a JSON object, for example {\"tenant_id\":\"tenant-a\"}."
+
+msgctxt "awcms.adminCopy.invalidJsonError"
+msgid "Invalid JSON. Check quotes, commas, and braces."
+msgstr "Invalid JSON. Check quotes, commas, and braces."
+
+msgctxt "awcms.adminCopy.requestFailed"
+msgid "Request failed"
+msgstr "Request failed"
+
+msgctxt "awcms.adminCopy.draft"
+msgid "Draft"
+msgstr "Draft"
+
+msgctxt "awcms.adminCopy.loadingAbacAttributes"
+msgid "Loading ABAC attributes..."
+msgstr "Loading ABAC attributes..."
+
+msgctxt "awcms.adminCopy.abacEyebrow"
+msgid "ABAC"
+msgstr "ABAC"
+
+msgctxt "awcms.adminCopy.attributeCatalog"
+msgid "Attribute catalog"
+msgstr "Attribute catalog"
+
+msgctxt "awcms.adminCopy.attributeCatalogDescription"
+msgid "Define subject, resource, and context attributes used by the demo ABAC policy engine."
+msgstr "Define subject, resource, and context attributes used by the demo ABAC policy engine."
+
+msgctxt "awcms.adminCopy.attributeDefinition"
+msgid "Attribute definition"
+msgstr "Attribute definition"
+
+msgctxt "awcms.adminCopy.targetType"
+msgid "Target type"
+msgstr "Target type"
+
+msgctxt "awcms.adminCopy.saveAttribute"
+msgid "Save attribute"
+msgstr "Save attribute"
+
+msgctxt "awcms.adminCopy.attributeSaved"
+msgid "Attribute saved."
+msgstr "Attribute saved."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacAttribute"
+msgid "Failed to save ABAC attribute"
+msgstr "Failed to save ABAC attribute"
+
+msgctxt "awcms.adminCopy.subjectAssignment"
+msgid "Subject assignment"
+msgstr "Subject assignment"
+
+msgctxt "awcms.adminCopy.subjectId"
+msgid "Subject ID"
+msgstr "Subject ID"
+
+msgctxt "awcms.adminCopy.attributesJson"
+msgid "Attributes JSON"
+msgstr "Attributes JSON"
+
+msgctxt "awcms.adminCopy.attributesJsonExampleSubject"
+msgid "Example: {\"tenant_id\":\"tenant-a\"}"
+msgstr "Example: {\"tenant_id\":\"tenant-a\"}"
+
+msgctxt "awcms.adminCopy.saveSubject"
+msgid "Save subject"
+msgstr "Save subject"
+
+msgctxt "awcms.adminCopy.subjectAttributesSaved"
+msgid "Subject attributes saved."
+msgstr "Subject attributes saved."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacSubject"
+msgid "Failed to save ABAC subject"
+msgstr "Failed to save ABAC subject"
+
+msgctxt "awcms.adminCopy.resourceAssignment"
+msgid "Resource assignment"
+msgstr "Resource assignment"
+
+msgctxt "awcms.adminCopy.resourceId"
+msgid "Resource ID"
+msgstr "Resource ID"
+
+msgctxt "awcms.adminCopy.attributesJsonExampleResource"
+msgid "Example: {\"resource_type\":\"policy\"}"
+msgstr "Example: {\"resource_type\":\"policy\"}"
+
+msgctxt "awcms.adminCopy.saveResource"
+msgid "Save resource"
+msgstr "Save resource"
+
+msgctxt "awcms.adminCopy.resourceAttributesSaved"
+msgid "Resource attributes saved."
+msgstr "Resource attributes saved."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacResource"
+msgid "Failed to save ABAC resource"
+msgstr "Failed to save ABAC resource"
+
+msgctxt "awcms.adminCopy.attributesTitle"
+msgid "Attributes"
+msgstr "Attributes"
+
+msgctxt "awcms.adminCopy.noAttributes"
+msgid "No attributes"
+msgstr "No attributes"
+
+msgctxt "awcms.adminCopy.noAttributesDescription"
+msgid "Create an attribute definition first."
+msgstr "Create an attribute definition first."
+
+msgctxt "awcms.adminCopy.subjectsTitle"
+msgid "Subjects"
+msgstr "Subjects"
+
+msgctxt "awcms.adminCopy.noSubjects"
+msgid "No subjects"
+msgstr "No subjects"
+
+msgctxt "awcms.adminCopy.noSubjectsDescription"
+msgid "Create a subject assignment to test policies."
+msgstr "Create a subject assignment to test policies."
+
+msgctxt "awcms.adminCopy.unknownSubject"
+msgid "Unknown subject"
+msgstr "Unknown subject"
+
+msgctxt "awcms.adminCopy.resourcesTitle"
+msgid "Resources"
+msgstr "Resources"
+
+msgctxt "awcms.adminCopy.noResources"
+msgid "No resources"
+msgstr "No resources"
+
+msgctxt "awcms.adminCopy.noResourcesDescription"
+msgid "Create a resource assignment to test policies."
+msgstr "Create a resource assignment to test policies."
+
+msgctxt "awcms.adminCopy.unknownResource"
+msgid "Unknown resource"
+msgstr "Unknown resource"
+
+msgctxt "awcms.adminCopy.loadingAbacPolicies"
+msgid "Loading ABAC policies..."
+msgstr "Loading ABAC policies..."
+
+msgctxt "awcms.adminCopy.policyRules"
+msgid "Policy rules"
+msgstr "Policy rules"
+
+msgctxt "awcms.adminCopy.policyRulesDescription"
+msgid "Create explicit allow and deny rules for the demonstrative ABAC engine."
+msgstr "Create explicit allow and deny rules for the demonstrative ABAC engine."
+
+msgctxt "awcms.adminCopy.addPolicy"
+msgid "Add policy"
+msgstr "Add policy"
+
+msgctxt "awcms.adminCopy.addPolicyDescription"
+msgid "Deny rules take precedence in the demo decision model."
+msgstr "Deny rules take precedence in the demo decision model."
+
+msgctxt "awcms.adminCopy.policyId"
+msgid "Policy ID"
+msgstr "Policy ID"
+
+msgctxt "awcms.adminCopy.effect"
+msgid "Effect"
+msgstr "Effect"
+
+msgctxt "awcms.adminCopy.allow"
+msgid "Allow"
+msgstr "Allow"
+
+msgctxt "awcms.adminCopy.deny"
+msgid "Deny"
+msgstr "Deny"
+
+msgctxt "awcms.adminCopy.actions"
+msgid "Actions"
+msgstr "Actions"
+
+msgctxt "awcms.adminCopy.actionsHint"
+msgid "Comma-separated actions."
+msgstr "Comma-separated actions."
+
+msgctxt "awcms.adminCopy.requiredSubjectJson"
+msgid "Required subject JSON"
+msgstr "Required subject JSON"
+
+msgctxt "awcms.adminCopy.requiredResourceJson"
+msgid "Required resource JSON"
+msgstr "Required resource JSON"
+
+msgctxt "awcms.adminCopy.requiredContextJson"
+msgid "Required context JSON"
+msgstr "Required context JSON"
+
+msgctxt "awcms.adminCopy.savePolicy"
+msgid "Save policy"
+msgstr "Save policy"
+
+msgctxt "awcms.adminCopy.oneOrMoreJsonInvalid"
+msgid "One or more JSON condition fields are invalid."
+msgstr "One or more JSON condition fields are invalid."
+
+msgctxt "awcms.adminCopy.policySaved"
+msgid "Policy saved."
+msgstr "Policy saved."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacPolicy"
+msgid "Failed to save ABAC policy"
+msgstr "Failed to save ABAC policy"
+
+msgctxt "awcms.adminCopy.existingPolicies"
+msgid "Existing policies"
+msgstr "Existing policies"
+
+msgctxt "awcms.adminCopy.existingPoliciesDescription"
+msgid "{count} policy rule(s)."
+msgstr "{count} policy rule(s)."
+
+msgctxt "awcms.adminCopy.noPolicies"
+msgid "No policies"
+msgstr "No policies"
+
+msgctxt "awcms.adminCopy.noPoliciesDescription"
+msgid "Create a policy to use the ABAC decision preview."
+msgstr "Create a policy to use the ABAC decision preview."
+
+msgctxt "awcms.adminCopy.actionsLabel"
+msgid "Actions"
+msgstr "Actions"
+
+msgctxt "awcms.adminCopy.loadingAbacDecision"
+msgid "Evaluating..."
+msgstr "Evaluating..."
+
+msgctxt "awcms.adminCopy.decisionPreview"
+msgid "Decision preview"
+msgstr "Decision preview"
+
+msgctxt "awcms.adminCopy.decisionPreviewDescription"
+msgid "Preview or run the protected demo route using subject, resource, action, and context attributes."
+msgstr "Preview or run the protected demo route using subject, resource, action, and context attributes."
+
+msgctxt "awcms.adminCopy.decisionInput"
+msgid "Decision input"
+msgstr "Decision input"
+
+msgctxt "awcms.adminCopy.subject"
+msgid "Subject"
+msgstr "Subject"
+
+msgctxt "awcms.adminCopy.resource"
+msgid "Resource"
+msgstr "Resource"
+
+msgctxt "awcms.adminCopy.action"
+msgid "Action"
+msgstr "Action"
+
+msgctxt "awcms.adminCopy.contextAttributesJson"
+msgid "Context attributes JSON"
+msgstr "Context attributes JSON"
+
+msgctxt "awcms.adminCopy.previewPolicy"
+msgid "Preview policy"
+msgstr "Preview policy"
+
+msgctxt "awcms.adminCopy.runProtectedDemo"
+msgid "Run protected demo"
+msgstr "Run protected demo"
+
+msgctxt "awcms.adminCopy.failedToEvaluateAbacPolicy"
+msgid "Failed to evaluate ABAC policy"
+msgstr "Failed to evaluate ABAC policy"
+
+msgctxt "awcms.adminCopy.matchedPolicies"
+msgid "Matched policies"
+msgstr "Matched policies"
+
+msgctxt "awcms.adminCopy.missingAttributes"
+msgid "Missing attributes"
+msgstr "Missing attributes"
+
+msgctxt "awcms.adminCopy.importEyebrow"
+msgid "Import"
+msgstr "Import"
+
+msgctxt "awcms.adminCopy.importTitle"
+msgid "Excel Import Processor"
+msgstr "Excel Import Processor"
+
+msgctxt "awcms.adminCopy.importDescription"
+msgid "Upload, column mapping, duplication checking, and promotion workflow for Excel sheets."
+msgstr "Upload, column mapping, duplication checking, and promotion workflow for Excel sheets."
+
+msgctxt "awcms.adminCopy.uploadWorkbook"
+msgid "Upload Workbook"
+msgstr "Upload Workbook"
+
+msgctxt "awcms.adminCopy.selectSheet"
+msgid "Select Sheet"
+msgstr "Select Sheet"
+
+msgctxt "awcms.adminCopy.mapColumns"
+msgid "Map Columns"
+msgstr "Map Columns"
+
+msgctxt "awcms.adminCopy.previewStaging"
+msgid "Preview Staging Rows"
+msgstr "Preview Staging Rows"
+
+msgctxt "awcms.adminCopy.promoteRows"
+msgid "Promote Rows"
+msgstr "Promote Rows"
+
+msgctxt "awcms.adminCopy.workbookFile"
+msgid "Excel Workbook File (.xlsx, .xls)"
+msgstr "Excel Workbook File (.xlsx, .xls)"
+
+msgctxt "awcms.adminCopy.selectFile"
+msgid "Select file..."
+msgstr "Select file..."
+
+msgctxt "awcms.adminCopy.mappingValidationPassed"
+msgid "Column mapping validated successfully."
+msgstr "Column mapping validated successfully."
+
+msgctxt "awcms.adminCopy.promoteSelectedRows"
+msgid "Promote Selected Rows"
+msgstr "Promote Selected Rows"
+
+msgctxt "awcms.adminCopy.importReport"
+msgid "Import Report"
+msgstr "Import Report"
+
+msgctxt "awcms.adminCopy.promotedSuccessfully"
+msgid "Staged rows promoted to the registry queue successfully."
+msgstr "Staged rows promoted to the registry queue successfully."
+
+msgctxt "awcms.adminCopy.regionsTitle"
+msgid "Official Region Management"
+msgstr "Official Region Management"
+
+msgctxt "awcms.adminCopy.regionsDescription"
+msgid "Manage official administrative reference regions including provinces, regencies, districts, and villages."
+msgstr "Manage official administrative reference regions including provinces, regencies, districts, and villages."
+
+msgctxt "awcms.adminCopy.totalProvinces"
+msgid "Total Provinces"
+msgstr "Total Provinces"
+
+msgctxt "awcms.adminCopy.totalRegencies"
+msgid "Total Regencies"
+msgstr "Total Regencies"
+
+msgctxt "awcms.adminCopy.totalDistricts"
+msgid "Total Districts"
+msgstr "Total Districts"
+
+msgctxt "awcms.adminCopy.totalVillages"
+msgid "Total Villages"
+msgstr "Total Villages"
+
+msgctxt "awcms.adminCopy.saveRegions"
+msgid "Save Region Changes"
+msgstr "Save Region Changes"
+
+msgctxt "awcms.adminCopy.regionsSavedSuccessfully"
+msgid "Official region data updated successfully."
+msgstr "Official region data updated successfully."
+
+msgctxt "awcms.adminCopy.failedToSaveRegions"
+msgid "Failed to update official region data."
+msgstr "Failed to update official region data."
+
+msgctxt "awcms.adminCopy.province"
+msgid "Province"
+msgstr "Province"
+
+msgctxt "awcms.adminCopy.regency"
+msgid "Regency/City"
+msgstr "Regency/City"
+
+msgctxt "awcms.adminCopy.district"
+msgid "District"
+msgstr "District"
+
+msgctxt "awcms.adminCopy.village"
+msgid "Village"
+msgstr "Village"
+
+msgctxt "awcms.adminCopy.addProvince"
+msgid "Add Province"
+msgstr "Add Province"
+
+msgctxt "awcms.adminCopy.addRegency"
+msgid "Add Regency/City"
+msgstr "Add Regency/City"
+
+msgctxt "awcms.adminCopy.addDistrict"
+msgid "Add District"
+msgstr "Add District"
+
+msgctxt "awcms.adminCopy.addVillage"
+msgid "Add Village"
+msgstr "Add Village"
+
+msgctxt "awcms.adminCopy.editNode"
+msgid "Edit Name & Code"
+msgstr "Edit Name & Code"
+
+msgctxt "awcms.adminCopy.deleteNode"
+msgid "Delete Region"
+msgstr "Delete Region"
+
+msgctxt "awcms.adminCopy.nodeName"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "awcms.adminCopy.nodeCode"
+msgid "Code"
+msgstr "Code"
+
+msgctxt "awcms.adminCopy.deleteConfirm"
+msgid "Are you sure you want to delete this region and all its sub-regions?"
+msgstr "Are you sure you want to delete this region and all its sub-regions?"
+
+msgctxt "awcms.adminCopy.invalidCode"
+msgid "Code must be unique and cannot be empty."
+msgstr "Code must be unique and cannot be empty."
+
+msgctxt "awcms.adminCopy.invalidName"
+msgid "Name cannot be empty."
+msgstr "Name cannot be empty."
+
+msgctxt "awcms.adminCopy.dataTypesTitle"
+msgid "SIKESRA Data Type Management"
+msgstr "SIKESRA Data Type Management"
+
+msgctxt "awcms.adminCopy.dataTypesDescription"
+msgid "Manage Parent Data Type (2 digits) classifications and corresponding Sub Data Types (2 digits) dynamically."
+msgstr "Manage Parent Data Type (2 digits) classifications and corresponding Sub Data Types (2 digits) dynamically."
+
+msgctxt "awcms.adminCopy.parentTypes"
+msgid "Parent Data Types"
+msgstr "Parent Data Types"
+
+msgctxt "awcms.adminCopy.subTypes"
+msgid "Sub Data Types"
+msgstr "Sub Data Types"
+
+msgctxt "awcms.adminCopy.addParentType"
+msgid "Add Parent Type"
+msgstr "Add Parent Type"
+
+msgctxt "awcms.adminCopy.addSubtype"
+msgid "Add Subtype"
+msgstr "Add Subtype"
+
+msgctxt "awcms.adminCopy.editParentType"
+msgid "Edit Parent Type"
+msgstr "Edit Parent Type"
+
+msgctxt "awcms.adminCopy.editSubtype"
+msgid "Edit Subtype"
+msgstr "Edit Subtype"
+
+msgctxt "awcms.adminCopy.parentCode"
+msgid "Parent Code (2 Digits)"
+msgstr "Parent Code (2 Digits)"
+
+msgctxt "awcms.adminCopy.subtypeCode"
+msgid "Subtype Code (2 Digits)"
+msgstr "Subtype Code (2 Digits)"
+
+msgctxt "awcms.adminCopy.saveDataTypes"
+msgid "Save Data Type Changes"
+msgstr "Save Data Type Changes"
+
+msgctxt "awcms.adminCopy.dataTypesSavedSuccessfully"
+msgid "SIKESRA classification data updated successfully."
+msgstr "SIKESRA classification data updated successfully."
+
+msgctxt "awcms.adminCopy.failedToSaveDataTypes"
+msgid "Failed to update SIKESRA classification data."
+msgstr "Failed to update SIKESRA classification data."
+
+msgctxt "awcms.adminCopy.invalidTypeCode"
+msgid "Code must be a unique 2-digit number/alphanumeric."
+msgstr "Code must be a unique 2-digit number/alphanumeric."
+
+msgctxt "awcms.adminCopy.userLabel"
+msgid "User"
+msgstr "User"

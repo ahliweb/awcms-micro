@@ -945,3 +945,779 @@ msgstr "Scope / aktor"
 msgctxt "awcms.adminCopy.time"
 msgid "Time"
 msgstr "Waktu"
+
+msgctxt "awcms.adminCopy.loadingPermissions"
+msgid "Loading permissions..."
+msgstr "Memuat izin..."
+
+msgctxt "awcms.adminCopy.accessEyebrow"
+msgid "Access"
+msgstr "Akses"
+
+msgctxt "awcms.adminCopy.permissionCatalog"
+msgid "Permission catalog"
+msgstr "Katalog izin"
+
+msgctxt "awcms.adminCopy.permissionCatalogDescription"
+msgid "Create plugin-owned permissions with explicit slugs, labels, scopes, and descriptions."
+msgstr "Buat izin milik plugin dengan slug, label, scope, dan deskripsi yang eksplisit."
+
+msgctxt "awcms.adminCopy.addPermission"
+msgid "Add permission"
+msgstr "Tambah izin"
+
+msgctxt "awcms.adminCopy.addPermissionDescription"
+msgid "Use stable dot-separated slugs such as content.read.public."
+msgstr "Gunakan slug stabil bertitik seperti content.read.public."
+
+msgctxt "awcms.adminCopy.slug"
+msgid "Slug"
+msgstr "Slug"
+
+msgctxt "awcms.adminCopy.scope"
+msgid "Scope"
+msgstr "Cakupan"
+
+msgctxt "awcms.adminCopy.descriptionLabel"
+msgid "Description"
+msgstr "Deskripsi"
+
+msgctxt "awcms.adminCopy.savePermission"
+msgid "Save permission"
+msgstr "Simpan izin"
+
+msgctxt "awcms.adminCopy.permissionSaved"
+msgid "Permission saved."
+msgstr "Izin disimpan."
+
+msgctxt "awcms.adminCopy.failedToSavePermission"
+msgid "Failed to save permission"
+msgstr "Gagal menyimpan izin"
+
+msgctxt "awcms.adminCopy.existingPermissions"
+msgid "Existing permissions"
+msgstr "Izin yang ada"
+
+msgctxt "awcms.adminCopy.existingPermissionsDescription"
+msgid "{count} permission(s) in the plugin catalog."
+msgstr "{count} izin dalam katalog plugin."
+
+msgctxt "awcms.adminCopy.noPermissionsYet"
+msgid "No permissions yet"
+msgstr "Belum ada izin"
+
+msgctxt "awcms.adminCopy.noPermissionsYetDescription"
+msgid "Create a permission to begin building the role matrix."
+msgstr "Buat izin untuk mulai membangun matriks peran."
+
+msgctxt "awcms.adminCopy.noDescriptionProvided"
+msgid "No description provided."
+msgstr "Belum ada deskripsi."
+
+msgctxt "awcms.adminCopy.loadingRoles"
+msgid "Loading roles..."
+msgstr "Memuat peran..."
+
+msgctxt "awcms.adminCopy.rolesAndAssignments"
+msgid "Roles and assignments"
+msgstr "Peran dan penugasan"
+
+msgctxt "awcms.adminCopy.rolesAndAssignmentsDescription"
+msgid "Manage plugin-owned role definitions and assign users to demo roles."
+msgstr "Kelola definisi peran milik plugin dan tetapkan pengguna ke peran demo."
+
+msgctxt "awcms.adminCopy.addRole"
+msgid "Add role"
+msgstr "Tambah peran"
+
+msgctxt "awcms.adminCopy.addRoleDescription"
+msgid "Create reusable role labels before mapping permissions."
+msgstr "Buat label peran yang bisa dipakai ulang sebelum memetakan izin."
+
+msgctxt "awcms.adminCopy.roleSlug"
+msgid "Role slug"
+msgstr "Slug peran"
+
+msgctxt "awcms.adminCopy.saveRole"
+msgid "Save role"
+msgstr "Simpan peran"
+
+msgctxt "awcms.adminCopy.roleSaved"
+msgid "Role saved."
+msgstr "Peran disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveRole"
+msgid "Failed to save role"
+msgstr "Gagal menyimpan peran"
+
+msgctxt "awcms.adminCopy.assignUserRoles"
+msgid "Assign user roles"
+msgstr "Tetapkan peran pengguna"
+
+msgctxt "awcms.adminCopy.assignUserRolesDescription"
+msgid "Use comma-separated role slugs, for example editor, reviewer."
+msgstr "Gunakan slug peran yang dipisahkan koma, misalnya editor, reviewer."
+
+msgctxt "awcms.adminCopy.userId"
+msgid "User ID"
+msgstr "ID pengguna"
+
+msgctxt "awcms.adminCopy.saveAssignment"
+msgid "Save assignment"
+msgstr "Simpan penugasan"
+
+msgctxt "awcms.adminCopy.userRoleAssignmentSaved"
+msgid "User role assignment saved."
+msgstr "Penugasan peran pengguna disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveUserAssignment"
+msgid "Failed to save user assignment"
+msgstr "Gagal menyimpan penugasan pengguna"
+
+msgctxt "awcms.adminCopy.rolesTitle"
+msgid "Roles"
+msgstr "Peran"
+
+msgctxt "awcms.adminCopy.rolesDescription"
+msgid "{count} role(s) available."
+msgstr "{count} peran tersedia."
+
+msgctxt "awcms.adminCopy.noRolesYet"
+msgid "No roles yet"
+msgstr "Belum ada peran"
+
+msgctxt "awcms.adminCopy.noRolesYetDescription"
+msgid "Create a role before assigning permissions."
+msgstr "Buat peran sebelum menetapkan izin."
+
+msgctxt "awcms.adminCopy.userAssignments"
+msgid "User assignments"
+msgstr "Penugasan pengguna"
+
+msgctxt "awcms.adminCopy.userAssignmentsDescription"
+msgid "{count} user assignment(s)."
+msgstr "{count} penugasan pengguna."
+
+msgctxt "awcms.adminCopy.noAssignmentsYet"
+msgid "No assignments yet"
+msgstr "Belum ada penugasan"
+
+msgctxt "awcms.adminCopy.noAssignmentsYetDescription"
+msgid "Assign a user to one or more roles."
+msgstr "Tetapkan pengguna ke satu atau lebih peran."
+
+msgctxt "awcms.adminCopy.noRolesPill"
+msgid "No roles"
+msgstr "Tanpa peran"
+
+msgctxt "awcms.adminCopy.loadingRoleMatrix"
+msgid "Loading role matrix..."
+msgstr "Memuat matriks peran..."
+
+msgctxt "awcms.adminCopy.rolePermissionMatrix"
+msgid "Role and permission matrix"
+msgstr "Matriks peran dan izin"
+
+msgctxt "awcms.adminCopy.rolePermissionMatrixDescription"
+msgid "Map permissions to roles in the plugin-owned catalog. This preview does not replace EmDash core authorization."
+msgstr "Petakan izin ke peran dalam katalog milik plugin. Pratinjau ini tidak menggantikan otorisasi core EmDash."
+
+msgctxt "awcms.adminCopy.catalogIncomplete"
+msgid "Catalog incomplete"
+msgstr "Katalog belum lengkap"
+
+msgctxt "awcms.adminCopy.catalogIncompleteDescription"
+msgid "Create at least one role and one permission before editing the matrix."
+msgstr "Buat minimal satu peran dan satu izin sebelum mengedit matriks."
+
+msgctxt "awcms.adminCopy.editMatrix"
+msgid "Edit matrix"
+msgstr "Edit matriks"
+
+msgctxt "awcms.adminCopy.editMatrixDescription"
+msgid "{count} permission(s) selected for the current role."
+msgstr "{count} izin dipilih untuk peran saat ini."
+
+msgctxt "awcms.adminCopy.saveMatrix"
+msgid "Save matrix"
+msgstr "Simpan matriks"
+
+msgctxt "awcms.adminCopy.roleMatrixSaved"
+msgid "Role matrix saved."
+msgstr "Matriks peran disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveMatrix"
+msgid "Failed to save matrix"
+msgstr "Gagal menyimpan matriks"
+
+msgctxt "awcms.adminCopy.role"
+msgid "Role"
+msgstr "Peran"
+
+msgctxt "awcms.adminCopy.loadingAccessPreview"
+msgid "Checking..."
+msgstr "Memeriksa akses..."
+
+msgctxt "awcms.adminCopy.effectiveAccessPreview"
+msgid "Effective access preview"
+msgstr "Pratinjau akses efektif"
+
+msgctxt "awcms.adminCopy.effectiveAccessPreviewDescription"
+msgid "Simulate whether a user has a plugin-owned permission based on current role assignments."
+msgstr "Simulasikan apakah pengguna memiliki izin milik plugin berdasarkan penugasan peran saat ini."
+
+msgctxt "awcms.adminCopy.previewInput"
+msgid "Preview input"
+msgstr "Input pratinjau"
+
+msgctxt "awcms.adminCopy.previewInputDescription"
+msgid "Select a user and permission, then run the deterministic access preview."
+msgstr "Pilih pengguna dan izin, lalu jalankan pratinjau akses yang deterministik."
+
+msgctxt "awcms.adminCopy.user"
+msgid "User"
+msgstr "Pengguna"
+
+msgctxt "awcms.adminCopy.permission"
+msgid "Permission"
+msgstr "Izin"
+
+msgctxt "awcms.adminCopy.previewAccess"
+msgid "Preview access"
+msgstr "Pratinjau akses"
+
+msgctxt "awcms.adminCopy.failedToPreviewAccess"
+msgid "Failed to preview access"
+msgstr "Gagal mempratinjau akses"
+
+msgctxt "awcms.adminCopy.decisionResult"
+msgid "Decision result"
+msgstr "Hasil keputusan"
+
+msgctxt "awcms.adminCopy.allowed"
+msgid "Allowed"
+msgstr "Diizinkan"
+
+msgctxt "awcms.adminCopy.denied"
+msgid "Denied"
+msgstr "Ditolak"
+
+msgctxt "awcms.adminCopy.matchedRoles"
+msgid "Matched roles"
+msgstr "Peran yang cocok"
+
+msgctxt "awcms.adminCopy.effectivePermissions"
+msgid "Effective permissions"
+msgstr "Izin efektif"
+
+msgctxt "awcms.adminCopy.none"
+msgid "None"
+msgstr "Tidak ada"
+
+msgctxt "awcms.adminCopy.stage"
+msgid "Stage"
+msgstr "Tahap"
+
+msgctxt "awcms.adminCopy.jsonObjectExampleError"
+msgid "Use a JSON object, for example {\"tenant_id\":\"tenant-a\"}."
+msgstr "Gunakan objek JSON, misalnya {\"tenant_id\":\"tenant-a\"}."
+
+msgctxt "awcms.adminCopy.invalidJsonError"
+msgid "Invalid JSON. Check quotes, commas, and braces."
+msgstr "JSON tidak valid. Periksa tanda kutip, koma, dan kurung kurawal."
+
+msgctxt "awcms.adminCopy.requestFailed"
+msgid "Request failed"
+msgstr "Permintaan gagal"
+
+msgctxt "awcms.adminCopy.draft"
+msgid "Draft"
+msgstr "Draf"
+
+msgctxt "awcms.adminCopy.loadingAbacAttributes"
+msgid "Loading ABAC attributes..."
+msgstr "Memuat atribut ABAC..."
+
+msgctxt "awcms.adminCopy.abacEyebrow"
+msgid "ABAC"
+msgstr "ABAC"
+
+msgctxt "awcms.adminCopy.attributeCatalog"
+msgid "Attribute catalog"
+msgstr "Katalog atribut"
+
+msgctxt "awcms.adminCopy.attributeCatalogDescription"
+msgid "Define subject, resource, and context attributes used by the demo ABAC policy engine."
+msgstr "Definisikan atribut subjek, sumber daya, dan konteks yang digunakan oleh mesin kebijakan ABAC demo."
+
+msgctxt "awcms.adminCopy.attributeDefinition"
+msgid "Attribute definition"
+msgstr "Definisi atribut"
+
+msgctxt "awcms.adminCopy.targetType"
+msgid "Target type"
+msgstr "Tipe target"
+
+msgctxt "awcms.adminCopy.saveAttribute"
+msgid "Save attribute"
+msgstr "Simpan atribut"
+
+msgctxt "awcms.adminCopy.attributeSaved"
+msgid "Attribute saved."
+msgstr "Atribut disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacAttribute"
+msgid "Failed to save ABAC attribute"
+msgstr "Gagal menyimpan atribut ABAC"
+
+msgctxt "awcms.adminCopy.subjectAssignment"
+msgid "Subject assignment"
+msgstr "Penugasan subjek"
+
+msgctxt "awcms.adminCopy.subjectId"
+msgid "Subject ID"
+msgstr "ID subjek"
+
+msgctxt "awcms.adminCopy.attributesJson"
+msgid "Attributes JSON"
+msgstr "JSON atribut"
+
+msgctxt "awcms.adminCopy.attributesJsonExampleSubject"
+msgid "Example: {\"tenant_id\":\"tenant-a\"}"
+msgstr "Contoh: {\"tenant_id\":\"tenant-a\"}"
+
+msgctxt "awcms.adminCopy.saveSubject"
+msgid "Save subject"
+msgstr "Simpan subjek"
+
+msgctxt "awcms.adminCopy.subjectAttributesSaved"
+msgid "Subject attributes saved."
+msgstr "Atribut subjek disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacSubject"
+msgid "Failed to save ABAC subject"
+msgstr "Gagal menyimpan subjek ABAC"
+
+msgctxt "awcms.adminCopy.resourceAssignment"
+msgid "Resource assignment"
+msgstr "Penugasan sumber daya"
+
+msgctxt "awcms.adminCopy.resourceId"
+msgid "Resource ID"
+msgstr "ID sumber daya"
+
+msgctxt "awcms.adminCopy.attributesJsonExampleResource"
+msgid "Example: {\"resource_type\":\"policy\"}"
+msgstr "Contoh: {\"resource_type\":\"policy\"}"
+
+msgctxt "awcms.adminCopy.saveResource"
+msgid "Save resource"
+msgstr "Simpan sumber daya"
+
+msgctxt "awcms.adminCopy.resourceAttributesSaved"
+msgid "Resource attributes saved."
+msgstr "Atribut sumber daya disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacResource"
+msgid "Failed to save ABAC resource"
+msgstr "Gagal menyimpan sumber daya ABAC"
+
+msgctxt "awcms.adminCopy.attributesTitle"
+msgid "Attributes"
+msgstr "Atribut"
+
+msgctxt "awcms.adminCopy.noAttributes"
+msgid "No attributes"
+msgstr "Belum ada atribut"
+
+msgctxt "awcms.adminCopy.noAttributesDescription"
+msgid "Create an attribute definition first."
+msgstr "Buat definisi atribut terlebih dahulu."
+
+msgctxt "awcms.adminCopy.subjectsTitle"
+msgid "Subjects"
+msgstr "Subjek"
+
+msgctxt "awcms.adminCopy.noSubjects"
+msgid "No subjects"
+msgstr "Belum ada subjek"
+
+msgctxt "awcms.adminCopy.noSubjectsDescription"
+msgid "Create a subject assignment to test policies."
+msgstr "Buat penugasan subjek untuk menguji kebijakan."
+
+msgctxt "awcms.adminCopy.unknownSubject"
+msgid "Unknown subject"
+msgstr "Subjek tidak dikenal"
+
+msgctxt "awcms.adminCopy.resourcesTitle"
+msgid "Resources"
+msgstr "Sumber daya"
+
+msgctxt "awcms.adminCopy.noResources"
+msgid "No resources"
+msgstr "Belum ada sumber daya"
+
+msgctxt "awcms.adminCopy.noResourcesDescription"
+msgid "Create a resource assignment to test policies."
+msgstr "Buat penugasan sumber daya untuk menguji kebijakan."
+
+msgctxt "awcms.adminCopy.unknownResource"
+msgid "Unknown resource"
+msgstr "Sumber daya tidak dikenal"
+
+msgctxt "awcms.adminCopy.loadingAbacPolicies"
+msgid "Loading ABAC policies..."
+msgstr "Memuat kebijakan ABAC..."
+
+msgctxt "awcms.adminCopy.policyRules"
+msgid "Policy rules"
+msgstr "Aturan kebijakan"
+
+msgctxt "awcms.adminCopy.policyRulesDescription"
+msgid "Create explicit allow and deny rules for the demonstrative ABAC engine."
+msgstr "Buat aturan allow dan deny eksplisit untuk mesin ABAC demonstratif."
+
+msgctxt "awcms.adminCopy.addPolicy"
+msgid "Add policy"
+msgstr "Tambah kebijakan"
+
+msgctxt "awcms.adminCopy.addPolicyDescription"
+msgid "Deny rules take precedence in the demo decision model."
+msgstr "Aturan deny memiliki prioritas dalam model keputusan demo."
+
+msgctxt "awcms.adminCopy.policyId"
+msgid "Policy ID"
+msgstr "ID kebijakan"
+
+msgctxt "awcms.adminCopy.effect"
+msgid "Effect"
+msgstr "Efek"
+
+msgctxt "awcms.adminCopy.allow"
+msgid "Allow"
+msgstr "Izinkan"
+
+msgctxt "awcms.adminCopy.deny"
+msgid "Deny"
+msgstr "Tolak"
+
+msgctxt "awcms.adminCopy.actions"
+msgid "Actions"
+msgstr "Aksi"
+
+msgctxt "awcms.adminCopy.actionsHint"
+msgid "Comma-separated actions."
+msgstr "Aksi dipisahkan koma."
+
+msgctxt "awcms.adminCopy.requiredSubjectJson"
+msgid "Required subject JSON"
+msgstr "JSON subjek yang dibutuhkan"
+
+msgctxt "awcms.adminCopy.requiredResourceJson"
+msgid "Required resource JSON"
+msgstr "JSON sumber daya yang dibutuhkan"
+
+msgctxt "awcms.adminCopy.requiredContextJson"
+msgid "Required context JSON"
+msgstr "JSON konteks yang dibutuhkan"
+
+msgctxt "awcms.adminCopy.savePolicy"
+msgid "Save policy"
+msgstr "Simpan kebijakan"
+
+msgctxt "awcms.adminCopy.oneOrMoreJsonInvalid"
+msgid "One or more JSON condition fields are invalid."
+msgstr "Satu atau lebih field kondisi JSON tidak valid."
+
+msgctxt "awcms.adminCopy.policySaved"
+msgid "Policy saved."
+msgstr "Kebijakan disimpan."
+
+msgctxt "awcms.adminCopy.failedToSaveAbacPolicy"
+msgid "Failed to save ABAC policy"
+msgstr "Gagal menyimpan kebijakan ABAC"
+
+msgctxt "awcms.adminCopy.existingPolicies"
+msgid "Existing policies"
+msgstr "Kebijakan yang ada"
+
+msgctxt "awcms.adminCopy.existingPoliciesDescription"
+msgid "{count} policy rule(s)."
+msgstr "{count} aturan kebijakan."
+
+msgctxt "awcms.adminCopy.noPolicies"
+msgid "No policies"
+msgstr "Belum ada kebijakan"
+
+msgctxt "awcms.adminCopy.noPoliciesDescription"
+msgid "Create a policy to use the ABAC decision preview."
+msgstr "Buat kebijakan untuk memakai pratinjau keputusan ABAC."
+
+msgctxt "awcms.adminCopy.actionsLabel"
+msgid "Actions"
+msgstr "Aksi"
+
+msgctxt "awcms.adminCopy.loadingAbacDecision"
+msgid "Evaluating..."
+msgstr "Mengevaluasi..."
+
+msgctxt "awcms.adminCopy.decisionPreview"
+msgid "Decision preview"
+msgstr "Pratinjau keputusan"
+
+msgctxt "awcms.adminCopy.decisionPreviewDescription"
+msgid "Preview or run the protected demo route using subject, resource, action, and context attributes."
+msgstr "Pratinjau atau jalankan route demo terlindungi dengan atribut subjek, sumber daya, aksi, dan konteks."
+
+msgctxt "awcms.adminCopy.decisionInput"
+msgid "Decision input"
+msgstr "Input keputusan"
+
+msgctxt "awcms.adminCopy.subject"
+msgid "Subject"
+msgstr "Subjek"
+
+msgctxt "awcms.adminCopy.resource"
+msgid "Resource"
+msgstr "Sumber daya"
+
+msgctxt "awcms.adminCopy.action"
+msgid "Action"
+msgstr "Aksi"
+
+msgctxt "awcms.adminCopy.contextAttributesJson"
+msgid "Context attributes JSON"
+msgstr "JSON atribut konteks"
+
+msgctxt "awcms.adminCopy.previewPolicy"
+msgid "Preview policy"
+msgstr "Pratinjau kebijakan"
+
+msgctxt "awcms.adminCopy.runProtectedDemo"
+msgid "Run protected demo"
+msgstr "Jalankan demo terlindungi"
+
+msgctxt "awcms.adminCopy.failedToEvaluateAbacPolicy"
+msgid "Failed to evaluate ABAC policy"
+msgstr "Gagal mengevaluasi kebijakan ABAC"
+
+msgctxt "awcms.adminCopy.matchedPolicies"
+msgid "Matched policies"
+msgstr "Kebijakan yang cocok"
+
+msgctxt "awcms.adminCopy.missingAttributes"
+msgid "Missing attributes"
+msgstr "Atribut yang hilang"
+
+msgctxt "awcms.adminCopy.importEyebrow"
+msgid "Import"
+msgstr "Impor"
+
+msgctxt "awcms.adminCopy.importTitle"
+msgid "Excel Import Processor"
+msgstr "Pengolah Impor Excel"
+
+msgctxt "awcms.adminCopy.importDescription"
+msgid "Upload, column mapping, duplication checking, and promotion workflow for Excel sheets."
+msgstr "Tahapan upload, pemetaan kolom, verifikasi duplikasi, dan promosi baris data dari file Excel."
+
+msgctxt "awcms.adminCopy.uploadWorkbook"
+msgid "Upload Workbook"
+msgstr "Unggah Workbook"
+
+msgctxt "awcms.adminCopy.selectSheet"
+msgid "Select Sheet"
+msgstr "Pilih Sheet"
+
+msgctxt "awcms.adminCopy.mapColumns"
+msgid "Map Columns"
+msgstr "Petakan Kolom"
+
+msgctxt "awcms.adminCopy.previewStaging"
+msgid "Preview Staging Rows"
+msgstr "Pratinjau Data Staging"
+
+msgctxt "awcms.adminCopy.promoteRows"
+msgid "Promote Rows"
+msgstr "Promosikan Baris Data"
+
+msgctxt "awcms.adminCopy.workbookFile"
+msgid "Excel Workbook File (.xlsx, .xls)"
+msgstr "File Workbook Excel (.xlsx, .xls)"
+
+msgctxt "awcms.adminCopy.selectFile"
+msgid "Select file..."
+msgstr "Pilih file..."
+
+msgctxt "awcms.adminCopy.mappingValidationPassed"
+msgid "Column mapping validated successfully."
+msgstr "Pemetaan kolom tervalidasi sukses."
+
+msgctxt "awcms.adminCopy.promoteSelectedRows"
+msgid "Promote Selected Rows"
+msgstr "Promosikan Baris Terpilih"
+
+msgctxt "awcms.adminCopy.importReport"
+msgid "Import Report"
+msgstr "Laporan Impor"
+
+msgctxt "awcms.adminCopy.promotedSuccessfully"
+msgid "Staged rows promoted to the registry queue successfully."
+msgstr "Baris data berhasil dipromosikan ke antrean registry."
+
+msgctxt "awcms.adminCopy.regionsTitle"
+msgid "Official Region Management"
+msgstr "Pengelolaan Wilayah Resmi"
+
+msgctxt "awcms.adminCopy.regionsDescription"
+msgid "Manage official administrative reference regions including provinces, regencies, districts, and villages."
+msgstr "Kelola data referensi wilayah administratif resmi tingkat provinsi, kabupaten/kota, kecamatan, dan desa/kelurahan."
+
+msgctxt "awcms.adminCopy.totalProvinces"
+msgid "Total Provinces"
+msgstr "Total Provinsi"
+
+msgctxt "awcms.adminCopy.totalRegencies"
+msgid "Total Regencies"
+msgstr "Total Kab/Kota"
+
+msgctxt "awcms.adminCopy.totalDistricts"
+msgid "Total Districts"
+msgstr "Total Kecamatan"
+
+msgctxt "awcms.adminCopy.totalVillages"
+msgid "Total Villages"
+msgstr "Total Desa/Kelurahan"
+
+msgctxt "awcms.adminCopy.saveRegions"
+msgid "Save Region Changes"
+msgstr "Simpan Perubahan Wilayah"
+
+msgctxt "awcms.adminCopy.regionsSavedSuccessfully"
+msgid "Official region data updated successfully."
+msgstr "Data wilayah resmi berhasil diperbarui."
+
+msgctxt "awcms.adminCopy.failedToSaveRegions"
+msgid "Failed to update official region data."
+msgstr "Gagal memperbarui data wilayah resmi."
+
+msgctxt "awcms.adminCopy.province"
+msgid "Province"
+msgstr "Provinsi"
+
+msgctxt "awcms.adminCopy.regency"
+msgid "Regency/City"
+msgstr "Kabupaten/Kota"
+
+msgctxt "awcms.adminCopy.district"
+msgid "District"
+msgstr "Kecamatan"
+
+msgctxt "awcms.adminCopy.village"
+msgid "Village"
+msgstr "Desa/Kelurahan"
+
+msgctxt "awcms.adminCopy.addProvince"
+msgid "Add Province"
+msgstr "Tambah Provinsi"
+
+msgctxt "awcms.adminCopy.addRegency"
+msgid "Add Regency/City"
+msgstr "Tambah Kabupaten/Kota"
+
+msgctxt "awcms.adminCopy.addDistrict"
+msgid "Add District"
+msgstr "Tambah Kecamatan"
+
+msgctxt "awcms.adminCopy.addVillage"
+msgid "Add Village"
+msgstr "Tambah Desa/Kelurahan"
+
+msgctxt "awcms.adminCopy.editNode"
+msgid "Edit Name & Code"
+msgstr "Edit Nama & Kode"
+
+msgctxt "awcms.adminCopy.deleteNode"
+msgid "Delete Region"
+msgstr "Hapus Wilayah"
+
+msgctxt "awcms.adminCopy.nodeName"
+msgid "Name"
+msgstr "Nama"
+
+msgctxt "awcms.adminCopy.nodeCode"
+msgid "Code"
+msgstr "Kode"
+
+msgctxt "awcms.adminCopy.deleteConfirm"
+msgid "Are you sure you want to delete this region and all its sub-regions?"
+msgstr "Apakah Anda yakin ingin menghapus wilayah ini beserta seluruh sub-wilayah di bawahnya?"
+
+msgctxt "awcms.adminCopy.invalidCode"
+msgid "Code must be unique and cannot be empty."
+msgstr "Kode harus unik dan tidak boleh kosong."
+
+msgctxt "awcms.adminCopy.invalidName"
+msgid "Name cannot be empty."
+msgstr "Nama tidak boleh kosong."
+
+msgctxt "awcms.adminCopy.dataTypesTitle"
+msgid "SIKESRA Data Type Management"
+msgstr "Pengelolaan Jenis Data SIKESRA"
+
+msgctxt "awcms.adminCopy.dataTypesDescription"
+msgid "Manage Parent Data Type (2 digits) classifications and corresponding Sub Data Types (2 digits) dynamically."
+msgstr "Kelola klasifikasi Jenis Data Induk (2 digit) dan Sub Jenis Data (2 digit) pendukung secara dinamis."
+
+msgctxt "awcms.adminCopy.parentTypes"
+msgid "Parent Data Types"
+msgstr "Jenis Data Induk"
+
+msgctxt "awcms.adminCopy.subTypes"
+msgid "Sub Data Types"
+msgstr "Sub Jenis Data"
+
+msgctxt "awcms.adminCopy.addParentType"
+msgid "Add Parent Type"
+msgstr "Tambah Jenis Induk"
+
+msgctxt "awcms.adminCopy.addSubtype"
+msgid "Add Subtype"
+msgstr "Tambah Sub Jenis"
+
+msgctxt "awcms.adminCopy.editParentType"
+msgid "Edit Parent Type"
+msgstr "Edit Jenis Induk"
+
+msgctxt "awcms.adminCopy.editSubtype"
+msgid "Edit Subtype"
+msgstr "Edit Sub Jenis"
+
+msgctxt "awcms.adminCopy.parentCode"
+msgid "Parent Code (2 Digits)"
+msgstr "Kode Induk (2 Digit)"
+
+msgctxt "awcms.adminCopy.subtypeCode"
+msgid "Subtype Code (2 Digits)"
+msgstr "Kode Sub (2 Digit)"
+
+msgctxt "awcms.adminCopy.saveDataTypes"
+msgid "Save Data Type Changes"
+msgstr "Simpan Perubahan Jenis Data"
+
+msgctxt "awcms.adminCopy.dataTypesSavedSuccessfully"
+msgid "SIKESRA classification data updated successfully."
+msgstr "Data jenis/klasifikasi SIKESRA berhasil diperbarui."
+
+msgctxt "awcms.adminCopy.failedToSaveDataTypes"
+msgid "Failed to update SIKESRA classification data."
+msgstr "Gagal memperbarui data klasifikasi jenis data."
+
+msgctxt "awcms.adminCopy.invalidTypeCode"
+msgid "Code must be a unique 2-digit number/alphanumeric."
+msgstr "Kode harus berupa 2 digit angka/karakter unik."
+
+msgctxt "awcms.adminCopy.userLabel"
+msgid "User"
+msgstr "Pengguna"
