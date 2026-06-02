@@ -20,19 +20,29 @@ describe("buildEmDashCsp", () => {
 	it("keeps connect-src restricted to self", () => {
 		const csp = buildEmDashCsp();
 		const connectSrc = csp.split("; ").find((d) => d.startsWith("connect-src"));
-		expect(connectSrc).toBe("connect-src 'self'");
+		expect(connectSrc).toBe("connect-src 'self' https://cloudflareinsights.com");
+	});
+
+	it("allows Cloudflare Insights beacon scripts", () => {
+		const csp = buildEmDashCsp();
+		const scriptSrc = csp.split("; ").find((d) => d.startsWith("script-src"));
+		expect(scriptSrc).toContain("https://static.cloudflareinsights.com");
 	});
 
 	it("allows the configured registry aggregator origin in connect-src", () => {
 		const csp = buildEmDashCsp({ aggregatorUrl: "https://registry.emdashcms.com/xrpc" });
 		const connectSrc = csp.split("; ").find((d) => d.startsWith("connect-src"));
-		expect(connectSrc).toBe("connect-src 'self' https://registry.emdashcms.com");
+		expect(connectSrc).toBe(
+			"connect-src 'self' https://cloudflareinsights.com https://registry.emdashcms.com",
+		);
 	});
 
 	it("allows shorthand registry URLs in connect-src", () => {
 		const csp = buildEmDashCsp("https://registry.emdashcms.com");
 		const connectSrc = csp.split("; ").find((d) => d.startsWith("connect-src"));
-		expect(connectSrc).toBe("connect-src 'self' https://registry.emdashcms.com");
+		expect(connectSrc).toBe(
+			"connect-src 'self' https://cloudflareinsights.com https://registry.emdashcms.com",
+		);
 	});
 
 	it("blocks framing with frame-ancestors none", () => {

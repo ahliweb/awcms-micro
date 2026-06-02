@@ -29,13 +29,13 @@ function getRegistryAggregatorOrigin(
 }
 
 export function buildEmDashCsp(registry?: RegistryConfigInput): string {
-	const connectSrc = ["connect-src 'self'"];
+	const connectSrc = ["connect-src 'self'", "https://cloudflareinsights.com"];
 	const registryAggregatorOrigin = getRegistryAggregatorOrigin(registry);
 	if (registryAggregatorOrigin) connectSrc.push(registryAggregatorOrigin);
 
 	return [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline'",
+		"script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
 		"style-src 'self' 'unsafe-inline'",
 		connectSrc.join(" "),
 		"form-action 'self'",

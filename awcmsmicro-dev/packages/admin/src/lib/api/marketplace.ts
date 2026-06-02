@@ -129,7 +129,14 @@ export async function searchMarketplace(
 	const qs = params.toString();
 	const url = `${MARKETPLACE_BASE}${qs ? `?${qs}` : ""}`;
 	const response = await apiFetch(url);
-	return parseApiResponse<MarketplaceSearchResult>(response, "Marketplace search failed");
+	const result = await parseApiResponse<MarketplaceSearchResult>(
+		response,
+		"Marketplace search failed",
+	);
+	return {
+		...result,
+		items: (result.items ?? []).map(normalizeMarketplacePluginSummary),
+	};
 }
 
 /**
@@ -141,7 +148,11 @@ export async function fetchMarketplacePlugin(id: string): Promise<MarketplacePlu
 	if (response.status === 404) {
 		throw new Error(`Plugin "${id}" not found in marketplace`);
 	}
-	return parseApiResponse<MarketplacePluginDetail>(response, "Failed to fetch plugin");
+	const plugin = await parseApiResponse<MarketplacePluginDetail>(
+		response,
+		"Failed to fetch plugin",
+	);
+	return normalizeMarketplacePluginDetail(plugin);
 }
 
 /**
@@ -216,6 +227,31 @@ export async function checkPluginUpdates(): Promise<PluginUpdateInfo[]> {
  * old manifests still render meaningful copy until they're republished.
  */
 import type { MessageDescriptor } from "@lingui/core";
+
+function normalizeMarketplacePluginSummary(
+	plugin: MarketplacePluginSummary,
+): MarketplacePluginSummary {
+	return {
+		...plugin,
+		capabilities: Array.isArray(plugin.capabilities) ? plugin.capabilities : [],
+	};
+}
+
+function normalizeMarketplacePluginDetail(
+	plugin: MarketplacePluginDetail,
+): MarketplacePluginDetail {
+	return {
+		...normalizeMarketplacePluginSummary(plugin),
+		latestVersion: plugin.latestVersion
+			? {
+					...plugin.latestVersion,
+					screenshotUrls: Array.isArray(plugin.latestVersion.screenshotUrls)
+						? plugin.latestVersion.screenshotUrls
+						: [],
+				}
+			: plugin.latestVersion,
+	};
+}
 
 export const CAPABILITY_LABELS: Record<string, MessageDescriptor> = {
 	// Canonical

@@ -80,6 +80,32 @@ describe("marketplace API client", () => {
 			);
 			await expect(searchMarketplace()).rejects.toThrow("Marketplace search failed");
 		});
+
+		it("defaults missing plugin capabilities to an empty list", async () => {
+			fetchSpy.mockResolvedValue(
+				new Response(
+					JSON.stringify({
+						data: {
+							items: [
+								{
+									id: "legacy-plugin",
+									name: "Legacy Plugin",
+									author: { name: "Legacy Author", verified: false },
+									installCount: 0,
+									createdAt: "2026-01-01T00:00:00Z",
+									updatedAt: "2026-01-01T00:00:00Z",
+								},
+							],
+						},
+					}),
+					{ status: 200 },
+				),
+			);
+
+			const result = await searchMarketplace();
+
+			expect(result.items[0]?.capabilities).toEqual([]);
+		});
 	});
 
 	// -----------------------------------------------------------------------
@@ -119,6 +145,28 @@ describe("marketplace API client", () => {
 				new Response("", { status: 500, statusText: "Internal Server Error" }),
 			);
 			await expect(fetchMarketplacePlugin("broken")).rejects.toThrow("Failed to fetch plugin");
+		});
+
+		it("defaults missing detail capabilities to an empty list", async () => {
+			fetchSpy.mockResolvedValue(
+				new Response(
+					JSON.stringify({
+						data: {
+							id: "legacy-plugin",
+							name: "Legacy Plugin",
+							author: { name: "Legacy Author", verified: false },
+							installCount: 0,
+							createdAt: "2026-01-01T00:00:00Z",
+							updatedAt: "2026-01-01T00:00:00Z",
+						},
+					}),
+					{ status: 200 },
+				),
+			);
+
+			const plugin = await fetchMarketplacePlugin("legacy-plugin");
+
+			expect(plugin.capabilities).toEqual([]);
 		});
 	});
 
