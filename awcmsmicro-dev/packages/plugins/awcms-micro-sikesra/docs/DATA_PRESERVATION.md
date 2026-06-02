@@ -58,7 +58,7 @@ SIKESRA migrations are data-preserving by default.
 
 ## Runtime State D1 Migration
 
-Issue #124 makes dedicated D1 tables the canonical runtime-state storage when a D1 binding is available:
+Issue #124 makes dedicated D1 tables the canonical runtime-state storage. Production deployments must provide a D1 binding for these tables and fail closed when the binding is missing:
 
 - `sikesra_settings` stores settings previously held in plugin storage;
 - `sikesra_official_regions` stores the official administrative region tree previously held in `custom:regions`;
@@ -66,7 +66,7 @@ Issue #124 makes dedicated D1 tables the canonical runtime-state storage when a 
 - `sikesra_data_types` and `sikesra_data_subtypes` store data type catalogs previously held in `custom:data-types`;
 - `sikesra_verification_stage_state` stores verification stage state previously held in plugin storage or `state:sikesraVerificationStages`.
 
-During `plugin:install` and `plugin:activate`, legacy KV/plugin-storage values are copied into the dedicated D1 tables and a `runtime-state.d1-migration` audit event is recorded in `sikesra_audit_events`. KV and plugin storage remain compatibility fallbacks only when D1 access is unavailable; new canonical writes use D1 first and do not write KV when D1 persistence succeeds.
+During `plugin:install` and `plugin:activate`, legacy KV/plugin-storage values are copied into the dedicated D1 tables and a `runtime-state.d1-migration` audit event is recorded in `sikesra_audit_events`. KV and plugin storage remain compatibility fallbacks only outside production; production reads and writes for canonical settings, region catalogs, data type catalogs, and verification stage state must use D1 or return a clear D1 binding error instead of writing legacy state.
 
 Required patterns:
 

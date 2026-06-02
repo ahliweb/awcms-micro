@@ -2089,6 +2089,70 @@ describe("awcms micro sikesra plugin", () => {
 		expect(kvData.has("custom:local-regions")).toBe(false);
 	});
 
+	it("fails closed instead of writing settings to plugin storage when production D1 is missing", async () => {
+		(globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string }).__AWCMS_SIKESRA_RUNTIME_MODE__ =
+			"production";
+		try {
+			const { ctx, collections } = createMockContext();
+			const routes = createNativeRoutes();
+			(ctx as any).user = { id: "user-demo-sikesra-admin" };
+			delete (ctx as any).db;
+
+			await expect(
+				routes["settings/save"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: { publicStatusLabel: "green" },
+				} as any),
+			).rejects.toThrow("canonical settings runtime state");
+
+			expect(collections.settingsState.size).toBe(0);
+		} finally {
+			delete (globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string })
+				.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		}
+	});
+
+	it("fails closed instead of writing region and data type catalogs to KV when production D1 is missing", async () => {
+		(globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string }).__AWCMS_SIKESRA_RUNTIME_MODE__ =
+			"production";
+		try {
+			const { ctx, kvData } = createMockContext();
+			const routes = createNativeRoutes();
+			(ctx as any).user = { id: "user-demo-sikesra-admin" };
+			delete (ctx as any).db;
+
+			await expect(
+				routes["regions/save"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: [{ code: "62", name: "Kalimantan Tengah", regencies: [] }],
+				} as any),
+			).rejects.toThrow("canonical official regions runtime state");
+			await expect(
+				routes["local-regions/save"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: [{ code: "local-rt-001", name: "RW 01", regencies: [] }],
+				} as any),
+			).rejects.toThrow("canonical local regions runtime state");
+			await expect(
+				routes["data-types/save"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: [{ id: "rumah_ibadah", code: "01", label: "Rumah Ibadah", subTypes: [] }],
+				} as any),
+			).rejects.toThrow("canonical data types runtime state");
+
+			expect(kvData.has("custom:regions")).toBe(false);
+			expect(kvData.has("custom:local-regions")).toBe(false);
+			expect(kvData.has("custom:data-types")).toBe(false);
+		} finally {
+			delete (globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string })
+				.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		}
+	});
+
 	it("registers required SIKESRA plugin routes", () => {
 		const routes = createNativeRoutes();
 
@@ -2636,6 +2700,38 @@ describe("awcms micro sikesra plugin", () => {
 			key: "state:lastVerificationEventId",
 			value: expect.stringContaining("registry-entity-guru-agama-01"),
 		});
+	});
+
+	it("fails closed instead of writing verification stage state to plugin storage when production D1 is missing", async () => {
+		(globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string }).__AWCMS_SIKESRA_RUNTIME_MODE__ =
+			"production";
+		try {
+			const { ctx, collections, kvData, verificationStageTableRows } = createMockContext();
+			const routes = createNativeRoutes();
+			(ctx as any).user = { id: "user-demo-sopd" };
+			delete (ctx as any).db;
+
+			await expect(
+				routes["verification/advance"]!.handler({
+					...ctx,
+					request: new Request("https://example.test", {
+						headers: { "X-Sikesra-User-Id": "user-demo-sopd" },
+					}),
+					input: {
+						registryEntityId: "registry-entity-guru-agama-01",
+						actor: "sopd-officer",
+						verifierLevel: "sopd",
+					},
+				} as any),
+			).rejects.toThrow("canonical verification stage runtime state");
+
+			expect(collections.verificationStageState.size).toBe(0);
+			expect(kvData.has("state:sikesraVerificationStages")).toBe(false);
+			expect(verificationStageTableRows).toHaveLength(0);
+		} finally {
+			delete (globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string })
+				.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		}
 	});
 
 	it("rejects verification advances from the wrong user level", async () => {

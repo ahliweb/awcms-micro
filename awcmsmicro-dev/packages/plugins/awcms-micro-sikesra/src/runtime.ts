@@ -2145,8 +2145,41 @@ function mapRoleSlugToVerifierLevel(roleSlug: string): VerificationUserLevel | n
 	return null;
 }
 
+type RuntimeD1Capability = "selectFrom" | "insertInto";
+
+function isProductionRuntime() {
+	const runtimeMode = (globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string })
+		.__AWCMS_SIKESRA_RUNTIME_MODE__;
+	if (runtimeMode === "production") return true;
+	const prod = (import.meta as unknown as { env?: { PROD?: boolean | string } }).env?.PROD;
+	return prod === true || prod === "true";
+}
+
+function getRuntimeD1(ctx: PluginContext) {
+	return (ctx as PluginContext & { db?: unknown }).db as any;
+}
+
+function assertRuntimeD1Available(
+	ctx: PluginContext,
+	capability: RuntimeD1Capability,
+	surface: string,
+) {
+	const db = getRuntimeD1(ctx);
+	if (db?.[capability]) return true;
+	if (isProductionRuntime()) {
+		throw new Error(
+			`SIKESRA production runtime requires a D1 binding for canonical ${surface} runtime state.`,
+		);
+	}
+	return false;
+}
+
+function canUseLegacyRuntimeStateFallback(_ctx: PluginContext) {
+	return !isProductionRuntime();
+}
+
 function allowClientUserHeadersInDev() {
-	return (import.meta as unknown as { env?: { PROD?: boolean } }).env?.PROD !== true;
+	return !isProductionRuntime();
 }
 
 function getRequestUserId(ctx: PluginContext) {
@@ -2966,6 +2999,7 @@ async function getVerificationStageState(
 	) as Record<string, VerificationStage>;
 	const d1State = await getD1VerificationStageState(ctx);
 	if (Object.keys(d1State).length > 0) return { ...defaultState, ...d1State };
+	if (!canUseLegacyRuntimeStateFallback(ctx)) return defaultState;
 
 	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(
 		ctx.storage.sikesra_verification_stage_state!,
@@ -2992,8 +3026,10 @@ async function getVerificationStageState(
 }
 
 async function getD1VerificationStageState(ctx: PluginContext) {
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.selectFrom) return {} as Record<string, VerificationStage>;
+	if (!assertRuntimeD1Available(ctx, "selectFrom", "verification stage")) {
+		return {} as Record<string, VerificationStage>;
+	}
+	const db = getRuntimeD1(ctx);
 
 	const rows = (await db
 		.selectFrom(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
@@ -3015,6 +3051,7 @@ async function setVerificationStageState(
 ) {
 	const wroteD1 = await persistD1VerificationStageState(ctx, state);
 	if (wroteD1) return;
+	assertRuntimeD1Available(ctx, "insertInto", "verification stage");
 
 	for (const [registryEntityId, stage] of Object.entries(state)) {
 		await ctx.storage.sikesra_verification_stage_state!.put(registryEntityId, {
@@ -3152,17 +3189,20 @@ async function listStorageValues<T>(collection: {
 async function getStoredSettings(ctx: PluginContext) {
 	const d1Settings = await getD1Settings(ctx);
 	if (d1Settings.size > 0) return d1Settings;
+	if (canUseLegacyRuntimeStateFallback(ctx)) {
+		const records = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
+		const map = new Map<string, StoredSettingRecord>();
+		for (const record of records) map.set(record.key, record);
+		return map;
+	}
 
-	const records = await listStorageValues<StoredSettingRecord>(ctx.storage.sikesra_settings_state!);
-	const map = new Map<string, StoredSettingRecord>();
-	for (const record of records) map.set(record.key, record);
-	return map;
+	return new Map<string, StoredSettingRecord>();
 }
 
 async function getD1Settings(ctx: PluginContext) {
 	const map = new Map<string, StoredSettingRecord>();
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.selectFrom) return map;
+	if (!assertRuntimeD1Available(ctx, "selectFrom", "settings")) return map;
+	const db = getRuntimeD1(ctx);
 
 	const rows = (await db
 		.selectFrom(AWCMS_SIKESRA_SETTINGS_TABLE)
@@ -3202,6 +3242,7 @@ async function persistSettings(ctx: PluginContext, next: ExampleSettings) {
 
 	const wroteD1 = await persistD1Settings(ctx, records, now);
 	if (wroteD1) return;
+	assertRuntimeD1Available(ctx, "insertInto", "settings");
 
 	for (const record of records) {
 		await ctx.storage.sikesra_settings_state!.put(record.key, record);
@@ -4421,7 +4462,11 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const state = await getVerificationStageState(ctx);
 
 	const dataTypes =
-		(await ctx.kv.get<SikesraParentType[]>("custom:data-types")) ?? DEFAULT_DATA_TYPES;
+		(await getD1DataTypes(ctx)) ??
+		(canUseLegacyRuntimeStateFallback(ctx)
+			? await ctx.kv.get<SikesraParentType[]>("custom:data-types")
+			: null) ??
+		DEFAULT_DATA_TYPES;
 	const moduleTypes = dataTypes.map((t) => ({ code: t.id, label: t.label }));
 
 	const smallCellThreshold = settings.smallCellThreshold;
@@ -7196,7 +7241,7 @@ const regionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const regions =
 		(await getD1RegionTree(ctx, "official")) ??
-		(await ctx.kv.get<unknown>("custom:regions")) ??
+		(canUseLegacyRuntimeStateFallback(ctx) ? await ctx.kv.get<unknown>("custom:regions") : null) ??
 		DEFAULT_REGION_TREE;
 	return regions;
 };
@@ -7206,7 +7251,7 @@ const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1RegionTree(ctx, input, "official");
-	if (!wroteD1) await ctx.kv.set("custom:regions", input);
+	if (!wroteD1 && !isProductionRuntime()) await ctx.kv.set("custom:regions", input);
 	const event = createAuditRecord({
 		kind: "settings.regions.update",
 		scope: "settings",
@@ -7221,7 +7266,13 @@ const regionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const localRegionsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.region.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	return (await getD1RegionTree(ctx, "local")) ?? (await ctx.kv.get<unknown>("custom:local-regions")) ?? [];
+	return (
+		(await getD1RegionTree(ctx, "local")) ??
+		(canUseLegacyRuntimeStateFallback(ctx)
+			? await ctx.kv.get<unknown>("custom:local-regions")
+			: null) ??
+		[]
+	);
 };
 
 const localRegionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -7229,7 +7280,7 @@ const localRegionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1RegionTree(ctx, input, "local");
-	if (!wroteD1) await ctx.kv.set("custom:local-regions", input);
+	if (!wroteD1 && !isProductionRuntime()) await ctx.kv.set("custom:local-regions", input);
 	const event = createAuditRecord({
 		kind: "settings.local-regions.update",
 		scope: "settings",
@@ -7252,8 +7303,8 @@ async function getD1RegionTree(
 	ctx: PluginContext,
 	source: "official" | "local",
 ): Promise<AdministrativeProvince[] | null> {
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.selectFrom) return null;
+	if (!assertRuntimeD1Available(ctx, "selectFrom", `${source} regions`)) return null;
+	const db = getRuntimeD1(ctx);
 	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const rows = (await db
@@ -7296,8 +7347,9 @@ async function getD1RegionTree(
 }
 
 async function persistD1RegionTree(ctx: PluginContext, input: unknown, source: "official" | "local") {
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto || !Array.isArray(input)) return false;
+	if (!Array.isArray(input)) return false;
+	if (!assertRuntimeD1Available(ctx, "insertInto", `${source} regions`)) return false;
+	const db = getRuntimeD1(ctx);
 	const table = source === "official" ? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE : AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
 	const now = toIsoNow();
@@ -7354,7 +7406,7 @@ const dataTypesGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const dataTypes =
 		(await getD1DataTypes(ctx)) ??
-		(await ctx.kv.get<unknown>("custom:data-types")) ??
+		(canUseLegacyRuntimeStateFallback(ctx) ? await ctx.kv.get<unknown>("custom:data-types") : null) ??
 		DEFAULT_DATA_TYPES;
 	return dataTypes;
 };
@@ -7364,7 +7416,7 @@ const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	const wroteD1 = await persistD1DataTypes(ctx, input);
-	if (!wroteD1) await ctx.kv.set("custom:data-types", input);
+	if (!wroteD1 && !isProductionRuntime()) await ctx.kv.set("custom:data-types", input);
 	const event = createAuditRecord({
 		kind: "settings.data-types.update",
 		scope: "settings",
@@ -7377,8 +7429,8 @@ const dataTypesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] | null> {
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.selectFrom) return null;
+	if (!assertRuntimeD1Available(ctx, "selectFrom", "data types")) return null;
+	const db = getRuntimeD1(ctx);
 
 	const typeRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DATA_TYPES_TABLE)
@@ -7409,8 +7461,9 @@ async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] |
 }
 
 async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
-	const db = (ctx as PluginContext & { db?: unknown }).db as any;
-	if (!db?.insertInto || !Array.isArray(input)) return false;
+	if (!Array.isArray(input)) return false;
+	if (!assertRuntimeD1Available(ctx, "insertInto", "data types")) return false;
+	const db = getRuntimeD1(ctx);
 
 	const now = toIsoNow();
 	for (const item of input as SikesraParentType[]) {
