@@ -21,7 +21,7 @@ Synced to EmDash `8712b7e`. Upstream `main` moved from `d43a3808` to `8712b7e`; 
 - Replayed all active downstream patch overlays after the rebuild, including the pnpm `11.5.0` package-manager overlay
 - Refreshed `awcmsmicro-dev/pnpm-lock.yaml` to match the rebuilt workspace under pnpm `11.5.0`
 - Downstream sync state remains protected by the allowlist, patch overlay workflow, and validation workflow
-- Current open Dependabot alerts after this refresh: 75 total, with 63 under `emdash-latest/` and 12 under `awcmsmicro-dev/`; GitHub had not recalculated the downstream alert list yet as of `2026-06-02T08:19:41Z`
+- Current open Dependabot alerts after this refresh and downstream dismissal pass: 63 total, all under `emdash-latest/`; `awcmsmicro-dev/` has 0 open Dependabot alerts as of `2026-06-02T08:34:43Z`
 - Locally remediated the downstream lockfile resolutions for the active `awcmsmicro-dev/` alert set: `@hono/node-server@1.19.13`, `ajv@8.20.0`, `defu@6.1.7`, `h3@1.15.11`, `markdown-it@14.2.0`, `rollup@4.61.0`, `simple-git@3.36.0`, and `yaml@2.9.0`
 
 ## Validation Status
@@ -37,6 +37,6 @@ Synced to EmDash `8712b7e`. Upstream `main` moved from `d43a3808` to `8712b7e`; 
 - `emdash-latest/` remains the clean upstream snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
-- Dependabot alert counts were re-queried after this sync and after downstream lockfile remediation: 75 open alerts total, with 63 under `emdash-latest/` and 12 still reported under `awcmsmicro-dev/`. The `awcmsmicro-dev/pnpm-lock.yaml` package keys now resolve the downstream alert packages to patched versions, so the remaining downstream count is expected to be a GitHub recalculation delay unless Dependabot reports a new manifest state later.
+- Dependabot alert counts were re-queried after this sync and after downstream lockfile remediation: 63 open alerts total, all under `emdash-latest/`, with 0 under `awcmsmicro-dev/`. The `awcmsmicro-dev/pnpm-lock.yaml` package keys resolve the downstream alert packages to patched versions, and the previously reported downstream alerts are no longer open.
 - The rebuilt workspace now keeps both `awcmsmicro-dev/.changeset/` and `awcmsmicro-dev/.awcms-changesets/` across syncs.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.
