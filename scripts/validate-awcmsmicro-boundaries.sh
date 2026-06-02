@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 BOUNDARIES_DOC="$ROOT_DIR/docs/awcms-micro-implementation-boundaries.md"
 ALLOWLIST_FILE="$SCRIPT_DIR/awcmsmicro-dev-protected-paths.txt"
+DIVERGENCE_LOG="$ROOT_DIR/docs/upstream-sync/DIVERGENCE_LOG.md"
 RUNTIME_PREREQS_SCRIPT="$SCRIPT_DIR/check-runtime-prereqs.sh"
 SYNC_SCRIPT="$SCRIPT_DIR/update-awcmsmicro-dev.sh"
 PREFLIGHT_SCRIPT="$SCRIPT_DIR/sync-preflight-checklist.sh"
@@ -111,6 +112,7 @@ require_dir "$ROOT_DIR/emdash-latest"
 require_dir "$ROOT_DIR/awcmsmicro-dev"
 require_file "$BOUNDARIES_DOC"
 require_file "$ALLOWLIST_FILE"
+require_file "$DIVERGENCE_LOG"
 require_file "$RUNTIME_PREREQS_SCRIPT"
 require_file "$SYNC_SCRIPT"
 require_file "$PREFLIGHT_SCRIPT"
@@ -150,6 +152,19 @@ for relative_path in "${LOCAL_STATE_PATHS[@]}"; do
 	for doc in "${LOCAL_STATE_DOCS[@]}"; do
 		require_contains "$relative_path" "$doc"
 	done
+done
+
+log "Checking downstream patch overlay records"
+require_contains ".awcms-patches" "$BOUNDARIES_DOC"
+require_contains ".awcms-patches" "$ALLOWLIST_FILE"
+require_contains ".awcms-patches" "$ROOT_DIR/docs/awcmsmicro-dev-protected-paths.md"
+shopt -s nullglob
+patch_overlay_files=("$ROOT_DIR"/awcmsmicro-dev/.awcms-patches/*.patch)
+shopt -u nullglob
+for patch_file_path in "${patch_overlay_files[@]}"; do
+	patch_file="$(basename "$patch_file_path")"
+	require_file "$patch_file_path"
+	require_contains "$patch_file" "$DIVERGENCE_LOG"
 done
 
 log "Checking sync allowlist strategy"

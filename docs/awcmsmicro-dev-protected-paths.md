@@ -51,10 +51,13 @@ For each approved path, the script:
 
 This keeps `emdash-latest/` disposable and upstream-faithful while preserving explicitly approved AWCMS-Micro implementation boundaries.
 
+Patch overlays under `.awcms-patches/` are the protection mechanism for narrow source-level downstream overrides whose target files should otherwise remain upstream-owned. Do not add those target files to the allowlist unless the downstream version of the whole file must be restored before patch replay. Active overlay files must also be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md` so rebuild-sensitive changes have an auditable reason and review trigger.
+
 ## Rules
 
 - Add new protected paths only when they are AWCMS-Micro-owned implementation areas.
 - New product behavior belongs in plugin or template boundaries, not a new shared core layer.
 - Do not use this list to preserve arbitrary upstream overrides.
+- Use `.awcms-patches/` for narrow source-level overrides that must survive rebuilds without converting upstream-owned files into downstream-owned allowlist entries.
 - Keep the protected-path list synchronized with the root workflow docs when it changes.
 - Do not store secrets or Cloudflare credentials anywhere under these protected paths.
