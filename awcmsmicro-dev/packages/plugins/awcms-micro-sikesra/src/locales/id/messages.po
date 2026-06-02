@@ -609,3 +609,167 @@ msgstr "Record referensi aktif"
 msgctxt "awcms.adminCopy.verificationAdvanceNote"
 msgid "Advanced from the reference verification UI"
 msgstr "Dimajukan dari UI verifikasi referensi."
+
+msgctxt "awcms.adminCopy.verificationEyebrow"
+msgid "Verification"
+msgstr "Verifikasi"
+
+msgctxt "awcms.adminCopy.verificationTitle"
+msgid "Verification queue"
+msgstr "Antrean verifikasi"
+
+msgctxt "awcms.adminCopy.verificationDescription"
+msgid "A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+msgstr "Tampilan antrean ringkas untuk approval bertahap, review tertunda, dan eskalasi lintas langkah desa, kecamatan, dan kabupaten."
+
+msgctxt "awcms.adminCopy.loadingVerificationQueue"
+msgid "Loading verification queue..."
+msgstr "Memuat antrean verifikasi..."
+
+msgctxt "awcms.adminCopy.advancing"
+msgid "Advancing..."
+msgstr "Memajukan..."
+
+msgctxt "awcms.adminCopy.advanceTo"
+msgid "Advance {code} to {nextStage}"
+msgstr "Majukan {code} ke {nextStage}"
+
+msgctxt "awcms.adminCopy.advancedTo"
+msgid "Advanced {code} to {stage}."
+msgstr "{code} dimajukan ke {stage}."
+
+msgctxt "awcms.adminCopy.queuedEvents"
+msgid "Queued events"
+msgstr "Event antrean"
+
+msgctxt "awcms.adminCopy.queuedEventsHint"
+msgid "Deterministic reference history"
+msgstr "Riwayat referensi deterministik"
+
+msgctxt "awcms.adminCopy.approved"
+msgid "Approved"
+msgstr "Disetujui"
+
+msgctxt "awcms.adminCopy.approvedHint"
+msgid "Accepted verification checkpoints"
+msgstr "Checkpoint verifikasi yang diterima"
+
+msgctxt "awcms.adminCopy.needsReview"
+msgid "Needs review"
+msgstr "Perlu review"
+
+msgctxt "awcms.adminCopy.needsReviewHint"
+msgid "Items that still need follow-up"
+msgstr "Item yang masih butuh tindak lanjut"
+
+msgctxt "awcms.adminCopy.registryVerificationQueue"
+msgid "Registry verification queue"
+msgstr "Antrean verifikasi registry"
+
+msgctxt "awcms.adminCopy.registryVerificationQueueDescription"
+msgid "Live verification state that can be advanced one stage at a time from the reference UI."
+msgstr "Status verifikasi live yang bisa dimajukan satu tahap sekali dari UI referensi."
+
+msgctxt "awcms.adminCopy.currentLevel"
+msgid "Current level"
+msgstr "Level saat ini"
+
+msgctxt "awcms.adminCopy.nextLevel"
+msgid "Next level"
+msgstr "Level berikutnya"
+
+msgctxt "awcms.adminCopy.inputLevel"
+msgid "Input level"
+msgstr "Level input"
+
+msgctxt "awcms.adminCopy.approverLevel"
+msgid "Approver level"
+msgstr "Level approver"
+
+msgctxt "awcms.adminCopy.allUserLevels"
+msgid "All user levels"
+msgstr "Semua level pengguna"
+
+msgctxt "awcms.adminCopy.assignedVerifierLevels"
+msgid "Active verifier levels"
+msgstr "Level verifikator aktif"
+
+msgctxt "awcms.adminCopy.verificationReadOnly"
+msgid "Verification actions only appear when the signed-in user level matches the current review stage."
+msgstr "Aksi verifikasi hanya muncul jika level user aktif cocok dengan tahap review saat ini."
+
+msgctxt "awcms.adminCopy.verificationRevisionReasonRequired"
+msgid "Reason notes are required before returning verification for revision."
+msgstr "Catatan alasan wajib diisi sebelum mengembalikan verifikasi untuk revisi."
+
+msgctxt "awcms.adminCopy.regionScope"
+msgid "Region scope"
+msgstr "Scope wilayah"
+
+msgctxt "awcms.adminCopy.orgScope"
+msgid "Organization scope"
+msgstr "Scope instansi"
+
+msgctxt "awcms.adminCopy.verifierLevel"
+msgid "Verifier level"
+msgstr "Level verifikator"
+
+msgctxt "awcms.adminCopy.villageLevel"
+msgid "Village/Subdistrict"
+msgstr "Desa/Kelurahan"
+
+msgctxt "awcms.adminCopy.districtLevel"
+msgid "District"
+msgstr "Kecamatan"
+
+msgctxt "awcms.adminCopy.sopdLevel"
+msgid "Related SOPD"
+msgstr "SOPD terkait"
+
+msgctxt "awcms.adminCopy.regencyAdminLevel"
+msgid "Regency / SIKESRA Admin"
+msgstr "Kabupaten / Admin SIKESRA"
+
+msgctxt "awcms.adminCopy.regencyLevel"
+msgid "Regency"
+msgstr "Kabupaten"
+
+msgctxt "awcms.adminCopy.sikesraAdminLevel"
+msgid "SIKESRA Admin"
+msgstr "Admin SIKESRA"
+
+msgctxt "awcms.adminCopy.publishedLevel"
+msgid "Published"
+msgstr "Tampil"
+
+msgctxt "awcms.adminCopy.verificationInputPolicy"
+msgid "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
+msgstr "Input data boleh dilakukan semua level pengguna, tetapi verifikasi awal wajib dimulai dari user desa/kelurahan."
+
+msgctxt "awcms.adminCopy.final"
+msgid "final"
+msgstr "final"
+
+msgctxt "awcms.adminCopy.documentsCount"
+msgid "Documents"
+msgstr "Dokumen"
+
+msgctxt "awcms.adminCopy.idLabel"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "awcms.adminCopy.referenceVerificationEvents"
+msgid "Reference verification events"
+msgstr "Event verifikasi referensi"
+
+msgctxt "awcms.adminCopy.referenceVerificationEventsDescription"
+msgid "Stage progression from draft to active verification."
+msgstr "Progres tahap dari draft ke verifikasi aktif."
+
+msgctxt "awcms.adminCopy.actor"
+msgid "Actor"
+msgstr "Aktor"
+
+msgctxt "awcms.adminCopy.created"
+msgid "Created"
+msgstr "Dibuat"

@@ -609,3 +609,167 @@ msgstr "Active reference record"
 msgctxt "awcms.adminCopy.verificationAdvanceNote"
 msgid "Advanced from the reference verification UI"
 msgstr "Advanced from the reference verification UI"
+
+msgctxt "awcms.adminCopy.verificationEyebrow"
+msgid "Verification"
+msgstr "Verification"
+
+msgctxt "awcms.adminCopy.verificationTitle"
+msgid "Verification queue"
+msgstr "Verification queue"
+
+msgctxt "awcms.adminCopy.verificationDescription"
+msgid "A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+msgstr "A compact queue view for staged approvals, pending review, and escalation across village, district, and regency steps."
+
+msgctxt "awcms.adminCopy.loadingVerificationQueue"
+msgid "Loading verification queue..."
+msgstr "Loading verification queue..."
+
+msgctxt "awcms.adminCopy.advancing"
+msgid "Advancing..."
+msgstr "Advancing..."
+
+msgctxt "awcms.adminCopy.advanceTo"
+msgid "Advance {code} to {nextStage}"
+msgstr "Advance {code} to {nextStage}"
+
+msgctxt "awcms.adminCopy.advancedTo"
+msgid "Advanced {code} to {stage}."
+msgstr "Advanced {code} to {stage}."
+
+msgctxt "awcms.adminCopy.queuedEvents"
+msgid "Queued events"
+msgstr "Queued events"
+
+msgctxt "awcms.adminCopy.queuedEventsHint"
+msgid "Deterministic reference history"
+msgstr "Deterministic reference history"
+
+msgctxt "awcms.adminCopy.approved"
+msgid "Approved"
+msgstr "Approved"
+
+msgctxt "awcms.adminCopy.approvedHint"
+msgid "Accepted verification checkpoints"
+msgstr "Accepted verification checkpoints"
+
+msgctxt "awcms.adminCopy.needsReview"
+msgid "Needs review"
+msgstr "Needs review"
+
+msgctxt "awcms.adminCopy.needsReviewHint"
+msgid "Items that still need follow-up"
+msgstr "Items that still need follow-up"
+
+msgctxt "awcms.adminCopy.registryVerificationQueue"
+msgid "Registry verification queue"
+msgstr "Registry verification queue"
+
+msgctxt "awcms.adminCopy.registryVerificationQueueDescription"
+msgid "Live verification state that can be advanced one stage at a time from the reference UI."
+msgstr "Live verification state that can be advanced one stage at a time from the reference UI."
+
+msgctxt "awcms.adminCopy.currentLevel"
+msgid "Current level"
+msgstr "Current level"
+
+msgctxt "awcms.adminCopy.nextLevel"
+msgid "Next level"
+msgstr "Next level"
+
+msgctxt "awcms.adminCopy.inputLevel"
+msgid "Input level"
+msgstr "Input level"
+
+msgctxt "awcms.adminCopy.approverLevel"
+msgid "Approver level"
+msgstr "Approver level"
+
+msgctxt "awcms.adminCopy.allUserLevels"
+msgid "All user levels"
+msgstr "All user levels"
+
+msgctxt "awcms.adminCopy.assignedVerifierLevels"
+msgid "Active verifier levels"
+msgstr "Active verifier levels"
+
+msgctxt "awcms.adminCopy.verificationReadOnly"
+msgid "Verification actions only appear when the signed-in user level matches the current review stage."
+msgstr "Verification actions only appear when the signed-in user level matches the current review stage."
+
+msgctxt "awcms.adminCopy.verificationRevisionReasonRequired"
+msgid "Reason notes are required before returning verification for revision."
+msgstr "Reason notes are required before returning verification for revision."
+
+msgctxt "awcms.adminCopy.regionScope"
+msgid "Region scope"
+msgstr "Region scope"
+
+msgctxt "awcms.adminCopy.orgScope"
+msgid "Organization scope"
+msgstr "Organization scope"
+
+msgctxt "awcms.adminCopy.verifierLevel"
+msgid "Verifier level"
+msgstr "Verifier level"
+
+msgctxt "awcms.adminCopy.villageLevel"
+msgid "Village/Subdistrict"
+msgstr "Village/Subdistrict"
+
+msgctxt "awcms.adminCopy.districtLevel"
+msgid "District"
+msgstr "District"
+
+msgctxt "awcms.adminCopy.sopdLevel"
+msgid "Related SOPD"
+msgstr "Related SOPD"
+
+msgctxt "awcms.adminCopy.regencyAdminLevel"
+msgid "Regency / SIKESRA Admin"
+msgstr "Regency / SIKESRA Admin"
+
+msgctxt "awcms.adminCopy.regencyLevel"
+msgid "Regency"
+msgstr "Regency"
+
+msgctxt "awcms.adminCopy.sikesraAdminLevel"
+msgid "SIKESRA Admin"
+msgstr "SIKESRA Admin"
+
+msgctxt "awcms.adminCopy.publishedLevel"
+msgid "Published"
+msgstr "Published"
+
+msgctxt "awcms.adminCopy.verificationInputPolicy"
+msgid "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
+msgstr "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
+
+msgctxt "awcms.adminCopy.final"
+msgid "final"
+msgstr "final"
+
+msgctxt "awcms.adminCopy.documentsCount"
+msgid "Documents"
+msgstr "Documents"
+
+msgctxt "awcms.adminCopy.idLabel"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "awcms.adminCopy.referenceVerificationEvents"
+msgid "Reference verification events"
+msgstr "Reference verification events"
+
+msgctxt "awcms.adminCopy.referenceVerificationEventsDescription"
+msgid "Stage progression from draft to active verification."
+msgstr "Stage progression from draft to active verification."
+
+msgctxt "awcms.adminCopy.actor"
+msgid "Actor"
+msgstr "Actor"
+
+msgctxt "awcms.adminCopy.created"
+msgid "Created"
+msgstr "Created"
