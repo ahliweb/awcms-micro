@@ -48,7 +48,8 @@ const readCatalog = async (locale: "en" | "id") =>
 		await readFile(new URL(`../src/locales/${locale}/messages.po`, import.meta.url), "utf8"),
 	);
 
-const placeholders = (value = "") => [...value.matchAll(/\{[A-Za-z0-9_]+\}|<\/?\d+>/g)].map(String).sort();
+const placeholders = (value = "") =>
+	Array.from(value.matchAll(/\{[A-Za-z0-9_]+\}|<\/?\d+>/g), String).sort();
 
 function createMockContext() {
 	const kv = new Map<string, unknown>();

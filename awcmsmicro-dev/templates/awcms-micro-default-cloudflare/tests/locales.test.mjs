@@ -12,7 +12,7 @@ const flattenKeys = (value, prefix = "") =>
 
 const readContexts = async (locale) => {
 	const catalog = await readFile(new URL(`../src/locales/${locale}/messages.po`, import.meta.url), "utf8");
-	return [...catalog.matchAll(/^msgctxt "((?:\\.|[^"\\])*)"$/gm)].map((match) =>
+	return Array.from(catalog.matchAll(/^msgctxt "((?:\\.|[^"\\])*)"$/gm), (match) =>
 		match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\"),
 	);
 };
