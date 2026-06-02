@@ -34,7 +34,7 @@ src/locales/en/messages.po
 src/locales/id/messages.po
 ```
 
-`src/utils/public-copy.ts` remains the temporary runtime copy adapter for this template. Keep it synchronized with the PO catalogs until a template-local compiler or official EmDash template i18n API is available.
+`src/locales/messages.ts` is the temporary compiled PO adapter for this template. `src/utils/public-copy.ts` only selects the locale-specific compiled catalog. Keep the adapter synchronized with the PO catalogs until a template-local compiler or official EmDash template i18n API is available.
 
 Public template strings render outside the EmDash admin shell, so they must not require EmDash core changes or admin-only locale compilation.
 
