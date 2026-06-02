@@ -254,8 +254,8 @@ describe("AWCMS-Micro navigation kit", () => {
 	});
 
 	it("loads SIKESRA navigation labels through the PO catalog adapter", () => {
-		expect(SIKESRA_PO_LOCALE_MESSAGES.en["awcms.nav.overview"]).toBe("Overview");
-		expect(SIKESRA_PO_LOCALE_MESSAGES.id["awcms.nav.overview"]).toBe("Ikhtisar");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en?.["awcms.nav.overview"]).toBe("Overview");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.overview"]).toBe("Ikhtisar");
 		expect(AWCMS_SIKESRA_MANIFEST.i18n?.messages?.id?.["awcms.nav.audit"]).toBe(
 			"Log Audit",
 		);

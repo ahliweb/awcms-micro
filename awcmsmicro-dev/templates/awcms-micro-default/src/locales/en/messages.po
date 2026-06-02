@@ -1,0 +1,17 @@
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgid "Public Aggregate"
+msgstr "Public Aggregate"
+
+msgid "Public aggregate for {siteTitle}"
+msgstr "Public aggregate for {siteTitle}"
+
+msgid "Search posts, pages, and news"
+msgstr "Search posts, pages, and news"
+
+msgid "Admin Login"
+msgstr "Admin Login"
+
+msgid "Toggle Theme"
+msgstr "Toggle Theme"

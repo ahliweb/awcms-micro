@@ -14,6 +14,9 @@ minimumReleaseAgeExclude:
   # once the 24h cooldown passes.
   - astro
   - "@astrojs/cloudflare"
+  # TEMPORARY: unblock issue #152 validation while vite 6.4.3 is still inside
+  # pnpm's minimum-release-age window. Remove once the cooldown passes.
+  - vite
 trustPolicy: no-downgrade
 strictDepBuilds: true
 dangerouslyAllowAllBuilds: false

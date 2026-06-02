@@ -40,6 +40,19 @@ No secrets are committed.
 - keep plugin behavior plugin-owned and registered through standard EmDash configuration
 - do not move Cloudflare-specific AWCMS-Micro behavior into EmDash core locations
 
+## Template I18N
+
+Template-owned public strings use Lingui-compatible PO catalog files at:
+
+```txt
+src/locales/en/messages.po
+src/locales/id/messages.po
+```
+
+`src/utils/public-copy.ts` remains the temporary runtime copy adapter for this Cloudflare template. Keep it synchronized with the PO catalogs until a template-local compiler or official EmDash template i18n API is available.
+
+Public template strings render outside the EmDash admin shell, so they must not require EmDash core changes or admin-only locale compilation.
+
 ## Local Development
 
 1. Run `pnpm install` from `awcmsmicro-dev` if the workspace is not already installed.

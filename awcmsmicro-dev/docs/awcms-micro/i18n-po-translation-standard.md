@@ -87,6 +87,10 @@ Template i18n must stay inside the template boundary. Do not modify EmDash core 
 
 Templates may use Astro-compatible i18n helpers or a template-local adapter, provided the source strings remain represented in PO catalogs and can migrate to an official EmDash or Astro template i18n path later.
 
+Public template strings differ from plugin admin strings because they render on the public site instead of inside the EmDash admin shell. They still need `en` source entries and reviewed `id` translations, but they should not depend on EmDash admin locale compilation unless the template explicitly opts into that pipeline.
+
+For AWCMS-Micro templates that currently use a local copy helper such as `src/utils/public-copy.ts`, the PO catalogs are the authoritative translation inventory. Keep the helper synchronized with the catalog until a template-local adapter or official EmDash template i18n API can compile PO catalogs directly.
+
 ## Pseudo-Locale QA
 
 Use EmDash pseudo locale behavior to detect unwrapped admin strings where available:
@@ -134,7 +138,18 @@ For template catalog migration work, run the nearest template validation from `a
 
 ```bash
 pnpm typecheck
+pnpm test
 pnpm build
+```
+
+For the checked-in local and Cloudflare templates, run the template scripts directly when their catalogs or public string helpers change:
+
+```bash
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default typecheck
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default build
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare typecheck
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare test
+pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build
 ```
 
 When locale extraction or compilation scripts are added for a plugin or template, document and run those scripts in the same change.

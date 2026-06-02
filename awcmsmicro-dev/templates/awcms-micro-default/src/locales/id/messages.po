@@ -1,0 +1,17 @@
+msgid "AWCMS-Micro"
+msgstr "AWCMS-Micro"
+
+msgid "Public Aggregate"
+msgstr "Agregat Publik"
+
+msgid "Public aggregate for {siteTitle}"
+msgstr "Agregat publik untuk {siteTitle}"
+
+msgid "Search posts, pages, and news"
+msgstr "Cari pos, halaman, dan berita"
+
+msgid "Admin Login"
+msgstr "Login Admin"
+
+msgid "Toggle Theme"
+msgstr "Ganti Tema"

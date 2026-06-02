@@ -25,6 +25,19 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - keep plugin behavior plugin-owned and register it through standard EmDash configuration
 - do not replace or modify built-in EmDash templates in place
 
+## Template I18N
+
+Template-owned public strings use Lingui-compatible PO catalog files at:
+
+```txt
+src/locales/en/messages.po
+src/locales/id/messages.po
+```
+
+`src/utils/public-copy.ts` remains the temporary runtime copy adapter for this template. Keep it synchronized with the PO catalogs until a template-local compiler or official EmDash template i18n API is available.
+
+Public template strings render outside the EmDash admin shell, so they must not require EmDash core changes or admin-only locale compilation.
+
 ## Key Files
 
 - `package.json`
@@ -48,6 +61,13 @@ This template is intentionally not registered into EmDash core. It can be copied
 3. Review `seed/seed.json` and adjust the starter collections, settings, and content to fit your site.
 4. Start the site and confirm unauthenticated requests to `/_emdash/admin` redirect to `/_emdash/admin/login`.
 5. Review the checked-in SIKESRA plugin registration if you need the local governance workflow.
+
+## Validation
+
+From this template directory:
+
+1. `pnpm typecheck`
+2. `pnpm build`
 
 For a small docs index for this template, start with `docs/README.md`.
 For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.
