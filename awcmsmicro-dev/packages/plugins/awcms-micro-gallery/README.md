@@ -21,6 +21,17 @@ This plugin adds AWCMS-Micro gallery management helpers while leaving EmDash cor
 
 The admin page is rendered through EmDash Block Kit at the plugin's `Gallery` admin page.
 
+## Plugin I18N
+
+User-facing admin labels, validation messages, and gallery route messages use Lingui-compatible PO catalogs at:
+
+```txt
+src/locales/en/messages.po
+src/locales/id/messages.po
+```
+
+`src/locales/messages.ts` is the temporary compiled PO adapter consumed by the runtime until the plugin publish workflow generates it automatically. Keep the adapter synchronized with both PO catalogs when changing gallery copy.
+
 ## Technical PRD
 
 For the implementation-level PRD, see `docs/TECHNICAL_PRD.md`.

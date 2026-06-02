@@ -1,0 +1,275 @@
+msgctxt "gallery.title"
+msgid "AWCMS-Micro Gallery"
+msgstr "AWCMS-Micro Gallery"
+
+msgctxt "gallery.desc"
+msgid "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core."
+msgstr "Manage gallery validation, Cloudflare media flags, and audit-ready gallery controls without changing EmDash core."
+
+msgctxt "gallery.saved"
+msgid "Gallery settings saved."
+msgstr "Gallery settings saved."
+
+msgctxt "gallery.settings"
+msgid "Settings"
+msgstr "Settings"
+
+msgctxt "gallery.media"
+msgid "Media"
+msgstr "Media"
+
+msgctxt "gallery.images"
+msgid "Images"
+msgstr "Images"
+
+msgctxt "gallery.videos"
+msgid "Videos"
+msgstr "Videos"
+
+msgctxt "gallery.cf_images"
+msgid "Cloudflare Images"
+msgstr "Cloudflare Images"
+
+msgctxt "gallery.cf_stream"
+msgid "Cloudflare Stream"
+msgstr "Cloudflare Stream"
+
+msgctxt "gallery.max_img"
+msgid "Maximum image bytes"
+msgstr "Maximum image bytes"
+
+msgctxt "gallery.max_img_desc"
+msgid "Images larger than this are rejected by gallery validation routes and hooks."
+msgstr "Images larger than this are rejected by gallery validation routes and hooks."
+
+msgctxt "gallery.max_vid"
+msgid "Maximum video bytes"
+msgstr "Maximum video bytes"
+
+msgctxt "gallery.max_vid_desc"
+msgid "Videos larger than this are rejected by gallery validation routes and hooks."
+msgstr "Videos larger than this are rejected by gallery validation routes and hooks."
+
+msgctxt "gallery.cf_images_enable"
+msgid "Cloudflare Images enabled"
+msgstr "Cloudflare Images enabled"
+
+msgctxt "gallery.cf_images_enable_desc"
+msgid "Enable Cloudflare Images support for gallery media workflows."
+msgstr "Enable Cloudflare Images support for gallery media workflows."
+
+msgctxt "gallery.cf_stream_enable"
+msgid "Cloudflare Stream enabled"
+msgstr "Cloudflare Stream enabled"
+
+msgctxt "gallery.cf_stream_enable_desc"
+msgid "Enable Cloudflare Stream support for gallery media workflows."
+msgstr "Enable Cloudflare Stream support for gallery media workflows."
+
+msgctxt "gallery.save"
+msgid "Save settings"
+msgstr "Save settings"
+
+msgctxt "gallery.search"
+msgid "Search"
+msgstr "Search"
+
+msgctxt "gallery.search_label"
+msgid "Search Galleries"
+msgstr "Search Galleries"
+
+msgctxt "gallery.search_placeholder"
+msgid "Type title, description, or location..."
+msgstr "Type title, description, or location..."
+
+msgctxt "gallery.media_title"
+msgid "Media Library"
+msgstr "Media Library"
+
+msgctxt "gallery.media_desc"
+msgid "Import media from a URL, then pick the stored link in gallery forms."
+msgstr "Import media from a URL, then pick the stored link in gallery forms."
+
+msgctxt "gallery.media_source"
+msgid "Source URL"
+msgstr "Source URL"
+
+msgctxt "gallery.media_filename"
+msgid "Filename"
+msgstr "Filename"
+
+msgctxt "gallery.media_import"
+msgid "Import Media"
+msgstr "Import Media"
+
+msgctxt "gallery.media_url"
+msgid "Media URL"
+msgstr "Media URL"
+
+msgctxt "gallery.label"
+msgid "Gallery"
+msgstr "Gallery"
+
+msgctxt "gallery.group"
+msgid "Gallery"
+msgstr "Gallery"
+
+msgctxt "gallery.value.enabled"
+msgid "Enabled"
+msgstr "Enabled"
+
+msgctxt "gallery.value.optional"
+msgid "Optional"
+msgstr "Optional"
+
+msgctxt "gallery.error.itemObject"
+msgid "Item {index} must be an object"
+msgstr "Item {index} must be an object"
+
+msgctxt "gallery.error.itemType"
+msgid "Item {index} type must be image or video"
+msgstr "Item {index} type must be image or video"
+
+msgctxt "gallery.error.itemSrc"
+msgid "Item {index} must use a public EmDash media URL or HTTPS URL"
+msgstr "Item {index} must use a public EmDash media URL or HTTPS URL"
+
+msgctxt "gallery.error.imageMime"
+msgid "Item {index} image MIME type must start with image/"
+msgstr "Item {index} image MIME type must start with image/"
+
+msgctxt "gallery.error.videoMime"
+msgid "Item {index} video MIME type must start with video/"
+msgstr "Item {index} video MIME type must start with video/"
+
+msgctxt "gallery.error.imageSize"
+msgid "Item {index} image exceeds the {limit} byte limit"
+msgstr "Item {index} image exceeds the {limit} byte limit"
+
+msgctxt "gallery.error.videoSize"
+msgid "Item {index} video exceeds the {limit} byte limit"
+msgstr "Item {index} video exceeds the {limit} byte limit"
+
+msgctxt "gallery.error.imageAlt"
+msgid "Item {index} image requires alt text"
+msgstr "Item {index} image requires alt text"
+
+msgctxt "gallery.error.videoCaption"
+msgid "Item {index} video requires a caption"
+msgstr "Item {index} video requires a caption"
+
+msgctxt "gallery.error.contentObject"
+msgid "Gallery content must be an object"
+msgstr "Gallery content must be an object"
+
+msgctxt "gallery.error.titleRequired"
+msgid "Gallery title is required"
+msgstr "Gallery title is required"
+
+msgctxt "gallery.error.typeInvalid"
+msgid "Gallery type must be photo, video, or mixed"
+msgstr "Gallery type must be photo, video, or mixed"
+
+msgctxt "gallery.error.layoutInvalid"
+msgid "Layout variant must be grid, masonry, carousel, or slider"
+msgstr "Layout variant must be grid, masonry, carousel, or slider"
+
+msgctxt "gallery.error.itemsArray"
+msgid "Gallery items must be an array"
+msgstr "Gallery items must be an array"
+
+msgctxt "gallery.admin_title"
+msgid "Gallery Management"
+msgstr "Gallery Management"
+
+msgctxt "gallery.create"
+msgid "Add Gallery"
+msgstr "Add Gallery"
+
+msgctxt "gallery.edit"
+msgid "Edit Gallery"
+msgstr "Edit Gallery"
+
+msgctxt "gallery.delete"
+msgid "Delete"
+msgstr "Delete"
+
+msgctxt "gallery.back"
+msgid "Back to List"
+msgstr "Back to List"
+
+msgctxt "gallery.save_gallery"
+msgid "Save Gallery"
+msgstr "Save Gallery"
+
+msgctxt "gallery.actions"
+msgid "Actions"
+msgstr "Actions"
+
+msgctxt "gallery.title_label"
+msgid "Title"
+msgstr "Title"
+
+msgctxt "gallery.description_label"
+msgid "Description"
+msgstr "Description"
+
+msgctxt "gallery.type_label"
+msgid "Gallery Type"
+msgstr "Gallery Type"
+
+msgctxt "gallery.layout_label"
+msgid "Layout Variant"
+msgstr "Layout Variant"
+
+msgctxt "gallery.event_date_label"
+msgid "Event Date"
+msgstr "Event Date"
+
+msgctxt "gallery.cover_image_label"
+msgid "Cover Image"
+msgstr "Cover Image"
+
+msgctxt "gallery.location_label"
+msgid "Location"
+msgstr "Location"
+
+msgctxt "gallery.featured_label"
+msgid "Featured"
+msgstr "Featured"
+
+msgctxt "gallery.items_label"
+msgid "Gallery Items"
+msgstr "Gallery Items"
+
+msgctxt "gallery.add_item"
+msgid "Add Item"
+msgstr "Add Item"
+
+msgctxt "gallery.item_type"
+msgid "Type"
+msgstr "Type"
+
+msgctxt "gallery.item_src"
+msgid "Media URL"
+msgstr "Media URL"
+
+msgctxt "gallery.item_alt"
+msgid "Alt Text (for image)"
+msgstr "Alt Text (for image)"
+
+msgctxt "gallery.item_caption"
+msgid "Caption (for video)"
+msgstr "Caption (for video)"
+
+msgctxt "gallery.saved_entry"
+msgid "Gallery saved successfully."
+msgstr "Gallery saved successfully."
+
+msgctxt "gallery.deleted_entry"
+msgid "Gallery deleted successfully."
+msgstr "Gallery deleted successfully."
+
+msgctxt "gallery.no_entries"
+msgid "No galleries found. Click 'Add Gallery' to create one."
+msgstr "No galleries found. Click 'Add Gallery' to create one."

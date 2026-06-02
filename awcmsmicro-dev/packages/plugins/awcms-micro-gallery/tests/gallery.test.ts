@@ -6,6 +6,7 @@ import {
 	validateGalleryContent,
 	validateGalleryItem,
 } from "../src/index.js";
+import { translateGallery } from "../src/i18n.js";
 import sandboxPlugin from "../src/sandbox.js";
 
 function createMockContext() {
@@ -185,6 +186,12 @@ describe("awcms micro gallery plugin", () => {
 			sidebarPriority: 10,
 		});
 		expect(descriptor.storage).toBeUndefined();
+	});
+
+	it("resolves Gallery translations through the PO catalog adapter", () => {
+		expect(translateGallery("gallery.title", "en")).toBe("AWCMS-Micro Gallery");
+		expect(translateGallery("gallery.title", "id")).toBe("Galeri AWCMS-Micro");
+		expect(translateGallery("gallery.error.imageSize", "id")).toContain("{limit}");
 	});
 
 	it("exports a sandbox plugin object", () => {
