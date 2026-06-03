@@ -2320,6 +2320,50 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
 	});
 
+	it("returns a public-safe status fallback for production schema drift errors", async () => {
+		const { ctx } = createMockContext();
+		ctx.kv.get = vi.fn(async () => {
+			throw new Error("D1_ERROR: no such column: tenant_id");
+		});
+
+		const result = (await createNativeRoutes()["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+
+		expect(result).toMatchObject({
+			plugin: { id: "awcms-micro-sikesra", visibility: "public-safe" },
+			status: "healthy",
+			governanceMode: "review",
+		});
+		expect(result.publicAggregate.categories).toEqual([]);
+		expect(JSON.stringify(result)).not.toContain("registry-entity-");
+	});
+
+	it("does not fail lifecycle hooks when the production audit table has a legacy schema", async () => {
+		const { ctx, db } = createMockContext();
+		const originalInsertInto = db.insertInto.bind(db);
+		db.insertInto = ((table: string) => {
+			if (table !== "sikesra_audit_events") return originalInsertInto(table);
+			return {
+				values() {
+					return {
+						async execute() {
+							throw new Error("D1_ERROR: no such column: tenant_id");
+						},
+					};
+				},
+			};
+		}) as typeof db.insertInto;
+
+		const hooks = createSharedHooks();
+		const activateHook =
+			typeof hooks?.["plugin:activate"] === "function"
+				? hooks["plugin:activate"]
+				: hooks?.["plugin:activate"]?.handler;
+		await expect(activateHook?.({} as any, ctx as any)).resolves.toBeUndefined();
+	});
+
 	it("reads and writes SIKESRA data types through dedicated D1 catalog tables", async () => {
 		const { ctx, dataTypeTableRows, dataSubtypeTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();

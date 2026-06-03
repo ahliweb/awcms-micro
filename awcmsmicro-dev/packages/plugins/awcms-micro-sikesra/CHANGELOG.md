@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are not available yet, preventing protected admin and public status pages from failing during the current transition state.
+- Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
 
 ## 0.1.1 - 2026-05-28
 

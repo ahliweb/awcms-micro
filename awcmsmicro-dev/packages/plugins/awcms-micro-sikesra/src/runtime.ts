@@ -581,16 +581,27 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 
 	if (!db) return;
 
-	await ensureAuditEventTable(db);
+	try {
+		await ensureAuditEventTable(db);
+	} catch (cause) {
+		logD1ReadFallback(ctx, "legacy storage migration", cause);
+		return;
+	}
 
 	let migratedRows = 0;
 	for (const { from, to } of AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS) {
-		const legacyRows = (await db
-			.selectFrom("_plugin_storage")
-			.select(["id", "data", "created_at", "updated_at"])
-			.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)
-			.where("collection", "=", from)
-			.execute()) as PluginStorageRow[];
+		let legacyRows: PluginStorageRow[];
+		try {
+			legacyRows = (await db
+				.selectFrom("_plugin_storage")
+				.select(["id", "data", "created_at", "updated_at"])
+				.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)
+				.where("collection", "=", from)
+				.execute()) as PluginStorageRow[];
+		} catch (cause) {
+			logD1ReadFallback(ctx, "legacy storage migration", cause);
+			return;
+		}
 
 		if (legacyRows.length === 0) continue;
 
@@ -2085,7 +2096,8 @@ function allowClientUserHeadersInDev() {
 	return !isProductionRuntime();
 }
 
-const D1_MISSING_TABLE_ERROR_RE = /no such table|not found|does not exist|unknown table/i;
+const D1_MISSING_TABLE_ERROR_RE =
+	/no such table|no such column|not found|does not exist|unknown table|unknown column/i;
 
 function isMissingD1TableError(cause: unknown) {
 	const message = cause instanceof Error ? cause.message : String(cause ?? "");
@@ -3366,31 +3378,41 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db) return record;
 
-	await ensureAuditEventTable(db);
+	try {
+		await ensureAuditEventTable(db);
+	} catch (cause) {
+		logD1ReadFallback(ctx, "audit write", cause);
+		return record;
+	}
 	const timestamp = toIsoNow();
 	const metadata = redactAuditMetadata(record.metadata ?? {}) as Record<string, unknown>;
 	record.metadata = metadata;
 
-	await db
-		.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
-		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
-			id: record.id,
-			timestamp,
-			kind: record.kind,
-			scope: record.scope,
-			actor_user_id: record.userId ?? null,
-			actor_name: record.userName ?? record.actor,
-			summary: record.summary,
-			metadata_json: JSON.stringify(metadata),
-			redaction_policy: "sikesra_default_redacted",
-			request_id: null,
-			ip_hash: null,
-			user_agent_hash: null,
-			created_at: timestamp,
-		})
-		.execute();
+	try {
+		await db
+			.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
+			.values({
+				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				id: record.id,
+				timestamp,
+				kind: record.kind,
+				scope: record.scope,
+				actor_user_id: record.userId ?? null,
+				actor_name: record.userName ?? record.actor,
+				summary: record.summary,
+				metadata_json: JSON.stringify(metadata),
+				redaction_policy: "sikesra_default_redacted",
+				request_id: null,
+				ip_hash: null,
+				user_agent_hash: null,
+				created_at: timestamp,
+			})
+			.execute();
+	} catch (cause) {
+		logD1ReadFallback(ctx, "audit write", cause);
+		return record;
+	}
 	await persistStateValue(ctx, "state:lastAuditEventId", record.id);
 	await incrementCounter(ctx, "state:auditCount");
 	ctx.log.info(`[${AWCMS_SIKESRA_PLUGIN_ID}] ${record.summary}`, metadata);
@@ -4498,68 +4520,82 @@ async function requireRoutePermission(ctx: PluginContext, permissionSlug: string
 }
 
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
-	await incrementCounter(ctx, "state:publicStatusHits");
-	const settings = await getSettings(ctx);
+	try {
+		await incrementCounter(ctx, "state:publicStatusHits");
+		const settings = await getSettings(ctx);
 
-	if (!settings.sikesraPublicEnabled) {
+		if (!settings.sikesraPublicEnabled) {
+			return {
+				plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
+				status: settings.publicStatusLabel,
+				governanceMode: settings.governanceMode,
+				publicAggregate: {
+					categories: [],
+					caveat: "SIKESRA Public API is disabled.",
+				},
+			};
+		}
+
+		const state = await getVerificationStageState(ctx);
+
+		const dataTypes =
+			(await getD1DataTypes(ctx)) ??
+			(canUseLegacyRuntimeStateFallback(ctx)
+				? await ctx.kv.get<SikesraParentType[]>("custom:data-types")
+				: null) ??
+			DEFAULT_DATA_TYPES;
+		const moduleTypes = dataTypes.map((t) => ({ code: t.id, label: t.label }));
+
+		const smallCellThreshold = settings.smallCellThreshold;
+
+		const entitiesList = await getRegistryEntities(ctx);
+
+		const categories = moduleTypes.map((mod) => {
+			const entities = entitiesList.filter((e) => e.entityType === mod.code);
+			const eligibleEntities = entities.filter(
+				(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal",
+			);
+			const total = eligibleEntities.length;
+			const verified = eligibleEntities.filter(
+				(e) => (state[e.id] ?? e.verificationStage) === "active_verified",
+			).length;
+			const suppressed = total < smallCellThreshold;
+
+			return {
+				code: mod.code,
+				label: mod.label,
+				total: suppressed ? 0 : total,
+				verified: suppressed ? 0 : verified,
+				suppressed,
+				suppressionReason: suppressed
+					? `Count is below the configured small-cell threshold of ${smallCellThreshold}.`
+					: null,
+			};
+		});
+
 		return {
 			plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
 			status: settings.publicStatusLabel,
 			governanceMode: settings.governanceMode,
 			publicAggregate: {
+				categories,
+				caveat:
+					"Public aggregate only exposes coarse counts and suppresses sensitive details when counts are suppressed.",
+			},
+		};
+	} catch (cause) {
+		logD1ReadFallback(ctx, "public status", cause);
+		return {
+			plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
+			status: DEFAULT_SETTINGS.publicStatusLabel,
+			governanceMode: DEFAULT_SETTINGS.governanceMode,
+			publicAggregate: {
 				categories: [],
-				caveat: "SIKESRA Public API is disabled.",
+				caveat:
+					"SIKESRA public status is running with transition-state fallback data while production tables are prepared.",
 			},
 		};
 	}
-
-	const state = await getVerificationStageState(ctx);
-
-	const dataTypes =
-		(await getD1DataTypes(ctx)) ??
-		(canUseLegacyRuntimeStateFallback(ctx)
-			? await ctx.kv.get<SikesraParentType[]>("custom:data-types")
-			: null) ??
-		DEFAULT_DATA_TYPES;
-	const moduleTypes = dataTypes.map((t) => ({ code: t.id, label: t.label }));
-
-	const smallCellThreshold = settings.smallCellThreshold;
-
-	const entitiesList = await getRegistryEntities(ctx);
-
-	const categories = moduleTypes.map((mod) => {
-		const entities = entitiesList.filter((e) => e.entityType === mod.code);
-		const eligibleEntities = entities.filter(
-			(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal",
-		);
-		const total = eligibleEntities.length;
-		const verified = eligibleEntities.filter(
-			(e) => (state[e.id] ?? e.verificationStage) === "active_verified",
-		).length;
-		const suppressed = total < smallCellThreshold;
-
-		return {
-			code: mod.code,
-			label: mod.label,
-			total: suppressed ? 0 : total,
-			verified: suppressed ? 0 : verified,
-			suppressed,
-			suppressionReason: suppressed
-				? `Count is below the configured small-cell threshold of ${smallCellThreshold}.`
-				: null,
-		};
-	});
-
-	return {
-		plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
-		status: settings.publicStatusLabel,
-		governanceMode: settings.governanceMode,
-		publicAggregate: {
-			categories,
-			caveat:
-				"Public aggregate only exposes coarse counts and suppresses sensitive details when counts are suppressed.",
-		},
-	};
 };
 
 const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
