@@ -2589,6 +2589,30 @@ describe("awcms micro sikesra plugin", () => {
 		expect(allowed.items).toBeDefined();
 	});
 
+	it("bootstraps trusted EmDash admins into SIKESRA admin access when no assignment exists", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminCtx = {
+			...ctx,
+			request: new Request("https://example.test"),
+			user: {
+				id: "emdash-production-admin",
+				email: "admin@example.test",
+				name: "Production Admin",
+				role: 50,
+			},
+			input: {},
+		} as any;
+
+		const registry = (await routes["registry/list"]!.handler(adminCtx)) as any;
+		const deleteRequests = (await routes["crud/permanent-delete/requests/list"]!.handler(
+			adminCtx,
+		)) as any;
+
+		expect(registry.items).toBeDefined();
+		expect(deleteRequests.items).toBeDefined();
+	});
+
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
 		expect(SIKESRA_ADMIN_ROUTE_BASE).toBe("/_emdash/admin/plugins/awcms-micro-sikesra");
 		expect(toSikesraAdminHref("registry")).toBe(

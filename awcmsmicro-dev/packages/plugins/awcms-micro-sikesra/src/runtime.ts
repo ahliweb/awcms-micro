@@ -1655,6 +1655,13 @@ const DEFAULT_USER_SCOPE_ASSIGNMENTS: UserScopeAssignment[] = [
 	},
 ];
 
+const EMDASH_ADMIN_ROLE_LEVEL = 50;
+const TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES = [
+	"admin-sikesra",
+	"sikesra_admin",
+	"sikesra_super_admin",
+] as const;
+
 const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
 	{
 		key: "tenant_id",
@@ -2078,8 +2085,29 @@ function allowClientUserHeadersInDev() {
 	return !isProductionRuntime();
 }
 
+const D1_MISSING_TABLE_ERROR_RE = /no such table|not found|does not exist|unknown table/i;
+
+function isMissingD1TableError(cause: unknown) {
+	const message = cause instanceof Error ? cause.message : String(cause ?? "");
+	return D1_MISSING_TABLE_ERROR_RE.test(message);
+}
+
+function logD1ReadFallback(ctx: PluginContext, area: string, cause: unknown) {
+	if (!isMissingD1TableError(cause)) throw cause;
+	ctx.log.warn(`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 ${area} table unavailable; using fallback data.`);
+}
+
+function getTrustedEmDashUser(ctx: PluginContext) {
+	return (ctx as PluginContext & { user?: { id?: unknown; role?: unknown } }).user;
+}
+
+function isTrustedEmDashAdmin(ctx: PluginContext) {
+	const trustedUser = getTrustedEmDashUser(ctx);
+	return typeof trustedUser?.role === "number" && trustedUser.role >= EMDASH_ADMIN_ROLE_LEVEL;
+}
+
 function getRequestUserId(ctx: PluginContext) {
-	const trustedUser = (ctx as PluginContext & { user?: { id?: unknown } }).user;
+	const trustedUser = getTrustedEmDashUser(ctx);
 	if (typeof trustedUser?.id === "string" && trustedUser.id) return trustedUser.id;
 	if (!allowClientUserHeadersInDev()) return null;
 	const req = (ctx as any).request as Request | undefined;
@@ -2208,7 +2236,7 @@ async function getD1RegistryEntities(
 		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
 		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID);
 	if (!options.includeDeleted) query = query.where("deleted_at", "is", null);
-	const rows = (await query.execute()) as Array<{
+	let rows: Array<{
 		id: string;
 		sikesra_id_20?: string | null;
 		code: string;
@@ -2224,6 +2252,12 @@ async function getD1RegistryEntities(
 		public_summary?: string | null;
 		deleted_at?: string | null;
 	}>;
+	try {
+		rows = (await query.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "registry", cause);
+		return [];
+	}
 
 	return rows.map((row) => ({
 		id: row.id,
@@ -3128,12 +3162,18 @@ async function getD1Settings(ctx: PluginContext) {
 	if (!assertRuntimeD1Available(ctx, "selectFrom", "settings")) return map;
 	const db = getRuntimeD1(ctx);
 
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_SETTINGS_TABLE)
-		.select(["key", "value_json", "updated_at"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.execute()) as Array<{ key: string; value_json: string; updated_at?: string | null }>;
+	let rows: Array<{ key: string; value_json: string; updated_at?: string | null }>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_SETTINGS_TABLE)
+			.select(["key", "value_json", "updated_at"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "settings", cause);
+		return map;
+	}
 
 	for (const row of rows) {
 		map.set(row.key, {
@@ -3351,29 +3391,35 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string)
 		};
 	}
 
-	await ensureAuditEventTable(db);
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_AUDIT_TABLE)
-		.select([
-			"tenant_id",
-			"site_id",
-			"id",
-			"timestamp",
-			"kind",
-			"scope",
-			"actor_user_id",
-			"actor_name",
-			"summary",
-			"metadata_json",
-			"request_id",
-			"ip_hash",
-			"user_agent_hash",
-			"created_at",
-		])
-		.orderBy("timestamp", "desc")
-		.orderBy("id", "desc")
-		.limit(limit)
-		.execute()) as SikesraAuditEventRow[];
+	let rows: SikesraAuditEventRow[];
+	try {
+		await ensureAuditEventTable(db);
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_AUDIT_TABLE)
+			.select([
+				"tenant_id",
+				"site_id",
+				"id",
+				"timestamp",
+				"kind",
+				"scope",
+				"actor_user_id",
+				"actor_name",
+				"summary",
+				"metadata_json",
+				"request_id",
+				"ip_hash",
+				"user_agent_hash",
+				"created_at",
+			])
+			.orderBy("timestamp", "desc")
+			.orderBy("id", "desc")
+			.limit(limit)
+			.execute()) as SikesraAuditEventRow[];
+	} catch (cause) {
+		logD1ReadFallback(ctx, "audit", cause);
+		return { items: [] as ExampleAuditEvent[], cursor: undefined, hasMore: false };
+	}
 
 	return {
 		items: rows.map((item) => ({
@@ -3494,6 +3540,7 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 			DEFAULT_USER_ROLE_ASSIGNMENTS[0]?.userId ?? "",
 		);
 	}
+	await ensureTrustedEmDashAdminAssignment(ctx);
 
 	const existingScopeAssignments = await ctx.storage.sikesra_user_scope_assignments!.count();
 	if (existingScopeAssignments === 0) {
@@ -3501,6 +3548,25 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 			await ctx.storage.sikesra_user_scope_assignments!.put(item.userId, touchUpdatedAt(item));
 		}
 	}
+}
+
+async function ensureTrustedEmDashAdminAssignment(ctx: PluginContext) {
+	const userId = getRequestUserId(ctx);
+	if (!userId || !isTrustedEmDashAdmin(ctx)) return;
+
+	const existingAssignment =
+		(await getD1UserRoleAssignment(ctx, userId)) ??
+		((await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null);
+	if (existingAssignment?.roles?.length) return;
+
+	const assignment: UserRoleAssignment = {
+		userId,
+		roles: [...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES],
+		isActive: true,
+		updatedAt: "",
+	};
+	await ctx.storage.sikesra_user_role_assignments!.put(userId, touchUpdatedAt(assignment));
+	await persistD1UserRoleAssignment(ctx, assignment);
 }
 
 async function ensureAbacCatalogSeeded(ctx: PluginContext) {
@@ -3582,18 +3648,24 @@ async function listUserScopeAssignments(ctx: PluginContext) {
 async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return null;
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
-		.select(["emdash_user_id", "sikesra_role_slug", "updated_at"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("emdash_user_id", "=", userId)
-		.where("is_active", "=", 1)
-		.execute()) as Array<{
+	let rows: Array<{
 		emdash_user_id: string;
 		sikesra_role_slug: string;
 		updated_at?: string;
 	}>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+			.select(["emdash_user_id", "sikesra_role_slug", "updated_at"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("emdash_user_id", "=", userId)
+			.where("is_active", "=", 1)
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "user-role assignment", cause);
+		return null;
+	}
 	if (rows.length === 0) return null;
 	return {
 		userId,
@@ -3606,19 +3678,25 @@ async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
 async function getD1RolePermissionAssignment(ctx: PluginContext, roleSlug: string) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return null;
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
-		.select(["role_slug", "permission_slug", "effect", "updated_at"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("role_slug", "=", roleSlug)
-		.where("effect", "=", "allow")
-		.execute()) as Array<{
+	let rows: Array<{
 		role_slug: string;
 		permission_slug: string;
 		effect: string;
 		updated_at?: string;
 	}>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
+			.select(["role_slug", "permission_slug", "effect", "updated_at"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("role_slug", "=", roleSlug)
+			.where("effect", "=", "allow")
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "role-permission assignment", cause);
+		return null;
+	}
 	if (rows.length === 0) return null;
 	return {
 		roleSlug,
@@ -3631,35 +3709,40 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
-	for (const roleSlug of assignment.roles) {
-		await db
-			.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
-			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
-				id: `${assignment.userId}:${roleSlug}`,
-				emdash_user_id: assignment.userId,
-				sikesra_role_slug: roleSlug,
-				is_active: assignment.isActive ? 1 : 0,
-				valid_from: null,
-				valid_until: null,
-				created_at: now,
-				updated_at: now,
-				deleted_at: null,
-				created_by: getRequestUserId(ctx),
-				updated_by: getRequestUserId(ctx),
-			})
-			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+	try {
+		for (const roleSlug of assignment.roles) {
+			await db
+				.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+				.values({
+					tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+					site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+					id: `${assignment.userId}:${roleSlug}`,
 					emdash_user_id: assignment.userId,
 					sikesra_role_slug: roleSlug,
 					is_active: assignment.isActive ? 1 : 0,
+					valid_from: null,
+					valid_until: null,
+					created_at: now,
 					updated_at: now,
 					deleted_at: null,
+					created_by: getRequestUserId(ctx),
 					updated_by: getRequestUserId(ctx),
-				}),
-			)
-			.execute();
+				})
+				.onConflict((oc: any) =>
+					oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+						emdash_user_id: assignment.userId,
+						sikesra_role_slug: roleSlug,
+						is_active: assignment.isActive ? 1 : 0,
+						updated_at: now,
+						deleted_at: null,
+						updated_by: getRequestUserId(ctx),
+					}),
+				)
+				.execute();
+		}
+	} catch (cause) {
+		logD1ReadFallback(ctx, "user-role assignment write", cause);
+		return false;
 	}
 	return true;
 }
@@ -5314,13 +5397,11 @@ async function persistImportCustomAttributeValues(
 				updated_by: actor,
 			})
 			.onConflict((oc: any) =>
-				oc
-					.columns(["tenant_id", "site_id", "id"])
-					.doUpdateSet({
-						value_display: normalized.valueDisplay,
-						updated_at: now,
-						updated_by: actor,
-					}),
+				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+					value_display: normalized.valueDisplay,
+					updated_at: now,
+					updated_by: actor,
+				}),
 			)
 			.execute();
 		const metadata = {
@@ -6010,31 +6091,37 @@ async function appendCustomAttributeChangeEvent(
 async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return [];
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
-		.select([
-			"id",
-			"attribute_key",
-			"label",
-			"scope_type",
-			"scope_value",
-			"entity_type",
-			"subtype_code",
-			"target_registry_entity_id",
-			"target_sikesra_id_20",
-			"data_class",
-			"data_type",
-			"enum_values_json",
-			"public_safe",
-			"mask_by_default",
-			"is_active",
-			"is_importable",
-			"is_exportable",
-		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("deleted_at", "is", null)
-		.execute()) as Array<Record<string, unknown>>;
+	let rows: Array<Record<string, unknown>>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
+			.select([
+				"id",
+				"attribute_key",
+				"label",
+				"scope_type",
+				"scope_value",
+				"entity_type",
+				"subtype_code",
+				"target_registry_entity_id",
+				"target_sikesra_id_20",
+				"data_class",
+				"data_type",
+				"enum_values_json",
+				"public_safe",
+				"mask_by_default",
+				"is_active",
+				"is_importable",
+				"is_exportable",
+			])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("deleted_at", "is", null)
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "custom attribute definitions", cause);
+		return [];
+	}
 	return rows.map((row) => ({
 		id: String(row.id),
 		key: String(row.attribute_key),
@@ -6143,13 +6230,11 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc
-				.columns(["tenant_id", "site_id", "id"])
-				.doUpdateSet({
-					label: getString(input, "label") ?? key,
-					updated_at: now,
-					updated_by: actor,
-				}),
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				label: getString(input, "label") ?? key,
+				updated_at: now,
+				updated_by: actor,
+			}),
 		)
 		.execute();
 	await appendCustomAttributeChangeEvent(ctx, {
@@ -6234,13 +6319,11 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc
-				.columns(["tenant_id", "site_id", "id"])
-				.doUpdateSet({
-					value_display: normalized.valueDisplay,
-					updated_at: now,
-					updated_by: actor,
-				}),
+			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
+				value_display: normalized.valueDisplay,
+				updated_at: now,
+				updated_by: actor,
+			}),
 		)
 		.execute();
 	const auditMetadata = { id, definitionId, registryEntityId, valueRedacted: true };
@@ -6279,21 +6362,27 @@ const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx
 	if (!db?.selectFrom) return { items: [] };
 	const definitions = await listD1CustomAttributeDefinitions(ctx);
 	const definitionById = new Map(definitions.map((definition) => [definition.id, definition]));
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
-		.select([
-			"id",
-			"attribute_definition_id",
-			"registry_entity_id",
-			"sikesra_id_20",
-			"value_display",
-			"sensitivity",
-			"is_current",
-		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("deleted_at", "is", null)
-		.execute()) as Array<Record<string, unknown>>;
+	let rows: Array<Record<string, unknown>>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
+			.select([
+				"id",
+				"attribute_definition_id",
+				"registry_entity_id",
+				"sikesra_id_20",
+				"value_display",
+				"sensitivity",
+				"is_current",
+			])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("deleted_at", "is", null)
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "custom attribute values", cause);
+		return { items: [] };
+	}
 	return {
 		items: rows.map((row) => {
 			const definition = definitionById.get(String(row.attribute_definition_id));
@@ -6444,26 +6533,32 @@ const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, c
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return { items: [] };
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
-		.select([
-			"id",
-			"target_table",
-			"target_record_id",
-			"target_sikesra_id_20",
-			"target_type",
-			"operation_type",
-			"reason",
-			"risk_level",
-			"requested_by",
-			"requested_at",
-			"status",
-		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("deleted_at", "is", null)
-		.orderBy("requested_at", "desc")
-		.execute()) as Array<Record<string, unknown>>;
+	let rows: Array<Record<string, unknown>>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
+			.select([
+				"id",
+				"target_table",
+				"target_record_id",
+				"target_sikesra_id_20",
+				"target_type",
+				"operation_type",
+				"reason",
+				"risk_level",
+				"requested_by",
+				"requested_at",
+				"status",
+			])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("deleted_at", "is", null)
+			.orderBy("requested_at", "desc")
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "delete requests", cause);
+		return { items: [] };
+	}
 	return {
 		items: rows.map((row) => ({
 			id: String(row.id),
@@ -7677,13 +7772,19 @@ async function getD1RegionTree(
 			? AWCMS_SIKESRA_OFFICIAL_REGIONS_TABLE
 			: AWCMS_SIKESRA_LOCAL_REGIONS_TABLE;
 
-	const rows = (await db
-		.selectFrom(table)
-		.select(["code", "parent_code", "level", "name"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("status", "=", "active")
-		.execute()) as D1RegionRow[];
+	let rows: D1RegionRow[];
+	try {
+		rows = (await db
+			.selectFrom(table)
+			.select(["code", "parent_code", "level", "name"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("status", "=", "active")
+			.execute()) as D1RegionRow[];
+	} catch (cause) {
+		logD1ReadFallback(ctx, `${source} regions`, cause);
+		return null;
+	}
 
 	if (rows.length === 0) return null;
 
@@ -7829,23 +7930,35 @@ async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] |
 	if (!assertRuntimeD1Available(ctx, "selectFrom", "data types")) return null;
 	const db = getRuntimeD1(ctx);
 
-	const typeRows = (await db
-		.selectFrom(AWCMS_SIKESRA_DATA_TYPES_TABLE)
-		.select(["id", "code", "label"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("status", "=", "active")
-		.execute()) as Array<{ id: string; code: string; label: string }>;
+	let typeRows: Array<{ id: string; code: string; label: string }>;
+	try {
+		typeRows = (await db
+			.selectFrom(AWCMS_SIKESRA_DATA_TYPES_TABLE)
+			.select(["id", "code", "label"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("status", "=", "active")
+			.execute()) as typeof typeRows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "data types", cause);
+		return null;
+	}
 
 	if (typeRows.length === 0) return null;
 
-	const subtypeRows = (await db
-		.selectFrom(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
-		.select(["data_type_id", "code", "label"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("status", "=", "active")
-		.execute()) as Array<{ data_type_id: string; code: string; label: string }>;
+	let subtypeRows: Array<{ data_type_id: string; code: string; label: string }>;
+	try {
+		subtypeRows = (await db
+			.selectFrom(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
+			.select(["data_type_id", "code", "label"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("status", "=", "active")
+			.execute()) as typeof subtypeRows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "data subtypes", cause);
+		return null;
+	}
 
 	return typeRows.map((type) => ({
 		id: type.id,

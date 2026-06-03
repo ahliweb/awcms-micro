@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are not available yet, preventing protected admin pages from failing during the current transition state.
+
 ## 0.1.1 - 2026-05-28
 
 - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the SIKESRA plugin surface stays aligned with the active locale.
