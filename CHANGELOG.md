@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.9 - 2026-06-03
+
+- Refreshes the parent workspace snapshot to EmDash cd2dcc6 and records the validated upstream-only Dependabot alert state.
 ## 0.1.8 - 2026-06-03
 
 - Compact admin sidebar section spacing further, prevent adjacent duplicate separators, and apply AWCMS branding to the standalone admin login page.
@@ -35,14 +38,14 @@
 
 ## Workspace Snapshot - 2026-06-03
 
-- EmDash upstream: `47c445b947938e29aee571efe22fbd013fb016d5` from `emdash-latest/`
-- Root version: `0.1.8`
+- EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
+- Root version: `0.1.9`
 
 ### Plugins
 
 - `@awcms-micro/plugin-docs` `0.0.1` - (no changelog yet)
 - `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
-- `@awcms-micro/plugin-sikesra` `0.1.1` - Localizes the plugin-local navigation fallback copy, ABAC helper labels, and verification flow notes so the SIKESRA plugin surface stays aligned with the active locale.
+- `@awcms-micro/plugin-sikesra` `0.1.1` - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
