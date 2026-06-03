@@ -2271,6 +2271,34 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("keeps the public status route available when the D1 verification stage table is unavailable", async () => {
+		const { ctx, db } = createMockContext();
+		const originalSelectFrom = db.selectFrom.bind(db);
+		db.selectFrom = ((table: string) => {
+			if (table !== "sikesra_verification_stage_state") return originalSelectFrom(table);
+			const query = {
+				select() {
+					return query;
+				},
+				where() {
+					return query;
+				},
+				async execute() {
+					throw new Error("no such table: sikesra_verification_stage_state");
+				},
+			};
+			return query;
+		}) as typeof db.selectFrom;
+
+		const result = (await createNativeRoutes()["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+
+		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
+		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+	});
+
 	it("reads and writes SIKESRA data types through dedicated D1 catalog tables", async () => {
 		const { ctx, dataTypeTableRows, dataSubtypeTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();

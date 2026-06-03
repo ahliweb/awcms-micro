@@ -2976,13 +2976,19 @@ async function getD1VerificationStageState(ctx: PluginContext) {
 	}
 	const db = getRuntimeD1(ctx);
 
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
-		.select(["registry_entity_id", "stage"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("status", "=", "pending")
-		.execute()) as Array<{ registry_entity_id: string; stage: VerificationStage }>;
+	let rows: Array<{ registry_entity_id: string; stage: VerificationStage }>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
+			.select(["registry_entity_id", "stage"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("status", "=", "pending")
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "verification stage", cause);
+		return {} as Record<string, VerificationStage>;
+	}
 
 	return Object.fromEntries(rows.map((row) => [row.registry_entity_id, row.stage])) as Record<
 		string,
