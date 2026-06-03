@@ -209,7 +209,45 @@ describe("SidebarNav helpers", () => {
 		expect(document.querySelector("summary [data-sidebar='group-label']")?.textContent).toBe(
 			"Alpha Plugin",
 		);
+		const sidebarStyles = Array.from(
+			document.querySelectorAll("style"),
+			(style) => style.textContent ?? "",
+		).find((style) => style.includes(".emdash-sidebar"));
+		expect(sidebarStyles).toContain(
+			'.emdash-sidebar [data-sidebar="content"] {\n\t\t\t\tgap: 0.125rem !important;',
+		);
+		expect(sidebarStyles).toContain("margin-block: 0 !important;");
+		expect(sidebarStyles).toContain("padding-block: 0.125rem;");
+		expect(sidebarStyles).toContain("border: 0 !important;");
+		expect(sidebarStyles).toContain("margin: 0.125rem 0.75rem;");
 		expect(document.querySelectorAll("summary button").length).toBe(0);
-		expect(document.querySelectorAll('[data-sidebar="separator"]').length).toBe(5);
+		expect(document.querySelectorAll('[data-sidebar="separator"]').length).toBe(4);
+	});
+
+	it("does not render adjacent sidebar separators", async () => {
+		const screen = await render(
+			<TestWrapper>
+				<SidebarNav
+					manifest={{
+						collections: {},
+						plugins: {},
+						taxonomies: [],
+					}}
+				/>
+			</TestWrapper>,
+		);
+
+		await expect.element(screen.getByText("Dashboard")).toBeInTheDocument();
+		const currentSidebar = [...document.querySelectorAll("aside")].at(-1);
+		const children = [
+			...(currentSidebar?.querySelector('[data-sidebar="content"]')?.children ?? []),
+		];
+		expect(
+			children.some(
+				(child, index) =>
+					child.getAttribute("data-sidebar") === "separator" &&
+					children[index + 1]?.getAttribute("data-sidebar") === "separator",
+			),
+		).toBe(false);
 	});
 });

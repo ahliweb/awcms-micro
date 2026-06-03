@@ -1,5 +1,11 @@
 # AWCMS-Micro Changelog
 
+## 0.1.8 - 2026-06-03
+
+- Compact admin sidebar section spacing further, prevent adjacent duplicate separators, and apply AWCMS branding to the standalone admin login page.
+## 0.1.7 - 2026-06-03
+
+- Compact the protected admin sidebar group spacing so section groups use professional spacing closer to regular menu item rhythm.
 ## 0.1.6 - 2026-06-03
 
 - Validate downstream patch overlays against a temporary EmDash snapshot so stale or corrupt rebuild-preservation patches fail before sync.
@@ -30,7 +36,7 @@
 ## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `47c445b947938e29aee571efe22fbd013fb016d5` from `emdash-latest/`
-- Root version: `0.1.6`
+- Root version: `0.1.8`
 
 ### Plugins
 

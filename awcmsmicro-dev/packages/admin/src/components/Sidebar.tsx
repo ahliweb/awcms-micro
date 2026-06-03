@@ -398,6 +398,10 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		...group,
 		items: filterByRole(group.items),
 	}));
+	const hasContentSection = visibleContent.length > 1;
+	const hasPluginSection = visiblePluginGroups.length > 0;
+	const hasManageSection = visibleManage.length > 0;
+	const hasAdminSection = visibleAdmin.length > 0;
 
 	function renderNavItems(items: NavItem[]) {
 		return items.map((item, index) => {
@@ -433,9 +437,20 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				cursor: pointer;
 				margin: 0;
 			}
+			.emdash-sidebar details {
+				margin: 0;
+			}
+			.emdash-sidebar [data-sidebar="content"] {
+				gap: 0.125rem !important;
+			}
 			.emdash-sidebar [data-sidebar="group"] {
-				gap: 0.25rem !important;
+				gap: 0.125rem !important;
+				border: 0 !important;
+				margin-block: 0 !important;
 				padding-block: 0 !important;
+			}
+			.emdash-sidebar [data-sidebar="menu"] {
+				gap: 0.125rem !important;
 			}
 			.emdash-sidebar details > summary::-webkit-details-marker {
 				display: none;
@@ -450,7 +465,8 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 				text-transform: uppercase;
 				letter-spacing: 0.06em;
 				font-weight: 600;
-				padding-block: 0.25rem;
+				border: 0 !important;
+				padding-block: 0.125rem;
 				padding-inline: 0.75rem;
 			}
 			.emdash-sidebar [data-sidebar="group-label"] svg {
@@ -462,7 +478,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			/* Separators */
 			.emdash-sidebar [data-sidebar="separator"] {
 				border-color: rgba(255,255,255,0.06) !important;
-				margin: 0.375rem 0.75rem;
+				margin: 0.125rem 0.75rem;
 			}
 			/* Header/footer borders */
 			.emdash-sidebar [data-sidebar="header"] {
@@ -483,7 +499,7 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 			}
 			/* Collapsed separators — thin centered line */
 			.emdash-sidebar[data-state="collapsed"] [data-sidebar="separator"] {
-				margin: 0.375rem 0.625rem;
+				margin: 0.125rem 0.625rem;
 			}
 			/* Collapsed: tighten group spacing */
 			.emdash-sidebar[data-state="collapsed"] [data-sidebar="group"] {
@@ -566,14 +582,15 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Menu>
 					</KumoSidebar.Group>
 
-					<KumoSidebar.Separator />
+					{(hasPluginSection || hasContentSection || hasManageSection || hasAdminSection) && (
+						<KumoSidebar.Separator />
+					)}
 
 					{/* Plugin pages (collapsible, one group per plugin) */}
-					{visiblePluginGroups.length > 0 && (
+					{hasPluginSection && (
 						<>
-							{visiblePluginGroups.map((group, index) => (
+							{visiblePluginGroups.map((group) => (
 								<React.Fragment key={group.id}>
-									{index > 0 && <KumoSidebar.Separator />}
 									<KumoSidebar.Group>
 										<details open>
 											<summary>
@@ -589,10 +606,10 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</>
 					)}
 
-					<KumoSidebar.Separator />
+					{hasPluginSection && hasContentSection && <KumoSidebar.Separator />}
 
 					{/* Content — collections + media (collapsible) */}
-					{visibleContent.length > 1 && (
+					{hasContentSection && (
 						<KumoSidebar.Group>
 							<details open>
 								<summary>
@@ -605,10 +622,10 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					<KumoSidebar.Separator />
+					{(hasPluginSection || hasContentSection) && hasManageSection && <KumoSidebar.Separator />}
 
 					{/* Manage — comments, menus, taxonomies, etc. (collapsible) */}
-					{visibleManage.length > 0 && (
+					{hasManageSection && (
 						<KumoSidebar.Group>
 							<details open>
 								<summary>
@@ -619,10 +636,12 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 						</KumoSidebar.Group>
 					)}
 
-					<KumoSidebar.Separator />
+					{(hasPluginSection || hasContentSection || hasManageSection) && hasAdminSection && (
+						<KumoSidebar.Separator />
+					)}
 
 					{/* Admin — content types, users, plugins, import (collapsible) */}
-					{visibleAdmin.length > 0 && (
+					{hasAdminSection && (
 						<KumoSidebar.Group>
 							<details open>
 								<summary>

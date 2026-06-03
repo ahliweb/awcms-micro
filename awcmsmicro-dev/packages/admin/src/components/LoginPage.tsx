@@ -25,7 +25,6 @@ import { sanitizeRedirectUrl } from "../lib/url";
 import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
-import { BrandLogo } from "./Logo.js";
 
 // ============================================================================
 // Types
@@ -211,7 +210,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 		return (
 			<div className="min-h-screen flex items-center justify-center bg-kumo-base p-4">
 				<div className="flex flex-col items-center">
-					<BrandLogo className="h-10 mb-4" />
+					<img src="/awcms-logo.png" alt="AWCMS" className="h-10 w-auto mb-4" />
 					<Loader />
 				</div>
 			</div>
@@ -223,8 +222,19 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 			<div className="w-full max-w-md">
 				{/* Header */}
 				<div className="text-center mb-8">
-					<BrandLogo className="h-10 mx-auto mb-2" />
-					<h1 className="text-2xl font-semibold text-kumo-default">
+					<div className="mb-3 flex items-center justify-center gap-3">
+						<img src="/awcms-logo.png" alt="AWCMS" className="h-10 w-auto" />
+						<div className="text-start leading-tight">
+							<p
+								className="text-2xl font-semibold text-kumo-default"
+								data-awcms-login-brand="title"
+							>
+								AWCMS
+							</p>
+							<p className="text-sm text-kumo-subtle">AWCMS by AhliWeb.com & EmDash</p>
+						</div>
+					</div>
+					<h1 className="text-xl font-semibold text-kumo-default">
 						{method === "magic-link"
 							? t`Sign in with email`
 							: activeProvider

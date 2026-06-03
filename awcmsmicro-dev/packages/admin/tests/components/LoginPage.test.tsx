@@ -65,6 +65,18 @@ describe("LoginPage", () => {
 		await expect.element(screen.getByText("Sign in with Passkey")).toBeInTheDocument();
 	});
 
+	it("renders AWCMS branding on the login page", async () => {
+		const screen = await render(
+			<QueryWrapper>
+				<LoginPage />
+			</QueryWrapper>,
+		);
+
+		await expect.element(screen.getByAltText("AWCMS")).toBeInTheDocument();
+		await expect.element(screen.getByText("AWCMS by AhliWeb.com & EmDash")).toBeInTheDocument();
+		expect(document.querySelector('[data-awcms-login-brand="title"]')?.textContent).toBe("AWCMS");
+	});
+
 	it("shows 'Sign in with email link' button", async () => {
 		const screen = await render(
 			<QueryWrapper>
