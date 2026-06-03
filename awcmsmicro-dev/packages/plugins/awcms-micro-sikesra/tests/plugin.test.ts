@@ -2722,6 +2722,46 @@ describe("awcms micro sikesra plugin", () => {
 		expect(deleteRequests.items).toBeDefined();
 	});
 
+	it("keeps trusted-admin read routes available when plugin storage collections are unavailable", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminCtx = {
+			...ctx,
+			storage: {},
+			request: createAdminRequest(),
+			user: {
+				id: "production-admin",
+				email: "admin@example.test",
+				name: "Production Admin",
+				role: 50,
+			},
+			input: {},
+		} as any;
+
+		for (const key of [
+			"registry/list",
+			"registry/archive/list",
+			"custom-attributes/definitions/list",
+			"custom-attributes/values/list",
+			"crud/permanent-delete/requests/list",
+			"audit/list",
+			"access/permissions/list",
+			"access/users/list",
+			"access/roles/list",
+			"access/matrix/get",
+			"access/scopes/list",
+			"access/preview",
+			"abac/attributes/list",
+			"abac/policies/list",
+			"abac/preview",
+			"regions/get",
+			"data-types/get",
+		] as const) {
+			const result = (await routes[key]!.handler(adminCtx)) as any;
+			expect(result.success, key).not.toBe(false);
+		}
+	});
+
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
 		expect(SIKESRA_ADMIN_ROUTE_BASE).toBe("/_emdash/admin/plugins/awcms-micro-sikesra");
 		expect(toSikesraAdminHref("registry")).toBe(

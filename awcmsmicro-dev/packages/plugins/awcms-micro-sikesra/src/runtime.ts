@@ -2109,6 +2109,37 @@ function logD1ReadFallback(ctx: PluginContext, area: string, cause: unknown) {
 	ctx.log.warn(`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 ${area} table unavailable; using fallback data.`);
 }
 
+type SikesraRuntimeCollection<T = unknown> = {
+	count?: () => Promise<number>;
+	get?: (id: string) => Promise<T | null>;
+	put?: (id: string, value: T) => Promise<void>;
+	delete?: (id: string) => Promise<unknown>;
+	query?: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
+};
+
+async function safeCollectionCount(collection: SikesraRuntimeCollection | undefined) {
+	if (!collection?.count) return 0;
+	return collection.count();
+}
+
+async function safeCollectionGet<T>(
+	collection: SikesraRuntimeCollection<T> | undefined,
+	id: string,
+) {
+	if (!collection?.get) return null;
+	return collection.get(id);
+}
+
+async function safeCollectionPut<T>(
+	collection: SikesraRuntimeCollection<T> | undefined,
+	id: string,
+	value: T,
+) {
+	if (!collection?.put) return false;
+	await collection.put(id, value);
+	return true;
+}
+
 function getTrustedEmDashUser(ctx: PluginContext) {
 	return (ctx as PluginContext & { user?: { id?: unknown; role?: unknown } }).user;
 }
@@ -2129,7 +2160,8 @@ function getRequestUserId(ctx: PluginContext) {
 async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return [];
-	const assignment = (await ctx.storage.sikesra_user_role_assignments!.get(
+	const assignment = (await safeCollectionGet(
+		ctx.storage.sikesra_user_role_assignments,
 		userId,
 	)) as UserRoleAssignment | null;
 	if (!assignment) return [];
@@ -2141,7 +2173,8 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return null;
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
+	const subject = (await safeCollectionGet(
+		ctx.storage.sikesra_abac_subject_assignments,
 		userId,
 	)) as AbacSubjectAssignment | null;
 	return subject?.attributes.region_scope ?? null;
@@ -2150,7 +2183,8 @@ async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
-	const subject = (await ctx.storage.sikesra_abac_subject_assignments!.get(
+	const subject = (await safeCollectionGet(
+		ctx.storage.sikesra_abac_subject_assignments,
 		userId,
 	)) as AbacSubjectAssignment | null;
 	return {
@@ -3153,9 +3187,14 @@ function toIsoNow() {
 	return new Date().toISOString();
 }
 
-async function listStorageValues<T>(collection: {
-	query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
-}) {
+async function listStorageValues<T>(
+	collection:
+		| {
+				query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
+		  }
+		| undefined,
+) {
+	if (!collection?.query) return [];
 	let result: { items: Array<{ id: string; data: unknown }> };
 	try {
 		result = await collection.query({ limit: 200 });
@@ -3272,8 +3311,9 @@ async function persistStateValue(
 	value: StoredStateRecord["value"],
 ) {
 	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
+	if (!ctx.storage.sikesra_plugin_state?.put) return;
 	try {
-		await ctx.storage.sikesra_plugin_state!.put(key, record);
+		await ctx.storage.sikesra_plugin_state.put(key, record);
 	} catch (cause) {
 		logD1ReadFallback(ctx, "plugin state write", cause);
 	}
@@ -3543,34 +3583,47 @@ function redactAuditMetadata(value: unknown): unknown {
 }
 
 async function ensureAccessCatalogSeeded(ctx: PluginContext) {
-	const existingPermissions = await ctx.storage.sikesra_permission_catalog!.count();
+	const existingPermissions = await safeCollectionCount(ctx.storage.sikesra_permission_catalog);
 	if (existingPermissions === 0) {
 		for (const item of DEFAULT_ACCESS_PERMISSIONS) {
-			await ctx.storage.sikesra_permission_catalog!.put(item.slug, touchUpdatedAt(item));
+			await safeCollectionPut(
+				ctx.storage.sikesra_permission_catalog,
+				item.slug,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 
-	const existingRoles = await ctx.storage.sikesra_role_catalog!.count();
+	const existingRoles = await safeCollectionCount(ctx.storage.sikesra_role_catalog);
 	if (existingRoles === 0) {
 		for (const item of DEFAULT_ACCESS_ROLES) {
-			await ctx.storage.sikesra_role_catalog!.put(item.slug, touchUpdatedAt(item));
+			await safeCollectionPut(ctx.storage.sikesra_role_catalog, item.slug, touchUpdatedAt(item));
 		}
 	}
 
-	const existingRoleAssignments = await ctx.storage.sikesra_role_permission_assignments!.count();
+	const existingRoleAssignments = await safeCollectionCount(
+		ctx.storage.sikesra_role_permission_assignments,
+	);
 	if (existingRoleAssignments === 0) {
 		for (const item of DEFAULT_ROLE_ASSIGNMENTS) {
-			await ctx.storage.sikesra_role_permission_assignments!.put(
+			await safeCollectionPut(
+				ctx.storage.sikesra_role_permission_assignments,
 				item.roleSlug,
 				touchUpdatedAt(item),
 			);
 		}
 	}
 
-	const existingUserAssignments = await ctx.storage.sikesra_user_role_assignments!.count();
+	const existingUserAssignments = await safeCollectionCount(
+		ctx.storage.sikesra_user_role_assignments,
+	);
 	if (existingUserAssignments === 0) {
 		for (const item of DEFAULT_USER_ROLE_ASSIGNMENTS) {
-			await ctx.storage.sikesra_user_role_assignments!.put(item.userId, touchUpdatedAt(item));
+			await safeCollectionPut(
+				ctx.storage.sikesra_user_role_assignments,
+				item.userId,
+				touchUpdatedAt(item),
+			);
 		}
 		await persistStateValue(
 			ctx,
@@ -3580,10 +3633,16 @@ async function ensureAccessCatalogSeeded(ctx: PluginContext) {
 	}
 	await ensureTrustedEmDashAdminAssignment(ctx);
 
-	const existingScopeAssignments = await ctx.storage.sikesra_user_scope_assignments!.count();
+	const existingScopeAssignments = await safeCollectionCount(
+		ctx.storage.sikesra_user_scope_assignments,
+	);
 	if (existingScopeAssignments === 0) {
 		for (const item of DEFAULT_USER_SCOPE_ASSIGNMENTS) {
-			await ctx.storage.sikesra_user_scope_assignments!.put(item.userId, touchUpdatedAt(item));
+			await safeCollectionPut(
+				ctx.storage.sikesra_user_scope_assignments,
+				item.userId,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 }
@@ -3594,7 +3653,10 @@ async function ensureTrustedEmDashAdminAssignment(ctx: PluginContext) {
 
 	const existingAssignment =
 		(await getD1UserRoleAssignment(ctx, userId)) ??
-		((await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null);
+		((await safeCollectionGet(
+			ctx.storage.sikesra_user_role_assignments,
+			userId,
+		)) as UserRoleAssignment | null);
 	if (existingAssignment?.roles?.length) return;
 
 	const assignment: UserRoleAssignment = {
@@ -3603,39 +3665,54 @@ async function ensureTrustedEmDashAdminAssignment(ctx: PluginContext) {
 		isActive: true,
 		updatedAt: "",
 	};
-	await ctx.storage.sikesra_user_role_assignments!.put(userId, touchUpdatedAt(assignment));
+	await safeCollectionPut(
+		ctx.storage.sikesra_user_role_assignments,
+		userId,
+		touchUpdatedAt(assignment),
+	);
 	await persistD1UserRoleAssignment(ctx, assignment);
 }
 
 async function ensureAbacCatalogSeeded(ctx: PluginContext) {
-	const existingAttributes = await ctx.storage.sikesra_abac_attribute_catalog!.count();
+	const existingAttributes = await safeCollectionCount(ctx.storage.sikesra_abac_attribute_catalog);
 	if (existingAttributes === 0) {
 		for (const item of DEFAULT_ABAC_ATTRIBUTES) {
-			await ctx.storage.sikesra_abac_attribute_catalog!.put(item.key, touchUpdatedAt(item));
+			await safeCollectionPut(
+				ctx.storage.sikesra_abac_attribute_catalog,
+				item.key,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 
-	const existingSubjects = await ctx.storage.sikesra_abac_subject_assignments!.count();
+	const existingSubjects = await safeCollectionCount(ctx.storage.sikesra_abac_subject_assignments);
 	if (existingSubjects === 0) {
 		for (const item of DEFAULT_ABAC_SUBJECTS) {
-			await ctx.storage.sikesra_abac_subject_assignments!.put(item.subjectId, touchUpdatedAt(item));
+			await safeCollectionPut(
+				ctx.storage.sikesra_abac_subject_assignments,
+				item.subjectId,
+				touchUpdatedAt(item),
+			);
 		}
 	}
 
-	const existingResources = await ctx.storage.sikesra_abac_resource_assignments!.count();
+	const existingResources = await safeCollectionCount(
+		ctx.storage.sikesra_abac_resource_assignments,
+	);
 	if (existingResources === 0) {
 		for (const item of DEFAULT_ABAC_RESOURCES) {
-			await ctx.storage.sikesra_abac_resource_assignments!.put(
+			await safeCollectionPut(
+				ctx.storage.sikesra_abac_resource_assignments,
 				item.resourceId,
 				touchUpdatedAt(item),
 			);
 		}
 	}
 
-	const existingPolicies = await ctx.storage.sikesra_abac_policy_rules!.count();
+	const existingPolicies = await safeCollectionCount(ctx.storage.sikesra_abac_policy_rules);
 	if (existingPolicies === 0) {
 		for (const item of DEFAULT_ABAC_POLICIES) {
-			await ctx.storage.sikesra_abac_policy_rules!.put(item.id, touchUpdatedAt(item));
+			await safeCollectionPut(ctx.storage.sikesra_abac_policy_rules, item.id, touchUpdatedAt(item));
 		}
 	}
 
@@ -3652,35 +3729,48 @@ async function ensureAbacCatalogSeeded(ctx: PluginContext) {
 }
 
 async function listCollectionValues<T>(
-	collection: {
-		query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
-	},
+	collection:
+		| {
+				query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
+		  }
+		| undefined,
 	orderByField: string = "updatedAt",
 ): Promise<T[]> {
+	if (!collection?.query) return [];
 	const result = await collection.query({ orderBy: { [orderByField]: "desc" }, limit: 200 });
 	return result.items.map((item) => item.data as T);
 }
 
 async function listPermissions(ctx: PluginContext) {
-	return listCollectionValues<AccessPermission>(ctx.storage.sikesra_permission_catalog!);
+	if (!ctx.storage.sikesra_permission_catalog?.query)
+		return DEFAULT_ACCESS_PERMISSIONS.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<AccessPermission>(ctx.storage.sikesra_permission_catalog);
 }
 
 async function listRoles(ctx: PluginContext) {
-	return listCollectionValues<AccessRole>(ctx.storage.sikesra_role_catalog!);
+	if (!ctx.storage.sikesra_role_catalog?.query)
+		return DEFAULT_ACCESS_ROLES.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<AccessRole>(ctx.storage.sikesra_role_catalog);
 }
 
 async function listRoleAssignments(ctx: PluginContext) {
+	if (!ctx.storage.sikesra_role_permission_assignments?.query)
+		return DEFAULT_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
 	return listCollectionValues<RolePermissionAssignment>(
-		ctx.storage.sikesra_role_permission_assignments!,
+		ctx.storage.sikesra_role_permission_assignments,
 	);
 }
 
 async function listUserRoleAssignments(ctx: PluginContext) {
-	return listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments!);
+	if (!ctx.storage.sikesra_user_role_assignments?.query)
+		return DEFAULT_USER_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments);
 }
 
 async function listUserScopeAssignments(ctx: PluginContext) {
-	return listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments!);
+	if (!ctx.storage.sikesra_user_scope_assignments?.query)
+		return DEFAULT_USER_SCOPE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments);
 }
 
 async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
@@ -4203,20 +4293,28 @@ async function persistD1AbacPolicyRule(ctx: PluginContext, policy: AbacPolicyRul
 }
 
 async function listAbacAttributes(ctx: PluginContext) {
-	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog!);
+	if (!ctx.storage.sikesra_abac_attribute_catalog?.query)
+		return DEFAULT_ABAC_ATTRIBUTES.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog);
 }
 
 async function listAbacPolicies(ctx: PluginContext) {
-	return listCollectionValues<AbacPolicyRule>(ctx.storage.sikesra_abac_policy_rules!);
+	if (!ctx.storage.sikesra_abac_policy_rules?.query)
+		return DEFAULT_ABAC_POLICIES.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<AbacPolicyRule>(ctx.storage.sikesra_abac_policy_rules);
 }
 
 async function listAbacSubjects(ctx: PluginContext) {
-	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.sikesra_abac_subject_assignments!);
+	if (!ctx.storage.sikesra_abac_subject_assignments?.query)
+		return DEFAULT_ABAC_SUBJECTS.map((item) => touchUpdatedAt(item));
+	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.sikesra_abac_subject_assignments);
 }
 
 async function listAbacResources(ctx: PluginContext) {
+	if (!ctx.storage.sikesra_abac_resource_assignments?.query)
+		return DEFAULT_ABAC_RESOURCES.map((item) => touchUpdatedAt(item));
 	return listCollectionValues<AbacResourceAssignment>(
-		ctx.storage.sikesra_abac_resource_assignments!,
+		ctx.storage.sikesra_abac_resource_assignments,
 	);
 }
 
@@ -4351,14 +4449,26 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 
 	const subject =
 		(await getD1AbacSubjectAssignment(ctx, subjectId)) ??
-		((await ctx.storage.sikesra_abac_subject_assignments!.get(
+		((await safeCollectionGet(
+			ctx.storage.sikesra_abac_subject_assignments,
 			subjectId,
-		)) as AbacSubjectAssignment | null);
+		)) as AbacSubjectAssignment | null) ??
+		DEFAULT_ABAC_SUBJECTS.find((item) => item.subjectId === subjectId) ??
+		(isTrustedEmDashAdmin(ctx) && subjectId === getRequestUserId(ctx)
+			? touchUpdatedAt<AbacSubjectAssignment>({
+					subjectId,
+					attributes: { role: "sikesra_super_admin", region_scope: "all", site_id: "default" },
+					updatedAt: "",
+				})
+			: null);
 	const resource =
 		(await getD1AbacResourceAssignment(ctx, resourceId)) ??
-		((await ctx.storage.sikesra_abac_resource_assignments!.get(
+		((await safeCollectionGet(
+			ctx.storage.sikesra_abac_resource_assignments,
 			resourceId,
-		)) as AbacResourceAssignment | null);
+		)) as AbacResourceAssignment | null) ??
+		DEFAULT_ABAC_RESOURCES.find((item) => item.resourceId === resourceId) ??
+		null;
 
 	if (!subject || !resource) {
 		return {
@@ -4457,7 +4567,18 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 
 	const userAssignment =
 		(await getD1UserRoleAssignment(ctx, userId)) ??
-		((await ctx.storage.sikesra_user_role_assignments!.get(userId)) as UserRoleAssignment | null);
+		((await safeCollectionGet(
+			ctx.storage.sikesra_user_role_assignments,
+			userId,
+		)) as UserRoleAssignment | null) ??
+		(isTrustedEmDashAdmin(ctx)
+			? touchUpdatedAt<UserRoleAssignment>({
+					userId,
+					roles: [...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES],
+					isActive: true,
+					updatedAt: "",
+				})
+			: null);
 	if (!userAssignment || userAssignment.roles.length === 0) {
 		return {
 			allowed: false,
@@ -4471,15 +4592,21 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 		userAssignment.roles.map(async (roleSlug) => {
 			const d1Assignment = await getD1RolePermissionAssignment(ctx, roleSlug);
 			if (d1Assignment) return d1Assignment;
-			return (
-				((await ctx.storage.sikesra_role_permission_assignments!.get(
-					roleSlug,
-				)) as RolePermissionAssignment | null) ?? {
-					roleSlug,
-					permissions: [],
-					updatedAt: "",
-				}
+			const storedAssignment = (await safeCollectionGet(
+				ctx.storage.sikesra_role_permission_assignments,
+				roleSlug,
+			)) as RolePermissionAssignment | null;
+			if (storedAssignment) return storedAssignment;
+			const defaultAssignment = DEFAULT_ROLE_ASSIGNMENTS.find(
+				(assignment) => assignment.roleSlug === roleSlug,
 			);
+			return defaultAssignment
+				? touchUpdatedAt(defaultAssignment)
+				: {
+						roleSlug,
+						permissions: [],
+						updatedAt: "",
+					};
 		}),
 	);
 
