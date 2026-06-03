@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.13 - 2026-06-03
+
+- Marks downstream patch overlays as generated patch files so source whitespace checks do not fail on patch hunk content.
 ## 0.1.12 - 2026-06-03
 
 - Scopes root code-scanning workflow inputs away from upstream-only snapshots and hardens SIKESRA custom attribute email validation.
@@ -48,7 +51,7 @@
 ## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.12`
+- Root version: `0.1.13`
 
 ### Plugins
 

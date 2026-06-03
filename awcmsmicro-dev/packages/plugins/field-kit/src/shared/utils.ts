@@ -14,11 +14,11 @@ export function normalizeObject(value: unknown, fields: SubFieldDef[]): Record<s
 			: {};
 	const obj: Record<string, unknown> = {};
 	for (const [key, sourceValue] of Object.entries(source)) {
-		if (isSafeObjectKey(key)) obj[key] = sourceValue;
+		setSafeObjectValue(obj, key, sourceValue);
 	}
 	for (const field of fields) {
-		if (isSafeObjectKey(field.key) && source[field.key] === undefined) {
-			obj[field.key] = field.defaultValue ?? undefined;
+		if (source[field.key] === undefined) {
+			setSafeObjectValue(obj, field.key, field.defaultValue ?? undefined);
 		}
 	}
 	return obj;
@@ -59,9 +59,7 @@ export function normalizeGrid(
 		if (Array.isArray(rowVal)) {
 			// Legacy array format: convert ["leaf", "fruit"] → { leaf: true, fruit: true }
 			for (const code of rowVal) {
-				if (typeof code === "string" && isSafeObjectKey(code)) {
-					rowOut[code] = true;
-				}
+				if (typeof code === "string") setSafeObjectValue(rowOut, code, true);
 			}
 		} else if (rowVal && typeof rowVal === "object") {
 			// Object format: preserve all stored keys, then layer declared columns
@@ -69,11 +67,11 @@ export function normalizeGrid(
 			// or managed outside this widget aren't silently dropped on save.
 			const rowObj = rowVal as Record<string, unknown>;
 			for (const [key, cellValue] of Object.entries(rowObj)) {
-				if (isSafeObjectKey(key)) rowOut[key] = cellValue;
+				setSafeObjectValue(rowOut, key, cellValue);
 			}
 			for (const col of columns) {
-				if (isSafeObjectKey(col.key) && rowObj[col.key] !== undefined) {
-					rowOut[col.key] = rowObj[col.key];
+				if (rowObj[col.key] !== undefined) {
+					setSafeObjectValue(rowOut, col.key, rowObj[col.key]);
 				}
 			}
 		}
@@ -84,6 +82,16 @@ export function normalizeGrid(
 
 function isSafeObjectKey(key: string) {
 	return key !== "__proto__" && key !== "prototype" && key !== "constructor";
+}
+
+function setSafeObjectValue(target: Record<string, unknown>, key: string, value: unknown) {
+	if (!isSafeObjectKey(key)) return;
+	Object.defineProperty(target, key, {
+		value,
+		enumerable: true,
+		configurable: true,
+		writable: true,
+	});
 }
 
 /** Normalize a value into a string array. Filters out non-strings. */

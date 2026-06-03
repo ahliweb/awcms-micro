@@ -895,12 +895,13 @@ export const file: BlockTransformer = (block, _options, context) => {
  * core/pullquote → pullquote block
  */
 export const pullquote: BlockTransformer = (block, _options, context) => {
+	const innerHTML = limitRegexHtml(block.innerHTML);
 	// Extract text from blockquote > p
-	const pMatch = block.innerHTML.match(P_TAG_SINGLE_PATTERN);
-	const text = pMatch ? extractText(pMatch[1]!) : extractText(block.innerHTML);
+	const pMatch = innerHTML.match(P_TAG_SINGLE_PATTERN);
+	const text = pMatch ? extractText(pMatch[1]!) : extractText(innerHTML);
 
 	// Extract citation
-	const citeMatch = block.innerHTML.match(CITE_TAG_PATTERN);
+	const citeMatch = innerHTML.match(CITE_TAG_PATTERN);
 	const citation = citeMatch ? extractText(citeMatch[1]!) : attrString(block.attrs, "citation");
 
 	return [
