@@ -2299,6 +2299,27 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
 	});
 
+	it("keeps the public status route available when fallback plugin storage is unavailable", async () => {
+		const { ctx } = createMockContext();
+		ctx.storage.sikesra_plugin_state!.query = vi.fn(async () => {
+			throw new Error("no such table: _emdash_plugin_storage");
+		});
+		ctx.storage.sikesra_plugin_state!.put = vi.fn(async () => {
+			throw new Error("no such table: _emdash_plugin_storage");
+		});
+		ctx.storage.sikesra_registry_entities!.query = vi.fn(async () => {
+			throw new Error("no such table: _emdash_plugin_storage");
+		});
+
+		const result = (await createNativeRoutes()["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+
+		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
+		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+	});
+
 	it("reads and writes SIKESRA data types through dedicated D1 catalog tables", async () => {
 		const { ctx, dataTypeTableRows, dataSubtypeTableRows, kvData } = createMockContext();
 		const routes = createNativeRoutes();

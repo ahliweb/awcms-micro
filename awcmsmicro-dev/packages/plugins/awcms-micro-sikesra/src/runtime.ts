@@ -3144,7 +3144,13 @@ function toIsoNow() {
 async function listStorageValues<T>(collection: {
 	query: (options?: any) => Promise<{ items: Array<{ id: string; data: unknown }> }>;
 }) {
-	const result = await collection.query({ limit: 200 });
+	let result: { items: Array<{ id: string; data: unknown }> };
+	try {
+		result = await collection.query({ limit: 200 });
+	} catch (cause) {
+		if (!isMissingD1TableError(cause)) throw cause;
+		return [];
+	}
 	return result.items.map((item) => item.data as T);
 }
 
@@ -3254,7 +3260,11 @@ async function persistStateValue(
 	value: StoredStateRecord["value"],
 ) {
 	const record: StoredStateRecord = { key, value, updatedAt: toIsoNow() };
-	await ctx.storage.sikesra_plugin_state!.put(key, record);
+	try {
+		await ctx.storage.sikesra_plugin_state!.put(key, record);
+	} catch (cause) {
+		logD1ReadFallback(ctx, "plugin state write", cause);
+	}
 }
 
 async function readStateValue<T extends StoredStateRecord["value"]>(
