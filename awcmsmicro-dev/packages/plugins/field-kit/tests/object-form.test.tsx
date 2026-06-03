@@ -162,6 +162,26 @@ describe("ObjectForm widget", () => {
 		expect(payload).toEqual({ name: "b", stray: "unexpected" });
 	});
 
+	it("drops prototype-polluting keys while preserving safe unknown keys", () => {
+		const onChange = vi.fn();
+		render(
+			<ObjectForm
+				value={{ name: "a", ["__proto__"]: "bad", constructor: "bad", stray: "safe" }}
+				onChange={onChange}
+				label="Form"
+				id="f"
+				options={{
+					fields: [{ key: "name", label: "Name", type: "text" }],
+				}}
+			/>,
+		);
+		fireEvent.change(screen.getByDisplayValue("a"), {
+			target: { value: "b" },
+		});
+		const payload = onChange.mock.calls[0]?.[0] as Record<string, unknown>;
+		expect(payload).toEqual({ name: "b", stray: "safe" });
+	});
+
 	it("gives each sub-field a unique DOM id composed from the parent id", () => {
 		const { container } = render(
 			<ObjectForm

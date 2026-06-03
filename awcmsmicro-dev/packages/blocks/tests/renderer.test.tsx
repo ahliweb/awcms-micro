@@ -488,6 +488,17 @@ describe("BlockRenderer", () => {
 		expect(img.src).toBe("https://example.com/photo.jpg");
 	});
 
+	it("image block rejects unsafe javascript URLs", () => {
+		renderBlocks([
+			{
+				type: "image",
+				url: "javascript:alert(1)",
+				alt: "Unsafe photo",
+			},
+		]);
+		expect(screen.queryByAltText("Unsafe photo")).toBeNull();
+	});
+
 	it("context block renders small muted text", () => {
 		renderBlocks([{ type: "context", text: "Updated just now" }]);
 		const el = screen.getByText("Updated just now");

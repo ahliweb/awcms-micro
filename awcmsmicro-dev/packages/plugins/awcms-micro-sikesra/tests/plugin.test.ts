@@ -4538,6 +4538,14 @@ describe("awcms micro sikesra plugin", () => {
 				dataType: "date",
 				isExportable: true,
 			},
+			{
+				id: "custom-attr-email-01",
+				key: "public_contact_email",
+				label: "Public Contact Email",
+				scope: "global",
+				dataClass: "non_personal",
+				dataType: "email",
+			},
 		];
 		for (const definition of scopedDefinitions) {
 			const result = (await routes["custom-attributes/definitions/save"]!.handler({
@@ -4638,6 +4646,19 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 		expect(invalidDateValue.success).toBe(false);
 		expect(invalidDateValue.error.details.fields).toEqual(["value"]);
+
+		const invalidLongEmailValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-email-invalid",
+				definitionId: "custom-attr-email-01",
+				registryEntityId: "registry-entity-custom-01",
+				value: `${"a".repeat(255)}@example.test`,
+			},
+		} as any)) as any;
+		expect(invalidLongEmailValue.success).toBe(false);
+		expect(invalidLongEmailValue.error.details.fields).toEqual(["value"]);
 
 		const savedSikesraIdValue = (await routes["custom-attributes/values/save"]!.handler({
 			...ctx,

@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.12 - 2026-06-03
+
+- Scopes root code-scanning workflow inputs away from upstream-only snapshots and hardens SIKESRA custom attribute email validation.
 ## 0.1.11 - 2026-06-03
 
 - Adds the admin welcome modal branding files to the rebuild protected path allowlist.
@@ -45,7 +48,7 @@
 ## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.11`
+- Root version: `0.1.12`
 
 ### Plugins
 

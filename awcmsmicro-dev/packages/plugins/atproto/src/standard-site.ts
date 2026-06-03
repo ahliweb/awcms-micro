@@ -125,7 +125,6 @@ function stripTrailingSlash(url: string): string {
 }
 
 // Pre-compiled regexes
-const HTML_TAG_RE = /<[^>]+>/g;
 const NBSP_RE = /&nbsp;/g;
 const AMP_RE = /&amp;/g;
 const LT_RE = /&lt;/g;
@@ -175,8 +174,7 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 
 	// Strip HTML tags (simple -- not a full parser, but sufficient for plain text extraction).
 	// Decode &amp; last to avoid double-decoding (e.g. &amp;lt; -> &lt; -> <).
-	let text = body
-		.replace(HTML_TAG_RE, " ")
+	let text = stripHtmlTags(body)
 		.replace(NBSP_RE, " ")
 		.replace(LT_RE, "<")
 		.replace(GT_RE, ">")
@@ -194,4 +192,22 @@ export function extractPlainText(content: Record<string, unknown>): string | und
 	}
 
 	return text;
+}
+
+function stripHtmlTags(value: string) {
+	let output = "";
+	let inTag = false;
+	for (const char of value) {
+		if (char === "<") {
+			inTag = true;
+			output += " ";
+			continue;
+		}
+		if (char === ">") {
+			inTag = false;
+			continue;
+		}
+		if (!inTag) output += char;
+	}
+	return output;
 }

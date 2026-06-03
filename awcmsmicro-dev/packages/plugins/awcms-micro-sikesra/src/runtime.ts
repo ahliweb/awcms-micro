@@ -27,7 +27,7 @@ const SIKESRA_SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
 const SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN = /:duplicate-code$/;
 const CUSTOM_ATTRIBUTE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const CUSTOM_ATTRIBUTE_URL_PATTERN = /^https?:\/\//;
-const CUSTOM_ATTRIBUTE_EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const CUSTOM_ATTRIBUTE_EMAIL_WHITESPACE_PATTERN = /\s/;
 const CUSTOM_ATTRIBUTE_PHONE_PATTERN = /^\+?[0-9 .-]{6,32}$/;
 
 export interface AdministrativeRegion {
@@ -6232,7 +6232,7 @@ function validateCustomAttributeValueInput(
 		invalidFields.push("value");
 	if (
 		definition.dataType === "email" &&
-		(typeof value !== "string" || !CUSTOM_ATTRIBUTE_EMAIL_PATTERN.test(value))
+		(typeof value !== "string" || !isValidCustomAttributeEmail(value))
 	)
 		invalidFields.push("value");
 	if (
@@ -6253,6 +6253,17 @@ function validateCustomAttributeValueInput(
 	)
 		invalidFields.push("value");
 	return [...new Set(invalidFields)];
+}
+
+function isValidCustomAttributeEmail(value: string) {
+	if (value.length > 254 || CUSTOM_ATTRIBUTE_EMAIL_WHITESPACE_PATTERN.test(value)) return false;
+	const atIndex = value.indexOf("@");
+	if (atIndex <= 0 || atIndex !== value.lastIndexOf("@")) return false;
+	const localPart = value.slice(0, atIndex);
+	const domain = value.slice(atIndex + 1);
+	if (localPart.length > 64 || domain.length === 0 || domain.length > 253) return false;
+	const labels = domain.split(".");
+	return labels.length > 1 && labels.every((label) => label.length > 0 && label.length <= 63);
 }
 
 async function appendCustomAttributeChangeEvent(

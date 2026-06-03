@@ -37,6 +37,7 @@ const AMP_ENTITY_PATTERN = /&amp;/g;
 const QUOT_ENTITY_PATTERN = /&quot;/g;
 const APOS_ENTITY_PATTERN = /&#039;/g;
 const NBSP_ENTITY_PATTERN = /&nbsp;/g;
+const MAX_REGEX_HTML_LENGTH = 1_000;
 
 /**
  * core/paragraph → block with style "normal"
@@ -304,11 +305,12 @@ function extractTopLevelListItems(html: string): string[] {
  */
 export const quote: BlockTransformer = (block, _options, context) => {
 	const blocks: PortableTextBlock[] = [];
+	const innerHTML = limitRegexHtml(block.innerHTML);
 
 	// Extract paragraphs from the blockquote
 	let match;
 
-	while ((match = P_TAG_PATTERN.exec(block.innerHTML)) !== null) {
+	while ((match = P_TAG_PATTERN.exec(innerHTML)) !== null) {
 		const content = match[1] || "";
 		const { children, markDefs } = context.parseInlineContent(content);
 
@@ -328,7 +330,7 @@ export const quote: BlockTransformer = (block, _options, context) => {
 
 	// If no paragraphs found, treat entire content as quote
 	if (blocks.length === 0) {
-		const { children, markDefs } = context.parseInlineContent(block.innerHTML);
+		const { children, markDefs } = context.parseInlineContent(innerHTML);
 
 		const quoteBlock: PortableTextTextBlock = {
 			_type: "block",
@@ -378,9 +380,10 @@ export const quote: BlockTransformer = (block, _options, context) => {
  */
 export const image: BlockTransformer = (block, options, context) => {
 	const wpId = attrNumber(block.attrs, "id");
-	const src = attrString(block.attrs, "url") ?? extractSrc(block.innerHTML);
-	const alt = attrString(block.attrs, "alt") ?? extractAlt(block.innerHTML);
-	const caption = extractCaption(block.innerHTML);
+	const innerHTML = limitRegexHtml(block.innerHTML);
+	const src = attrString(block.attrs, "url") ?? extractSrc(innerHTML);
+	const alt = attrString(block.attrs, "alt") ?? extractAlt(innerHTML);
+	const caption = extractCaption(innerHTML);
 	const align = attrString(block.attrs, "align");
 
 	// Resolve media ID if we have a map
@@ -406,9 +409,10 @@ export const image: BlockTransformer = (block, options, context) => {
  * core/code → code block
  */
 export const code: BlockTransformer = (block, _options, context) => {
+	const innerHTML = limitRegexHtml(block.innerHTML);
 	// Extract code from <pre><code>...</code></pre>
-	const codeMatch = block.innerHTML.match(CODE_TAG_PATTERN_SINGLE);
-	const codeContent = codeMatch?.[1] || block.innerHTML;
+	const codeMatch = innerHTML.match(CODE_TAG_PATTERN_SINGLE);
+	const codeContent = codeMatch?.[1] || innerHTML;
 
 	// Decode HTML entities
 	const decoded = decodeHtmlEntities(codeContent);
@@ -489,7 +493,8 @@ export const gallery: BlockTransformer = (block, options, context) => {
 	} else {
 		// Parse from HTML (older gallery format)
 		let match;
-		while ((match = IMG_TAG_GLOBAL.exec(block.innerHTML)) !== null) {
+		const innerHTML = limitRegexHtml(block.innerHTML);
+		while ((match = IMG_TAG_GLOBAL.exec(innerHTML)) !== null) {
 			const imgHtml = match[0];
 			const src = extractSrc(imgHtml);
 			const alt = extractAlt(imgHtml);
@@ -550,8 +555,9 @@ export const group: BlockTransformer = (block, _options, context) => {
  * core/table → table block
  */
 export const table: BlockTransformer = (block, _options, context) => {
+	const innerHTML = limitRegexHtml(block.innerHTML);
 	// Parse the table HTML
-	const tableMatch = block.innerHTML.match(TABLE_TAG_PATTERN);
+	const tableMatch = innerHTML.match(TABLE_TAG_PATTERN);
 	if (!tableMatch) {
 		return [];
 	}
@@ -674,6 +680,10 @@ function parseTableRows(
 	}
 
 	return rows;
+}
+
+function limitRegexHtml(value: string) {
+	return value.length > MAX_REGEX_HTML_LENGTH ? value.slice(0, MAX_REGEX_HTML_LENGTH) : value;
 }
 
 /**

@@ -152,6 +152,24 @@ describe("Grid widget", () => {
 		});
 	});
 
+	it("drops prototype-polluting grid cell keys", () => {
+		const onChange = vi.fn();
+		render(
+			<Grid
+				value={{ mon: { am: true, ["__proto__"]: "bad", constructor: "bad", legacy: "keep-me" } }}
+				onChange={onChange}
+				label="Grid"
+				id="g"
+				options={{ rows, columns }}
+			/>,
+		);
+		fireEvent.click(screen.getByLabelText("Mon — PM"));
+		expect(onChange).toHaveBeenCalledWith({
+			mon: { am: true, pm: true, legacy: "keep-me" },
+			tue: {},
+		});
+	});
+
 	it("shows misconfigured warning when rows or columns are missing", () => {
 		render(
 			<Grid
