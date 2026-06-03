@@ -26,6 +26,8 @@ import { SUPPORTED_LOCALES } from "../locales/index.js";
 import { useLocale } from "../locales/useLocale.js";
 import { PasskeyLogin } from "./auth/PasskeyLogin";
 
+const WELCOME_REDIRECT_PARAM = "welcome";
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -199,7 +201,7 @@ export function LoginPage({ redirectUrl = "/_emdash/admin" }: LoginPageProps) {
 
 	const handleSuccess = () => {
 		// Redirect after successful login
-		redirectToInternalPath(safeRedirectUrl);
+		redirectToInternalPath(withWelcomeRedirectMarker(safeRedirectUrl));
 	};
 
 	// All providers with a LoginButton show in the button grid
@@ -372,4 +374,11 @@ function redirectToInternalPath(path: string) {
 		return;
 	}
 	window.location.assign(`${target.pathname}${target.search}${target.hash}`);
+}
+
+export function withWelcomeRedirectMarker(path: string): string {
+	const target = new URL(path, window.location.origin);
+	if (target.origin !== window.location.origin) return "/_emdash/admin?welcome=1";
+	target.searchParams.set(WELCOME_REDIRECT_PARAM, "1");
+	return `${target.pathname}${target.search}${target.hash}`;
 }

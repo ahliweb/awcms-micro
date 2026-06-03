@@ -41,7 +41,7 @@ Object.defineProperty(window, "PublicKeyCredential", {
 });
 
 // Import after mocks
-const { LoginPage } = await import("../../src/components/LoginPage");
+const { LoginPage, withWelcomeRedirectMarker } = await import("../../src/components/LoginPage");
 
 function QueryWrapper({ children }: { children: React.ReactNode }) {
 	const qc = new QueryClient({
@@ -75,6 +75,12 @@ describe("LoginPage", () => {
 		await expect.element(screen.getByAltText("AWCMS")).toBeInTheDocument();
 		await expect.element(screen.getByText("AWCMS by AhliWeb.com & EmDash")).toBeInTheDocument();
 		expect(document.querySelector('[data-awcms-login-brand="title"]')?.textContent).toBe("AWCMS");
+	});
+
+	it("adds the welcome marker to successful internal login redirects", () => {
+		expect(withWelcomeRedirectMarker("/_emdash/admin?tab=home#main")).toBe(
+			"/_emdash/admin?tab=home&welcome=1#main",
+		);
 	});
 
 	it("shows 'Sign in with email link' button", async () => {

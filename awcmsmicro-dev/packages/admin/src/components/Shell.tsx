@@ -6,6 +6,8 @@ import { Header } from "./Header";
 import { Sidebar, SidebarNav } from "./Sidebar";
 import { WelcomeModal } from "./WelcomeModal";
 
+const WELCOME_REDIRECT_PARAM = "welcome";
+
 export interface ShellProps {
 	children: React.ReactNode;
 	manifest: {
@@ -37,12 +39,15 @@ export function Shell({ children, manifest }: ShellProps) {
 
 	const { data: user } = useCurrentUser();
 
-	// Show welcome modal on first login
+	// Show welcome modal on first login or immediately after an explicit login redirect.
 	React.useEffect(() => {
-		if (user?.isFirstLogin) {
+		if (!user) return;
+
+		const hasWelcomeRedirectMarker = consumeWelcomeRedirectMarker();
+		if (user.isFirstLogin || hasWelcomeRedirectMarker) {
 			setWelcomeModalOpen(true);
 		}
-	}, [user?.isFirstLogin]);
+	}, [user]);
 
 	return (
 		<Sidebar.Provider
@@ -79,4 +84,15 @@ export function Shell({ children, manifest }: ShellProps) {
 			<AdminCommandPalette manifest={manifest} />
 		</Sidebar.Provider>
 	);
+}
+
+export function consumeWelcomeRedirectMarker(): boolean {
+	if (typeof window === "undefined") return false;
+
+	const url = new URL(window.location.href);
+	if (url.searchParams.get(WELCOME_REDIRECT_PARAM) !== "1") return false;
+
+	url.searchParams.delete(WELCOME_REDIRECT_PARAM);
+	window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+	return true;
 }

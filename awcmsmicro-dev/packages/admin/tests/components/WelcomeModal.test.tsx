@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as React from "react";
 import { describe, it, expect, vi } from "vitest";
 
+import { consumeWelcomeRedirectMarker } from "../../src/components/Shell";
 import { WelcomeModal } from "../../src/components/WelcomeModal";
 import { render } from "../utils/render";
 
@@ -35,6 +36,15 @@ function QueryWrapper({ children }: { children: React.ReactNode }) {
 const noop = () => {};
 
 describe("WelcomeModal", () => {
+	it("consumes welcome redirect marker before showing the modal", () => {
+		window.history.replaceState({}, "", "/_emdash/admin?section=dashboard&welcome=1#top");
+
+		expect(consumeWelcomeRedirectMarker()).toBe(true);
+		expect(window.location.pathname).toBe("/_emdash/admin");
+		expect(window.location.search).toBe("?section=dashboard");
+		expect(window.location.hash).toBe("#top");
+	});
+
 	it("shows 'Administrator' for role >= 50", async () => {
 		const screen = await render(
 			<QueryWrapper>

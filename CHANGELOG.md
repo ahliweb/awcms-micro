@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.14 - 2026-06-03
+
+- Preserve the AWCMS admin welcome modal after successful login by adding a sync-safe downstream overlay and divergence record.
 ## 0.1.13 - 2026-06-03
 
 - Marks downstream patch overlays as generated patch files so source whitespace checks do not fail on patch hunk content.
@@ -51,7 +54,7 @@
 ## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.13`
+- Root version: `0.1.14`
 
 ### Plugins
 
