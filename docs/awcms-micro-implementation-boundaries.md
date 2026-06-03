@@ -101,7 +101,7 @@ If a change does not fit one of these categories, do not assume it should surviv
 
 Active patch overlays under `awcmsmicro-dev/.awcms-patches/` must be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md`. This keeps source-level overrides auditable without expanding the protected allowlist to broad upstream-owned files.
 
-`bash scripts/validate-awcmsmicro-boundaries.sh` also dry-runs an unprotected `emdash-latest/` to `awcmsmicro-dev/` rebuild comparison. Any tracked downstream-only file outside the allowlist, or any unprotected content drift not covered by an active patch overlay, fails normal validation before it can survive accidentally. The sync preflight intentionally skips this drift check because `bash scripts/update-awcmsmicro-dev.sh` is the controlled operation that overwrites upstream-owned drift; the check runs again after the rebuild. Untracked generated/local artifacts are not treated as protected changes.
+`bash scripts/validate-awcmsmicro-boundaries.sh` also dry-runs an unprotected `emdash-latest/` to `awcmsmicro-dev/` rebuild comparison. Any tracked downstream-only file outside the allowlist, or any unprotected content drift not covered by an active patch overlay, fails normal validation before it can survive accidentally. The validator also replays active patch overlays against a temporary copy of `emdash-latest` so corrupt or stale patches fail before a rebuild depends on them. The sync preflight intentionally skips only the drift check because `bash scripts/update-awcmsmicro-dev.sh` is the controlled operation that overwrites upstream-owned drift; post-rebuild validation checks the clean state again. Untracked generated/local artifacts are not treated as protected changes.
 
 ## Compatibility Guardrail
 

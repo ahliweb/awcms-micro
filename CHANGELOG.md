@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.6 - 2026-06-03
+
+- Validate downstream patch overlays against a temporary EmDash snapshot so stale or corrupt rebuild-preservation patches fail before sync.
 ## 0.1.5 - 2026-06-02
 
 - Separate AWCMS root and EmDash upstream hashes in the admin sidebar footer and normalize sidebar menu group spacing.
@@ -24,10 +27,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-02
+## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `47c445b947938e29aee571efe22fbd013fb016d5` from `emdash-latest/`
-- Root version: `0.1.5`
+- Root version: `0.1.6`
 
 ### Plugins
 

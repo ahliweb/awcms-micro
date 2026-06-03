@@ -181,6 +181,32 @@ check_unprotected_downstream_drift() {
 	done <<< "$drift_output"
 }
 
+check_patch_overlays_apply() { (
+	local patch_check_dir
+	patch_check_dir="$(mktemp -d)"
+	trap 'rm -rf "$patch_check_dir"' EXIT
+
+	rsync -a \
+		--delete \
+		--exclude='.git' \
+		--exclude='node_modules' \
+		--exclude='dist' \
+		--exclude='.astro' \
+		--exclude='.wrangler' \
+		--exclude='.vite' \
+		--exclude='.mf' \
+		"$ROOT_DIR/emdash-latest/" "$patch_check_dir/"
+
+	local patch_file_path
+	for patch_file_path in "${patch_overlay_files[@]}"; do
+		(
+			cd "$patch_check_dir"
+			git apply --check --whitespace=nowarn "$patch_file_path"
+			git apply --whitespace=nowarn "$patch_file_path"
+		) || fail "Patch overlay does not apply cleanly to current emdash-latest: $(basename "$patch_file_path")"
+	done
+); }
+
 if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
 	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
 	export AWCMS_RUNTIME_PREREQS_CHECKED=1
@@ -244,6 +270,8 @@ for patch_file_path in "${patch_overlay_files[@]}"; do
 	require_file "$patch_file_path"
 	require_contains "$patch_file" "$DIVERGENCE_LOG"
 done
+log "Checking downstream patch overlays apply cleanly"
+check_patch_overlays_apply
 
 if [[ "${AWCMS_SKIP_UNPROTECTED_DRIFT_CHECK:-0}" == "1" ]]; then
 	log "Skipping unprotected downstream drift check for pre-sync overwrite path"
