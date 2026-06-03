@@ -2340,6 +2340,22 @@ describe("awcms micro sikesra plugin", () => {
 		expect(JSON.stringify(result)).not.toContain("registry-entity-");
 	});
 
+	it("returns a public-safe status fallback for unexpected public route errors", async () => {
+		const { ctx } = createMockContext();
+		ctx.kv.get = vi.fn(async () => {
+			throw new TypeError("unexpected production route failure");
+		});
+
+		const result = (await createNativeRoutes()["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+
+		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
+		expect(result.publicAggregate.categories).toEqual([]);
+		expect(JSON.stringify(result)).not.toContain("unexpected production route failure");
+	});
+
 	it("does not fail lifecycle hooks when the production audit table has a legacy schema", async () => {
 		const { ctx, db } = createMockContext();
 		const originalInsertInto = db.insertInto.bind(db);

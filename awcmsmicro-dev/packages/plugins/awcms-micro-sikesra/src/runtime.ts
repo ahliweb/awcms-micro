@@ -4584,7 +4584,13 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 			},
 		};
 	} catch (cause) {
-		logD1ReadFallback(ctx, "public status", cause);
+		if (isMissingD1TableError(cause)) {
+			ctx?.log.warn(
+				`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 public status table unavailable; using fallback data.`,
+			);
+		} else {
+			ctx?.log.error(`[${AWCMS_SIKESRA_PLUGIN_ID}] Public status route fallback activated.`, cause);
+		}
 		return {
 			plugin: { id: AWCMS_SIKESRA_PLUGIN_ID, visibility: "public-safe" },
 			status: DEFAULT_SETTINGS.publicStatusLabel,
