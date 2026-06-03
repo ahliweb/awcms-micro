@@ -3657,20 +3657,27 @@ async function ensureTrustedEmDashAdminAssignment(ctx: PluginContext) {
 			ctx.storage.sikesra_user_role_assignments,
 			userId,
 		)) as UserRoleAssignment | null);
-	if (existingAssignment?.roles?.length) return;
-
-	const assignment: UserRoleAssignment = {
+	const assignment: UserRoleAssignment = existingAssignment ?? {
 		userId,
-		roles: [...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES],
+		roles: [],
 		isActive: true,
 		updatedAt: "",
 	};
-	await safeCollectionPut(
-		ctx.storage.sikesra_user_role_assignments,
-		userId,
-		touchUpdatedAt(assignment),
-	);
-	await persistD1UserRoleAssignment(ctx, assignment);
+	const nextRoles = [...new Set([...assignment.roles, ...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES])];
+	if (
+		assignment.isActive !== false &&
+		nextRoles.length === assignment.roles.length &&
+		nextRoles.every((role) => assignment.roles.includes(role))
+	) {
+		return;
+	}
+	const nextAssignment = touchUpdatedAt<UserRoleAssignment>({
+		...assignment,
+		roles: nextRoles,
+		isActive: true,
+	});
+	await safeCollectionPut(ctx.storage.sikesra_user_role_assignments, userId, nextAssignment);
+	await persistD1UserRoleAssignment(ctx, nextAssignment);
 }
 
 async function ensureAbacCatalogSeeded(ctx: PluginContext) {
@@ -4565,7 +4572,7 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 		};
 	}
 
-	const userAssignment =
+	const storedUserAssignment =
 		(await getD1UserRoleAssignment(ctx, userId)) ??
 		((await safeCollectionGet(
 			ctx.storage.sikesra_user_role_assignments,
@@ -4579,6 +4586,16 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 					updatedAt: "",
 				})
 			: null);
+	const userAssignment =
+		storedUserAssignment && isTrustedEmDashAdmin(ctx)
+			? touchUpdatedAt<UserRoleAssignment>({
+					...storedUserAssignment,
+					roles: [
+						...new Set([...storedUserAssignment.roles, ...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES]),
+					],
+					isActive: true,
+				})
+			: storedUserAssignment;
 	if (!userAssignment || userAssignment.roles.length === 0) {
 		return {
 			allowed: false,

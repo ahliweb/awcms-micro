@@ -83,16 +83,50 @@ export function createSikesraAdminApiHeaders(user?: SikesraAdminUserHeaderSource
 	return headers;
 }
 
+const SIKESRA_READ_ONLY_API_PATHS = new Set<SikesraAdminApiPath>([
+	"overview/summary",
+	"public/status",
+	"registry/list",
+	"registry/archive/list",
+	"documents/list",
+	"exports/list",
+	"custom-attributes/definitions/list",
+	"custom-attributes/values/list",
+	"crud/permanent-delete/requests/list",
+	"verification/list",
+	"settings/get",
+	"regions/get",
+	"data-types/get",
+	"audit/list",
+	"access/permissions/list",
+	"access/roles/list",
+	"access/users/list",
+	"access/scopes/list",
+	"access/matrix/get",
+	"access/health",
+	"abac/attributes/list",
+	"abac/subjects/list",
+	"abac/resources/list",
+	"abac/policies/list",
+	"abac/health",
+	"dashboard/summary",
+]);
+
+export function getSikesraAdminApiMethod(path: SikesraAdminApiPath) {
+	return SIKESRA_READ_ONLY_API_PATHS.has(path) ? "GET" : "POST";
+}
+
 export async function postSikesraPlugin<TResponse, TPayload = unknown>({
 	path,
 	payload,
 	user,
 	requestFailedMessage,
 }: SikesraAdminApiRequest<TPayload>): Promise<TResponse> {
+	const method = getSikesraAdminApiMethod(path);
 	const response = await apiFetch(`${SIKESRA_PLUGIN_API_BASE}/${path}`, {
-		method: "POST",
+		method,
 		headers: createSikesraAdminApiHeaders(user),
-		body: JSON.stringify(payload ?? {}),
+		...(method === "POST" ? { body: JSON.stringify(payload ?? {}) } : {}),
 	});
 
 	if (!response.ok) {

@@ -12,6 +12,7 @@ import {
 	normalizeSummaryResponse,
 	pages as sikesraAdminPages,
 } from "../src/admin.js";
+import { getSikesraAdminApiMethod } from "../src/admin/api/client.js";
 import {
 	isSikesraAdminHref,
 	createSikesraEmptyState,
@@ -2722,6 +2723,38 @@ describe("awcms micro sikesra plugin", () => {
 		expect(deleteRequests.items).toBeDefined();
 	});
 
+	it("merges required bootstrap roles for trusted EmDash admins with partial SIKESRA assignments", async () => {
+		const { ctx, collections } = createMockContext();
+		const routes = createNativeRoutes();
+		collections.userRoleAssignments.set("emdash-production-admin", {
+			userId: "emdash-production-admin",
+			roles: ["sikesra_super_admin"],
+			isActive: true,
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		const adminCtx = {
+			...ctx,
+			request: new Request("https://example.test"),
+			user: {
+				id: "emdash-production-admin",
+				email: "admin@example.test",
+				name: "Production Admin",
+				role: 50,
+			},
+			input: {},
+		} as any;
+
+		const accessRoles = (await routes["access/roles/list"]!.handler(adminCtx)) as any;
+		const abacPolicies = (await routes["abac/policies/list"]!.handler(adminCtx)) as any;
+		const assignment = collections.userRoleAssignments.get("emdash-production-admin") as any;
+
+		expect(accessRoles.roles).toBeDefined();
+		expect(abacPolicies.items).toBeDefined();
+		expect(assignment.roles).toEqual(
+			expect.arrayContaining(["admin-sikesra", "sikesra_admin", "sikesra_super_admin"]),
+		);
+	});
+
 	it("keeps trusted-admin read routes available when plugin storage collections are unavailable", async () => {
 		const { ctx } = createMockContext();
 		const routes = createNativeRoutes();
@@ -2759,6 +2792,40 @@ describe("awcms micro sikesra plugin", () => {
 		] as const) {
 			const result = (await routes[key]!.handler(adminCtx)) as any;
 			expect(result.success, key).not.toBe(false);
+		}
+	});
+
+	it("uses GET for SIKESRA admin read APIs so read pages do not require plugin manage permission", () => {
+		for (const key of [
+			"registry/list",
+			"registry/archive/list",
+			"custom-attributes/definitions/list",
+			"custom-attributes/values/list",
+			"crud/permanent-delete/requests/list",
+			"audit/list",
+			"access/permissions/list",
+			"access/users/list",
+			"access/roles/list",
+			"access/matrix/get",
+			"access/scopes/list",
+			"abac/attributes/list",
+			"abac/subjects/list",
+			"abac/resources/list",
+			"abac/policies/list",
+			"regions/get",
+			"data-types/get",
+		] as const) {
+			expect(getSikesraAdminApiMethod(key), key).toBe("GET");
+		}
+
+		for (const key of [
+			"registry/save",
+			"custom-attributes/definitions/save",
+			"custom-attributes/values/save",
+			"access/users/save",
+			"abac/preview",
+		] as const) {
+			expect(getSikesraAdminApiMethod(key), key).toBe("POST");
 		}
 	});
 
