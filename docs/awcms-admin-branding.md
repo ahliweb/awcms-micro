@@ -10,6 +10,7 @@ Document how the AWCMS admin branding survives EmDash synchronization without re
 - Sidebar title/site name: configured through template `admin.siteName` settings in `awcmsmicro-dev/templates/`
 - Sidebar footer version: applied as a downstream source patch plus protected `Sidebar.tsx` override that renders two lines: `AWCMS` with the root maintenance version and root repository commit hash from `VERSION`/`CHANGELOG.md` plus git metadata, then the EmDash manifest version with the upstream EmDash commit hash from `docs/upstream-sync/LAST_UPSTREAM_FETCH.md`
 - Login page lockup: applied as a downstream source patch that uses `/awcms-logo.png`, `AWCMS`, and `AWCMS by AhliWeb.com & EmDash` for the standalone admin login surface
+- Welcome modal lockup: preserved through the protected admin file allowlist and uses `/awcms-logo.png` and `AWCMS by AhliWeb.com & EmDash` for the first-login welcome dialog
 
 ## Preservation Model
 

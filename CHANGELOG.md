@@ -1,5 +1,11 @@
 # AWCMS-Micro Changelog
 
+## 0.1.11 - 2026-06-03
+
+- Adds the admin welcome modal branding files to the rebuild protected path allowlist.
+## 0.1.10 - 2026-06-03
+
+- Brands the admin first-login welcome modal with the AWCMS-Micro logo and AWCMS by AhliWeb.com & EmDash text.
 ## 0.1.9 - 2026-06-03
 
 - Refreshes the parent workspace snapshot to EmDash cd2dcc6 and records the validated upstream-only Dependabot alert state.
@@ -39,7 +45,7 @@
 ## Workspace Snapshot - 2026-06-03
 
 - EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.9`
+- Root version: `0.1.11`
 
 ### Plugins
 

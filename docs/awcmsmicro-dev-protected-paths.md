@@ -35,8 +35,10 @@ These paths are relative to `awcmsmicro-dev/`:
 - `packages/admin/src/components/Sidebar.tsx`
 - `packages/admin/src/components/Shell.tsx`
 - `packages/admin/src/components/AdminCommandPalette.tsx`
+- `packages/admin/src/components/WelcomeModal.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
 - `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- `packages/admin/tests/components/WelcomeModal.test.tsx`
 
 ## How Rebuild Preservation Works
 

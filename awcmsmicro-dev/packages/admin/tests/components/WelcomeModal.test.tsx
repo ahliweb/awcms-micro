@@ -9,7 +9,7 @@ import { render } from "../utils/render";
 // Constants
 // ---------------------------------------------------------------------------
 
-const WELCOME_MESSAGE_REGEX = /Welcome to EmDash, Alice!/;
+const AWCMS_BRAND_TEXT = "AWCMS by AhliWeb.com & EmDash";
 const ADMIN_TEXT_REGEX = /As an administrator, you can invite other users/;
 
 vi.mock("../../src/lib/api/client", async () => {
@@ -80,13 +80,14 @@ describe("WelcomeModal", () => {
 		await expect.element(screen.getByText("Subscriber")).toBeInTheDocument();
 	});
 
-	it("shows first name from userName", async () => {
+	it("renders AWCMS branding", async () => {
 		const screen = await render(
 			<QueryWrapper>
 				<WelcomeModal open={true} onClose={noop} userName="Alice Smith" userRole={30} />
 			</QueryWrapper>,
 		);
-		await expect.element(screen.getByText(WELCOME_MESSAGE_REGEX)).toBeInTheDocument();
+		await expect.element(screen.getByAltText("AWCMS")).toBeInTheDocument();
+		await expect.element(screen.getByText(AWCMS_BRAND_TEXT)).toBeInTheDocument();
 	});
 
 	it("'Get Started' button triggers dismiss mutation and calls onClose", async () => {

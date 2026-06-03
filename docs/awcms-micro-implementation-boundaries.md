@@ -35,8 +35,10 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `packages/admin/src/components/Sidebar.tsx`
 - `packages/admin/src/components/Shell.tsx`
 - `packages/admin/src/components/AdminCommandPalette.tsx`
+- `packages/admin/src/components/WelcomeModal.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
 - `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- `packages/admin/tests/components/WelcomeModal.test.tsx`
 
 These are the active product-development boundaries:
 
@@ -86,8 +88,8 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
 - dev-workspace agent guidance in `awcmsmicro-dev/AGENTS.md`
 - local bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
-- sidebar branding/header/footer, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
-- file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, and `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- sidebar branding/header/footer, welcome modal branding, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
+- file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/src/components/WelcomeModal.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, `packages/admin/tests/components/AdminCommandPalette.test.tsx`, and `packages/admin/tests/components/WelcomeModal.test.tsx`
 - workspace configuration persistence exceptions include `pnpm-workspace.yaml`, `docs/package.json`, `infra/perf-monitor/package.json`, and `packages/blocks/playground/package.json`
 - local workspace database persistence includes `awcmsmicro-dev/templates/awcms-micro-default/data.db` when present, so menu/content edits can survive rebuilds via the protected-path restore step
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`

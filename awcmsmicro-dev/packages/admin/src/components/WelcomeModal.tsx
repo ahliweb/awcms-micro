@@ -13,7 +13,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 
 import { apiFetch, throwResponseError } from "../lib/api/client";
-import { LogoIcon } from "./Logo.js";
 
 interface WelcomeModalProps {
 	open: boolean;
@@ -37,6 +36,7 @@ function roleDescriptor(role: number): MessageDescriptor {
 }
 
 const MSG_ACCOUNT_CREATED = msg`Your account has been created successfully.`;
+const MSG_AWCMS_BRAND = msg`AWCMS by AhliWeb.com & EmDash`;
 const MSG_YOUR_ROLE = msg`Your Role`;
 const MSG_SCOPE_ADMIN = msg`You have full access to manage this site, including users, settings, and all content.`;
 const MSG_SCOPE_EDITOR = msg`You can manage content, media, menus, and taxonomies.`;
@@ -62,7 +62,7 @@ async function dismissWelcome(fallbackMessage: string): Promise<void> {
 	if (!response.ok) await throwResponseError(response, fallbackMessage);
 }
 
-export function WelcomeModal({ open, onClose, userName, userRole }: WelcomeModalProps) {
+export function WelcomeModal({ open, onClose, userRole }: WelcomeModalProps) {
 	const { t } = useLingui();
 	const queryClient = useQueryClient();
 
@@ -91,10 +91,6 @@ export function WelcomeModal({ open, onClose, userName, userRole }: WelcomeModal
 	const roleLabel = t(roleDescriptor(userRole));
 	const isAdmin = userRole >= 50;
 
-	const firstName = userName?.split(" ")?.[0]?.trim() ?? "";
-	const titleDescriptor =
-		firstName.length > 0 ? msg`Welcome to EmDash, ${firstName}!` : msg`Welcome to EmDash!`;
-
 	return (
 		<Dialog.Root open={open} onOpenChange={(isOpen: boolean) => !isOpen && handleGetStarted()}>
 			<Dialog className="p-6 sm:max-w-md">
@@ -118,10 +114,10 @@ export function WelcomeModal({ open, onClose, userName, userRole }: WelcomeModal
 				</div>
 				<div className="flex flex-col space-y-1.5 text-center sm:text-center">
 					<div className="mx-auto mb-4">
-						<LogoIcon className="h-16 w-16" />
+						<img src="/awcms-logo.png" alt="AWCMS" className="h-12 w-auto" />
 					</div>
 					<Dialog.Title className="text-2xl font-semibold leading-none tracking-tight">
-						{t(titleDescriptor)}
+						{t(MSG_AWCMS_BRAND)}
 					</Dialog.Title>
 					<Dialog.Description className="text-base text-kumo-subtle">
 						{t(MSG_ACCOUNT_CREATED)}
