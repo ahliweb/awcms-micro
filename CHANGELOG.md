@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.15 - 2026-06-04
+
+- Adds boundary validation coverage for the protected admin welcome modal branding files so their rebuild-safe status is checked with the other admin persistence surfaces.
 ## 0.1.14 - 2026-06-03
 
 - Preserve the AWCMS admin welcome modal after successful login by adding a sync-safe downstream overlay and divergence record.
@@ -51,10 +54,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-03
+## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.14`
+- Root version: `0.1.15`
 
 ### Plugins
 
