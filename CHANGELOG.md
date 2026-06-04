@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.22 - 2026-06-04
+
+- Updates the downstream workspace toolchain to `pnpm` 11.5.1 and the sync-safe Wrangler catalog baseline to 4.97.0.
 ## 0.1.21 - 2026-06-04
 
 - Refreshes `emdash-latest` and `awcmsmicro-dev` to upstream EmDash `a6e8a91`, preserves approved downstream boundaries, and records the successful downstream validation.
@@ -75,7 +78,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d` from `emdash-latest/`
-- Root version: `0.1.21`
+- Root version: `0.1.22`
 
 ### Plugins
 
