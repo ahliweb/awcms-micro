@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.21 - 2026-06-04
+
+- Refreshes `emdash-latest` and `awcmsmicro-dev` to upstream EmDash `a6e8a91`, preserves approved downstream boundaries, and records the successful downstream validation.
 ## 0.1.20 - 2026-06-04
 
 - Adds validation that every Markdown document under `docs/` is indexed from `docs/README.md`.
@@ -71,8 +74,8 @@
 
 ## Workspace Snapshot - 2026-06-04
 
-- EmDash upstream: `73b5cf486cabecd496c96c6a5322eae634f3c652` from `emdash-latest/`
-- Root version: `0.1.20`
+- EmDash upstream: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d` from `emdash-latest/`
+- Root version: `0.1.21`
 
 ### Plugins
 
@@ -84,7 +87,7 @@
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.19` - latest changelog section: 0.1.19
+- `@emdash-cms/plugin-embeds` `0.1.20` - latest changelog section: 0.1.20
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
 - `@emdash-cms/plugin-forms` `0.2.3` - latest changelog section: 0.2.3
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2

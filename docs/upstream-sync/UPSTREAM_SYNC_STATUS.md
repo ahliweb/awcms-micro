@@ -4,23 +4,23 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `73b5cf486cabecd496c96c6a5322eae634f3c652`
-- Sync date: `2026-06-04T01:47:19Z`
+- Upstream commit SHA: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d`
+- Sync date: `2026-06-04T23:14:42Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-Synced to EmDash `73b5cf4`. Upstream `main` moved from `cd2dcc6` to `73b5cf4`; `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay cleanly under pnpm `11.5.0`, and the downstream workspace validates cleanly on this host after adding the missing protected admin sidebar exports required by the latest upstream byline schema UI.
+Synced to EmDash `a6e8a91`. Upstream `main` moved from `73b5cf4` to `a6e8a91`; `emdash-latest/` and `awcmsmicro-dev/` both refreshed successfully, downstream patch overlays replay cleanly under pnpm `11.5.0`, and the downstream workspace validates cleanly on this host.
 
 ## Key Changes in This Sync
 
-- Upstream EmDash refreshed to `73b5cf4`, including the EmDash `0.17.0` package updates, byline custom field/schema admin work, maintainer-reply automation updates, Cloudflare E2E fixture additions, and related query-count snapshot updates
+- Upstream EmDash refreshed to `a6e8a91`, including EmDash `0.17.1` package updates, admin locale additions, seed export improvements, query pagination coverage, Cloudflare/E2E test updates, workflow action version updates, and related package changelog/version updates
 - Rebuilt `awcmsmicro-dev/` from `emdash-latest/` through the protected-path rebuild workflow
 - Replayed all 20 active downstream patch overlays after the rebuild, including the pnpm `11.5.0` package-manager overlay
 - Refreshed `awcmsmicro-dev/pnpm-lock.yaml` to match the rebuilt workspace under pnpm `11.5.0`
-- Added the upstream-compatible `BYLINE_SCHEMA_NAV_ITEM` and `filterNavItemsByRole` exports back into the protected downstream admin sidebar override so the new upstream byline routes typecheck and test cleanly
+- Preserved approved AWCMS-Micro plugin, template, admin branding/navigation, changeset, workflow, protected local-state, and patch-overlay boundaries during rebuild
 - Downstream sync state remains protected by the allowlist, patch overlay workflow, and validation workflow
 - Dependabot alert counts were not re-queried during this local sync because GitHub access was not required for the update or validation path
 
@@ -28,7 +28,7 @@ Synced to EmDash `73b5cf4`. Upstream `main` moved from `cd2dcc6` to `73b5cf4`; `
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `73b5cf4` |
+| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `a6e8a91` |
 | Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | Rebuilt via `update-awcmsmicro-dev.sh`; approved AWCMS-Micro boundaries preserved; 20 downstream overlays replayed |
 | Validation script execution | Passed | See `LAST_VALIDATION.md` |
 
