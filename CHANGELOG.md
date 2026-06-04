@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.18 - 2026-06-04
+
+- Adds the root documentation workflow standard for deciding when to update docs, create docs, add Mermaid diagrams, refresh README indexes, and update agent rules.
 ## 0.1.17 - 2026-06-04
 
 - Adds boundary validation for tracked temporary artifacts and removes committed scratch files from the SIKESRA protected boundary.
@@ -63,7 +66,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `73b5cf486cabecd496c96c6a5322eae634f3c652` from `emdash-latest/`
-- Root version: `0.1.17`
+- Root version: `0.1.18`
 
 ### Plugins
 

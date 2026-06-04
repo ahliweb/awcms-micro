@@ -83,6 +83,7 @@ Before changing code, docs, scripts, or generated outputs in this workspace, rea
 - `docs/README.md`
 - `docs/awcms-micro-github-issue-system.md`
 - `docs/awcms-micro-mermaid-diagram-standard.md`
+- `docs/awcms-micro-documentation-workflow.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
@@ -117,6 +118,7 @@ These rules apply to every plugin, template, database, UI/UX, API, integration, 
 - Use project-specific storage/table prefixes for project-owned data.
 - Keep public output public-safe and avoid exposing protected operational data.
 - Add Mermaid diagrams when design, architecture, database, UI/UX, integration, security, deployment, migration, or data preservation behavior changes.
+- For documentation changes, follow `docs/awcms-micro-documentation-workflow.md`: decide whether to update or create a document, add Mermaid diagrams when required, update README indexes, update `AGENTS.md` when agent rules change, and review status/diff before finalizing.
 - Add tests or validation scripts whenever a rule is meant to survive rebuilds.
 - Keep README, AGENTS, PRD, diagrams, and governance docs aligned with issue order and implemented behavior.
 
@@ -179,6 +181,7 @@ Required rules for agents:
 - `docs/README.md`
 - `docs/awcms-micro-github-issue-system.md`
 - `docs/awcms-micro-mermaid-diagram-standard.md`
+- `docs/awcms-micro-documentation-workflow.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/repository-structure.md`
