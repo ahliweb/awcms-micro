@@ -104,6 +104,42 @@
 			]
 		}
 	],
+	"content": {
+		"posts": [
+			{
+				"id": "first-post",
+				"slug": "first-post",
+				"status": "published",
+				"data": { "title": "First Post", "excerpt": "The very first post" }
+			},
+			{
+				"id": "second-post",
+				"slug": "second-post",
+				"status": "published",
+				"data": { "title": "Second Post", "excerpt": "Another post" }
+			},
+			{
+				"id": "draft-post",
+				"slug": "draft-post",
+				"status": "draft",
+				"data": { "title": "Draft Post", "excerpt": "Not published yet" }
+			}
+		],
+		"pages": [
+			{
+				"id": "about",
+				"slug": "about",
+				"status": "published",
+				"data": { "title": "About" }
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "draft",
+				"data": { "title": "Contact" }
+			}
+		]
+	},
 	"bylines": [
 		{
 			"id": "fixture-editorial",

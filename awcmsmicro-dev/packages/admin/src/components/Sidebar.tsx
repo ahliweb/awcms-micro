@@ -47,6 +47,18 @@ export { KumoSidebar as Sidebar, useSidebar };
 const ROLE_ADMIN = 50;
 const ROLE_EDITOR = 40;
 
+export const BYLINE_SCHEMA_NAV_ITEM = {
+	to: "/byline-schema" as const,
+	minRole: ROLE_ADMIN,
+} as const;
+
+export function filterNavItemsByRole<T extends { minRole?: number }>(
+	items: T[],
+	userRole: number,
+): T[] {
+	return items.filter((item) => !item.minRole || userRole >= item.minRole);
+}
+
 export interface SidebarNavProps {
 	manifest: {
 		collections: Record<string, { label: string }>;
@@ -388,15 +400,12 @@ export function SidebarNav({ manifest }: SidebarNavProps) {
 		{ to: "/settings", label: t`Settings`, icon: Gear, minRole: ROLE_ADMIN },
 	);
 
-	const filterByRole = (items: NavItem[]) =>
-		items.filter((item) => !item.minRole || userRole >= item.minRole);
-
-	const visibleContent = filterByRole(contentItems);
-	const visibleManage = filterByRole(manageItems);
-	const visibleAdmin = filterByRole(adminItems);
+	const visibleContent = filterNavItemsByRole(contentItems, userRole);
+	const visibleManage = filterNavItemsByRole(manageItems, userRole);
+	const visibleAdmin = filterNavItemsByRole(adminItems, userRole);
 	const visiblePluginGroups = buildSidebarPluginGroups(manifest, pluginAdmins).map((group) => ({
 		...group,
-		items: filterByRole(group.items),
+		items: filterNavItemsByRole(group.items, userRole),
 	}));
 	const hasContentSection = visibleContent.length > 1;
 	const hasPluginSection = visiblePluginGroups.length > 0;

@@ -80,7 +80,9 @@ vi.mock("../../src/lib/plugin-context", () => ({
 }));
 
 const {
+	BYLINE_SCHEMA_NAV_ITEM,
 	buildSidebarPluginGroups,
+	filterNavItemsByRole,
 	formatSidebarFooterLabels,
 	humanizePluginLabel,
 	resolveSidebarIcon,
@@ -88,6 +90,12 @@ const {
 } = await import("../../src/components/Sidebar");
 
 describe("SidebarNav helpers", () => {
+	it("keeps the byline schema admin route role-gated", () => {
+		expect(BYLINE_SCHEMA_NAV_ITEM).toEqual({ to: "/byline-schema", minRole: 50 });
+		expect(filterNavItemsByRole([BYLINE_SCHEMA_NAV_ITEM], 40)).toEqual([]);
+		expect(filterNavItemsByRole([BYLINE_SCHEMA_NAV_ITEM], 50)).toEqual([BYLINE_SCHEMA_NAV_ITEM]);
+	});
+
 	it("humanizes plugin labels and resolves icons", () => {
 		expect(humanizePluginLabel("awcms-micro-sikesra")).toBe("Awcms Micro Sikesra");
 		expect(humanizePluginLabel("awcms-micro-sikesra", "Registry")).toBe("Registry");

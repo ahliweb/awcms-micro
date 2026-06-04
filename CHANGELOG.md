@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.16 - 2026-06-04
+
+- Refreshes the parent workspace snapshot to EmDash 73b5cf4 and records the downstream admin sidebar compatibility guard needed for the latest upstream byline schema UI.
 ## 0.1.15 - 2026-06-04
 
 - Adds boundary validation coverage for the protected admin welcome modal branding files so their rebuild-safe status is checked with the other admin persistence surfaces.
@@ -56,8 +59,8 @@
 
 ## Workspace Snapshot - 2026-06-04
 
-- EmDash upstream: `cd2dcc6a56d19f38d6e13ba55e8563ceaab90ef8` from `emdash-latest/`
-- Root version: `0.1.15`
+- EmDash upstream: `73b5cf486cabecd496c96c6a5322eae634f3c652` from `emdash-latest/`
+- Root version: `0.1.16`
 
 ### Plugins
 
@@ -69,7 +72,7 @@
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.18` - latest changelog section: 0.1.18
+- `@emdash-cms/plugin-embeds` `0.1.19` - latest changelog section: 0.1.19
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
 - `@emdash-cms/plugin-forms` `0.2.3` - latest changelog section: 0.2.3
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2
