@@ -209,6 +209,31 @@ check_patch_overlays_apply() { (
 	done
 ); }
 
+check_docs_index_coverage() {
+	python3 - "$ROOT_DIR/docs" <<'PY'
+from pathlib import Path
+import sys
+
+docs_dir = Path(sys.argv[1])
+index_path = docs_dir / "README.md"
+index_text = index_path.read_text()
+missing = []
+
+for path in sorted(docs_dir.rglob("*.md")):
+    if path == index_path:
+        continue
+    relative_path = path.relative_to(docs_dir).as_posix()
+    if relative_path not in index_text and f"`{relative_path}`" not in index_text:
+        missing.append(relative_path)
+
+if missing:
+    print("Docs missing from docs/README.md:", file=sys.stderr)
+    for relative_path in missing:
+        print(f"- {relative_path}", file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
 if [[ "${AWCMS_RUNTIME_PREREQS_CHECKED:-0}" != "1" ]]; then
 	bash "$ROOT_DIR/scripts/check-runtime-prereqs.sh"
 	export AWCMS_RUNTIME_PREREQS_CHECKED=1
@@ -230,6 +255,8 @@ for doc in "${ROOT_DOCS[@]}"; do
 	require_file "$doc"
 	require_contains "awcms-micro-implementation-boundaries.md" "$doc"
 done
+log "Checking documentation index coverage"
+check_docs_index_coverage
 
 log "Checking approved boundary paths"
 for relative_path in "${REQUIRED_PATHS[@]}"; do

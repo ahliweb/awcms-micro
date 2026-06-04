@@ -1,5 +1,11 @@
 # AWCMS-Micro Changelog
 
+## 0.1.20 - 2026-06-04
+
+- Adds validation that every Markdown document under `docs/` is indexed from `docs/README.md`.
+## 0.1.19 - 2026-06-04
+
+- Completes the root documentation index coverage so every Markdown document under `docs/` is discoverable from `docs/README.md`.
 ## 0.1.18 - 2026-06-04
 
 - Adds the root documentation workflow standard for deciding when to update docs, create docs, add Mermaid diagrams, refresh README indexes, and update agent rules.
@@ -66,7 +72,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `73b5cf486cabecd496c96c6a5322eae634f3c652` from `emdash-latest/`
-- Root version: `0.1.18`
+- Root version: `0.1.20`
 
 ### Plugins
 

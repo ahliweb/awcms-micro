@@ -26,18 +26,33 @@ This folder contains the root-level technical documentation for the AWCMS-Micro 
 - `awcms-micro-licensing.md`: root MIT license plus package-level AW Non-Commercial License guidance
 - `awcms-micro-d1-mirror-sync.md`: limited two-way D1 mirror workflow for DBeaver on a local SQLite file
 - `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`: sync-safe AWCMS-Micro PO catalog standard for all plugin and template translations
-- `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, and promotion
-- `operator-workflow.md`: also documents `continuation` vs `fresh-clone` update mode and the fresh-clone prompt details
+- `operator-workflow.md`: concise end-to-end operator workflow for sync, validation, promotion, `continuation` vs `fresh-clone` update mode, and fresh-clone prompt details
 - `backup/gitlab-mirror-setup.md`: GitLab PAT-based mirror setup and recovery notes
 - `security/backup-restore.md`: backup and restore baseline expectations
 - `awcmsmicro-dev-protected-paths.md`: exact allowlist consumed during `awcmsmicro-dev` rebuilds
 - `nested-navigation-public-and-plugin-header.md`: nested public menu and plugin header submenu guidance; see the separate upstream-sync sidebar-ordering note for plugin-first admin navigation
+- `sikesra-ui-redesign-plan.md`: SIKESRA plugin admin UI redesign plan and professional UX direction
 - `upstream-sync/README.md`: upstream sync status, divergence tracking, and validation records
+- `upstream-sync/COMPATIBILITY_MATRIX.md`: compatibility status for upstream EmDash alignment and downstream AWCMS-Micro surfaces
+- `upstream-sync/DIVERGENCE_LOG.md`: auditable record of downstream patch overlays and intentional divergence from upstream-owned files
+- `upstream-sync/LAST_VALIDATION.md`: latest recorded workspace validation run and command output summary
 - `upstream-sync/LAST_UPSTREAM_FETCH.md`: exact upstream revision copied into `emdash-latest/`
+- `upstream-sync/UPSTREAM_SYNC_STATUS.md`: current upstream synchronization status and validation table
 - `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether a discovered issue belongs in downstream boundaries or upstream EmDash core
 - `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin-sidebar ordering support
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
+- `deployment/d1-database.md`: D1 database deployment and binding guidance
+- `deployment/deployment-checklist.md`: deployment verification checklist for Cloudflare and related production paths
+- `deployment/r2-storage.md`: R2 storage deployment and binding guidance
+- `deployment/workers-pages.md`: Workers and Pages deployment guidance
+- `security/access-control.md`: access-control baseline for roles, permissions, and protected workflows
+- `security/audit-logging.md`: audit logging expectations for sensitive operations and governance events
+- `security/incident-response.md`: incident response baseline for operational and security events
+- `security/indonesia-compliance.md`: Indonesia compliance baseline for privacy and data-handling expectations
+- `security/iso-alignment.md`: ISO-alignment notes for security governance and operational controls
+- `security/privacy-baseline.md`: privacy baseline for personal data handling and public-safe output
 - `security/security-baseline.md`: security, privacy, ISO, and Indonesia compliance baseline documentation
+- `security/upload-security.md`: upload security guidance for validation, storage, and safe handling of uploaded assets
 
 ## Reading Order
 
