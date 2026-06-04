@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.23 - 2026-06-04
+
+- Adds project OpenCode skills for frontend UI/UX, backend services, and D1/PostgreSQL database work so future agents apply AWCMS-Micro and EmDash guardrails consistently.
 ## 0.1.22 - 2026-06-04
 
 - Updates the downstream workspace toolchain to `pnpm` 11.5.1 and the sync-safe Wrangler catalog baseline to 4.97.0.
@@ -78,7 +81,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d` from `emdash-latest/`
-- Root version: `0.1.22`
+- Root version: `0.1.23`
 
 ### Plugins
 
