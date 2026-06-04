@@ -3744,7 +3744,13 @@ async function listCollectionValues<T>(
 	orderByField: string = "updatedAt",
 ): Promise<T[]> {
 	if (!collection?.query) return [];
-	const result = await collection.query({ orderBy: { [orderByField]: "desc" }, limit: 200 });
+	let result: { items: Array<{ id: string; data: unknown }> };
+	try {
+		result = await collection.query({ orderBy: { [orderByField]: "desc" }, limit: 200 });
+	} catch (cause) {
+		if (!isMissingD1TableError(cause)) throw cause;
+		return [];
+	}
 	return result.items.map((item) => item.data as T);
 }
 
@@ -7185,10 +7191,26 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.dashboard.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const summary = await summarizePluginState(ctx);
-	const access = await summarizeAccessRights(ctx);
+	let access: Awaited<ReturnType<typeof summarizeAccessRights>> | null = null;
+	try {
+		access = await summarizeAccessRights(ctx);
+	} catch (cause) {
+		if (!isMissingD1TableError(cause)) throw cause;
+		ctx?.log.warn(
+			`[${AWCMS_SIKESRA_PLUGIN_ID}] Access health unavailable; overview is using fallback access counters.`,
+		);
+	}
 	return {
 		...summary,
-		accessRights: access.health,
+		accessRights: access?.health ?? {
+			permissionCount: 0,
+			roleCount: 0,
+			assignmentCount: 0,
+			userAssignmentCount: 0,
+			scopeAssignmentCount: 0,
+			rolesWithoutPermissions: [],
+			usersWithoutRoles: [],
+		},
 	};
 };
 

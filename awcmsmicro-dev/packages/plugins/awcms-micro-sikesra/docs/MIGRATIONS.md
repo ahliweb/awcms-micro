@@ -26,9 +26,12 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0011_sikesra_core_region_sources.sql
 0012_sikesra_field_standards.sql
 0013_sikesra_registry_query_indexes.sql
+0014_sikesra_custom_attributes.sql
+0015_sikesra_delete_governance.sql
+0016_sikesra_code_history_corrections.sql
 ```
 
-All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage. Migration `0013` adds the explicit registry and module-detail query indexes required by issue #125.
+All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage. Migration `0013` adds the explicit registry and module-detail query indexes required by issue #125. Migration `0014` adds custom attribute definitions, values, and change events for issue #138. Migration `0015` adds delete-governance request, snapshot, approval, and event tables for issue #139. Migration `0016` adds SIKESRA ID correction metadata to `sikesra_code_history` so backend correction routes can persist event type, previous ID, and correction reason.
 
 ## Seed Files
 

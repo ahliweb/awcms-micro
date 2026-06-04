@@ -12,7 +12,10 @@ import {
 	normalizeSummaryResponse,
 	pages as sikesraAdminPages,
 } from "../src/admin.js";
-import { getSikesraAdminApiMethod } from "../src/admin/api/client.js";
+import {
+	createSikesraAdminApiHeaders,
+	getSikesraAdminApiMethod,
+} from "../src/admin/api/client.js";
 import {
 	isSikesraAdminHref,
 	createSikesraEmptyState,
@@ -2629,6 +2632,7 @@ describe("awcms micro sikesra plugin", () => {
 		const routes = createNativeRoutes();
 
 		for (const key of [
+			"overview/summary",
 			"registry/list",
 			"registry/save",
 			"documents/list",
@@ -2772,6 +2776,7 @@ describe("awcms micro sikesra plugin", () => {
 		} as any;
 
 		for (const key of [
+			"overview/summary",
 			"registry/list",
 			"registry/archive/list",
 			"custom-attributes/definitions/list",
@@ -2788,6 +2793,7 @@ describe("awcms micro sikesra plugin", () => {
 			"abac/policies/list",
 			"abac/preview",
 			"regions/get",
+			"local-regions/get",
 			"data-types/get",
 		] as const) {
 			const result = (await routes[key]!.handler(adminCtx)) as any;
@@ -2813,10 +2819,18 @@ describe("awcms micro sikesra plugin", () => {
 			"abac/resources/list",
 			"abac/policies/list",
 			"regions/get",
+			"local-regions/get",
 			"data-types/get",
 		] as const) {
 			expect(getSikesraAdminApiMethod(key), key).toBe("GET");
 		}
+
+		expect(createSikesraAdminApiHeaders(null)["X-EmDash-Request"]).toBe("1");
+		expect(
+			createSikesraAdminApiHeaders({ id: "user-demo-sikesra-admin", name: "Admin" })[
+				"X-Sikesra-User-Id"
+			],
+		).toBe("user-demo-sikesra-admin");
 
 		for (const key of [
 			"registry/save",

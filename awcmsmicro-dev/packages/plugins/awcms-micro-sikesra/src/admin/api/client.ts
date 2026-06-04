@@ -34,6 +34,8 @@ export type SikesraAdminApiPath =
 	| "settings/save"
 	| "regions/get"
 	| "regions/save"
+	| "local-regions/get"
+	| "local-regions/save"
 	| "data-types/get"
 	| "data-types/save"
 	| "audit/list"
@@ -75,7 +77,10 @@ export interface SikesraAdminApiRequest<TPayload = unknown> {
 }
 
 export function createSikesraAdminApiHeaders(user?: SikesraAdminUserHeaderSource | null) {
-	const headers: Record<string, string> = { "Content-Type": "application/json" };
+	const headers: Record<string, string> = {
+		"Content-Type": "application/json",
+		"X-EmDash-Request": "1",
+	};
 	if (user) {
 		headers["X-Sikesra-User-Id"] = user.id;
 		if (user.name) headers["X-Sikesra-User-Name"] = user.name;
@@ -96,6 +101,7 @@ const SIKESRA_READ_ONLY_API_PATHS = new Set<SikesraAdminApiPath>([
 	"verification/list",
 	"settings/get",
 	"regions/get",
+	"local-regions/get",
 	"data-types/get",
 	"audit/list",
 	"access/permissions/list",

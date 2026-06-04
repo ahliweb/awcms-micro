@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { SIKESRA_D1_TABLES } from "../src/db/index.js";
+import { SIKESRA_D1_TABLES, SIKESRA_MIGRATION_FILES } from "../src/db/index.js";
 import { AWCMS_SIKESRA_D1_TABLE_NAMES } from "../src/runtime.js";
 
 const MIGRATIONS_DIR = resolve(import.meta.dirname, "../migrations");
@@ -101,6 +101,12 @@ describe("SIKESRA D1 migration prefix policy", () => {
 				expect(match[1], `${file} creates non-SIKESRA trigger`).toMatch(/^trg_sikesra_/);
 			}
 		}
+	});
+
+	it("keeps every SQL migration file in the static migration registry", () => {
+		const sqlFiles = readMigrationSqlFiles().map(({ file }) => file);
+
+		expect([...SIKESRA_MIGRATION_FILES]).toEqual(sqlFiles.toSorted());
 	});
 
 	it("keeps created migration tables in the repository and runtime table catalogs", () => {
