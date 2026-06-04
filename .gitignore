@@ -33,3 +33,10 @@ scripts/backup/.backup-config.bak
 
 # Temporary configuration artifacts
 tmp/
+tmp-*
+temp-*
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp

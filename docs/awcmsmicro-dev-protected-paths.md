@@ -57,6 +57,8 @@ Patch overlays under `.awcms-patches/` are the protection mechanism for narrow s
 
 Boundary validation dry-runs the rebuild comparison outside this allowlist. Tracked downstream-only files outside approved paths, and unprotected content drift that is not listed as a patch target in `.awcms-patches/`, fail normal validation. The same validation also replays active patch overlays against a temporary copy of `emdash-latest`, so stale or corrupt patches fail before a rebuild depends on them. Sync preflight skips only the drift check because the rebuild itself intentionally overwrites upstream-owned drift, then post-rebuild validation checks the clean state again. Untracked generated files and other local artifacts are disposable and should not be added to this allowlist.
 
+Boundary validation also rejects tracked temporary artifacts under `awcmsmicro-dev/`, including `tmp-*`, `temp-*`, `*.tmp`, `*.bak`, `*.orig`, `*.rej`, and editor swap files. Directory-level protected paths are not a reason to preserve scratch scripts or one-off replacement files.
+
 ## Rules
 
 - Add new protected paths only when they are AWCMS-Micro-owned implementation areas.

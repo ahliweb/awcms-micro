@@ -323,4 +323,15 @@ if [[ -n "$secret_like_paths" ]]; then
 	fail "Tracked secret-like file paths detected"
 fi
 
+log "Checking tracked files for temporary artifacts"
+temporary_artifact_paths="$(git -C "$ROOT_DIR" ls-files 'awcmsmicro-dev/*' \
+	| rg '(^|/)(tmp|temp)([-_.][^/]*)?\.[^/]+$|(~$|\.bak$|\.orig$|\.rej$|\.tmp$|\.swp$)' \
+	| while IFS= read -r relative_path; do
+		[[ -e "$ROOT_DIR/$relative_path" ]] && printf '%s\n' "$relative_path"
+	done || true)"
+if [[ -n "$temporary_artifact_paths" ]]; then
+	printf '%s\n' "$temporary_artifact_paths"
+	fail "Tracked temporary artifact paths detected"
+fi
+
 log "Boundary validation completed successfully"

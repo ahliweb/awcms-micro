@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.17 - 2026-06-04
+
+- Adds boundary validation for tracked temporary artifacts and removes committed scratch files from the SIKESRA protected boundary.
 ## 0.1.16 - 2026-06-04
 
 - Refreshes the parent workspace snapshot to EmDash 73b5cf4 and records the downstream admin sidebar compatibility guard needed for the latest upstream byline schema UI.
@@ -60,7 +63,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `73b5cf486cabecd496c96c6a5322eae634f3c652` from `emdash-latest/`
-- Root version: `0.1.16`
+- Root version: `0.1.17`
 
 ### Plugins
 
