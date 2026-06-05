@@ -6225,7 +6225,9 @@ describe("awcms micro sikesra plugin", () => {
 		const manifestPath = resolve(import.meta.dirname, "../emdash-plugin.jsonc");
 		const manifest = parseJsoncObject<any>(readFileSync(manifestPath, "utf8"));
 
-		expect(packageJson.files).toEqual(expect.arrayContaining(["migrations", "seeds", "docs"]));
+		expect(packageJson.files).toEqual(
+			expect.arrayContaining(["migrations", "seeds", "src/locales", "docs"]),
+		);
 		expect(manifest.slug).toBe("awcms-micro-sikesra");
 		expect(manifest.version).toBe(packageJson.version);
 		expect(manifest.publisher).toBe("ahliweb.co.id");

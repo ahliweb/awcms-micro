@@ -33,6 +33,7 @@
 		"emdash-plugin.jsonc",
 		"migrations",
 		"seeds",
+		"src/locales",
 		"docs",
 		"README.md"
 	],
