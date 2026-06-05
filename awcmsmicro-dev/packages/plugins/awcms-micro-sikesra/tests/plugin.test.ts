@@ -2915,6 +2915,15 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("uses typed admin API wrappers for custom attribute write calls", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+
+		expect(adminSource).toContain("saveCustomAttributeDefinition(");
+		expect(adminSource).toContain("saveCustomAttributeValue(");
+		expect(adminSource).not.toContain('postPlugin("custom-attributes/definitions/save"');
+		expect(adminSource).not.toContain('postPlugin("custom-attributes/values/save"');
+	});
+
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
 		expect(SIKESRA_ADMIN_ROUTE_BASE).toBe("/_emdash/admin/plugins/awcms-micro-sikesra");
 		expect(toSikesraAdminHref("registry")).toBe(

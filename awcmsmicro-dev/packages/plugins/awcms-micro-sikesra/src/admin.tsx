@@ -5,7 +5,12 @@ import { apiFetch } from "emdash/plugin-utils";
 import * as React from "react";
 
 import { getExampleAdminCopy } from "./admin-copy.js";
-import { postSikesraPlugin, type SikesraAdminApiPath } from "./admin/api/index.js";
+import {
+	postSikesraPlugin,
+	saveCustomAttributeDefinition,
+	saveCustomAttributeValue,
+	type SikesraAdminApiPath,
+} from "./admin/api/index.js";
 import {
 	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
 	SIKESRA_PAGE_PATTERN_CONTRACTS,
@@ -730,6 +735,12 @@ async function postPlugin<T>(path: SikesraAdminApiPath, payload: unknown = {}) {
 	});
 }
 
+async function createAdminApiRequestOptions() {
+	const copy = getExampleAdminCopy(getCurrentAdminLocale());
+	const user = await getCachedUser();
+	return { user, requestFailedMessage: copy.requestFailed };
+}
+
 function usePluginData<T>(path: SikesraAdminApiPath, payload: unknown = {}) {
 	const payloadKey = JSON.stringify(payload ?? {});
 	const [data, setData] = React.useState<T | null>(null);
@@ -1113,16 +1124,17 @@ function RegistryCreatePage() {
 				for (const definition of applicableCustomDefinitions) {
 					const value = customValues[definition.id]?.trim();
 					if (!value) continue;
-					await postPlugin("custom-attributes/values/save", {
-						definitionId: definition.id,
-						ownerType: "registry_entity",
-						ownerId: result.item.id,
-						registryEntityId: result.item.id,
-						sikesraId20: result.item.sikesraId20,
-						entityType: result.item.entityType,
-						subtypeCode: formState.subtypeCode,
-						value,
-					});
+					await saveCustomAttributeValue(
+						{
+							definitionId: definition.id,
+							ownerType: "registry_entity",
+							ownerId: result.item.id,
+							registryEntityId: result.item.id,
+							sikesraId20: result.item.sikesraId20,
+							value,
+						},
+						await createAdminApiRequestOptions(),
+					);
 				}
 			}
 			setNotice(
@@ -1966,7 +1978,7 @@ function CustomAttributeDefinitionsPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("custom-attributes/definitions/save", formState);
+			await saveCustomAttributeDefinition(formState, await createAdminApiRequestOptions());
 			setFormState((current) => ({
 				...current,
 				key: "",
@@ -2218,10 +2230,13 @@ function CustomAttributeValuesPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("custom-attributes/values/save", {
-				...formState,
-				registryEntityId: formState.registryEntityId || formState.ownerId,
-			});
+			await saveCustomAttributeValue(
+				{
+					...formState,
+					registryEntityId: formState.registryEntityId || formState.ownerId,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice("Custom attribute value saved with masking policy applied.");
 			setFormState((current) => ({ ...current, ownerId: "", registryEntityId: "", value: "" }));
 			await reload();
