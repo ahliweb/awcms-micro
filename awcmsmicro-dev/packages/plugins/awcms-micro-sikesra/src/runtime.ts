@@ -6607,6 +6607,17 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	const definition = definitions.find((item) => item.id === definitionId);
 	const invalidFields = validateCustomAttributeValueInput(input, definition);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const linkedEntity = (await getRegistryEntities(ctx)).find((entity) => entity.id === registryEntityId);
+	if (!linkedEntity) {
+		return {
+			success: false,
+			error: {
+				code: "NOT_FOUND",
+				message: "Linked registry entity was not found.",
+				details: { fields: ["registryEntityId"] },
+			},
+		};
+	}
 	const normalized = normalizeCustomAttributeValue(input.value, definition?.dataType);
 	const now = toIsoNow();
 	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);

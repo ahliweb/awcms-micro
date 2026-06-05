@@ -4267,7 +4267,6 @@ describe("awcms micro sikesra plugin", () => {
 		const editorRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
 		});
-
 		await routes["documents/save"]!.handler({
 			...ctx,
 			request: adminRequest,
@@ -4965,6 +4964,23 @@ describe("awcms micro sikesra plugin", () => {
 		const editorRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-editor" },
 		});
+		const customAttributeRegistry = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-custom-01",
+				code: "CUSTOM-ATTR-001",
+				label: "Custom Attribute Registry Entity",
+				entityType: "rumah_ibadah",
+				typeCode: "01",
+				subtypeCode: "02",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any)) as any;
+		expect(customAttributeRegistry.success).toBe(true);
 
 		const invalid = (await routes["custom-attributes/definitions/save"]!.handler({
 			...ctx,
@@ -5129,6 +5145,60 @@ describe("awcms micro sikesra plugin", () => {
 		expect(restrictedCustomExport.item.resultSummary.allowedFields).toEqual([
 			"custom:sikesra_id_specific_note",
 		]);
+
+		const orphanCustomValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-orphan-01",
+				definitionId: "custom-attr-01",
+				registryEntityId: "registry-entity-does-not-exist",
+				entityType: "rumah_ibadah",
+				value: "Orphan value",
+			},
+		} as any)) as any;
+		expect(orphanCustomValue.success).toBe(false);
+		expect(orphanCustomValue.error.code).toBe("NOT_FOUND");
+		expect(orphanCustomValue.error.details.fields).toEqual(["registryEntityId"]);
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-custom-deleted-01",
+				code: "CUSTOM-ATTR-DELETED-001",
+				label: "Deleted Custom Attribute Registry Entity",
+				entityType: "rumah_ibadah",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any);
+		await routes["registry/soft-delete"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-custom-deleted-01", reason: "Retired training record" },
+		} as any);
+		const deletedTargetValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-deleted-target-01",
+				definitionId: "custom-attr-01",
+				registryEntityId: "registry-entity-custom-deleted-01",
+				entityType: "rumah_ibadah",
+				value: "Deleted target value",
+			},
+		} as any)) as any;
+		expect(deletedTargetValue.success).toBe(false);
+		expect(deletedTargetValue.error.code).toBe("NOT_FOUND");
+		expect(customAttributeValueTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-value-orphan-01" }),
+		);
+		expect(customAttributeValueTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-value-deleted-target-01" }),
+		);
 
 		const sensitiveCustomValue = "Sensitive local note";
 		const savedValue = (await routes["custom-attributes/values/save"]!.handler({
