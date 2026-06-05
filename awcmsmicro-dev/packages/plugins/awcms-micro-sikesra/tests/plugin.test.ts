@@ -4368,6 +4368,7 @@ describe("awcms micro sikesra plugin", () => {
 		const {
 			ctx,
 			registryEntityTableRows,
+			moduleDetailTableRows,
 			customAttributeValueTableRows,
 			importBatchTableRows,
 			importStagingRowTableRows,
@@ -4397,6 +4398,8 @@ describe("awcms micro sikesra plugin", () => {
 				code: "IMP-001",
 				label: "Imported Row",
 				entityType: "rumah_ibadah",
+				typeCode: "01",
+				subtypeCode: "04",
 				provinceCode: "62",
 				regencyCode: "6201",
 				districtCode: "620101",
@@ -4438,8 +4441,18 @@ describe("awcms micro sikesra plugin", () => {
 		expect(promoted.success).toBe(true);
 		expect(promoted.count).toBe(1);
 		expect(registryEntityTableRows).toContainEqual(
-			expect.objectContaining({ id: "registry-import-01", code: "IMP-001" }),
+			expect.objectContaining({ id: "registry-import-01", code: "IMP-001", subtype_code: "04" }),
 		);
+		expect(
+			JSON.parse(String(moduleDetailTableRows.sikesra_rumah_ibadah_details![0]?.detail_json)),
+		).toMatchObject({
+			fields: {
+				typeCode: "01",
+				subtypeCode: "04",
+				villageCode: "6201010001",
+				"custom:import_local_code": "LC-001",
+			},
+		});
 		expect(customAttributeValueTableRows).toContainEqual(
 			expect.objectContaining({
 				id: "registry-import-01:custom-attr-import-01:import",

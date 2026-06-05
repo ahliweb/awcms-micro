@@ -5799,7 +5799,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			supportingDocumentIds: [],
 			publicSummary: getString(row, "publicSummary") ?? "",
 		};
-		await saveRegistryEntity(ctx, newEntity);
+		await saveRegistryEntity(ctx, newEntity, row);
 		await persistImportCustomAttributeValues(ctx, newEntity, row);
 		await markD1ImportRowPromoted(ctx, stagedRow, newEntity.id);
 		count++;
