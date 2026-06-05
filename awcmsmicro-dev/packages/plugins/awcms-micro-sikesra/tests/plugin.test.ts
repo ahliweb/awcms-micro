@@ -21,6 +21,7 @@ import {
 	createSikesraAdminApiUrl,
 	getSikesraAdminApiMethod,
 } from "../src/admin/api/client.js";
+import { SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS } from "../src/admin/api/index.js";
 import {
 	isSikesraAdminHref,
 	createSikesraEmptyState,
@@ -2843,6 +2844,10 @@ describe("awcms micro sikesra plugin", () => {
 
 	it("uses GET for SIKESRA admin read APIs so read pages do not require plugin manage permission", () => {
 		expect(new Set(SIKESRA_ADMIN_API_PATHS).size).toBe(SIKESRA_ADMIN_API_PATHS.length);
+		expect(new Set(SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS).size).toBe(
+			SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS.length,
+		);
+		expect(SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS).toEqual(SIKESRA_ADMIN_API_PATHS);
 		expect(new Set(SIKESRA_READ_ONLY_ADMIN_API_PATHS).size).toBe(
 			SIKESRA_READ_ONLY_ADMIN_API_PATHS.length,
 		);

@@ -30,6 +30,17 @@ export function saveRegistry<TResponse>(
 	});
 }
 
+export function correctRegistrySikesraId<TResponse>(
+	payload: Record<string, unknown>,
+	options: RequestOptions<Record<string, unknown>>,
+) {
+	return postSikesraPlugin<TResponse, Record<string, unknown>>({
+		...options,
+		path: "registry/sikesra-id/correct",
+		payload,
+	});
+}
+
 export function listRegistryArchive<TResponse>(
 	payload: SikesraRegistryListRequest,
 	options: RequestOptions<SikesraRegistryListRequest>,
