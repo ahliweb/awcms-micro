@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.24 - 2026-06-04
+
+- Adds SIKESRA-specific OpenCode skills for plugin governance, admin workflows, D1 data modeling, RBAC/ABAC audit controls, and document/import/export lifecycle work.
 ## 0.1.23 - 2026-06-04
 
 - Adds project OpenCode skills for frontend UI/UX, backend services, and D1/PostgreSQL database work so future agents apply AWCMS-Micro and EmDash guardrails consistently.
@@ -81,7 +84,7 @@
 ## Workspace Snapshot - 2026-06-04
 
 - EmDash upstream: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d` from `emdash-latest/`
-- Root version: `0.1.23`
+- Root version: `0.1.24`
 
 ### Plugins
 
