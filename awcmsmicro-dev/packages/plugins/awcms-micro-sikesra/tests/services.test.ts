@@ -87,16 +87,53 @@ describe("SIKESRA services", () => {
 			createAbacService().preview({ subjectId: "u1", resourceId: "r1", action: "read" }),
 		).resolves.toMatchObject({ ok: false });
 		await expect(
-			createCustomAttributeService().saveValue({
-				definitionId: "d1",
-				ownerType: "registry",
-				ownerId: "r1",
-				value: "x",
-			}),
-		).resolves.toMatchObject({ ok: false });
-		await expect(
 			createCrudGovernanceService().softDelete({ id: "r1", reason: "duplicate" }),
 		).resolves.toMatchObject({ ok: false });
+	});
+
+	it("saves custom attribute values through a typed service contract", async () => {
+		await expect(
+			createCustomAttributeService().saveValue({
+				definitionId: " custom-def-1 ",
+				ownerType: " registry ",
+				ownerId: " registry-entity-1 ",
+				registryEntityId: " registry-entity-1 ",
+				sikesraId20: " 62010100010101000001 ",
+				value: { label: "Custom value" },
+			}),
+		).resolves.toEqual({
+			ok: true,
+			data: {
+				id: "custom-def-1:registry:registry-entity-1",
+				definitionId: "custom-def-1",
+				ownerType: "registry",
+				ownerId: "registry-entity-1",
+				registryEntityId: "registry-entity-1",
+				sikesraId20: "62010100010101000001",
+				value: { label: "Custom value" },
+				status: "pending_persistence",
+			},
+		});
+
+		await expect(
+			createCustomAttributeService().saveValue({
+				definitionId: "",
+				ownerType: "core_table",
+				ownerId: "",
+				value: undefined,
+			}),
+		).resolves.toMatchObject({
+			ok: false,
+			error: {
+				code: "SIKESRA_VALIDATION_ERROR",
+				fieldErrors: {
+					definitionId: ["Definition ID is required."],
+					ownerType: ["Owner type must be registry, sikesra_id, entity_type, or subtype."],
+					ownerId: ["Owner ID is required."],
+					value: ["Custom attribute value is required."],
+				},
+			},
+		});
 	});
 
 	it("validates staged import promotion service payloads", async () => {
