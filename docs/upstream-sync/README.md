@@ -9,6 +9,16 @@ This folder tracks how the parent repository follows upstream EmDash and how AWC
 - provide a repeatable validation record after sync operations
 - make operational review easier before committing or deploying changes
 
+```mermaid
+flowchart LR
+  Fetch[LAST_UPSTREAM_FETCH] --> Status[UPSTREAM_SYNC_STATUS]
+  Validation[LAST_VALIDATION] --> Status
+  Matrix[COMPATIBILITY_MATRIX] --> Status
+  Divergence[DIVERGENCE_LOG] --> Matrix
+  Triage[Issue classification] --> Divergence
+  Status --> Review[Commit or deploy review]
+```
+
 ## Files
 
 - `UPSTREAM_SYNC_STATUS.md`: current sync target, operator metadata, and validation status

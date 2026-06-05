@@ -19,6 +19,18 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - No EmDash core modification: manual adoption is documented here instead of changing built-in template registration.
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
+```mermaid
+flowchart LR
+  Visitor[Public visitor] --> Astro[Astro template routes]
+  Astro --> EmDash[EmDash runtime]
+  EmDash --> SQLite[(Local SQLite)]
+  EmDash --> Uploads[Local uploads]
+  EmDash --> Plugins[Registered AWCMS-Micro plugins]
+  Plugins --> Sikesra[SIKESRA]
+  Plugins --> Docs[Docs]
+  Plugins --> Gallery[Gallery]
+```
+
 ## Boundary Rule
 
 - keep public rendering and site presentation template-owned

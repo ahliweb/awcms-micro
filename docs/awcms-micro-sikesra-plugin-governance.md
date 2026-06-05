@@ -29,6 +29,16 @@ scripts/
 
 Do not place SIKESRA-specific canonical logic inside EmDash core packages.
 
+```mermaid
+flowchart LR
+  Sikesra[SIKESRA behavior] --> Plugin[Plugin boundary]
+  Plugin --> Templates[Supporting templates]
+  Plugin --> Docs[Supporting docs]
+  Plugin --> E2E[Supporting E2E]
+  Plugin --> Patches[Patch overlays when needed]
+  EmDash[EmDash core] -. forbidden for canonical SIKESRA logic .-> Sikesra
+```
+
 Forbidden locations for SIKESRA canonical business behavior:
 
 ```txt
@@ -159,6 +169,29 @@ Rules:
 - serializers must prevent raw D1 rows from being returned to the UI;
 - public serializers must not expose personal, sensitive personal, restricted, address, document, or internal storage data.
 
+```mermaid
+sequenceDiagram
+  participant UI as Admin UI
+  participant Client as Typed API Client
+  participant Route as Plugin Route
+  participant Guard as RBAC/ABAC Guard
+  participant Service as Service Layer
+  participant Repo as Repository Layer
+  participant D1 as sikesra_ D1 Tables
+  participant Serializer as Serializer and Masking
+
+  UI->>Client: typed request
+  Client->>Route: plugin API call
+  Route->>Guard: identity, permission, scope
+  Guard->>Service: allowed operation
+  Service->>Repo: business model request
+  Repo->>D1: scoped query
+  D1-->>Repo: rows
+  Repo-->>Service: internal model
+  Service->>Serializer: response model
+  Serializer-->>UI: safe response
+```
+
 ## 7. EmDash User Reference Rule
 
 SIKESRA must not create a separate user system.
@@ -228,6 +261,19 @@ Lifecycle policy:
 - restore is allowed where applicable;
 - high-impact lifecycle actions require the dedicated governance workflow in #139;
 - governance actions must not affect EmDash core users.
+
+```mermaid
+flowchart TD
+  Request[Protected request] --> Identity[Trusted EmDash identity]
+  Identity --> Role[SIKESRA role assignment]
+  Role --> Permission[Permission check]
+  Permission --> Scope[ABAC scope check]
+  Scope --> Decision{Allowed?}
+  Decision -->|Yes| Action[Execute action]
+  Decision -->|No| Deny[Return safe denial]
+  Action --> Audit[Write audit event]
+  Deny --> Audit
+```
 
 ## 11. Update/Rebuild Safety
 

@@ -4,6 +4,16 @@ This directory is the sync-safe AWCMS-Micro documentation boundary inside `awcms
 
 Use it only for AWCMS-Micro-owned documentation.
 
+```mermaid
+flowchart TD
+  Boundary[awcmsmicro-dev/docs/awcms-micro] --> Navigation[Navigation docs]
+  Boundary --> Deployment[Cloudflare deployment docs]
+  Boundary --> I18N[I18N and PO standards]
+  Boundary --> Sikesra[SIKESRA reference docs]
+  Boundary --> Sync[Upstream sync notes]
+  Sync --> RootSync[Root upstream-sync records]
+```
+
 ## Documents
 
 - `product-docs-map.md`: map of the main AWCMS-Micro product-facing docs in this boundary

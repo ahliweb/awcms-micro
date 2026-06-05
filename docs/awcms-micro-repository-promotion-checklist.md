@@ -14,6 +14,19 @@ Before promotion, confirm all of the following:
 4. No required AWCMS-Micro behavior still depends on a retired shared core layer.
 5. Product-facing documentation has been reviewed.
 
+```mermaid
+flowchart TD
+  Dev[Validated awcmsmicro-dev] --> Readme[Product README]
+  Dev --> Plugins[Plugin surfaces]
+  Dev --> Templates[Template surfaces]
+  Dev --> Docs[Product-facing docs]
+  Readme --> Repo[Independent awcms-micro repo]
+  Plugins --> Repo
+  Templates --> Repo
+  Docs --> Repo
+  Repo --> Verify[Independent validation]
+```
+
 ## Promotion Inputs
 
 Use these source materials during promotion:

@@ -10,6 +10,20 @@ This package currently contains the SIKESRA plugin boundary, admin UI, routes, h
 
 The plugin now uses the dedicated SIKESRA identity. New code should use `awcmsMicroSikesraPlugin`. The old `awcmsMicroExamplePlugin` export remains only as a temporary deprecated compatibility alias.
 
+```mermaid
+flowchart LR
+  Config[Project Astro config] --> Plugin[AWCMS-Micro SIKESRA Plugin]
+  Plugin --> Admin[Admin UI]
+  Plugin --> Routes[Plugin routes]
+  Plugin --> Hooks[Lifecycle and content hooks]
+  Routes --> Services[Service layer]
+  Services --> Repos[Repository layer]
+  Repos --> D1[(sikesra_ D1 tables)]
+  Routes --> Public[Public-safe aggregate output]
+  Admin --> Contracts[Typed contracts]
+  Contracts --> Routes
+```
+
 ## GitHub Issue System
 
 SIKESRA issues are execution contracts.
@@ -151,8 +165,29 @@ Dedicated D1 tables are the target production source of truth once the D1 migrat
 
 Issue #143 defines the target integration flow:
 
-```txt
-Admin UI → typed API client → plugin route → trusted EmDash user → SIKESRA RBAC/ABAC guard → service layer → repository layer → sikesra_ D1 tables → serializer/masking → Admin UI
+```mermaid
+sequenceDiagram
+  participant UI as Admin UI
+  participant Client as Typed API Client
+  participant Route as Plugin Route
+  participant Identity as Trusted EmDash User
+  participant Guard as RBAC/ABAC Guard
+  participant Service as Service Layer
+  participant Repo as Repository
+  participant D1 as sikesra_ D1 Tables
+  participant Serializer as Serializer and Masking
+
+  UI->>Client: Submit typed request
+  Client->>Route: Call plugin API
+  Route->>Identity: Resolve user
+  Route->>Guard: Check permission and scope
+  Guard->>Service: Allow validated operation
+  Service->>Repo: Read or write model
+  Repo->>D1: Query SIKESRA tables
+  D1-->>Repo: Rows
+  Repo-->>Service: Internal model
+  Service->>Serializer: Prepare safe response
+  Serializer-->>UI: Return masked UI response
 ```
 
 ### EmDash user identity

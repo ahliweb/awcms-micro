@@ -15,6 +15,17 @@ This document gives operators one concise end-to-end workflow for maintaining th
 7. Update governance docs if boundaries, workflow, deployment, or security rules changed.
 8. Check promotion and release-readiness artifacts when preparing an independent repository state.
 
+```mermaid
+flowchart TD
+  Refresh[Refresh upstream] --> Rebuild[Rebuild awcmsmicro-dev]
+  Rebuild --> Validate[Validate workspace]
+  Validate --> Implement[Implement in approved boundaries]
+  Implement --> Version[Update release-note surfaces]
+  Version --> Revalidate[Re-run targeted validation]
+  Revalidate --> Docs[Update governance docs]
+  Docs --> Promote[Promotion readiness review]
+```
+
 ## Update Modes
 
 - Use `continuation` when the workspace already has its local configuration and you are continuing an existing sync or implementation cycle.
@@ -73,6 +84,16 @@ node awcmsmicro-dev/.github/scripts/awcms-version.mjs status
 - If the change affects process, structure, deployment guidance, or security guidance, update root docs and scripts.
 - If the change affects package release metadata, keep `awcmsmicro-dev/.changeset/` for workspace packages and `awcmsmicro-dev/.awcms-changesets/` for downstream `@awcms-micro/*` packages.
 - If the change adds or changes user-facing plugin/template copy, update the matching PO catalogs under `src/locales/{en,id}/messages.po` and follow `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`.
+
+```mermaid
+flowchart LR
+  Change[Proposed change] --> Type{What kind?}
+  Type -->|Upstream EmDash| Upstream[Keep in emdash-latest]
+  Type -->|AWCMS product behavior| Boundary[Use plugin/template boundary]
+  Type -->|Process or security| RootDocs[Update root docs/scripts]
+  Type -->|Package release metadata| Versioning[Use matching changeset boundary]
+  Type -->|User-facing copy| PO[Update PO catalogs]
+```
 
 ## Promotion Path
 

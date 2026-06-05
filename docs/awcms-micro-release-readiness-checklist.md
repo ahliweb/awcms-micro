@@ -8,6 +8,16 @@ This checklist is used to decide whether the maintained `awcmsmicro-dev/` worksp
 
 Use this checklist after upstream sync work and after AWCMS-Micro plugin/template changes are complete.
 
+```mermaid
+flowchart TD
+  Sync[Upstream sync complete] --> Boundaries[Boundary discipline check]
+  Boundaries --> Product[Plugin and template review]
+  Product --> Docs[Documentation readiness]
+  Docs --> Ops[Operational readiness]
+  Ops --> Validation[Targeted validation]
+  Validation --> ReleaseReady[Release-ready workspace]
+```
+
 ## Release Readiness Checks
 
 ### 1. Upstream Alignment

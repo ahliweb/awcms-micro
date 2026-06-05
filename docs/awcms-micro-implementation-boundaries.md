@@ -78,6 +78,16 @@ That means downstream fixes can live entirely in `awcmsmicro-dev/` without chang
 
 No arbitrary unknown paths are preserved.
 
+```mermaid
+flowchart TD
+  Existing[Existing awcmsmicro-dev] --> Backup[Back up allowlisted paths]
+  Backup --> Replace[Replace from emdash-latest]
+  Replace --> Restore[Restore allowlisted paths]
+  Restore --> Apply[Apply patch overlays]
+  Apply --> Validate[Boundary validation]
+  Validate --> Safe[Sync-safe downstream workspace]
+```
+
 ## Preserved Change Categories
 
 When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these change categories must be preserved inside the approved boundaries above:
@@ -134,6 +144,20 @@ When adding a new AWCMS-Micro plugin, template, demo, docs area, or test boundar
 Do not preserve upstream overrides by adding random paths to the allowlist.
 
 Do not create new shared AWCMS-Micro product code outside plugin or template boundaries unless the repository rules are intentionally changed first.
+
+```mermaid
+flowchart TD
+  NewWork[New AWCMS-Micro work] --> ExistingBoundary{Fits existing boundary?}
+  ExistingBoundary -->|Yes| Place[Place in approved path]
+  ExistingBoundary -->|No| SourceOverride{Source-level override?}
+  SourceOverride -->|Yes| Patch[Create narrow patch overlay]
+  SourceOverride -->|No| Propose[Propose allowlist/doc/script update]
+  Patch --> Log[Record divergence]
+  Propose --> Docs[Update boundary docs]
+  Place --> Validate[Run boundary validation]
+  Log --> Validate
+  Docs --> Validate
+```
 
 ## Rollback Notes
 

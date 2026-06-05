@@ -2,6 +2,18 @@
 
 This folder contains the root-level technical documentation for the AWCMS-Micro parent repository.
 
+```mermaid
+flowchart TD
+  Index[docs/README.md] --> Structure[Repository structure]
+  Index --> Sync[Sync and boundaries]
+  Index --> Governance[Issues and Mermaid rules]
+  Index --> Product[Product and promotion docs]
+  Index --> Deploy[Deployment docs]
+  Index --> Security[Security and compliance docs]
+  Sync --> Upstream[upstream-sync records]
+  Governance --> Sikesra[SIKESRA governance]
+```
+
 ## Documents
 
 - `repository-structure.md`: root folder contract, responsibilities, and boundaries

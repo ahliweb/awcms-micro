@@ -26,12 +26,35 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 10. Update root documentation if process, structure, or rules changed.
 11. Update the root workspace snapshot in `CHANGELOG.md` when the EmDash upstream SHA or the plugin/template inventory changes.
 
+```mermaid
+flowchart TD
+  Analyze[Analyze upstream EmDash] --> Preflight[Run sync preflight]
+  Preflight --> Fetch[Refresh emdash-latest]
+  Fetch --> Backup[Back up protected paths]
+  Backup --> Rebuild[Rebuild awcmsmicro-dev]
+  Rebuild --> Restore[Restore protected paths]
+  Restore --> Patches[Replay .awcms-patches]
+  Patches --> Lockfile[Refresh lockfile]
+  Lockfile --> Validate[Validate workspace]
+  Validate --> Snapshot[Update sync docs and changelog snapshot]
+```
+
 ### Downstream Patch Policy
 
 - `emdash-latest/` stays upstream-faithful and should not be patched for downstream-only fixes.
 - `awcmsmicro-dev/` is the downstream implementation workspace; AWCMS-Micro-specific fixes may be applied there through the protected path allowlist and `awcmsmicro-dev/.awcms-patches/` overlays.
 - When a downstream patch fully remediates a Dependabot alert in `awcmsmicro-dev/`, document the patch in the divergence log and dismiss the matching GitHub alert as fixed with a short note referencing the overlay.
 - Keep patch overlays narrow, reviewable, and reproducible through `bash scripts/update-awcmsmicro-dev.sh`.
+
+```mermaid
+flowchart LR
+  DownstreamFix[Downstream source tweak] --> Fits{Inside plugin/template boundary?}
+  Fits -->|Yes| ProtectedPath[Keep in protected path]
+  Fits -->|No| Patch[Encode as .awcms-patches overlay]
+  Patch --> Divergence[Record in DIVERGENCE_LOG]
+  ProtectedPath --> Rebuild[Rebuild-safe state]
+  Divergence --> Rebuild
+```
 
 ## Refresh `emdash-latest/`
 

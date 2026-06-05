@@ -8,6 +8,18 @@ This baseline covers the AWCMS-Micro parent maintenance repository and the examp
 
 AWCMS-Micro should inherit EmDash security mechanisms where available and layer additional operational controls through plugin, template, deployment, and workflow boundaries rather than by forking EmDash core.
 
+```mermaid
+flowchart TD
+  Request[Incoming request] --> EmDash[Inherited EmDash security]
+  EmDash --> Boundary[AWCMS-Micro plugin/template boundary]
+  Boundary --> Auth[Auth and authorization checks]
+  Boundary --> Validation[Input validation]
+  Boundary --> Audit[Audit or operational record]
+  Boundary --> SafeOutput[Public-safe or admin-safe output]
+  Secrets[Secrets outside git] --> Deployment[Deployment workflow]
+  Deployment --> Boundary
+```
+
 ## Baseline Controls
 
 - role-based access control for current operational roles
@@ -63,6 +75,20 @@ When reviewing a new AWCMS-Micro change, confirm:
 - does it introduce new secrets, bindings, or privileged routes?
 - does it widen public attack surface?
 - does it need new rollback, backup, or smoke-test instructions?
+
+```mermaid
+flowchart LR
+  Review[Security review] --> Core{Touches EmDash core?}
+  Core -->|Yes| Reject[Reject or upstream separately]
+  Core -->|No| Boundary{Inside approved boundary?}
+  Boundary -->|No| Rework[Move or document boundary change]
+  Boundary -->|Yes| Secrets{Introduces secrets?}
+  Secrets -->|Yes| Externalize[Keep secrets outside git]
+  Secrets -->|No| Surface{New public surface?}
+  Externalize --> Surface
+  Surface -->|Yes| AddControls[Add validation, auth, smoke checks]
+  Surface -->|No| Approve[Proceed with validation]
+```
 
 ## Implementation Approach
 

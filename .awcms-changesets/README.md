@@ -27,3 +27,12 @@ Updates root documentation for the maintenance workspace.
 ## Processing Rule
 
 The root versioning script reads pending files, bumps the root `VERSION`, prepends `CHANGELOG.md`, and removes processed changeset files.
+
+```mermaid
+flowchart LR
+  Changeset[Root changeset] --> Script[awcms-root-versioning]
+  Script --> Version[VERSION]
+  Script --> Changelog[CHANGELOG.md]
+  Script --> Snapshot[Workspace snapshot]
+  Script --> Cleanup[Remove processed changeset]
+```

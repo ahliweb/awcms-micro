@@ -2,6 +2,18 @@
 
 Automated backup and disaster recovery tools for AWCMS-Micro development environment.
 
+```mermaid
+flowchart LR
+  Config[Encrypted config] --> Loader[load-config.sh]
+  Env[Local .env overlay] --> Loader
+  Loader --> D1[D1 backup]
+  Loader --> Dotfiles[Dotfiles backup]
+  D1 --> R2[(Cloudflare R2)]
+  Dotfiles --> Archive[Encrypted archive]
+  R2 --> Recovery[Recovery checklist]
+  Archive --> Recovery
+```
+
 ## Quick Start
 
 ### 1. Install Prerequisites
@@ -208,14 +220,17 @@ Set these as repository variables (not secrets) so workflows can stay aligned wi
 
 ## Security Model
 
-```
-Unencrypted (NEVER commit)          Encrypted (SAFE to commit in private repo)
-─────────────────────────           ─────────────────────────────────────────
-.backup-config                  →   .backup-config.age
-.env                            →   .env.age
-awcmsmicro-dev/.env             →   awcmsmicro-dev/.env.age
-dotfiles-backup.tar.gz          →   dotfiles-backup.tar.gz.age
-database-export.sql             →   database-export.sql.age
+```mermaid
+flowchart LR
+  ConfigPlain[.backup-config] --> ConfigEncrypted[.backup-config.age]
+  EnvPlain[.env] --> EnvEncrypted[.env.age]
+  DevEnv[awcmsmicro-dev/.env] --> DevEnvEncrypted[awcmsmicro-dev/.env.age]
+  Dotfiles[dotfiles-backup.tar.gz] --> DotfilesEncrypted[dotfiles-backup.tar.gz.age]
+  Database[database-export.sql] --> DatabaseEncrypted[database-export.sql.age]
+  ConfigPlain --> NeverCommit[Never commit plaintext]
+  EnvPlain --> NeverCommit
+  ConfigEncrypted --> PrivateRepo[Safe only for private repository]
+  EnvEncrypted --> PrivateRepo
 ```
 
 - All encryption uses **age** (passphrase-based, audited)

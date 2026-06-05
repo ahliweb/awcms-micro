@@ -9,6 +9,18 @@ The root repository is a parent maintenance layer with four primary folders:
 - `docs/`
 - `scripts/`
 
+```mermaid
+flowchart TD
+  Root[Parent maintenance repository] --> Latest[emdash-latest]
+  Root --> Dev[awcmsmicro-dev]
+  Root --> Docs[docs]
+  Root --> Scripts[scripts]
+  Latest --> Upstream[Clean upstream EmDash reference]
+  Dev --> Downstream[AWCMS-Micro development workspace]
+  Docs --> Governance[Structure, sync, security, deployment]
+  Scripts --> Automation[Sync, validation, versioning, backup]
+```
+
 ## Folder Responsibilities
 
 ### `emdash-latest/`
@@ -87,6 +99,17 @@ New AWCMS-Micro product development should be implemented as:
 - workflow automation under preserved `.github/` boundaries when needed for AWCMS-Micro-specific release operations
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
+
+```mermaid
+flowchart LR
+  Product[AWCMS-Micro product behavior] --> Plugins[Plugin boundaries]
+  Product --> Templates[Template boundaries]
+  Product --> Supporting[Docs, demos, E2E support]
+  Plugins --> Protected[Protected path allowlist]
+  Templates --> Protected
+  Supporting --> Protected
+  Protected --> Rebuild[Survives awcmsmicro-dev rebuild]
+```
 
 ## Root-Level Supporting Files
 

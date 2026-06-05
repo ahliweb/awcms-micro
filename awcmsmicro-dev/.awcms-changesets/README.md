@@ -28,3 +28,11 @@ Adds plugin-owned navigation exports for template consumption and updates the ex
 ## Processing Rule
 
 The AWCMS versioning workflow consumes these files, updates package versions, prepends `CHANGELOG.md` entries for affected packages, and removes processed changeset files in the generated version PR.
+
+```mermaid
+flowchart LR
+  Changeset[.awcms-changesets/*.md] --> Version[AWCMS package versioning]
+  Version --> Packages[@awcms-micro packages]
+  Version --> Changelogs[Package CHANGELOG.md]
+  Version --> Cleanup[Remove processed changesets]
+```

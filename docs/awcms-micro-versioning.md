@@ -55,6 +55,15 @@ When the AWCMS versioning workflow runs, it:
 5. refreshes the workspace lockfile
 6. creates or updates the automated AWCMS release PR
 
+```mermaid
+flowchart LR
+  Inputs[awcmsmicro-dev/.awcms-changesets] --> Script[AWCMS version script]
+  Script --> Packages[@awcms-micro package versions]
+  Script --> Changelogs[Package changelogs]
+  Script --> Lockfile[Workspace lockfile]
+  Script --> PR[Automated release PR]
+```
+
 ## Workflow
 
 The automation entry points are:

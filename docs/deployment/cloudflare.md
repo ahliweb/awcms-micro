@@ -31,6 +31,17 @@ Do not commit tokens, secrets, or private credentials. This repository's referen
 - SSL/TLS for all public endpoints
 - WAF and baseline hardening rules
 
+```mermaid
+flowchart LR
+  User[User] --> Route[Cloudflare route]
+  Route --> Worker[AWCMS-Micro Worker]
+  Worker --> D1[(D1 database)]
+  Worker --> R2[(R2 media bucket)]
+  Worker --> KV[(Session KV)]
+  Worker --> Loader[Worker Loader]
+  Worker --> Plugins[AWCMS-Micro plugins]
+```
+
 ## Resource Preparation Checklist
 
 1. Create or confirm the Worker target.
@@ -75,6 +86,18 @@ Suggested categories:
 8. Deploy to the target Worker.
 9. Run smoke checks.
 10. Promote DNS or custom-domain routing only after smoke checks pass.
+
+```mermaid
+flowchart TD
+  Validate[Validate local workspace] --> Bindings[Review wrangler bindings]
+  Bindings --> Resources[Confirm D1, R2, KV, domains]
+  Resources --> Secrets[Inject secrets outside git]
+  Secrets --> Build[Build template]
+  Build --> Deploy[Deploy Worker]
+  Deploy --> Smoke[Run smoke checks]
+  Smoke -->|Pass| Cutover[Promote route or DNS]
+  Smoke -->|Fail| Rollback[Rollback and restore previous state]
+```
 
 ## Pre-Deploy Checks
 

@@ -22,6 +22,20 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 - native registration of `@awcms-micro/plugin-docs`, `@awcms-micro/plugin-sikesra`, and `@awcms-micro/plugin-gallery`
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
 
+```mermaid
+flowchart LR
+  Browser[Browser] --> Worker[Cloudflare Worker]
+  Worker --> Astro[Astro server output]
+  Worker --> D1[(D1 DB)]
+  Worker --> R2[(R2 MEDIA)]
+  Worker --> KV[(SESSION KV)]
+  Worker --> Images[Cloudflare Images]
+  Worker --> Loader[Worker Loader]
+  Astro --> Plugins[AWCMS-Micro plugins]
+  Plugins --> Public[Public routes]
+  Plugins --> Admin[Admin routes]
+```
+
 ## Cloudflare Placeholders
 
 This template is prepared for these logical values:
@@ -90,6 +104,15 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 4. Run `bash ./scripts/validate-cloudflare-env.sh --require-credentials` from a credentialed shell or CI job.
 5. Run `pnpm build`.
 6. Run `pnpm deploy`.
+
+```mermaid
+flowchart TD
+  Validate[Validate wrangler and credentials] --> Build[pnpm build]
+  Build --> Deploy[pnpm deploy]
+  Deploy --> Smoke[Smoke checks]
+  Smoke --> Record[Record deployment status]
+  Smoke -->|Failure| Rollback[Rollback previous Worker version]
+```
 
 ## Rollback
 

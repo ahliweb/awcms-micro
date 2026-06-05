@@ -10,6 +10,17 @@ Keep AWCMS-Micro-specific browser and smoke validation separate from upstream Em
 
 - `smoke.mjs`: builds and previews the local and Cloudflare example templates, then checks public pages and the public-safe plugin endpoint.
 
+```mermaid
+flowchart TD
+  Smoke[smoke.mjs] --> BuildLocal[Build local template]
+  Smoke --> BuildCloudflare[Build Cloudflare template]
+  BuildLocal --> PreviewLocal[Preview local site]
+  BuildCloudflare --> PreviewCloudflare[Preview Cloudflare site]
+  PreviewLocal --> Routes[Check public routes]
+  PreviewCloudflare --> Routes
+  Routes --> Sikesra[Check SIKESRA public status]
+```
+
 ## Run
 
 From `awcmsmicro-dev`:

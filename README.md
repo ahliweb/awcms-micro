@@ -37,6 +37,18 @@ Keep these flows separate so root maintenance releases do not mix with package r
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
+```mermaid
+flowchart LR
+  Upstream[Upstream EmDash] --> Latest[emdash-latest]
+  Latest --> Dev[awcmsmicro-dev]
+  Dev --> Plugins[AWCMS-Micro plugins]
+  Dev --> Templates[AWCMS-Micro templates]
+  Docs[Root docs] --> Rules[Boundaries and workflow]
+  Scripts[Root scripts] --> Latest
+  Scripts --> Dev
+  Rules --> Scripts
+```
+
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
 Fresh-clone sync bootstrapping may also store template name and built-in plugin choices in `awcmsmicro-dev/.env` so local operator decisions stay outside git, and rebuilds preserve both `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when present.
 See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update modes and the fresh-clone prompt details.
@@ -258,6 +270,16 @@ The D1 mirror workflow for DBeaver is documented separately in `docs/awcms-micro
 2. Rebuild `awcmsmicro-dev/` from `emdash-latest/` and let the rebuild script reapply any downstream patch overlays from `awcmsmicro-dev/.awcms-patches/`.
 3. Validate `awcmsmicro-dev/` with `bash scripts/validate-awcmsmicro-dev.sh`.
 4. Implement AWCMS-Micro-specific product work only in approved plugin and template boundaries inside `awcmsmicro-dev/`.
+
+```mermaid
+flowchart TD
+  Analyze[Analyze upstream changes] --> Refresh[Refresh emdash-latest]
+  Refresh --> Rebuild[Rebuild awcmsmicro-dev]
+  Rebuild --> Restore[Restore protected AWCMS-Micro paths]
+  Restore --> Patches[Replay downstream patches]
+  Patches --> Validate[Validate boundaries and workspace]
+  Validate --> Implement[Implement only in approved boundaries]
+```
 5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
 6. Update root documentation when structure or process changes.
 

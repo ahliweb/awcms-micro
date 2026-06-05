@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.27 - 2026-06-05
+
+- Adds Mermaid diagrams to AWCMS-Micro root and downstream documentation for repository structure, synchronization, deployment, security, versioning, backup, and plugin/template workflows.
 ## 0.1.26 - 2026-06-05
 
 - Records the production Cloudflare deployment of the synchronized AWCMS-Micro workspace and the successful post-deploy smoke checks.
@@ -90,7 +93,7 @@
 ## Workspace Snapshot - 2026-06-05
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.26`
+- Root version: `0.1.27`
 
 ### Plugins
 

@@ -10,6 +10,17 @@ This plugin adds AWCMS-Micro gallery management helpers while leaving EmDash cor
 - Audit events are stored in the plugin-owned `gallery_audit_events` collection.
 - Cloudflare R2 remains the canonical media store. Cloudflare Images and Stream are optional flags, not hardcoded secrets.
 
+```mermaid
+flowchart LR
+  Template[AWCMS-Micro template] --> PublicGallery[Public gallery rendering]
+  Admin[EmDash admin] --> Plugin[Gallery plugin]
+  Plugin --> Settings[Settings route]
+  Plugin --> PublicList[Public list route]
+  Plugin --> Validate[Media validation]
+  Plugin --> Audit[(gallery_audit_events)]
+  Validate --> R2[(R2 media)]
+```
+
 ## Routes
 
 - `GET /_emdash/api/plugins/awcms-micro-gallery/settings`

@@ -7,6 +7,15 @@
 - support correction, export, and deletion workflows for personal data
 - define retention periods before production usage
 
+```mermaid
+flowchart TD
+  Purpose[Documented service purpose] --> Minimize[Data minimization]
+  Minimize --> Notice[Notice and consent expectations]
+  Notice --> Rights[Correction, export, deletion workflows]
+  Rights --> Retention[Defined retention period]
+  Retention --> Audit[Privacy-relevant audit trail]
+```
+
 ## Operational Expectations
 
 - separate public content data from operator or user personal data
