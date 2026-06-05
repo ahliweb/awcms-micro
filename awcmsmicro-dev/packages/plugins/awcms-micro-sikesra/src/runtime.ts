@@ -2417,6 +2417,7 @@ async function persistD1RegistryEntity(
 	if (!db?.insertInto) return false;
 
 	const now = toIsoNow();
+	const subtypeCode = getString(detailFields, "subtypeCode") ?? null;
 	await db
 		.insertInto(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
 		.values({
@@ -2427,7 +2428,7 @@ async function persistD1RegistryEntity(
 			code: entity.code,
 			label: entity.label,
 			entity_type: entity.entityType,
-			subtype_code: null,
+			subtype_code: subtypeCode,
 			sensitivity: entity.sensitivity,
 			province_code: entity.region.provinceCode || null,
 			regency_code: entity.region.regencyCode || null,
@@ -2448,6 +2449,7 @@ async function persistD1RegistryEntity(
 				code: entity.code,
 				label: entity.label,
 				entity_type: entity.entityType,
+				subtype_code: subtypeCode,
 				sensitivity: entity.sensitivity,
 				province_code: entity.region.provinceCode || null,
 				regency_code: entity.region.regencyCode || null,

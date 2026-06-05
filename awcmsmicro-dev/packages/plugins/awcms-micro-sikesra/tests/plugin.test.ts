@@ -4198,6 +4198,7 @@ describe("awcms micro sikesra plugin", () => {
 			expect.objectContaining({
 				id: "registry-fields-contract",
 				code: "FIELDS-001",
+				subtype_code: "01",
 				public_summary: "Canonical fields summary.",
 				village_code: "6201010001",
 			}),
