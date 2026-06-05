@@ -4766,6 +4766,18 @@ describe("awcms micro sikesra plugin", () => {
 		]);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.create" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.complete" }));
+		const exportCreateAudit = auditTableRows.find((row) => row.kind === "export.create")!;
+		expect(JSON.parse(String(exportCreateAudit.metadata_json))).toMatchObject({
+			requestedFieldCount: 4,
+			resultSummary: {
+				allowedFields: ["code", "label"],
+				excludedFieldCount: 2,
+			},
+		});
+		const exportAuditMetadata = JSON.stringify(JSON.parse(String(exportCreateAudit.metadata_json)));
+		expect(exportAuditMetadata).not.toContain("requestedFields");
+		expect(exportAuditMetadata).not.toContain("nik");
+		expect(exportAuditMetadata).not.toContain("alamat_ktp");
 
 		const listed = (await routes["exports/list"]!.handler({
 			...ctx,

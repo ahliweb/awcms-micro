@@ -6061,6 +6061,11 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 				? "exclude_sensitive_fields"
 				: "restricted_permission_required",
 	};
+	const auditResultSummary = {
+		allowedFields: sanitized.allowedFields,
+		excludedFieldCount: sanitized.excludedFields.length,
+		maskingPolicy: resultSummary.maskingPolicy,
+	};
 
 	await persistD1ExportJob(ctx, {
 		id,
@@ -6082,7 +6087,13 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			scope: "exports",
 			actor: actorUserId ?? actorFromRoute(ctx),
 			summary: `Created SIKESRA export job ${id}`,
-			metadata: { id, exportType, sensitivityLevel, requestedFields, resultSummary },
+			metadata: {
+				id,
+				exportType,
+				sensitivityLevel,
+				requestedFieldCount: requestedFields.length,
+				resultSummary: auditResultSummary,
+			},
 		}),
 	);
 	for (const field of sanitizedCustomFields.allowedFields) {
@@ -6110,7 +6121,7 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			scope: "exports",
 			actor: actorUserId ?? actorFromRoute(ctx),
 			summary: `Completed SIKESRA export job ${id}`,
-			metadata: { id, exportType, sensitivityLevel, resultSummary },
+			metadata: { id, exportType, sensitivityLevel, resultSummary: auditResultSummary },
 		}),
 	);
 
