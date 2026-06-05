@@ -65,6 +65,7 @@ import {
 	AWCMS_SIKESRA_PLUGIN_ID,
 	AWCMS_SIKESRA_PORTABLE_TEXT_BLOCKS,
 	AWCMS_SIKESRA_STORAGE,
+	DEFAULT_REGION_TREE,
 	DEFAULT_DATA_TYPES,
 	createAuditRecord,
 	createNativeRoutes,
@@ -1827,6 +1828,23 @@ function createMockContext() {
 	};
 }
 
+function collectDefaultRegionCodes() {
+	const codes = new Set<string>();
+	for (const province of DEFAULT_REGION_TREE) {
+		codes.add(province.code);
+		for (const regency of province.regencies) {
+			codes.add(regency.code);
+			for (const district of regency.districts) {
+				codes.add(district.code);
+				for (const village of district.villages) {
+					codes.add(village.code);
+				}
+			}
+		}
+	}
+	return codes;
+}
+
 describe("awcms micro sikesra plugin", () => {
 	it("builds a descriptor without touching EmDash core", () => {
 		const descriptor = awcmsMicroSikesraPlugin();
@@ -2204,6 +2222,23 @@ describe("awcms micro sikesra plugin", () => {
 			SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.some((item) => item.suppressed),
 		).toBe(true);
 		expect(SIKESRA_REFERENCE_FIXTURES.abacPolicies[0]?.effect).toBe("deny");
+	});
+
+	it("keeps SIKESRA reference fixture regions aligned with the default region tree", () => {
+		const defaultRegionCodes = collectDefaultRegionCodes();
+
+		for (const entity of SIKESRA_REFERENCE_FIXTURES.registryEntities) {
+			expect(defaultRegionCodes.has(entity.region.provinceCode)).toBe(true);
+			expect(defaultRegionCodes.has(entity.region.regencyCode)).toBe(true);
+			expect(defaultRegionCodes.has(entity.region.districtCode)).toBe(true);
+			expect(defaultRegionCodes.has(entity.region.villageCode)).toBe(true);
+		}
+
+		for (const event of SIKESRA_REFERENCE_FIXTURES.verificationEvents) {
+			if (event.verifierRegionScope) {
+				expect(defaultRegionCodes.has(event.verifierRegionScope)).toBe(true);
+			}
+		}
 	});
 
 	it("masks sensitive values when access is denied", () => {
@@ -3268,7 +3303,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.verificationEvent.stage).toBe("verified_sopd");
 		expect(result.verificationEvent.inputLevel).toBe("kecamatan");
 		expect(result.verificationEvent.verifierLevel).toBe("sopd");
-		expect(result.verificationEvent.verifierRegionScope).toBe("3171");
+		expect(result.verificationEvent.verifierRegionScope).toBe("6201");
 		expect(result.verificationEvent.verifierOrgScope).toBe("site-main");
 
 		const after = (await routes["verification/list"]!.handler({
@@ -3291,7 +3326,7 @@ describe("awcms micro sikesra plugin", () => {
 				to_stage: "verified_sopd",
 				decision: "approved",
 				verifier_level: "sopd",
-				region_scope_code: "3171",
+				region_scope_code: "6201",
 			}),
 		);
 		expect(
@@ -3598,10 +3633,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: "Custom Registry Entity",
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				publicSummary: "Custom summary",
 				inputLevel: "admin_sikesra",
 			},
@@ -3688,10 +3723,10 @@ describe("awcms micro sikesra plugin", () => {
 				code: "DUP-MED-001",
 				label: "Medium Duplicate One",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 		} as any);
 
@@ -3703,10 +3738,10 @@ describe("awcms micro sikesra plugin", () => {
 				code: "DUP-MED-001",
 				label: "Medium Duplicate Two",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 		} as any)) as any;
 
@@ -3728,10 +3763,10 @@ describe("awcms micro sikesra plugin", () => {
 				code: "DUP-MED-001",
 				label: "Medium Duplicate Two",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				duplicateOverrideReason: "Separate institution with reused local code.",
 			},
 		} as any)) as any;
@@ -3763,10 +3798,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: "CRUD Registry Entity",
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				publicSummary: "CRUD summary",
 			},
 		} as any);
@@ -3995,10 +4030,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: `Module ${entityType}`,
 				entityType,
 				sensitivity: "internal",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				publicSummary: `Summary ${entityType}`,
 			},
 		} as any);
@@ -4090,10 +4125,10 @@ describe("awcms micro sikesra plugin", () => {
 						code: "",
 						label: "Invalid Import Row",
 						entityType: "rumah_ibadah",
-						provinceCode: "31",
-						regencyCode: "3171",
-						districtCode: "3171010",
-						villageCode: "3171010001",
+						provinceCode: "62",
+						regencyCode: "6201",
+						districtCode: "620101",
+						villageCode: "6201010001",
 					},
 				],
 			},
@@ -4145,10 +4180,10 @@ describe("awcms micro sikesra plugin", () => {
 				code: "IMP-001",
 				label: "Imported Row",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				"custom:import_local_code": "LC-001",
 			},
 		];
@@ -4236,20 +4271,20 @@ describe("awcms micro sikesra plugin", () => {
 				code: "DUP-001",
 				label: "Duplicate One",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 			{
 				id: "registry-dup-02",
 				code: "DUP-001",
 				label: "Duplicate Two",
 				entityType: "rumah_ibadah",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 		];
 
@@ -4938,10 +4973,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: "Delete Execution Candidate",
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
-				provinceCode: "31",
-				regencyCode: "3171",
-				districtCode: "3171010",
-				villageCode: "3171010001",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 		} as any);
 		await routes["crud/permanent-delete/request"]!.handler({
@@ -5067,10 +5102,10 @@ describe("awcms micro sikesra plugin", () => {
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
 				region: {
-					provinceCode: "31",
-					regencyCode: "3171",
-					districtCode: "3171010",
-					villageCode: "3171010001",
+					provinceCode: "62",
+					regencyCode: "6201",
+					districtCode: "620101",
+					villageCode: "6201010001",
 				},
 				verificationStage: "draft",
 				supportingDocumentIds: [],
@@ -5787,13 +5822,13 @@ describe("awcms micro sikesra plugin", () => {
 			...ctx,
 			request: adminRequest,
 			input: {
-				id: "allow-published-read-jakarta",
-				label: "Allow published read in Jakarta",
+				id: "allow-published-read-kotawaringin-barat",
+				label: "Allow published read in Kotawaringin Barat",
 				effect: "allow",
 				actions: ["content.read"],
 				requiredSubject: { tenant_id: "tenant-a" },
 				requiredResource: { resource_status: "published", resource_sensitivity: "public" },
-				requiredContext: { region_scope: "id-jakarta" },
+				requiredContext: { region_scope: "6201" },
 			},
 		} as any);
 		await routes["abac/subjects/save"]!.handler({
@@ -5801,7 +5836,7 @@ describe("awcms micro sikesra plugin", () => {
 			request: adminRequest,
 			input: {
 				subjectId: "user-demo-editor",
-				attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+				attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201" },
 			},
 		} as any);
 		await routes["abac/resources/save"]!.handler({
@@ -5814,7 +5849,7 @@ describe("awcms micro sikesra plugin", () => {
 		} as any);
 		collections.abacSubjectAssignments.delete("user-demo-editor");
 		collections.abacResourceAssignments.delete("resource-public-post");
-		collections.abacPolicyRules.delete("allow-published-read-jakarta");
+		collections.abacPolicyRules.delete("allow-published-read-kotawaringin-barat");
 
 		const allow = (await routes["abac/preview"]!.handler({
 			...ctx,
@@ -5823,7 +5858,7 @@ describe("awcms micro sikesra plugin", () => {
 				subjectId: "user-demo-editor",
 				resourceId: "resource-public-post",
 				action: "content.read",
-				contextAttributes: { region_scope: "id-jakarta" },
+				contextAttributes: { region_scope: "6201" },
 			},
 		} as any)) as any;
 
@@ -5836,9 +5871,11 @@ describe("awcms micro sikesra plugin", () => {
 		expect(
 			abacResourceAssignmentTableRows.some((row) => row.resource_id === "resource-public-post"),
 		).toBe(true);
-		expect(abacPolicyRuleTableRows.some((row) => row.id === "allow-published-read-jakarta")).toBe(
-			true,
-		);
+		expect(
+			abacPolicyRuleTableRows.some(
+				(row) => row.id === "allow-published-read-kotawaringin-barat",
+			),
+		).toBe(true);
 
 		const deny = (await routes["abac/preview"]!.handler({
 			...ctx,

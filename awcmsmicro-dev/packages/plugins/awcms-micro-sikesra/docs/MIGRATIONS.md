@@ -47,7 +47,7 @@ Current seed files:
 kotawaringin-barat-core.sql
 ```
 
-Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values before applying seeds to local or remote D1.
+Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values before applying seeds to local or remote D1. The current seed includes Kotawaringin Barat reference regions, baseline settings, three representative registry records, redacted person profiles, module details, document metadata, verification state/events, RBAC role/permission assignments, ABAC sample policies, and one seed audit event. It intentionally avoids raw NIK, KTP address, domicile address, phone, email, or document content values.
 
 ## Migration Rules
 

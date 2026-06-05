@@ -6238,7 +6238,7 @@ function AbacPoliciesPage() {
 		actions: "content.read",
 		requiredSubject: '{"tenant_id":"tenant-a"}',
 		requiredResource: '{"resource_status":"published"}',
-		requiredContext: '{"region_scope":"id-jakarta"}',
+		requiredContext: '{"region_scope":"6201"}',
 	});
 
 	const savePolicy = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -6272,7 +6272,7 @@ function AbacPoliciesPage() {
 				actions: "content.read",
 				requiredSubject: '{"tenant_id":"tenant-a"}',
 				requiredResource: '{"resource_status":"published"}',
-				requiredContext: '{"region_scope":"id-jakarta"}',
+				requiredContext: '{"region_scope":"6201"}',
 			});
 			setNotice(copy.policySaved);
 			await reload();
@@ -6403,7 +6403,7 @@ function AbacPreviewPage() {
 	const [subjectId, setSubjectId] = React.useState("user-demo-editor");
 	const [resourceId, setResourceId] = React.useState("resource-public-post");
 	const [action, setAction] = React.useState("content.read");
-	const [contextAttributes, setContextAttributes] = React.useState('{"region_scope":"id-jakarta"}');
+	const [contextAttributes, setContextAttributes] = React.useState('{"region_scope":"6201"}');
 	const [preview, setPreview] = React.useState<AbacPreviewResponse | null>(null);
 	const [error, setError] = React.useState<string | null>(null);
 	const [running, setRunning] = React.useState(false);
@@ -6581,10 +6581,10 @@ function ImportPage() {
 			label: "Masjid Raya Baiturrahman",
 			entityType: "rumah_ibadah",
 			sensitivity: "public_safe",
-			provinceCode: "31",
-			regencyCode: "3171",
-			districtCode: "3171010",
-			villageCode: "3171010001",
+			provinceCode: "62",
+			regencyCode: "6201",
+			districtCode: "620101",
+			villageCode: "6201010001",
 			publicSummary: "Masjid Raya Baiturrahman di desa referensi.",
 		},
 		{
@@ -6593,10 +6593,10 @@ function ImportPage() {
 			label: "Ustadz H. Syukron",
 			entityType: "guru_agama",
 			sensitivity: "restricted",
-			provinceCode: "31",
-			regencyCode: "3171",
-			districtCode: "3171010",
-			villageCode: "3171010002",
+			provinceCode: "62",
+			regencyCode: "6201",
+			districtCode: "620101",
+			villageCode: "6201010002",
 			publicSummary: "Data pengajar ustadz referensi.",
 		},
 		{
@@ -6605,10 +6605,10 @@ function ImportPage() {
 			label: "Slamet Rahardjo",
 			entityType: "disabilitas",
 			sensitivity: "highly_restricted",
-			provinceCode: "31",
-			regencyCode: "3171",
-			districtCode: "3171010",
-			villageCode: "3171010003",
+			provinceCode: "62",
+			regencyCode: "6201",
+			districtCode: "620101",
+			villageCode: "6201010003",
 			publicSummary: "Data disabilitas di wilayah referensi.",
 		},
 	];

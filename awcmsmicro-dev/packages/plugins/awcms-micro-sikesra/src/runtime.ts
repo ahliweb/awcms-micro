@@ -1634,9 +1634,9 @@ const DEFAULT_USER_SCOPE_ASSIGNMENTS: UserScopeAssignment[] = [
 	{
 		userId: "user-demo-village",
 		regionScopeType: "village",
-		regionScopeCode: "3372010001",
+		regionScopeCode: "6201010001",
 		organizationScopeType: "desa_kelurahan",
-		organizationScopeCode: "3372010001",
+		organizationScopeCode: "6201010001",
 		isActive: true,
 		validFrom: "",
 		validUntil: "",
@@ -1645,9 +1645,9 @@ const DEFAULT_USER_SCOPE_ASSIGNMENTS: UserScopeAssignment[] = [
 	{
 		userId: "user-demo-district",
 		regionScopeType: "district",
-		regionScopeCode: "337201",
+		regionScopeCode: "620101",
 		organizationScopeType: "kecamatan",
-		organizationScopeCode: "337201",
+		organizationScopeCode: "620101",
 		isActive: true,
 		validFrom: "",
 		validUntil: "",
@@ -1760,32 +1760,32 @@ const DEFAULT_ABAC_ATTRIBUTES: AbacAttributeDefinition[] = [
 const DEFAULT_ABAC_SUBJECTS: AbacSubjectAssignment[] = [
 	{
 		subjectId: "user-demo-editor",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201" },
 		updatedAt: "",
 	},
 	{
 		subjectId: "user-demo-reviewer",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "id-jakarta" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201" },
 		updatedAt: "",
 	},
 	{
 		subjectId: "user-demo-village",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010002" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201010001" },
 		updatedAt: "",
 	},
 	{
 		subjectId: "user-demo-district",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171010" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "620101" },
 		updatedAt: "",
 	},
 	{
 		subjectId: "user-demo-sopd",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201" },
 		updatedAt: "",
 	},
 	{
 		subjectId: "user-demo-regency",
-		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "3171" },
+		attributes: { tenant_id: "tenant-a", site_id: "site-main", region_scope: "6201" },
 		updatedAt: "",
 	},
 	{
@@ -1829,7 +1829,7 @@ const DEFAULT_ABAC_POLICIES: AbacPolicyRule[] = [
 		actions: ["content.read"],
 		requiredSubject: { tenant_id: "tenant-a" },
 		requiredResource: { resource_status: "published", resource_sensitivity: "public" },
-		requiredContext: { region_scope: "id-jakarta" },
+		requiredContext: { region_scope: "6201" },
 		updatedAt: "",
 	},
 	{
