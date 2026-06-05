@@ -16,6 +16,8 @@ import type {
 	SikesraCustomAttributeDefinitionDto,
 	SikesraCustomAttributeDefinitionRequest,
 	SikesraCustomAttributeValueRequest,
+	SikesraImportCreateRequest,
+	SikesraImportPromotionRequest,
 } from "./contracts/index.js";
 import {
 	SIKESRA_FIELD_STANDARDS,
@@ -235,6 +237,12 @@ interface VerificationAdvanceResponse {
 		summary: string;
 		metadata: JsonMap;
 	};
+}
+
+interface ImportRouteResult {
+	success: boolean;
+	batchId?: string;
+	error?: { message?: string };
 }
 
 interface AccessPermissionItem {
@@ -6554,6 +6562,36 @@ function StatusBadgeField({ value, onChange, label, id, minimal, required }: Fie
 	);
 }
 
+export function createSikesraImportPreviewCreatePayload({
+	batchId,
+	rows,
+	columnMappings,
+	fileName,
+	selectedSheet,
+}: {
+	batchId: string;
+	rows: unknown[];
+	columnMappings: Record<string, string>;
+	fileName: string | null;
+	selectedSheet: string;
+}): SikesraImportCreateRequest {
+	return {
+		batchId,
+		mappingTemplateId: `${batchId}:mapping`,
+		mappingTemplateName: selectedSheet,
+		fileFormat: "xlsx",
+		sourceFilename: fileName ?? "sikesra-preview.xlsx",
+		mapping: columnMappings,
+		rows,
+	};
+}
+
+export function createSikesraImportPreviewPromotePayload(
+	batchId: string,
+): SikesraImportPromotionRequest {
+	return { batchId };
+}
+
 function ImportPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
@@ -6624,11 +6662,27 @@ function ImportPage() {
 		setPromoting(true);
 		setError(null);
 		try {
-			await postPlugin("import/promote", { rows: stagingRows });
+			const batchId = `ui-import-${Date.now()}`;
+			const created = await postPlugin<ImportRouteResult>(
+				"import/create",
+				createSikesraImportPreviewCreatePayload({
+					batchId,
+					rows: stagingRows,
+					columnMappings,
+					fileName,
+					selectedSheet,
+				}),
+			);
+			if (!created.success) throw new Error(created.error?.message ?? copy.requestFailed);
+			const promoted = await postPlugin<ImportRouteResult>(
+				"import/promote",
+				createSikesraImportPreviewPromotePayload(created.batchId ?? batchId),
+			);
+			if (!promoted.success) throw new Error(promoted.error?.message ?? copy.requestFailed);
 			setNotice(copy.promotedSuccessfully);
 			setImportStep(4); // Display report
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to promote rows");
+			setError(err instanceof Error ? err.message : copy.requestFailed);
 		} finally {
 			setPromoting(false);
 		}

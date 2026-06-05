@@ -122,6 +122,34 @@ export function getSikesraAdminApiMethod(path: SikesraAdminApiPath) {
 	return SIKESRA_READ_ONLY_API_PATHS.has(path) ? "GET" : "POST";
 }
 
+function appendPayloadSearchParams(url: URL, payload: unknown) {
+	if (!payload || typeof payload !== "object" || Array.isArray(payload)) return;
+	for (const [key, value] of Object.entries(payload)) {
+		if (value === undefined || value === null) continue;
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				if (item === undefined || item === null) continue;
+				url.searchParams.append(key, String(item));
+			}
+			continue;
+		}
+		url.searchParams.set(
+			key,
+			typeof value === "object" ? JSON.stringify(value) : String(value),
+		);
+	}
+}
+
+export function createSikesraAdminApiUrl<TPayload = unknown>(
+	path: SikesraAdminApiPath,
+	method: "GET" | "POST",
+	payload?: TPayload,
+) {
+	const url = new URL(`${SIKESRA_PLUGIN_API_BASE}/${path}`, "https://awcms-micro.local");
+	if (method === "GET") appendPayloadSearchParams(url, payload);
+	return `${url.pathname}${url.search}`;
+}
+
 export async function postSikesraPlugin<TResponse, TPayload = unknown>({
 	path,
 	payload,
@@ -129,7 +157,7 @@ export async function postSikesraPlugin<TResponse, TPayload = unknown>({
 	requestFailedMessage,
 }: SikesraAdminApiRequest<TPayload>): Promise<TResponse> {
 	const method = getSikesraAdminApiMethod(path);
-	const response = await apiFetch(`${SIKESRA_PLUGIN_API_BASE}/${path}`, {
+	const response = await apiFetch(createSikesraAdminApiUrl(path, method, payload), {
 		method,
 		headers: createSikesraAdminApiHeaders(user),
 		...(method === "POST" ? { body: JSON.stringify(payload ?? {}) } : {}),

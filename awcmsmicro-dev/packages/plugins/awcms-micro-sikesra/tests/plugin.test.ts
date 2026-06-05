@@ -7,6 +7,8 @@ import packageJson from "../package.json" with { type: "json" };
 import {
 	AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS,
 	AWCMS_SIKESRA_PLUGIN_HEADER_MENU,
+	createSikesraImportPreviewCreatePayload,
+	createSikesraImportPreviewPromotePayload,
 	filterPluginHeaderMenu,
 	normalizeAccessHealthResponse,
 	normalizeSummaryResponse,
@@ -14,6 +16,7 @@ import {
 } from "../src/admin.js";
 import {
 	createSikesraAdminApiHeaders,
+	createSikesraAdminApiUrl,
 	getSikesraAdminApiMethod,
 } from "../src/admin/api/client.js";
 import {
@@ -2866,6 +2869,17 @@ describe("awcms micro sikesra plugin", () => {
 				"X-Sikesra-User-Id"
 			],
 		).toBe("user-demo-sikesra-admin");
+		expect(createSikesraAdminApiUrl("audit/list", "GET", { limit: 10, cursor: "next" })).toBe(
+			"/_emdash/api/plugins/awcms-micro-sikesra/audit/list?limit=10&cursor=next",
+		);
+		expect(
+			createSikesraAdminApiUrl("access/users/list", "GET", {
+				roles: ["sikesra_admin", "sikesra_auditor"],
+				includeInactive: true,
+			}),
+		).toBe(
+			"/_emdash/api/plugins/awcms-micro-sikesra/access/users/list?roles=sikesra_admin&roles=sikesra_auditor&includeInactive=true",
+		);
 
 		for (const key of [
 			"registry/save",
@@ -2876,6 +2890,9 @@ describe("awcms micro sikesra plugin", () => {
 		] as const) {
 			expect(getSikesraAdminApiMethod(key), key).toBe("POST");
 		}
+		expect(createSikesraAdminApiUrl("registry/save", "POST", { id: "registry-1" })).toBe(
+			"/_emdash/api/plugins/awcms-micro-sikesra/registry/save",
+		);
 	});
 
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
@@ -4145,6 +4162,37 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(collections.registryEntities.size).toBe(0);
 		expect(collections.auditEvents.size).toBe(0);
+	});
+
+	it("builds staged import UI payloads through create then promote contracts", () => {
+		const rows = [
+			{
+				id: "registry-import-ui-01",
+				code: "IMP-UI-001",
+				label: "Imported UI Row",
+				entityType: "rumah_ibadah",
+			},
+		];
+		const createPayload = createSikesraImportPreviewCreatePayload({
+			batchId: "batch-ui-01",
+			rows,
+			columnMappings: { code: "A", label: "B" },
+			fileName: "sikesra.xlsx",
+			selectedSheet: "Sheet1",
+		});
+
+		expect(createPayload).toMatchObject({
+			batchId: "batch-ui-01",
+			mappingTemplateId: "batch-ui-01:mapping",
+			mappingTemplateName: "Sheet1",
+			fileFormat: "xlsx",
+			sourceFilename: "sikesra.xlsx",
+			mapping: { code: "A", label: "B" },
+			rows,
+		});
+		expect(createSikesraImportPreviewPromotePayload(createPayload.batchId!)).toEqual({
+			batchId: "batch-ui-01",
+		});
 	});
 
 	it("creates a D1 staged import batch before promoting valid rows", async () => {
