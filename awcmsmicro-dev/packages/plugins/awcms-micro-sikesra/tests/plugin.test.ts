@@ -4969,6 +4969,7 @@ describe("awcms micro sikesra plugin", () => {
 			request: adminRequest,
 			input: {
 				id: "registry-entity-custom-01",
+				sikesraId20: "62010100010102000001",
 				code: "CUSTOM-ATTR-001",
 				label: "Custom Attribute Registry Entity",
 				entityType: "rumah_ibadah",
@@ -5039,6 +5040,59 @@ describe("awcms micro sikesra plugin", () => {
 		expect(missingScopeTarget.success).toBe(false);
 		expect(missingScopeTarget.error.details.fields).toEqual(["targetSikesraId20"]);
 
+		const missingSikesraIdTarget = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-missing-sikesra-id-target-01",
+				key: "missing_sikesra_id_specific_note",
+				label: "Missing SIKESRA ID Specific Note",
+				scope: "sikesra_id_20",
+				targetSikesraId20: "62010100010102009999",
+				dataClass: "restricted",
+				dataType: "date",
+			},
+		} as any)) as any;
+		expect(missingSikesraIdTarget.success).toBe(false);
+		expect(missingSikesraIdTarget.error.code).toBe("NOT_FOUND");
+		expect(missingSikesraIdTarget.error.details.fields).toEqual(["targetSikesraId20"]);
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-sikesra-id-deleted-01",
+				sikesraId20: "62010100010102000099",
+				code: "CUSTOM-ATTR-SIKESRA-DELETED-001",
+				label: "Deleted SIKESRA ID Target Registry Entity",
+				entityType: "rumah_ibadah",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any);
+		await routes["registry/soft-delete"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-sikesra-id-deleted-01", reason: "Retired training record" },
+		} as any);
+		const deletedSikesraIdTarget = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-deleted-sikesra-id-target-01",
+				key: "deleted_sikesra_id_specific_note",
+				label: "Deleted SIKESRA ID Specific Note",
+				scope: "sikesra_id_20",
+				targetSikesraId20: "62010100010102000099",
+				dataClass: "restricted",
+				dataType: "date",
+			},
+		} as any)) as any;
+		expect(deletedSikesraIdTarget.success).toBe(false);
+		expect(deletedSikesraIdTarget.error.code).toBe("NOT_FOUND");
+
 		const missingRegistryTarget = (await routes["custom-attributes/definitions/save"]!.handler({
 			...ctx,
 			request: adminRequest,
@@ -5095,6 +5149,12 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(customAttributeDefinitionTableRows).not.toContainEqual(
 			expect.objectContaining({ id: "custom-attr-deleted-registry-target-01" }),
+		);
+		expect(customAttributeDefinitionTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-attr-missing-sikesra-id-target-01" }),
+		);
+		expect(customAttributeDefinitionTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-attr-deleted-sikesra-id-target-01" }),
 		);
 
 		const scopedDefinitions = [
@@ -5299,6 +5359,21 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 		expect(invalidDateValue.success).toBe(false);
 		expect(invalidDateValue.error.details.fields).toEqual(["value"]);
+
+		const unownedSikesraIdValue = (await routes["custom-attributes/values/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-value-sikesra-id-unowned",
+				definitionId: "custom-attr-sikesra-id-01",
+				registryEntityId: "registry-entity-rumah-ibadah-01",
+				sikesraId20: "62010100010102000001",
+				value: "2026-01-01",
+			},
+		} as any)) as any;
+		expect(unownedSikesraIdValue.success).toBe(false);
+		expect(unownedSikesraIdValue.error.code).toBe("NOT_FOUND");
+		expect(unownedSikesraIdValue.error.details.fields).toEqual(["sikesraId20"]);
 
 		const invalidLongEmailValue = (await routes["custom-attributes/values/save"]!.handler({
 			...ctx,

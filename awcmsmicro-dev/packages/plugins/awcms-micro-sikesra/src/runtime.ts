@@ -6512,6 +6512,22 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			};
 		}
 	}
+	const targetSikesraId20 = getString(input, "targetSikesraId20")?.trim();
+	if (scope === "sikesra_id_20") {
+		const linkedEntity = (await getRegistryEntities(ctx)).find(
+			(entity) => entity.sikesraId20 === targetSikesraId20,
+		);
+		if (!linkedEntity) {
+			return {
+				success: false,
+				error: {
+					code: "NOT_FOUND",
+					message: "Linked SIKESRA ID was not found.",
+					details: { fields: ["targetSikesraId20"] },
+				},
+			};
+		}
+	}
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto)
@@ -6631,6 +6647,17 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 				code: "NOT_FOUND",
 				message: "Linked registry entity was not found.",
 				details: { fields: ["registryEntityId"] },
+			},
+		};
+	}
+	const sikesraId20 = getString(input, "sikesraId20")?.trim();
+	if (definition?.scope === "sikesra_id_20" && sikesraId20 && linkedEntity.sikesraId20 !== sikesraId20) {
+		return {
+			success: false,
+			error: {
+				code: "NOT_FOUND",
+				message: "Linked SIKESRA ID does not belong to the registry entity.",
+				details: { fields: ["sikesraId20"] },
 			},
 		};
 	}
