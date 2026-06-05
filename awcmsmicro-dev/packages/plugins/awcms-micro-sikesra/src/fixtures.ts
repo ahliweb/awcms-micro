@@ -144,8 +144,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			region: {
 				provinceCode: "62",
 				regencyCode: "6201",
-				districtCode: "620101",
-				villageCode: "6201010001",
+				districtCode: "620102",
+				villageCode: "6201021009",
 			},
 			verificationStage: "active_verified",
 			inputLevel: "desa_kelurahan",
@@ -162,8 +162,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			region: {
 				provinceCode: "62",
 				regencyCode: "6201",
-				districtCode: "620101",
-				villageCode: "6201010002",
+				districtCode: "620102",
+				villageCode: "6201021005",
 			},
 			verificationStage: "submitted_sopd",
 			inputLevel: "kecamatan",
@@ -180,8 +180,8 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			region: {
 				provinceCode: "62",
 				regencyCode: "6201",
-				districtCode: "620101",
-				villageCode: "6201010003",
+				districtCode: "620102",
+				villageCode: "6201021003",
 			},
 			verificationStage: "verified_sopd",
 			inputLevel: "sopd",
@@ -235,7 +235,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			actor: "village-officer",
 			inputLevel: "desa_kelurahan",
 			verifierLevel: "desa_kelurahan",
-			verifierRegionScope: "6201010001",
+			verifierRegionScope: "6201021009",
 			verifierOrgScope: "site-main",
 			result: "approved",
 			notes: "Dokumen lengkap dan lokasi sesuai.",
@@ -248,7 +248,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 			actor: "district-officer",
 			inputLevel: "kecamatan",
 			verifierLevel: "kecamatan",
-			verifierRegionScope: "620101",
+			verifierRegionScope: "620102",
 			verifierOrgScope: "site-main",
 			result: "approved",
 			notes: "Kelengkapan data diverifikasi pada tingkat kecamatan dan diteruskan ke SOPD terkait.",
@@ -305,7 +305,7 @@ export const SIKESRA_REFERENCE_FIXTURES: SikesraReferenceFixtures = {
 	abacSubjects: [
 		{
 			id: "subject-village-officer",
-			attributes: { tenant_id: "tenant-a", region_scope: "6201010001", role: "village_officer" },
+		attributes: { tenant_id: "tenant-a", region_scope: "6201021009", role: "village_officer" },
 		},
 		{
 			id: "subject-regency-officer",

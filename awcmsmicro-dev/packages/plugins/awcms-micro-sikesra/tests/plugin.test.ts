@@ -2561,9 +2561,9 @@ describe("awcms micro sikesra plugin", () => {
 						name: "Kotawaringin Barat",
 						districts: [
 							{
-								code: "620101",
+								code: "620102",
 								name: "Arut Selatan",
-								villages: [{ code: "6201010001", name: "Kelurahan Baru" }],
+								villages: [{ code: "6201021009", name: "Kelurahan Baru" }],
 							},
 						],
 					},
@@ -2592,6 +2592,40 @@ describe("awcms micro sikesra plugin", () => {
 		]);
 		expect(officialRegionTableRows[1]).toMatchObject({ code: "6201", parent_code: "62" });
 		expect(kvData.has("custom:regions")).toBe(false);
+	});
+
+	it("falls back to official default regions when D1 rows do not form a valid region tree", async () => {
+		const { ctx, officialRegionTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		officialRegionTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			code: "6201021009",
+			parent_code: "620102",
+			level: "village",
+			name: "Kelurahan Baru",
+			status: "active",
+		});
+
+		const result = (await routes["regions/get"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+
+		expect(result).toContainEqual(
+			expect.objectContaining({ code: "62", name: "Kalimantan Tengah" }),
+		);
+		expect(result[0].regencies[0]).toMatchObject({ code: "6201", name: "Kotawaringin Barat" });
+		expect(result[0].regencies[0].districts[0]).toMatchObject({
+			code: "620102",
+			name: "Arut Selatan",
+		});
+		expect(result[0].regencies[0].districts[0].villages).toContainEqual({
+			code: "6201021009",
+			name: "Kelurahan Baru",
+		});
 	});
 
 	it("reads and writes local regions through dedicated D1 region tables", async () => {
@@ -4330,6 +4364,18 @@ describe("awcms micro sikesra plugin", () => {
 				actor_user_id: "user-demo-sikesra-admin",
 			}),
 		);
+		const restrictedAccessAudit = auditTableRows.find(
+			(row) => row.kind === "document.access.restricted",
+		)!;
+		const restrictedAccessMetadata = JSON.stringify(
+			JSON.parse(String(restrictedAccessAudit.metadata_json)),
+		);
+		expect(restrictedAccessMetadata).toContain("doc-restricted-01");
+		expect(restrictedAccessMetadata).toContain("registry-entity-rumah-ibadah-01");
+		expect(restrictedAccessMetadata).not.toContain("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		expect(restrictedAccessMetadata).not.toContain("secret.pdf");
+		expect(restrictedAccessMetadata).not.toContain("storage_key");
+		expect(restrictedAccessMetadata).not.toContain("storageKey");
 	});
 
 	it.each([
