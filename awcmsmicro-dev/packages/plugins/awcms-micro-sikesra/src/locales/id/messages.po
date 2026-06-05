@@ -487,8 +487,8 @@ msgid "Plugin Operations Center"
 msgstr "Pusat Operasi Plugin"
 
 msgctxt "awcms.adminCopy.overviewDescription"
-msgid "Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
-msgstr "Selamat datang di plugin demonstrasi AWCMS-Micro. Konsol ini memungkinkan Anda mengelola log audit, event lifecycle, dan simulasi kebijakan Role-Based dan Attribute-Based Access Control (RBAC/ABAC) secara aman tanpa mengubah core EmDash."
+msgid "Welcome to the AWCMS-Micro SIKESRA plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core."
+msgstr "Selamat datang di plugin AWCMS-Micro SIKESRA. Konsol ini memungkinkan Anda mengelola log audit, event lifecycle, dan simulasi kebijakan Role-Based dan Attribute-Based Access Control (RBAC/ABAC) secara aman tanpa mengubah core EmDash."
 
 msgctxt "awcms.adminCopy.refreshDashboard"
 msgid "Refresh Dashboard"

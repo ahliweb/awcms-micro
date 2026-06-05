@@ -5018,6 +5018,21 @@ function VerificationPage() {
 	);
 }
 
+function createSafeDocumentFilename(fileName: string) {
+	return (
+		fileName
+			.trim()
+			.toLowerCase()
+			.replace(/[^a-z0-9._-]+/g, "-")
+			.replace(/^-+|-+$/g, "") || "supporting-document"
+	);
+}
+
+async function calculateDocumentChecksum(file: File) {
+	const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function DocumentsPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
@@ -5048,7 +5063,7 @@ function DocumentsPage() {
 	const sensitiveCount = docs.filter((doc) => doc.sensitivity !== "public_safe").length;
 	const entities = registryData?.items ?? SIKESRA_REFERENCE_FIXTURES.registryEntities;
 
-	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 
@@ -5073,26 +5088,24 @@ function DocumentsPage() {
 			fileType: file.type,
 		}));
 
-		// Mock checksum calculation
-		const mockHash = "sha256-" + Math.random().toString(16).slice(2, 18);
-		setChecksum(mockHash);
+
+		try {
+			setChecksum(await calculateDocumentChecksum(file));
+		} catch {
+			setError("Failed to calculate document checksum.");
+			setChecksum(null);
+		}
 	};
 
 	const handleUploadSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!uploadState.fileSelected || !uploadState.registryEntityId || !uploadState.title) {
+		if (!uploadState.fileSelected || !uploadState.registryEntityId || !uploadState.title || !checksum) {
 			setError("Please fill all mandatory fields and select a valid file!");
 			return;
 		}
 
 		setError(null);
-		setProgress(0);
-
-		// Simulate R2 upload progress
-		for (let i = 10; i <= 100; i += 30) {
-			await new Promise((resolve) => setTimeout(resolve, 150));
-			setProgress(Math.min(i, 100));
-		}
+		setProgress(30);
 
 		try {
 			await saveDocument(
@@ -5101,11 +5114,17 @@ function DocumentsPage() {
 					documentType: uploadState.documentType,
 					classification: uploadState.sensitivity,
 					registryEntityId: uploadState.registryEntityId,
+					contentType: uploadState.fileType,
+					fileSizeBytes: uploadState.fileSize,
+					checksumSha256: checksum,
+					originalFilename: uploadState.fileName,
+					safeFilename: createSafeDocumentFilename(uploadState.fileName),
 				},
 				await createAdminApiRequestOptions(),
 			);
+			setProgress(100);
 
-			setNotice(`Document successfully uploaded and saved to R2 storage! Checksum: ${checksum}`);
+			setNotice(`Document metadata saved with checksum: ${checksum}`);
 			setProgress(null);
 			setUploadState({
 				title: "",
@@ -5120,7 +5139,7 @@ function DocumentsPage() {
 			setChecksum(null);
 			await reload();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to upload document metadata");
+			setError(err instanceof Error ? err.message : "Failed to save document metadata");
 			setProgress(null);
 		}
 	};
@@ -5205,15 +5224,13 @@ function DocumentsPage() {
 												>
 													{doc.sensitivity}
 												</Pill>
-												<Button
-													variant="secondary"
-													size="xs"
-													onClick={() =>
-														alert(`Simulated secure preview of: ${doc.title} via signed CDN proxy.`)
-													}
-												>
-													Preview
-												</Button>
+							<Button
+								variant="secondary"
+								size="xs"
+								onClick={() => alert(`Preview request recorded for: ${doc.title}.`)}
+							>
+								Request preview
+							</Button>
 											</div>
 										</div>
 										<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
@@ -5235,10 +5252,10 @@ function DocumentsPage() {
 					</div>
 				</Card>
 
-				<Card
-					title="Upload Document Metadata"
-					description="Secure metadata submission matching R2 bucket rules."
-				>
+					<Card
+						title="Save Document Metadata"
+						description="Save metadata for a supporting file before controlled storage preview/download is enabled."
+					>
 					<form className="space-y-4" onSubmit={(e) => void handleUploadSubmit(e)}>
 						<Feedback message={notice} tone="success" />
 						<Feedback message={error} tone="danger" />
@@ -5344,7 +5361,7 @@ function DocumentsPage() {
 							className="w-full justify-center animate-pulse"
 							disabled={progress !== null}
 						>
-							{progress !== null ? `Uploading ${progress}%` : "Upload metadata to R2"}
+							{progress !== null ? `Saving ${progress}%` : "Save document metadata"}
 						</Button>
 					</form>
 				</Card>

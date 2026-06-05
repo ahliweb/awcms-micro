@@ -2940,6 +2940,13 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("saveDocument(");
 		expect(adminSource).toContain("classification: uploadState.sensitivity");
 		expect(adminSource).toContain("classification: doc.sensitivity");
+		expect(adminSource).toContain('crypto.subtle.digest("SHA-256"');
+		expect(adminSource).toContain("checksumSha256: checksum");
+		expect(adminSource).toContain("contentType: uploadState.fileType");
+		expect(adminSource).toContain("fileSizeBytes: uploadState.fileSize");
+		expect(adminSource).not.toContain("mockHash");
+		expect(adminSource).not.toContain("Document successfully uploaded and saved to R2 storage");
+		expect(adminSource).not.toContain("Simulated secure preview");
 		expect(adminSource).toContain("saveRegistryEntity<");
 		expect(adminSource).toContain("typeCode: parentType?.code");
 		expect(adminSource).toContain("subtypeCode: wizardState.subTypeCode");
@@ -6209,6 +6216,20 @@ describe("awcms micro sikesra plugin", () => {
 			"sikesra_verification_events",
 			"sikesra_verification_stage_state",
 		]);
+	});
+
+	it("keeps user-facing plugin identity copy out of demonstration wording", () => {
+		for (const path of [
+			"../src/admin-copy.ts",
+			"../src/locales/messages.ts",
+			"../src/locales/en/messages.po",
+			"../src/locales/id/messages.po",
+		]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			expect(source).toContain("AWCMS-Micro SIKESRA");
+			expect(source).not.toContain("AWCMS-Micro demonstration plugin");
+			expect(source).not.toContain("plugin demonstrasi AWCMS-Micro");
+		}
 	});
 
 	it("uses the SIKESRA factory in maintained templates", () => {

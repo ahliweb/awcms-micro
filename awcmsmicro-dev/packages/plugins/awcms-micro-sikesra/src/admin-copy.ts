@@ -48,7 +48,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			overviewEyebrow: "Plugin AWCMS-Micro",
 			overviewTitle: "Pusat Operasi Plugin",
 			overviewDescription:
-				"Selamat datang di plugin demonstrasi AWCMS-Micro. Konsol ini memungkinkan Anda mengelola log audit, event lifecycle, dan simulasi kebijakan Role-Based dan Attribute-Based Access Control (RBAC/ABAC) secara aman tanpa mengubah core EmDash.",
+				"Selamat datang di plugin AWCMS-Micro SIKESRA. Konsol ini memungkinkan Anda mengelola log audit, event lifecycle, dan simulasi kebijakan Role-Based dan Attribute-Based Access Control (RBAC/ABAC) secara aman tanpa mengubah core EmDash.",
 			refreshDashboard: "Segarkan dasbor",
 			overviewSuccess:
 				"Dasbor berhasil diinisialisasi. Semua sub-sistem plugin (Audit, RBAC, ABAC) aktif penuh dan terhubung ke database dasar.",
@@ -558,7 +558,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		overviewEyebrow: "AWCMS-Micro plugin",
 		overviewTitle: "Plugin Operations Center",
 		overviewDescription:
-			"Welcome to the AWCMS-Micro demonstration plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core.",
+			"Welcome to the AWCMS-Micro SIKESRA plugin. This console allows you to manage audit logs, lifecycle events, and simulate Role-Based and Attribute-Based Access Control (RBAC/ABAC) policies securely without modifying the EmDash core.",
 		refreshDashboard: "Refresh Dashboard",
 		overviewSuccess:
 			"Dashboard initialized successfully. All plugin sub-systems (Audit, RBAC, ABAC) are fully active and connected to the underlying D1 database.",
