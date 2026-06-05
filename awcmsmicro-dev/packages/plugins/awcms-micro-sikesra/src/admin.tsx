@@ -7,6 +7,13 @@ import * as React from "react";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import {
 	postSikesraPlugin,
+	approvePermanentDelete,
+	executePermanentDelete,
+	requestPermanentDelete,
+	restoreRegistry,
+	saveDataTypes,
+	saveRegions,
+	saveSettings as saveSikesraSettings,
 	saveCustomAttributeDefinition,
 	saveCustomAttributeValue,
 	type SikesraAdminApiPath,
@@ -2386,7 +2393,7 @@ function DeleteRequestsPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("crud/permanent-delete/request", requestState);
+			await requestPermanentDelete(requestState, await createAdminApiRequestOptions());
 			setNotice("Permanent delete request created with snapshot review pending.");
 			setRequestState((current) => ({
 				...current,
@@ -2410,11 +2417,14 @@ function DeleteRequestsPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("crud/permanent-delete/approve", {
-				deleteRequestId: item.id,
-				decision,
-				notes: decisionState[item.id]?.notes ?? "",
-			});
+			await approvePermanentDelete(
+				{
+					deleteRequestId: item.id,
+					decision,
+					notes: decisionState[item.id]?.notes ?? "",
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice(`Permanent delete request ${decision}.`);
 			await reload();
 		} catch (cause) {
@@ -2429,10 +2439,16 @@ function DeleteRequestsPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("crud/permanent-delete/execute", {
-				deleteRequestId: item.id,
-				confirmation: decisionState[item.id]?.confirmation,
-			});
+			if (decisionState[item.id]?.confirmation !== "PERMANENT DELETE") {
+				throw new Error("Type PERMANENT DELETE before executing the permanent delete request.");
+			}
+			await executePermanentDelete(
+				{
+					deleteRequestId: item.id,
+					confirmation: "PERMANENT DELETE",
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice("Permanent delete request executed after confirmation.");
 			await reload();
 		} catch (cause) {
@@ -2626,10 +2642,13 @@ function ArchivesPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("registry/restore", {
-				id: entity.id,
-				reason: restoreReasons[entity.id] ?? "",
-			});
+			await restoreRegistry(
+				{
+					id: entity.id,
+					reason: restoreReasons[entity.id] ?? "",
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice(`Restored archived registry entity ${entity.code || entity.id}.`);
 			await reload();
 		} catch (cause) {
@@ -2744,14 +2763,17 @@ function SettingsPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("settings/save", {
-				publicStatusLabel: formState.publicStatusLabel.trim(),
-				auditRetentionDays: Number(formState.auditRetentionDays),
-				governanceMode: formState.governanceMode,
-				metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
-				smallCellThreshold: Number(formState.smallCellThreshold),
-				sikesraPublicEnabled: formState.sikesraPublicEnabled,
-			});
+			await saveSikesraSettings(
+				{
+					publicStatusLabel: formState.publicStatusLabel.trim(),
+					auditRetentionDays: Number(formState.auditRetentionDays),
+					governanceMode: formState.governanceMode,
+					metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
+					smallCellThreshold: Number(formState.smallCellThreshold),
+					sikesraPublicEnabled: formState.sikesraPublicEnabled,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice("SIKESRA settings saved with audit tracking.");
 			await reload();
 		} catch (cause) {
@@ -3145,14 +3167,17 @@ function OverviewPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("settings/save", {
-				publicStatusLabel: formState.publicStatusLabel.trim(),
-				auditRetentionDays: Number(formState.auditRetentionDays),
-				governanceMode: formState.governanceMode,
-				metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
-				smallCellThreshold: Number(formState.smallCellThreshold),
-				sikesraPublicEnabled: formState.sikesraPublicEnabled,
-			});
+			await saveSikesraSettings(
+				{
+					publicStatusLabel: formState.publicStatusLabel.trim(),
+					auditRetentionDays: Number(formState.auditRetentionDays),
+					governanceMode: formState.governanceMode,
+					metadataCanonicalBase: formState.metadataCanonicalBase.trim(),
+					smallCellThreshold: Number(formState.smallCellThreshold),
+					sikesraPublicEnabled: formState.sikesraPublicEnabled,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice(copy.settingsSavedSuccessfully);
 			await reload();
 		} catch (cause) {
@@ -6998,7 +7023,7 @@ export function RegionsPage() {
 		setSuccessMsg(null);
 		setErrMsg(null);
 		try {
-			await postPlugin("regions/save", regions);
+			await saveRegions(regions, await createAdminApiRequestOptions());
 			setSuccessMsg(copy.regionsSavedSuccessfully);
 			setIsDirty(false);
 			await reloadRegions();
@@ -7791,7 +7816,7 @@ export function DataTypesPage() {
 		setSuccessMsg(null);
 		setErrMsg(null);
 		try {
-			await postPlugin("data-types/save", dataTypes);
+			await saveDataTypes(dataTypes, await createAdminApiRequestOptions());
 			setSuccessMsg(copy.dataTypesSavedSuccessfully);
 			setIsDirty(false);
 			await reloadDataTypes();

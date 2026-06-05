@@ -2915,13 +2915,30 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
-	it("uses typed admin API wrappers for custom attribute write calls", () => {
+	it("uses typed admin API wrappers for migrated admin write calls", () => {
 		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
 
 		expect(adminSource).toContain("saveCustomAttributeDefinition(");
 		expect(adminSource).toContain("saveCustomAttributeValue(");
+		expect(adminSource).toContain("saveSikesraSettings(");
+		expect(adminSource).toContain("saveRegions(");
+		expect(adminSource).toContain("saveDataTypes(");
+		expect(adminSource).toContain("requestPermanentDelete(");
+		expect(adminSource).toContain("approvePermanentDelete(");
+		expect(adminSource).toContain("executePermanentDelete(");
+		expect(adminSource).toContain("restoreRegistry(");
+		expect(adminSource).toContain(
+			"Type PERMANENT DELETE before executing the permanent delete request.",
+		);
 		expect(adminSource).not.toContain('postPlugin("custom-attributes/definitions/save"');
 		expect(adminSource).not.toContain('postPlugin("custom-attributes/values/save"');
+		expect(adminSource).not.toContain('postPlugin("settings/save"');
+		expect(adminSource).not.toContain('postPlugin("regions/save"');
+		expect(adminSource).not.toContain('postPlugin("data-types/save"');
+		expect(adminSource).not.toContain('postPlugin("crud/permanent-delete/request"');
+		expect(adminSource).not.toContain('postPlugin("crud/permanent-delete/approve"');
+		expect(adminSource).not.toContain('postPlugin("crud/permanent-delete/execute"');
+		expect(adminSource).not.toContain('postPlugin("registry/restore"');
 	});
 
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
