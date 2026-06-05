@@ -36,6 +36,8 @@ Synced to EmDash `1986dd4`. Upstream `main` moved from `a6e8a91` to `1986dd4`; `
 | AWCMS-Micro Cloudflare template validation | Passed | `pnpm validate:cloudflare-env && pnpm test && pnpm build` passed without credentialed deployment checks |
 | Cloudflare credentialed deployment readiness | Passed | Root `.env` was loaded in-shell without printing values; `bash ./scripts/validate-cloudflare-env.sh --require-credentials` passed |
 | Cloudflare production packaging dry run | Passed | `pnpm exec wrangler deploy --dry-run` completed and exited without mutating Cloudflare resources |
+| Cloudflare production deployment | Passed | `pnpm exec wrangler deploy` deployed Worker `awcms-micro` version `c1cc8f8f-63dc-4e48-bf90-4fa22b2c1a48` to `awcms-micro.ahlikoding.com/*` |
+| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/aggregate`, `/about`, and SIKESRA public status returned `200`; `/_emdash/admin` returned the expected login redirect |
 
 ## Notes
 
@@ -43,7 +45,7 @@ Synced to EmDash `1986dd4`. Upstream `main` moved from `a6e8a91` to `1986dd4`; `
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
 - A clean dependency relink was required after rebuild because stale package-local executable links initially pointed to missing `vitest` and `astro` module paths; the source compatibility checks passed after reinstall.
-- Cloudflare production deployment was not executed in this local sync pass; only credentialed validation and Wrangler dry-run packaging were performed.
+- Cloudflare production deployment was executed after the local sync pass, and post-deploy smoke checks passed for the documented public routes and SIKESRA public status endpoint.
 - Dependabot alert counts were not re-queried in this pass; use the GitHub alert workflow only when GitHub access is explicitly needed.
 - The rebuilt workspace now keeps both `awcmsmicro-dev/.changeset/` and `awcmsmicro-dev/.awcms-changesets/` across syncs.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.

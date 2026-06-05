@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.26 - 2026-06-05
+
+- Records the production Cloudflare deployment of the synchronized AWCMS-Micro workspace and the successful post-deploy smoke checks.
 ## 0.1.25 - 2026-06-05
 
 - Refreshes the parent workspace to upstream EmDash 0.17.2, records the new upstream sync status, and validates downstream AWCMS-Micro plugin and template compatibility.
@@ -87,7 +90,7 @@
 ## Workspace Snapshot - 2026-06-05
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.25`
+- Root version: `0.1.26`
 
 ### Plugins
 
