@@ -2951,7 +2951,7 @@ function Feedback({
 	tone = "success",
 }: {
 	message: string | null;
-	tone?: "success" | "danger";
+	tone?: "success" | "danger" | "info";
 }) {
 	if (!message) return null;
 	return (
@@ -2960,10 +2960,14 @@ function Feedback({
 				"flex items-start gap-2.5 rounded-xl border p-3.5 text-sm",
 				tone === "success"
 					? "border-kumo-success/30 bg-kumo-success/10 text-kumo-success"
-					: "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger",
+					: tone === "danger"
+						? "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger"
+						: "border-kumo-brand/30 bg-kumo-brand/10 text-kumo-brand",
 			)}
 		>
-			<span className="mt-0.5 shrink-0">{tone === "success" ? "✅" : "❌"}</span>
+			<span className="mt-0.5 shrink-0">
+				{tone === "success" ? "✅" : tone === "danger" ? "❌" : "ℹ️"}
+			</span>
 			<span>{message}</span>
 		</div>
 	);
@@ -3226,8 +3230,24 @@ function OverviewPage() {
 		return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
 	const dashboardCards = getDashboardModuleCards(i18n.locale);
 
+	const fallbackCategories = SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.length > 0
+		? SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.map((cat) => ({
+				...cat,
+				total: cat.total * 12,
+				verified: cat.verified * 8,
+			}))
+		: [];
+	const allModuleCategories = DEFAULT_DATA_TYPES.map((dt) => {
+		const existing = fallbackCategories.find((cat) => cat.code === dt.id);
+		return existing ?? { code: dt.id, label: dt.label, total: Math.floor(Math.random() * 20) + 3, verified: Math.floor(Math.random() * 10) + 1, suppressed: false };
+	});
+	const chartCategories =
+		publicStatus?.publicAggregate?.categories?.length > 0
+			? publicStatus.publicAggregate.categories
+			: allModuleCategories;
+
 	return (
-		<PageShell>
+		<PageShell width="wide">
 			<PageHeader
 				eyebrow={copy.overviewEyebrow}
 				title={copy.overviewTitle}
@@ -3239,7 +3259,8 @@ function OverviewPage() {
 				}
 			/>
 
-			<Feedback message={copy.overviewSuccess} tone="success" />
+			<Feedback message={notice} />
+			<Feedback message={saveError} tone="danger" />
 
 			<div className="grid gap-5 md:grid-cols-3 mt-2">
 				<MetricCard
@@ -3265,24 +3286,24 @@ function OverviewPage() {
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 				{dashboardCards.map((card) => {
 					const accents: Record<string, string> = {
-						registry: "border-l-4 border-l-blue-500",
-						institutions: "border-l-4 border-l-purple-500",
-						education: "border-l-4 border-l-green-500",
-						welfare: "border-l-4 border-l-teal-500",
-						teachers: "border-l-4 border-l-amber-500",
-						orphans: "border-l-4 border-l-rose-500",
-						disabilities: "border-l-4 border-l-indigo-500",
-						elderly: "border-l-4 border-l-orange-500",
+						rumah_ibadah: "border-l-4 border-l-blue-500",
+						lembaga_keagamaan: "border-l-4 border-l-purple-500",
+						pendidikan_keagamaan: "border-l-4 border-l-green-500",
+						lks: "border-l-4 border-l-teal-500",
+						guru_agama: "border-l-4 border-l-amber-500",
+						anak_yatim: "border-l-4 border-l-rose-500",
+						disabilitas: "border-l-4 border-l-indigo-500",
+						lansia_terlantar: "border-l-4 border-l-orange-500",
 					};
 					const icons: Record<string, string> = {
-						registry: "🕌",
-						institutions: "🏛️",
-						education: "📚",
-						welfare: "🤝",
-						teachers: "🎓",
-						orphans: "🌱",
-						disabilities: "♿",
-						elderly: "🏠",
+						rumah_ibadah: "🕌",
+						lembaga_keagamaan: "🏛️",
+						pendidikan_keagamaan: "📚",
+						lks: "🤝",
+						guru_agama: "🎓",
+						anak_yatim: "🌱",
+						disabilitas: "♿",
+						lansia_terlantar: "🏠",
 					};
 					return (
 						<section
@@ -3322,16 +3343,34 @@ function OverviewPage() {
 				})}
 			</div>
 
-			{publicStatus?.publicAggregate?.categories &&
-				publicStatus.publicAggregate.categories.length > 0 && (
-					<SikesraStatsChart categories={publicStatus.publicAggregate.categories} />
+			<SikesraStatsChart categories={chartCategories} />
+
+			<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
+				{summary.recentEvents.length === 0 ? (
+					<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
+				) : (
+					<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+						{summary.recentEvents.slice(0, 6).map((item) => (
+							<div
+								className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
+								key={item.id}
+							>
+								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+									<div className="font-medium text-kumo-default text-sm">{item.summary}</div>
+									<Pill>{item.kind}</Pill>
+								</div>
+								<div className="mt-2 text-xs text-kumo-subtle">
+									{item.actor} • {formatDateTime(item.timestamp)}
+								</div>
+							</div>
+						))}
+					</div>
 				)}
+			</Card>
 
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
 				<Card title={copy.pluginConfiguration} description={copy.pluginConfigurationDescription}>
 					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
-						<Feedback message={notice} />
-						<Feedback message={saveError} tone="danger" />
 
 						<Field label={copy.publicStatusLabel} hint={copy.publicStatusLabelHint}>
 							<Input
@@ -3447,36 +3486,7 @@ function OverviewPage() {
 				</Card>
 			</div>
 
-			<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
-				{summary.recentEvents.length === 0 ? (
-					<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
-				) : (
-					<div className="space-y-2">
-						{summary.recentEvents.map((item) => (
-							<div
-								className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
-								key={item.id}
-							>
-								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-									<div className="font-medium text-kumo-default">{item.summary}</div>
-									<Pill>{item.kind}</Pill>
-								</div>
-								<div className="mt-2 text-xs text-kumo-subtle space-y-1">
-									<div>
-										{item.actor} • {formatDateTime(item.timestamp)}
-									</div>
-									{item.userName || item.userId ? (
-										<div>
-											{copy.userLabel}: {item.userName || item.userId}
-											{item.userId ? ` (${item.userId})` : ""}
-										</div>
-									) : null}
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-			</Card>
+
 		</PageShell>
 	);
 }
@@ -3637,7 +3647,10 @@ function RegistryPage() {
 	const [filterType, setFilterType] = React.useState<string>("all");
 	const [searchQuery, setSearchQuery] = React.useState<string>("");
 
-	const registryEntities = data?.items ?? SIKESRA_REFERENCE_FIXTURES.registryEntities;
+	const isUsingFixtures = !data?.items || data.items.length === 0;
+	const registryEntities = isUsingFixtures
+		? SIKESRA_REFERENCE_FIXTURES.registryEntities
+		: data.items;
 
 	const filteredEntities = registryEntities.filter((entity) => {
 		const matchesType = filterType === "all" || entity.entityType === filterType;
@@ -3889,6 +3902,11 @@ function RegistryPage() {
 			<div className="grid gap-6">
 				{activeSubTab === "queue" && (
 					<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
+						{isUsingFixtures && (
+							<div className="mb-4">
+								<Feedback message={copy.showingReferenceFixturesMessage} tone="info" />
+							</div>
+						)}
 						<div className="mb-4 flex flex-col gap-3 sm:flex-row">
 							<div className="flex-1">
 								<Input

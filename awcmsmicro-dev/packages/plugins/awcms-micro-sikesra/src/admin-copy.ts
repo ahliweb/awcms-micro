@@ -510,6 +510,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 			failedToSaveDataTypes: "Gagal memperbarui data klasifikasi jenis data.",
 			invalidTypeCode: "Kode harus berupa 2 digit angka/karakter unik.",
 			userLabel: "Pengguna",
+			showingReferenceFixturesMessage: "Menampilkan data referensi/contoh karena antrean registry saat ini kosong. Gunakan tab 'Wizard Input Progresif' untuk menambahkan entitas baru.",
 			...poCopy,
 		};
 	}
@@ -1015,6 +1016,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		failedToSaveDataTypes: "Failed to update SIKESRA classification data.",
 		invalidTypeCode: "Code must be a unique 2-digit number/alphanumeric.",
 		userLabel: "User",
+		showingReferenceFixturesMessage: "Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records.",
 		...poCopy,
 	};
 }
