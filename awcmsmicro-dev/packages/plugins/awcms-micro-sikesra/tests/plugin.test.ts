@@ -142,6 +142,34 @@ function createAdminRequest() {
 	});
 }
 
+function expectPublicSafeOutput(value: unknown) {
+	const serialized = JSON.stringify(value).toLowerCase();
+	for (const token of [
+		"registry-entity-",
+		"storagekey",
+		"storage_key",
+		"checksum",
+		"fileobject",
+		"file_object",
+		"document_metadata",
+		"raw_document",
+		"nik",
+		"nomor_kk",
+		"alamat",
+		"ktp",
+		"domisili",
+		"phone",
+		"telepon",
+		"email",
+		"latitude",
+		"longitude",
+		"unexpected production route failure",
+		"no such column",
+	]) {
+		expect(serialized, `public output leaks ${token}`).not.toContain(token);
+	}
+}
+
 function createMockContext() {
 	const kvData = new Map<string, unknown>();
 	const collections = {
@@ -2299,9 +2327,7 @@ describe("awcms micro sikesra plugin", () => {
 			suppressed: true,
 			suppressionReason: "Count is below the configured small-cell threshold of 3.",
 		});
-		expect(JSON.stringify(publicResult)).not.toContain("registry-entity-");
-		expect(publicResult).not.toHaveProperty("storageKey");
-		expect(publicResult).not.toHaveProperty("userId");
+		expectPublicSafeOutput(publicResult);
 		expect(settingsTableRows).toHaveLength(6);
 		expect(collections.settingsState.size).toBe(0);
 		expect(collections.pluginState.size).toBeGreaterThan(0);
@@ -2360,6 +2386,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
 		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+		expectPublicSafeOutput(result);
 	});
 
 	it("keeps the public status route available when fallback plugin storage is unavailable", async () => {
@@ -2381,6 +2408,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
 		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+		expectPublicSafeOutput(result);
 	});
 
 	it("returns a public-safe status fallback for production schema drift errors", async () => {
@@ -2400,7 +2428,7 @@ describe("awcms micro sikesra plugin", () => {
 			governanceMode: "review",
 		});
 		expect(result.publicAggregate.categories).toEqual([]);
-		expect(JSON.stringify(result)).not.toContain("registry-entity-");
+		expectPublicSafeOutput(result);
 	});
 
 	it("returns a public-safe status fallback for unexpected public route errors", async () => {
@@ -2416,7 +2444,7 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
 		expect(result.publicAggregate.categories).toEqual([]);
-		expect(JSON.stringify(result)).not.toContain("unexpected production route failure");
+		expectPublicSafeOutput(result);
 	});
 
 	it("does not fail lifecycle hooks when the production audit table has a legacy schema", async () => {
