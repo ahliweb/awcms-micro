@@ -2877,6 +2877,11 @@ describe("awcms micro sikesra plugin", () => {
 		for (const key of SIKESRA_ADMIN_API_PATHS) {
 			expect(runtimeRoutes[key], `${key} missing from runtime plugin routes`).toBeDefined();
 		}
+		const internalRuntimeRoutes = new Set(["state/touch"]);
+		for (const key of Object.keys(runtimeRoutes)) {
+			if (internalRuntimeRoutes.has(key)) continue;
+			expect(clientPathSet.has(key), `${key} missing from admin API path list`).toBe(true);
+		}
 
 		for (const key of [
 			"registry/list",
@@ -2919,13 +2924,8 @@ describe("awcms micro sikesra plugin", () => {
 			"/_emdash/api/plugins/awcms-micro-sikesra/access/users/list?roles=sikesra_admin&roles=sikesra_auditor&includeInactive=true",
 		);
 
-		for (const key of [
-			"registry/save",
-			"custom-attributes/definitions/save",
-			"custom-attributes/values/save",
-			"access/users/save",
-			"abac/preview",
-		] as const) {
+		const mutationRoutePattern = /\/(save|correct|soft-delete|restore|access|create|promote|decide|request|approve|execute|advance|reject|preview|enforce-demo)$/;
+		for (const key of SIKESRA_ADMIN_API_PATHS.filter((path) => mutationRoutePattern.test(path))) {
 			expect(getSikesraAdminApiMethod(key), key).toBe("POST");
 		}
 		expect(createSikesraAdminApiUrl("registry/save", "POST", { id: "registry-1" })).toBe(

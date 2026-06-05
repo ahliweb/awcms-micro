@@ -70,7 +70,7 @@
 		"awcms:sikesra:check-user-references": "node scripts/check-user-references.mjs",
 		"awcms:sikesra:check-file-links": "node scripts/check-file-links.mjs",
 		"awcms:sikesra:check-seeds": "node scripts/check-seeds.mjs",
-		"awcms:sikesra:check-routes": "vitest run tests/plugin.test.ts -t 'registers required SIKESRA plugin routes'",
+		"awcms:sikesra:check-routes": "vitest run tests/plugin.test.ts -t 'registers required SIKESRA plugin routes|uses GET for SIKESRA admin read APIs'",
 		"awcms:sikesra:check-admin-pages": "vitest run tests/plugin.test.ts -t 'declares admin pages'",
 		"awcms:sikesra:backup-inventory": "node scripts/backup-inventory.mjs",
 		"awcms:sikesra:validate-data-after-rebuild": "node scripts/validate-data-after-rebuild.mjs",
