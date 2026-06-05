@@ -80,14 +80,6 @@ describe("SIKESRA services", () => {
 		await expect(
 			createVerificationService().advance({ registryEntityId: "r1", verifierLevel: "desa" }),
 		).resolves.toMatchObject({ ok: false });
-		await expect(
-			createDocumentService().saveMetadata({
-				registryEntityId: "r1",
-				title: "Doc",
-				documentType: "pdf",
-				classification: "restricted",
-			}),
-		).resolves.toMatchObject({ ok: false });
 		await expect(createImportService().promote({ batchId: "b1" })).resolves.toMatchObject({
 			ok: false,
 		});
@@ -108,6 +100,58 @@ describe("SIKESRA services", () => {
 		await expect(
 			createCrudGovernanceService().softDelete({ id: "r1", reason: "duplicate" }),
 		).resolves.toMatchObject({ ok: false });
+	});
+
+	it("saves document metadata through an admin-safe DTO contract", async () => {
+		await expect(
+			createDocumentService().saveMetadata({
+				registryEntityId: " registry-entity-1 ",
+				title: " Surat Keterangan Domisili ",
+				documentType: " surat_keterangan ",
+				classification: "restricted",
+				fileObjectId: " file-1 ",
+				contentType: " application/pdf ",
+				fileSizeBytes: 2048,
+				checksumSha256: " abc123 ",
+				originalFilename: "private-original-name.pdf",
+				safeFilename: "safe-name.pdf",
+			}),
+		).resolves.toEqual({
+			ok: true,
+			data: {
+				id: "registry-entity-1:document:surat-keterangan-domisili",
+				registryEntityId: "registry-entity-1",
+				title: "Surat Keterangan Domisili",
+				documentType: "surat_keterangan",
+				classification: "restricted",
+				validationStatus: "pending",
+				fileObjectId: "file-1",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: "abc123",
+			},
+		});
+
+		await expect(
+			createDocumentService().saveMetadata({
+				registryEntityId: "",
+				title: "",
+				documentType: "pdf",
+				classification: "secret",
+				fileSizeBytes: -1,
+			}),
+		).resolves.toMatchObject({
+			ok: false,
+			error: {
+				code: "SIKESRA_VALIDATION_ERROR",
+				fieldErrors: {
+					registryEntityId: ["Registry entity ID is required."],
+					title: ["Document title is required."],
+					classification: ["Classification must be public_safe, internal, or restricted."],
+					fileSizeBytes: ["File size must not be negative."],
+				},
+			},
+		});
 	});
 
 	it("creates controlled export service jobs with public-safe field filtering", async () => {
