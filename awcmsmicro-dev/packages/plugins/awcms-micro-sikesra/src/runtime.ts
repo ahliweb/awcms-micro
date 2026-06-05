@@ -2755,21 +2755,21 @@ function validateSupportingDocumentInput(doc: SikesraReferenceSupportingDocument
 	if (!AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS.includes(doc.sensitivity as any)) {
 		invalidFields.push("classification");
 	}
-	if (doc.contentType && !AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES.includes(doc.contentType as any)) {
+	if (!doc.contentType || !AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES.includes(doc.contentType as any)) {
 		invalidFields.push("contentType");
 	}
 	if (
-		doc.fileSizeBytes != null &&
-		(!Number.isInteger(doc.fileSizeBytes) ||
+		doc.fileSizeBytes == null ||
+		!Number.isInteger(doc.fileSizeBytes) ||
 			doc.fileSizeBytes < 0 ||
-			doc.fileSizeBytes > AWCMS_SIKESRA_DOCUMENT_MAX_FILE_SIZE_BYTES)
+			doc.fileSizeBytes > AWCMS_SIKESRA_DOCUMENT_MAX_FILE_SIZE_BYTES
 	) {
 		invalidFields.push("fileSizeBytes");
 	}
-	if (doc.checksumSha256 && !SIKESRA_DOCUMENT_CHECKSUM_PATTERN.test(doc.checksumSha256)) {
+	if (!doc.checksumSha256 || !SIKESRA_DOCUMENT_CHECKSUM_PATTERN.test(doc.checksumSha256)) {
 		invalidFields.push("checksumSha256");
 	}
-	if (doc.safeFilename && !SIKESRA_SAFE_FILENAME_PATTERN.test(doc.safeFilename)) {
+	if (!doc.safeFilename || !SIKESRA_SAFE_FILENAME_PATTERN.test(doc.safeFilename)) {
 		invalidFields.push("safeFilename");
 	}
 	return invalidFields;

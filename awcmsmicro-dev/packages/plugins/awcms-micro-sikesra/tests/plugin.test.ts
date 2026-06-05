@@ -3840,6 +3840,10 @@ describe("awcms micro sikesra plugin", () => {
 				documentType: "surat_keterangan",
 				title: "Custom Document",
 				sensitivity: "internal",
+				contentType: "application/pdf",
+				fileSizeBytes: 1024,
+				checksumSha256: "c".repeat(64),
+				safeFilename: "custom-document.pdf",
 			},
 		} as any);
 
@@ -4059,6 +4063,25 @@ describe("awcms micro sikesra plugin", () => {
 	it("validates document metadata before D1 persistence", async () => {
 		const { ctx, fileObjectTableRows, supportingDocumentTableRows } = createMockContext();
 		const routes = createNativeRoutes();
+		const missingMetadata = (await routes["documents/save"]!.handler({
+			...ctx,
+			request: createAdminRequest(),
+			input: {
+				id: "doc-missing-metadata-01",
+				registryEntityId: "registry-entity-custom-01",
+				documentType: "surat_keterangan",
+				title: "Missing Metadata Document",
+				classification: "restricted",
+			},
+		} as any)) as any;
+
+		expect(missingMetadata.success).toBe(false);
+		expect(missingMetadata.error.details.fields).toEqual([
+			"contentType",
+			"fileSizeBytes",
+			"checksumSha256",
+			"safeFilename",
+		]);
 
 		const result = (await routes["documents/save"]!.handler({
 			...ctx,
