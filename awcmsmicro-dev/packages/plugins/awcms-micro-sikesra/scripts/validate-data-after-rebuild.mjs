@@ -9,6 +9,7 @@ const commands = [
 	["node", ["scripts/check-destructive-migrations.mjs"]],
 	["node", ["scripts/check-user-references.mjs"]],
 	["node", ["scripts/check-file-links.mjs"]],
+	["node", ["scripts/check-seeds.mjs"]],
 	["node", ["scripts/backup-inventory.mjs"]],
 ];
 

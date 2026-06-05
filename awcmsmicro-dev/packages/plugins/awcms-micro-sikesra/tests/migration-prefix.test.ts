@@ -7,12 +7,15 @@ import { SIKESRA_D1_TABLES, SIKESRA_MIGRATION_FILES } from "../src/db/index.js";
 import { AWCMS_SIKESRA_D1_TABLE_NAMES } from "../src/runtime.js";
 
 const MIGRATIONS_DIR = resolve(import.meta.dirname, "../migrations");
+const SEEDS_DIR = resolve(import.meta.dirname, "../seeds");
 const CREATE_TABLE_PATTERN =
 	/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const CREATE_INDEX_PATTERN =
 	/CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const CREATE_TRIGGER_PATTERN =
 	/CREATE\s+TRIGGER\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
+const INSERT_TABLE_PATTERN = /INSERT\s+OR\s+IGNORE\s+INTO\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
+const DESTRUCTIVE_SEED_PATTERN = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
 
 const REQUIRED_REGISTRY_TABLES = [
 	"sikesra_registry_entities",
@@ -67,6 +70,13 @@ function readMigrationSqlFiles() {
 	return readdirSync(MIGRATIONS_DIR)
 		.filter((file) => file.endsWith(".sql"))
 		.map((file) => ({ file, sql: readFileSync(join(MIGRATIONS_DIR, file), "utf8") }));
+}
+
+function readSeedSqlFiles() {
+	if (!existsSync(SEEDS_DIR)) return [];
+	return readdirSync(SEEDS_DIR)
+		.filter((file) => file.endsWith(".sql"))
+		.map((file) => ({ file, sql: readFileSync(join(SEEDS_DIR, file), "utf8") }));
 }
 
 function readAllMigrationSql() {
@@ -162,6 +172,30 @@ describe("SIKESRA D1 migration prefix policy", () => {
 		expect(definition).not.toBe("");
 		for (const column of REQUIRED_AUDIT_COLUMNS) {
 			expect(definition, `sikesra_audit_events missing ${column}`).toContain(column);
+		}
+	});
+
+	it("keeps seed SQL scoped to existing non-destructive SIKESRA tables", () => {
+		const migrationTables = new Set<string>();
+		for (const { sql } of readMigrationSqlFiles()) {
+			for (const match of sql.matchAll(CREATE_TABLE_PATTERN)) {
+				migrationTables.add(match[1] ?? "");
+			}
+		}
+
+		for (const { file, sql } of readSeedSqlFiles()) {
+			expect(sql, `${file} must remain ASCII-safe for portable SQL tooling`).toMatch(
+				/^[\x00-\x7F]*$/,
+			);
+			expect(sql, `${file} must not contain destructive statements`).not.toMatch(
+				DESTRUCTIVE_SEED_PATTERN,
+			);
+
+			for (const match of sql.matchAll(INSERT_TABLE_PATTERN)) {
+				const table = match[1] ?? "";
+				expect(table, `${file} inserts into non-SIKESRA table`).toMatch(/^sikesra_/);
+				expect(migrationTables.has(table), `${file} inserts into missing table ${table}`).toBe(true);
+			}
 		}
 	});
 });

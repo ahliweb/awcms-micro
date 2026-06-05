@@ -104,8 +104,8 @@ INSERT OR IGNORE INTO sikesra_person_profiles (
 	created_by,
 	updated_by
 ) VALUES
-	('__TENANT_ID__', '__SITE_ID__', 'person-guru-agama-01', 'Guru Agama Referensi', 'NIK-REDACTED', '+62••••••014', 'guru•••@example.invalid', 'sensitive_personal', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'person-disabilitas-01', 'Penerima Layanan Disabilitas', 'NIK-REDACTED', '+62••••••021', NULL, 'sensitive_personal', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'person-guru-agama-01', 'Guru Agama Referensi', 'NIK-REDACTED', '+62-REDACTED-014', 'guru-redacted@example.invalid', 'sensitive_personal', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'person-disabilitas-01', 'Penerima Layanan Disabilitas', 'NIK-REDACTED', '+62-REDACTED-021', NULL, 'sensitive_personal', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_entity_people (
 	tenant_id,
