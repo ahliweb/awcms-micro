@@ -31,9 +31,16 @@ export interface SikesraCustomAttributeDefinitionRequest extends Partial<Sikesra
 	isExportable?: boolean;
 }
 
+export type SikesraCustomAttributeOwnerType =
+	| "registry"
+	| "registry_entity"
+	| "sikesra_id"
+	| "entity_type"
+	| "subtype";
+
 export interface SikesraCustomAttributeValueRequest {
 	definitionId: string;
-	ownerType: string;
+	ownerType: SikesraCustomAttributeOwnerType;
 	ownerId: string;
 	registryEntityId?: string;
 	sikesraId20?: string;

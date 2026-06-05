@@ -1,8 +1,17 @@
-import type { SikesraCustomAttributeValueRequest } from "../contracts/index.js";
+import type {
+	SikesraCustomAttributeOwnerType,
+	SikesraCustomAttributeValueRequest,
+} from "../contracts/index.js";
 import { SIKESRA_ERROR_CODES, sikesraError } from "../contracts/index.js";
 import { serviceOk, type SikesraServiceResult } from "./service-result.js";
 
-const ALLOWED_OWNER_TYPES = new Set(["registry", "registry_entity", "sikesra_id", "entity_type", "subtype"]);
+const ALLOWED_OWNER_TYPES = new Set<SikesraCustomAttributeOwnerType>([
+	"registry",
+	"registry_entity",
+	"sikesra_id",
+	"entity_type",
+	"subtype",
+]);
 const OWNER_TYPE_ERROR_MESSAGE =
 	"Owner type must be registry, registry_entity, sikesra_id, entity_type, or subtype.";
 
@@ -30,7 +39,7 @@ function createCustomAttributeValueId(input: SikesraCustomAttributeValueRequest)
 function validateCustomAttributeValue(input: SikesraCustomAttributeValueRequest) {
 	const fieldErrors: Record<string, string[]> = {};
 	if (!input.definitionId.trim()) fieldErrors.definitionId = ["Definition ID is required."];
-	if (!ALLOWED_OWNER_TYPES.has(input.ownerType.trim())) {
+	if (!ALLOWED_OWNER_TYPES.has(input.ownerType.trim() as SikesraCustomAttributeOwnerType)) {
 		fieldErrors.ownerType = [OWNER_TYPE_ERROR_MESSAGE];
 	}
 	if (!input.ownerId.trim()) fieldErrors.ownerId = ["Owner ID is required."];

@@ -447,7 +447,7 @@ describe("SIKESRA services", () => {
 		await expect(
 			createCustomAttributeService().saveValue({
 				definitionId: " custom-def-1 ",
-				ownerType: " registry ",
+				ownerType: "registry_entity",
 				ownerId: " registry-entity-1 ",
 				registryEntityId: " registry-entity-1 ",
 				sikesraId20: " 62010100010101000001 ",
@@ -456,9 +456,9 @@ describe("SIKESRA services", () => {
 		).resolves.toEqual({
 			ok: true,
 			data: {
-				id: "custom-def-1:registry:registry-entity-1",
+				id: "custom-def-1:registry_entity:registry-entity-1",
 				definitionId: "custom-def-1",
-				ownerType: "registry",
+				ownerType: "registry_entity",
 				ownerId: "registry-entity-1",
 				registryEntityId: "registry-entity-1",
 				sikesraId20: "62010100010101000001",
@@ -492,7 +492,7 @@ describe("SIKESRA services", () => {
 		await expect(
 			createCustomAttributeService().saveValue({
 				definitionId: "",
-				ownerType: "core_table",
+				ownerType: "core_table" as never,
 				ownerId: "",
 				value: undefined,
 			}),

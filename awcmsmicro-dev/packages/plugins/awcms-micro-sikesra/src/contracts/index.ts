@@ -64,6 +64,7 @@ export type {
 export type {
 	SikesraCustomAttributeDefinitionRequest,
 	SikesraCustomAttributeDefinitionDto,
+	SikesraCustomAttributeOwnerType,
 	SikesraCustomAttributeValueRequest,
 } from "./custom-attribute-contracts.js";
 export type {
