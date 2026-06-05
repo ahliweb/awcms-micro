@@ -2291,7 +2291,7 @@ async function saveRegistryEntity(
 async function getD1RegistryEntities(
 	ctx: PluginContext,
 	options: { includeDeleted?: boolean } = {},
-): Promise<Array<SikesraReferenceRegistryEntity & { deletedAt?: string | null }>> {
+): Promise<Array<SikesraReferenceRegistryEntity & { deletedAt?: string | null; subtypeCode?: string | null }>> {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return [];
 
@@ -2323,6 +2323,7 @@ async function getD1RegistryEntities(
 		code: string;
 		label: string;
 		entity_type: string;
+		subtype_code?: string | null;
 		sensitivity: SikesraSensitivity;
 		province_code?: string | null;
 		regency_code?: string | null;
@@ -2346,6 +2347,7 @@ async function getD1RegistryEntities(
 		code: row.code,
 		label: row.label,
 		entityType: row.entity_type,
+		subtypeCode: row.subtype_code ?? null,
 		sensitivity: row.sensitivity,
 		region: {
 			provinceCode: row.province_code ?? "",
@@ -2382,7 +2384,7 @@ async function updateD1RegistryEntityDeletedAt(
 			code: existing.code,
 			label: existing.label,
 			entity_type: existing.entityType,
-			subtype_code: null,
+			subtype_code: existing.subtypeCode ?? null,
 			sensitivity: existing.sensitivity,
 			province_code: existing.region.provinceCode || null,
 			regency_code: existing.region.regencyCode || null,
@@ -4850,6 +4852,17 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		supportingDocumentIds: [],
 		publicSummary: getRegistryString("publicSummary") ?? "",
 	};
+	const canonicalFields = {
+		...fields,
+		code: getRegistryString("code"),
+		typeCode: getRegistryString("typeCode"),
+		subtypeCode: getRegistryString("subtypeCode"),
+		provinceCode: getRegistryString("provinceCode"),
+		regencyCode: getRegistryString("regencyCode"),
+		districtCode: getRegistryString("districtCode"),
+		villageCode: getRegistryString("villageCode"),
+		publicSummary: getRegistryString("publicSummary"),
+	};
 	const duplicateOverrideReason = getString(input, "duplicateOverrideReason")?.trim() ?? "";
 	const duplicateEntity = (await getRegistryEntities(ctx)).find(
 		(entity) => entity.id !== newEntity.id && entity.code === newEntity.code,
@@ -4883,7 +4896,7 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		);
 	}
 
-	await saveRegistryEntity(ctx, newEntity, fields);
+	await saveRegistryEntity(ctx, newEntity, canonicalFields);
 
 	await appendAuditEvent(
 		ctx,

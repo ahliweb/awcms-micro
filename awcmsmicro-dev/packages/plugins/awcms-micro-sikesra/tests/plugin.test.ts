@@ -3913,6 +3913,8 @@ describe("awcms micro sikesra plugin", () => {
 				code: "CRUD-001",
 				label: "CRUD Registry Entity",
 				entityType: "rumah_ibadah",
+				typeCode: "01",
+				subtypeCode: "03",
 				sensitivity: "public_safe",
 				provinceCode: "62",
 				regencyCode: "6201",
@@ -3921,6 +3923,9 @@ describe("awcms micro sikesra plugin", () => {
 				publicSummary: "CRUD summary",
 			},
 		} as any);
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")).toMatchObject(
+			{ subtype_code: "03" },
+		);
 
 		const softDeleted = (await routes["registry/soft-delete"]!.handler({
 			...ctx,
@@ -3931,6 +3936,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(
 			registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at,
 		).toBeTruthy();
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")).toMatchObject(
+			{ subtype_code: "03" },
+		);
 
 		const activeAfterDelete = (await routes["registry/list"]!.handler({
 			...ctx,
@@ -3959,6 +3967,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(
 			registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")?.deleted_at,
 		).toBeNull();
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-crud-01")).toMatchObject(
+			{ subtype_code: "03" },
+		);
 
 		const activeAfterRestore = (await routes["registry/list"]!.handler({
 			...ctx,
