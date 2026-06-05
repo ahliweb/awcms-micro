@@ -6496,6 +6496,22 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 		dataType,
 	);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const targetRegistryEntityId = getString(input, "targetRegistryEntityId")?.trim();
+	if (scope === "registry_entity") {
+		const linkedEntity = (await getRegistryEntities(ctx)).find(
+			(entity) => entity.id === targetRegistryEntityId,
+		);
+		if (!linkedEntity) {
+			return {
+				success: false,
+				error: {
+					code: "NOT_FOUND",
+					message: "Linked registry entity was not found.",
+					details: { fields: ["targetRegistryEntityId"] },
+				},
+			};
+		}
+	}
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto)

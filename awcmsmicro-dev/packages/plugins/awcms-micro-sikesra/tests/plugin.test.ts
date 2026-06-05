@@ -5039,6 +5039,64 @@ describe("awcms micro sikesra plugin", () => {
 		expect(missingScopeTarget.success).toBe(false);
 		expect(missingScopeTarget.error.details.fields).toEqual(["targetSikesraId20"]);
 
+		const missingRegistryTarget = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-missing-registry-target-01",
+				key: "missing_registry_specific_note",
+				label: "Missing Registry Specific Note",
+				scope: "registry_entity",
+				targetRegistryEntityId: "registry-entity-does-not-exist",
+				dataClass: "personal",
+				dataType: "text",
+			},
+		} as any)) as any;
+		expect(missingRegistryTarget.success).toBe(false);
+		expect(missingRegistryTarget.error.code).toBe("NOT_FOUND");
+		expect(missingRegistryTarget.error.details.fields).toEqual(["targetRegistryEntityId"]);
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-definition-deleted-01",
+				code: "CUSTOM-ATTR-DEF-DELETED-001",
+				label: "Deleted Definition Target Registry Entity",
+				entityType: "rumah_ibadah",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any);
+		await routes["registry/soft-delete"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-definition-deleted-01", reason: "Retired training record" },
+		} as any);
+		const deletedRegistryTarget = (await routes["custom-attributes/definitions/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "custom-attr-deleted-registry-target-01",
+				key: "deleted_registry_specific_note",
+				label: "Deleted Registry Specific Note",
+				scope: "registry_entity",
+				targetRegistryEntityId: "registry-entity-definition-deleted-01",
+				dataClass: "personal",
+				dataType: "text",
+			},
+		} as any)) as any;
+		expect(deletedRegistryTarget.success).toBe(false);
+		expect(deletedRegistryTarget.error.code).toBe("NOT_FOUND");
+		expect(customAttributeDefinitionTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-attr-missing-registry-target-01" }),
+		);
+		expect(customAttributeDefinitionTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "custom-attr-deleted-registry-target-01" }),
+		);
+
 		const scopedDefinitions = [
 			{
 				id: "custom-attr-public-export-01",
