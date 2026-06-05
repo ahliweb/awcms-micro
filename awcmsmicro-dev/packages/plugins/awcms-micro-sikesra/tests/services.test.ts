@@ -469,6 +469,28 @@ describe("SIKESRA services", () => {
 
 		await expect(
 			createCustomAttributeService().saveValue({
+				definitionId: "custom-def-1",
+				ownerType: "registry_entity",
+				ownerId: "registry-entity-1",
+				registryEntityId: "registry-entity-1",
+				value: "UI submitted value",
+			}),
+		).resolves.toEqual({
+			ok: true,
+			data: {
+				id: "custom-def-1:registry_entity:registry-entity-1",
+				definitionId: "custom-def-1",
+				ownerType: "registry_entity",
+				ownerId: "registry-entity-1",
+				registryEntityId: "registry-entity-1",
+				sikesraId20: undefined,
+				value: "UI submitted value",
+				status: "pending_persistence",
+			},
+		});
+
+		await expect(
+			createCustomAttributeService().saveValue({
 				definitionId: "",
 				ownerType: "core_table",
 				ownerId: "",
@@ -476,12 +498,14 @@ describe("SIKESRA services", () => {
 			}),
 		).resolves.toMatchObject({
 			ok: false,
-			error: {
-				code: "SIKESRA_VALIDATION_ERROR",
-				fieldErrors: {
-					definitionId: ["Definition ID is required."],
-					ownerType: ["Owner type must be registry, sikesra_id, entity_type, or subtype."],
-					ownerId: ["Owner ID is required."],
+				error: {
+					code: "SIKESRA_VALIDATION_ERROR",
+					fieldErrors: {
+						definitionId: ["Definition ID is required."],
+						ownerType: [
+							"Owner type must be registry, registry_entity, sikesra_id, entity_type, or subtype.",
+						],
+						ownerId: ["Owner ID is required."],
 					value: ["Custom attribute value is required."],
 				},
 			},
