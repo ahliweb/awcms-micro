@@ -92,13 +92,6 @@ describe("SIKESRA services", () => {
 			ok: false,
 		});
 		await expect(
-			createExportService().create({
-				exportType: "report",
-				requestedFields: [],
-				sensitivityLevel: "public_safe",
-			}),
-		).resolves.toMatchObject({ ok: false });
-		await expect(
 			createAccessService().preview({ userId: "u1", permissionSlug: "sikesra.registry.read" }),
 		).resolves.toMatchObject({ ok: false });
 		await expect(
@@ -115,6 +108,44 @@ describe("SIKESRA services", () => {
 		await expect(
 			createCrudGovernanceService().softDelete({ id: "r1", reason: "duplicate" }),
 		).resolves.toMatchObject({ ok: false });
+	});
+
+	it("creates controlled export service jobs with public-safe field filtering", async () => {
+		await expect(
+			createExportService().create({
+				id: "export-1",
+				exportType: "report",
+				entityType: "rumah_ibadah",
+				requestedFields: ["label", "alamat_ktp_detail", "label", "document_key"],
+				sensitivityLevel: "public_safe",
+			}),
+		).resolves.toEqual({
+			ok: true,
+			data: {
+				id: "export-1",
+				exportType: "report",
+				status: "needs_review",
+				sensitivityLevel: "public_safe",
+				requestedFields: ["label"],
+				resultSummary: {
+					entityType: "rumah_ibadah",
+					filters: {},
+					excludedFields: ["alamat_ktp_detail", "document_key"],
+				},
+				requestedAt: "pending-persistence",
+			},
+		});
+
+		await expect(
+			createExportService().create({
+				exportType: "report",
+				requestedFields: ["label", "email"],
+				sensitivityLevel: "restricted",
+			}),
+		).resolves.toMatchObject({
+			ok: false,
+			error: { code: "SIKESRA_VALIDATION_ERROR" },
+		});
 	});
 
 	it("redacts audit events through the audit service boundary", () => {
