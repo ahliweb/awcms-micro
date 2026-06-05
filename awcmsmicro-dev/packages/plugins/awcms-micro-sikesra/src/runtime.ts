@@ -1993,7 +1993,7 @@ function assertRuntimeD1Available(
 ) {
 	const db = getRuntimeD1(ctx);
 	if (db?.[capability]) return true;
-	if (isProductionRuntime()) {
+	if (isProductionRuntime() && capability === "insertInto") {
 		throw new Error(
 			`SIKESRA production runtime requires a D1 binding for canonical ${surface} runtime state.`,
 		);
@@ -4597,7 +4597,14 @@ async function requireRoutePermission(ctx: PluginContext, permissionSlug: string
 
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	try {
-		await incrementCounter(ctx, "state:publicStatusHits");
+		try {
+			await incrementCounter(ctx, "state:publicStatusHits");
+		} catch (cause) {
+			ctx?.log.warn(
+				`[${AWCMS_SIKESRA_PLUGIN_ID}] Public status hit counter unavailable; continuing without telemetry.`,
+				cause,
+			);
+		}
 		const settings = await getSettings(ctx);
 
 		if (!settings.sikesraPublicEnabled) {

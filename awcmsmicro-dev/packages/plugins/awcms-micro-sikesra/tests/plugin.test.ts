@@ -2443,6 +2443,44 @@ describe("awcms micro sikesra plugin", () => {
 		expectPublicSafeOutput(result);
 	});
 
+	it("keeps the public status route available when public telemetry storage fails", async () => {
+		const { ctx } = createMockContext();
+		ctx.storage.sikesra_plugin_state!.query = vi.fn(async () => {
+			throw new TypeError("production telemetry storage unavailable");
+		});
+
+		const result = (await createNativeRoutes()["public/status"]!.handler({
+			...ctx,
+			input: {},
+		} as any)) as any;
+
+		expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
+		expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+		expectPublicSafeOutput(result);
+	});
+
+	it("keeps the public status route available when production plugin context omits direct db access", async () => {
+		const { ctx } = createMockContext();
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+		delete (ctx as any).db;
+
+		try {
+			const result = (await createNativeRoutes()["public/status"]!.handler({
+				...ctx,
+				input: {},
+			} as any)) as any;
+
+			expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
+			expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
+			expectPublicSafeOutput(result);
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
+
 	it("returns a public-safe status fallback for production schema drift errors", async () => {
 		const { ctx } = createMockContext();
 		ctx.kv.get = vi.fn(async () => {
