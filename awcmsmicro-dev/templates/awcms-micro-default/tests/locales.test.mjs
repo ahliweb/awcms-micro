@@ -20,7 +20,7 @@ const readContexts = async (locale) => {
 	);
 };
 
-test("PO catalogs cover every default template copy key", async () => {
+await test("PO catalogs cover every default template copy key", async () => {
 	const expectedKeys = flattenKeys(AWCMS_MICRO_DEFAULT_PUBLIC_COPY.en).toSorted();
 
 	for (const locale of ["en", "id"]) {

@@ -177,6 +177,8 @@ The template does not define a new schema. It consumes EmDash content tables thr
 
 - local typecheck must pass
 - build must succeed
+- `pnpm validate:cloudflare-env` must validate non-secret deployment configuration from `wrangler.jsonc`
+- deployment validation must support `--require-credentials` for credentialed shell or CI checks
 - deploy must resolve bindings correctly
 - smoke checks must pass for public and admin routes
 

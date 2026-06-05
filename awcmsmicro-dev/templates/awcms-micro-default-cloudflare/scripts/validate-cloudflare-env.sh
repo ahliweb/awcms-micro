@@ -6,13 +6,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")"
 WRANGLER_FILE="$TEMPLATE_DIR/wrangler.jsonc"
 
-REQUIRED_ENV_VARS=(
-	"AWCMS_MICRO_SITE_URL"
-	"AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL"
+REQUIRED_SECRET_ENV_VARS=(
 	"CLOUDFLARE_ACCOUNT_ID"
 	"CLOUDFLARE_API_TOKEN"
-	"AWCMS_MICRO_D1_DATABASE_ID"
-	"AWCMS_MICRO_SESSION_NAMESPACE_ID"
 )
 
 log() {
@@ -49,20 +45,26 @@ require_contains '"pattern": "awcms-micro.ahlikoding.com/*"' "$WRANGLER_FILE"
 require_contains '"database_name": "awcms-micro-d1"' "$WRANGLER_FILE"
 require_not_contains '"database_id": "REPLACE_WITH_AWCMS_MICRO_D1_DATABASE_ID"' "$WRANGLER_FILE"
 require_not_contains '"id": "REPLACE_WITH_AWCMS_MICRO_SESSION_NAMESPACE_ID"' "$WRANGLER_FILE"
+require_contains '"AWCMS_MICRO_SITE_URL": "https://awcms-micro.ahlikoding.com"' "$WRANGLER_FILE"
+require_contains '"AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL": "https://awcms-micro-s3.ahlikoding.com"' "$WRANGLER_FILE"
 require_contains '"binding": "MEDIA"' "$WRANGLER_FILE"
 require_contains '"binding": "LOADER"' "$WRANGLER_FILE"
 require_contains '"binding": "SESSION"' "$WRANGLER_FILE"
 require_contains '"binding": "IMAGES"' "$WRANGLER_FILE"
 
-log "Checking local environment variables"
-for name in "${REQUIRED_ENV_VARS[@]}"; do
-	value="${!name-}"
-	if [[ -z "$value" ]]; then
-		fail "Missing required environment variable: $name"
-	fi
-	if [[ "$value" == REPLACE_WITH_* ]]; then
-		fail "Environment variable still uses placeholder value: $name"
-	fi
-done
+if [[ "${1-}" == "--require-credentials" ]]; then
+	log "Checking Cloudflare credential environment variables"
+	for name in "${REQUIRED_SECRET_ENV_VARS[@]}"; do
+		value="${!name-}"
+		if [[ -z "$value" ]]; then
+			fail "Missing required environment variable: $name"
+		fi
+		if [[ "$value" == REPLACE_WITH_* ]]; then
+			fail "Environment variable still uses placeholder value: $name"
+		fi
+	done
+else
+	log "Skipping Cloudflare credential check; pass --require-credentials for deployment validation"
+fi
 
 log "Cloudflare environment validation passed"

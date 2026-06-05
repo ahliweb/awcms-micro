@@ -72,6 +72,8 @@ From this template directory:
 3. `pnpm build`
 4. `pnpm test`
 
+`pnpm validate:cloudflare-env` validates the committed `wrangler.jsonc` domain, D1, R2, KV, Images, Worker Loader, and public URL configuration without requiring Cloudflare credentials. For deployment readiness in a shell or CI job that has credentials available, run `bash ./scripts/validate-cloudflare-env.sh --require-credentials`.
+
 ## Migration And D1 Preparation
 
 Use `wrangler d1 create awcms-micro-d1` if you need a fresh D1 database.
@@ -85,8 +87,9 @@ Do not commit Cloudflare tokens, secret values, or private credentials.
 1. Confirm `wrangler.jsonc` still points to `awcms-micro.ahlikoding.com` and `awcms-micro-d1`.
 2. Confirm the committed D1 `database_id` and `SESSION` namespace id still match the intended deployment target.
 3. Confirm the `MEDIA` bucket exists.
-4. Run `pnpm build`.
-5. Run `pnpm deploy`.
+4. Run `bash ./scripts/validate-cloudflare-env.sh --require-credentials` from a credentialed shell or CI job.
+5. Run `pnpm build`.
+6. Run `pnpm deploy`.
 
 ## Rollback
 
