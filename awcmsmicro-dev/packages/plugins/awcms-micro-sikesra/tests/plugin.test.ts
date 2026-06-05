@@ -2909,6 +2909,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("uses GET for SIKESRA admin read APIs so read pages do not require plugin manage permission", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
 		expect(new Set(SIKESRA_ADMIN_API_PATHS).size).toBe(SIKESRA_ADMIN_API_PATHS.length);
 		expect(new Set(SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS).size).toBe(
 			SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS.length,
@@ -2920,6 +2921,19 @@ describe("awcms micro sikesra plugin", () => {
 		const clientPathSet = new Set<string>(SIKESRA_ADMIN_API_PATHS);
 		for (const key of SIKESRA_READ_ONLY_ADMIN_API_PATHS) {
 			expect(clientPathSet.has(key), `${key} missing from admin API path list`).toBe(true);
+		}
+		const readOnlyPathSet = new Set<string>(SIKESRA_READ_ONLY_ADMIN_API_PATHS);
+		const usePluginDataPathPattern = /usePluginData(?:<[^>]+>)?\(\s*"([^"]+)"/g;
+		const uiReadPaths = Array.from(adminSource.matchAll(usePluginDataPathPattern), (match) => {
+			expect(match[1]).toBeDefined();
+			return match[1]!;
+		});
+		expect(uiReadPaths.length).toBeGreaterThan(0);
+		for (const key of uiReadPaths) {
+			expect(readOnlyPathSet.has(key), `${key} used by usePluginData but is not read-only`).toBe(
+				true,
+			);
+			expect(getSikesraAdminApiMethod(key as any), key).toBe("GET");
 		}
 		const runtimeRoutes = createNativeRoutes();
 		for (const key of SIKESRA_ADMIN_API_PATHS) {
@@ -4112,6 +4126,76 @@ describe("awcms micro sikesra plugin", () => {
 		expect(supportingDocumentTableRows).toHaveLength(0);
 	});
 
+	it("requires a live linked registry entity before saving document metadata", async () => {
+		const { ctx, fileObjectTableRows, registryEntityTableRows, supportingDocumentTableRows } =
+			createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		const missingLink = (await routes["documents/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "doc-missing-registry-01",
+				registryEntityId: "registry-entity-does-not-exist",
+				documentType: "surat_keterangan",
+				title: "Missing Linked Registry Entity",
+				classification: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: "d".repeat(64),
+				safeFilename: "missing-link.pdf",
+			},
+		} as any)) as any;
+
+		expect(missingLink.success).toBe(false);
+		expect(missingLink.error.code).toBe("NOT_FOUND");
+		expect(missingLink.error.details.fields).toEqual(["registryEntityId"]);
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-document-link-01",
+				code: "DOC-LINK-001",
+				label: "Document Link Registry Entity",
+				entityType: "rumah_ibadah",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any);
+		await routes["registry/soft-delete"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { id: "registry-entity-document-link-01", reason: "Retired training record" },
+		} as any);
+
+		const deletedLink = (await routes["documents/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "doc-deleted-registry-01",
+				registryEntityId: "registry-entity-document-link-01",
+				documentType: "surat_keterangan",
+				title: "Deleted Linked Registry Entity",
+				classification: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: "e".repeat(64),
+				safeFilename: "deleted-link.pdf",
+			},
+		} as any)) as any;
+
+		expect(deletedLink.success).toBe(false);
+		expect(deletedLink.error.code).toBe("NOT_FOUND");
+		expect(registryEntityTableRows.find((row) => row.id === "registry-entity-document-link-01")).toMatchObject(
+			{ deleted_at: expect.any(String) },
+		);
+		expect(fileObjectTableRows).toHaveLength(0);
+		expect(supportingDocumentTableRows).toHaveLength(0);
+	});
+
 	it("blocks high-risk duplicate document checksums before D1 persistence", async () => {
 		const { ctx, duplicateCandidateTableRows, supportingDocumentTableRows } = createMockContext();
 		const routes = createNativeRoutes();
@@ -4123,7 +4207,7 @@ describe("awcms micro sikesra plugin", () => {
 			request: adminRequest,
 			input: {
 				id: "doc-duplicate-source",
-				registryEntityId: "registry-entity-custom-01",
+				registryEntityId: "registry-entity-rumah-ibadah-01",
 				documentType: "surat_keterangan",
 				title: "Source Document",
 				classification: "restricted",
@@ -4139,7 +4223,7 @@ describe("awcms micro sikesra plugin", () => {
 			request: adminRequest,
 			input: {
 				id: "doc-duplicate-target",
-				registryEntityId: "registry-entity-custom-01",
+				registryEntityId: "registry-entity-rumah-ibadah-01",
 				documentType: "surat_keterangan",
 				title: "Duplicate Document",
 				classification: "restricted",
@@ -4177,7 +4261,7 @@ describe("awcms micro sikesra plugin", () => {
 			request: adminRequest,
 			input: {
 				id: "doc-restricted-01",
-				registryEntityId: "registry-entity-custom-01",
+				registryEntityId: "registry-entity-rumah-ibadah-01",
 				documentType: "surat_keterangan",
 				title: "Restricted Document",
 				classification: "restricted",
@@ -4646,6 +4730,40 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 		expect(promoted.success).toBe(false);
 		expect(promoted.error.code).toBe("DUPLICATE_REVIEW_REQUIRED");
+
+		const invalidDecision = (await routes["duplicates/decide"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				candidateId: "batch-dup-01:row:2:duplicate-code",
+				decision: "maybe_duplicate",
+				reason: "Unsupported duplicate decision should be rejected.",
+			},
+		} as any)) as any;
+		expect(invalidDecision.success).toBe(false);
+		expect(invalidDecision.error.details.fields).toEqual(["decision"]);
+
+		const duplicateDecision = (await routes["duplicates/decide"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "decision-dup-blocking-01",
+				candidateId: "batch-dup-01:row:2:duplicate-code",
+				decision: "duplicate",
+				reason: "Operator confirmed this row is a duplicate and must stay blocked.",
+			},
+		} as any)) as any;
+		expect(duplicateDecision.success).toBe(true);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-dup-01:row:2", duplicate_status: "duplicate_risk" }),
+		);
+		const blockedAfterDuplicateDecision = (await routes["import/promote"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-dup-01" },
+		} as any)) as any;
+		expect(blockedAfterDuplicateDecision.success).toBe(false);
+		expect(blockedAfterDuplicateDecision.error.code).toBe("DUPLICATE_REVIEW_REQUIRED");
 
 		const decision = (await routes["duplicates/decide"]!.handler({
 			...ctx,

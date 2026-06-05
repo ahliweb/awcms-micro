@@ -5050,6 +5050,17 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 	const invalidFields = validateSupportingDocumentInput(newDoc);
 	if (invalidFields.length > 0) return createValidationError(invalidFields);
+	const linkedEntity = (await getRegistryEntities(ctx)).find((entity) => entity.id === newDoc.registryEntityId);
+	if (!linkedEntity) {
+		return {
+			success: false,
+			error: {
+				code: "NOT_FOUND",
+				message: "Linked registry entity was not found.",
+				details: { fields: ["registryEntityId"] },
+			},
+		};
+	}
 	const duplicateDocument = newDoc.checksumSha256
 		? (await getSupportingDocuments(ctx)).find(
 				(doc) => doc.id !== newDoc.id && doc.checksumSha256 === newDoc.checksumSha256,
@@ -5819,6 +5830,19 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, batchId, count };
 };
 
+const SIKESRA_DUPLICATE_DECISIONS = new Set([
+	"duplicate",
+	"not_duplicate",
+	"cleared",
+	"false_positive",
+]);
+
+const SIKESRA_DUPLICATE_CLEARING_DECISIONS = new Set([
+	"not_duplicate",
+	"cleared",
+	"false_positive",
+]);
+
 const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.registry.update");
 	if (!permission.allowed) return { success: false, error: permission.error };
@@ -5833,6 +5857,9 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			...(decision ? [] : ["decision"]),
 			...(reason.trim() ? [] : ["reason"]),
 		]);
+	}
+	if (!SIKESRA_DUPLICATE_DECISIONS.has(decision)) {
+		return createValidationError(["decision"]);
 	}
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
@@ -5874,7 +5901,7 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		})
 		.execute();
 
-	if (["not_duplicate", "cleared", "false_positive"].includes(decision)) {
+	if (SIKESRA_DUPLICATE_CLEARING_DECISIONS.has(decision)) {
 		await setD1ImportRowDuplicateStatus(
 			ctx,
 			candidateId.replace(SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN, ""),
