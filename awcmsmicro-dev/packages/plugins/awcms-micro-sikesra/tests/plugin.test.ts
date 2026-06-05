@@ -529,6 +529,26 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_delete_snapshots") {
+						return deleteSnapshotTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
+					if (_table === "sikesra_delete_approvals") {
+						return deleteApprovalTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_role_permission_assignments") {
 						return rolePermissionAssignmentTableRows
 							.filter((row) => {
@@ -5284,6 +5304,55 @@ describe("awcms micro sikesra plugin", () => {
 				notes: "No protected references found.",
 			},
 		} as any);
+		const request02SnapshotIndex = deleteSnapshotTableRows.findIndex(
+			(row) => row.delete_request_id === "delete-request-02",
+		);
+		const [request02Snapshot] = deleteSnapshotTableRows.splice(request02SnapshotIndex, 1);
+		const missingSnapshotExecution = (await routes["crud/permanent-delete/execute"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				deleteRequestId: "delete-request-02",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(missingSnapshotExecution.success).toBe(false);
+		expect(missingSnapshotExecution.error).toMatchObject({
+			code: "DELETE_INTEGRITY_CHECK_FAILED",
+			details: { missing: ["snapshot"] },
+		});
+		deleteSnapshotTableRows.push(request02Snapshot!);
+
+		await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				id: "delete-request-missing-approval",
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-execute-01",
+				targetType: "registry_entity",
+				reason: "Integrity check test row",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any);
+		const requestMissingApproval = deleteRequestTableRows.find(
+			(row) => row.id === "delete-request-missing-approval",
+		)!;
+		requestMissingApproval.status = "approved";
+		const missingApprovalExecution = (await routes["crud/permanent-delete/execute"]!.handler({
+			...ctx,
+			request: superAdminRequest,
+			input: {
+				deleteRequestId: "delete-request-missing-approval",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+		expect(missingApprovalExecution.success).toBe(false);
+		expect(missingApprovalExecution.error).toMatchObject({
+			code: "DELETE_INTEGRITY_CHECK_FAILED",
+			details: { missing: ["approval"] },
+		});
+
 		const executed = (await routes["crud/permanent-delete/execute"]!.handler({
 			...ctx,
 			request: superAdminRequest,

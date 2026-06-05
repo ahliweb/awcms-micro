@@ -7010,6 +7010,38 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 				message: "Permanent delete request must be approved before execution.",
 			},
 		};
+	const snapshotRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE)
+		.select(["id"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("delete_request_id", "=", deleteRequestId)
+		.where("deleted_at", "is", null)
+		.execute()) as Array<Record<string, unknown>>;
+	const approvalRows = (await db
+		.selectFrom(AWCMS_SIKESRA_DELETE_APPROVALS_TABLE)
+		.select(["id"])
+		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("delete_request_id", "=", deleteRequestId)
+		.where("decision", "=", "approved")
+		.where("deleted_at", "is", null)
+		.execute()) as Array<Record<string, unknown>>;
+	if (snapshotRows.length === 0 || approvalRows.length === 0) {
+		return {
+			success: false,
+			error: {
+				code: "DELETE_INTEGRITY_CHECK_FAILED",
+				message: "Permanent delete execution requires an active snapshot and approval record.",
+				details: {
+					missing: [
+						...(snapshotRows.length === 0 ? ["snapshot"] : []),
+						...(approvalRows.length === 0 ? ["approval"] : []),
+					],
+				},
+			},
+		};
+	}
 	const targetTable = unknownToDisplayString(requestRow.target_table);
 	const targetRecordId = unknownToDisplayString(requestRow.target_record_id);
 	const blockedFields = [
