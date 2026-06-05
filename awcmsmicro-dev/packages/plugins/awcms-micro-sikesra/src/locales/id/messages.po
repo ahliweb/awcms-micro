@@ -147,8 +147,8 @@ msgid "Audit Retention Days"
 msgstr "Hari Retensi Audit"
 
 msgctxt "awcms.meta.settings.auditRetentionDaysDesc"
-msgid "Used by the demo cron cleanup summary."
-msgstr "Digunakan oleh ringkasan pembersihan cron demo."
+msgid "Used by the governance cron cleanup summary."
+msgstr "Digunakan oleh ringkasan pembersihan cron tata kelola."
 
 msgctxt "awcms.meta.settings.governanceMode"
 msgid "Governance Mode"
@@ -519,7 +519,7 @@ msgid "Public API Hits"
 msgstr "Hit API publik"
 
 msgctxt "awcms.adminCopy.lastCron"
-msgid "Last chron: {value}"
+msgid "Last cron: {value}"
 msgstr "Cron terakhir: {value}"
 
 msgctxt "awcms.adminCopy.openModule"

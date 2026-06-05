@@ -54,7 +54,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		lifecycleTriggers: "Lifecycle Triggers",
 		lastRecorded: (value: string) => `Last recorded: ${value}`,
 		publicApiHits: "Public API Hits",
-		lastCron: (value: string) => `Last chron: ${value}`,
+		lastCron: (value: string) => `Last cron: ${value}`,
 		openModule: "Open module",
 		pluginConfiguration: "Plugin Configuration",
 		pluginConfigurationDescription:
@@ -1071,7 +1071,7 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.meta.settings.publicStatusLabel": "Public Status Label",
 		"awcms.meta.settings.publicStatusLabelDesc": "Shown by the plugin's public-safe status route.",
 		"awcms.meta.settings.auditRetentionDays": "Audit Retention Days",
-		"awcms.meta.settings.auditRetentionDaysDesc": "Used by the demo cron cleanup summary.",
+		"awcms.meta.settings.auditRetentionDaysDesc": "Used by the governance cron cleanup summary.",
 		"awcms.meta.settings.governanceMode": "Governance Mode",
 		"awcms.meta.settings.observe": "Observe",
 		"awcms.meta.settings.review": "Review",
@@ -1165,7 +1165,7 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 		"awcms.meta.settings.publicStatusLabelDesc":
 			"Ditampilkan oleh route status aman-publik plugin.",
 		"awcms.meta.settings.auditRetentionDays": "Hari Retensi Audit",
-		"awcms.meta.settings.auditRetentionDaysDesc": "Digunakan oleh ringkasan pembersihan cron demo.",
+		"awcms.meta.settings.auditRetentionDaysDesc": "Digunakan oleh ringkasan pembersihan cron tata kelola.",
 		"awcms.meta.settings.governanceMode": "Mode Tata Kelola",
 		"awcms.meta.settings.observe": "Observasi",
 		"awcms.meta.settings.review": "Tinjau",

@@ -2316,6 +2316,24 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
 	});
 
+	it("accepts the canonical hyphenated governance mode from admin UI", async () => {
+		const { ctx, settingsTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+
+		const saved = (await routes["settings/save"]!.handler({
+			...ctx,
+			request: createAdminRequest(),
+			input: { governanceMode: "enforce-demo" },
+		} as any)) as any;
+
+		expect(saved.success).toBe(true);
+		expect(saved.settings.governanceMode).toBe("enforce-demo");
+		expect(settingsTableRows.find((row) => row.key === "governanceMode")).toMatchObject({
+			key: "governanceMode",
+			value_json: '"enforce-demo"',
+		});
+	});
+
 	it("keeps the public status route available when the D1 verification stage table is unavailable", async () => {
 		const { ctx, db } = createMockContext();
 		const originalSelectFrom = db.selectFrom.bind(db);
@@ -6229,6 +6247,24 @@ describe("awcms micro sikesra plugin", () => {
 			expect(source).toContain("AWCMS-Micro SIKESRA");
 			expect(source).not.toContain("AWCMS-Micro demonstration plugin");
 			expect(source).not.toContain("plugin demonstrasi AWCMS-Micro");
+			expect(source).not.toContain("Last chron");
+			expect(source).not.toContain("demo cron cleanup summary");
+			expect(source).not.toContain("cron demo");
+		}
+	});
+
+	it("keeps governance cron settings copy operational", () => {
+		for (const path of [
+			"../src/runtime.ts",
+			"../src/admin-copy.ts",
+			"../src/locales/messages.ts",
+			"../src/locales/en/messages.po",
+			"../src/locales/id/messages.po",
+		]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			expect(source).not.toContain("Last chron");
+			expect(source).not.toContain("demo cron cleanup summary");
+			expect(source).not.toContain("cron demo");
 		}
 	});
 

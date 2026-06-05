@@ -1054,7 +1054,7 @@ export const AWCMS_SIKESRA_SETTINGS_SCHEMA = {
 		type: "number" as const,
 		label: "Audit Retention Days",
 		labelKey: "awcms.meta.settings.auditRetentionDays",
-		description: "Used by the demo cron cleanup summary.",
+		description: "Used by the governance cron cleanup summary.",
 		descriptionKey: "awcms.meta.settings.auditRetentionDaysDesc",
 		default: 30,
 		min: 1,
@@ -1874,7 +1874,7 @@ const DEFAULT_SETTINGS: ExampleSettings = {
 	sikesraPublicEnabled: true,
 };
 
-const ALLOWED_GOVERNANCE_MODES = new Set(["observe", "review", "enforceDemo"]);
+const ALLOWED_GOVERNANCE_MODES = new Set(["observe", "review", "enforce-demo"]);
 const ALLOWED_ABAC_TARGET_TYPES = new Set(["subject", "resource", "context"]);
 const ALLOWED_ABAC_POLICY_EFFECTS = new Set(["allow", "deny"]);
 const ABAC_ATTRIBUTE_KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
@@ -7207,7 +7207,7 @@ const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			success: false,
 			error: {
 				code: "VALIDATION_ERROR",
-				message: "Governance mode must be observe, review, or enforceDemo.",
+				message: "Governance mode must be observe, review, or enforce-demo.",
 			},
 		};
 	}

@@ -567,7 +567,7 @@ export function getExampleAdminCopy(locale: string | undefined) {
 		lifecycleTriggers: "Lifecycle Triggers",
 		lastRecorded: (value: string) => `Last recorded: ${value}`,
 		publicApiHits: "Public API Hits",
-		lastCron: (value: string) => `Last chron: ${value}`,
+		lastCron: (value: string) => `Last cron: ${value}`,
 		openModule: "Open module",
 		pluginConfiguration: "Plugin Configuration",
 		pluginConfigurationDescription:
