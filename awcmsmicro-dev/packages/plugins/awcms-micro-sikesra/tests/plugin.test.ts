@@ -2940,6 +2940,14 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("saveDocument(");
 		expect(adminSource).toContain("classification: uploadState.sensitivity");
 		expect(adminSource).toContain("classification: doc.sensitivity");
+		expect(adminSource).toContain("saveRegistryEntity<");
+		expect(adminSource).toContain("advanceVerification<");
+		expect(adminSource).toContain("rejectVerification<");
+		expect(adminSource).toContain("previewAccess<");
+		expect(adminSource).toContain("previewAbac<");
+		expect(adminSource).toContain("runAbacEnforceDemo<");
+		expect(adminSource).toContain("createImportBatch<");
+		expect(adminSource).toContain("promoteImportRows<");
 		expect(adminSource).toContain(
 			"Type PERMANENT DELETE before executing the permanent delete request.",
 		);
@@ -2962,6 +2970,11 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).not.toContain('postPlugin("abac/resources/save"');
 		expect(adminSource).not.toContain('postPlugin("abac/policies/save"');
 		expect(adminSource).not.toContain('postPlugin("documents/save"');
+		expect(adminSource).not.toContain('postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>(');
+		expect(adminSource).not.toContain('postPlugin<VerificationAdvanceResponse>("verification/');
+		expect(adminSource).not.toContain('postPlugin<AccessPreviewResponse>("access/preview"');
+		expect(adminSource).not.toContain('postPlugin<AbacPreviewResponse>(route');
+		expect(adminSource).not.toContain('postPlugin<ImportRouteResult>(');
 	});
 
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {

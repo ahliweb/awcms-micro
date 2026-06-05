@@ -7,10 +7,16 @@ import * as React from "react";
 import { getExampleAdminCopy } from "./admin-copy.js";
 import {
 	postSikesraPlugin,
+	advanceVerification,
 	approvePermanentDelete,
+	createImportBatch,
 	executePermanentDelete,
+	previewAbac,
+	previewAccess,
+	promoteImportRows,
 	requestPermanentDelete,
 	restoreRegistry,
+	runAbacEnforceDemo,
 	saveAccessMatrix,
 	saveAbacAttribute,
 	saveAbacPolicy,
@@ -23,6 +29,8 @@ import {
 	saveDocument,
 	saveDataTypes,
 	saveRegions,
+	saveRegistry as saveRegistryEntity,
+	rejectVerification,
 	saveSettings as saveSikesraSettings,
 	saveCustomAttributeDefinition,
 	saveCustomAttributeValue,
@@ -1133,10 +1141,21 @@ function RegistryCreatePage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			const result = await postPlugin<{ success: boolean; item?: SikesraReferenceRegistryEntity }>(
-				"registry/save",
-				formState,
-			);
+			const registryPayload = {
+				...formState,
+				fields: {
+					code: formState.code,
+					provinceCode: formState.provinceCode,
+					regencyCode: formState.regencyCode,
+					districtCode: formState.districtCode,
+					villageCode: formState.villageCode,
+					publicSummary: formState.publicSummary,
+				},
+			};
+			const result = await saveRegistryEntity<{
+				success: boolean;
+				item?: SikesraReferenceRegistryEntity;
+			}>(registryPayload, await createAdminApiRequestOptions());
 			if (result.item) {
 				for (const definition of applicableCustomDefinitions) {
 					const value = customValues[definition.id]?.trim();
@@ -3669,7 +3688,7 @@ function RegistryPage() {
 		setErrMsg(null);
 		setSuccessMsg(null);
 		try {
-			const res = await postPlugin<{ item: SikesraReferenceRegistryEntity }>("registry/save", {
+			const registryPayload = {
 				code: wizardState.code,
 				label: wizardState.label,
 				entityType: wizardState.entityType,
@@ -3680,7 +3699,21 @@ function RegistryPage() {
 				villageCode: wizardState.villageCode,
 				publicSummary: `${wizardState.label} (${wizardState.subtype || "-"}) located in RT ${wizardState.rt || "00"}/RW ${wizardState.rw || "00"}, ${wizardState.address || "-"}.${wizardState.religion ? ` Religion: ${wizardState.religion}.` : ""}${wizardState.desil ? ` Desil: ${wizardState.desil}.` : ""}${wizardState.caregiverName ? ` Caregiver: ${wizardState.caregiverName}` : ""}`,
 				inputLevel: wizardState.inputLevel,
-			});
+				fields: {
+					subTypeCode: wizardState.subTypeCode,
+					subtype: wizardState.subtype,
+					address: wizardState.address,
+					rt: wizardState.rt,
+					rw: wizardState.rw,
+					religion: wizardState.religion,
+					desil: wizardState.desil,
+					caregiverName: wizardState.caregiverName,
+				},
+			};
+			const res = await saveRegistryEntity<{ item: SikesraReferenceRegistryEntity }>(
+				registryPayload,
+				await createAdminApiRequestOptions(),
+			);
 
 			for (const doc of wizardState.documents) {
 				await saveDocument(
@@ -4655,22 +4688,26 @@ function VerificationPage() {
 				: "desa_kelurahan";
 			const verifierLevel = verifierLevels[entityId] ?? fallbackLevel;
 			if (actionType === "approve") {
-				const response = await postPlugin<VerificationAdvanceResponse>("verification/advance", {
-					registryEntityId: entityId,
-					actor: verifierLevel === "admin_sikesra" ? "sikesra-admin" : `${verifierLevel}-officer`,
-					verifierLevel,
-					notes: notes,
-				});
+				const response = await advanceVerification<VerificationAdvanceResponse>(
+					{
+						registryEntityId: entityId,
+						verifierLevel,
+						notes: notes,
+					},
+					await createAdminApiRequestOptions(),
+				);
 				setStatusMessage(
 					`Approved successfully: ${response.item.code} advanced to ${response.item.verificationStage}`,
 				);
 			} else {
-				const response = await postPlugin<VerificationAdvanceResponse>("verification/reject", {
-					registryEntityId: entityId,
-					actor: verifierLevel === "admin_sikesra" ? "sikesra-admin" : `${verifierLevel}-officer`,
-					verifierLevel,
-					notes,
-				});
+				const response = await rejectVerification<VerificationAdvanceResponse>(
+					{
+						registryEntityId: entityId,
+						verifierLevel,
+						notes,
+					},
+					await createAdminApiRequestOptions(),
+				);
 				setStatusMessage(
 					`Needs revision: ${response.item.code} returned to ${response.item.verificationStage}.`,
 				);
@@ -5951,7 +5988,10 @@ function PreviewPage() {
 
 		try {
 			setPreview(
-				await postPlugin<AccessPreviewResponse>("access/preview", { userId, permissionSlug }),
+				await previewAccess<AccessPreviewResponse>(
+					{ userId, permissionSlug },
+					await createAdminApiRequestOptions(),
+				),
 			);
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : copy.failedToPreviewAccess);
@@ -6499,13 +6539,22 @@ function AbacPreviewPage() {
 
 		setRunning(true);
 		try {
+			const payload = {
+				subjectId,
+				resourceId,
+				action,
+				contextAttributes: parsed.data,
+			};
 			setPreview(
-				await postPlugin<AbacPreviewResponse>(route, {
-					subjectId,
-					resourceId,
-					action,
-					contextAttributes: parsed.data,
-				}),
+				route === "abac/enforce-demo"
+					? await runAbacEnforceDemo<AbacPreviewResponse>(
+							payload,
+							await createAdminApiRequestOptions(),
+						)
+					: await previewAbac<AbacPreviewResponse>(
+							payload,
+							await createAdminApiRequestOptions(),
+						),
 			);
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : copy.failedToEvaluateAbacPolicy);
@@ -6735,8 +6784,7 @@ function ImportPage() {
 		setError(null);
 		try {
 			const batchId = `ui-import-${Date.now()}`;
-			const created = await postPlugin<ImportRouteResult>(
-				"import/create",
+			const created = await createImportBatch<ImportRouteResult>(
 				createSikesraImportPreviewCreatePayload({
 					batchId,
 					rows: stagingRows,
@@ -6744,11 +6792,12 @@ function ImportPage() {
 					fileName,
 					selectedSheet,
 				}),
+				await createAdminApiRequestOptions(),
 			);
 			if (!created.success) throw new Error(created.error?.message ?? copy.requestFailed);
-			const promoted = await postPlugin<ImportRouteResult>(
-				"import/promote",
+			const promoted = await promoteImportRows<ImportRouteResult>(
 				createSikesraImportPreviewPromotePayload(created.batchId ?? batchId),
+				await createAdminApiRequestOptions(),
 			);
 			if (!promoted.success) throw new Error(promoted.error?.message ?? copy.requestFailed);
 			setNotice(copy.promotedSuccessfully);
