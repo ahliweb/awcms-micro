@@ -718,7 +718,12 @@ export function createSikesraMaskedValueState(
 		};
 	}
 	return {
-		displayValue: value == null ? "" : String(value),
+		displayValue:
+			value == null
+				? ""
+				: typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+					? String(value)
+					: JSON.stringify(value),
 		masked: false,
 		revealAllowed,
 		reason: sensitive ? "Reveal permission granted." : "Value is public-safe for this surface.",

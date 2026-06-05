@@ -2033,7 +2033,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("stamps audit events with request user headers", async () => {
-		const { ctx, collections, settingsTableRows } = createMockContext();
+		const { ctx, collections, settingsTableRows: _settingsTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const request = new Request("https://example.test", {
 			headers: {
@@ -3231,7 +3231,12 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public aggregate suppression settings", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+		const {
+			ctx,
+			collections,
+			verificationStageTableRows: _verificationStageTableRows,
+			verificationEventTableRows: _verificationEventTableRows,
+		} =
 			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
@@ -3250,7 +3255,12 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe governance settings", async () => {
-		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
+		const {
+			ctx,
+			collections,
+			verificationStageTableRows: _verificationStageTableRows,
+			verificationEventTableRows: _verificationEventTableRows,
+		} =
 			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
@@ -3275,7 +3285,12 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("rejects unsafe public settings", async () => {
-		const { ctx, collections, importBatchTableRows, importStagingRowTableRows } =
+		const {
+			ctx,
+			collections,
+			importBatchTableRows: _importBatchTableRows,
+			importStagingRowTableRows: _importStagingRowTableRows,
+		} =
 			createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();

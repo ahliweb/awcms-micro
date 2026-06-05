@@ -35,7 +35,6 @@ import {
 import { normalizeAdminNav, PluginLocalNav } from "./navigation.js";
 import {
 	AWCMS_SIKESRA_MANIFEST,
-	AWCMS_SIKESRA_PLUGIN_ID,
 	DEFAULT_DATA_TYPES,
 	type SikesraParentType,
 } from "./runtime.js";
@@ -1005,7 +1004,7 @@ function getSikesraPageContract(path: SikesraAdminPagePath): SikesraPagePatternC
 	return contract;
 }
 
-function ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
+function _ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 	const contract = getSikesraPageContract(path);
 	return (
 		<PageShell width="wide">
@@ -1215,7 +1214,7 @@ function RegistryCreatePage() {
 							).map(([key, label]) => (
 								<Field key={key} label={label}>
 									<Input
-										value={formState[key as keyof typeof formState] as string}
+										value={formState[key]}
 										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 											setFormState((current) => ({ ...current, [key]: event.target.value }))
 										}
@@ -2129,9 +2128,7 @@ function CustomAttributeDefinitionsPage() {
 									<span>{label}</span>
 									<input
 										type="checkbox"
-										checked={Boolean(
-											formState[key as keyof SikesraCustomAttributeDefinitionRequest],
-										)}
+										checked={Boolean(formState[key])}
 										disabled={key === "publicSafe" && formState.dataClass !== "non_personal"}
 										onChange={(event) =>
 											setFormState((current) => ({ ...current, [key]: event.target.checked }))
@@ -2205,6 +2202,7 @@ function CustomAttributeValuesPage() {
 		registryEntityId: "",
 		value: "",
 	});
+	const formValueText = typeof formState.value === "string" ? formState.value : JSON.stringify(formState.value ?? "");
 
 	React.useEffect(() => {
 		const firstDefinitionId = definitions?.items[0]?.id;
@@ -2292,7 +2290,7 @@ function CustomAttributeValuesPage() {
 						</Field>
 						<Field label="Value">
 							<InputArea
-								value={String(formState.value ?? "")}
+								value={formValueText}
 								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
 									setFormState((current) => ({ ...current, value: event.target.value }))
 								}

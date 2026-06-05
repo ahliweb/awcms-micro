@@ -1971,6 +1971,37 @@ function getString(value: unknown, key: string): string | undefined {
 	return typeof candidate === "string" ? candidate : undefined;
 }
 
+function unknownToDisplayString(value: unknown, fallback = "") {
+	if (value == null) return fallback;
+	if (typeof value === "string") return value;
+	if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+		return String(value);
+	}
+	try {
+		return JSON.stringify(value);
+	} catch {
+		return fallback;
+	}
+}
+
+function parseJsonRecord(value: unknown, fallback: Record<string, unknown> = {}) {
+	try {
+		const parsed = typeof value === "string" ? JSON.parse(value) : value;
+		return isRecord(parsed) ? parsed : fallback;
+	} catch {
+		return fallback;
+	}
+}
+
+function parseJsonList(value: unknown) {
+	try {
+		const parsed = typeof value === "string" ? JSON.parse(value) : value;
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
 function getNumber(value: unknown, key: string): number | undefined {
 	if (!isRecord(value)) return undefined;
 	const candidate = value[key];
@@ -2100,7 +2131,7 @@ const D1_MISSING_TABLE_ERROR_RE =
 	/no such table|no such column|not found|does not exist|unknown table|unknown column/i;
 
 function isMissingD1TableError(cause: unknown) {
-	const message = cause instanceof Error ? cause.message : String(cause ?? "");
+	const message = cause instanceof Error ? cause.message : unknownToDisplayString(cause);
 	return D1_MISSING_TABLE_ERROR_RE.test(message);
 }
 
@@ -2238,7 +2269,7 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 	}
 
 	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
-		ctx.storage.sikesra_registry_entities!,
+		ctx.storage.sikesra_registry_entities,
 	);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
@@ -2599,7 +2630,7 @@ async function getSupportingDocuments(
 	}
 
 	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
-		ctx.storage.sikesra_supporting_documents!,
+		ctx.storage.sikesra_supporting_documents,
 	);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
@@ -2877,7 +2908,7 @@ async function listVerificationEvents(
 	if (d1Events.length > 0) return d1Events;
 
 	return listStorageValues<SikesraReferenceVerificationEvent>(
-		ctx.storage.sikesra_verification_events!,
+		ctx.storage.sikesra_verification_events,
 	);
 }
 
@@ -2993,7 +3024,7 @@ async function getVerificationStageState(
 	if (!canUseLegacyRuntimeStateFallback(ctx)) return defaultState;
 
 	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(
-		ctx.storage.sikesra_verification_stage_state!,
+		ctx.storage.sikesra_verification_stage_state,
 	);
 	if (storedRecords.length > 0) {
 		return {
@@ -3106,7 +3137,7 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 
 	let migrated = 0;
 	const storedSettings = await listStorageValues<StoredSettingRecord>(
-		ctx.storage.sikesra_settings_state!,
+		ctx.storage.sikesra_settings_state,
 	);
 	if (storedSettings.length > 0) {
 		if (await persistD1Settings(ctx, storedSettings, toIsoNow())) migrated += storedSettings.length;
@@ -3123,7 +3154,7 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 		migrated += 1;
 
 	const storedVerificationRows = await listStorageValues<StoredVerificationStageRecord>(
-		ctx.storage.sikesra_verification_stage_state!,
+		ctx.storage.sikesra_verification_stage_state,
 	);
 	if (storedVerificationRows.length > 0) {
 		const state = Object.fromEntries(
@@ -3210,7 +3241,7 @@ async function getStoredSettings(ctx: PluginContext) {
 	if (d1Settings.size > 0) return d1Settings;
 	if (canUseLegacyRuntimeStateFallback(ctx)) {
 		const records = await listStorageValues<StoredSettingRecord>(
-			ctx.storage.sikesra_settings_state!,
+			ctx.storage.sikesra_settings_state,
 		);
 		const map = new Map<string, StoredSettingRecord>();
 		for (const record of records) map.set(record.key, record);
@@ -3250,7 +3281,7 @@ async function getD1Settings(ctx: PluginContext) {
 }
 
 async function getStoredState(ctx: PluginContext) {
-	const records = await listStorageValues<StoredStateRecord>(ctx.storage.sikesra_plugin_state!);
+	const records = await listStorageValues<StoredStateRecord>(ctx.storage.sikesra_plugin_state);
 	const map = new Map<string, StoredStateRecord>();
 	for (const record of records) map.set(record.key, record);
 	return map;
@@ -4357,7 +4388,7 @@ async function summarizeAccessRights(ctx: PluginContext) {
 	const userAssignments = await listUserRoleAssignments(ctx);
 	const scopeAssignments = await listUserScopeAssignments(ctx);
 	const changeEvents = await listCollectionValues<ExampleAuditEvent>(
-		ctx.storage.sikesra_access_change_events!,
+		ctx.storage.sikesra_access_change_events,
 		"timestamp",
 	);
 
@@ -4413,7 +4444,7 @@ async function summarizeAbac(ctx: PluginContext) {
 	const subjects = await listAbacSubjects(ctx);
 	const resources = await listAbacResources(ctx);
 	const events = await listCollectionValues<ExampleAuditEvent>(
-		ctx.storage.sikesra_abac_change_events!,
+		ctx.storage.sikesra_abac_change_events,
 		"timestamp",
 	);
 
@@ -5395,10 +5426,10 @@ async function getD1ImportStagingRows(
 			rowNumber: Number(row.row_number),
 			entityType: String(row.entity_type),
 			subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
-			rawRow: JSON.parse(String(row.raw_row_json ?? "{}")),
-			mappedRow: JSON.parse(String(row.mapped_row_json ?? "{}")),
+			rawRow: parseJsonRecord(row.raw_row_json),
+			mappedRow: parseJsonRecord(row.mapped_row_json),
 			validationStatus: row.validation_status === "valid" ? "valid" : "invalid",
-			validationErrors: JSON.parse(String(row.validation_errors_json ?? "[]")),
+			validationErrors: parseJsonList(row.validation_errors_json),
 			duplicateStatus:
 				row.duplicate_status === "duplicate_risk" || row.duplicate_status === "cleared"
 					? row.duplicate_status
@@ -5947,11 +5978,11 @@ async function listD1ExportJobs(ctx: PluginContext) {
 		id: String(row.id),
 		actorUserId: typeof row.actor_user_id === "string" ? row.actor_user_id : undefined,
 		exportType: String(row.export_type),
-		requestedFields: JSON.parse(String(row.requested_fields_json ?? "[]")),
+		requestedFields: parseJsonList(row.requested_fields_json),
 		sensitivityLevel: String(row.sensitivity_level),
 		reason: typeof row.reason === "string" ? row.reason : undefined,
 		status: String(row.status),
-		resultSummary: JSON.parse(String(row.result_summary_json ?? "{}")),
+		resultSummary: parseJsonRecord(row.result_summary_json),
 		requestedAt: String(row.requested_at),
 		completedAt: typeof row.completed_at === "string" ? row.completed_at : undefined,
 	}));
@@ -6255,7 +6286,7 @@ function validateCustomAttributeValueInput(
 		definition.dataType === "multi_enum" &&
 		(!Array.isArray(value) ||
 			!value.every((item) => typeof item === "string") ||
-			(enumValues.length > 0 && !value.every((item) => enumValues.includes(item as string))))
+			(enumValues.length > 0 && !value.every((item) => enumValues.includes(item))))
 	)
 		invalidFields.push("value");
 	return [...new Set(invalidFields)];
@@ -6613,7 +6644,7 @@ const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx
 				registryEntityId:
 					typeof row.registry_entity_id === "string" ? row.registry_entity_id : undefined,
 				sikesraId20: typeof row.sikesra_id_20 === "string" ? row.sikesra_id_20 : undefined,
-				valueDisplay: masked ? AUDIT_REDACTED_VALUE : String(row.value_display ?? ""),
+				valueDisplay: masked ? AUDIT_REDACTED_VALUE : unknownToDisplayString(row.value_display),
 				sensitivity: String(row.sensitivity),
 				masked,
 			};
@@ -6953,8 +6984,8 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 				message: "Permanent delete request must be approved before execution.",
 			},
 		};
-	const targetTable = String(requestRow.target_table ?? "");
-	const targetRecordId = String(requestRow.target_record_id ?? "");
+	const targetTable = unknownToDisplayString(requestRow.target_table);
+	const targetRecordId = unknownToDisplayString(requestRow.target_record_id);
 	const blockedFields = [
 		...(SIKESRA_OWNED_DELETE_TABLES.has(targetTable as any) ? [] : ["targetTable"]),
 		...(blocksEmDashUserDeleteTarget(targetTable) ? ["targetTable"] : []),

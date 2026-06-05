@@ -14,7 +14,7 @@ export interface SikesraApiWarning {
 }
 
 export interface SikesraApiErrorBody {
-	code: SikesraErrorCode | string;
+	code: SikesraErrorCode;
 	message: string;
 	fieldErrors?: Record<string, string[]>;
 	requestId?: string;

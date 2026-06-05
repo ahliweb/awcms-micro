@@ -36,8 +36,15 @@ for (const { sql } of readSqlFiles(migrationsDir)) {
 }
 
 const violations = [];
+function isAsciiSafe(value) {
+	for (let index = 0; index < value.length; index += 1) {
+		if (value.charCodeAt(index) > 0x7f) return false;
+	}
+	return true;
+}
+
 for (const { file, sql } of readSqlFiles(seedsDir)) {
-	if (!/^[\x00-\x7F]*$/.test(sql)) violations.push(`${file} contains non-ASCII content`);
+	if (!isAsciiSafe(sql)) violations.push(`${file} contains non-ASCII content`);
 	if (destructiveSeedPattern.test(sql)) violations.push(`${file} contains destructive SQL`);
 	if (!sql.includes(tenantPlaceholder)) violations.push(`${file} missing ${tenantPlaceholder}`);
 	if (!sql.includes(sitePlaceholder)) violations.push(`${file} missing ${sitePlaceholder}`);

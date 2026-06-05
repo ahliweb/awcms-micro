@@ -90,6 +90,13 @@ function readSeedSqlFiles() {
 		.map((file) => ({ file, sql: readFileSync(join(SEEDS_DIR, file), "utf8") }));
 }
 
+function isAsciiSafe(value: string) {
+	for (let index = 0; index < value.length; index += 1) {
+		if (value.charCodeAt(index) > 0x7f) return false;
+	}
+	return true;
+}
+
 function readAllMigrationSql() {
 	return readMigrationSqlFiles()
 		.map(({ sql }) => sql)
@@ -195,9 +202,7 @@ describe("SIKESRA D1 migration prefix policy", () => {
 		}
 
 		for (const { file, sql } of readSeedSqlFiles()) {
-			expect(sql, `${file} must remain ASCII-safe for portable SQL tooling`).toMatch(
-				/^[\x00-\x7F]*$/,
-			);
+			expect(isAsciiSafe(sql), `${file} must remain ASCII-safe for portable SQL tooling`).toBe(true);
 			expect(sql, `${file} must not contain destructive statements`).not.toMatch(
 				DESTRUCTIVE_SEED_PATTERN,
 			);
