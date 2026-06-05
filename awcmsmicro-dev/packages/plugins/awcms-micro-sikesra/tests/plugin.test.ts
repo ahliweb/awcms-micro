@@ -2097,7 +2097,7 @@ describe("awcms micro sikesra plugin", () => {
 		const routes = createNativeRoutes();
 		const request = new Request("https://example.test", {
 			headers: {
-				"X-Sikesra-User-Id": "user-123",
+				"X-Sikesra-User-Id": "user-demo-sikesra-admin",
 				"X-Sikesra-User-Name": "Ada Lovelace",
 			},
 		});
@@ -2111,7 +2111,7 @@ describe("awcms micro sikesra plugin", () => {
 		const stored = [...collections.auditEvents.values()].find(
 			(item: any) => item.kind === "state.touch",
 		) as any;
-		expect(stored).toMatchObject({ userId: "user-123", userName: "Ada Lovelace" });
+		expect(stored).toMatchObject({ userId: "user-demo-sikesra-admin", userName: "Ada Lovelace" });
 	});
 
 	it("requires SIKESRA audit permission for audit list", async () => {
@@ -3858,8 +3858,18 @@ describe("awcms micro sikesra plugin", () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 
+		const denied = (await routes["state/touch"]!.handler({
+			...ctx,
+			input: { note: "manual review" },
+		} as any)) as any;
+
+		expect(denied.success).toBe(false);
+		expect(denied.error.code).toBe("UNAUTHENTICATED");
+		expect(collections.pluginState.get("state:lastManualTouch")).toBeUndefined();
+
 		const result = (await routes["state/touch"]!.handler({
 			...ctx,
+			request: createAdminRequest(),
 			input: { note: "manual review" },
 		} as any)) as any;
 
@@ -3965,6 +3975,20 @@ describe("awcms micro sikesra plugin", () => {
 			registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel,
 		).toBe("admin_sikesra");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
+		const savedDocumentDto = documents.items.find((item: any) => item.id === "doc-custom-01");
+		expect(savedDocumentDto).toMatchObject({
+			id: "doc-custom-01",
+			registryEntityId: "registry-entity-custom-01",
+			documentType: "surat_keterangan",
+			classification: "internal",
+			contentType: "application/pdf",
+			fileSizeBytes: 1024,
+		});
+		expect(savedDocumentDto.fileObjectId).toBeUndefined();
+		expect(savedDocumentDto.checksumSha256).toBeUndefined();
+		expect(savedDocumentDto.originalFilename).toBeUndefined();
+		expect(savedDocumentDto.safeFilename).toBeUndefined();
+		expect(savedDocumentDto.storageKey).toBeUndefined();
 		expect(registryEntityTableRows).toContainEqual(
 			expect.objectContaining({
 				id: "registry-entity-custom-01",
@@ -4384,8 +4408,11 @@ describe("awcms micro sikesra plugin", () => {
 			classification: "restricted",
 			contentType: "application/pdf",
 			fileSizeBytes: 2048,
-			checksumSha256: "a".repeat(64),
 		});
+		expect(allowed.item.fileObjectId).toBeUndefined();
+		expect(allowed.item.checksumSha256).toBeUndefined();
+		expect(allowed.item.originalFilename).toBeUndefined();
+		expect(allowed.item.safeFilename).toBeUndefined();
 		expect(allowed.item.storageKey).toBeUndefined();
 		expect(fileObjectTableRows).toContainEqual(
 			expect.objectContaining({

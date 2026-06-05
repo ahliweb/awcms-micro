@@ -2787,12 +2787,13 @@ function toSafeDocumentAccessResponse(doc: SikesraReferenceSupportingDocument) {
 		registryEntityId: doc.registryEntityId,
 		documentType: doc.documentType,
 		title: doc.title,
+		sensitivity: doc.sensitivity,
 		classification: doc.sensitivity,
 		validationStatus: doc.validationStatus ?? "pending",
-		fileObjectId: doc.fileObjectId,
 		contentType: doc.contentType,
 		fileSizeBytes: doc.fileSizeBytes,
-		checksumSha256: doc.checksumSha256,
+		issuedAt: doc.issuedAt,
+		verifiedBy: doc.verifiedBy,
 	};
 }
 
@@ -4908,7 +4909,7 @@ const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.document.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const docs = await getSupportingDocuments(ctx);
-	return { items: docs };
+	return { items: docs.map(toSafeDocumentAccessResponse) };
 };
 
 const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -4999,7 +5000,7 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		}),
 	);
 
-	return { success: true, item: newDoc };
+	return { success: true, item: toSafeDocumentAccessResponse(newDoc) };
 };
 
 const documentsAccessRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -7532,6 +7533,8 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 };
 
 const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.settings.update");
+	if (!permission.allowed) return { success: false, error: permission.error };
 	const note = getString(routeCtx.input, "note") ?? "manual-touch";
 	const actor = actorFromRoute(ctx);
 	await persistStateValue(ctx, "state:lastManualTouch", toIsoNow());
