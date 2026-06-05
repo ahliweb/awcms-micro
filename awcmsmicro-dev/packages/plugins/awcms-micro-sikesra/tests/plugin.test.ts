@@ -2062,7 +2062,12 @@ describe("awcms micro sikesra plugin", () => {
 				alamat_ktp_detail: "Jl. Rahasia 1",
 				documentMetadata: {
 					storage_key: "private/raw.pdf",
+					storageKey: "tenants/t-local-dev/sites/default/raw.pdf",
 					checksum: "sha256-secret",
+					checksumSha256: "a".repeat(64),
+					originalFilename: "identity-card.pdf",
+					safeFilename: "identity-card-safe.pdf",
+					fileObjectId: "file-object-private-01",
 				},
 			},
 		});
@@ -2073,11 +2078,18 @@ describe("awcms micro sikesra plugin", () => {
 			alamat_ktp_detail: "[REDACTED]",
 			documentMetadata: {
 				storage_key: "[REDACTED]",
+				storageKey: "[REDACTED]",
 				checksum: "[REDACTED]",
+				checksumSha256: "[REDACTED]",
+				originalFilename: "[REDACTED]",
+				safeFilename: "[REDACTED]",
+				fileObjectId: "[REDACTED]",
 			},
 		});
 		expect(JSON.stringify(record.metadata)).not.toContain("3201010101010001");
 		expect(JSON.stringify(record.metadata)).not.toContain("private/raw.pdf");
+		expect(JSON.stringify(record.metadata)).not.toContain("identity-card.pdf");
+		expect(JSON.stringify(record.metadata)).not.toContain("file-object-private-01");
 	});
 
 	it("stamps audit events with request user headers", async () => {
@@ -4272,6 +4284,14 @@ describe("awcms micro sikesra plugin", () => {
 				safeFilename: "secret.pdf",
 			},
 		} as any);
+		const documentCreateAudit = auditTableRows.find((row) => row.kind === "document.create")!;
+		const documentCreateMetadata = JSON.stringify(
+			JSON.parse(String(documentCreateAudit.metadata_json)),
+		);
+		expect(documentCreateMetadata).toContain("checksumRecorded");
+		expect(documentCreateMetadata).toContain("filenameRecorded");
+		expect(documentCreateMetadata).not.toContain("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		expect(documentCreateMetadata).not.toContain("secret.pdf");
 
 		const denied = (await routes["documents/access"]!.handler({
 			...ctx,

@@ -3612,7 +3612,7 @@ function touchUpdatedAt<T extends { updatedAt: string }>(value: T): T {
 
 const AUDIT_REDACTED_VALUE = "[REDACTED]";
 const AUDIT_SENSITIVE_KEY_PATTERN =
-	/(nik|kia|nomor_kk|no_kk|phone|telepon|email|alamat|ktp|domisili|latitude|longitude|coordinate|storage_key|checksum|file_name|mime_type|raw_document|document_metadata)/i;
+	/(nik|kia|nomor_kk|no_kk|phone|telepon|email|alamat|ktp|domisili|latitude|longitude|coordinate|storage_key|storageKey|checksum|file_name|filename|originalFilename|safeFilename|fileObject|mime_type|raw_document|document_metadata)/i;
 
 function redactAuditMetadata(value: unknown): unknown {
 	if (Array.isArray(value)) return value.map((item) => redactAuditMetadata(item));
@@ -5097,7 +5097,16 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			scope: "documents",
 			actor: actorFromRoute(ctx),
 			summary: `Uploaded document ${newDoc.title} classification ${newDoc.sensitivity}`,
-			metadata: newDoc as unknown as Record<string, unknown>,
+			metadata: {
+				documentId: newDoc.id,
+				registryEntityId: newDoc.registryEntityId,
+				documentType: newDoc.documentType,
+				classification: newDoc.sensitivity,
+				contentType: newDoc.contentType,
+				fileSizeBytes: newDoc.fileSizeBytes,
+				checksumRecorded: Boolean(newDoc.checksumSha256),
+				filenameRecorded: Boolean(newDoc.originalFilename || newDoc.safeFilename),
+			},
 		}),
 	);
 
