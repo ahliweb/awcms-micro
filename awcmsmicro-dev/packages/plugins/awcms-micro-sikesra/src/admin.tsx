@@ -3688,10 +3688,13 @@ function RegistryPage() {
 		setErrMsg(null);
 		setSuccessMsg(null);
 		try {
+			const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
+			const parentType = activeTypes.find((item) => item.id === wizardState.entityType);
 			const registryPayload = {
 				code: wizardState.code,
 				label: wizardState.label,
 				entityType: wizardState.entityType,
+				subtypeCode: wizardState.subTypeCode,
 				sensitivity: wizardState.sensitivity,
 				provinceCode: wizardState.provinceCode,
 				regencyCode: wizardState.regencyCode,
@@ -3700,7 +3703,8 @@ function RegistryPage() {
 				publicSummary: `${wizardState.label} (${wizardState.subtype || "-"}) located in RT ${wizardState.rt || "00"}/RW ${wizardState.rw || "00"}, ${wizardState.address || "-"}.${wizardState.religion ? ` Religion: ${wizardState.religion}.` : ""}${wizardState.desil ? ` Desil: ${wizardState.desil}.` : ""}${wizardState.caregiverName ? ` Caregiver: ${wizardState.caregiverName}` : ""}`,
 				inputLevel: wizardState.inputLevel,
 				fields: {
-					subTypeCode: wizardState.subTypeCode,
+					typeCode: parentType?.code ?? "99",
+					subtypeCode: wizardState.subTypeCode,
 					subtype: wizardState.subtype,
 					address: wizardState.address,
 					rt: wizardState.rt,

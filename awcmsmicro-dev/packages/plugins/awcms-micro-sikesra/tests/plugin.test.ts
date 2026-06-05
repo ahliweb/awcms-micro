@@ -2941,6 +2941,8 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("classification: uploadState.sensitivity");
 		expect(adminSource).toContain("classification: doc.sensitivity");
 		expect(adminSource).toContain("saveRegistryEntity<");
+		expect(adminSource).toContain("typeCode: parentType?.code");
+		expect(adminSource).toContain("subtypeCode: wizardState.subTypeCode");
 		expect(adminSource).toContain("advanceVerification<");
 		expect(adminSource).toContain("rejectVerification<");
 		expect(adminSource).toContain("previewAccess<");
