@@ -4,8 +4,11 @@ export type {
 	SikesraAdminUserHeaderSource,
 } from "./client.js";
 export {
+	SIKESRA_ADMIN_API_PATHS,
 	createSikesraAdminApiHeaders,
+	createSikesraAdminApiUrl,
 	postSikesraPlugin,
+	SIKESRA_READ_ONLY_ADMIN_API_PATHS,
 	SIKESRA_PLUGIN_API_BASE,
 } from "./client.js";
 export { previewAbac } from "./abac-api.js";

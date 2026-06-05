@@ -15,6 +15,8 @@ import {
 	pages as sikesraAdminPages,
 } from "../src/admin.js";
 import {
+	SIKESRA_ADMIN_API_PATHS,
+	SIKESRA_READ_ONLY_ADMIN_API_PATHS,
 	createSikesraAdminApiHeaders,
 	createSikesraAdminApiUrl,
 	getSikesraAdminApiMethod,
@@ -2840,6 +2842,19 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("uses GET for SIKESRA admin read APIs so read pages do not require plugin manage permission", () => {
+		expect(new Set(SIKESRA_ADMIN_API_PATHS).size).toBe(SIKESRA_ADMIN_API_PATHS.length);
+		expect(new Set(SIKESRA_READ_ONLY_ADMIN_API_PATHS).size).toBe(
+			SIKESRA_READ_ONLY_ADMIN_API_PATHS.length,
+		);
+		const clientPathSet = new Set<string>(SIKESRA_ADMIN_API_PATHS);
+		for (const key of SIKESRA_READ_ONLY_ADMIN_API_PATHS) {
+			expect(clientPathSet.has(key), `${key} missing from admin API path list`).toBe(true);
+		}
+		const runtimeRoutes = createNativeRoutes();
+		for (const key of SIKESRA_ADMIN_API_PATHS) {
+			expect(runtimeRoutes[key], `${key} missing from runtime plugin routes`).toBeDefined();
+		}
+
 		for (const key of [
 			"registry/list",
 			"registry/archive/list",

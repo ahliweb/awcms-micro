@@ -244,15 +244,18 @@ For the current PO-backed admin, navigation, runtime metadata, and temporary ada
 
 - Public route: `public/status`
 - Registry routes: `registry/list`, `registry/save`, `registry/sikesra-id/correct`, `registry/archive/list`, `registry/soft-delete`, `registry/restore`
-- Documents routes: `documents/list`, `documents/save`
-- Import route: `import/promote`
+- Documents routes: `documents/list`, `documents/save`, `documents/access`
+- Import routes: `import/create`, `import/promote`
+- Duplicate-review routes: `duplicates/decide`
+- Export routes: `exports/create`, `exports/list`
+- Custom attribute routes: `custom-attributes/definitions/list`, `custom-attributes/definitions/save`, `custom-attributes/values/list`, `custom-attributes/values/save`
 - Verification routes: `verification/list`, `verification/advance`, `verification/reject`
 - Settings routes: `settings/get`, `settings/save`, `regions/get`, `regions/save`, `local-regions/get`, `local-regions/save`, `data-types/get`, `data-types/save`
 - Audit routes: `audit/list`
 - CRUD governance routes: `crud/permanent-delete/request`, `crud/permanent-delete/requests/list`, `crud/permanent-delete/approve`, `crud/permanent-delete/execute`
 - Access-rights routes: `access/permissions/list`, `access/permissions/save`, `access/roles/list`, `access/roles/save`, `access/users/list`, `access/users/save`, `access/scopes/list`, `access/scopes/save`, `access/matrix/get`, `access/matrix/save`, `access/preview`, `access/health`
 - ABAC routes: `abac/attributes/list`, `abac/attributes/save`, `abac/subjects/list`, `abac/subjects/save`, `abac/resources/list`, `abac/resources/save`, `abac/policies/list`, `abac/policies/save`, `abac/preview`, `abac/enforce-demo`, `abac/health`
-- Dashboard compatibility alias: `dashboard/summary`
+- Dashboard routes: `overview/summary`; compatibility alias: `dashboard/summary`
 - Hooks: lifecycle, content, media, cron, and `page:metadata`
 
 ## Access and ABAC Boundaries

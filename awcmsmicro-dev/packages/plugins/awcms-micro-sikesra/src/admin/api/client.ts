@@ -2,67 +2,70 @@ import { apiFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils
 
 export const SIKESRA_PLUGIN_API_BASE = "/_emdash/api/plugins/awcms-micro-sikesra";
 
-export type SikesraAdminApiPath =
-	| "overview/summary"
-	| "public/status"
-	| "registry/list"
-	| "registry/save"
-	| "registry/sikesra-id/correct"
-	| "registry/archive/list"
-	| "registry/soft-delete"
-	| "registry/restore"
-	| "documents/list"
-	| "documents/save"
-	| "documents/access"
-	| "import/create"
-	| "import/promote"
-	| "duplicates/decide"
-	| "exports/create"
-	| "exports/list"
-	| "custom-attributes/definitions/list"
-	| "custom-attributes/definitions/save"
-	| "custom-attributes/values/list"
-	| "custom-attributes/values/save"
-	| "crud/permanent-delete/request"
-	| "crud/permanent-delete/requests/list"
-	| "crud/permanent-delete/approve"
-	| "crud/permanent-delete/execute"
-	| "verification/list"
-	| "verification/advance"
-	| "verification/reject"
-	| "settings/get"
-	| "settings/save"
-	| "regions/get"
-	| "regions/save"
-	| "local-regions/get"
-	| "local-regions/save"
-	| "data-types/get"
-	| "data-types/save"
-	| "audit/list"
-	| "access/permissions/list"
-	| "access/permissions/save"
-	| "access/roles/list"
-	| "access/roles/save"
-	| "access/users/list"
-	| "access/users/save"
-	| "access/scopes/list"
-	| "access/scopes/save"
-	| "access/matrix/get"
-	| "access/matrix/save"
-	| "access/preview"
-	| "access/health"
-	| "abac/attributes/list"
-	| "abac/attributes/save"
-	| "abac/subjects/list"
-	| "abac/subjects/save"
-	| "abac/resources/list"
-	| "abac/resources/save"
-	| "abac/policies/list"
-	| "abac/policies/save"
-	| "abac/preview"
-	| "abac/enforce-demo"
-	| "abac/health"
-	| "dashboard/summary";
+export const SIKESRA_ADMIN_API_PATHS = [
+	"overview/summary",
+	"public/status",
+	"registry/list",
+	"registry/save",
+	"registry/sikesra-id/correct",
+	"registry/archive/list",
+	"registry/soft-delete",
+	"registry/restore",
+	"documents/list",
+	"documents/save",
+	"documents/access",
+	"import/create",
+	"import/promote",
+	"duplicates/decide",
+	"exports/create",
+	"exports/list",
+	"custom-attributes/definitions/list",
+	"custom-attributes/definitions/save",
+	"custom-attributes/values/list",
+	"custom-attributes/values/save",
+	"crud/permanent-delete/request",
+	"crud/permanent-delete/requests/list",
+	"crud/permanent-delete/approve",
+	"crud/permanent-delete/execute",
+	"verification/list",
+	"verification/advance",
+	"verification/reject",
+	"settings/get",
+	"settings/save",
+	"regions/get",
+	"regions/save",
+	"local-regions/get",
+	"local-regions/save",
+	"data-types/get",
+	"data-types/save",
+	"audit/list",
+	"access/permissions/list",
+	"access/permissions/save",
+	"access/roles/list",
+	"access/roles/save",
+	"access/users/list",
+	"access/users/save",
+	"access/scopes/list",
+	"access/scopes/save",
+	"access/matrix/get",
+	"access/matrix/save",
+	"access/preview",
+	"access/health",
+	"abac/attributes/list",
+	"abac/attributes/save",
+	"abac/subjects/list",
+	"abac/subjects/save",
+	"abac/resources/list",
+	"abac/resources/save",
+	"abac/policies/list",
+	"abac/policies/save",
+	"abac/preview",
+	"abac/enforce-demo",
+	"abac/health",
+	"dashboard/summary",
+] as const;
+
+export type SikesraAdminApiPath = (typeof SIKESRA_ADMIN_API_PATHS)[number];
 
 export interface SikesraAdminUserHeaderSource {
 	id: string;
@@ -88,7 +91,7 @@ export function createSikesraAdminApiHeaders(user?: SikesraAdminUserHeaderSource
 	return headers;
 }
 
-const SIKESRA_READ_ONLY_API_PATHS = new Set<SikesraAdminApiPath>([
+export const SIKESRA_READ_ONLY_ADMIN_API_PATHS = [
 	"overview/summary",
 	"public/status",
 	"registry/list",
@@ -116,7 +119,11 @@ const SIKESRA_READ_ONLY_API_PATHS = new Set<SikesraAdminApiPath>([
 	"abac/policies/list",
 	"abac/health",
 	"dashboard/summary",
-]);
+] as const satisfies readonly SikesraAdminApiPath[];
+
+const SIKESRA_READ_ONLY_API_PATHS = new Set<SikesraAdminApiPath>(
+	SIKESRA_READ_ONLY_ADMIN_API_PATHS,
+);
 
 export function getSikesraAdminApiMethod(path: SikesraAdminApiPath) {
 	return SIKESRA_READ_ONLY_API_PATHS.has(path) ? "GET" : "POST";
