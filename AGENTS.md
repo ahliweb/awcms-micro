@@ -99,6 +99,10 @@ Before changing the SIKESRA plugin, also read:
 
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
 
+Before planning, designing, or implementing a mobile services plugin for Android, iOS, Flutter, native Java/Kotlin, Swift, API authentication, mobile app versioning, push notifications, or offline sync, read:
+
+- `docs/awcms-micro-mobile-services-plugin-standard.md`
+
 Use `docs/awcms-micro-implementation-boundaries.md` as the source of truth for the list of paths and change categories that must be preserved during `bash scripts/update-awcmsmicro-dev.sh` rebuilds.
 
 ## Language Policy
@@ -184,6 +188,7 @@ Required rules for agents:
 - `docs/awcms-micro-documentation-workflow.md`
 - `docs/awcms-micro-implementation-boundaries.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
+- `docs/awcms-micro-mobile-services-plugin-standard.md`
 - `docs/repository-structure.md`
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`

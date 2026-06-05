@@ -186,6 +186,7 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 - `docs/awcms-micro-mermaid-diagram-standard.md`
 - `docs/awcms-micro-documentation-workflow.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
+- `docs/awcms-micro-mobile-services-plugin-standard.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
 - `docs/operator-workflow.md`
