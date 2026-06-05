@@ -20,6 +20,10 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | Downstream patch overlays | Replay narrow source-level overrides from `.awcms-patches/` after rebuild instead of preserving broad upstream-owned files | Compatible | Medium | adapt |
 | Cloudflare deployment overlays | Document as environment-specific deployment guidance | Compatible | Medium | adapt |
 | Compliance and security baselines | Document as operational guidance rather than core changes | Compatible | Low | adapt |
+| EmDash `0.17.2` experimental plugin registry documentation and release asset workflow | Adopt upstream docs/runtime directly; keep AWCMS-Micro plugins published and wired through isolated workspace package/template dependencies | Compatible | Medium | adopt |
+| EmDash `0.17.2` plugin admin root routing fix | Adopt upstream admin routing behavior; keep SIKESRA route normalization inside the plugin boundary as downstream compatibility coverage | Compatible | Low | adopt |
+| EmDash `0.17.2` SEO media URL and setup probe hardening | Adopt upstream core fixes directly through `emdash-latest` and rebuilt `awcmsmicro-dev`; no downstream override required | Compatible | Low | adopt |
+| EmDash `0.17.2` Postgres schema introspection isolation | Adopt upstream database test/runtime improvements; keep SIKESRA canonical data isolated in future `sikesra_` tables | Compatible | Low | adopt |
 
 ## Usage Notes
 

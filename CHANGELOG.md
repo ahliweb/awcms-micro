@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.25 - 2026-06-05
+
+- Refreshes the parent workspace to upstream EmDash 0.17.2, records the new upstream sync status, and validates downstream AWCMS-Micro plugin and template compatibility.
 ## 0.1.24 - 2026-06-04
 
 - Adds SIKESRA-specific OpenCode skills for plugin governance, admin workflows, D1 data modeling, RBAC/ABAC audit controls, and document/import/export lifecycle work.
@@ -81,10 +84,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-04
+## Workspace Snapshot - 2026-06-05
 
-- EmDash upstream: `a6e8a9185fb1f7aa98078ba2f03ec6df8883f90d` from `emdash-latest/`
-- Root version: `0.1.24`
+- EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
+- Root version: `0.1.25`
 
 ### Plugins
 
@@ -96,7 +99,7 @@
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.20` - latest changelog section: 0.1.20
+- `@emdash-cms/plugin-embeds` `0.1.21` - latest changelog section: 0.1.21
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
 - `@emdash-cms/plugin-forms` `0.2.3` - latest changelog section: 0.2.3
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2
