@@ -40,8 +40,13 @@ INSERT OR IGNORE INTO sikesra_data_types (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'rumah_ibadah', '01', 'Rumah Ibadah', 'Tempat ibadah dan status verifikasinya.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lembaga_keagamaan', '02', 'Lembaga Keagamaan', 'Lembaga keagamaan dan status kelembagaannya.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'pendidikan_keagamaan', '03', 'Pendidikan Keagamaan', 'Satuan pendidikan keagamaan dan kapasitas layanan.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lks', '04', 'LKS', 'Lembaga kesejahteraan sosial dan layanan sosialnya.', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', 'guru_agama', '05', 'Guru Agama', 'Tenaga pengajar agama yang dikelola sebagai data terbatas.', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'disabilitas', '07', 'Disabilitas', 'Penerima layanan disabilitas yang wajib dilindungi.', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'anak_yatim', '06', 'Anak Yatim', 'Penerima layanan anak yatim yang wajib dilindungi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'disabilitas', '07', 'Disabilitas', 'Penerima layanan disabilitas yang wajib dilindungi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lansia_terlantar', '08', 'Lansia Terlantar', 'Penerima layanan lansia terlantar yang wajib dilindungi.', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_data_subtypes (
 	tenant_id,
@@ -54,8 +59,13 @@ INSERT OR IGNORE INTO sikesra_data_subtypes (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'rumah_ibadah', '01', 'Masjid', 'Masjid atau musala referensi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lembaga_keagamaan', '01', 'Majelis Taklim', 'Lembaga pembinaan masyarakat referensi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'pendidikan_keagamaan', '01', 'TPA', 'Taman pendidikan agama referensi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lks', '01', 'Panti Sosial', 'Lembaga layanan sosial referensi.', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', 'guru_agama', '01', 'Guru Agama Islam', 'Guru agama Islam referensi.', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'disabilitas', '03', 'Tuna Daksa', 'Kategori disabilitas fisik.', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'anak_yatim', '01', 'Anak Yatim Piatu', 'Kategori anak yatim piatu referensi.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'disabilitas', '03', 'Tuna Daksa', 'Kategori disabilitas fisik.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'lansia_terlantar', '01', 'Lansia Terlantar', 'Kategori lansia terlantar referensi.', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_registry_entities (
 	tenant_id,
@@ -78,8 +88,13 @@ INSERT OR IGNORE INTO sikesra_registry_entities (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-rumah-ibadah-01', '62010100010101000001', 'RI-001', 'Rumah Ibadah Al-Ikhlas', 'rumah_ibadah', '01', 'public_safe', '62', '6201', '620101', '6201010001', 'active_verified', 'desa_kelurahan', 'Rumah ibadah aktif dan sudah terverifikasi di wilayah Kotawaringin Barat.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lembaga-keagamaan-01', '62010100020201000001', 'LK-006', 'Majelis Taklim Referensi', 'lembaga_keagamaan', '01', 'internal', '62', '6201', '620101', '6201010001', 'verified_district', 'desa_kelurahan', 'Lembaga keagamaan aktif sebagai contoh data internal.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-pendidikan-keagamaan-01', '62010100030301000001', 'PK-011', 'TPA Referensi', 'pendidikan_keagamaan', '01', 'internal', '62', '6201', '620101', '6201010002', 'submitted_district', 'desa_kelurahan', 'Satuan pendidikan keagamaan disajikan sebagai agregat aman.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lks-01', '62010100040401000001', 'LKS-008', 'LKS Referensi', 'lks', '01', 'internal', '62', '6201', '620101', '6201010002', 'verified_sopd', 'kecamatan', 'Lembaga kesejahteraan sosial aktif untuk contoh layanan.', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-guru-agama-01', '62010100020501000001', 'GA-014', 'Guru Agama Referensi', 'guru_agama', '01', 'restricted', '62', '6201', '620101', '6201010002', 'submitted_sopd', 'kecamatan', 'Data tenaga pengajar disajikan hanya sebagai agregat aman.', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', '62010100030703000001', 'DS-021', 'Penerima Layanan Disabilitas', 'disabilitas', '03', 'highly_restricted', '62', '6201', '620101', '6201010003', 'verified_sopd', 'sopd', 'Kasus berisiko tinggi hanya disajikan sebagai hitungan agregat aman.', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-anak-yatim-01', '62010100030601000001', 'AY-019', 'Penerima Layanan Anak Yatim', 'anak_yatim', '01', 'highly_restricted', '62', '6201', '620101', '6201010003', 'submitted_village', 'desa_kelurahan', 'Data anak hanya disajikan sebagai hitungan agregat aman.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', '62010100030703000001', 'DS-021', 'Penerima Layanan Disabilitas', 'disabilitas', '03', 'highly_restricted', '62', '6201', '620101', '6201010003', 'verified_sopd', 'sopd', 'Kasus berisiko tinggi hanya disajikan sebagai hitungan agregat aman.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lansia-terlantar-01', '62010100030801000001', 'LT-004', 'Penerima Layanan Lansia', 'lansia_terlantar', '01', 'restricted', '62', '6201', '620101', '6201010001', 'submitted_district', 'desa_kelurahan', 'Data lansia terlantar disajikan hanya sebagai agregat aman.', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_rumah_ibadah_details (
 	tenant_id,
@@ -91,6 +106,39 @@ INSERT OR IGNORE INTO sikesra_rumah_ibadah_details (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-rumah-ibadah-01', '{"luasBangunanM2":240,"statusTanah":"wakaf","kapasitasJamaah":320}', '2026-01-reference', 'seed', 'seed');
+
+INSERT OR IGNORE INTO sikesra_lembaga_keagamaan_details (
+	tenant_id,
+	site_id,
+	registry_entity_id,
+	detail_json,
+	field_standard_version,
+	created_by,
+	updated_by
+) VALUES
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lembaga-keagamaan-01', '{"jumlahAnggota":48,"statusKelembagaan":"aktif","fokusPembinaan":"keluarga"}', '2026-01-reference', 'seed', 'seed');
+
+INSERT OR IGNORE INTO sikesra_pendidikan_keagamaan_details (
+	tenant_id,
+	site_id,
+	registry_entity_id,
+	detail_json,
+	field_standard_version,
+	created_by,
+	updated_by
+) VALUES
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-pendidikan-keagamaan-01', '{"jumlahSantri":72,"jumlahPengajar":6,"statusIzin":"tercatat"}', '2026-01-reference', 'seed', 'seed');
+
+INSERT OR IGNORE INTO sikesra_lks_details (
+	tenant_id,
+	site_id,
+	registry_entity_id,
+	detail_json,
+	field_standard_version,
+	created_by,
+	updated_by
+) VALUES
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lks-01', '{"jenisLayanan":"panti_sosial","kapasitasLayanan":35,"statusAkreditasi":"proses"}', '2026-01-reference', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_person_profiles (
 	tenant_id,
@@ -105,7 +153,9 @@ INSERT OR IGNORE INTO sikesra_person_profiles (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'person-guru-agama-01', 'Guru Agama Referensi', 'NIK-REDACTED', '+62-REDACTED-014', 'guru-redacted@example.invalid', 'sensitive_personal', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'person-disabilitas-01', 'Penerima Layanan Disabilitas', 'NIK-REDACTED', '+62-REDACTED-021', NULL, 'sensitive_personal', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'person-anak-yatim-01', 'Penerima Layanan Anak Yatim', 'NIK-REDACTED', NULL, NULL, 'sensitive_personal', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'person-disabilitas-01', 'Penerima Layanan Disabilitas', 'NIK-REDACTED', '+62-REDACTED-021', NULL, 'sensitive_personal', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'person-lansia-01', 'Penerima Layanan Lansia', 'NIK-REDACTED', '+62-REDACTED-004', NULL, 'sensitive_personal', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_entity_people (
 	tenant_id,
@@ -117,7 +167,9 @@ INSERT OR IGNORE INTO sikesra_entity_people (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-guru-agama-01', 'person-guru-agama-01', 'primary_subject', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', 'person-disabilitas-01', 'primary_subject', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-anak-yatim-01', 'person-anak-yatim-01', 'primary_subject', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', 'person-disabilitas-01', 'primary_subject', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lansia-terlantar-01', 'person-lansia-01', 'primary_subject', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_guru_agama_details (
 	tenant_id,
@@ -131,6 +183,18 @@ INSERT OR IGNORE INTO sikesra_guru_agama_details (
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-guru-agama-01', 'person-guru-agama-01', '{"mapel":"Pendidikan Agama Islam","statusKepegawaian":"non_asn","alamat_ktp_detail":"REDACTED","alamat_domisili_sama_dengan_ktp":true}', '2026-01-reference', 'seed', 'seed');
 
+INSERT OR IGNORE INTO sikesra_anak_yatim_details (
+	tenant_id,
+	site_id,
+	registry_entity_id,
+	person_profile_id,
+	detail_json,
+	field_standard_version,
+	created_by,
+	updated_by
+) VALUES
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-anak-yatim-01', 'person-anak-yatim-01', '{"statusWali":"keluarga_pengasuh","kebutuhanPrioritas":"pendidikan","alamat_ktp_detail":"REDACTED","alamat_domisili_sama_dengan_ktp":false,"alamat_domisili_detail":"REDACTED"}', '2026-01-reference', 'seed', 'seed');
+
 INSERT OR IGNORE INTO sikesra_disabilitas_details (
 	tenant_id,
 	site_id,
@@ -142,6 +206,18 @@ INSERT OR IGNORE INTO sikesra_disabilitas_details (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', 'person-disabilitas-01', '{"jenisDisabilitas":"tuna_daksa","kebutuhanLayanan":"alat_bantu","alamat_ktp_detail":"REDACTED","alamat_domisili_sama_dengan_ktp":false,"alamat_domisili_detail":"REDACTED"}', '2026-01-reference', 'seed', 'seed');
+
+INSERT OR IGNORE INTO sikesra_lansia_terlantar_details (
+	tenant_id,
+	site_id,
+	registry_entity_id,
+	person_profile_id,
+	detail_json,
+	field_standard_version,
+	created_by,
+	updated_by
+) VALUES
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lansia-terlantar-01', 'person-lansia-01', '{"kondisiTinggal":"sendiri","kebutuhanPrioritas":"pendampingan","alamat_ktp_detail":"REDACTED","alamat_domisili_sama_dengan_ktp":true}', '2026-01-reference', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_file_objects (
 	tenant_id,
@@ -201,8 +277,13 @@ INSERT OR IGNORE INTO sikesra_verification_stage_state (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-rumah-ibadah-01', 'active_verified', 'kabupaten', NULL, 'approved', '6201', 'user-demo-sikesra-admin', '2026-01-12T08:00:00.000Z', '2026-01-12T10:00:00.000Z', 'Data lengkap dan aktif.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lembaga-keagamaan-01', 'verified_district', 'sopd', 'kabupaten', 'pending', '6201', 'user-demo-district', '2026-01-12T09:00:00.000Z', NULL, 'Menunggu validasi lanjutan.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-pendidikan-keagamaan-01', 'submitted_district', 'kecamatan', 'sopd', 'pending', '620101', 'user-demo-district', '2026-01-12T09:30:00.000Z', NULL, 'Menunggu review kecamatan.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lks-01', 'verified_sopd', 'kabupaten', NULL, 'needs_review', '6201', 'user-demo-sopd', '2026-01-12T10:00:00.000Z', '2026-01-12T12:00:00.000Z', 'Perlu review kapasitas layanan.', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-guru-agama-01', 'submitted_sopd', 'sopd', 'kabupaten', 'pending', '6201', 'user-demo-sopd', '2026-01-13T08:00:00.000Z', NULL, 'Menunggu review SOPD.', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', 'verified_sopd', 'kabupaten', NULL, 'needs_review', '6201', 'user-demo-sikesra-admin', '2026-01-14T08:00:00.000Z', '2026-01-14T10:00:00.000Z', 'Perlu validasi lanjutan sebelum publikasi agregat.', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-anak-yatim-01', 'submitted_village', 'desa_kelurahan', 'kecamatan', 'pending', '6201010003', 'user-demo-village', '2026-01-13T09:00:00.000Z', NULL, 'Menunggu review desa atau kelurahan.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-disabilitas-01', 'verified_sopd', 'kabupaten', NULL, 'needs_review', '6201', 'user-demo-sikesra-admin', '2026-01-14T08:00:00.000Z', '2026-01-14T10:00:00.000Z', 'Perlu validasi lanjutan sebelum publikasi agregat.', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'registry-entity-lansia-terlantar-01', 'submitted_district', 'kecamatan', 'sopd', 'pending', '620101', 'user-demo-district', '2026-01-14T09:00:00.000Z', NULL, 'Menunggu verifikasi kecamatan.', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_verification_events (
 	tenant_id,
@@ -220,8 +301,13 @@ INSERT OR IGNORE INTO sikesra_verification_events (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'verify-rumah-ibadah-village', 'registry-entity-rumah-ibadah-01', 'submitted_village', 'verified_village', 'desa_kelurahan', 'user-demo-village', 'approved', 'Dokumen lengkap dan lokasi sesuai.', '6201010001', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'verify-lembaga-district', 'registry-entity-lembaga-keagamaan-01', 'submitted_district', 'verified_district', 'kecamatan', 'user-demo-district', 'approved', 'Lembaga aktif dan tercatat.', '620101', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'verify-pendidikan-village', 'registry-entity-pendidikan-keagamaan-01', 'submitted_village', 'submitted_district', 'desa_kelurahan', 'user-demo-village', 'approved', 'Data diteruskan ke kecamatan.', '6201010002', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'verify-lks-sopd', 'registry-entity-lks-01', 'submitted_sopd', 'verified_sopd', 'sopd', 'user-demo-sopd', 'needs_review', 'Perlu review kapasitas layanan.', '6201', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', 'verify-guru-district', 'registry-entity-guru-agama-01', 'submitted_district', 'submitted_sopd', 'kecamatan', 'user-demo-district', 'approved', 'Data diteruskan ke SOPD terkait.', '620101', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'verify-disabilitas-sopd', 'registry-entity-disabilitas-01', 'submitted_sopd', 'verified_sopd', 'sopd', 'user-demo-sopd', 'needs_review', 'Perlu review lanjutan oleh admin kabupaten.', '6201', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'verify-anak-yatim-village', 'registry-entity-anak-yatim-01', 'draft', 'submitted_village', 'desa_kelurahan', 'user-demo-village', 'pending', 'Menunggu dokumen pendukung.', '6201010003', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'verify-disabilitas-sopd', 'registry-entity-disabilitas-01', 'submitted_sopd', 'verified_sopd', 'sopd', 'user-demo-sopd', 'needs_review', 'Perlu review lanjutan oleh admin kabupaten.', '6201', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'verify-lansia-district', 'registry-entity-lansia-terlantar-01', 'submitted_village', 'submitted_district', 'kecamatan', 'user-demo-district', 'pending', 'Menunggu verifikasi kecamatan.', '620101', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_permission_catalog (
 	tenant_id,

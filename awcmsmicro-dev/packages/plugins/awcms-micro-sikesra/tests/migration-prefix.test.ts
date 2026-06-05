@@ -31,6 +31,17 @@ const REQUIRED_REGISTRY_TABLES = [
 	"sikesra_lansia_terlantar_details",
 ] as const;
 
+const REQUIRED_SIKESRA_MODULES = [
+	"rumah_ibadah",
+	"lembaga_keagamaan",
+	"pendidikan_keagamaan",
+	"lks",
+	"guru_agama",
+	"anak_yatim",
+	"disabilitas",
+	"lansia_terlantar",
+] as const;
+
 const REQUIRED_BUSINESS_COLUMNS = [
 	"tenant_id",
 	"site_id",
@@ -196,6 +207,21 @@ describe("SIKESRA D1 migration prefix policy", () => {
 				expect(table, `${file} inserts into non-SIKESRA table`).toMatch(/^sikesra_/);
 				expect(migrationTables.has(table), `${file} inserts into missing table ${table}`).toBe(true);
 			}
+		}
+	});
+
+	it("keeps Kotawaringin Barat seed coverage for all eight SIKESRA modules", () => {
+		const seedSql = readSeedSqlFiles()
+			.map(({ sql }) => sql)
+			.join("\n");
+
+		for (const module of REQUIRED_SIKESRA_MODULES) {
+			expect(seedSql, `seed missing data type or registry module ${module}`).toContain(
+				`'${module}'`,
+			);
+			expect(seedSql, `seed missing detail table for ${module}`).toContain(
+				`sikesra_${module}_details`,
+			);
 		}
 	});
 });

@@ -12,6 +12,16 @@ const insertTablePattern = /INSERT\s+OR\s+IGNORE\s+INTO\s+[`"]?([a-zA-Z0-9_]+)[`
 const destructiveSeedPattern = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
 const tenantPlaceholder = "__TENANT_ID__";
 const sitePlaceholder = "__SITE_ID__";
+const requiredModules = [
+	"rumah_ibadah",
+	"lembaga_keagamaan",
+	"pendidikan_keagamaan",
+	"lks",
+	"guru_agama",
+	"anak_yatim",
+	"disabilitas",
+	"lansia_terlantar",
+];
 
 function readSqlFiles(dir) {
 	if (!existsSync(dir)) return [];
@@ -31,6 +41,12 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 	if (destructiveSeedPattern.test(sql)) violations.push(`${file} contains destructive SQL`);
 	if (!sql.includes(tenantPlaceholder)) violations.push(`${file} missing ${tenantPlaceholder}`);
 	if (!sql.includes(sitePlaceholder)) violations.push(`${file} missing ${sitePlaceholder}`);
+	for (const module of requiredModules) {
+		if (!new RegExp(`'${module}'`).test(sql)) violations.push(`${file} missing module seed: ${module}`);
+		if (!sql.includes(`sikesra_${module}_details`)) {
+			violations.push(`${file} missing module detail seed table: sikesra_${module}_details`);
+		}
+	}
 
 	let insertCount = 0;
 	for (const match of sql.matchAll(insertTablePattern)) {
