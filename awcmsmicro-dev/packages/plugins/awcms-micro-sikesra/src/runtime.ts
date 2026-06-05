@@ -2274,8 +2274,12 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
 }
 
-async function saveRegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
-	if (await persistD1RegistryEntity(ctx, entity)) return;
+async function saveRegistryEntity(
+	ctx: PluginContext,
+	entity: SikesraReferenceRegistryEntity,
+	detailFields: Record<string, unknown> = {},
+) {
+	if (await persistD1RegistryEntity(ctx, entity, detailFields)) return;
 
 	const custom =
 		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
@@ -2404,7 +2408,11 @@ async function updateD1RegistryEntityDeletedAt(
 	return true;
 }
 
-async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraReferenceRegistryEntity) {
+async function persistD1RegistryEntity(
+	ctx: PluginContext,
+	entity: SikesraReferenceRegistryEntity,
+	detailFields: Record<string, unknown> = {},
+) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 
@@ -2468,6 +2476,7 @@ async function persistD1RegistryEntity(ctx: PluginContext, entity: SikesraRefere
 				sensitivity: entity.sensitivity,
 				region: entity.region,
 				publicSummary: entity.publicSummary,
+				fields: detailFields,
 			}),
 			field_standard_version: "draft",
 			created_at: now,
@@ -4872,7 +4881,7 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		);
 	}
 
-	await saveRegistryEntity(ctx, newEntity);
+	await saveRegistryEntity(ctx, newEntity, fields);
 
 	await appendAuditEvent(
 		ctx,

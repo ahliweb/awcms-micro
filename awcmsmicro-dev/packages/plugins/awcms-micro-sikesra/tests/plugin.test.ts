@@ -4158,7 +4158,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("accepts canonical registry fields payload with legacy-safe route fallback", async () => {
-		const { ctx, registryEntityTableRows } = createMockContext();
+		const { ctx, moduleDetailTableRows, registryEntityTableRows } = createMockContext();
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
@@ -4202,6 +4202,17 @@ describe("awcms micro sikesra plugin", () => {
 				village_code: "6201010001",
 			}),
 		);
+		expect(
+			JSON.parse(String(moduleDetailTableRows.sikesra_rumah_ibadah_details![0]?.detail_json)),
+		).toMatchObject({
+			fields: {
+				code: "FIELDS-001",
+				typeCode: "01",
+				subtypeCode: "01",
+				villageCode: "6201010001",
+				publicSummary: "Canonical fields summary.",
+			},
+		});
 	});
 
 	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
