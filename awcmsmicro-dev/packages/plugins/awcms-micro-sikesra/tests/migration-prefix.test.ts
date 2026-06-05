@@ -8,6 +8,7 @@ import { AWCMS_SIKESRA_D1_TABLE_NAMES } from "../src/runtime.js";
 
 const MIGRATIONS_DIR = resolve(import.meta.dirname, "../migrations");
 const SEEDS_DIR = resolve(import.meta.dirname, "../seeds");
+const MIGRATIONS_DOC = resolve(import.meta.dirname, "../docs/MIGRATIONS.md");
 const CREATE_TABLE_PATTERN =
 	/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const CREATE_INDEX_PATTERN =
@@ -135,6 +136,13 @@ describe("SIKESRA D1 migration prefix policy", () => {
 		const sqlFiles = readMigrationSqlFiles().map(({ file }) => file);
 
 		expect([...SIKESRA_MIGRATION_FILES]).toEqual(sqlFiles.toSorted());
+	});
+
+	it("keeps migration documentation aligned with SQL files", () => {
+		const doc = readFileSync(MIGRATIONS_DOC, "utf8");
+		for (const migrationFile of readMigrationSqlFiles().map(({ file }) => file).toSorted()) {
+			expect(doc, `${migrationFile} missing from docs/MIGRATIONS.md`).toContain(migrationFile);
+		}
 	});
 
 	it("keeps created migration tables in the repository and runtime table catalogs", () => {

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const pluginDir = resolve(scriptDir, "..");
 const commands = [
+	["pnpm", ["awcms:sikesra:check-d1-prefix"]],
 	["node", ["scripts/check-data-boundary.mjs"]],
 	["node", ["scripts/check-destructive-migrations.mjs"]],
 	["node", ["scripts/check-user-references.mjs"]],
