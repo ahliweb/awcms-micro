@@ -2927,6 +2927,19 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("approvePermanentDelete(");
 		expect(adminSource).toContain("executePermanentDelete(");
 		expect(adminSource).toContain("restoreRegistry(");
+		expect(adminSource).toContain("saveAccessPermission(");
+		expect(adminSource).toContain("saveAccessRole(");
+		expect(adminSource).toContain("saveAccessScope(");
+		expect(adminSource).toContain("saveAccessMatrix(");
+		expect(adminSource).toContain("saveUserRoles(");
+		expect(adminSource).toContain("emdashUserId: userState.userId");
+		expect(adminSource).toContain("saveAbacAttribute(");
+		expect(adminSource).toContain("saveAbacSubject(");
+		expect(adminSource).toContain("saveAbacResource(");
+		expect(adminSource).toContain("saveAbacPolicy(");
+		expect(adminSource).toContain("saveDocument(");
+		expect(adminSource).toContain("classification: uploadState.sensitivity");
+		expect(adminSource).toContain("classification: doc.sensitivity");
 		expect(adminSource).toContain(
 			"Type PERMANENT DELETE before executing the permanent delete request.",
 		);
@@ -2939,6 +2952,16 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).not.toContain('postPlugin("crud/permanent-delete/approve"');
 		expect(adminSource).not.toContain('postPlugin("crud/permanent-delete/execute"');
 		expect(adminSource).not.toContain('postPlugin("registry/restore"');
+		expect(adminSource).not.toContain('postPlugin("access/permissions/save"');
+		expect(adminSource).not.toContain('postPlugin("access/roles/save"');
+		expect(adminSource).not.toContain('postPlugin("access/users/save"');
+		expect(adminSource).not.toContain('postPlugin("access/scopes/save"');
+		expect(adminSource).not.toContain('postPlugin("access/matrix/save"');
+		expect(adminSource).not.toContain('postPlugin("abac/attributes/save"');
+		expect(adminSource).not.toContain('postPlugin("abac/subjects/save"');
+		expect(adminSource).not.toContain('postPlugin("abac/resources/save"');
+		expect(adminSource).not.toContain('postPlugin("abac/policies/save"');
+		expect(adminSource).not.toContain('postPlugin("documents/save"');
 	});
 
 	it("declares issue #142 admin UI/UX route and interaction standards", () => {
@@ -5645,7 +5668,7 @@ describe("awcms micro sikesra plugin", () => {
 			...ctx,
 			request: adminRequest,
 			input: {
-				userId: "user-demo-doc-reviewer",
+				emdashUserId: "user-demo-doc-reviewer",
 				roles: ["document-reviewer"],
 			},
 		} as any);
@@ -5673,7 +5696,7 @@ describe("awcms micro sikesra plugin", () => {
 			...ctx,
 			request: adminRequest,
 			input: {
-				userId: "user-demo-doc-reviewer",
+				emdashUserId: "user-demo-doc-reviewer",
 				roles: ["document-reviewer"],
 				isActive: false,
 			},

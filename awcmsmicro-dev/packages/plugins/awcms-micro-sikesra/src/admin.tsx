@@ -11,6 +11,16 @@ import {
 	executePermanentDelete,
 	requestPermanentDelete,
 	restoreRegistry,
+	saveAccessMatrix,
+	saveAbacAttribute,
+	saveAbacPolicy,
+	saveAbacResource,
+	saveAbacSubject,
+	savePermission as saveAccessPermission,
+	saveRole as saveAccessRole,
+	saveScope as saveAccessScope,
+	saveUserRoles,
+	saveDocument,
 	saveDataTypes,
 	saveRegions,
 	saveSettings as saveSikesraSettings,
@@ -1526,11 +1536,14 @@ function AccessUsersPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("access/users/save", {
-				userId: userState.userId,
-				roles: fromCsv(userState.roles),
-				isActive: userState.isActive,
-			});
+			await saveUserRoles(
+				{
+					emdashUserId: userState.userId,
+					roles: fromCsv(userState.roles),
+					isActive: userState.isActive,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setUserState({ userId: "", roles: "", isActive: true });
 			setNotice("EmDash user role assignment saved with SIKESRA audit tracking.");
 			await reload();
@@ -1693,7 +1706,7 @@ function AccessScopesPage() {
 		setNotice(null);
 		setSaveError(null);
 		try {
-			await postPlugin("access/scopes/save", scopeState);
+			await saveAccessScope(scopeState, await createAdminApiRequestOptions());
 			setNotice("User region and organization scopes saved for the EmDash user reference.");
 			setScopeState({
 				userId: "",
@@ -3670,12 +3683,15 @@ function RegistryPage() {
 			});
 
 			for (const doc of wizardState.documents) {
-				await postPlugin("documents/save", {
-					registryEntityId: res.item.id,
-					title: doc.title,
-					documentType: doc.documentType,
-					sensitivity: doc.sensitivity,
-				});
+				await saveDocument(
+					{
+						registryEntityId: res.item.id,
+						title: doc.title,
+						documentType: doc.documentType,
+						classification: doc.sensitivity,
+					},
+					await createAdminApiRequestOptions(),
+				);
 			}
 
 			setSuccessMsg("Registry entity successfully submitted to queue!");
@@ -5038,12 +5054,15 @@ function DocumentsPage() {
 		}
 
 		try {
-			await postPlugin("documents/save", {
-				title: uploadState.title,
-				documentType: uploadState.documentType,
-				sensitivity: uploadState.sensitivity,
-				registryEntityId: uploadState.registryEntityId,
-			});
+			await saveDocument(
+				{
+					title: uploadState.title,
+					documentType: uploadState.documentType,
+					classification: uploadState.sensitivity,
+					registryEntityId: uploadState.registryEntityId,
+				},
+				await createAdminApiRequestOptions(),
+			);
 
 			setNotice(`Document successfully uploaded and saved to R2 storage! Checksum: ${checksum}`);
 			setProgress(null);
@@ -5503,7 +5522,7 @@ function PermissionsPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/permissions/save", formState);
+			await saveAccessPermission(formState, await createAdminApiRequestOptions());
 			setFormState({ slug: "", label: "", description: "", scope: "content" });
 			setNotice(copy.permissionSaved);
 			await reload();
@@ -5619,7 +5638,7 @@ function RolesPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/roles/save", roleState);
+			await saveAccessRole(roleState, await createAdminApiRequestOptions());
 			setRoleState({ slug: "", label: "", description: "" });
 			setNotice(copy.roleSaved);
 			await reload();
@@ -5637,10 +5656,13 @@ function RolesPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/users/save", {
-				userId: userState.userId,
-				roles: fromCsv(userState.roles),
-			});
+			await saveUserRoles(
+				{
+					emdashUserId: userState.userId,
+					roles: fromCsv(userState.roles),
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setUserState({ userId: "", roles: "" });
 			setNotice(copy.userRoleAssignmentSaved);
 			await reload();
@@ -5811,10 +5833,13 @@ function MatrixPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("access/matrix/save", {
-				roleSlug: selectedRole,
-				permissions: selectedPermissions,
-			});
+			await saveAccessMatrix(
+				{
+					roleSlug: selectedRole,
+					permissions: selectedPermissions,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setNotice(copy.roleMatrixSaved);
 			await reload();
 		} catch (cause) {
@@ -6031,7 +6056,7 @@ function AbacAttributesPage() {
 		setSaveError(null);
 
 		try {
-			await postPlugin("abac/attributes/save", attributeState);
+			await saveAbacAttribute(attributeState, await createAdminApiRequestOptions());
 			setAttributeState({ key: "", label: "", targetType: "context", description: "" });
 			setNotice(copy.attributeSaved);
 			await reload();
@@ -6051,10 +6076,13 @@ function AbacAttributesPage() {
 		}
 
 		try {
-			await postPlugin("abac/subjects/save", {
-				subjectId: subjectState.subjectId,
-				attributes: parsed.data,
-			});
+			await saveAbacSubject(
+				{
+					subjectId: subjectState.subjectId,
+					attributes: parsed.data,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setSubjectState({ subjectId: "", attributes: '{"tenant_id":"tenant-a"}' });
 			setNotice(copy.subjectAttributesSaved);
 			await reloadSubjects();
@@ -6074,10 +6102,13 @@ function AbacAttributesPage() {
 		}
 
 		try {
-			await postPlugin("abac/resources/save", {
-				resourceId: resourceState.resourceId,
-				attributes: parsed.data,
-			});
+			await saveAbacResource(
+				{
+					resourceId: resourceState.resourceId,
+					attributes: parsed.data,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setResourceState({ resourceId: "", attributes: '{"resource_type":"policy"}' });
 			setNotice(copy.resourceAttributesSaved);
 			await reloadResources();
@@ -6302,15 +6333,18 @@ function AbacPoliciesPage() {
 		}
 
 		try {
-			await postPlugin("abac/policies/save", {
-				id: formState.id,
-				label: formState.label,
-				effect: formState.effect,
-				actions: fromCsv(formState.actions),
-				requiredSubject: subject.data,
-				requiredResource: resource.data,
-				requiredContext: context.data,
-			});
+			await saveAbacPolicy(
+				{
+					id: formState.id,
+					label: formState.label,
+					effect: formState.effect,
+					actions: fromCsv(formState.actions),
+					requiredSubject: subject.data,
+					requiredResource: resource.data,
+					requiredContext: context.data,
+				},
+				await createAdminApiRequestOptions(),
+			);
 			setFormState({
 				id: "",
 				label: "",

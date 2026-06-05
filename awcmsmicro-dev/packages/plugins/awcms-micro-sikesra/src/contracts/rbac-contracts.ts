@@ -1,6 +1,7 @@
 export interface SikesraRoleAssignmentRequest {
 	emdashUserId: string;
 	roles: string[];
+	isActive?: boolean;
 	regionScopeType?: string;
 	regionScopeCode?: string;
 	organizationScopeType?: string;

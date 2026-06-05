@@ -7592,7 +7592,10 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	await ensureAccessCatalogSeeded(ctx);
-	const userId = getString(routeCtx.input, "userId")?.trim() ?? "";
+	const userId =
+		getString(routeCtx.input, "emdashUserId")?.trim() ||
+		getString(routeCtx.input, "userId")?.trim() ||
+		"";
 	const roles = getStringArray(routeCtx.input, "roles");
 	const isActive = getBoolean(routeCtx.input, "isActive") ?? true;
 	if (!userId || roles.length === 0) {
