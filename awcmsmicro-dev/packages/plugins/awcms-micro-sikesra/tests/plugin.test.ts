@@ -4157,6 +4157,53 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("accepts canonical registry fields payload with legacy-safe route fallback", async () => {
+		const { ctx, registryEntityTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const saved = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-fields-contract",
+				label: "Canonical Fields Registry",
+				entityType: "rumah_ibadah",
+				subtypeCode: "01",
+				fields: {
+					code: "FIELDS-001",
+					typeCode: "01",
+					subtypeCode: "01",
+					provinceCode: "62",
+					regencyCode: "6201",
+					districtCode: "620101",
+					villageCode: "6201010001",
+					publicSummary: "Canonical fields summary.",
+				},
+			},
+		} as any)) as any;
+
+		expect(saved.success).toBe(true);
+		expect(saved.item).toMatchObject({
+			code: "FIELDS-001",
+			publicSummary: "Canonical fields summary.",
+			region: {
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		});
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "registry-fields-contract",
+				code: "FIELDS-001",
+				public_summary: "Canonical fields summary.",
+				village_code: "6201010001",
+			}),
+		);
+	});
+
 	it("generates D1-backed 20-digit SIKESRA IDs during registry save", async () => {
 		const {
 			ctx,

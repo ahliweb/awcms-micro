@@ -4808,34 +4808,36 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
 	}
+	const fields = parseJsonRecord(input.fields);
+	const getRegistryString = (key: string) => getString(input, key) ?? getString(fields, key);
 	const id = getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`;
 	const sikesraId20 =
 		getString(input, "sikesraId20") ??
 		(await generateD1SikesraId20(ctx, {
 			registryEntityId: id,
-			villageCode: getString(input, "villageCode") ?? "",
-			typeCode: getString(input, "typeCode") ?? "",
-			subtypeCode: getString(input, "subtypeCode") ?? "",
+			villageCode: getRegistryString("villageCode") ?? "",
+			typeCode: getRegistryString("typeCode") ?? "",
+			subtypeCode: getRegistryString("subtypeCode") ?? "",
 			actor: actorFromRoute(ctx),
 		}));
 	const newEntity: SikesraReferenceRegistryEntity = {
 		id,
 		sikesraId20: sikesraId20 ?? undefined,
-		code: getString(input, "code") ?? "",
+		code: getRegistryString("code") ?? "",
 		label: getString(input, "label") ?? "Untitled Registry Entity",
 		entityType: getString(input, "entityType") ?? "rumah_ibadah",
 		sensitivity: (getString(input, "sensitivity") as SikesraSensitivity) ?? "public_safe",
 		region: {
-			provinceCode: getString(input, "provinceCode") ?? "",
-			regencyCode: getString(input, "regencyCode") ?? "",
-			districtCode: getString(input, "districtCode") ?? "",
-			villageCode: getString(input, "villageCode") ?? "",
+			provinceCode: getRegistryString("provinceCode") ?? "",
+			regencyCode: getRegistryString("regencyCode") ?? "",
+			districtCode: getRegistryString("districtCode") ?? "",
+			villageCode: getRegistryString("villageCode") ?? "",
 		},
 		verificationStage: "submitted_village",
 		inputLevel:
 			(getString(input, "inputLevel") as VerificationUserLevel | undefined) ?? "desa_kelurahan",
 		supportingDocumentIds: [],
-		publicSummary: getString(input, "publicSummary") ?? "",
+		publicSummary: getRegistryString("publicSummary") ?? "",
 	};
 	const duplicateOverrideReason = getString(input, "duplicateOverrideReason")?.trim() ?? "";
 	const duplicateEntity = (await getRegistryEntities(ctx)).find(
