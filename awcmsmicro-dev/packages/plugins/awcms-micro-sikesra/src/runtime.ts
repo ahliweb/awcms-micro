@@ -2159,6 +2159,13 @@ function verificationItemMatchesRegionScope(
 	return true;
 }
 
+async function getTrustedVerifierLevelForItem(ctx: PluginContext, item: VerificationListItem) {
+	const allowedVerifierLevels = getAllowedVerifierLevels(item.currentLevel);
+	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
+	if (currentVerifierLevels.includes("admin_sikesra")) return allowedVerifierLevels[0];
+	return allowedVerifierLevels.find((level) => currentVerifierLevels.includes(level));
+}
+
 async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReferenceRegistryEntity[]> {
 	const d1Entities = await getD1RegistryEntities(ctx);
 	const legacy =
@@ -2814,7 +2821,22 @@ async function ensureDocumentAbacResource(
 	return assignment;
 }
 
-function toSafeDocumentAccessResponse(doc: SikesraReferenceSupportingDocument) {
+function toSafeDocumentAccessResponse(
+	doc: SikesraReferenceSupportingDocument,
+	options: { includeRestrictedMetadata?: boolean } = {},
+) {
+	const restricted = doc.sensitivity !== "public_safe";
+	if (restricted && !options.includeRestrictedMetadata) {
+		return {
+			id: doc.id,
+			documentType: doc.documentType,
+			sensitivity: doc.sensitivity,
+			classification: doc.sensitivity,
+			validationStatus: doc.validationStatus ?? "pending",
+			restricted: true,
+			metadataRedacted: true,
+		};
+	}
 	return {
 		id: doc.id,
 		registryEntityId: doc.registryEntityId,
@@ -2827,6 +2849,8 @@ function toSafeDocumentAccessResponse(doc: SikesraReferenceSupportingDocument) {
 		fileSizeBytes: doc.fileSizeBytes,
 		issuedAt: doc.issuedAt,
 		verifiedBy: doc.verifiedBy,
+		restricted,
+		metadataRedacted: false,
 	};
 }
 
@@ -4943,8 +4967,16 @@ const registryRestoreRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.document.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
+	const userId = getRequestUserId(ctx);
+	const restrictedAccess = userId
+		? await previewAccess(ctx, { userId, permissionSlug: "sikesra.document.read_restricted" })
+		: { allowed: false };
 	const docs = await getSupportingDocuments(ctx);
-	return { items: docs.map(toSafeDocumentAccessResponse) };
+	return {
+		items: docs.map((doc) =>
+			toSafeDocumentAccessResponse(doc, { includeRestrictedMetadata: restrictedAccess.allowed }),
+		),
+	};
 };
 
 const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -5035,7 +5067,7 @@ const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		}),
 	);
 
-	return { success: true, item: toSafeDocumentAccessResponse(newDoc) };
+	return { success: true, item: toSafeDocumentAccessResponse(newDoc, { includeRestrictedMetadata: true }) };
 };
 
 const documentsAccessRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -5086,7 +5118,11 @@ const documentsAccessRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		);
 	}
 
-	return { success: true, item: toSafeDocumentAccessResponse(doc), access: { abac } };
+	return {
+		success: true,
+		item: toSafeDocumentAccessResponse(doc, { includeRestrictedMetadata: true }),
+		access: { abac },
+	};
 };
 
 const IMPORT_REQUIRED_FIELDS = [
@@ -7367,10 +7403,7 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
 	await ensureAbacCatalogSeeded(ctx);
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
-	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
-	const verifierLevel =
-		(getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ??
-		inferVerifierLevel(actor);
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const notes =
 		getString(routeCtx.input, "notes") ?? "Advanced verification stage from the admin reference UI";
 	const items = await listVerificationItems(ctx);
@@ -7392,12 +7425,13 @@ const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		};
 	}
+	const verifierLevel = await getTrustedVerifierLevelForItem(ctx, item);
 	if (!verifierLevel) {
 		return {
 			success: false,
 			error: {
 				code: "INVALID_LEVEL",
-				message: `Verification level is required for ${registryEntityId}`,
+				message: `Trusted verifier assignment is required for ${registryEntityId}`,
 			},
 		};
 	}
@@ -7478,10 +7512,7 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await ensureAccessCatalogSeeded(ctx);
 	await ensureAbacCatalogSeeded(ctx);
 	const registryEntityId = getString(routeCtx.input, "registryEntityId") ?? "";
-	const actor = getString(routeCtx.input, "actor") ?? actorFromRoute(ctx);
-	const verifierLevel =
-		(getString(routeCtx.input, "verifierLevel") as VerificationUserLevel | undefined) ??
-		inferVerifierLevel(actor);
+	const actor = getRequestUserId(ctx) ?? actorFromRoute(ctx);
 	const notes = getString(routeCtx.input, "notes")?.trim() ?? "";
 	const items = await listVerificationItems(ctx);
 	const item = items.find((entry) => entry.registryEntityId === registryEntityId);
@@ -7492,12 +7523,13 @@ const verificationRejectRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			error: { code: "NOT_FOUND", message: `Unknown verification entity ${registryEntityId}` },
 		};
 	}
+	const verifierLevel = await getTrustedVerifierLevelForItem(ctx, item);
 	if (!verifierLevel) {
 		return {
 			success: false,
 			error: {
 				code: "INVALID_LEVEL",
-				message: `Verification level is required for ${registryEntityId}`,
+				message: `Trusted verifier assignment is required for ${registryEntityId}`,
 			},
 		};
 	}

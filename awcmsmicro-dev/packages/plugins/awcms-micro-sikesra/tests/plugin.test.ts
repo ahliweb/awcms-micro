@@ -3655,7 +3655,9 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.item.nextLevel).toBe("kabupaten_admin");
 		expect(result.item.inputLevel).toBe("kecamatan");
 		expect(result.event.kind).toBe("verification.stage.advance");
+		expect(result.event.actor).toBe("user-demo-sopd");
 		expect(result.verificationEvent.stage).toBe("verified_sopd");
+		expect(result.verificationEvent.actor).toBe("user-demo-sopd");
 		expect(result.verificationEvent.inputLevel).toBe("kecamatan");
 		expect(result.verificationEvent.verifierLevel).toBe("sopd");
 		expect(result.verificationEvent.verifierRegionScope).toBe("6201");
@@ -3756,6 +3758,31 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.success).toBe(false);
 		expect(result.error.code).toBe("INVALID_LEVEL");
+	});
+
+	it("does not trust client-supplied verifier level for verification advances", async () => {
+		const { ctx, verificationStageTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const villageRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-village" },
+		});
+
+		const result = (await routes["verification/advance"]!.handler({
+			...ctx,
+			request: villageRequest,
+			input: {
+				registryEntityId: "registry-entity-guru-agama-01",
+				actor: "forged-sopd-actor",
+				verifierLevel: "sopd",
+				notes: "Attempted forged SOPD approval",
+			},
+		} as any)) as any;
+
+		expect(result.success).toBe(false);
+		expect(result.error.code).toBe("INVALID_LEVEL");
+		expect(verificationStageTableRows).not.toContainEqual(
+			expect.objectContaining({ registry_entity_id: "registry-entity-guru-agama-01" }),
+		);
 	});
 
 	it("lets admin sikesra see the full verification queue", async () => {
@@ -4171,6 +4198,77 @@ describe("awcms micro sikesra plugin", () => {
 				classification: "internal",
 			}),
 		);
+	});
+
+	it("redacts restricted document metadata from document readers without restricted permission", async () => {
+		const { ctx, userRoleAssignmentTableRows, rolePermissionAssignmentTableRows } =
+			createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		userRoleAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "ura-doc-reader-basic",
+			emdash_user_id: "user-doc-reader-basic",
+			sikesra_role_slug: "sikesra_document_reader_basic",
+			is_active: 1,
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+		rolePermissionAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			role_slug: "sikesra_document_reader_basic",
+			permission_slug: "sikesra.document.read",
+			effect: "allow",
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-doc-redaction-01",
+				code: "DOC-RED-001",
+				label: "Document Redaction Entity",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+			},
+		} as any);
+		await routes["documents/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "doc-redacted-01",
+				registryEntityId: "registry-doc-redaction-01",
+				documentType: "surat_keterangan",
+				title: "Restricted Identity Document",
+				sensitivity: "restricted",
+				contentType: "application/pdf",
+				fileSizeBytes: 2048,
+				checksumSha256: "d".repeat(64),
+				safeFilename: "restricted-identity.pdf",
+			},
+		} as any);
+
+		const result = (await routes["documents/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-doc-reader-basic" },
+			}),
+			input: {},
+		} as any)) as any;
+		const redacted = result.items.find((item: any) => item.id === "doc-redacted-01");
+
+		expect(redacted).toMatchObject({
+			id: "doc-redacted-01",
+			sensitivity: "restricted",
+			metadataRedacted: true,
+			restricted: true,
+		});
+		expect(redacted.title).toBeUndefined();
+		expect(redacted.registryEntityId).toBeUndefined();
+		expect(redacted.contentType).toBeUndefined();
+		expect(redacted.fileSizeBytes).toBeUndefined();
 	});
 
 	it("requires a reason before overriding medium-risk registry duplicates", async () => {
