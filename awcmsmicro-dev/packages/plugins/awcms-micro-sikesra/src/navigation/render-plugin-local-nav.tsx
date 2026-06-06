@@ -55,7 +55,10 @@ export function PluginLocalNav({
 		) || activeGroup.items[0];
 
 	return (
-		<section className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm">
+		<section
+			className="rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm"
+			style={{ padding: "16px" }}
+		>
 			<div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
 				<div>
 					<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">

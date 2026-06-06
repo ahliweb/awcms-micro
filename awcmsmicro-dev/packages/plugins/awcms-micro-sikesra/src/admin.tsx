@@ -870,7 +870,10 @@ function PageHeader({
 	return (
 		<div className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
 			<div className="h-1 bg-gradient-to-r from-kumo-brand/80 via-kumo-brand/50 to-kumo-brand/10" />
-			<div className="flex flex-col gap-4 p-6 md:flex-row md:items-start md:justify-between">
+			<div
+				className="flex flex-col gap-4 p-6 md:flex-row md:items-start md:justify-between"
+				style={{ padding: "24px" }}
+			>
 				<div className="flex items-start gap-4">
 					{icon ? (
 						<div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-kumo-line bg-kumo-tint text-xl shadow-sm">
@@ -910,7 +913,10 @@ function Card({
 	return (
 		<section className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
 			{hasHeader ? (
-				<div className="flex flex-col gap-3 border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 md:flex-row md:items-start md:justify-between">
+				<div
+					className="flex flex-col gap-3 border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 md:flex-row md:items-start md:justify-between"
+					style={{ padding: "16px 20px" }}
+				>
 					<div className="flex items-center gap-3">
 						{icon ? (
 							<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-kumo-line bg-kumo-base text-base">
@@ -927,7 +933,7 @@ function Card({
 					{actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
 				</div>
 			) : null}
-			<div className="p-5">{children}</div>
+			<div className="p-5" style={{ padding: "20px" }}>{children}</div>
 		</section>
 	);
 }
@@ -2999,6 +3005,7 @@ function Feedback({
 						? "border-kumo-danger/30 bg-kumo-danger/10 text-kumo-danger"
 						: "border-kumo-brand/30 bg-kumo-brand/10 text-kumo-brand",
 			)}
+			style={{ padding: "14px" }}
 		>
 			<span className="mt-0.5 shrink-0">
 				{tone === "success" ? "✅" : tone === "danger" ? "❌" : "ℹ️"}
@@ -4304,14 +4311,17 @@ function RegistryPage() {
 						</div>
 
 						<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
-							<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-4 border-b border-kumo-line bg-kumo-tint/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+							<div
+								className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-4 border-b border-kumo-line bg-kumo-tint/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden"
+								style={{ padding: "14px 24px" }}
+							>
 								<div>{copy.entity}</div>
 								<div>{copy.region}</div>
 								<div>{copy.sensitivity}</div>
 								<div>{copy.stage}</div>
 							</div>
 							{filteredEntities.length === 0 ? (
-								<div className="p-8 text-center text-sm text-kumo-subtle italic">
+								<div className="p-8 text-center text-sm text-kumo-subtle italic" style={{ padding: "32px" }}>
 									No entities match the search query and filters.
 								</div>
 							) : (
@@ -4322,6 +4332,7 @@ function RegistryPage() {
 									return (
 										<div
 											className="grid gap-4 border-t border-kumo-line px-6 py-5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/15 transition-all"
+											style={{ padding: "20px 24px" }}
 											key={entity.id}
 										>
 											<div className="flex items-start gap-3">
@@ -4395,10 +4406,13 @@ function RegistryPage() {
 							<Feedback message={successMsg} tone="success" />
 							<Feedback message={errMsg} tone="danger" />
 
-							<div className="flex flex-col md:flex-row gap-6">
-								{/* Left Stepper Sidebar - Vertical Timeline Style */}
-								<div className="w-full md:w-60 shrink-0 border-r border-kumo-line/40 pr-6 max-md:border-r-0 max-md:border-b max-md:pb-6">
-									<div className="relative pl-4 ml-2.5 space-y-2 py-1" style={{ borderLeft: "2px solid var(--kumo-line, #e2e8f0)" }}>
+							<div className="flex flex-col gap-6">
+								{/* Horizontal Stepper Progress Track */}
+								<div className="w-full overflow-x-auto pb-4 mb-2 flex items-center justify-between gap-2 border-b border-kumo-line/40 select-none">
+									<div className="flex items-center min-w-max w-full px-2 justify-between relative" style={{ minWidth: "900px" }}>
+										{/* Background connecting track line */}
+										<div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-kumo-line z-0" />
+										
 										{copy.registrySteps.map((label, index) => {
 											const isActive = index === step;
 											const isCompleted = index < step;
@@ -4407,34 +4421,31 @@ function RegistryPage() {
 													key={label}
 													onClick={() => setStep(index)}
 													type="button"
-													className="relative w-full text-left pl-7 py-2.5 text-xs font-semibold transition-all group flex flex-col"
+													className="relative z-10 flex flex-col items-center group focus:outline-none"
+													style={{ width: "80px" }}
 												>
-													{/* Indicator Node on the timeline */}
-													<span className="absolute -left-[25px] top-2 flex items-center justify-center">
-														<span
-															className={cx(
-																"flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300",
-																isActive ? "scale-110 shadow-sm" : "",
-															)}
-															style={
-																isActive
-																	? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
-																	: isCompleted
-																		? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
-																		: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
-															}
-														>
-															{isCompleted ? "✓" : index + 1}
-														</span>
-													</span>
-													{/* Label */}
 													<span
 														className={cx(
-															"truncate transition-colors duration-200",
+															"flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold border transition-all duration-300",
+															isActive ? "scale-110 shadow-md ring-4 ring-blue-500/25" : "",
+														)}
+														style={
 															isActive
-																? "font-bold"
+																? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
 																: isCompleted
-																	? ""
+																	? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
+																	: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
+														}
+													>
+														{isCompleted ? "✓" : index + 1}
+													</span>
+													<span
+														className={cx(
+															"mt-2 text-[10px] font-medium transition-all duration-200 text-center break-words w-full px-1",
+															isActive
+																? "text-kumo-brand font-bold"
+																: isCompleted
+																	? "text-emerald-600 dark:text-emerald-400"
 																	: "text-kumo-subtle group-hover:text-kumo-default",
 														)}
 														style={
@@ -4454,7 +4465,7 @@ function RegistryPage() {
 								</div>
 
 								{/* Right Form Content */}
-								<div className="flex-1 min-w-0">
+								<div className="w-full min-w-0">
 									<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 shadow-sm">
 										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line/60 pb-3 mb-5 flex items-center justify-between">
 											<span>
@@ -7252,20 +7263,64 @@ function ImportPage() {
 			/>
 
 			{/* Progress Steps Header */}
-			<div className="flex items-center gap-2 mb-6 border-b pb-4 overflow-x-auto text-xs font-semibold text-kumo-subtle">
-				<span className={importStep === 0 ? "text-kumo-brand font-bold" : ""}>
-					1. Upload Workbook
-				</span>
-				<span>&rarr;</span>
-				<span className={importStep === 1 ? "text-kumo-brand font-bold" : ""}>2. Select Sheet</span>
-				<span>&rarr;</span>
-				<span className={importStep === 2 ? "text-kumo-brand font-bold" : ""}>3. Map Columns</span>
-				<span>&rarr;</span>
-				<span className={importStep === 3 ? "text-kumo-brand font-bold" : ""}>
-					4. Preview & Validate
-				</span>
-				<span>&rarr;</span>
-				<span className={importStep === 4 ? "text-kumo-brand font-bold" : ""}>5. Promote</span>
+			<div className="w-full overflow-x-auto pb-5 mb-6 flex items-center justify-between gap-2 border-b border-kumo-line/40 select-none">
+				<div className="flex items-center min-w-max w-full px-2 justify-between relative" style={{ minWidth: "650px" }}>
+					{/* Background connecting track line */}
+					<div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-kumo-line z-0" />
+					
+					{[
+						"Upload Workbook",
+						"Select Sheet",
+						"Map Columns",
+						"Preview & Validate",
+						"Promote"
+					].map((label, index) => {
+						const isActive = index === importStep;
+						const isCompleted = index < importStep;
+						return (
+							<div
+								key={label}
+								className="relative z-10 flex flex-col items-center"
+								style={{ width: "120px" }}
+							>
+								<span
+									className={cx(
+										"flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold border transition-all duration-300",
+										isActive ? "scale-110 shadow-md ring-4 ring-blue-500/25" : "",
+									)}
+									style={
+										isActive
+											? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
+											: isCompleted
+												? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
+												: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
+									}
+								>
+									{isCompleted ? "✓" : index + 1}
+								</span>
+								<span
+									className={cx(
+										"mt-2 text-[10px] font-semibold transition-all duration-200 text-center w-full px-1",
+										isActive
+											? "text-kumo-brand font-bold"
+											: isCompleted
+												? "text-emerald-600 dark:text-emerald-400"
+												: "text-kumo-subtle",
+									)}
+									style={
+										isActive
+											? { color: "#2563eb" }
+											: isCompleted
+												? { color: "#10b981" }
+												: undefined
+									}
+								>
+									{label}
+								</span>
+							</div>
+						);
+					})}
+				</div>
 			</div>
 
 			<Feedback message={notice} tone="success" />
@@ -7406,21 +7461,21 @@ function ImportPage() {
 								<table className="w-full text-xs text-left">
 									<thead>
 										<tr className="bg-kumo-tint border-b uppercase font-semibold text-kumo-subtle">
-											<th className="p-3">Code</th>
-											<th className="p-3">Label</th>
-											<th className="p-3">Type</th>
-											<th className="p-3">Region (Desa)</th>
-											<th className="p-3">Sensitivity</th>
+											<th className="p-3" style={{ padding: "12px" }}>Code</th>
+											<th className="p-3" style={{ padding: "12px" }}>Label</th>
+											<th className="p-3" style={{ padding: "12px" }}>Type</th>
+											<th className="p-3" style={{ padding: "12px" }}>Region (Desa)</th>
+											<th className="p-3" style={{ padding: "12px" }}>Sensitivity</th>
 										</tr>
 									</thead>
 									<tbody>
 										{stagingRows.map((row) => (
 											<tr className="border-b" key={row.id}>
-												<td className="p-3 font-mono font-bold text-kumo-brand">{row.code}</td>
-												<td className="p-3 font-medium text-kumo-default">{row.label}</td>
-												<td className="p-3 text-kumo-subtle">{row.entityType}</td>
-												<td className="p-3 text-kumo-subtle">{row.villageCode}</td>
-												<td className="p-3">
+												<td className="p-3 font-mono font-bold text-kumo-brand" style={{ padding: "12px" }}>{row.code}</td>
+												<td className="p-3 font-medium text-kumo-default" style={{ padding: "12px" }}>{row.label}</td>
+												<td className="p-3 text-kumo-subtle" style={{ padding: "12px" }}>{row.entityType}</td>
+												<td className="p-3 text-kumo-subtle" style={{ padding: "12px" }}>{row.villageCode}</td>
+												<td className="p-3" style={{ padding: "12px" }}>
 													<Pill tone={row.sensitivity === "public_safe" ? "success" : "warning"}>
 														{row.sensitivity}
 													</Pill>
@@ -7859,7 +7914,10 @@ export function RegionsPage() {
 			/>
 
 			{isDirty && (
-				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2">
+				<div
+					className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2"
+					style={{ padding: "12px 16px", marginBottom: "16px" }}
+				>
 					<span>⚠️</span>
 					<span>
 						Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik
@@ -7881,7 +7939,10 @@ export function RegionsPage() {
 			<div className="grid gap-6">
 				{/* Explorer Panel */}
 				<section className="overflow-hidden rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm">
-					<div className="border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 flex items-center justify-between">
+					<div
+						className="border-b border-kumo-line bg-kumo-tint/40 px-5 py-4 flex items-center justify-between"
+						style={{ padding: "16px 20px" }}
+					>
 						<div>
 							<h2 className="text-sm font-semibold text-kumo-default">
 								Explorer Wilayah Administratif Resmi
@@ -7891,9 +7952,15 @@ export function RegionsPage() {
 							</p>
 						</div>
 					</div>
-					<div className="p-5 grid gap-4 md:grid-cols-4 min-h-[400px]">
+					<div
+						className="p-5 grid gap-4 md:grid-cols-4 min-h-[400px]"
+						style={{ padding: "20px" }}
+					>
 						{/* Provinces Column */}
-						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+						<div
+							className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3"
+							style={{ padding: "14px" }}
+						>
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
 								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
 									{copy.province}
@@ -7968,7 +8035,10 @@ export function RegionsPage() {
 						</div>
 
 						{/* Regencies Column */}
-						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+						<div
+							className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3"
+							style={{ padding: "14px" }}
+						>
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
 								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
 									{copy.regency}
@@ -8055,7 +8125,10 @@ export function RegionsPage() {
 						</div>
 
 						{/* Districts Column */}
-						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+						<div
+							className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3"
+							style={{ padding: "14px" }}
+						>
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
 								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
 									{copy.district}
@@ -8141,7 +8214,10 @@ export function RegionsPage() {
 						</div>
 
 						{/* Villages Column */}
-						<div className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3">
+						<div
+							className="flex flex-col border border-kumo-line/80 rounded-xl bg-kumo-tint/10 p-3.5 space-y-3"
+							style={{ padding: "14px" }}
+						>
 							<div className="flex items-center justify-between border-b border-kumo-line/60 pb-2">
 								<span className="text-xs font-bold uppercase tracking-wider text-kumo-default">
 									{copy.village}
@@ -8525,7 +8601,10 @@ export function DataTypesPage() {
 			/>
 
 			{isDirty && (
-				<div className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2 mt-4">
+				<div
+					className="rounded-xl border border-kumo-warning/30 bg-kumo-warning/10 px-4 py-3 text-sm text-kumo-warning flex items-center gap-2 mt-4"
+					style={{ padding: "12px 16px", marginTop: "16px" }}
+				>
 					<span>⚠️</span>
 					<span>
 						Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol
@@ -8536,12 +8615,18 @@ export function DataTypesPage() {
 
 			<div className="space-y-6 mt-6">
 				{successMsg && (
-					<div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm">
+					<div
+						className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm"
+						style={{ padding: "12px" }}
+					>
 						{successMsg}
 					</div>
 				)}
 				{errMsg && (
-					<div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm">
+					<div
+						className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm"
+						style={{ padding: "12px" }}
+					>
 						{errMsg}
 					</div>
 				)}
