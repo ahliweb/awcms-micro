@@ -10,6 +10,7 @@ import {
 	advanceVerification,
 	approvePermanentDelete,
 	createImportBatch,
+	decideDuplicate,
 	executePermanentDelete,
 	previewAbac,
 	previewAccess,
@@ -3958,6 +3959,7 @@ function RegistryPage() {
 	const [tempDocSensitivity, setTempDocSensitivity] =
 		React.useState<SikesraSensitivity>("public_safe");
 	const [tempDocFile, setTempDocFile] = React.useState<string | null>(null);
+	const nextDocumentIndexRef = React.useRef(1);
 
 	// 11-step wizard state
 	const [wizardState, setWizardState] = React.useState({
@@ -4195,8 +4197,9 @@ function RegistryPage() {
 
 	const addDocumentToList = () => {
 		if (!tempDocTitle) return;
+		const nextDocumentIndex = nextDocumentIndexRef.current++;
 		const nextDoc = {
-			id: `doc-wizard-${Math.random().toString(36).slice(2, 10)}`,
+			id: `doc-wizard-${nextDocumentIndex}`,
 			title: tempDocTitle,
 			documentType: tempDocType,
 			sensitivity: tempDocSensitivity,
@@ -7158,6 +7161,7 @@ function ImportPage() {
 	const copy = getExampleAdminCopy(i18n.locale);
 	const importStepIds = SIKESRA_IMPORT_WORKFLOW_STEPS.map((step) => step.id);
 	const getImportStepIndex = (id: string) => importStepIds.indexOf(id);
+	const clearingDuplicateDecisions = new Set(["not_duplicate", "cleared", "false_positive"]);
 	const [importStep, setImportStep] = React.useState(0);
 	const [fileName, setFileName] = React.useState<string | null>(null);
 	const [selectedSheet, setSelectedSheet] = React.useState<string>("Sheet1");
@@ -7181,7 +7185,7 @@ function ImportPage() {
 	const stagingRows = [
 		{
 			id: "staged-01",
-			code: "RI-102",
+			code: "DUP-102",
 			label: "Masjid Raya Baiturrahman",
 			entityType: "rumah_ibadah",
 			sensitivity: "public_safe",
@@ -7193,7 +7197,7 @@ function ImportPage() {
 		},
 		{
 			id: "staged-02",
-			code: "GA-205",
+			code: "DUP-102",
 			label: "Ustadz H. Syukron",
 			entityType: "guru_agama",
 			sensitivity: "restricted",
@@ -7220,6 +7224,7 @@ function ImportPage() {
 	const duplicateCandidates = [
 		{
 			rowId: "staged-02",
+			rowNumber: 2,
 			incomingLabel: "Ustadz H. Syukron",
 			existingLabel: "Ustadz Syukron",
 			matchScore: "91%",
@@ -7228,7 +7233,11 @@ function ImportPage() {
 	];
 	const unresolvedDuplicates = duplicateCandidates.filter((candidate) => {
 		const decision = duplicateDecisions[candidate.rowId];
-		return !decision?.decision || !decision.reason.trim();
+		return (
+			!decision?.decision ||
+			!clearingDuplicateDecisions.has(decision.decision) ||
+			!decision.reason.trim()
+		);
 	});
 	const canPromote = validationErrors.length === 0 && unresolvedDuplicates.length === 0;
 
@@ -7259,8 +7268,22 @@ function ImportPage() {
 				await createAdminApiRequestOptions(),
 			);
 			if (!created.success) throw new Error(created.error?.message ?? copy.requestFailed);
+			const createdBatchId = created.batchId ?? batchId;
+			for (const candidate of duplicateCandidates) {
+				const decision = duplicateDecisions[candidate.rowId];
+				if (!decision) continue;
+				const decided = await decideDuplicate<ImportRouteResult>(
+					{
+						candidateId: `${createdBatchId}:row:${candidate.rowNumber}:duplicate-code`,
+						decision: decision.decision,
+						reason: decision.reason,
+					},
+					await createAdminApiRequestOptions(),
+				);
+				if (!decided.success) throw new Error(decided.error?.message ?? copy.requestFailed);
+			}
 			const promoted = await promoteImportRows<ImportRouteResult>(
-				createSikesraImportPreviewPromotePayload(created.batchId ?? batchId),
+				createSikesraImportPreviewPromotePayload(createdBatchId),
 				await createAdminApiRequestOptions(),
 			);
 			if (!promoted.success) throw new Error(promoted.error?.message ?? copy.requestFailed);
@@ -7551,9 +7574,9 @@ function ImportPage() {
 														}))
 													}
 												>
-													<Select.Option value="skip">Skip imported row</Select.Option>
-													<Select.Option value="merge">Merge with existing record</Select.Option>
-													<Select.Option value="create_new">Create as new record</Select.Option>
+													<Select.Option value="not_duplicate">Create as separate record</Select.Option>
+													<Select.Option value="cleared">Cleared after manual review</Select.Option>
+													<Select.Option value="false_positive">False-positive duplicate match</Select.Option>
 												</Select>
 											</Field>
 											<Field label="Decision reason">
