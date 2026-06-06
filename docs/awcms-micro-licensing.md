@@ -5,9 +5,9 @@
 - The parent maintenance workspace is MIT licensed.
 - See `LICENSE` at the repository root.
 
-## AWCMS-Micro Example Packages
+## AWCMS-Micro Packages
 
-- Example plugins and example templates use the AW Non-Commercial License 1.0.
+- AWCMS-Micro plugins and templates use the AW Non-Commercial License 1.0.
 - Each AWCMS-specific package includes a local `LICENSE.md` copy of the same text.
 - Package manifests point to that file with `SEE LICENSE IN LICENSE.md`.
 

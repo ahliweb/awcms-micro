@@ -314,7 +314,7 @@ erDiagram
 ### Frontend Constraints
 
 - prefer template-owned presentation logic
-- keep example template defaults clear and production-aware
+- keep AWCMS-Micro template defaults clear and production-aware
 - avoid direct coupling between template UI and upstream core internals
 
 ### Backend Constraints

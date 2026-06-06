@@ -40,7 +40,7 @@ Contains a clone of `emdash-latest/` and serves as the AWCMS-Micro development w
 Rules:
 
 - Rebuild it from `emdash-latest/` when upstream synchronization is needed.
-- Apply AWCMS-Micro-specific example implementation work here.
+- Apply AWCMS-Micro-specific downstream plugin and template work here.
 - Keep new product behavior in plugin and template boundaries rather than introducing a new shared core fork layer.
 - Keep AWCMS-Micro-owned additions inside the approved protected paths documented in `docs/awcms-micro-implementation-boundaries.md`.
 - Preserve the goal that AWCMS-Micro remains a full EmDash adoption, not a divergent fork of EmDash core.
@@ -62,19 +62,24 @@ Documents in this folder define:
 
 Contains update and synchronization scripts.
 
-Expected root scripts:
+Expected root scripts include:
 
 - a script to update `emdash-latest/` from upstream EmDash
 - a script to rebuild `awcmsmicro-dev/` from `emdash-latest/`
+- a preflight checklist script for `continuation` and `fresh-clone` update modes
+- boundary validation and workspace validation scripts
 - a script to validate `awcmsmicro-dev/` after sync
 - a script to run sync and validation together
+- root versioning scripts for `VERSION`, `CHANGELOG.md`, and workspace snapshot updates
+- backup and recovery scripts under `scripts/backup/`
 
-## AWCMS-Micro Example Locations
+## AWCMS-Micro Downstream Locations
 
-- Example template: `awcmsmicro-dev/templates/awcms-micro-default/`
-- Example Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
-- Example plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
-- Example docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
+- Node/SQLite template: `awcmsmicro-dev/templates/awcms-micro-default/`
+- Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
+- SIKESRA plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
+- Docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
+- Gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
@@ -87,7 +92,7 @@ Expected root scripts:
 - Preserved dev-workspace agent guidance: `awcmsmicro-dev/AGENTS.md`
 - AWCMS-Micro PO translation standard: `awcmsmicro-dev/docs/awcms-micro/i18n-po-translation-standard.md`
 
-These examples are intentionally isolated in new folders and do not replace EmDash built-in templates or built-in plugins.
+These AWCMS-Micro surfaces are intentionally isolated in downstream boundaries and do not replace EmDash built-in templates or built-in plugins.
 
 New AWCMS-Micro product development should be implemented as:
 
@@ -97,6 +102,8 @@ New AWCMS-Micro product development should be implemented as:
 - workspace package-release metadata under `awcmsmicro-dev/.changeset/`
 - release-note inputs under `awcmsmicro-dev/.awcms-changesets/`
 - workflow automation under preserved `.github/` boundaries when needed for AWCMS-Micro-specific release operations
+- local bootstrap state under `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
+- protected admin branding/navigation file exceptions listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 

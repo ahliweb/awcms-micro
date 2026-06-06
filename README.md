@@ -187,6 +187,8 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 - `docs/awcms-micro-documentation-workflow.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/awcms-micro-mobile-services-plugin-standard.md`
+- `docs/awcms-admin-branding.md`
+- `docs/awcmsmicro-dev-protected-paths.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
 - `docs/operator-workflow.md`
@@ -200,12 +202,15 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 - `docs/upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`
 - `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 - `docs/deployment/cloudflare.md`
+- `docs/backup/gitlab-mirror-setup.md`
 - `docs/security/security-baseline.md`
+- `docs/security/backup-restore.md`
 
 ## Maintenance Scripts
 
 - `bash scripts/update-emdash-latest.sh`
 - `bash scripts/update-awcmsmicro-dev.sh`
+- `bash scripts/sync-preflight-checklist.sh --mode <continuation|fresh-clone>`
 - `bash scripts/check-runtime-prereqs.sh`
 - `bash scripts/validate-awcmsmicro-boundaries.sh`
 - `bash scripts/validate-awcmsmicro-dev.sh`
@@ -223,6 +228,7 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 
 - `bash scripts/backup/encrypt-config.sh` - Encrypt backup config
 - `bash scripts/backup/decrypt-config.sh` - Decrypt backup config
+- `bash scripts/backup/load-config.sh` - Load encrypted backup config and safe local `.env` overlays
 - `bash scripts/backup/encrypt-all-env.sh` - Encrypt all .env files
 - `bash scripts/backup/encrypt-env.sh` - Encrypt .env files
 - `bash scripts/backup/decrypt-env.sh` - Decrypt .env files

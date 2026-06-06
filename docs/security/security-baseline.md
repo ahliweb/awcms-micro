@@ -2,7 +2,7 @@
 
 ## Scope
 
-This baseline covers the AWCMS-Micro parent maintenance repository and the example plugin/template development model it governs.
+This baseline covers the AWCMS-Micro parent maintenance repository and the downstream plugin/template boundary model it governs.
 
 ## Security Model Summary
 

@@ -13,7 +13,7 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 2. If analysis shows sync, update, or validation scripts must change to preserve a downstream adjustment, stop the update and align those scripts/docs first.
 3. Choose the update mode: `continuation` for an existing workspace or `fresh-clone` for a new clone that still needs local config bootstrap (`.env` or backup config) and fresh-clone template/plugin choices.
    - Safe fresh-clone examples: `awcms-micro-alpha`, `awcms-micro-studio`, or another unique lowercase hyphenated name that does not reuse `awcms-micro-default` or `awcms-micro-default-cloudflare`.
-   - For the built-in plugin choice, answer yes when the fresh-clone template should use AWCMS-Micro example plugins, or no when it should stay plugin-free for now.
+   - For the built-in plugin choice, answer yes when the fresh-clone template should use the current AWCMS-Micro plugin set, or no when it should stay plugin-free for now.
    - The saved bootstrap values live in `awcmsmicro-dev/.env` and are local-only; do not commit them. Rebuilds preserve `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when they already exist.
 4. Run `bash scripts/sync-preflight-checklist.sh --mode <continuation|fresh-clone>` to enforce the operator checklist before any sync command. It fails fast if required docs/scripts are missing, boundary validation fails, or fresh-clone config/bootstrap choices are not ready.
    - The preflight also prints the detected host platform, login/effective user, and checks that `bash`, `git`, `node`, `pnpm`, `python3`, and `rsync` can run before the sync proceeds.

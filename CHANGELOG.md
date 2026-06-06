@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.29 - 2026-06-06
+
+- Updates root documentation to match the current AWCMS-Micro plugin inventory, downstream boundary wording, maintenance scripts, and release-readiness guidance.
 ## 0.1.28 - 2026-06-05
 
 - Adds the official AWCMS-Micro mobile services plugin standard covering Android, iOS, Flutter, native mobile, API authentication, authorization, database, admin UI, deployment, monitoring, notifications, offline sync, app versioning, and governance requirements.
@@ -93,10 +96,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-05
+## Workspace Snapshot - 2026-06-06
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.28`
+- Root version: `0.1.29`
 
 ### Plugins
 

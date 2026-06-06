@@ -58,7 +58,7 @@ The root versioning docs now address the current workspace snapshot explicitly, 
 
 ### Priority 2
 
-- Keep example plugins small, explicit, and independently reusable.
+- Keep AWCMS-Micro plugins small, explicit, and independently reusable.
 - Keep templates focused on delivery, presentation, seed data, and integration wiring.
 - When a plugin and template share a convention, document that convention first before creating new code abstractions.
 
@@ -98,8 +98,8 @@ The root versioning docs now address the current workspace snapshot explicitly, 
 The repository should continue evolving as:
 
 - upstream EmDash snapshot plus sync workflow at the root
-- AWCMS-Micro example plugins
-- AWCMS-Micro example templates
+- AWCMS-Micro downstream plugins
+- AWCMS-Micro downstream templates
 - supporting docs, demos, validation, and deployment guidance
 
 It should not evolve into a second core implementation layer parallel to EmDash.

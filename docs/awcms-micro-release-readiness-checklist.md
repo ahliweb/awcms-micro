@@ -35,7 +35,7 @@ flowchart TD
 
 ### 3. Product Surface Review
 
-- example plugins build and test cleanly
+- all active AWCMS-Micro plugins in release scope build and test cleanly
 - target templates typecheck cleanly for the intended release surface
 - plugin/template naming is consistent across docs and package examples
 - product-facing README source is current
@@ -65,9 +65,14 @@ Minimum recommended checks:
 1. `bash scripts/validate-awcmsmicro-boundaries.sh`
 2. `bash scripts/awcms-root-versioning.sh status`
 3. `node awcmsmicro-dev/.github/scripts/awcms-version.mjs status`
-4. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
-5. `pnpm --filter @awcms-micro/plugin-sikesra test`
-6. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
+4. `pnpm --filter @awcms-micro/plugin-docs typecheck`
+5. `pnpm --filter @awcms-micro/plugin-docs test`
+6. `pnpm --filter @awcms-micro/plugin-gallery typecheck`
+7. `pnpm --filter @awcms-micro/plugin-gallery test`
+8. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
+9. `pnpm --filter @awcms-micro/plugin-sikesra test`
+10. `pnpm --filter @awcms-micro/template-default-example typecheck`
+11. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
 These commands are examples. Repeat the relevant plugin or template checks for every package in the current release scope, and add any surface-specific UI, backend, or database checks that apply.
 

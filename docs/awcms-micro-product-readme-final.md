@@ -11,7 +11,7 @@ Unlike `awcmsmicro-dev/README.md`, this file is sync-safe at the parent-reposito
 ```md
 # AWCMS-Micro
 
-AWCMS-Micro is an example implementation of EmDash that stays aligned with upstream EmDash while introducing AWCMS-Micro-specific behavior only through plugins and templates.
+AWCMS-Micro is an EmDash-based implementation workspace that stays aligned with upstream EmDash while introducing AWCMS-Micro-specific behavior only through plugins and templates.
 
 ## Overview
 
@@ -40,9 +40,11 @@ AWCMS-Micro product development happens in these boundaries:
 
 Supporting documentation, demos, and E2E coverage may exist alongside them, but new product behavior should be added through plugin and template boundaries rather than direct changes to EmDash core.
 
-## Included Example Surfaces
+## Included AWCMS-Micro Surfaces
 
-- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented example plugin
+- `packages/plugins/awcms-micro-docs/`: documentation plugin with an admin docs page and shared public docs copy
+- `packages/plugins/awcms-micro-gallery/`: gallery plugin with settings, public listing, media validation, and audit-ready hooks
+- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented plugin
 - `templates/awcms-micro-default/`: Node/SQLite reference template
 - `templates/awcms-micro-default-cloudflare/`: Cloudflare reference template
 
@@ -66,7 +68,7 @@ AWCMS-Micro adopts EmDash as-is wherever practical.
 
 1. Install dependencies with `pnpm install`.
 2. Choose a template that matches your target environment.
-3. Enable the example plugins you need.
+3. Enable the AWCMS-Micro plugins you need.
 4. Run the local development workflow for the selected template.
 
 If you want a Cloudflare-oriented setup, start with `templates/awcms-micro-default-cloudflare/`.

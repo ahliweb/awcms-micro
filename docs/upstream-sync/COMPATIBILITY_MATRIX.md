@@ -14,7 +14,9 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | Parent repository governance docs | Root-only AWCMS-Micro documentation layer | Compatible | Low | adapt |
 | `templates/awcms-micro-default` | Isolated Node/SQLite reference template | Compatible | Low | adapt |
 | `templates/awcms-micro-default-cloudflare` | Isolated Cloudflare reference template with plugin wiring | Compatible | Medium | adapt |
-| `packages/plugins/awcms-micro-sikesra` | Isolated example plugin carrying AWCMS-Micro navigation and governance overlays | Compatible | Medium | adapt |
+| `packages/plugins/awcms-micro-sikesra` | Isolated AWCMS-Micro governance plugin carrying SIKESRA navigation, access, audit, and ABAC-oriented workflows | Compatible | Medium | adapt |
+| `packages/plugins/awcms-micro-docs` | Isolated AWCMS-Micro docs plugin providing a plugin descriptor, admin docs page, and shared public docs copy | Compatible | Low | adapt |
+| `packages/plugins/awcms-micro-gallery` | Isolated AWCMS-Micro gallery plugin providing gallery settings, public list, media validation, and audit-ready hooks | Compatible | Medium | adapt |
 | Plugin-owned navigation compatibility layer | Keep navigation normalization and label resolution in plugin exports rather than a new shared core layer | Compatible | Medium | adapt |
 | Supporting docs, demos, and E2E boundaries | Keep as validation and operator surfaces only | Compatible | Low | adapt |
 | Downstream patch overlays | Replay narrow source-level overrides from `.awcms-patches/` after rebuild instead of preserving broad upstream-owned files | Compatible | Medium | adapt |
@@ -28,6 +30,6 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 ## Usage Notes
 
 - `adopt` means AWCMS-Micro uses upstream behavior directly.
-- `adapt` means AWCMS-Micro adds isolated examples or documentation without changing EmDash core.
+- `adapt` means AWCMS-Micro adds isolated downstream plugins, templates, overlays, or documentation without changing EmDash core.
 - `delay` means the feature should be reviewed later.
 - `reject` means the feature is intentionally out of scope.

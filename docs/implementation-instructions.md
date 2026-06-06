@@ -6,7 +6,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 
 ## Repository Identity
 
-`awcms-micro` is an independent repository. It must not act as a host for other repositories. It should serve as an example repository that fully adopts EmDash 100% and includes only example plugins and example templates that follow the AWCMS-Micro standard, without modifying any part of EmDash core.
+`awcms-micro` is an independent repository. It must not act as a host for other repositories. It should serve as an implementation workspace that fully adopts EmDash 100% and includes only AWCMS-Micro plugins and templates that follow the AWCMS-Micro standard, without modifying any part of EmDash core.
 
 ## Practical Interpretation In This Parent Workspace
 
@@ -14,7 +14,7 @@ Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/
 - Use `awcmsmicro-dev/` as the actual AWCMS-Micro working tree.
 - Keep the root repository focused on synchronization, documentation, and maintenance workflow.
 - Keep the root maintenance changelog and workspace snapshot current when the EmDash revision or workspace package inventory changes.
-- Keep AWCMS-Micro example work isolated in the approved protected paths inside `awcmsmicro-dev/`.
+- Keep AWCMS-Micro downstream plugin and template work isolated in the approved protected paths inside `awcmsmicro-dev/`.
 - Persist any source-level downstream customization that must survive sync as a patch overlay in `awcmsmicro-dev/.awcms-patches/` and ensure the rebuild script reapplies it automatically.
 - Preserve local sync bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age` when rebuilding the workspace.
 - Before any sync or validation script runs, detect the host platform/user context and verify `bash`, `git`, `node`, `pnpm`, `python3`, and `rsync` are available so missing tools can be installed before continuing.
@@ -40,7 +40,7 @@ If a task is too large for one pass, create smaller tracked follow-ups. If usefu
 When choosing where a change belongs:
 
 - if it represents upstream EmDash, it belongs in `emdash-latest/`
-- if it represents AWCMS-Micro example implementation work, it belongs in `awcmsmicro-dev/`
+- if it represents AWCMS-Micro downstream implementation work, it belongs in `awcmsmicro-dev/`
 - if it is new product behavior, prefer `awcmsmicro-dev/packages/plugins/` or `awcmsmicro-dev/templates/` rather than a new shared core layer
 - if it changes repository governance or operator workflow, it belongs in the root docs or `scripts/`
 
@@ -50,9 +50,10 @@ When choosing where a change belongs:
 - The approved rebuild-safe boundary rules live in `docs/awcms-micro-implementation-boundaries.md` and `scripts/awcmsmicro-dev-protected-paths.txt`.
 - Deployment guidance lives in `docs/deployment/`.
 - Security and compliance baselines live in `docs/security/`.
-- Example template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/` or `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`.
-- Example plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`.
-- Docs-specific example work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-docs/` and `awcmsmicro-dev/docs/awcms-micro/`.
+- AWCMS-Micro template work belongs in `awcmsmicro-dev/templates/awcms-micro-default/` or `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`.
+- AWCMS-Micro SIKESRA plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`.
+- AWCMS-Micro docs plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-docs/` and `awcmsmicro-dev/docs/awcms-micro/`.
+- AWCMS-Micro gallery plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`.
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.
@@ -68,7 +69,7 @@ When choosing where a change belongs:
 - Use English (US) for root-level documentation, instructions, scripts, and governance text.
 - Preserve upstream wording in `emdash-latest/`, including non-US spelling.
 - Accept inherited upstream wording in `awcmsmicro-dev/` when it comes from synchronization rather than AWCMS-Micro-specific authorship.
-- Active example plugins and templates must default to English (`en`) and provide a full Indonesian translation (`id`).
+- Active AWCMS-Micro plugins and templates must default to English (`en`) and provide a full Indonesian translation (`id`).
 
 ## Translation Rule
 

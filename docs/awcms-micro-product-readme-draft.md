@@ -11,7 +11,7 @@ It exists at the parent-repository level so the product-facing README can be ref
 ```md
 # AWCMS-Micro
 
-AWCMS-Micro is an example implementation of EmDash that stays aligned with upstream EmDash while adding AWCMS-Micro-specific behavior only through example plugins and example templates.
+AWCMS-Micro is an EmDash-based implementation workspace that stays aligned with upstream EmDash while adding AWCMS-Micro-specific behavior only through downstream plugins and templates.
 
 ## What AWCMS-Micro Is
 
@@ -36,9 +36,11 @@ AWCMS-Micro development happens in these product boundaries:
 
 Supporting documentation, demos, and E2E coverage may exist alongside them, but new product behavior should be introduced through plugin and template boundaries rather than direct changes to EmDash core.
 
-## Included Example Surfaces
+## Included AWCMS-Micro Surfaces
 
-- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented example plugin
+- `packages/plugins/awcms-micro-docs/`: documentation plugin with an admin docs page and shared public docs copy
+- `packages/plugins/awcms-micro-gallery/`: gallery plugin with settings, public listing, media validation, and audit-ready hooks
+- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented plugin
 - `templates/awcms-micro-default/`: Node/SQLite reference template
 - `templates/awcms-micro-default-cloudflare/`: Cloudflare reference template
 
@@ -62,7 +64,7 @@ AWCMS-Micro adopts EmDash as-is wherever possible.
 
 1. Install dependencies with `pnpm install`.
 2. Choose a template that matches your environment.
-3. Enable the example plugins you need.
+3. Enable the AWCMS-Micro plugins you need.
 4. Run the local development workflow for the selected template.
 
 For Cloudflare-oriented setups, start with `templates/awcms-micro-default-cloudflare/`.
@@ -80,4 +82,4 @@ For Cloudflare-oriented setups, start with `templates/awcms-micro-default-cloudf
 
 - When `awcms-micro` is published as its own independent repository, this draft should replace the upstream-style root README in that repository.
 - Keep the final README concise and product-facing.
-- Link product docs, deployment runbooks, and example plugin/template guides from the final README rather than duplicating large operational details there.
+- Link product docs, deployment runbooks, and plugin/template guides from the final README rather than duplicating large operational details there.

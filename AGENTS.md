@@ -97,6 +97,16 @@ Before changing the SIKESRA plugin, also read:
 - `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/IMPLEMENTATION_GOVERNANCE.md`
 - `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/TECHNICAL_PRD.md`
 
+Before changing the AWCMS-Micro docs plugin, also read:
+
+- `awcmsmicro-dev/packages/plugins/awcms-micro-docs/README.md`
+
+Before changing the AWCMS-Micro gallery plugin, also read:
+
+- `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/README.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/docs/TECHNICAL_PRD.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/docs/SECURITY.md`
+
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
 
 Before planning, designing, or implementing a mobile services plugin for Android, iOS, Flutter, native Java/Kotlin, Swift, API authentication, mobile app versioning, push notifications, or offline sync, read:
