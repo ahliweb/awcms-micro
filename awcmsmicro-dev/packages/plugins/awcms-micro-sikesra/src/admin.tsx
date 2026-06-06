@@ -937,19 +937,35 @@ function MetricCard({
 	value,
 	hint,
 	icon,
+	accent,
 }: {
 	label: string;
 	value: React.ReactNode;
 	hint?: string;
 	icon?: string;
+	accent?: "blue" | "purple" | "emerald";
 }) {
+	const accentMap: Record<string, { border: string; bg: string }> = {
+		blue: { border: "border-t-2 border-t-blue-500", bg: "bg-blue-500/[0.03]" },
+		purple: { border: "border-t-2 border-t-purple-500", bg: "bg-purple-500/[0.03]" },
+		emerald: { border: "border-t-2 border-t-emerald-500", bg: "bg-emerald-500/[0.03]" },
+	};
+	const style = accent ? accentMap[accent] : undefined;
 	return (
-		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm">
+		<div
+			className={cx(
+				"rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md transition-all",
+				style?.border || "",
+				style?.bg || "",
+			)}
+		>
 			<div className="flex items-start justify-between gap-2">
 				<div className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">{label}</div>
-				{icon ? <div className="shrink-0 text-xl">{icon}</div> : null}
+				{icon ? <div className="shrink-0 text-xl opacity-60">{icon}</div> : null}
 			</div>
-			<div className="mt-3 text-3xl font-bold tracking-tight text-kumo-default">{value}</div>
+			<div className="mt-3 text-3xl font-bold tracking-tight text-kumo-default">
+				{typeof value === "number" ? value.toLocaleString() : value}
+			</div>
 			{hint ? <div className="mt-2 text-xs leading-5 text-kumo-subtle">{hint}</div> : null}
 		</div>
 	);
@@ -3085,59 +3101,71 @@ function AbacPolicyStatusWidget() {
 	);
 }
 
-function SikesraStatsChart({ categories }: { categories: any[] }) {
+function SikesraStatsChart({
+	categories,
+	isReferenceData = false,
+}: {
+	categories: any[];
+	isReferenceData?: boolean;
+}) {
 	const maxVal = Math.max(...categories.map((c) => c.total), 1);
 
 	return (
-		<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 text-kumo-default shadow-sm mt-2">
-			<h2 className="text-lg font-bold mb-1">Grafik Rekapitulasi Data SIKESRA</h2>
-			<p className="text-xs text-kumo-subtle mb-6">
-				Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.
-			</p>
+		<div className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm mt-2 overflow-hidden">
+			<div className="flex items-center justify-between border-b border-kumo-line bg-kumo-tint/40 px-6 py-4">
+				<div>
+					<h2 className="text-sm font-semibold">Grafik Rekapitulasi Data SIKESRA</h2>
+					<p className="text-xs text-kumo-subtle mt-0.5">
+						Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.
+					</p>
+				</div>
+				{isReferenceData && (
+					<span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 border border-amber-500/20">
+						<span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+						Data Referensi
+					</span>
+				)}
+			</div>
 
-			<div className="space-y-6">
+			<div className="p-6 space-y-5">
 				{categories.map((cat) => {
+					const isSuppressed = isReferenceData ? false : !!cat.suppressed;
 					const totalPct = (cat.total / maxVal) * 100;
 					const verifiedPct = (cat.verified / maxVal) * 100;
+					const verifiedOfTotal = cat.total > 0 ? Math.round((cat.verified / cat.total) * 100) : 0;
 
 					return (
-						<div key={cat.code} className="space-y-2">
-							<div className="flex items-center justify-between text-sm font-medium">
-								<span className="text-kumo-default">{cat.label}</span>
-								{cat.suppressed ? (
-									<span className="text-xs text-kumo-subtle italic">Disupresi</span>
+						<div key={cat.code} className="space-y-1.5">
+							<div className="flex items-center justify-between text-sm">
+								<span className="font-medium text-kumo-default">{cat.label}</span>
+								{isSuppressed ? (
+									<span className="text-[11px] text-kumo-subtle italic">Disupresi</span>
 								) : (
-									<div className="flex gap-4 text-xs">
-										<span className="text-blue-600 font-semibold">Total: {cat.total}</span>
-										<span className="text-emerald-600 font-semibold">
-											Terverifikasi: {cat.verified}
-										</span>
+									<div className="flex items-center gap-3 text-xs">
+										<span className="text-blue-600 font-semibold">{cat.total}</span>
+										<span className="text-kumo-line">/</span>
+										<span className="text-emerald-600 font-semibold">{cat.verified} ✓</span>
+										<span className="text-kumo-subtle font-medium">({verifiedOfTotal}%)</span>
 									</div>
 								)}
 							</div>
 
-							{cat.suppressed ? (
-								<div className="h-8 w-full bg-kumo-tint rounded-lg flex items-center px-3 border border-dashed border-kumo-line">
+							{isSuppressed ? (
+								<div className="h-6 w-full bg-kumo-tint rounded-lg flex items-center px-3 border border-dashed border-kumo-line">
 									<div className="text-[10px] text-kumo-subtle">
 										Jumlah terlalu rendah untuk keamanan privasi (&lt; 3)
 									</div>
 								</div>
 							) : (
-								<div className="space-y-1.5">
-									{/* Total Bar */}
-									<div className="w-full bg-kumo-tint h-3 rounded-full overflow-hidden">
-										<div
-											className="bg-blue-500 h-full rounded-full transition-all duration-500 hover:bg-blue-600"
-											style={{ width: `${totalPct}%` }}
-										/>
-									</div>
-									{/* Verified Bar */}
-									<div className="w-full bg-kumo-tint h-3 rounded-full overflow-hidden">
-										<div
-											className="bg-emerald-500 h-full rounded-full transition-all duration-500 hover:bg-emerald-600"
-											style={{ width: `${verifiedPct}%` }}
-										/>
-									</div>
+								<div className="relative h-6 w-full bg-kumo-tint rounded-lg overflow-hidden">
+									<div
+										className="absolute inset-y-0 left-0 bg-blue-500/20 rounded-lg transition-all duration-700"
+										style={{ width: `${totalPct}%` }}
+									/>
+									<div
+										className="absolute inset-y-0 left-0 bg-emerald-500 rounded-lg transition-all duration-700"
+										style={{ width: `${verifiedPct}%` }}
+									/>
 								</div>
 							)}
 						</div>
@@ -3145,13 +3173,13 @@ function SikesraStatsChart({ categories }: { categories: any[] }) {
 				})}
 			</div>
 
-			<div className="flex items-center gap-4 mt-6 pt-4 border-t border-kumo-line text-xs text-kumo-subtle">
+			<div className="flex items-center gap-5 px-6 py-3 border-t border-kumo-line text-xs text-kumo-subtle">
 				<div className="flex items-center gap-1.5">
-					<span className="w-3 h-3 bg-blue-500 rounded-full inline-block" />
+					<span className="w-3 h-3 bg-blue-500/20 rounded inline-block border border-blue-500/30" />
 					<span>Total Entitas</span>
 				</div>
 				<div className="flex items-center gap-1.5">
-					<span className="w-3 h-3 bg-emerald-500 rounded-full inline-block" />
+					<span className="w-3 h-3 bg-emerald-500 rounded inline-block" />
 					<span>Terverifikasi</span>
 				</div>
 			</div>
@@ -3162,6 +3190,8 @@ function SikesraStatsChart({ categories }: { categories: any[] }) {
 function OverviewPage() {
 	const { data, error, loading, reload } = usePluginData<SummaryResponse>("overview/summary");
 	const { data: publicStatus } = usePluginData<any>("public/status");
+	const { data: healthData, reload: reloadHealth } = usePluginData<AccessHealthResponse>("access/health");
+	const [settingsOpen, setSettingsOpen] = React.useState(false);
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
 	const [saving, setSaving] = React.useState(false);
@@ -3216,6 +3246,9 @@ function OverviewPage() {
 			);
 			setNotice(copy.settingsSavedSuccessfully);
 			await reload();
+			if (reloadHealth) {
+				await reloadHealth();
+			}
 		} catch (cause) {
 			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveSettings);
 		} finally {
@@ -3229,6 +3262,12 @@ function OverviewPage() {
 	if (!summary)
 		return <EmptyState title={copy.noOverviewData} description={copy.noOverviewDataDescription} />;
 	const dashboardCards = getDashboardModuleCards(i18n.locale);
+
+	const normalizedHealth = healthData ? normalizeAccessHealthResponse(healthData) : null;
+	const healthGapsCount = normalizedHealth
+		? normalizedHealth.rolesWithoutPermissions.length + normalizedHealth.usersWithoutRoles.length
+		: 0;
+	const isSystemHealthy = healthGapsCount === 0;
 
 	const fallbackCategories = SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.length > 0
 		? SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.map((cat) => ({
@@ -3246,54 +3285,127 @@ function OverviewPage() {
 			? publicStatus.publicAggregate.categories
 			: allModuleCategories;
 
+	const isUsingReferenceData = !(publicStatus?.publicAggregate?.categories?.length > 0);
+
 	return (
 		<PageShell width="wide">
-			<PageHeader
-				eyebrow={copy.overviewEyebrow}
-				title={copy.overviewTitle}
-				description={copy.overviewDescription}
-				actions={
-					<Button variant="secondary" size="sm" onClick={() => void reload()} type="button">
-						{copy.refreshDashboard}
-					</Button>
-				}
-			/>
+			{/* Premium Gradient Hero Banner */}
+			<div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-900 p-6 md:p-8 text-white shadow-lg mb-6">
+				<div className="absolute right-0 top-0 -mr-20 -mt-20 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
+				<div className="absolute bottom-0 left-1/3 -mb-20 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
+
+				<div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+					<div className="space-y-2 max-w-3xl">
+						<div className="flex flex-wrap items-center gap-2.5">
+							<span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold backdrop-blur-md">
+								🚀 {copy.overviewEyebrow}
+							</span>
+							<span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-blue-200 border border-white/5 backdrop-blur-md">
+								{copy.pluginVersion}: 1.0.0
+							</span>
+							<span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-200 border border-emerald-500/30 backdrop-blur-md">
+								<span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+								{copy.governanceModeLabel}: {summary.settings.governanceMode}
+							</span>
+						</div>
+						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mt-1">
+							{copy.overviewTitle}
+						</h1>
+						<p className="text-sm md:text-base text-blue-100/90 font-medium leading-relaxed max-w-2xl">
+							{copy.overviewDescription}
+						</p>
+					</div>
+					<div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-center gap-4 shrink-0">
+						<div className="bg-white/[0.07] border border-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 shadow-inner">
+							<span className="relative flex h-3 w-3">
+								{isSystemHealthy ? (
+									<>
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+									</>
+								) : (
+									<>
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+									</>
+								)}
+							</span>
+							<div>
+								<div className="text-xs font-semibold text-white/90">
+									{isSystemHealthy ? copy.systemHealthy : copy.systemDegraded}
+								</div>
+								<div className="text-[10px] text-blue-200/80 mt-0.5">
+									{isSystemHealthy ? copy.healthy : copy.reviewNeeded}
+								</div>
+							</div>
+						</div>
+
+						<Button
+							variant="secondary"
+							size="sm"
+							onClick={() => {
+								void reload();
+								if (reloadHealth) void reloadHealth();
+							}}
+							type="button"
+							className="bg-white/10 hover:bg-white/20 border-white/15 text-white hover:text-white rounded-lg px-4 py-2 text-xs font-semibold transition-all"
+						>
+							🔄 {copy.refreshDashboard}
+						</Button>
+					</div>
+				</div>
+			</div>
 
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 
-			<div className="grid gap-5 md:grid-cols-3 mt-2">
+			{/* Metric Cards Row */}
+			<div className="grid gap-5 md:grid-cols-3 mt-2 mb-6">
 				<MetricCard
 					label={copy.auditEventsStored}
 					value={summary.counters.auditCount}
 					hint={copy.auditEventsStoredHint}
 					icon="📋"
+					accent="blue"
 				/>
 				<MetricCard
 					label={copy.lifecycleTriggers}
 					value={summary.counters.lifecycleCount}
 					hint={copy.lastRecorded(formatDateTime(summary.lastLifecycle, i18n.locale))}
 					icon="⚙️"
+					accent="purple"
 				/>
 				<MetricCard
 					label={copy.publicApiHits}
 					value={summary.counters.publicHits}
 					hint={copy.lastCron(formatDateTime(summary.lastCronAt, i18n.locale))}
 					icon="🌐"
+					accent="emerald"
 				/>
 			</div>
 
-			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+			{/* Module Cards Grid */}
+			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
 				{dashboardCards.map((card) => {
 					const accents: Record<string, string> = {
-						rumah_ibadah: "border-l-4 border-l-blue-500",
-						lembaga_keagamaan: "border-l-4 border-l-purple-500",
-						pendidikan_keagamaan: "border-l-4 border-l-green-500",
-						lks: "border-l-4 border-l-teal-500",
-						guru_agama: "border-l-4 border-l-amber-500",
-						anak_yatim: "border-l-4 border-l-rose-500",
-						disabilitas: "border-l-4 border-l-indigo-500",
-						lansia_terlantar: "border-l-4 border-l-orange-500",
+						rumah_ibadah: "border-t-4 border-t-blue-500",
+						lembaga_keagamaan: "border-t-4 border-t-purple-500",
+						pendidikan_keagamaan: "border-t-4 border-t-emerald-500",
+						lks: "border-t-4 border-t-teal-500",
+						guru_agama: "border-t-4 border-t-amber-500",
+						anak_yatim: "border-t-4 border-t-rose-500",
+						disabilitas: "border-t-4 border-t-indigo-500",
+						lansia_terlantar: "border-t-4 border-t-orange-500",
+					};
+					const bgProgress: Record<string, string> = {
+						rumah_ibadah: "bg-blue-500",
+						lembaga_keagamaan: "bg-purple-500",
+						pendidikan_keagamaan: "bg-emerald-500",
+						lks: "bg-teal-500",
+						guru_agama: "bg-amber-500",
+						anak_yatim: "bg-rose-500",
+						disabilitas: "bg-indigo-500",
+						lansia_terlantar: "bg-orange-500",
 					};
 					const icons: Record<string, string> = {
 						rumah_ibadah: "🕌",
@@ -3305,36 +3417,59 @@ function OverviewPage() {
 						disabilitas: "♿",
 						lansia_terlantar: "🏠",
 					};
+
+					const catData = chartCategories.find((cat: any) => cat.code === card.id) || {
+						total: 0,
+						verified: 0,
+					};
+					const verifiedPercent = catData.total > 0 ? Math.round((catData.verified / catData.total) * 100) : 0;
+
 					return (
 						<section
 							className={cx(
-								"rounded-2xl border border-kumo-line bg-kumo-base p-4 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all",
+								"rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[220px]",
 								accents[card.id] || "",
 							)}
 							key={card.id}
 						>
-							<div className="flex items-start justify-between gap-3">
-								<div className="flex items-start gap-2.5">
-									<span className="text-2xl shrink-0" role="img" aria-label={card.title}>
-										{icons[card.id] || "📋"}
-									</span>
-									<div>
-										<div className="text-sm font-semibold text-kumo-default">{card.title}</div>
-										<div className="mt-1 text-xs leading-5 text-kumo-subtle">
-											{card.description}
+							<div className="space-y-4">
+								<div className="flex items-start justify-between gap-3">
+									<div className="flex items-start gap-2.5">
+										<span className="text-2xl shrink-0" role="img" aria-label={card.title}>
+											{icons[card.id] || "📋"}
+										</span>
+										<div>
+											<div className="text-sm font-bold text-kumo-default leading-tight">{card.title}</div>
+											<div className="mt-1 text-xs leading-normal text-kumo-subtle min-h-[32px] line-clamp-2">
+												{card.description}
+											</div>
 										</div>
 									</div>
+									<div className="flex flex-col items-end gap-1 shrink-0">
+										<Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">{card.status}</Badge>
+										{card.badge != null ? <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">{card.badge}</Badge> : null}
+									</div>
 								</div>
-								<div className="flex flex-col items-end gap-1.5 shrink-0">
-									<Badge variant="secondary">{card.status}</Badge>
-									{card.badge != null ? <Badge variant="outline">{card.badge}</Badge> : null}
+
+								{/* Stats progress bar inside module card */}
+								<div className="pt-2 border-t border-kumo-line/50">
+									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle mb-1">
+										<span>{copy.totalEntities}: <span className="font-bold text-kumo-default">{catData.total}</span></span>
+										<span>{copy.verifiedEntities}: <span className="font-bold text-emerald-600 dark:text-emerald-400">{catData.verified} ({verifiedPercent}%)</span></span>
+									</div>
+									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden">
+										<div
+											className={cx("h-full rounded-full transition-all duration-500", bgProgress[card.id] || "bg-blue-500")}
+											style={{ width: `${verifiedPercent}%` }}
+										/>
+									</div>
 								</div>
 							</div>
 							<LinkButton
 								href={card.href}
 								variant="secondary"
 								size="sm"
-								className="mt-4 w-full justify-center"
+								className="mt-4 w-full justify-center text-xs font-semibold py-1.5"
 							>
 								{copy.openModule}
 							</LinkButton>
@@ -3343,150 +3478,214 @@ function OverviewPage() {
 				})}
 			</div>
 
-			<SikesraStatsChart categories={chartCategories} />
+			{/* Stats Chart */}
+			<div className="mb-6">
+				<SikesraStatsChart categories={chartCategories} isReferenceData={isUsingReferenceData} />
+			</div>
 
-			<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
-				{summary.recentEvents.length === 0 ? (
-					<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
-				) : (
-					<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-						{summary.recentEvents.slice(0, 6).map((item) => (
-							<div
-								className="rounded-xl border border-kumo-line bg-kumo-base p-3 text-kumo-default"
-								key={item.id}
-							>
-								<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-									<div className="font-medium text-kumo-default text-sm">{item.summary}</div>
-									<Pill>{item.kind}</Pill>
-								</div>
-								<div className="mt-2 text-xs text-kumo-subtle">
-									{item.actor} • {formatDateTime(item.timestamp)}
-								</div>
-							</div>
-						))}
-					</div>
-				)}
-			</Card>
+			{/* Recent Audit Events - Premium Timeline Style */}
+			<div className="mb-6">
+				<Card title={copy.recentAuditEvents} description={copy.recentAuditEventsDescription}>
+					{summary.recentEvents.length === 0 ? (
+						<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
+					) : (
+						<div className="relative pl-6 border-l border-kumo-line/60 ml-3 space-y-4 py-2">
+							{summary.recentEvents.slice(0, 6).map((item) => {
+								const kindColors: Record<string, { bg: string; text: string; dot: string }> = {
+									create: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
+									update: { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400", dot: "bg-purple-500" },
+									delete: { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400", dot: "bg-red-500" },
+									verify: { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
+								};
+								const colors = kindColors[item.kind.toLowerCase()] || { bg: "bg-kumo-tint", text: "text-kumo-default", dot: "bg-kumo-subtle" };
 
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] mt-2">
-				<Card title={copy.pluginConfiguration} description={copy.pluginConfigurationDescription}>
-					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
+								return (
+									<div className="relative group" key={item.id}>
+										{/* Timeline marker */}
+										<div className="absolute -left-[31px] top-1.5 flex items-center justify-center">
+											<div className="h-4 w-4 rounded-full border border-kumo-line bg-kumo-base flex items-center justify-center transition-all duration-300 group-hover:scale-125">
+												<div className={cx("h-2 w-2 rounded-full", colors.dot)} />
+											</div>
+										</div>
 
-						<Field label={copy.publicStatusLabel} hint={copy.publicStatusLabelHint}>
-							<Input
-								value={formState.publicStatusLabel}
-								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setFormState((current) => ({ ...current, publicStatusLabel: event.target.value }))
-								}
-							/>
-						</Field>
-
-						<div className="grid gap-4 md:grid-cols-2">
-							<Field label={copy.auditRetentionDays} hint={copy.auditRetentionDaysHint}>
-								<input
-									type="number"
-									min="1"
-									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
-									value={formState.auditRetentionDays}
-									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({
-											...current,
-											auditRetentionDays: event.target.value,
-										}))
-									}
-								/>
-							</Field>
-
-							<Field label={copy.governanceMode} hint={copy.governanceModeHint}>
-								<Select
-									value={formState.governanceMode}
-									onValueChange={(value) =>
-										setFormState((current) => ({
-											...current,
-											governanceMode: (value as GovernanceMode | null) ?? "review",
-										}))
-									}
-								>
-									<Select.Option value="observe">{copy.observe}</Select.Option>
-									<Select.Option value="review">{copy.review}</Select.Option>
-									<Select.Option value="enforce-demo">{copy.enforceDemo}</Select.Option>
-								</Select>
-							</Field>
+										{/* Event Content */}
+										<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-kumo-line bg-kumo-base hover:bg-kumo-tint/[0.2] hover:shadow-sm transition-all duration-200">
+											<div className="space-y-1">
+												<div className="flex flex-wrap items-center gap-2">
+													<span className="text-sm font-semibold text-kumo-default">
+														{item.summary}
+													</span>
+													<span className={cx("inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", colors.bg, colors.text)}>
+														{item.kind}
+													</span>
+												</div>
+												<div className="text-xs text-kumo-subtle flex items-center gap-1.5 flex-wrap">
+													<span className="font-semibold text-kumo-default">{item.actor}</span>
+													<span>•</span>
+													<span className="font-mono">{formatDateTime(item.timestamp, i18n.locale)}</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								);
+							})}
 						</div>
-
-						<div className="grid gap-4 md:grid-cols-2">
-							<Field label={copy.smallCellThreshold} hint={copy.smallCellThresholdHint}>
-								<input
-									type="number"
-									min="1"
-									className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
-									value={formState.smallCellThreshold}
-									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-										setFormState((current) => ({
-											...current,
-											smallCellThreshold: event.target.value,
-										}))
-									}
-								/>
-							</Field>
-
-							<Field label={copy.sikesraPublicEnabled} hint={copy.sikesraPublicEnabledHint}>
-								<Select
-									value={formState.sikesraPublicEnabled ? "true" : "false"}
-									onValueChange={(value) =>
-										setFormState((current) => ({
-											...current,
-											sikesraPublicEnabled: value === "true",
-										}))
-									}
-								>
-									<Select.Option value="true">{copy.enabled}</Select.Option>
-									<Select.Option value="false">{copy.disabled}</Select.Option>
-								</Select>
-							</Field>
-						</div>
-
-						<Field label={copy.metadataCanonicalBase} hint={copy.metadataCanonicalBaseHint}>
-							<Input
-								value={formState.metadataCanonicalBase}
-								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setFormState((current) => ({
-										...current,
-										metadataCanonicalBase: event.target.value,
-									}))
-								}
-							/>
-						</Field>
-
-						<div className="flex items-center gap-3">
-							<Button variant="primary" disabled={saving} type="submit">
-								{saving ? copy.saving : copy.saveSettings}
-							</Button>
-							<span className="text-xs text-kumo-subtle">
-								{copy.modeLabel(summary.settings.governanceMode)}
-							</span>
-						</div>
-					</form>
-				</Card>
-
-				<Card title={copy.currentStatus}>
-					<KeyValueList
-						items={[
-							[copy.statusLabel, summary.settings.publicStatusLabel || copy.notSet],
-							[copy.retention, copy.retentionDays(summary.settings.auditRetentionDays)],
-							[copy.governance, <Pill key="governance">{summary.settings.governanceMode}</Pill>],
-							[copy.canonicalBase, summary.settings.metadataCanonicalBase || copy.notSet],
-							[copy.smallCellThreshold, String(summary.settings.smallCellThreshold ?? 3)],
-							[
-								copy.sikesraPublicEnabled,
-								summary.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled,
-							],
-						]}
-					/>
+					)}
 				</Card>
 			</div>
 
+			{/* Collapsible Settings Section */}
+			<div className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm overflow-hidden mt-6">
+				<button
+					type="button"
+					onClick={() => setSettingsOpen(!settingsOpen)}
+					className="w-full flex items-center justify-between px-6 py-5 bg-kumo-tint/30 hover:bg-kumo-tint/50 transition-all border-b border-kumo-line"
+				>
+					<div className="flex items-center gap-3">
+						<span className="text-xl">⚙️</span>
+						<div className="text-left">
+							<h2 className="text-sm font-bold text-kumo-default">{copy.settingsAndConfiguration}</h2>
+							<p className="text-xs text-kumo-subtle mt-0.5">
+								{copy.pluginConfigurationDescription}
+							</p>
+						</div>
+					</div>
+					<div className="flex items-center gap-2">
+						<Badge variant="outline" className="text-xs">
+							{summary.settings.governanceMode}
+						</Badge>
+						<span className={cx("text-kumo-subtle transition-transform duration-300 transform", settingsOpen ? "rotate-180" : "rotate-0")}>
+							▼
+						</span>
+					</div>
+				</button>
 
+				{settingsOpen && (
+					<div className="p-6 bg-kumo-base/50">
+						<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+							<div className="space-y-4">
+								<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
+									<Field label={copy.publicStatusLabel} hint={copy.publicStatusLabelHint}>
+										<Input
+											value={formState.publicStatusLabel}
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setFormState((current) => ({ ...current, publicStatusLabel: event.target.value }))
+											}
+										/>
+									</Field>
+
+									<div className="grid gap-4 md:grid-cols-2">
+										<Field label={copy.auditRetentionDays} hint={copy.auditRetentionDaysHint}>
+											<input
+												type="number"
+												min="1"
+												className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
+												value={formState.auditRetentionDays}
+												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+													setFormState((current) => ({
+														...current,
+														auditRetentionDays: event.target.value,
+													}))
+												}
+											/>
+										</Field>
+
+										<Field label={copy.governanceMode} hint={copy.governanceModeHint}>
+											<Select
+												value={formState.governanceMode}
+												onValueChange={(value) =>
+													setFormState((current) => ({
+														...current,
+														governanceMode: (value as GovernanceMode | null) ?? "review",
+													}))
+												}
+											>
+												<Select.Option value="observe">{copy.observe}</Select.Option>
+												<Select.Option value="review">{copy.review}</Select.Option>
+												<Select.Option value="enforce-demo">{copy.enforceDemo}</Select.Option>
+											</Select>
+										</Field>
+									</div>
+
+									<div className="grid gap-4 md:grid-cols-2">
+										<Field label={copy.smallCellThreshold} hint={copy.smallCellThresholdHint}>
+											<input
+												type="number"
+												min="1"
+												className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
+												value={formState.smallCellThreshold}
+												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+													setFormState((current) => ({
+														...current,
+														smallCellThreshold: event.target.value,
+													}))
+												}
+											/>
+										</Field>
+
+										<Field label={copy.sikesraPublicEnabled} hint={copy.sikesraPublicEnabledHint}>
+											<Select
+												value={formState.sikesraPublicEnabled ? "true" : "false"}
+												onValueChange={(value) =>
+													setFormState((current) => ({
+														...current,
+														sikesraPublicEnabled: value === "true",
+													}))
+												}
+											>
+												<Select.Option value="true">{copy.enabled}</Select.Option>
+												<Select.Option value="false">{copy.disabled}</Select.Option>
+											</Select>
+										</Field>
+									</div>
+
+									<Field label={copy.metadataCanonicalBase} hint={copy.metadataCanonicalBaseHint}>
+										<Input
+											value={formState.metadataCanonicalBase}
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setFormState((current) => ({
+													...current,
+													metadataCanonicalBase: event.target.value,
+												}))
+											}
+										/>
+									</Field>
+
+									<div className="flex items-center gap-3 pt-2">
+										<Button variant="primary" disabled={saving} type="submit">
+											{saving ? copy.saving : copy.saveSettings}
+										</Button>
+										<span className="text-xs text-kumo-subtle">
+											{copy.modeLabel(summary.settings.governanceMode)}
+										</span>
+									</div>
+								</form>
+							</div>
+
+							<div className="space-y-4">
+								<div className="bg-kumo-tint/20 rounded-xl p-4 border border-kumo-line/50">
+									<h3 className="text-xs font-bold text-kumo-default uppercase tracking-wider mb-3">
+										{copy.currentStatus}
+									</h3>
+									<KeyValueList
+										items={[
+											[copy.statusLabel, summary.settings.publicStatusLabel || copy.notSet],
+											[copy.retention, copy.retentionDays(summary.settings.auditRetentionDays)],
+											[copy.governance, <Pill key="governance" tone="neutral">{summary.settings.governanceMode}</Pill>],
+											[copy.canonicalBase, summary.settings.metadataCanonicalBase || copy.notSet],
+											[copy.smallCellThreshold, String(summary.settings.smallCellThreshold ?? 3)],
+											[
+												copy.sikesraPublicEnabled,
+												summary.settings.sikesraPublicEnabled !== false ? copy.enabled : copy.disabled,
+											],
+										]}
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
 		</PageShell>
 	);
 }
