@@ -945,19 +945,16 @@ function MetricCard({
 	icon?: string;
 	accent?: "blue" | "purple" | "emerald";
 }) {
-	const accentMap: Record<string, { border: string; bg: string }> = {
-		blue: { border: "border-t-2 border-t-blue-500", bg: "bg-blue-500/[0.03]" },
-		purple: { border: "border-t-2 border-t-purple-500", bg: "bg-purple-500/[0.03]" },
-		emerald: { border: "border-t-2 border-t-emerald-500", bg: "bg-emerald-500/[0.03]" },
+	const accentColors: Record<string, string> = {
+		blue: "#3b82f6",
+		purple: "#a855f7",
+		emerald: "#10b981",
 	};
-	const style = accent ? accentMap[accent] : undefined;
+	const borderAccent = accent ? accentColors[accent] : undefined;
 	return (
 		<div
-			className={cx(
-				"rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md transition-all",
-				style?.border || "",
-				style?.bg || "",
-			)}
+			className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md transition-all"
+			style={borderAccent ? { borderTop: `4px solid ${borderAccent}` } : undefined}
 		>
 			<div className="flex items-start justify-between gap-2">
 				<div className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">{label}</div>
@@ -3290,20 +3287,43 @@ function OverviewPage() {
 	return (
 		<PageShell width="wide">
 			{/* Premium Gradient Hero Banner */}
-			<div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-900 p-6 md:p-8 text-white shadow-lg mb-6">
+			<div
+				className="relative overflow-hidden rounded-2xl p-6 md:p-8 shadow-lg mb-6"
+				style={{
+					background: "linear-gradient(135deg, #1e3a8a 0%, #312e81 50%, #4c1d95 100%)",
+					color: "#ffffff",
+				}}
+			>
 				<div className="absolute right-0 top-0 -mr-20 -mt-20 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
 				<div className="absolute bottom-0 left-1/3 -mb-20 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
 
 				<div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 					<div className="space-y-2 max-w-3xl">
 						<div className="flex flex-wrap items-center gap-2.5">
-							<span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold backdrop-blur-md">
+							<span
+								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-md"
+								style={{ backgroundColor: "rgba(255, 255, 255, 0.12)", color: "#ffffff" }}
+							>
 								🚀 {copy.overviewEyebrow}
 							</span>
-							<span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-blue-200 border border-white/5 backdrop-blur-md">
+							<span
+								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border backdrop-blur-md"
+								style={{
+									backgroundColor: "rgba(255, 255, 255, 0.08)",
+									color: "#93c5fd",
+									borderColor: "rgba(255, 255, 255, 0.15)",
+								}}
+							>
 								{copy.pluginVersion}: 1.0.0
 							</span>
-							<span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-200 border border-emerald-500/30 backdrop-blur-md">
+							<span
+								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border backdrop-blur-md"
+								style={{
+									backgroundColor: "rgba(16, 185, 129, 0.15)",
+									color: "#a7f3d0",
+									borderColor: "rgba(16, 185, 129, 0.3)",
+								}}
+							>
 								<span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
 								{copy.governanceModeLabel}: {summary.settings.governanceMode}
 							</span>
@@ -3311,12 +3331,21 @@ function OverviewPage() {
 						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mt-1">
 							{copy.overviewTitle}
 						</h1>
-						<p className="text-sm md:text-base text-blue-100/90 font-medium leading-relaxed max-w-2xl">
+						<p
+							className="text-sm md:text-base font-medium leading-relaxed max-w-2xl"
+							style={{ color: "rgba(255, 255, 255, 0.88)" }}
+						>
 							{copy.overviewDescription}
 						</p>
 					</div>
 					<div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-center gap-4 shrink-0">
-						<div className="bg-white/[0.07] border border-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 shadow-inner">
+						<div
+							className="backdrop-blur-md rounded-xl p-3 flex items-center gap-3 shadow-inner"
+							style={{
+								backgroundColor: "rgba(0, 0, 0, 0.25)",
+								border: "1px solid rgba(255, 255, 255, 0.15)",
+							}}
+						>
 							<span className="relative flex h-3 w-3">
 								{isSystemHealthy ? (
 									<>
@@ -3331,10 +3360,10 @@ function OverviewPage() {
 								)}
 							</span>
 							<div>
-								<div className="text-xs font-semibold text-white/90">
+								<div className="text-xs font-semibold text-white/95">
 									{isSystemHealthy ? copy.systemHealthy : copy.systemDegraded}
 								</div>
-								<div className="text-[10px] text-blue-200/80 mt-0.5">
+								<div className="text-[10px] mt-0.5" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
 									{isSystemHealthy ? copy.healthy : copy.reviewNeeded}
 								</div>
 							</div>
@@ -3348,7 +3377,11 @@ function OverviewPage() {
 								if (reloadHealth) void reloadHealth();
 							}}
 							type="button"
-							className="bg-white/10 hover:bg-white/20 border-white/15 text-white hover:text-white rounded-lg px-4 py-2 text-xs font-semibold transition-all"
+							className="hover:bg-white/20 text-white hover:text-white rounded-lg px-4 py-2 text-xs font-semibold transition-all"
+							style={{
+								backgroundColor: "rgba(255, 255, 255, 0.12)",
+								border: "1px solid rgba(255, 255, 255, 0.18)",
+							}}
 						>
 							🔄 {copy.refreshDashboard}
 						</Button>
@@ -3388,24 +3421,14 @@ function OverviewPage() {
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
 				{dashboardCards.map((card) => {
 					const accents: Record<string, string> = {
-						rumah_ibadah: "border-t-4 border-t-blue-500",
-						lembaga_keagamaan: "border-t-4 border-t-purple-500",
-						pendidikan_keagamaan: "border-t-4 border-t-emerald-500",
-						lks: "border-t-4 border-t-teal-500",
-						guru_agama: "border-t-4 border-t-amber-500",
-						anak_yatim: "border-t-4 border-t-rose-500",
-						disabilitas: "border-t-4 border-t-indigo-500",
-						lansia_terlantar: "border-t-4 border-t-orange-500",
-					};
-					const bgProgress: Record<string, string> = {
-						rumah_ibadah: "bg-blue-500",
-						lembaga_keagamaan: "bg-purple-500",
-						pendidikan_keagamaan: "bg-emerald-500",
-						lks: "bg-teal-500",
-						guru_agama: "bg-amber-500",
-						anak_yatim: "bg-rose-500",
-						disabilitas: "bg-indigo-500",
-						lansia_terlantar: "bg-orange-500",
+						rumah_ibadah: "#3b82f6",
+						lembaga_keagamaan: "#a855f7",
+						pendidikan_keagamaan: "#10b981",
+						lks: "#14b8a6",
+						guru_agama: "#f59e0b",
+						anak_yatim: "#f43f5e",
+						disabilitas: "#6366f1",
+						lansia_terlantar: "#f97316",
 					};
 					const icons: Record<string, string> = {
 						rumah_ibadah: "🕌",
@@ -3423,13 +3446,12 @@ function OverviewPage() {
 						verified: 0,
 					};
 					const verifiedPercent = catData.total > 0 ? Math.round((catData.verified / catData.total) * 100) : 0;
+					const cardColor = accents[card.id] || "#3b82f6";
 
 					return (
 						<section
-							className={cx(
-								"rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[220px]",
-								accents[card.id] || "",
-							)}
+							className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[230px]"
+							style={{ borderTop: `4px solid ${cardColor}` }}
 							key={card.id}
 						>
 							<div className="space-y-4">
@@ -3440,27 +3462,27 @@ function OverviewPage() {
 										</span>
 										<div>
 											<div className="text-sm font-bold text-kumo-default leading-tight">{card.title}</div>
-											<div className="mt-1 text-xs leading-normal text-kumo-subtle min-h-[32px] line-clamp-2">
+											<div className="mt-1.5 text-xs leading-normal text-kumo-subtle min-h-[32px] line-clamp-2">
 												{card.description}
 											</div>
 										</div>
 									</div>
-									<div className="flex flex-col items-end gap-1 shrink-0">
+									<div className="flex flex-col items-end gap-1.5 shrink-0">
 										<Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">{card.status}</Badge>
 										{card.badge != null ? <Badge variant="outline" className="text-[10px] px-1.5 py-0.5">{card.badge}</Badge> : null}
 									</div>
 								</div>
 
 								{/* Stats progress bar inside module card */}
-								<div className="pt-2 border-t border-kumo-line/50">
-									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle mb-1">
+								<div className="mt-4 pt-3 border-t border-kumo-line/50">
+									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle mb-1.5">
 										<span>{copy.totalEntities}: <span className="font-bold text-kumo-default">{catData.total}</span></span>
 										<span>{copy.verifiedEntities}: <span className="font-bold text-emerald-600 dark:text-emerald-400">{catData.verified} ({verifiedPercent}%)</span></span>
 									</div>
-									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden">
+									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden mt-1.5">
 										<div
-											className={cx("h-full rounded-full transition-all duration-500", bgProgress[card.id] || "bg-blue-500")}
-											style={{ width: `${verifiedPercent}%` }}
+											className="h-full rounded-full transition-all duration-500"
+											style={{ width: `${verifiedPercent}%`, backgroundColor: cardColor }}
 										/>
 									</div>
 								</div>
@@ -3469,7 +3491,7 @@ function OverviewPage() {
 								href={card.href}
 								variant="secondary"
 								size="sm"
-								className="mt-4 w-full justify-center text-xs font-semibold py-1.5"
+								className="mt-5 w-full justify-center text-xs font-semibold py-1.5"
 							>
 								{copy.openModule}
 							</LinkButton>
@@ -3491,20 +3513,20 @@ function OverviewPage() {
 					) : (
 						<div className="relative pl-6 border-l border-kumo-line/60 ml-3 space-y-4 py-2">
 							{summary.recentEvents.slice(0, 6).map((item) => {
-								const kindColors: Record<string, { bg: string; text: string; dot: string }> = {
-									create: { bg: "bg-blue-500/10", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
-									update: { bg: "bg-purple-500/10", text: "text-purple-600 dark:text-purple-400", dot: "bg-purple-500" },
-									delete: { bg: "bg-red-500/10", text: "text-red-600 dark:text-red-400", dot: "bg-red-500" },
-									verify: { bg: "bg-emerald-500/10", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
+								const kindColors: Record<string, { bg: string; text: string; border: string; dot: string }> = {
+									create: { bg: "rgba(37, 99, 235, 0.08)", text: "#2563eb", border: "1px solid rgba(37, 99, 235, 0.2)", dot: "#2563eb" },
+									update: { bg: "rgba(147, 51, 234, 0.08)", text: "#9333ea", border: "1px solid rgba(147, 51, 234, 0.2)", dot: "#9333ea" },
+									delete: { bg: "rgba(220, 38, 38, 0.08)", text: "#dc2626", border: "1px solid rgba(220, 38, 38, 0.2)", dot: "#dc2626" },
+									verify: { bg: "rgba(5, 150, 105, 0.08)", text: "#059669", border: "1px solid rgba(5, 150, 105, 0.2)", dot: "#059669" },
 								};
-								const colors = kindColors[item.kind.toLowerCase()] || { bg: "bg-kumo-tint", text: "text-kumo-default", dot: "bg-kumo-subtle" };
+								const colors = kindColors[item.kind.toLowerCase()] || { bg: "rgba(100, 116, 139, 0.08)", text: "var(--kumo-default)", border: "1px solid rgba(100, 116, 139, 0.2)", dot: "#64748b" };
 
 								return (
 									<div className="relative group" key={item.id}>
 										{/* Timeline marker */}
 										<div className="absolute -left-[31px] top-1.5 flex items-center justify-center">
 											<div className="h-4 w-4 rounded-full border border-kumo-line bg-kumo-base flex items-center justify-center transition-all duration-300 group-hover:scale-125">
-												<div className={cx("h-2 w-2 rounded-full", colors.dot)} />
+												<div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.dot }} />
 											</div>
 										</div>
 
@@ -3515,7 +3537,10 @@ function OverviewPage() {
 													<span className="text-sm font-semibold text-kumo-default">
 														{item.summary}
 													</span>
-													<span className={cx("inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", colors.bg, colors.text)}>
+													<span
+														className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+														style={{ backgroundColor: colors.bg, color: colors.text, border: colors.border }}
+													>
 														{item.kind}
 													</span>
 												</div>
@@ -4229,7 +4254,7 @@ function RegistryPage() {
 							<div className="flex flex-col md:flex-row gap-6">
 								{/* Left Stepper Sidebar - Vertical Timeline Style */}
 								<div className="w-full md:w-60 shrink-0 border-r border-kumo-line/40 pr-6 max-md:border-r-0 max-md:border-b max-md:pb-6">
-									<div className="relative pl-4 border-l border-kumo-line/60 ml-2.5 space-y-2 py-1">
+									<div className="relative pl-4 ml-2.5 space-y-2 py-1" style={{ borderLeft: "2px solid var(--kumo-line, #e2e8f0)" }}>
 										{copy.registrySteps.map((label, index) => {
 											const isActive = index === step;
 											const isCompleted = index < step;
@@ -4245,12 +4270,15 @@ function RegistryPage() {
 														<span
 															className={cx(
 																"flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300",
-																isActive
-																	? "bg-kumo-brand border-kumo-brand text-white scale-110 shadow-sm"
-																	: isCompleted
-																		? "bg-kumo-success border-kumo-success text-white"
-																		: "bg-kumo-base border-kumo-line text-kumo-subtle group-hover:border-kumo-default group-hover:text-kumo-default",
+																isActive ? "scale-110 shadow-sm" : "",
 															)}
+															style={
+																isActive
+																	? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
+																	: isCompleted
+																		? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
+																		: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
+															}
 														>
 															{isCompleted ? "✓" : index + 1}
 														</span>
@@ -4260,11 +4288,18 @@ function RegistryPage() {
 														className={cx(
 															"truncate transition-colors duration-200",
 															isActive
-																? "text-kumo-brand font-bold"
+																? "font-bold"
 																: isCompleted
-																	? "text-kumo-success"
+																	? ""
 																	: "text-kumo-subtle group-hover:text-kumo-default",
 														)}
+														style={
+															isActive
+																? { color: "#2563eb" }
+																: isCompleted
+																	? { color: "#10b981" }
+																	: undefined
+														}
 													>
 														{label}
 													</span>
