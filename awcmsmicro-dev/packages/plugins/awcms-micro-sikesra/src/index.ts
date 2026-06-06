@@ -69,7 +69,7 @@ export function awcmsMicroSikesraPlugin(
  */
 export const awcmsMicroExamplePlugin = awcmsMicroSikesraPlugin;
 
-export function createPlugin(_options: AwcmsMicroSikesraPluginOptions = {}): ResolvedPlugin {
+export function createPlugin(options: AwcmsMicroSikesraPluginOptions = {}): ResolvedPlugin {
 	return definePlugin({
 		id: AWCMS_SIKESRA_PLUGIN_ID,
 		version,
@@ -85,8 +85,8 @@ export function createPlugin(_options: AwcmsMicroSikesraPluginOptions = {}): Res
 			fieldWidgets: AWCMS_SIKESRA_FIELD_WIDGETS,
 			i18n: AWCMS_SIKESRA_MANIFEST.i18n,
 		} as any,
-		routes: createNativeRoutes(),
-		hooks: createSharedHooks(),
+		routes: createNativeRoutes(options),
+		hooks: createSharedHooks(options),
 	});
 }
 

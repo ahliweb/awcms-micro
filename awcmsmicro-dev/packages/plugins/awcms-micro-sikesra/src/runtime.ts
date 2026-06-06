@@ -382,6 +382,37 @@ const AWCMS_SIKESRA_MODULE_DETAIL_TABLES: Record<string, string> = {
 const AWCMS_SIKESRA_DEFAULT_TENANT_ID = "t-local-dev";
 const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
 
+export interface AwcmsMicroSikesraRuntimeOptions {
+	tenantId?: string;
+	siteId?: string;
+}
+
+interface SikesraScopedPluginContext extends PluginContext {
+	__awcmsSikesraScope?: {
+		tenantId: string;
+		siteId: string;
+	};
+}
+
+function normalizeSikesraScope(options: AwcmsMicroSikesraRuntimeOptions = {}) {
+	return {
+		tenantId: options.tenantId?.trim() || AWCMS_SIKESRA_DEFAULT_TENANT_ID,
+		siteId: options.siteId?.trim() || AWCMS_SIKESRA_DEFAULT_SITE_ID,
+	};
+}
+
+function withSikesraScope<T extends PluginContext>(ctx: T, options: AwcmsMicroSikesraRuntimeOptions = {}) {
+	return Object.assign(ctx, { __awcmsSikesraScope: normalizeSikesraScope(options) });
+}
+
+function getSikesraTenantId(ctx: PluginContext) {
+	return (ctx as SikesraScopedPluginContext).__awcmsSikesraScope?.tenantId ?? AWCMS_SIKESRA_DEFAULT_TENANT_ID;
+}
+
+function getSikesraSiteId(ctx: PluginContext) {
+	return (ctx as SikesraScopedPluginContext).__awcmsSikesraScope?.siteId ?? AWCMS_SIKESRA_DEFAULT_SITE_ID;
+}
+
 const AWCMS_SIKESRA_LEGACY_STORAGE_COLLECTIONS = [
 	{ from: "auditEvents", to: "sikesra_audit_events" },
 	{ from: "accessChangeEvents", to: "sikesra_access_change_events" },
@@ -535,8 +566,8 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 				await db
 					.insertInto(to)
 					.values({
-						tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-						site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+						tenant_id: getSikesraTenantId(ctx),
+						site_id: getSikesraSiteId(ctx),
 						id: row.id,
 						timestamp,
 						kind: parsed.kind ?? "legacy.audit",
@@ -2089,12 +2120,16 @@ function getRequestUserId(ctx: PluginContext) {
 async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return [];
+	const defaultUserAssignment = DEFAULT_USER_ROLE_ASSIGNMENTS.find(
+		(assignment) => assignment.userId === userId,
+	);
 	const assignment =
 		(await getD1UserRoleAssignment(ctx, userId)) ??
 		((await safeCollectionGet(
 			ctx.storage.sikesra_user_role_assignments,
 			userId,
 		)) as UserRoleAssignment | null) ??
+		(defaultUserAssignment ? touchUpdatedAt(defaultUserAssignment) : null) ??
 		(isTrustedEmDashAdmin(ctx)
 			? {
 					userId,
@@ -2112,24 +2147,28 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return null;
+	const defaultSubject = DEFAULT_ABAC_SUBJECTS.find((subject) => subject.subjectId === userId);
 	const subject =
 		(await getD1AbacSubjectAssignment(ctx, userId)) ??
 		((await safeCollectionGet(
 			ctx.storage.sikesra_abac_subject_assignments,
 			userId,
-		)) as AbacSubjectAssignment | null);
+		)) as AbacSubjectAssignment | null) ??
+		(defaultSubject ? touchUpdatedAt(defaultSubject) : null);
 	return subject?.attributes.region_scope ?? null;
 }
 
 async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
+	const defaultSubject = DEFAULT_ABAC_SUBJECTS.find((subject) => subject.subjectId === userId);
 	const subject =
 		(await getD1AbacSubjectAssignment(ctx, userId)) ??
 		((await safeCollectionGet(
 			ctx.storage.sikesra_abac_subject_assignments,
 			userId,
-		)) as AbacSubjectAssignment | null);
+		)) as AbacSubjectAssignment | null) ??
+		(defaultSubject ? touchUpdatedAt(defaultSubject) : null);
 	return {
 		verifierRegionScope: subject?.attributes.region_scope,
 		verifierOrgScope: subject?.attributes.site_id,
@@ -2248,8 +2287,8 @@ async function getD1RegistryEntities(
 			"public_summary",
 			"deleted_at",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID);
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx));
 	if (!options.includeDeleted) query = query.where("deleted_at", "is", null);
 	let rows: Array<{
 		id: string;
@@ -2311,8 +2350,8 @@ async function updateD1RegistryEntityDeletedAt(
 	await db
 		.insertInto(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: existing.id,
 			sikesra_id_20: existing.sikesraId20 ?? null,
 			code: existing.code,
@@ -2357,8 +2396,8 @@ async function persistD1RegistryEntity(
 	await db
 		.insertInto(AWCMS_SIKESRA_REGISTRY_ENTITIES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: entity.id,
 			sikesra_id_20: entity.sikesraId20 ?? null,
 			code: entity.code,
@@ -2404,8 +2443,8 @@ async function persistD1RegistryEntity(
 	const detailTable = AWCMS_SIKESRA_MODULE_DETAIL_TABLES[entity.entityType];
 	if (detailTable) {
 		const detailRow: Record<string, unknown> = {
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			registry_entity_id: entity.id,
 			detail_json: JSON.stringify({
 				code: entity.code,
@@ -2467,8 +2506,8 @@ async function generateD1SikesraId20(
 	const rows = (await db
 		.selectFrom(AWCMS_SIKESRA_CODE_SEQUENCES_TABLE)
 		.select(["sequence_key", "last_value"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("sequence_key", "=", sequenceKey)
 		.execute()) as Array<{ sequence_key: string; last_value: number | string }>;
 	const nextValue = Number(rows[0]?.last_value ?? 0) + 1;
@@ -2478,8 +2517,8 @@ async function generateD1SikesraId20(
 	await db
 		.insertInto(AWCMS_SIKESRA_CODE_SEQUENCES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			sequence_key: sequenceKey,
 			last_value: nextValue,
 			created_at: now,
@@ -2501,8 +2540,8 @@ async function generateD1SikesraId20(
 	await db
 		.insertInto(AWCMS_SIKESRA_CODE_HISTORY_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${params.registryEntityId}:${sikesraId20}`,
 			registry_entity_id: params.registryEntityId,
 			sikesra_id_20: sikesraId20,
@@ -2541,8 +2580,8 @@ async function correctD1SikesraId20(
 	await db
 		.insertInto(AWCMS_SIKESRA_CODE_HISTORY_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${params.registryEntityId}:correction:${now}`,
 			registry_entity_id: params.registryEntityId,
 			sikesra_id_20: params.nextSikesraId20,
@@ -2582,6 +2621,18 @@ async function getSupportingDocuments(
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
 }
 
+async function getSupportingDocumentsReadOnly(
+	ctx: PluginContext,
+): Promise<SikesraReferenceSupportingDocument[]> {
+	const d1Documents = await getD1SupportingDocuments(ctx);
+	const legacy =
+		(await ctx.kv.get<SikesraReferenceSupportingDocument[]>("custom:supportingDocuments")) ?? [];
+	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
+		ctx.storage.sikesra_supporting_documents,
+	);
+	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, d1Documents, legacy, stored);
+}
+
 async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
 	if (await persistD1SupportingDocument(ctx, doc)) return;
 
@@ -2611,8 +2662,8 @@ async function getD1SupportingDocuments(
 			"issued_at",
 			"created_by",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("deleted_at", "is", null)
 		.orderBy("created_at", "desc")
 		.execute()) as Array<{
@@ -2664,8 +2715,8 @@ async function getD1FileObject(ctx: PluginContext, id: string) {
 			"file_size_bytes",
 			"checksum_sha256",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("id", "=", id)
 		.where("deleted_at", "is", null)
 		.limit(1)
@@ -2734,12 +2785,12 @@ async function persistD1SupportingDocument(
 	await db
 		.insertInto(AWCMS_SIKESRA_FILE_OBJECTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: fileObjectId,
 			storage_provider: "r2",
 			storage_bucket: null,
-			storage_key: `tenants/${AWCMS_SIKESRA_DEFAULT_TENANT_ID}/sites/${AWCMS_SIKESRA_DEFAULT_SITE_ID}/modules/sikesra/${doc.sensitivity}/${now.slice(0, 4)}/${now.slice(5, 7)}/${safeFilename}`,
+			storage_key: `tenants/${getSikesraTenantId(ctx)}/sites/${getSikesraSiteId(ctx)}/modules/sikesra/${doc.sensitivity}/${now.slice(0, 4)}/${now.slice(5, 7)}/${safeFilename}`,
 			original_filename: doc.originalFilename ?? doc.title,
 			safe_filename: safeFilename,
 			content_type: doc.contentType ?? "application/pdf",
@@ -2769,8 +2820,8 @@ async function persistD1SupportingDocument(
 	await db
 		.insertInto(AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: doc.id,
 			registry_entity_id: doc.registryEntityId,
 			file_object_id: fileObjectId,
@@ -2911,8 +2962,8 @@ async function getD1VerificationEvents(
 			"region_scope_code",
 			"created_at",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("deleted_at", "is", null)
 		.orderBy("created_at", "desc")
 		.execute()) as Array<{
@@ -2953,8 +3004,8 @@ async function persistD1VerificationEvent(
 	await db
 		.insertInto(AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: event.id,
 			registry_entity_id: event.registryEntityId,
 			from_stage: currentState[event.registryEntityId] ?? null,
@@ -3012,6 +3063,28 @@ async function getVerificationStageState(
 	return defaultState;
 }
 
+async function getVerificationStageStateReadOnly(
+	ctx: PluginContext,
+): Promise<Record<string, VerificationStage>> {
+	const entities = await getRegistryEntitiesReadOnly(ctx);
+	const defaultState = Object.fromEntries(
+		entities.map((entity) => [entity.id, entity.verificationStage]),
+	) as Record<string, VerificationStage>;
+	const d1State = await getD1VerificationStageState(ctx);
+	if (Object.keys(d1State).length > 0) return { ...defaultState, ...d1State };
+	const storedRecords = await listStorageValues<StoredVerificationStageRecord>(
+		ctx.storage.sikesra_verification_stage_state,
+	);
+	if (storedRecords.length > 0) {
+		return {
+			...defaultState,
+			...Object.fromEntries(storedRecords.map((record) => [record.registryEntityId, record.stage])),
+		};
+	}
+	const stored = await ctx.kv.get<Record<string, VerificationStage>>(VERIFICATION_STATE_KEY);
+	return stored && typeof stored === "object" ? { ...defaultState, ...stored } : defaultState;
+}
+
 async function getD1VerificationStageState(ctx: PluginContext) {
 	if (!assertRuntimeD1Available(ctx, "selectFrom", "verification stage")) {
 		return {} as Record<string, VerificationStage>;
@@ -3023,8 +3096,8 @@ async function getD1VerificationStageState(ctx: PluginContext) {
 		rows = (await db
 			.selectFrom(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
 			.select(["registry_entity_id", "stage"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("status", "=", "pending")
 			.execute()) as typeof rows;
 	} catch (cause) {
@@ -3069,8 +3142,8 @@ async function persistD1VerificationStageState(
 		await db
 			.insertInto(AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				registry_entity_id: registryEntityId,
 				stage,
 				current_level: getVerificationLevel(stage),
@@ -3156,6 +3229,19 @@ async function migrateRuntimeStateToD1(ctx: PluginContext) {
 async function listVerificationItems(ctx: PluginContext): Promise<VerificationListItem[]> {
 	const state = await getVerificationStageState(ctx);
 	const entities = await getRegistryEntities(ctx);
+	return createVerificationItems(entities, state);
+}
+
+async function listVerificationItemsReadOnly(ctx: PluginContext): Promise<VerificationListItem[]> {
+	const state = await getVerificationStageStateReadOnly(ctx);
+	const entities = await getRegistryEntitiesReadOnly(ctx);
+	return createVerificationItems(entities, state);
+}
+
+function createVerificationItems(
+	entities: SikesraReferenceRegistryEntity[],
+	state: Record<string, VerificationStage>,
+): VerificationListItem[] {
 	return entities.map((entity) => {
 		const verificationStage = state[entity.id] ?? entity.verificationStage;
 		const nextStage = getNextVerificationStage(verificationStage);
@@ -3226,8 +3312,8 @@ async function getD1Settings(ctx: PluginContext) {
 		rows = (await db
 			.selectFrom(AWCMS_SIKESRA_SETTINGS_TABLE)
 			.select(["key", "value_json", "updated_at"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.execute()) as typeof rows;
 	} catch (cause) {
 		logD1ReadFallback(ctx, "settings", cause);
@@ -3280,8 +3366,8 @@ async function persistD1Settings(ctx: PluginContext, records: StoredSettingRecor
 		await db
 			.insertInto(AWCMS_SIKESRA_SETTINGS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				key: record.key,
 				value_json: JSON.stringify(record.value),
 				created_at: now,
@@ -3428,8 +3514,8 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 		await db
 			.insertInto(AWCMS_SIKESRA_AUDIT_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: record.id,
 				timestamp,
 				kind: record.kind,
@@ -3753,33 +3839,38 @@ async function listCollectionValues<T>(
 async function listPermissions(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_permission_catalog?.query)
 		return DEFAULT_ACCESS_PERMISSIONS.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AccessPermission>(ctx.storage.sikesra_permission_catalog);
+	const items = await listCollectionValues<AccessPermission>(ctx.storage.sikesra_permission_catalog);
+	return items.length > 0 ? items : DEFAULT_ACCESS_PERMISSIONS.map((item) => touchUpdatedAt(item));
 }
 
 async function listRoles(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_role_catalog?.query)
 		return DEFAULT_ACCESS_ROLES.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AccessRole>(ctx.storage.sikesra_role_catalog);
+	const items = await listCollectionValues<AccessRole>(ctx.storage.sikesra_role_catalog);
+	return items.length > 0 ? items : DEFAULT_ACCESS_ROLES.map((item) => touchUpdatedAt(item));
 }
 
 async function listRoleAssignments(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_role_permission_assignments?.query)
 		return DEFAULT_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<RolePermissionAssignment>(
+	const items = await listCollectionValues<RolePermissionAssignment>(
 		ctx.storage.sikesra_role_permission_assignments,
 	);
+	return items.length > 0 ? items : DEFAULT_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
 }
 
 async function listUserRoleAssignments(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_user_role_assignments?.query)
 		return DEFAULT_USER_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments);
+	const items = await listCollectionValues<UserRoleAssignment>(ctx.storage.sikesra_user_role_assignments);
+	return items.length > 0 ? items : DEFAULT_USER_ROLE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
 }
 
 async function listUserScopeAssignments(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_user_scope_assignments?.query)
 		return DEFAULT_USER_SCOPE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments);
+	const items = await listCollectionValues<UserScopeAssignment>(ctx.storage.sikesra_user_scope_assignments);
+	return items.length > 0 ? items : DEFAULT_USER_SCOPE_ASSIGNMENTS.map((item) => touchUpdatedAt(item));
 }
 
 async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
@@ -3794,8 +3885,8 @@ async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
 		rows = (await db
 			.selectFrom(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
 			.select(["emdash_user_id", "sikesra_role_slug", "updated_at"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("emdash_user_id", "=", userId)
 			.where("is_active", "=", 1)
 			.execute()) as typeof rows;
@@ -3825,8 +3916,8 @@ async function getD1RolePermissionAssignment(ctx: PluginContext, roleSlug: strin
 		rows = (await db
 			.selectFrom(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
 			.select(["role_slug", "permission_slug", "effect", "updated_at"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("role_slug", "=", roleSlug)
 			.where("effect", "=", "allow")
 			.execute()) as typeof rows;
@@ -3851,8 +3942,8 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 			await db
 				.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
 				.values({
-					tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-					site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+					tenant_id: getSikesraTenantId(ctx),
+					site_id: getSikesraSiteId(ctx),
 					id: `${assignment.userId}:${roleSlug}`,
 					emdash_user_id: assignment.userId,
 					sikesra_role_slug: roleSlug,
@@ -3891,8 +3982,8 @@ async function persistD1PermissionCatalogItem(ctx: PluginContext, permission: Ac
 	await db
 		.insertInto(AWCMS_SIKESRA_PERMISSION_CATALOG_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			slug: permission.slug,
 			scope: permission.scope,
 			label: permission.label,
@@ -3926,8 +4017,8 @@ async function persistD1RoleCatalogItem(ctx: PluginContext, role: AccessRole) {
 	await db
 		.insertInto(AWCMS_SIKESRA_ROLE_CATALOG_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			slug: role.slug,
 			label: role.label,
 			description: role.description || null,
@@ -3963,8 +4054,8 @@ async function persistD1RolePermissionAssignment(
 		await db
 			.insertInto(AWCMS_SIKESRA_ROLE_PERMISSION_ASSIGNMENTS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				role_slug: assignment.roleSlug,
 				permission_slug: permissionSlug,
 				effect: "allow",
@@ -3994,8 +4085,8 @@ async function persistD1UserScopeAssignment(ctx: PluginContext, assignment: User
 	await db
 		.insertInto(AWCMS_SIKESRA_USER_SCOPE_ASSIGNMENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: assignment.userId,
 			emdash_user_id: assignment.userId,
 			region_scope_type: assignment.regionScopeType,
@@ -4068,8 +4159,8 @@ async function getD1AbacSubjectAssignment(ctx: PluginContext, subjectId: string)
 		rows = (await db
 			.selectFrom(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
 			.select(["emdash_user_id", "attribute_key", "attribute_value", "updated_at"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("emdash_user_id", "=", subjectId)
 			.execute()) as typeof rows;
 	} catch (cause) {
@@ -4090,8 +4181,8 @@ async function getD1AbacResourceAssignment(ctx: PluginContext, resourceId: strin
 	const rows = (await db
 		.selectFrom(AWCMS_SIKESRA_ABAC_RESOURCE_ASSIGNMENTS_TABLE)
 		.select(["resource_id", "attribute_key", "attribute_value", "updated_at"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("resource_id", "=", resourceId)
 		.execute()) as Array<{
 		resource_id: string;
@@ -4120,8 +4211,8 @@ async function listD1AbacPolicies(ctx: PluginContext) {
 			"resource_conditions_json",
 			"updated_at",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("status", "=", "active")
 		.execute()) as Array<{
 		id: string;
@@ -4162,8 +4253,8 @@ async function persistD1AbacSubjectAssignment(
 		await db
 			.insertInto(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: `${assignment.subjectId}:${key}`,
 				emdash_user_id: assignment.subjectId,
 				attribute_key: key,
@@ -4197,8 +4288,8 @@ async function persistD1AbacAttributeDefinition(
 	await db
 		.insertInto(AWCMS_SIKESRA_ABAC_ATTRIBUTE_CATALOG_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			key: attribute.key,
 			target_type: attribute.targetType,
 			data_type: "string",
@@ -4237,8 +4328,8 @@ async function persistD1AbacResourceAssignment(
 		await db
 			.insertInto(AWCMS_SIKESRA_ABAC_RESOURCE_ASSIGNMENTS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: `${assignment.resourceId}:${key}`,
 				resource_type: "sikesra_resource",
 				resource_id: assignment.resourceId,
@@ -4270,8 +4361,8 @@ async function persistD1AbacPolicyRule(ctx: PluginContext, policy: AbacPolicyRul
 	await db
 		.insertInto(AWCMS_SIKESRA_ABAC_POLICY_RULES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: policy.id,
 			effect: policy.effect,
 			actions_json: JSON.stringify(policy.actions),
@@ -4310,27 +4401,35 @@ async function persistD1AbacPolicyRule(ctx: PluginContext, policy: AbacPolicyRul
 async function listAbacAttributes(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_abac_attribute_catalog?.query)
 		return DEFAULT_ABAC_ATTRIBUTES.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AbacAttributeDefinition>(ctx.storage.sikesra_abac_attribute_catalog);
+	const items = await listCollectionValues<AbacAttributeDefinition>(
+		ctx.storage.sikesra_abac_attribute_catalog,
+	);
+	return items.length > 0 ? items : DEFAULT_ABAC_ATTRIBUTES.map((item) => touchUpdatedAt(item));
 }
 
 async function listAbacPolicies(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_abac_policy_rules?.query)
 		return DEFAULT_ABAC_POLICIES.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AbacPolicyRule>(ctx.storage.sikesra_abac_policy_rules);
+	const items = await listCollectionValues<AbacPolicyRule>(ctx.storage.sikesra_abac_policy_rules);
+	return items.length > 0 ? items : DEFAULT_ABAC_POLICIES.map((item) => touchUpdatedAt(item));
 }
 
 async function listAbacSubjects(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_abac_subject_assignments?.query)
 		return DEFAULT_ABAC_SUBJECTS.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AbacSubjectAssignment>(ctx.storage.sikesra_abac_subject_assignments);
+	const items = await listCollectionValues<AbacSubjectAssignment>(
+		ctx.storage.sikesra_abac_subject_assignments,
+	);
+	return items.length > 0 ? items : DEFAULT_ABAC_SUBJECTS.map((item) => touchUpdatedAt(item));
 }
 
 async function listAbacResources(ctx: PluginContext) {
 	if (!ctx.storage.sikesra_abac_resource_assignments?.query)
 		return DEFAULT_ABAC_RESOURCES.map((item) => touchUpdatedAt(item));
-	return listCollectionValues<AbacResourceAssignment>(
+	const items = await listCollectionValues<AbacResourceAssignment>(
 		ctx.storage.sikesra_abac_resource_assignments,
 	);
+	return items.length > 0 ? items : DEFAULT_ABAC_RESOURCES.map((item) => touchUpdatedAt(item));
 }
 
 function getStringArray(value: unknown, key: string) {
@@ -4352,7 +4451,6 @@ function getStringRecord(value: unknown, key: string): Record<string, string> {
 }
 
 async function summarizeAccessRights(ctx: PluginContext) {
-	await ensureAccessCatalogSeeded(ctx);
 	const permissions = await listPermissions(ctx);
 	const roles = await listRoles(ctx);
 	const roleAssignments = await listRoleAssignments(ctx);
@@ -4409,7 +4507,6 @@ function allAttributesMatch(required: Record<string, string>, available: Record<
 }
 
 async function summarizeAbac(ctx: PluginContext) {
-	await ensureAbacCatalogSeeded(ctx);
 	const attributes = await listAbacAttributes(ctx);
 	const policies = await listAbacPolicies(ctx);
 	const subjects = await listAbacSubjects(ctx);
@@ -4566,10 +4663,12 @@ async function evaluateAbacDecision(ctx: PluginContext, input: unknown) {
 }
 
 async function previewAccess(ctx: PluginContext, input: unknown) {
-	await ensureAccessCatalogSeeded(ctx);
 	const userId = getString(input, "userId") ?? "";
 	const permissionSlug = getString(input, "permissionSlug") ?? "";
 	const reasonPrefix = !userId || !permissionSlug ? "Missing required preview input" : null;
+	const defaultUserAssignment = DEFAULT_USER_ROLE_ASSIGNMENTS.find(
+		(assignment) => assignment.userId === userId,
+	);
 
 	if (reasonPrefix) {
 		return {
@@ -4586,6 +4685,7 @@ async function previewAccess(ctx: PluginContext, input: unknown) {
 			ctx.storage.sikesra_user_role_assignments,
 			userId,
 		)) as UserRoleAssignment | null) ??
+		(defaultUserAssignment ? touchUpdatedAt(defaultUserAssignment) : null) ??
 		(isTrustedEmDashAdmin(ctx)
 			? touchUpdatedAt<UserRoleAssignment>({
 					userId,
@@ -4762,7 +4862,7 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.registry.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	const entities = await getRegistryEntities(ctx);
+	const entities = await getRegistryEntitiesReadOnly(ctx);
 	return { items: entities };
 };
 
@@ -5011,7 +5111,7 @@ const documentsListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const restrictedAccess = userId
 		? await previewAccess(ctx, { userId, permissionSlug: "sikesra.document.read_restricted" })
 		: { allowed: false };
-	let docs = await getSupportingDocuments(ctx);
+	let docs = await getSupportingDocumentsReadOnly(ctx);
 	const registryEntityId = getString(routeCtx.input, "registryEntityId");
 	const classification = getString(routeCtx.input, "classification");
 	const validationStatus = getString(routeCtx.input, "validationStatus");
@@ -5219,8 +5319,8 @@ async function persistD1DuplicateCandidate(
 	await db
 		.insertInto(AWCMS_SIKESRA_DUPLICATE_CANDIDATES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: params.id,
 			source_type: params.sourceType,
 			source_id: params.sourceId,
@@ -5281,8 +5381,8 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 	await db
 		.insertInto(AWCMS_SIKESRA_IMPORT_MAPPING_TEMPLATES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: mappingTemplateId,
 			name: getString(input, "mappingTemplateName") ?? `Mapping for ${batchId}`,
 			entity_type: entityType,
@@ -5309,8 +5409,8 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 	await db
 		.insertInto(AWCMS_SIKESRA_IMPORT_BATCHES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: batchId,
 			mapping_template_id: mappingTemplateId,
 			entity_type: entityType,
@@ -5371,8 +5471,8 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 		await db
 			.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: `${batchId}:row:${rowNumber}`,
 				batch_id: batchId,
 				row_number: rowNumber,
@@ -5410,8 +5510,8 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 		await db
 			.insertInto(AWCMS_SIKESRA_IMPORT_BATCHES_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: batchId,
 				mapping_template_id: mappingTemplateId,
 				entity_type: entityType,
@@ -5467,8 +5567,8 @@ async function getD1ImportStagingRows(
 			"promotion_status",
 			"promoted_registry_entity_id",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("batch_id", "=", batchId)
 		.where("deleted_at", "is", null)
 		.orderBy("row_number", "asc")
@@ -5509,8 +5609,8 @@ async function markD1ImportRowPromoted(
 	await db
 		.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: row.id,
 			batch_id: row.batchId,
 			row_number: row.rowNumber,
@@ -5562,8 +5662,8 @@ async function setD1ImportRowDuplicateStatus(
 			"promotion_status",
 			"promoted_registry_entity_id",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("id", "=", stagingRowId)
 		.where("deleted_at", "is", null)
 		.limit(1)
@@ -5574,8 +5674,8 @@ async function setD1ImportRowDuplicateStatus(
 	await db
 		.insertInto(AWCMS_SIKESRA_IMPORT_STAGING_ROWS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: row.id,
 			batch_id: row.batch_id,
 			row_number: row.row_number,
@@ -5662,8 +5762,8 @@ async function persistImportCustomAttributeValues(
 		await db
 			.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id,
 				attribute_definition_id: definition.id,
 				registry_entity_id: registryEntity.id,
@@ -5924,8 +6024,8 @@ const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	await db
 		.insertInto(AWCMS_SIKESRA_DUPLICATE_DECISIONS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id,
 			candidate_id: candidateId,
 			decision,
@@ -6017,8 +6117,8 @@ async function persistD1ExportJob(
 	await db
 		.insertInto(AWCMS_SIKESRA_EXPORT_JOBS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: params.id,
 			actor_user_id: params.actorUserId,
 			actor_name: params.actorName,
@@ -6061,8 +6161,8 @@ async function listD1ExportJobs(ctx: PluginContext) {
 			"requested_at",
 			"completed_at",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("deleted_at", "is", null)
 		.orderBy("requested_at", "desc")
 		.execute()) as Array<Record<string, unknown>>;
@@ -6432,8 +6532,8 @@ async function appendCustomAttributeChangeEvent(
 	await db
 		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_CHANGE_EVENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${now}:${params.eventType}:${Math.random().toString(36).slice(2, 8)}`,
 			event_type: params.eventType,
 			definition_id: params.definitionId ?? null,
@@ -6476,8 +6576,8 @@ async function listD1CustomAttributeDefinitions(ctx: PluginContext) {
 				"is_importable",
 				"is_exportable",
 			])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("deleted_at", "is", null)
 			.execute()) as typeof rows;
 	} catch (cause) {
@@ -6581,8 +6681,8 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 	await db
 		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_DEFINITIONS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id,
 			attribute_key: key,
 			label: getString(input, "label") ?? key,
@@ -6707,8 +6807,8 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 	await db
 		.insertInto(AWCMS_SIKESRA_CUSTOM_ATTRIBUTE_VALUES_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id,
 			attribute_definition_id: definitionId,
 			registry_entity_id: registryEntityId,
@@ -6791,8 +6891,8 @@ const customAttributeValuesListRoute: SharedRouteHandler = async (_routeCtx, ctx
 				"sensitivity",
 				"is_current",
 			])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("deleted_at", "is", null)
 			.execute()) as typeof rows;
 	} catch (cause) {
@@ -6864,8 +6964,8 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id,
 			target_table: targetTable,
 			target_record_id: targetRecordId,
@@ -6895,8 +6995,8 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: snapshotId,
 			delete_request_id: id,
 			target_table: targetTable,
@@ -6913,8 +7013,8 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${id}:requested`,
 			delete_request_id: id,
 			event_kind: "crud.permanent_delete.request",
@@ -6966,8 +7066,8 @@ const permanentDeleteRequestsListRoute: SharedRouteHandler = async (_routeCtx, c
 				"requested_at",
 				"status",
 			])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("deleted_at", "is", null)
 			.orderBy("requested_at", "desc")
 			.execute()) as typeof rows;
@@ -7026,8 +7126,8 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			"requested_at",
 			"status",
 		])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("id", "=", deleteRequestId)
 		.execute()) as Array<Record<string, unknown>>;
 	const requestRow = requestRows[0];
@@ -7042,8 +7142,8 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_APPROVALS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: approvalId,
 			delete_request_id: deleteRequestId,
 			approval_level: "super_admin",
@@ -7062,8 +7162,8 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
 		.values({
 			...requestRow,
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: deleteRequestId,
 			status: decision,
 			updated_at: now,
@@ -7080,8 +7180,8 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${approvalId}:event`,
 			delete_request_id: deleteRequestId,
 			event_kind:
@@ -7132,8 +7232,8 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	const requestRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
 		.select(["id", "target_table", "target_record_id", "target_type", "status"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("id", "=", deleteRequestId)
 		.execute()) as Array<Record<string, unknown>>;
 	const requestRow = requestRows[0];
@@ -7153,16 +7253,16 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	const snapshotRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE)
 		.select(["id"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("delete_request_id", "=", deleteRequestId)
 		.where("deleted_at", "is", null)
 		.execute()) as Array<Record<string, unknown>>;
 	const approvalRows = (await db
 		.selectFrom(AWCMS_SIKESRA_DELETE_APPROVALS_TABLE)
 		.select(["id"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("delete_request_id", "=", deleteRequestId)
 		.where("decision", "=", "approved")
 		.where("deleted_at", "is", null)
@@ -7204,15 +7304,15 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		const documents = (await db
 			.selectFrom(AWCMS_SIKESRA_SUPPORTING_DOCUMENTS_TABLE)
 			.select(["id"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("registry_entity_id", "=", targetRecordId)
 			.execute()) as Array<Record<string, unknown>>;
 		const verificationEvents = (await db
 			.selectFrom(AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE)
 			.select(["id"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("registry_entity_id", "=", targetRecordId)
 			.execute()) as Array<Record<string, unknown>>;
 		if (documents.length > 0) blockingReferences.push("supporting_documents");
@@ -7224,8 +7324,8 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		await db
 			.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: `${deleteRequestId}:blocked:${blockingReferences.join("-")}`,
 				delete_request_id: deleteRequestId,
 				event_kind: "crud.permanent_delete.blocked",
@@ -7270,16 +7370,16 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 		};
 	await db
 		.deleteFrom(targetTable)
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+		.where("tenant_id", "=", getSikesraTenantId(ctx))
+		.where("site_id", "=", getSikesraSiteId(ctx))
 		.where("id", "=", targetRecordId)
 		.execute();
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_REQUESTS_TABLE)
 		.values({
 			...requestRow,
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: deleteRequestId,
 			status: "executed",
 			updated_at: now,
@@ -7296,8 +7396,8 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	await db
 		.insertInto(AWCMS_SIKESRA_DELETE_EVENTS_TABLE)
 		.values({
-			tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-			site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+			tenant_id: getSikesraTenantId(ctx),
+			site_id: getSikesraSiteId(ctx),
 			id: `${deleteRequestId}:executed`,
 			delete_request_id: deleteRequestId,
 			event_kind: "crud.permanent_delete.execute",
@@ -7446,11 +7546,9 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.verification.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	await ensureAccessCatalogSeeded(ctx);
-	await ensureAbacCatalogSeeded(ctx);
 	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
 	const regionScope = await getCurrentVerifierRegionScope(ctx);
-	const items = await listVerificationItems(ctx);
+	const items = await listVerificationItemsReadOnly(ctx);
 	return {
 		items: filterVerificationItemsForRegionScope(
 			filterVerificationItemsForLevels(items, currentVerifierLevels),
@@ -7701,7 +7799,6 @@ const touchStateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const accessPermissionsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	await ensureAccessCatalogSeeded(ctx);
 	return { items: await listPermissions(ctx) };
 };
 
@@ -7737,7 +7834,6 @@ const accessPermissionsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => 
 const accessRolesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	await ensureAccessCatalogSeeded(ctx);
 	return {
 		roles: await listRoles(ctx),
 		userAssignments: await listUserRoleAssignments(ctx),
@@ -7827,7 +7923,6 @@ const accessUserAssignmentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 const accessScopesListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	await ensureAccessCatalogSeeded(ctx);
 	return { items: await listUserScopeAssignments(ctx) };
 };
 
@@ -8243,8 +8338,8 @@ async function getD1RegionTree(
 		rows = (await db
 			.selectFrom(table)
 			.select(["code", "parent_code", "level", "name"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("status", "=", "active")
 			.execute()) as D1RegionRow[];
 	} catch (cause) {
@@ -8335,8 +8430,8 @@ async function persistD1RegionTree(
 		await db
 			.insertInto(table)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				code: row.code,
 				parent_code: row.parentCode,
 				level: row.level,
@@ -8402,8 +8497,8 @@ async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] |
 		typeRows = (await db
 			.selectFrom(AWCMS_SIKESRA_DATA_TYPES_TABLE)
 			.select(["id", "code", "label"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("status", "=", "active")
 			.execute()) as typeof typeRows;
 	} catch (cause) {
@@ -8418,8 +8513,8 @@ async function getD1DataTypes(ctx: PluginContext): Promise<SikesraParentType[] |
 		subtypeRows = (await db
 			.selectFrom(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
 			.select(["data_type_id", "code", "label"])
-			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("status", "=", "active")
 			.execute()) as typeof subtypeRows;
 	} catch (cause) {
@@ -8447,8 +8542,8 @@ async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
 		await db
 			.insertInto(AWCMS_SIKESRA_DATA_TYPES_TABLE)
 			.values({
-				tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-				site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+				tenant_id: getSikesraTenantId(ctx),
+				site_id: getSikesraSiteId(ctx),
 				id: item.id,
 				code: item.code,
 				label: item.label,
@@ -8472,8 +8567,8 @@ async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
 			await db
 				.insertInto(AWCMS_SIKESRA_DATA_SUBTYPES_TABLE)
 				.values({
-					tenant_id: AWCMS_SIKESRA_DEFAULT_TENANT_ID,
-					site_id: AWCMS_SIKESRA_DEFAULT_SITE_ID,
+					tenant_id: getSikesraTenantId(ctx),
+					site_id: getSikesraSiteId(ctx),
 					data_type_id: item.id,
 					code: subtype.code,
 					label: subtype.label,
@@ -8618,7 +8713,7 @@ export function createSandboxRoutes() {
 	return sharedRouteEntries;
 }
 
-export function createNativeRoutes() {
+export function createNativeRoutes(options: AwcmsMicroSikesraRuntimeOptions = {}) {
 	const routes: Record<string, NativePluginRoute & { method: SikesraRouteMethod }> = {};
 	for (const [path, entry] of Object.entries(sharedRouteEntries)) {
 		const method = getSharedRouteMethod(path);
@@ -8626,6 +8721,7 @@ export function createNativeRoutes() {
 			public: entry.public,
 			method,
 			handler: async (ctx) => {
+				const scopedCtx = withSikesraScope(ctx, options);
 				if (shouldEnforcePluginMethod(ctx.request) && ctx.request.method !== method) {
 					return createMethodNotAllowed(path, method, ctx.request.method);
 				}
@@ -8635,7 +8731,7 @@ export function createNativeRoutes() {
 						request: toSandboxRequest(ctx.request),
 						requestMeta: ctx.requestMeta,
 					},
-					ctx,
+					scopedCtx,
 				);
 			},
 		};
@@ -8862,6 +8958,12 @@ const sharedHooks: SandboxedPlugin["hooks"] = {
 	},
 };
 
-export function createSharedHooks() {
-	return sharedHooks;
+export function createSharedHooks(options: AwcmsMicroSikesraRuntimeOptions = {}) {
+	const hooks = sharedHooks as Record<string, (event: unknown, ctx: PluginContext) => unknown>;
+	return Object.fromEntries(
+		Object.entries(hooks).map(([name, hook]) => [
+			name,
+			async (event: unknown, ctx: PluginContext) => hook(event, withSikesraScope(ctx, options)),
+		]),
+	) as SandboxedPlugin["hooks"];
 }

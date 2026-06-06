@@ -1901,6 +1901,7 @@ function collectDefaultRegionCodes() {
 
 describe("awcms micro sikesra plugin", () => {
 	it("builds a descriptor without touching EmDash core", () => {
+		const indexSource = readFileSync(resolve(import.meta.dirname, "../src/index.ts"), "utf8");
 		const descriptor = awcmsMicroSikesraPlugin();
 		const storage = descriptor.storage ?? {};
 
@@ -1961,6 +1962,8 @@ describe("awcms micro sikesra plugin", () => {
 		]);
 		expect(descriptor.adminPages).toEqual(AWCMS_SIKESRA_ADMIN_PAGES);
 		expect(descriptor.adminWidgets).toEqual(AWCMS_SIKESRA_ADMIN_WIDGETS);
+		expect(indexSource).toContain("routes: createNativeRoutes(options)");
+		expect(indexSource).toContain("hooks: createSharedHooks(options)");
 	});
 
 	it("exposes the expected permission namespace", () => {
@@ -2989,7 +2992,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(deleteRequests.items).toBeDefined();
 	});
 
-	it("merges required bootstrap roles for trusted EmDash admins with partial SIKESRA assignments", async () => {
+	it("uses trusted admin bootstrap roles on read routes without mutating assignments", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();
 		collections.userRoleAssignments.set("emdash-production-admin", {
@@ -3016,9 +3019,12 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(accessRoles.roles).toBeDefined();
 		expect(abacPolicies.items).toBeDefined();
-		expect(assignment.roles).toEqual(
-			expect.arrayContaining(["admin-sikesra", "sikesra_admin", "sikesra_super_admin"]),
-		);
+		expect(assignment.roles).toEqual(["sikesra_super_admin"]);
+		expect(collections.permissionCatalog.size).toBe(0);
+		expect(collections.roleCatalog.size).toBe(0);
+		expect(collections.rolePermissionAssignments.size).toBe(0);
+		expect(collections.abacAttributeCatalog.size).toBe(0);
+		expect(collections.abacPolicyRules.size).toBe(0);
 	});
 
 	it("keeps trusted-admin read routes available when plugin storage collections are unavailable", async () => {
@@ -3183,6 +3189,51 @@ describe("awcms micro sikesra plugin", () => {
 			code: "METHOD_NOT_ALLOWED",
 			details: { expectedMethod: "POST", actualMethod: "GET" },
 		});
+	});
+
+	it("keeps representative GET route responses shaped and read-only", async () => {
+		const { ctx, collections, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminCtx = {
+			...ctx,
+			request: createAdminRequest(),
+			user: {
+				id: "user-demo-sikesra-admin",
+				email: "admin@example.test",
+				name: "SIKESRA Admin",
+				role: 50,
+			},
+			input: {},
+		} as any;
+		const collectionSizesBefore = Object.fromEntries(
+			Object.entries(collections).map(([key, store]) => [key, store.size]),
+		);
+		const auditRowsBefore = auditTableRows.length;
+
+		const publicStatus = (await routes["public/status"]!.handler({
+			...ctx,
+			request: new Request("https://example.test/_emdash/api/plugins/awcms-micro-sikesra/public/status"),
+			input: {},
+		} as any)) as any;
+		const registry = (await routes["registry/list"]!.handler(adminCtx)) as any;
+		const documents = (await routes["documents/list"]!.handler(adminCtx)) as any;
+		const verification = (await routes["verification/list"]!.handler(adminCtx)) as any;
+		const exportsList = (await routes["exports/list"]!.handler(adminCtx)) as any;
+		const access = (await routes["access/permissions/list"]!.handler(adminCtx)) as any;
+		const abac = (await routes["abac/attributes/list"]!.handler(adminCtx)) as any;
+
+		expect(publicStatus.status).toBe("healthy");
+		expect(registry.items).toEqual(expect.any(Array));
+		expect(documents.items).toEqual(expect.any(Array));
+		expect(verification.items).toEqual(expect.any(Array));
+		expect(verification.events).toEqual(expect.any(Array));
+		expect(exportsList.items).toEqual(expect.any(Array));
+		expect(access.items).toEqual(expect.any(Array));
+		expect(abac.items).toEqual(expect.any(Array));
+		expect(Object.fromEntries(Object.entries(collections).map(([key, store]) => [key, store.size]))).toEqual(
+			collectionSizesBefore,
+		);
+		expect(auditTableRows.length).toBe(auditRowsBefore);
 	});
 
 	it("uses typed admin API wrappers for migrated admin write calls", () => {
@@ -4158,7 +4209,7 @@ describe("awcms micro sikesra plugin", () => {
 		});
 	});
 
-	it("migrates legacy verification state blobs into plugin storage on read", async () => {
+	it("reads legacy verification state blobs without mutating GET route storage", async () => {
 		const { ctx, collections, kvData } = createMockContext();
 		kvData.set("state:sikesraVerificationStages", {
 			"registry-entity-guru-agama-01": "submitted_regency",
@@ -4176,11 +4227,8 @@ describe("awcms micro sikesra plugin", () => {
 			result.items.find((item: any) => item.registryEntityId === "registry-entity-guru-agama-01")
 				?.verificationStage,
 		).toBe("submitted_regency");
-		expect(kvData.has("state:sikesraVerificationStages")).toBe(false);
-		expect(collections.verificationStageState.get("registry-entity-guru-agama-01")).toMatchObject({
-			registryEntityId: "registry-entity-guru-agama-01",
-			stage: "submitted_regency",
-		});
+		expect(kvData.has("state:sikesraVerificationStages")).toBe(true);
+		expect(collections.verificationStageState.has("registry-entity-guru-agama-01")).toBe(false);
 	});
 
 	it("rejects incomplete or invalid registry save input", async () => {
@@ -4258,6 +4306,49 @@ describe("awcms micro sikesra plugin", () => {
 		expect(clientProvidedId.error.details.fields).toEqual(["sikesraId20"]);
 		expect(registryEntityTableRows).not.toContainEqual(
 			expect.objectContaining({ id: "registry-entity-client-id" }),
+		);
+	});
+
+	it("honors tenant and site options for D1 registry writes", async () => {
+		const { ctx, registryEntityTableRows, codeSequenceTableRows } = createMockContext();
+		const routes = createNativeRoutes({ tenantId: "t-production", siteId: "production" });
+		const saved = (await routes["registry/save"]!.handler({
+			...ctx,
+			user: {
+				id: "production-admin",
+				email: "admin@example.test",
+				name: "Production Admin",
+				role: 50,
+			},
+			request: createAdminRequest(),
+			input: {
+				id: "registry-tenant-scope-01",
+				code: "TENANT-SCOPE-001",
+				label: "Tenant Scope Registry",
+				entityType: "rumah_ibadah",
+				typeCode: "01",
+				subtypeCode: "01",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any)) as any;
+
+		expect(saved.success).toBe(true);
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({
+				tenant_id: "t-production",
+				site_id: "production",
+				id: "registry-tenant-scope-01",
+			}),
+		);
+		expect(codeSequenceTableRows).toContainEqual(
+			expect.objectContaining({
+				tenant_id: "t-production",
+				site_id: "production",
+				sequence_key: "6201010001:01:01",
+			}),
 		);
 	});
 
@@ -6503,7 +6594,7 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
-	it("migrates legacy registry blobs into D1 and document blobs into plugin storage on read", async () => {
+	it("reads legacy registry and document blobs without mutating GET route storage", async () => {
 		const {
 			ctx,
 			collections,
@@ -6557,13 +6648,10 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(registry.items.some((item: any) => item.id === "registry-entity-legacy-01")).toBe(true);
 		expect(documents.items.some((item: any) => item.id === "doc-legacy-01")).toBe(true);
-		expect(kvData.has("custom:registryEntities")).toBe(false);
-		expect(kvData.has("custom:supportingDocuments")).toBe(false);
-		expect(registryEntityTableRows).toContainEqual(
-			expect.objectContaining({
-				id: "registry-entity-legacy-01",
-				code: "LG-001",
-			}),
+		expect(kvData.has("custom:registryEntities")).toBe(true);
+		expect(kvData.has("custom:supportingDocuments")).toBe(true);
+		expect(registryEntityTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "registry-entity-legacy-01" }),
 		);
 		expect(collections.registryEntities.get("registry-entity-legacy-01")).toBeUndefined();
 		expect(
@@ -6572,17 +6660,11 @@ describe("awcms micro sikesra plugin", () => {
 			code: "LG-001",
 		});
 		expect(collections.supportingDocuments.get("doc-legacy-01")).toBeUndefined();
-		expect(supportingDocumentTableRows).toContainEqual(
-			expect.objectContaining({
-				id: "doc-legacy-01",
-				registry_entity_id: "registry-entity-legacy-01",
-			}),
+		expect(supportingDocumentTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "doc-legacy-01" }),
 		);
-		expect(fileObjectTableRows).toContainEqual(
-			expect.objectContaining({
-				id: "doc-legacy-01:file",
-				classification: "internal",
-			}),
+		expect(fileObjectTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "doc-legacy-01:file" }),
 		);
 	});
 
