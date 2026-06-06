@@ -12,37 +12,7 @@ const migrationFiles = readdirSync(resolve(pluginDir, "migrations")).filter((fil
 );
 
 const d1Tables = Array.from(schemaSource.matchAll(schemaTablePattern), (match) => match[1]);
-const requiredProtectedTables = [
-	"sikesra_registry_entities",
-	"sikesra_person_profiles",
-	"sikesra_supporting_documents",
-	"sikesra_file_objects",
-	"sikesra_verification_stage_state",
-	"sikesra_verification_events",
-	"sikesra_import_batches",
-	"sikesra_import_staging_rows",
-	"sikesra_import_mapping_templates",
-	"sikesra_duplicate_candidates",
-	"sikesra_duplicate_decisions",
-	"sikesra_export_jobs",
-	"sikesra_audit_events",
-	"sikesra_permission_catalog",
-	"sikesra_role_catalog",
-	"sikesra_role_permission_assignments",
-	"sikesra_user_role_assignments",
-	"sikesra_user_scope_assignments",
-	"sikesra_abac_attribute_catalog",
-	"sikesra_abac_subject_assignments",
-	"sikesra_abac_resource_assignments",
-	"sikesra_abac_policy_rules",
-	"sikesra_custom_attribute_definitions",
-	"sikesra_custom_attribute_values",
-	"sikesra_custom_attribute_change_events",
-	"sikesra_delete_requests",
-	"sikesra_delete_approvals",
-	"sikesra_delete_snapshots",
-	"sikesra_delete_events",
-];
+const requiredProtectedTables = d1Tables.toSorted();
 const missingProtectedTables = requiredProtectedTables.filter((table) => !d1Tables.includes(table));
 if (missingProtectedTables.length > 0) {
 	console.error("SIKESRA backup inventory guard failed: missing protected tables.");

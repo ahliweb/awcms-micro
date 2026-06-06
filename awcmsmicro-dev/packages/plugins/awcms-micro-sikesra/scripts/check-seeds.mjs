@@ -30,6 +30,14 @@ const requiredModules = [
 	"lansia_terlantar",
 ];
 
+function expectedRegionForLevel(entityRegion, level) {
+	if (!entityRegion) return null;
+	if (level === "desa_kelurahan") return entityRegion.villageCode;
+	if (level === "kecamatan") return entityRegion.districtCode;
+	if (level === "sopd" || level === "kabupaten") return entityRegion.regencyCode;
+	return null;
+}
+
 function readSqlFiles(dir) {
 	if (!existsSync(dir)) return [];
 	return readdirSync(dir)
@@ -65,6 +73,17 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 			(match) => match[3],
 		),
 	);
+	const registryRegions = new Map();
+	for (const registryMatch of sql.matchAll(
+		/'__TENANT_ID__',\s*'__SITE_ID__',\s*'(registry-entity-[^']+)',\s*'[0-9]{20}',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'([0-9]{2})',\s*'([0-9]{4})',\s*'([0-9]{6})',\s*'([0-9]{10})'/g,
+	)) {
+		registryRegions.set(registryMatch[1], {
+			provinceCode: registryMatch[2],
+			regencyCode: registryMatch[3],
+			districtCode: registryMatch[4],
+			villageCode: registryMatch[5],
+		});
+	}
 	for (const regionMatch of sql.matchAll(/'region_scope(?:_code)?'?,?\s*'([0-9]{2,10})'|'region_scope_code'[^\n]*'([0-9]{2,10})'/g)) {
 		const regionCode = regionMatch[1] ?? regionMatch[2];
 		if (regionCode && !seededRegions.has(regionCode)) {
@@ -72,26 +91,40 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 		}
 	}
 	for (const verificationMatch of sql.matchAll(
-		/'([^']+)',\s*'([^']+)',\s*'(?:registry-entity-[^']+)',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*(?:'[^']+'|NULL),\s*'[^']+',\s*'([0-9]{2,10})'/g,
+		/'([^']+)',\s*'([^']+)',\s*'(registry-entity-[^']+)',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*(?:'[^']+'|NULL),\s*'[^']+',\s*'([0-9]{2,10})'/g,
 	)) {
-		const level = verificationMatch[3];
-		const regionCode = verificationMatch[4];
+		const registryEntityId = verificationMatch[3];
+		const level = verificationMatch[4];
+		const regionCode = verificationMatch[5];
 		const expectedPattern = verificationLevelRegionPattern[level];
 		if (expectedPattern && regionCode && !expectedPattern.test(regionCode)) {
 			violations.push(
 				`${file} has ${level} verification scope with invalid region code: ${regionCode}`,
 			);
 		}
+		const expectedRegion = expectedRegionForLevel(registryRegions.get(registryEntityId), level);
+		if (expectedRegion && regionCode !== expectedRegion) {
+			violations.push(
+				`${file} has ${level} verification scope ${regionCode} outside ${registryEntityId} region ${expectedRegion}`,
+			);
+		}
 	}
 	for (const eventMatch of sql.matchAll(
-		/'verify-[^']+',\s*'registry-entity-[^']+',\s*'[^']+',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'([0-9]{2,10})'/g,
+		/'verify-[^']+',\s*'(registry-entity-[^']+)',\s*'[^']+',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'([0-9]{2,10})'/g,
 	)) {
-		const level = eventMatch[1];
-		const regionCode = eventMatch[2];
+		const registryEntityId = eventMatch[1];
+		const level = eventMatch[2];
+		const regionCode = eventMatch[3];
 		const expectedPattern = verificationLevelRegionPattern[level];
 		if (expectedPattern && regionCode && !expectedPattern.test(regionCode)) {
 			violations.push(
 				`${file} has ${level} verification event with invalid region code: ${regionCode}`,
+			);
+		}
+		const expectedRegion = expectedRegionForLevel(registryRegions.get(registryEntityId), level);
+		if (expectedRegion && regionCode !== expectedRegion) {
+			violations.push(
+				`${file} has ${level} verification event ${regionCode} outside ${registryEntityId} region ${expectedRegion}`,
 			);
 		}
 	}

@@ -22,7 +22,7 @@ interface SikesraData {
 	};
 }
 
-let sikesraData: SikesraData = {
+const fallbackSikesraData: SikesraData = {
 	status: "unavailable",
 	governanceMode: "public-safe fallback",
 	publicAggregate: {
@@ -30,11 +30,38 @@ let sikesraData: SikesraData = {
 		caveat: "Public aggregate status is temporarily unavailable."
 	}
 };
+let sikesraData: SikesraData = fallbackSikesraData;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null && !Array.isArray(value);
+const clampPublicCount = (value: unknown) => Math.max(0, Number.isFinite(Number(value)) ? Number(value) : 0);
+const normalizeSikesraData = (value: unknown): SikesraData => {
+	if (!isRecord(value)) return fallbackSikesraData;
+	const aggregate = isRecord(value.publicAggregate) ? value.publicAggregate : null;
+	const rawCategories = Array.isArray(aggregate?.categories) ? aggregate.categories : [];
+	return {
+		status: typeof value.status === "string" ? value.status : fallbackSikesraData.status,
+		governanceMode: typeof value.governanceMode === "string" ? value.governanceMode : fallbackSikesraData.governanceMode,
+		publicAggregate: {
+			caveat: typeof aggregate?.caveat === "string" ? aggregate.caveat : fallbackSikesraData.publicAggregate.caveat,
+			categories: rawCategories.filter(isRecord).map((category) => {
+				const suppressed = category.suppressed === true;
+				return {
+					code: typeof category.code === "string" ? category.code : "unknown",
+					label: typeof category.label === "string" ? category.label : "Unknown",
+					total: suppressed ? 0 : clampPublicCount(category.total),
+					verified: suppressed ? 0 : clampPublicCount(category.verified),
+					suppressed,
+				};
+			}),
+		},
+	};
+};
 
 try {
 	const res = await fetch(url);
 	if (res.ok) {
-		sikesraData = await res.json();
+		sikesraData = normalizeSikesraData(await res.json());
 	}
 } catch (err) {
 	console.error("Failed to fetch SIKESRA status:", err);

@@ -4808,21 +4808,17 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			? ["districtCode"]
 			: []),
 		...(villageCode && !SIKESRA_VILLAGE_CODE_PATTERN.test(villageCode) ? ["villageCode"] : []),
-		...(clientSikesraId20 && !SIKESRA_ID_20_PATTERN.test(clientSikesraId20)
-			? ["sikesraId20"]
-			: []),
+		...(clientSikesraId20 ? ["sikesraId20"] : []),
 	];
 	if (invalidFields.length > 0) return createValidationError([...new Set(invalidFields)]);
 	const id = getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`;
-	const sikesraId20 =
-		clientSikesraId20 ??
-		(await generateD1SikesraId20(ctx, {
-			registryEntityId: id,
-			villageCode,
-			typeCode: getRegistryString("typeCode") ?? "",
-			subtypeCode: getRegistryString("subtypeCode") ?? "",
-			actor: actorFromRoute(ctx),
-		}));
+	const sikesraId20 = await generateD1SikesraId20(ctx, {
+		registryEntityId: id,
+		villageCode,
+		typeCode: getRegistryString("typeCode") ?? "",
+		subtypeCode: getRegistryString("subtypeCode") ?? "",
+		actor: actorFromRoute(ctx),
+	});
 	const newEntity: SikesraReferenceRegistryEntity = {
 		id,
 		sikesraId20: sikesraId20 ?? undefined,
