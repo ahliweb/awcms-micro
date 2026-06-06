@@ -57,7 +57,7 @@ Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values bef
 - Every trigger name should start with `trg_sikesra_`.
 - Migrations must be forward-only and idempotent.
 - Use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS`.
-- `ALTER TABLE ... ADD COLUMN` migrations must include an `awcms-sikesra-idempotent-add-column` marker and must be applied through an operator guard that checks `PRAGMA table_info(...)` before replay.
+- `ALTER TABLE ... ADD COLUMN` migrations must include a structured `awcms-sikesra-idempotent-add-column` marker with `table=...`, `columns=...`, and `guard=PRAGMA table_info(...)`, and must be applied through an operator guard that checks the listed columns before replay.
 - Do not modify EmDash core tables.
 - Do not add destructive SQL without the documented approval marker, backup note, and rollback note from `DATA_PRESERVATION.md`.
 

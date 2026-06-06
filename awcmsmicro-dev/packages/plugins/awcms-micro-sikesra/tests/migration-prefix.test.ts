@@ -18,6 +18,8 @@ const CREATE_TRIGGER_PATTERN =
 const INSERT_TABLE_PATTERN = /INSERT\s+OR\s+IGNORE\s+INTO\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const DESTRUCTIVE_SEED_PATTERN = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
 const ADD_COLUMN_GUARD_MARKER = "awcms-sikesra-idempotent-add-column";
+const ADD_COLUMN_PATTERN =
+	/\bALTER\s+TABLE\s+[`"]?([a-zA-Z0-9_]+)[`"]?\s+ADD\s+COLUMN\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 
 const REQUIRED_REGISTRY_TABLES = [
 	"sikesra_registry_entities",
@@ -202,8 +204,24 @@ describe("SIKESRA D1 migration prefix policy", () => {
 
 	it("requires an idempotency guard marker for add-column migrations", () => {
 		for (const { file, sql } of readMigrationSqlFiles()) {
-			if (!/\bALTER\s+TABLE\b[\s\S]*?\bADD\s+COLUMN\b/i.test(sql)) continue;
-			expect(sql, `${file} missing ${ADD_COLUMN_GUARD_MARKER}`).toContain(ADD_COLUMN_GUARD_MARKER);
+			const addColumnStatements = Array.from(sql.matchAll(ADD_COLUMN_PATTERN), (match) => ({
+				table: match[1] ?? "",
+				column: match[2] ?? "",
+			}));
+			if (addColumnStatements.length === 0) continue;
+			const markerLines = sql.split("\n").filter((line) => line.includes(ADD_COLUMN_GUARD_MARKER));
+			expect(markerLines.length, `${file} missing ${ADD_COLUMN_GUARD_MARKER}`).toBeGreaterThan(0);
+			for (const { table, column } of addColumnStatements) {
+				expect(
+					markerLines.some(
+						(line) =>
+							line.includes(`table=${table}`) &&
+							line.includes(`PRAGMA table_info(${table})`) &&
+							new RegExp(`\\bcolumns=[^\\n]*\\b${column}\\b`).test(line),
+					),
+					`${file} missing structured ${ADD_COLUMN_GUARD_MARKER} marker for ${table}.${column}`,
+				).toBe(true);
+			}
 		}
 	});
 

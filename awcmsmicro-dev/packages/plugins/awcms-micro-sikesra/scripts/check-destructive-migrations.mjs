@@ -7,6 +7,7 @@ const migrationsDir = resolve(scriptDir, "../migrations");
 const ALLOW_MARKER = "awcms-sikesra-allow-destructive-migration";
 const ADD_COLUMN_GUARD_MARKER = "awcms-sikesra-idempotent-add-column";
 const REQUIRED_DESTRUCTIVE_MARKERS = ["backup-note:", "rollback-note:", "approval:"];
+const addColumnPattern = /\bALTER\s+TABLE\s+[`"]?([a-zA-Z0-9_]+)[`"]?\s+ADD\s+COLUMN\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const destructivePatterns = [
 	{ label: "DROP TABLE", pattern: /\bDROP\s+TABLE\b/i },
 	{ label: "DROP COLUMN", pattern: /\bDROP\s+COLUMN\b/i },
@@ -26,8 +27,30 @@ if (existsSync(migrationsDir)) {
 			}
 			continue;
 		}
-		if (/\bALTER\s+TABLE\b[\s\S]*?\bADD\s+COLUMN\b/i.test(sql) && !sql.includes(ADD_COLUMN_GUARD_MARKER)) {
-			violations.push(`${file}: ALTER TABLE ADD COLUMN missing ${ADD_COLUMN_GUARD_MARKER}`);
+		const addColumnStatements = Array.from(sql.matchAll(addColumnPattern), (match) => ({
+			table: match[1] ?? "",
+			column: match[2] ?? "",
+		}));
+		if (addColumnStatements.length > 0) {
+			const markerLines = sql
+				.split("\n")
+				.filter((line) => line.includes(ADD_COLUMN_GUARD_MARKER));
+			if (markerLines.length === 0) {
+				violations.push(`${file}: ALTER TABLE ADD COLUMN missing ${ADD_COLUMN_GUARD_MARKER}`);
+			}
+			for (const { table, column } of addColumnStatements) {
+				const matchingMarker = markerLines.find(
+					(line) =>
+						line.includes(`table=${table}`) &&
+						line.includes(`PRAGMA table_info(${table})`) &&
+						new RegExp(`\\bcolumns=[^\\n]*\\b${column}\\b`).test(line),
+				);
+				if (!matchingMarker) {
+					violations.push(
+						`${file}: ADD COLUMN ${table}.${column} missing structured ${ADD_COLUMN_GUARD_MARKER} marker`,
+					);
+				}
+			}
 		}
 		for (const { label, pattern } of destructivePatterns) {
 			if (pattern.test(sql)) violations.push(`${file}: ${label}`);

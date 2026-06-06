@@ -3093,6 +3093,9 @@ describe("awcms micro sikesra plugin", () => {
 		const runtimeRoutes = createNativeRoutes();
 		for (const key of SIKESRA_ADMIN_API_PATHS) {
 			expect(runtimeRoutes[key], `${key} missing from runtime plugin routes`).toBeDefined();
+			expect((runtimeRoutes[key] as any).method, `${key} backend method mismatch`).toBe(
+				getSikesraAdminApiMethod(key),
+			);
 		}
 		const internalRuntimeRoutes = new Set(["state/touch"]);
 		for (const key of Object.keys(runtimeRoutes)) {
@@ -3148,6 +3151,38 @@ describe("awcms micro sikesra plugin", () => {
 		expect(createSikesraAdminApiUrl("registry/save", "POST", { id: "registry-1" })).toBe(
 			"/_emdash/api/plugins/awcms-micro-sikesra/registry/save",
 		);
+	});
+
+	it("enforces backend HTTP methods for plugin API dispatch", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const wrongReadMethod = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: new Request(
+				"https://example.test/_emdash/api/plugins/awcms-micro-sikesra/registry/list",
+				{ method: "POST" },
+			),
+			input: {},
+		} as any)) as any;
+		expect(wrongReadMethod.success).toBe(false);
+		expect(wrongReadMethod.error).toMatchObject({
+			code: "METHOD_NOT_ALLOWED",
+			details: { expectedMethod: "GET", actualMethod: "POST" },
+		});
+
+		const wrongMutationMethod = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: new Request(
+				"https://example.test/_emdash/api/plugins/awcms-micro-sikesra/registry/save",
+				{ method: "GET" },
+			),
+			input: {},
+		} as any)) as any;
+		expect(wrongMutationMethod.success).toBe(false);
+		expect(wrongMutationMethod.error).toMatchObject({
+			code: "METHOD_NOT_ALLOWED",
+			details: { expectedMethod: "POST", actualMethod: "GET" },
+		});
 	});
 
 	it("uses typed admin API wrappers for migrated admin write calls", () => {
@@ -3238,6 +3273,20 @@ describe("awcms micro sikesra plugin", () => {
 		expect(toSikesraAdminHref("/verification")).toBe(
 			"/_emdash/admin/plugins/awcms-micro-sikesra/verification",
 		);
+		for (const invalidPath of [
+			"",
+			"../registry",
+			"registry/../audit",
+			"//evil.test/registry",
+			"https://evil.test/registry",
+			"registry?id=1",
+			"registry#id",
+			"registry\\detail",
+		]) {
+			expect(() => toSikesraAdminHref(invalidPath), invalidPath).toThrow(
+				"Invalid SIKESRA admin path",
+			);
+		}
 		expect(
 			AWCMS_SIKESRA_DASHBOARD_MODULE_CARDS.every((card) => isSikesraAdminHref(card.href)),
 		).toBe(true);
@@ -3894,6 +3943,41 @@ describe("awcms micro sikesra plugin", () => {
 		expect(result.items.map((item: any) => item.registryEntityId)).not.toContain(
 			"registry-entity-d1-outside-scope",
 		);
+	});
+
+	it("fails closed when a D1 verifier has no region scope assignment", async () => {
+		const { ctx, userRoleAssignmentTableRows, rolePermissionAssignmentTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+
+		userRoleAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "ura-d1-sopd-no-scope",
+			emdash_user_id: "user-d1-sopd-no-scope",
+			sikesra_role_slug: "sikesra_verifikator_sopd",
+			is_active: 1,
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+		rolePermissionAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			role_slug: "sikesra_verifikator_sopd",
+			permission_slug: "sikesra.verification.read",
+			effect: "allow",
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+
+		const result = (await routes["verification/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-d1-sopd-no-scope" },
+			}),
+			input: {},
+		} as any)) as any;
+
+		expect(result.currentVerifierLevels).toEqual(["sopd"]);
+		expect(result.currentVerifierRegionScope).toBeNull();
+		expect(result.items).toEqual([]);
 	});
 
 	it("filters the verification queue by regional scope for SOPD verifiers", async () => {
@@ -7315,6 +7399,18 @@ describe("awcms micro sikesra plugin", () => {
 			"sikesra_verification_events",
 			"sikesra_verification_stage_state",
 		]);
+	});
+
+	it("keeps registry detail selection bound to the requested route id", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+
+		expect(adminSource).toContain("const routeRegistryId = React.useMemo");
+		expect(adminSource).toContain("setSelectedId(data.items[0].id)");
+		expect(adminSource).toContain("!routeRegistryId && !selectedId");
+		expect(adminSource).toContain("Registry record not found");
+		expect(adminSource).not.toContain(
+			"data?.items.find((item) => item.id === selectedId) ?? data?.items[0]",
+		);
 	});
 
 	it("keeps user-facing plugin identity copy out of demonstration wording", () => {

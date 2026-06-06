@@ -1790,6 +1790,7 @@ const ALLOWED_ORGANIZATION_SCOPE_TYPES = new Set([
 	"pendidikan_keagamaan",
 ]);
 
+type SikesraRouteMethod = "GET" | "POST";
 type SharedRouteHandler = (routeCtx: SandboxedRouteContext, ctx: PluginContext) => Promise<unknown>;
 
 type VerificationStage =
@@ -2151,7 +2152,9 @@ function filterVerificationItemsForRegionScope(
 	levels: VerificationUserLevel[],
 	regionScope: string | null,
 ) {
-	if (!regionScope || regionScope === "all" || levels.includes("admin_sikesra")) return items;
+	if (levels.includes("admin_sikesra")) return items;
+	if (!regionScope) return [];
+	if (regionScope === "all") return items;
 	return items.filter((item) => verificationItemMatchesRegionScope(item, levels, regionScope));
 }
 
@@ -8494,6 +8497,59 @@ async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
 	return true;
 }
 
+const SIKESRA_READ_ONLY_ROUTE_PATHS = new Set([
+	"overview/summary",
+	"public/status",
+	"registry/list",
+	"registry/archive/list",
+	"documents/list",
+	"exports/list",
+	"custom-attributes/definitions/list",
+	"custom-attributes/values/list",
+	"crud/permanent-delete/requests/list",
+	"verification/list",
+	"settings/get",
+	"regions/get",
+	"local-regions/get",
+	"data-types/get",
+	"audit/list",
+	"access/permissions/list",
+	"access/roles/list",
+	"access/users/list",
+	"access/scopes/list",
+	"access/matrix/get",
+	"access/health",
+	"abac/attributes/list",
+	"abac/subjects/list",
+	"abac/resources/list",
+	"abac/policies/list",
+	"abac/health",
+	"dashboard/summary",
+]);
+
+function getSharedRouteMethod(path: string): SikesraRouteMethod {
+	return SIKESRA_READ_ONLY_ROUTE_PATHS.has(path) ? "GET" : "POST";
+}
+
+function shouldEnforcePluginMethod(request: Request) {
+	try {
+		return new URL(request.url).pathname.includes(`/_emdash/api/plugins/${AWCMS_SIKESRA_PLUGIN_ID}/`);
+	} catch {
+		return false;
+	}
+}
+
+function createMethodNotAllowed(path: string, expectedMethod: SikesraRouteMethod, actualMethod: string) {
+	return {
+		success: false,
+		error: {
+			code: "METHOD_NOT_ALLOWED",
+			message: `Route ${path} requires ${expectedMethod}.`,
+			details: { path, expectedMethod, actualMethod },
+		},
+	};
+}
+
 const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRouteHandler }> = {
 	"public/status": { public: true, handler: publicStatusRoute },
 	"registry/list": { handler: registryListRoute },
@@ -8563,19 +8619,25 @@ export function createSandboxRoutes() {
 }
 
 export function createNativeRoutes() {
-	const routes: Record<string, NativePluginRoute> = {};
+	const routes: Record<string, NativePluginRoute & { method: SikesraRouteMethod }> = {};
 	for (const [path, entry] of Object.entries(sharedRouteEntries)) {
+		const method = getSharedRouteMethod(path);
 		routes[path] = {
 			public: entry.public,
-			handler: async (ctx) =>
-				entry.handler(
+			method,
+			handler: async (ctx) => {
+				if (shouldEnforcePluginMethod(ctx.request) && ctx.request.method !== method) {
+					return createMethodNotAllowed(path, method, ctx.request.method);
+				}
+				return entry.handler(
 					{
 						input: ctx.input,
 						request: toSandboxRequest(ctx.request),
 						requestMeta: ctx.requestMeta,
 					},
 					ctx,
-				),
+				);
+			},
 		};
 	}
 	return routes;

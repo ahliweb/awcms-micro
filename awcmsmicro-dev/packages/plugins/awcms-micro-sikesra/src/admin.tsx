@@ -40,6 +40,7 @@ import {
 import {
 	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
 	SIKESRA_IMPORT_WORKFLOW_STEPS,
+	SIKESRA_ADMIN_ROUTE_BASE,
 	SIKESRA_PAGE_PATTERN_CONTRACTS,
 	toSikesraAdminHref,
 	type SikesraPagePatternContract,
@@ -1397,6 +1398,17 @@ function RegistryCreatePage() {
 
 function RegistryDetailPage() {
 	const contract = getSikesraPageContract("/registry/:id");
+	const routeRegistryId = React.useMemo(() => {
+		if (typeof window === "undefined") return "";
+		const registryDetailPrefix = `${SIKESRA_ADMIN_ROUTE_BASE}/registry/`;
+		if (!window.location.pathname.startsWith(registryDetailPrefix)) return "";
+		const rawId = window.location.pathname.slice(registryDetailPrefix.length).split("/")[0] ?? "";
+		try {
+			return decodeURIComponent(rawId);
+		} catch {
+			return rawId;
+		}
+	}, []);
 	const { data, error, loading, reload } = usePluginData<{
 		items: SikesraReferenceRegistryEntity[];
 	}>("registry/list");
@@ -1406,8 +1418,8 @@ function RegistryDetailPage() {
 	const { data: customValues } = usePluginData<CustomAttributeValuesResponse>(
 		"custom-attributes/values/list",
 	);
-	const [selectedId, setSelectedId] = React.useState("");
-	const selected = data?.items.find((item) => item.id === selectedId) ?? data?.items[0];
+	const [selectedId, setSelectedId] = React.useState(routeRegistryId);
+	const selected = selectedId ? data?.items.find((item) => item.id === selectedId) : data?.items[0];
 	const applicableCustomDefinitions = selected
 		? (customDefinitions?.items ?? []).filter((definition) =>
 				customAttributeAppliesToRegistry(definition, {
@@ -1429,8 +1441,8 @@ function RegistryDetailPage() {
 	);
 
 	React.useEffect(() => {
-		if (!selectedId && data?.items[0]?.id) setSelectedId(data.items[0].id);
-	}, [data?.items, selectedId]);
+		if (!routeRegistryId && !selectedId && data?.items[0]?.id) setSelectedId(data.items[0].id);
+	}, [data?.items, routeRegistryId, selectedId]);
 
 	if (loading) return <LoadingState label="Loading registry detail..." />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
@@ -1444,8 +1456,12 @@ function RegistryDetailPage() {
 			/>
 			{!data?.items.length || !selected ? (
 				<EmptyState
-					title={contract.emptyState}
-					description="Create a registry record before reviewing detail state."
+					title={routeRegistryId ? "Registry record not found" : contract.emptyState}
+					description={
+						routeRegistryId
+							? `No registry record matched ${routeRegistryId}. Check the URL or return to the registry queue.`
+							: "Create a registry record before reviewing detail state."
+					}
 				/>
 			) : (
 				<div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">

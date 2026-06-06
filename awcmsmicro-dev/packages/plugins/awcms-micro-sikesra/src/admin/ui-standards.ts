@@ -3,7 +3,24 @@ import { AWCMS_SIKESRA_PLUGIN_ID } from "../runtime.js";
 export const SIKESRA_ADMIN_ROUTE_BASE = `/_emdash/admin/plugins/${AWCMS_SIKESRA_PLUGIN_ID}`;
 
 export function toSikesraAdminHref(path: string) {
-	const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+	const trimmedPath = path.trim();
+	if (
+		!trimmedPath ||
+		trimmedPath.includes("\\") ||
+		trimmedPath.includes("?") ||
+		trimmedPath.includes("#") ||
+		/^[a-z][a-z0-9+.-]*:/i.test(trimmedPath) ||
+		trimmedPath.startsWith("//")
+	) {
+		throw new Error(`Invalid SIKESRA admin path: ${path}`);
+	}
+	const normalizedPath = trimmedPath.startsWith("/") ? trimmedPath : `/${trimmedPath}`;
+	if (
+		normalizedPath.split("/").some((segment) => segment === ".." || segment === ".") ||
+		normalizedPath.includes("//")
+	) {
+		throw new Error(`Invalid SIKESRA admin path: ${path}`);
+	}
 	return `${SIKESRA_ADMIN_ROUTE_BASE}${normalizedPath}`;
 }
 
