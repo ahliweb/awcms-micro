@@ -953,17 +953,24 @@ function MetricCard({
 	const borderAccent = accent ? accentColors[accent] : undefined;
 	return (
 		<div
-			className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md transition-all"
-			style={borderAccent ? { borderTop: `4px solid ${borderAccent}` } : undefined}
+			className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md transition-all"
+			style={{
+				padding: "20px",
+				borderTop: borderAccent ? `4px solid ${borderAccent}` : undefined,
+			}}
 		>
-			<div className="flex items-start justify-between gap-2">
-				<div className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">{label}</div>
+			<div className="flex items-start justify-between gap-2" style={{ marginBottom: "12px" }}>
+				<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">{label}</div>
 				{icon ? <div className="shrink-0 text-xl opacity-60">{icon}</div> : null}
 			</div>
-			<div className="mt-3 text-3xl font-bold tracking-tight text-kumo-default">
+			<div className="text-3xl font-extrabold tracking-tight text-kumo-default">
 				{typeof value === "number" ? value.toLocaleString() : value}
 			</div>
-			{hint ? <div className="mt-2 text-xs leading-5 text-kumo-subtle">{hint}</div> : null}
+			{hint ? (
+				<div className="text-xs leading-5 text-kumo-subtle" style={{ marginTop: "6px" }}>
+					{hint}
+				</div>
+			) : null}
 		</div>
 	);
 }
@@ -1035,10 +1042,25 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
 
 function EmptyState({ title, description }: { title: string; description: string }) {
 	return (
-		<div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-kumo-line bg-kumo-tint/20 px-6 py-10 text-center">
-			<div className="mb-3 text-3xl opacity-50">📭</div>
-			<div className="text-sm font-semibold text-kumo-default">{title}</div>
-			<div className="mt-1 max-w-sm text-sm text-kumo-subtle">{description}</div>
+		<div
+			className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-kumo-line bg-kumo-tint/20 text-center"
+			style={{
+				padding: "40px 24px",
+				backgroundColor: "rgba(100, 116, 139, 0.03)",
+				borderColor: "var(--kumo-line)",
+			}}
+		>
+			<div className="text-3xl opacity-50" style={{ marginBottom: "12px" }}>📭</div>
+			<div className="text-sm font-bold text-kumo-default">{title}</div>
+			<div
+				className="max-w-sm text-xs leading-relaxed"
+				style={{
+					marginTop: "6px",
+					color: "var(--kumo-subtle, #4b5563)",
+				}}
+			>
+				{description}
+			</div>
 		</div>
 	);
 }
@@ -3108,8 +3130,21 @@ function SikesraStatsChart({
 	const maxVal = Math.max(...categories.map((c) => c.total), 1);
 
 	return (
-		<div className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm mt-2 overflow-hidden">
-			<div className="flex items-center justify-between border-b border-kumo-line bg-kumo-tint/40 px-6 py-4">
+		<div
+			className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm mt-2 overflow-hidden"
+			style={{
+				border: "1px solid var(--kumo-line)",
+				backgroundColor: "var(--kumo-base)",
+			}}
+		>
+			<div
+				className="flex items-center justify-between border-b border-kumo-line"
+				style={{
+					backgroundColor: "rgba(100, 116, 139, 0.04)",
+					borderBottom: "1px solid var(--kumo-line)",
+					padding: "16px 24px",
+				}}
+			>
 				<div>
 					<h2 className="text-sm font-semibold">Grafik Rekapitulasi Data SIKESRA</h2>
 					<p className="text-xs text-kumo-subtle mt-0.5">
@@ -3117,14 +3152,34 @@ function SikesraStatsChart({
 					</p>
 				</div>
 				{isReferenceData && (
-					<span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 border border-amber-500/20">
-						<span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+					<span
+						className="inline-flex items-center gap-1.5 rounded-full border"
+						style={{
+							backgroundColor: "rgba(245, 158, 11, 0.1)",
+							color: "#d97706",
+							borderColor: "rgba(245, 158, 11, 0.25)",
+							padding: "4px 10px",
+							fontSize: "12px",
+							fontWeight: 500,
+						}}
+					>
+						<span
+							className="h-1.5 w-1.5 rounded-full"
+							style={{ backgroundColor: "#f59e0b" }}
+						/>
 						Data Referensi
 					</span>
 				)}
 			</div>
 
-			<div className="p-6 space-y-5">
+			<div
+				style={{
+					padding: "24px",
+					display: "flex",
+					flexDirection: "column",
+					gap: "20px",
+				}}
+			>
 				{categories.map((cat) => {
 					const isSuppressed = isReferenceData ? false : !!cat.suppressed;
 					const totalPct = (cat.total / maxVal) * 100;
@@ -3133,7 +3188,13 @@ function SikesraStatsChart({
 
 					return (
 						<div key={cat.code} className="space-y-1.5">
-							<div className="flex items-center justify-between text-sm">
+							<div
+								className="flex items-center justify-between"
+								style={{
+									fontSize: "14px",
+									marginBottom: "6px",
+								}}
+							>
 								<span className="font-medium text-kumo-default">{cat.label}</span>
 								{isSuppressed ? (
 									<span className="text-[11px] text-kumo-subtle italic">Disupresi</span>
@@ -3148,20 +3209,47 @@ function SikesraStatsChart({
 							</div>
 
 							{isSuppressed ? (
-								<div className="h-6 w-full bg-kumo-tint rounded-lg flex items-center px-3 border border-dashed border-kumo-line">
-									<div className="text-[10px] text-kumo-subtle">
-										Jumlah terlalu rendah untuk keamanan privasi (&lt; 3)
+								<div
+									className="rounded-xl border border-dashed flex items-center"
+									style={{
+										height: "32px",
+										padding: "0 16px",
+										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.05))",
+										borderColor: "var(--kumo-line, rgba(100, 116, 139, 0.25))",
+									}}
+								>
+									<div
+										className="flex items-center gap-2 font-medium"
+										style={{
+											fontSize: "12px",
+											color: "var(--kumo-subtle, #4b5563)",
+										}}
+									>
+										<span role="img" aria-label="lock" style={{ opacity: 0.7, fontSize: "14px" }}>🔒</span>
+										<span>Jumlah terlalu rendah untuk keamanan privasi (&lt; 3)</span>
 									</div>
 								</div>
 							) : (
-								<div className="relative h-6 w-full bg-kumo-tint rounded-lg overflow-hidden">
+								<div
+									className="relative w-full rounded-lg overflow-hidden"
+									style={{
+										height: "28px",
+										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.08))",
+									}}
+								>
 									<div
-										className="absolute inset-y-0 left-0 bg-blue-500/20 rounded-lg transition-all duration-700"
-										style={{ width: `${totalPct}%` }}
+										className="absolute inset-y-0 left-0 rounded-lg transition-all duration-700"
+										style={{
+											width: `${totalPct}%`,
+											backgroundColor: "rgba(59, 130, 246, 0.2)",
+										}}
 									/>
 									<div
-										className="absolute inset-y-0 left-0 bg-emerald-500 rounded-lg transition-all duration-700"
-										style={{ width: `${verifiedPct}%` }}
+										className="absolute inset-y-0 left-0 rounded-lg transition-all duration-700"
+										style={{
+											width: `${verifiedPct}%`,
+											backgroundColor: "#10b981",
+										}}
 									/>
 								</div>
 							)}
@@ -3170,14 +3258,37 @@ function SikesraStatsChart({
 				})}
 			</div>
 
-			<div className="flex items-center gap-5 px-6 py-3 border-t border-kumo-line text-xs text-kumo-subtle">
-				<div className="flex items-center gap-1.5">
-					<span className="w-3 h-3 bg-blue-500/20 rounded inline-block border border-blue-500/30" />
-					<span>Total Entitas</span>
+			<div
+				className="flex items-center border-t border-kumo-line text-kumo-subtle"
+				style={{
+					borderTop: "1px solid var(--kumo-line)",
+					padding: "12px 24px",
+					fontSize: "12px",
+					gap: "20px",
+				}}
+			>
+				<div className="flex items-center" style={{ gap: "6px" }}>
+					<span
+						className="rounded inline-block border"
+						style={{
+							width: "12px",
+							height: "12px",
+							backgroundColor: "rgba(59, 130, 246, 0.2)",
+							borderColor: "rgba(59, 130, 246, 0.3)",
+						}}
+					/>
+					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>Total Entitas</span>
 				</div>
-				<div className="flex items-center gap-1.5">
-					<span className="w-3 h-3 bg-emerald-500 rounded inline-block" />
-					<span>Terverifikasi</span>
+				<div className="flex items-center" style={{ gap: "6px" }}>
+					<span
+						className="rounded inline-block"
+						style={{
+							width: "12px",
+							height: "12px",
+							backgroundColor: "#10b981",
+						}}
+					/>
+					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>Terverifikasi</span>
 				</div>
 			</div>
 		</div>
@@ -3450,8 +3561,11 @@ function OverviewPage() {
 
 					return (
 						<section
-							className="rounded-2xl border border-kumo-line bg-kumo-base p-5 text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[230px]"
-							style={{ borderTop: `4px solid ${cardColor}` }}
+							className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[230px]"
+							style={{
+								borderTop: `4px solid ${cardColor}`,
+								padding: "20px",
+							}}
 							key={card.id}
 						>
 							<div className="space-y-4">
@@ -3462,7 +3576,10 @@ function OverviewPage() {
 										</span>
 										<div>
 											<div className="text-sm font-bold text-kumo-default leading-tight">{card.title}</div>
-											<div className="mt-1.5 text-xs leading-normal text-kumo-subtle min-h-[32px] line-clamp-2">
+											<div
+												className="text-xs leading-normal text-kumo-subtle min-h-[32px] line-clamp-2"
+												style={{ marginTop: "6px" }}
+											>
 												{card.description}
 											</div>
 										</div>
@@ -3474,12 +3591,12 @@ function OverviewPage() {
 								</div>
 
 								{/* Stats progress bar inside module card */}
-								<div className="mt-4 pt-3 border-t border-kumo-line/50">
-									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle mb-1.5">
+								<div className="pt-3" style={{ borderTop: "1px solid rgba(100, 116, 139, 0.15)", marginTop: "16px" }}>
+									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle" style={{ marginBottom: "6px" }}>
 										<span>{copy.totalEntities}: <span className="font-bold text-kumo-default">{catData.total}</span></span>
 										<span>{copy.verifiedEntities}: <span className="font-bold text-emerald-600 dark:text-emerald-400">{catData.verified} ({verifiedPercent}%)</span></span>
 									</div>
-									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden mt-1.5">
+									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden" style={{ marginTop: "6px" }}>
 										<div
 											className="h-full rounded-full transition-all duration-500"
 											style={{ width: `${verifiedPercent}%`, backgroundColor: cardColor }}
@@ -3491,7 +3608,8 @@ function OverviewPage() {
 								href={card.href}
 								variant="secondary"
 								size="sm"
-								className="mt-5 w-full justify-center text-xs font-semibold py-1.5"
+								className="w-full justify-center text-xs font-semibold"
+								style={{ marginTop: "20px", padding: "6px 12px" }}
 							>
 								{copy.openModule}
 							</LinkButton>
@@ -3511,7 +3629,18 @@ function OverviewPage() {
 					{summary.recentEvents.length === 0 ? (
 						<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
 					) : (
-						<div className="relative pl-6 border-l border-kumo-line/60 ml-3 space-y-4 py-2">
+						<div
+							className="relative border-l border-kumo-line/60"
+							style={{
+								paddingLeft: "24px",
+								marginLeft: "12px",
+								display: "flex",
+								flexDirection: "column",
+								gap: "16px",
+								paddingTop: "8px",
+								paddingBottom: "8px",
+							}}
+						>
 							{summary.recentEvents.slice(0, 6).map((item) => {
 								const kindColors: Record<string, { bg: string; text: string; border: string; dot: string }> = {
 									create: { bg: "rgba(37, 99, 235, 0.08)", text: "#2563eb", border: "1px solid rgba(37, 99, 235, 0.2)", dot: "#2563eb" },
@@ -3524,14 +3653,23 @@ function OverviewPage() {
 								return (
 									<div className="relative group" key={item.id}>
 										{/* Timeline marker */}
-										<div className="absolute -left-[31px] top-1.5 flex items-center justify-center">
+										<div
+											className="absolute flex items-center justify-center"
+											style={{
+												left: "-33px",
+												top: "6px",
+											}}
+										>
 											<div className="h-4 w-4 rounded-full border border-kumo-line bg-kumo-base flex items-center justify-center transition-all duration-300 group-hover:scale-125">
 												<div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.dot }} />
 											</div>
 										</div>
 
 										{/* Event Content */}
-										<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-kumo-line bg-kumo-base hover:bg-kumo-tint/[0.2] hover:shadow-sm transition-all duration-200">
+										<div
+											className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-kumo-line bg-kumo-base hover:bg-kumo-tint/[0.2] hover:shadow-sm transition-all duration-200"
+											style={{ padding: "16px" }}
+										>
 											<div className="space-y-1">
 												<div className="flex flex-wrap items-center gap-2">
 													<span className="text-sm font-semibold text-kumo-default">
@@ -3586,7 +3724,7 @@ function OverviewPage() {
 				</button>
 
 				{settingsOpen && (
-					<div className="p-6 bg-kumo-base/50">
+					<div className="bg-kumo-base/50" style={{ padding: "24px" }}>
 						<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
 							<div className="space-y-4">
 								<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
@@ -3688,7 +3826,13 @@ function OverviewPage() {
 							</div>
 
 							<div className="space-y-4">
-								<div className="bg-kumo-tint/20 rounded-xl p-4 border border-kumo-line/50">
+								<div
+									className="rounded-xl border border-kumo-line/50"
+									style={{
+										padding: "16px",
+										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.05))",
+									}}
+								>
 									<h3 className="text-xs font-bold text-kumo-default uppercase tracking-wider mb-3">
 										{copy.currentStatus}
 									</h3>
@@ -8404,24 +8548,36 @@ export function DataTypesPage() {
 
 				{/* Summary Cards */}
 				<div className="grid grid-cols-2 gap-4">
-					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
-						<div className="text-xs text-slate-400 uppercase tracking-wider">
+					<div
+						className="border border-kumo-line bg-kumo-base rounded-xl"
+						style={{ padding: "16px" }}
+					>
+						<div className="text-xs text-kumo-subtle uppercase tracking-wider">
 							{copy.parentTypes}
 						</div>
-						<div className="text-2xl font-bold mt-1 text-blue-400">{totalParents}</div>
+						<div className="text-2xl font-bold mt-1 text-blue-600">{totalParents}</div>
 					</div>
-					<div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">
-						<div className="text-xs text-slate-400 uppercase tracking-wider">{copy.subTypes}</div>
-						<div className="text-2xl font-bold mt-1 text-teal-400">{totalSubtypes}</div>
+					<div
+						className="border border-kumo-line bg-kumo-base rounded-xl"
+						style={{ padding: "16px" }}
+					>
+						<div className="text-xs text-kumo-subtle uppercase tracking-wider">{copy.subTypes}</div>
+						<div className="text-2xl font-bold mt-1 text-teal-600">{totalSubtypes}</div>
 					</div>
 				</div>
 
-				<section className="bg-slate-900 border border-slate-800 rounded-lg p-6">
+				<section
+					className="border border-kumo-line bg-kumo-base rounded-2xl"
+					style={{ padding: "24px" }}
+				>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						{/* Parent Types Panel */}
-						<div className="space-y-4 border-r border-slate-800 pr-0 md:pr-6">
+						<div
+							className="space-y-4 pr-0 md:pr-6"
+							style={{ borderRight: "1px solid var(--kumo-line, rgba(100, 116, 139, 0.15))" }}
+						>
 							<div className="flex justify-between items-center">
-								<h3 className="font-semibold text-slate-200">{copy.parentTypes}</h3>
+								<h3 className="font-semibold text-kumo-default">{copy.parentTypes}</h3>
 								<Button
 									variant="ghost"
 									size="xs"
@@ -8435,7 +8591,7 @@ export function DataTypesPage() {
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
 								{dataTypes.length === 0 ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">
+									<div className="text-sm text-kumo-subtle italic p-3 text-center">
 										Belum ada jenis data induk
 									</div>
 								) : (
@@ -8445,16 +8601,27 @@ export function DataTypesPage() {
 											<div
 												key={p.id}
 												onClick={() => setSelectedParentId(p.id)}
-												className={`p-3 rounded-md flex justify-between items-center cursor-pointer transition-colors border ${
-													isSelected
-														? "bg-blue-500/10 border-blue-500/30 text-slate-200"
-														: "bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800/40"
-												}`}
+												className="rounded-xl flex justify-between items-center cursor-pointer transition-all border hover:shadow-sm"
+												style={{
+													padding: "12px",
+													...(isSelected
+														? {
+																backgroundColor: "rgba(59, 130, 246, 0.1)",
+																borderColor: "rgba(59, 130, 246, 0.35)",
+																color: "#2563eb",
+																fontWeight: 600,
+															}
+														: {
+																backgroundColor: "var(--kumo-base)",
+																borderColor: "var(--kumo-line)",
+																color: "var(--kumo-subtle)",
+															}),
+												}}
 											>
 												<div className="flex gap-2 items-center">
 													<Badge variant="blue">{p.code}</Badge>
 													<div className="text-sm font-medium">{p.label}</div>
-													<div className="text-xs text-slate-500">({p.id})</div>
+													<div className="text-xs text-kumo-subtle">({p.id})</div>
 												</div>
 												<div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
 													<Button
@@ -8492,7 +8659,7 @@ export function DataTypesPage() {
 						{/* Subtypes Panel */}
 						<div className="space-y-4">
 							<div className="flex justify-between items-center">
-								<h3 className="font-semibold text-slate-200">
+								<h3 className="font-semibold text-kumo-default">
 									{copy.subTypes} {activeParent ? `— ${activeParent.label}` : ""}
 								</h3>
 								{activeParent && (
@@ -8510,11 +8677,11 @@ export function DataTypesPage() {
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
 								{!activeParent ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">
+									<div className="text-sm text-kumo-subtle italic p-3 text-center">
 										Pilih jenis data induk terlebih dahulu
 									</div>
 								) : !activeParent.subTypes || activeParent.subTypes.length === 0 ? (
-									<div className="text-sm text-slate-500 italic p-3 text-center">
+									<div className="text-sm text-kumo-subtle italic p-3 text-center">
 										Belum ada sub jenis data
 									</div>
 								) : (
@@ -8522,7 +8689,8 @@ export function DataTypesPage() {
 										return (
 											<div
 												key={s.code}
-												className="p-3 bg-slate-950 border border-slate-800 rounded-md flex justify-between items-center text-slate-300"
+												className="border border-kumo-line bg-kumo-base rounded-xl flex justify-between items-center text-kumo-default hover:border-kumo-brand/30 transition-all shadow-sm"
+												style={{ padding: "12px" }}
 											>
 												<div className="flex gap-2 items-center">
 													<Badge variant="teal">{s.code}</Badge>
