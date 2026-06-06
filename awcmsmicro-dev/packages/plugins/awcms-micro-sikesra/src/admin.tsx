@@ -38,6 +38,7 @@ import {
 } from "./admin/api/index.js";
 import {
 	SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS,
+	SIKESRA_IMPORT_WORKFLOW_STEPS,
 	SIKESRA_PAGE_PATTERN_CONTRACTS,
 	toSikesraAdminHref,
 	type SikesraPagePatternContract,
@@ -3384,16 +3385,10 @@ function OverviewPage() {
 		: 0;
 	const isSystemHealthy = healthGapsCount === 0;
 
-	const fallbackCategories = SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.length > 0
-		? SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories.map((cat) => ({
-				...cat,
-				total: cat.total * 12,
-				verified: cat.verified * 8,
-			}))
-		: [];
+	const fallbackCategories = SIKESRA_REFERENCE_FIXTURES.publicAggregate.categories;
 	const allModuleCategories = DEFAULT_DATA_TYPES.map((dt) => {
 		const existing = fallbackCategories.find((cat) => cat.code === dt.id);
-		return existing ?? { code: dt.id, label: dt.label, total: Math.floor(Math.random() * 20) + 3, verified: Math.floor(Math.random() * 10) + 1, suppressed: false };
+		return existing ?? { code: dt.id, label: dt.label, total: 0, verified: 0, suppressed: true };
 	});
 	const chartCategories =
 		publicStatus?.publicAggregate?.categories?.length > 0
@@ -7161,6 +7156,8 @@ export function createSikesraImportPreviewPromotePayload(
 function ImportPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
+	const importStepIds = SIKESRA_IMPORT_WORKFLOW_STEPS.map((step) => step.id);
+	const getImportStepIndex = (id: string) => importStepIds.indexOf(id);
 	const [importStep, setImportStep] = React.useState(0);
 	const [fileName, setFileName] = React.useState<string | null>(null);
 	const [selectedSheet, setSelectedSheet] = React.useState<string>("Sheet1");
@@ -7175,6 +7172,9 @@ function ImportPage() {
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [error, setError] = React.useState<string | null>(null);
 	const [promoting, setPromoting] = React.useState(false);
+	const [duplicateDecisions, setDuplicateDecisions] = React.useState<
+		Record<string, { decision: string; reason: string }>
+	>({});
 
 	const sheets = ["Sheet1", "Sheet2_Templates", "Sheet3_References"];
 
@@ -7216,15 +7216,34 @@ function ImportPage() {
 			publicSummary: "Data disabilitas di wilayah referensi.",
 		},
 	];
+	const validationErrors: Array<{ rowId: string; message: string }> = [];
+	const duplicateCandidates = [
+		{
+			rowId: "staged-02",
+			incomingLabel: "Ustadz H. Syukron",
+			existingLabel: "Ustadz Syukron",
+			matchScore: "91%",
+			reason: "Similar label, entity type, and village scope.",
+		},
+	];
+	const unresolvedDuplicates = duplicateCandidates.filter((candidate) => {
+		const decision = duplicateDecisions[candidate.rowId];
+		return !decision?.decision || !decision.reason.trim();
+	});
+	const canPromote = validationErrors.length === 0 && unresolvedDuplicates.length === 0;
 
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
 		setFileName(file.name);
-		setImportStep(1); // Select Sheet
+		setImportStep(getImportStepIndex("preview"));
 	};
 
 	const handlePromote = async () => {
+		if (!canPromote) {
+			setError("Resolve validation errors and duplicate-review decisions before promotion.");
+			return;
+		}
 		setPromoting(true);
 		setError(null);
 		try {
@@ -7246,7 +7265,7 @@ function ImportPage() {
 			);
 			if (!promoted.success) throw new Error(promoted.error?.message ?? copy.requestFailed);
 			setNotice(copy.promotedSuccessfully);
-			setImportStep(4); // Display report
+			setImportStep(getImportStepIndex("summary"));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : copy.requestFailed);
 		} finally {
@@ -7268,20 +7287,14 @@ function ImportPage() {
 					{/* Background connecting track line */}
 					<div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-kumo-line z-0" />
 					
-					{[
-						"Upload Workbook",
-						"Select Sheet",
-						"Map Columns",
-						"Preview & Validate",
-						"Promote"
-					].map((label, index) => {
+					{SIKESRA_IMPORT_WORKFLOW_STEPS.map((step, index) => {
 						const isActive = index === importStep;
 						const isCompleted = index < importStep;
 						return (
 							<div
-								key={label}
+								key={step.id}
 								className="relative z-10 flex flex-col items-center"
-								style={{ width: "120px" }}
+								style={{ width: "132px" }}
 							>
 								<span
 									className={cx(
@@ -7315,7 +7328,7 @@ function ImportPage() {
 												: undefined
 									}
 								>
-									{label}
+									{step.label}
 								</span>
 							</div>
 						);
@@ -7366,10 +7379,10 @@ function ImportPage() {
 								</Select>
 							</Field>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(0)}>
+								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("upload"))}>
 									Back
 								</Button>
-								<Button variant="primary" onClick={() => setImportStep(2)}>
+								<Button variant="primary" onClick={() => setImportStep(getImportStepIndex("map"))}>
 									Next
 								</Button>
 							</div>
@@ -7377,7 +7390,7 @@ function ImportPage() {
 					</Card>
 				)}
 
-				{importStep === 2 && (
+				{importStep === getImportStepIndex("map") && (
 					<Card title={copy.mapColumns}>
 						<div className="space-y-4">
 							<p className="text-sm text-kumo-subtle">
@@ -7434,14 +7447,14 @@ function ImportPage() {
 								</Field>
 							</div>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(1)}>
+								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("preview"))}>
 									Back
 								</Button>
 								<Button
 									variant="primary"
 									onClick={() => {
 										setNotice(copy.mappingValidationPassed);
-										setImportStep(3);
+										setImportStep(getImportStepIndex("validate"));
 									}}
 								>
 									Validate & Next
@@ -7451,12 +7464,17 @@ function ImportPage() {
 					</Card>
 				)}
 
-				{importStep === 3 && (
+				{importStep === getImportStepIndex("validate") && (
 					<Card
 						title={copy.previewStaging}
-						description="Inspect valid rows staged for promote. Identifiers and types are verified."
+						description="Inspect valid rows staged for duplicate review and promotion. Identifiers and types are verified."
 					>
 						<div className="space-y-4">
+							<div className="grid gap-3 md:grid-cols-3">
+								<MetricCard label="Valid rows" value={String(stagingRows.length - validationErrors.length)} />
+								<MetricCard label="Invalid rows" value={String(validationErrors.length)} />
+								<MetricCard label="Duplicate candidates" value={String(duplicateCandidates.length)} />
+							</div>
 							<div className="overflow-x-auto rounded-xl border">
 								<table className="w-full text-xs text-left">
 									<thead>
@@ -7486,10 +7504,108 @@ function ImportPage() {
 								</table>
 							</div>
 							<div className="flex gap-2">
-								<Button variant="secondary" onClick={() => setImportStep(2)}>
+								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("map"))}>
 									Back
 								</Button>
-								<Button variant="primary" disabled={promoting} onClick={() => void handlePromote()}>
+								<Button variant="primary" onClick={() => setImportStep(getImportStepIndex("duplicate-review"))}>
+									Review duplicates
+								</Button>
+							</div>
+						</div>
+					</Card>
+				)}
+
+				{importStep === getImportStepIndex("duplicate-review") && (
+					<Card
+						title="Duplicate review"
+						description="Resolve duplicate-risk rows before promotion. Every decision requires a reason and is audit-relevant."
+					>
+						<div className="space-y-4">
+							{duplicateCandidates.map((candidate) => {
+								const decision = duplicateDecisions[candidate.rowId] ?? { decision: "", reason: "" };
+								return (
+									<div className="rounded-xl border p-4" key={candidate.rowId}>
+										<div className="grid gap-3 md:grid-cols-3">
+											<div>
+												<p className="text-xs font-semibold text-kumo-subtle">Incoming row</p>
+												<p className="font-medium text-kumo-default">{candidate.incomingLabel}</p>
+											</div>
+											<div>
+												<p className="text-xs font-semibold text-kumo-subtle">Possible match</p>
+												<p className="font-medium text-kumo-default">{candidate.existingLabel}</p>
+											</div>
+											<div>
+												<p className="text-xs font-semibold text-kumo-subtle">Match score</p>
+												<Pill tone="warning">{candidate.matchScore}</Pill>
+											</div>
+										</div>
+										<p className="mt-3 text-sm text-kumo-subtle">{candidate.reason}</p>
+										<div className="mt-4 grid gap-3 md:grid-cols-2">
+											<Field label="Decision">
+												<Select
+													value={decision.decision}
+													onValueChange={(value) =>
+														setDuplicateDecisions((prev) => ({
+															...prev,
+															[candidate.rowId]: { ...decision, decision: value ?? "" },
+														}))
+													}
+												>
+													<Select.Option value="skip">Skip imported row</Select.Option>
+													<Select.Option value="merge">Merge with existing record</Select.Option>
+													<Select.Option value="create_new">Create as new record</Select.Option>
+												</Select>
+											</Field>
+											<Field label="Decision reason">
+												<InputArea
+													value={decision.reason}
+													onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+														setDuplicateDecisions((prev) => ({
+															...prev,
+															[candidate.rowId]: { ...decision, reason: e.target.value },
+														}))
+													}
+												/>
+											</Field>
+										</div>
+									</div>
+								);
+							})}
+							{!canPromote && (
+								<Feedback
+									message="Promotion is blocked until each duplicate candidate has a decision and reason."
+									tone="info"
+								/>
+							)}
+							<div className="flex gap-2">
+								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("validate"))}>
+									Back
+								</Button>
+								<Button
+									variant="primary"
+									disabled={!canPromote}
+									onClick={() => setImportStep(getImportStepIndex("promote"))}
+								>
+									Continue to promote
+								</Button>
+							</div>
+						</div>
+					</Card>
+				)}
+
+				{importStep === getImportStepIndex("promote") && (
+					<Card title="Promote valid rows" description="Final promotion is available only after validation and duplicate review pass.">
+						<div className="space-y-4">
+							<div className="grid gap-3 md:grid-cols-3">
+								<MetricCard label="Rows ready" value={String(stagingRows.length - validationErrors.length)} />
+								<MetricCard label="Duplicate decisions" value={String(duplicateCandidates.length - unresolvedDuplicates.length)} />
+								<MetricCard label="Audit events" value={String(duplicateCandidates.length + 1)} />
+							</div>
+							<div className="flex gap-2">
+								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("duplicate-review"))}>
+									Back
+								</Button>
+								<Button variant="primary" disabled={promoting || !canPromote} onClick={() => void handlePromote()}>
 									{promoting ? "Promoting..." : copy.promoteSelectedRows}
 								</Button>
 							</div>
@@ -7497,7 +7613,7 @@ function ImportPage() {
 					</Card>
 				)}
 
-				{importStep === 4 && (
+				{importStep === getImportStepIndex("summary") && (
 					<Card title={copy.importReport}>
 						<div className="text-center p-6 space-y-4 bg-kumo-tint/20 rounded-xl text-kumo-default">
 							<div className="text-4xl">🎉</div>

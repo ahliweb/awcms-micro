@@ -12,6 +12,7 @@ const insertTablePattern = /INSERT\s+OR\s+IGNORE\s+INTO\s+[`"]?([a-zA-Z0-9_]+)[`
 const destructiveSeedPattern = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
 const tenantPlaceholder = "__TENANT_ID__";
 const sitePlaceholder = "__SITE_ID__";
+const storageKeyPattern = /tenants\/__TENANT_ID__\/sites\/__SITE_ID__\/modules\/sikesra\/(?:internal|restricted|highly_restricted|public_safe)\/\d{4}\/\d{2}\/[a-z0-9._-]+/;
 const requiredModules = [
 	"rumah_ibadah",
 	"lembaga_keagamaan",
@@ -48,6 +49,22 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 	if (destructiveSeedPattern.test(sql)) violations.push(`${file} contains destructive SQL`);
 	if (!sql.includes(tenantPlaceholder)) violations.push(`${file} missing ${tenantPlaceholder}`);
 	if (!sql.includes(sitePlaceholder)) violations.push(`${file} missing ${sitePlaceholder}`);
+	for (const storageKeyMatch of sql.matchAll(/'([^']*modules\/sikesra[^']*)'/g)) {
+		if (!storageKeyPattern.test(storageKeyMatch[1] ?? "")) {
+			violations.push(`${file} has invalid SIKESRA storage key: ${storageKeyMatch[1]}`);
+		}
+	}
+	const seededRegions = new Set(
+		[...sql.matchAll(/'(__TENANT_ID__)',\s*'(__SITE_ID__)',\s*'([0-9]{2,10})',/g)].map(
+			(match) => match[3],
+		),
+	);
+	for (const regionMatch of sql.matchAll(/'region_scope(?:_code)?'?,?\s*'([0-9]{2,10})'|'region_scope_code'[^\n]*'([0-9]{2,10})'/g)) {
+		const regionCode = regionMatch[1] ?? regionMatch[2];
+		if (regionCode && !seededRegions.has(regionCode)) {
+			violations.push(`${file} references unseeded region scope: ${regionCode}`);
+		}
+	}
 	for (const module of requiredModules) {
 		if (!new RegExp(`'${module}'`).test(sql)) violations.push(`${file} missing module seed: ${module}`);
 		if (!sql.includes(`sikesra_${module}_details`)) {

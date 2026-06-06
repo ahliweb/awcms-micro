@@ -15,4 +15,5 @@ export const SIKESRA_MIGRATION_FILES = [
 	"0014_sikesra_custom_attributes.sql",
 	"0015_sikesra_delete_governance.sql",
 	"0016_sikesra_code_history_corrections.sql",
+	"0017_sikesra_delete_snapshot_updated_by.sql",
 ] as const;

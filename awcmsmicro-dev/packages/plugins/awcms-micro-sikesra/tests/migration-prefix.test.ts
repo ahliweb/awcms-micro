@@ -17,6 +17,7 @@ const CREATE_TRIGGER_PATTERN =
 	/CREATE\s+TRIGGER\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const INSERT_TABLE_PATTERN = /INSERT\s+OR\s+IGNORE\s+INTO\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const DESTRUCTIVE_SEED_PATTERN = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
+const ADD_COLUMN_GUARD_MARKER = "awcms-sikesra-idempotent-add-column";
 
 const REQUIRED_REGISTRY_TABLES = [
 	"sikesra_registry_entities",
@@ -181,6 +182,21 @@ describe("SIKESRA D1 migration prefix policy", () => {
 			for (const column of REQUIRED_BUSINESS_COLUMNS) {
 				expect(definition, `${table} missing ${column}`).toContain(column);
 			}
+		}
+	});
+
+	it("keeps delete governance snapshot tables aligned with business metadata columns", () => {
+		const definition = getTableDefinition(readAllMigrationSql(), "sikesra_delete_snapshots");
+		expect(definition).not.toBe("");
+		for (const column of REQUIRED_BUSINESS_COLUMNS) {
+			expect(definition, `sikesra_delete_snapshots missing ${column}`).toContain(column);
+		}
+	});
+
+	it("requires an idempotency guard marker for add-column migrations", () => {
+		for (const { file, sql } of readMigrationSqlFiles()) {
+			if (!/\bALTER\s+TABLE\b[\s\S]*?\bADD\s+COLUMN\b/i.test(sql)) continue;
+			expect(sql, `${file} missing ${ADD_COLUMN_GUARD_MARKER}`).toContain(ADD_COLUMN_GUARD_MARKER);
 		}
 	});
 

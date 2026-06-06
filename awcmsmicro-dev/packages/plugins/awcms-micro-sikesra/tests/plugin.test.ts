@@ -2362,16 +2362,44 @@ describe("awcms micro sikesra plugin", () => {
 		expectPublicSafeOutput(publicResult);
 		expect(settingsTableRows).toHaveLength(6);
 		expect(collections.settingsState.size).toBe(0);
-		expect(collections.pluginState.size).toBeGreaterThan(0);
-		expect(collections.pluginState.get("state:publicStatusHits")).toMatchObject({
-			key: "state:publicStatusHits",
-			value: 1,
-		});
+		expect(collections.pluginState.has("state:publicStatusHits")).toBe(false);
 		expect(settingsTableRows.find((row) => row.key === "governanceMode")).toMatchObject({
 			key: "governanceMode",
 			value_json: '"observe"',
 		});
 		expect(collections.auditEvents.size).toBeGreaterThan(0);
+	});
+
+	it("excludes internal registry records from public aggregate counts", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		await routes["settings/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { smallCellThreshold: 1 },
+		} as any);
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-internal-public-test",
+				code: "RI-INTERNAL-001",
+				label: "Internal Aggregate Test",
+				entityType: "rumah_ibadah",
+				sensitivity: "internal",
+				verificationStage: "active_verified",
+			},
+		} as any);
+
+		const result = (await routes["public/status"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const rumahIbadah = result.publicAggregate.categories.find(
+			(category: any) => category.code === "rumah_ibadah",
+		);
+
+		expect(rumahIbadah).toMatchObject({ total: 1, verified: 1, suppressed: false });
+		expectPublicSafeOutput(result);
 	});
 
 	it("accepts the canonical hyphenated governance mode from admin UI", async () => {
@@ -3176,6 +3204,7 @@ describe("awcms micro sikesra plugin", () => {
 			"Workflow shortcuts",
 			"Eight module cards",
 			"Public aggregate preview",
+			"Recent audit or lifecycle activity",
 		]);
 		expect(SIKESRA_OVERVIEW_KPIS).toEqual(
 			expect.arrayContaining([
@@ -3392,6 +3421,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(
 			SIKESRA_GOVERNANCE_REVIEW_STEPS.every((step) => step.requiresAudit || step.privacyCheck),
 		).toBe(true);
+		expect(SIKESRA_OVERVIEW_SECTIONS).toContain("Recent audit or lifecycle activity");
 		expect(SIKESRA_ACCESSIBILITY_CHECKLIST).toEqual(
 			expect.arrayContaining([
 				"Keyboard navigation works for tables, steppers, dialogs, drawers, and menus.",
@@ -3704,6 +3734,87 @@ describe("awcms micro sikesra plugin", () => {
 
 		expect(result.currentVerifierLevels).toContain("admin_sikesra");
 		expect(result.items.length).toBeGreaterThan(1);
+	});
+
+	it("uses D1 role and ABAC assignments when filtering the verification queue", async () => {
+		const {
+			ctx,
+			collections,
+			userRoleAssignmentTableRows,
+			rolePermissionAssignmentTableRows,
+			abacSubjectAssignmentTableRows,
+		} = createMockContext();
+		collections.registryEntities.set("registry-entity-d1-outside-scope", {
+			id: "registry-entity-d1-outside-scope",
+			code: "D1-OUT-001",
+			label: "D1 Outside Scope Entity",
+			entityType: "guru_agama",
+			sensitivity: "restricted",
+			region: {
+				provinceCode: "32",
+				regencyCode: "3273",
+				districtCode: "327301",
+				villageCode: "3273011001",
+			},
+			verificationStage: "submitted_sopd",
+			inputLevel: "kecamatan",
+			supportingDocumentIds: [],
+		});
+		userRoleAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			id: "ura-d1-sopd",
+			emdash_user_id: "user-d1-sopd",
+			sikesra_role_slug: "sikesra_verifikator_sopd",
+			is_active: 1,
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+		rolePermissionAssignmentTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
+			role_slug: "sikesra_verifikator_sopd",
+			permission_slug: "sikesra.verification.read",
+			effect: "allow",
+			updated_at: "2026-01-01T00:00:00.000Z",
+		});
+		abacSubjectAssignmentTableRows.push(
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "abac-d1-sopd-region",
+				emdash_user_id: "user-d1-sopd",
+				attribute_key: "region_scope",
+				attribute_value: "6201",
+				updated_at: "2026-01-01T00:00:00.000Z",
+			},
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "abac-d1-sopd-site",
+				emdash_user_id: "user-d1-sopd",
+				attribute_key: "site_id",
+				attribute_value: "default",
+				updated_at: "2026-01-01T00:00:00.000Z",
+			},
+		);
+
+		const result = (await createNativeRoutes()["verification/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test", {
+				headers: { "X-Sikesra-User-Id": "user-d1-sopd" },
+			}),
+			input: {},
+		} as any)) as any;
+
+		expect(result.success, JSON.stringify(result)).not.toBe(false);
+		expect(result.currentVerifierLevels).toEqual(["sopd"]);
+		expect(result.currentVerifierRegionScope).toBe("6201");
+		expect(result.items.map((item: any) => item.registryEntityId)).toContain(
+			"registry-entity-guru-agama-01",
+		);
+		expect(result.items.map((item: any) => item.registryEntityId)).not.toContain(
+			"registry-entity-d1-outside-scope",
+		);
 	});
 
 	it("filters the verification queue by regional scope for SOPD verifiers", async () => {
@@ -5056,7 +5167,7 @@ describe("awcms micro sikesra plugin", () => {
 			input: {},
 		} as any)) as any;
 		expect(listed.items).toContainEqual(expect.objectContaining({ id: "export-job-01" }));
-		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.access" }));
+		expect(auditTableRows).not.toContainEqual(expect.objectContaining({ kind: "export.access" }));
 	});
 
 	it("creates scoped custom attributes and masks sensitive values by default", async () => {
@@ -5591,6 +5702,9 @@ describe("awcms micro sikesra plugin", () => {
 		const superAdminRequest = new Request("https://example.test", {
 			headers: { "X-Sikesra-User-Id": "user-demo-super-admin" },
 		});
+		const requestOnlyUserRequest = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-delete-requester" },
+		});
 
 		const missingConfirmation = (await routes["crud/permanent-delete/request"]!.handler({
 			...ctx,
@@ -5619,6 +5733,37 @@ describe("awcms micro sikesra plugin", () => {
 		} as any)) as any;
 		expect(denied.success).toBe(false);
 		expect(denied.error.code).toBe("FORBIDDEN");
+
+		collections.userRoleAssignments.set("user-demo-delete-requester", {
+			userId: "user-demo-delete-requester",
+			roles: ["sikesra_delete_requester"],
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		collections.rolePermissionAssignments.set("sikesra_delete_requester", {
+			roleSlug: "sikesra_delete_requester",
+			permissions: ["sikesra.permanent_delete.request"],
+			updatedAt: "2026-01-01T00:00:00.000Z",
+		});
+		const requestOnlyAllowed = (await routes["crud/permanent-delete/request"]!.handler({
+			...ctx,
+			request: requestOnlyUserRequest,
+			input: {
+				id: "delete-request-requester-01",
+				targetTable: "sikesra_registry_entities",
+				targetRecordId: "registry-entity-custom-01",
+				targetType: "registry_entity",
+				reason: "Request-only governance review",
+				confirmation: "PERMANENT DELETE",
+			},
+		} as any)) as any;
+
+		expect(requestOnlyAllowed.success).toBe(true);
+		expect(deleteRequestTableRows).toContainEqual(
+			expect.objectContaining({
+				id: "delete-request-requester-01",
+				requested_by: "user-demo-delete-requester",
+			}),
+		);
 
 		collections.userRoleAssignments.set("user-demo-super-admin", {
 			userId: "user-demo-super-admin",

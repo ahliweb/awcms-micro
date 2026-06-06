@@ -1969,6 +1969,11 @@ function mapRoleSlugToVerifierLevel(roleSlug: string): VerificationUserLevel | n
 	if (roleSlug === "verifier-sopd") return "sopd";
 	if (roleSlug === "verifier-kabupaten") return "kabupaten";
 	if (roleSlug === "admin-sikesra") return "admin_sikesra";
+	if (roleSlug === "sikesra_verifikator_desa_kelurahan") return "desa_kelurahan";
+	if (roleSlug === "sikesra_verifikator_kecamatan") return "kecamatan";
+	if (roleSlug === "sikesra_verifikator_sopd") return "sopd";
+	if (roleSlug === "sikesra_verifikator_kabupaten") return "kabupaten";
+	if (roleSlug === "sikesra_admin" || roleSlug === "sikesra_super_admin") return "admin_sikesra";
 	return null;
 }
 
@@ -2073,10 +2078,20 @@ function getRequestUserId(ctx: PluginContext) {
 async function getCurrentVerifierLevels(ctx: PluginContext): Promise<VerificationUserLevel[]> {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return [];
-	const assignment = (await safeCollectionGet(
-		ctx.storage.sikesra_user_role_assignments,
-		userId,
-	)) as UserRoleAssignment | null;
+	const assignment =
+		(await getD1UserRoleAssignment(ctx, userId)) ??
+		((await safeCollectionGet(
+			ctx.storage.sikesra_user_role_assignments,
+			userId,
+		)) as UserRoleAssignment | null) ??
+		(isTrustedEmDashAdmin(ctx)
+			? {
+					userId,
+					roles: [...TRUSTED_EMDASH_ADMIN_BOOTSTRAP_ROLES],
+					isActive: true,
+					updatedAt: "",
+				}
+			: null);
 	if (!assignment) return [];
 	return assignment.roles
 		.map((roleSlug) => mapRoleSlugToVerifierLevel(roleSlug))
@@ -2086,20 +2101,24 @@ async function getCurrentVerifierLevels(ctx: PluginContext): Promise<Verificatio
 async function getCurrentVerifierRegionScope(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return null;
-	const subject = (await safeCollectionGet(
-		ctx.storage.sikesra_abac_subject_assignments,
-		userId,
-	)) as AbacSubjectAssignment | null;
+	const subject =
+		(await getD1AbacSubjectAssignment(ctx, userId)) ??
+		((await safeCollectionGet(
+			ctx.storage.sikesra_abac_subject_assignments,
+			userId,
+		)) as AbacSubjectAssignment | null);
 	return subject?.attributes.region_scope ?? null;
 }
 
 async function getCurrentVerifierScopeMetadata(ctx: PluginContext) {
 	const userId = getRequestUserId(ctx);
 	if (!userId) return { verifierRegionScope: undefined, verifierOrgScope: undefined };
-	const subject = (await safeCollectionGet(
-		ctx.storage.sikesra_abac_subject_assignments,
-		userId,
-	)) as AbacSubjectAssignment | null;
+	const subject =
+		(await getD1AbacSubjectAssignment(ctx, userId)) ??
+		((await safeCollectionGet(
+			ctx.storage.sikesra_abac_subject_assignments,
+			userId,
+		)) as AbacSubjectAssignment | null);
 	return {
 		verifierRegionScope: subject?.attributes.region_scope,
 		verifierOrgScope: subject?.attributes.site_id,
@@ -2110,7 +2129,8 @@ function filterVerificationItemsForLevels(
 	items: VerificationListItem[],
 	levels: VerificationUserLevel[],
 ) {
-	if (levels.length === 0 || levels.includes("admin_sikesra")) return items;
+	if (levels.includes("admin_sikesra")) return items;
+	if (levels.length === 0) return [];
 	return items.filter((item) =>
 		getAllowedVerifierLevels(item.currentLevel).some((level) => levels.includes(level)),
 	);
@@ -3989,18 +4009,24 @@ function splitD1PolicyResourceConditions(value: unknown) {
 async function getD1AbacSubjectAssignment(ctx: PluginContext, subjectId: string) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.selectFrom) return null;
-	const rows = (await db
-		.selectFrom(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
-		.select(["emdash_user_id", "attribute_key", "attribute_value", "updated_at"])
-		.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
-		.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
-		.where("emdash_user_id", "=", subjectId)
-		.execute()) as Array<{
+	let rows: Array<{
 		emdash_user_id: string;
 		attribute_key: string;
 		attribute_value: string;
 		updated_at?: string;
 	}>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_ABAC_SUBJECT_ASSIGNMENTS_TABLE)
+			.select(["emdash_user_id", "attribute_key", "attribute_value", "updated_at"])
+			.where("tenant_id", "=", AWCMS_SIKESRA_DEFAULT_TENANT_ID)
+			.where("site_id", "=", AWCMS_SIKESRA_DEFAULT_SITE_ID)
+			.where("emdash_user_id", "=", subjectId)
+			.execute()) as typeof rows;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "ABAC subject assignment", cause);
+		return null;
+	}
 	if (rows.length === 0) return null;
 	return {
 		subjectId,
@@ -4598,14 +4624,6 @@ async function requireRoutePermission(ctx: PluginContext, permissionSlug: string
 
 const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	try {
-		try {
-			await incrementCounter(ctx, "state:publicStatusHits");
-		} catch (cause) {
-			ctx?.log.warn(
-				`[${AWCMS_SIKESRA_PLUGIN_ID}] Public status hit counter unavailable; continuing without telemetry.`,
-				cause,
-			);
-		}
 		const settings = await getSettings(ctx);
 
 		if (!settings.sikesraPublicEnabled) {
@@ -4636,9 +4654,7 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 		const categories = moduleTypes.map((mod) => {
 			const entities = entitiesList.filter((e) => e.entityType === mod.code);
-			const eligibleEntities = entities.filter(
-				(e) => e.sensitivity === "public_safe" || e.sensitivity === "internal",
-			);
+			const eligibleEntities = entities.filter((e) => e.sensitivity === "public_safe");
 			const total = eligibleEntities.length;
 			const verified = eligibleEntities.filter(
 				(e) => (state[e.id] ?? e.verificationStage) === "active_verified",
@@ -6061,16 +6077,6 @@ const exportsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.report.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const items = await listD1ExportJobs(ctx);
-	await appendAuditEvent(
-		ctx,
-		createAuditRecord({
-			kind: "export.access",
-			scope: "exports",
-			actor: getRequestUserId(ctx) ?? actorFromRoute(ctx),
-			summary: "Accessed SIKESRA export job list",
-			metadata: { count: items.length },
-		}),
-	);
 	return { items };
 };
 
@@ -6699,7 +6705,7 @@ const permanentDeleteRequestRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 	if (blocksEmDashUserDeleteTarget(targetTable)) invalidFields.push("targetTable");
 	if (invalidFields.length > 0) return createValidationError([...new Set(invalidFields)]);
 
-	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.execute");
+	const permission = await requireRoutePermission(ctx, "sikesra.permanent_delete.request");
 	if (!permission.allowed) return { success: false, error: permission.error };
 
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
@@ -7310,6 +7316,7 @@ const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 		),
 		events: await listVerificationEvents(ctx),
 		currentVerifierLevels,
+		currentVerifierRegionScope: regionScope,
 	};
 };
 

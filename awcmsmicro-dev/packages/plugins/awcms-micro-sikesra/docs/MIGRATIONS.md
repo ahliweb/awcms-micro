@@ -29,9 +29,10 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/migrations/
 0014_sikesra_custom_attributes.sql
 0015_sikesra_delete_governance.sql
 0016_sikesra_code_history_corrections.sql
+0017_sikesra_delete_snapshot_updated_by.sql
 ```
 
-All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage. Migration `0013` adds the explicit registry and module-detail query indexes required by issue #125. Migration `0014` adds custom attribute definitions, values, and change events for issue #138. Migration `0015` adds delete-governance request, snapshot, approval, and event tables for issue #139. Migration `0016` adds SIKESRA ID correction metadata to `sikesra_code_history` so backend correction routes can persist event type, previous ID, and correction reason.
+All migration files requested by issue #120 are present. Migration `0011` adds the explicit official/local region source tables requested by issue #123 while preserving the earlier combined `sikesra_regions` compatibility table. Migration `0012` adds the `sikesra_field_standards` metadata table used by issue #135 for module field classification, import/export policy, masking policy, and validation-rule storage. Migration `0013` adds the explicit registry and module-detail query indexes required by issue #125. Migration `0014` adds custom attribute definitions, values, and change events for issue #138. Migration `0015` adds delete-governance request, snapshot, approval, and event tables for issue #139. Migration `0016` adds SIKESRA ID correction metadata to `sikesra_code_history` so backend correction routes can persist event type, previous ID, and correction reason. Migration `0017` adds the missing `updated_by` delete snapshot actor column for databases that already applied `0015` before that column was present.
 
 ## Seed Files
 
@@ -47,7 +48,7 @@ Current seed files:
 kotawaringin-barat-core.sql
 ```
 
-Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values before applying seeds to local or remote D1. The current seed includes Kotawaringin Barat reference regions, baseline settings, three representative registry records, redacted person profiles, module details, document metadata, verification state/events, RBAC role/permission assignments, ABAC sample policies, and one seed audit event. It intentionally avoids raw NIK, KTP address, domicile address, phone, email, or document content values.
+Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values before applying seeds to local or remote D1. The current seed includes Kotawaringin Barat reference regions, baseline settings, representative registry records, redacted person profiles, module details, document metadata, verification state/events, RBAC role/permission assignments, ABAC sample policies, and one seed audit event. It intentionally avoids raw NIK, KTP address, domicile address, document content values, and realistic phone/email values; only masked or non-routable placeholders are allowed.
 
 ## Migration Rules
 
@@ -56,6 +57,7 @@ Replace `__TENANT_ID__` and `__SITE_ID__` with the target tenant/site values bef
 - Every trigger name should start with `trg_sikesra_`.
 - Migrations must be forward-only and idempotent.
 - Use `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS`.
+- `ALTER TABLE ... ADD COLUMN` migrations must include an `awcms-sikesra-idempotent-add-column` marker and must be applied through an operator guard that checks `PRAGMA table_info(...)` before replay.
 - Do not modify EmDash core tables.
 - Do not add destructive SQL without the documented approval marker, backup note, and rollback note from `DATA_PRESERVATION.md`.
 

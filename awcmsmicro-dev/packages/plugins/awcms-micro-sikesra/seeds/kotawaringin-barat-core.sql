@@ -14,6 +14,7 @@ INSERT OR IGNORE INTO sikesra_official_regions (
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', '62', NULL, 'province', 'Kalimantan Tengah', 'kemendagri', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', '6201', '62', 'regency', 'Kotawaringin Barat', 'kemendagri', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', '620101', '6201', 'district', 'Arut Utara', 'kemendagri', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', '620102', '6201', 'district', 'Arut Selatan', 'kemendagri', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', '6201021002', '620102', 'village', 'Kelurahan Mendawai Seberang', 'kemendagri', 'seed', 'seed'),
 	('__TENANT_ID__', '__SITE_ID__', '6201021003', '620102', 'village', 'Kelurahan Mendawai', 'kemendagri', 'seed', 'seed'),
@@ -238,9 +239,9 @@ INSERT OR IGNORE INTO sikesra_file_objects (
 	created_by,
 	updated_by
 ) VALUES
-	('__TENANT_ID__', '__SITE_ID__', 'file-rumah-ibadah-01', 'sikesra/reference/rumah-ibadah-al-ikhlas.pdf', 'surat-keterangan-rumah-ibadah.pdf', 'surat-keterangan-rumah-ibadah.pdf', 'application/pdf', 'pdf', 245760, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'internal', 'valid', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'file-guru-agama-01', 'sikesra/reference/guru-agama-redacted.pdf', 'identitas-guru-agama-redacted.pdf', 'identitas-guru-agama-redacted.pdf', 'application/pdf', 'pdf', 184320, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'restricted', 'valid', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'file-disabilitas-01', 'sikesra/reference/disabilitas-redacted.pdf', 'rekomendasi-disabilitas-redacted.pdf', 'rekomendasi-disabilitas-redacted.pdf', 'application/pdf', 'pdf', 196608, 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'highly_restricted', 'pending', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'file-rumah-ibadah-01', 'tenants/__TENANT_ID__/sites/__SITE_ID__/modules/sikesra/internal/2026/01/surat-keterangan-rumah-ibadah.pdf', 'surat-keterangan-rumah-ibadah.pdf', 'surat-keterangan-rumah-ibadah.pdf', 'application/pdf', 'pdf', 245760, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'internal', 'valid', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'file-guru-agama-01', 'tenants/__TENANT_ID__/sites/__SITE_ID__/modules/sikesra/restricted/2026/01/identitas-guru-agama-redacted.pdf', 'identitas-guru-agama-redacted.pdf', 'identitas-guru-agama-redacted.pdf', 'application/pdf', 'pdf', 184320, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'restricted', 'valid', 'seed', 'seed'),
+	('__TENANT_ID__', '__SITE_ID__', 'file-disabilitas-01', 'tenants/__TENANT_ID__/sites/__SITE_ID__/modules/sikesra/highly_restricted/2026/01/rekomendasi-disabilitas-redacted.pdf', 'rekomendasi-disabilitas-redacted.pdf', 'rekomendasi-disabilitas-redacted.pdf', 'application/pdf', 'pdf', 196608, 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'highly_restricted', 'pending', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_supporting_documents (
 	tenant_id,

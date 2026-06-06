@@ -27,6 +27,7 @@ export const SIKESRA_OVERVIEW_SECTIONS = [
 	"Workflow shortcuts",
 	"Eight module cards",
 	"Public aggregate preview",
+	"Recent audit or lifecycle activity",
 ] as const;
 
 export const SIKESRA_OVERVIEW_KPIS = [

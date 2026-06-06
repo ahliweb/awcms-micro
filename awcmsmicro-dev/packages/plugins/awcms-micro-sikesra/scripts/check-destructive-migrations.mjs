@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const migrationsDir = resolve(scriptDir, "../migrations");
 const ALLOW_MARKER = "awcms-sikesra-allow-destructive-migration";
+const ADD_COLUMN_GUARD_MARKER = "awcms-sikesra-idempotent-add-column";
+const REQUIRED_DESTRUCTIVE_MARKERS = ["backup-note:", "rollback-note:", "approval:"];
 const destructivePatterns = [
 	{ label: "DROP TABLE", pattern: /\bDROP\s+TABLE\b/i },
 	{ label: "DROP COLUMN", pattern: /\bDROP\s+COLUMN\b/i },
@@ -18,7 +20,15 @@ const violations = [];
 if (existsSync(migrationsDir)) {
 	for (const file of readdirSync(migrationsDir).filter((entry) => entry.endsWith(".sql"))) {
 		const sql = readFileSync(join(migrationsDir, file), "utf8");
-		if (sql.includes(ALLOW_MARKER)) continue;
+		if (sql.includes(ALLOW_MARKER)) {
+			for (const marker of REQUIRED_DESTRUCTIVE_MARKERS) {
+				if (!sql.includes(marker)) violations.push(`${file}: ${ALLOW_MARKER} missing ${marker}`);
+			}
+			continue;
+		}
+		if (/\bALTER\s+TABLE\b[\s\S]*?\bADD\s+COLUMN\b/i.test(sql) && !sql.includes(ADD_COLUMN_GUARD_MARKER)) {
+			violations.push(`${file}: ALTER TABLE ADD COLUMN missing ${ADD_COLUMN_GUARD_MARKER}`);
+		}
 		for (const { label, pattern } of destructivePatterns) {
 			if (pattern.test(sql)) violations.push(`${file}: ${label}`);
 		}
