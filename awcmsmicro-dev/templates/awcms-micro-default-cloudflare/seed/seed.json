@@ -61,7 +61,7 @@
 				},
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
 			]
-		},
+		}
 	],
 	"taxonomies": [
 		{
@@ -552,7 +552,7 @@
 				"status": "published",
 				"data": {
 					"title": "Surface Plugin Tata Kelola Siap",
-					"summary": "Plugin contoh AWCMS-Micro terhubung melalui jalur plugin EmDash standar untuk demonstrasi audit, hak akses, dan ABAC.",
+					"summary": "Plugin AWCMS-Micro SIKESRA terhubung melalui jalur plugin EmDash standar untuk demonstrasi audit, hak akses, dan ABAC.",
 					"content": [
 						{
 							"_type": "block",
@@ -569,7 +569,6 @@
 					]
 				}
 			}
-		],
 		]
 	}
 }

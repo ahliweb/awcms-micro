@@ -45,7 +45,6 @@ CREATE TABLE IF NOT EXISTS sikesra_delete_snapshots (
 	related_records_json TEXT NOT NULL DEFAULT '[]',
 	checksum TEXT,
 	created_by TEXT,
-	updated_by TEXT,
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now')),
 	deleted_at TEXT,

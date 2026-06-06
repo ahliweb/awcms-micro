@@ -186,9 +186,16 @@ describe("SIKESRA D1 migration prefix policy", () => {
 	});
 
 	it("keeps delete governance snapshot tables aligned with business metadata columns", () => {
+		const allSql = readAllMigrationSql();
 		const definition = getTableDefinition(readAllMigrationSql(), "sikesra_delete_snapshots");
 		expect(definition).not.toBe("");
 		for (const column of REQUIRED_BUSINESS_COLUMNS) {
+			if (column === "updated_by") {
+				expect(allSql, `sikesra_delete_snapshots missing ${column}`).toMatch(
+					/ALTER\s+TABLE\s+sikesra_delete_snapshots\s+ADD\s+COLUMN\s+updated_by\b/i,
+				);
+				continue;
+			}
 			expect(definition, `sikesra_delete_snapshots missing ${column}`).toContain(column);
 		}
 	});

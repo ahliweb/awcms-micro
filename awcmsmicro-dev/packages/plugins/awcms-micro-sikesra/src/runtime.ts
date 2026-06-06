@@ -1254,6 +1254,7 @@ const DEFAULT_ACCESS_PERMISSIONS: AccessPermission[] = [
 		"sikesra.document.read_restricted",
 		"sikesra.import.create",
 		"sikesra.import.validate",
+		"sikesra.import.duplicate_decide",
 		"sikesra.import.promote",
 		"sikesra.verification.read",
 		"sikesra.verification.approve",
@@ -2174,6 +2175,18 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 		ctx.storage.sikesra_registry_entities,
 	);
 	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
+}
+
+async function getRegistryEntitiesReadOnly(
+	ctx: PluginContext,
+): Promise<SikesraReferenceRegistryEntity[]> {
+	const d1Entities = await getD1RegistryEntities(ctx);
+	const legacy =
+		(await ctx.kv.get<SikesraReferenceRegistryEntity[]>("custom:registryEntities")) ?? [];
+	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
+		ctx.storage.sikesra_registry_entities,
+	);
+	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, d1Entities, legacy, stored);
 }
 
 async function saveRegistryEntity(
@@ -4650,7 +4663,7 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 
 		const smallCellThreshold = settings.smallCellThreshold;
 
-		const entitiesList = await getRegistryEntities(ctx);
+		const entitiesList = await getRegistryEntitiesReadOnly(ctx);
 
 		const categories = moduleTypes.map((mod) => {
 			const entities = entitiesList.filter((e) => e.entityType === mod.code);
@@ -4659,7 +4672,13 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 			const verified = eligibleEntities.filter(
 				(e) => (state[e.id] ?? e.verificationStage) === "active_verified",
 			).length;
-			const suppressed = total < smallCellThreshold;
+			const unverified = total - verified;
+			const isSmallPositiveCell = (count: number) =>
+				count > 0 && count < smallCellThreshold;
+			const suppressed =
+				total < smallCellThreshold ||
+				isSmallPositiveCell(verified) ||
+				isSmallPositiveCell(unverified);
 
 			return {
 				code: mod.code,
@@ -4668,7 +4687,7 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 				verified: suppressed ? 0 : verified,
 				suppressed,
 				suppressionReason: suppressed
-					? `Count is below the configured small-cell threshold of ${smallCellThreshold}.`
+					? `One or more aggregate cells are below the configured small-cell threshold of ${smallCellThreshold}.`
 					: null,
 			};
 		});
@@ -5653,11 +5672,17 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (!isRecord(input)) {
 		throw new Error("Invalid input format");
 	}
-	let batchId = getString(input, "batchId");
-	if (!batchId && Array.isArray(input.rows)) {
-		const created = await createD1ImportBatch(ctx, input);
-		batchId = created?.batchId;
+	if (Array.isArray(input.rows) && input.rows.length > 0) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Import promotion must use staged rows from an existing batch.",
+				details: { fields: ["rows"] },
+			},
+		};
 	}
+	const batchId = getString(input, "batchId");
 	if (!batchId)
 		return {
 			success: false,
@@ -5665,7 +5690,23 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		};
 
 	const stagedRows = await getD1ImportStagingRows(ctx, batchId);
-	const invalidRows = stagedRows
+	const selectedRowIds = Array.isArray(input.rowIds)
+		? new Set(input.rowIds.map((rowId) => String(rowId).trim()).filter(Boolean))
+		: null;
+	const targetRows = selectedRowIds
+		? stagedRows.filter((row) => selectedRowIds.has(row.id))
+		: stagedRows;
+	if (selectedRowIds && targetRows.length !== selectedRowIds.size) {
+		return {
+			success: false,
+			error: {
+				code: "VALIDATION_ERROR",
+				message: "Import promotion includes row IDs that do not exist in the staged batch.",
+				details: { fields: ["rowIds"] },
+			},
+		};
+	}
+	const invalidRows = targetRows
 		.filter((row) => row.validationStatus !== "valid")
 		.map((row) => ({ row: row.rowNumber, fields: row.validationErrors }));
 	if (invalidRows.length > 0) {
@@ -5678,7 +5719,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		};
 	}
-	const duplicateRiskRows = stagedRows
+	const duplicateRiskRows = targetRows
 		.filter((row) => row.duplicateStatus === "duplicate_risk")
 		.map((row) => row.rowNumber);
 	if (duplicateRiskRows.length > 0) {
@@ -5691,7 +5732,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 			},
 		};
 	}
-	const invalidCustomAttributeRows = await validateImportCustomAttributeValues(ctx, stagedRows);
+	const invalidCustomAttributeRows = await validateImportCustomAttributeValues(ctx, targetRows);
 	if (invalidCustomAttributeRows.length > 0) {
 		return {
 			success: false,
@@ -5704,7 +5745,7 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	}
 
 	let count = 0;
-	for (const stagedRow of stagedRows.filter((row) => row.promotionStatus !== "promoted")) {
+	for (const stagedRow of targetRows.filter((row) => row.promotionStatus !== "promoted")) {
 		const row = stagedRow.mappedRow;
 		const newEntity: SikesraReferenceRegistryEntity = {
 			id: getString(row, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`,
@@ -5759,7 +5800,7 @@ const SIKESRA_DUPLICATE_CLEARING_DECISIONS = new Set([
 ]);
 
 const duplicateDecisionRoute: SharedRouteHandler = async (routeCtx, ctx) => {
-	const permission = await requireRoutePermission(ctx, "sikesra.registry.update");
+	const permission = await requireRoutePermission(ctx, "sikesra.import.duplicate_decide");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const input = routeCtx.input;
 	if (!isRecord(input)) throw new Error("Invalid input format");

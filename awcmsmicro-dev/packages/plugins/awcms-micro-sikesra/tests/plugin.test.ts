@@ -2357,7 +2357,8 @@ describe("awcms micro sikesra plugin", () => {
 			total: 0,
 			verified: 0,
 			suppressed: true,
-			suppressionReason: "Count is below the configured small-cell threshold of 3.",
+			suppressionReason:
+				"One or more aggregate cells are below the configured small-cell threshold of 3.",
 		});
 		expectPublicSafeOutput(publicResult);
 		expect(settingsTableRows).toHaveLength(6);
@@ -2399,6 +2400,40 @@ describe("awcms micro sikesra plugin", () => {
 		);
 
 		expect(rumahIbadah).toMatchObject({ total: 1, verified: 1, suppressed: false });
+		expectPublicSafeOutput(result);
+	});
+
+	it("suppresses public aggregates when a verified cell is below the small-cell threshold", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		await routes["settings/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { smallCellThreshold: 3 },
+		} as any);
+		for (const index of [1, 2, 3, 4]) {
+			await routes["registry/save"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: {
+					id: `registry-public-small-cell-${index}`,
+					code: `RI-SMALL-${index}`,
+					label: `Public Small Cell ${index}`,
+					entityType: "rumah_ibadah",
+					sensitivity: "public_safe",
+					verificationStage: index === 1 ? "active_verified" : "submitted_village",
+				},
+			} as any);
+		}
+
+		const result = (await routes["public/status"]!.handler({ ...ctx, input: {} } as any)) as any;
+		const rumahIbadah = result.publicAggregate.categories.find(
+			(category: any) => category.code === "rumah_ibadah",
+		);
+
+		expect(rumahIbadah).toMatchObject({ total: 0, verified: 0, suppressed: true });
 		expectPublicSafeOutput(result);
 	});
 
@@ -4723,10 +4758,11 @@ describe("awcms micro sikesra plugin", () => {
 		const routes = createNativeRoutes();
 		const adminRequest = createAdminRequest();
 
-		const result = (await routes["import/promote"]!.handler({
+		await routes["import/create"]!.handler({
 			...ctx,
 			request: adminRequest,
 			input: {
+				batchId: "batch-invalid-01",
 				rows: [
 					{
 						code: "",
@@ -4739,6 +4775,11 @@ describe("awcms micro sikesra plugin", () => {
 					},
 				],
 			},
+		} as any);
+		const result = (await routes["import/promote"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-invalid-01" },
 		} as any)) as any;
 
 		expect(result.success).toBe(false);
@@ -4751,7 +4792,12 @@ describe("awcms micro sikesra plugin", () => {
 			expect.objectContaining({ validation_status: "invalid", validation_errors_json: '["code"]' }),
 		);
 		expect(collections.registryEntities.size).toBe(0);
-		expect(collections.auditEvents.size).toBe(0);
+		expect([...collections.auditEvents.values()]).toContainEqual(
+			expect.objectContaining({ kind: "registry.import.create" }),
+		);
+		expect([...collections.auditEvents.values()]).not.toContainEqual(
+			expect.objectContaining({ kind: "registry.import.promote" }),
+		);
 	});
 
 	it("builds staged import UI payloads through create then promote contracts", () => {
@@ -4901,6 +4947,74 @@ describe("awcms micro sikesra plugin", () => {
 		);
 		expect(customAttributeChangeEventTableRows).toContainEqual(
 			expect.objectContaining({ event_type: "custom_attribute.import.mapping" }),
+		);
+	});
+
+	it("rejects inline import promotion and honors selected staged row IDs", async () => {
+		const { ctx, registryEntityTableRows, importStagingRowTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const inlinePromotion = (await routes["import/promote"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				rows: [{ id: "registry-inline-01", code: "INLINE-001", label: "Inline Row" }],
+			},
+		} as any)) as any;
+		expect(inlinePromotion.success).toBe(false);
+		expect(inlinePromotion.error.code).toBe("VALIDATION_ERROR");
+
+		await routes["import/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				batchId: "batch-selected-01",
+				entityType: "rumah_ibadah",
+				rows: [
+					{
+						id: "registry-selected-01",
+						code: "SEL-001",
+						label: "Selected Row One",
+						entityType: "rumah_ibadah",
+						provinceCode: "62",
+						regencyCode: "6201",
+						districtCode: "620101",
+						villageCode: "6201010001",
+					},
+					{
+						id: "registry-selected-02",
+						code: "SEL-002",
+						label: "Selected Row Two",
+						entityType: "rumah_ibadah",
+						provinceCode: "62",
+						regencyCode: "6201",
+						districtCode: "620101",
+						villageCode: "6201010001",
+					},
+				],
+			},
+		} as any);
+
+		const promoted = (await routes["import/promote"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-selected-01", rowIds: ["batch-selected-01:row:2"] },
+		} as any)) as any;
+
+		expect(promoted.success).toBe(true);
+		expect(promoted.count).toBe(1);
+		expect(registryEntityTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "registry-selected-01" }),
+		);
+		expect(registryEntityTableRows).toContainEqual(
+			expect.objectContaining({ id: "registry-selected-02" }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-selected-01:row:1", promotion_status: "not_promoted" }),
+		);
+		expect(importStagingRowTableRows).toContainEqual(
+			expect.objectContaining({ id: "batch-selected-01:row:2", promotion_status: "promoted" }),
 		);
 	});
 

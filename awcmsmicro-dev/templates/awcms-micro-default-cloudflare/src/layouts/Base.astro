@@ -849,7 +849,7 @@ const pageCtx = createPublicPageContext({
 							<ul class="footer-links-list">
 								<li><a href="/docs" data-astro-prefetch="hover">{copy.footerLinkDocs}</a></li>
 								<li><a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkAggregate}</a></li>
-								<li><a href="/sikesra" data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
+								<li><a href={toLocalePath("/sikesra", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
 							</ul>
 						</div>
 						
