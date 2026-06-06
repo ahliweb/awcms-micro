@@ -8,6 +8,7 @@ import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
 
 const siteUrl = process.env.AWCMS_MICRO_SITE_URL ?? "https://awcms-micro.ahlikoding.com";
+const sikesraTenantId = process.env.AWCMS_MICRO_SIKESRA_TENANT_ID ?? "t-production";
 
 export default defineConfig({
 	output: "server",
@@ -35,7 +36,7 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroGalleryPlugin(),
-				awcmsMicroSikesraPlugin({ tenantId: "t-local-dev" }),
+				awcmsMicroSikesraPlugin({ tenantId: sikesraTenantId }),
 			],
 			sandboxed: [],
 			sandboxRunner: sandbox(),

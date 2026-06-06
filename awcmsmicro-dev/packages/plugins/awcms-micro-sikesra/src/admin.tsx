@@ -5646,12 +5646,8 @@ function DocumentsPage() {
 												>
 													{doc.sensitivity}
 												</Pill>
-							<Button
-								variant="secondary"
-								size="xs"
-								onClick={() => alert(`Preview request recorded for: ${doc.title}.`)}
-							>
-								Request preview
+							<Button variant="secondary" size="xs" disabled>
+								Preview pending storage workflow
 							</Button>
 											</div>
 										</div>
@@ -7244,6 +7240,14 @@ function ImportPage() {
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
+		const allowedWorkbook = /\.(xlsx|xls)$/i.test(file.name);
+		if (!allowedWorkbook) {
+			setFileName(null);
+			setError("Select a valid Excel workbook with .xlsx or .xls extension.");
+			setImportStep(getImportStepIndex("upload"));
+			return;
+		}
+		setError(null);
 		setFileName(file.name);
 		setImportStep(getImportStepIndex("preview"));
 	};

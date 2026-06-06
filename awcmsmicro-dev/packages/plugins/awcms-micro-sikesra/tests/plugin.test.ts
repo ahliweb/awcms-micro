@@ -3174,6 +3174,8 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).not.toContain("mockHash");
 		expect(adminSource).not.toContain("Document successfully uploaded and saved to R2 storage");
 		expect(adminSource).not.toContain("Simulated secure preview");
+		expect(adminSource).not.toContain("alert(`Preview request recorded");
+		expect(adminSource).toContain("Preview pending storage workflow");
 		expect(adminSource).toContain("saveRegistryEntity<");
 		expect(adminSource).toContain("typeCode: parentType?.code");
 		expect(adminSource).toContain("subtypeCode: wizardState.subTypeCode");
@@ -3184,6 +3186,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("runAbacEnforceDemo<");
 		expect(adminSource).toContain("createImportBatch<");
 		expect(adminSource).toContain("promoteImportRows<");
+		expect(adminSource).toContain("/\\.(xlsx|xls)$/i.test(file.name)");
 		expect(adminSource).toContain(
 			"Type PERMANENT DELETE before executing the permanent delete request.",
 		);
@@ -7130,5 +7133,9 @@ describe("awcms micro sikesra plugin", () => {
 			expect(config).toContain("awcmsMicroSikesraPlugin");
 			expect(config).not.toContain("awcmsMicroExamplePlugin");
 		}
+		expect(localTemplateConfig).toContain('tenantId: "t-local-dev"');
+		expect(cloudflareTemplateConfig).toContain("AWCMS_MICRO_SIKESRA_TENANT_ID");
+		expect(cloudflareTemplateConfig).toContain('?? "t-production"');
+		expect(cloudflareTemplateConfig).not.toContain('tenantId: "t-local-dev"');
 	});
 });
