@@ -4058,27 +4058,30 @@ function RegistryPage() {
 					label={copy.registryEntities}
 					value={registryEntities.length}
 					hint={copy.registryEntitiesHint}
+					accent="blue"
 				/>
 				<MetricCard
 					label={copy.verifiedRecords}
 					value={verifiedCount}
 					hint={copy.verifiedRecordsHint}
+					accent="emerald"
 				/>
 				<MetricCard
 					label={copy.restrictedEntries}
 					value={restrictedCount}
 					hint={copy.restrictedEntriesHint}
+					accent="purple"
 				/>
 			</div>
 
-			<div className="mb-4 flex border-b border-kumo-line mt-4">
+			<div className="mb-6 flex gap-2 border-b border-kumo-line/80 mt-5 pb-px">
 				<button
 					type="button"
 					className={cx(
-						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
+						"px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-all duration-200 flex items-center gap-2",
 						activeSubTab === "queue"
 							? "border-kumo-brand text-kumo-brand font-bold"
-							: "border-transparent text-kumo-subtle hover:text-kumo-default",
+							: "border-transparent text-kumo-subtle hover:text-kumo-default hover:border-kumo-line",
 					)}
 					onClick={() => setActiveSubTab("queue")}
 				>
@@ -4087,10 +4090,10 @@ function RegistryPage() {
 				<button
 					type="button"
 					className={cx(
-						"px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-all flex items-center gap-2",
+						"px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-all duration-200 flex items-center gap-2",
 						activeSubTab === "intake"
 							? "border-kumo-brand text-kumo-brand font-bold"
-							: "border-transparent text-kumo-subtle hover:text-kumo-default",
+							: "border-transparent text-kumo-subtle hover:text-kumo-default hover:border-kumo-line",
 					)}
 					onClick={() => setActiveSubTab("intake")}
 				>
@@ -4132,7 +4135,7 @@ function RegistryPage() {
 						</div>
 
 						<div className="overflow-hidden rounded-xl border border-kumo-line bg-kumo-base text-kumo-default">
-							<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
+							<div className="grid grid-cols-[1.1fr_.8fr_.9fr_.9fr] gap-4 border-b border-kumo-line bg-kumo-tint/50 px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-kumo-subtle max-md:hidden">
 								<div>{copy.entity}</div>
 								<div>{copy.region}</div>
 								<div>{copy.sensitivity}</div>
@@ -4149,37 +4152,37 @@ function RegistryPage() {
 									const resolvedTypeNames = resolveDataTypeNames(entity.code, activeDataTypes);
 									return (
 										<div
-											className="grid gap-2 border-t border-kumo-line px-4 py-3.5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/20 transition-all"
+											className="grid gap-4 border-t border-kumo-line px-6 py-5 text-sm md:grid-cols-[1.1fr_.8fr_.9fr_.9fr] hover:bg-kumo-tint/15 transition-all"
 											key={entity.id}
 										>
-											<div className="flex items-start gap-2.5">
+											<div className="flex items-start gap-3">
 												<span className="text-xl shrink-0 mt-0.5" title={entity.entityType}>
 													{getEntityIcon(entity.entityType)}
 												</span>
-												<div>
+												<div className="space-y-1">
 													<div className="font-semibold text-kumo-default">{entity.label}</div>
-													<div className="mt-1 break-all text-xs text-kumo-brand font-mono font-bold">
+													<div className="break-all text-xs text-kumo-brand font-mono font-bold">
 														{entity.code || "PENDING"}
 													</div>
-													<div className="mt-1 text-xs text-kumo-subtle capitalize">
+													<div className="text-xs text-kumo-subtle capitalize">
 														{resolvedTypeNames.parentLabel} • {resolvedTypeNames.subLabel}
 													</div>
-													<div className="mt-2 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-2 rounded-lg border border-kumo-line/50">
+													<div className="mt-3 text-xs text-kumo-subtle leading-relaxed bg-kumo-tint/40 p-3 rounded-xl border border-kumo-line/50">
 														{entity.publicSummary}
 													</div>
 												</div>
 											</div>
-											<div className="text-kumo-subtle leading-relaxed">
-												<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80">
+											<div className="text-kumo-subtle leading-relaxed space-y-1">
+												<span className="font-bold text-[10px] uppercase tracking-wide block text-kumo-subtle/80 mb-0.5">
 													Region Scope:
 												</span>
 												<div className="font-medium text-kumo-default text-xs">
 													{names.provinceName} • {names.regencyName}
 												</div>
-												<div className="font-semibold text-kumo-brand text-xs mt-0.5">
+												<div className="font-semibold text-kumo-brand text-xs">
 													{names.districtName} • {names.villageName}
 												</div>
-												<div className="mt-1.5 font-mono text-[9px] opacity-60">
+												<div className="pt-1 font-mono text-[9px] opacity-60">
 													({entity.region.provinceCode}/{entity.region.regencyCode}/
 													{entity.region.districtCode}/{entity.region.villageCode})
 												</div>
@@ -4224,9 +4227,9 @@ function RegistryPage() {
 							<Feedback message={errMsg} tone="danger" />
 
 							<div className="flex flex-col md:flex-row gap-6">
-								{/* Left Stepper Sidebar */}
-								<div className="w-full md:w-56 shrink-0 border-r border-kumo-line/50 pr-4 max-md:border-r-0 max-md:border-b max-md:pb-4">
-									<div className="space-y-1">
+								{/* Left Stepper Sidebar - Vertical Timeline Style */}
+								<div className="w-full md:w-60 shrink-0 border-r border-kumo-line/40 pr-6 max-md:border-r-0 max-md:border-b max-md:pb-6">
+									<div className="relative pl-4 border-l border-kumo-line/60 ml-2.5 space-y-2 py-1">
 										{copy.registrySteps.map((label, index) => {
 											const isActive = index === step;
 											const isCompleted = index < step;
@@ -4235,28 +4238,36 @@ function RegistryPage() {
 													key={label}
 													onClick={() => setStep(index)}
 													type="button"
-													className={cx(
-														"w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-xs font-medium border",
-														isActive
-															? "bg-kumo-brand/10 border-kumo-brand text-kumo-brand font-semibold shadow-sm"
-															: isCompleted
-																? "bg-kumo-success/5 border-transparent text-kumo-success hover:bg-kumo-success/10"
-																: "bg-transparent border-transparent text-kumo-subtle hover:bg-kumo-tint",
-													)}
+													className="relative w-full text-left pl-7 py-2.5 text-xs font-semibold transition-all group flex flex-col"
 												>
+													{/* Indicator Node on the timeline */}
+													<span className="absolute -left-[25px] top-2 flex items-center justify-center">
+														<span
+															className={cx(
+																"flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300",
+																isActive
+																	? "bg-kumo-brand border-kumo-brand text-white scale-110 shadow-sm"
+																	: isCompleted
+																		? "bg-kumo-success border-kumo-success text-white"
+																		: "bg-kumo-base border-kumo-line text-kumo-subtle group-hover:border-kumo-default group-hover:text-kumo-default",
+															)}
+														>
+															{isCompleted ? "✓" : index + 1}
+														</span>
+													</span>
+													{/* Label */}
 													<span
 														className={cx(
-															"flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold border",
+															"truncate transition-colors duration-200",
 															isActive
-																? "bg-kumo-brand border-kumo-brand text-white"
+																? "text-kumo-brand font-bold"
 																: isCompleted
-																	? "bg-kumo-success border-kumo-success text-white"
-																	: "bg-kumo-base border-kumo-line text-kumo-subtle",
+																	? "text-kumo-success"
+																	: "text-kumo-subtle group-hover:text-kumo-default",
 														)}
 													>
-														{isCompleted ? "✓" : index + 1}
+														{label}
 													</span>
-													<span className="truncate">{label}</span>
 												</button>
 											);
 										})}
@@ -4265,8 +4276,8 @@ function RegistryPage() {
 
 								{/* Right Form Content */}
 								<div className="flex-1 min-w-0">
-									<div className="rounded-xl border border-kumo-line bg-kumo-base p-5 shadow-inner">
-										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line pb-2 mb-4 flex items-center justify-between">
+									<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 shadow-sm">
+										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line/60 pb-3 mb-5 flex items-center justify-between">
 											<span>
 												Step {step + 1}: {copy.registrySteps[step]}
 											</span>
@@ -4275,7 +4286,7 @@ function RegistryPage() {
 											</span>
 										</div>
 
-										<div className="space-y-4">
+										<div className="space-y-5">
 											{step === 0 && (
 												<>
 													<Field
@@ -4699,25 +4710,31 @@ function RegistryPage() {
 															label="Select Supporting File"
 															hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
 														>
-															<input
-																type="file"
-																className="w-full text-xs text-kumo-subtle border border-kumo-line bg-kumo-base rounded px-2 py-1.5"
-																onChange={(e) => {
-																	const file = e.target.files?.[0];
-																	if (file) {
-																		setTempDocFile(file.name);
-																		setTempDocTitle(
-																			(prev) => prev || file.name.split(".")[0] || "",
-																		);
-																	}
-																}}
-															/>
+															<div className="relative border-2 border-dashed border-kumo-line/80 rounded-xl p-5 bg-kumo-tint/10 hover:bg-kumo-tint/20 hover:border-kumo-brand/50 transition-all flex flex-col items-center justify-center cursor-pointer">
+																<input
+																	type="file"
+																	className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+																	onChange={(e) => {
+																		const file = e.target.files?.[0];
+																		if (file) {
+																			setTempDocFile(file.name);
+																			setTempDocTitle(
+																				(prev) => prev || file.name.split(".")[0] || "",
+																			);
+																		}
+																	}}
+																/>
+																<span className="text-xl mb-1.5">📁</span>
+																<span className="text-xs font-semibold text-kumo-brand">
+																	{tempDocFile ? "Change File" : "Choose File or Drag Here"}
+																</span>
+															</div>
 														</Field>
 
 														{tempDocFile && (
-															<div className="text-xs text-kumo-success font-medium flex items-center gap-1">
+															<div className="text-xs text-kumo-success font-medium flex items-center gap-1.5 bg-kumo-success/5 border border-kumo-success/20 rounded-lg p-2.5">
 																<span>✓ Selected file:</span>{" "}
-																<span className="font-mono">{tempDocFile}</span>
+																<span className="font-mono break-all">{tempDocFile}</span>
 															</div>
 														)}
 
@@ -4824,7 +4841,7 @@ function RegistryPage() {
 											)}
 										</div>
 
-										<div className="mt-6 flex items-center justify-between border-t border-kumo-line pt-4">
+										<div className="mt-8 flex items-center justify-between border-t border-kumo-line pt-5">
 											<Button
 												variant="secondary"
 												size="sm"
