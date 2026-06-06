@@ -4151,6 +4151,24 @@ describe("awcms micro sikesra plugin", () => {
 			registry.items.find((item: any) => item.id === "registry-entity-custom-01")?.inputLevel,
 		).toBe("admin_sikesra");
 		expect(documents.items.some((item: any) => item.id === "doc-custom-01")).toBe(true);
+		const filteredDocuments = (await routes["documents/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				registryEntityId: "registry-entity-custom-01",
+				classification: "internal",
+				validationStatus: "pending",
+				limit: 1,
+			},
+		} as any)) as any;
+		expect(filteredDocuments.items).toHaveLength(1);
+		expect(filteredDocuments.items[0]).toMatchObject({ id: "doc-custom-01" });
+		const emptyFilteredDocuments = (await routes["documents/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { registryEntityId: "registry-entity-custom-01", classification: "public_safe" },
+		} as any)) as any;
+		expect(emptyFilteredDocuments.items).toEqual([]);
 		const savedDocumentDto = documents.items.find((item: any) => item.id === "doc-custom-01");
 		expect(savedDocumentDto).toMatchObject({
 			id: "doc-custom-01",
@@ -5358,8 +5376,6 @@ describe("awcms micro sikesra plugin", () => {
 		expect(JSON.parse(String(exportJobTableRows[0]?.requested_fields_json))).toEqual([
 			"code",
 			"label",
-			"nik",
-			"alamat_ktp",
 		]);
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.create" }));
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "export.complete" }));
@@ -5382,6 +5398,17 @@ describe("awcms micro sikesra plugin", () => {
 			input: {},
 		} as any)) as any;
 		expect(listed.items).toContainEqual(expect.objectContaining({ id: "export-job-01" }));
+		expect(listed.items).toContainEqual(
+			expect.objectContaining({ id: "export-job-01", requestedFields: ["code", "label"] }),
+		);
+		expect(JSON.stringify(listed.items)).not.toContain("nik");
+		expect(JSON.stringify(listed.items)).not.toContain("alamat_ktp");
+		const filtered = (await routes["exports/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { sensitivityLevel: "restricted" },
+		} as any)) as any;
+		expect(filtered.items).toEqual([]);
 		expect(auditTableRows).not.toContainEqual(expect.objectContaining({ kind: "export.access" }));
 	});
 

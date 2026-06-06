@@ -4964,16 +4964,24 @@ const registryRestoreRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	return { success: true, item: { id, restored: true } };
 };
 
-const documentsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+const documentsListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.document.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const userId = getRequestUserId(ctx);
 	const restrictedAccess = userId
 		? await previewAccess(ctx, { userId, permissionSlug: "sikesra.document.read_restricted" })
 		: { allowed: false };
-	const docs = await getSupportingDocuments(ctx);
+	let docs = await getSupportingDocuments(ctx);
+	const registryEntityId = getString(routeCtx.input, "registryEntityId");
+	const classification = getString(routeCtx.input, "classification");
+	const validationStatus = getString(routeCtx.input, "validationStatus");
+	if (registryEntityId) docs = docs.filter((doc) => doc.registryEntityId === registryEntityId);
+	if (classification) docs = docs.filter((doc) => doc.sensitivity === classification);
+	if (validationStatus)
+		docs = docs.filter((doc) => (doc.validationStatus ?? "pending") === validationStatus);
+	const limit = Math.min(getNumber(routeCtx.input, "limit") ?? docs.length, 100);
 	return {
-		items: docs.map((doc) =>
+		items: docs.slice(0, limit).map((doc) =>
 			toSafeDocumentAccessResponse(doc, { includeRestrictedMetadata: restrictedAccess.allowed }),
 		),
 	};
@@ -6019,18 +6027,28 @@ async function listD1ExportJobs(ctx: PluginContext) {
 		.orderBy("requested_at", "desc")
 		.execute()) as Array<Record<string, unknown>>;
 
-	return rows.map((row) => ({
-		id: String(row.id),
-		actorUserId: typeof row.actor_user_id === "string" ? row.actor_user_id : undefined,
-		exportType: String(row.export_type),
-		requestedFields: parseJsonList(row.requested_fields_json),
-		sensitivityLevel: String(row.sensitivity_level),
-		reason: typeof row.reason === "string" ? row.reason : undefined,
-		status: String(row.status),
-		resultSummary: parseJsonRecord(row.result_summary_json),
-		requestedAt: String(row.requested_at),
-		completedAt: typeof row.completed_at === "string" ? row.completed_at : undefined,
-	}));
+	return rows.map((row) => {
+		const resultSummary = parseJsonRecord(row.result_summary_json);
+		const excludedFields = Array.isArray(resultSummary.excludedFields)
+			? resultSummary.excludedFields
+			: [];
+		return {
+			id: String(row.id),
+			actorUserId: typeof row.actor_user_id === "string" ? row.actor_user_id : undefined,
+			exportType: String(row.export_type),
+			requestedFields: parseJsonList(row.requested_fields_json),
+			sensitivityLevel: String(row.sensitivity_level),
+			reason: typeof row.reason === "string" ? row.reason : undefined,
+			status: String(row.status),
+			resultSummary: {
+				...resultSummary,
+				excludedFields: undefined,
+				excludedFieldCount: excludedFields.length,
+			},
+			requestedAt: String(row.requested_at),
+			completedAt: typeof row.completed_at === "string" ? row.completed_at : undefined,
+		};
+	});
 }
 
 const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -6092,7 +6110,7 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 		actorName,
 		exportType,
 		entityType: getString(input, "entityType") ?? null,
-		requestedFields,
+		requestedFields: sanitized.allowedFields,
 		filters,
 		sensitivityLevel,
 		reason: reason || null,
@@ -6150,11 +6168,19 @@ const exportsCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 };
 
-const exportsListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+const exportsListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.report.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	const items = await listD1ExportJobs(ctx);
-	return { items };
+	let items = await listD1ExportJobs(ctx);
+	const status = getString(routeCtx.input, "status");
+	const sensitivityLevel = getString(routeCtx.input, "sensitivityLevel");
+	const actorUserId = getString(routeCtx.input, "actorUserId");
+	if (status) items = items.filter((item) => item.status === status);
+	if (sensitivityLevel)
+		items = items.filter((item) => item.sensitivityLevel === sensitivityLevel);
+	if (actorUserId) items = items.filter((item) => item.actorUserId === actorUserId);
+	const limit = Math.min(getNumber(routeCtx.input, "limit") ?? items.length, 100);
+	return { items: items.slice(0, limit) };
 };
 
 const CUSTOM_ATTRIBUTE_SCOPE_TYPES = [
