@@ -2390,6 +2390,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: "Internal Aggregate Test",
 				entityType: "rumah_ibadah",
 				sensitivity: "internal",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 				verificationStage: "active_verified",
 			},
 		} as any);
@@ -2420,11 +2424,15 @@ describe("awcms micro sikesra plugin", () => {
 				input: {
 					id: `registry-public-small-cell-${index}`,
 					code: `RI-SMALL-${index}`,
-					label: `Public Small Cell ${index}`,
-					entityType: "rumah_ibadah",
-					sensitivity: "public_safe",
-					verificationStage: index === 1 ? "active_verified" : "submitted_village",
-				},
+				label: `Public Small Cell ${index}`,
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+				verificationStage: index === 1 ? "active_verified" : "submitted_village",
+			},
 			} as any);
 		}
 
@@ -4085,6 +4093,61 @@ describe("awcms micro sikesra plugin", () => {
 		});
 	});
 
+	it("rejects incomplete or invalid registry save input", async () => {
+		const { ctx, registryEntityTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const missingRequired = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-invalid-missing",
+				label: "Missing Code And Type",
+			},
+		} as any)) as any;
+		expect(missingRequired.success).toBe(false);
+		expect(missingRequired.error.code).toBe("VALIDATION_ERROR");
+		expect(missingRequired.error.details.fields).toEqual([
+			"code",
+			"entityType",
+			"provinceCode",
+			"regencyCode",
+			"districtCode",
+			"villageCode",
+		]);
+
+		const invalidEnums = (await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-invalid-enums",
+				code: "INVALID-ENUMS-001",
+				label: "Invalid Enums",
+				entityType: "unknown_module",
+				sensitivity: "secret",
+				provinceCode: "6",
+				regencyCode: "620",
+				districtCode: "62010",
+				villageCode: "620101000",
+				sikesraId20: "invalid-id",
+			},
+		} as any)) as any;
+		expect(invalidEnums.success).toBe(false);
+		expect(invalidEnums.error.details.fields).toEqual([
+			"entityType",
+			"sensitivity",
+			"provinceCode",
+			"regencyCode",
+			"districtCode",
+			"villageCode",
+			"sikesraId20",
+		]);
+		expect(registryEntityTableRows).not.toContainEqual(
+			expect.objectContaining({ id: "registry-entity-invalid-enums" }),
+		);
+	});
+
 	it("persists registry records in D1 and document records in plugin storage", async () => {
 		const {
 			ctx,
@@ -4250,6 +4313,10 @@ describe("awcms micro sikesra plugin", () => {
 				label: "Document Redaction Entity",
 				entityType: "rumah_ibadah",
 				sensitivity: "public_safe",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
 			},
 		} as any);
 		await routes["documents/save"]!.handler({
@@ -4826,6 +4893,9 @@ describe("awcms micro sikesra plugin", () => {
 					entityType: "rumah_ibadah",
 					typeCode: "01",
 					subtypeCode: "02",
+					provinceCode: "62",
+					regencyCode: "6201",
+					districtCode: "620101",
 					villageCode: "6201010001",
 				},
 			} as any);

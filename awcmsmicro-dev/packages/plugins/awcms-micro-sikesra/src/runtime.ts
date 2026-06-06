@@ -19,6 +19,9 @@ import { SIKESRA_PO_LOCALE_MESSAGES } from "./locales/messages.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 
 const SIKESRA_VILLAGE_CODE_PATTERN = /^\d{10}$/;
+const SIKESRA_PROVINCE_CODE_PATTERN = /^\d{2}$/;
+const SIKESRA_REGENCY_CODE_PATTERN = /^\d{4}$/;
+const SIKESRA_DISTRICT_CODE_PATTERN = /^\d{6}$/;
 const SIKESRA_TYPE_CODE_PATTERN = /^\d{2}$/;
 const SIKESRA_SUBTYPE_CODE_PATTERN = /^\d{2}$/;
 const SIKESRA_ID_20_PATTERN = /^\d{20}$/;
@@ -353,6 +356,12 @@ const AWCMS_SIKESRA_DELETE_SNAPSHOTS_TABLE = "sikesra_delete_snapshots";
 const AWCMS_SIKESRA_DELETE_EVENTS_TABLE = "sikesra_delete_events";
 const AWCMS_SIKESRA_VERIFICATION_STAGE_STATE_TABLE = "sikesra_verification_stage_state";
 const AWCMS_SIKESRA_VERIFICATION_EVENTS_TABLE = "sikesra_verification_events";
+const AWCMS_SIKESRA_SENSITIVITIES = [
+	"public_safe",
+	"internal",
+	"restricted",
+	"highly_restricted",
+] as const;
 const AWCMS_SIKESRA_DOCUMENT_CLASSIFICATIONS = ["public_safe", "internal", "restricted"] as const;
 const AWCMS_SIKESRA_DOCUMENT_CONTENT_TYPES = [
 	"application/pdf",
@@ -4772,12 +4781,44 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	}
 	const fields = parseJsonRecord(input.fields);
 	const getRegistryString = (key: string) => getString(input, key) ?? getString(fields, key);
+	const code = getRegistryString("code")?.trim() ?? "";
+	const label = getString(input, "label")?.trim() ?? getString(fields, "label")?.trim() ?? "";
+	const entityType = getString(input, "entityType") ?? getString(fields, "entityType") ?? "";
+	const sensitivity = getString(input, "sensitivity") ?? getString(fields, "sensitivity") ?? "public_safe";
+	const provinceCode = getRegistryString("provinceCode") ?? "";
+	const regencyCode = getRegistryString("regencyCode") ?? "";
+	const districtCode = getRegistryString("districtCode") ?? "";
+	const villageCode = getRegistryString("villageCode") ?? "";
+	const clientSikesraId20 = getString(input, "sikesraId20") ?? getString(fields, "sikesraId20");
+	const invalidFields = [
+		...(code ? [] : ["code"]),
+		...(label ? [] : ["label"]),
+		...(entityType ? [] : ["entityType"]),
+		...(provinceCode ? [] : ["provinceCode"]),
+		...(regencyCode ? [] : ["regencyCode"]),
+		...(districtCode ? [] : ["districtCode"]),
+		...(villageCode ? [] : ["villageCode"]),
+		...(entityType && !DEFAULT_DATA_TYPES.some((type) => type.id === entityType)
+			? ["entityType"]
+			: []),
+		...(AWCMS_SIKESRA_SENSITIVITIES.includes(sensitivity as any) ? [] : ["sensitivity"]),
+		...(provinceCode && !SIKESRA_PROVINCE_CODE_PATTERN.test(provinceCode) ? ["provinceCode"] : []),
+		...(regencyCode && !SIKESRA_REGENCY_CODE_PATTERN.test(regencyCode) ? ["regencyCode"] : []),
+		...(districtCode && !SIKESRA_DISTRICT_CODE_PATTERN.test(districtCode)
+			? ["districtCode"]
+			: []),
+		...(villageCode && !SIKESRA_VILLAGE_CODE_PATTERN.test(villageCode) ? ["villageCode"] : []),
+		...(clientSikesraId20 && !SIKESRA_ID_20_PATTERN.test(clientSikesraId20)
+			? ["sikesraId20"]
+			: []),
+	];
+	if (invalidFields.length > 0) return createValidationError([...new Set(invalidFields)]);
 	const id = getString(input, "id") ?? `registry-entity-${Math.random().toString(36).slice(2, 10)}`;
 	const sikesraId20 =
-		getString(input, "sikesraId20") ??
+		clientSikesraId20 ??
 		(await generateD1SikesraId20(ctx, {
 			registryEntityId: id,
-			villageCode: getRegistryString("villageCode") ?? "",
+			villageCode,
 			typeCode: getRegistryString("typeCode") ?? "",
 			subtypeCode: getRegistryString("subtypeCode") ?? "",
 			actor: actorFromRoute(ctx),
@@ -4785,15 +4826,15 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const newEntity: SikesraReferenceRegistryEntity = {
 		id,
 		sikesraId20: sikesraId20 ?? undefined,
-		code: getRegistryString("code") ?? "",
-		label: getString(input, "label") ?? "Untitled Registry Entity",
-		entityType: getString(input, "entityType") ?? "rumah_ibadah",
-		sensitivity: (getString(input, "sensitivity") as SikesraSensitivity) ?? "public_safe",
+		code,
+		label,
+		entityType,
+		sensitivity: sensitivity as SikesraSensitivity,
 		region: {
-			provinceCode: getRegistryString("provinceCode") ?? "",
-			regencyCode: getRegistryString("regencyCode") ?? "",
-			districtCode: getRegistryString("districtCode") ?? "",
-			villageCode: getRegistryString("villageCode") ?? "",
+			provinceCode,
+			regencyCode,
+			districtCode,
+			villageCode,
 		},
 		verificationStage: "submitted_village",
 		inputLevel:

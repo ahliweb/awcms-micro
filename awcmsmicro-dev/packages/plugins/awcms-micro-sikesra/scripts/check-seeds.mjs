@@ -13,6 +13,12 @@ const destructiveSeedPattern = /\b(?:DROP|DELETE|UPDATE|ALTER|TRUNCATE)\b/i;
 const tenantPlaceholder = "__TENANT_ID__";
 const sitePlaceholder = "__SITE_ID__";
 const storageKeyPattern = /tenants\/__TENANT_ID__\/sites\/__SITE_ID__\/modules\/sikesra\/(?:internal|restricted|highly_restricted|public_safe)\/\d{4}\/\d{2}\/[a-z0-9._-]+/;
+const verificationLevelRegionPattern = {
+	desa_kelurahan: /^\d{10}$/,
+	kecamatan: /^\d{6}$/,
+	sopd: /^\d{4}$/,
+	kabupaten: /^\d{4}$/,
+};
 const requiredModules = [
 	"rumah_ibadah",
 	"lembaga_keagamaan",
@@ -63,6 +69,30 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 		const regionCode = regionMatch[1] ?? regionMatch[2];
 		if (regionCode && !seededRegions.has(regionCode)) {
 			violations.push(`${file} references unseeded region scope: ${regionCode}`);
+		}
+	}
+	for (const verificationMatch of sql.matchAll(
+		/'([^']+)',\s*'([^']+)',\s*'(?:registry-entity-[^']+)',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*(?:'[^']+'|NULL),\s*'[^']+',\s*'([0-9]{2,10})'/g,
+	)) {
+		const level = verificationMatch[3];
+		const regionCode = verificationMatch[4];
+		const expectedPattern = verificationLevelRegionPattern[level];
+		if (expectedPattern && regionCode && !expectedPattern.test(regionCode)) {
+			violations.push(
+				`${file} has ${level} verification scope with invalid region code: ${regionCode}`,
+			);
+		}
+	}
+	for (const eventMatch of sql.matchAll(
+		/'verify-[^']+',\s*'registry-entity-[^']+',\s*'[^']+',\s*'[^']+',\s*'(desa_kelurahan|kecamatan|sopd|kabupaten)',\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'([0-9]{2,10})'/g,
+	)) {
+		const level = eventMatch[1];
+		const regionCode = eventMatch[2];
+		const expectedPattern = verificationLevelRegionPattern[level];
+		if (expectedPattern && regionCode && !expectedPattern.test(regionCode)) {
+			violations.push(
+				`${file} has ${level} verification event with invalid region code: ${regionCode}`,
+			);
 		}
 	}
 	for (const module of requiredModules) {
