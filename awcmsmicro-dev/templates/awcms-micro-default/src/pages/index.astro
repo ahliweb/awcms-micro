@@ -129,7 +129,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 const storageBaseUrl = import.meta.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL 
 	|| (typeof process !== "undefined" ? process.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL : undefined)
 	|| (Astro.locals as any).runtime?.env?.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL
-	|| "https://awcms-micro-s3.ahlikoding.com";
+	|| "/_emdash/api/media/file";
 
 const dashboardMockupUrl = `${storageBaseUrl}/dashboard_mockup.png`;
 const networkShowcaseUrl = `${storageBaseUrl}/network_showcase.png`;
