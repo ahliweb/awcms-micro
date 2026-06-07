@@ -2730,6 +2730,158 @@ msgctxt "awcms.adminCopy.selectFile"
 msgid "Select file..."
 msgstr "Select file..."
 
+msgctxt "awcms.adminCopy.selectedFile"
+msgid "Selected file"
+msgstr "Selected file"
+
+msgctxt "awcms.adminCopy.chooseSpreadsheetSheet"
+msgid "Choose Spreadsheet Sheet"
+msgstr "Choose Spreadsheet Sheet"
+
+msgctxt "awcms.adminCopy.back"
+msgid "Back"
+msgstr "Back"
+
+msgctxt "awcms.adminCopy.mapExcelColumnsDescription"
+msgid "Map Excel columns (A, B, C...) to SIKESRA fields:"
+msgstr "Map Excel columns (A, B, C...) to SIKESRA fields:"
+
+msgctxt "awcms.adminCopy.entityCodeSikesraId"
+msgid "Entity Code (SIKESRA ID)"
+msgstr "Entity Code (SIKESRA ID)"
+
+msgctxt "awcms.adminCopy.identityLabelName"
+msgid "Identity Label / Name"
+msgstr "Identity Label / Name"
+
+msgctxt "awcms.adminCopy.entityTypeColumn"
+msgid "Entity Type Column"
+msgstr "Entity Type Column"
+
+msgctxt "awcms.adminCopy.sensitivityClassification"
+msgid "Sensitivity classification"
+msgstr "Sensitivity classification"
+
+msgctxt "awcms.adminCopy.villageCodeColumn"
+msgid "Village Code Column"
+msgstr "Village Code Column"
+
+msgctxt "awcms.adminCopy.publicSummaryColumn"
+msgid "Public Summary Column"
+msgstr "Public Summary Column"
+
+msgctxt "awcms.adminCopy.validateAndNext"
+msgid "Validate & Next"
+msgstr "Validate & Next"
+
+msgctxt "awcms.adminCopy.previewStagingDescription"
+msgid "Inspect valid rows staged for duplicate review and promotion. Identifiers and types are verified."
+msgstr "Inspect valid rows staged for duplicate review and promotion. Identifiers and types are verified."
+
+msgctxt "awcms.adminCopy.validRows"
+msgid "Valid rows"
+msgstr "Valid rows"
+
+msgctxt "awcms.adminCopy.invalidRows"
+msgid "Invalid rows"
+msgstr "Invalid rows"
+
+msgctxt "awcms.adminCopy.duplicateCandidates"
+msgid "Duplicate candidates"
+msgstr "Duplicate candidates"
+
+msgctxt "awcms.adminCopy.type"
+msgid "Type"
+msgstr "Type"
+
+msgctxt "awcms.adminCopy.regionDesa"
+msgid "Region (Desa)"
+msgstr "Region (Desa)"
+
+msgctxt "awcms.adminCopy.reviewDuplicates"
+msgid "Review duplicates"
+msgstr "Review duplicates"
+
+msgctxt "awcms.adminCopy.duplicateReview"
+msgid "Duplicate review"
+msgstr "Duplicate review"
+
+msgctxt "awcms.adminCopy.duplicateReviewDescription"
+msgid "Resolve duplicate-risk rows before promotion. Every decision requires a reason and is audit-relevant."
+msgstr "Resolve duplicate-risk rows before promotion. Every decision requires a reason and is audit-relevant."
+
+msgctxt "awcms.adminCopy.incomingRow"
+msgid "Incoming row"
+msgstr "Incoming row"
+
+msgctxt "awcms.adminCopy.possibleMatch"
+msgid "Possible match"
+msgstr "Possible match"
+
+msgctxt "awcms.adminCopy.matchScore"
+msgid "Match score"
+msgstr "Match score"
+
+msgctxt "awcms.adminCopy.decision"
+msgid "Decision"
+msgstr "Decision"
+
+msgctxt "awcms.adminCopy.createAsSeparateRecord"
+msgid "Create as separate record"
+msgstr "Create as separate record"
+
+msgctxt "awcms.adminCopy.clearedAfterManualReview"
+msgid "Cleared after manual review"
+msgstr "Cleared after manual review"
+
+msgctxt "awcms.adminCopy.falsePositiveDuplicateMatch"
+msgid "False-positive duplicate match"
+msgstr "False-positive duplicate match"
+
+msgctxt "awcms.adminCopy.decisionReason"
+msgid "Decision reason"
+msgstr "Decision reason"
+
+msgctxt "awcms.adminCopy.promotionBlockedUntilDuplicateDecisions"
+msgid "Promotion is blocked until each duplicate candidate has a decision and reason."
+msgstr "Promotion is blocked until each duplicate candidate has a decision and reason."
+
+msgctxt "awcms.adminCopy.continueToPromote"
+msgid "Continue to promote"
+msgstr "Continue to promote"
+
+msgctxt "awcms.adminCopy.promoteValidRows"
+msgid "Promote valid rows"
+msgstr "Promote valid rows"
+
+msgctxt "awcms.adminCopy.promoteValidRowsDescription"
+msgid "Final promotion is available only after validation and duplicate review pass."
+msgstr "Final promotion is available only after validation and duplicate review pass."
+
+msgctxt "awcms.adminCopy.rowsReady"
+msgid "Rows ready"
+msgstr "Rows ready"
+
+msgctxt "awcms.adminCopy.duplicateDecisions"
+msgid "Duplicate decisions"
+msgstr "Duplicate decisions"
+
+msgctxt "awcms.adminCopy.auditEvents"
+msgid "Audit events"
+msgstr "Audit events"
+
+msgctxt "awcms.adminCopy.promoting"
+msgid "Promoting..."
+msgstr "Promoting..."
+
+msgctxt "awcms.adminCopy.promotedEntitiesIntoRegistryQueue"
+msgid "Promoted {count} entities into SIKESRA Registry queue."
+msgstr "Promoted {count} entities into SIKESRA Registry queue."
+
+msgctxt "awcms.adminCopy.uploadNewFile"
+msgid "Upload New File"
+msgstr "Upload New File"
+
 msgctxt "awcms.adminCopy.mappingValidationPassed"
 msgid "Column mapping validated successfully."
 msgstr "Column mapping validated successfully."
@@ -2782,6 +2934,18 @@ msgctxt "awcms.adminCopy.failedToSaveRegions"
 msgid "Failed to update official region data."
 msgstr "Failed to update official region data."
 
+msgctxt "awcms.adminCopy.unsavedRegionsWarning"
+msgid "You have unsaved official region changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+msgstr "You have unsaved official region changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+
+msgctxt "awcms.adminCopy.administrativeRegionExplorer"
+msgid "Official administrative region explorer"
+msgstr "Official administrative region explorer"
+
+msgctxt "awcms.adminCopy.administrativeRegionExplorerDescription"
+msgid "Browse and manage the official hierarchical region structure below."
+msgstr "Browse and manage the official hierarchical region structure below."
+
 msgctxt "awcms.adminCopy.province"
 msgid "Province"
 msgstr "Province"
@@ -2797,6 +2961,82 @@ msgstr "District"
 msgctxt "awcms.adminCopy.village"
 msgid "Village"
 msgstr "Village"
+
+msgctxt "awcms.adminCopy.add"
+msgid "Add"
+msgstr "Add"
+
+msgctxt "awcms.adminCopy.editAction"
+msgid "Edit"
+msgstr "Edit"
+
+msgctxt "awcms.adminCopy.deleteAction"
+msgid "Delete"
+msgstr "Delete"
+
+msgctxt "awcms.adminCopy.codeValue"
+msgid "Code: {code}"
+msgstr "Code: {code}"
+
+msgctxt "awcms.adminCopy.selectProvinceFirst"
+msgid "Select a province first."
+msgstr "Select a province first."
+
+msgctxt "awcms.adminCopy.noRegenciesYet"
+msgid "No regency/city data yet."
+msgstr "No regency/city data yet."
+
+msgctxt "awcms.adminCopy.selectRegencyFirst"
+msgid "Select a regency/city first."
+msgstr "Select a regency/city first."
+
+msgctxt "awcms.adminCopy.noDistrictsYet"
+msgid "No district data yet."
+msgstr "No district data yet."
+
+msgctxt "awcms.adminCopy.selectDistrictFirst"
+msgid "Select a district first."
+msgstr "Select a district first."
+
+msgctxt "awcms.adminCopy.noVillagesYet"
+msgid "No village/subdistrict data yet."
+msgstr "No village/subdistrict data yet."
+
+msgctxt "awcms.adminCopy.addRegionTitle"
+msgid "Add {level}"
+msgstr "Add {level}"
+
+msgctxt "awcms.adminCopy.editRegionTitle"
+msgid "Edit {level}"
+msgstr "Edit {level}"
+
+msgctxt "awcms.adminCopy.regionEditorDescription"
+msgid "Enter a unique name and code for the {level} administrative level."
+msgstr "Enter a unique name and code for the {level} administrative level."
+
+msgctxt "awcms.adminCopy.close"
+msgid "Close"
+msgstr "Close"
+
+msgctxt "awcms.adminCopy.regionNamePlaceholder"
+msgid "Region name"
+msgstr "Region name"
+
+msgctxt "awcms.adminCopy.nodeCodeHint"
+msgid "Ensure the code is unique and follows the administrative reference standard (BPS/Kemendagri)."
+msgstr "Ensure the code is unique and follows the administrative reference standard (BPS/Kemendagri)."
+
+msgctxt "awcms.adminCopy.regionCodePlaceholder"
+msgid "Region code"
+msgstr "Region code"
+
+msgctxt "awcms.adminCopy.confirm"
+msgid "Confirm"
+msgstr "Confirm"
+
+msgctxt "awcms.adminCopy.cancel"
+msgid "Cancel"
+msgstr "Cancel"
 
 msgctxt "awcms.adminCopy.addProvince"
 msgid "Add Province"
@@ -2897,6 +3137,66 @@ msgstr "Failed to update SIKESRA classification data."
 msgctxt "awcms.adminCopy.invalidTypeCode"
 msgid "Code must be a unique 2-digit number/alphanumeric."
 msgstr "Code must be a unique 2-digit number/alphanumeric."
+
+msgctxt "awcms.adminCopy.invalidTypeId"
+msgid "ID must be alphanumeric lowercase with underscores."
+msgstr "ID must be alphanumeric lowercase with underscores."
+
+msgctxt "awcms.adminCopy.invalidTypeIdUnique"
+msgid "ID must be unique."
+msgstr "ID must be unique."
+
+msgctxt "awcms.adminCopy.reset"
+msgid "Reset"
+msgstr "Reset"
+
+msgctxt "awcms.adminCopy.unsavedDataTypesWarning"
+msgid "You have unsaved data type changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+msgstr "You have unsaved data type changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+
+msgctxt "awcms.adminCopy.noParentTypesYet"
+msgid "No parent data types yet."
+msgstr "No parent data types yet."
+
+msgctxt "awcms.adminCopy.selectParentTypeFirst"
+msgid "Select a parent data type first."
+msgstr "Select a parent data type first."
+
+msgctxt "awcms.adminCopy.noSubtypesYet"
+msgid "No sub data types yet."
+msgstr "No sub data types yet."
+
+msgctxt "awcms.adminCopy.dataTypeEditorDescription"
+msgid "Enter a unique label/name and 2-character code."
+msgstr "Enter a unique label/name and 2-character code."
+
+msgctxt "awcms.adminCopy.labelName"
+msgid "Label/Name"
+msgstr "Label/Name"
+
+msgctxt "awcms.adminCopy.dataClassificationPlaceholder"
+msgid "Classification name"
+msgstr "Classification name"
+
+msgctxt "awcms.adminCopy.idString"
+msgid "String ID"
+msgstr "String ID"
+
+msgctxt "awcms.adminCopy.idStringHint"
+msgid "Use lowercase and underscore format (example: rumah_ibadah)."
+msgstr "Use lowercase and underscore format (example: rumah_ibadah)."
+
+msgctxt "awcms.adminCopy.dataTypeIdPlaceholder"
+msgid "data_type_id"
+msgstr "data_type_id"
+
+msgctxt "awcms.adminCopy.twoDigitCode"
+msgid "Code (2 Characters)"
+msgstr "Code (2 Characters)"
+
+msgctxt "awcms.adminCopy.twoDigitCodeHint"
+msgid "Must be 2 unique characters (example: 01, 02, 99)."
+msgstr "Must be 2 unique characters (example: 01, 02, 99)."
 
 msgctxt "awcms.adminCopy.userLabel"
 msgid "User"

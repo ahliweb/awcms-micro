@@ -7757,6 +7757,65 @@ describe("awcms micro sikesra plugin", () => {
 		}
 	});
 
+	it("keeps import workflow page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.chooseSpreadsheetSheet",
+			"awcms.adminCopy.entityCodeSikesraId",
+			"awcms.adminCopy.previewStagingDescription",
+			"awcms.adminCopy.duplicateReview",
+			"awcms.adminCopy.promotionBlockedUntilDuplicateDecisions",
+			"awcms.adminCopy.promoteValidRows",
+			"awcms.adminCopy.promotedEntitiesIntoRegistryQueue",
+			"awcms.adminCopy.uploadNewFile",
+		];
+
+		expect(adminSource).toContain("copy.chooseSpreadsheetSheet");
+		expect(adminSource).toContain("copy.duplicateReview");
+		expect(adminSource).toContain("copy.promotedEntitiesIntoRegistryQueue(stagingRows.length)");
+		expect(adminSource).not.toContain("Choose Spreadsheet Sheet");
+		expect(adminSource).not.toContain("Entity Code (SIKESRA ID)");
+		expect(adminSource).not.toContain("Promotion is blocked until each duplicate candidate has a decision and reason.");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps regions and data type editor copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.unsavedRegionsWarning",
+			"awcms.adminCopy.administrativeRegionExplorer",
+			"awcms.adminCopy.selectProvinceFirst",
+			"awcms.adminCopy.regionEditorDescription",
+			"awcms.adminCopy.unsavedDataTypesWarning",
+			"awcms.adminCopy.noParentTypesYet",
+			"awcms.adminCopy.dataTypeEditorDescription",
+			"awcms.adminCopy.idStringHint",
+			"awcms.adminCopy.twoDigitCodeHint",
+		];
+
+		expect(adminSource).toContain("copy.administrativeRegionExplorer");
+		expect(adminSource).toContain("copy.unsavedRegionsWarning(copy.saveRegions)");
+		expect(adminSource).toContain("copy.unsavedDataTypesWarning(copy.saveDataTypes)");
+		expect(adminSource).not.toContain("Explorer Wilayah Administratif Resmi");
+		expect(adminSource).not.toContain("Pilih provinsi terlebih dahulu.");
+		expect(adminSource).not.toContain("Belum ada jenis data induk");
+		expect(adminSource).not.toContain("Simpan Perubahan Wilayah");
+		expect(adminSource).not.toContain("ID must be unique.");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
 	it("keeps user-facing plugin identity copy out of demonstration wording", () => {
 		for (const path of [
 			"../src/locales/messages.ts",

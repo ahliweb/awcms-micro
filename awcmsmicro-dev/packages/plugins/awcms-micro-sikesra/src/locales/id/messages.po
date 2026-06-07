@@ -2730,6 +2730,158 @@ msgctxt "awcms.adminCopy.selectFile"
 msgid "Select file..."
 msgstr "Pilih file..."
 
+msgctxt "awcms.adminCopy.selectedFile"
+msgid "Selected file"
+msgstr "File terpilih"
+
+msgctxt "awcms.adminCopy.chooseSpreadsheetSheet"
+msgid "Choose Spreadsheet Sheet"
+msgstr "Pilih Sheet Spreadsheet"
+
+msgctxt "awcms.adminCopy.back"
+msgid "Back"
+msgstr "Kembali"
+
+msgctxt "awcms.adminCopy.mapExcelColumnsDescription"
+msgid "Map Excel columns (A, B, C...) to SIKESRA fields:"
+msgstr "Petakan kolom Excel (A, B, C...) ke field SIKESRA:"
+
+msgctxt "awcms.adminCopy.entityCodeSikesraId"
+msgid "Entity Code (SIKESRA ID)"
+msgstr "Kode Entitas (ID SIKESRA)"
+
+msgctxt "awcms.adminCopy.identityLabelName"
+msgid "Identity Label / Name"
+msgstr "Label / Nama Identitas"
+
+msgctxt "awcms.adminCopy.entityTypeColumn"
+msgid "Entity Type Column"
+msgstr "Kolom Tipe Entitas"
+
+msgctxt "awcms.adminCopy.sensitivityClassification"
+msgid "Sensitivity classification"
+msgstr "Klasifikasi sensitivitas"
+
+msgctxt "awcms.adminCopy.villageCodeColumn"
+msgid "Village Code Column"
+msgstr "Kolom Kode Desa"
+
+msgctxt "awcms.adminCopy.publicSummaryColumn"
+msgid "Public Summary Column"
+msgstr "Kolom Ringkasan Publik"
+
+msgctxt "awcms.adminCopy.validateAndNext"
+msgid "Validate & Next"
+msgstr "Validasi & Lanjut"
+
+msgctxt "awcms.adminCopy.previewStagingDescription"
+msgid "Inspect valid rows staged for duplicate review and promotion. Identifiers and types are verified."
+msgstr "Periksa baris valid yang distaging untuk review duplikasi dan promosi. Pengenal dan tipe sudah diverifikasi."
+
+msgctxt "awcms.adminCopy.validRows"
+msgid "Valid rows"
+msgstr "Baris valid"
+
+msgctxt "awcms.adminCopy.invalidRows"
+msgid "Invalid rows"
+msgstr "Baris tidak valid"
+
+msgctxt "awcms.adminCopy.duplicateCandidates"
+msgid "Duplicate candidates"
+msgstr "Kandidat duplikasi"
+
+msgctxt "awcms.adminCopy.type"
+msgid "Type"
+msgstr "Tipe"
+
+msgctxt "awcms.adminCopy.regionDesa"
+msgid "Region (Desa)"
+msgstr "Wilayah (Desa)"
+
+msgctxt "awcms.adminCopy.reviewDuplicates"
+msgid "Review duplicates"
+msgstr "Review duplikasi"
+
+msgctxt "awcms.adminCopy.duplicateReview"
+msgid "Duplicate review"
+msgstr "Review duplikasi"
+
+msgctxt "awcms.adminCopy.duplicateReviewDescription"
+msgid "Resolve duplicate-risk rows before promotion. Every decision requires a reason and is audit-relevant."
+msgstr "Selesaikan baris berisiko duplikasi sebelum promosi. Setiap keputusan memerlukan alasan dan relevan untuk audit."
+
+msgctxt "awcms.adminCopy.incomingRow"
+msgid "Incoming row"
+msgstr "Baris masuk"
+
+msgctxt "awcms.adminCopy.possibleMatch"
+msgid "Possible match"
+msgstr "Kemungkinan cocok"
+
+msgctxt "awcms.adminCopy.matchScore"
+msgid "Match score"
+msgstr "Skor kecocokan"
+
+msgctxt "awcms.adminCopy.decision"
+msgid "Decision"
+msgstr "Keputusan"
+
+msgctxt "awcms.adminCopy.createAsSeparateRecord"
+msgid "Create as separate record"
+msgstr "Buat sebagai record terpisah"
+
+msgctxt "awcms.adminCopy.clearedAfterManualReview"
+msgid "Cleared after manual review"
+msgstr "Dinyatakan aman setelah review manual"
+
+msgctxt "awcms.adminCopy.falsePositiveDuplicateMatch"
+msgid "False-positive duplicate match"
+msgstr "Kecocokan duplikasi false-positive"
+
+msgctxt "awcms.adminCopy.decisionReason"
+msgid "Decision reason"
+msgstr "Alasan keputusan"
+
+msgctxt "awcms.adminCopy.promotionBlockedUntilDuplicateDecisions"
+msgid "Promotion is blocked until each duplicate candidate has a decision and reason."
+msgstr "Promosi diblokir sampai setiap kandidat duplikasi memiliki keputusan dan alasan."
+
+msgctxt "awcms.adminCopy.continueToPromote"
+msgid "Continue to promote"
+msgstr "Lanjut ke promosi"
+
+msgctxt "awcms.adminCopy.promoteValidRows"
+msgid "Promote valid rows"
+msgstr "Promosikan baris valid"
+
+msgctxt "awcms.adminCopy.promoteValidRowsDescription"
+msgid "Final promotion is available only after validation and duplicate review pass."
+msgstr "Promosi final hanya tersedia setelah validasi dan review duplikasi lulus."
+
+msgctxt "awcms.adminCopy.rowsReady"
+msgid "Rows ready"
+msgstr "Baris siap"
+
+msgctxt "awcms.adminCopy.duplicateDecisions"
+msgid "Duplicate decisions"
+msgstr "Keputusan duplikasi"
+
+msgctxt "awcms.adminCopy.auditEvents"
+msgid "Audit events"
+msgstr "Event audit"
+
+msgctxt "awcms.adminCopy.promoting"
+msgid "Promoting..."
+msgstr "Mempromosikan..."
+
+msgctxt "awcms.adminCopy.promotedEntitiesIntoRegistryQueue"
+msgid "Promoted {count} entities into SIKESRA Registry queue."
+msgstr "{count} entitas dipromosikan ke antrean Registry SIKESRA."
+
+msgctxt "awcms.adminCopy.uploadNewFile"
+msgid "Upload New File"
+msgstr "Unggah File Baru"
+
 msgctxt "awcms.adminCopy.mappingValidationPassed"
 msgid "Column mapping validated successfully."
 msgstr "Pemetaan kolom tervalidasi sukses."
@@ -2782,6 +2934,18 @@ msgctxt "awcms.adminCopy.failedToSaveRegions"
 msgid "Failed to update official region data."
 msgstr "Gagal memperbarui data wilayah resmi."
 
+msgctxt "awcms.adminCopy.unsavedRegionsWarning"
+msgid "You have unsaved official region changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+msgstr "Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik tombol \"{saveLabel}\" di atas untuk menyimpan."
+
+msgctxt "awcms.adminCopy.administrativeRegionExplorer"
+msgid "Official administrative region explorer"
+msgstr "Explorer Wilayah Administratif Resmi"
+
+msgctxt "awcms.adminCopy.administrativeRegionExplorerDescription"
+msgid "Browse and manage the official hierarchical region structure below."
+msgstr "Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini."
+
 msgctxt "awcms.adminCopy.province"
 msgid "Province"
 msgstr "Provinsi"
@@ -2797,6 +2961,82 @@ msgstr "Kecamatan"
 msgctxt "awcms.adminCopy.village"
 msgid "Village"
 msgstr "Desa/Kelurahan"
+
+msgctxt "awcms.adminCopy.add"
+msgid "Add"
+msgstr "Tambah"
+
+msgctxt "awcms.adminCopy.editAction"
+msgid "Edit"
+msgstr "Edit"
+
+msgctxt "awcms.adminCopy.deleteAction"
+msgid "Delete"
+msgstr "Hapus"
+
+msgctxt "awcms.adminCopy.codeValue"
+msgid "Code: {code}"
+msgstr "Kode: {code}"
+
+msgctxt "awcms.adminCopy.selectProvinceFirst"
+msgid "Select a province first."
+msgstr "Pilih provinsi terlebih dahulu."
+
+msgctxt "awcms.adminCopy.noRegenciesYet"
+msgid "No regency/city data yet."
+msgstr "Belum ada data kabupaten/kota."
+
+msgctxt "awcms.adminCopy.selectRegencyFirst"
+msgid "Select a regency/city first."
+msgstr "Pilih kabupaten/kota terlebih dahulu."
+
+msgctxt "awcms.adminCopy.noDistrictsYet"
+msgid "No district data yet."
+msgstr "Belum ada data kecamatan."
+
+msgctxt "awcms.adminCopy.selectDistrictFirst"
+msgid "Select a district first."
+msgstr "Pilih kecamatan terlebih dahulu."
+
+msgctxt "awcms.adminCopy.noVillagesYet"
+msgid "No village/subdistrict data yet."
+msgstr "Belum ada data desa/kelurahan."
+
+msgctxt "awcms.adminCopy.addRegionTitle"
+msgid "Add {level}"
+msgstr "Tambah {level}"
+
+msgctxt "awcms.adminCopy.editRegionTitle"
+msgid "Edit {level}"
+msgstr "Edit {level}"
+
+msgctxt "awcms.adminCopy.regionEditorDescription"
+msgid "Enter a unique name and code for the {level} administrative level."
+msgstr "Masukkan nama dan kode unik untuk tingkat administratif {level}."
+
+msgctxt "awcms.adminCopy.close"
+msgid "Close"
+msgstr "Tutup"
+
+msgctxt "awcms.adminCopy.regionNamePlaceholder"
+msgid "Region name"
+msgstr "Nama wilayah"
+
+msgctxt "awcms.adminCopy.nodeCodeHint"
+msgid "Ensure the code is unique and follows the administrative reference standard (BPS/Kemendagri)."
+msgstr "Pastikan kode unik dan sesuai dengan pedoman administratif (BPS/Kemendagri)."
+
+msgctxt "awcms.adminCopy.regionCodePlaceholder"
+msgid "Region code"
+msgstr "Kode wilayah"
+
+msgctxt "awcms.adminCopy.confirm"
+msgid "Confirm"
+msgstr "Konfirmasi"
+
+msgctxt "awcms.adminCopy.cancel"
+msgid "Cancel"
+msgstr "Batal"
 
 msgctxt "awcms.adminCopy.addProvince"
 msgid "Add Province"
@@ -2897,6 +3137,66 @@ msgstr "Gagal memperbarui data klasifikasi jenis data."
 msgctxt "awcms.adminCopy.invalidTypeCode"
 msgid "Code must be a unique 2-digit number/alphanumeric."
 msgstr "Kode harus berupa 2 digit angka/karakter unik."
+
+msgctxt "awcms.adminCopy.invalidTypeId"
+msgid "ID must be alphanumeric lowercase with underscores."
+msgstr "ID harus berupa lowercase alfanumerik dengan underscore."
+
+msgctxt "awcms.adminCopy.invalidTypeIdUnique"
+msgid "ID must be unique."
+msgstr "ID harus unik."
+
+msgctxt "awcms.adminCopy.reset"
+msgid "Reset"
+msgstr "Reset"
+
+msgctxt "awcms.adminCopy.unsavedDataTypesWarning"
+msgid "You have unsaved data type changes on the Cloudflare server. Click the \"{saveLabel}\" button above to save."
+msgstr "Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol \"{saveLabel}\" di atas untuk menyimpan."
+
+msgctxt "awcms.adminCopy.noParentTypesYet"
+msgid "No parent data types yet."
+msgstr "Belum ada jenis data induk."
+
+msgctxt "awcms.adminCopy.selectParentTypeFirst"
+msgid "Select a parent data type first."
+msgstr "Pilih jenis data induk terlebih dahulu."
+
+msgctxt "awcms.adminCopy.noSubtypesYet"
+msgid "No sub data types yet."
+msgstr "Belum ada sub jenis data."
+
+msgctxt "awcms.adminCopy.dataTypeEditorDescription"
+msgid "Enter a unique label/name and 2-character code."
+msgstr "Masukkan nama/label dan kode 2 karakter unik."
+
+msgctxt "awcms.adminCopy.labelName"
+msgid "Label/Name"
+msgstr "Label/Nama"
+
+msgctxt "awcms.adminCopy.dataClassificationPlaceholder"
+msgid "Classification name"
+msgstr "Nama klasifikasi"
+
+msgctxt "awcms.adminCopy.idString"
+msgid "String ID"
+msgstr "ID String"
+
+msgctxt "awcms.adminCopy.idStringHint"
+msgid "Use lowercase and underscore format (example: rumah_ibadah)."
+msgstr "Gunakan format lowercase dan underscore (contoh: rumah_ibadah)."
+
+msgctxt "awcms.adminCopy.dataTypeIdPlaceholder"
+msgid "data_type_id"
+msgstr "id_jenis_data"
+
+msgctxt "awcms.adminCopy.twoDigitCode"
+msgid "Code (2 Characters)"
+msgstr "Kode (2 Karakter)"
+
+msgctxt "awcms.adminCopy.twoDigitCodeHint"
+msgid "Must be 2 unique characters (example: 01, 02, 99)."
+msgstr "Harus berupa 2 karakter unik (contoh: 01, 02, 99)."
 
 msgctxt "awcms.adminCopy.userLabel"
 msgid "User"

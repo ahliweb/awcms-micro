@@ -7445,9 +7445,9 @@ function ImportPage() {
 					<Card title={copy.selectSheet}>
 						<div className="space-y-4">
 							<p className="text-sm text-kumo-subtle">
-								Selected file: <strong>{fileName}</strong>
+								{copy.selectedFile}: <strong>{fileName}</strong>
 							</p>
-							<Field label="Choose Spreadsheet Sheet">
+							<Field label={copy.chooseSpreadsheetSheet}>
 								<Select
 									value={selectedSheet}
 									onValueChange={(val) => setSelectedSheet(val ?? "Sheet1")}
@@ -7461,10 +7461,10 @@ function ImportPage() {
 							</Field>
 							<div className="flex gap-2">
 								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("upload"))}>
-									Back
+									{copy.back}
 								</Button>
 								<Button variant="primary" onClick={() => setImportStep(getImportStepIndex("map"))}>
-									Next
+									{copy.next}
 								</Button>
 							</div>
 						</div>
@@ -7475,10 +7475,10 @@ function ImportPage() {
 					<Card title={copy.mapColumns}>
 						<div className="space-y-4">
 							<p className="text-sm text-kumo-subtle">
-								Map Excel columns (A, B, C...) to SIKESRA fields:
+								{copy.mapExcelColumnsDescription}
 							</p>
 							<div className="grid gap-4 md:grid-cols-3">
-								<Field label="Entity Code (SIKESRA ID)">
+								<Field label={copy.entityCodeSikesraId}>
 									<Input
 										value={columnMappings.code}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7486,7 +7486,7 @@ function ImportPage() {
 										}
 									/>
 								</Field>
-								<Field label="Identity Label / Name">
+								<Field label={copy.identityLabelName}>
 									<Input
 										value={columnMappings.label}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7494,7 +7494,7 @@ function ImportPage() {
 										}
 									/>
 								</Field>
-								<Field label="Entity Type Column">
+								<Field label={copy.entityTypeColumn}>
 									<Input
 										value={columnMappings.entityType}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7502,7 +7502,7 @@ function ImportPage() {
 										}
 									/>
 								</Field>
-								<Field label="Sensitivity classification">
+								<Field label={copy.sensitivityClassification}>
 									<Input
 										value={columnMappings.sensitivity}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7510,7 +7510,7 @@ function ImportPage() {
 										}
 									/>
 								</Field>
-								<Field label="Village Code Column">
+								<Field label={copy.villageCodeColumn}>
 									<Input
 										value={columnMappings.villageCode}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7518,7 +7518,7 @@ function ImportPage() {
 										}
 									/>
 								</Field>
-								<Field label="Public Summary Column">
+								<Field label={copy.publicSummaryColumn}>
 									<Input
 										value={columnMappings.publicSummary}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -7529,7 +7529,7 @@ function ImportPage() {
 							</div>
 							<div className="flex gap-2">
 								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("preview"))}>
-									Back
+									{copy.back}
 								</Button>
 								<Button
 									variant="primary"
@@ -7538,7 +7538,7 @@ function ImportPage() {
 										setImportStep(getImportStepIndex("validate"));
 									}}
 								>
-									Validate & Next
+									{copy.validateAndNext}
 								</Button>
 							</div>
 						</div>
@@ -7548,23 +7548,23 @@ function ImportPage() {
 				{importStep === getImportStepIndex("validate") && (
 					<Card
 						title={copy.previewStaging}
-						description="Inspect valid rows staged for duplicate review and promotion. Identifiers and types are verified."
+						description={copy.previewStagingDescription}
 					>
 						<div className="space-y-4">
 							<div className="grid gap-3 md:grid-cols-3">
-								<MetricCard label="Valid rows" value={String(stagingRows.length - validationErrors.length)} />
-								<MetricCard label="Invalid rows" value={String(validationErrors.length)} />
-								<MetricCard label="Duplicate candidates" value={String(duplicateCandidates.length)} />
+								<MetricCard label={copy.validRows} value={String(stagingRows.length - validationErrors.length)} />
+								<MetricCard label={copy.invalidRows} value={String(validationErrors.length)} />
+								<MetricCard label={copy.duplicateCandidates} value={String(duplicateCandidates.length)} />
 							</div>
 							<div className="overflow-x-auto rounded-xl border">
 								<table className="w-full text-xs text-left">
 									<thead>
 										<tr className="bg-kumo-tint border-b uppercase font-semibold text-kumo-subtle">
-											<th className="p-3" style={{ padding: "12px" }}>Code</th>
-											<th className="p-3" style={{ padding: "12px" }}>Label</th>
-											<th className="p-3" style={{ padding: "12px" }}>Type</th>
-											<th className="p-3" style={{ padding: "12px" }}>Region (Desa)</th>
-											<th className="p-3" style={{ padding: "12px" }}>Sensitivity</th>
+											<th className="p-3" style={{ padding: "12px" }}>{copy.code}</th>
+											<th className="p-3" style={{ padding: "12px" }}>{copy.label}</th>
+											<th className="p-3" style={{ padding: "12px" }}>{copy.type}</th>
+											<th className="p-3" style={{ padding: "12px" }}>{copy.regionDesa}</th>
+											<th className="p-3" style={{ padding: "12px" }}>{copy.sensitivity}</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -7586,10 +7586,10 @@ function ImportPage() {
 							</div>
 							<div className="flex gap-2">
 								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("map"))}>
-									Back
+									{copy.back}
 								</Button>
 								<Button variant="primary" onClick={() => setImportStep(getImportStepIndex("duplicate-review"))}>
-									Review duplicates
+									{copy.reviewDuplicates}
 								</Button>
 							</div>
 						</div>
@@ -7598,8 +7598,8 @@ function ImportPage() {
 
 				{importStep === getImportStepIndex("duplicate-review") && (
 					<Card
-						title="Duplicate review"
-						description="Resolve duplicate-risk rows before promotion. Every decision requires a reason and is audit-relevant."
+						title={copy.duplicateReview}
+						description={copy.duplicateReviewDescription}
 					>
 						<div className="space-y-4">
 							{duplicateCandidates.map((candidate) => {
@@ -7608,21 +7608,21 @@ function ImportPage() {
 									<div className="rounded-xl border p-4" key={candidate.rowId}>
 										<div className="grid gap-3 md:grid-cols-3">
 											<div>
-												<p className="text-xs font-semibold text-kumo-subtle">Incoming row</p>
+											<p className="text-xs font-semibold text-kumo-subtle">{copy.incomingRow}</p>
 												<p className="font-medium text-kumo-default">{candidate.incomingLabel}</p>
 											</div>
 											<div>
-												<p className="text-xs font-semibold text-kumo-subtle">Possible match</p>
+											<p className="text-xs font-semibold text-kumo-subtle">{copy.possibleMatch}</p>
 												<p className="font-medium text-kumo-default">{candidate.existingLabel}</p>
 											</div>
 											<div>
-												<p className="text-xs font-semibold text-kumo-subtle">Match score</p>
+											<p className="text-xs font-semibold text-kumo-subtle">{copy.matchScore}</p>
 												<Pill tone="warning">{candidate.matchScore}</Pill>
 											</div>
 										</div>
 										<p className="mt-3 text-sm text-kumo-subtle">{candidate.reason}</p>
 										<div className="mt-4 grid gap-3 md:grid-cols-2">
-											<Field label="Decision">
+									<Field label={copy.decision}>
 												<Select
 													value={decision.decision}
 													onValueChange={(value) =>
@@ -7632,12 +7632,12 @@ function ImportPage() {
 														}))
 													}
 												>
-													<Select.Option value="not_duplicate">Create as separate record</Select.Option>
-													<Select.Option value="cleared">Cleared after manual review</Select.Option>
-													<Select.Option value="false_positive">False-positive duplicate match</Select.Option>
+										<Select.Option value="not_duplicate">{copy.createAsSeparateRecord}</Select.Option>
+										<Select.Option value="cleared">{copy.clearedAfterManualReview}</Select.Option>
+										<Select.Option value="false_positive">{copy.falsePositiveDuplicateMatch}</Select.Option>
 												</Select>
 											</Field>
-											<Field label="Decision reason">
+									<Field label={copy.decisionReason}>
 												<InputArea
 													value={decision.reason}
 													onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -7652,22 +7652,22 @@ function ImportPage() {
 									</div>
 								);
 							})}
-							{!canPromote && (
-								<Feedback
-									message="Promotion is blocked until each duplicate candidate has a decision and reason."
-									tone="info"
+						{!canPromote && (
+							<Feedback
+								message={copy.promotionBlockedUntilDuplicateDecisions}
+								tone="info"
 								/>
 							)}
 							<div className="flex gap-2">
 								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("validate"))}>
-									Back
+									{copy.back}
 								</Button>
 								<Button
 									variant="primary"
 									disabled={!canPromote}
 									onClick={() => setImportStep(getImportStepIndex("promote"))}
 								>
-									Continue to promote
+									{copy.continueToPromote}
 								</Button>
 							</div>
 						</div>
@@ -7675,19 +7675,19 @@ function ImportPage() {
 				)}
 
 				{importStep === getImportStepIndex("promote") && (
-					<Card title="Promote valid rows" description="Final promotion is available only after validation and duplicate review pass.">
+					<Card title={copy.promoteValidRows} description={copy.promoteValidRowsDescription}>
 						<div className="space-y-4">
 							<div className="grid gap-3 md:grid-cols-3">
-								<MetricCard label="Rows ready" value={String(stagingRows.length - validationErrors.length)} />
-								<MetricCard label="Duplicate decisions" value={String(duplicateCandidates.length - unresolvedDuplicates.length)} />
-								<MetricCard label="Audit events" value={String(duplicateCandidates.length + 1)} />
+								<MetricCard label={copy.rowsReady} value={String(stagingRows.length - validationErrors.length)} />
+								<MetricCard label={copy.duplicateDecisions} value={String(duplicateCandidates.length - unresolvedDuplicates.length)} />
+								<MetricCard label={copy.auditEvents} value={String(duplicateCandidates.length + 1)} />
 							</div>
 							<div className="flex gap-2">
 								<Button variant="secondary" onClick={() => setImportStep(getImportStepIndex("duplicate-review"))}>
-									Back
+									{copy.back}
 								</Button>
 								<Button variant="primary" disabled={promoting || !canPromote} onClick={() => void handlePromote()}>
-									{promoting ? "Promoting..." : copy.promoteSelectedRows}
+									{promoting ? copy.promoting : copy.promoteSelectedRows}
 								</Button>
 							</div>
 						</div>
@@ -7702,7 +7702,7 @@ function ImportPage() {
 								{copy.promotedSuccessfully}
 							</h3>
 							<p className="text-xs text-kumo-subtle">
-								Promoted {stagingRows.length} entities into SIKESRA Registry queue.
+								{copy.promotedEntitiesIntoRegistryQueue(stagingRows.length)}
 							</p>
 							<Button
 								variant="primary"
@@ -7711,7 +7711,7 @@ function ImportPage() {
 									setImportStep(0);
 								}}
 							>
-								Upload New File
+								{copy.uploadNewFile}
 							</Button>
 						</div>
 					</Card>
@@ -7785,6 +7785,14 @@ export function RegionsPage() {
 	const activeProvince = regions.find((p) => p.code === selectedProvinceCode);
 	const activeRegency = activeProvince?.regencies?.find((r) => r.code === selectedRegencyCode);
 	const activeDistrict = activeRegency?.districts?.find((d) => d.code === selectedDistrictCode);
+	const activeRegionLevelLabel = activeForm
+		? {
+				province: copy.province,
+				regency: copy.regency,
+				district: copy.district,
+				village: copy.village,
+			}[activeForm.level]
+		: "";
 
 	// CRUD functions
 	const handleSaveToBackend = async () => {
@@ -8096,7 +8104,7 @@ export function RegionsPage() {
 					<div className="flex gap-2">
 						{isDirty && (
 							<Button variant="secondary" onClick={handleReset}>
-								Reset
+								{copy.reset}
 							</Button>
 						)}
 						<Button
@@ -8116,10 +8124,7 @@ export function RegionsPage() {
 					style={{ padding: "12px 16px", marginBottom: "16px" }}
 				>
 					<span>⚠️</span>
-					<span>
-						Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik
-						tombol &quot;Simpan Perubahan Wilayah&quot; di atas untuk menyimpan.
-					</span>
+					<span>{copy.unsavedRegionsWarning(copy.saveRegions)}</span>
 				</div>
 			)}
 
@@ -8142,10 +8147,10 @@ export function RegionsPage() {
 					>
 						<div>
 							<h2 className="text-sm font-semibold text-kumo-default">
-								Explorer Wilayah Administratif Resmi
+								{copy.administrativeRegionExplorer}
 							</h2>
 							<p className="mt-0.5 text-xs text-kumo-subtle">
-								Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini.
+								{copy.administrativeRegionExplorerDescription}
 							</p>
 						</div>
 					</div>
@@ -8169,7 +8174,7 @@ export function RegionsPage() {
 										setActiveForm({ type: "add", level: "province", name: "", code: "" })
 									}
 								>
-									+ Tambah
+									+ {copy.add}
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
@@ -8193,13 +8198,15 @@ export function RegionsPage() {
 										>
 											<div className="truncate pr-12">
 												<div>{p.name}</div>
-												<div className="font-mono text-[9px] opacity-75 mt-0.5">Kode: {p.code}</div>
+												<div className="font-mono text-[9px] opacity-75 mt-0.5">
+													{copy.codeValue(p.code)}
+												</div>
 											</div>
 											<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 												<button
 													type="button"
 													className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-													title="Edit"
+												title={copy.editAction}
 													onClick={(e) => {
 														e.stopPropagation();
 														setActiveForm({
@@ -8216,7 +8223,7 @@ export function RegionsPage() {
 												<button
 													type="button"
 													className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-													title="Delete"
+												title={copy.deleteAction}
 													onClick={(e) => {
 														e.stopPropagation();
 														handleDeleteNode("province", p.code);
@@ -8248,17 +8255,17 @@ export function RegionsPage() {
 										setActiveForm({ type: "add", level: "regency", name: "", code: "" })
 									}
 								>
-									+ Tambah
+									+ {copy.add}
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedProvinceCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Pilih provinsi terlebih dahulu.
+										{copy.selectProvinceFirst}
 									</div>
 								) : activeProvince?.regencies?.length === 0 ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Belum ada data kabupaten.
+										{copy.noRegenciesYet}
 									</div>
 								) : (
 									activeProvince?.regencies?.map((r) => {
@@ -8281,14 +8288,14 @@ export function RegionsPage() {
 												<div className="truncate pr-12">
 													<div>{r.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
-														Kode: {r.code}
+															{copy.codeValue(r.code)}
 													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
 														type="button"
 														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-														title="Edit"
+												title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8305,7 +8312,7 @@ export function RegionsPage() {
 													<button
 														type="button"
 														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-														title="Delete"
+												title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("regency", r.code);
@@ -8338,17 +8345,17 @@ export function RegionsPage() {
 										setActiveForm({ type: "add", level: "district", name: "", code: "" })
 									}
 								>
-									+ Tambah
+									+ {copy.add}
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedRegencyCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Pilih kabupaten terlebih dahulu.
+										{copy.selectRegencyFirst}
 									</div>
 								) : activeRegency?.districts?.length === 0 ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Belum ada data kecamatan.
+										{copy.noDistrictsYet}
 									</div>
 								) : (
 									activeRegency?.districts?.map((d) => {
@@ -8370,14 +8377,14 @@ export function RegionsPage() {
 												<div className="truncate pr-12">
 													<div>{d.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
-														Kode: {d.code}
+															{copy.codeValue(d.code)}
 													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
 														type="button"
 														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-														title="Edit"
+												title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8394,7 +8401,7 @@ export function RegionsPage() {
 													<button
 														type="button"
 														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-														title="Delete"
+												title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("district", d.code);
@@ -8427,17 +8434,17 @@ export function RegionsPage() {
 										setActiveForm({ type: "add", level: "village", name: "", code: "" })
 									}
 								>
-									+ Tambah
+									+ {copy.add}
 								</Button>
 							</div>
 							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
 								{!selectedDistrictCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Pilih kecamatan terlebih dahulu.
+										{copy.selectDistrictFirst}
 									</div>
 								) : activeDistrict?.villages?.length === 0 ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
-										Belum ada data desa/kelurahan.
+										{copy.noVillagesYet}
 									</div>
 								) : (
 									activeDistrict?.villages?.map((v) => {
@@ -8458,14 +8465,14 @@ export function RegionsPage() {
 												<div className="truncate pr-12">
 													<div>{v.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
-														Kode: {v.code}
+															{copy.codeValue(v.code)}
 													</div>
 												</div>
 												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
 													<button
 														type="button"
 														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-														title="Edit"
+												title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8482,7 +8489,7 @@ export function RegionsPage() {
 													<button
 														type="button"
 														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-														title="Delete"
+												title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("village", v.code);
@@ -8505,13 +8512,13 @@ export function RegionsPage() {
 					<Card
 						title={
 							activeForm.type === "add"
-								? `${copy.addProvince.replace("Provinsi", "")} ${activeForm.level.toUpperCase()}`
-								: `${copy.editNode} (${activeForm.level.toUpperCase()})`
+								? copy.addRegionTitle(activeRegionLevelLabel)
+								: copy.editRegionTitle(activeRegionLevelLabel)
 						}
-						description={`Masukkan nama dan kode unik untuk tingkat administratif ${activeForm.level}.`}
+						description={copy.regionEditorDescription(activeRegionLevelLabel)}
 						actions={
 							<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>
-								Tutup ✕
+								{copy.close} ✕
 							</Button>
 						}
 					>
@@ -8522,29 +8529,29 @@ export function RegionsPage() {
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 										setActiveForm((prev) => (prev ? { ...prev, name: e.target.value } : null))
 									}
-									placeholder="Nama wilayah"
+									placeholder={copy.regionNamePlaceholder}
 									required
 								/>
 							</Field>
 							<Field
 								label={copy.nodeCode}
-								hint="Pastikan kode unik dan sesuai dengan pedoman administratif (BPS/Kemendagri)."
+								hint={copy.nodeCodeHint}
 							>
 								<Input
 									value={activeForm.code}
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 										setActiveForm((prev) => (prev ? { ...prev, code: e.target.value } : null))
 									}
-									placeholder="Kode wilayah"
+									placeholder={copy.regionCodePlaceholder}
 									required
 								/>
 							</Field>
 							<div className="flex gap-2 pt-2">
 								<Button variant="primary" type="submit">
-									Konfirmasi
+									{copy.confirm}
 								</Button>
 								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>
-									Batal
+									{copy.cancel}
 								</Button>
 							</div>
 						</form>
@@ -8670,11 +8677,11 @@ export function DataTypesPage() {
 
 		if (level === "parent") {
 			if (!id.trim() || !LOWER_ID_RE.test(id)) {
-				setErrMsg("ID must be unique and alphanumeric lowercase with underscores.");
+				setErrMsg(copy.invalidTypeId);
 				return;
 			}
 			if (!validateIdUniqueness(id, oldId)) {
-				setErrMsg("ID must be unique.");
+				setErrMsg(copy.invalidTypeIdUnique);
 				return;
 			}
 		}
@@ -8783,7 +8790,7 @@ export function DataTypesPage() {
 					<div className="flex gap-2">
 						{isDirty && (
 							<Button variant="secondary" disabled={saving} onClick={handleReset}>
-								Reset
+								{copy.reset}
 							</Button>
 						)}
 						<Button
@@ -8803,10 +8810,7 @@ export function DataTypesPage() {
 					style={{ padding: "12px 16px", marginTop: "16px" }}
 				>
 					<span>⚠️</span>
-					<span>
-						Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol
-						&quot;Simpan Perubahan Jenis Data&quot; di atas untuk menyimpan.
-					</span>
+					<span>{copy.unsavedDataTypesWarning(copy.saveDataTypes)}</span>
 				</div>
 			)}
 
@@ -8872,10 +8876,10 @@ export function DataTypesPage() {
 							</div>
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-								{dataTypes.length === 0 ? (
-									<div className="text-sm text-kumo-subtle italic p-3 text-center">
-										Belum ada jenis data induk
-									</div>
+							{dataTypes.length === 0 ? (
+								<div className="text-sm text-kumo-subtle italic p-3 text-center">
+									{copy.noParentTypesYet}
+								</div>
 								) : (
 									dataTypes.map((p) => {
 										const isSelected = p.id === selectedParentId;
@@ -8958,14 +8962,14 @@ export function DataTypesPage() {
 							</div>
 
 							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-								{!activeParent ? (
-									<div className="text-sm text-kumo-subtle italic p-3 text-center">
-										Pilih jenis data induk terlebih dahulu
-									</div>
-								) : !activeParent.subTypes || activeParent.subTypes.length === 0 ? (
-									<div className="text-sm text-kumo-subtle italic p-3 text-center">
-										Belum ada sub jenis data
-									</div>
+							{!activeParent ? (
+								<div className="text-sm text-kumo-subtle italic p-3 text-center">
+									{copy.selectParentTypeFirst}
+								</div>
+							) : !activeParent.subTypes || activeParent.subTypes.length === 0 ? (
+								<div className="text-sm text-kumo-subtle italic p-3 text-center">
+									{copy.noSubtypesYet}
+								</div>
 								) : (
 									activeParent.subTypes.map((s) => {
 										return (
@@ -9022,43 +9026,43 @@ export function DataTypesPage() {
 									: copy.addSubtype
 								: `${copy.editNode.replace("Name & Code", "")} ${activeForm.level === "parent" ? copy.parentTypes : copy.subTypes}`
 						}
-						description={`Masukkan nama/label dan kode 2 digit unik.`}
+						description={copy.dataTypeEditorDescription}
 						actions={
 							<Button variant="ghost" size="xs" onClick={() => setActiveForm(null)}>
-								Tutup ✕
+								{copy.close} ✕
 							</Button>
 						}
 					>
 						<form onSubmit={handleFormSubmit} className="space-y-4 max-w-md">
-							<Field label="Label/Nama">
+							<Field label={copy.labelName}>
 								<Input
 									value={activeForm.label}
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 										setActiveForm((prev) => (prev ? { ...prev, label: e.target.value } : null))
 									}
-									placeholder="Nama klasifikasi"
+									placeholder={copy.dataClassificationPlaceholder}
 									required
 								/>
 							</Field>
 							{activeForm.level === "parent" && (
 								<Field
-									label="ID String"
-									hint="Gunakan format lowercase dan underscore (contoh: rumah_ibadah)."
+									label={copy.idString}
+									hint={copy.idStringHint}
 								>
 									<Input
 										value={activeForm.id}
 										onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 											setActiveForm((prev) => (prev ? { ...prev, id: e.target.value } : null))
 										}
-										placeholder="id_jenis_data"
+										placeholder={copy.dataTypeIdPlaceholder}
 										required
 										disabled={activeForm.type === "edit"}
 									/>
 								</Field>
 							)}
 							<Field
-								label="Kode (2 Digit)"
-								hint="Harus berupa 2 karakter unik (contoh: 01, 02, 99)."
+								label={copy.twoDigitCode}
+								hint={copy.twoDigitCodeHint}
 							>
 								<Input
 									value={activeForm.code}
@@ -9072,10 +9076,10 @@ export function DataTypesPage() {
 							</Field>
 							<div className="flex gap-2 pt-2">
 								<Button variant="primary" type="submit">
-									Konfirmasi
+									{copy.confirm}
 								</Button>
 								<Button variant="secondary" type="button" onClick={() => setActiveForm(null)}>
-									Batal
+									{copy.cancel}
 								</Button>
 							</div>
 						</form>
