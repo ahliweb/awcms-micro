@@ -4839,6 +4839,75 @@ describe("awcms micro sikesra plugin", () => {
 		expect(auditTableRows).toContainEqual(expect.objectContaining({ kind: "crud.restore" }));
 	});
 
+	it("paginates active and archived registry lists", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		const registryIds = ["registry-page-01", "registry-page-02", "registry-page-03"];
+
+		for (const [index, id] of registryIds.entries()) {
+			await routes["registry/save"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: {
+					id,
+					code: `PAGE-${String(index + 1).padStart(3, "0")}`,
+					label: `Paged Registry Entity ${index + 1}`,
+					entityType: "rumah_ibadah",
+					sensitivity: "public_safe",
+					provinceCode: "62",
+					regencyCode: "6201",
+					districtCode: "620101",
+					villageCode: "6201010001",
+				},
+			} as any);
+		}
+
+		const firstPage = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { limit: 2 },
+		} as any)) as any;
+		expect(firstPage.items).toHaveLength(2);
+		expect(firstPage.nextCursor).toBe("2");
+		expect(firstPage.pagination).toMatchObject({ page: 1, pageSize: 2 });
+		expect(firstPage.pagination.total).toBeGreaterThan(2);
+
+		const secondPage = (await routes["registry/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { limit: 2, cursor: firstPage.nextCursor },
+		} as any)) as any;
+		expect(secondPage.items).toHaveLength(2);
+		expect(secondPage.pagination.page).toBe(2);
+
+		for (const id of registryIds) {
+			await routes["registry/soft-delete"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: { id, reason: "Archive pagination regression" },
+			} as any);
+		}
+
+		const archiveFirstPage = (await routes["registry/archive/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { pageSize: 2 },
+		} as any)) as any;
+		expect(archiveFirstPage.items).toHaveLength(2);
+		expect(archiveFirstPage.nextCursor).toBe("2");
+		expect(archiveFirstPage.pagination).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+
+		const archiveSecondPage = (await routes["registry/archive/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { pageSize: 2, cursor: archiveFirstPage.nextCursor },
+		} as any)) as any;
+		expect(archiveSecondPage.items).toHaveLength(1);
+		expect(archiveSecondPage.nextCursor).toBeUndefined();
+		expect(archiveSecondPage.pagination).toMatchObject({ page: 2, pageSize: 2, total: 3 });
+	});
+
 	it("validates document metadata before D1 persistence", async () => {
 		const { ctx, fileObjectTableRows, supportingDocumentTableRows } = createMockContext();
 		const routes = createNativeRoutes();

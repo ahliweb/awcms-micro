@@ -18,6 +18,7 @@ import {
 import { SIKESRA_PO_LOCALE_MESSAGES } from "./locales/messages.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
 import type { SikesraPublicStatusDto } from "./contracts/index.js";
+import { normalizeSikesraPagination, type SikesraPaginationRequest } from "./contracts/pagination.js";
 
 const SIKESRA_VILLAGE_CODE_PATTERN = /^\d{10}$/;
 const SIKESRA_PROVINCE_CODE_PATTERN = /^\d{2}$/;
@@ -29,6 +30,7 @@ const SIKESRA_ID_20_PATTERN = /^\d{20}$/;
 const SIKESRA_DOCUMENT_CHECKSUM_PATTERN = /^[a-f0-9]{64}$/i;
 const SIKESRA_SAFE_FILENAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
 const SIKESRA_DUPLICATE_CODE_SUFFIX_PATTERN = /:duplicate-code$/;
+const SIKESRA_CURSOR_OFFSET_PATTERN = /^\d+$/;
 const CUSTOM_ATTRIBUTE_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const CUSTOM_ATTRIBUTE_URL_PATTERN = /^https?:\/\//;
 const CUSTOM_ATTRIBUTE_EMAIL_WHITESPACE_PATTERN = /\s/;
@@ -1920,6 +1922,27 @@ function getNumber(value: unknown, key: string): number | undefined {
 	if (!isRecord(value)) return undefined;
 	const candidate = value[key];
 	return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : undefined;
+}
+
+function paginateSikesraItems<T>(items: T[], input: unknown) {
+	const request = isRecord(input) ? (input as SikesraPaginationRequest) : {};
+	const pagination = normalizeSikesraPagination(request);
+	const cursorOffset =
+		request.cursor && SIKESRA_CURSOR_OFFSET_PATTERN.test(request.cursor) ? Number(request.cursor) : null;
+	const offset = cursorOffset ?? (pagination.page - 1) * pagination.pageSize;
+	const nextOffset = offset + pagination.pageSize;
+	const nextCursor = nextOffset < items.length ? String(nextOffset) : undefined;
+
+	return {
+		items: items.slice(offset, nextOffset),
+		nextCursor,
+		pagination: {
+			page: Math.floor(offset / pagination.pageSize) + 1,
+			pageSize: pagination.pageSize,
+			total: items.length,
+			nextCursor,
+		},
+	};
 }
 
 function getBoolean(value: unknown, key: string): boolean | undefined {
@@ -4954,7 +4977,7 @@ const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.registry.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
 	const entities = await getRegistryEntitiesReadOnly(ctx);
-	return { items: entities };
+	return paginateSikesraItems(entities, _routeCtx.input);
 };
 
 const registryArchiveListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
@@ -4963,7 +4986,7 @@ const registryArchiveListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const entities = (await getD1RegistryEntities(ctx, { includeDeleted: true })).filter(
 		(entity) => entity.deletedAt,
 	);
-	return { items: entities };
+	return paginateSikesraItems(entities, _routeCtx.input);
 };
 
 const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {

@@ -3,6 +3,8 @@ export type SikesraSortDirection = "asc" | "desc";
 export interface SikesraPaginationRequest {
 	page?: number;
 	pageSize?: number;
+	limit?: number;
+	cursor?: string;
 	sortBy?: string;
 	sortDirection?: SikesraSortDirection;
 	search?: string;
@@ -23,7 +25,7 @@ export function normalizeSikesraPagination(
 ): Required<Pick<SikesraPaginationRequest, "page" | "pageSize" | "sortDirection">> {
 	return {
 		page: Math.max(1, Math.trunc(input.page ?? 1)),
-		pageSize: Math.min(100, Math.max(1, Math.trunc(input.pageSize ?? 25))),
+		pageSize: Math.min(100, Math.max(1, Math.trunc(input.pageSize ?? input.limit ?? 25))),
 		sortDirection: input.sortDirection === "asc" ? "asc" : "desc",
 	};
 }
