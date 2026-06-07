@@ -1,0 +1,191 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import { Image } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+
+interface GalleryEntry {
+	id: string;
+	slug: string;
+	data: {
+		slug?: string;
+		title: string;
+		description?: string;
+		gallery_type: "photo" | "video" | "mixed";
+		event_date?: string;
+		location?: string;
+		cover_image?: { src: string; alt?: string } | null;
+		gallery_items?: Array<{ type: string; src: string; caption?: string }>;
+	};
+}
+
+function asImage(value: unknown) {
+	return value as any;
+}
+
+const { entries: rawGalleries, cacheHint } = await getEmDashCollection("galleries", {
+	orderBy: { published_at: "desc" },
+	limit: 50,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const galleries = rawGalleries as unknown as GalleryEntry[];
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
+const copy = getPublicCopy(currentLocale);
+const photoCount = galleries.filter((gallery) => gallery.data.gallery_type === "photo").length;
+const videoCount = galleries.filter((gallery) => gallery.data.gallery_type === "video").length;
+const mixedCount = galleries.filter((gallery) => gallery.data.gallery_type === "mixed").length;
+---
+
+<Base title={copy.galleryTitle} description={copy.galleryDescription} showFooterWidgets={false}>
+	<section class="gallery-hero">
+		<p class="kicker">{copy.galleryKicker}</p>
+		<h1>{copy.galleryListHeading}</h1>
+		<p>{copy.galleryListIntro}</p>
+		<div class="gallery-stats" aria-label={copy.galleryItemsLabel}>
+			<span>{photoCount} {copy.galleryFilterPhoto}</span>
+			<span>{videoCount} {copy.galleryFilterVideo}</span>
+			<span>{mixedCount} {copy.galleryFilterMixed}</span>
+		</div>
+	</section>
+
+	{galleries.length === 0 ? (
+		<section class="card gallery-empty">
+			<h2>{copy.noGalleryYet}</h2>
+			<p>{copy.galleryListIntro}</p>
+		</section>
+	) : (
+		<section class="gallery-grid">
+			{galleries.map((gallery) => {
+				const itemCount = Array.isArray(gallery.data.gallery_items) ? gallery.data.gallery_items.length : 0;
+				return (
+					<a class="gallery-card" href={toLocalePath(`/gallery/${resolveEntrySlug(gallery)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						<div class="gallery-card__cover">
+							{gallery.data.cover_image ? (
+								<Image image={asImage(gallery.data.cover_image)} class="gallery-card__image" alt={gallery.data.title} />
+							) : (
+								<span>{gallery.data.gallery_type === "video" ? "Video" : "Gallery"}</span>
+							)}
+						</div>
+						<div class="gallery-card__body">
+							<span>{copy.galleryItemsCount(itemCount)}</span>
+							<h2>{gallery.data.title}</h2>
+							{gallery.data.description && <p>{gallery.data.description}</p>}
+							<div class="gallery-card__meta">
+								{gallery.data.location && <small>{gallery.data.location}</small>}
+								<small>{gallery.data.gallery_type}</small>
+							</div>
+						</div>
+					</a>
+				);
+			})}
+		</section>
+	)}
+</Base>
+
+<style>
+	.gallery-hero {
+		text-align: center;
+		padding: clamp(2rem, 5vw, 4rem) 1rem 2rem;
+	}
+
+	.gallery-hero h1 {
+		max-width: 48rem;
+		margin: 0 auto 1rem;
+		font-size: clamp(2.2rem, 6vw, 4.5rem);
+		line-height: 1;
+		letter-spacing: -0.06em;
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.gallery-hero p {
+		max-width: 42rem;
+		margin: 0 auto 1.5rem;
+		color: var(--text-muted);
+	}
+
+	.gallery-stats {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.gallery-stats span,
+	.gallery-card {
+		border: 1px solid var(--surface-border);
+		background: var(--gradient-surface);
+		box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+	}
+
+	.gallery-stats span {
+		padding: 0.55rem 1rem;
+		border-radius: 999px;
+		color: var(--text-muted);
+		font-weight: 700;
+	}
+
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		gap: 1.25rem;
+	}
+
+	.gallery-card {
+		overflow: hidden;
+		border-radius: 1.5rem;
+		color: var(--text-main);
+		transition: transform 0.2s ease, border-color 0.2s ease;
+	}
+
+	.gallery-card:hover {
+		transform: translateY(-4px);
+		border-color: var(--accent);
+	}
+
+	.gallery-card__cover {
+		display: grid;
+		place-items: center;
+		min-height: 13rem;
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.12));
+	}
+
+	.gallery-card__image {
+		width: 100%;
+		height: 100%;
+		min-height: 13rem;
+		object-fit: cover;
+	}
+
+	.gallery-card__body {
+		padding: 1.2rem;
+	}
+
+	.gallery-card__body span,
+	.gallery-card__body p,
+	.gallery-card__meta {
+		color: var(--text-muted);
+	}
+
+	.gallery-card__body h2 {
+		margin: 0.35rem 0 0.5rem;
+	}
+
+	.gallery-card__meta {
+		display: flex;
+		gap: 0.6rem;
+		flex-wrap: wrap;
+		text-transform: capitalize;
+	}
+
+	.gallery-empty {
+		text-align: center;
+	}
+</style>

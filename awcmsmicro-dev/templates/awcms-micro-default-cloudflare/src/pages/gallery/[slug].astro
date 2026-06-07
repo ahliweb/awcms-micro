@@ -1,0 +1,220 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import { Image } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+
+interface GalleryEntry {
+	id: string;
+	slug: string;
+	data: {
+		slug?: string;
+		title: string;
+		description?: string;
+		gallery_type: "photo" | "video" | "mixed";
+		event_date?: string;
+		location?: string;
+		cover_image?: { src: string; alt?: string } | null;
+		gallery_items?: Array<{
+			type: "image" | "video";
+			src: string;
+			alt?: string;
+			caption?: string;
+			poster?: string;
+			mimeType?: string;
+		}>;
+	};
+}
+
+function asImage(value: unknown) {
+	return value as any;
+}
+
+const slug = Astro.params.slug as string;
+const { entries: rawGalleries, cacheHint } = await getEmDashCollection("galleries", {
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const galleries = rawGalleries as unknown as GalleryEntry[];
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
+const copy = getPublicCopy(currentLocale);
+const gallery = galleries.find((item) => resolveEntrySlug(item) === slug);
+
+if (!gallery) {
+	return Astro.redirect(toLocalePath("/gallery", currentLocale, localeOptions));
+}
+
+const galleryItems = Array.isArray(gallery.data.gallery_items) ? gallery.data.gallery_items : [];
+const imageItems = galleryItems.filter((item) => item.type === "image");
+const videoItems = galleryItems.filter((item) => item.type === "video");
+const formattedDate = gallery.data.event_date
+	? new Date(gallery.data.event_date).toLocaleDateString(currentLocale, {
+			year: "numeric",
+			month: "long",
+			day: "numeric",
+		})
+	: null;
+---
+
+<Base
+	title={gallery.data.title || copy.galleryTitle}
+	description={gallery.data.description}
+	content={{ collection: "galleries", id: gallery.id, slug }}
+	showFooterWidgets={false}
+>
+	<nav class="gallery-breadcrumb">
+		<a href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">← {copy.galleryBackToList}</a>
+	</nav>
+
+	<section class="gallery-detail-hero">
+		{gallery.data.cover_image && (
+			<Image image={asImage(gallery.data.cover_image)} class="gallery-detail-hero__image" alt={gallery.data.title} />
+		)}
+		<div class="gallery-detail-hero__content">
+			<p class="kicker">{copy.galleryKicker}</p>
+			<h1>{gallery.data.title}</h1>
+			{gallery.data.description && <p>{gallery.data.description}</p>}
+			<div class="gallery-meta">
+				<span>{copy.galleryItemsCount(galleryItems.length)}</span>
+				<span>{copy.galleryType}: {gallery.data.gallery_type}</span>
+				{formattedDate && <span>{copy.galleryEventDate}: {formattedDate}</span>}
+				{gallery.data.location && <span>{copy.galleryLocation}: {gallery.data.location}</span>}
+			</div>
+		</div>
+	</section>
+
+	{videoItems.length > 0 && (
+		<section class="gallery-items-section">
+			<h2>{copy.galleryVideoLabel}</h2>
+			<div class="gallery-items-grid gallery-items-grid--video">
+				{videoItems.map((item, index) => (
+					<article class="gallery-item">
+						<video controls preload="none" poster={item.poster} aria-label={item.caption || item.alt || `Video ${index + 1}`}>
+							<source src={item.src} type={item.mimeType || "video/mp4"} />
+							{copy.galleryPlayVideo}
+						</video>
+						{(item.caption || item.alt) && <p>{item.caption || item.alt}</p>}
+					</article>
+				))}
+			</div>
+		</section>
+	)}
+
+	{imageItems.length > 0 && (
+		<section class="gallery-items-section">
+			<h2>{copy.galleryPhotoLabel}</h2>
+			<div class="gallery-items-grid">
+				{imageItems.map((item, index) => (
+					<figure class="gallery-item">
+						<img src={item.src} alt={item.alt || item.caption || `Gallery image ${index + 1}`} loading="lazy" decoding="async" />
+						{item.caption && <figcaption>{item.caption}</figcaption>}
+					</figure>
+				))}
+			</div>
+		</section>
+	)}
+</Base>
+
+<style>
+	.gallery-breadcrumb {
+		margin-bottom: 1rem;
+	}
+
+	.gallery-breadcrumb a {
+		display: inline-flex;
+		padding: 0.55rem 0.9rem;
+		border: 1px solid var(--surface-border);
+		border-radius: 999px;
+		background: var(--surface-main);
+		color: var(--text-main);
+		font-weight: 700;
+	}
+
+	.gallery-detail-hero,
+	.gallery-items-section {
+		border: 1px solid var(--surface-border);
+		border-radius: 1.75rem;
+		background: var(--gradient-surface);
+		overflow: hidden;
+		box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+	}
+
+	.gallery-detail-hero__image {
+		width: 100%;
+		max-height: 28rem;
+		object-fit: cover;
+	}
+
+	.gallery-detail-hero__content,
+	.gallery-items-section {
+		padding: clamp(1.4rem, 4vw, 2.5rem);
+	}
+
+	.gallery-detail-hero h1 {
+		max-width: 52rem;
+		margin: 0 0 0.8rem;
+		font-size: clamp(2.2rem, 6vw, 4.5rem);
+		line-height: 1;
+		letter-spacing: -0.06em;
+	}
+
+	.gallery-detail-hero p,
+	.gallery-meta,
+	.gallery-item p,
+	.gallery-item figcaption {
+		color: var(--text-muted);
+	}
+
+	.gallery-meta {
+		display: flex;
+		gap: 0.7rem;
+		flex-wrap: wrap;
+		margin-top: 1.2rem;
+	}
+
+	.gallery-meta span {
+		padding: 0.45rem 0.75rem;
+		border: 1px solid var(--surface-border);
+		border-radius: 999px;
+		background: var(--surface-main);
+		text-transform: capitalize;
+	}
+
+	.gallery-items-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+		gap: 1rem;
+	}
+
+	.gallery-items-grid--video {
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	}
+
+	.gallery-item {
+		margin: 0;
+		border: 1px solid var(--surface-border);
+		border-radius: 1.25rem;
+		background: var(--surface-main);
+		overflow: hidden;
+	}
+
+	.gallery-item img,
+	.gallery-item video {
+		width: 100%;
+		display: block;
+		aspect-ratio: 16 / 10;
+		object-fit: cover;
+	}
+
+	.gallery-item p,
+	.gallery-item figcaption {
+		padding: 0.9rem 1rem 1rem;
+	}
+</style>

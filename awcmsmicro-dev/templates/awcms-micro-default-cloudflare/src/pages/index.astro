@@ -1,6 +1,6 @@
 ---
 import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
-import { Image } from "emdash/ui";
+import { Image, WidgetArea } from "emdash/ui";
 import Base from "../layouts/Base.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
@@ -10,200 +10,596 @@ function asImage(value: unknown) {
 	return value as any;
 }
 
+function textPreview(value: unknown, fallback = "") {
+	if (typeof value === "string") return value;
+	return fallback;
+}
+
+interface GalleryEntry {
+	id: string;
+	slug: string;
+	status: string;
+	locale?: string;
+	translationOf?: string;
+	data: {
+		slug?: string;
+		title: string;
+		description?: string;
+		gallery_type: "photo" | "video" | "mixed";
+		layout_variant: "grid" | "masonry" | "carousel" | "slider";
+		event_date?: string;
+		location?: string;
+		featured?: boolean;
+		cover_image?: { src: string; alt?: string } | null;
+		gallery_items?: Array<{
+			type: "image" | "video";
+			src: string;
+			alt?: string;
+			caption?: string;
+			poster?: string;
+		}>;
+	};
+}
+
 const [
 	{ entries: posts, cacheHint: postsCacheHint },
 	{ entries: newsItems, cacheHint: newsCacheHint },
 	{ entries: pages, cacheHint: pagesCacheHint },
+	{ entries: rawGalleries, cacheHint: galleriesCacheHint },
 ] = await Promise.all([
-	getEmDashCollection("posts", {
-		orderBy: { published_at: "desc" },
-		limit: 3,
-	}),
-	getEmDashCollection("news", {
-		orderBy: { published_at: "desc" },
-		limit: 3,
-	}),
-	getEmDashCollection("pages", {
-		orderBy: { published_at: "desc" },
-		limit: 6,
-	}),
+	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6 }),
+	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4 }),
+	getEmDashCollection("pages", { orderBy: { published_at: "desc" }, limit: 12 }),
+	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12 }),
 ]);
 
 if (Astro.cache?.enabled) {
 	Astro.cache.set(postsCacheHint);
 	Astro.cache.set(newsCacheHint);
 	Astro.cache.set(pagesCacheHint);
+	Astro.cache.set(galleriesCacheHint);
 }
 
+const galleries = rawGalleries as unknown as GalleryEntry[];
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
-const localeOptions = {
-	defaultLocale,
-	locales: i18nConfig?.locales || ["en", "id"],
-};
+const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
 const copy = getPublicCopy(currentLocale);
 
-const spotlightPageSlugs = ["about", "public-site-guide", "publishing-workflow"];
-const featuredPages = spotlightPageSlugs
-	.map((slug) => pages.find((page) => resolveEntrySlug(page) === slug))
-	.filter((page): page is (typeof pages)[number] => Boolean(page));
+const findPage = (slug: string) => pages.find((page) => resolveEntrySlug(page) === slug);
+const profilePage = findPage("about") ?? pages[0];
+const servicePages = ["public-site-guide", "publishing-workflow", "docs-roadmap"]
+	.map(findPage)
+	.filter((page): page is (typeof pages)[number] => Boolean(page))
+	.slice(0, 3);
+const featuredPosts = posts.slice(0, 3);
+const featuredNews = newsItems.slice(0, 3);
+const featuredGalleries = galleries.filter((gallery) => gallery.data.featured).slice(0, 3);
+const visibleGalleries = featuredGalleries.length > 0 ? featuredGalleries : galleries.slice(0, 3);
 const publicCounts = [
 	{ label: copy.counts.posts, value: posts.length },
 	{ label: copy.counts.news, value: newsItems.length },
 	{ label: copy.counts.pages, value: pages.length },
+	{ label: copy.counts.galleries, value: galleries.length },
 ];
+const heroPrimaryHref = toLocalePath("/posts", currentLocale, localeOptions);
+const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions);
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
-  <section class="card hero-card" style="margin-bottom:2.5rem; text-align: center; padding: 4rem 2rem;">
-		<p style="text-transform:uppercase;letter-spacing:0.15em;font-weight:600;color:var(--accent);margin-bottom:1rem;">{copy.homeKicker}</p>
-		<h1 style="font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin:0 auto 1.5rem;max-width:48rem;font-weight:800;">{copy.homeHeading}</h1>
-		<p style="max-width:42rem;margin:0 auto 2.5rem;font-size:1.1rem;color:var(--text-muted);">{copy.homeIntro}</p>
-		<div class="hero-actions" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-			<a class="btn btn-primary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Jelajahi Artikel" : "Browse Articles"}</a>
-			<a class="btn btn-secondary" style="padding: 1rem 1.75rem; font-size: 1.1rem;" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{currentLocale.startsWith("id") ? "Baca Berita" : "Read News"}</a>
-		</div>
-  </section>
-
-	<!-- Stats Counter Section -->
-	<section class="stack-grid stack-grid--counts" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:2rem;">
-		{publicCounts.map((item) => (
-			<div class="card" style="padding:1rem 1.2rem;">
-				<p class="kicker" style="margin-bottom:0.35rem;">{item.label}</p>
-				<strong style="font-size:2rem;line-height:1;">{item.value}</strong>
-			</div>
-		))}
-	</section>
-
-	<!-- Welcome & Spotlight Section -->
-	<section class="stack-grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:2rem;">
-		<!-- Welcome Card -->
-		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-			<div>
-				<p class="kicker">{siteTitle}</p>
-				<h2 style="font-size:1.3rem;margin-top:0;">{siteTagline}</h2>
-				<p style="color:var(--text-muted);margin-bottom:1.5rem;line-height:1.6;">
-					{currentLocale.startsWith("id") 
-				? "Selamat datang di website resmi kami. Di sini Anda dapat menemukan artikel terbaru dan pengumuman berita penting yang diperbarui langsung dari panel admin." 
-				: "Welcome to our official website. Discover our latest articles and news announcements updated directly from the admin panel."}
-				</p>
-			</div>
-			<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:auto;">
-				<a class="btn btn-primary" style="padding:0.75rem 1.25rem;font-size:0.95rem;" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">
-					{currentLocale.startsWith("id") ? "Artikel" : "Articles"}
+	<section class="landing-hero">
+		<div class="landing-hero__glow" aria-hidden="true"></div>
+		<div class="landing-hero__copy">
+			<p class="landing-eyebrow">{copy.homeKicker}</p>
+			<h1>{copy.heroTitle}</h1>
+			<p>{copy.heroSubtitle}</p>
+			<div class="landing-actions">
+				<a class="landing-button landing-button--primary" href={heroPrimaryHref} data-astro-prefetch="hover">
+					{copy.landingExploreContent}
 				</a>
-				<a class="btn btn-secondary" style="padding:0.75rem 1.25rem;font-size:0.95rem;" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">
-					{currentLocale.startsWith("id") ? "Berita" : "News"}
+				<a class="landing-button landing-button--secondary" href={heroSecondaryHref} data-astro-prefetch="hover">
+					{copy.landingViewMedia}
 				</a>
 			</div>
-		</div>
-
-		<!-- Featured Pages Card -->
-		<div class="card" style="display:flex;flex-direction:column;justify-content:space-between;height:100%;">
-			<div>
-				<p class="kicker">{copy.publicPagesTitle}</p>
-				<h2 style="font-size:1.3rem;margin-top:0;">{copy.publicPagesTitle}</h2>
-				<p style="color:var(--text-muted);margin-bottom:1.25rem;">{copy.publicPagesDescription}</p>
-				<div style="display:grid;gap:0.75rem;margin-bottom:1rem;">
-					{featuredPages.length === 0 ? <p style="color:var(--text-muted);margin:0;">{copy.noPostsYet}</p> : (
-						featuredPages.map((page) => (
-							<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:flex;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;border:1px solid var(--surface-border);border-radius:0.75rem;text-decoration:none;color:var(--text-main);background:var(--surface-main);font-size:0.925rem;font-weight:600;transition:all 0.2s ease;">
-								<span>{page.data.title}</span>
-								<span style="color:var(--text-muted);font-weight:normal;font-size:0.85rem;">/{resolveEntrySlug(page)}</span>
-							</a>
-						))
-					)}
-				</div>
-			</div>
-			<a style="font-weight:700;color:var(--accent);text-decoration:none;font-size:0.95rem;margin-top:auto;" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
-		</div>
-
-	</section>
-
-	<section style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
-		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">{copy.recentPosts}</h2>
-			{posts.length === 0 ? <p style="color:var(--text-muted);">{copy.noPostsYet}</p> : (
-				<ul style="padding-left:1.25rem;color:var(--text-muted);">
-					{posts.map((post) => (
-						<li style="margin-bottom:1rem;">
-							<a href={toLocalePath(`/posts/${resolveEntrySlug(post)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">
-							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} style="border-radius:0.5rem;margin-bottom:0.5rem;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;" />}
-								{post.data.title}
-							</a>
-							{post.data.excerpt && <p style="margin:0;font-size:0.95rem;">{post.data.excerpt}</p>}
-						</li>
-					))}
-				</ul>
-			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.browseAllPosts}</a></p>
-		</div>
-
-		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">{copy.latestNews}</h2>
-			{newsItems.length === 0 ? <p style="color:var(--text-muted);">{copy.noNewsYet}</p> : (
-				<ul style="padding-left:1.25rem;color:var(--text-muted);">
-					{newsItems.map((item) => (
-						<li style="margin-bottom:1rem;">
-							<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="display:block;margin-bottom:0.25rem;font-size:1.1rem;font-weight:500;">{item.data.title}</a>
-							{item.data.summary && <p style="margin:0;font-size:0.95rem;">{item.data.summary}</p>}
-						</li>
-					))}
-				</ul>
-			)}
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href={toLocalePath("/news", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.browseAllNews}</a></p>
-		</div>
-
-		<div class="card">
-			<h2 style="font-size:1.5rem;margin-top:0;">{copy.managedPages}</h2>
-			<ul style="padding-left:1.25rem;color:var(--text-muted);">
-				{pages.map((page) => (
-					<li style="margin-bottom:0.75rem;"><a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover" style="font-weight:500;">{page.data.title}</a></li>
+			<div class="landing-stats" aria-label={copy.landingContentStats}>
+				{publicCounts.map((item) => (
+					<div>
+						<strong>{item.value}</strong>
+						<span>{item.label}</span>
+					</div>
 				))}
-			</ul>
-			<p style="margin-top:1.5rem;"><a class="btn btn-secondary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a></p>
+			</div>
+		</div>
+		<div class="landing-hero__panel" aria-label={copy.landingManagedSurface}>
+			<div class="landing-panel-card landing-panel-card--accent">
+				<span>{copy.landingAdminManaged}</span>
+				<strong>{copy.landingPagesPostsGallery}</strong>
+			</div>
+			<div class="landing-panel-grid">
+				{servicePages.map((page) => (
+					<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						<span>{copy.openPage}</span>
+						<strong>{page.data.title}</strong>
+					</a>
+				))}
+			</div>
 		</div>
 	</section>
 
-  <script is:inline>
-		const pageThemeToggle = document.getElementById("page-theme-toggle");
-		const headerThemeToggle = document.getElementById("theme-toggle");
+	<section class="landing-split">
+		<div>
+			<p class="landing-eyebrow">{copy.landingProfileEyebrow}</p>
+			<h2>{profilePage?.data.title ?? siteTitle}</h2>
+		</div>
+		<div>
+			<p class="landing-lead">{siteTagline}</p>
+			<p class="landing-muted">{copy.landingProfileDescription}</p>
+			{profilePage && (
+				<a class="landing-text-link" href={toLocalePath(`/${resolveEntrySlug(profilePage)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{copy.openPage}
+				</a>
+			)}
+		</div>
+	</section>
 
-		if (pageThemeToggle && headerThemeToggle) {
-			pageThemeToggle.addEventListener("click", () => headerThemeToggle.click());
-		}
-  </script>
+	<section class="landing-section">
+		<div class="landing-section__heading">
+			<p class="landing-eyebrow">{copy.landingServicesEyebrow}</p>
+			<h2>{copy.howConnectsTitle}</h2>
+		</div>
+		<div class="landing-feature-grid">
+			{servicePages.length === 0 ? (
+				<p class="landing-empty">{copy.noPostsCreateOne}</p>
+			) : (
+				servicePages.map((page) => (
+					<a class="landing-feature-card" href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						<span>{resolveEntrySlug(page)}</span>
+						<h3>{page.data.title}</h3>
+						<p>{copy.landingAdminContentHint}</p>
+					</a>
+				))
+			)}
+		</div>
+	</section>
 
-  <style>
-	.stack-grid {
-		align-items: stretch;
-	}
+	<section class="landing-section landing-section--dark">
+		<div class="landing-section__heading landing-section__heading--inline">
+			<div>
+				<p class="landing-eyebrow">{copy.postsTitle}</p>
+				<h2>{copy.landingPortfolioHeading}</h2>
+			</div>
+			<a class="landing-button landing-button--secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">
+				{copy.viewPosts}
+			</a>
+		</div>
+		<div class="landing-slider-row">
+			{featuredPosts.length === 0 ? (
+				<p class="landing-empty">{copy.noPostsYet}</p>
+			) : (
+				featuredPosts.map((post, index) => (
+					<article class="landing-content-card">
+						<a href={toLocalePath(`/posts/${resolveEntrySlug(post)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+							<span class="landing-number">0{index + 1}</span>
+							{post.data.featured_image && <Image image={asImage(post.data.featured_image)} class="landing-content-card__image" />}
+							<h3>{post.data.title}</h3>
+						</a>
+						{post.data.excerpt && <p>{post.data.excerpt}</p>}
+					</article>
+				))
+			)}
+		</div>
+	</section>
 
-	.stack-grid :global(.card) {
-		height: 100%;
-	}
+	<section class="landing-section">
+		<div class="landing-section__heading landing-section__heading--inline">
+			<div>
+				<p class="landing-eyebrow">{copy.galleryKicker}</p>
+				<h2>{copy.galleryListHeading}</h2>
+			</div>
+			<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">
+				{copy.galleryViewAll}
+			</a>
+		</div>
+		<div class="landing-media-grid">
+			{visibleGalleries.length === 0 ? (
+				<p class="landing-empty">{copy.noGalleryYet}</p>
+			) : (
+				visibleGalleries.map((gallery) => {
+					const itemCount = Array.isArray(gallery.data.gallery_items) ? gallery.data.gallery_items.length : 0;
+					return (
+						<a class="landing-media-card" href={toLocalePath(`/gallery/${resolveEntrySlug(gallery)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+							<div class="landing-media-card__cover">
+								{gallery.data.cover_image ? (
+									<Image image={asImage(gallery.data.cover_image)} class="landing-media-card__image" alt={gallery.data.title} />
+								) : (
+									<span>{gallery.data.gallery_type === "video" ? "Video" : "Gallery"}</span>
+								)}
+							</div>
+							<div>
+								<span>{copy.galleryItemsCount(itemCount)}</span>
+								<h3>{gallery.data.title}</h3>
+								{gallery.data.description && <p>{gallery.data.description}</p>}
+							</div>
+						</a>
+					);
+				})
+			)}
+		</div>
+	</section>
 
-	.hero-actions > .btn {
-		min-width: 11rem;
-	}
+	<section class="landing-split landing-split--faq">
+		<div>
+			<p class="landing-eyebrow">{copy.newsTitle}</p>
+			<h2>{copy.landingUpdatesHeading}</h2>
+		</div>
+		<div class="landing-update-list">
+			{featuredNews.length === 0 ? (
+				<p class="landing-empty">{copy.noNewsYet}</p>
+			) : (
+				featuredNews.map((item) => (
+					<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						<strong>{item.data.title}</strong>
+						<p>{textPreview(item.data.summary, copy.newsWorkflowVisible)}</p>
+					</a>
+				))
+			)}
+		</div>
+	</section>
 
-	@media (max-width: 640px) {
-		.hero-card {
-			padding: 2.5rem 1.25rem !important;
-		}
+	<section class="landing-contact">
+		<p class="landing-eyebrow">{copy.landingContactEyebrow}</p>
+		<h2>{copy.ctaTitle}</h2>
+		<p>{copy.ctaSubtitle}</p>
+		<div class="landing-actions">
+			<a class="landing-button landing-button--primary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
+			<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.galleryViewAll}</a>
+		</div>
+	</section>
 
-		.hero-actions {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.hero-actions > .btn {
-			width: 100%;
-			justify-content: center;
-			min-width: 0;
-		}
-	}
-  </style>
+	<section class="landing-section landing-widgets" aria-label={copy.landingManagedWidgets}>
+		<div class="landing-section__heading landing-section__heading--inline">
+			<div>
+				<p class="landing-eyebrow">{copy.landingWidgetsEyebrow}</p>
+				<h2>{copy.landingManagedWidgets}</h2>
+			</div>
+			<a class="landing-button landing-button--secondary" href="/_emdash/admin/widgets">
+				{copy.landingManageWidgets}
+			</a>
+		</div>
+		<WidgetArea name="homepage" />
+	</section>
 </Base>
+
+<style>
+	.landing-hero,
+	.landing-split,
+	.landing-section,
+	.landing-contact {
+		position: relative;
+		overflow: hidden;
+		border-radius: 2rem;
+		border: 1px solid var(--surface-border);
+		background: var(--gradient-surface);
+		box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+	}
+
+	:root.dark .landing-hero,
+	:root.dark .landing-split,
+	:root.dark .landing-section,
+	:root.dark .landing-contact {
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+	}
+
+	.landing-hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+		gap: clamp(1.5rem, 4vw, 4rem);
+		padding: clamp(2rem, 6vw, 5rem);
+		align-items: center;
+	}
+
+	.landing-hero__glow {
+		position: absolute;
+		inset: -30%;
+		background: radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.18), transparent 28%), radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.16), transparent 32%);
+		pointer-events: none;
+	}
+
+	.landing-hero__copy,
+	.landing-hero__panel,
+	.landing-section__heading,
+	.landing-split > *,
+	.landing-contact > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.landing-hero h1 {
+		max-width: 13ch;
+		margin: 0 0 1.25rem;
+		font-size: clamp(2.75rem, 7vw, 5.8rem);
+		line-height: 0.98;
+		letter-spacing: -0.07em;
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.landing-hero p,
+	.landing-lead,
+	.landing-contact p {
+		max-width: 46rem;
+		color: var(--text-muted);
+		font-size: clamp(1rem, 1.6vw, 1.2rem);
+	}
+
+	.landing-eyebrow {
+		margin: 0 0 0.75rem;
+		color: var(--accent);
+		font-size: 0.78rem;
+		font-weight: 800;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+
+	.landing-actions,
+	.landing-stats,
+	.landing-section__heading--inline {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.landing-actions {
+		margin-top: 2rem;
+	}
+
+	.landing-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 2.9rem;
+		padding: 0.8rem 1.35rem;
+		border-radius: 999px;
+		font-weight: 800;
+		border: 1px solid var(--surface-border);
+	}
+
+	.landing-button--primary {
+		background: var(--gradient-primary);
+		color: #fff;
+		border-color: transparent;
+		box-shadow: 0 18px 40px rgba(99, 102, 241, 0.2);
+	}
+
+	.landing-button--secondary,
+	.landing-panel-grid a,
+	.landing-text-link {
+		background: var(--surface-main);
+		color: var(--text-main);
+	}
+
+	.landing-stats {
+		margin-top: 2rem;
+	}
+
+	.landing-stats div,
+	.landing-panel-card,
+	.landing-panel-grid a,
+	.landing-feature-card,
+	.landing-content-card,
+	.landing-media-card,
+	.landing-update-list a {
+		border: 1px solid var(--surface-border);
+		background: color-mix(in srgb, var(--surface-main) 82%, transparent);
+		box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+	}
+
+	.landing-stats div {
+		min-width: 7rem;
+		padding: 0.9rem 1rem;
+		border-radius: 1.2rem;
+	}
+
+	.landing-stats strong {
+		display: block;
+		font-size: 1.7rem;
+	}
+
+	.landing-stats span,
+	.landing-panel-card span,
+	.landing-panel-grid span,
+	.landing-media-card span {
+		color: var(--text-muted);
+		font-size: 0.82rem;
+		font-weight: 700;
+	}
+
+	.landing-hero__panel {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.landing-panel-card,
+	.landing-panel-grid a {
+		padding: 1.25rem;
+		border-radius: 1.4rem;
+	}
+
+	.landing-panel-card--accent {
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.12));
+	}
+
+	.landing-panel-card strong,
+	.landing-panel-grid strong {
+		display: block;
+		margin-top: 0.35rem;
+		font-size: 1.05rem;
+	}
+
+	.landing-panel-grid {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.landing-split {
+		display: grid;
+		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+		gap: clamp(1.5rem, 4vw, 3rem);
+		padding: clamp(1.75rem, 4vw, 3rem);
+	}
+
+	.landing-split h2,
+	.landing-section h2,
+	.landing-contact h2 {
+		margin: 0;
+		font-size: clamp(2rem, 4vw, 3.4rem);
+		letter-spacing: -0.05em;
+	}
+
+	.landing-muted,
+	.landing-feature-card p,
+	.landing-content-card p,
+	.landing-media-card p,
+	.landing-update-list p {
+		color: var(--text-muted);
+	}
+
+	.landing-text-link {
+		display: inline-flex;
+		margin-top: 1rem;
+		padding: 0.65rem 1rem;
+		border-radius: 999px;
+		border: 1px solid var(--surface-border);
+		font-weight: 800;
+	}
+
+	.landing-section,
+	.landing-contact {
+		padding: clamp(1.75rem, 4vw, 3rem);
+	}
+
+	.landing-section--dark {
+		background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(14, 116, 144, 0.72));
+		color: #fff;
+	}
+
+	.landing-section--dark .landing-eyebrow,
+	.landing-section--dark p,
+	.landing-section--dark span {
+		color: rgba(255, 255, 255, 0.78);
+	}
+
+	.landing-section__heading {
+		margin-bottom: 1.5rem;
+	}
+
+	.landing-section__heading--inline {
+		justify-content: space-between;
+	}
+
+	.landing-feature-grid,
+	.landing-media-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1rem;
+	}
+
+	.landing-feature-card,
+	.landing-content-card,
+	.landing-media-card,
+	.landing-update-list a {
+		display: block;
+		padding: 1.25rem;
+		border-radius: 1.35rem;
+		color: inherit;
+		transition: transform 0.2s ease, border-color 0.2s ease;
+	}
+
+	.landing-feature-card:hover,
+	.landing-content-card:hover,
+	.landing-media-card:hover,
+	.landing-update-list a:hover,
+	.landing-panel-grid a:hover {
+		transform: translateY(-3px);
+		border-color: var(--accent);
+	}
+
+	.landing-feature-card span,
+	.landing-number {
+		color: var(--accent);
+		font-size: 0.82rem;
+		font-weight: 900;
+		text-transform: uppercase;
+	}
+
+	.landing-slider-row {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(240px, 1fr));
+		gap: 1rem;
+		overflow-x: auto;
+		padding-bottom: 0.25rem;
+	}
+
+	.landing-content-card {
+		min-width: 240px;
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.landing-content-card__image,
+	.landing-media-card__image {
+		width: 100%;
+		border-radius: 1rem;
+		margin: 0.75rem 0 1rem;
+		object-fit: cover;
+		aspect-ratio: 16 / 10;
+	}
+
+	.landing-media-card {
+		overflow: hidden;
+		padding: 0;
+	}
+
+	.landing-media-card > div:last-child {
+		padding: 1.1rem;
+	}
+
+	.landing-media-card__cover {
+		min-height: 11rem;
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.12));
+		display: grid;
+		place-items: center;
+	}
+
+	.landing-update-list {
+		display: grid;
+		gap: 0.9rem;
+	}
+
+	.landing-empty {
+		color: var(--text-muted);
+	}
+
+	.landing-contact {
+		text-align: center;
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(99, 102, 241, 0.12));
+	}
+
+	.landing-contact .landing-actions {
+		justify-content: center;
+	}
+
+	@media (max-width: 820px) {
+		.landing-hero,
+		.landing-split {
+			grid-template-columns: 1fr;
+		}
+
+		.landing-slider-row {
+			grid-template-columns: repeat(3, minmax(82vw, 1fr));
+		}
+	}
+</style>

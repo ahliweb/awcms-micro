@@ -94,6 +94,102 @@ msgctxt "homeIntro"
 msgid "A concise public site for published content, simple editing, and example governance surfaces."
 msgstr "Situs publik yang ringkas untuk konten terpublikasi, pengeditan mudah, dan surface tata kelola contoh."
 
+msgctxt "landingExploreContent"
+msgid "Explore content"
+msgstr "Jelajahi konten"
+
+msgctxt "landingViewMedia"
+msgid "View media showcase"
+msgstr "Lihat media showcase"
+
+msgctxt "landingContentStats"
+msgid "Public content statistics"
+msgstr "Statistik konten publik"
+
+msgctxt "landingManagedSurface"
+msgid "Admin-managed public website surface"
+msgstr "Surface situs publik yang dikelola admin"
+
+msgctxt "landingAdminManaged"
+msgid "Managed from EmDash admin"
+msgstr "Dikelola dari admin EmDash"
+
+msgctxt "landingPagesPostsGallery"
+msgid "Pages, posts, news, and gallery content"
+msgstr "Halaman, pos, berita, dan konten galeri"
+
+msgctxt "landingProfileEyebrow"
+msgid "Brand profile"
+msgstr "Profil brand"
+
+msgctxt "landingProfileDescription"
+msgid "This Cloudflare public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+msgstr "Situs publik Cloudflare ini mengikuti struktur landing-page referensi sambil menjaga setiap halaman, pos, berita, dan galeri publik tetap dapat dikelola melalui koleksi EmDash."
+
+msgctxt "landingServicesEyebrow"
+msgid "Services and workflow"
+msgstr "Layanan dan workflow"
+
+msgctxt "landingAdminContentHint"
+msgid "Editable public page managed from the Pages collection."
+msgstr "Halaman publik yang dapat diedit dari koleksi Pages."
+
+msgctxt "landingPortfolioHeading"
+msgid "Latest editorial and implementation highlights"
+msgstr "Sorotan editorial dan implementasi terbaru"
+
+msgctxt "landingUpdatesHeading"
+msgid "Recent public updates"
+msgstr "Update publik terbaru"
+
+msgctxt "landingContactEyebrow"
+msgid "Contact and publishing workflow"
+msgstr "Kontak dan workflow publikasi"
+
+msgctxt "landingWidgetsEyebrow"
+msgid "Managed widgets"
+msgstr "Widget terkelola"
+
+msgctxt "landingManagedWidgets"
+msgid "Homepage widgets from EmDash"
+msgstr "Widget beranda dari EmDash"
+
+msgctxt "landingManageWidgets"
+msgid "Manage widgets"
+msgstr "Kelola widget"
+
+msgctxt "heroTitle"
+msgid "Build and publish from one Cloudflare-ready workspace"
+msgstr "Bangun dan publikasikan dari satu workspace siap Cloudflare"
+
+msgctxt "heroSubtitle"
+msgid "AWCMS-Micro turns EmDash-managed pages, posts, news, galleries, menus, widgets, and media into a resilient public website without modifying EmDash core."
+msgstr "AWCMS-Micro mengubah halaman, pos, berita, galeri, menu, widget, dan media yang dikelola EmDash menjadi situs publik tangguh tanpa memodifikasi core EmDash."
+
+msgctxt "howConnectsTitle"
+msgid "How the public site connects to admin"
+msgstr "Cara situs publik terhubung ke admin"
+
+msgctxt "viewPosts"
+msgid "View posts"
+msgstr "Lihat pos"
+
+msgctxt "newsWorkflowVisible"
+msgid "News updates connected to the same publishing workflow."
+msgstr "Update berita terhubung ke workflow publikasi yang sama."
+
+msgctxt "noPostsCreateOne"
+msgid "No posts yet. Create one from the admin."
+msgstr "Belum ada pos. Buat satu dari admin."
+
+msgctxt "ctaTitle"
+msgid "Ready to manage the public site from EmDash?"
+msgstr "Siap mengelola situs publik dari EmDash?"
+
+msgctxt "ctaSubtitle"
+msgid "Use the admin to manage pages, posts, news, media galleries, menus, widgets, and Cloudflare-ready publishing workflows."
+msgstr "Gunakan admin untuk mengelola halaman, pos, berita, galeri media, menu, widget, dan workflow publikasi siap Cloudflare."
+
 msgctxt "createPost"
 msgid "Create Post"
 msgstr "Buat Pos"
@@ -235,8 +331,8 @@ msgid "Browse all news ->"
 msgstr "Lihat semua berita ->"
 
 msgctxt "searchPlaceholder"
-msgid "Search posts, pages, and news"
-msgstr "Cari pos, halaman, dan berita"
+msgid "Search posts, pages, news, and galleries"
+msgstr "Cari pos, halaman, berita, dan galeri"
 
 msgctxt "adminLink"
 msgid "Admin"
@@ -345,6 +441,86 @@ msgstr "Berita"
 msgctxt "counts.pages"
 msgid "Pages"
 msgstr "Halaman"
+
+msgctxt "counts.galleries"
+msgid "Galleries"
+msgstr "Galeri"
+
+msgctxt "galleryTitle"
+msgid "Gallery"
+msgstr "Galeri"
+
+msgctxt "galleryDescription"
+msgid "Explore photo and video collections published from EmDash."
+msgstr "Jelajahi koleksi foto dan video yang dipublikasikan dari EmDash."
+
+msgctxt "galleryKicker"
+msgid "Media & Gallery"
+msgstr "Media & Galeri"
+
+msgctxt "galleryListHeading"
+msgid "Photo & Video Gallery"
+msgstr "Galeri Foto & Video"
+
+msgctxt "galleryListIntro"
+msgid "Browse curated collections of photos and videos from events, public activities, product showcases, and operational highlights."
+msgstr "Jelajahi koleksi foto dan video terkurasi dari acara, aktivitas publik, showcase produk, dan sorotan operasional."
+
+msgctxt "galleryFilterPhoto"
+msgid "Photos"
+msgstr "Foto"
+
+msgctxt "galleryFilterVideo"
+msgid "Videos"
+msgstr "Video"
+
+msgctxt "galleryFilterMixed"
+msgid "Mixed"
+msgstr "Campuran"
+
+msgctxt "galleryItemsCount"
+msgid "{count} items"
+msgstr "{count} item"
+
+msgctxt "noGalleryYet"
+msgid "No galleries yet. Check back soon."
+msgstr "Belum ada galeri. Silakan cek kembali nanti."
+
+msgctxt "galleryViewAll"
+msgid "View all galleries"
+msgstr "Lihat semua galeri"
+
+msgctxt "galleryBackToList"
+msgid "Back to gallery"
+msgstr "Kembali ke galeri"
+
+msgctxt "galleryEventDate"
+msgid "Event date"
+msgstr "Tanggal acara"
+
+msgctxt "galleryLocation"
+msgid "Location"
+msgstr "Lokasi"
+
+msgctxt "galleryType"
+msgid "Type"
+msgstr "Tipe"
+
+msgctxt "galleryItemsLabel"
+msgid "Items in this gallery"
+msgstr "Item dalam galeri ini"
+
+msgctxt "galleryPhotoLabel"
+msgid "Photos"
+msgstr "Foto"
+
+msgctxt "galleryVideoLabel"
+msgid "Videos"
+msgstr "Video"
+
+msgctxt "galleryPlayVideo"
+msgid "Your browser does not support video playback."
+msgstr "Browser Anda tidak mendukung pemutaran video."
 
 msgctxt "sikesraRecapitulationTitle"
 msgid "SIKESRA Recapitulation"

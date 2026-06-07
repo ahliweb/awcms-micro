@@ -94,6 +94,102 @@ msgctxt "homeIntro"
 msgid "A concise public site for published content, simple editing, and example governance surfaces."
 msgstr "A concise public site for published content, simple editing, and example governance surfaces."
 
+msgctxt "landingExploreContent"
+msgid "Explore content"
+msgstr "Explore content"
+
+msgctxt "landingViewMedia"
+msgid "View media showcase"
+msgstr "View media showcase"
+
+msgctxt "landingContentStats"
+msgid "Public content statistics"
+msgstr "Public content statistics"
+
+msgctxt "landingManagedSurface"
+msgid "Admin-managed public website surface"
+msgstr "Admin-managed public website surface"
+
+msgctxt "landingAdminManaged"
+msgid "Managed from EmDash admin"
+msgstr "Managed from EmDash admin"
+
+msgctxt "landingPagesPostsGallery"
+msgid "Pages, posts, news, and gallery content"
+msgstr "Pages, posts, news, and gallery content"
+
+msgctxt "landingProfileEyebrow"
+msgid "Brand profile"
+msgstr "Brand profile"
+
+msgctxt "landingProfileDescription"
+msgid "This Cloudflare public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+msgstr "This Cloudflare public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+
+msgctxt "landingServicesEyebrow"
+msgid "Services and workflow"
+msgstr "Services and workflow"
+
+msgctxt "landingAdminContentHint"
+msgid "Editable public page managed from the Pages collection."
+msgstr "Editable public page managed from the Pages collection."
+
+msgctxt "landingPortfolioHeading"
+msgid "Latest editorial and implementation highlights"
+msgstr "Latest editorial and implementation highlights"
+
+msgctxt "landingUpdatesHeading"
+msgid "Recent public updates"
+msgstr "Recent public updates"
+
+msgctxt "landingContactEyebrow"
+msgid "Contact and publishing workflow"
+msgstr "Contact and publishing workflow"
+
+msgctxt "landingWidgetsEyebrow"
+msgid "Managed widgets"
+msgstr "Managed widgets"
+
+msgctxt "landingManagedWidgets"
+msgid "Homepage widgets from EmDash"
+msgstr "Homepage widgets from EmDash"
+
+msgctxt "landingManageWidgets"
+msgid "Manage widgets"
+msgstr "Manage widgets"
+
+msgctxt "heroTitle"
+msgid "Build and publish from one Cloudflare-ready workspace"
+msgstr "Build and publish from one Cloudflare-ready workspace"
+
+msgctxt "heroSubtitle"
+msgid "AWCMS-Micro turns EmDash-managed pages, posts, news, galleries, menus, widgets, and media into a resilient public website without modifying EmDash core."
+msgstr "AWCMS-Micro turns EmDash-managed pages, posts, news, galleries, menus, widgets, and media into a resilient public website without modifying EmDash core."
+
+msgctxt "howConnectsTitle"
+msgid "How the public site connects to admin"
+msgstr "How the public site connects to admin"
+
+msgctxt "viewPosts"
+msgid "View posts"
+msgstr "View posts"
+
+msgctxt "newsWorkflowVisible"
+msgid "News updates connected to the same publishing workflow."
+msgstr "News updates connected to the same publishing workflow."
+
+msgctxt "noPostsCreateOne"
+msgid "No posts yet. Create one from the admin."
+msgstr "No posts yet. Create one from the admin."
+
+msgctxt "ctaTitle"
+msgid "Ready to manage the public site from EmDash?"
+msgstr "Ready to manage the public site from EmDash?"
+
+msgctxt "ctaSubtitle"
+msgid "Use the admin to manage pages, posts, news, media galleries, menus, widgets, and Cloudflare-ready publishing workflows."
+msgstr "Use the admin to manage pages, posts, news, media galleries, menus, widgets, and Cloudflare-ready publishing workflows."
+
 msgctxt "createPost"
 msgid "Create Post"
 msgstr "Create Post"
@@ -235,8 +331,8 @@ msgid "Browse all news ->"
 msgstr "Browse all news ->"
 
 msgctxt "searchPlaceholder"
-msgid "Search posts, pages, and news"
-msgstr "Search posts, pages, and news"
+msgid "Search posts, pages, news, and galleries"
+msgstr "Search posts, pages, news, and galleries"
 
 msgctxt "adminLink"
 msgid "Admin"
@@ -345,6 +441,86 @@ msgstr "News"
 msgctxt "counts.pages"
 msgid "Pages"
 msgstr "Pages"
+
+msgctxt "counts.galleries"
+msgid "Galleries"
+msgstr "Galleries"
+
+msgctxt "galleryTitle"
+msgid "Gallery"
+msgstr "Gallery"
+
+msgctxt "galleryDescription"
+msgid "Explore photo and video collections published from EmDash."
+msgstr "Explore photo and video collections published from EmDash."
+
+msgctxt "galleryKicker"
+msgid "Media & Gallery"
+msgstr "Media & Gallery"
+
+msgctxt "galleryListHeading"
+msgid "Photo & Video Gallery"
+msgstr "Photo & Video Gallery"
+
+msgctxt "galleryListIntro"
+msgid "Browse curated collections of photos and videos from events, public activities, product showcases, and operational highlights."
+msgstr "Browse curated collections of photos and videos from events, public activities, product showcases, and operational highlights."
+
+msgctxt "galleryFilterPhoto"
+msgid "Photos"
+msgstr "Photos"
+
+msgctxt "galleryFilterVideo"
+msgid "Videos"
+msgstr "Videos"
+
+msgctxt "galleryFilterMixed"
+msgid "Mixed"
+msgstr "Mixed"
+
+msgctxt "galleryItemsCount"
+msgid "{count} items"
+msgstr "{count} items"
+
+msgctxt "noGalleryYet"
+msgid "No galleries yet. Check back soon."
+msgstr "No galleries yet. Check back soon."
+
+msgctxt "galleryViewAll"
+msgid "View all galleries"
+msgstr "View all galleries"
+
+msgctxt "galleryBackToList"
+msgid "Back to gallery"
+msgstr "Back to gallery"
+
+msgctxt "galleryEventDate"
+msgid "Event date"
+msgstr "Event date"
+
+msgctxt "galleryLocation"
+msgid "Location"
+msgstr "Location"
+
+msgctxt "galleryType"
+msgid "Type"
+msgstr "Type"
+
+msgctxt "galleryItemsLabel"
+msgid "Items in this gallery"
+msgstr "Items in this gallery"
+
+msgctxt "galleryPhotoLabel"
+msgid "Photos"
+msgstr "Photos"
+
+msgctxt "galleryVideoLabel"
+msgid "Videos"
+msgstr "Videos"
+
+msgctxt "galleryPlayVideo"
+msgid "Your browser does not support video playback."
+msgstr "Your browser does not support video playback."
 
 msgctxt "sikesraRecapitulationTitle"
 msgid "SIKESRA Recapitulation"

@@ -61,6 +61,50 @@
 				},
 				{ "slug": "content", "label": "Content", "type": "portableText", "searchable": true }
 			]
+		},
+		{
+			"slug": "galleries",
+			"label": "Galleries",
+			"labelSingular": "Gallery",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{ "slug": "description", "label": "Description", "type": "text", "searchable": true },
+				{
+					"slug": "gallery_type",
+					"label": "Gallery Type",
+					"type": "select",
+					"required": true,
+					"options": [
+						{ "label": "Photo", "value": "photo" },
+						{ "label": "Video", "value": "video" },
+						{ "label": "Mixed", "value": "mixed" }
+					]
+				},
+				{
+					"slug": "layout_variant",
+					"label": "Layout Variant",
+					"type": "select",
+					"required": true,
+					"options": [
+						{ "label": "Grid", "value": "grid" },
+						{ "label": "Masonry", "value": "masonry" },
+						{ "label": "Carousel", "value": "carousel" },
+						{ "label": "Slider", "value": "slider" }
+					]
+				},
+				{ "slug": "event_date", "label": "Event Date", "type": "datetime" },
+				{ "slug": "location", "label": "Location", "type": "string" },
+				{ "slug": "featured", "label": "Featured", "type": "boolean" },
+				{ "slug": "cover_image", "label": "Cover Image", "type": "image" },
+				{ "slug": "gallery_items", "label": "Gallery Items", "type": "json" }
+			]
 		}
 	],
 	"taxonomies": [
@@ -125,6 +169,7 @@
 						{ "type": "custom", "label": "Docs Roadmap", "url": "/docs-roadmap" }
 					]
 				},
+				{ "type": "custom", "label": "Gallery", "url": "/gallery" },
 				{ "type": "custom", "label": "Contact", "url": "/about#contact" }
 			]
 		},
@@ -167,6 +212,7 @@
 						{ "type": "custom", "label": "Peta Jalan Docs", "url": "/docs-roadmap" }
 					]
 				},
+				{ "type": "custom", "label": "Galeri", "url": "/gallery" },
 				{ "type": "custom", "label": "Kontak", "url": "/about#contact" }
 			]
 		},
@@ -237,6 +283,20 @@
 					"componentId": "core:recent-posts",
 					"title": "Recent Posts",
 					"settings": { "count": 5 }
+				}
+			]
+		},
+		{
+			"name": "homepage",
+			"label": "Homepage",
+			"description": "Homepage landing widget area",
+			"widgets": [
+				{ "type": "component", "componentId": "core:search", "title": "Search content" },
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Latest posts",
+					"settings": { "count": 3 }
 				}
 			]
 		}
@@ -565,6 +625,74 @@
 								}
 							],
 							"_key": "nb1-id"
+						}
+					]
+				}
+			}
+		],
+		"galleries": [
+			{
+				"id": "cloudflare-launch-gallery",
+				"slug": "cloudflare-launch-gallery",
+				"status": "published",
+				"data": {
+					"title": "Cloudflare Launch Gallery",
+					"description": "A curated gallery for the AWCMS-Micro Cloudflare-ready public website, showing how media collections can be managed from EmDash.",
+					"gallery_type": "mixed",
+					"layout_variant": "grid",
+					"event_date": "2026-06-01T00:00:00.000Z",
+					"location": "Cloudflare deployment workspace",
+					"featured": true,
+					"cover_image": {
+						"src": "https://picsum.photos/id/1018/1000/700",
+						"alt": "Cloudflare launch gallery cover"
+					},
+					"gallery_items": [
+						{
+							"type": "image",
+							"src": "https://picsum.photos/id/1018/1000/700",
+							"alt": "Team reviewing Cloudflare deployment dashboard",
+							"caption": "Deployment review for an AWCMS-Micro public site running through the Cloudflare-ready template."
+						},
+						{
+							"type": "image",
+							"src": "https://picsum.photos/id/1039/1000/700",
+							"alt": "Public content workflow showcase",
+							"caption": "Public page, post, news, menu, widget, and media workflows are managed through EmDash collections."
+						}
+					]
+				}
+			},
+			{
+				"id": "cloudflare-launch-gallery-id",
+				"translationOf": "cloudflare-launch-gallery",
+				"locale": "id",
+				"slug": "cloudflare-launch-gallery",
+				"status": "published",
+				"data": {
+					"title": "Galeri Peluncuran Cloudflare",
+					"description": "Galeri terkurasi untuk situs publik AWCMS-Micro siap Cloudflare, menunjukkan bagaimana koleksi media dikelola dari EmDash.",
+					"gallery_type": "mixed",
+					"layout_variant": "grid",
+					"event_date": "2026-06-01T00:00:00.000Z",
+					"location": "Workspace deployment Cloudflare",
+					"featured": true,
+					"cover_image": {
+						"src": "https://picsum.photos/id/1018/1000/700",
+						"alt": "Sampul galeri peluncuran Cloudflare"
+					},
+					"gallery_items": [
+						{
+							"type": "image",
+							"src": "https://picsum.photos/id/1018/1000/700",
+							"alt": "Tim meninjau dashboard deployment Cloudflare",
+							"caption": "Review deployment untuk situs publik AWCMS-Micro yang berjalan melalui template siap Cloudflare."
+						},
+						{
+							"type": "image",
+							"src": "https://picsum.photos/id/1039/1000/700",
+							"alt": "Showcase workflow konten publik",
+							"caption": "Workflow halaman publik, pos, berita, menu, widget, dan media dikelola melalui koleksi EmDash."
 						}
 					]
 				}
