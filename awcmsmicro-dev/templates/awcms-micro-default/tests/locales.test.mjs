@@ -31,3 +31,13 @@ await test("PO catalogs cover every default template copy key", async () => {
 		);
 	}
 });
+
+await test("default public template keeps interactive media and contact sections", async () => {
+	const homepage = await readFile(new URL("../src/pages/index.astro", import.meta.url), "utf8");
+
+	assert.match(homepage, /const mediaShowcaseItems = visibleGalleries/);
+	assert.match(homepage, /class="landing-media-strip"/);
+	assert.match(homepage, /<details class="landing-media-detail">/);
+	assert.match(homepage, /class="landing-contact-cards"/);
+	assert.match(homepage, /websiteSocial\.whatsappNumber/);
+});

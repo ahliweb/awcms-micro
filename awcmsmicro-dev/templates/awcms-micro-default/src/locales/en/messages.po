@@ -142,6 +142,42 @@ msgctxt "landingContactEyebrow"
 msgid "Contact and publishing workflow"
 msgstr "Contact and publishing workflow"
 
+msgctxt "landingMediaShowcaseEyebrow"
+msgid "Interactive media"
+msgstr "Interactive media"
+
+msgctxt "landingMediaShowcaseHeading"
+msgid "Scrollable gallery moments"
+msgstr "Scrollable gallery moments"
+
+msgctxt "landingMediaShowcaseIntro"
+msgid "Swipe or scroll through public-safe gallery highlights, then open each detail panel for context from the managed gallery item."
+msgstr "Swipe or scroll through public-safe gallery highlights, then open each detail panel for context from the managed gallery item."
+
+msgctxt "landingMediaOpenDetails"
+msgid "Open details"
+msgstr "Open details"
+
+msgctxt "landingContactCardsLabel"
+msgid "Contact and social publishing options"
+msgstr "Contact and social publishing options"
+
+msgctxt "landingContactMapCard"
+msgid "Public map preview"
+msgstr "Public map preview"
+
+msgctxt "landingContactMapHint"
+msgid "Use this safe visual area for location context, office coverage, or a future embedded map managed by the public template."
+msgstr "Use this safe visual area for location context, office coverage, or a future embedded map managed by the public template."
+
+msgctxt "landingContactContentCard"
+msgid "Managed content"
+msgstr "Managed content"
+
+msgctxt "landingContactWhatsAppCard"
+msgid "WhatsApp contact"
+msgstr "WhatsApp contact"
+
 msgctxt "landingWidgetsEyebrow"
 msgid "Managed widgets"
 msgstr "Managed widgets"

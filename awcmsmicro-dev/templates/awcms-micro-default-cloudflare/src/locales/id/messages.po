@@ -146,6 +146,42 @@ msgctxt "landingContactEyebrow"
 msgid "Contact and publishing workflow"
 msgstr "Kontak dan workflow publikasi"
 
+msgctxt "landingMediaShowcaseEyebrow"
+msgid "Interactive media"
+msgstr "Media interaktif"
+
+msgctxt "landingMediaShowcaseHeading"
+msgid "Scrollable gallery moments"
+msgstr "Momen galeri yang bisa digulir"
+
+msgctxt "landingMediaShowcaseIntro"
+msgid "Swipe or scroll through public-safe gallery highlights, then open each detail panel for context from the managed gallery item."
+msgstr "Geser atau gulir sorotan galeri aman-publik, lalu buka panel detail untuk melihat konteks dari item galeri yang dikelola."
+
+msgctxt "landingMediaOpenDetails"
+msgid "Open details"
+msgstr "Buka detail"
+
+msgctxt "landingContactCardsLabel"
+msgid "Contact and social publishing options"
+msgstr "Opsi kontak dan publikasi sosial"
+
+msgctxt "landingContactMapCard"
+msgid "Public map preview"
+msgstr "Pratinjau peta publik"
+
+msgctxt "landingContactMapHint"
+msgid "Use this safe visual area for location context, office coverage, or a future embedded map managed by the public template."
+msgstr "Gunakan area visual aman ini untuk konteks lokasi, cakupan kantor, atau peta tertanam masa depan yang dikelola template publik."
+
+msgctxt "landingContactContentCard"
+msgid "Managed content"
+msgstr "Konten terkelola"
+
+msgctxt "landingContactWhatsAppCard"
+msgid "WhatsApp contact"
+msgstr "Kontak WhatsApp"
+
 msgctxt "landingWidgetsEyebrow"
 msgid "Managed widgets"
 msgstr "Widget terkelola"

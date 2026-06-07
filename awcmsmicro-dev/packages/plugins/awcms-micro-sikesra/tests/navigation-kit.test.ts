@@ -258,4 +258,29 @@ describe("AWCMS-Micro navigation kit", () => {
 		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.overview"]).toBe("Ikhtisar");
 		expect(AWCMS_SIKESRA_MANIFEST.i18n?.messages?.id?.["awcms.nav.audit"]).toBe("Log Audit");
 	});
+
+	it("uses SIKESRA registry and data-management labels instead of example scaffold labels", () => {
+		const dataGroup = AWCMS_SIKESRA_MANIFEST.navigation?.groups?.find(
+			(group) => group.id === "content-group",
+		);
+		const registryItem = dataGroup?.items.find((item) => item.path === "/registry");
+
+		expect(dataGroup).toMatchObject({
+			labelKey: "awcms.nav.group.data",
+			fallbackLabel: "Data Management",
+		});
+		expect(registryItem).toMatchObject({
+			id: "registry",
+			labelKey: "awcms.nav.registry",
+			fallbackLabel: "Registry",
+		});
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en?.["awcms.nav.group.data"]).toBe("Data Management");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.group.data"]).toBe("Manajemen Data");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en?.["awcms.nav.registry"]).toBe("Registry");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.registry"]).toBe("Registry");
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en?.["awcms.nav.pages"]).toBeUndefined();
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.pages"]).toBeUndefined();
+		expect(SIKESRA_PO_LOCALE_MESSAGES.en?.["awcms.nav.group.content"]).toBeUndefined();
+		expect(SIKESRA_PO_LOCALE_MESSAGES.id?.["awcms.nav.group.content"]).toBeUndefined();
+	});
 });

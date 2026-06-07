@@ -80,6 +80,34 @@ const featuredPosts = posts.slice(0, 3);
 const featuredNews = newsItems.slice(0, 3);
 const featuredGalleries = galleries.filter((gallery) => gallery.data.featured).slice(0, 3);
 const visibleGalleries = featuredGalleries.length > 0 ? featuredGalleries : galleries.slice(0, 3);
+const mediaShowcaseItems = visibleGalleries
+	.flatMap((gallery) => {
+		const galleryHref = toLocalePath(`/gallery/${resolveEntrySlug(gallery)}`, currentLocale, localeOptions);
+		const galleryItems = Array.isArray(gallery.data.gallery_items) ? gallery.data.gallery_items : [];
+		if (galleryItems.length > 0) {
+			return galleryItems.slice(0, 4).map((item) => ({
+				...item,
+				galleryTitle: gallery.data.title,
+				href: galleryHref,
+				previewSrc: item.type === "video" ? item.poster || gallery.data.cover_image?.src : item.src,
+			}));
+		}
+
+		return gallery.data.cover_image
+			? [
+					{
+						type: "image" as const,
+						src: gallery.data.cover_image.src,
+						alt: gallery.data.cover_image.alt || gallery.data.title,
+						caption: gallery.data.description,
+						galleryTitle: gallery.data.title,
+						href: galleryHref,
+						previewSrc: gallery.data.cover_image.src,
+					},
+				]
+			: [];
+	})
+	.slice(0, 8);
 const publicCounts = [
 	{ label: copy.counts.posts, value: posts.length },
 	{ label: copy.counts.news, value: newsItems.length },
@@ -271,6 +299,41 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
+	<section class="landing-section landing-media-showcase reveal" aria-label={copy.landingMediaShowcaseHeading}>
+		<div class="landing-section__heading landing-section__heading--inline">
+			<div>
+				<p class="landing-eyebrow">{copy.landingMediaShowcaseEyebrow}</p>
+				<h2>{copy.landingMediaShowcaseHeading}</h2>
+				<p class="landing-muted">{copy.landingMediaShowcaseIntro}</p>
+			</div>
+			<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">
+				{copy.galleryViewAll}
+			</a>
+		</div>
+		<div class="landing-media-strip" role="list" aria-label={copy.landingMediaShowcaseHeading}>
+			{mediaShowcaseItems.length === 0 ? (
+				<p class="landing-empty">{copy.noGalleryYet}</p>
+			) : (
+				mediaShowcaseItems.map((item, index) => (
+					<article class="landing-media-tile" role="listitem">
+						<a href={item.href} data-astro-prefetch="hover" aria-label={`${copy.openPage}: ${item.galleryTitle}`}>
+							{item.previewSrc ? (
+								<img src={item.previewSrc} alt={item.alt || item.caption || item.galleryTitle} loading="lazy" decoding="async" />
+							) : (
+								<span>{item.type === "video" ? copy.galleryVideoLabel : copy.galleryPhotoLabel}</span>
+							)}
+						</a>
+						<details class="landing-media-detail">
+							<summary>{copy.landingMediaOpenDetails}</summary>
+							<strong>{item.galleryTitle}</strong>
+							<p>{item.caption || item.alt || copy.galleryItemsCount(index + 1)}</p>
+						</details>
+					</article>
+				))
+			)}
+		</div>
+	</section>
+
 	<section class="landing-split landing-split--faq reveal">
 		<div>
 			<p class="landing-eyebrow">{copy.newsTitle}</p>
@@ -299,6 +362,25 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		<p class="landing-eyebrow">{copy.landingContactEyebrow}</p>
 		<h2>{copy.ctaTitle}</h2>
 		<p>{copy.ctaSubtitle}</p>
+		<div class="landing-contact-cards" aria-label={copy.landingContactCardsLabel}>
+			<div class="landing-contact-card landing-contact-card--map">
+				<span>{copy.landingContactMapCard}</span>
+				<strong>{siteTitle}</strong>
+				<p>{copy.landingContactMapHint}</p>
+			</div>
+			<div class="landing-contact-card">
+				<span>{copy.landingContactContentCard}</span>
+				<strong>{copy.landingPagesPostsGallery}</strong>
+				<p>{copy.landingAdminContentHint}</p>
+			</div>
+			{showWhatsAppCta && (
+				<div class="landing-contact-card">
+					<span>{copy.landingContactWhatsAppCard}</span>
+					<strong>+{websiteSocial.whatsappNumber}</strong>
+					<p>{websiteSocial.contactLabel}</p>
+				</div>
+			)}
+		</div>
 		<div class="landing-actions">
 			{showWhatsAppCta && (
 				<a class="landing-button landing-button--whatsapp" href={contactWhatsAppHref} target="_blank" rel="noopener noreferrer">
@@ -466,6 +548,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-feature-card,
 	.landing-content-card,
 	.landing-media-card,
+	.landing-media-tile,
+	.landing-contact-card,
 	.landing-update-list a {
 		border: 1px solid var(--surface-border);
 		background: rgba(255, 255, 255, 0.04);
@@ -481,6 +565,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	:root.dark .landing-feature-card,
 	:root.dark .landing-content-card,
 	:root.dark .landing-media-card,
+	:root.dark .landing-media-tile,
+	:root.dark .landing-contact-card,
 	:root.dark .landing-update-list a {
 		background: rgba(15, 23, 42, 0.35);
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -552,6 +638,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-feature-card p,
 	.landing-content-card p,
 	.landing-media-card p,
+	.landing-media-detail p,
+	.landing-contact-card p,
 	.landing-update-list p {
 		color: var(--text-muted);
 	}
@@ -608,6 +696,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-feature-card,
 	.landing-content-card,
 	.landing-media-card,
+	.landing-media-tile,
+	.landing-contact-card,
 	.landing-update-list a {
 		display: block;
 		padding: 1.25rem;
@@ -618,6 +708,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-feature-card:hover,
 	.landing-content-card:hover,
 	.landing-media-card:hover,
+	.landing-media-tile:hover,
+	.landing-contact-card:hover,
 	.landing-update-list a:hover,
 	.landing-panel-grid a:hover {
 		transform: translateY(-6px) scale(1.02);
@@ -629,6 +721,8 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	:root.dark .landing-feature-card:hover,
 	:root.dark .landing-content-card:hover,
 	:root.dark .landing-media-card:hover,
+	:root.dark .landing-media-tile:hover,
+	:root.dark .landing-contact-card:hover,
 	:root.dark .landing-update-list a:hover,
 	:root.dark .landing-panel-grid a:hover {
 		background-color: rgba(15, 23, 42, 0.55);
@@ -681,6 +775,51 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		place-items: center;
 	}
 
+	.landing-media-showcase {
+		background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(217, 70, 239, 0.08));
+	}
+
+	.landing-media-strip {
+		display: grid;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(220px, 28vw);
+		gap: 1rem;
+		overflow-x: auto;
+		padding: 0.25rem 0 0.75rem;
+		scroll-snap-type: inline mandatory;
+	}
+
+	.landing-media-tile {
+		padding: 0.75rem;
+		scroll-snap-align: start;
+	}
+
+	.landing-media-tile img,
+	.landing-media-tile a > span {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		aspect-ratio: 4 / 5;
+		border-radius: 1rem;
+		object-fit: cover;
+		background: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(14, 165, 233, 0.12));
+	}
+
+	.landing-media-detail {
+		margin-top: 0.8rem;
+	}
+
+	.landing-media-detail summary {
+		cursor: pointer;
+		color: var(--accent);
+		font-weight: 900;
+	}
+
+	.landing-media-detail strong {
+		display: block;
+		margin-top: 0.65rem;
+	}
+
 	.landing-update-list {
 		display: grid;
 		gap: 0.9rem;
@@ -695,6 +834,33 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(217, 70, 239, 0.12));
 	}
 
+	.landing-contact-cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 1rem;
+		margin-top: 2rem;
+		text-align: start;
+	}
+
+	.landing-contact-card span {
+		color: var(--accent);
+		font-size: 0.78rem;
+		font-weight: 900;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.landing-contact-card strong {
+		display: block;
+		margin-top: 0.5rem;
+		font-size: 1.1rem;
+	}
+
+	.landing-contact-card--map {
+		min-height: 13rem;
+		background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.18), transparent 28%), linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(99, 102, 241, 0.14));
+	}
+
 	.landing-contact .landing-actions {
 		justify-content: center;
 	}
@@ -707,6 +873,10 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 
 		.landing-slider-row {
 			grid-template-columns: repeat(3, minmax(82vw, 1fr));
+		}
+
+		.landing-media-strip {
+			grid-auto-columns: minmax(78vw, 1fr);
 		}
 
 		.landing-section-actions {
