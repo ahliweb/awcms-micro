@@ -20,17 +20,156 @@ const copy = getPublicCopy(currentLocale);
 ---
 
 <BaseLayout title={copy.newsTitle} description={copy.newsDescription} showFooterWidgets={false}>
-	<section>
+	<section class="news-hero">
+		<p class="kicker">{copy.homeKicker}</p>
 		<h1>{copy.newsTitle}</h1>
-		{newsItems.length === 0 ? <p>{copy.noNewsYet}</p> : (
-			<ul style="padding-left:1.25rem;">
-				{newsItems.map((item) => (
-					<li style="margin-bottom:1rem;">
-						<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover"><strong>{item.data.title}</strong></a>
-						{item.data.summary && <p>{item.data.summary}</p>}
-					</li>
-				))}
-			</ul>
-		)}
+		<p>{copy.newsDescription}</p>
+		<div class="news-hero__meta">
+			<span>{newsItems.length} {copy.counts.news}</span>
+			<a href="/_emdash/admin/content/news">{copy.latestNews}</a>
+		</div>
 	</section>
+
+	{newsItems.length === 0 ? (
+		<section class="card news-empty">
+			<h2>{copy.noNewsYet}</h2>
+			<p>{copy.newsWorkflowVisible}</p>
+		</section>
+	) : (
+		<section class="news-timeline">
+			{newsItems.map((item, index) => (
+				<article class="news-card">
+					<a href={toLocalePath(`/news/${resolveEntrySlug(item)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						<span class="news-number">{String(index + 1).padStart(2, "0")}</span>
+						<div>
+							<h2>{item.data.title}</h2>
+							{item.data.summary && <p>{item.data.summary}</p>}
+						</div>
+					</a>
+				</article>
+			))}
+		</section>
+	)}
 </BaseLayout>
+
+<style>
+	.news-hero,
+	.news-card,
+	.news-empty {
+		border: 1px solid var(--surface-border);
+		background: var(--gradient-surface);
+		box-shadow: var(--shadow-lg);
+	}
+
+	.news-hero {
+		position: relative;
+		overflow: hidden;
+		border-radius: 2rem;
+		padding: clamp(2rem, 6vw, 4.5rem);
+	}
+
+	.news-hero::before {
+		content: "";
+		position: absolute;
+		inset: -35%;
+		background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.16), transparent 28%), radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.14), transparent 34%);
+		pointer-events: none;
+	}
+
+	.news-hero > * {
+		position: relative;
+		z-index: 1;
+	}
+
+	.news-hero h1 {
+		max-width: 11ch;
+		margin: 0 0 1rem;
+		font-size: clamp(2.6rem, 7vw, 5rem);
+		line-height: 0.98;
+		letter-spacing: -0.07em;
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.news-hero p {
+		max-width: 40rem;
+		color: var(--text-muted);
+	}
+
+	.news-hero__meta {
+		display: flex;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		margin-top: 1.5rem;
+	}
+
+	.news-hero__meta span,
+	.news-hero__meta a {
+		padding: 0.55rem 0.95rem;
+		border-radius: 999px;
+		border: 1px solid var(--surface-border);
+		background: var(--surface-main);
+		font-weight: 800;
+	}
+
+	.news-timeline {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.news-card {
+		border-radius: 1.5rem;
+		transition: transform 0.2s ease, border-color 0.2s ease;
+	}
+
+	.news-card:hover {
+		transform: translateY(-3px);
+		border-color: var(--accent);
+	}
+
+	.news-card a {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: clamp(1rem, 3vw, 2rem);
+		padding: clamp(1.2rem, 3vw, 2rem);
+		color: var(--text-main);
+	}
+
+	.news-number {
+		display: grid;
+		place-items: center;
+		width: 3.5rem;
+		height: 3.5rem;
+		border-radius: 1rem;
+		background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(14, 165, 233, 0.14));
+		color: var(--accent);
+		font-weight: 900;
+		letter-spacing: 0.08em;
+	}
+
+	.news-card h2 {
+		margin: 0 0 0.5rem;
+		font-size: clamp(1.35rem, 3vw, 2.35rem);
+		line-height: 1.08;
+		letter-spacing: -0.04em;
+	}
+
+	.news-card p,
+	.news-empty p {
+		margin: 0;
+		color: var(--text-muted);
+	}
+
+	.news-empty {
+		padding: 2rem;
+		border-radius: 1.5rem;
+		text-align: center;
+	}
+
+	@media (max-width: 640px) {
+		.news-card a {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
