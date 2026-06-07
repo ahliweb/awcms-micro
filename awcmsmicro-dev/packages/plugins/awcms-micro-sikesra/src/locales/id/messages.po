@@ -1002,6 +1002,14 @@ msgctxt "awcms.adminCopy.verificationInputPolicy"
 msgid "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
 msgstr "Input data boleh dilakukan semua level pengguna, tetapi verifikasi awal wajib dimulai dari user desa/kelurahan."
 
+msgctxt "awcms.adminCopy.verifierNotes"
+msgid "Verifier notes"
+msgstr "Catatan verifikator"
+
+msgctxt "awcms.adminCopy.verifierNotesPlaceholder"
+msgid "Write justification notes..."
+msgstr "Tulis catatan justifikasi..."
+
 msgctxt "awcms.adminCopy.final"
 msgid "final"
 msgstr "final"
@@ -1241,6 +1249,38 @@ msgstr "Bucket yang aman ditampilkan terbuka"
 msgctxt "awcms.adminCopy.aggregateCategories"
 msgid "Aggregate categories"
 msgstr "Kategori agregat"
+
+msgctxt "awcms.adminCopy.recapitulationChartTitle"
+msgid "SIKESRA data recapitulation chart"
+msgstr "Grafik Rekapitulasi Data SIKESRA"
+
+msgctxt "awcms.adminCopy.recapitulationChartDescription"
+msgid "Compare total registered entities with verified data per category."
+msgstr "Bandingkan jumlah total entitas terdaftar dengan data terverifikasi per kategori."
+
+msgctxt "awcms.adminCopy.referenceData"
+msgid "Reference data"
+msgstr "Data Referensi"
+
+msgctxt "awcms.adminCopy.suppressedLabel"
+msgid "Suppressed"
+msgstr "Disupresi"
+
+msgctxt "awcms.adminCopy.privacyLock"
+msgid "Privacy lock"
+msgstr "Kunci privasi"
+
+msgctxt "awcms.adminCopy.lowCountPrivacyNote"
+msgid "Count is too low for privacy safety (< 3)"
+msgstr "Jumlah terlalu rendah untuk keamanan privasi (< 3)"
+
+msgctxt "awcms.adminCopy.totalEntitiesLegend"
+msgid "Total entities"
+msgstr "Total Entitas"
+
+msgctxt "awcms.adminCopy.verifiedLegend"
+msgid "Verified"
+msgstr "Terverifikasi"
 
 msgctxt "awcms.adminCopy.aggregateCategoriesDescription"
 msgid "Counts are shown only when the category is not suppressed."
@@ -3365,6 +3405,278 @@ msgstr "ID SIKESRA"
 msgctxt "awcms.adminCopy.registrySteps.10"
 msgid "Review & Submit"
 msgstr "Tinjauan"
+
+msgctxt "awcms.adminCopy.stepOf"
+msgid "Step {step} of {total}"
+msgstr "Langkah {step} dari {total}"
+
+msgctxt "awcms.adminCopy.otherOption"
+msgid "Other"
+msgstr "Lainnya"
+
+msgctxt "awcms.adminCopy.parentDataType"
+msgid "Parent data type"
+msgstr "Jenis Data Induk"
+
+msgctxt "awcms.adminCopy.parentDataTypeHint"
+msgid "Select the SIKESRA parent data type (required)"
+msgstr "Pilih Jenis Data Induk SIKESRA (wajib)"
+
+msgctxt "awcms.adminCopy.subDataType"
+msgid "Sub data type"
+msgstr "Sub Jenis Data"
+
+msgctxt "awcms.adminCopy.subDataTypeHint"
+msgid "Select the SIKESRA sub data type (required)"
+msgstr "Pilih Sub Jenis Data SIKESRA (wajib)"
+
+msgctxt "awcms.adminCopy.sensitivityClassificationHint"
+msgid "Determine record visibility for this entity (required)"
+msgstr "Tentukan visibilitas record entitas ini (wajib)"
+
+msgctxt "awcms.adminCopy.selectRegencyPlaceholder"
+msgid "-- Select regency --"
+msgstr "-- Pilih kabupaten/kota --"
+
+msgctxt "awcms.adminCopy.selectDistrictPlaceholder"
+msgid "-- Select district --"
+msgstr "-- Pilih kecamatan --"
+
+msgctxt "awcms.adminCopy.selectVillagePlaceholder"
+msgid "-- Select village --"
+msgstr "-- Pilih desa/kelurahan --"
+
+msgctxt "awcms.adminCopy.cascadingLookupSelector"
+msgid "Cascading lookup selector"
+msgstr "Selector lookup berjenjang"
+
+msgctxt "awcms.adminCopy.filteredByProvince"
+msgid "Filtered by province"
+msgstr "Difilter berdasarkan provinsi"
+
+msgctxt "awcms.adminCopy.filteredByRegency"
+msgid "Filtered by regency"
+msgstr "Difilter berdasarkan kabupaten/kota"
+
+msgctxt "awcms.adminCopy.filteredByDistrict"
+msgid "Filtered by district"
+msgstr "Difilter berdasarkan kecamatan"
+
+msgctxt "awcms.adminCopy.rtHint"
+msgid "Optional (example: 001)"
+msgstr "Opsional (contoh: 001)"
+
+msgctxt "awcms.adminCopy.rwHint"
+msgid "Optional (example: 002)"
+msgstr "Opsional (contoh: 002)"
+
+msgctxt "awcms.adminCopy.specificLocalAddress"
+msgid "Specific local address"
+msgstr "Alamat lokal spesifik"
+
+msgctxt "awcms.adminCopy.specificLocalAddressHint"
+msgid "Optional specific street details"
+msgstr "Detail jalan spesifik opsional"
+
+msgctxt "awcms.adminCopy.ktpAddressGroup"
+msgid "KTP address group"
+msgstr "Grup alamat KTP"
+
+msgctxt "awcms.adminCopy.ktpAddressGroupDescription"
+msgid "Sensitive personal address from official identity records. Never expose this in public output."
+msgstr "Alamat sensitif-personal dari dokumen identitas resmi. Jangan tampilkan di output publik."
+
+msgctxt "awcms.adminCopy.domicileAddressGroup"
+msgid "Domicile address group"
+msgstr "Grup alamat domisili"
+
+msgctxt "awcms.adminCopy.domicileAddressGroupDescription"
+msgid "Current living address, captured separately from KTP address for verification and restricted workflows."
+msgstr "Alamat tempat tinggal saat ini, dicatat terpisah dari alamat KTP untuk verifikasi dan alur terbatas."
+
+msgctxt "awcms.adminCopy.sameAsKtpAddress"
+msgid "Domicile address is the same as KTP address"
+msgstr "Alamat domisili sama dengan alamat KTP"
+
+msgctxt "awcms.adminCopy.addressDetail"
+msgid "Address detail"
+msgstr "Detail alamat"
+
+msgctxt "awcms.adminCopy.postalCode"
+msgid "Postal code"
+msgstr "Kode pos"
+
+msgctxt "awcms.adminCopy.identityNameLabel"
+msgid "Identity name / label"
+msgstr "Nama / label identitas"
+
+msgctxt "awcms.adminCopy.identityNameHint"
+msgid "Human-readable name (required)"
+msgstr "Nama yang mudah dibaca manusia (wajib)"
+
+msgctxt "awcms.adminCopy.identityNamePlaceholder"
+msgid "e.g. Al-Barokah Worship Place"
+msgstr "contoh: Rumah Ibadah Al-Barokah"
+
+msgctxt "awcms.adminCopy.briefDescription"
+msgid "Brief description"
+msgstr "Deskripsi singkat"
+
+msgctxt "awcms.adminCopy.briefDescriptionHint"
+msgid "Optional summary details"
+msgstr "Detail ringkasan opsional"
+
+msgctxt "awcms.adminCopy.religionConnection"
+msgid "Religion connection"
+msgstr "Koneksi agama"
+
+msgctxt "awcms.adminCopy.religionConnectionHint"
+msgid "Optional attribute connection"
+msgstr "Koneksi atribut opsional"
+
+msgctxt "awcms.adminCopy.notFilledOptional"
+msgid "Not filled (optional)"
+msgstr "Tidak diisi (opsional)"
+
+msgctxt "awcms.adminCopy.socialDesilStatus"
+msgid "Social decile status (1-10)"
+msgstr "Status desil sosial (1-10)"
+
+msgctxt "awcms.adminCopy.socialDesilStatusHint"
+msgid "Optional socio-economic classification"
+msgstr "Klasifikasi sosial-ekonomi opsional"
+
+msgctxt "awcms.adminCopy.desilLabel"
+msgid "Decile {value}"
+msgstr "Desil {value}"
+
+msgctxt "awcms.adminCopy.moduleSpecificDataDetails"
+msgid "Module-specific data details"
+msgstr "Detail data spesifik modul"
+
+msgctxt "awcms.adminCopy.moduleSpecificDataDetailsHint"
+msgid "Additional parameters unique to the module type (optional)"
+msgstr "Parameter tambahan khusus tipe modul (opsional)"
+
+msgctxt "awcms.adminCopy.caregiverPicName"
+msgid "Caregiver / PIC name"
+msgstr "Nama caregiver / PIC"
+
+msgctxt "awcms.adminCopy.caregiverPicNameHint"
+msgid "Optional contact person"
+msgstr "Kontak penanggung jawab opsional"
+
+msgctxt "awcms.adminCopy.caregiverPhoneNumber"
+msgid "Caregiver phone number"
+msgstr "Nomor telepon caregiver"
+
+msgctxt "awcms.adminCopy.caregiverPhoneNumberHint"
+msgid "Optional phone number"
+msgstr "Nomor telepon opsional"
+
+msgctxt "awcms.adminCopy.attachedDocumentsWithCount"
+msgid "Attached documents ({count})"
+msgstr "Dokumen terlampir ({count})"
+
+msgctxt "awcms.adminCopy.noDocumentsAttachedOptional"
+msgid "No documents attached (optional)"
+msgstr "Belum ada dokumen terlampir (opsional)"
+
+msgctxt "awcms.adminCopy.remove"
+msgid "Remove"
+msgstr "Hapus"
+
+msgctxt "awcms.adminCopy.noDocumentsAddedYet"
+msgid "No documents added yet. Use the form below to attach files."
+msgstr "Belum ada dokumen ditambahkan. Gunakan form di bawah untuk melampirkan file."
+
+msgctxt "awcms.adminCopy.addNewDocument"
+msgid "Add new document"
+msgstr "Tambah dokumen baru"
+
+msgctxt "awcms.adminCopy.supportingDocumentTitlePlaceholder"
+msgid "e.g. Domicile certificate letter"
+msgstr "contoh: Surat Keterangan Domisili"
+
+msgctxt "awcms.adminCopy.docSensitivity"
+msgid "Document sensitivity"
+msgstr "Sensitivitas dokumen"
+
+msgctxt "awcms.adminCopy.changeFile"
+msgid "Change file"
+msgstr "Ganti file"
+
+msgctxt "awcms.adminCopy.chooseFileOrDragHere"
+msgid "Choose file or drag here"
+msgstr "Pilih file atau seret ke sini"
+
+msgctxt "awcms.adminCopy.selectedFileLabel"
+msgid "Selected file:"
+msgstr "File terpilih:"
+
+msgctxt "awcms.adminCopy.addDocumentToList"
+msgid "Add document to list"
+msgstr "Tambahkan dokumen ke daftar"
+
+msgctxt "awcms.adminCopy.validationCheckDescription"
+msgid "Checks formatting compliance and potential duplicate records."
+msgstr "Memeriksa kepatuhan format dan kemungkinan record duplikat."
+
+msgctxt "awcms.adminCopy.runValidationCheck"
+msgid "Run validation check"
+msgstr "Jalankan pemeriksaan validasi"
+
+msgctxt "awcms.adminCopy.prepareDraftRegistryCodeDescription"
+msgid "Prepare a draft registry code for submission. The server generates the canonical 20-digit SIKESRA ID from village, type, subtype, and sequence."
+msgstr "Siapkan kode draft registry untuk submit. Server membuat ID SIKESRA 20 digit canonical dari desa/kelurahan, jenis, subjenis, dan urutan."
+
+msgctxt "awcms.adminCopy.prepareDraftRegistryCode"
+msgid "Prepare draft registry code"
+msgstr "Siapkan kode draft registry"
+
+msgctxt "awcms.adminCopy.summaryIntake"
+msgid "Intake summary"
+msgstr "Ringkasan intake"
+
+msgctxt "awcms.adminCopy.notGenerated"
+msgid "Not generated"
+msgstr "Belum dibuat"
+
+msgctxt "awcms.adminCopy.typeLabel"
+msgid "Type"
+msgstr "Jenis"
+
+msgctxt "awcms.adminCopy.religionDesil"
+msgid "Religion / decile"
+msgstr "Agama / desil"
+
+msgctxt "awcms.adminCopy.officialRegion"
+msgid "Official region"
+msgstr "Wilayah resmi"
+
+msgctxt "awcms.adminCopy.localRegion"
+msgid "Local region"
+msgstr "Wilayah lokal"
+
+msgctxt "awcms.adminCopy.caregiver"
+msgid "Caregiver"
+msgstr "Caregiver"
+
+msgctxt "awcms.adminCopy.attachedDocuments"
+msgid "Attached documents"
+msgstr "Dokumen terlampir"
+
+msgctxt "awcms.adminCopy.fileCount"
+msgid "{count} file(s)"
+msgstr "{count} file"
+
+msgctxt "awcms.adminCopy.submitting"
+msgid "Submitting..."
+msgstr "Mengirim..."
+
+msgctxt "awcms.adminCopy.submitToVerificationQueue"
+msgid "Submit to verification queue"
+msgstr "Kirim ke antrean verifikasi"
 
 msgctxt "awcms.adminCopy.dashboardCards.0.title"
 msgid "Worship Places"

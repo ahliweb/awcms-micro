@@ -1,4 +1,4 @@
-import { Badge, Button, Input, InputArea, LinkButton, Select } from "@cloudflare/kumo";
+import { Badge, Button, Checkbox, Input, InputArea, LinkButton, Select } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react";
 import type { PluginAdminExports } from "emdash";
 import { apiFetch } from "emdash/plugin-utils";
@@ -51,6 +51,9 @@ import type {
 	SikesraCustomAttributeValueRequest,
 	SikesraImportCreateRequest,
 	SikesraImportPromotionRequest,
+	SikesraRegistryAddressGroupDto,
+	SikesraRegistryCreateRequest,
+	SikesraRegistryDomicileAddressGroupDto,
 } from "./contracts/index.js";
 import {
 	SIKESRA_FIELD_STANDARDS,
@@ -1678,16 +1681,15 @@ function AccessUsersPage() {
 								required
 							/>
 						</Field>
-						<label className="flex items-center gap-2 text-sm text-kumo-default">
-							<input
-								type="checkbox"
-								checked={userState.isActive}
-								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-									setUserState((current) => ({ ...current, isActive: event.target.checked }))
-								}
-							/>
-							{copy.activeAssignment}
-						</label>
+						<Checkbox.Group
+							legend={copy.activeAssignment}
+							value={userState.isActive ? ["active"] : []}
+							onValueChange={(values: string[]) =>
+								setUserState((current) => ({ ...current, isActive: values.includes("active") }))
+							}
+						>
+							<Checkbox.Item value="active" label={copy.active} />
+						</Checkbox.Group>
 						<Button variant="primary" type="submit" disabled={saving}>
 							{saving ? copy.saving : copy.saveAssignment}
 						</Button>
@@ -2244,20 +2246,24 @@ function CustomAttributeDefinitionsPage() {
 									["isExportable", copy.exportable],
 								] as Array<[keyof SikesraCustomAttributeDefinitionRequest, string]>
 							).map(([key, label]) => (
-								<label
+								<div
 									key={key}
-									className="flex items-center justify-between gap-3 rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default"
+									className="rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default"
 								>
-									<span>{label}</span>
-									<input
-										type="checkbox"
-										checked={Boolean(formState[key])}
-										disabled={key === "publicSafe" && formState.dataClass !== "non_personal"}
-										onChange={(event) =>
-											setFormState((current) => ({ ...current, [key]: event.target.checked }))
+									<Checkbox.Group
+										legend={label}
+										value={Boolean(formState[key]) ? [String(key)] : []}
+										onValueChange={(values: string[]) =>
+											setFormState((current) => ({ ...current, [key]: values.includes(String(key)) }))
 										}
-									/>
-								</label>
+									>
+										<Checkbox.Item
+											value={String(key)}
+											label={copy.enabled}
+											disabled={key === "publicSafe" && formState.dataClass !== "non_personal"}
+										/>
+									</Checkbox.Group>
+								</div>
 							))}
 						</div>
 						<Button variant="primary" type="submit" disabled={saving}>
@@ -2983,19 +2989,20 @@ function SettingsPage() {
 								}
 							/>
 						</Field>
-						<label className="flex items-center justify-between gap-3 rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default">
-							<span>{copy.enablePublicSafeSikesraAggregateApi}</span>
-							<input
-								type="checkbox"
-								checked={formState.sikesraPublicEnabled}
-								onChange={(event) =>
+						<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default">
+							<Checkbox.Group
+								legend={copy.enablePublicSafeSikesraAggregateApi}
+								value={formState.sikesraPublicEnabled ? ["publicEnabled"] : []}
+								onValueChange={(values: string[]) =>
 									setFormState((current) => ({
 										...current,
-										sikesraPublicEnabled: event.target.checked,
+										sikesraPublicEnabled: values.includes("publicEnabled"),
 									}))
 								}
-							/>
-						</label>
+							>
+								<Checkbox.Item value="publicEnabled" label={copy.enabled} />
+							</Checkbox.Group>
+						</div>
 						<Button variant="primary" type="submit" disabled={saving}>
 							{saving ? copy.saving : copy.saveSettings}
 						</Button>
@@ -3170,9 +3177,11 @@ function AbacPolicyStatusWidget() {
 
 function SikesraStatsChart({
 	categories,
+	copy,
 	isReferenceData = false,
 }: {
 	categories: any[];
+	copy: ReturnType<typeof getExampleAdminCopy>;
 	isReferenceData?: boolean;
 }) {
 	const maxVal = Math.max(...categories.map((c) => c.total), 1);
@@ -3194,10 +3203,8 @@ function SikesraStatsChart({
 				}}
 			>
 				<div>
-					<h2 className="text-sm font-semibold">Grafik Rekapitulasi Data SIKESRA</h2>
-					<p className="text-xs text-kumo-subtle mt-0.5">
-						Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.
-					</p>
+					<h2 className="text-sm font-semibold">{copy.recapitulationChartTitle}</h2>
+					<p className="text-xs text-kumo-subtle mt-0.5">{copy.recapitulationChartDescription}</p>
 				</div>
 				{isReferenceData && (
 					<span
@@ -3215,7 +3222,7 @@ function SikesraStatsChart({
 							className="h-1.5 w-1.5 rounded-full"
 							style={{ backgroundColor: "#f59e0b" }}
 						/>
-						Data Referensi
+						{copy.referenceData}
 					</span>
 				)}
 			</div>
@@ -3245,7 +3252,7 @@ function SikesraStatsChart({
 							>
 								<span className="font-medium text-kumo-default">{cat.label}</span>
 								{isSuppressed ? (
-									<span className="text-[11px] text-kumo-subtle italic">Disupresi</span>
+									<span className="text-[11px] text-kumo-subtle italic">{copy.suppressedLabel}</span>
 								) : (
 									<div className="flex items-center gap-3 text-xs">
 										<span className="text-blue-600 font-semibold">{cat.total}</span>
@@ -3273,8 +3280,8 @@ function SikesraStatsChart({
 											color: "var(--kumo-subtle, #4b5563)",
 										}}
 									>
-										<span role="img" aria-label="lock" style={{ opacity: 0.7, fontSize: "14px" }}>🔒</span>
-										<span>Jumlah terlalu rendah untuk keamanan privasi (&lt; 3)</span>
+										<span role="img" aria-label={copy.privacyLock} style={{ opacity: 0.7, fontSize: "14px" }}>🔒</span>
+										<span>{copy.lowCountPrivacyNote}</span>
 									</div>
 								</div>
 							) : (
@@ -3325,7 +3332,7 @@ function SikesraStatsChart({
 							borderColor: "rgba(59, 130, 246, 0.3)",
 						}}
 					/>
-					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>Total Entitas</span>
+					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>{copy.totalEntitiesLegend}</span>
 				</div>
 				<div className="flex items-center" style={{ gap: "6px" }}>
 					<span
@@ -3336,7 +3343,7 @@ function SikesraStatsChart({
 							backgroundColor: "#10b981",
 						}}
 					/>
-					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>Terverifikasi</span>
+					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>{copy.verifiedLegend}</span>
 				</div>
 			</div>
 		</div>
@@ -3636,7 +3643,7 @@ function OverviewPage() {
 								<div className="pt-3" style={{ borderTop: "1px solid rgba(100, 116, 139, 0.15)", marginTop: "16px" }}>
 									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle" style={{ marginBottom: "6px" }}>
 										<span>{copy.totalEntities}: <span className="font-bold text-kumo-default">{catData.total}</span></span>
-										<span>{copy.verifiedEntities}: <span className="font-bold text-emerald-600 dark:text-emerald-400">{catData.verified} ({verifiedPercent}%)</span></span>
+										<span>{copy.verifiedEntities}: <span className="font-bold text-kumo-success">{catData.verified} ({verifiedPercent}%)</span></span>
 									</div>
 									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden" style={{ marginTop: "6px" }}>
 										<div
@@ -3662,7 +3669,7 @@ function OverviewPage() {
 
 			{/* Stats Chart */}
 			<div className="mb-6">
-				<SikesraStatsChart categories={chartCategories} isReferenceData={isUsingReferenceData} />
+				<SikesraStatsChart categories={chartCategories} copy={copy} isReferenceData={isUsingReferenceData} />
 			</div>
 
 			{/* Recent Audit Events - Premium Timeline Style */}
@@ -3781,13 +3788,12 @@ function OverviewPage() {
 
 									<div className="grid gap-4 md:grid-cols-2">
 										<Field label={copy.auditRetentionDays} hint={copy.auditRetentionDaysHint}>
-											<input
-												type="number"
-												min="1"
-												className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
-												value={formState.auditRetentionDays}
-												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-													setFormState((current) => ({
+										<Input
+											type="number"
+											min="1"
+											value={formState.auditRetentionDays}
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setFormState((current) => ({
 														...current,
 														auditRetentionDays: event.target.value,
 													}))
@@ -3814,13 +3820,12 @@ function OverviewPage() {
 
 									<div className="grid gap-4 md:grid-cols-2">
 										<Field label={copy.smallCellThreshold} hint={copy.smallCellThresholdHint}>
-											<input
-												type="number"
-												min="1"
-												className="w-full rounded border border-kumo-line bg-kumo-base px-3 py-2 text-kumo-default"
-												value={formState.smallCellThreshold}
-												onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-													setFormState((current) => ({
+										<Input
+											type="number"
+											min="1"
+											value={formState.smallCellThreshold}
+											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+												setFormState((current) => ({
 														...current,
 														smallCellThreshold: event.target.value,
 													}))
@@ -4012,6 +4017,9 @@ function RegistryPage() {
 		rt: "001",
 		rw: "001",
 		address: "Jl. Merdeka No. 12",
+		ktpAddress: createRegistryWizardAddress(),
+		domicileSameAsKtp: true,
+		domicileAddress: createRegistryWizardAddress(),
 		label: "Rumah Ibadah Al-Barokah",
 		description: "Pusat kegiatan keagamaan",
 		religion: "Islam",
@@ -4048,12 +4056,34 @@ function RegistryPage() {
 				regencyCode: reg?.code ?? "6201",
 				districtCode: dist?.code ?? "620102",
 				villageCode: vill?.code ?? "6201021009",
+				ktpAddress: createRegistryWizardAddress({
+					provinceCode: prov?.code ?? "62",
+					regencyCode: reg?.code ?? "6201",
+					districtCode: dist?.code ?? "620102",
+					villageCode: vill?.code ?? "6201021009",
+					detail: prev.ktpAddress.detail,
+					rt: prev.ktpAddress.rt,
+					rw: prev.ktpAddress.rw,
+					postalCode: prev.ktpAddress.postalCode,
+				}),
+				domicileAddress: prev.domicileSameAsKtp
+					? createRegistryWizardAddress({
+							provinceCode: prov?.code ?? "62",
+							regencyCode: reg?.code ?? "6201",
+							districtCode: dist?.code ?? "620102",
+							villageCode: vill?.code ?? "6201021009",
+							detail: prev.ktpAddress.detail,
+							rt: prev.ktpAddress.rt,
+							rw: prev.ktpAddress.rw,
+							postalCode: prev.ktpAddress.postalCode,
+						})
+					: prev.domicileAddress,
 				entityType: defaultParent?.id ?? "rumah_ibadah",
 				subTypeCode: defaultSub?.code ?? "01",
-				subtype: defaultSub?.label ?? "Masjid",
+				subtype: defaultSub?.label ?? copy.otherOption,
 			}));
 		}
-	}, [regionsData, dataTypesData]);
+	}, [regionsData, dataTypesData, copy.otherOption]);
 
 	const [filterType, setFilterType] = React.useState<string>("all");
 	const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -4070,6 +4100,7 @@ function RegistryPage() {
 			entity.code.toLowerCase().includes(searchQuery.toLowerCase());
 		return matchesType && matchesSearch;
 	});
+	const registryModuleCards = getDashboardModuleCards(i18n.locale);
 
 	const verifiedCount = registryEntities.filter(
 		(entity) => entity.verificationStage === "active_verified",
@@ -4122,11 +4153,41 @@ function RegistryPage() {
 		try {
 			const activeTypes = dataTypesData ?? DEFAULT_DATA_TYPES;
 			const parentType = activeTypes.find((item) => item.id === wizardState.entityType);
-			const registryPayload = {
+			const ktpAddress = createRegistryWizardAddress({
+				...wizardState.ktpAddress,
+				provinceCode: wizardState.ktpAddress.provinceCode || wizardState.provinceCode,
+				regencyCode: wizardState.ktpAddress.regencyCode || wizardState.regencyCode,
+				districtCode: wizardState.ktpAddress.districtCode || wizardState.districtCode,
+				villageCode: wizardState.ktpAddress.villageCode || wizardState.villageCode,
+			});
+			const domicileAddress = createRegistryDomicileAddress(
+				wizardState.domicileSameAsKtp
+					? ktpAddress
+					: createRegistryWizardAddress({
+							...wizardState.domicileAddress,
+							provinceCode: wizardState.domicileAddress.provinceCode || wizardState.provinceCode,
+							regencyCode: wizardState.domicileAddress.regencyCode || wizardState.regencyCode,
+							districtCode: wizardState.domicileAddress.districtCode || wizardState.districtCode,
+							villageCode: wizardState.domicileAddress.villageCode || wizardState.villageCode,
+						}),
+				wizardState.domicileSameAsKtp,
+			);
+			const registryPayload: SikesraRegistryCreateRequest & {
+				code: string;
+				sensitivity: SikesraSensitivity;
+				provinceCode: string;
+				regencyCode: string;
+				districtCode: string;
+				villageCode: string;
+				publicSummary: string;
+				inputLevel: SikesraUserLevel;
+			} = {
 				code: wizardState.code,
 				label: wizardState.label,
 				entityType: wizardState.entityType,
 				subtypeCode: wizardState.subTypeCode,
+				ktpAddress,
+				domicileAddress,
 				sensitivity: wizardState.sensitivity,
 				provinceCode: wizardState.provinceCode,
 				regencyCode: wizardState.regencyCode,
@@ -4141,7 +4202,26 @@ function RegistryPage() {
 					typeCode: parentType?.code ?? "99",
 					subtypeCode: wizardState.subTypeCode,
 					subtype: wizardState.subtype,
-					address: wizardState.address,
+					address: ktpAddress.detail,
+					ktpAddress,
+					domicileAddress,
+					alamat_ktp_province_code: ktpAddress.provinceCode,
+					alamat_ktp_regency_code: ktpAddress.regencyCode,
+					alamat_ktp_district_code: ktpAddress.districtCode,
+					alamat_ktp_village_code: ktpAddress.villageCode,
+					alamat_ktp_detail: ktpAddress.detail,
+					alamat_ktp_rt: ktpAddress.rt,
+					alamat_ktp_rw: ktpAddress.rw,
+					alamat_ktp_postal_code: ktpAddress.postalCode,
+					alamat_domisili_sama_dengan_ktp: domicileAddress.sameAsKtp,
+					alamat_domisili_province_code: domicileAddress.provinceCode,
+					alamat_domisili_regency_code: domicileAddress.regencyCode,
+					alamat_domisili_district_code: domicileAddress.districtCode,
+					alamat_domisili_village_code: domicileAddress.villageCode,
+					alamat_domisili_detail: domicileAddress.detail,
+					alamat_domisili_rt: domicileAddress.rt,
+					alamat_domisili_rw: domicileAddress.rw,
+					alamat_domisili_postal_code: domicileAddress.postalCode,
 					rt: wizardState.rt,
 					rw: wizardState.rw,
 					religion: wizardState.religion,
@@ -4180,6 +4260,23 @@ function RegistryPage() {
 				rt: "001",
 				rw: "001",
 				address: "Jl. Merdeka No. 12",
+				ktpAddress: createRegistryWizardAddress({
+					provinceCode: regionsData?.[0]?.code ?? "62",
+					regencyCode: regionsData?.[0]?.regencies?.[0]?.code ?? "6201",
+					districtCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.code ?? "620102",
+					villageCode:
+						regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.villages?.[0]?.code ??
+						"6201021009",
+				}),
+				domicileSameAsKtp: true,
+				domicileAddress: createRegistryWizardAddress({
+					provinceCode: regionsData?.[0]?.code ?? "62",
+					regencyCode: regionsData?.[0]?.regencies?.[0]?.code ?? "6201",
+					districtCode: regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.code ?? "620102",
+					villageCode:
+						regionsData?.[0]?.regencies?.[0]?.districts?.[0]?.villages?.[0]?.code ??
+						"6201021009",
+				}),
 				label: "Rumah Ibadah Al-Barokah",
 				description: "Pusat kegiatan keagamaan",
 				religion: "Islam",
@@ -4245,6 +4342,30 @@ function RegistryPage() {
 		}));
 	};
 
+	const updateAddressGroup = (
+		group: "ktpAddress" | "domicileAddress",
+		field: keyof RegistryWizardAddress,
+		value: string,
+	) => {
+		setWizardState((prev) => {
+			const nextGroup = { ...prev[group], [field]: value };
+			return {
+				...prev,
+				[group]: nextGroup,
+				domicileAddress:
+					group === "ktpAddress" && prev.domicileSameAsKtp ? nextGroup : prev.domicileAddress,
+			};
+		});
+	};
+
+	const setDomicileSameAsKtp = (sameAsKtp: boolean) => {
+		setWizardState((prev) => ({
+			...prev,
+			domicileSameAsKtp: sameAsKtp,
+			domicileAddress: sameAsKtp ? prev.ktpAddress : prev.domicileAddress,
+		}));
+	};
+
 	const addDocumentToList = () => {
 		if (!tempDocTitle) return;
 		const nextDocumentIndex = nextDocumentIndexRef.current++;
@@ -4298,9 +4419,15 @@ function RegistryPage() {
 				/>
 			</div>
 
-			<div className="mb-6 flex gap-2 border-b border-kumo-line/80 mt-5 pb-px">
+			<div
+				className="mb-6 flex gap-2 border-b border-kumo-line/80 mt-5 pb-px"
+				role="tablist"
+				aria-label={copy.registryQueue}
+			>
 				<button
 					type="button"
+					role="tab"
+					aria-selected={activeSubTab === "queue"}
 					className={cx(
 						"px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-all duration-200 flex items-center gap-2",
 						activeSubTab === "queue"
@@ -4313,6 +4440,8 @@ function RegistryPage() {
 				</button>
 				<button
 					type="button"
+					role="tab"
+					aria-selected={activeSubTab === "intake"}
 					className={cx(
 						"px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-all duration-200 flex items-center gap-2",
 						activeSubTab === "intake"
@@ -4346,14 +4475,14 @@ function RegistryPage() {
 							<div className="w-48">
 								<Select value={filterType} onValueChange={(val) => setFilterType(val ?? "all")}>
 									<Select.Option value="all">{copy.allTypes}</Select.Option>
-									<Select.Option value="rumah_ibadah">Rumah Ibadah</Select.Option>
-									<Select.Option value="lembaga_keagamaan">Lembaga Keagamaan</Select.Option>
-									<Select.Option value="pendidikan_keagamaan">Pendidikan Keagamaan</Select.Option>
-									<Select.Option value="lks">Lembaga Kesejahteraan Sosial</Select.Option>
-									<Select.Option value="guru_agama">Guru Agama</Select.Option>
-									<Select.Option value="anak_yatim">Anak Yatim</Select.Option>
-									<Select.Option value="disabilitas">Disabilitas</Select.Option>
-									<Select.Option value="lansia_terlantar">Lansia Terlantar</Select.Option>
+									{registryModuleCards.map((card) => {
+										const value = card.id;
+										return (
+											<Select.Option value={value} key={value}>
+												{card.title}
+											</Select.Option>
+										);
+									})}
 								</Select>
 							</div>
 						</div>
@@ -4459,10 +4588,14 @@ function RegistryPage() {
 							<div className="flex flex-col gap-6">
 								{/* Horizontal Stepper Progress Track */}
 								<div className="w-full overflow-x-auto pb-4 mb-2 flex items-center justify-between gap-2 border-b border-kumo-line/40 select-none">
-									<div className="flex items-center min-w-max w-full px-2 justify-between relative" style={{ minWidth: "900px" }}>
+									<div
+										className="flex items-center min-w-max w-full px-2 justify-between relative"
+										style={{ minWidth: "900px" }}
+										role="list"
+									>
 										{/* Background connecting track line */}
-										<div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-kumo-line z-0" />
-										
+										<div className="absolute top-[18px] start-[5%] end-[5%] h-0.5 bg-kumo-line z-0" />
+
 										{copy.registrySteps.map((label, index) => {
 											const isActive = index === step;
 											const isCompleted = index < step;
@@ -4471,21 +4604,23 @@ function RegistryPage() {
 													key={label}
 													onClick={() => setStep(index)}
 													type="button"
+													role="listitem"
+													aria-current={isActive ? "step" : undefined}
+													aria-label={copy.stepLabel(index + 1, label)}
 													className="relative z-10 flex flex-col items-center group focus:outline-none"
 													style={{ width: "80px" }}
 												>
 													<span
 														className={cx(
 															"flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold border transition-all duration-300",
-															isActive ? "scale-110 shadow-md ring-4 ring-blue-500/25" : "",
-														)}
-														style={
 															isActive
-																? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
-																: isCompleted
-																	? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
-																	: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
-														}
+																? "scale-110 border-kumo-brand bg-kumo-brand text-kumo-base shadow-md ring-4 ring-kumo-brand/25"
+																: "",
+															isCompleted ? "border-kumo-success bg-kumo-success text-kumo-base" : "",
+															!isActive && !isCompleted
+																? "border-kumo-line bg-kumo-base text-kumo-subtle"
+																: "",
+														)}
 													>
 														{isCompleted ? "✓" : index + 1}
 													</span>
@@ -4495,16 +4630,9 @@ function RegistryPage() {
 															isActive
 																? "text-kumo-brand font-bold"
 																: isCompleted
-																	? "text-emerald-600 dark:text-emerald-400"
+																	? "text-kumo-success"
 																	: "text-kumo-subtle group-hover:text-kumo-default",
 														)}
-														style={
-															isActive
-																? { color: "#2563eb" }
-																: isCompleted
-																	? { color: "#10b981" }
-																	: undefined
-														}
 													>
 														{label}
 													</span>
@@ -4518,9 +4646,7 @@ function RegistryPage() {
 								<div className="w-full min-w-0">
 									<div className="rounded-2xl border border-kumo-line bg-kumo-base p-6 shadow-sm">
 										<div className="text-sm font-bold text-kumo-default border-b border-kumo-line/60 pb-3 mb-5 flex items-center justify-between">
-											<span>
-												Step {step + 1}: {copy.registrySteps[step]}
-											</span>
+											<span>{copy.stepLabel(step + 1, copy.registrySteps[step] ?? "")}</span>
 											<span className="text-[10px] px-2 py-0.5 rounded-full bg-kumo-tint text-kumo-subtle font-mono">
 												{Math.round(((step + 1) / copy.registrySteps.length) * 100)}%
 											</span>
@@ -4530,8 +4656,8 @@ function RegistryPage() {
 											{step === 0 && (
 												<>
 													<Field
-														label="Jenis Data Induk"
-														hint="Pilih Jenis Data Induk SIKESRA (Wajib)"
+												label={copy.parentDataType}
+												hint={copy.parentDataTypeHint}
 													>
 														<Select
 															value={wizardState.entityType}
@@ -4544,7 +4670,7 @@ function RegistryPage() {
 																	...prev,
 																	entityType: type,
 																	subTypeCode: defaultSub?.code ?? "01",
-																	subtype: defaultSub?.label ?? "Lainnya",
+														subtype: defaultSub?.label ?? copy.otherOption,
 																}));
 															}}
 														>
@@ -4555,7 +4681,7 @@ function RegistryPage() {
 															))}
 														</Select>
 													</Field>
-													<Field label="Sub Jenis Data" hint="Pilih Sub Jenis Data SIKESRA (Wajib)">
+											<Field label={copy.subDataType} hint={copy.subDataTypeHint}>
 														<Select
 															value={wizardState.subTypeCode}
 															onValueChange={(val) => {
@@ -4566,7 +4692,7 @@ function RegistryPage() {
 																);
 																const label =
 																	parent?.subTypes?.find((s) => s.code === code)?.label ??
-																	"Lainnya";
+															copy.otherOption;
 																setWizardState((prev) => ({
 																	...prev,
 																	subTypeCode: code,
@@ -4586,8 +4712,8 @@ function RegistryPage() {
 														</Select>
 													</Field>
 													<Field
-														label="Sensitivity classification"
-														hint="Determine visibility of this entity records (Mandatory)"
+												label={copy.sensitivityClassification}
+												hint={copy.sensitivityClassificationHint}
 													>
 														<Select
 															value={wizardState.sensitivity}
@@ -4598,12 +4724,12 @@ function RegistryPage() {
 																}))
 															}
 														>
-															<Select.Option value="public_safe">Public Safe</Select.Option>
-															<Select.Option value="internal">Internal</Select.Option>
-															<Select.Option value="restricted">Restricted</Select.Option>
-															<Select.Option value="highly_restricted">
-																Highly Restricted
-															</Select.Option>
+													<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
+													<Select.Option value="internal">{copy.internal}</Select.Option>
+													<Select.Option value="restricted">{copy.restricted}</Select.Option>
+													<Select.Option value="highly_restricted">
+														{copy.highlyRestricted}
+													</Select.Option>
 														</Select>
 													</Field>
 													<Field label={copy.inputLevel} hint={copy.verificationInputPolicy}>
@@ -4633,7 +4759,7 @@ function RegistryPage() {
 											{step === 1 && (
 												<>
 													<div className="grid gap-3 grid-cols-2">
-														<Field label="Province" hint="Cascading lookup selector">
+											<Field label={copy.province} hint={copy.cascadingLookupSelector}>
 															<Select
 																value={wizardState.provinceCode}
 																onValueChange={(val) => {
@@ -4647,7 +4773,7 @@ function RegistryPage() {
 																))}
 															</Select>
 														</Field>
-														<Field label="Regency / City" hint="Filtered by Province">
+											<Field label={copy.regency} hint={copy.filteredByProvince}>
 															<Select
 																value={wizardState.regencyCode}
 																onValueChange={(val) => {
@@ -4661,13 +4787,13 @@ function RegistryPage() {
 																			{r.name}
 																		</Select.Option>
 																	)) ?? (
-																	<Select.Option value="">-- Select Regency --</Select.Option>
+												<Select.Option value="">{copy.selectRegencyPlaceholder}</Select.Option>
 																)}
 															</Select>
 														</Field>
 													</div>
 													<div className="grid gap-3 grid-cols-2">
-														<Field label="District (Kecamatan)" hint="Filtered by Regency">
+											<Field label={copy.district} hint={copy.filteredByRegency}>
 															<Select
 																value={wizardState.districtCode}
 																onValueChange={(val) => {
@@ -4682,11 +4808,11 @@ function RegistryPage() {
 																			{d.name}
 																		</Select.Option>
 																	)) ?? (
-																	<Select.Option value="">-- Select District --</Select.Option>
+												<Select.Option value="">{copy.selectDistrictPlaceholder}</Select.Option>
 																)}
 															</Select>
 														</Field>
-														<Field label="Village (Desa / Kelurahan)" hint="Filtered by District">
+											<Field label={copy.village} hint={copy.filteredByDistrict}>
 															<Select
 																value={wizardState.villageCode}
 																onValueChange={(val) =>
@@ -4702,7 +4828,7 @@ function RegistryPage() {
 																			{v.name}
 																		</Select.Option>
 																	)) ?? (
-																	<Select.Option value="">-- Select Village --</Select.Option>
+												<Select.Option value="">{copy.selectVillagePlaceholder}</Select.Option>
 																)}
 															</Select>
 														</Field>
@@ -4712,53 +4838,98 @@ function RegistryPage() {
 
 											{step === 2 && (
 												<>
-													<div className="grid gap-3 grid-cols-2">
-														<Field label="RT" hint="Optional (e.g. 001)">
-															<Input
-																value={wizardState.rt}
-																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-																	setWizardState((prev) => ({ ...prev, rt: e.target.value }))
-																}
-															/>
-														</Field>
-														<Field label="RW" hint="Optional (e.g. 002)">
-															<Input
-																value={wizardState.rw}
-																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-																	setWizardState((prev) => ({ ...prev, rw: e.target.value }))
-																}
-															/>
-														</Field>
+													<div className="grid gap-4 md:grid-cols-2">
+														<section className="rounded-xl border border-kumo-line bg-kumo-tint/10 p-4 space-y-3">
+															<div>
+																<h3 className="text-sm font-semibold text-kumo-default">{copy.ktpAddressGroup}</h3>
+																<p className="mt-1 text-xs text-kumo-subtle">{copy.ktpAddressGroupDescription}</p>
+															</div>
+															<div className="grid gap-3 grid-cols-2">
+																<Field label={copy.provinceCode} hint={copy.provinceCodeHint}>
+																	<Input value={wizardState.ktpAddress.provinceCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "provinceCode", e.target.value)} />
+																</Field>
+																<Field label={copy.regency} hint={copy.filteredByProvince}>
+																	<Input value={wizardState.ktpAddress.regencyCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "regencyCode", e.target.value)} />
+																</Field>
+																<Field label={copy.district} hint={copy.filteredByRegency}>
+																	<Input value={wizardState.ktpAddress.districtCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "districtCode", e.target.value)} />
+																</Field>
+																<Field label={copy.village} hint={copy.filteredByDistrict}>
+																	<Input value={wizardState.ktpAddress.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "villageCode", e.target.value)} />
+																</Field>
+																<Field label="RT" hint={copy.rtHint}>
+																	<Input value={wizardState.ktpAddress.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "rt", e.target.value)} />
+																</Field>
+																<Field label="RW" hint={copy.rwHint}>
+																	<Input value={wizardState.ktpAddress.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "rw", e.target.value)} />
+																</Field>
+															</div>
+															<Field label={copy.addressDetail} hint={copy.specificLocalAddressHint}>
+																<Input value={wizardState.ktpAddress.detail} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "detail", e.target.value)} />
+															</Field>
+															<Field label={copy.postalCode} hint={copy.nodeCodeHint}>
+																<Input value={wizardState.ktpAddress.postalCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("ktpAddress", "postalCode", e.target.value)} />
+															</Field>
+														</section>
+														<section className="rounded-xl border border-kumo-line bg-kumo-tint/10 p-4 space-y-3">
+															<div>
+																<h3 className="text-sm font-semibold text-kumo-default">{copy.domicileAddressGroup}</h3>
+																<p className="mt-1 text-xs text-kumo-subtle">{copy.domicileAddressGroupDescription}</p>
+															</div>
+															<Button
+																variant={wizardState.domicileSameAsKtp ? "primary" : "secondary"}
+																size="xs"
+																type="button"
+																onClick={() => setDomicileSameAsKtp(!wizardState.domicileSameAsKtp)}
+															>
+																{copy.sameAsKtpAddress}
+															</Button>
+															<div className="grid gap-3 grid-cols-2">
+																<Field label={copy.provinceCode} hint={copy.provinceCodeHint}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.provinceCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "provinceCode", e.target.value)} />
+																</Field>
+																<Field label={copy.regency} hint={copy.filteredByProvince}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.regencyCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "regencyCode", e.target.value)} />
+																</Field>
+																<Field label={copy.district} hint={copy.filteredByRegency}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.districtCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "districtCode", e.target.value)} />
+																</Field>
+																<Field label={copy.village} hint={copy.filteredByDistrict}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.villageCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "villageCode", e.target.value)} />
+																</Field>
+																<Field label="RT" hint={copy.rtHint}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.rt} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "rt", e.target.value)} />
+																</Field>
+																<Field label="RW" hint={copy.rwHint}>
+																	<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.rw} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "rw", e.target.value)} />
+																</Field>
+															</div>
+															<Field label={copy.addressDetail} hint={copy.specificLocalAddressHint}>
+																<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.detail} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "detail", e.target.value)} />
+															</Field>
+															<Field label={copy.postalCode} hint={copy.nodeCodeHint}>
+																<Input disabled={wizardState.domicileSameAsKtp} value={wizardState.domicileAddress.postalCode} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateAddressGroup("domicileAddress", "postalCode", e.target.value)} />
+															</Field>
+														</section>
 													</div>
-													<Field
-														label="Specific Local Address"
-														hint="Optional specific street details"
-													>
-														<Input
-															value={wizardState.address}
-															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-																setWizardState((prev) => ({ ...prev, address: e.target.value }))
-															}
-														/>
-													</Field>
 												</>
 											)}
 
 											{step === 3 && (
 												<>
 													<Field
-														label="Identity Name / Label"
-														hint="Human-readable name (Mandatory)"
+												label={copy.identityNameLabel}
+												hint={copy.identityNameHint}
 													>
 														<Input
 															value={wizardState.label}
 															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 																setWizardState((prev) => ({ ...prev, label: e.target.value }))
 															}
-															placeholder="e.g. Rumah Ibadah Al-Barokah"
+												placeholder={copy.identityNamePlaceholder}
 														/>
 													</Field>
-													<Field label="Brief Description" hint="Optional summary details">
+											<Field label={copy.briefDescription} hint={copy.briefDescriptionHint}>
 														<Input
 															value={wizardState.description}
 															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -4771,14 +4942,14 @@ function RegistryPage() {
 
 											{step === 4 && (
 												<>
-													<Field label="Religion Connection" hint="Optional attribute connection">
+											<Field label={copy.religionConnection} hint={copy.religionConnectionHint}>
 														<Select
 															value={wizardState.religion}
 															onValueChange={(val) =>
 																setWizardState((prev) => ({ ...prev, religion: val ?? "" }))
 															}
 														>
-															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
+												<Select.Option value="">{copy.notFilledOptional}</Select.Option>
 															<Select.Option value="Islam">Islam</Select.Option>
 															<Select.Option value="Kristen">Kristen</Select.Option>
 															<Select.Option value="Katolik">Katolik</Select.Option>
@@ -4788,8 +4959,8 @@ function RegistryPage() {
 														</Select>
 													</Field>
 													<Field
-														label="Social Desil Status (1-10)"
-														hint="Optional socio-economic classification"
+												label={copy.socialDesilStatus}
+												hint={copy.socialDesilStatusHint}
 													>
 														<Select
 															value={wizardState.desil}
@@ -4797,10 +4968,10 @@ function RegistryPage() {
 																setWizardState((prev) => ({ ...prev, desil: val ?? "" }))
 															}
 														>
-															<Select.Option value="">Tidak diisi (Opsional)</Select.Option>
+												<Select.Option value="">{copy.notFilledOptional}</Select.Option>
 															{Array.from(Array(10), (_, i) => (
 																<Select.Option value={String(i + 1)} key={i}>
-																	Desil {i + 1}
+													{copy.desilLabel(i + 1)}
 																</Select.Option>
 															))}
 														</Select>
@@ -4810,8 +4981,8 @@ function RegistryPage() {
 
 											{step === 5 && (
 												<Field
-													label="Module specific data details"
-													hint="Additional parameters unique to the module type (Optional)"
+										label={copy.moduleSpecificDataDetails}
+										hint={copy.moduleSpecificDataDetailsHint}
 												>
 													<InputArea
 														value={wizardState.moduleDetails}
@@ -4824,7 +4995,7 @@ function RegistryPage() {
 
 											{step === 6 && (
 												<>
-													<Field label="Caregiver / PIC Name" hint="Optional contact person">
+											<Field label={copy.caregiverPicName} hint={copy.caregiverPicNameHint}>
 														<Input
 															value={wizardState.caregiverName}
 															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -4835,7 +5006,7 @@ function RegistryPage() {
 															}
 														/>
 													</Field>
-													<Field label="Caregiver Phone Number" hint="Optional phone number">
+											<Field label={copy.caregiverPhoneNumber} hint={copy.caregiverPhoneNumberHint}>
 														<Input
 															value={wizardState.caregiverPhone}
 															onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -4853,10 +5024,10 @@ function RegistryPage() {
 												<div className="space-y-4">
 													<div className="rounded-xl border border-kumo-line bg-kumo-tint/10 p-4">
 														<div className="text-xs font-semibold mb-3 text-kumo-default flex items-center justify-between">
-															<span>Attached Documents ({wizardState.documents.length})</span>
+												<span>{copy.attachedDocumentsWithCount(wizardState.documents.length)}</span>
 															{wizardState.documents.length === 0 && (
 																<span className="text-kumo-danger text-[10px] font-bold uppercase">
-																	No documents attached (Optional)
+													{copy.noDocumentsAttachedOptional}
 																</span>
 															)}
 														</div>
@@ -4889,45 +5060,45 @@ function RegistryPage() {
 																				}))
 																			}
 																		>
-																			Remove
+												{copy.remove}
 																		</Button>
 																	</div>
 																))}
 															</div>
 														) : (
 															<div className="text-xs text-kumo-subtle italic text-center py-4">
-																No documents added yet. Use the form below to attach files.
+											{copy.noDocumentsAddedYet}
 															</div>
 														)}
 													</div>
 
 													<div className="rounded-xl border border-kumo-line bg-kumo-base p-4 space-y-3">
 														<div className="text-xs font-bold text-kumo-default uppercase tracking-wider">
-															Add New Document
+										{copy.addNewDocument}
 														</div>
-														<Field label="Supporting Document Title">
+									<Field label={copy.documentTitle}>
 															<Input
 																value={tempDocTitle}
 																onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 																	setTempDocTitle(e.target.value)
 																}
-																placeholder="e.g. Surat Keterangan Domisili"
+										placeholder={copy.supportingDocumentTitlePlaceholder}
 															/>
 														</Field>
 														<div className="grid gap-3 grid-cols-2">
-															<Field label="Doc Type">
+									<Field label={copy.docType}>
 																<Select
 																	value={tempDocType}
 																	onValueChange={(val) => setTempDocType(val ?? "surat_keterangan")}
 																>
-																	<Select.Option value="surat_keterangan">
-																		Surat Keterangan
-																	</Select.Option>
-																	<Select.Option value="identitas">Identitas Utama</Select.Option>
-																	<Select.Option value="sertifikat">Sertifikat Resmi</Select.Option>
+															<Select.Option value="surat_keterangan">
+																{copy.certificateLetter}
+															</Select.Option>
+															<Select.Option value="identitas">{copy.identityDocument}</Select.Option>
+															<Select.Option value="sertifikat">{copy.certificateDocument}</Select.Option>
 																</Select>
 															</Field>
-															<Field label="Doc Sensitivity">
+									<Field label={copy.docSensitivity}>
 																<Select
 																	value={tempDocSensitivity}
 																	onValueChange={(val) =>
@@ -4936,19 +5107,19 @@ function RegistryPage() {
 																		)
 																	}
 																>
-																	<Select.Option value="public_safe">Public Safe</Select.Option>
-																	<Select.Option value="internal">Internal</Select.Option>
-																	<Select.Option value="restricted">Restricted</Select.Option>
-																	<Select.Option value="highly_restricted">
-																		Highly Restricted
+										<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
+										<Select.Option value="internal">{copy.internal}</Select.Option>
+										<Select.Option value="restricted">{copy.restricted}</Select.Option>
+										<Select.Option value="highly_restricted">
+											{copy.highlyRestricted}
 																	</Select.Option>
 																</Select>
 															</Field>
 														</div>
 
 														<Field
-															label="Select Supporting File"
-															hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+									label={copy.selectSupportingFile}
+									hint={copy.selectSupportingFileHint}
 														>
 															<div className="relative border-2 border-dashed border-kumo-line/80 rounded-xl p-5 bg-kumo-tint/10 hover:bg-kumo-tint/20 hover:border-kumo-brand/50 transition-all flex flex-col items-center justify-center cursor-pointer">
 																<input
@@ -4966,14 +5137,14 @@ function RegistryPage() {
 																/>
 																<span className="text-xl mb-1.5">📁</span>
 																<span className="text-xs font-semibold text-kumo-brand">
-																	{tempDocFile ? "Change File" : "Choose File or Drag Here"}
+										{tempDocFile ? copy.changeFile : copy.chooseFileOrDragHere}
 																</span>
 															</div>
 														</Field>
 
 														{tempDocFile && (
 															<div className="text-xs text-kumo-success font-medium flex items-center gap-1.5 bg-kumo-success/5 border border-kumo-success/20 rounded-lg p-2.5">
-																<span>✓ Selected file:</span>{" "}
+									<span>✓ {copy.selectedFileLabel}</span>{" "}
 																<span className="font-mono break-all">{tempDocFile}</span>
 															</div>
 														)}
@@ -4984,7 +5155,7 @@ function RegistryPage() {
 															disabled={!tempDocTitle}
 															onClick={addDocumentToList}
 														>
-															+ Add Document to List
+								+ {copy.addDocumentToList}
 														</Button>
 													</div>
 												</div>
@@ -4993,7 +5164,7 @@ function RegistryPage() {
 											{step === 8 && (
 												<div className="rounded-lg border border-dashed border-kumo-line bg-kumo-tint/20 p-4 text-center">
 													<p className="text-xs text-kumo-subtle mb-3">
-														Checks for formatting compliance and potential duplicate records.
+								{copy.validationCheckDescription}
 													</p>
 													<Button
 														variant="secondary"
@@ -5001,7 +5172,7 @@ function RegistryPage() {
 														onClick={runValidationCheck}
 														type="button"
 													>
-														Run Validation Check
+								{copy.runValidationCheck}
 													</Button>
 												</div>
 											)}
@@ -5009,8 +5180,7 @@ function RegistryPage() {
 											{step === 9 && (
 												<div className="rounded-lg border border-kumo-line bg-kumo-tint/10 p-4 text-center">
 													<p className="text-xs text-kumo-subtle mb-3">
-														Prepare a draft registry code for submission. The server generates the
-														canonical 20-digit SIKESRA ID from village, type, subtype, and sequence.
+								{copy.prepareDraftRegistryCodeDescription}
 													</p>
 													<Button
 														variant="primary"
@@ -5018,7 +5188,7 @@ function RegistryPage() {
 														onClick={generateSikesraId}
 														type="button"
 													>
-														Prepare Draft Registry Code
+								{copy.prepareDraftRegistryCode}
 													</Button>
 													{wizardState.code && (
 														<div className="mt-3 text-lg font-mono font-bold text-kumo-brand bg-kumo-base p-2 border rounded select-all break-all">
@@ -5031,40 +5201,42 @@ function RegistryPage() {
 											{step === 10 && (
 												<div className="rounded-lg border border-kumo-line bg-kumo-base p-4 text-xs space-y-2">
 													<div className="font-semibold text-sm mb-2 text-kumo-default">
-														Summary Intake:
+								{copy.summaryIntake}:
 													</div>
 													<div className="grid grid-cols-2 gap-2">
 														<div>
-															<strong>Label:</strong> {wizardState.label}
+								<strong>{copy.label}:</strong> {wizardState.label}
 														</div>
 														<div>
-															<strong>SIKESRA ID:</strong> {wizardState.code || "NOT GENERATED"}
+								<strong>{copy.sikesraId}:</strong> {wizardState.code || copy.notGenerated}
 														</div>
 														<div>
-															<strong>Type:</strong> {wizardState.entityType} (
+								<strong>{copy.typeLabel}:</strong> {wizardState.entityType} (
 															{wizardState.subtype || "-"})
 														</div>
 														<div>
-															<strong>Religion / Desil:</strong>{" "}
-															{wizardState.religion || "Tidak diisi"} / Desil{" "}
-															{wizardState.desil || "Tidak diisi"}
+								<strong>{copy.religionDesil}:</strong>{" "}
+								{wizardState.religion || copy.notSet} / {copy.desilLabel(wizardState.desil || copy.notSet)}
 														</div>
 														<div>
-															<strong>Official Region:</strong> {wizardState.provinceCode}/
+								<strong>{copy.officialRegion}:</strong> {wizardState.provinceCode}/
 															{wizardState.regencyCode}/{wizardState.districtCode}/
 															{wizardState.villageCode}
 														</div>
+												<div>
+													<strong>{copy.ktpAddressGroup}:</strong> RT {wizardState.ktpAddress.rt || "00"} / RW{" "}
+													{wizardState.ktpAddress.rw || "00"}, {wizardState.ktpAddress.detail || "-"}
+												</div>
+												<div>
+													<strong>{copy.domicileAddressGroup}:</strong> RT {wizardState.domicileAddress.rt || "00"} / RW{" "}
+													{wizardState.domicileAddress.rw || "00"}, {wizardState.domicileAddress.detail || "-"}
+												</div>
 														<div>
-															<strong>Local Region:</strong> RT {wizardState.rt || "00"} / RW{" "}
-															{wizardState.rw || "00"}, {wizardState.address || "-"}
-														</div>
-														<div>
-															<strong>Caregiver:</strong> {wizardState.caregiverName || "-"} (
+								<strong>{copy.caregiver}:</strong> {wizardState.caregiverName || "-"} (
 															{wizardState.caregiverPhone || "-"})
 														</div>
 														<div>
-															<strong>Attached Documents:</strong> {wizardState.documents.length}{" "}
-															File(s)
+								<strong>{copy.attachedDocuments}:</strong> {copy.fileCount(wizardState.documents.length)}
 														</div>
 													</div>
 													<div className="pt-3 border-t">
@@ -5074,7 +5246,7 @@ function RegistryPage() {
 															disabled={submitting}
 															onClick={() => void handleWizardSubmit()}
 														>
-															{submitting ? "Submitting..." : "Submit to Verification Queue"}
+								{submitting ? copy.submitting : copy.submitToVerificationQueue}
 														</Button>
 													</div>
 												</div>
@@ -5092,7 +5264,7 @@ function RegistryPage() {
 												{copy.previous}
 											</Button>
 											<div className="text-xs text-kumo-subtle font-medium">
-												Step {step + 1} of {copy.registrySteps.length}
+						{copy.stepOf(step + 1, copy.registrySteps.length)}
 											</div>
 											<Button
 												variant="secondary"
@@ -5295,11 +5467,11 @@ function VerificationPage() {
 												{/* Action inputs */}
 												{item.canAdvance && canCurrentUserAdvance && (
 													<div className="mt-3 max-w-md space-y-2 border-t border-kumo-line/50 pt-3">
-														<label className="block text-xs font-medium text-kumo-default mb-1">
-															Verifier Notes:
-														</label>
-														<Input
-															placeholder="Write justification notes..."
+												<label className="block text-xs font-medium text-kumo-default mb-1">
+													{copy.verifierNotes}:
+												</label>
+												<Input
+													placeholder={copy.verifierNotesPlaceholder}
 															value={actionNotes[item.registryEntityId] || ""}
 															onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 																const val = e.target.value;
@@ -5407,7 +5579,7 @@ function VerificationPage() {
 												) : null}
 											</div>
 											<div className="text-xs text-kumo-subtle flex items-center gap-1">
-												<span>📁 Documents:</span>{" "}
+										<span>📁 {copy.documentsCount}:</span>{" "}
 												<strong>{item.supportingDocumentIds.length}</strong>
 											</div>
 										</div>
@@ -5452,7 +5624,7 @@ function VerificationPage() {
 							</div>
 							<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
 								<div>
-									<strong>Actor:</strong> {item.actor}
+									<strong>{copy.actor}:</strong> {item.actor}
 								</div>
 								<div>
 									<strong>{copy.inputLevel}:</strong>{" "}
@@ -5478,10 +5650,10 @@ function VerificationPage() {
 									</div>
 								) : null}
 								<div>
-									<strong>Created:</strong> {formatDateTime(item.createdAt, i18n.locale)}
+									<strong>{copy.created}:</strong> {formatDateTime(item.createdAt, i18n.locale)}
 								</div>
 								<div>
-									<strong>ID Label:</strong> {maskSensitive(item.id, false)}
+									<strong>{copy.idLabel}:</strong> {maskSensitive(item.id, false)}
 								</div>
 							</div>
 						</div>
@@ -6349,12 +6521,6 @@ function MatrixPage() {
 		setSelectedPermissions(assignment?.permissions ?? []);
 	}, [data, selectedRole]);
 
-	const togglePermission = (slug: string, checked: boolean) => {
-		setSelectedPermissions((current) =>
-			checked ? [...new Set([...current, slug])] : current.filter((item) => item !== slug),
-		);
-	};
-
 	const saveMatrix = async () => {
 		setSaving(true);
 		setNotice(null);
@@ -6422,38 +6588,34 @@ function MatrixPage() {
 						</Field>
 					</div>
 
-					<div className="grid gap-3 md:grid-cols-2">
-						{data.permissions.map((permission) => {
-							const checked = selectedPermissions.includes(permission.slug);
-							return (
-								<label
-									className={cx(
-										"flex cursor-pointer items-start gap-3 rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default transition",
-										checked && "bg-kumo-tint/30",
-									)}
-									key={permission.slug}
-								>
-									<input
-										type="checkbox"
-										className="mt-1 accent-current"
-										checked={checked}
-										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-											togglePermission(permission.slug, event.target.checked)
-										}
-									/>
-									<span>
-										<span className="block font-medium text-kumo-default">{permission.label}</span>
+					<Checkbox.Group
+						legend={copy.permissions}
+						value={selectedPermissions}
+						onValueChange={(values: string[]) => setSelectedPermissions(values)}
+					>
+						<div className="grid gap-3 md:grid-cols-2">
+							{data.permissions.map((permission) => {
+								const checked = selectedPermissions.includes(permission.slug);
+								return (
+									<div
+										className={cx(
+											"rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default transition",
+											checked && "bg-kumo-tint/30",
+										)}
+										key={permission.slug}
+									>
+										<Checkbox.Item value={permission.slug} label={permission.label} />
 										<span className="mt-1 block break-all text-sm text-kumo-subtle">
 											{permission.slug}
 										</span>
 										<span className="mt-2 block">
 											<Pill>{permission.scope}</Pill>
 										</span>
-									</span>
-								</label>
-							);
-						})}
-					</div>
+									</div>
+								);
+							})}
+						</div>
+					</Checkbox.Group>
 				</Card>
 			)}
 		</PageShell>
@@ -7206,6 +7368,33 @@ export function createSikesraImportPreviewPromotePayload(
 
 const EXCEL_FILE_EXTENSION_REGEX = /\.(xlsx|xls)$/i;
 
+type RegistryWizardAddress = Required<SikesraRegistryAddressGroupDto>;
+
+function createRegistryWizardAddress(
+	overrides: Partial<SikesraRegistryAddressGroupDto> = {},
+): RegistryWizardAddress {
+	return {
+		provinceCode: overrides.provinceCode ?? "62",
+		regencyCode: overrides.regencyCode ?? "6201",
+		districtCode: overrides.districtCode ?? "620102",
+		villageCode: overrides.villageCode ?? "6201021009",
+		detail: overrides.detail ?? "Jl. Merdeka No. 12",
+		rt: overrides.rt ?? "001",
+		rw: overrides.rw ?? "001",
+		postalCode: overrides.postalCode ?? "",
+	};
+}
+
+function createRegistryDomicileAddress(
+	address: RegistryWizardAddress,
+	sameAsKtp: boolean,
+): SikesraRegistryDomicileAddressGroupDto {
+	return {
+		...address,
+		sameAsKtp,
+	};
+}
+
 function ImportPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
@@ -7364,10 +7553,14 @@ function ImportPage() {
 
 			{/* Progress Steps Header */}
 			<div className="w-full overflow-x-auto pb-5 mb-6 flex items-center justify-between gap-2 border-b border-kumo-line/40 select-none">
-				<div className="flex items-center min-w-max w-full px-2 justify-between relative" style={{ minWidth: "650px" }}>
+				<div
+					className="flex items-center min-w-max w-full px-2 justify-between relative"
+					style={{ minWidth: "650px" }}
+					role="list"
+				>
 					{/* Background connecting track line */}
-					<div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-kumo-line z-0" />
-					
+					<div className="absolute top-[18px] start-[5%] end-[5%] h-0.5 bg-kumo-line z-0" />
+
 					{SIKESRA_IMPORT_WORKFLOW_STEPS.map((step, index) => {
 						const isActive = index === importStep;
 						const isCompleted = index < importStep;
@@ -7376,19 +7569,20 @@ function ImportPage() {
 								key={step.id}
 								className="relative z-10 flex flex-col items-center"
 								style={{ width: "132px" }}
+								role="listitem"
+								aria-current={isActive ? "step" : undefined}
 							>
 								<span
 									className={cx(
 										"flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold border transition-all duration-300",
-										isActive ? "scale-110 shadow-md ring-4 ring-blue-500/25" : "",
-									)}
-									style={
 										isActive
-											? { backgroundColor: "#2563eb", borderColor: "#2563eb", color: "#ffffff" }
-											: isCompleted
-												? { backgroundColor: "#10b981", borderColor: "#10b981", color: "#ffffff" }
-												: { backgroundColor: "var(--kumo-base, #ffffff)", borderColor: "var(--kumo-line, #e2e8f0)", color: "var(--kumo-subtle, #64748b)" }
-									}
+											? "scale-110 border-kumo-brand bg-kumo-brand text-kumo-base shadow-md ring-4 ring-kumo-brand/25"
+											: "",
+										isCompleted ? "border-kumo-success bg-kumo-success text-kumo-base" : "",
+										!isActive && !isCompleted
+											? "border-kumo-line bg-kumo-base text-kumo-subtle"
+											: "",
+									)}
 								>
 									{isCompleted ? "✓" : index + 1}
 								</span>
@@ -7398,16 +7592,9 @@ function ImportPage() {
 										isActive
 											? "text-kumo-brand font-bold"
 											: isCompleted
-												? "text-emerald-600 dark:text-emerald-400"
+												? "text-kumo-success"
 												: "text-kumo-subtle",
 									)}
-									style={
-										isActive
-											? { color: "#2563eb" }
-											: isCompleted
-												? { color: "#10b981" }
-												: undefined
-									}
 								>
 									{step.label}
 								</span>

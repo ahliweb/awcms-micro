@@ -1002,6 +1002,14 @@ msgctxt "awcms.adminCopy.verificationInputPolicy"
 msgid "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
 msgstr "All user levels may enter data, but the first verification step must always start with the village/subdistrict user."
 
+msgctxt "awcms.adminCopy.verifierNotes"
+msgid "Verifier notes"
+msgstr "Verifier notes"
+
+msgctxt "awcms.adminCopy.verifierNotesPlaceholder"
+msgid "Write justification notes..."
+msgstr "Write justification notes..."
+
 msgctxt "awcms.adminCopy.final"
 msgid "final"
 msgstr "final"
@@ -1241,6 +1249,38 @@ msgstr "Buckets safe to display openly"
 msgctxt "awcms.adminCopy.aggregateCategories"
 msgid "Aggregate categories"
 msgstr "Aggregate categories"
+
+msgctxt "awcms.adminCopy.recapitulationChartTitle"
+msgid "SIKESRA data recapitulation chart"
+msgstr "SIKESRA data recapitulation chart"
+
+msgctxt "awcms.adminCopy.recapitulationChartDescription"
+msgid "Compare total registered entities with verified data per category."
+msgstr "Compare total registered entities with verified data per category."
+
+msgctxt "awcms.adminCopy.referenceData"
+msgid "Reference data"
+msgstr "Reference data"
+
+msgctxt "awcms.adminCopy.suppressedLabel"
+msgid "Suppressed"
+msgstr "Suppressed"
+
+msgctxt "awcms.adminCopy.privacyLock"
+msgid "Privacy lock"
+msgstr "Privacy lock"
+
+msgctxt "awcms.adminCopy.lowCountPrivacyNote"
+msgid "Count is too low for privacy safety (< 3)"
+msgstr "Count is too low for privacy safety (< 3)"
+
+msgctxt "awcms.adminCopy.totalEntitiesLegend"
+msgid "Total entities"
+msgstr "Total entities"
+
+msgctxt "awcms.adminCopy.verifiedLegend"
+msgid "Verified"
+msgstr "Verified"
 
 msgctxt "awcms.adminCopy.aggregateCategoriesDescription"
 msgid "Counts are shown only when the category is not suppressed."
@@ -3365,6 +3405,278 @@ msgstr "Generate ID"
 msgctxt "awcms.adminCopy.registrySteps.10"
 msgid "Review & Submit"
 msgstr "Review & Submit"
+
+msgctxt "awcms.adminCopy.stepOf"
+msgid "Step {step} of {total}"
+msgstr "Step {step} of {total}"
+
+msgctxt "awcms.adminCopy.otherOption"
+msgid "Other"
+msgstr "Other"
+
+msgctxt "awcms.adminCopy.parentDataType"
+msgid "Parent data type"
+msgstr "Parent data type"
+
+msgctxt "awcms.adminCopy.parentDataTypeHint"
+msgid "Select the SIKESRA parent data type (required)"
+msgstr "Select the SIKESRA parent data type (required)"
+
+msgctxt "awcms.adminCopy.subDataType"
+msgid "Sub data type"
+msgstr "Sub data type"
+
+msgctxt "awcms.adminCopy.subDataTypeHint"
+msgid "Select the SIKESRA sub data type (required)"
+msgstr "Select the SIKESRA sub data type (required)"
+
+msgctxt "awcms.adminCopy.sensitivityClassificationHint"
+msgid "Determine record visibility for this entity (required)"
+msgstr "Determine record visibility for this entity (required)"
+
+msgctxt "awcms.adminCopy.selectRegencyPlaceholder"
+msgid "-- Select regency --"
+msgstr "-- Select regency --"
+
+msgctxt "awcms.adminCopy.selectDistrictPlaceholder"
+msgid "-- Select district --"
+msgstr "-- Select district --"
+
+msgctxt "awcms.adminCopy.selectVillagePlaceholder"
+msgid "-- Select village --"
+msgstr "-- Select village --"
+
+msgctxt "awcms.adminCopy.cascadingLookupSelector"
+msgid "Cascading lookup selector"
+msgstr "Cascading lookup selector"
+
+msgctxt "awcms.adminCopy.filteredByProvince"
+msgid "Filtered by province"
+msgstr "Filtered by province"
+
+msgctxt "awcms.adminCopy.filteredByRegency"
+msgid "Filtered by regency"
+msgstr "Filtered by regency"
+
+msgctxt "awcms.adminCopy.filteredByDistrict"
+msgid "Filtered by district"
+msgstr "Filtered by district"
+
+msgctxt "awcms.adminCopy.rtHint"
+msgid "Optional (example: 001)"
+msgstr "Optional (example: 001)"
+
+msgctxt "awcms.adminCopy.rwHint"
+msgid "Optional (example: 002)"
+msgstr "Optional (example: 002)"
+
+msgctxt "awcms.adminCopy.specificLocalAddress"
+msgid "Specific local address"
+msgstr "Specific local address"
+
+msgctxt "awcms.adminCopy.specificLocalAddressHint"
+msgid "Optional specific street details"
+msgstr "Optional specific street details"
+
+msgctxt "awcms.adminCopy.ktpAddressGroup"
+msgid "KTP address group"
+msgstr "KTP address group"
+
+msgctxt "awcms.adminCopy.ktpAddressGroupDescription"
+msgid "Sensitive personal address from official identity records. Never expose this in public output."
+msgstr "Sensitive personal address from official identity records. Never expose this in public output."
+
+msgctxt "awcms.adminCopy.domicileAddressGroup"
+msgid "Domicile address group"
+msgstr "Domicile address group"
+
+msgctxt "awcms.adminCopy.domicileAddressGroupDescription"
+msgid "Current living address, captured separately from KTP address for verification and restricted workflows."
+msgstr "Current living address, captured separately from KTP address for verification and restricted workflows."
+
+msgctxt "awcms.adminCopy.sameAsKtpAddress"
+msgid "Domicile address is the same as KTP address"
+msgstr "Domicile address is the same as KTP address"
+
+msgctxt "awcms.adminCopy.addressDetail"
+msgid "Address detail"
+msgstr "Address detail"
+
+msgctxt "awcms.adminCopy.postalCode"
+msgid "Postal code"
+msgstr "Postal code"
+
+msgctxt "awcms.adminCopy.identityNameLabel"
+msgid "Identity name / label"
+msgstr "Identity name / label"
+
+msgctxt "awcms.adminCopy.identityNameHint"
+msgid "Human-readable name (required)"
+msgstr "Human-readable name (required)"
+
+msgctxt "awcms.adminCopy.identityNamePlaceholder"
+msgid "e.g. Al-Barokah Worship Place"
+msgstr "e.g. Al-Barokah Worship Place"
+
+msgctxt "awcms.adminCopy.briefDescription"
+msgid "Brief description"
+msgstr "Brief description"
+
+msgctxt "awcms.adminCopy.briefDescriptionHint"
+msgid "Optional summary details"
+msgstr "Optional summary details"
+
+msgctxt "awcms.adminCopy.religionConnection"
+msgid "Religion connection"
+msgstr "Religion connection"
+
+msgctxt "awcms.adminCopy.religionConnectionHint"
+msgid "Optional attribute connection"
+msgstr "Optional attribute connection"
+
+msgctxt "awcms.adminCopy.notFilledOptional"
+msgid "Not filled (optional)"
+msgstr "Not filled (optional)"
+
+msgctxt "awcms.adminCopy.socialDesilStatus"
+msgid "Social decile status (1-10)"
+msgstr "Social decile status (1-10)"
+
+msgctxt "awcms.adminCopy.socialDesilStatusHint"
+msgid "Optional socio-economic classification"
+msgstr "Optional socio-economic classification"
+
+msgctxt "awcms.adminCopy.desilLabel"
+msgid "Decile {value}"
+msgstr "Decile {value}"
+
+msgctxt "awcms.adminCopy.moduleSpecificDataDetails"
+msgid "Module-specific data details"
+msgstr "Module-specific data details"
+
+msgctxt "awcms.adminCopy.moduleSpecificDataDetailsHint"
+msgid "Additional parameters unique to the module type (optional)"
+msgstr "Additional parameters unique to the module type (optional)"
+
+msgctxt "awcms.adminCopy.caregiverPicName"
+msgid "Caregiver / PIC name"
+msgstr "Caregiver / PIC name"
+
+msgctxt "awcms.adminCopy.caregiverPicNameHint"
+msgid "Optional contact person"
+msgstr "Optional contact person"
+
+msgctxt "awcms.adminCopy.caregiverPhoneNumber"
+msgid "Caregiver phone number"
+msgstr "Caregiver phone number"
+
+msgctxt "awcms.adminCopy.caregiverPhoneNumberHint"
+msgid "Optional phone number"
+msgstr "Optional phone number"
+
+msgctxt "awcms.adminCopy.attachedDocumentsWithCount"
+msgid "Attached documents ({count})"
+msgstr "Attached documents ({count})"
+
+msgctxt "awcms.adminCopy.noDocumentsAttachedOptional"
+msgid "No documents attached (optional)"
+msgstr "No documents attached (optional)"
+
+msgctxt "awcms.adminCopy.remove"
+msgid "Remove"
+msgstr "Remove"
+
+msgctxt "awcms.adminCopy.noDocumentsAddedYet"
+msgid "No documents added yet. Use the form below to attach files."
+msgstr "No documents added yet. Use the form below to attach files."
+
+msgctxt "awcms.adminCopy.addNewDocument"
+msgid "Add new document"
+msgstr "Add new document"
+
+msgctxt "awcms.adminCopy.supportingDocumentTitlePlaceholder"
+msgid "e.g. Domicile certificate letter"
+msgstr "e.g. Domicile certificate letter"
+
+msgctxt "awcms.adminCopy.docSensitivity"
+msgid "Document sensitivity"
+msgstr "Document sensitivity"
+
+msgctxt "awcms.adminCopy.changeFile"
+msgid "Change file"
+msgstr "Change file"
+
+msgctxt "awcms.adminCopy.chooseFileOrDragHere"
+msgid "Choose file or drag here"
+msgstr "Choose file or drag here"
+
+msgctxt "awcms.adminCopy.selectedFileLabel"
+msgid "Selected file:"
+msgstr "Selected file:"
+
+msgctxt "awcms.adminCopy.addDocumentToList"
+msgid "Add document to list"
+msgstr "Add document to list"
+
+msgctxt "awcms.adminCopy.validationCheckDescription"
+msgid "Checks formatting compliance and potential duplicate records."
+msgstr "Checks formatting compliance and potential duplicate records."
+
+msgctxt "awcms.adminCopy.runValidationCheck"
+msgid "Run validation check"
+msgstr "Run validation check"
+
+msgctxt "awcms.adminCopy.prepareDraftRegistryCodeDescription"
+msgid "Prepare a draft registry code for submission. The server generates the canonical 20-digit SIKESRA ID from village, type, subtype, and sequence."
+msgstr "Prepare a draft registry code for submission. The server generates the canonical 20-digit SIKESRA ID from village, type, subtype, and sequence."
+
+msgctxt "awcms.adminCopy.prepareDraftRegistryCode"
+msgid "Prepare draft registry code"
+msgstr "Prepare draft registry code"
+
+msgctxt "awcms.adminCopy.summaryIntake"
+msgid "Intake summary"
+msgstr "Intake summary"
+
+msgctxt "awcms.adminCopy.notGenerated"
+msgid "Not generated"
+msgstr "Not generated"
+
+msgctxt "awcms.adminCopy.typeLabel"
+msgid "Type"
+msgstr "Type"
+
+msgctxt "awcms.adminCopy.religionDesil"
+msgid "Religion / decile"
+msgstr "Religion / decile"
+
+msgctxt "awcms.adminCopy.officialRegion"
+msgid "Official region"
+msgstr "Official region"
+
+msgctxt "awcms.adminCopy.localRegion"
+msgid "Local region"
+msgstr "Local region"
+
+msgctxt "awcms.adminCopy.caregiver"
+msgid "Caregiver"
+msgstr "Caregiver"
+
+msgctxt "awcms.adminCopy.attachedDocuments"
+msgid "Attached documents"
+msgstr "Attached documents"
+
+msgctxt "awcms.adminCopy.fileCount"
+msgid "{count} file(s)"
+msgstr "{count} file(s)"
+
+msgctxt "awcms.adminCopy.submitting"
+msgid "Submitting..."
+msgstr "Submitting..."
+
+msgctxt "awcms.adminCopy.submitToVerificationQueue"
+msgid "Submit to verification queue"
+msgstr "Submit to verification queue"
 
 msgctxt "awcms.adminCopy.dashboardCards.0.title"
 msgid "Worship Places"

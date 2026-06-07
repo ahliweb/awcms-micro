@@ -16,7 +16,9 @@ export type {
 export { normalizeSikesraPagination } from "./pagination.js";
 export type {
 	SikesraDataClass,
+	SikesraRegistryAddressGroupDto,
 	SikesraRegistryCreateRequest,
+	SikesraRegistryDomicileAddressGroupDto,
 	SikesraRegistryListItemDto,
 	SikesraRegistryListRequest,
 } from "./registry-contracts.js";

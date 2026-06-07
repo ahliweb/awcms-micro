@@ -7550,6 +7550,7 @@ describe("awcms micro sikesra plugin", () => {
 	});
 
 	it("keeps registry queue and intake copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
 		const requiredKeys = [
 			"awcms.adminCopy.searchEntityNameOrCode",
 			"awcms.adminCopy.identityRegionDataTypeRequired",
@@ -7557,7 +7558,46 @@ describe("awcms micro sikesra plugin", () => {
 			"awcms.adminCopy.subtypeRequired",
 			"awcms.adminCopy.preparedDraftRegistryCode",
 			"awcms.adminCopy.registrySubmittedToQueue",
+			"awcms.adminCopy.parentDataType",
+			"awcms.adminCopy.subDataType",
+			"awcms.adminCopy.sensitivityClassificationHint",
+			"awcms.adminCopy.attachedDocumentsWithCount",
+			"awcms.adminCopy.prepareDraftRegistryCodeDescription",
+			"awcms.adminCopy.summaryIntake",
+			"awcms.adminCopy.submitToVerificationQueue",
 		];
+
+		expect(adminSource).toContain("copy.parentDataType");
+		expect(adminSource).toContain("copy.prepareDraftRegistryCodeDescription");
+		expect(adminSource).not.toContain("Pilih Jenis Data Induk SIKESRA");
+		expect(adminSource).not.toContain("Summary Intake:");
+		expect(adminSource).not.toContain("Submit to Verification Queue");
+		expect(adminSource).not.toContain("Checks for formatting compliance and potential duplicate records.");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps public aggregate chart copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.recapitulationChartTitle",
+			"awcms.adminCopy.recapitulationChartDescription",
+			"awcms.adminCopy.privacyLock",
+			"awcms.adminCopy.lowCountPrivacyNote",
+			"awcms.adminCopy.totalEntitiesLegend",
+			"awcms.adminCopy.verifiedLegend",
+		];
+
+		expect(adminSource).toContain("copy.recapitulationChartTitle");
+		expect(adminSource).toContain("aria-label={copy.privacyLock}");
+		expect(adminSource).not.toContain("Grafik Rekapitulasi Data SIKESRA");
+		expect(adminSource).not.toContain('aria-label="lock"');
+		expect(adminSource).not.toContain("Jumlah terlalu rendah untuk keamanan privasi");
 
 		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
 			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
@@ -7594,6 +7634,60 @@ describe("awcms micro sikesra plugin", () => {
 				expect(source).toContain(key);
 			}
 		}
+	});
+
+	it("keeps registry wizard KTP and domicile address groups typed and separate", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const contractSource = readFileSync(
+			resolve(import.meta.dirname, "../src/contracts/registry-contracts.ts"),
+			"utf8",
+		);
+		const runtimeSource = readFileSync(resolve(import.meta.dirname, "../src/runtime.ts"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.ktpAddressGroup",
+			"awcms.adminCopy.domicileAddressGroup",
+			"awcms.adminCopy.sameAsKtpAddress",
+			"awcms.adminCopy.addressDetail",
+			"awcms.adminCopy.postalCode",
+		];
+
+		expect(contractSource).toContain("SikesraRegistryAddressGroupDto");
+		expect(contractSource).toContain("SikesraRegistryDomicileAddressGroupDto");
+		expect(contractSource).toContain("ktpAddress?: SikesraRegistryAddressGroupDto");
+		expect(contractSource).toContain("domicileAddress?: SikesraRegistryDomicileAddressGroupDto");
+		expect(adminSource).toContain("ktpAddress: createRegistryWizardAddress");
+		expect(adminSource).toContain("createRegistryDomicileAddress(");
+		expect(adminSource).toContain("alamat_ktp_detail: ktpAddress.detail");
+		expect(adminSource).toContain("alamat_domisili_detail: domicileAddress.detail");
+		expect(adminSource).toContain("alamat_domisili_sama_dengan_ktp: domicileAddress.sameAsKtp");
+		expect(adminSource).not.toContain("address: wizardState.address");
+		expect(runtimeSource).toContain("ktpAddress: isRecord(input.ktpAddress)");
+		expect(runtimeSource).toContain("domicileAddress: isRecord(input.domicileAddress)");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps SIKESRA admin controls on Kumo and a11y-safe primitives", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+
+		expect(adminSource).toContain("Button, Checkbox, Input");
+		expect(adminSource).toContain("<Checkbox.Group");
+		expect(adminSource).toContain("<Checkbox.Item");
+		expect(adminSource).toMatch(/<Input\s+type="number"/);
+		expect(adminSource).toContain('role="tablist"');
+		expect(adminSource).toContain('role="tab"');
+		expect(adminSource).toContain("aria-selected={activeSubTab ===");
+		expect(adminSource).toContain('aria-current={isActive ? "step" : undefined}');
+		expect(adminSource).toContain("start-[5%] end-[5%]");
+		expect(adminSource).not.toContain('type="checkbox"');
+		expect(adminSource).not.toContain("dark:");
+		expect(adminSource).not.toContain("ring-blue-500");
+		expect(adminSource).not.toContain("left-[5%] right-[5%]");
 	});
 
 	it("keeps access assignment and scope page copy in plugin PO catalogs", () => {

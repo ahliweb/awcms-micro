@@ -4940,6 +4940,10 @@ const registrySaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 	const canonicalFields = {
 		...fields,
+		ktpAddress: isRecord(input.ktpAddress) ? input.ktpAddress : fields.ktpAddress,
+		domicileAddress: isRecord(input.domicileAddress)
+			? input.domicileAddress
+			: fields.domicileAddress,
 		code: getRegistryString("code"),
 		typeCode: getRegistryString("typeCode"),
 		subtypeCode: getRegistryString("subtypeCode"),

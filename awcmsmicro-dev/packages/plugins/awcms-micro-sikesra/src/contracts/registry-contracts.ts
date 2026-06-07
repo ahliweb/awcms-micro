@@ -19,10 +19,27 @@ export interface SikesraRegistryListItemDto {
 	publicSummary?: string;
 }
 
+export interface SikesraRegistryAddressGroupDto {
+	provinceCode?: string;
+	regencyCode?: string;
+	districtCode?: string;
+	villageCode?: string;
+	detail?: string;
+	rt?: string;
+	rw?: string;
+	postalCode?: string;
+}
+
+export interface SikesraRegistryDomicileAddressGroupDto extends SikesraRegistryAddressGroupDto {
+	sameAsKtp?: boolean;
+}
+
 export interface SikesraRegistryCreateRequest {
 	entityType: string;
 	label: string;
 	subtypeCode?: string;
 	regionCode?: string;
+	ktpAddress?: SikesraRegistryAddressGroupDto;
+	domicileAddress?: SikesraRegistryDomicileAddressGroupDto;
 	fields: Record<string, unknown>;
 }
