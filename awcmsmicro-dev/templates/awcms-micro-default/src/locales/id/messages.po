@@ -90,6 +90,70 @@ msgctxt "homeIntro"
 msgid "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
 msgstr "Template pengembangan lokal ini menunjukkan bagaimana AWCMS-Micro menampilkan konten publik, menjaga core EmDash tetap utuh, dan mengarahkan editor ke antarmuka admin standar untuk konten, pengaturan, dan alur kerja tata kelola berbasis plugin."
 
+msgctxt "landingExploreContent"
+msgid "Explore content"
+msgstr "Jelajahi konten"
+
+msgctxt "landingViewMedia"
+msgid "View media showcase"
+msgstr "Lihat galeri media"
+
+msgctxt "landingContentStats"
+msgid "Public content statistics"
+msgstr "Statistik konten publik"
+
+msgctxt "landingManagedSurface"
+msgid "Admin-managed public website surface"
+msgstr "Permukaan website publik yang dikelola admin"
+
+msgctxt "landingAdminManaged"
+msgid "Managed from EmDash admin"
+msgstr "Dikelola dari admin EmDash"
+
+msgctxt "landingPagesPostsGallery"
+msgid "Pages, posts, news, and gallery content"
+msgstr "Halaman, pos, berita, dan konten galeri"
+
+msgctxt "landingProfileEyebrow"
+msgid "Brand profile"
+msgstr "Profil brand"
+
+msgctxt "landingProfileDescription"
+msgid "This public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+msgstr "Website publik ini mengikuti struktur landing page referensi sambil menjaga setiap halaman publik, pos, berita, dan galeri tetap dapat dikelola melalui koleksi EmDash."
+
+msgctxt "landingServicesEyebrow"
+msgid "Services and workflow"
+msgstr "Layanan dan workflow"
+
+msgctxt "landingAdminContentHint"
+msgid "Editable public page managed from the Pages collection."
+msgstr "Halaman publik yang dapat diedit dari koleksi Pages."
+
+msgctxt "landingPortfolioHeading"
+msgid "Latest editorial and implementation highlights"
+msgstr "Sorotan editorial dan implementasi terbaru"
+
+msgctxt "landingUpdatesHeading"
+msgid "Recent public updates"
+msgstr "Pembaruan publik terbaru"
+
+msgctxt "landingContactEyebrow"
+msgid "Contact and publishing workflow"
+msgstr "Kontak dan alur publikasi"
+
+msgctxt "landingWidgetsEyebrow"
+msgid "Managed widgets"
+msgstr "Widget terkelola"
+
+msgctxt "landingManagedWidgets"
+msgid "Homepage widgets from EmDash"
+msgstr "Widget beranda dari EmDash"
+
+msgctxt "landingManageWidgets"
+msgid "Manage widgets"
+msgstr "Kelola widget"
+
 msgctxt "createPost"
 msgid "Create Post"
 msgstr "Buat Pos"

@@ -90,6 +90,70 @@ msgctxt "homeIntro"
 msgid "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
 msgstr "This local-development template shows how AWCMS-Micro presents public content, keeps EmDash core untouched, and routes editors into the standard admin interface for content, settings, and plugin-backed governance workflows."
 
+msgctxt "landingExploreContent"
+msgid "Explore content"
+msgstr "Explore content"
+
+msgctxt "landingViewMedia"
+msgid "View media showcase"
+msgstr "View media showcase"
+
+msgctxt "landingContentStats"
+msgid "Public content statistics"
+msgstr "Public content statistics"
+
+msgctxt "landingManagedSurface"
+msgid "Admin-managed public website surface"
+msgstr "Admin-managed public website surface"
+
+msgctxt "landingAdminManaged"
+msgid "Managed from EmDash admin"
+msgstr "Managed from EmDash admin"
+
+msgctxt "landingPagesPostsGallery"
+msgid "Pages, posts, news, and gallery content"
+msgstr "Pages, posts, news, and gallery content"
+
+msgctxt "landingProfileEyebrow"
+msgid "Brand profile"
+msgstr "Brand profile"
+
+msgctxt "landingProfileDescription"
+msgid "This public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+msgstr "This public website follows the reference landing-page structure while keeping every public page, post, news item, and gallery manageable through EmDash collections."
+
+msgctxt "landingServicesEyebrow"
+msgid "Services and workflow"
+msgstr "Services and workflow"
+
+msgctxt "landingAdminContentHint"
+msgid "Editable public page managed from the Pages collection."
+msgstr "Editable public page managed from the Pages collection."
+
+msgctxt "landingPortfolioHeading"
+msgid "Latest editorial and implementation highlights"
+msgstr "Latest editorial and implementation highlights"
+
+msgctxt "landingUpdatesHeading"
+msgid "Recent public updates"
+msgstr "Recent public updates"
+
+msgctxt "landingContactEyebrow"
+msgid "Contact and publishing workflow"
+msgstr "Contact and publishing workflow"
+
+msgctxt "landingWidgetsEyebrow"
+msgid "Managed widgets"
+msgstr "Managed widgets"
+
+msgctxt "landingManagedWidgets"
+msgid "Homepage widgets from EmDash"
+msgstr "Homepage widgets from EmDash"
+
+msgctxt "landingManageWidgets"
+msgid "Manage widgets"
+msgstr "Manage widgets"
+
 msgctxt "createPost"
 msgid "Create Post"
 msgstr "Create Post"

@@ -89,6 +89,75 @@
 					"searchable": true
 				}
 			]
+		},
+		{
+			"slug": "galleries",
+			"label": "Galleries",
+			"labelSingular": "Gallery",
+			"supports": ["drafts", "revisions", "search", "seo"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Title",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "description",
+					"label": "Description",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "gallery_type",
+					"label": "Gallery Type",
+					"type": "select",
+					"required": true,
+					"options": [
+						{ "label": "Photo", "value": "photo" },
+						{ "label": "Video", "value": "video" },
+						{ "label": "Mixed", "value": "mixed" }
+					]
+				},
+				{
+					"slug": "layout_variant",
+					"label": "Layout Variant",
+					"type": "select",
+					"required": true,
+					"options": [
+						{ "label": "Grid", "value": "grid" },
+						{ "label": "Masonry", "value": "masonry" },
+						{ "label": "Carousel", "value": "carousel" },
+						{ "label": "Slider", "value": "slider" }
+					]
+				},
+				{
+					"slug": "event_date",
+					"label": "Event Date",
+					"type": "datetime"
+				},
+				{
+					"slug": "location",
+					"label": "Location",
+					"type": "string"
+				},
+				{
+					"slug": "featured",
+					"label": "Featured",
+					"type": "boolean"
+				},
+				{
+					"slug": "cover_image",
+					"label": "Cover Image",
+					"type": "image"
+				},
+				{
+					"slug": "gallery_items",
+					"label": "Gallery Items",
+					"type": "json"
+				}
+			]
 		}
 	],
 	"menus": [
@@ -395,6 +464,26 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "homepage",
+			"label": "Homepage",
+			"description": "Homepage widgets displayed below the landing content",
+			"widgets": [
+				{
+					"type": "component",
+					"componentId": "core:search",
+					"title": "Search the public site"
+				},
+				{
+					"type": "component",
+					"componentId": "core:recent-posts",
+					"title": "Latest Posts",
+					"settings": {
+						"count": 3
+					}
+				}
+			]
 		}
 	],
 	"bylines": [
@@ -419,6 +508,10 @@
 				"status": "published",
 				"data": {
 					"title": "Introducing AWCMS-Micro",
+					"featured_image": {
+						"src": "https://picsum.photos/id/180/960/640",
+						"alt": "Laptop workspace running an AWCMS-Micro site"
+					},
 					"excerpt": "Why AWCMS-Micro keeps EmDash core intact while shaping a tighter single-tenant implementation.",
 					"content": [
 						{
@@ -449,6 +542,10 @@
 				"status": "published",
 				"data": {
 					"title": "Memperkenalkan AWCMS-Micro",
+					"featured_image": {
+						"src": "https://picsum.photos/id/180/960/640",
+						"alt": "Workspace laptop menjalankan situs AWCMS-Micro"
+					},
 					"excerpt": "Mengapa AWCMS-Micro menjaga core EmDash tetap utuh sambil membentuk implementasi single-tenant yang lebih rapat.",
 					"content": [
 						{
