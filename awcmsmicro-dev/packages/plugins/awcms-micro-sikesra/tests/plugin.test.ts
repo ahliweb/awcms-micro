@@ -3821,6 +3821,21 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBe(0);
 	});
 
+	it("does not resurrect soft-deleted runtime settings rows on D1 upsert", () => {
+		const runtimeSource = readFileSync(resolve(import.meta.dirname, "../src/runtime.ts"), "utf8");
+		const settingsUpsertSource = runtimeSource.slice(
+			runtimeSource.indexOf("async function persistD1Settings"),
+			runtimeSource.indexOf("async function persistStateValue"),
+		);
+		const conflictUpdateSource = settingsUpsertSource.slice(
+			settingsUpsertSource.indexOf(".doUpdateSet({"),
+			settingsUpsertSource.indexOf(".execute();"),
+		);
+
+		expect(settingsUpsertSource).toContain('.where("deleted_at", "is", null)');
+		expect(conflictUpdateSource).not.toContain("deleted_at: null,");
+	});
+
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
 			createMockContext();

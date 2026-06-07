@@ -3371,11 +3371,13 @@ async function persistD1Settings(ctx: PluginContext, records: StoredSettingRecor
 				deleted_at: null,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "key"]).doUpdateSet({
-					value_json: JSON.stringify(record.value),
-					updated_at: now,
-					deleted_at: null,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "key"])
+					.doUpdateSet({
+						value_json: JSON.stringify(record.value),
+						updated_at: now,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
