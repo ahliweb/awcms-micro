@@ -4065,6 +4065,7 @@ describe("awcms micro sikesra plugin", () => {
 			sikesra_role_slug: "sikesra_verifikator_sopd",
 			is_active: 1,
 			updated_at: "2026-01-01T00:00:00.000Z",
+			deleted_at: null,
 		});
 		rolePermissionAssignmentTableRows.push({
 			tenant_id: "t-local-dev",
@@ -4126,6 +4127,7 @@ describe("awcms micro sikesra plugin", () => {
 			sikesra_role_slug: "sikesra_verifikator_sopd",
 			is_active: 1,
 			updated_at: "2026-01-01T00:00:00.000Z",
+			deleted_at: null,
 		});
 		rolePermissionAssignmentTableRows.push({
 			tenant_id: "t-local-dev",
@@ -4616,6 +4618,7 @@ describe("awcms micro sikesra plugin", () => {
 			sikesra_role_slug: "sikesra_document_reader_basic",
 			is_active: 1,
 			updated_at: "2026-01-01T00:00:00.000Z",
+			deleted_at: null,
 		});
 		rolePermissionAssignmentTableRows.push({
 			tenant_id: "t-local-dev",
@@ -7205,6 +7208,56 @@ describe("awcms micro sikesra plugin", () => {
 			),
 		).toBe(true);
 		expect(collections.accessChangeEvents.size).toBeGreaterThanOrEqual(4);
+	});
+
+	it("deactivates stale D1 user roles when an EmDash user assignment changes", async () => {
+		const { ctx, userRoleAssignmentTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		userRoleAssignmentTableRows.push(
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "user-demo-doc-reviewer:sikesra_auditor",
+				emdash_user_id: "user-demo-doc-reviewer",
+				sikesra_role_slug: "sikesra_auditor",
+				is_active: 1,
+				created_at: "2026-01-01T00:00:00.000Z",
+				updated_at: "2026-01-01T00:00:00.000Z",
+				deleted_at: null,
+				created_by: "seed",
+				updated_by: "seed",
+			},
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "user-demo-doc-reviewer:sikesra_admin",
+				emdash_user_id: "user-demo-doc-reviewer",
+				sikesra_role_slug: "sikesra_admin",
+				is_active: 1,
+				created_at: "2026-01-01T00:00:00.000Z",
+				updated_at: "2026-01-01T00:00:00.000Z",
+				deleted_at: null,
+				created_by: "seed",
+				updated_by: "seed",
+			},
+		);
+
+		const saved = (await routes["access/users/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { emdashUserId: "user-demo-doc-reviewer", roles: ["sikesra_admin"] },
+		} as any)) as any;
+
+		expect(saved.success).toBe(true);
+		expect(
+			userRoleAssignmentTableRows.find(
+				(row) => row.id === "user-demo-doc-reviewer:sikesra_auditor",
+			),
+		).toMatchObject({ is_active: 0 });
+		expect(
+			userRoleAssignmentTableRows.find((row) => row.id === "user-demo-doc-reviewer:sikesra_admin"),
+		).toMatchObject({ is_active: 1 });
 	});
 
 	it("supports EmDash user region and organization scope assignments", async () => {

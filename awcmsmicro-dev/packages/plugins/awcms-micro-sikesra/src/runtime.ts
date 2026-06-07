@@ -3899,6 +3899,7 @@ async function getD1UserRoleAssignment(ctx: PluginContext, userId: string) {
 			.where("site_id", "=", getSikesraSiteId(ctx))
 			.where("emdash_user_id", "=", userId)
 			.where("is_active", "=", 1)
+			.where("deleted_at", "is", null)
 			.execute()) as typeof rows;
 	} catch (cause) {
 		logD1ReadFallback(ctx, "user-role assignment", cause);
@@ -3947,8 +3948,55 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db?.insertInto) return false;
 	const now = toIsoNow();
+	const actor = getRequestUserId(ctx);
+	const nextRoles = [...new Set(assignment.roles.filter(Boolean))];
 	try {
-		for (const roleSlug of assignment.roles) {
+		if (db?.selectFrom) {
+			const existingRows = (await db
+				.selectFrom(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+				.select(["id", "sikesra_role_slug", "created_at", "created_by"])
+				.where("tenant_id", "=", getSikesraTenantId(ctx))
+				.where("site_id", "=", getSikesraSiteId(ctx))
+				.where("emdash_user_id", "=", assignment.userId)
+				.where("is_active", "=", 1)
+				.where("deleted_at", "is", null)
+				.execute()) as Array<Record<string, unknown>>;
+			const nextRoleSet = new Set(nextRoles);
+			for (const row of existingRows) {
+				const roleSlug = typeof row.sikesra_role_slug === "string" ? row.sikesra_role_slug : "";
+				if (!roleSlug || nextRoleSet.has(roleSlug)) continue;
+				await db
+					.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
+					.values({
+						tenant_id: getSikesraTenantId(ctx),
+						site_id: getSikesraSiteId(ctx),
+						id: typeof row.id === "string" ? row.id : `${assignment.userId}:${roleSlug}`,
+						emdash_user_id: assignment.userId,
+						sikesra_role_slug: roleSlug,
+						is_active: 0,
+						valid_from: null,
+						valid_until: null,
+						created_at: typeof row.created_at === "string" ? row.created_at : now,
+						updated_at: now,
+						deleted_at: null,
+						created_by: typeof row.created_by === "string" ? row.created_by : actor,
+						updated_by: actor,
+					})
+					.onConflict((oc: any) =>
+						oc
+							.columns(["tenant_id", "site_id", "id"])
+							.doUpdateSet({
+								is_active: 0,
+								updated_at: now,
+								updated_by: actor,
+							})
+							.where("deleted_at", "is", null),
+					)
+					.execute();
+			}
+		}
+
+		for (const roleSlug of nextRoles) {
 			await db
 				.insertInto(AWCMS_SIKESRA_USER_ROLE_ASSIGNMENTS_TABLE)
 				.values({
@@ -3963,8 +4011,8 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 					created_at: now,
 					updated_at: now,
 					deleted_at: null,
-					created_by: getRequestUserId(ctx),
-					updated_by: getRequestUserId(ctx),
+					created_by: actor,
+					updated_by: actor,
 				})
 				.onConflict((oc: any) =>
 					oc
@@ -3974,7 +4022,7 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 							sikesra_role_slug: roleSlug,
 							is_active: assignment.isActive ? 1 : 0,
 							updated_at: now,
-							updated_by: getRequestUserId(ctx),
+							updated_by: actor,
 						})
 						.where("deleted_at", "is", null),
 				)
