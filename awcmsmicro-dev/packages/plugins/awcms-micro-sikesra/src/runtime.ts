@@ -617,19 +617,8 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 			migratedRows += 1;
 		}
 
-		await db
-			.deleteFrom("_plugin_storage")
-			.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)
-			.where("collection", "=", from)
-			.execute();
-
-		if (to === AWCMS_SIKESRA_AUDIT_TABLE) {
-			await db
-				.deleteFrom("_plugin_storage")
-				.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)
-				.where("collection", "=", from)
-				.execute();
-		}
+		// Preserve legacy source rows until an operator verifies backup/replay integrity.
+		// Production cleanup belongs to a separate governed data-retention workflow.
 	}
 
 	if (migratedRows > 0) {
@@ -2040,7 +2029,7 @@ function assertRuntimeD1Available(
 ) {
 	const db = getRuntimeD1(ctx);
 	if (db?.[capability]) return true;
-	if (isProductionRuntime() && capability === "insertInto") {
+	if (isProductionRuntime()) {
 		throw new Error(
 			`SIKESRA production runtime requires a D1 binding for canonical ${surface} runtime state.`,
 		);
@@ -2066,6 +2055,12 @@ function isMissingD1TableError(cause: unknown) {
 
 function logD1ReadFallback(ctx: PluginContext, area: string, cause: unknown) {
 	if (!isMissingD1TableError(cause)) throw cause;
+	if (isProductionRuntime()) {
+		throw new Error(
+			`SIKESRA production runtime requires D1 table access for canonical ${area} runtime state.`,
+			{ cause },
+		);
+	}
 	ctx.log.warn(`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 ${area} table unavailable; using fallback data.`);
 }
 
@@ -4839,6 +4834,7 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 			},
 		};
 	} catch (cause) {
+		if (isProductionRuntime()) throw cause;
 		if (isMissingD1TableError(cause)) {
 			ctx?.log.warn(
 				`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 public status table unavailable; using fallback data.`,

@@ -66,7 +66,7 @@ Issue #124 makes dedicated D1 tables the canonical runtime-state storage. Produc
 - `sikesra_data_types` and `sikesra_data_subtypes` store data type catalogs previously held in `custom:data-types`;
 - `sikesra_verification_stage_state` stores verification stage state previously held in plugin storage or `state:sikesraVerificationStages`.
 
-During `plugin:install` and `plugin:activate`, legacy KV/plugin-storage values are copied into the dedicated D1 tables and a `runtime-state.d1-migration` audit event is recorded in `sikesra_audit_events`. KV and plugin storage remain compatibility fallbacks only outside production; production reads and writes for canonical settings, region catalogs, data type catalogs, and verification stage state must use D1 or return a clear D1 binding error instead of writing legacy state.
+During `plugin:install` and `plugin:activate`, legacy KV/plugin-storage values are copied into the dedicated D1 tables and a `runtime-state.d1-migration` audit event is recorded in `sikesra_audit_events`. Legacy source rows are retained for backup verification and replay until an explicit governed retention workflow decides otherwise. KV and plugin storage remain compatibility fallbacks only outside production; production reads and writes for canonical settings, region catalogs, data type catalogs, and verification stage state must use D1 or return a clear D1 binding error instead of writing legacy state.
 
 Required patterns:
 

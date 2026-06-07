@@ -2533,7 +2533,7 @@ describe("awcms micro sikesra plugin", () => {
 		expectPublicSafeOutput(result);
 	});
 
-	it("keeps the public status route available when production plugin context omits direct db access", async () => {
+	it("fails closed for public status when production plugin context omits D1 access", async () => {
 		const { ctx } = createMockContext();
 		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
 		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
@@ -2541,14 +2541,49 @@ describe("awcms micro sikesra plugin", () => {
 		delete (ctx as any).db;
 
 		try {
-			const result = (await createNativeRoutes()["public/status"]!.handler({
-				...ctx,
-				input: {},
-			} as any)) as any;
+			await expect(
+				createNativeRoutes()["public/status"]!.handler({
+					...ctx,
+					input: {},
+				} as any),
+			).rejects.toThrow("canonical settings runtime state");
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
 
-			expect(result.plugin).toMatchObject({ id: "awcms-micro-sikesra", visibility: "public-safe" });
-			expect(result.publicAggregate.categories.length).toBeGreaterThan(0);
-			expectPublicSafeOutput(result);
+	it("fails closed for canonical production read routes when D1 is missing", async () => {
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+		try {
+			const { ctx } = createMockContext();
+			const routes = createNativeRoutes();
+			(ctx as any).user = { id: "user-demo-sikesra-admin" };
+			delete (ctx as any).db;
+
+			await expect(
+				routes["settings/get"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: {},
+				} as any),
+			).rejects.toThrow("canonical settings runtime state");
+			await expect(
+				routes["regions/get"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: {},
+				} as any),
+			).rejects.toThrow("canonical official regions runtime state");
+			await expect(
+				routes["data-types/get"]!.handler({
+					...ctx,
+					request: createAdminRequest(),
+					input: {},
+				} as any),
+			).rejects.toThrow("canonical data types runtime state");
 		} finally {
 			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
 			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
@@ -6815,7 +6850,11 @@ describe("awcms micro sikesra plugin", () => {
 				(item: any) => item.id === "audit-legacy-01" && item.summary === "Current audit row",
 			),
 		).toBe(true);
-		expect(dbRows.some((row) => row.collection === "auditEvents")).toBe(false);
+		expect(
+			dbRows.some(
+				(row) => row.plugin_id === "awcms-micro-example" && row.collection === "auditEvents",
+			),
+		).toBe(true);
 		expect(auditTableRows.some((row) => row.id === "audit-legacy-01")).toBe(true);
 		expect(collections.auditEvents.get("audit-legacy-01")).toMatchObject({
 			kind: "current.audit",
@@ -7495,6 +7534,16 @@ describe("awcms micro sikesra plugin", () => {
 		);
 	});
 
+	it("preserves real empty registry API responses in the admin queue", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+
+		expect(adminSource).toContain("const isUsingFixtures = data === null && Boolean(error)");
+		expect(adminSource).toContain("registryNoEntitiesYet");
+		expect(adminSource).toContain("registryNoEntitiesMatch");
+		expect(adminSource).not.toContain("!data?.items || data.items.length === 0");
+		expect(adminSource).not.toContain("? SIKESRA_REFERENCE_FIXTURES.registryEntities\n\t\t: data.items");
+	});
+
 	it("keeps user-facing plugin identity copy out of demonstration wording", () => {
 		for (const path of [
 			"../src/locales/messages.ts",
@@ -7621,5 +7670,13 @@ describe("awcms micro sikesra plugin", () => {
 		expect(source).toContain("sikesra_registry_entities");
 		expect(source).toContain("sikesra_delete_snapshots");
 		expect(source).not.toContain("const requiredProtectedTables = d1Tables.toSorted()");
+	});
+
+	it("preserves legacy storage migration source rows for backup replay", () => {
+		const source = readFileSync(resolve(import.meta.dirname, "../src/runtime.ts"), "utf8");
+
+		expect(source).toContain("Preserve legacy source rows until an operator verifies");
+		expect(source).not.toContain('.deleteFrom("_plugin_storage")\n\t\t\t.where("plugin_id", "=", AWCMS_SIKESRA_LEGACY_PLUGIN_ID)');
+		expect(source).not.toContain('.deleteFrom("_plugin_storage")\n\t\t\t.where("plugin_id", "=", AWCMS_SIKESRA_PLUGIN_ID)');
 	});
 });

@@ -439,7 +439,10 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		invalidTypeCode: "Code must be a unique 2-digit number/alphanumeric.",
 		userLabel: "User",
 		showingReferenceFixturesMessage:
-			"Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records.",
+			"Showing reference fixture data because the registry queue request failed. Use the 'Progressive Input Wizard' tab to add real records after the API is available.",
+		registryNoEntitiesYet:
+			"No registry entities have been created yet. Use the Progressive Input Wizard tab to add the first real record.",
+		registryNoEntitiesMatch: "No entities match the search query and filters.",
 		systemHealthy: "System Active",
 		systemDegraded: "Needs Attention",
 		totalEntities: "Total",
@@ -954,7 +957,10 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		invalidTypeCode: "Kode harus berupa 2 digit angka/karakter unik.",
 		userLabel: "Pengguna",
 		showingReferenceFixturesMessage:
-			"Menampilkan data fixture referensi karena antrean registry saat ini kosong. Gunakan tab 'Wizard Input Progresif' untuk menambahkan record nyata.",
+			"Menampilkan data fixture referensi karena request antrean registry gagal. Gunakan tab 'Wizard Input Progresif' untuk menambahkan record nyata setelah API tersedia.",
+		registryNoEntitiesYet:
+			"Belum ada entitas registry yang dibuat. Gunakan tab Wizard Input Progresif untuk menambahkan record nyata pertama.",
+		registryNoEntitiesMatch: "Tidak ada entitas yang cocok dengan pencarian dan filter.",
 		systemHealthy: "Sistem Aktif",
 		systemDegraded: "Perlu Perhatian",
 		totalEntities: "Total",

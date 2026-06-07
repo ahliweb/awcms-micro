@@ -1927,8 +1927,16 @@ msgid "User"
 msgstr "Pengguna"
 
 msgctxt "awcms.adminCopy.showingReferenceFixturesMessage"
-msgid "Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records."
-msgstr "Menampilkan data fixture referensi karena antrean registry saat ini kosong. Gunakan tab 'Wizard Input Progresif' untuk menambahkan record nyata."
+msgid "Showing reference fixture data because the registry queue request failed. Use the 'Progressive Input Wizard' tab to add real records after the API is available."
+msgstr "Menampilkan data fixture referensi karena request antrean registry gagal. Gunakan tab 'Wizard Input Progresif' untuk menambahkan record nyata setelah API tersedia."
+
+msgctxt "awcms.adminCopy.registryNoEntitiesYet"
+msgid "No registry entities have been created yet. Use the Progressive Input Wizard tab to add the first real record."
+msgstr "Belum ada entitas registry yang dibuat. Gunakan tab Wizard Input Progresif untuk menambahkan record nyata pertama."
+
+msgctxt "awcms.adminCopy.registryNoEntitiesMatch"
+msgid "No entities match the search query and filters."
+msgstr "Tidak ada entitas yang cocok dengan pencarian dan filter."
 
 msgctxt "awcms.adminCopy.systemHealthy"
 msgid "System Active"

@@ -3955,7 +3955,7 @@ function RegistryPage() {
 	const copy = getExampleAdminCopy(i18n.locale);
 	const {
 		data,
-		error: _error,
+		error,
 		loading,
 		reload,
 	} = usePluginData<{ items: SikesraReferenceRegistryEntity[] }>("registry/list");
@@ -4035,10 +4035,10 @@ function RegistryPage() {
 	const [filterType, setFilterType] = React.useState<string>("all");
 	const [searchQuery, setSearchQuery] = React.useState<string>("");
 
-	const isUsingFixtures = !data?.items || data.items.length === 0;
+	const isUsingFixtures = data === null && Boolean(error);
 	const registryEntities = isUsingFixtures
 		? SIKESRA_REFERENCE_FIXTURES.registryEntities
-		: data.items;
+		: (data?.items ?? []);
 
 	const filteredEntities = registryEntities.filter((entity) => {
 		const matchesType = filterType === "all" || entity.entityType === filterType;
@@ -4305,7 +4305,7 @@ function RegistryPage() {
 			</div>
 
 			<div className="grid gap-6">
-				{activeSubTab === "queue" && (
+					{activeSubTab === "queue" && (
 					<Card title={copy.registryQueue} description={copy.registryQueueDescription}>
 						{isUsingFixtures && (
 							<div className="mb-4">
@@ -4349,7 +4349,9 @@ function RegistryPage() {
 							</div>
 							{filteredEntities.length === 0 ? (
 								<div className="p-8 text-center text-sm text-kumo-subtle italic" style={{ padding: "32px" }}>
-									No entities match the search query and filters.
+									{registryEntities.length === 0
+										? copy.registryNoEntitiesYet
+										: copy.registryNoEntitiesMatch}
 								</div>
 							) : (
 								filteredEntities.map((entity) => {
