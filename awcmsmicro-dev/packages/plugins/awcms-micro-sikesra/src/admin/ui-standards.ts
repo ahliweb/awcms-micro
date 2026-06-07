@@ -2,6 +2,8 @@ import { AWCMS_SIKESRA_PLUGIN_ID } from "../runtime.js";
 
 export const SIKESRA_ADMIN_ROUTE_BASE = `/_emdash/admin/plugins/${AWCMS_SIKESRA_PLUGIN_ID}`;
 
+const SCHEME_REGEX = /^[a-z][a-z0-9+.-]*:/i;
+
 export function toSikesraAdminHref(path: string) {
 	const trimmedPath = path.trim();
 	if (
@@ -9,7 +11,7 @@ export function toSikesraAdminHref(path: string) {
 		trimmedPath.includes("\\") ||
 		trimmedPath.includes("?") ||
 		trimmedPath.includes("#") ||
-		/^[a-z][a-z0-9+.-]*:/i.test(trimmedPath) ||
+		SCHEME_REGEX.test(trimmedPath) ||
 		trimmedPath.startsWith("//")
 	) {
 		throw new Error(`Invalid SIKESRA admin path: ${path}`);

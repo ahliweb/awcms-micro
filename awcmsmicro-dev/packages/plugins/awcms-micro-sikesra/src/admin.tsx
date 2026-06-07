@@ -7181,6 +7181,8 @@ export function createSikesraImportPreviewPromotePayload(
 	return { batchId };
 }
 
+const EXCEL_FILE_EXTENSION_REGEX = /\.(xlsx|xls)$/i;
+
 function ImportPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
@@ -7269,7 +7271,7 @@ function ImportPage() {
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-		const allowedWorkbook = /\.(xlsx|xls)$/i.test(file.name);
+		const allowedWorkbook = EXCEL_FILE_EXTENSION_REGEX.test(file.name);
 		if (!allowedWorkbook) {
 			setFileName(null);
 			setError("Select a valid Excel workbook with .xlsx or .xls extension.");

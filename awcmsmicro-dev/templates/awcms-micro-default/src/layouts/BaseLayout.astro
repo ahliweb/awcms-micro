@@ -237,6 +237,44 @@ const pageCtx = createPublicPageContext({
 			.button-link.primary:hover {
 				box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
 			}
+
+			/* Scroll Reveal Utility Classes */
+			.reveal {
+				opacity: 0;
+				transform: translateY(30px);
+				transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: transform, opacity;
+			}
+			.reveal.active {
+				opacity: 1;
+				transform: translateY(0);
+			}
+			.reveal-fade {
+				opacity: 0;
+				transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: opacity;
+			}
+			.reveal-fade.active {
+				opacity: 1;
+			}
+			.reveal-scale {
+				opacity: 0;
+				transform: scale(0.95);
+				transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: transform, opacity;
+			}
+			.reveal-scale.active {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.reveal, .reveal-fade, .reveal-scale {
+					opacity: 1 !important;
+					transform: none !important;
+					transition: none !important;
+				}
+			}
 		</style>
 		<script is:inline>
 			(function() {
@@ -291,6 +329,27 @@ const pageCtx = createPublicPageContext({
 					updateIcons();
 				});
 			}
+
+			// Intersection Observer for Scroll Reveals
+			document.addEventListener('DOMContentLoaded', () => {
+				const reveals = document.querySelectorAll('.reveal, .reveal-fade, .reveal-scale');
+				if ('IntersectionObserver' in window) {
+					const observer = new IntersectionObserver((entries) => {
+						entries.forEach((entry) => {
+							if (entry.isIntersecting) {
+								entry.target.classList.add('active');
+								observer.unobserve(entry.target);
+							}
+						});
+					}, {
+						threshold: 0.05,
+						rootMargin: '0px 0px -50px 0px'
+					});
+					reveals.forEach((element) => observer.observe(element));
+				} else {
+					reveals.forEach((element) => element.classList.add('active'));
+				}
+			});
 		</script>
 	</body>
 </html>

@@ -69,7 +69,8 @@ for (const { file, sql } of readSqlFiles(seedsDir)) {
 		}
 	}
 	const seededRegions = new Set(
-		[...sql.matchAll(/'(__TENANT_ID__)',\s*'(__SITE_ID__)',\s*'([0-9]{2,10})',/g)].map(
+		Array.from(
+			sql.matchAll(/'(__TENANT_ID__)',\s*'(__SITE_ID__)',\s*'([0-9]{2,10})',/g),
 			(match) => match[3],
 		),
 	);

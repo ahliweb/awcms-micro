@@ -144,7 +144,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-split">
+	<section class="landing-split reveal">
 		<div>
 			<p class="landing-eyebrow">{copy.landingProfileEyebrow}</p>
 			<h2>{profilePage?.data.title ?? siteTitle}</h2>
@@ -167,7 +167,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-section">
+	<section class="landing-section reveal">
 		<div class="landing-section__heading">
 			<p class="landing-eyebrow">{copy.landingServicesEyebrow}</p>
 			<h2>{copy.howConnectsTitle}</h2>
@@ -192,7 +192,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-section landing-section--dark">
+	<section class="landing-section landing-section--dark reveal">
 		<div class="landing-section__heading landing-section__heading--inline">
 			<div>
 				<p class="landing-eyebrow">{copy.postsTitle}</p>
@@ -227,7 +227,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-section">
+	<section class="landing-section reveal">
 		<div class="landing-section__heading landing-section__heading--inline">
 			<div>
 				<p class="landing-eyebrow">{copy.galleryKicker}</p>
@@ -271,7 +271,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-split landing-split--faq">
+	<section class="landing-split landing-split--faq reveal">
 		<div>
 			<p class="landing-eyebrow">{copy.newsTitle}</p>
 			<h2>{copy.landingUpdatesHeading}</h2>
@@ -295,7 +295,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		)}
 	</section>
 
-	<section class="landing-contact">
+	<section class="landing-contact reveal">
 		<p class="landing-eyebrow">{copy.landingContactEyebrow}</p>
 		<h2>{copy.ctaTitle}</h2>
 		<p>{copy.ctaSubtitle}</p>
@@ -310,7 +310,7 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		</div>
 	</section>
 
-	<section class="landing-section landing-widgets" aria-label={copy.landingManagedWidgets}>
+	<section class="landing-section landing-widgets reveal" aria-label={copy.landingManagedWidgets}>
 		<div class="landing-section__heading landing-section__heading--inline">
 			<div>
 				<p class="landing-eyebrow">{copy.landingWidgetsEyebrow}</p>
@@ -475,8 +475,22 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-media-card,
 	.landing-update-list a {
 		border: 1px solid var(--surface-border);
-		background: color-mix(in srgb, var(--surface-main) 82%, transparent);
-		box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+		background: rgba(255, 255, 255, 0.04);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		box-shadow: 0 8px 32px rgba(99, 102, 241, 0.03);
+		transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	:root.dark .landing-stats div,
+	:root.dark .landing-panel-card,
+	:root.dark .landing-panel-grid a,
+	:root.dark .landing-feature-card,
+	:root.dark .landing-content-card,
+	:root.dark .landing-media-card,
+	:root.dark .landing-update-list a {
+		background: rgba(15, 23, 42, 0.35);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 	}
 
 	.landing-stats div {
@@ -606,7 +620,6 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		padding: 1.25rem;
 		border-radius: 1.35rem;
 		color: inherit;
-		transition: transform 0.2s ease, border-color 0.2s ease;
 	}
 
 	.landing-feature-card:hover,
@@ -614,8 +627,19 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 	.landing-media-card:hover,
 	.landing-update-list a:hover,
 	.landing-panel-grid a:hover {
-		transform: translateY(-3px);
+		transform: translateY(-6px) scale(1.02);
 		border-color: var(--accent);
+		background-color: rgba(255, 255, 255, 0.08);
+		box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15), 0 0 15px rgba(99, 102, 241, 0.05);
+	}
+
+	:root.dark .landing-feature-card:hover,
+	:root.dark .landing-content-card:hover,
+	:root.dark .landing-media-card:hover,
+	:root.dark .landing-update-list a:hover,
+	:root.dark .landing-panel-grid a:hover {
+		background-color: rgba(15, 23, 42, 0.55);
+		box-shadow: 0 12px 30px rgba(168, 85, 247, 0.2), 0 0 20px rgba(168, 85, 247, 0.08);
 	}
 
 	.landing-feature-card span,

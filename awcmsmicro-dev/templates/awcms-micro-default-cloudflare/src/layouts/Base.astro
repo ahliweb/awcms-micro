@@ -182,8 +182,9 @@ const pageCtx = createPublicPageContext({
 			.site-header-nav .emdash-live-search-input:focus {
 				background: var(--surface-main);
 				border-color: var(--accent);
-				box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+				box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 				outline: none;
+				transform: scale(1.02);
 			}
 			.site-header-nav .emdash-live-search-results {
 				top: calc(100% + 8px) !important;
@@ -353,12 +354,13 @@ const pageCtx = createPublicPageContext({
 				align-items: center;
 				justify-content: center;
 				border-radius: 50%;
-				transition: background-color 0.2s ease;
+				transition: background-color 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 				color: var(--text-main);
 			}
 
 			.theme-toggle-btn:hover {
 				background: rgba(99, 102, 241, 0.1);
+				transform: rotate(20deg) scale(1.1);
 			}
 
 			/* Footer Styles */
@@ -500,7 +502,7 @@ const pageCtx = createPublicPageContext({
 				font-size: 0.9rem;
 				color: var(--text-muted);
 				text-decoration: none;
-				transition: all 0.2s ease;
+				transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 				display: inline-flex;
 				align-items: center;
 				gap: 0.3rem;
@@ -508,7 +510,7 @@ const pageCtx = createPublicPageContext({
 
 			.footer-links-list a:hover {
 				color: var(--accent);
-				transform: translateX(3px);
+				transform: translateX(5px);
 			}
 
 			.footer-admin-link {
@@ -722,6 +724,44 @@ const pageCtx = createPublicPageContext({
 				color: var(--text-main) !important;
 				text-shadow: none;
 			}
+
+			/* Scroll Reveal Utility Classes */
+			.reveal {
+				opacity: 0;
+				transform: translateY(30px);
+				transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: transform, opacity;
+			}
+			.reveal.active {
+				opacity: 1;
+				transform: translateY(0);
+			}
+			.reveal-fade {
+				opacity: 0;
+				transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: opacity;
+			}
+			.reveal-fade.active {
+				opacity: 1;
+			}
+			.reveal-scale {
+				opacity: 0;
+				transform: scale(0.95);
+				transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+				will-change: transform, opacity;
+			}
+			.reveal-scale.active {
+				opacity: 1;
+				transform: scale(1);
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.reveal, .reveal-fade, .reveal-scale {
+					opacity: 1 !important;
+					transform: none !important;
+					transition: none !important;
+				}
+			}
 		</style>
 		<script is:inline>
 			(function() {
@@ -930,6 +970,27 @@ const pageCtx = createPublicPageContext({
 					updateIcons();
 				});
 			}
+
+			// Intersection Observer for Scroll Reveals
+			document.addEventListener('DOMContentLoaded', () => {
+				const reveals = document.querySelectorAll('.reveal, .reveal-fade, .reveal-scale');
+				if ('IntersectionObserver' in window) {
+					const observer = new IntersectionObserver((entries) => {
+						entries.forEach((entry) => {
+							if (entry.isIntersecting) {
+								entry.target.classList.add('active');
+								observer.unobserve(entry.target);
+							}
+						});
+					}, {
+						threshold: 0.05,
+						rootMargin: '0px 0px -50px 0px'
+					});
+					reveals.forEach((element) => observer.observe(element));
+				} else {
+					reveals.forEach((element) => element.classList.add('active'));
+				}
+			});
 		</script>
 	</body>
 </html>
