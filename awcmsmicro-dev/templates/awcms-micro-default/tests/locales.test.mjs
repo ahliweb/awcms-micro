@@ -20,6 +20,12 @@ const readContexts = async (locale) => {
 	);
 };
 
+const MEDIA_SHOWCASE_REGEX = /const mediaShowcaseItems = visibleGalleries/;
+const MEDIA_STRIP_REGEX = /class="landing-media-strip"/;
+const MEDIA_DETAIL_REGEX = /<details class="landing-media-detail">/;
+const CONTACT_CARDS_REGEX = /class="landing-contact-cards"/;
+const WHATSAPP_NUMBER_REGEX = /websiteSocial\.whatsappNumber/;
+
 await test("PO catalogs cover every default template copy key", async () => {
 	const expectedKeys = flattenKeys(AWCMS_MICRO_DEFAULT_PUBLIC_COPY.en).toSorted();
 
@@ -35,9 +41,9 @@ await test("PO catalogs cover every default template copy key", async () => {
 await test("default public template keeps interactive media and contact sections", async () => {
 	const homepage = await readFile(new URL("../src/pages/index.astro", import.meta.url), "utf8");
 
-	assert.match(homepage, /const mediaShowcaseItems = visibleGalleries/);
-	assert.match(homepage, /class="landing-media-strip"/);
-	assert.match(homepage, /<details class="landing-media-detail">/);
-	assert.match(homepage, /class="landing-contact-cards"/);
-	assert.match(homepage, /websiteSocial\.whatsappNumber/);
+	assert.match(homepage, MEDIA_SHOWCASE_REGEX);
+	assert.match(homepage, MEDIA_STRIP_REGEX);
+	assert.match(homepage, MEDIA_DETAIL_REGEX);
+	assert.match(homepage, CONTACT_CARDS_REGEX);
+	assert.match(homepage, WHATSAPP_NUMBER_REGEX);
 });

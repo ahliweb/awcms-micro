@@ -20,6 +20,19 @@ const readContexts = async (locale) => {
 	);
 };
 
+const PAGES_COLLECTION_REGEX = /getEmDashCollection\("pages"/;
+const POSTS_COLLECTION_REGEX = /getEmDashCollection\("posts"/;
+const NEWS_COLLECTION_REGEX = /getEmDashCollection\("news"/;
+const GALLERIES_COLLECTION_REGEX = /getEmDashCollection\("galleries"/;
+const HOMEPAGE_WIDGET_REGEX = /<WidgetArea name="homepage"/;
+const WEBSITE_SOCIAL_REGEX = /getWebsiteSocialConfig\(currentLocale\)/;
+const MEDIA_SHOWCASE_REGEX = /const mediaShowcaseItems = visibleGalleries/;
+const MEDIA_STRIP_REGEX = /class="landing-media-strip"/;
+const MEDIA_DETAIL_REGEX = /<details class="landing-media-detail">/;
+const CONTACT_CARDS_REGEX = /class="landing-contact-cards"/;
+const WHATSAPP_NUMBER_REGEX = /websiteSocial\.whatsappNumber/;
+const BASE_LAYOUT_COLLECTIONS_REGEX = /collections=\{\["posts", "pages", "news", "galleries"\]\}/;
+
 await test("PO catalogs cover every Cloudflare template copy key", async () => {
 	const expectedKeys = flattenKeys(AWCMS_MICRO_CLOUDFLARE_PUBLIC_COPY.en).toSorted();
 
@@ -45,20 +58,20 @@ await test("Cloudflare public template keeps default-template parity surfaces", 
 	const primaryMenus = seed.menus.filter((menu) => menu.name === "primary");
 	const homepageWidgetArea = seed.widgetAreas.find((area) => area.name === "homepage");
 
-	assert.match(homepage, /getEmDashCollection\("pages"/);
-	assert.match(homepage, /getEmDashCollection\("posts"/);
-	assert.match(homepage, /getEmDashCollection\("news"/);
-	assert.match(homepage, /getEmDashCollection\("galleries"/);
-	assert.match(homepage, /<WidgetArea name="homepage"/);
-	assert.match(homepage, /getWebsiteSocialConfig\(currentLocale\)/);
-	assert.match(homepage, /const mediaShowcaseItems = visibleGalleries/);
-	assert.match(homepage, /class="landing-media-strip"/);
-	assert.match(homepage, /<details class="landing-media-detail">/);
-	assert.match(homepage, /class="landing-contact-cards"/);
-	assert.match(homepage, /websiteSocial\.whatsappNumber/);
-	assert.match(baseLayout, /collections=\{\["posts", "pages", "news", "galleries"\]\}/);
-	assert.match(galleryIndex, /getEmDashCollection\("galleries"/);
-	assert.match(galleryDetail, /getEmDashCollection\("galleries"/);
+	assert.match(homepage, PAGES_COLLECTION_REGEX);
+	assert.match(homepage, POSTS_COLLECTION_REGEX);
+	assert.match(homepage, NEWS_COLLECTION_REGEX);
+	assert.match(homepage, GALLERIES_COLLECTION_REGEX);
+	assert.match(homepage, HOMEPAGE_WIDGET_REGEX);
+	assert.match(homepage, WEBSITE_SOCIAL_REGEX);
+	assert.match(homepage, MEDIA_SHOWCASE_REGEX);
+	assert.match(homepage, MEDIA_STRIP_REGEX);
+	assert.match(homepage, MEDIA_DETAIL_REGEX);
+	assert.match(homepage, CONTACT_CARDS_REGEX);
+	assert.match(homepage, WHATSAPP_NUMBER_REGEX);
+	assert.match(baseLayout, BASE_LAYOUT_COLLECTIONS_REGEX);
+	assert.match(galleryIndex, GALLERIES_COLLECTION_REGEX);
+	assert.match(galleryDetail, GALLERIES_COLLECTION_REGEX);
 	assert.ok(collectionSlugs.includes("galleries"), "Cloudflare seed must define galleries");
 	assert.ok(collectionSlugs.includes("website_social"), "Cloudflare seed must define website_social");
 	assert.ok(homepageWidgetArea, "Cloudflare seed must define homepage widget area");

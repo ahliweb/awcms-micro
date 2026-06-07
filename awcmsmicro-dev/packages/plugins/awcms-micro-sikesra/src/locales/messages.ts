@@ -744,7 +744,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		regionsSavedSuccessfully: "Official region data updated successfully.",
 		failedToSaveRegions: "Failed to update official region data.",
 		unsavedRegionsWarning: (saveLabel: string) =>
-			`You have unsaved official region changes on the Cloudflare server. Click the \"${saveLabel}\" button above to save.`,
+			`You have unsaved official region changes on the Cloudflare server. Click the "${saveLabel}" button above to save.`,
 		administrativeRegionExplorer: "Official administrative region explorer",
 		administrativeRegionExplorerDescription:
 			"Browse and manage the official hierarchical region structure below.",
@@ -803,7 +803,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		invalidTypeIdUnique: "ID must be unique.",
 		reset: "Reset",
 		unsavedDataTypesWarning: (saveLabel: string) =>
-			`You have unsaved data type changes on the Cloudflare server. Click the \"${saveLabel}\" button above to save.`,
+			`You have unsaved data type changes on the Cloudflare server. Click the "${saveLabel}" button above to save.`,
 		noParentTypesYet: "No parent data types yet.",
 		selectParentTypeFirst: "Select a parent data type first.",
 		noSubtypesYet: "No sub data types yet.",
@@ -1738,7 +1738,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		regionsSavedSuccessfully: "Data wilayah resmi berhasil diperbarui.",
 		failedToSaveRegions: "Gagal memperbarui data wilayah resmi.",
 		unsavedRegionsWarning: (saveLabel: string) =>
-			`Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik tombol \"${saveLabel}\" di atas untuk menyimpan.`,
+			`Anda memiliki perubahan wilayah resmi yang belum disimpan ke server Cloudflare. Klik tombol "${saveLabel}" di atas untuk menyimpan.`,
 		administrativeRegionExplorer: "Explorer Wilayah Administratif Resmi",
 		administrativeRegionExplorerDescription:
 			"Telusuri dan kelola struktur hierarki wilayah resmi di bawah ini.",
@@ -1798,7 +1798,7 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 		invalidTypeIdUnique: "ID harus unik.",
 		reset: "Reset",
 		unsavedDataTypesWarning: (saveLabel: string) =>
-			`Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol \"${saveLabel}\" di atas untuk menyimpan.`,
+			`Anda memiliki perubahan jenis data yang belum disimpan ke server Cloudflare. Klik tombol "${saveLabel}" di atas untuk menyimpan.`,
 		noParentTypesYet: "Belum ada jenis data induk.",
 		selectParentTypeFirst: "Pilih jenis data induk terlebih dahulu.",
 		noSubtypesYet: "Belum ada sub jenis data.",

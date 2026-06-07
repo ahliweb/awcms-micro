@@ -2265,7 +2265,7 @@ function CustomAttributeDefinitionsPage() {
 								>
 									<Checkbox.Group
 										legend={label}
-										value={Boolean(formState[key]) ? [String(key)] : []}
+										value={formState[key] ? [String(key)] : []}
 										onValueChange={(values: string[]) =>
 											setFormState((current) => ({ ...current, [key]: values.includes(String(key)) }))
 										}

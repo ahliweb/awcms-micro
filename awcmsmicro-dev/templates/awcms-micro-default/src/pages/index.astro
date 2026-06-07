@@ -125,6 +125,14 @@ const postsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.postsMe
 const galleryWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.galleryMessage);
 const newsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.newsMessage);
 const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widgetsMessage);
+
+const storageBaseUrl = import.meta.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL 
+	|| (typeof process !== "undefined" ? process.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL : undefined)
+	|| (Astro.locals as any).runtime?.env?.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL
+	|| "https://awcms-micro-s3.ahlikoding.com";
+
+const dashboardMockupUrl = `${storageBaseUrl}/dashboard_mockup.png`;
+const networkShowcaseUrl = `${storageBaseUrl}/network_showcase.png`;
 ---
 
 <BaseLayout title={siteTitle} description={siteTagline} showFooterWidgets={false}>
@@ -156,28 +164,18 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 				))}
 			</div>
 		</div>
-		<div class="landing-hero__panel" aria-label={copy.landingManagedSurface}>
-			<div class="landing-panel-card landing-panel-card--accent">
-				<span>{copy.landingAdminManaged}</span>
-				<strong>{copy.landingPagesPostsGallery}</strong>
-			</div>
-			<div class="landing-panel-grid">
-				{servicePages.map((page) => (
-					<a href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
-						<span>{copy.openPage}</span>
-						<strong>{page.data.title}</strong>
-					</a>
-				))}
+		<div class="landing-hero__visual reveal-scale">
+			<div class="hero-mockup-wrapper">
+				<img src={dashboardMockupUrl} alt="AWCMS Micro Developer Dashboard" class="hero-mockup-image" loading="eager" />
+				<div class="hero-mockup-glow"></div>
 			</div>
 		</div>
 	</section>
 
 	<section class="landing-split reveal">
-		<div>
+		<div class="landing-split__copy">
 			<p class="landing-eyebrow">{copy.landingProfileEyebrow}</p>
 			<h2>{profilePage?.data.title ?? siteTitle}</h2>
-		</div>
-		<div>
 			<p class="landing-lead">{siteTagline}</p>
 			<p class="landing-muted">{copy.landingProfileDescription}</p>
 			<div class="landing-inline-actions">
@@ -191,6 +189,12 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 						{websiteSocial.profileLabel}
 					</a>
 				)}
+			</div>
+		</div>
+		<div class="landing-split__visual reveal-scale">
+			<div class="split-image-wrapper">
+				<img src={networkShowcaseUrl} alt="Cloudflare Edge Network Showcase" class="split-image" loading="lazy" />
+				<div class="split-image-glow"></div>
 			</div>
 		</div>
 	</section>
@@ -865,10 +869,136 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 		justify-content: center;
 	}
 
+	.landing-hero__visual {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+	}
+
+	.hero-mockup-wrapper {
+		position: relative;
+		width: 100%;
+		border-radius: 1.5rem;
+		border: 1px solid var(--surface-border);
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+		padding: 0.5rem;
+		overflow: hidden;
+		transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+		animation: hero-image-float 6s ease-in-out infinite;
+	}
+
+	.hero-mockup-image {
+		width: 100%;
+		height: auto;
+		border-radius: 1rem;
+		display: block;
+		object-fit: cover;
+		transition: transform 0.5s ease;
+	}
+
+	.hero-mockup-wrapper:hover {
+		transform: scale(1.03) rotate(-1deg);
+		box-shadow: 0 30px 70px rgba(99, 102, 241, 0.25), 0 0 30px rgba(99, 102, 241, 0.1);
+		border-color: var(--accent);
+	}
+
+	.hero-mockup-wrapper:hover .hero-mockup-image {
+		transform: scale(1.02);
+	}
+
+	.hero-mockup-glow {
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 70%);
+		pointer-events: none;
+		mix-blend-mode: screen;
+		opacity: 0.8;
+	}
+
+	@keyframes hero-image-float {
+		0%, 100% {
+			transform: translateY(0) rotate(0deg);
+		}
+		50% {
+			transform: translateY(-12px) rotate(0.5deg);
+		}
+	}
+
+	.landing-split__visual {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+	}
+
+	.split-image-wrapper {
+		position: relative;
+		width: 100%;
+		max-width: 420px;
+		border-radius: 1.5rem;
+		border: 1px solid var(--surface-border);
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		padding: 0.5rem;
+		overflow: hidden;
+		transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+		animation: split-image-float 5s ease-in-out infinite alternate;
+	}
+
+	.split-image {
+		width: 100%;
+		height: auto;
+		border-radius: 1rem;
+		display: block;
+		object-fit: cover;
+		transition: transform 0.5s ease;
+	}
+
+	.split-image-wrapper:hover {
+		transform: scale(1.03) rotate(1deg);
+		box-shadow: 0 30px 60px rgba(14, 165, 233, 0.25), 0 0 25px rgba(14, 165, 233, 0.1);
+		border-color: var(--accent);
+	}
+
+	.split-image-wrapper:hover .split-image {
+		transform: scale(1.02);
+	}
+
+	.split-image-glow {
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.15), transparent 70%);
+		pointer-events: none;
+		mix-blend-mode: screen;
+		opacity: 0.8;
+	}
+
+	@keyframes split-image-float {
+		0% {
+			transform: translateY(0) rotate(0deg);
+		}
+		100% {
+			transform: translateY(-8px) rotate(-0.5deg);
+		}
+	}
+
 	@media (max-width: 820px) {
 		.landing-hero,
 		.landing-split {
 			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.landing-split__visual {
+			order: -1;
 		}
 
 		.landing-slider-row {
@@ -881,6 +1011,15 @@ const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widge
 
 		.landing-section-actions {
 			justify-content: flex-start;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hero-mockup-wrapper, .split-image-wrapper {
+			animation: none !important;
+		}
+		.hero-mockup-wrapper:hover, .split-image-wrapper:hover {
+			transform: none !important;
 		}
 	}
 </style>
