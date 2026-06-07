@@ -2017,11 +2017,11 @@ export const SIKESRA_ADMIN_COPY_MESSAGE_KEYS = adminCopyMessageKeys(
 export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 	en: {
 		"awcms.nav.group.dashboard": "Dashboard",
-		"awcms.nav.group.content": "Content",
+		"awcms.nav.group.data": "Data Management",
 		"awcms.nav.group.governance": "Governance",
 		"awcms.nav.group.settings": "Settings",
 		"awcms.nav.overview": "Overview",
-		"awcms.nav.pages": "Pages",
+		"awcms.nav.registry": "Registry",
 		"awcms.nav.documents": "Documents",
 		"awcms.nav.fieldStandards": "Field Standards",
 		"awcms.nav.import": "Import Excel",
@@ -2110,11 +2110,11 @@ export const SIKESRA_PO_LOCALE_MESSAGES: TranslationMessages = {
 	},
 	id: {
 		"awcms.nav.group.dashboard": "Dasbor",
-		"awcms.nav.group.content": "Konten",
+		"awcms.nav.group.data": "Manajemen Data",
 		"awcms.nav.group.governance": "Tata Kelola",
 		"awcms.nav.group.settings": "Pengaturan",
 		"awcms.nav.overview": "Ikhtisar",
-		"awcms.nav.pages": "Halaman",
+		"awcms.nav.registry": "Registry",
 		"awcms.nav.documents": "Dokumen",
 		"awcms.nav.fieldStandards": "Standar Field",
 		"awcms.nav.import": "Impor Excel",

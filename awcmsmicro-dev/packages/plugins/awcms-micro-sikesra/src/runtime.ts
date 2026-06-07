@@ -658,17 +658,17 @@ export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 			},
 			{
 				id: "content-group",
-				labelKey: "awcms.nav.group.content",
-				fallbackLabel: "Content",
+				labelKey: "awcms.nav.group.data",
+				fallbackLabel: "Data Management",
 				icon: "file",
 				sortOrder: 20,
 				sidebarPlacement: "before-emdash-default",
 				sidebarPriority: 20,
 				items: [
 					{
-						id: "pages",
-						labelKey: "awcms.nav.pages",
-						fallbackLabel: "Pages",
+						id: "registry",
+						labelKey: "awcms.nav.registry",
+						fallbackLabel: "Registry",
 						path: "/registry",
 						icon: "grid",
 						sortOrder: 10,
