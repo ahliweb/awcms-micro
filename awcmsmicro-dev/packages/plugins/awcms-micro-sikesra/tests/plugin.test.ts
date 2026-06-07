@@ -3836,6 +3836,19 @@ describe("awcms micro sikesra plugin", () => {
 		expect(conflictUpdateSource).not.toContain("deleted_at: null,");
 	});
 
+	it("does not clear soft-delete markers in runtime D1 conflict updates", () => {
+		const runtimeSource = readFileSync(resolve(import.meta.dirname, "../src/runtime.ts"), "utf8");
+		const conflictUpdateSources = Array.from(
+			runtimeSource.matchAll(/\.doUpdateSet\(\{[\s\S]*?\.execute\(\);/g),
+			(match) => match[0],
+		);
+		const resurrectingUpdates = conflictUpdateSources.filter((source) =>
+			source.includes("deleted_at: null"),
+		);
+
+		expect(resurrectingUpdates).toEqual([]);
+	});
+
 	it("advances one verification stage and persists the new state", async () => {
 		const { ctx, collections, verificationStageTableRows, verificationEventTableRows } =
 			createMockContext();

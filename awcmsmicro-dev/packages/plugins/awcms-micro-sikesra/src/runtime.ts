@@ -2415,24 +2415,26 @@ async function persistD1RegistryEntity(
 			updated_by: null,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				sikesra_id_20: entity.sikesraId20 ?? null,
-				code: entity.code,
-				label: entity.label,
-				entity_type: entity.entityType,
-				subtype_code: subtypeCode,
-				sensitivity: entity.sensitivity,
-				province_code: entity.region.provinceCode || null,
-				regency_code: entity.region.regencyCode || null,
-				district_code: entity.region.districtCode || null,
-				village_code: entity.region.villageCode || null,
-				verification_stage: entity.verificationStage,
-				input_level: entity.inputLevel,
-				public_summary: entity.publicSummary,
-				updated_at: now,
-				deleted_at: null,
-				updated_by: null,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					sikesra_id_20: entity.sikesraId20 ?? null,
+					code: entity.code,
+					label: entity.label,
+					entity_type: entity.entityType,
+					subtype_code: subtypeCode,
+					sensitivity: entity.sensitivity,
+					province_code: entity.region.provinceCode || null,
+					regency_code: entity.region.regencyCode || null,
+					district_code: entity.region.districtCode || null,
+					village_code: entity.region.villageCode || null,
+					verification_stage: entity.verificationStage,
+					input_level: entity.inputLevel,
+					public_summary: entity.publicSummary,
+					updated_at: now,
+					updated_by: null,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -2468,13 +2470,15 @@ async function persistD1RegistryEntity(
 			.insertInto(detailTable)
 			.values(detailRow)
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "registry_entity_id"]).doUpdateSet({
-					detail_json: detailRow.detail_json,
-					field_standard_version: "draft",
-					updated_at: now,
-					deleted_at: null,
-					updated_by: null,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "registry_entity_id"])
+					.doUpdateSet({
+						detail_json: detailRow.detail_json,
+						field_standard_version: "draft",
+						updated_at: now,
+						updated_by: null,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -2524,12 +2528,14 @@ async function generateD1SikesraId20(
 			updated_by: params.actor ?? null,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "sequence_key"]).doUpdateSet({
-				last_value: nextValue,
-				updated_at: now,
-				deleted_at: null,
-				updated_by: params.actor ?? null,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "sequence_key"])
+				.doUpdateSet({
+					last_value: nextValue,
+					updated_at: now,
+					updated_by: params.actor ?? null,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -2803,13 +2809,15 @@ async function persistD1SupportingDocument(
 			updated_by: doc.verifiedBy,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				classification: doc.sensitivity,
-				validation_status: validationStatus,
-				updated_at: now,
-				deleted_at: null,
-				updated_by: doc.verifiedBy,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					classification: doc.sensitivity,
+					validation_status: validationStatus,
+					updated_at: now,
+					updated_by: doc.verifiedBy,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -2838,17 +2846,19 @@ async function persistD1SupportingDocument(
 			updated_by: doc.verifiedBy,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				registry_entity_id: doc.registryEntityId,
-				file_object_id: fileObjectId,
-				document_type: doc.documentType,
-				title: doc.title,
-				classification: doc.sensitivity,
-				issued_at: doc.issuedAt,
-				updated_at: now,
-				deleted_at: null,
-				updated_by: doc.verifiedBy,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					registry_entity_id: doc.registryEntityId,
+					file_object_id: fileObjectId,
+					document_type: doc.documentType,
+					title: doc.title,
+					classification: doc.sensitivity,
+					issued_at: doc.issuedAt,
+					updated_at: now,
+					updated_by: doc.verifiedBy,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -3150,14 +3160,16 @@ async function persistD1VerificationStageState(
 				deleted_at: null,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "registry_entity_id"]).doUpdateSet({
-					stage,
-					current_level: getVerificationLevel(stage),
-					next_level: nextStage ? getVerificationLevel(nextStage) : null,
-					status: "pending",
-					updated_at: now,
-					deleted_at: null,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "registry_entity_id"])
+					.doUpdateSet({
+						stage,
+						current_level: getVerificationLevel(stage),
+						next_level: nextStage ? getVerificationLevel(nextStage) : null,
+						status: "pending",
+						updated_at: now,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -3955,14 +3967,16 @@ async function persistD1UserRoleAssignment(ctx: PluginContext, assignment: UserR
 					updated_by: getRequestUserId(ctx),
 				})
 				.onConflict((oc: any) =>
-					oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-						emdash_user_id: assignment.userId,
-						sikesra_role_slug: roleSlug,
-						is_active: assignment.isActive ? 1 : 0,
-						updated_at: now,
-						deleted_at: null,
-						updated_by: getRequestUserId(ctx),
-					}),
+					oc
+						.columns(["tenant_id", "site_id", "id"])
+						.doUpdateSet({
+							emdash_user_id: assignment.userId,
+							sikesra_role_slug: roleSlug,
+							is_active: assignment.isActive ? 1 : 0,
+							updated_at: now,
+							updated_by: getRequestUserId(ctx),
+						})
+						.where("deleted_at", "is", null),
 				)
 				.execute();
 		}
@@ -3994,15 +4008,17 @@ async function persistD1PermissionCatalogItem(ctx: PluginContext, permission: Ac
 			updated_by: getRequestUserId(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "slug"]).doUpdateSet({
-				scope: permission.scope,
-				label: permission.label,
-				description: permission.description || null,
-				status: "active",
-				updated_at: now,
-				deleted_at: null,
-				updated_by: getRequestUserId(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "slug"])
+				.doUpdateSet({
+					scope: permission.scope,
+					label: permission.label,
+					description: permission.description || null,
+					status: "active",
+					updated_at: now,
+					updated_by: getRequestUserId(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -4028,14 +4044,16 @@ async function persistD1RoleCatalogItem(ctx: PluginContext, role: AccessRole) {
 			updated_by: getRequestUserId(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "slug"]).doUpdateSet({
-				label: role.label,
-				description: role.description || null,
-				status: "active",
-				updated_at: now,
-				deleted_at: null,
-				updated_by: getRequestUserId(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "slug"])
+				.doUpdateSet({
+					label: role.label,
+					description: role.description || null,
+					status: "active",
+					updated_at: now,
+					updated_by: getRequestUserId(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -4064,12 +4082,14 @@ async function persistD1RolePermissionAssignment(
 				updated_by: getRequestUserId(ctx),
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "role_slug", "permission_slug"]).doUpdateSet({
-					effect: "allow",
-					updated_at: now,
-					deleted_at: null,
-					updated_by: getRequestUserId(ctx),
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "role_slug", "permission_slug"])
+					.doUpdateSet({
+						effect: "allow",
+						updated_at: now,
+						updated_by: getRequestUserId(ctx),
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -4101,18 +4121,20 @@ async function persistD1UserScopeAssignment(ctx: PluginContext, assignment: User
 			updated_by: getRequestUserId(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				region_scope_type: assignment.regionScopeType,
-				region_scope_code: assignment.regionScopeCode || null,
-				organization_scope_type: assignment.organizationScopeType,
-				organization_scope_code: assignment.organizationScopeCode || null,
-				is_active: assignment.isActive ? 1 : 0,
-				valid_from: assignment.validFrom || null,
-				valid_until: assignment.validUntil || null,
-				updated_at: now,
-				deleted_at: null,
-				updated_by: getRequestUserId(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					region_scope_type: assignment.regionScopeType,
+					region_scope_code: assignment.regionScopeCode || null,
+					organization_scope_type: assignment.organizationScopeType,
+					organization_scope_code: assignment.organizationScopeCode || null,
+					is_active: assignment.isActive ? 1 : 0,
+					valid_from: assignment.validFrom || null,
+					valid_until: assignment.validUntil || null,
+					updated_at: now,
+					updated_by: getRequestUserId(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -4264,12 +4286,14 @@ async function persistD1AbacSubjectAssignment(
 				updated_by: getRequestUserId(ctx),
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					attribute_value: value,
-					updated_at: now,
-					deleted_at: null,
-					updated_by: getRequestUserId(ctx),
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						attribute_value: value,
+						updated_at: now,
+						updated_by: getRequestUserId(ctx),
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -4301,15 +4325,17 @@ async function persistD1AbacAttributeDefinition(
 			updated_by: getRequestUserId(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "key", "target_type"]).doUpdateSet({
-				data_type: "string",
-				label: attribute.label,
-				description: attribute.description || null,
-				status: "active",
-				updated_at: now,
-				deleted_at: null,
-				updated_by: getRequestUserId(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "key", "target_type"])
+				.doUpdateSet({
+					data_type: "string",
+					label: attribute.label,
+					description: attribute.description || null,
+					status: "active",
+					updated_at: now,
+					updated_by: getRequestUserId(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -4340,12 +4366,14 @@ async function persistD1AbacResourceAssignment(
 				updated_by: getRequestUserId(ctx),
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					attribute_value: value,
-					updated_at: now,
-					deleted_at: null,
-					updated_by: getRequestUserId(ctx),
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						attribute_value: value,
+						updated_at: now,
+						updated_by: getRequestUserId(ctx),
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -4378,19 +4406,21 @@ async function persistD1AbacPolicyRule(ctx: PluginContext, policy: AbacPolicyRul
 			updated_by: getRequestUserId(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				effect: policy.effect,
-				actions_json: JSON.stringify(policy.actions),
-				subject_conditions_json: JSON.stringify(policy.requiredSubject),
-				resource_conditions_json: JSON.stringify({
-					...policy.requiredResource,
-					__context: policy.requiredContext,
-				}),
-				status: "active",
-				updated_at: now,
-				deleted_at: null,
-				updated_by: getRequestUserId(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					effect: policy.effect,
+					actions_json: JSON.stringify(policy.actions),
+					subject_conditions_json: JSON.stringify(policy.requiredSubject),
+					resource_conditions_json: JSON.stringify({
+						...policy.requiredResource,
+						__context: policy.requiredContext,
+					}),
+					status: "active",
+					updated_at: now,
+					updated_by: getRequestUserId(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -5355,15 +5385,17 @@ async function persistD1DuplicateCandidate(
 			updated_by: actorFromRoute(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				score: params.score,
-				risk_level: params.riskLevel,
-				reason_json: JSON.stringify(params.reasons),
-				status: "open",
-				updated_at: now,
-				deleted_at: null,
-				updated_by: actorFromRoute(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					score: params.score,
+					risk_level: params.riskLevel,
+					reason_json: JSON.stringify(params.reasons),
+					status: "open",
+					updated_at: now,
+					updated_by: actorFromRoute(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -5414,12 +5446,14 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				mapping_json: JSON.stringify(isRecord(input.mapping) ? input.mapping : {}),
-				updated_at: now,
-				deleted_at: null,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					mapping_json: JSON.stringify(isRecord(input.mapping) ? input.mapping : {}),
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -5448,16 +5482,18 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				status: invalidRows.length > 0 ? "validation_failed" : "validated",
-				total_rows: rows.length,
-				valid_rows: rows.length - invalidRows.length,
-				invalid_rows: invalidRows.length,
-				error_summary_json: JSON.stringify({ invalidRows }),
-				updated_at: now,
-				deleted_at: null,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					status: invalidRows.length > 0 ? "validation_failed" : "validated",
+					total_rows: rows.length,
+					valid_rows: rows.length - invalidRows.length,
+					invalid_rows: invalidRows.length,
+					error_summary_json: JSON.stringify({ invalidRows }),
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 
@@ -5509,16 +5545,18 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 				updated_by: actor,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					mapped_row_json: JSON.stringify(rawRow),
-					validation_status: invalidRowNumbers.has(rowNumber) ? "invalid" : "valid",
-					validation_errors_json: JSON.stringify(rowIssues),
-					duplicate_status: duplicateStatus,
-					promotion_status: "not_promoted",
-					updated_at: now,
-					deleted_at: null,
-					updated_by: actor,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						mapped_row_json: JSON.stringify(rawRow),
+						validation_status: invalidRowNumbers.has(rowNumber) ? "invalid" : "valid",
+						validation_errors_json: JSON.stringify(rowIssues),
+						duplicate_status: duplicateStatus,
+						promotion_status: "not_promoted",
+						updated_at: now,
+						updated_by: actor,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -5549,12 +5587,15 @@ async function createD1ImportBatch(ctx: PluginContext, input: unknown) {
 				updated_by: actor,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					status: "duplicate_review",
-					duplicate_risk_rows: duplicateRiskRows,
-					updated_at: now,
-					updated_by: actor,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						status: "duplicate_review",
+						duplicate_risk_rows: duplicateRiskRows,
+						updated_at: now,
+						updated_by: actor,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -5647,12 +5688,15 @@ async function markD1ImportRowPromoted(
 			updated_by: actorFromRoute(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				promotion_status: "promoted",
-				promoted_registry_entity_id: registryEntityId,
-				updated_at: now,
-				updated_by: actorFromRoute(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					promotion_status: "promoted",
+					promoted_registry_entity_id: registryEntityId,
+					updated_at: now,
+					updated_by: actorFromRoute(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 }
@@ -5712,11 +5756,14 @@ async function setD1ImportRowDuplicateStatus(
 			updated_by: actorFromRoute(ctx),
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				duplicate_status: duplicateStatus,
-				updated_at: now,
-				updated_by: actorFromRoute(ctx),
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					duplicate_status: duplicateStatus,
+					updated_at: now,
+					updated_by: actorFromRoute(ctx),
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	return true;
@@ -5808,11 +5855,14 @@ async function persistImportCustomAttributeValues(
 				updated_by: actor,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					value_display: normalized.valueDisplay,
-					updated_at: now,
-					updated_by: actor,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						value_display: normalized.valueDisplay,
+						updated_at: now,
+						updated_by: actor,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 		const metadata = {
@@ -6741,11 +6791,14 @@ const customAttributeDefinitionsSaveRoute: SharedRouteHandler = async (routeCtx,
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				label: getString(input, "label") ?? key,
-				updated_at: now,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					label: getString(input, "label") ?? key,
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	await appendCustomAttributeChangeEvent(ctx, {
@@ -6852,11 +6905,14 @@ const customAttributeValuesSaveRoute: SharedRouteHandler = async (routeCtx, ctx)
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				value_display: normalized.valueDisplay,
-				updated_at: now,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					value_display: normalized.valueDisplay,
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	const auditMetadata = { id, definitionId, registryEntityId, valueRedacted: true };
@@ -7187,11 +7243,14 @@ const permanentDeleteApproveRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				status: decision,
-				updated_at: now,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					status: decision,
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	await db
@@ -7403,11 +7462,14 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 			updated_by: actor,
 		})
 		.onConflict((oc: any) =>
-			oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-				status: "executed",
-				updated_at: now,
-				updated_by: actor,
-			}),
+			oc
+				.columns(["tenant_id", "site_id", "id"])
+				.doUpdateSet({
+					status: "executed",
+					updated_at: now,
+					updated_by: actor,
+				})
+				.where("deleted_at", "is", null),
 		)
 		.execute();
 	await db
@@ -8496,15 +8558,17 @@ async function persistD1RegionTree(
 				deleted_at: null,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "code"]).doUpdateSet({
-					parent_code: row.parentCode,
-					level: row.level,
-					name: row.name,
-					...sourceColumn,
-					status: "active",
-					updated_at: now,
-					deleted_at: null,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "code"])
+					.doUpdateSet({
+						parent_code: row.parentCode,
+						level: row.level,
+						name: row.name,
+						...sourceColumn,
+						status: "active",
+						updated_at: now,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 	}
@@ -8606,13 +8670,15 @@ async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
 				deleted_at: null,
 			})
 			.onConflict((oc: any) =>
-				oc.columns(["tenant_id", "site_id", "id"]).doUpdateSet({
-					code: item.code,
-					label: item.label,
-					status: "active",
-					updated_at: now,
-					deleted_at: null,
-				}),
+				oc
+					.columns(["tenant_id", "site_id", "id"])
+					.doUpdateSet({
+						code: item.code,
+						label: item.label,
+						status: "active",
+						updated_at: now,
+					})
+					.where("deleted_at", "is", null),
 			)
 			.execute();
 
@@ -8631,12 +8697,14 @@ async function persistD1DataTypes(ctx: PluginContext, input: unknown) {
 					deleted_at: null,
 				})
 				.onConflict((oc: any) =>
-					oc.columns(["tenant_id", "site_id", "data_type_id", "code"]).doUpdateSet({
-						label: subtype.label,
-						status: "active",
-						updated_at: now,
-						deleted_at: null,
-					}),
+					oc
+						.columns(["tenant_id", "site_id", "data_type_id", "code"])
+						.doUpdateSet({
+							label: subtype.label,
+							status: "active",
+							updated_at: now,
+						})
+						.where("deleted_at", "is", null),
 				)
 				.execute();
 		}
