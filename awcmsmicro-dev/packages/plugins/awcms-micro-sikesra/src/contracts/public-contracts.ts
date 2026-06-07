@@ -1,13 +1,23 @@
 export interface SikesraPublicAggregateCategoryDto {
-	key: string;
+	code: string;
 	label: string;
-	count: number | null;
+	total: number;
+	verified: number;
 	suppressed: boolean;
-	suppressionReason?: string;
+	suppressionReason?: string | null;
 }
 
 export interface SikesraPublicAggregateDto {
-	statusLabel: string;
 	categories: SikesraPublicAggregateCategoryDto[];
-	updatedAt?: string;
+	caveat: string;
+}
+
+export interface SikesraPublicStatusDto {
+	plugin: {
+		id: "awcms-micro-sikesra";
+		visibility: "public-safe";
+	};
+	status: string;
+	governanceMode: string;
+	publicAggregate: SikesraPublicAggregateDto;
 }

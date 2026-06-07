@@ -61,16 +61,22 @@ describe("SIKESRA services", () => {
 	it("keeps public aggregate suppression inside the service boundary", () => {
 		expect(
 			createPublicAggregateService().serializeAggregate({
-				statusLabel: "Public",
-				categories: [{ key: "lks", label: "LKS", count: 1, suppressed: true }],
+				caveat: "Public aggregate only exposes coarse counts.",
+				categories: [{ code: "lks", label: "LKS", total: 1, verified: 1, suppressed: true }],
 			}),
 		).toEqual({
 			ok: true,
 			data: {
-				statusLabel: "Public",
-				updatedAt: undefined,
+				caveat: "Public aggregate only exposes coarse counts.",
 				categories: [
-					{ key: "lks", label: "LKS", count: null, suppressed: true, suppressionReason: undefined },
+					{
+						code: "lks",
+						label: "LKS",
+						total: 0,
+						verified: 0,
+						suppressed: true,
+						suppressionReason: undefined,
+					},
 				],
 			},
 		});

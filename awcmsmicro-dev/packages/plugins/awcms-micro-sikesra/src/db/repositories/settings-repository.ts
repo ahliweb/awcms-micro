@@ -35,7 +35,7 @@ export function createSettingsRepository(db: SikesraD1Database, scope: SikesraRe
 			const now = new Date().toISOString();
 			const statement = db
 				.prepare(
-					`INSERT INTO ${SIKESRA_D1_TABLES.settings} (tenant_id, site_id, key, value_json, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, NULL) ON CONFLICT(tenant_id, site_id, key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at, deleted_at = NULL`,
+					`INSERT INTO ${SIKESRA_D1_TABLES.settings} (tenant_id, site_id, key, value_json, created_at, updated_at, deleted_at) VALUES (?, ?, ?, ?, ?, ?, NULL) ON CONFLICT(tenant_id, site_id, key) DO UPDATE SET value_json = excluded.value_json, updated_at = excluded.updated_at WHERE ${SIKESRA_D1_TABLES.settings}.deleted_at IS NULL`,
 				)
 				.bind(scope.tenantId, scope.siteId, key, JSON.stringify(value), now, now);
 

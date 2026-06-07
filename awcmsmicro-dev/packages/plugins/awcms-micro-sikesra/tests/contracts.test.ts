@@ -88,25 +88,26 @@ describe("SIKESRA integration contracts", () => {
 	it("suppresses public aggregate counts when requested", () => {
 		expect(
 			serializePublicAggregate({
-				statusLabel: "Public",
+				caveat: "Public aggregate only exposes coarse counts.",
 				categories: [
 					{
-						key: "anak_yatim",
+						code: "anak_yatim",
 						label: "Anak Yatim",
-						count: 2,
+						total: 2,
+						verified: 1,
 						suppressed: true,
 						suppressionReason: "small_cell",
 					},
 				],
 			}),
 		).toEqual({
-			statusLabel: "Public",
-			updatedAt: undefined,
+			caveat: "Public aggregate only exposes coarse counts.",
 			categories: [
 				{
-					key: "anak_yatim",
+					code: "anak_yatim",
 					label: "Anak Yatim",
-					count: null,
+					total: 0,
+					verified: 0,
 					suppressed: true,
 					suppressionReason: "small_cell",
 				},

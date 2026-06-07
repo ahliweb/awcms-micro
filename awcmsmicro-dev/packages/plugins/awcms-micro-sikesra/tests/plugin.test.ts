@@ -3321,7 +3321,8 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("runAbacEnforceDemo<");
 		expect(adminSource).toContain("createImportBatch<");
 		expect(adminSource).toContain("promoteImportRows<");
-		expect(adminSource).toContain("/\\.(xlsx|xls)$/i.test(file.name)");
+		expect(adminSource).toContain("const EXCEL_FILE_EXTENSION_REGEX = /\\.(xlsx|xls)$/i;");
+		expect(adminSource).toContain("EXCEL_FILE_EXTENSION_REGEX.test(file.name)");
 		expect(adminSource).toContain(
 			"Type PERMANENT DELETE before executing the permanent delete request.",
 		);

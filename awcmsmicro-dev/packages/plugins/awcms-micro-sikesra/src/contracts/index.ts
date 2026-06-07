@@ -23,6 +23,7 @@ export type {
 export type {
 	SikesraPublicAggregateCategoryDto,
 	SikesraPublicAggregateDto,
+	SikesraPublicStatusDto,
 } from "./public-contracts.js";
 export type {
 	SikesraVerificationDecisionRequest,

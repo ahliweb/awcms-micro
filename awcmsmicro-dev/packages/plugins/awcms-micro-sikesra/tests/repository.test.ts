@@ -98,6 +98,8 @@ describe("SIKESRA D1 repositories", () => {
 		expect(calls[0]?.bindings).toEqual(["tenant-1", "site-1", "publicStatusLabel"]);
 		expect(calls[1]?.query).toContain("INSERT INTO sikesra_settings");
 		expect(calls[1]?.query).toContain("ON CONFLICT(tenant_id, site_id, key)");
+		expect(calls[1]?.query).toContain("WHERE sikesra_settings.deleted_at IS NULL");
+		expect(calls[1]?.query).not.toContain("deleted_at = NULL");
 		expect(calls[1]?.bindings.slice(0, 4)).toEqual([
 			"tenant-1",
 			"site-1",

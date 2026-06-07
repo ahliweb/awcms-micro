@@ -4,12 +4,12 @@ export function serializePublicAggregate(
 	input: SikesraPublicAggregateDto,
 ): SikesraPublicAggregateDto {
 	return {
-		statusLabel: input.statusLabel,
-		updatedAt: input.updatedAt,
+		caveat: input.caveat,
 		categories: input.categories.map((category) => ({
-			key: category.key,
+			code: category.code,
 			label: category.label,
-			count: category.suppressed ? null : category.count,
+			total: category.suppressed ? 0 : category.total,
+			verified: category.suppressed ? 0 : category.verified,
 			suppressed: category.suppressed,
 			suppressionReason: category.suppressionReason,
 		})),

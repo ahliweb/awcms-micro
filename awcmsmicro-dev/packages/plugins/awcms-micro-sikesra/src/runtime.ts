@@ -17,6 +17,7 @@ import {
 } from "./fixtures.js";
 import { SIKESRA_PO_LOCALE_MESSAGES } from "./locales/messages.js";
 import { adaptToEmdashPages, type AwcmsModuleManifest } from "./navigation.js";
+import type { SikesraPublicStatusDto } from "./contracts/index.js";
 
 const SIKESRA_VILLAGE_CODE_PATTERN = /^\d{10}$/;
 const SIKESRA_PROVINCE_CODE_PATTERN = /^\d{2}$/;
@@ -4766,7 +4767,7 @@ async function requireRoutePermission(ctx: PluginContext, permissionSlug: string
 	};
 }
 
-const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
+const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx): Promise<SikesraPublicStatusDto> => {
 	try {
 		const settings = await getSettings(ctx);
 
