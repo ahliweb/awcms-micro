@@ -19,6 +19,7 @@
 		"@awcms-micro/plugin-docs": "workspace:*",
 		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@awcms-micro/plugin-sikesra": "workspace:*",
+		"@awcms-micro/plugin-website-social": "workspace:*",
 		"@astrojs/node": "^10.1.1",
 		"@astrojs/react": "catalog:",
 		"astro": "catalog:",

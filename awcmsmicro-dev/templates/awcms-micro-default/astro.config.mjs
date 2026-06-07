@@ -3,6 +3,7 @@ import react from "@astrojs/react";
 import { awcmsMicroDocsPlugin } from "@awcms-micro/plugin-docs";
 import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { awcmsMicroSikesraPlugin } from "@awcms-micro/plugin-sikesra";
+import { awcmsMicroWebsiteSocialPlugin } from "@awcms-micro/plugin-website-social";
 import { defineConfig } from "astro/config";
 import emdash, { local } from "emdash/astro";
 import { sqlite } from "emdash/db";
@@ -37,6 +38,7 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroGalleryPlugin(),
+				awcmsMicroWebsiteSocialPlugin(),
 				awcmsMicroSikesraPlugin({ tenantId: "t-local-dev", siteId: "default" }),
 			],
 			admin: {

@@ -5,9 +5,11 @@ import { EmDashBodyEnd, EmDashBodyStart, EmDashHead, WidgetArea } from "emdash/u
 import LiveSearch from "emdash/ui/search";
 import PublicNavigation from "../components/PublicNavigation.astro";
 import LanguageSwitcher from "../components/public/LanguageSwitcher.astro";
+import WhatsAppFloatingCta from "../components/WhatsAppFloatingCta.astro";
 import { toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
+import { getWebsiteSocialConfig } from "../utils/website-social";
 
 interface Props {
 	title: string;
@@ -25,6 +27,7 @@ const { siteTitle, siteTagline, siteLogo, hasCustomLogo, hasCustomFavicon } = re
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const websiteSocial = await getWebsiteSocialConfig(currentLocale);
 const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],
@@ -900,6 +903,7 @@ const pageCtx = createPublicPageContext({
 			</div>
 		</footer>
 
+		<WhatsAppFloatingCta config={websiteSocial} />
 		<EmDashBodyEnd page={pageCtx} />
 		<script is:inline>
 			const themeToggle = document.getElementById('theme-toggle');

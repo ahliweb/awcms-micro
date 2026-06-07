@@ -22,6 +22,7 @@
 		"@awcms-micro/plugin-docs": "workspace:*",
 		"@awcms-micro/plugin-gallery": "workspace:*",
 		"@awcms-micro/plugin-sikesra": "workspace:*",
+		"@awcms-micro/plugin-website-social": "workspace:*",
 		"@emdash-cms/cloudflare": "workspace:*",
 		"astro": "catalog:",
 		"emdash": "workspace:*",

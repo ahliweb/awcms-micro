@@ -105,6 +105,21 @@
 				{ "slug": "cover_image", "label": "Cover Image", "type": "image" },
 				{ "slug": "gallery_items", "label": "Gallery Items", "type": "json" }
 			]
+		},
+		{
+			"slug": "website_social",
+			"label": "Website Social",
+			"labelSingular": "Website Social Settings",
+			"supports": ["drafts", "revisions"],
+			"fields": [
+				{ "slug": "enabled", "label": "Enabled", "type": "boolean" },
+				{ "slug": "whatsapp_number", "label": "WhatsApp Number", "type": "string", "required": true },
+				{ "slug": "default_message", "label": "Default Message", "type": "text" },
+				{ "slug": "hero_message", "label": "Hero Message", "type": "text" },
+				{ "slug": "section_message", "label": "Section Message", "type": "text" },
+				{ "slug": "contact_message", "label": "Contact Message", "type": "text" },
+				{ "slug": "sticky_label", "label": "Sticky CTA Label", "type": "string" }
+			]
 		}
 	],
 	"taxonomies": [
@@ -695,6 +710,38 @@
 							"caption": "Workflow halaman publik, pos, berita, menu, widget, dan media dikelola melalui koleksi EmDash."
 						}
 					]
+				}
+			}
+		],
+		"website_social": [
+			{
+				"id": "website-social-cloudflare",
+				"slug": "cloudflare-whatsapp",
+				"status": "published",
+				"data": {
+					"enabled": true,
+					"whatsapp_number": "6281234567890",
+					"default_message": "Hello AWCMS-Micro team, I would like to discuss a Cloudflare website project.",
+					"hero_message": "Hello AWCMS-Micro team, I am interested in building a Cloudflare-ready public website with EmDash.",
+					"section_message": "Hello AWCMS-Micro team, I want to learn more about Cloudflare-ready public website services.",
+					"contact_message": "Hello AWCMS-Micro team, please help me plan my Cloudflare website project.",
+					"sticky_label": "Chat on WhatsApp"
+				}
+			},
+			{
+				"id": "website-social-cloudflare-id",
+				"translationOf": "website-social-cloudflare",
+				"locale": "id",
+				"slug": "cloudflare-whatsapp",
+				"status": "published",
+				"data": {
+					"enabled": true,
+					"whatsapp_number": "6281234567890",
+					"default_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang proyek website Cloudflare.",
+					"hero_message": "Halo tim AWCMS-Micro, saya tertarik membangun website publik siap Cloudflare dengan EmDash.",
+					"section_message": "Halo tim AWCMS-Micro, saya ingin mengetahui lebih lanjut tentang layanan website publik siap Cloudflare.",
+					"contact_message": "Halo tim AWCMS-Micro, mohon bantu saya merencanakan proyek website Cloudflare.",
+					"sticky_label": "Chat via WhatsApp"
 				}
 			}
 		]

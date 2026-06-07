@@ -1964,6 +1964,37 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@26.1.0)(vite@8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
 
+  packages/plugins/awcms-micro-website-social:
+    dependencies:
+      '@lingui/react':
+        specifier: 'catalog:'
+        version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(typescript@6.0.3))(react@19.2.4)
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.4
+    devDependencies:
+      '@cloudflare/kumo':
+        specifier: 'catalog:'
+        version: 2.4.1(@date-fns/tz@1.4.1)(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(date-fns@4.1.0)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.4.1)
+      '@types/node':
+        specifier: 24.10.13
+        version: 24.10.13
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.2.14
+      emdash:
+        specifier: workspace:*
+        version: link:../../core
+      tsdown:
+        specifier: ^0.20.3
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@26.1.0)(vite@8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
+
   packages/plugins/color:
     dependencies:
       emdash:
@@ -2254,6 +2285,9 @@ importers:
       '@awcms-micro/plugin-sikesra':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-sikesra
+      '@awcms-micro/plugin-website-social':
+        specifier: workspace:*
+        version: link:../../packages/plugins/awcms-micro-website-social
       astro:
         specifier: 'catalog:'
         version: 6.4.4(@types/node@24.10.13)(aws4fetch@1.0.20)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.61.1)(yaml@2.9.0)
@@ -2297,6 +2331,9 @@ importers:
       '@awcms-micro/plugin-sikesra':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-sikesra
+      '@awcms-micro/plugin-website-social':
+        specifier: workspace:*
+        version: link:../../packages/plugins/awcms-micro-website-social
       '@emdash-cms/cloudflare':
         specifier: workspace:*
         version: link:../../packages/cloudflare

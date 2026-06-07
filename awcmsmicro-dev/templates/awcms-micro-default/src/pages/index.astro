@@ -5,6 +5,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
+import { createWhatsAppUrl, getWebsiteSocialConfig } from "../utils/website-social";
 
 function asImage(value: unknown) {
 	return value as any;
@@ -67,6 +68,7 @@ const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
 const copy = getPublicCopy(currentLocale);
+const websiteSocial = await getWebsiteSocialConfig(currentLocale);
 
 const findPage = (slug: string) => pages.find((page) => resolveEntrySlug(page) === slug);
 const profilePage = findPage("about") ?? pages[0];
@@ -86,6 +88,10 @@ const publicCounts = [
 ];
 const heroPrimaryHref = toLocalePath("/posts", currentLocale, localeOptions);
 const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions);
+const showWhatsAppCta = websiteSocial.enabled && Boolean(websiteSocial.whatsappNumber);
+const heroWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.heroMessage);
+const sectionWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.sectionMessage);
+const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.contactMessage);
 ---
 
 <BaseLayout title={siteTitle} description={siteTagline} showFooterWidgets={false}>
@@ -96,6 +102,11 @@ const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions)
 			<h1>{copy.heroTitle}</h1>
 			<p>{copy.heroSubtitle}</p>
 			<div class="landing-actions">
+				{showWhatsAppCta && (
+					<a class="landing-button landing-button--whatsapp" href={heroWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.stickyLabel}
+					</a>
+				)}
 				<a class="landing-button landing-button--primary" href={heroPrimaryHref} data-astro-prefetch="hover">
 					{copy.landingExploreContent}
 				</a>
@@ -149,6 +160,11 @@ const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions)
 			<p class="landing-eyebrow">{copy.landingServicesEyebrow}</p>
 			<h2>{copy.howConnectsTitle}</h2>
 		</div>
+		{showWhatsAppCta && (
+			<a class="landing-text-link landing-text-link--whatsapp" href={sectionWhatsAppHref} target="_blank" rel="noopener noreferrer">
+				{websiteSocial.stickyLabel}
+			</a>
+		)}
 		<div class="landing-feature-grid">
 			{servicePages.length === 0 ? (
 				<p class="landing-empty">{copy.noPostsCreateOne}</p>
@@ -253,6 +269,11 @@ const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions)
 		<h2>{copy.ctaTitle}</h2>
 		<p>{copy.ctaSubtitle}</p>
 		<div class="landing-actions">
+			{showWhatsAppCta && (
+				<a class="landing-button landing-button--whatsapp" href={contactWhatsAppHref} target="_blank" rel="noopener noreferrer">
+					{websiteSocial.stickyLabel}
+				</a>
+			)}
 			<a class="landing-button landing-button--primary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
 			<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.galleryViewAll}</a>
 		</div>
@@ -375,6 +396,21 @@ const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions)
 		color: var(--text-main);
 	}
 
+	.landing-button--whatsapp,
+	.landing-text-link--whatsapp {
+		background: #16a34a;
+		color: #fff;
+		border-color: transparent;
+		box-shadow: 0 18px 40px rgba(22, 163, 74, 0.18);
+	}
+
+	.landing-button--whatsapp:hover,
+	.landing-text-link--whatsapp:hover {
+		color: #fff;
+		background: #15803d;
+		text-shadow: none;
+	}
+
 	.landing-stats {
 		margin-top: 2rem;
 	}
@@ -487,7 +523,11 @@ const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions)
 	}
 
 	.landing-section__heading {
-		margin-bottom: 1.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.landing-section__heading + .landing-text-link--whatsapp {
+		margin: 0 0 1.5rem;
 	}
 
 	.landing-section__heading--inline {
