@@ -1085,18 +1085,20 @@ function getSikesraPageContract(path: SikesraAdminPagePath): SikesraPagePatternC
 }
 
 function _ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract(path);
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA UI/UX standard"
+				eyebrow={copy.sikesraUiUxStandardEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
 				<Card
-					title="Page anatomy"
-					description="This page follows the canonical SIKESRA admin interaction contract."
+					title={copy.pageAnatomy}
+					description={copy.pageAnatomyDescription}
 				>
 					<div className="grid gap-3 sm:grid-cols-2">
 						{contract.anatomy.map((item) => (
@@ -1110,33 +1112,33 @@ function _ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 					</div>
 				</Card>
 				<Card
-					title="Workflow safeguards"
-					description="Required permissions, privacy, and audit friction."
+					title={copy.workflowSafeguards}
+					description={copy.workflowSafeguardsDescription}
 				>
 					<div className="space-y-3 text-sm text-kumo-default">
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Permission</span>
-							<Badge variant="secondary">{contract.primaryPermissionSlug ?? "standard"}</Badge>
+							<span className="text-kumo-subtle">{copy.permission}</span>
+							<Badge variant="secondary">{contract.primaryPermissionSlug ?? copy.standard}</Badge>
 						</div>
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Workflow</span>
-							<Badge variant="outline">{contract.workflowModel ?? "standard"}</Badge>
+							<span className="text-kumo-subtle">{copy.workflow}</span>
+							<Badge variant="outline">{contract.workflowModel ?? copy.standard}</Badge>
 						</div>
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Privacy indicators</span>
+							<span className="text-kumo-subtle">{copy.privacyIndicators}</span>
 							<Pill tone={contract.requiresPrivacyIndicators ? "warning" : "neutral"}>
-								{contract.requiresPrivacyIndicators ? "Required" : "Standard"}
+								{contract.requiresPrivacyIndicators ? copy.required : copy.standard}
 							</Pill>
 						</div>
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Reason flow</span>
+							<span className="text-kumo-subtle">{copy.reasonFlow}</span>
 							<Pill tone={contract.requiresReasonFlow ? "warning" : "neutral"}>
-								{contract.requiresReasonFlow ? "Required" : "Standard"}
+								{contract.requiresReasonFlow ? copy.required : copy.standard}
 							</Pill>
 						</div>
 						<EmptyState
 							title={contract.emptyState}
-							description={`Use ${toSikesraAdminHref(path)} for the protected admin route.`}
+							description={copy.protectedAdminRouteHint(toSikesraAdminHref(path))}
 						/>
 					</div>
 				</Card>
@@ -1146,6 +1148,8 @@ function _ContractAlignedPage({ path }: { path: SikesraAdminPagePath }) {
 }
 
 function RegistryCreatePage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/registry/new");
 	const { data: customDefinitions } = usePluginData<CustomAttributeDefinitionsResponse>(
 		"custom-attributes/definitions/list",
@@ -1217,9 +1221,7 @@ function RegistryCreatePage() {
 					);
 				}
 			}
-			setNotice(
-				`Registry record saved${result.item?.sikesraId20 ? ` with SIKESRA ID ${result.item.sikesraId20}` : ""}.`,
-			);
+			setNotice(copy.registryRecordSaved(result.item?.sikesraId20 ?? ""));
 			setFormState((current) => ({
 				...current,
 				label: "",
@@ -1228,7 +1230,7 @@ function RegistryCreatePage() {
 			}));
 			setCustomValues({});
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save registry record.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveRegistryRecord);
 		} finally {
 			setSaving(false);
 		}
@@ -1237,7 +1239,7 @@ function RegistryCreatePage() {
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA registry wizard"
+				eyebrow={copy.sikesraRegistryWizardEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
@@ -1245,12 +1247,12 @@ function RegistryCreatePage() {
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
 				<Card
-					title="Create registry draft"
-					description="Save a draft-style record that enters the SIKESRA verification workflow."
+					title={copy.createRegistryDraft}
+					description={copy.createRegistryDraftDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void saveRegistry(event)}>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Name / label">
+							<Field label={copy.nameOrLabel}>
 								<Input
 									value={formState.label}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1259,7 +1261,7 @@ function RegistryCreatePage() {
 									required
 								/>
 							</Field>
-							<Field label="Local code">
+							<Field label={copy.localCode}>
 								<Input
 									value={formState.code}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1270,7 +1272,7 @@ function RegistryCreatePage() {
 							</Field>
 						</div>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Module">
+							<Field label={copy.module}>
 								<Select
 									value={formState.entityType}
 									onValueChange={(value) =>
@@ -1284,7 +1286,7 @@ function RegistryCreatePage() {
 									))}
 								</Select>
 							</Field>
-							<Field label="Subtype code">
+							<Field label={copy.subtypeCode}>
 								<Input
 									value={formState.subtypeCode}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1296,10 +1298,10 @@ function RegistryCreatePage() {
 						<div className="grid gap-4 md:grid-cols-4">
 							{(
 								[
-									["provinceCode", "Province"],
-									["regencyCode", "Regency"],
-									["districtCode", "District"],
-									["villageCode", "Village"],
+									["provinceCode", copy.province],
+									["regencyCode", copy.regency],
+									["districtCode", copy.district],
+									["villageCode", copy.village],
 								] as Array<
 									["provinceCode" | "regencyCode" | "districtCode" | "villageCode", string]
 								>
@@ -1314,7 +1316,7 @@ function RegistryCreatePage() {
 								</Field>
 							))}
 						</div>
-						<Field label="Sensitivity">
+						<Field label={copy.sensitivity}>
 							<Select
 								value={formState.sensitivity}
 								onValueChange={(value) =>
@@ -1324,15 +1326,15 @@ function RegistryCreatePage() {
 									}))
 								}
 							>
-								<Select.Option value="public_safe">Public safe</Select.Option>
-								<Select.Option value="internal">Internal</Select.Option>
-								<Select.Option value="restricted">Restricted</Select.Option>
-								<Select.Option value="highly_restricted">Highly restricted</Select.Option>
+								<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
+								<Select.Option value="internal">{copy.internal}</Select.Option>
+								<Select.Option value="restricted">{copy.restricted}</Select.Option>
+								<Select.Option value="highly_restricted">{copy.highlyRestricted}</Select.Option>
 							</Select>
 						</Field>
 						<Field
-							label="Public summary"
-							hint="Public-safe summary only; do not include personal or document metadata."
+							label={copy.publicSummary}
+							hint={copy.publicSummaryHint}
 						>
 							<InputArea
 								value={formState.publicSummary}
@@ -1344,11 +1346,10 @@ function RegistryCreatePage() {
 						{applicableCustomDefinitions.length > 0 ? (
 							<div className="rounded-2xl border border-kumo-line bg-kumo-tint/20 p-4">
 								<div className="text-sm font-semibold text-kumo-default">
-									Applicable custom attributes
+									{copy.applicableCustomAttributes}
 								</div>
 								<p className="mt-1 text-xs text-kumo-subtle">
-									These fields are loaded from active definitions that match the selected module,
-									subtype, region, or record scope.
+									{copy.applicableCustomAttributesCreateDescription}
 								</p>
 								<div className="mt-4 grid gap-4 md:grid-cols-2">
 									{applicableCustomDefinitions.map((definition) => (
@@ -1372,13 +1373,13 @@ function RegistryCreatePage() {
 							</div>
 						) : null}
 						<Button variant="primary" type="submit" disabled={saving}>
-							{saving ? "Saving..." : "Save registry record"}
+							{saving ? copy.saving : copy.saveRegistryRecord}
 						</Button>
 					</form>
 				</Card>
 				<Card
-					title="Wizard safeguards"
-					description="The full registry workflow requires these steps before verification."
+					title={copy.wizardSafeguards}
+					description={copy.wizardSafeguardsDescription}
 				>
 					<div className="space-y-3">
 						{contract.anatomy.map((item) => (
@@ -1397,6 +1398,8 @@ function RegistryCreatePage() {
 }
 
 function RegistryDetailPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/registry/:id");
 	const routeRegistryId = React.useMemo(() => {
 		if (typeof window === "undefined") return "";
@@ -1444,30 +1447,30 @@ function RegistryDetailPage() {
 		if (!routeRegistryId && !selectedId && data?.items[0]?.id) setSelectedId(data.items[0].id);
 	}, [data?.items, routeRegistryId, selectedId]);
 
-	if (loading) return <LoadingState label="Loading registry detail..." />;
+	if (loading) return <LoadingState label={copy.loadingRegistryDetail} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA registry detail"
+				eyebrow={copy.sikesraRegistryDetailEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
 			{!data?.items.length || !selected ? (
 				<EmptyState
-					title={routeRegistryId ? "Registry record not found" : contract.emptyState}
+					title={routeRegistryId ? copy.registryRecordNotFound : contract.emptyState}
 					description={
 						routeRegistryId
-							? `No registry record matched ${routeRegistryId}. Check the URL or return to the registry queue.`
-							: "Create a registry record before reviewing detail state."
+							? copy.noRegistryRecordMatched(routeRegistryId)
+							: copy.createRegistryBeforeDetail
 					}
 				/>
 			) : (
 				<div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
 					<Card
-						title="Select record"
-						description="Review one registry entity without leaving table context."
+						title={copy.selectRecord}
+						description={copy.selectRecordDescription}
 					>
 						<div className="space-y-2">
 							{data.items.map((item) => (
@@ -1491,25 +1494,25 @@ function RegistryDetailPage() {
 					<div className="space-y-6">
 						<Card
 							title={selected.label}
-							description="Masked detail, verification state, document links, and audit context."
+							description={copy.maskedDetailDescription}
 						>
 							<div className="grid gap-4 md:grid-cols-3">
-								<MetricCard label="Module" value={selected.entityType} />
-								<MetricCard label="Verification" value={selected.verificationStage} />
-								<MetricCard label="Documents" value={selected.supportingDocumentIds.length} />
+								<MetricCard label={copy.module} value={selected.entityType} />
+								<MetricCard label={copy.verification} value={selected.verificationStage} />
+								<MetricCard label={copy.documentsCount} value={selected.supportingDocumentIds.length} />
 							</div>
 							<div className="mt-5 grid gap-3 text-sm md:grid-cols-2">
 								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
 									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-										SIKESRA ID
+										{copy.sikesraId}
 									</div>
 									<div className="mt-1 font-mono text-kumo-default">
-										{selected.sikesraId20 ?? "Pending generation"}
+									{selected.sikesraId20 ?? copy.pendingGeneration}
 									</div>
 								</div>
 								<div className="rounded-xl border border-kumo-line bg-kumo-tint/20 p-3">
 									<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-										Sensitivity
+										{copy.sensitivity}
 									</div>
 									<div className="mt-1">
 										<Pill tone={selected.sensitivity === "public_safe" ? "success" : "warning"}>
@@ -1520,32 +1523,32 @@ function RegistryDetailPage() {
 							</div>
 							<div className="mt-5 rounded-xl border border-kumo-line bg-kumo-base p-4">
 								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-									Public-safe summary
+									{copy.publicSafeSummary}
 								</div>
 								<p className="mt-2 text-sm leading-6 text-kumo-default">
-									{selected.publicSummary || "No public-safe summary supplied."}
+								{selected.publicSummary || copy.noPublicSafeSummarySupplied}
 								</p>
 							</div>
 						</Card>
-						<Card
-							title="Region and audit context"
-							description="Detail view keeps regional scope visible for RBAC/ABAC review."
-						>
-							<div className="grid gap-3 text-sm md:grid-cols-4">
-								<span>Province: {selected.region.provinceCode || "-"}</span>
-								<span>Regency: {selected.region.regencyCode || "-"}</span>
-								<span>District: {selected.region.districtCode || "-"}</span>
-								<span>Village: {selected.region.villageCode || "-"}</span>
-							</div>
-						</Card>
-						<Card
-							title="Applicable custom attributes"
-							description="Dynamic fields are filtered by module, record, SIKESRA ID, and region scope."
-						>
+					<Card
+						title={copy.regionAndAuditContext}
+						description={copy.regionAndAuditContextDescription}
+					>
+						<div className="grid gap-3 text-sm md:grid-cols-4">
+							<span>{copy.regionValue(copy.province, selected.region.provinceCode || "-")}</span>
+							<span>{copy.regionValue(copy.regency, selected.region.regencyCode || "-")}</span>
+							<span>{copy.regionValue(copy.district, selected.region.districtCode || "-")}</span>
+							<span>{copy.regionValue(copy.village, selected.region.villageCode || "-")}</span>
+						</div>
+					</Card>
+					<Card
+						title={copy.applicableCustomAttributes}
+						description={copy.applicableCustomAttributesDetailDescription}
+					>
 							{applicableCustomDefinitions.length === 0 ? (
 								<EmptyState
-									title="No applicable custom attributes"
-									description="Create an active definition that matches this registry record to show dynamic fields here."
+									title={copy.noApplicableCustomAttributes}
+									description={copy.noApplicableCustomAttributesDescription}
 								/>
 							) : (
 								<div className="space-y-3">
@@ -1576,13 +1579,13 @@ function RegistryDetailPage() {
 														</Pill>
 														{value ? (
 															<Pill tone={value.masked ? "warning" : "success"}>
-																{value.masked ? "Masked" : "Visible"}
+										{value.masked ? copy.masked : copy.visible}
 															</Pill>
 														) : null}
 													</div>
 												</div>
 												<div className="mt-3 rounded-lg bg-kumo-tint/30 px-3 py-2 text-sm text-kumo-default">
-													{value?.valueDisplay ?? "No value saved for this registry record."}
+								{value?.valueDisplay ?? copy.noValueSavedForRegistryRecord}
 												</div>
 											</div>
 										);
@@ -1598,6 +1601,8 @@ function RegistryDetailPage() {
 }
 
 function AccessUsersPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/access/users");
 	const { data, error, loading, reload } = usePluginData<AccessRolesResponse>("access/roles/list");
 	const { data: usersData } = usePluginData<EmDashUsersResponse>("access/users/list", {
@@ -1623,31 +1628,31 @@ function AccessUsersPage() {
 				await createAdminApiRequestOptions(),
 			);
 			setUserState({ userId: "", roles: "", isActive: true });
-			setNotice("EmDash user role assignment saved with SIKESRA audit tracking.");
+			setNotice(copy.emdashUserRoleAssignmentSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save user assignment.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveUserAssignment);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading SIKESRA user assignments..." />;
+	if (loading) return <LoadingState label={copy.loadingSikesraUserAssignments} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 	const emdashUsers = usersData?.items ?? [];
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA access" title={contract.title} description={contract.purpose} />
+			<PageHeader eyebrow={copy.sikesraAccessEyebrow} title={contract.title} description={contract.purpose} />
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
 				<Card
-					title="Assign roles to EmDash user"
-					description="Use trusted EmDash user IDs as references; do not duplicate user accounts."
+					title={copy.assignRolesToEmdashUser}
+					description={copy.assignRolesToEmdashUserDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void saveUserAssignment(event)}>
-						<Field label="EmDash user ID">
+						<Field label={copy.emdashUserId}>
 							<Input
 								list="sikesra-emdash-users"
 								value={userState.userId}
@@ -1664,7 +1669,7 @@ function AccessUsersPage() {
 								))}
 							</datalist>
 						</Field>
-						<Field label="Role slugs" hint="Comma-separated SIKESRA role slugs.">
+						<Field label={copy.roleSlugs} hint={copy.roleSlugsHint}>
 							<Input
 								value={userState.roles}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1681,21 +1686,21 @@ function AccessUsersPage() {
 									setUserState((current) => ({ ...current, isActive: event.target.checked }))
 								}
 							/>
-							Active assignment
+							{copy.activeAssignment}
 						</label>
 						<Button variant="primary" type="submit" disabled={saving}>
-							{saving ? "Saving..." : "Save assignment"}
+							{saving ? copy.saving : copy.saveAssignment}
 						</Button>
 					</form>
 				</Card>
 				<Card
-					title="Current user assignments"
-					description="Role assignments are SIKESRA-owned references to EmDash users."
+					title={copy.currentUserAssignments}
+					description={copy.currentUserAssignmentsDescription}
 				>
 					{!data?.userAssignments.length ? (
 						<EmptyState
 							title={contract.emptyState}
-							description="Assign a SIKESRA role to an EmDash user reference."
+							description={copy.assignSikesraRoleEmptyDescription}
 						/>
 					) : (
 						<div className="grid gap-3 md:grid-cols-2">
@@ -1711,12 +1716,12 @@ function AccessUsersPage() {
 										))}
 									</div>
 									<div className="mt-3">
-										<Pill tone={item.isActive ? "success" : "warning"}>
-											{item.isActive ? "Active" : "Inactive"}
-										</Pill>
+								<Pill tone={item.isActive ? "success" : "warning"}>
+									{item.isActive ? copy.active : copy.inactive}
+								</Pill>
 									</div>
 									<div className="mt-3 text-xs text-kumo-subtle">
-										Updated {formatDateTime(item.updatedAt, "en")}
+							{copy.updatedAt(formatDateTime(item.updatedAt, i18n.locale))}
 									</div>
 								</div>
 							))}
@@ -1725,13 +1730,13 @@ function AccessUsersPage() {
 				</Card>
 			</div>
 			<Card
-				title="EmDash users"
-				description="Read-only trusted users exposed by EmDash for assignment reference."
+				title={copy.emdashUsers}
+				description={copy.emdashUsersDescription}
 			>
 				{emdashUsers.length === 0 ? (
 					<EmptyState
-						title="No EmDash users available"
-						description="The plugin can still save assignments by exact EmDash user ID."
+						title={copy.noEmdashUsersAvailable}
+						description={copy.noEmdashUsersAvailableDescription}
 					/>
 				) : (
 					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1750,7 +1755,7 @@ function AccessUsersPage() {
 					</div>
 				)}
 			</Card>
-			<Card title="Available roles" description="Use these slugs in the user assignment form.">
+			<Card title={copy.availableRoles} description={copy.availableRolesDescription}>
 				<div className="flex flex-wrap gap-2">
 					{data?.roles.map((role) => (
 						<Badge key={role.slug} variant="outline">
@@ -1764,6 +1769,8 @@ function AccessUsersPage() {
 }
 
 function AccessScopesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/access/scopes");
 	const { data, error, loading, reload } =
 		usePluginData<AccessScopesResponse>("access/scopes/list");
@@ -1785,7 +1792,7 @@ function AccessScopesPage() {
 		setSaveError(null);
 		try {
 			await saveAccessScope(scopeState, await createAdminApiRequestOptions());
-			setNotice("User region and organization scopes saved for the EmDash user reference.");
+			setNotice(copy.userScopesSaved);
 			setScopeState({
 				userId: "",
 				regionScopeType: "all",
@@ -1795,27 +1802,27 @@ function AccessScopesPage() {
 			});
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save user scopes.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveUserScopes);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading SIKESRA access scopes..." />;
+	if (loading) return <LoadingState label={copy.loadingSikesraAccessScopes} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
-			<PageHeader eyebrow="SIKESRA access" title={contract.title} description={contract.purpose} />
+			<PageHeader eyebrow={copy.sikesraAccessEyebrow} title={contract.title} description={contract.purpose} />
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
 				<Card
-					title="Assign user scopes"
-					description="Scopes are stored as SIKESRA user-scope assignments for EmDash user references."
+					title={copy.assignUserScopes}
+					description={copy.assignUserScopesDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void saveScope(event)}>
-						<Field label="EmDash user ID">
+						<Field label={copy.emdashUserId}>
 							<Input
 								value={scopeState.userId}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1824,7 +1831,7 @@ function AccessScopesPage() {
 								required
 							/>
 						</Field>
-						<Field label="Region scope type">
+						<Field label={copy.regionScopeType}>
 							<Input
 								value={scopeState.regionScopeType}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1833,7 +1840,7 @@ function AccessScopesPage() {
 								required
 							/>
 						</Field>
-						<Field label="Region scope code">
+						<Field label={copy.regionScopeCode}>
 							<Input
 								value={scopeState.regionScopeCode}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1841,7 +1848,7 @@ function AccessScopesPage() {
 								}
 							/>
 						</Field>
-						<Field label="Organization scope type">
+						<Field label={copy.organizationScopeType}>
 							<Input
 								value={scopeState.organizationScopeType}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1853,7 +1860,7 @@ function AccessScopesPage() {
 								required
 							/>
 						</Field>
-						<Field label="Organization scope code">
+						<Field label={copy.organizationScopeCode}>
 							<Input
 								value={scopeState.organizationScopeCode}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -1865,18 +1872,18 @@ function AccessScopesPage() {
 							/>
 						</Field>
 						<Button variant="primary" type="submit" disabled={saving}>
-							{saving ? "Saving..." : "Save scopes"}
+							{saving ? copy.saving : copy.saveScopes}
 						</Button>
 					</form>
 				</Card>
 				<Card
-					title="Current user scopes"
-					description="These assignments constrain SIKESRA region and organization access."
+					title={copy.currentUserScopes}
+					description={copy.currentUserScopesDescription}
 				>
 					{!data?.items.length ? (
 						<EmptyState
 							title={contract.emptyState}
-							description="Assign region or organization scopes to an EmDash user reference."
+							description={copy.assignScopesEmptyDescription}
 						/>
 					) : (
 						<div className="grid gap-3 md:grid-cols-2">
@@ -1888,13 +1895,15 @@ function AccessScopesPage() {
 									<div className="font-semibold text-kumo-default">{item.userId}</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle">
 										<span>
-											Region: {item.regionScopeType} {item.regionScopeCode || "all"}
+							{copy.regionScopeValue(item.regionScopeType, item.regionScopeCode || copy.all)}
 										</span>
 										<span>
-											Organization: {item.organizationScopeType}{" "}
-											{item.organizationScopeCode || "all"}
+							{copy.organizationScopeValue(
+								item.organizationScopeType,
+								item.organizationScopeCode || copy.all,
+							)}
 										</span>
-										<span>Status: {item.isActive ? "Active" : "Inactive"}</span>
+						<span>{copy.statusValue(item.isActive ? copy.active : copy.inactive)}</span>
 									</div>
 								</div>
 							))}
@@ -1907,6 +1916,8 @@ function AccessScopesPage() {
 }
 
 function FieldStandardsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/field-standards");
 	const [moduleFilter, setModuleFilter] = React.useState("all");
 	const [classFilter, setClassFilter] = React.useState("all");
@@ -1923,22 +1934,22 @@ function FieldStandardsPage() {
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA field contract"
+				eyebrow={copy.sikesraFieldContractEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
 			<div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
 				<Card
-					title="Field catalog"
-					description="Canonical fields by module, data class, storage table, and public/export policy."
+					title={copy.fieldCatalog}
+					description={copy.fieldCatalogDescription}
 				>
 					<div className="mb-4 grid gap-4 md:grid-cols-2">
-						<Field label="Module">
+						<Field label={copy.module}>
 							<Select
 								value={moduleFilter}
 								onValueChange={(value) => setModuleFilter(value ?? "all")}
 							>
-								<Select.Option value="all">All modules</Select.Option>
+								<Select.Option value="all">{copy.allModules}</Select.Option>
 								{DEFAULT_DATA_TYPES.map((type) => (
 									<Select.Option key={type.id} value={type.id}>
 										{type.label}
@@ -1946,23 +1957,23 @@ function FieldStandardsPage() {
 								))}
 							</Select>
 						</Field>
-						<Field label="Data class">
+						<Field label={copy.dataClass}>
 							<Select value={classFilter} onValueChange={(value) => setClassFilter(value ?? "all")}>
-								<Select.Option value="all">All data classes</Select.Option>
-								<Select.Option value="non_personal">Non-personal</Select.Option>
-								<Select.Option value="personal">Personal</Select.Option>
-								<Select.Option value="sensitive_personal">Sensitive personal</Select.Option>
-								<Select.Option value="restricted">Restricted</Select.Option>
+								<Select.Option value="all">{copy.allDataClasses}</Select.Option>
+								<Select.Option value="non_personal">{copy.nonPersonal}</Select.Option>
+								<Select.Option value="personal">{copy.personal}</Select.Option>
+								<Select.Option value="sensitive_personal">{copy.sensitivePersonal}</Select.Option>
+								<Select.Option value="restricted">{copy.restricted}</Select.Option>
 							</Select>
 						</Field>
 					</div>
 					<div className="overflow-hidden rounded-xl border border-kumo-line">
 						<div className="grid grid-cols-[minmax(220px,1.3fr)_140px_150px_160px_180px] gap-3 border-b border-kumo-line bg-kumo-tint/50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-							<span>Field</span>
-							<span>Module</span>
-							<span>Data class</span>
-							<span>Storage</span>
-							<span>Policy</span>
+							<span>{copy.field}</span>
+							<span>{copy.module}</span>
+							<span>{copy.dataClass}</span>
+							<span>{copy.storage}</span>
+							<span>{copy.policy}</span>
 						</div>
 						<div className="max-h-[680px] divide-y divide-kumo-line overflow-auto">
 							{filteredStandards.map((standard) => (
@@ -1984,11 +1995,11 @@ function FieldStandardsPage() {
 										{standard.storageTable}
 									</span>
 									<div className="flex flex-wrap gap-1.5">
-										{standard.required ? <Badge variant="secondary">Required</Badge> : null}
-										{standard.importable ? <Badge variant="outline">Import</Badge> : null}
-										{standard.exportable ? <Badge variant="outline">Export</Badge> : null}
-										{standard.publicSafe ? <Badge variant="secondary">Public safe</Badge> : null}
-										{standard.maskByDefault ? <Badge variant="outline">Masked</Badge> : null}
+									{standard.required ? <Badge variant="secondary">{copy.required}</Badge> : null}
+									{standard.importable ? <Badge variant="outline">{copy.importLabel}</Badge> : null}
+									{standard.exportable ? <Badge variant="outline">{copy.exportLabel}</Badge> : null}
+									{standard.publicSafe ? <Badge variant="secondary">{copy.publicSafe}</Badge> : null}
+									{standard.maskByDefault ? <Badge variant="outline">{copy.masked}</Badge> : null}
 									</div>
 								</div>
 							))}
@@ -1997,14 +2008,14 @@ function FieldStandardsPage() {
 				</Card>
 
 				<Card
-					title="Validation summary"
-					description="Module-level import/export and privacy constraints."
+					title={copy.validationSummary}
+					description={copy.validationSummaryDescription}
 				>
 					{activeSchema ? (
 						<div className="space-y-4 text-sm text-kumo-default">
 							<div>
 								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-									Required
+									{copy.required}
 								</div>
 								<div className="mt-2 flex flex-wrap gap-1.5">
 									{activeSchema.requiredFields.map((field) => (
@@ -2016,16 +2027,16 @@ function FieldStandardsPage() {
 							</div>
 							<div>
 								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-									Address groups
+									{copy.addressGroups}
 								</div>
 								<div className="mt-2 grid gap-2 text-xs text-kumo-subtle">
-									<span>KTP fields: {activeSchema.ktpAddressFields.length}</span>
-									<span>Domicile fields: {activeSchema.domicileAddressFields.length}</span>
+								<span>{copy.ktpFields(activeSchema.ktpAddressFields.length)}</span>
+								<span>{copy.domicileFields(activeSchema.domicileAddressFields.length)}</span>
 								</div>
 							</div>
 							<div>
 								<div className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">
-									Restricted export
+									{copy.restrictedExport}
 								</div>
 								<div className="mt-2 flex flex-wrap gap-1.5">
 									{activeSchema.restrictedExportFields.map((field) => (
@@ -2037,10 +2048,10 @@ function FieldStandardsPage() {
 							</div>
 						</div>
 					) : (
-						<EmptyState
-							title="Select a module"
-							description="Choose one SIKESRA module to review required fields, KTP and domicile address groups, and restricted export rules."
-						/>
+					<EmptyState
+						title={copy.selectModule}
+						description={copy.selectModuleDescription}
+					/>
 					)}
 				</Card>
 			</div>

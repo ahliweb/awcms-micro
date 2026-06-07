@@ -1434,6 +1434,430 @@ msgctxt "awcms.adminCopy.requestFailed"
 msgid "Request failed"
 msgstr "Request failed"
 
+msgctxt "awcms.adminCopy.sikesraUiUxStandardEyebrow"
+msgid "SIKESRA UI/UX standard"
+msgstr "SIKESRA UI/UX standard"
+
+msgctxt "awcms.adminCopy.pageAnatomy"
+msgid "Page anatomy"
+msgstr "Page anatomy"
+
+msgctxt "awcms.adminCopy.pageAnatomyDescription"
+msgid "This page follows the canonical SIKESRA admin interaction contract."
+msgstr "This page follows the canonical SIKESRA admin interaction contract."
+
+msgctxt "awcms.adminCopy.workflowSafeguards"
+msgid "Workflow safeguards"
+msgstr "Workflow safeguards"
+
+msgctxt "awcms.adminCopy.workflowSafeguardsDescription"
+msgid "Required permissions, privacy, and audit friction."
+msgstr "Required permissions, privacy, and audit friction."
+
+msgctxt "awcms.adminCopy.workflow"
+msgid "Workflow"
+msgstr "Workflow"
+
+msgctxt "awcms.adminCopy.standard"
+msgid "Standard"
+msgstr "Standard"
+
+msgctxt "awcms.adminCopy.required"
+msgid "Required"
+msgstr "Required"
+
+msgctxt "awcms.adminCopy.privacyIndicators"
+msgid "Privacy indicators"
+msgstr "Privacy indicators"
+
+msgctxt "awcms.adminCopy.reasonFlow"
+msgid "Reason flow"
+msgstr "Reason flow"
+
+msgctxt "awcms.adminCopy.protectedAdminRouteHint"
+msgid "Use {href} for the protected admin route."
+msgstr "Use {href} for the protected admin route."
+
+msgctxt "awcms.adminCopy.sikesraRegistryWizardEyebrow"
+msgid "SIKESRA registry wizard"
+msgstr "SIKESRA registry wizard"
+
+msgctxt "awcms.adminCopy.createRegistryDraft"
+msgid "Create registry draft"
+msgstr "Create registry draft"
+
+msgctxt "awcms.adminCopy.createRegistryDraftDescription"
+msgid "Save a draft-style record that enters the SIKESRA verification workflow."
+msgstr "Save a draft-style record that enters the SIKESRA verification workflow."
+
+msgctxt "awcms.adminCopy.nameOrLabel"
+msgid "Name / label"
+msgstr "Name / label"
+
+msgctxt "awcms.adminCopy.localCode"
+msgid "Local code"
+msgstr "Local code"
+
+msgctxt "awcms.adminCopy.module"
+msgid "Module"
+msgstr "Module"
+
+msgctxt "awcms.adminCopy.publicSummary"
+msgid "Public summary"
+msgstr "Public summary"
+
+msgctxt "awcms.adminCopy.publicSummaryHint"
+msgid "Public-safe summary only; do not include personal or document metadata."
+msgstr "Public-safe summary only; do not include personal or document metadata."
+
+msgctxt "awcms.adminCopy.applicableCustomAttributes"
+msgid "Applicable custom attributes"
+msgstr "Applicable custom attributes"
+
+msgctxt "awcms.adminCopy.applicableCustomAttributesCreateDescription"
+msgid "These fields are loaded from active definitions that match the selected module, subtype, region, or record scope."
+msgstr "These fields are loaded from active definitions that match the selected module, subtype, region, or record scope."
+
+msgctxt "awcms.adminCopy.saveRegistryRecord"
+msgid "Save registry record"
+msgstr "Save registry record"
+
+msgctxt "awcms.adminCopy.registryRecordSaved"
+msgid "Registry record saved with SIKESRA ID {id}."
+msgstr "Registry record saved with SIKESRA ID {id}."
+
+msgctxt "awcms.adminCopy.failedToSaveRegistryRecord"
+msgid "Failed to save registry record."
+msgstr "Failed to save registry record."
+
+msgctxt "awcms.adminCopy.wizardSafeguards"
+msgid "Wizard safeguards"
+msgstr "Wizard safeguards"
+
+msgctxt "awcms.adminCopy.wizardSafeguardsDescription"
+msgid "The full registry workflow requires these steps before verification."
+msgstr "The full registry workflow requires these steps before verification."
+
+msgctxt "awcms.adminCopy.loadingRegistryDetail"
+msgid "Loading registry detail..."
+msgstr "Loading registry detail..."
+
+msgctxt "awcms.adminCopy.sikesraRegistryDetailEyebrow"
+msgid "SIKESRA registry detail"
+msgstr "SIKESRA registry detail"
+
+msgctxt "awcms.adminCopy.registryRecordNotFound"
+msgid "Registry record not found"
+msgstr "Registry record not found"
+
+msgctxt "awcms.adminCopy.noRegistryRecordMatched"
+msgid "No registry record matched {id}. Check the URL or return to the registry queue."
+msgstr "No registry record matched {id}. Check the URL or return to the registry queue."
+
+msgctxt "awcms.adminCopy.createRegistryBeforeDetail"
+msgid "Create a registry record before reviewing detail state."
+msgstr "Create a registry record before reviewing detail state."
+
+msgctxt "awcms.adminCopy.selectRecord"
+msgid "Select record"
+msgstr "Select record"
+
+msgctxt "awcms.adminCopy.selectRecordDescription"
+msgid "Review one registry entity without leaving table context."
+msgstr "Review one registry entity without leaving table context."
+
+msgctxt "awcms.adminCopy.maskedDetailDescription"
+msgid "Masked detail, verification state, document links, and audit context."
+msgstr "Masked detail, verification state, document links, and audit context."
+
+msgctxt "awcms.adminCopy.verification"
+msgid "Verification"
+msgstr "Verification"
+
+msgctxt "awcms.adminCopy.sikesraId"
+msgid "SIKESRA ID"
+msgstr "SIKESRA ID"
+
+msgctxt "awcms.adminCopy.pendingGeneration"
+msgid "Pending generation"
+msgstr "Pending generation"
+
+msgctxt "awcms.adminCopy.publicSafeSummary"
+msgid "Public-safe summary"
+msgstr "Public-safe summary"
+
+msgctxt "awcms.adminCopy.noPublicSafeSummarySupplied"
+msgid "No public-safe summary supplied."
+msgstr "No public-safe summary supplied."
+
+msgctxt "awcms.adminCopy.regionAndAuditContext"
+msgid "Region and audit context"
+msgstr "Region and audit context"
+
+msgctxt "awcms.adminCopy.regionAndAuditContextDescription"
+msgid "Detail view keeps regional scope visible for RBAC/ABAC review."
+msgstr "Detail view keeps regional scope visible for RBAC/ABAC review."
+
+msgctxt "awcms.adminCopy.regionValue"
+msgid "{label}: {value}"
+msgstr "{label}: {value}"
+
+msgctxt "awcms.adminCopy.applicableCustomAttributesDetailDescription"
+msgid "Dynamic fields are filtered by module, record, SIKESRA ID, and region scope."
+msgstr "Dynamic fields are filtered by module, record, SIKESRA ID, and region scope."
+
+msgctxt "awcms.adminCopy.noApplicableCustomAttributes"
+msgid "No applicable custom attributes"
+msgstr "No applicable custom attributes"
+
+msgctxt "awcms.adminCopy.noApplicableCustomAttributesDescription"
+msgid "Create an active definition that matches this registry record to show dynamic fields here."
+msgstr "Create an active definition that matches this registry record to show dynamic fields here."
+
+msgctxt "awcms.adminCopy.noValueSavedForRegistryRecord"
+msgid "No value saved for this registry record."
+msgstr "No value saved for this registry record."
+
+msgctxt "awcms.adminCopy.sikesraAccessEyebrow"
+msgid "SIKESRA access"
+msgstr "SIKESRA access"
+
+msgctxt "awcms.adminCopy.emdashUserRoleAssignmentSaved"
+msgid "EmDash user role assignment saved with SIKESRA audit tracking."
+msgstr "EmDash user role assignment saved with SIKESRA audit tracking."
+
+msgctxt "awcms.adminCopy.loadingSikesraUserAssignments"
+msgid "Loading SIKESRA user assignments..."
+msgstr "Loading SIKESRA user assignments..."
+
+msgctxt "awcms.adminCopy.assignRolesToEmdashUser"
+msgid "Assign roles to EmDash user"
+msgstr "Assign roles to EmDash user"
+
+msgctxt "awcms.adminCopy.assignRolesToEmdashUserDescription"
+msgid "Use trusted EmDash user IDs as references; do not duplicate user accounts."
+msgstr "Use trusted EmDash user IDs as references; do not duplicate user accounts."
+
+msgctxt "awcms.adminCopy.emdashUserId"
+msgid "EmDash user ID"
+msgstr "EmDash user ID"
+
+msgctxt "awcms.adminCopy.roleSlugs"
+msgid "Role slugs"
+msgstr "Role slugs"
+
+msgctxt "awcms.adminCopy.roleSlugsHint"
+msgid "Comma-separated SIKESRA role slugs."
+msgstr "Comma-separated SIKESRA role slugs."
+
+msgctxt "awcms.adminCopy.activeAssignment"
+msgid "Active assignment"
+msgstr "Active assignment"
+
+msgctxt "awcms.adminCopy.currentUserAssignments"
+msgid "Current user assignments"
+msgstr "Current user assignments"
+
+msgctxt "awcms.adminCopy.currentUserAssignmentsDescription"
+msgid "Role assignments are SIKESRA-owned references to EmDash users."
+msgstr "Role assignments are SIKESRA-owned references to EmDash users."
+
+msgctxt "awcms.adminCopy.assignSikesraRoleEmptyDescription"
+msgid "Assign a SIKESRA role to an EmDash user reference."
+msgstr "Assign a SIKESRA role to an EmDash user reference."
+
+msgctxt "awcms.adminCopy.active"
+msgid "Active"
+msgstr "Active"
+
+msgctxt "awcms.adminCopy.inactive"
+msgid "Inactive"
+msgstr "Inactive"
+
+msgctxt "awcms.adminCopy.updatedAt"
+msgid "Updated {value}"
+msgstr "Updated {value}"
+
+msgctxt "awcms.adminCopy.emdashUsers"
+msgid "EmDash users"
+msgstr "EmDash users"
+
+msgctxt "awcms.adminCopy.emdashUsersDescription"
+msgid "Read-only trusted users exposed by EmDash for assignment reference."
+msgstr "Read-only trusted users exposed by EmDash for assignment reference."
+
+msgctxt "awcms.adminCopy.noEmdashUsersAvailable"
+msgid "No EmDash users available"
+msgstr "No EmDash users available"
+
+msgctxt "awcms.adminCopy.noEmdashUsersAvailableDescription"
+msgid "The plugin can still save assignments by exact EmDash user ID."
+msgstr "The plugin can still save assignments by exact EmDash user ID."
+
+msgctxt "awcms.adminCopy.availableRoles"
+msgid "Available roles"
+msgstr "Available roles"
+
+msgctxt "awcms.adminCopy.availableRolesDescription"
+msgid "Use these slugs in the user assignment form."
+msgstr "Use these slugs in the user assignment form."
+
+msgctxt "awcms.adminCopy.userScopesSaved"
+msgid "User region and organization scopes saved for the EmDash user reference."
+msgstr "User region and organization scopes saved for the EmDash user reference."
+
+msgctxt "awcms.adminCopy.failedToSaveUserScopes"
+msgid "Failed to save user scopes."
+msgstr "Failed to save user scopes."
+
+msgctxt "awcms.adminCopy.loadingSikesraAccessScopes"
+msgid "Loading SIKESRA access scopes..."
+msgstr "Loading SIKESRA access scopes..."
+
+msgctxt "awcms.adminCopy.assignUserScopes"
+msgid "Assign user scopes"
+msgstr "Assign user scopes"
+
+msgctxt "awcms.adminCopy.assignUserScopesDescription"
+msgid "Scopes are stored as SIKESRA user-scope assignments for EmDash user references."
+msgstr "Scopes are stored as SIKESRA user-scope assignments for EmDash user references."
+
+msgctxt "awcms.adminCopy.regionScopeType"
+msgid "Region scope type"
+msgstr "Region scope type"
+
+msgctxt "awcms.adminCopy.regionScopeCode"
+msgid "Region scope code"
+msgstr "Region scope code"
+
+msgctxt "awcms.adminCopy.organizationScopeType"
+msgid "Organization scope type"
+msgstr "Organization scope type"
+
+msgctxt "awcms.adminCopy.organizationScopeCode"
+msgid "Organization scope code"
+msgstr "Organization scope code"
+
+msgctxt "awcms.adminCopy.saveScopes"
+msgid "Save scopes"
+msgstr "Save scopes"
+
+msgctxt "awcms.adminCopy.currentUserScopes"
+msgid "Current user scopes"
+msgstr "Current user scopes"
+
+msgctxt "awcms.adminCopy.currentUserScopesDescription"
+msgid "These assignments constrain SIKESRA region and organization access."
+msgstr "These assignments constrain SIKESRA region and organization access."
+
+msgctxt "awcms.adminCopy.assignScopesEmptyDescription"
+msgid "Assign region or organization scopes to an EmDash user reference."
+msgstr "Assign region or organization scopes to an EmDash user reference."
+
+msgctxt "awcms.adminCopy.all"
+msgid "all"
+msgstr "all"
+
+msgctxt "awcms.adminCopy.regionScopeValue"
+msgid "Region: {type} {code}"
+msgstr "Region: {type} {code}"
+
+msgctxt "awcms.adminCopy.organizationScopeValue"
+msgid "Organization: {type} {code}"
+msgstr "Organization: {type} {code}"
+
+msgctxt "awcms.adminCopy.statusValue"
+msgid "Status: {value}"
+msgstr "Status: {value}"
+
+msgctxt "awcms.adminCopy.sikesraFieldContractEyebrow"
+msgid "SIKESRA field contract"
+msgstr "SIKESRA field contract"
+
+msgctxt "awcms.adminCopy.fieldCatalog"
+msgid "Field catalog"
+msgstr "Field catalog"
+
+msgctxt "awcms.adminCopy.fieldCatalogDescription"
+msgid "Canonical fields by module, data class, storage table, and public/export policy."
+msgstr "Canonical fields by module, data class, storage table, and public/export policy."
+
+msgctxt "awcms.adminCopy.allModules"
+msgid "All modules"
+msgstr "All modules"
+
+msgctxt "awcms.adminCopy.dataClass"
+msgid "Data class"
+msgstr "Data class"
+
+msgctxt "awcms.adminCopy.allDataClasses"
+msgid "All data classes"
+msgstr "All data classes"
+
+msgctxt "awcms.adminCopy.nonPersonal"
+msgid "Non-personal"
+msgstr "Non-personal"
+
+msgctxt "awcms.adminCopy.personal"
+msgid "Personal"
+msgstr "Personal"
+
+msgctxt "awcms.adminCopy.sensitivePersonal"
+msgid "Sensitive personal"
+msgstr "Sensitive personal"
+
+msgctxt "awcms.adminCopy.field"
+msgid "Field"
+msgstr "Field"
+
+msgctxt "awcms.adminCopy.storage"
+msgid "Storage"
+msgstr "Storage"
+
+msgctxt "awcms.adminCopy.policy"
+msgid "Policy"
+msgstr "Policy"
+
+msgctxt "awcms.adminCopy.importLabel"
+msgid "Import"
+msgstr "Import"
+
+msgctxt "awcms.adminCopy.exportLabel"
+msgid "Export"
+msgstr "Export"
+
+msgctxt "awcms.adminCopy.validationSummary"
+msgid "Validation summary"
+msgstr "Validation summary"
+
+msgctxt "awcms.adminCopy.validationSummaryDescription"
+msgid "Module-level import/export and privacy constraints."
+msgstr "Module-level import/export and privacy constraints."
+
+msgctxt "awcms.adminCopy.addressGroups"
+msgid "Address groups"
+msgstr "Address groups"
+
+msgctxt "awcms.adminCopy.ktpFields"
+msgid "KTP fields: {count}"
+msgstr "KTP fields: {count}"
+
+msgctxt "awcms.adminCopy.domicileFields"
+msgid "Domicile fields: {count}"
+msgstr "Domicile fields: {count}"
+
+msgctxt "awcms.adminCopy.restrictedExport"
+msgid "Restricted export"
+msgstr "Restricted export"
+
+msgctxt "awcms.adminCopy.selectModule"
+msgid "Select a module"
+msgstr "Select a module"
+
+msgctxt "awcms.adminCopy.selectModuleDescription"
+msgid "Choose one SIKESRA module to review required fields, KTP and domicile address groups, and restricted export rules."
+msgstr "Choose one SIKESRA module to review required fields, KTP and domicile address groups, and restricted export rules."
+
 msgctxt "awcms.adminCopy.draft"
 msgid "Draft"
 msgstr "Draft"

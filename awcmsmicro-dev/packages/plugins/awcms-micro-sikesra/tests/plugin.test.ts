@@ -7529,7 +7529,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("const routeRegistryId = React.useMemo");
 		expect(adminSource).toContain("setSelectedId(data.items[0].id)");
 		expect(adminSource).toContain("!routeRegistryId && !selectedId");
-		expect(adminSource).toContain("Registry record not found");
+		expect(adminSource).toContain("copy.registryRecordNotFound");
 		expect(adminSource).not.toContain(
 			"data?.items.find((item) => item.id === selectedId) ?? data?.items[0]",
 		);
@@ -7560,6 +7560,64 @@ describe("awcms micro sikesra plugin", () => {
 			"awcms.adminCopy.preparedDraftRegistryCode",
 			"awcms.adminCopy.registrySubmittedToQueue",
 		];
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps registry create and detail page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.sikesraUiUxStandardEyebrow",
+			"awcms.adminCopy.createRegistryDraft",
+			"awcms.adminCopy.nameOrLabel",
+			"awcms.adminCopy.saveRegistryRecord",
+			"awcms.adminCopy.registryRecordSaved",
+			"awcms.adminCopy.registryRecordNotFound",
+			"awcms.adminCopy.noRegistryRecordMatched",
+			"awcms.adminCopy.selectRecord",
+			"awcms.adminCopy.regionAndAuditContext",
+			"awcms.adminCopy.noApplicableCustomAttributes",
+		];
+
+		expect(adminSource).toContain("copy.createRegistryDraft");
+		expect(adminSource).toContain("copy.noRegistryRecordMatched(routeRegistryId)");
+		expect(adminSource).not.toContain("Create registry draft");
+		expect(adminSource).not.toContain("Registry record not found");
+		expect(adminSource).not.toContain("No public-safe summary supplied.");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps access assignment and scope page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.sikesraAccessEyebrow",
+			"awcms.adminCopy.emdashUserRoleAssignmentSaved",
+			"awcms.adminCopy.assignRolesToEmdashUser",
+			"awcms.adminCopy.emdashUserId",
+			"awcms.adminCopy.currentUserAssignments",
+			"awcms.adminCopy.emdashUsers",
+			"awcms.adminCopy.assignUserScopes",
+			"awcms.adminCopy.regionScopeType",
+			"awcms.adminCopy.organizationScopeType",
+			"awcms.adminCopy.currentUserScopes",
+		];
+
+		expect(adminSource).toContain("copy.assignRolesToEmdashUser");
+		expect(adminSource).toContain("copy.assignUserScopes");
+		expect(adminSource).not.toContain("Assign roles to EmDash user");
+		expect(adminSource).not.toContain("Loading SIKESRA user assignments...");
+		expect(adminSource).not.toContain("User region and organization scopes saved for the EmDash user reference.");
 
 		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
 			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");

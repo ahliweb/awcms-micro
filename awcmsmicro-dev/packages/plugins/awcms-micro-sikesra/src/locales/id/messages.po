@@ -1434,6 +1434,430 @@ msgctxt "awcms.adminCopy.requestFailed"
 msgid "Request failed"
 msgstr "Permintaan gagal"
 
+msgctxt "awcms.adminCopy.sikesraUiUxStandardEyebrow"
+msgid "SIKESRA UI/UX standard"
+msgstr "Standar UI/UX SIKESRA"
+
+msgctxt "awcms.adminCopy.pageAnatomy"
+msgid "Page anatomy"
+msgstr "Anatomi halaman"
+
+msgctxt "awcms.adminCopy.pageAnatomyDescription"
+msgid "This page follows the canonical SIKESRA admin interaction contract."
+msgstr "Halaman ini mengikuti kontrak interaksi admin SIKESRA yang canonical."
+
+msgctxt "awcms.adminCopy.workflowSafeguards"
+msgid "Workflow safeguards"
+msgstr "Pengaman alur kerja"
+
+msgctxt "awcms.adminCopy.workflowSafeguardsDescription"
+msgid "Required permissions, privacy, and audit friction."
+msgstr "Izin, privasi, dan friksi audit yang wajib."
+
+msgctxt "awcms.adminCopy.workflow"
+msgid "Workflow"
+msgstr "Alur kerja"
+
+msgctxt "awcms.adminCopy.standard"
+msgid "Standard"
+msgstr "Standar"
+
+msgctxt "awcms.adminCopy.required"
+msgid "Required"
+msgstr "Wajib"
+
+msgctxt "awcms.adminCopy.privacyIndicators"
+msgid "Privacy indicators"
+msgstr "Indikator privasi"
+
+msgctxt "awcms.adminCopy.reasonFlow"
+msgid "Reason flow"
+msgstr "Alur alasan"
+
+msgctxt "awcms.adminCopy.protectedAdminRouteHint"
+msgid "Use {href} for the protected admin route."
+msgstr "Gunakan {href} untuk route admin terlindungi."
+
+msgctxt "awcms.adminCopy.sikesraRegistryWizardEyebrow"
+msgid "SIKESRA registry wizard"
+msgstr "Wizard registry SIKESRA"
+
+msgctxt "awcms.adminCopy.createRegistryDraft"
+msgid "Create registry draft"
+msgstr "Buat draft registry"
+
+msgctxt "awcms.adminCopy.createRegistryDraftDescription"
+msgid "Save a draft-style record that enters the SIKESRA verification workflow."
+msgstr "Simpan record bergaya draft yang masuk ke alur kerja verifikasi SIKESRA."
+
+msgctxt "awcms.adminCopy.nameOrLabel"
+msgid "Name / label"
+msgstr "Nama / label"
+
+msgctxt "awcms.adminCopy.localCode"
+msgid "Local code"
+msgstr "Kode lokal"
+
+msgctxt "awcms.adminCopy.module"
+msgid "Module"
+msgstr "Modul"
+
+msgctxt "awcms.adminCopy.publicSummary"
+msgid "Public summary"
+msgstr "Ringkasan publik"
+
+msgctxt "awcms.adminCopy.publicSummaryHint"
+msgid "Public-safe summary only; do not include personal or document metadata."
+msgstr "Ringkasan aman-publik saja; jangan memasukkan metadata personal atau dokumen."
+
+msgctxt "awcms.adminCopy.applicableCustomAttributes"
+msgid "Applicable custom attributes"
+msgstr "Atribut kustom yang berlaku"
+
+msgctxt "awcms.adminCopy.applicableCustomAttributesCreateDescription"
+msgid "These fields are loaded from active definitions that match the selected module, subtype, region, or record scope."
+msgstr "Field ini dimuat dari definisi aktif yang cocok dengan modul, subtype, wilayah, atau cakupan record yang dipilih."
+
+msgctxt "awcms.adminCopy.saveRegistryRecord"
+msgid "Save registry record"
+msgstr "Simpan record registry"
+
+msgctxt "awcms.adminCopy.registryRecordSaved"
+msgid "Registry record saved with SIKESRA ID {id}."
+msgstr "Record registry tersimpan dengan ID SIKESRA {id}."
+
+msgctxt "awcms.adminCopy.failedToSaveRegistryRecord"
+msgid "Failed to save registry record."
+msgstr "Gagal menyimpan record registry."
+
+msgctxt "awcms.adminCopy.wizardSafeguards"
+msgid "Wizard safeguards"
+msgstr "Pengaman wizard"
+
+msgctxt "awcms.adminCopy.wizardSafeguardsDescription"
+msgid "The full registry workflow requires these steps before verification."
+msgstr "Alur registry lengkap memerlukan langkah-langkah ini sebelum verifikasi."
+
+msgctxt "awcms.adminCopy.loadingRegistryDetail"
+msgid "Loading registry detail..."
+msgstr "Memuat detail registry..."
+
+msgctxt "awcms.adminCopy.sikesraRegistryDetailEyebrow"
+msgid "SIKESRA registry detail"
+msgstr "Detail registry SIKESRA"
+
+msgctxt "awcms.adminCopy.registryRecordNotFound"
+msgid "Registry record not found"
+msgstr "Record registry tidak ditemukan"
+
+msgctxt "awcms.adminCopy.noRegistryRecordMatched"
+msgid "No registry record matched {id}. Check the URL or return to the registry queue."
+msgstr "Tidak ada record registry yang cocok dengan {id}. Periksa URL atau kembali ke antrean registry."
+
+msgctxt "awcms.adminCopy.createRegistryBeforeDetail"
+msgid "Create a registry record before reviewing detail state."
+msgstr "Buat record registry sebelum meninjau status detail."
+
+msgctxt "awcms.adminCopy.selectRecord"
+msgid "Select record"
+msgstr "Pilih record"
+
+msgctxt "awcms.adminCopy.selectRecordDescription"
+msgid "Review one registry entity without leaving table context."
+msgstr "Tinjau satu entitas registry tanpa meninggalkan konteks tabel."
+
+msgctxt "awcms.adminCopy.maskedDetailDescription"
+msgid "Masked detail, verification state, document links, and audit context."
+msgstr "Detail termasking, status verifikasi, tautan dokumen, dan konteks audit."
+
+msgctxt "awcms.adminCopy.verification"
+msgid "Verification"
+msgstr "Verifikasi"
+
+msgctxt "awcms.adminCopy.sikesraId"
+msgid "SIKESRA ID"
+msgstr "ID SIKESRA"
+
+msgctxt "awcms.adminCopy.pendingGeneration"
+msgid "Pending generation"
+msgstr "Menunggu pembuatan"
+
+msgctxt "awcms.adminCopy.publicSafeSummary"
+msgid "Public-safe summary"
+msgstr "Ringkasan aman-publik"
+
+msgctxt "awcms.adminCopy.noPublicSafeSummarySupplied"
+msgid "No public-safe summary supplied."
+msgstr "Belum ada ringkasan aman-publik."
+
+msgctxt "awcms.adminCopy.regionAndAuditContext"
+msgid "Region and audit context"
+msgstr "Konteks wilayah dan audit"
+
+msgctxt "awcms.adminCopy.regionAndAuditContextDescription"
+msgid "Detail view keeps regional scope visible for RBAC/ABAC review."
+msgstr "Tampilan detail menjaga cakupan wilayah terlihat untuk tinjauan RBAC/ABAC."
+
+msgctxt "awcms.adminCopy.regionValue"
+msgid "{label}: {value}"
+msgstr "{label}: {value}"
+
+msgctxt "awcms.adminCopy.applicableCustomAttributesDetailDescription"
+msgid "Dynamic fields are filtered by module, record, SIKESRA ID, and region scope."
+msgstr "Field dinamis difilter berdasarkan modul, record, ID SIKESRA, dan cakupan wilayah."
+
+msgctxt "awcms.adminCopy.noApplicableCustomAttributes"
+msgid "No applicable custom attributes"
+msgstr "Tidak ada atribut kustom yang berlaku"
+
+msgctxt "awcms.adminCopy.noApplicableCustomAttributesDescription"
+msgid "Create an active definition that matches this registry record to show dynamic fields here."
+msgstr "Buat definisi aktif yang cocok dengan record registry ini untuk menampilkan field dinamis di sini."
+
+msgctxt "awcms.adminCopy.noValueSavedForRegistryRecord"
+msgid "No value saved for this registry record."
+msgstr "Belum ada nilai tersimpan untuk record registry ini."
+
+msgctxt "awcms.adminCopy.sikesraAccessEyebrow"
+msgid "SIKESRA access"
+msgstr "Akses SIKESRA"
+
+msgctxt "awcms.adminCopy.emdashUserRoleAssignmentSaved"
+msgid "EmDash user role assignment saved with SIKESRA audit tracking."
+msgstr "Penugasan peran pengguna EmDash tersimpan dengan pelacakan audit SIKESRA."
+
+msgctxt "awcms.adminCopy.loadingSikesraUserAssignments"
+msgid "Loading SIKESRA user assignments..."
+msgstr "Memuat penugasan pengguna SIKESRA..."
+
+msgctxt "awcms.adminCopy.assignRolesToEmdashUser"
+msgid "Assign roles to EmDash user"
+msgstr "Tetapkan peran ke pengguna EmDash"
+
+msgctxt "awcms.adminCopy.assignRolesToEmdashUserDescription"
+msgid "Use trusted EmDash user IDs as references; do not duplicate user accounts."
+msgstr "Gunakan ID pengguna EmDash tepercaya sebagai referensi; jangan menduplikasi akun pengguna."
+
+msgctxt "awcms.adminCopy.emdashUserId"
+msgid "EmDash user ID"
+msgstr "ID pengguna EmDash"
+
+msgctxt "awcms.adminCopy.roleSlugs"
+msgid "Role slugs"
+msgstr "Slug peran"
+
+msgctxt "awcms.adminCopy.roleSlugsHint"
+msgid "Comma-separated SIKESRA role slugs."
+msgstr "Slug peran SIKESRA yang dipisahkan koma."
+
+msgctxt "awcms.adminCopy.activeAssignment"
+msgid "Active assignment"
+msgstr "Penugasan aktif"
+
+msgctxt "awcms.adminCopy.currentUserAssignments"
+msgid "Current user assignments"
+msgstr "Penugasan pengguna saat ini"
+
+msgctxt "awcms.adminCopy.currentUserAssignmentsDescription"
+msgid "Role assignments are SIKESRA-owned references to EmDash users."
+msgstr "Penugasan peran adalah referensi milik SIKESRA ke pengguna EmDash."
+
+msgctxt "awcms.adminCopy.assignSikesraRoleEmptyDescription"
+msgid "Assign a SIKESRA role to an EmDash user reference."
+msgstr "Tetapkan peran SIKESRA ke referensi pengguna EmDash."
+
+msgctxt "awcms.adminCopy.active"
+msgid "Active"
+msgstr "Aktif"
+
+msgctxt "awcms.adminCopy.inactive"
+msgid "Inactive"
+msgstr "Tidak aktif"
+
+msgctxt "awcms.adminCopy.updatedAt"
+msgid "Updated {value}"
+msgstr "Diperbarui {value}"
+
+msgctxt "awcms.adminCopy.emdashUsers"
+msgid "EmDash users"
+msgstr "Pengguna EmDash"
+
+msgctxt "awcms.adminCopy.emdashUsersDescription"
+msgid "Read-only trusted users exposed by EmDash for assignment reference."
+msgstr "Pengguna tepercaya read-only yang diekspos EmDash untuk referensi penugasan."
+
+msgctxt "awcms.adminCopy.noEmdashUsersAvailable"
+msgid "No EmDash users available"
+msgstr "Belum ada pengguna EmDash"
+
+msgctxt "awcms.adminCopy.noEmdashUsersAvailableDescription"
+msgid "The plugin can still save assignments by exact EmDash user ID."
+msgstr "Plugin tetap dapat menyimpan penugasan menggunakan ID pengguna EmDash yang tepat."
+
+msgctxt "awcms.adminCopy.availableRoles"
+msgid "Available roles"
+msgstr "Peran tersedia"
+
+msgctxt "awcms.adminCopy.availableRolesDescription"
+msgid "Use these slugs in the user assignment form."
+msgstr "Gunakan slug ini dalam formulir penugasan pengguna."
+
+msgctxt "awcms.adminCopy.userScopesSaved"
+msgid "User region and organization scopes saved for the EmDash user reference."
+msgstr "Cakupan wilayah dan organisasi pengguna tersimpan untuk referensi pengguna EmDash."
+
+msgctxt "awcms.adminCopy.failedToSaveUserScopes"
+msgid "Failed to save user scopes."
+msgstr "Gagal menyimpan cakupan pengguna."
+
+msgctxt "awcms.adminCopy.loadingSikesraAccessScopes"
+msgid "Loading SIKESRA access scopes..."
+msgstr "Memuat cakupan akses SIKESRA..."
+
+msgctxt "awcms.adminCopy.assignUserScopes"
+msgid "Assign user scopes"
+msgstr "Tetapkan cakupan pengguna"
+
+msgctxt "awcms.adminCopy.assignUserScopesDescription"
+msgid "Scopes are stored as SIKESRA user-scope assignments for EmDash user references."
+msgstr "Cakupan disimpan sebagai penugasan cakupan pengguna SIKESRA untuk referensi pengguna EmDash."
+
+msgctxt "awcms.adminCopy.regionScopeType"
+msgid "Region scope type"
+msgstr "Tipe cakupan wilayah"
+
+msgctxt "awcms.adminCopy.regionScopeCode"
+msgid "Region scope code"
+msgstr "Kode cakupan wilayah"
+
+msgctxt "awcms.adminCopy.organizationScopeType"
+msgid "Organization scope type"
+msgstr "Tipe cakupan organisasi"
+
+msgctxt "awcms.adminCopy.organizationScopeCode"
+msgid "Organization scope code"
+msgstr "Kode cakupan organisasi"
+
+msgctxt "awcms.adminCopy.saveScopes"
+msgid "Save scopes"
+msgstr "Simpan cakupan"
+
+msgctxt "awcms.adminCopy.currentUserScopes"
+msgid "Current user scopes"
+msgstr "Cakupan pengguna saat ini"
+
+msgctxt "awcms.adminCopy.currentUserScopesDescription"
+msgid "These assignments constrain SIKESRA region and organization access."
+msgstr "Penugasan ini membatasi akses wilayah dan organisasi SIKESRA."
+
+msgctxt "awcms.adminCopy.assignScopesEmptyDescription"
+msgid "Assign region or organization scopes to an EmDash user reference."
+msgstr "Tetapkan cakupan wilayah atau organisasi ke referensi pengguna EmDash."
+
+msgctxt "awcms.adminCopy.all"
+msgid "all"
+msgstr "semua"
+
+msgctxt "awcms.adminCopy.regionScopeValue"
+msgid "Region: {type} {code}"
+msgstr "Wilayah: {type} {code}"
+
+msgctxt "awcms.adminCopy.organizationScopeValue"
+msgid "Organization: {type} {code}"
+msgstr "Organisasi: {type} {code}"
+
+msgctxt "awcms.adminCopy.statusValue"
+msgid "Status: {value}"
+msgstr "Status: {value}"
+
+msgctxt "awcms.adminCopy.sikesraFieldContractEyebrow"
+msgid "SIKESRA field contract"
+msgstr "Kontrak field SIKESRA"
+
+msgctxt "awcms.adminCopy.fieldCatalog"
+msgid "Field catalog"
+msgstr "Katalog field"
+
+msgctxt "awcms.adminCopy.fieldCatalogDescription"
+msgid "Canonical fields by module, data class, storage table, and public/export policy."
+msgstr "Field canonical berdasarkan modul, kelas data, tabel penyimpanan, dan kebijakan publik/ekspor."
+
+msgctxt "awcms.adminCopy.allModules"
+msgid "All modules"
+msgstr "Semua modul"
+
+msgctxt "awcms.adminCopy.dataClass"
+msgid "Data class"
+msgstr "Kelas data"
+
+msgctxt "awcms.adminCopy.allDataClasses"
+msgid "All data classes"
+msgstr "Semua kelas data"
+
+msgctxt "awcms.adminCopy.nonPersonal"
+msgid "Non-personal"
+msgstr "Non-personal"
+
+msgctxt "awcms.adminCopy.personal"
+msgid "Personal"
+msgstr "Personal"
+
+msgctxt "awcms.adminCopy.sensitivePersonal"
+msgid "Sensitive personal"
+msgstr "Personal sensitif"
+
+msgctxt "awcms.adminCopy.field"
+msgid "Field"
+msgstr "Field"
+
+msgctxt "awcms.adminCopy.storage"
+msgid "Storage"
+msgstr "Penyimpanan"
+
+msgctxt "awcms.adminCopy.policy"
+msgid "Policy"
+msgstr "Kebijakan"
+
+msgctxt "awcms.adminCopy.importLabel"
+msgid "Import"
+msgstr "Impor"
+
+msgctxt "awcms.adminCopy.exportLabel"
+msgid "Export"
+msgstr "Ekspor"
+
+msgctxt "awcms.adminCopy.validationSummary"
+msgid "Validation summary"
+msgstr "Ringkasan validasi"
+
+msgctxt "awcms.adminCopy.validationSummaryDescription"
+msgid "Module-level import/export and privacy constraints."
+msgstr "Batasan impor/ekspor dan privasi tingkat modul."
+
+msgctxt "awcms.adminCopy.addressGroups"
+msgid "Address groups"
+msgstr "Grup alamat"
+
+msgctxt "awcms.adminCopy.ktpFields"
+msgid "KTP fields: {count}"
+msgstr "Field KTP: {count}"
+
+msgctxt "awcms.adminCopy.domicileFields"
+msgid "Domicile fields: {count}"
+msgstr "Field domisili: {count}"
+
+msgctxt "awcms.adminCopy.restrictedExport"
+msgid "Restricted export"
+msgstr "Ekspor terbatas"
+
+msgctxt "awcms.adminCopy.selectModule"
+msgid "Select a module"
+msgstr "Pilih modul"
+
+msgctxt "awcms.adminCopy.selectModuleDescription"
+msgid "Choose one SIKESRA module to review required fields, KTP and domicile address groups, and restricted export rules."
+msgstr "Pilih satu modul SIKESRA untuk meninjau field wajib, grup alamat KTP dan domisili, serta aturan ekspor terbatas."
+
 msgctxt "awcms.adminCopy.draft"
 msgid "Draft"
 msgstr "Draf"
