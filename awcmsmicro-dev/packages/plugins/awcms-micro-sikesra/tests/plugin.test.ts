@@ -7532,6 +7532,9 @@ describe("awcms micro sikesra plugin", () => {
 			"sikesraChartTitle",
 			"sikesraPrivacyNoticeDescription",
 			"sikesraLowCountPrivacy",
+			"sikesraNoPublicDataTitle",
+			"sikesraUnavailableDescription",
+			"sikesraStatusUnavailable",
 		];
 
 		for (const templatePath of templatePaths) {
@@ -7553,6 +7556,8 @@ describe("awcms micro sikesra plugin", () => {
 			);
 
 			expect(pageSource).toContain("getPublicCopy(currentLocale)");
+			expect(pageSource).toContain("hasSikesraCategories");
+			expect(pageSource).toContain('role="img"');
 			expect(pageSource).not.toContain("const isId = currentLocale.startsWith");
 			expect(pageSource).not.toContain('isId ? "');
 			for (const key of requiredKeys) {
@@ -7597,8 +7602,24 @@ describe("awcms micro sikesra plugin", () => {
 			expect(config).not.toContain("awcmsMicroExamplePlugin");
 		}
 		expect(localTemplateConfig).toContain('tenantId: "t-local-dev"');
+		expect(localTemplateConfig).toContain('siteId: "default"');
 		expect(cloudflareTemplateConfig).toContain("AWCMS_MICRO_SIKESRA_TENANT_ID");
+		expect(cloudflareTemplateConfig).toContain("AWCMS_MICRO_SIKESRA_SITE_ID");
 		expect(cloudflareTemplateConfig).toContain('?? "t-production"');
+		expect(cloudflareTemplateConfig).toContain('?? "production"');
 		expect(cloudflareTemplateConfig).not.toContain('tenantId: "t-local-dev"');
+	});
+
+	it("keeps backup inventory protected table guard explicit", () => {
+		const source = readFileSync(
+			resolve(import.meta.dirname, "../scripts/backup-inventory.mjs"),
+			"utf8",
+		);
+
+		expect(source).toContain("const requiredProtectedTables = [");
+		expect(source).toContain("unprotectedSchemaTables");
+		expect(source).toContain("sikesra_registry_entities");
+		expect(source).toContain("sikesra_delete_snapshots");
+		expect(source).not.toContain("const requiredProtectedTables = d1Tables.toSorted()");
 	});
 });

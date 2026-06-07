@@ -9,6 +9,7 @@ import emdash from "emdash/astro";
 
 const siteUrl = process.env.AWCMS_MICRO_SITE_URL ?? "https://awcms-micro.ahlikoding.com";
 const sikesraTenantId = process.env.AWCMS_MICRO_SIKESRA_TENANT_ID ?? "t-production";
+const sikesraSiteId = process.env.AWCMS_MICRO_SIKESRA_SITE_ID ?? "production";
 
 export default defineConfig({
 	output: "server",
@@ -36,7 +37,7 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroGalleryPlugin(),
-				awcmsMicroSikesraPlugin({ tenantId: sikesraTenantId }),
+				awcmsMicroSikesraPlugin({ tenantId: sikesraTenantId, siteId: sikesraSiteId }),
 			],
 			sandboxed: [],
 			sandboxRunner: sandbox(),

@@ -194,6 +194,14 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 			"Comparison of total registered entities vs verified data per category.",
 		sikesraLowCountPrivacy: "Count too low for privacy safety",
 		sikesraTotalShort: "Total",
+		sikesraNoPublicDataTitle: "No public SIKESRA aggregate yet",
+		sikesraNoPublicDataDescription:
+			"No public-safe aggregate categories are available for this site yet. Once verified records meet the publication threshold, this page will show only aggregate totals.",
+		sikesraUnavailableTitle: "SIKESRA aggregate temporarily unavailable",
+		sikesraUnavailableDescription:
+			"The public SIKESRA aggregate could not be loaded right now. No protected registry data is exposed in this fallback state.",
+		sikesraStatusUnavailable: "Unavailable",
+		sikesraGovernanceFallback: "public-safe fallback",
 	},
 	id: {
 		notFoundTitle: "Halaman Tidak Ditemukan",
@@ -389,5 +397,13 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 			"Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.",
 		sikesraLowCountPrivacy: "Jumlah terlalu rendah untuk keamanan privasi",
 		sikesraTotalShort: "Total",
+		sikesraNoPublicDataTitle: "Belum ada agregat publik SIKESRA",
+		sikesraNoPublicDataDescription:
+			"Belum ada kategori agregat aman-publik untuk situs ini. Setelah data terverifikasi memenuhi batas publikasi, halaman ini hanya akan menampilkan total agregat.",
+		sikesraUnavailableTitle: "Agregat SIKESRA sementara tidak tersedia",
+		sikesraUnavailableDescription:
+			"Agregat publik SIKESRA belum dapat dimuat saat ini. Tidak ada data registry terlindungi yang diekspos dalam kondisi fallback ini.",
+		sikesraStatusUnavailable: "Tidak tersedia",
+		sikesraGovernanceFallback: "fallback aman-publik",
 	},
 } as const;

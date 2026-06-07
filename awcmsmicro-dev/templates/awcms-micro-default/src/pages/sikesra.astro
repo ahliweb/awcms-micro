@@ -32,6 +32,7 @@ const fallbackSikesraData: SikesraData = {
 	}
 };
 let sikesraData: SikesraData = fallbackSikesraData;
+let sikesraFetchFailed = false;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
 	typeof value === "object" && value !== null && !Array.isArray(value);
@@ -63,8 +64,11 @@ try {
 	const res = await fetch(url);
 	if (res.ok) {
 		sikesraData = normalizeSikesraData(await res.json());
+	} else {
+		sikesraFetchFailed = true;
 	}
 } catch (err) {
+	sikesraFetchFailed = true;
 	console.error("Failed to fetch SIKESRA status:", err);
 }
 
@@ -75,6 +79,10 @@ const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || default
 
 const copy = getPublicCopy(currentLocale);
 const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.total) || []), 1);
+const hasSikesraCategories = sikesraData.publicAggregate?.categories?.length > 0;
+const displayStatus = sikesraFetchFailed ? copy.sikesraStatusUnavailable : sikesraData.status;
+const displayGovernanceMode = sikesraFetchFailed ? copy.sikesraGovernanceFallback : sikesraData.governanceMode;
+const displayCaveat = sikesraFetchFailed ? copy.sikesraUnavailableDescription : sikesraData.publicAggregate?.caveat;
 ---
 
 <BaseLayout title={copy.sikesraRecapitulationTitle} description={copy.sikesraRecapitulationDescription} showFooterWidgets={false}>
@@ -84,16 +92,16 @@ const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.
 		<p style="color:var(--text-muted);margin-bottom:1.5rem;font-size:1.1rem;">{copy.sikesraRecapitulationIntro}</p>
 		<div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.9rem;border-top:1px solid rgba(15,23,42,0.08);padding-top:1rem;">
 			<div>
-				<strong>{copy.sikesraSystemStatus}:</strong> <span style="text-transform:uppercase;color:var(--accent);font-weight:600;">{sikesraData.status}</span>
+				<strong>{copy.sikesraSystemStatus}:</strong> <span style="text-transform:uppercase;color:var(--accent);font-weight:600;">{displayStatus}</span>
 			</div>
 			<div>
-				<strong>{copy.sikesraGovernanceMode}:</strong> <span style="text-transform:capitalize;color:var(--accent);font-weight:600;">{sikesraData.governanceMode}</span>
+				<strong>{copy.sikesraGovernanceMode}:</strong> <span style="text-transform:capitalize;color:var(--accent);font-weight:600;">{displayGovernanceMode}</span>
 			</div>
 		</div>
 	</section>
 
 	<!-- Beautiful grouped horizontal bar chart -->
-	{sikesraData.publicAggregate?.categories && sikesraData.publicAggregate.categories.length > 0 && (
+	{hasSikesraCategories ? (
 		<section class="card" style="margin-bottom:2rem; padding: 2rem;">
 			<h2 style="margin-top:0; font-size:1.5rem; font-weight:700; margin-bottom:0.5rem;">
 				{copy.sikesraChartTitle}
@@ -106,9 +114,11 @@ const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.
 				{sikesraData.publicAggregate.categories.map((cat) => {
 					const totalPct = (cat.total / maxVal) * 100;
 					const verifiedPct = (cat.verified / maxVal) * 100;
+					const totalLabel = `${cat.label} ${copy.sikesraTotalEntities}: ${cat.total}`;
+					const verifiedLabel = `${cat.label} ${copy.sikesraVerified}: ${cat.verified}`;
 					
 					return (
-						<div style="display:flex; flex-direction:column; gap:0.5rem;">
+						<div style="display:flex; flex-direction:column; gap:0.5rem;" aria-label={cat.label}>
 							<div style="display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:0.95rem;">
 								<span>{cat.label}</span>
 								{cat.suppressed ? (
@@ -128,11 +138,11 @@ const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.
 							) : (
 								<div style="display:flex; flex-direction:column; gap:6px;">
 									<!-- Total Bar -->
-									<div style="width:100%; background:rgba(15,23,42,0.04); height:10px; border-radius:9999px; overflow:hidden;">
+									<div role="img" aria-label={totalLabel} style="width:100%; background:rgba(15,23,42,0.04); height:10px; border-radius:9999px; overflow:hidden;">
 										<div style={`background:var(--primary); height:100%; border-radius:9999px; width:${totalPct}%;`} />
 									</div>
 									<!-- Verified Bar -->
-									<div style="width:100%; background:rgba(15,23,42,0.04); height:10px; border-radius:9999px; overflow:hidden;">
+									<div role="img" aria-label={verifiedLabel} style="width:100%; background:rgba(15,23,42,0.04); height:10px; border-radius:9999px; overflow:hidden;">
 										<div style={`background:var(--accent); height:100%; border-radius:9999px; width:${verifiedPct}%;`} />
 									</div>
 								</div>
@@ -153,9 +163,18 @@ const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.
 				</div>
 			</div>
 		</section>
+	) : (
+		<section class="card" style="margin-bottom:2rem;padding:2rem;">
+			<h2 style="margin-top:0;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;">
+				{sikesraFetchFailed ? copy.sikesraUnavailableTitle : copy.sikesraNoPublicDataTitle}
+			</h2>
+			<p style="color:var(--text-muted);font-size:0.95rem;margin-bottom:0;">
+				{sikesraFetchFailed ? copy.sikesraUnavailableDescription : copy.sikesraNoPublicDataDescription}
+			</p>
+		</section>
 	)}
 
-	<section class="card" style="margin-bottom:2rem;">
+	{hasSikesraCategories && <section class="card" style="margin-bottom:2rem;">
 		<div style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
 			{sikesraData.publicAggregate?.categories?.map((cat) => (
 				<div style="border:1px solid rgba(15,23,42,0.08);border-radius:1rem;padding:1.5rem;background:#fff;display:flex;flex-direction:column;justify-content:between;">
@@ -177,11 +196,11 @@ const maxVal = Math.max(...(sikesraData.publicAggregate?.categories?.map(c => c.
 				</div>
 			))}
 		</div>
-	</section>
+	</section>}
 
 	<section class="card">
 		<h2 style="margin-top:0;">{copy.sikesraPrivacyNotice}</h2>
 		<p style="color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">{copy.sikesraPrivacyNoticeDescription}</p>
-		<p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;margin-bottom:0;">{sikesraData.publicAggregate?.caveat}</p>
+		<p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;margin-bottom:0;">{displayCaveat}</p>
 	</section>
 </BaseLayout>

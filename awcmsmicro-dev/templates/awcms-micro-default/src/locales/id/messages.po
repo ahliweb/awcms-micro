@@ -641,3 +641,27 @@ msgstr "Jumlah terlalu rendah untuk keamanan privasi"
 msgctxt "sikesraTotalShort"
 msgid "Total"
 msgstr "Total"
+
+msgctxt "sikesraNoPublicDataTitle"
+msgid "No public SIKESRA aggregate yet"
+msgstr "Belum ada agregat publik SIKESRA"
+
+msgctxt "sikesraNoPublicDataDescription"
+msgid "No public-safe aggregate categories are available for this site yet. Once verified records meet the publication threshold, this page will show only aggregate totals."
+msgstr "Belum ada kategori agregat aman-publik untuk situs ini. Setelah data terverifikasi memenuhi batas publikasi, halaman ini hanya akan menampilkan total agregat."
+
+msgctxt "sikesraUnavailableTitle"
+msgid "SIKESRA aggregate temporarily unavailable"
+msgstr "Agregat SIKESRA sementara tidak tersedia"
+
+msgctxt "sikesraUnavailableDescription"
+msgid "The public SIKESRA aggregate could not be loaded right now. No protected registry data is exposed in this fallback state."
+msgstr "Agregat publik SIKESRA belum dapat dimuat saat ini. Tidak ada data registry terlindungi yang diekspos dalam kondisi fallback ini."
+
+msgctxt "sikesraStatusUnavailable"
+msgid "Unavailable"
+msgstr "Tidak tersedia"
+
+msgctxt "sikesraGovernanceFallback"
+msgid "public-safe fallback"
+msgstr "fallback aman-publik"

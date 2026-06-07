@@ -37,7 +37,7 @@ export default defineConfig({
 			plugins: [
 				awcmsMicroDocsPlugin(),
 				awcmsMicroGalleryPlugin(),
-				awcmsMicroSikesraPlugin({ tenantId: "t-local-dev" }),
+				awcmsMicroSikesraPlugin({ tenantId: "t-local-dev", siteId: "default" }),
 			],
 			admin: {
 				logo: "/awcms-logo.png",

@@ -410,7 +410,7 @@ INSERT OR IGNORE INTO sikesra_abac_subject_assignments (
 	updated_by
 ) VALUES
 	('__TENANT_ID__', '__SITE_ID__', 'abac-subject-demo-admin-region', 'user-demo-sikesra-admin', 'region_scope', '6201', 'seed', 'seed'),
-	('__TENANT_ID__', '__SITE_ID__', 'abac-subject-demo-district-region', 'user-demo-district', 'region_scope', '620101', 'seed', 'seed');
+	('__TENANT_ID__', '__SITE_ID__', 'abac-subject-demo-district-region', 'user-demo-district', 'region_scope', '620102', 'seed', 'seed');
 
 INSERT OR IGNORE INTO sikesra_abac_resource_assignments (
 	tenant_id,

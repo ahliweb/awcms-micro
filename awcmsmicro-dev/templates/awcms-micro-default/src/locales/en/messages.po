@@ -641,3 +641,27 @@ msgstr "Count too low for privacy safety"
 msgctxt "sikesraTotalShort"
 msgid "Total"
 msgstr "Total"
+
+msgctxt "sikesraNoPublicDataTitle"
+msgid "No public SIKESRA aggregate yet"
+msgstr "No public SIKESRA aggregate yet"
+
+msgctxt "sikesraNoPublicDataDescription"
+msgid "No public-safe aggregate categories are available for this site yet. Once verified records meet the publication threshold, this page will show only aggregate totals."
+msgstr "No public-safe aggregate categories are available for this site yet. Once verified records meet the publication threshold, this page will show only aggregate totals."
+
+msgctxt "sikesraUnavailableTitle"
+msgid "SIKESRA aggregate temporarily unavailable"
+msgstr "SIKESRA aggregate temporarily unavailable"
+
+msgctxt "sikesraUnavailableDescription"
+msgid "The public SIKESRA aggregate could not be loaded right now. No protected registry data is exposed in this fallback state."
+msgstr "The public SIKESRA aggregate could not be loaded right now. No protected registry data is exposed in this fallback state."
+
+msgctxt "sikesraStatusUnavailable"
+msgid "Unavailable"
+msgstr "Unavailable"
+
+msgctxt "sikesraGovernanceFallback"
+msgid "public-safe fallback"
+msgstr "public-safe fallback"
