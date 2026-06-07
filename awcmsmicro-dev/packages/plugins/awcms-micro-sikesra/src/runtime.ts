@@ -4835,7 +4835,6 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx): Promise<Si
 			},
 		};
 	} catch (cause) {
-		if (isProductionRuntime()) throw cause;
 		if (isMissingD1TableError(cause)) {
 			ctx?.log.warn(
 				`[${AWCMS_SIKESRA_PLUGIN_ID}] D1 public status table unavailable; using fallback data.`,
@@ -4855,6 +4854,21 @@ const publicStatusRoute: SharedRouteHandler = async (_routeCtx, ctx): Promise<Si
 		};
 	}
 };
+
+function createOverviewSummaryFallback(): Awaited<ReturnType<typeof summarizePluginState>> {
+	return {
+		plugin: { id: AWCMS_SIKESRA_PLUGIN_ID },
+		settings: DEFAULT_SETTINGS,
+		counters: {
+			auditCount: 0,
+			lifecycleCount: 0,
+			publicHits: 0,
+		},
+		lastCronAt: null,
+		lastLifecycle: null,
+		recentEvents: [] as ExampleAuditEvent[],
+	};
+}
 
 const registryListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.registry.read");
@@ -7520,15 +7534,30 @@ const auditListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.dashboard.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	const summary = await summarizePluginState(ctx);
+	let summary: Awaited<ReturnType<typeof summarizePluginState>>;
+	try {
+		summary = await summarizePluginState(ctx);
+	} catch (cause) {
+		ctx?.log.error(
+			`[${AWCMS_SIKESRA_PLUGIN_ID}] Overview summary fallback activated for unavailable runtime state.`,
+			cause,
+		);
+		summary = createOverviewSummaryFallback();
+	}
 	let access: Awaited<ReturnType<typeof summarizeAccessRights>> | null = null;
 	try {
 		access = await summarizeAccessRights(ctx);
 	} catch (cause) {
-		if (!isMissingD1TableError(cause)) throw cause;
-		ctx?.log.warn(
-			`[${AWCMS_SIKESRA_PLUGIN_ID}] Access health unavailable; overview is using fallback access counters.`,
-		);
+		if (isMissingD1TableError(cause)) {
+			ctx?.log.warn(
+				`[${AWCMS_SIKESRA_PLUGIN_ID}] Access health unavailable; overview is using fallback access counters.`,
+			);
+		} else {
+			ctx?.log.error(
+				`[${AWCMS_SIKESRA_PLUGIN_ID}] Access health fallback activated for overview summary.`,
+				cause,
+			);
+		}
 	}
 	return {
 		...summary,

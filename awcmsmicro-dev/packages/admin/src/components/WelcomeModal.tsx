@@ -26,6 +26,7 @@ const MSG_ROLE_EDITOR = msg`Editor`;
 const MSG_ROLE_AUTHOR = msg`Author`;
 const MSG_ROLE_CONTRIBUTOR = msg`Contributor`;
 const MSG_ROLE_SUBSCRIBER = msg`Subscriber`;
+const AWCMS_BRAND_TEXT = "AWCMS by AhliWeb.com & EmDash";
 
 function roleDescriptor(role: number): MessageDescriptor {
 	if (role >= 50) return MSG_ROLE_ADMINISTRATOR;
@@ -36,7 +37,6 @@ function roleDescriptor(role: number): MessageDescriptor {
 }
 
 const MSG_ACCOUNT_CREATED = msg`Your account has been created successfully.`;
-const MSG_AWCMS_BRAND = msg`AWCMS by AhliWeb.com & EmDash`;
 const MSG_YOUR_ROLE = msg`Your Role`;
 const MSG_SCOPE_ADMIN = msg`You have full access to manage this site, including users, settings, and all content.`;
 const MSG_SCOPE_EDITOR = msg`You can manage content, media, menus, and taxonomies.`;
@@ -117,7 +117,7 @@ export function WelcomeModal({ open, onClose, userRole }: WelcomeModalProps) {
 						<img src="/awcms-logo.png" alt="AWCMS" className="h-12 w-auto" />
 					</div>
 					<Dialog.Title className="text-2xl font-semibold leading-none tracking-tight">
-						{t(MSG_AWCMS_BRAND)}
+						{AWCMS_BRAND_TEXT}
 					</Dialog.Title>
 					<Dialog.Description className="text-base text-kumo-subtle">
 						{t(MSG_ACCOUNT_CREATED)}

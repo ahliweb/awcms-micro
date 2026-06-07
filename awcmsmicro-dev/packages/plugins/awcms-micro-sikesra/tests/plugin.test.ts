@@ -2533,7 +2533,7 @@ describe("awcms micro sikesra plugin", () => {
 		expectPublicSafeOutput(result);
 	});
 
-	it("fails closed for public status when production plugin context omits D1 access", async () => {
+	it("keeps public status available when production plugin context omits D1 access", async () => {
 		const { ctx } = createMockContext();
 		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
 		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
@@ -2541,12 +2541,53 @@ describe("awcms micro sikesra plugin", () => {
 		delete (ctx as any).db;
 
 		try {
-			await expect(
-				createNativeRoutes()["public/status"]!.handler({
-					...ctx,
-					input: {},
-				} as any),
-			).rejects.toThrow("canonical settings runtime state");
+			const result = (await createNativeRoutes()["public/status"]!.handler({
+				...ctx,
+				input: {},
+			} as any)) as any;
+
+			expect(result).toMatchObject({
+				plugin: { id: "awcms-micro-sikesra", visibility: "public-safe" },
+				status: "healthy",
+				governanceMode: "review",
+			});
+			expect(result.publicAggregate.categories).toEqual([]);
+			expectPublicSafeOutput(result);
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
+
+	it("keeps trusted-admin overview summary available when production D1 access is not ready", async () => {
+		const { ctx } = createMockContext();
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+		delete (ctx as any).db;
+
+		try {
+			const result = (await createNativeRoutes()["overview/summary"]!.handler({
+				...ctx,
+				request: new Request("https://example.test"),
+				user: {
+					id: "emdash-production-admin",
+					email: "admin@example.test",
+					name: "Production Admin",
+					role: 50,
+				},
+				input: {},
+			} as any)) as any;
+
+			expect(result.success).not.toBe(false);
+			expect(result.plugin).toEqual({ id: "awcms-micro-sikesra" });
+			expect(result.settings).toMatchObject({
+				publicStatusLabel: "healthy",
+				governanceMode: "review",
+			});
+			expect(result.counters).toEqual({ auditCount: 0, lifecycleCount: 0, publicHits: 0 });
+			expect(result.recentEvents).toEqual([]);
+			expect(result.accessRights.permissionCount).toBeGreaterThanOrEqual(0);
 		} finally {
 			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
 			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
