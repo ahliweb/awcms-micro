@@ -2474,6 +2474,8 @@ function CustomAttributeValuesPage() {
 }
 
 function DeleteRequestsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/delete-requests");
 	const { data, error, loading, reload } = usePluginData<PermanentDeleteRequestsResponse>(
 		"crud/permanent-delete/requests/list",
@@ -2500,7 +2502,7 @@ function DeleteRequestsPage() {
 		setSaveError(null);
 		try {
 			await requestPermanentDelete(requestState, await createAdminApiRequestOptions());
-			setNotice("Permanent delete request created with snapshot review pending.");
+			setNotice(copy.permanentDeleteRequestCreated);
 			setRequestState((current) => ({
 				...current,
 				targetRecordId: "",
@@ -2509,7 +2511,7 @@ function DeleteRequestsPage() {
 			}));
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to create delete request.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToCreateDeleteRequest);
 		} finally {
 			setBusyId(null);
 		}
@@ -2531,10 +2533,12 @@ function DeleteRequestsPage() {
 				},
 				await createAdminApiRequestOptions(),
 			);
-			setNotice(`Permanent delete request ${decision}.`);
+			setNotice(copy.permanentDeleteRequestDecision(decision));
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : `Failed to mark request ${decision}.`);
+			setSaveError(
+				cause instanceof Error ? cause.message : copy.failedToMarkRequestDecision(decision),
+			);
 		} finally {
 			setBusyId(null);
 		}
@@ -2546,7 +2550,7 @@ function DeleteRequestsPage() {
 		setSaveError(null);
 		try {
 			if (decisionState[item.id]?.confirmation !== "PERMANENT DELETE") {
-				throw new Error("Type PERMANENT DELETE before executing the permanent delete request.");
+				throw new Error(copy.typePermanentDeleteBeforeExecuting);
 			}
 			await executePermanentDelete(
 				{
@@ -2555,22 +2559,22 @@ function DeleteRequestsPage() {
 				},
 				await createAdminApiRequestOptions(),
 			);
-			setNotice("Permanent delete request executed after confirmation.");
+			setNotice(copy.permanentDeleteRequestExecuted);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to execute delete request.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToExecuteDeleteRequest);
 		} finally {
 			setBusyId(null);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading permanent delete requests..." />;
+	if (loading) return <LoadingState label={copy.loadingPermanentDeleteRequests} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA governance"
+				eyebrow={copy.sikesraGovernance}
 				title={contract.title}
 				description={contract.purpose}
 			/>
@@ -2579,11 +2583,11 @@ function DeleteRequestsPage() {
 
 			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
 				<Card
-					title="Create delete request"
-					description="Highest-admin workflow requires reason, snapshot, and exact confirmation."
+					title={copy.createDeleteRequest}
+					description={copy.createDeleteRequestDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void requestDelete(event)}>
-						<Field label="Target table">
+						<Field label={copy.targetTable}>
 							<Input
 								value={requestState.targetTable}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2592,7 +2596,7 @@ function DeleteRequestsPage() {
 								required
 							/>
 						</Field>
-						<Field label="Target record ID">
+						<Field label={copy.targetRecordId}>
 							<Input
 								value={requestState.targetRecordId}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2601,7 +2605,7 @@ function DeleteRequestsPage() {
 								required
 							/>
 						</Field>
-						<Field label="Reason" hint="Required for audit review.">
+						<Field label={copy.reason} hint={copy.requiredForAuditReview}>
 							<InputArea
 								value={requestState.reason}
 								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -2610,7 +2614,7 @@ function DeleteRequestsPage() {
 								required
 							/>
 						</Field>
-						<Field label="Confirmation phrase" hint="Type PERMANENT DELETE to create the request.">
+						<Field label={copy.confirmationPhrase} hint={copy.typePermanentDeleteToCreateRequest}>
 							<Input
 								value={requestState.confirmation}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2620,19 +2624,19 @@ function DeleteRequestsPage() {
 							/>
 						</Field>
 						<Button variant="primary" type="submit" disabled={busyId === "request"}>
-							{busyId === "request" ? "Requesting..." : "Create request"}
+							{busyId === "request" ? copy.requesting : copy.createRequest}
 						</Button>
 					</form>
 				</Card>
 
 				<Card
-					title="Review queue"
-					description="Approve, reject, or execute with high-friction confirmation."
+					title={copy.reviewQueue}
+					description={copy.reviewQueueDescription}
 				>
 					{!data?.items.length ? (
 						<EmptyState
 							title={contract.emptyState}
-							description="No permanent delete requests are waiting for review."
+							description={copy.noPermanentDeleteRequestsWaiting}
 						/>
 					) : (
 						<div className="space-y-4">
@@ -2662,14 +2666,14 @@ function DeleteRequestsPage() {
 									</div>
 									<p className="mt-3 text-sm text-kumo-subtle">{item.reason}</p>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
-										<span>Requested by: {item.requestedBy}</span>
-										<span>Requested: {formatDateTime(item.requestedAt, "en")}</span>
-										<span>Type: {item.targetType}</span>
+							<span>{copy.requestedByValue(item.requestedBy)}</span>
+							<span>{copy.requestedValue(formatDateTime(item.requestedAt, i18n.locale))}</span>
+							<span>{copy.typeValue(item.targetType)}</span>
 									</div>
 									<div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-										<Input
-											value={decisionState[item.id]?.notes ?? ""}
-											placeholder="Decision notes"
+						<Input
+							value={decisionState[item.id]?.notes ?? ""}
+							placeholder={copy.decisionNotes}
 											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 												setDecisionState((current) => ({
 													...current,
@@ -2687,7 +2691,7 @@ function DeleteRequestsPage() {
 												type="button"
 												onClick={() => void decideDelete(item, "approved")}
 											>
-												Approve
+							{copy.approve}
 											</Button>
 											<Button
 												size="sm"
@@ -2695,14 +2699,14 @@ function DeleteRequestsPage() {
 												type="button"
 												onClick={() => void decideDelete(item, "rejected")}
 											>
-												Reject
+							{copy.reject}
 											</Button>
 										</div>
 									</div>
 									<div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-										<Input
-											value={decisionState[item.id]?.confirmation ?? ""}
-											placeholder="PERMANENT DELETE"
+						<Input
+							value={decisionState[item.id]?.confirmation ?? ""}
+							placeholder={copy.permanentDeleteConfirmation}
 											onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 												setDecisionState((current) => ({
 													...current,
@@ -2719,7 +2723,7 @@ function DeleteRequestsPage() {
 											type="button"
 											onClick={() => void executeDelete(item)}
 										>
-											Execute
+						{copy.execute}
 										</Button>
 									</div>
 								</div>
@@ -2733,6 +2737,8 @@ function DeleteRequestsPage() {
 }
 
 function ArchivesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/archives");
 	const { data, error, loading, reload } = usePluginData<RegistryArchiveResponse>(
 		"registry/archive/list",
@@ -2755,37 +2761,37 @@ function ArchivesPage() {
 				},
 				await createAdminApiRequestOptions(),
 			);
-			setNotice(`Restored archived registry entity ${entity.code || entity.id}.`);
+			setNotice(copy.restoredArchivedRegistryEntity(entity.code || entity.id));
 			await reload();
 		} catch (cause) {
 			setSaveError(
-				cause instanceof Error ? cause.message : "Failed to restore archived registry entity.",
+				cause instanceof Error ? cause.message : copy.failedToRestoreArchivedRegistryEntity,
 			);
 		} finally {
 			setRestoringId(null);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading archived registry entities..." />;
+	if (loading) return <LoadingState label={copy.loadingArchivedRegistryEntities} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA governance"
+				eyebrow={copy.sikesraGovernance}
 				title={contract.title}
 				description={contract.purpose}
 			/>
 			<Feedback message={notice} />
 			<Feedback message={saveError} tone="danger" />
 			<Card
-				title="Archived registry records"
-				description="Restore actions require a reason and are audited."
+				title={copy.archivedRegistryRecords}
+				description={copy.archivedRegistryRecordsDescription}
 			>
 				{!data?.items.length ? (
 					<EmptyState
 						title={contract.emptyState}
-						description="No archived registry records are available for restore."
+						description={copy.noArchivedRegistryRecordsAvailable}
 					/>
 				) : (
 					<div className="space-y-4">
@@ -2800,16 +2806,16 @@ function ArchivesPage() {
 									</div>
 									<div className="flex flex-wrap gap-2">
 										<Badge variant="outline">{entity.entityType}</Badge>
-										<Pill tone="neutral">Archived</Pill>
+						<Pill tone="neutral">{copy.archived}</Pill>
 									</div>
 								</div>
 								<p className="mt-3 text-sm text-kumo-subtle">
-									{entity.publicSummary || "Archived registry entity pending restore review."}
+					{entity.publicSummary || copy.archivedRegistryEntityPendingRestoreReview}
 								</p>
 								<div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-									<Input
-										value={restoreReasons[entity.id] ?? ""}
-										placeholder="Restore reason"
+				<Input
+					value={restoreReasons[entity.id] ?? ""}
+					placeholder={copy.restoreReason}
 										onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
 											setRestoreReasons((current) => ({
 												...current,
@@ -2824,7 +2830,7 @@ function ArchivesPage() {
 										disabled={restoringId === entity.id}
 										onClick={() => void restoreEntity(entity)}
 									>
-										{restoringId === entity.id ? "Restoring..." : "Restore"}
+					{restoringId === entity.id ? copy.restoring : copy.restore}
 									</Button>
 								</div>
 							</div>
@@ -5538,12 +5544,12 @@ function DocumentsPage() {
 		// Validation rules: PDF, PNG, JPG, MAX 5MB
 		const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
 		if (!allowedTypes.includes(file.type)) {
-			setError("Invalid file type! Only PDF, PNG, and JPEG are allowed.");
+			setError(copy.invalidDocumentFileType);
 			return;
 		}
 
 		if (file.size > 5 * 1024 * 1024) {
-			setError("File size exceeds maximum limit of 5MB!");
+			setError(copy.documentFileSizeExceeded);
 			return;
 		}
 
@@ -5560,7 +5566,7 @@ function DocumentsPage() {
 		try {
 			setChecksum(await calculateDocumentChecksum(file));
 		} catch {
-			setError("Failed to calculate document checksum.");
+			setError(copy.failedToCalculateDocumentChecksum);
 			setChecksum(null);
 		}
 	};
@@ -5568,7 +5574,7 @@ function DocumentsPage() {
 	const handleUploadSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!uploadState.fileSelected || !uploadState.registryEntityId || !uploadState.title || !checksum) {
-			setError("Please fill all mandatory fields and select a valid file!");
+			setError(copy.fillMandatoryDocumentFields);
 			return;
 		}
 
@@ -5592,7 +5598,7 @@ function DocumentsPage() {
 			);
 			setProgress(100);
 
-			setNotice(`Document metadata saved with checksum: ${checksum}`);
+			setNotice(copy.documentMetadataSavedWithChecksum(checksum));
 			setProgress(null);
 			setUploadState({
 				title: "",
@@ -5607,7 +5613,7 @@ function DocumentsPage() {
 			setChecksum(null);
 			await reload();
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "Failed to save document metadata");
+			setError(err instanceof Error ? err.message : copy.failedToSaveDocumentMetadata);
 			setProgress(null);
 		}
 	};
@@ -5653,8 +5659,8 @@ function DocumentsPage() {
 					<div className="space-y-3">
 						{docs.length === 0 ? (
 							<EmptyState
-								title="No Documents"
-								description="Upload document metadata on the right to populate the catalog."
+								title={copy.noDocuments}
+								description={copy.noDocumentsDescription}
 							/>
 						) : (
 							docs.map((doc) => {
@@ -5670,7 +5676,7 @@ function DocumentsPage() {
 									>
 										<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 											<div className="flex items-center gap-2.5">
-												<span className="text-2xl shrink-0" role="img" aria-label="file format">
+										<span className="text-2xl shrink-0" role="img" aria-label={copy.fileFormat}>
 													{fileIcon}
 												</span>
 												<div>
@@ -5693,20 +5699,20 @@ function DocumentsPage() {
 													{doc.sensitivity}
 												</Pill>
 							<Button variant="secondary" size="xs" disabled>
-								Preview pending storage workflow
+								{copy.previewPendingStorageWorkflow}
 							</Button>
 											</div>
 										</div>
 										<div className="mt-3 grid gap-2 text-xs text-kumo-subtle md:grid-cols-3 pt-2.5 border-t border-kumo-line/50">
 											<div>
-												<strong>Entity:</strong>{" "}
+						<strong>{copy.entity}:</strong>{" "}
 												{maskSensitiveBySensitivity(doc.registryEntityId, doc.sensitivity)}
 											</div>
 											<div>
-												<strong>Issued:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}
+						<strong>{copy.issued}:</strong> {formatDateTime(doc.issuedAt, i18n.locale)}
 											</div>
 											<div>
-												<strong>Verifier:</strong> {doc.verifiedBy}
+						<strong>{copy.verifiedBy}:</strong> {doc.verifiedBy}
 											</div>
 										</div>
 									</div>
@@ -5717,34 +5723,34 @@ function DocumentsPage() {
 				</Card>
 
 					<Card
-						title="Save Document Metadata"
-						description="Save metadata for a supporting file before controlled storage preview/download is enabled."
+						title={copy.saveDocumentMetadata}
+						description={copy.saveDocumentMetadataDescription}
 					>
 					<form className="space-y-4" onSubmit={(e) => void handleUploadSubmit(e)}>
 						<Feedback message={notice} tone="success" />
 						<Feedback message={error} tone="danger" />
 
 						<Field
-							label="Document Title"
-							hint="Name of document for verification reference (Mandatory)"
+							label={copy.documentTitle}
+							hint={copy.documentTitleHint}
 						>
 							<Input
 								value={uploadState.title}
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setUploadState((prev) => ({ ...prev, title: e.target.value }))
 								}
-								placeholder="e.g. Surat Keputusan Kemenag"
+							placeholder={copy.documentTitlePlaceholder}
 							/>
 						</Field>
 
-						<Field label="Linked SIKESRA Entity" hint="Mandatory target link">
+					<Field label={copy.linkedSikesraEntity} hint={copy.mandatoryTargetLink}>
 							<Select
 								value={uploadState.registryEntityId}
 								onValueChange={(val) =>
 									setUploadState((prev) => ({ ...prev, registryEntityId: val ?? "" }))
 								}
 							>
-								<Select.Option value="">-- Select Target Entity --</Select.Option>
+						<Select.Option value="">{copy.selectTargetEntity}</Select.Option>
 								{entities.map((ent) => (
 									<Select.Option value={ent.id} key={ent.id}>
 										{ent.label} ({ent.code})
@@ -5754,20 +5760,20 @@ function DocumentsPage() {
 						</Field>
 
 						<div className="grid gap-3 grid-cols-2">
-							<Field label="Doc Type">
+						<Field label={copy.docType}>
 								<Select
 									value={uploadState.documentType}
 									onValueChange={(val) =>
 										setUploadState((prev) => ({ ...prev, documentType: val ?? "surat_keterangan" }))
 									}
 								>
-									<Select.Option value="surat_keterangan">Surat Keterangan</Select.Option>
-									<Select.Option value="identitas">Identitas</Select.Option>
-									<Select.Option value="sertifikat">Sertifikat</Select.Option>
+							<Select.Option value="surat_keterangan">{copy.certificateLetter}</Select.Option>
+							<Select.Option value="identitas">{copy.identityDocument}</Select.Option>
+							<Select.Option value="sertifikat">{copy.certificateDocument}</Select.Option>
 								</Select>
 							</Field>
 
-							<Field label="Classification">
+						<Field label={copy.classification}>
 								<Select
 									value={uploadState.sensitivity}
 									onValueChange={(val) =>
@@ -5777,17 +5783,17 @@ function DocumentsPage() {
 										}))
 									}
 								>
-									<Select.Option value="public_safe">Public Safe</Select.Option>
-									<Select.Option value="internal">Internal</Select.Option>
-									<Select.Option value="restricted">Restricted</Select.Option>
-									<Select.Option value="highly_restricted">Highly Restricted</Select.Option>
+							<Select.Option value="public_safe">{copy.publicSafe}</Select.Option>
+							<Select.Option value="internal">{copy.internal}</Select.Option>
+							<Select.Option value="restricted">{copy.restricted}</Select.Option>
+							<Select.Option value="highly_restricted">{copy.highlyRestricted}</Select.Option>
 								</Select>
 							</Field>
 						</div>
 
 						<Field
-							label="Select Supporting File"
-							hint="Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+							label={copy.selectSupportingFile}
+							hint={copy.selectSupportingFileHint}
 						>
 							<input
 								type="file"
@@ -5800,11 +5806,11 @@ function DocumentsPage() {
 						{uploadState.fileSelected && (
 							<div className="rounded border bg-kumo-tint/20 p-3 text-xs space-y-1">
 								<div>
-									<strong>File:</strong> {uploadState.fileName} (
+							<strong>{copy.file}:</strong> {uploadState.fileName} (
 									{Math.round(uploadState.fileSize / 1024)} KB)
 								</div>
 								<div>
-									<strong>Checksum:</strong>{" "}
+							<strong>{copy.checksum}:</strong>{" "}
 									<code className="font-mono text-[10px] break-all">{checksum}</code>
 								</div>
 							</div>
@@ -5825,7 +5831,7 @@ function DocumentsPage() {
 							className="w-full justify-center animate-pulse"
 							disabled={progress !== null}
 						>
-							{progress !== null ? `Saving ${progress}%` : "Save document metadata"}
+						{progress !== null ? copy.savingProgress(progress) : copy.saveDocumentMetadataButton}
 						</Button>
 					</form>
 				</Card>
@@ -5952,8 +5958,8 @@ function AuditPage() {
 				}
 			/>
 			<Card
-				title="Chronological Log Activity"
-				description="System audit records matching active security policies."
+				title={copy.chronologicalLogActivity}
+				description={copy.chronologicalLogActivityDescription}
 			>
 				{!data?.items.length ? (
 					<EmptyState title={copy.noAuditEvents} description={copy.noAuditEventsDescription} />
@@ -5982,7 +5988,7 @@ function AuditPage() {
 									)}
 									key={item.id}
 								>
-									<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label="scope icon">
+							<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label={copy.scopeIcon}>
 										{scopeIcons[item.scope] || "📋"}
 									</span>
 									<div className="min-w-0 flex-1">
@@ -5991,7 +5997,7 @@ function AuditPage() {
 												{item.kind}
 											</span>
 											<span className="text-xs text-kumo-subtle">
-												• scope: <strong className="capitalize">{item.scope}</strong>
+								• {copy.scopeLabel}: <strong className="capitalize">{item.scope}</strong>
 											</span>
 										</div>
 										<div className="mt-2 text-sm font-semibold text-kumo-default leading-relaxed">
@@ -5999,7 +6005,7 @@ function AuditPage() {
 										</div>
 										<div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-kumo-subtle pt-2 border-t border-kumo-line/50">
 											<div>
-												<strong>Actor:</strong> {item.actor}
+							<strong>{copy.actor}:</strong> {item.actor}
 											</div>
 											{item.userName || item.userId ? (
 												<div>
@@ -6008,7 +6014,7 @@ function AuditPage() {
 												</div>
 											) : null}
 											<div>
-												<strong>Timestamp:</strong> {formatDateTime(item.timestamp, i18n.locale)}
+							<strong>{copy.timestamp}:</strong> {formatDateTime(item.timestamp, i18n.locale)}
 											</div>
 										</div>
 									</div>

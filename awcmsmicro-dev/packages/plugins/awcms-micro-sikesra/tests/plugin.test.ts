@@ -3308,7 +3308,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).not.toContain("Generated SIKESRA ID:");
 		expect(adminSource).not.toContain("Religion: ${wizardState.religion}");
 		expect(adminSource).not.toContain("Caregiver: ${wizardState.caregiverName}");
-		expect(adminSource).toContain("Preview pending storage workflow");
+		expect(adminSource).toContain("copy.previewPendingStorageWorkflow");
 		expect(adminSource).toContain("localCompletenessPassed");
 		expect(adminSource).toContain("preparedDraftRegistryCode(compiledId)");
 		expect(adminSource).toContain("saveRegistryEntity<");
@@ -3323,9 +3323,7 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).toContain("promoteImportRows<");
 		expect(adminSource).toContain("const EXCEL_FILE_EXTENSION_REGEX = /\\.(xlsx|xls)$/i;");
 		expect(adminSource).toContain("EXCEL_FILE_EXTENSION_REGEX.test(file.name)");
-		expect(adminSource).toContain(
-			"Type PERMANENT DELETE before executing the permanent delete request.",
-		);
+		expect(adminSource).toContain("copy.typePermanentDeleteBeforeExecuting");
 		expect(adminSource).not.toContain('postPlugin("custom-attributes/definitions/save"');
 		expect(adminSource).not.toContain('postPlugin("custom-attributes/values/save"');
 		expect(adminSource).not.toContain('postPlugin("settings/save"');
@@ -7673,6 +7671,83 @@ describe("awcms micro sikesra plugin", () => {
 		expect(adminSource).not.toContain("SIKESRA settings saved with audit tracking.");
 		expect(adminSource).not.toContain("Loading SIKESRA settings...");
 		expect(adminSource).not.toContain("Public and governance settings");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps lifecycle governance page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.permanentDeleteRequestCreated",
+			"awcms.adminCopy.loadingPermanentDeleteRequests",
+			"awcms.adminCopy.createDeleteRequest",
+			"awcms.adminCopy.reviewQueue",
+			"awcms.adminCopy.typePermanentDeleteBeforeExecuting",
+			"awcms.adminCopy.loadingArchivedRegistryEntities",
+			"awcms.adminCopy.archivedRegistryRecords",
+			"awcms.adminCopy.restoreReason",
+		];
+
+		expect(adminSource).toContain("copy.permanentDeleteRequestCreated");
+		expect(adminSource).toContain("copy.archivedRegistryRecords");
+		expect(adminSource).not.toContain("Loading permanent delete requests...");
+		expect(adminSource).not.toContain("Create delete request");
+		expect(adminSource).not.toContain("Archived registry records");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps document metadata page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.invalidDocumentFileType",
+			"awcms.adminCopy.documentMetadataSavedWithChecksum",
+			"awcms.adminCopy.noDocuments",
+			"awcms.adminCopy.saveDocumentMetadata",
+			"awcms.adminCopy.documentTitle",
+			"awcms.adminCopy.linkedSikesraEntity",
+			"awcms.adminCopy.selectSupportingFile",
+			"awcms.adminCopy.savingProgress",
+		];
+
+		expect(adminSource).toContain("copy.invalidDocumentFileType");
+		expect(adminSource).toContain("copy.saveDocumentMetadata");
+		expect(adminSource).not.toContain("Invalid file type! Only PDF, PNG, and JPEG are allowed.");
+		expect(adminSource).not.toContain("Save Document Metadata");
+		expect(adminSource).not.toContain("Linked SIKESRA Entity");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps audit page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.chronologicalLogActivity",
+			"awcms.adminCopy.chronologicalLogActivityDescription",
+			"awcms.adminCopy.timestamp",
+			"awcms.adminCopy.scopeIcon",
+		];
+
+		expect(adminSource).toContain("copy.chronologicalLogActivity");
+		expect(adminSource).toContain("copy.scopeIcon");
+		expect(adminSource).not.toContain("Chronological Log Activity");
+		expect(adminSource).not.toContain("System audit records matching active security policies.");
+		expect(adminSource).not.toContain('aria-label="scope icon"');
 
 		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
 			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");

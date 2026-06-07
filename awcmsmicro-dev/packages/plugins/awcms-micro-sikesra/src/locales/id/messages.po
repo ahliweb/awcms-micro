@@ -1086,6 +1086,122 @@ msgctxt "awcms.adminCopy.verifiedBy"
 msgid "Verified by"
 msgstr "Diverifikasi oleh"
 
+msgctxt "awcms.adminCopy.invalidDocumentFileType"
+msgid "Invalid file type! Only PDF, PNG, and JPEG are allowed."
+msgstr "Tipe file tidak valid! Hanya PDF, PNG, dan JPEG yang diizinkan."
+
+msgctxt "awcms.adminCopy.documentFileSizeExceeded"
+msgid "File size exceeds maximum limit of 5MB!"
+msgstr "Ukuran file melebihi batas maksimum 5MB!"
+
+msgctxt "awcms.adminCopy.failedToCalculateDocumentChecksum"
+msgid "Failed to calculate document checksum."
+msgstr "Gagal menghitung checksum dokumen."
+
+msgctxt "awcms.adminCopy.fillMandatoryDocumentFields"
+msgid "Please fill all mandatory fields and select a valid file!"
+msgstr "Isi semua field wajib dan pilih file yang valid!"
+
+msgctxt "awcms.adminCopy.documentMetadataSavedWithChecksum"
+msgid "Document metadata saved with checksum: {checksum}"
+msgstr "Metadata dokumen disimpan dengan checksum: {checksum}"
+
+msgctxt "awcms.adminCopy.failedToSaveDocumentMetadata"
+msgid "Failed to save document metadata"
+msgstr "Gagal menyimpan metadata dokumen"
+
+msgctxt "awcms.adminCopy.noDocuments"
+msgid "No Documents"
+msgstr "Tidak Ada Dokumen"
+
+msgctxt "awcms.adminCopy.noDocumentsDescription"
+msgid "Upload document metadata on the right to populate the catalog."
+msgstr "Unggah metadata dokumen di sisi kanan untuk mengisi katalog."
+
+msgctxt "awcms.adminCopy.fileFormat"
+msgid "file format"
+msgstr "format file"
+
+msgctxt "awcms.adminCopy.previewPendingStorageWorkflow"
+msgid "Preview pending storage workflow"
+msgstr "Pratinjau menunggu workflow penyimpanan"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadata"
+msgid "Save Document Metadata"
+msgstr "Simpan Metadata Dokumen"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadataDescription"
+msgid "Save metadata for a supporting file before controlled storage preview/download is enabled."
+msgstr "Simpan metadata untuk file pendukung sebelum pratinjau/unduh penyimpanan terkendali diaktifkan."
+
+msgctxt "awcms.adminCopy.documentTitle"
+msgid "Document Title"
+msgstr "Judul Dokumen"
+
+msgctxt "awcms.adminCopy.documentTitleHint"
+msgid "Name of document for verification reference (Mandatory)"
+msgstr "Nama dokumen untuk referensi verifikasi (Wajib)"
+
+msgctxt "awcms.adminCopy.documentTitlePlaceholder"
+msgid "e.g. Surat Keputusan Kemenag"
+msgstr "contoh: Surat Keputusan Kemenag"
+
+msgctxt "awcms.adminCopy.linkedSikesraEntity"
+msgid "Linked SIKESRA Entity"
+msgstr "Entitas SIKESRA Tertaut"
+
+msgctxt "awcms.adminCopy.mandatoryTargetLink"
+msgid "Mandatory target link"
+msgstr "Tautan target wajib"
+
+msgctxt "awcms.adminCopy.selectTargetEntity"
+msgid "-- Select Target Entity --"
+msgstr "-- Pilih Entitas Target --"
+
+msgctxt "awcms.adminCopy.docType"
+msgid "Doc Type"
+msgstr "Tipe Dokumen"
+
+msgctxt "awcms.adminCopy.certificateLetter"
+msgid "Surat Keterangan"
+msgstr "Surat Keterangan"
+
+msgctxt "awcms.adminCopy.identityDocument"
+msgid "Identitas"
+msgstr "Identitas"
+
+msgctxt "awcms.adminCopy.certificateDocument"
+msgid "Sertifikat"
+msgstr "Sertifikat"
+
+msgctxt "awcms.adminCopy.classification"
+msgid "Classification"
+msgstr "Klasifikasi"
+
+msgctxt "awcms.adminCopy.selectSupportingFile"
+msgid "Select Supporting File"
+msgstr "Pilih File Pendukung"
+
+msgctxt "awcms.adminCopy.selectSupportingFileHint"
+msgid "Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+msgstr "Tipe diizinkan: PDF, PNG, JPEG. Ukuran Maks: 5MB"
+
+msgctxt "awcms.adminCopy.file"
+msgid "File"
+msgstr "File"
+
+msgctxt "awcms.adminCopy.checksum"
+msgid "Checksum"
+msgstr "Checksum"
+
+msgctxt "awcms.adminCopy.savingProgress"
+msgid "Saving {progress}%"
+msgstr "Menyimpan {progress}%"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadataButton"
+msgid "Save document metadata"
+msgstr "Simpan metadata dokumen"
+
 msgctxt "awcms.adminCopy.reportsEyebrow"
 msgid "Reports"
 msgstr "Laporan"
@@ -1177,6 +1293,26 @@ msgstr "Riwayat event"
 msgctxt "awcms.adminCopy.auditDescription"
 msgid "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
 msgstr "Aliran berbasis storage yang menampilkan perilaku plugin, aktor, scope, dan timestamp."
+
+msgctxt "awcms.adminCopy.chronologicalLogActivity"
+msgid "Chronological Log Activity"
+msgstr "Aktivitas Log Kronologis"
+
+msgctxt "awcms.adminCopy.chronologicalLogActivityDescription"
+msgid "System audit records matching active security policies."
+msgstr "Record audit sistem yang sesuai dengan kebijakan keamanan aktif."
+
+msgctxt "awcms.adminCopy.timestamp"
+msgid "Timestamp"
+msgstr "Timestamp"
+
+msgctxt "awcms.adminCopy.scopeLabel"
+msgid "scope"
+msgstr "scope"
+
+msgctxt "awcms.adminCopy.scopeIcon"
+msgid "scope icon"
+msgstr "ikon scope"
 
 msgctxt "awcms.adminCopy.loadingAuditLog"
 msgid "Loading audit log..."
@@ -2117,6 +2253,170 @@ msgstr "Registry: {value}"
 msgctxt "awcms.adminCopy.sikesraIdValue"
 msgid "SIKESRA ID: {value}"
 msgstr "ID SIKESRA: {value}"
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestCreated"
+msgid "Permanent delete request created with snapshot review pending."
+msgstr "Permintaan hapus permanen dibuat dan menunggu review snapshot."
+
+msgctxt "awcms.adminCopy.failedToCreateDeleteRequest"
+msgid "Failed to create delete request."
+msgstr "Gagal membuat permintaan hapus."
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestDecision"
+msgid "Permanent delete request {decision}."
+msgstr "Permintaan hapus permanen {decision}."
+
+msgctxt "awcms.adminCopy.failedToMarkRequestDecision"
+msgid "Failed to mark request {decision}."
+msgstr "Gagal menandai permintaan {decision}."
+
+msgctxt "awcms.adminCopy.typePermanentDeleteBeforeExecuting"
+msgid "Type PERMANENT DELETE before executing the permanent delete request."
+msgstr "Ketik PERMANENT DELETE sebelum menjalankan permintaan hapus permanen."
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestExecuted"
+msgid "Permanent delete request executed after confirmation."
+msgstr "Permintaan hapus permanen dijalankan setelah konfirmasi."
+
+msgctxt "awcms.adminCopy.failedToExecuteDeleteRequest"
+msgid "Failed to execute delete request."
+msgstr "Gagal menjalankan permintaan hapus."
+
+msgctxt "awcms.adminCopy.loadingPermanentDeleteRequests"
+msgid "Loading permanent delete requests..."
+msgstr "Memuat permintaan hapus permanen..."
+
+msgctxt "awcms.adminCopy.sikesraGovernance"
+msgid "SIKESRA governance"
+msgstr "Tata kelola SIKESRA"
+
+msgctxt "awcms.adminCopy.createDeleteRequest"
+msgid "Create delete request"
+msgstr "Buat permintaan hapus"
+
+msgctxt "awcms.adminCopy.createDeleteRequestDescription"
+msgid "Highest-admin workflow requires reason, snapshot, and exact confirmation."
+msgstr "Workflow highest-admin memerlukan alasan, snapshot, dan konfirmasi persis."
+
+msgctxt "awcms.adminCopy.targetTable"
+msgid "Target table"
+msgstr "Tabel target"
+
+msgctxt "awcms.adminCopy.targetRecordId"
+msgid "Target record ID"
+msgstr "ID record target"
+
+msgctxt "awcms.adminCopy.reason"
+msgid "Reason"
+msgstr "Alasan"
+
+msgctxt "awcms.adminCopy.requiredForAuditReview"
+msgid "Required for audit review."
+msgstr "Wajib untuk review audit."
+
+msgctxt "awcms.adminCopy.confirmationPhrase"
+msgid "Confirmation phrase"
+msgstr "Frasa konfirmasi"
+
+msgctxt "awcms.adminCopy.typePermanentDeleteToCreateRequest"
+msgid "Type PERMANENT DELETE to create the request."
+msgstr "Ketik PERMANENT DELETE untuk membuat permintaan."
+
+msgctxt "awcms.adminCopy.requesting"
+msgid "Requesting..."
+msgstr "Meminta..."
+
+msgctxt "awcms.adminCopy.createRequest"
+msgid "Create request"
+msgstr "Buat permintaan"
+
+msgctxt "awcms.adminCopy.reviewQueue"
+msgid "Review queue"
+msgstr "Antrean review"
+
+msgctxt "awcms.adminCopy.reviewQueueDescription"
+msgid "Approve, reject, or execute with high-friction confirmation."
+msgstr "Setujui, tolak, atau jalankan dengan konfirmasi high-friction."
+
+msgctxt "awcms.adminCopy.noPermanentDeleteRequestsWaiting"
+msgid "No permanent delete requests are waiting for review."
+msgstr "Tidak ada permintaan hapus permanen yang menunggu review."
+
+msgctxt "awcms.adminCopy.requestedByValue"
+msgid "Requested by: {value}"
+msgstr "Diminta oleh: {value}"
+
+msgctxt "awcms.adminCopy.requestedValue"
+msgid "Requested: {value}"
+msgstr "Diminta: {value}"
+
+msgctxt "awcms.adminCopy.typeValue"
+msgid "Type: {value}"
+msgstr "Tipe: {value}"
+
+msgctxt "awcms.adminCopy.decisionNotes"
+msgid "Decision notes"
+msgstr "Catatan keputusan"
+
+msgctxt "awcms.adminCopy.approve"
+msgid "Approve"
+msgstr "Setujui"
+
+msgctxt "awcms.adminCopy.reject"
+msgid "Reject"
+msgstr "Tolak"
+
+msgctxt "awcms.adminCopy.permanentDeleteConfirmation"
+msgid "PERMANENT DELETE"
+msgstr "PERMANENT DELETE"
+
+msgctxt "awcms.adminCopy.execute"
+msgid "Execute"
+msgstr "Jalankan"
+
+msgctxt "awcms.adminCopy.restoredArchivedRegistryEntity"
+msgid "Restored archived registry entity {value}."
+msgstr "Entitas registry arsip {value} dipulihkan."
+
+msgctxt "awcms.adminCopy.failedToRestoreArchivedRegistryEntity"
+msgid "Failed to restore archived registry entity."
+msgstr "Gagal memulihkan entitas registry arsip."
+
+msgctxt "awcms.adminCopy.loadingArchivedRegistryEntities"
+msgid "Loading archived registry entities..."
+msgstr "Memuat entitas registry arsip..."
+
+msgctxt "awcms.adminCopy.archivedRegistryRecords"
+msgid "Archived registry records"
+msgstr "Record registry arsip"
+
+msgctxt "awcms.adminCopy.archivedRegistryRecordsDescription"
+msgid "Restore actions require a reason and are audited."
+msgstr "Aksi pemulihan memerlukan alasan dan diaudit."
+
+msgctxt "awcms.adminCopy.noArchivedRegistryRecordsAvailable"
+msgid "No archived registry records are available for restore."
+msgstr "Tidak ada record registry arsip yang tersedia untuk dipulihkan."
+
+msgctxt "awcms.adminCopy.archived"
+msgid "Archived"
+msgstr "Diarsipkan"
+
+msgctxt "awcms.adminCopy.archivedRegistryEntityPendingRestoreReview"
+msgid "Archived registry entity pending restore review."
+msgstr "Entitas registry arsip menunggu review pemulihan."
+
+msgctxt "awcms.adminCopy.restoreReason"
+msgid "Restore reason"
+msgstr "Alasan pemulihan"
+
+msgctxt "awcms.adminCopy.restoring"
+msgid "Restoring..."
+msgstr "Memulihkan..."
+
+msgctxt "awcms.adminCopy.restore"
+msgid "Restore"
+msgstr "Pulihkan"
 
 msgctxt "awcms.adminCopy.abacEyebrow"
 msgid "ABAC"

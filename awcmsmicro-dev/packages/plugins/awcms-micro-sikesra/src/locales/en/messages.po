@@ -1086,6 +1086,122 @@ msgctxt "awcms.adminCopy.verifiedBy"
 msgid "Verified by"
 msgstr "Verified by"
 
+msgctxt "awcms.adminCopy.invalidDocumentFileType"
+msgid "Invalid file type! Only PDF, PNG, and JPEG are allowed."
+msgstr "Invalid file type! Only PDF, PNG, and JPEG are allowed."
+
+msgctxt "awcms.adminCopy.documentFileSizeExceeded"
+msgid "File size exceeds maximum limit of 5MB!"
+msgstr "File size exceeds maximum limit of 5MB!"
+
+msgctxt "awcms.adminCopy.failedToCalculateDocumentChecksum"
+msgid "Failed to calculate document checksum."
+msgstr "Failed to calculate document checksum."
+
+msgctxt "awcms.adminCopy.fillMandatoryDocumentFields"
+msgid "Please fill all mandatory fields and select a valid file!"
+msgstr "Please fill all mandatory fields and select a valid file!"
+
+msgctxt "awcms.adminCopy.documentMetadataSavedWithChecksum"
+msgid "Document metadata saved with checksum: {checksum}"
+msgstr "Document metadata saved with checksum: {checksum}"
+
+msgctxt "awcms.adminCopy.failedToSaveDocumentMetadata"
+msgid "Failed to save document metadata"
+msgstr "Failed to save document metadata"
+
+msgctxt "awcms.adminCopy.noDocuments"
+msgid "No Documents"
+msgstr "No Documents"
+
+msgctxt "awcms.adminCopy.noDocumentsDescription"
+msgid "Upload document metadata on the right to populate the catalog."
+msgstr "Upload document metadata on the right to populate the catalog."
+
+msgctxt "awcms.adminCopy.fileFormat"
+msgid "file format"
+msgstr "file format"
+
+msgctxt "awcms.adminCopy.previewPendingStorageWorkflow"
+msgid "Preview pending storage workflow"
+msgstr "Preview pending storage workflow"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadata"
+msgid "Save Document Metadata"
+msgstr "Save Document Metadata"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadataDescription"
+msgid "Save metadata for a supporting file before controlled storage preview/download is enabled."
+msgstr "Save metadata for a supporting file before controlled storage preview/download is enabled."
+
+msgctxt "awcms.adminCopy.documentTitle"
+msgid "Document Title"
+msgstr "Document Title"
+
+msgctxt "awcms.adminCopy.documentTitleHint"
+msgid "Name of document for verification reference (Mandatory)"
+msgstr "Name of document for verification reference (Mandatory)"
+
+msgctxt "awcms.adminCopy.documentTitlePlaceholder"
+msgid "e.g. Surat Keputusan Kemenag"
+msgstr "e.g. Surat Keputusan Kemenag"
+
+msgctxt "awcms.adminCopy.linkedSikesraEntity"
+msgid "Linked SIKESRA Entity"
+msgstr "Linked SIKESRA Entity"
+
+msgctxt "awcms.adminCopy.mandatoryTargetLink"
+msgid "Mandatory target link"
+msgstr "Mandatory target link"
+
+msgctxt "awcms.adminCopy.selectTargetEntity"
+msgid "-- Select Target Entity --"
+msgstr "-- Select Target Entity --"
+
+msgctxt "awcms.adminCopy.docType"
+msgid "Doc Type"
+msgstr "Doc Type"
+
+msgctxt "awcms.adminCopy.certificateLetter"
+msgid "Surat Keterangan"
+msgstr "Surat Keterangan"
+
+msgctxt "awcms.adminCopy.identityDocument"
+msgid "Identitas"
+msgstr "Identitas"
+
+msgctxt "awcms.adminCopy.certificateDocument"
+msgid "Sertifikat"
+msgstr "Sertifikat"
+
+msgctxt "awcms.adminCopy.classification"
+msgid "Classification"
+msgstr "Classification"
+
+msgctxt "awcms.adminCopy.selectSupportingFile"
+msgid "Select Supporting File"
+msgstr "Select Supporting File"
+
+msgctxt "awcms.adminCopy.selectSupportingFileHint"
+msgid "Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+msgstr "Allowed types: PDF, PNG, JPEG. Max Size: 5MB"
+
+msgctxt "awcms.adminCopy.file"
+msgid "File"
+msgstr "File"
+
+msgctxt "awcms.adminCopy.checksum"
+msgid "Checksum"
+msgstr "Checksum"
+
+msgctxt "awcms.adminCopy.savingProgress"
+msgid "Saving {progress}%"
+msgstr "Saving {progress}%"
+
+msgctxt "awcms.adminCopy.saveDocumentMetadataButton"
+msgid "Save document metadata"
+msgstr "Save document metadata"
+
 msgctxt "awcms.adminCopy.reportsEyebrow"
 msgid "Reports"
 msgstr "Reports"
@@ -1177,6 +1293,26 @@ msgstr "Event history"
 msgctxt "awcms.adminCopy.auditDescription"
 msgid "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
 msgstr "Storage-backed stream showing plugin behavior, actors, scopes, and timestamps."
+
+msgctxt "awcms.adminCopy.chronologicalLogActivity"
+msgid "Chronological Log Activity"
+msgstr "Chronological Log Activity"
+
+msgctxt "awcms.adminCopy.chronologicalLogActivityDescription"
+msgid "System audit records matching active security policies."
+msgstr "System audit records matching active security policies."
+
+msgctxt "awcms.adminCopy.timestamp"
+msgid "Timestamp"
+msgstr "Timestamp"
+
+msgctxt "awcms.adminCopy.scopeLabel"
+msgid "scope"
+msgstr "scope"
+
+msgctxt "awcms.adminCopy.scopeIcon"
+msgid "scope icon"
+msgstr "scope icon"
 
 msgctxt "awcms.adminCopy.loadingAuditLog"
 msgid "Loading audit log..."
@@ -2117,6 +2253,170 @@ msgstr "Registry: {value}"
 msgctxt "awcms.adminCopy.sikesraIdValue"
 msgid "SIKESRA ID: {value}"
 msgstr "SIKESRA ID: {value}"
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestCreated"
+msgid "Permanent delete request created with snapshot review pending."
+msgstr "Permanent delete request created with snapshot review pending."
+
+msgctxt "awcms.adminCopy.failedToCreateDeleteRequest"
+msgid "Failed to create delete request."
+msgstr "Failed to create delete request."
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestDecision"
+msgid "Permanent delete request {decision}."
+msgstr "Permanent delete request {decision}."
+
+msgctxt "awcms.adminCopy.failedToMarkRequestDecision"
+msgid "Failed to mark request {decision}."
+msgstr "Failed to mark request {decision}."
+
+msgctxt "awcms.adminCopy.typePermanentDeleteBeforeExecuting"
+msgid "Type PERMANENT DELETE before executing the permanent delete request."
+msgstr "Type PERMANENT DELETE before executing the permanent delete request."
+
+msgctxt "awcms.adminCopy.permanentDeleteRequestExecuted"
+msgid "Permanent delete request executed after confirmation."
+msgstr "Permanent delete request executed after confirmation."
+
+msgctxt "awcms.adminCopy.failedToExecuteDeleteRequest"
+msgid "Failed to execute delete request."
+msgstr "Failed to execute delete request."
+
+msgctxt "awcms.adminCopy.loadingPermanentDeleteRequests"
+msgid "Loading permanent delete requests..."
+msgstr "Loading permanent delete requests..."
+
+msgctxt "awcms.adminCopy.sikesraGovernance"
+msgid "SIKESRA governance"
+msgstr "SIKESRA governance"
+
+msgctxt "awcms.adminCopy.createDeleteRequest"
+msgid "Create delete request"
+msgstr "Create delete request"
+
+msgctxt "awcms.adminCopy.createDeleteRequestDescription"
+msgid "Highest-admin workflow requires reason, snapshot, and exact confirmation."
+msgstr "Highest-admin workflow requires reason, snapshot, and exact confirmation."
+
+msgctxt "awcms.adminCopy.targetTable"
+msgid "Target table"
+msgstr "Target table"
+
+msgctxt "awcms.adminCopy.targetRecordId"
+msgid "Target record ID"
+msgstr "Target record ID"
+
+msgctxt "awcms.adminCopy.reason"
+msgid "Reason"
+msgstr "Reason"
+
+msgctxt "awcms.adminCopy.requiredForAuditReview"
+msgid "Required for audit review."
+msgstr "Required for audit review."
+
+msgctxt "awcms.adminCopy.confirmationPhrase"
+msgid "Confirmation phrase"
+msgstr "Confirmation phrase"
+
+msgctxt "awcms.adminCopy.typePermanentDeleteToCreateRequest"
+msgid "Type PERMANENT DELETE to create the request."
+msgstr "Type PERMANENT DELETE to create the request."
+
+msgctxt "awcms.adminCopy.requesting"
+msgid "Requesting..."
+msgstr "Requesting..."
+
+msgctxt "awcms.adminCopy.createRequest"
+msgid "Create request"
+msgstr "Create request"
+
+msgctxt "awcms.adminCopy.reviewQueue"
+msgid "Review queue"
+msgstr "Review queue"
+
+msgctxt "awcms.adminCopy.reviewQueueDescription"
+msgid "Approve, reject, or execute with high-friction confirmation."
+msgstr "Approve, reject, or execute with high-friction confirmation."
+
+msgctxt "awcms.adminCopy.noPermanentDeleteRequestsWaiting"
+msgid "No permanent delete requests are waiting for review."
+msgstr "No permanent delete requests are waiting for review."
+
+msgctxt "awcms.adminCopy.requestedByValue"
+msgid "Requested by: {value}"
+msgstr "Requested by: {value}"
+
+msgctxt "awcms.adminCopy.requestedValue"
+msgid "Requested: {value}"
+msgstr "Requested: {value}"
+
+msgctxt "awcms.adminCopy.typeValue"
+msgid "Type: {value}"
+msgstr "Type: {value}"
+
+msgctxt "awcms.adminCopy.decisionNotes"
+msgid "Decision notes"
+msgstr "Decision notes"
+
+msgctxt "awcms.adminCopy.approve"
+msgid "Approve"
+msgstr "Approve"
+
+msgctxt "awcms.adminCopy.reject"
+msgid "Reject"
+msgstr "Reject"
+
+msgctxt "awcms.adminCopy.permanentDeleteConfirmation"
+msgid "PERMANENT DELETE"
+msgstr "PERMANENT DELETE"
+
+msgctxt "awcms.adminCopy.execute"
+msgid "Execute"
+msgstr "Execute"
+
+msgctxt "awcms.adminCopy.restoredArchivedRegistryEntity"
+msgid "Restored archived registry entity {value}."
+msgstr "Restored archived registry entity {value}."
+
+msgctxt "awcms.adminCopy.failedToRestoreArchivedRegistryEntity"
+msgid "Failed to restore archived registry entity."
+msgstr "Failed to restore archived registry entity."
+
+msgctxt "awcms.adminCopy.loadingArchivedRegistryEntities"
+msgid "Loading archived registry entities..."
+msgstr "Loading archived registry entities..."
+
+msgctxt "awcms.adminCopy.archivedRegistryRecords"
+msgid "Archived registry records"
+msgstr "Archived registry records"
+
+msgctxt "awcms.adminCopy.archivedRegistryRecordsDescription"
+msgid "Restore actions require a reason and are audited."
+msgstr "Restore actions require a reason and are audited."
+
+msgctxt "awcms.adminCopy.noArchivedRegistryRecordsAvailable"
+msgid "No archived registry records are available for restore."
+msgstr "No archived registry records are available for restore."
+
+msgctxt "awcms.adminCopy.archived"
+msgid "Archived"
+msgstr "Archived"
+
+msgctxt "awcms.adminCopy.archivedRegistryEntityPendingRestoreReview"
+msgid "Archived registry entity pending restore review."
+msgstr "Archived registry entity pending restore review."
+
+msgctxt "awcms.adminCopy.restoreReason"
+msgid "Restore reason"
+msgstr "Restore reason"
+
+msgctxt "awcms.adminCopy.restoring"
+msgid "Restoring..."
+msgstr "Restoring..."
+
+msgctxt "awcms.adminCopy.restore"
+msgid "Restore"
+msgstr "Restore"
 
 msgctxt "awcms.adminCopy.abacEyebrow"
 msgid "ABAC"
