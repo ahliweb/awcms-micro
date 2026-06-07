@@ -16,7 +16,7 @@ msgid "websiteSocial.title"
 msgstr "Kontak Sosial Website"
 
 msgid "websiteSocial.description"
-msgstr "Kelola nomor WhatsApp, label ajakan bertindak, dan pesan kontak publik melalui koleksi website_social EmDash. Template publik membaca record terbaru yang dipublikasikan dan merender tombol WhatsApp sticky serta CTA publik kontekstual."
+msgstr "Kelola nomor WhatsApp, label ajakan bertindak kontekstual, dan pesan kontak publik melalui koleksi website_social EmDash. Template publik membaca record locale terbaru yang dipublikasikan dan merender tombol WhatsApp sticky serta CTA publik khusus section."
 
 msgid "websiteSocial.manage"
 msgstr "Kelola pengaturan WhatsApp"
@@ -32,3 +32,6 @@ msgstr "Jaga pesan tetap aman untuk publik dan hindari rahasia personal, sensiti
 
 msgid "websiteSocial.tipLocale"
 msgstr "Publikasikan satu record aktif per locale agar halaman publik dapat memakai teks CTA terlokalisasi."
+
+msgid "websiteSocial.tipLabels"
+msgstr "Atur label/pesan hero, profil, layanan, pos, galeri, berita, widget, kontak, dan sticky agar setiap CTA publik sesuai konteks halamannya."

@@ -90,8 +90,13 @@ const heroPrimaryHref = toLocalePath("/posts", currentLocale, localeOptions);
 const heroSecondaryHref = toLocalePath("/gallery", currentLocale, localeOptions);
 const showWhatsAppCta = websiteSocial.enabled && Boolean(websiteSocial.whatsappNumber);
 const heroWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.heroMessage);
-const sectionWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.sectionMessage);
 const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.contactMessage);
+const profileWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.profileMessage);
+const servicesWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.servicesMessage);
+const postsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.postsMessage);
+const galleryWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.galleryMessage);
+const newsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.newsMessage);
+const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widgetsMessage);
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
@@ -104,7 +109,7 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 			<div class="landing-actions">
 				{showWhatsAppCta && (
 					<a class="landing-button landing-button--whatsapp" href={heroWhatsAppHref} target="_blank" rel="noopener noreferrer">
-						{websiteSocial.stickyLabel}
+						{websiteSocial.heroLabel}
 					</a>
 				)}
 				<a class="landing-button landing-button--primary" href={heroPrimaryHref} data-astro-prefetch="hover">
@@ -147,11 +152,18 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 		<div>
 			<p class="landing-lead">{siteTagline}</p>
 			<p class="landing-muted">{copy.landingProfileDescription}</p>
-			{profilePage && (
-				<a class="landing-text-link" href={toLocalePath(`/${resolveEntrySlug(profilePage)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
-					{copy.openPage}
-				</a>
-			)}
+			<div class="landing-inline-actions">
+				{profilePage && (
+					<a class="landing-text-link" href={toLocalePath(`/${resolveEntrySlug(profilePage)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+						{copy.openPage}
+					</a>
+				)}
+				{showWhatsAppCta && (
+					<a class="landing-text-link landing-text-link--whatsapp" href={profileWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.profileLabel}
+					</a>
+				)}
+			</div>
 		</div>
 	</section>
 
@@ -161,8 +173,8 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 			<h2>{copy.howConnectsTitle}</h2>
 		</div>
 		{showWhatsAppCta && (
-			<a class="landing-text-link landing-text-link--whatsapp" href={sectionWhatsAppHref} target="_blank" rel="noopener noreferrer">
-				{websiteSocial.stickyLabel}
+			<a class="landing-text-link landing-text-link--whatsapp" href={servicesWhatsAppHref} target="_blank" rel="noopener noreferrer">
+				{websiteSocial.servicesLabel}
 			</a>
 		)}
 		<div class="landing-feature-grid">
@@ -186,9 +198,16 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 				<p class="landing-eyebrow">{copy.postsTitle}</p>
 				<h2>{copy.landingPortfolioHeading}</h2>
 			</div>
-			<a class="landing-button landing-button--secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">
-				{copy.viewPosts}
-			</a>
+			<div class="landing-section-actions">
+				{showWhatsAppCta && (
+					<a class="landing-button landing-button--whatsapp" href={postsWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.postsLabel}
+					</a>
+				)}
+				<a class="landing-button landing-button--secondary" href={toLocalePath("/posts", currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{copy.viewPosts}
+				</a>
+			</div>
 		</div>
 		<div class="landing-slider-row">
 			{featuredPosts.length === 0 ? (
@@ -214,9 +233,16 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 				<p class="landing-eyebrow">{copy.galleryKicker}</p>
 				<h2>{copy.galleryListHeading}</h2>
 			</div>
-			<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">
-				{copy.galleryViewAll}
-			</a>
+			<div class="landing-section-actions">
+				{showWhatsAppCta && (
+					<a class="landing-button landing-button--whatsapp" href={galleryWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.galleryLabel}
+					</a>
+				)}
+				<a class="landing-button landing-button--secondary" href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{copy.galleryViewAll}
+				</a>
+			</div>
 		</div>
 		<div class="landing-media-grid">
 			{visibleGalleries.length === 0 ? (
@@ -262,6 +288,11 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 				))
 			)}
 		</div>
+		{showWhatsAppCta && (
+			<a class="landing-text-link landing-text-link--whatsapp" href={newsWhatsAppHref} target="_blank" rel="noopener noreferrer">
+				{websiteSocial.newsLabel}
+			</a>
+		)}
 	</section>
 
 	<section class="landing-contact">
@@ -271,7 +302,7 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 		<div class="landing-actions">
 			{showWhatsAppCta && (
 				<a class="landing-button landing-button--whatsapp" href={contactWhatsAppHref} target="_blank" rel="noopener noreferrer">
-					{websiteSocial.stickyLabel}
+					{websiteSocial.contactLabel}
 				</a>
 			)}
 			<a class="landing-button landing-button--primary" href="/_emdash/admin/content/pages">{copy.managePagesInAdmin}</a>
@@ -285,9 +316,16 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 				<p class="landing-eyebrow">{copy.landingWidgetsEyebrow}</p>
 				<h2>{copy.landingManagedWidgets}</h2>
 			</div>
-			<a class="landing-button landing-button--secondary" href="/_emdash/admin/widgets">
-				{copy.landingManageWidgets}
-			</a>
+			<div class="landing-section-actions">
+				{showWhatsAppCta && (
+					<a class="landing-button landing-button--whatsapp" href={widgetsWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.widgetsLabel}
+					</a>
+				)}
+				<a class="landing-button landing-button--secondary" href="/_emdash/admin/widgets">
+					{copy.landingManageWidgets}
+				</a>
+			</div>
 		</div>
 		<WidgetArea name="homepage" />
 	</section>
@@ -366,6 +404,8 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 	}
 
 	.landing-actions,
+	.landing-inline-actions,
+	.landing-section-actions,
 	.landing-stats,
 	.landing-section__heading--inline {
 		display: flex;
@@ -376,6 +416,11 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 
 	.landing-actions {
 		margin-top: 2rem;
+	}
+
+	.landing-inline-actions,
+	.landing-section-actions {
+		gap: 0.75rem;
 	}
 
 	.landing-button {
@@ -539,6 +584,11 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 
 	.landing-section__heading--inline {
 		justify-content: space-between;
+		align-items: flex-start;
+	}
+
+	.landing-section-actions {
+		justify-content: flex-end;
 	}
 
 	.landing-feature-grid,
@@ -640,6 +690,10 @@ const contactWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.conta
 
 		.landing-slider-row {
 			grid-template-columns: repeat(3, minmax(82vw, 1fr));
+		}
+
+		.landing-section-actions {
+			justify-content: flex-start;
 		}
 	}
 </style>

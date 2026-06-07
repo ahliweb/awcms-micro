@@ -16,7 +16,7 @@ msgid "websiteSocial.title"
 msgstr "Website Social Contact"
 
 msgid "websiteSocial.description"
-msgstr "Manage WhatsApp number, call-to-action labels, and public contact messages through the EmDash website_social collection. Public templates read the latest published record and render sticky WhatsApp buttons plus contextual public CTAs."
+msgstr "Manage WhatsApp number, contextual call-to-action labels, and public contact messages through the EmDash website_social collection. Public templates read the latest published locale record and render sticky WhatsApp buttons plus section-specific public CTAs."
 
 msgid "websiteSocial.manage"
 msgstr "Manage WhatsApp settings"
@@ -32,3 +32,6 @@ msgstr "Keep messages public-safe and avoid personal, sensitive, or operational 
 
 msgid "websiteSocial.tipLocale"
 msgstr "Publish one active record per locale so public pages can resolve localized CTA text."
+
+msgid "websiteSocial.tipLabels"
+msgstr "Set hero, profile, services, posts, gallery, news, widgets, contact, and sticky labels/messages so each public CTA matches its page context."

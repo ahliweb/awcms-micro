@@ -8,7 +8,12 @@ import { getWebsiteSocialAdminCopy } from "./admin-copy.js";
 function WebsiteSocialAdminPage() {
 	const { i18n } = useLingui();
 	const copy = getWebsiteSocialAdminCopy(i18n.locale);
-	const tips = [copy("websiteSocial.tipPhone"), copy("websiteSocial.tipSafety"), copy("websiteSocial.tipLocale")];
+	const tips = [
+		copy("websiteSocial.tipPhone"),
+		copy("websiteSocial.tipLabels"),
+		copy("websiteSocial.tipSafety"),
+		copy("websiteSocial.tipLocale"),
+	];
 
 	return (
 		<div className="space-y-8">
@@ -30,7 +35,7 @@ function WebsiteSocialAdminPage() {
 				</div>
 			</section>
 
-			<section className="grid gap-4 md:grid-cols-3">
+			<section className="grid gap-4 md:grid-cols-4">
 				{tips.map((item) => (
 					<article className="rounded-lg border border-kumo-border bg-kumo-background p-4 text-sm text-kumo-subtle" key={item}>
 						{item}

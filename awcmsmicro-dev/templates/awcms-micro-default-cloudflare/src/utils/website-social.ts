@@ -7,6 +7,21 @@ export interface WebsiteSocialConfig {
 	heroMessage: string;
 	sectionMessage: string;
 	contactMessage: string;
+	profileMessage: string;
+	servicesMessage: string;
+	postsMessage: string;
+	galleryMessage: string;
+	newsMessage: string;
+	widgetsMessage: string;
+	heroLabel: string;
+	sectionLabel: string;
+	contactLabel: string;
+	profileLabel: string;
+	servicesLabel: string;
+	postsLabel: string;
+	galleryLabel: string;
+	newsLabel: string;
+	widgetsLabel: string;
 	stickyLabel: string;
 }
 
@@ -17,6 +32,21 @@ const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
 	heroMessage: "Hello AWCMS-Micro team, I am interested in building a Cloudflare-ready public website with EmDash.",
 	sectionMessage: "Hello AWCMS-Micro team, I want to learn more about this public website section.",
 	contactMessage: "Hello AWCMS-Micro team, please help me plan my Cloudflare website project.",
+	profileMessage: "Hello AWCMS-Micro team, I want to discuss the Cloudflare website profile and brand story.",
+	servicesMessage: "Hello AWCMS-Micro team, I want to discuss Cloudflare-ready website services and content workflow.",
+	postsMessage: "Hello AWCMS-Micro team, I want to discuss publishing posts and portfolio content on Cloudflare.",
+	galleryMessage: "Hello AWCMS-Micro team, I want to discuss gallery and media management for a Cloudflare website.",
+	newsMessage: "Hello AWCMS-Micro team, I want to discuss news and update publishing on Cloudflare.",
+	widgetsMessage: "Hello AWCMS-Micro team, I want to discuss homepage widgets and managed sections.",
+	heroLabel: "Start on WhatsApp",
+	sectionLabel: "Ask about this section",
+	contactLabel: "Plan with WhatsApp",
+	profileLabel: "Discuss profile",
+	servicesLabel: "Ask about services",
+	postsLabel: "Discuss content",
+	galleryLabel: "Discuss gallery",
+	newsLabel: "Discuss updates",
+	widgetsLabel: "Discuss widgets",
 	stickyLabel: "Chat on WhatsApp",
 };
 
@@ -47,6 +77,21 @@ export async function getWebsiteSocialConfig(locale: string | undefined): Promis
 			heroMessage: asString(data.hero_message, DEFAULT_SOCIAL_CONFIG.heroMessage),
 			sectionMessage: asString(data.section_message, DEFAULT_SOCIAL_CONFIG.sectionMessage),
 			contactMessage: asString(data.contact_message, DEFAULT_SOCIAL_CONFIG.contactMessage),
+			profileMessage: asString(data.profile_message, DEFAULT_SOCIAL_CONFIG.profileMessage),
+			servicesMessage: asString(data.services_message, DEFAULT_SOCIAL_CONFIG.servicesMessage),
+			postsMessage: asString(data.posts_message, DEFAULT_SOCIAL_CONFIG.postsMessage),
+			galleryMessage: asString(data.gallery_message, DEFAULT_SOCIAL_CONFIG.galleryMessage),
+			newsMessage: asString(data.news_message, DEFAULT_SOCIAL_CONFIG.newsMessage),
+			widgetsMessage: asString(data.widgets_message, DEFAULT_SOCIAL_CONFIG.widgetsMessage),
+			heroLabel: asString(data.hero_label, DEFAULT_SOCIAL_CONFIG.heroLabel),
+			sectionLabel: asString(data.section_label, DEFAULT_SOCIAL_CONFIG.sectionLabel),
+			contactLabel: asString(data.contact_label, DEFAULT_SOCIAL_CONFIG.contactLabel),
+			profileLabel: asString(data.profile_label, DEFAULT_SOCIAL_CONFIG.profileLabel),
+			servicesLabel: asString(data.services_label, DEFAULT_SOCIAL_CONFIG.servicesLabel),
+			postsLabel: asString(data.posts_label, DEFAULT_SOCIAL_CONFIG.postsLabel),
+			galleryLabel: asString(data.gallery_label, DEFAULT_SOCIAL_CONFIG.galleryLabel),
+			newsLabel: asString(data.news_label, DEFAULT_SOCIAL_CONFIG.newsLabel),
+			widgetsLabel: asString(data.widgets_label, DEFAULT_SOCIAL_CONFIG.widgetsLabel),
 			stickyLabel: asString(data.sticky_label, DEFAULT_SOCIAL_CONFIG.stickyLabel),
 		};
 	} catch {

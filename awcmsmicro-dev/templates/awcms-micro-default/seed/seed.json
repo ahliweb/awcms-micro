@@ -196,6 +196,33 @@
 					"label": "Contact Message",
 					"type": "text"
 				},
+				{ "slug": "profile_message", "label": "Profile Message", "type": "text" },
+				{ "slug": "services_message", "label": "Services Message", "type": "text" },
+				{ "slug": "posts_message", "label": "Posts Message", "type": "text" },
+				{ "slug": "gallery_message", "label": "Gallery Message", "type": "text" },
+				{ "slug": "news_message", "label": "News Message", "type": "text" },
+				{ "slug": "widgets_message", "label": "Widgets Message", "type": "text" },
+				{
+					"slug": "hero_label",
+					"label": "Hero CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "section_label",
+					"label": "Section CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "contact_label",
+					"label": "Contact CTA Label",
+					"type": "string"
+				},
+				{ "slug": "profile_label", "label": "Profile CTA Label", "type": "string" },
+				{ "slug": "services_label", "label": "Services CTA Label", "type": "string" },
+				{ "slug": "posts_label", "label": "Posts CTA Label", "type": "string" },
+				{ "slug": "gallery_label", "label": "Gallery CTA Label", "type": "string" },
+				{ "slug": "news_label", "label": "News CTA Label", "type": "string" },
+				{ "slug": "widgets_label", "label": "Widgets CTA Label", "type": "string" },
 				{
 					"slug": "sticky_label",
 					"label": "Sticky CTA Label",
@@ -1029,6 +1056,21 @@
 					"hero_message": "Hello AWCMS-Micro team, I am interested in building a public website with EmDash.",
 					"section_message": "Hello AWCMS-Micro team, I want to learn more about the public website service sections.",
 					"contact_message": "Hello AWCMS-Micro team, please help me plan my website project.",
+					"profile_message": "Hello AWCMS-Micro team, I want to discuss the profile and brand story for my website.",
+					"services_message": "Hello AWCMS-Micro team, I want to discuss website services and editorial workflows.",
+					"posts_message": "Hello AWCMS-Micro team, I want to discuss posts, portfolio, and content publishing.",
+					"gallery_message": "Hello AWCMS-Micro team, I want to discuss gallery, media, photo, and video management.",
+					"news_message": "Hello AWCMS-Micro team, I want to discuss news and public update publishing.",
+					"widgets_message": "Hello AWCMS-Micro team, I want to discuss homepage widgets and managed public sections.",
+					"hero_label": "Start on WhatsApp",
+					"section_label": "Ask about this section",
+					"contact_label": "Plan with WhatsApp",
+					"profile_label": "Discuss profile",
+					"services_label": "Ask services",
+					"posts_label": "Discuss content",
+					"gallery_label": "Discuss gallery",
+					"news_label": "Discuss updates",
+					"widgets_label": "Discuss widgets",
 					"sticky_label": "Chat on WhatsApp"
 				}
 			},
@@ -1045,6 +1087,21 @@
 					"hero_message": "Halo tim AWCMS-Micro, saya tertarik membangun website publik dengan EmDash.",
 					"section_message": "Halo tim AWCMS-Micro, saya ingin mengetahui lebih lanjut tentang bagian layanan website publik.",
 					"contact_message": "Halo tim AWCMS-Micro, mohon bantu saya merencanakan proyek website.",
+					"profile_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang profil dan cerita brand untuk website saya.",
+					"services_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang layanan website dan workflow editorial.",
+					"posts_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang pos, portofolio, dan publikasi konten.",
+					"gallery_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang pengelolaan galeri, media, foto, dan video.",
+					"news_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang publikasi berita dan pembaruan publik.",
+					"widgets_message": "Halo tim AWCMS-Micro, saya ingin berdiskusi tentang widget beranda dan section publik yang dikelola.",
+					"hero_label": "Mulai via WhatsApp",
+					"section_label": "Tanya bagian ini",
+					"contact_label": "Rencanakan via WhatsApp",
+					"profile_label": "Bahas profil",
+					"services_label": "Tanya layanan",
+					"posts_label": "Bahas konten",
+					"gallery_label": "Bahas galeri",
+					"news_label": "Bahas pembaruan",
+					"widgets_label": "Bahas widget",
 					"sticky_label": "Chat via WhatsApp"
 				}
 			}
