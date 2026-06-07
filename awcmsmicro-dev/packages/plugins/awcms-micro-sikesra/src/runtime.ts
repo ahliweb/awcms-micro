@@ -7445,7 +7445,15 @@ const permanentDeleteExecuteRoute: SharedRouteHandler = async (routeCtx, ctx) =>
 const settingsGetRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.settings.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	return getSettings(ctx);
+	try {
+		return await getSettings(ctx);
+	} catch (cause) {
+		ctx?.log.error(
+			`[${AWCMS_SIKESRA_PLUGIN_ID}] Settings read fallback activated for unavailable runtime state.`,
+			cause,
+		);
+		return { ...DEFAULT_SETTINGS };
+	}
 };
 
 const settingsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -7576,19 +7584,32 @@ const overviewSummaryRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 const verificationListRoute: SharedRouteHandler = async (_routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.verification.read");
 	if (!permission.allowed) return { success: false, error: permission.error };
-	const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
-	const regionScope = await getCurrentVerifierRegionScope(ctx);
-	const items = await listVerificationItemsReadOnly(ctx);
-	return {
-		items: filterVerificationItemsForRegionScope(
-			filterVerificationItemsForLevels(items, currentVerifierLevels),
+	try {
+		const currentVerifierLevels = await getCurrentVerifierLevels(ctx);
+		const regionScope = await getCurrentVerifierRegionScope(ctx);
+		const items = await listVerificationItemsReadOnly(ctx);
+		return {
+			items: filterVerificationItemsForRegionScope(
+				filterVerificationItemsForLevels(items, currentVerifierLevels),
+				currentVerifierLevels,
+				regionScope,
+			),
+			events: await listVerificationEvents(ctx),
 			currentVerifierLevels,
-			regionScope,
-		),
-		events: await listVerificationEvents(ctx),
-		currentVerifierLevels,
-		currentVerifierRegionScope: regionScope,
-	};
+			currentVerifierRegionScope: regionScope,
+		};
+	} catch (cause) {
+		ctx?.log.error(
+			`[${AWCMS_SIKESRA_PLUGIN_ID}] Verification list fallback activated for unavailable runtime state.`,
+			cause,
+		);
+		return {
+			items: [],
+			events: [],
+			currentVerifierLevels: [],
+			currentVerifierRegionScope: null,
+		};
+	}
 };
 
 const verificationAdvanceRoute: SharedRouteHandler = async (routeCtx, ctx) => {

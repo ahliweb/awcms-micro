@@ -2594,23 +2594,38 @@ describe("awcms micro sikesra plugin", () => {
 		}
 	});
 
-	it("fails closed for canonical production read routes when D1 is missing", async () => {
+	it("keeps production settings and verification read routes available when D1 is missing", async () => {
 		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
 		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
 		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
 		try {
 			const { ctx } = createMockContext();
 			const routes = createNativeRoutes();
-			(ctx as any).user = { id: "user-demo-sikesra-admin" };
+			(ctx as any).user = { id: "emdash-production-admin", role: 50 };
 			delete (ctx as any).db;
 
-			await expect(
-				routes["settings/get"]!.handler({
-					...ctx,
-					request: createAdminRequest(),
-					input: {},
-				} as any),
-			).rejects.toThrow("canonical settings runtime state");
+			const settings = (await routes["settings/get"]!.handler({
+				...ctx,
+				request: createAdminRequest(),
+				input: {},
+			} as any)) as any;
+			const verification = (await routes["verification/list"]!.handler({
+				...ctx,
+				request: createAdminRequest(),
+				input: {},
+			} as any)) as any;
+
+			expect(settings).toMatchObject({
+				publicStatusLabel: "healthy",
+				governanceMode: "review",
+			});
+			expect(verification).toEqual({
+				items: [],
+				events: [],
+				currentVerifierLevels: [],
+				currentVerifierRegionScope: null,
+			});
+
 			await expect(
 				routes["regions/get"]!.handler({
 					...ctx,
