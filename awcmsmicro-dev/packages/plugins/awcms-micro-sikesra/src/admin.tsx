@@ -2060,6 +2060,8 @@ function FieldStandardsPage() {
 }
 
 function CustomAttributeDefinitionsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/custom-attributes/definitions");
 	const { data, error, loading, reload } = usePluginData<CustomAttributeDefinitionsResponse>(
 		"custom-attributes/definitions/list",
@@ -2094,24 +2096,24 @@ function CustomAttributeDefinitionsPage() {
 				label: "",
 				description: "",
 			}));
-			setNotice("Custom attribute definition saved with audit tracking.");
+			setNotice(copy.customAttributeDefinitionSaved);
 			await reload();
 		} catch (cause) {
 			setSaveError(
-				cause instanceof Error ? cause.message : "Failed to save custom attribute definition.",
+				cause instanceof Error ? cause.message : copy.failedToSaveCustomAttributeDefinition,
 			);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading custom attribute definitions..." />;
+	if (loading) return <LoadingState label={copy.loadingCustomAttributeDefinitions} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA UI/UX standard"
+				eyebrow={copy.sikesraUiUxStandardEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
@@ -2120,14 +2122,14 @@ function CustomAttributeDefinitionsPage() {
 
 			<div className="grid gap-6 xl:grid-cols-[minmax(360px,0.85fr)_minmax(0,1.15fr)]">
 				<Card
-					title="Controlled attribute builder"
-					description="Create scoped fields with validation, privacy, import, and export rules."
+					title={copy.controlledAttributeBuilder}
+					description={copy.controlledAttributeBuilderDescription}
 				>
 					<div className="mb-4 grid gap-2 sm:grid-cols-5">
 						{SIKESRA_CUSTOM_ATTRIBUTE_BUILDER_SECTIONS.map((step, index) => (
 							<div key={step.id} className="rounded-xl border border-kumo-line bg-kumo-tint/30 p-3">
 								<div className="text-[10px] font-semibold uppercase tracking-wider text-kumo-subtle">
-									Step {index + 1}
+									{copy.stepNumber(index + 1)}
 								</div>
 								<div className="mt-1 text-xs font-semibold text-kumo-default">{step.label}</div>
 							</div>
@@ -2137,8 +2139,8 @@ function CustomAttributeDefinitionsPage() {
 					<form className="space-y-4" onSubmit={(event) => void saveDefinition(event)}>
 						<div className="grid gap-4 md:grid-cols-2">
 							<Field
-								label="Attribute key"
-								hint="Use lowercase snake_case. Protected SIKESRA keys are blocked."
+								label={copy.attributeKey}
+								hint={copy.attributeKeyHint}
 							>
 								<Input
 									value={formState.key ?? ""}
@@ -2148,7 +2150,7 @@ function CustomAttributeDefinitionsPage() {
 									required
 								/>
 							</Field>
-							<Field label="Label">
+							<Field label={copy.label}>
 								<Input
 									value={formState.label ?? ""}
 									onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2158,7 +2160,7 @@ function CustomAttributeDefinitionsPage() {
 								/>
 							</Field>
 						</div>
-						<Field label="Description">
+						<Field label={copy.descriptionLabel}>
 							<InputArea
 								value={formState.description ?? ""}
 								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -2167,21 +2169,21 @@ function CustomAttributeDefinitionsPage() {
 							/>
 						</Field>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Scope">
+							<Field label={copy.scope}>
 								<Select
 									value={formState.scope ?? "entity_type"}
 									onValueChange={(value) =>
 										setFormState((current) => ({ ...current, scope: value ?? "entity_type" }))
 									}
 								>
-									<Select.Option value="global">Global</Select.Option>
-									<Select.Option value="entity_type">Entity Type</Select.Option>
-									<Select.Option value="subtype">Subtype</Select.Option>
-									<Select.Option value="registry_entity">Registry Entity</Select.Option>
-									<Select.Option value="sikesra_id_20">SIKESRA ID</Select.Option>
+									<Select.Option value="global">{copy.global}</Select.Option>
+									<Select.Option value="entity_type">{copy.entityType}</Select.Option>
+									<Select.Option value="subtype">{copy.subtype}</Select.Option>
+									<Select.Option value="registry_entity">{copy.registryEntity}</Select.Option>
+									<Select.Option value="sikesra_id_20">{copy.sikesraId}</Select.Option>
 								</Select>
 							</Field>
-							<Field label="Entity type">
+							<Field label={copy.entityType}>
 								<Select
 									value={formState.entityType ?? "rumah_ibadah"}
 									onValueChange={(value) =>
@@ -2197,7 +2199,7 @@ function CustomAttributeDefinitionsPage() {
 							</Field>
 						</div>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Data class">
+							<Field label={copy.dataClass}>
 								<Select
 									value={formState.dataClass ?? "non_personal"}
 									onValueChange={(value) =>
@@ -2211,35 +2213,35 @@ function CustomAttributeDefinitionsPage() {
 										}))
 									}
 								>
-									<Select.Option value="non_personal">Non-personal</Select.Option>
-									<Select.Option value="personal">Personal</Select.Option>
-									<Select.Option value="sensitive_personal">Sensitive personal</Select.Option>
-									<Select.Option value="restricted">Restricted</Select.Option>
+									<Select.Option value="non_personal">{copy.nonPersonal}</Select.Option>
+									<Select.Option value="personal">{copy.personal}</Select.Option>
+									<Select.Option value="sensitive_personal">{copy.sensitivePersonal}</Select.Option>
+									<Select.Option value="restricted">{copy.restricted}</Select.Option>
 								</Select>
 							</Field>
-							<Field label="Data type">
+							<Field label={copy.dataType}>
 								<Select
 									value={formState.dataType ?? "string"}
 									onValueChange={(value) =>
 										setFormState((current) => ({ ...current, dataType: value ?? "string" }))
 									}
 								>
-									<Select.Option value="string">String</Select.Option>
-									<Select.Option value="text">Text</Select.Option>
-									<Select.Option value="number">Number</Select.Option>
-									<Select.Option value="boolean">Boolean</Select.Option>
-									<Select.Option value="date">Date</Select.Option>
-									<Select.Option value="json">JSON</Select.Option>
+									<Select.Option value="string">{copy.stringType}</Select.Option>
+									<Select.Option value="text">{copy.textType}</Select.Option>
+									<Select.Option value="number">{copy.numberType}</Select.Option>
+									<Select.Option value="boolean">{copy.booleanType}</Select.Option>
+									<Select.Option value="date">{copy.dateType}</Select.Option>
+									<Select.Option value="json">{copy.jsonType}</Select.Option>
 								</Select>
 							</Field>
 						</div>
 						<div className="grid gap-3 md:grid-cols-2">
 							{(
 								[
-									["publicSafe", "Public-safe aggregate"],
-									["maskByDefault", "Mask by default"],
-									["isImportable", "Importable"],
-									["isExportable", "Exportable"],
+									["publicSafe", copy.publicSafeAggregate],
+									["maskByDefault", copy.maskByDefault],
+									["isImportable", copy.importable],
+									["isExportable", copy.exportable],
 								] as Array<[keyof SikesraCustomAttributeDefinitionRequest, string]>
 							).map(([key, label]) => (
 								<label
@@ -2259,19 +2261,19 @@ function CustomAttributeDefinitionsPage() {
 							))}
 						</div>
 						<Button variant="primary" type="submit" disabled={saving}>
-							{saving ? "Saving..." : "Save custom attribute"}
+							{saving ? copy.saving : copy.saveCustomAttribute}
 						</Button>
 					</form>
 				</Card>
 
 				<Card
-					title="Definitions"
-					description="Active custom attributes with privacy and scope badges."
+					title={copy.definitions}
+					description={copy.definitionsDescription}
 				>
 					{!data?.items.length ? (
 						<EmptyState
 							title={contract.emptyState}
-							description="Create a controlled custom field to extend registry forms."
+							description={copy.createControlledCustomFieldDescription}
 						/>
 					) : (
 						<div className="space-y-3">
@@ -2291,9 +2293,9 @@ function CustomAttributeDefinitionsPage() {
 										</div>
 									</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
-										<span>Entity: {item.entityType ?? "Any"}</span>
-										<span>Public safe: {item.publicSafe ? "Yes" : "No"}</span>
-										<span>Masked: {item.maskByDefault ? "Yes" : "No"}</span>
+							<span>{copy.entityValue(item.entityType ?? copy.any)}</span>
+							<span>{copy.publicSafeValue(item.publicSafe ? copy.yes : copy.no)}</span>
+							<span>{copy.maskedValue(item.maskByDefault ? copy.yes : copy.no)}</span>
 									</div>
 								</div>
 							))}
@@ -2306,6 +2308,8 @@ function CustomAttributeDefinitionsPage() {
 }
 
 function CustomAttributeValuesPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/custom-attributes/values");
 	const { data: definitions } = usePluginData<CustomAttributeDefinitionsResponse>(
 		"custom-attributes/definitions/list",
@@ -2346,25 +2350,25 @@ function CustomAttributeValuesPage() {
 				},
 				await createAdminApiRequestOptions(),
 			);
-			setNotice("Custom attribute value saved with masking policy applied.");
+			setNotice(copy.customAttributeValueSaved);
 			setFormState((current) => ({ ...current, ownerId: "", registryEntityId: "", value: "" }));
 			await reload();
 		} catch (cause) {
 			setSaveError(
-				cause instanceof Error ? cause.message : "Failed to save custom attribute value.",
+				cause instanceof Error ? cause.message : copy.failedToSaveCustomAttributeValue,
 			);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading custom attribute values..." />;
+	if (loading) return <LoadingState label={copy.loadingCustomAttributeValues} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell width="wide">
 			<PageHeader
-				eyebrow="SIKESRA UI/UX standard"
+				eyebrow={copy.sikesraUiUxStandardEyebrow}
 				title={contract.title}
 				description={contract.purpose}
 			/>
@@ -2373,11 +2377,11 @@ function CustomAttributeValuesPage() {
 
 			<div className="grid gap-6 xl:grid-cols-[minmax(340px,0.8fr)_minmax(0,1.2fr)]">
 				<Card
-					title="Assign value"
-					description="Attach custom values to a registry entity or SIKESRA ID."
+					title={copy.assignValue}
+					description={copy.assignValueDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void saveValue(event)}>
-						<Field label="Definition">
+						<Field label={copy.definition}>
 							<Select
 								value={formState.definitionId}
 								onValueChange={(value) =>
@@ -2391,7 +2395,7 @@ function CustomAttributeValuesPage() {
 								))}
 							</Select>
 						</Field>
-						<Field label="Registry entity ID">
+						<Field label={copy.registryEntityId}>
 							<Input
 								value={formState.registryEntityId ?? ""}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2404,7 +2408,7 @@ function CustomAttributeValuesPage() {
 								required
 							/>
 						</Field>
-						<Field label="SIKESRA 20-digit ID" hint="Optional link for ID-specific attributes.">
+						<Field label={copy.sikesra20DigitId} hint={copy.sikesra20DigitIdHint}>
 							<Input
 								value={formState.sikesraId20 ?? ""}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2412,7 +2416,7 @@ function CustomAttributeValuesPage() {
 								}
 							/>
 						</Field>
-						<Field label="Value">
+						<Field label={copy.value}>
 							<InputArea
 								value={formValueText}
 								onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -2422,19 +2426,19 @@ function CustomAttributeValuesPage() {
 							/>
 						</Field>
 						<Button variant="primary" type="submit" disabled={saving || !definitions?.items.length}>
-							{saving ? "Saving..." : "Save value"}
+							{saving ? copy.saving : copy.saveValue}
 						</Button>
 					</form>
 				</Card>
 
 				<Card
-					title="Current values"
-					description="Masked values stay redacted unless sensitive-read access is granted."
+					title={copy.currentValues}
+					description={copy.currentValuesDescription}
 				>
 					{!data?.items.length ? (
 						<EmptyState
 							title={contract.emptyState}
-							description="Save a custom value to review masking and ownership."
+							description={copy.saveCustomValueEmptyDescription}
 						/>
 					) : (
 						<div className="space-y-3">
@@ -2449,15 +2453,15 @@ function CustomAttributeValuesPage() {
 										</div>
 										<div className="flex flex-wrap gap-2">
 											<Badge variant="outline">{item.sensitivity}</Badge>
-											<Pill tone={item.masked ? "warning" : "success"}>
-												{item.masked ? "Masked" : "Visible"}
-											</Pill>
+						<Pill tone={item.masked ? "warning" : "success"}>
+							{item.masked ? copy.masked : copy.visible}
+						</Pill>
 										</div>
 									</div>
 									<div className="mt-3 grid gap-2 text-xs text-kumo-subtle sm:grid-cols-3">
-										<span>Definition: {item.definitionId}</span>
-										<span>Registry: {item.registryEntityId ?? "-"}</span>
-										<span>SIKESRA ID: {item.sikesraId20 ?? "-"}</span>
+					<span>{copy.definitionValue(item.definitionId)}</span>
+					<span>{copy.registryValue(item.registryEntityId ?? "-")}</span>
+					<span>{copy.sikesraIdValue(item.sikesraId20 ?? "-")}</span>
 									</div>
 								</div>
 							))}
@@ -2833,6 +2837,8 @@ function ArchivesPage() {
 }
 
 function SettingsPage() {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
 	const contract = getSikesraPageContract("/settings");
 	const { data, error, loading, reload } = usePluginData<SikesraSettingsState>("settings/get", {});
 	const [saving, setSaving] = React.useState(false);
@@ -2876,22 +2882,22 @@ function SettingsPage() {
 				},
 				await createAdminApiRequestOptions(),
 			);
-			setNotice("SIKESRA settings saved with audit tracking.");
+			setNotice(copy.sikesraSettingsSaved);
 			await reload();
 		} catch (cause) {
-			setSaveError(cause instanceof Error ? cause.message : "Failed to save SIKESRA settings.");
+			setSaveError(cause instanceof Error ? cause.message : copy.failedToSaveSikesraSettings);
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <LoadingState label="Loading SIKESRA settings..." />;
+	if (loading) return <LoadingState label={copy.loadingSikesraSettings} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
 
 	return (
 		<PageShell>
 			<PageHeader
-				eyebrow="SIKESRA configuration"
+				eyebrow={copy.sikesraConfiguration}
 				title={contract.title}
 				description={contract.purpose}
 			/>
@@ -2899,11 +2905,11 @@ function SettingsPage() {
 			<Feedback message={saveError} tone="danger" />
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
 				<Card
-					title="Public and governance settings"
-					description="Controls public-safe status, aggregate safety, and audit retention."
+					title={copy.publicAndGovernanceSettings}
+					description={copy.publicAndGovernanceSettingsDescription}
 				>
 					<form className="space-y-4" onSubmit={(event) => void saveSettings(event)}>
-						<Field label="Public status label">
+						<Field label={copy.publicStatusLabel}>
 							<Input
 								value={formState.publicStatusLabel}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2913,7 +2919,7 @@ function SettingsPage() {
 							/>
 						</Field>
 						<div className="grid gap-4 md:grid-cols-2">
-							<Field label="Audit retention days">
+							<Field label={copy.auditRetentionDays}>
 								<Input
 									type="number"
 									min={1}
@@ -2928,8 +2934,8 @@ function SettingsPage() {
 								/>
 							</Field>
 							<Field
-								label="Small-cell threshold"
-								hint="Counts below this value are suppressed in public aggregate output."
+								label={copy.smallCellThreshold}
+								hint={copy.smallCellThresholdHint}
 							>
 								<Input
 									type="number"
@@ -2945,7 +2951,7 @@ function SettingsPage() {
 								/>
 							</Field>
 						</div>
-						<Field label="Governance mode">
+						<Field label={copy.governanceMode}>
 							<Select
 								value={formState.governanceMode}
 								onValueChange={(value) =>
@@ -2955,12 +2961,12 @@ function SettingsPage() {
 									}))
 								}
 							>
-								<Select.Option value="observe">Observe</Select.Option>
-								<Select.Option value="review">Review</Select.Option>
-								<Select.Option value="enforce-demo">Enforce Demo</Select.Option>
+								<Select.Option value="observe">{copy.observe}</Select.Option>
+								<Select.Option value="review">{copy.review}</Select.Option>
+								<Select.Option value="enforce-demo">{copy.enforceDemo}</Select.Option>
 							</Select>
 						</Field>
-						<Field label="Metadata canonical base" hint="Optional HTTP or HTTPS base URL.">
+						<Field label={copy.metadataCanonicalBase} hint={copy.metadataCanonicalBaseHint}>
 							<Input
 								value={formState.metadataCanonicalBase}
 								onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -2972,7 +2978,7 @@ function SettingsPage() {
 							/>
 						</Field>
 						<label className="flex items-center justify-between gap-3 rounded-xl border border-kumo-line bg-kumo-tint/20 px-3 py-2 text-sm text-kumo-default">
-							<span>Enable public-safe SIKESRA aggregate API</span>
+							<span>{copy.enablePublicSafeSikesraAggregateApi}</span>
 							<input
 								type="checkbox"
 								checked={formState.sikesraPublicEnabled}
@@ -2985,29 +2991,29 @@ function SettingsPage() {
 							/>
 						</label>
 						<Button variant="primary" type="submit" disabled={saving}>
-							{saving ? "Saving..." : "Save settings"}
+							{saving ? copy.saving : copy.saveSettings}
 						</Button>
 					</form>
 				</Card>
-				<Card title="Safety summary" description="Current public and privacy controls.">
+				<Card title={copy.safetySummary} description={copy.safetySummaryDescription}>
 					<div className="space-y-3 text-sm text-kumo-default">
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Public API</span>
+							<span className="text-kumo-subtle">{copy.publicApi}</span>
 							<Pill tone={formState.sikesraPublicEnabled ? "success" : "warning"}>
-								{formState.sikesraPublicEnabled ? "Enabled" : "Disabled"}
+								{formState.sikesraPublicEnabled ? copy.enabled : copy.disabled}
 							</Pill>
 						</div>
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Suppression threshold</span>
+							<span className="text-kumo-subtle">{copy.suppressionThreshold}</span>
 							<Badge variant="outline">{formState.smallCellThreshold}</Badge>
 						</div>
 						<div className="flex items-center justify-between gap-3">
-							<span className="text-kumo-subtle">Governance</span>
+							<span className="text-kumo-subtle">{copy.governance}</span>
 							<Badge variant="secondary">{formState.governanceMode}</Badge>
 						</div>
 						<EmptyState
-							title="Public-safe aggregate only"
-							description="Settings cannot expose personal, sensitive, restricted, KTP, domicile, or document metadata through public output."
+							title={copy.publicSafeAggregateOnly}
+							description={copy.publicSafeAggregateOnlyDescription}
 						/>
 					</div>
 				</Card>

@@ -534,6 +534,30 @@ msgctxt "awcms.adminCopy.pluginConfigurationDescription"
 msgid "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
 msgstr "Kelola pengaturan global untuk plugin ini. Pengaturan ini menentukan perilaku route status publik dan alur kerja tata kelola."
 
+msgctxt "awcms.adminCopy.sikesraSettingsSaved"
+msgid "SIKESRA settings saved with audit tracking."
+msgstr "Pengaturan SIKESRA disimpan dengan pelacakan audit."
+
+msgctxt "awcms.adminCopy.failedToSaveSikesraSettings"
+msgid "Failed to save SIKESRA settings."
+msgstr "Gagal menyimpan pengaturan SIKESRA."
+
+msgctxt "awcms.adminCopy.loadingSikesraSettings"
+msgid "Loading SIKESRA settings..."
+msgstr "Memuat pengaturan SIKESRA..."
+
+msgctxt "awcms.adminCopy.sikesraConfiguration"
+msgid "SIKESRA configuration"
+msgstr "Konfigurasi SIKESRA"
+
+msgctxt "awcms.adminCopy.publicAndGovernanceSettings"
+msgid "Public and governance settings"
+msgstr "Pengaturan publik dan tata kelola"
+
+msgctxt "awcms.adminCopy.publicAndGovernanceSettingsDescription"
+msgid "Controls public-safe status, aggregate safety, and audit retention."
+msgstr "Mengontrol status aman-publik, keamanan agregat, dan retensi audit."
+
 msgctxt "awcms.adminCopy.publicStatusLabel"
 msgid "Public status label"
 msgstr "Label status publik"
@@ -609,6 +633,34 @@ msgstr "Menyimpan..."
 msgctxt "awcms.adminCopy.saveSettings"
 msgid "Save settings"
 msgstr "Simpan pengaturan"
+
+msgctxt "awcms.adminCopy.enablePublicSafeSikesraAggregateApi"
+msgid "Enable public-safe SIKESRA aggregate API"
+msgstr "Aktifkan API agregat SIKESRA aman-publik"
+
+msgctxt "awcms.adminCopy.safetySummary"
+msgid "Safety summary"
+msgstr "Ringkasan keamanan"
+
+msgctxt "awcms.adminCopy.safetySummaryDescription"
+msgid "Current public and privacy controls."
+msgstr "Kontrol publik dan privasi saat ini."
+
+msgctxt "awcms.adminCopy.publicApi"
+msgid "Public API"
+msgstr "API publik"
+
+msgctxt "awcms.adminCopy.suppressionThreshold"
+msgid "Suppression threshold"
+msgstr "Ambang supresi"
+
+msgctxt "awcms.adminCopy.publicSafeAggregateOnly"
+msgid "Public-safe aggregate only"
+msgstr "Hanya agregat aman-publik"
+
+msgctxt "awcms.adminCopy.publicSafeAggregateOnlyDescription"
+msgid "Settings cannot expose personal, sensitive, restricted, KTP, domicile, or document metadata through public output."
+msgstr "Pengaturan tidak dapat mengekspos metadata personal, sensitif, terbatas, KTP, domisili, atau dokumen melalui output publik."
 
 msgctxt "awcms.adminCopy.modeLabel"
 msgid "Mode: {value}"
@@ -1865,6 +1917,206 @@ msgstr "Draf"
 msgctxt "awcms.adminCopy.loadingAbacAttributes"
 msgid "Loading ABAC attributes..."
 msgstr "Memuat atribut ABAC..."
+
+msgctxt "awcms.adminCopy.customAttributeDefinitionSaved"
+msgid "Custom attribute definition saved with audit tracking."
+msgstr "Definisi atribut kustom disimpan dengan pelacakan audit."
+
+msgctxt "awcms.adminCopy.failedToSaveCustomAttributeDefinition"
+msgid "Failed to save custom attribute definition."
+msgstr "Gagal menyimpan definisi atribut kustom."
+
+msgctxt "awcms.adminCopy.loadingCustomAttributeDefinitions"
+msgid "Loading custom attribute definitions..."
+msgstr "Memuat definisi atribut kustom..."
+
+msgctxt "awcms.adminCopy.controlledAttributeBuilder"
+msgid "Controlled attribute builder"
+msgstr "Builder atribut terkendali"
+
+msgctxt "awcms.adminCopy.controlledAttributeBuilderDescription"
+msgid "Create scoped fields with validation, privacy, import, and export rules."
+msgstr "Buat field bercakupan dengan aturan validasi, privasi, impor, dan ekspor."
+
+msgctxt "awcms.adminCopy.stepNumber"
+msgid "Step {step}"
+msgstr "Langkah {step}"
+
+msgctxt "awcms.adminCopy.attributeKey"
+msgid "Attribute key"
+msgstr "Kunci atribut"
+
+msgctxt "awcms.adminCopy.attributeKeyHint"
+msgid "Use lowercase snake_case. Protected SIKESRA keys are blocked."
+msgstr "Gunakan snake_case huruf kecil. Kunci SIKESRA terlindungi diblokir."
+
+msgctxt "awcms.adminCopy.global"
+msgid "Global"
+msgstr "Global"
+
+msgctxt "awcms.adminCopy.entityType"
+msgid "Entity Type"
+msgstr "Tipe Entitas"
+
+msgctxt "awcms.adminCopy.subtype"
+msgid "Subtype"
+msgstr "Subtype"
+
+msgctxt "awcms.adminCopy.registryEntity"
+msgid "Registry Entity"
+msgstr "Entitas Registry"
+
+msgctxt "awcms.adminCopy.dataType"
+msgid "Data type"
+msgstr "Tipe data"
+
+msgctxt "awcms.adminCopy.stringType"
+msgid "String"
+msgstr "String"
+
+msgctxt "awcms.adminCopy.textType"
+msgid "Text"
+msgstr "Teks"
+
+msgctxt "awcms.adminCopy.numberType"
+msgid "Number"
+msgstr "Angka"
+
+msgctxt "awcms.adminCopy.booleanType"
+msgid "Boolean"
+msgstr "Boolean"
+
+msgctxt "awcms.adminCopy.dateType"
+msgid "Date"
+msgstr "Tanggal"
+
+msgctxt "awcms.adminCopy.jsonType"
+msgid "JSON"
+msgstr "JSON"
+
+msgctxt "awcms.adminCopy.publicSafeAggregate"
+msgid "Public-safe aggregate"
+msgstr "Agregat aman-publik"
+
+msgctxt "awcms.adminCopy.maskByDefault"
+msgid "Mask by default"
+msgstr "Masking default"
+
+msgctxt "awcms.adminCopy.importable"
+msgid "Importable"
+msgstr "Dapat diimpor"
+
+msgctxt "awcms.adminCopy.exportable"
+msgid "Exportable"
+msgstr "Dapat diekspor"
+
+msgctxt "awcms.adminCopy.saveCustomAttribute"
+msgid "Save custom attribute"
+msgstr "Simpan atribut kustom"
+
+msgctxt "awcms.adminCopy.definitions"
+msgid "Definitions"
+msgstr "Definisi"
+
+msgctxt "awcms.adminCopy.definitionsDescription"
+msgid "Active custom attributes with privacy and scope badges."
+msgstr "Atribut kustom aktif dengan badge privasi dan cakupan."
+
+msgctxt "awcms.adminCopy.createControlledCustomFieldDescription"
+msgid "Create a controlled custom field to extend registry forms."
+msgstr "Buat field kustom terkendali untuk memperluas formulir registry."
+
+msgctxt "awcms.adminCopy.any"
+msgid "Any"
+msgstr "Apa pun"
+
+msgctxt "awcms.adminCopy.yes"
+msgid "Yes"
+msgstr "Ya"
+
+msgctxt "awcms.adminCopy.no"
+msgid "No"
+msgstr "Tidak"
+
+msgctxt "awcms.adminCopy.entityValue"
+msgid "Entity: {value}"
+msgstr "Entitas: {value}"
+
+msgctxt "awcms.adminCopy.publicSafeValue"
+msgid "Public safe: {value}"
+msgstr "Aman publik: {value}"
+
+msgctxt "awcms.adminCopy.maskedValue"
+msgid "Masked: {value}"
+msgstr "Dimasking: {value}"
+
+msgctxt "awcms.adminCopy.customAttributeValueSaved"
+msgid "Custom attribute value saved with masking policy applied."
+msgstr "Nilai atribut kustom disimpan dengan kebijakan masking."
+
+msgctxt "awcms.adminCopy.failedToSaveCustomAttributeValue"
+msgid "Failed to save custom attribute value."
+msgstr "Gagal menyimpan nilai atribut kustom."
+
+msgctxt "awcms.adminCopy.loadingCustomAttributeValues"
+msgid "Loading custom attribute values..."
+msgstr "Memuat nilai atribut kustom..."
+
+msgctxt "awcms.adminCopy.assignValue"
+msgid "Assign value"
+msgstr "Tetapkan nilai"
+
+msgctxt "awcms.adminCopy.assignValueDescription"
+msgid "Attach custom values to a registry entity or SIKESRA ID."
+msgstr "Lampirkan nilai kustom ke entitas registry atau ID SIKESRA."
+
+msgctxt "awcms.adminCopy.definition"
+msgid "Definition"
+msgstr "Definisi"
+
+msgctxt "awcms.adminCopy.registryEntityId"
+msgid "Registry entity ID"
+msgstr "ID entitas registry"
+
+msgctxt "awcms.adminCopy.sikesra20DigitId"
+msgid "SIKESRA 20-digit ID"
+msgstr "ID SIKESRA 20 digit"
+
+msgctxt "awcms.adminCopy.sikesra20DigitIdHint"
+msgid "Optional link for ID-specific attributes."
+msgstr "Tautan opsional untuk atribut khusus ID."
+
+msgctxt "awcms.adminCopy.value"
+msgid "Value"
+msgstr "Nilai"
+
+msgctxt "awcms.adminCopy.saveValue"
+msgid "Save value"
+msgstr "Simpan nilai"
+
+msgctxt "awcms.adminCopy.currentValues"
+msgid "Current values"
+msgstr "Nilai saat ini"
+
+msgctxt "awcms.adminCopy.currentValuesDescription"
+msgid "Masked values stay redacted unless sensitive-read access is granted."
+msgstr "Nilai termasking tetap diredaksi kecuali akses baca sensitif diberikan."
+
+msgctxt "awcms.adminCopy.saveCustomValueEmptyDescription"
+msgid "Save a custom value to review masking and ownership."
+msgstr "Simpan nilai kustom untuk meninjau masking dan kepemilikan."
+
+msgctxt "awcms.adminCopy.definitionValue"
+msgid "Definition: {value}"
+msgstr "Definisi: {value}"
+
+msgctxt "awcms.adminCopy.registryValue"
+msgid "Registry: {value}"
+msgstr "Registry: {value}"
+
+msgctxt "awcms.adminCopy.sikesraIdValue"
+msgid "SIKESRA ID: {value}"
+msgstr "ID SIKESRA: {value}"
 
 msgctxt "awcms.adminCopy.abacEyebrow"
 msgid "ABAC"

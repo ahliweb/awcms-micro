@@ -534,6 +534,30 @@ msgctxt "awcms.adminCopy.pluginConfigurationDescription"
 msgid "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
 msgstr "Manage global settings for this plugin. These settings dictate how the public status route and governance workflows behave."
 
+msgctxt "awcms.adminCopy.sikesraSettingsSaved"
+msgid "SIKESRA settings saved with audit tracking."
+msgstr "SIKESRA settings saved with audit tracking."
+
+msgctxt "awcms.adminCopy.failedToSaveSikesraSettings"
+msgid "Failed to save SIKESRA settings."
+msgstr "Failed to save SIKESRA settings."
+
+msgctxt "awcms.adminCopy.loadingSikesraSettings"
+msgid "Loading SIKESRA settings..."
+msgstr "Loading SIKESRA settings..."
+
+msgctxt "awcms.adminCopy.sikesraConfiguration"
+msgid "SIKESRA configuration"
+msgstr "SIKESRA configuration"
+
+msgctxt "awcms.adminCopy.publicAndGovernanceSettings"
+msgid "Public and governance settings"
+msgstr "Public and governance settings"
+
+msgctxt "awcms.adminCopy.publicAndGovernanceSettingsDescription"
+msgid "Controls public-safe status, aggregate safety, and audit retention."
+msgstr "Controls public-safe status, aggregate safety, and audit retention."
+
 msgctxt "awcms.adminCopy.publicStatusLabel"
 msgid "Public status label"
 msgstr "Public status label"
@@ -609,6 +633,34 @@ msgstr "Saving..."
 msgctxt "awcms.adminCopy.saveSettings"
 msgid "Save settings"
 msgstr "Save settings"
+
+msgctxt "awcms.adminCopy.enablePublicSafeSikesraAggregateApi"
+msgid "Enable public-safe SIKESRA aggregate API"
+msgstr "Enable public-safe SIKESRA aggregate API"
+
+msgctxt "awcms.adminCopy.safetySummary"
+msgid "Safety summary"
+msgstr "Safety summary"
+
+msgctxt "awcms.adminCopy.safetySummaryDescription"
+msgid "Current public and privacy controls."
+msgstr "Current public and privacy controls."
+
+msgctxt "awcms.adminCopy.publicApi"
+msgid "Public API"
+msgstr "Public API"
+
+msgctxt "awcms.adminCopy.suppressionThreshold"
+msgid "Suppression threshold"
+msgstr "Suppression threshold"
+
+msgctxt "awcms.adminCopy.publicSafeAggregateOnly"
+msgid "Public-safe aggregate only"
+msgstr "Public-safe aggregate only"
+
+msgctxt "awcms.adminCopy.publicSafeAggregateOnlyDescription"
+msgid "Settings cannot expose personal, sensitive, restricted, KTP, domicile, or document metadata through public output."
+msgstr "Settings cannot expose personal, sensitive, restricted, KTP, domicile, or document metadata through public output."
 
 msgctxt "awcms.adminCopy.modeLabel"
 msgid "Mode: {value}"
@@ -1865,6 +1917,206 @@ msgstr "Draft"
 msgctxt "awcms.adminCopy.loadingAbacAttributes"
 msgid "Loading ABAC attributes..."
 msgstr "Loading ABAC attributes..."
+
+msgctxt "awcms.adminCopy.customAttributeDefinitionSaved"
+msgid "Custom attribute definition saved with audit tracking."
+msgstr "Custom attribute definition saved with audit tracking."
+
+msgctxt "awcms.adminCopy.failedToSaveCustomAttributeDefinition"
+msgid "Failed to save custom attribute definition."
+msgstr "Failed to save custom attribute definition."
+
+msgctxt "awcms.adminCopy.loadingCustomAttributeDefinitions"
+msgid "Loading custom attribute definitions..."
+msgstr "Loading custom attribute definitions..."
+
+msgctxt "awcms.adminCopy.controlledAttributeBuilder"
+msgid "Controlled attribute builder"
+msgstr "Controlled attribute builder"
+
+msgctxt "awcms.adminCopy.controlledAttributeBuilderDescription"
+msgid "Create scoped fields with validation, privacy, import, and export rules."
+msgstr "Create scoped fields with validation, privacy, import, and export rules."
+
+msgctxt "awcms.adminCopy.stepNumber"
+msgid "Step {step}"
+msgstr "Step {step}"
+
+msgctxt "awcms.adminCopy.attributeKey"
+msgid "Attribute key"
+msgstr "Attribute key"
+
+msgctxt "awcms.adminCopy.attributeKeyHint"
+msgid "Use lowercase snake_case. Protected SIKESRA keys are blocked."
+msgstr "Use lowercase snake_case. Protected SIKESRA keys are blocked."
+
+msgctxt "awcms.adminCopy.global"
+msgid "Global"
+msgstr "Global"
+
+msgctxt "awcms.adminCopy.entityType"
+msgid "Entity Type"
+msgstr "Entity Type"
+
+msgctxt "awcms.adminCopy.subtype"
+msgid "Subtype"
+msgstr "Subtype"
+
+msgctxt "awcms.adminCopy.registryEntity"
+msgid "Registry Entity"
+msgstr "Registry Entity"
+
+msgctxt "awcms.adminCopy.dataType"
+msgid "Data type"
+msgstr "Data type"
+
+msgctxt "awcms.adminCopy.stringType"
+msgid "String"
+msgstr "String"
+
+msgctxt "awcms.adminCopy.textType"
+msgid "Text"
+msgstr "Text"
+
+msgctxt "awcms.adminCopy.numberType"
+msgid "Number"
+msgstr "Number"
+
+msgctxt "awcms.adminCopy.booleanType"
+msgid "Boolean"
+msgstr "Boolean"
+
+msgctxt "awcms.adminCopy.dateType"
+msgid "Date"
+msgstr "Date"
+
+msgctxt "awcms.adminCopy.jsonType"
+msgid "JSON"
+msgstr "JSON"
+
+msgctxt "awcms.adminCopy.publicSafeAggregate"
+msgid "Public-safe aggregate"
+msgstr "Public-safe aggregate"
+
+msgctxt "awcms.adminCopy.maskByDefault"
+msgid "Mask by default"
+msgstr "Mask by default"
+
+msgctxt "awcms.adminCopy.importable"
+msgid "Importable"
+msgstr "Importable"
+
+msgctxt "awcms.adminCopy.exportable"
+msgid "Exportable"
+msgstr "Exportable"
+
+msgctxt "awcms.adminCopy.saveCustomAttribute"
+msgid "Save custom attribute"
+msgstr "Save custom attribute"
+
+msgctxt "awcms.adminCopy.definitions"
+msgid "Definitions"
+msgstr "Definitions"
+
+msgctxt "awcms.adminCopy.definitionsDescription"
+msgid "Active custom attributes with privacy and scope badges."
+msgstr "Active custom attributes with privacy and scope badges."
+
+msgctxt "awcms.adminCopy.createControlledCustomFieldDescription"
+msgid "Create a controlled custom field to extend registry forms."
+msgstr "Create a controlled custom field to extend registry forms."
+
+msgctxt "awcms.adminCopy.any"
+msgid "Any"
+msgstr "Any"
+
+msgctxt "awcms.adminCopy.yes"
+msgid "Yes"
+msgstr "Yes"
+
+msgctxt "awcms.adminCopy.no"
+msgid "No"
+msgstr "No"
+
+msgctxt "awcms.adminCopy.entityValue"
+msgid "Entity: {value}"
+msgstr "Entity: {value}"
+
+msgctxt "awcms.adminCopy.publicSafeValue"
+msgid "Public safe: {value}"
+msgstr "Public safe: {value}"
+
+msgctxt "awcms.adminCopy.maskedValue"
+msgid "Masked: {value}"
+msgstr "Masked: {value}"
+
+msgctxt "awcms.adminCopy.customAttributeValueSaved"
+msgid "Custom attribute value saved with masking policy applied."
+msgstr "Custom attribute value saved with masking policy applied."
+
+msgctxt "awcms.adminCopy.failedToSaveCustomAttributeValue"
+msgid "Failed to save custom attribute value."
+msgstr "Failed to save custom attribute value."
+
+msgctxt "awcms.adminCopy.loadingCustomAttributeValues"
+msgid "Loading custom attribute values..."
+msgstr "Loading custom attribute values..."
+
+msgctxt "awcms.adminCopy.assignValue"
+msgid "Assign value"
+msgstr "Assign value"
+
+msgctxt "awcms.adminCopy.assignValueDescription"
+msgid "Attach custom values to a registry entity or SIKESRA ID."
+msgstr "Attach custom values to a registry entity or SIKESRA ID."
+
+msgctxt "awcms.adminCopy.definition"
+msgid "Definition"
+msgstr "Definition"
+
+msgctxt "awcms.adminCopy.registryEntityId"
+msgid "Registry entity ID"
+msgstr "Registry entity ID"
+
+msgctxt "awcms.adminCopy.sikesra20DigitId"
+msgid "SIKESRA 20-digit ID"
+msgstr "SIKESRA 20-digit ID"
+
+msgctxt "awcms.adminCopy.sikesra20DigitIdHint"
+msgid "Optional link for ID-specific attributes."
+msgstr "Optional link for ID-specific attributes."
+
+msgctxt "awcms.adminCopy.value"
+msgid "Value"
+msgstr "Value"
+
+msgctxt "awcms.adminCopy.saveValue"
+msgid "Save value"
+msgstr "Save value"
+
+msgctxt "awcms.adminCopy.currentValues"
+msgid "Current values"
+msgstr "Current values"
+
+msgctxt "awcms.adminCopy.currentValuesDescription"
+msgid "Masked values stay redacted unless sensitive-read access is granted."
+msgstr "Masked values stay redacted unless sensitive-read access is granted."
+
+msgctxt "awcms.adminCopy.saveCustomValueEmptyDescription"
+msgid "Save a custom value to review masking and ownership."
+msgstr "Save a custom value to review masking and ownership."
+
+msgctxt "awcms.adminCopy.definitionValue"
+msgid "Definition: {value}"
+msgstr "Definition: {value}"
+
+msgctxt "awcms.adminCopy.registryValue"
+msgid "Registry: {value}"
+msgstr "Registry: {value}"
+
+msgctxt "awcms.adminCopy.sikesraIdValue"
+msgid "SIKESRA ID: {value}"
+msgstr "SIKESRA ID: {value}"
 
 msgctxt "awcms.adminCopy.abacEyebrow"
 msgid "ABAC"

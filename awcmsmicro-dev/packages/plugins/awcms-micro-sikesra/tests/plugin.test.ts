@@ -7627,6 +7627,61 @@ describe("awcms micro sikesra plugin", () => {
 		}
 	});
 
+	it("keeps custom attribute page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.customAttributeDefinitionSaved",
+			"awcms.adminCopy.loadingCustomAttributeDefinitions",
+			"awcms.adminCopy.controlledAttributeBuilder",
+			"awcms.adminCopy.attributeKey",
+			"awcms.adminCopy.saveCustomAttribute",
+			"awcms.adminCopy.customAttributeValueSaved",
+			"awcms.adminCopy.loadingCustomAttributeValues",
+			"awcms.adminCopy.assignValue",
+			"awcms.adminCopy.sikesra20DigitIdHint",
+			"awcms.adminCopy.currentValues",
+		];
+
+		expect(adminSource).toContain("copy.controlledAttributeBuilder");
+		expect(adminSource).toContain("copy.assignValue");
+		expect(adminSource).not.toContain("Controlled attribute builder");
+		expect(adminSource).not.toContain("Loading custom attribute definitions...");
+		expect(adminSource).not.toContain("Custom attribute value saved with masking policy applied.");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
+	it("keeps settings page copy in plugin PO catalogs", () => {
+		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
+		const requiredKeys = [
+			"awcms.adminCopy.sikesraSettingsSaved",
+			"awcms.adminCopy.loadingSikesraSettings",
+			"awcms.adminCopy.sikesraConfiguration",
+			"awcms.adminCopy.publicAndGovernanceSettings",
+			"awcms.adminCopy.enablePublicSafeSikesraAggregateApi",
+			"awcms.adminCopy.safetySummary",
+			"awcms.adminCopy.publicSafeAggregateOnly",
+		];
+
+		expect(adminSource).toContain("copy.sikesraSettingsSaved");
+		expect(adminSource).toContain("copy.publicAndGovernanceSettings");
+		expect(adminSource).not.toContain("SIKESRA settings saved with audit tracking.");
+		expect(adminSource).not.toContain("Loading SIKESRA settings...");
+		expect(adminSource).not.toContain("Public and governance settings");
+
+		for (const path of ["../src/locales/en/messages.po", "../src/locales/id/messages.po"]) {
+			const source = readFileSync(resolve(import.meta.dirname, path), "utf8");
+			for (const key of requiredKeys) {
+				expect(source).toContain(key);
+			}
+		}
+	});
+
 	it("keeps user-facing plugin identity copy out of demonstration wording", () => {
 		for (const path of [
 			"../src/locales/messages.ts",
