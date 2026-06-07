@@ -957,18 +957,21 @@ function MetricCard({
 	icon?: string;
 	accent?: "blue" | "purple" | "emerald";
 }) {
-	const accentColors: Record<string, string> = {
-		blue: "#3b82f6",
-		purple: "#a855f7",
-		emerald: "#10b981",
-	};
-	const borderAccent = accent ? accentColors[accent] : undefined;
+	const accentClass = accent
+		? {
+				blue: "border-t-kumo-brand",
+				purple: "border-t-kumo-accent",
+				emerald: "border-t-kumo-success",
+			}[accent]
+		: "border-t-kumo-line";
 	return (
 		<div
-			className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md transition-all"
+			className={cx(
+				"rounded-2xl border border-t-4 border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md transition-all",
+				accentClass,
+			)}
 			style={{
 				padding: "20px",
-				borderTop: borderAccent ? `4px solid ${borderAccent}` : undefined,
 			}}
 		>
 			<div className="flex items-start justify-between gap-2" style={{ marginBottom: "12px" }}>
@@ -1058,7 +1061,6 @@ function EmptyState({ title, description }: { title: string; description: string
 			className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-kumo-line bg-kumo-tint/20 text-center"
 			style={{
 				padding: "40px 24px",
-				backgroundColor: "rgba(100, 116, 139, 0.03)",
 				borderColor: "var(--kumo-line)",
 			}}
 		>
@@ -1068,13 +1070,18 @@ function EmptyState({ title, description }: { title: string; description: string
 				className="max-w-sm text-xs leading-relaxed"
 				style={{
 					marginTop: "6px",
-					color: "var(--kumo-subtle, #4b5563)",
 				}}
 			>
 				{description}
 			</div>
 		</div>
 	);
+}
+
+function activateRegionRow(event: React.KeyboardEvent<HTMLDivElement>, onActivate: () => void) {
+	if (event.key !== "Enter" && event.key !== " ") return;
+	event.preventDefault();
+	onActivate();
 }
 
 type SikesraAdminPagePath = SikesraPagePatternContract["path"];
@@ -1477,20 +1484,23 @@ function RegistryDetailPage() {
 					>
 						<div className="space-y-2">
 							{data.items.map((item) => (
-								<button
+								<Button
 									key={item.id}
 									type="button"
+									variant="ghost"
 									onClick={() => setSelectedId(item.id)}
 									className={cx(
-										"w-full rounded-xl border px-3 py-2 text-start text-sm transition",
+										"h-auto w-full justify-start rounded-xl border px-3 py-2 text-start text-sm transition",
 										selected.id === item.id
 											? "border-kumo-brand bg-kumo-tint text-kumo-default"
 											: "border-kumo-line bg-kumo-base text-kumo-subtle",
 									)}
 								>
-									<div className="font-semibold">{item.label}</div>
-									<div className="mt-1 font-mono text-xs">{item.code || item.id}</div>
-								</button>
+									<span className="block">
+										<span className="block font-semibold">{item.label}</span>
+										<span className="mt-1 block font-mono text-xs">{item.code || item.id}</span>
+									</span>
+								</Button>
 							))}
 						</div>
 					</Card>
@@ -1743,16 +1753,19 @@ function AccessUsersPage() {
 				) : (
 					<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
 						{emdashUsers.map((user) => (
-							<button
+							<Button
 								key={user.id}
 								type="button"
-								className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-start transition hover:border-kumo-brand"
+								variant="ghost"
+								className="h-auto justify-start rounded-xl border border-kumo-line bg-kumo-base p-4 text-start transition hover:border-kumo-brand"
 								onClick={() => setUserState((current) => ({ ...current, userId: user.id }))}
 							>
-								<div className="font-semibold text-kumo-default">{user.name || user.email}</div>
-								<div className="mt-1 text-xs text-kumo-subtle">{user.email}</div>
-								<div className="mt-3 font-mono text-xs text-kumo-subtle">{user.id}</div>
-							</button>
+								<span className="block">
+									<span className="block font-semibold text-kumo-default">{user.name || user.email}</span>
+									<span className="mt-1 block text-xs text-kumo-subtle">{user.email}</span>
+									<span className="mt-3 block font-mono text-xs text-kumo-subtle">{user.id}</span>
+								</span>
+							</Button>
 						))}
 					</div>
 				)}
@@ -3191,13 +3204,11 @@ function SikesraStatsChart({
 			className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm mt-2 overflow-hidden"
 			style={{
 				border: "1px solid var(--kumo-line)",
-				backgroundColor: "var(--kumo-base)",
 			}}
 		>
 			<div
-				className="flex items-center justify-between border-b border-kumo-line"
+				className="flex items-center justify-between border-b border-kumo-line bg-kumo-tint/40"
 				style={{
-					backgroundColor: "rgba(100, 116, 139, 0.04)",
 					borderBottom: "1px solid var(--kumo-line)",
 					padding: "16px 24px",
 				}}
@@ -3208,20 +3219,14 @@ function SikesraStatsChart({
 				</div>
 				{isReferenceData && (
 					<span
-						className="inline-flex items-center gap-1.5 rounded-full border"
+						className="inline-flex items-center gap-1.5 rounded-full border border-kumo-warning/25 bg-kumo-warning/10 text-kumo-warning"
 						style={{
-							backgroundColor: "rgba(245, 158, 11, 0.1)",
-							color: "#d97706",
-							borderColor: "rgba(245, 158, 11, 0.25)",
 							padding: "4px 10px",
 							fontSize: "12px",
 							fontWeight: 500,
 						}}
 					>
-						<span
-							className="h-1.5 w-1.5 rounded-full"
-							style={{ backgroundColor: "#f59e0b" }}
-						/>
+						<span className="h-1.5 w-1.5 rounded-full bg-kumo-warning" />
 						{copy.referenceData}
 					</span>
 				)}
@@ -3255,9 +3260,9 @@ function SikesraStatsChart({
 									<span className="text-[11px] text-kumo-subtle italic">{copy.suppressedLabel}</span>
 								) : (
 									<div className="flex items-center gap-3 text-xs">
-										<span className="text-blue-600 font-semibold">{cat.total}</span>
-										<span className="text-kumo-line">/</span>
-										<span className="text-emerald-600 font-semibold">{cat.verified} ✓</span>
+									<span className="text-kumo-brand font-semibold">{cat.total}</span>
+									<span className="text-kumo-line">/</span>
+									<span className="text-kumo-success font-semibold">{cat.verified} ✓</span>
 										<span className="text-kumo-subtle font-medium">({verifiedOfTotal}%)</span>
 									</div>
 								)}
@@ -3269,15 +3274,15 @@ function SikesraStatsChart({
 									style={{
 										height: "32px",
 										padding: "0 16px",
-										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.05))",
-										borderColor: "var(--kumo-line, rgba(100, 116, 139, 0.25))",
+										backgroundColor: "var(--kumo-tint)",
+										borderColor: "var(--kumo-line)",
 									}}
 								>
 									<div
 										className="flex items-center gap-2 font-medium"
 										style={{
 											fontSize: "12px",
-											color: "var(--kumo-subtle, #4b5563)",
+											color: "var(--kumo-subtle)",
 										}}
 									>
 										<span role="img" aria-label={copy.privacyLock} style={{ opacity: 0.7, fontSize: "14px" }}>🔒</span>
@@ -3289,23 +3294,21 @@ function SikesraStatsChart({
 									className="relative w-full rounded-lg overflow-hidden"
 									style={{
 										height: "28px",
-										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.08))",
+										backgroundColor: "var(--kumo-tint)",
 									}}
 								>
 									<div
-										className="absolute inset-y-0 left-0 rounded-lg transition-all duration-700"
-										style={{
-											width: `${totalPct}%`,
-											backgroundColor: "rgba(59, 130, 246, 0.2)",
-										}}
-									/>
-									<div
-										className="absolute inset-y-0 left-0 rounded-lg transition-all duration-700"
-										style={{
-											width: `${verifiedPct}%`,
-											backgroundColor: "#10b981",
-										}}
-									/>
+									className="absolute inset-y-0 start-0 rounded-lg bg-kumo-brand/20 transition-all duration-700"
+									style={{
+										width: `${totalPct}%`,
+									}}
+								/>
+								<div
+									className="absolute inset-y-0 start-0 rounded-lg bg-kumo-success transition-all duration-700"
+									style={{
+										width: `${verifiedPct}%`,
+									}}
+								/>
 								</div>
 							)}
 						</div>
@@ -3324,26 +3327,23 @@ function SikesraStatsChart({
 			>
 				<div className="flex items-center" style={{ gap: "6px" }}>
 					<span
-						className="rounded inline-block border"
+						className="rounded inline-block border border-kumo-brand/30 bg-kumo-brand/20"
 						style={{
 							width: "12px",
 							height: "12px",
-							backgroundColor: "rgba(59, 130, 246, 0.2)",
-							borderColor: "rgba(59, 130, 246, 0.3)",
 						}}
 					/>
-					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>{copy.totalEntitiesLegend}</span>
+					<span className="text-kumo-subtle">{copy.totalEntitiesLegend}</span>
 				</div>
 				<div className="flex items-center" style={{ gap: "6px" }}>
 					<span
-						className="rounded inline-block"
+						className="rounded inline-block bg-kumo-success"
 						style={{
 							width: "12px",
 							height: "12px",
-							backgroundColor: "#10b981",
 						}}
 					/>
-					<span style={{ color: "var(--kumo-subtle, #4b5563)" }}>{copy.verifiedLegend}</span>
+					<span className="text-kumo-subtle">{copy.verifiedLegend}</span>
 				</div>
 			</div>
 		</div>
@@ -3446,84 +3446,60 @@ function OverviewPage() {
 
 	return (
 		<PageShell width="wide">
-			{/* Premium Gradient Hero Banner */}
+			{/* Premium Hero Banner */}
 			<div
-				className="relative overflow-hidden rounded-2xl p-6 md:p-8 shadow-lg mb-6"
-				style={{
-					background: "linear-gradient(135deg, #1e3a8a 0%, #312e81 50%, #4c1d95 100%)",
-					color: "#ffffff",
-				}}
+				className="relative overflow-hidden rounded-2xl bg-kumo-brand p-6 text-kumo-base shadow-lg mb-6 md:p-8"
 			>
-				<div className="absolute right-0 top-0 -mr-20 -mt-20 h-80 w-80 rounded-full bg-blue-500/20 blur-3xl" />
-				<div className="absolute bottom-0 left-1/3 -mb-20 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
+				<div className="absolute end-0 top-0 -me-20 -mt-20 h-80 w-80 rounded-full bg-kumo-base/10 blur-3xl" />
+				<div className="absolute bottom-0 start-1/3 -mb-20 h-80 w-80 rounded-full bg-kumo-tint/20 blur-3xl" />
 
 				<div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 					<div className="space-y-2 max-w-3xl">
 						<div className="flex flex-wrap items-center gap-2.5">
 							<span
-								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold backdrop-blur-md"
-								style={{ backgroundColor: "rgba(255, 255, 255, 0.12)", color: "#ffffff" }}
+								className="inline-flex items-center gap-1.5 rounded-full bg-kumo-base/15 px-2.5 py-1 text-xs font-semibold text-kumo-base backdrop-blur-md"
 							>
 								🚀 {copy.overviewEyebrow}
 							</span>
 							<span
-								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border backdrop-blur-md"
-								style={{
-									backgroundColor: "rgba(255, 255, 255, 0.08)",
-									color: "#93c5fd",
-									borderColor: "rgba(255, 255, 255, 0.15)",
-								}}
+								className="inline-flex items-center gap-1.5 rounded-full border border-kumo-base/20 bg-kumo-base/10 px-2.5 py-1 text-xs font-medium text-kumo-base/80 backdrop-blur-md"
 							>
 								{copy.pluginVersion}: 1.0.0
 							</span>
 							<span
-								className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border backdrop-blur-md"
-								style={{
-									backgroundColor: "rgba(16, 185, 129, 0.15)",
-									color: "#a7f3d0",
-									borderColor: "rgba(16, 185, 129, 0.3)",
-								}}
+								className="inline-flex items-center gap-1.5 rounded-full border border-kumo-success/30 bg-kumo-success/15 px-2.5 py-1 text-xs font-semibold text-kumo-base backdrop-blur-md"
 							>
-								<span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+								<span className="h-2 w-2 rounded-full bg-kumo-success animate-pulse" />
 								{copy.governanceModeLabel}: {summary.settings.governanceMode}
 							</span>
 						</div>
-						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white mt-1">
+						<h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-kumo-base mt-1">
 							{copy.overviewTitle}
 						</h1>
-						<p
-							className="text-sm md:text-base font-medium leading-relaxed max-w-2xl"
-							style={{ color: "rgba(255, 255, 255, 0.88)" }}
-						>
+						<p className="text-sm md:text-base font-medium leading-relaxed max-w-2xl text-kumo-base/90">
 							{copy.overviewDescription}
 						</p>
 					</div>
 					<div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-center gap-4 shrink-0">
-						<div
-							className="backdrop-blur-md rounded-xl p-3 flex items-center gap-3 shadow-inner"
-							style={{
-								backgroundColor: "rgba(0, 0, 0, 0.25)",
-								border: "1px solid rgba(255, 255, 255, 0.15)",
-							}}
-						>
+						<div className="backdrop-blur-md rounded-xl border border-kumo-base/20 bg-kumo-default/20 p-3 flex items-center gap-3 shadow-inner">
 							<span className="relative flex h-3 w-3">
 								{isSystemHealthy ? (
 									<>
-										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-										<span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kumo-success opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-3 w-3 bg-kumo-success"></span>
 									</>
 								) : (
 									<>
-										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-										<span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+										<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-kumo-warning opacity-75"></span>
+										<span className="relative inline-flex rounded-full h-3 w-3 bg-kumo-warning"></span>
 									</>
 								)}
 							</span>
 							<div>
-								<div className="text-xs font-semibold text-white/95">
+								<div className="text-xs font-semibold text-kumo-base">
 									{isSystemHealthy ? copy.systemHealthy : copy.systemDegraded}
 								</div>
-								<div className="text-[10px] mt-0.5" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
+								<div className="text-[10px] mt-0.5 text-kumo-base/70">
 									{isSystemHealthy ? copy.healthy : copy.reviewNeeded}
 								</div>
 							</div>
@@ -3537,11 +3513,7 @@ function OverviewPage() {
 								if (reloadHealth) void reloadHealth();
 							}}
 							type="button"
-							className="hover:bg-white/20 text-white hover:text-white rounded-lg px-4 py-2 text-xs font-semibold transition-all"
-							style={{
-								backgroundColor: "rgba(255, 255, 255, 0.12)",
-								border: "1px solid rgba(255, 255, 255, 0.18)",
-							}}
+						className="rounded-lg border border-kumo-base/20 bg-kumo-base/15 px-4 py-2 text-xs font-semibold text-kumo-base transition-all hover:bg-kumo-base/20 hover:text-kumo-base"
 						>
 							🔄 {copy.refreshDashboard}
 						</Button>
@@ -3580,15 +3552,16 @@ function OverviewPage() {
 			{/* Module Cards Grid */}
 			<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
 				{dashboardCards.map((card) => {
-					const accents: Record<string, string> = {
-						rumah_ibadah: "#3b82f6",
-						lembaga_keagamaan: "#a855f7",
-						pendidikan_keagamaan: "#10b981",
-						lks: "#14b8a6",
-						guru_agama: "#f59e0b",
-						anak_yatim: "#f43f5e",
-						disabilitas: "#6366f1",
-						lansia_terlantar: "#f97316",
+					const fallbackAccent = { border: "border-t-kumo-brand", fill: "bg-kumo-brand" };
+					const accents: Record<string, { border: string; fill: string }> = {
+						rumah_ibadah: fallbackAccent,
+						lembaga_keagamaan: { border: "border-t-kumo-accent", fill: "bg-kumo-accent" },
+						pendidikan_keagamaan: { border: "border-t-kumo-success", fill: "bg-kumo-success" },
+						lks: { border: "border-t-kumo-brand", fill: "bg-kumo-brand" },
+						guru_agama: { border: "border-t-kumo-warning", fill: "bg-kumo-warning" },
+						anak_yatim: { border: "border-t-kumo-danger", fill: "bg-kumo-danger" },
+						disabilitas: { border: "border-t-kumo-accent", fill: "bg-kumo-accent" },
+						lansia_terlantar: { border: "border-t-kumo-warning", fill: "bg-kumo-warning" },
 					};
 					const icons: Record<string, string> = {
 						rumah_ibadah: "🕌",
@@ -3606,13 +3579,15 @@ function OverviewPage() {
 						verified: 0,
 					};
 					const verifiedPercent = catData.total > 0 ? Math.round((catData.verified / catData.total) * 100) : 0;
-					const cardColor = accents[card.id] || "#3b82f6";
+					const cardAccent = accents[card.id] ?? fallbackAccent;
 
 					return (
 						<section
-							className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[230px]"
+							className={cx(
+								"rounded-2xl border border-t-4 border-kumo-line bg-kumo-base text-kumo-default shadow-sm hover:shadow-md hover:scale-[1.01] transition-all flex flex-col justify-between min-h-[230px]",
+								cardAccent.border,
+							)}
 							style={{
-								borderTop: `4px solid ${cardColor}`,
 								padding: "20px",
 							}}
 							key={card.id}
@@ -3640,15 +3615,15 @@ function OverviewPage() {
 								</div>
 
 								{/* Stats progress bar inside module card */}
-								<div className="pt-3" style={{ borderTop: "1px solid rgba(100, 116, 139, 0.15)", marginTop: "16px" }}>
+								<div className="border-t border-kumo-line/60 pt-3" style={{ marginTop: "16px" }}>
 									<div className="flex items-baseline justify-between text-[11px] font-medium text-kumo-subtle" style={{ marginBottom: "6px" }}>
 										<span>{copy.totalEntities}: <span className="font-bold text-kumo-default">{catData.total}</span></span>
 										<span>{copy.verifiedEntities}: <span className="font-bold text-kumo-success">{catData.verified} ({verifiedPercent}%)</span></span>
 									</div>
 									<div className="h-1.5 w-full bg-kumo-tint rounded-full overflow-hidden" style={{ marginTop: "6px" }}>
 										<div
-											className="h-full rounded-full transition-all duration-500"
-											style={{ width: `${verifiedPercent}%`, backgroundColor: cardColor }}
+											className={cx("h-full rounded-full transition-all duration-500", cardAccent.fill)}
+											style={{ width: `${verifiedPercent}%` }}
 										/>
 									</div>
 								</div>
@@ -3679,10 +3654,10 @@ function OverviewPage() {
 						<EmptyState title={copy.noRecentEvents} description={copy.noRecentEventsDescription} />
 					) : (
 						<div
-							className="relative border-l border-kumo-line/60"
+							className="relative border-s border-kumo-line/60"
 							style={{
-								paddingLeft: "24px",
-								marginLeft: "12px",
+								paddingInlineStart: "24px",
+								marginInlineStart: "12px",
 								display: "flex",
 								flexDirection: "column",
 								gap: "16px",
@@ -3691,13 +3666,13 @@ function OverviewPage() {
 							}}
 						>
 							{summary.recentEvents.slice(0, 6).map((item) => {
-								const kindColors: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-									create: { bg: "rgba(37, 99, 235, 0.08)", text: "#2563eb", border: "1px solid rgba(37, 99, 235, 0.2)", dot: "#2563eb" },
-									update: { bg: "rgba(147, 51, 234, 0.08)", text: "#9333ea", border: "1px solid rgba(147, 51, 234, 0.2)", dot: "#9333ea" },
-									delete: { bg: "rgba(220, 38, 38, 0.08)", text: "#dc2626", border: "1px solid rgba(220, 38, 38, 0.2)", dot: "#dc2626" },
-									verify: { bg: "rgba(5, 150, 105, 0.08)", text: "#059669", border: "1px solid rgba(5, 150, 105, 0.2)", dot: "#059669" },
+								const kindColors: Record<string, { badge: string; dot: string }> = {
+									create: { badge: "border-kumo-brand/20 bg-kumo-brand/10 text-kumo-brand", dot: "bg-kumo-brand" },
+									update: { badge: "border-kumo-accent/20 bg-kumo-accent/10 text-kumo-accent", dot: "bg-kumo-accent" },
+									delete: { badge: "border-kumo-danger/20 bg-kumo-danger/10 text-kumo-danger", dot: "bg-kumo-danger" },
+									verify: { badge: "border-kumo-success/20 bg-kumo-success/10 text-kumo-success", dot: "bg-kumo-success" },
 								};
-								const colors = kindColors[item.kind.toLowerCase()] || { bg: "rgba(100, 116, 139, 0.08)", text: "var(--kumo-default)", border: "1px solid rgba(100, 116, 139, 0.2)", dot: "#64748b" };
+								const colors = kindColors[item.kind.toLowerCase()] || { badge: "border-kumo-line bg-kumo-tint text-kumo-default", dot: "bg-kumo-subtle" };
 
 								return (
 									<div className="relative group" key={item.id}>
@@ -3705,12 +3680,12 @@ function OverviewPage() {
 										<div
 											className="absolute flex items-center justify-center"
 											style={{
-												left: "-33px",
+												insetInlineStart: "-33px",
 												top: "6px",
 											}}
 										>
 											<div className="h-4 w-4 rounded-full border border-kumo-line bg-kumo-base flex items-center justify-center transition-all duration-300 group-hover:scale-125">
-												<div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.dot }} />
+												<div className={cx("h-2 w-2 rounded-full", colors.dot)} />
 											</div>
 										</div>
 
@@ -3724,10 +3699,12 @@ function OverviewPage() {
 													<span className="text-sm font-semibold text-kumo-default">
 														{item.summary}
 													</span>
-													<span
-														className="inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
-														style={{ backgroundColor: colors.bg, color: colors.text, border: colors.border }}
-													>
+											<span
+												className={cx(
+													"inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+													colors.badge,
+												)}
+											>
 														{item.kind}
 													</span>
 												</div>
@@ -3748,10 +3725,11 @@ function OverviewPage() {
 
 			{/* Collapsible Settings Section */}
 			<div className="rounded-2xl border border-kumo-line bg-kumo-base text-kumo-default shadow-sm overflow-hidden mt-6">
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					onClick={() => setSettingsOpen(!settingsOpen)}
-					className="w-full flex items-center justify-between px-6 py-5 bg-kumo-tint/30 hover:bg-kumo-tint/50 transition-all border-b border-kumo-line"
+					className="h-auto w-full justify-between rounded-none border-b border-kumo-line bg-kumo-tint/30 px-6 py-5 transition-all hover:bg-kumo-tint/50"
 				>
 					<div className="flex items-center gap-3">
 						<span className="text-xl">⚙️</span>
@@ -3770,7 +3748,7 @@ function OverviewPage() {
 							▼
 						</span>
 					</div>
-				</button>
+				</Button>
 
 				{settingsOpen && (
 					<div className="bg-kumo-base/50" style={{ padding: "24px" }}>
@@ -3874,10 +3852,9 @@ function OverviewPage() {
 
 							<div className="space-y-4">
 								<div
-									className="rounded-xl border border-kumo-line/50"
+									className="rounded-xl border border-kumo-line/50 bg-kumo-tint"
 									style={{
 										padding: "16px",
-										backgroundColor: "var(--kumo-tint, rgba(100, 116, 139, 0.05))",
 									}}
 								>
 									<h3 className="text-xs font-bold text-kumo-default uppercase tracking-wider mb-3">
@@ -4424,8 +4401,9 @@ function RegistryPage() {
 				role="tablist"
 				aria-label={copy.registryQueue}
 			>
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					role="tab"
 					aria-selected={activeSubTab === "queue"}
 					className={cx(
@@ -4437,9 +4415,10 @@ function RegistryPage() {
 					onClick={() => setActiveSubTab("queue")}
 				>
 					<span>📋</span> {copy.registryQueue}
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
+					variant="ghost"
 					role="tab"
 					aria-selected={activeSubTab === "intake"}
 					className={cx(
@@ -4451,7 +4430,7 @@ function RegistryPage() {
 					onClick={() => setActiveSubTab("intake")}
 				>
 					<span>⚡</span> {copy.progressiveInputWizard}
-				</button>
+				</Button>
 			</div>
 
 			<div className="grid gap-6">
@@ -4600,14 +4579,15 @@ function RegistryPage() {
 											const isActive = index === step;
 											const isCompleted = index < step;
 											return (
-												<button
+												<Button
 													key={label}
 													onClick={() => setStep(index)}
 													type="button"
+													variant="ghost"
 													role="listitem"
 													aria-current={isActive ? "step" : undefined}
 													aria-label={copy.stepLabel(index + 1, label)}
-													className="relative z-10 flex flex-col items-center group focus:outline-none"
+													className="group relative z-10 flex h-auto flex-col items-center p-0 focus:outline-none"
 													style={{ width: "80px" }}
 												>
 													<span
@@ -4636,7 +4616,7 @@ function RegistryPage() {
 													>
 														{label}
 													</span>
-												</button>
+												</Button>
 											);
 										})}
 									</div>
@@ -6139,11 +6119,11 @@ function AuditPage() {
 					<div className="space-y-3.5">
 						{data.items.map((item) => {
 							const scopeColors: Record<string, string> = {
-								registry: "border-l-4 border-l-blue-500",
-								documents: "border-l-4 border-l-emerald-500",
-								verification: "border-l-4 border-l-amber-500",
-								abac: "border-l-4 border-l-purple-500",
-								access: "border-l-4 border-l-pink-500",
+								registry: "border-s-4 border-s-kumo-brand",
+								documents: "border-s-4 border-s-kumo-success",
+								verification: "border-s-4 border-s-kumo-warning",
+								abac: "border-s-4 border-s-kumo-accent",
+								access: "border-s-4 border-s-kumo-danger",
 							};
 							const scopeIcons: Record<string, string> = {
 								registry: "🕌",
@@ -6154,10 +6134,10 @@ function AuditPage() {
 							};
 							return (
 								<div
-									className={cx(
-										"rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/35 transition-all shadow-sm flex gap-3.5 items-start",
-										scopeColors[item.scope] || "border-l-4 border-l-kumo-subtle",
-									)}
+								className={cx(
+									"rounded-xl border border-kumo-line bg-kumo-base p-4 hover:border-kumo-brand/35 transition-all shadow-sm flex gap-3.5 items-start",
+									scopeColors[item.scope] || "border-s-4 border-s-kumo-subtle",
+								)}
 									key={item.id}
 								>
 							<span className="text-2xl shrink-0 mt-0.5" role="img" aria-label={copy.scopeIcon}>
@@ -8364,12 +8344,14 @@ export function RegionsPage() {
 									+ {copy.add}
 								</Button>
 							</div>
-							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pe-1">
 								{regions.map((p) => {
 									const isSelected = p.code === selectedProvinceCode;
 									return (
 										<div
 											key={p.code}
+											role="button"
+											tabIndex={0}
 											className={cx(
 												"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 												isSelected
@@ -8382,18 +8364,29 @@ export function RegionsPage() {
 												setSelectedDistrictCode("");
 												setSelectedVillageCode("");
 											}}
+											onKeyDown={(event) =>
+												activateRegionRow(event, () => {
+													setSelectedProvinceCode(p.code);
+													setSelectedRegencyCode("");
+													setSelectedDistrictCode("");
+													setSelectedVillageCode("");
+												})
+											}
 										>
-											<div className="truncate pr-12">
+											<div className="truncate pe-12">
 												<div>{p.name}</div>
 												<div className="font-mono text-[9px] opacity-75 mt-0.5">
 													{copy.codeValue(p.code)}
 												</div>
 											</div>
-											<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
-												<button
+											<div className="absolute end-2 top-2.5 hidden group-hover:flex items-center gap-1 group-focus-within:flex">
+												<Button
 													type="button"
-													className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-												title={copy.editAction}
+													variant="ghost"
+													size="xs"
+													className="h-auto rounded p-1 text-kumo-brand hover:bg-kumo-brand/10"
+													aria-label={copy.editAction}
+													title={copy.editAction}
 													onClick={(e) => {
 														e.stopPropagation();
 														setActiveForm({
@@ -8406,18 +8399,21 @@ export function RegionsPage() {
 													}}
 												>
 													✏️
-												</button>
-												<button
+												</Button>
+												<Button
 													type="button"
-													className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-												title={copy.deleteAction}
+													variant="ghost"
+													size="xs"
+													className="h-auto rounded p-1 text-kumo-danger hover:bg-kumo-danger/10"
+													aria-label={copy.deleteAction}
+													title={copy.deleteAction}
 													onClick={(e) => {
 														e.stopPropagation();
 														handleDeleteNode("province", p.code);
 													}}
 												>
 													🗑️
-												</button>
+												</Button>
 											</div>
 										</div>
 									);
@@ -8445,7 +8441,7 @@ export function RegionsPage() {
 									+ {copy.add}
 								</Button>
 							</div>
-							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pe-1">
 								{!selectedProvinceCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
 										{copy.selectProvinceFirst}
@@ -8460,6 +8456,8 @@ export function RegionsPage() {
 										return (
 											<div
 												key={r.code}
+												role="button"
+												tabIndex={0}
 												className={cx(
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
@@ -8471,18 +8469,28 @@ export function RegionsPage() {
 													setSelectedDistrictCode("");
 													setSelectedVillageCode("");
 												}}
+												onKeyDown={(event) =>
+													activateRegionRow(event, () => {
+														setSelectedRegencyCode(r.code);
+														setSelectedDistrictCode("");
+														setSelectedVillageCode("");
+													})
+												}
 											>
-												<div className="truncate pr-12">
+												<div className="truncate pe-12">
 													<div>{r.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
 															{copy.codeValue(r.code)}
 													</div>
 												</div>
-												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
-													<button
+												<div className="absolute end-2 top-2.5 hidden group-hover:flex items-center gap-1 group-focus-within:flex">
+													<Button
 														type="button"
-														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-												title={copy.editAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-brand hover:bg-kumo-brand/10"
+														aria-label={copy.editAction}
+														title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8495,18 +8503,21 @@ export function RegionsPage() {
 														}}
 													>
 														✏️
-													</button>
-													<button
+													</Button>
+													<Button
 														type="button"
-														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-												title={copy.deleteAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-danger hover:bg-kumo-danger/10"
+														aria-label={copy.deleteAction}
+														title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("regency", r.code);
 														}}
 													>
 														🗑️
-													</button>
+													</Button>
 												</div>
 											</div>
 										);
@@ -8535,7 +8546,7 @@ export function RegionsPage() {
 									+ {copy.add}
 								</Button>
 							</div>
-							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pe-1">
 								{!selectedRegencyCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
 										{copy.selectRegencyFirst}
@@ -8550,6 +8561,8 @@ export function RegionsPage() {
 										return (
 											<div
 												key={d.code}
+												role="button"
+												tabIndex={0}
 												className={cx(
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
@@ -8560,18 +8573,27 @@ export function RegionsPage() {
 													setSelectedDistrictCode(d.code);
 													setSelectedVillageCode("");
 												}}
+												onKeyDown={(event) =>
+													activateRegionRow(event, () => {
+														setSelectedDistrictCode(d.code);
+														setSelectedVillageCode("");
+													})
+												}
 											>
-												<div className="truncate pr-12">
+												<div className="truncate pe-12">
 													<div>{d.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
 															{copy.codeValue(d.code)}
 													</div>
 												</div>
-												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
-													<button
+												<div className="absolute end-2 top-2.5 hidden group-hover:flex items-center gap-1 group-focus-within:flex">
+													<Button
 														type="button"
-														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-												title={copy.editAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-brand hover:bg-kumo-brand/10"
+														aria-label={copy.editAction}
+														title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8584,18 +8606,21 @@ export function RegionsPage() {
 														}}
 													>
 														✏️
-													</button>
-													<button
+													</Button>
+													<Button
 														type="button"
-														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-												title={copy.deleteAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-danger hover:bg-kumo-danger/10"
+														aria-label={copy.deleteAction}
+														title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("district", d.code);
 														}}
 													>
 														🗑️
-													</button>
+													</Button>
 												</div>
 											</div>
 										);
@@ -8624,7 +8649,7 @@ export function RegionsPage() {
 									+ {copy.add}
 								</Button>
 							</div>
-							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pr-1">
+							<div className="flex-1 overflow-y-auto space-y-2 max-h-[300px] pe-1">
 								{!selectedDistrictCode ? (
 									<div className="text-center text-xs text-kumo-subtle italic py-10">
 										{copy.selectDistrictFirst}
@@ -8639,6 +8664,8 @@ export function RegionsPage() {
 										return (
 											<div
 												key={v.code}
+												role="button"
+												tabIndex={0}
 												className={cx(
 													"group relative flex items-center justify-between px-3 py-2 text-xs rounded-lg border transition-all cursor-pointer",
 													isSelected
@@ -8648,18 +8675,26 @@ export function RegionsPage() {
 												onClick={() => {
 													setSelectedVillageCode(v.code);
 												}}
+												onKeyDown={(event) =>
+													activateRegionRow(event, () => {
+														setSelectedVillageCode(v.code);
+													})
+												}
 											>
-												<div className="truncate pr-12">
+												<div className="truncate pe-12">
 													<div>{v.name}</div>
 													<div className="font-mono text-[9px] opacity-75 mt-0.5">
 															{copy.codeValue(v.code)}
 													</div>
 												</div>
-												<div className="absolute right-2 top-2.5 hidden group-hover:flex items-center gap-1">
-													<button
+												<div className="absolute end-2 top-2.5 hidden group-hover:flex items-center gap-1 group-focus-within:flex">
+													<Button
 														type="button"
-														className="p-1 text-kumo-brand hover:bg-kumo-brand/10 rounded"
-												title={copy.editAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-brand hover:bg-kumo-brand/10"
+														aria-label={copy.editAction}
+														title={copy.editAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															setActiveForm({
@@ -8672,18 +8707,21 @@ export function RegionsPage() {
 														}}
 													>
 														✏️
-													</button>
-													<button
+													</Button>
+													<Button
 														type="button"
-														className="p-1 text-kumo-danger hover:bg-kumo-danger/10 rounded"
-												title={copy.deleteAction}
+														variant="ghost"
+														size="xs"
+														className="h-auto rounded p-1 text-kumo-danger hover:bg-kumo-danger/10"
+														aria-label={copy.deleteAction}
+														title={copy.deleteAction}
 														onClick={(e) => {
 															e.stopPropagation();
 															handleDeleteNode("village", v.code);
 														}}
 													>
 														🗑️
-													</button>
+													</Button>
 												</div>
 											</div>
 										);
@@ -9004,7 +9042,7 @@ export function DataTypesPage() {
 			<div className="space-y-6 mt-6">
 				{successMsg && (
 					<div
-						className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 rounded-md text-sm"
+						className="p-3 bg-kumo-success/10 border border-kumo-success/20 text-kumo-success rounded-md text-sm"
 						style={{ padding: "12px" }}
 					>
 						{successMsg}
@@ -9012,7 +9050,7 @@ export function DataTypesPage() {
 				)}
 				{errMsg && (
 					<div
-						className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-md text-sm"
+						className="p-3 bg-kumo-danger/10 border border-kumo-danger/20 text-kumo-danger rounded-md text-sm"
 						style={{ padding: "12px" }}
 					>
 						{errMsg}
@@ -9028,14 +9066,14 @@ export function DataTypesPage() {
 						<div className="text-xs text-kumo-subtle uppercase tracking-wider">
 							{copy.parentTypes}
 						</div>
-						<div className="text-2xl font-bold mt-1 text-blue-600">{totalParents}</div>
+						<div className="text-2xl font-bold mt-1 text-kumo-brand">{totalParents}</div>
 					</div>
 					<div
 						className="border border-kumo-line bg-kumo-base rounded-xl"
 						style={{ padding: "16px" }}
 					>
 						<div className="text-xs text-kumo-subtle uppercase tracking-wider">{copy.subTypes}</div>
-						<div className="text-2xl font-bold mt-1 text-teal-600">{totalSubtypes}</div>
+						<div className="text-2xl font-bold mt-1 text-kumo-success">{totalSubtypes}</div>
 					</div>
 				</div>
 
@@ -9046,8 +9084,7 @@ export function DataTypesPage() {
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						{/* Parent Types Panel */}
 						<div
-							className="space-y-4 pr-0 md:pr-6"
-							style={{ borderRight: "1px solid var(--kumo-line, rgba(100, 116, 139, 0.15))" }}
+							className="space-y-4 pe-0 md:pe-6 md:border-e md:border-kumo-line"
 						>
 							<div className="flex justify-between items-center">
 								<h3 className="font-semibold text-kumo-default">{copy.parentTypes}</h3>
@@ -9062,7 +9099,7 @@ export function DataTypesPage() {
 								</Button>
 							</div>
 
-							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+							<div className="space-y-2 max-h-[400px] overflow-y-auto pe-2">
 							{dataTypes.length === 0 ? (
 								<div className="text-sm text-kumo-subtle italic p-3 text-center">
 									{copy.noParentTypesYet}
@@ -9071,25 +9108,23 @@ export function DataTypesPage() {
 									dataTypes.map((p) => {
 										const isSelected = p.id === selectedParentId;
 										return (
-											<div
-												key={p.id}
-												onClick={() => setSelectedParentId(p.id)}
-												className="rounded-xl flex justify-between items-center cursor-pointer transition-all border hover:shadow-sm"
-												style={{
-													padding: "12px",
-													...(isSelected
-														? {
-																backgroundColor: "rgba(59, 130, 246, 0.1)",
-																borderColor: "rgba(59, 130, 246, 0.35)",
-																color: "#2563eb",
-																fontWeight: 600,
-															}
-														: {
-																backgroundColor: "var(--kumo-base)",
-																borderColor: "var(--kumo-line)",
-																color: "var(--kumo-subtle)",
-															}),
-												}}
+										<div
+											key={p.id}
+											role="button"
+											tabIndex={0}
+											onClick={() => setSelectedParentId(p.id)}
+											onKeyDown={(event) =>
+												activateRegionRow(event, () => setSelectedParentId(p.id))
+											}
+											className={cx(
+												"rounded-xl flex justify-between items-center cursor-pointer transition-all border hover:shadow-sm",
+												isSelected
+													? "border-kumo-brand/35 bg-kumo-brand/10 text-kumo-brand font-semibold"
+													: "border-kumo-line bg-kumo-base text-kumo-subtle",
+											)}
+											style={{
+												padding: "12px",
+											}}
 											>
 												<div className="flex gap-2 items-center">
 													<Badge variant="blue">{p.code}</Badge>
@@ -9148,7 +9183,7 @@ export function DataTypesPage() {
 								)}
 							</div>
 
-							<div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+							<div className="space-y-2 max-h-[400px] overflow-y-auto pe-2">
 							{!activeParent ? (
 								<div className="text-sm text-kumo-subtle italic p-3 text-center">
 									{copy.selectParentTypeFirst}

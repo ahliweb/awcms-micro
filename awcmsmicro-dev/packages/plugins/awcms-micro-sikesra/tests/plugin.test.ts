@@ -7717,14 +7717,26 @@ describe("awcms micro sikesra plugin", () => {
 		const adminSource = readFileSync(resolve(import.meta.dirname, "../src/admin.tsx"), "utf8");
 
 		expect(adminSource).toContain("Button, Checkbox, Input");
+		expect(adminSource).not.toContain("<button");
+		expect(adminSource).not.toContain("</button>");
 		expect(adminSource).toContain("<Checkbox.Group");
 		expect(adminSource).toContain("<Checkbox.Item");
 		expect(adminSource).toMatch(/<Input\s+type="number"/);
+		expect(adminSource).toContain("variant=\"ghost\"");
 		expect(adminSource).toContain('role="tablist"');
 		expect(adminSource).toContain('role="tab"');
 		expect(adminSource).toContain("aria-selected={activeSubTab ===");
 		expect(adminSource).toContain('aria-current={isActive ? "step" : undefined}');
+		expect(adminSource).toContain('role="button"');
+		expect(adminSource).toContain("activateRegionRow(event");
+		expect(adminSource).toContain("aria-label={copy.editAction}");
+		expect(adminSource).toContain("aria-label={copy.deleteAction}");
 		expect(adminSource).toContain("start-[5%] end-[5%]");
+		expect(adminSource).toContain("absolute end-2");
+		expect(adminSource).toContain("truncate pe-12");
+		expect(adminSource).not.toMatch(/#[0-9a-fA-F]{3,6}/);
+		expect(adminSource).not.toContain("rgba(");
+		expect(adminSource).not.toMatch(/(?:left-|right-|border-l|border-r|paddingLeft|marginLeft|borderRight)/);
 		expect(adminSource).not.toContain('type="checkbox"');
 		expect(adminSource).not.toContain("dark:");
 		expect(adminSource).not.toContain("ring-blue-500");
