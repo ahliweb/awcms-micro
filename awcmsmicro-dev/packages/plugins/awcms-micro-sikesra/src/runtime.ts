@@ -3574,12 +3574,14 @@ async function appendAuditEvent(ctx: PluginContext, record: ExampleAuditEvent) {
 	return record;
 }
 
-async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string) {
+async function listAuditEvents(ctx: PluginContext, limit = 20, cursor?: string) {
 	const db = (ctx as PluginContext & { db?: unknown }).db as any;
 	if (!db) {
 		return {
 			items: [] as ExampleAuditEvent[],
 			cursor: undefined as string | undefined,
+			nextCursor: undefined as string | undefined,
+			pagination: { page: 1, pageSize: limit, total: 0, nextCursor: undefined as string | undefined },
 			hasMore: false,
 		};
 	}
@@ -3605,17 +3607,32 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string)
 				"user_agent_hash",
 				"created_at",
 			])
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
 			.orderBy("timestamp", "desc")
 			.orderBy("id", "desc")
-			.limit(limit)
 			.execute()) as SikesraAuditEventRow[];
 	} catch (cause) {
 		logD1ReadFallback(ctx, "audit", cause);
-		return { items: [] as ExampleAuditEvent[], cursor: undefined, hasMore: false };
+		return {
+			items: [] as ExampleAuditEvent[],
+			cursor: undefined,
+			nextCursor: undefined,
+			pagination: { page: 1, pageSize: limit, total: 0, nextCursor: undefined },
+			hasMore: false,
+		};
 	}
 
+	const paged = paginateSikesraItems(
+		rows.toSorted((a, b) => {
+			const timeDiff = toTimestamp(b.timestamp) - toTimestamp(a.timestamp);
+			return timeDiff || b.id.localeCompare(a.id);
+		}),
+		{ limit, cursor },
+	);
+
 	return {
-		items: rows.map((item) => ({
+		items: paged.items.map((item) => ({
 			id: item.id,
 			timestamp: item.timestamp,
 			kind: item.kind,
@@ -3626,8 +3643,10 @@ async function listAuditEvents(ctx: PluginContext, limit = 20, _cursor?: string)
 			userId: item.actor_user_id ?? undefined,
 			userName: item.actor_name ?? undefined,
 		})),
-		cursor: undefined,
-		hasMore: false,
+		cursor: paged.nextCursor,
+		nextCursor: paged.nextCursor,
+		pagination: paged.pagination,
+		hasMore: Boolean(paged.nextCursor),
 	};
 }
 

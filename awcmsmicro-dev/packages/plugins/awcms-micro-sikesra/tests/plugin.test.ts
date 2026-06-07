@@ -2140,6 +2140,84 @@ describe("awcms micro sikesra plugin", () => {
 		expect(allowed.items).toBeDefined();
 	});
 
+	it("scopes and paginates audit list by current tenant and site", async () => {
+		const { ctx, auditTableRows } = createMockContext();
+		const routes = createNativeRoutes();
+		const request = new Request("https://example.test", {
+			headers: { "X-Sikesra-User-Id": "user-demo-sikesra-admin" },
+		});
+
+		auditTableRows.push(
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "audit-current-02",
+				timestamp: "2026-03-02T00:00:00.000Z",
+				kind: "registry.update",
+				scope: "registry",
+				actor_user_id: "user-demo-sikesra-admin",
+				actor_name: "SIKESRA Admin",
+				summary: "Current tenant newer event",
+				metadata_json: "{}",
+				created_at: "2026-03-02T00:00:00.000Z",
+			},
+			{
+				tenant_id: "t-local-dev",
+				site_id: "default",
+				id: "audit-current-01",
+				timestamp: "2026-03-01T00:00:00.000Z",
+				kind: "registry.create",
+				scope: "registry",
+				actor_user_id: "user-demo-sikesra-admin",
+				actor_name: "SIKESRA Admin",
+				summary: "Current tenant older event",
+				metadata_json: "{}",
+				created_at: "2026-03-01T00:00:00.000Z",
+			},
+			{
+				tenant_id: "other-tenant",
+				site_id: "other-site",
+				id: "audit-other-tenant-01",
+				timestamp: "2026-03-03T00:00:00.000Z",
+				kind: "registry.create",
+				scope: "registry",
+				actor_user_id: "other-user",
+				actor_name: "Other User",
+				summary: "Other tenant event must not leak",
+				metadata_json: "{}",
+				created_at: "2026-03-03T00:00:00.000Z",
+			},
+		);
+
+		const firstPage = (await routes["audit/list"]!.handler({
+			...ctx,
+			request,
+			input: { limit: 1 },
+		} as any)) as any;
+		expect(firstPage.items).toEqual([
+			expect.objectContaining({ id: "audit-current-02" }),
+		]);
+		expect(firstPage.nextCursor).toBe("1");
+		expect(firstPage.cursor).toBe("1");
+		expect(firstPage.hasMore).toBe(true);
+		expect(firstPage.pagination).toMatchObject({ page: 1, pageSize: 1, total: 2 });
+
+		const secondPage = (await routes["audit/list"]!.handler({
+			...ctx,
+			request,
+			input: { limit: 1, cursor: firstPage.nextCursor },
+		} as any)) as any;
+		expect(secondPage.items).toEqual([
+			expect.objectContaining({ id: "audit-current-01" }),
+		]);
+		expect(secondPage.nextCursor).toBeUndefined();
+		expect(secondPage.hasMore).toBe(false);
+		expect(secondPage.pagination).toMatchObject({ page: 2, pageSize: 1, total: 2 });
+		expect(JSON.stringify([...firstPage.items, ...secondPage.items])).not.toContain(
+			"audit-other-tenant-01",
+		);
+	});
+
 	it("declares admin pages, widgets, blocks, and field widgets", () => {
 		expect(AWCMS_SIKESRA_ADMIN_PAGES).toHaveLength(24);
 		expect(AWCMS_SIKESRA_ADMIN_WIDGETS[0]?.id).toBe("governance-status");
@@ -6978,6 +7056,8 @@ describe("awcms micro sikesra plugin", () => {
 			updated_at: "2026-02-01T00:00:00.000Z",
 		});
 		auditTableRows.push({
+			tenant_id: "t-local-dev",
+			site_id: "default",
 			id: "audit-legacy-01",
 			timestamp: "2026-02-01T00:00:00.000Z",
 			kind: "current.audit",
