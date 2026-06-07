@@ -175,6 +175,25 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		featuredGalleryDescription:
 			"View our featured gallery collection managed from the admin panel.",
 		galleryLinkFooter: "Gallery",
+		sikesraRecapitulationTitle: "SIKESRA Recapitulation",
+		sikesraRecapitulationDescription: "Public aggregate safety page for SIKESRA.",
+		sikesraRecapitulationHeading: "SIKESRA Public Recapitulation",
+		sikesraRecapitulationKicker: "SOCIAL & GOVERNANCE DATA",
+		sikesraRecapitulationIntro:
+			"Here is the public-safe aggregate summary of the welfare information system (SIKESRA).",
+		sikesraSystemStatus: "System Status",
+		sikesraGovernanceMode: "Governance Mode",
+		sikesraSuppressedText: "Suppressed (Count too low for privacy safety)",
+		sikesraTotalEntities: "Total Entities",
+		sikesraVerified: "Verified",
+		sikesraPrivacyNotice: "Public Data Security Notice",
+		sikesraPrivacyNoticeDescription:
+			"SIKESRA enforces small-cell suppression rules. Categories with total entity counts below the safety threshold (3 entities) are automatically hidden in aggregate count to protect beneficiary identities.",
+		sikesraChartTitle: "Data Recapitulation Chart",
+		sikesraChartDescription:
+			"Comparison of total registered entities vs verified data per category.",
+		sikesraLowCountPrivacy: "Count too low for privacy safety",
+		sikesraTotalShort: "Total",
 	},
 	id: {
 		notFoundTitle: "Halaman Tidak Ditemukan",
@@ -351,5 +370,24 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		featuredGalleryDescription:
 			"Lihat koleksi galeri unggulan kami yang dikelola dari panel admin.",
 		galleryLinkFooter: "Galeri",
+		sikesraRecapitulationTitle: "Rekapitulasi SIKESRA",
+		sikesraRecapitulationDescription: "Halaman rekapitulasi data publik aman SIKESRA.",
+		sikesraRecapitulationHeading: "Rekapitulasi SIKESRA",
+		sikesraRecapitulationKicker: "TATA KELOLA & DATA SOSIAL",
+		sikesraRecapitulationIntro:
+			"Berikut adalah ringkasan data agregat aman dari sistem informasi kesejahteraan rakyat (SIKESRA).",
+		sikesraSystemStatus: "Status Sistem",
+		sikesraGovernanceMode: "Mode Tata Kelola",
+		sikesraSuppressedText: "Disupresi (Jumlah terlalu rendah untuk keamanan privasi)",
+		sikesraTotalEntities: "Total Entitas",
+		sikesraVerified: "Terverifikasi",
+		sikesraPrivacyNotice: "Catatan Keamanan Data Publik",
+		sikesraPrivacyNoticeDescription:
+			"SIKESRA menerapkan aturan penyembunyian sel kecil (small-cell suppression). Kategori dengan jumlah entitas kurang dari batas minimum (3 entitas) akan disembunyikan total dan rinciannya secara otomatis demi melindungi identitas privasi penerima manfaat.",
+		sikesraChartTitle: "Grafik Rekapitulasi Data",
+		sikesraChartDescription:
+			"Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori.",
+		sikesraLowCountPrivacy: "Jumlah terlalu rendah untuk keamanan privasi",
+		sikesraTotalShort: "Total",
 	},
 } as const;

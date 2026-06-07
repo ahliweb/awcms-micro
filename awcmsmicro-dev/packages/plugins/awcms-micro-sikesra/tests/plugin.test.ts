@@ -7497,7 +7497,6 @@ describe("awcms micro sikesra plugin", () => {
 
 	it("keeps user-facing plugin identity copy out of demonstration wording", () => {
 		for (const path of [
-			"../src/admin-copy.ts",
 			"../src/locales/messages.ts",
 			"../src/locales/en/messages.po",
 			"../src/locales/id/messages.po",
@@ -7509,6 +7508,59 @@ describe("awcms micro sikesra plugin", () => {
 			expect(source).not.toContain("Last chron");
 			expect(source).not.toContain("demo cron cleanup summary");
 			expect(source).not.toContain("cron demo");
+		}
+	});
+
+	it("resolves SIKESRA admin copy through the PO-backed adapter", () => {
+		const adminCopySource = readFileSync(resolve(import.meta.dirname, "../src/admin-copy.ts"), "utf8");
+
+		expect(adminCopySource).toContain("getSikesraAdminCopyMessages(locale)");
+		expect(adminCopySource).not.toContain('locale?.startsWith("id")');
+		expect(adminCopySource).not.toContain("Pusat Operasi Plugin");
+		expect(adminCopySource).not.toContain("Plugin Operations Center");
+	});
+
+	it("keeps template SIKESRA page copy PO-backed", () => {
+		const templatePaths = [
+			"../../../../templates/awcms-micro-default",
+			"../../../../templates/awcms-micro-default-cloudflare",
+		];
+		const requiredKeys = [
+			"sikesraRecapitulationTitle",
+			"sikesraRecapitulationDescription",
+			"sikesraRecapitulationHeading",
+			"sikesraChartTitle",
+			"sikesraPrivacyNoticeDescription",
+			"sikesraLowCountPrivacy",
+		];
+
+		for (const templatePath of templatePaths) {
+			const pageSource = readFileSync(
+				resolve(import.meta.dirname, `${templatePath}/src/pages/sikesra.astro`),
+				"utf8",
+			);
+			const adapterSource = readFileSync(
+				resolve(import.meta.dirname, `${templatePath}/src/locales/messages.ts`),
+				"utf8",
+			);
+			const enCatalog = readFileSync(
+				resolve(import.meta.dirname, `${templatePath}/src/locales/en/messages.po`),
+				"utf8",
+			);
+			const idCatalog = readFileSync(
+				resolve(import.meta.dirname, `${templatePath}/src/locales/id/messages.po`),
+				"utf8",
+			);
+
+			expect(pageSource).toContain("getPublicCopy(currentLocale)");
+			expect(pageSource).not.toContain("const isId = currentLocale.startsWith");
+			expect(pageSource).not.toContain('isId ? "');
+			for (const key of requiredKeys) {
+				expect(pageSource, key).toContain(`copy.${key}`);
+				expect(adapterSource, key).toContain(`${key}:`);
+				expect(enCatalog, key).toContain(`msgctxt "${key}"`);
+				expect(idCatalog, key).toContain(`msgctxt "${key}"`);
+			}
 		}
 	});
 

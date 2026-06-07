@@ -1926,6 +1926,58 @@ msgctxt "awcms.adminCopy.userLabel"
 msgid "User"
 msgstr "Pengguna"
 
+msgctxt "awcms.adminCopy.showingReferenceFixturesMessage"
+msgid "Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records."
+msgstr "Menampilkan data fixture referensi karena antrean registry saat ini kosong. Gunakan tab 'Wizard Input Progresif' untuk menambahkan record nyata."
+
+msgctxt "awcms.adminCopy.systemHealthy"
+msgid "System Active"
+msgstr "Sistem Aktif"
+
+msgctxt "awcms.adminCopy.systemDegraded"
+msgid "Needs Attention"
+msgstr "Perlu Perhatian"
+
+msgctxt "awcms.adminCopy.totalEntities"
+msgid "Total"
+msgstr "Total"
+
+msgctxt "awcms.adminCopy.verifiedEntities"
+msgid "Verified"
+msgstr "Terverifikasi"
+
+msgctxt "awcms.adminCopy.referenceDataNote"
+msgid "Reference data - not actual production data"
+msgstr "Data referensi - bukan data produksi aktual"
+
+msgctxt "awcms.adminCopy.settingsAndConfiguration"
+msgid "Settings & Configuration"
+msgstr "Pengaturan & Konfigurasi"
+
+msgctxt "awcms.adminCopy.pluginVersion"
+msgid "Plugin Version"
+msgstr "Versi Plugin"
+
+msgctxt "awcms.adminCopy.governanceModeLabel"
+msgid "Governance Mode"
+msgstr "Mode Tata Kelola"
+
+msgctxt "awcms.adminCopy.quickActions"
+msgid "Quick Actions"
+msgstr "Aksi Cepat"
+
+msgctxt "awcms.adminCopy.viewAuditLog"
+msgid "View Audit Log"
+msgstr "Lihat Log Audit"
+
+msgctxt "awcms.adminCopy.viewRegistry"
+msgid "View Registry"
+msgstr "Lihat Registry"
+
+msgctxt "awcms.adminCopy.viewReports"
+msgid "View Reports"
+msgstr "Lihat Laporan"
+
 msgctxt "awcms.adminCopy.registrySteps.0"
 msgid "Data Type"
 msgstr "Jenis Data"

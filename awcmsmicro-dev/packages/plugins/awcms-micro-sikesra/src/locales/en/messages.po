@@ -1926,6 +1926,58 @@ msgctxt "awcms.adminCopy.userLabel"
 msgid "User"
 msgstr "User"
 
+msgctxt "awcms.adminCopy.showingReferenceFixturesMessage"
+msgid "Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records."
+msgstr "Showing reference fixture data because the registry queue is currently empty. Use the 'Progressive Input Wizard' tab to add real records."
+
+msgctxt "awcms.adminCopy.systemHealthy"
+msgid "System Active"
+msgstr "System Active"
+
+msgctxt "awcms.adminCopy.systemDegraded"
+msgid "Needs Attention"
+msgstr "Needs Attention"
+
+msgctxt "awcms.adminCopy.totalEntities"
+msgid "Total"
+msgstr "Total"
+
+msgctxt "awcms.adminCopy.verifiedEntities"
+msgid "Verified"
+msgstr "Verified"
+
+msgctxt "awcms.adminCopy.referenceDataNote"
+msgid "Reference data - not actual production data"
+msgstr "Reference data - not actual production data"
+
+msgctxt "awcms.adminCopy.settingsAndConfiguration"
+msgid "Settings & Configuration"
+msgstr "Settings & Configuration"
+
+msgctxt "awcms.adminCopy.pluginVersion"
+msgid "Plugin Version"
+msgstr "Plugin Version"
+
+msgctxt "awcms.adminCopy.governanceModeLabel"
+msgid "Governance Mode"
+msgstr "Governance Mode"
+
+msgctxt "awcms.adminCopy.quickActions"
+msgid "Quick Actions"
+msgstr "Quick Actions"
+
+msgctxt "awcms.adminCopy.viewAuditLog"
+msgid "View Audit Log"
+msgstr "View Audit Log"
+
+msgctxt "awcms.adminCopy.viewRegistry"
+msgid "View Registry"
+msgstr "View Registry"
+
+msgctxt "awcms.adminCopy.viewReports"
+msgid "View Reports"
+msgstr "View Reports"
+
 msgctxt "awcms.adminCopy.registrySteps.0"
 msgid "Data Type"
 msgstr "Data Type"

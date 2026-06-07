@@ -345,3 +345,67 @@ msgstr "Berita"
 msgctxt "counts.pages"
 msgid "Pages"
 msgstr "Halaman"
+
+msgctxt "sikesraRecapitulationTitle"
+msgid "SIKESRA Recapitulation"
+msgstr "Rekapitulasi SIKESRA"
+
+msgctxt "sikesraRecapitulationDescription"
+msgid "Public aggregate safety page for SIKESRA."
+msgstr "Halaman rekapitulasi data publik aman SIKESRA."
+
+msgctxt "sikesraRecapitulationHeading"
+msgid "SIKESRA Public Recapitulation"
+msgstr "Rekapitulasi SIKESRA"
+
+msgctxt "sikesraRecapitulationKicker"
+msgid "SOCIAL & GOVERNANCE DATA"
+msgstr "TATA KELOLA & DATA SOSIAL"
+
+msgctxt "sikesraRecapitulationIntro"
+msgid "Here is the public-safe aggregate summary of the welfare information system (SIKESRA)."
+msgstr "Berikut adalah ringkasan data agregat aman dari sistem informasi kesejahteraan rakyat (SIKESRA)."
+
+msgctxt "sikesraSystemStatus"
+msgid "System Status"
+msgstr "Status Sistem"
+
+msgctxt "sikesraGovernanceMode"
+msgid "Governance Mode"
+msgstr "Mode Tata Kelola"
+
+msgctxt "sikesraSuppressedText"
+msgid "Suppressed (Count too low for privacy safety)"
+msgstr "Disupresi (Jumlah terlalu rendah untuk keamanan privasi)"
+
+msgctxt "sikesraTotalEntities"
+msgid "Total Entities"
+msgstr "Total Entitas"
+
+msgctxt "sikesraVerified"
+msgid "Verified"
+msgstr "Terverifikasi"
+
+msgctxt "sikesraPrivacyNotice"
+msgid "Public Data Security Notice"
+msgstr "Catatan Keamanan Data Publik"
+
+msgctxt "sikesraPrivacyNoticeDescription"
+msgid "SIKESRA enforces small-cell suppression rules. Categories with total entity counts below the safety threshold (3 entities) are automatically hidden in aggregate count to protect beneficiary identities."
+msgstr "SIKESRA menerapkan aturan penyembunyian sel kecil (small-cell suppression). Kategori dengan jumlah entitas kurang dari batas minimum (3 entitas) akan disembunyikan total dan rinciannya secara otomatis demi melindungi identitas privasi penerima manfaat."
+
+msgctxt "sikesraChartTitle"
+msgid "Data Recapitulation Chart"
+msgstr "Grafik Rekapitulasi Data"
+
+msgctxt "sikesraChartDescription"
+msgid "Comparison of total registered entities vs verified data per category."
+msgstr "Perbandingan jumlah total entitas terdaftar dengan data terverifikasi per kategori."
+
+msgctxt "sikesraLowCountPrivacy"
+msgid "Count too low for privacy safety"
+msgstr "Jumlah terlalu rendah untuk keamanan privasi"
+
+msgctxt "sikesraTotalShort"
+msgid "Total"
+msgstr "Total"

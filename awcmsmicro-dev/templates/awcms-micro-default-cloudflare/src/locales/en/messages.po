@@ -345,3 +345,67 @@ msgstr "News"
 msgctxt "counts.pages"
 msgid "Pages"
 msgstr "Pages"
+
+msgctxt "sikesraRecapitulationTitle"
+msgid "SIKESRA Recapitulation"
+msgstr "SIKESRA Recapitulation"
+
+msgctxt "sikesraRecapitulationDescription"
+msgid "Public aggregate safety page for SIKESRA."
+msgstr "Public aggregate safety page for SIKESRA."
+
+msgctxt "sikesraRecapitulationHeading"
+msgid "SIKESRA Public Recapitulation"
+msgstr "SIKESRA Public Recapitulation"
+
+msgctxt "sikesraRecapitulationKicker"
+msgid "SOCIAL & GOVERNANCE DATA"
+msgstr "SOCIAL & GOVERNANCE DATA"
+
+msgctxt "sikesraRecapitulationIntro"
+msgid "Here is the public-safe aggregate summary of the welfare information system (SIKESRA)."
+msgstr "Here is the public-safe aggregate summary of the welfare information system (SIKESRA)."
+
+msgctxt "sikesraSystemStatus"
+msgid "System Status"
+msgstr "System Status"
+
+msgctxt "sikesraGovernanceMode"
+msgid "Governance Mode"
+msgstr "Governance Mode"
+
+msgctxt "sikesraSuppressedText"
+msgid "Suppressed (Count too low for privacy safety)"
+msgstr "Suppressed (Count too low for privacy safety)"
+
+msgctxt "sikesraTotalEntities"
+msgid "Total Entities"
+msgstr "Total Entities"
+
+msgctxt "sikesraVerified"
+msgid "Verified"
+msgstr "Verified"
+
+msgctxt "sikesraPrivacyNotice"
+msgid "Public Data Security Notice"
+msgstr "Public Data Security Notice"
+
+msgctxt "sikesraPrivacyNoticeDescription"
+msgid "SIKESRA enforces small-cell suppression rules. Categories with total entity counts below the safety threshold (3 entities) are automatically hidden in aggregate count to protect beneficiary identities."
+msgstr "SIKESRA enforces small-cell suppression rules. Categories with total entity counts below the safety threshold (3 entities) are automatically hidden in aggregate count to protect beneficiary identities."
+
+msgctxt "sikesraChartTitle"
+msgid "Data Recapitulation Chart"
+msgstr "Data Recapitulation Chart"
+
+msgctxt "sikesraChartDescription"
+msgid "Comparison of total registered entities vs verified data per category."
+msgstr "Comparison of total registered entities vs verified data per category."
+
+msgctxt "sikesraLowCountPrivacy"
+msgid "Count too low for privacy safety"
+msgstr "Count too low for privacy safety"
+
+msgctxt "sikesraTotalShort"
+msgid "Total"
+msgstr "Total"
