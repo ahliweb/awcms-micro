@@ -14,7 +14,7 @@ This deployment flow assumes:
 
 - public site domain: `awcms-micro.ahlikoding.com`
 - media/public storage domain: `awcms-micro-s3.ahlikoding.com`
-- D1 database name: `awcms-micro-d1`
+- D1 database name: `awcms-micro-d1-20260530`
 - R2 binding: `MEDIA`
 - Worker Loader binding: `LOADER`
 - session KV binding: `SESSION`
@@ -95,7 +95,7 @@ pnpm test
 
 ## Cloudflare Resource Preparation
 
-1. Create or confirm the D1 database named `awcms-micro-d1`.
+1. Create or confirm the D1 database named `awcms-micro-d1-20260530`.
 2. Create or confirm the R2 bucket referenced by `MEDIA`.
 3. Create or confirm the KV namespace referenced by `SESSION`.
 4. Confirm the Worker Loader binding is available in the account where sandboxing is needed.

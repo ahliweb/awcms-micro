@@ -1,5 +1,11 @@
 # AWCMS-Micro Changelog
 
+## 0.1.32 - 2026-06-08
+
+- Record the production redeploy that aligned the Cloudflare template D1 database name with the current production D1 resource.
+## 0.1.31 - 2026-06-08
+
+- Align root deployment, D1, backup, and repository inventory documentation with the current production Worker, D1 database, and Wrangler validation state.
 ## 0.1.30 - 2026-06-08
 
 - Align the protected-path documentation and boundary validation contract with the existing `awcms-micro-website-social` downstream plugin boundary.
@@ -103,7 +109,7 @@
 ## Workspace Snapshot - 2026-06-08
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.30`
+- Root version: `0.1.32`
 
 ### Plugins
 

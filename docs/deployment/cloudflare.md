@@ -10,7 +10,8 @@ This runbook applies to AWCMS-Micro example deployments built from plugin and te
 
 - Base domain: `awcms-micro.ahlikoding.com`
 - Storage domain: `awcms-micro-s3.ahlikoding.com`
-- D1 database name: `awcms-micro-d1`
+- D1 database name: `awcms-micro-d1-20260530`
+- D1 database ID: `90a77136-8ad0-4247-bd48-7f728c2c0a0c`
 
 Do not commit tokens, secrets, or private credentials. This repository's reference Cloudflare template may commit non-secret resource identifiers such as D1 and KV binding IDs when they are part of the checked-in example deployment shape.
 
@@ -132,6 +133,8 @@ Minimum checks after deploy:
 - `GET /_emdash/admin` redirects unauthenticated users to `/_emdash/admin/login`
 - `GET /_emdash/api/plugins/awcms-micro-sikesra/public/status` returns the public-safe plugin response
 - media upload and retrieval work against the configured R2 bucket
+
+Latest recorded production deployment verification on 2026-06-08 used Worker version `84f637cf-3ef1-46cd-90db-1799f13bdf01` and confirmed the smoke checks above, plus remote D1 `_emdash_migrations` count `41`.
 
 ## Rollback Procedure
 

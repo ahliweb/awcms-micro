@@ -15,7 +15,7 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "awcms-micro-d1",
+			"database_name": "awcms-micro-d1-20260530",
 			"database_id": "90a77136-8ad0-4247-bd48-7f728c2c0a0c",
 		},
 	],

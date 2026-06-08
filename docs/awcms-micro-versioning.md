@@ -15,6 +15,9 @@ This flow is intentionally separate from upstream EmDash Changesets.
 It covers:
 
 - `@awcms-micro/plugin-sikesra`
+- `@awcms-micro/plugin-docs`
+- `@awcms-micro/plugin-gallery`
+- `@awcms-micro/plugin-website-social`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
 

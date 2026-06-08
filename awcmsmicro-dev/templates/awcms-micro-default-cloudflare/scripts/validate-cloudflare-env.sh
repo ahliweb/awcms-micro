@@ -42,7 +42,7 @@ require_file "$WRANGLER_FILE"
 
 log "Checking wrangler placeholders and bindings"
 require_contains '"pattern": "awcms-micro.ahlikoding.com/*"' "$WRANGLER_FILE"
-require_contains '"database_name": "awcms-micro-d1"' "$WRANGLER_FILE"
+require_contains '"database_name": "awcms-micro-d1-20260530"' "$WRANGLER_FILE"
 require_not_contains '"database_id": "REPLACE_WITH_AWCMS_MICRO_D1_DATABASE_ID"' "$WRANGLER_FILE"
 require_not_contains '"id": "REPLACE_WITH_AWCMS_MICRO_SESSION_NAMESPACE_ID"' "$WRANGLER_FILE"
 require_contains '"AWCMS_MICRO_SITE_URL": "https://awcms-micro.ahlikoding.com"' "$WRANGLER_FILE"

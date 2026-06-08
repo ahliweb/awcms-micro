@@ -31,10 +31,12 @@
 
 ### Restore D1 Database from Backup
 
-1. **Identify backup**: List available backups in R2:
+1. **Identify backup**: Use the backup key printed by `bash scripts/backup/backup-db.sh --type d1`, the scheduled workflow logs, or the Cloudflare R2 dashboard. The latest manually verified backup from the 2026-06-08 sync/deploy pass was:
    ```bash
-   wrangler r2 object list awcms-micro-backups --prefix "backups/db/" --remote
+   r2://awcms-micro-backups/backups/db/backup-20260608-212224.sql.enc
    ```
+
+   Wrangler 4.95.0 on this host supports `wrangler r2 object get`, `put`, and `delete`, but not `wrangler r2 object list`; do not rely on an object-list command in restore runbooks until the backup retention workflow is updated.
 
 2. **Download backup**:
    ```bash
@@ -51,7 +53,7 @@
 
 4. **Restore to D1**:
    ```bash
-   wrangler d1 execute awcms-micro-d1 --remote --file /tmp/backup.sql
+   wrangler d1 execute awcms-micro-d1-20260530 --remote --file /tmp/backup.sql
    ```
 
 5. **Rebuild FTS5 indexes** (if applicable):
@@ -105,10 +107,12 @@ INSERT INTO _emdash_migrations (name, timestamp) VALUES
 ('037_credential_algorithm', '2026-05-21T07:56:39.250Z'),
 ('038_registry_plugin_state', '2026-05-21T07:56:39.250Z'),
 ('039_fix_fts5_triggers', '2026-05-21T07:56:39.250Z'),
-('040_byline_i18n', '2026-05-21T07:56:39.250Z');
+('040_byline_i18n', '2026-05-21T07:56:39.250Z'),
+('041_content_locale_list_index', '2026-05-21T07:56:39.250Z'),
+('042_byline_fields', '2026-05-21T07:56:39.250Z');
 ```
 
-Verify: `SELECT COUNT(*) FROM _emdash_migrations;` should return 39.
+Verify: `SELECT COUNT(*) FROM _emdash_migrations;` should return 41 for the current production-shaped EmDash 0.17.2 schema.
 
 ### Restore from GitLab Mirror
 
@@ -180,9 +184,11 @@ Verify: `SELECT COUNT(*) FROM _emdash_migrations;` should return 39.
 The `wrangler d1 export` command fails when FTS5 virtual tables are present. Workaround:
 ```bash
 # Export only non-FTS tables
-TABLES=$(wrangler d1 execute awcms-micro-d1 --remote --command "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_emdash_fts_%' ORDER BY name;" | jq -r '.[0].results[].name' | tr '\n' ' ')
-wrangler d1 export awcms-micro-d1 --remote --output backup.sql $(echo $TABLES | sed 's/ / --table /g' | sed 's/^/--table /') -y
+TABLES=$(wrangler d1 execute awcms-micro-d1-20260530 --remote --command "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE '_emdash_fts_%' AND sql IS NOT NULL AND sql NOT LIKE 'CREATE VIRTUAL TABLE%' ORDER BY name;" | jq -r '.[0].results[].name' | tr '\n' ' ')
+wrangler d1 export awcms-micro-d1-20260530 --remote --output backup.sql $(printf '%s' "$TABLES" | sed 's/ / --table /g' | sed 's/^/--table /') -y
 ```
+
+Prefer `bash scripts/backup/backup-db.sh --type d1` for production backups because it already filters virtual FTS tables, encrypts the SQL export, and uploads it to R2.
 
 ### R2 Upload Fails
 

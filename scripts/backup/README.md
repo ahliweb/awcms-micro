@@ -215,7 +215,7 @@ Set these as repository variables (not secrets) so workflows can stay aligned wi
 | `GITLAB_USERNAME`                       | `ahliweb`                                  |
 | `GITLAB_REPO_NAME`                      | `awcms-micro`                              |
 | `GITHUB_ACTION_NODE_VERSION`            | `22`                                       |
-| `GITHUB_ACTION_PNPM_VERSION`            | `11.1.3`                                   |
+| `GITHUB_ACTION_PNPM_VERSION`            | `11.5.1`                                   |
 | `GITHUB_ACTION_WORKER_TEMPLATE_PACKAGE` | `@awcms-micro/template-default-cloudflare` |
 
 ## Security Model

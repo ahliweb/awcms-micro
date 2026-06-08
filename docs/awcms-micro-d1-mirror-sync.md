@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This workflow gives DBeaver a local SQLite file that mirrors the production Cloudflare D1 database for `awcms-micro-d1`.
+This workflow gives DBeaver a local SQLite file that mirrors the production Cloudflare D1 database for `awcms-micro-d1-20260530`.
 
 It is a limited two-way sync model, not a live remote connection.
 
@@ -21,7 +21,7 @@ It is a limited two-way sync model, not a live remote connection.
 
 - Any future mirror automation should read the parent repository `.env` automatically when present.
 - Any future mirror automation should map `CLOUDFLARE_WORKER_D1_DATABASE_ID` to the D1 mirror workflow when needed.
-- `wrangler` must already be authenticated to the Cloudflare account that owns `awcms-micro-d1`.
+- `wrangler` must already be authenticated to the Cloudflare account that owns `awcms-micro-d1-20260530`.
 - The account/token needs D1 query access.
 - If `wrangler` returns `SQLITE_AUTH`, the local mirror cannot be refreshed until the account access issue is resolved.
 
