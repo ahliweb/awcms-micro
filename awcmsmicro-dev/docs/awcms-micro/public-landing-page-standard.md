@@ -153,16 +153,16 @@ The gallery page at `/gallery` is managed by the `awcms-micro-gallery` plugin. G
 
 ---
 
-## Planned Sections (Not Yet Implemented)
+## Recently Completed Sections
 
-The following patterns from the reference repos are tracked for future implementation:
+All patterns from the reference repos have now been fully implemented:
 
 | Section | Source | GitHub Issue |
-|---|---|---|
-| CMS-managed promo popup (`website_promo` D1) | sample-awcmsastro | [#183](https://github.com/ahliweb/awcms-micro/issues/183) |
-| JSON-LD business schema (ProfessionalService / Restaurant) | both refs | TBD |
-| Open-hours badge in sticky header | gubuk-kuliner | TBD |
-| Order steps section (4-step how-to-order) | gubuk-kuliner | TBD |
+| --- | --- | --- |
+| CMS-managed promo popup (D1-driven via `website_social`) | sample-awcmsastro | [#183](https://github.com/ahliweb/awcms-micro/issues/183) |
+| JSON-LD business schema (ProfessionalService / Restaurant) | both refs | [#184](https://github.com/ahliweb/awcms-micro/issues/184) |
+| Open-hours badge in sticky header | gubuk-kuliner | [#184](https://github.com/ahliweb/awcms-micro/issues/184) |
+| Order steps section (4-step how-to-order) | gubuk-kuliner | [#184](https://github.com/ahliweb/awcms-micro/issues/184) |
 
 ---
 
@@ -219,12 +219,12 @@ This uses `as const` at the parent object level; individual tuple arrays are acc
 | FAQ accordion | ✅ | ✅ | ✅ |
 | Footer location + Maps | ✅ | ✅ Google Maps embed | ✅ (website_social fields) |
 | Gallery | ✅ Slider | ✅ Grid | ✅ (awcms-micro-gallery plugin) |
-| JSON-LD schema | ✅ ProfessionalService | ✅ Restaurant | 🔲 Planned |
-| Open-hours header badge | ❌ | ✅ Pulsing dot + time | 🔲 Planned |
-| Order steps section | ❌ | ✅ 4-step flow | 🔲 Planned |
+| JSON-LD schema | ✅ ProfessionalService | ✅ Restaurant | ✅ (website_social.schemaType) |
+| Open-hours header badge | ❌ | ✅ Pulsing dot + time | ✅ (website_social.openingHours) |
+| Order steps section | ❌ | ✅ 4-step flow | ✅ (messages.ts + index.astro) |
 | Bilingual support | ✅ EN/ID routes | ❌ Indonesian only | ✅ EN/ID via i18n config |
 | Testimonials | ✅ | ❌ | 🔲 Planned |
-| CMS-managed promo | 🔲 Tracked in issue | — | 🔲 Issue #183 |
+| CMS-managed promo | 🔲 — | — | ✅ D1-driven via website_social (#183) |
 
 ---
 
@@ -232,7 +232,7 @@ This uses `as const` at the parent object level; individual tuple arrays are acc
 
 Public landing page features are managed through the EmDash admin panel under:
 
-- **website_social collection** — WhatsApp config, location fields (maps_embed_url, business_address, opening_hours, google_maps_url)
+- **website_social collection** — WhatsApp config, location fields (maps_embed_url, business_address, opening_hours, google_maps_url), business schema fields (schema_type, business_name, business_description, business_phone, price_range), promo fields (promo_enabled, promo_title, promo_text, promo_price, promo_discount, promo_cta_message, promo_feature_1-4)
 - **Pages collection** — About, Privacy, Terms, and custom public pages
 - **Gallery plugin** — Photo and video galleries linked from the landing page
 - **Settings > Site** — Site title, tagline, logo, favicon, SEO defaults
