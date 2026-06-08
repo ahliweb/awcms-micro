@@ -27,6 +27,21 @@ export interface WebsiteSocialConfig {
 	businessAddress: string;
 	openingHours: string;
 	googleMapsUrl: string;
+	schemaType: string;
+	businessName: string;
+	businessDescription: string;
+	businessPhone: string;
+	priceRange: string;
+	promoEnabled: boolean;
+	promoTitle: string;
+	promoText: string;
+	promoPrice: string;
+	promoDiscount: string;
+	promoCtaMessage: string;
+	promoFeature1: string;
+	promoFeature2: string;
+	promoFeature3: string;
+	promoFeature4: string;
 }
 
 const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
@@ -56,6 +71,21 @@ const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
 	businessAddress: "",
 	openingHours: "",
 	googleMapsUrl: "",
+	schemaType: "",
+	businessName: "",
+	businessDescription: "",
+	businessPhone: "",
+	priceRange: "",
+	promoEnabled: true,
+	promoTitle: "",
+	promoText: "",
+	promoPrice: "",
+	promoDiscount: "",
+	promoCtaMessage: "",
+	promoFeature1: "",
+	promoFeature2: "",
+	promoFeature3: "",
+	promoFeature4: "",
 };
 
 function asString(value: unknown, fallback: string) {
@@ -105,6 +135,21 @@ export async function getWebsiteSocialConfig(locale: string | undefined): Promis
 			businessAddress: asString(data.business_address, DEFAULT_SOCIAL_CONFIG.businessAddress),
 			openingHours: asString(data.opening_hours, DEFAULT_SOCIAL_CONFIG.openingHours),
 			googleMapsUrl: asString(data.google_maps_url, DEFAULT_SOCIAL_CONFIG.googleMapsUrl),
+			schemaType: asString(data.schema_type, DEFAULT_SOCIAL_CONFIG.schemaType),
+			businessName: asString(data.business_name, DEFAULT_SOCIAL_CONFIG.businessName),
+			businessDescription: asString(data.business_description, DEFAULT_SOCIAL_CONFIG.businessDescription),
+			businessPhone: asString(data.business_phone, DEFAULT_SOCIAL_CONFIG.businessPhone),
+			priceRange: asString(data.price_range, DEFAULT_SOCIAL_CONFIG.priceRange),
+			promoEnabled: data.promo_enabled !== false,
+			promoTitle: asString(data.promo_title, DEFAULT_SOCIAL_CONFIG.promoTitle),
+			promoText: asString(data.promo_text, DEFAULT_SOCIAL_CONFIG.promoText),
+			promoPrice: asString(data.promo_price, DEFAULT_SOCIAL_CONFIG.promoPrice),
+			promoDiscount: asString(data.promo_discount, DEFAULT_SOCIAL_CONFIG.promoDiscount),
+			promoCtaMessage: asString(data.promo_cta_message, DEFAULT_SOCIAL_CONFIG.promoCtaMessage),
+			promoFeature1: asString(data.promo_feature_1, DEFAULT_SOCIAL_CONFIG.promoFeature1),
+			promoFeature2: asString(data.promo_feature_2, DEFAULT_SOCIAL_CONFIG.promoFeature2),
+			promoFeature3: asString(data.promo_feature_3, DEFAULT_SOCIAL_CONFIG.promoFeature3),
+			promoFeature4: asString(data.promo_feature_4, DEFAULT_SOCIAL_CONFIG.promoFeature4),
 		};
 	} catch {
 		return DEFAULT_SOCIAL_CONFIG;

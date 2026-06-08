@@ -21,10 +21,20 @@ interface Props {
 }
 
 const { config, copy } = Astro.props;
-const promoWaUrl = createWhatsAppUrl(config, copy.promoWaMessage);
+const promoTitle = config.promoTitle || copy.promoTitle;
+const promoText = config.promoText || copy.promoText;
+const promoPrice = config.promoPrice || copy.promoPrice;
+const promoDiscount = config.promoDiscount || copy.promoDiscount;
+const promoCta = copy.promoCta;
+const promoWaMessage = config.promoCtaMessage || copy.promoWaMessage;
+const promoWaUrl = createWhatsAppUrl(config, promoWaMessage);
+const promoFeature1 = config.promoFeature1 || copy.promoFeature1;
+const promoFeature2 = config.promoFeature2 || copy.promoFeature2;
+const promoFeature3 = config.promoFeature3 || copy.promoFeature3;
+const promoFeature4 = config.promoFeature4 || copy.promoFeature4;
 ---
 
-{config.enabled && config.whatsappNumber && (
+{config.enabled && config.whatsappNumber && config.promoEnabled && (
 	<>
 		<button type="button" id="promo-trigger" class="promo-float" aria-controls="promo-popup" aria-expanded="false">
 			<svg class="promo-float__icon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -44,14 +54,14 @@ const promoWaUrl = createWhatsAppUrl(config, copy.promoWaMessage);
 					<span class="promo-badge">{copy.promoLimitedOffer}</span>
 				</div>
 				<div class="promo-body">
-					<h3 id="promo-popup-title">{copy.promoTitle}</h3>
-					<p>{copy.promoText}</p>
+					<h3 id="promo-popup-title">{promoTitle}</h3>
+					<p>{promoText}</p>
 					<div class="promo-pricing-box">
-						<span class="promo-price-tag">{copy.promoPrice}</span>
-						<span class="promo-discount-tag">{copy.promoDiscount}</span>
+						<span class="promo-price-tag">{promoPrice}</span>
+						<span class="promo-discount-tag">{promoDiscount}</span>
 					</div>
 					<ul class="promo-features-list">
-						{[copy.promoFeature1, copy.promoFeature2, copy.promoFeature3, copy.promoFeature4].map((feature) => (
+						{[promoFeature1, promoFeature2, promoFeature3, promoFeature4].filter(Boolean).map((feature) => (
 							<li>
 								<svg class="promo-feature-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<polyline points="20 6 9 17 4 12"/>
@@ -64,7 +74,7 @@ const promoWaUrl = createWhatsAppUrl(config, copy.promoWaMessage);
 						<svg class="icon-whatsapp" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 							<path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.517 2.266 2.27 3.507 5.289 3.507 8.494-.01 6.66-5.347 11.998-11.957 11.998-1.998-.001-3.957-.502-5.692-1.458L0 24zM6.59 5.92c-.22-.486-.452-.496-.662-.505-.171-.007-.369-.007-.567-.007-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.496.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207z"/>
 						</svg>
-						<span>{copy.promoCta}</span>
+						<span>{promoCta}</span>
 					</a>
 				</div>
 			</div>

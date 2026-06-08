@@ -15,7 +15,12 @@
 			"slug": "posts",
 			"label": "Posts",
 			"labelSingular": "Post",
-			"supports": ["drafts", "revisions", "search", "seo"],
+			"supports": [
+				"drafts",
+				"revisions",
+				"search",
+				"seo"
+			],
 			"fields": [
 				{
 					"slug": "title",
@@ -46,7 +51,12 @@
 			"slug": "news",
 			"label": "News",
 			"labelSingular": "News Item",
-			"supports": ["drafts", "revisions", "search", "seo"],
+			"supports": [
+				"drafts",
+				"revisions",
+				"search",
+				"seo"
+			],
 			"fields": [
 				{
 					"slug": "title",
@@ -73,7 +83,11 @@
 			"slug": "pages",
 			"label": "Pages",
 			"labelSingular": "Page",
-			"supports": ["drafts", "revisions", "search"],
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
 			"fields": [
 				{
 					"slug": "title",
@@ -94,7 +108,12 @@
 			"slug": "galleries",
 			"label": "Galleries",
 			"labelSingular": "Gallery",
-			"supports": ["drafts", "revisions", "search", "seo"],
+			"supports": [
+				"drafts",
+				"revisions",
+				"search",
+				"seo"
+			],
 			"fields": [
 				{
 					"slug": "title",
@@ -115,9 +134,18 @@
 					"type": "select",
 					"required": true,
 					"options": [
-						{ "label": "Photo", "value": "photo" },
-						{ "label": "Video", "value": "video" },
-						{ "label": "Mixed", "value": "mixed" }
+						{
+							"label": "Photo",
+							"value": "photo"
+						},
+						{
+							"label": "Video",
+							"value": "video"
+						},
+						{
+							"label": "Mixed",
+							"value": "mixed"
+						}
 					]
 				},
 				{
@@ -126,10 +154,22 @@
 					"type": "select",
 					"required": true,
 					"options": [
-						{ "label": "Grid", "value": "grid" },
-						{ "label": "Masonry", "value": "masonry" },
-						{ "label": "Carousel", "value": "carousel" },
-						{ "label": "Slider", "value": "slider" }
+						{
+							"label": "Grid",
+							"value": "grid"
+						},
+						{
+							"label": "Masonry",
+							"value": "masonry"
+						},
+						{
+							"label": "Carousel",
+							"value": "carousel"
+						},
+						{
+							"label": "Slider",
+							"value": "slider"
+						}
 					]
 				},
 				{
@@ -163,7 +203,10 @@
 			"slug": "website_social",
 			"label": "Website Social",
 			"labelSingular": "Website Social Settings",
-			"supports": ["drafts", "revisions"],
+			"supports": [
+				"drafts",
+				"revisions"
+			],
 			"fields": [
 				{
 					"slug": "enabled",
@@ -196,12 +239,36 @@
 					"label": "Contact Message",
 					"type": "text"
 				},
-				{ "slug": "profile_message", "label": "Profile Message", "type": "text" },
-				{ "slug": "services_message", "label": "Services Message", "type": "text" },
-				{ "slug": "posts_message", "label": "Posts Message", "type": "text" },
-				{ "slug": "gallery_message", "label": "Gallery Message", "type": "text" },
-				{ "slug": "news_message", "label": "News Message", "type": "text" },
-				{ "slug": "widgets_message", "label": "Widgets Message", "type": "text" },
+				{
+					"slug": "profile_message",
+					"label": "Profile Message",
+					"type": "text"
+				},
+				{
+					"slug": "services_message",
+					"label": "Services Message",
+					"type": "text"
+				},
+				{
+					"slug": "posts_message",
+					"label": "Posts Message",
+					"type": "text"
+				},
+				{
+					"slug": "gallery_message",
+					"label": "Gallery Message",
+					"type": "text"
+				},
+				{
+					"slug": "news_message",
+					"label": "News Message",
+					"type": "text"
+				},
+				{
+					"slug": "widgets_message",
+					"label": "Widgets Message",
+					"type": "text"
+				},
 				{
 					"slug": "hero_label",
 					"label": "Hero CTA Label",
@@ -217,15 +284,134 @@
 					"label": "Contact CTA Label",
 					"type": "string"
 				},
-				{ "slug": "profile_label", "label": "Profile CTA Label", "type": "string" },
-				{ "slug": "services_label", "label": "Services CTA Label", "type": "string" },
-				{ "slug": "posts_label", "label": "Posts CTA Label", "type": "string" },
-				{ "slug": "gallery_label", "label": "Gallery CTA Label", "type": "string" },
-				{ "slug": "news_label", "label": "News CTA Label", "type": "string" },
-				{ "slug": "widgets_label", "label": "Widgets CTA Label", "type": "string" },
+				{
+					"slug": "profile_label",
+					"label": "Profile CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "services_label",
+					"label": "Services CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "posts_label",
+					"label": "Posts CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "gallery_label",
+					"label": "Gallery CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "news_label",
+					"label": "News CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "widgets_label",
+					"label": "Widgets CTA Label",
+					"type": "string"
+				},
 				{
 					"slug": "sticky_label",
 					"label": "Sticky CTA Label",
+					"type": "string"
+				},
+				{
+					"slug": "maps_embed_url",
+					"label": "Google Maps Embed URL",
+					"type": "string"
+				},
+				{
+					"slug": "business_address",
+					"label": "Business Address",
+					"type": "string"
+				},
+				{
+					"slug": "opening_hours",
+					"label": "Opening Hours",
+					"type": "string"
+				},
+				{
+					"slug": "google_maps_url",
+					"label": "Google Maps URL",
+					"type": "string"
+				},
+				{
+					"slug": "schema_type",
+					"label": "Schema Type (e.g. Restaurant)",
+					"type": "string"
+				},
+				{
+					"slug": "business_name",
+					"label": "Business Name",
+					"type": "string"
+				},
+				{
+					"slug": "business_description",
+					"label": "Business Description",
+					"type": "text"
+				},
+				{
+					"slug": "business_phone",
+					"label": "Business Phone",
+					"type": "string"
+				},
+				{
+					"slug": "price_range",
+					"label": "Price Range (e.g. $$)",
+					"type": "string"
+				},
+				{
+					"slug": "promo_enabled",
+					"label": "Promo Enabled",
+					"type": "boolean"
+				},
+				{
+					"slug": "promo_title",
+					"label": "Promo Title",
+					"type": "string"
+				},
+				{
+					"slug": "promo_text",
+					"label": "Promo Text",
+					"type": "text"
+				},
+				{
+					"slug": "promo_price",
+					"label": "Promo Price Text",
+					"type": "string"
+				},
+				{
+					"slug": "promo_discount",
+					"label": "Promo Discount Text",
+					"type": "string"
+				},
+				{
+					"slug": "promo_cta_message",
+					"label": "Promo CTA WhatsApp Message",
+					"type": "text"
+				},
+				{
+					"slug": "promo_feature_1",
+					"label": "Promo Feature 1",
+					"type": "string"
+				},
+				{
+					"slug": "promo_feature_2",
+					"label": "Promo Feature 2",
+					"type": "string"
+				},
+				{
+					"slug": "promo_feature_3",
+					"label": "Promo Feature 3",
+					"type": "string"
+				},
+				{
+					"slug": "promo_feature_4",
+					"label": "Promo Feature 4",
 					"type": "string"
 				}
 			]
@@ -1071,7 +1257,26 @@
 					"gallery_label": "Discuss gallery",
 					"news_label": "Discuss updates",
 					"widgets_label": "Discuss widgets",
-					"sticky_label": "Chat on WhatsApp"
+					"sticky_label": "Chat on WhatsApp",
+					"maps_embed_url": "",
+					"business_address": "",
+					"opening_hours": "",
+					"google_maps_url": "",
+					"schema_type": "",
+					"business_name": "",
+					"business_description": "",
+					"business_phone": "",
+					"price_range": "",
+					"promo_enabled": true,
+					"promo_title": "",
+					"promo_text": "",
+					"promo_price": "",
+					"promo_discount": "",
+					"promo_cta_message": "",
+					"promo_feature_1": "",
+					"promo_feature_2": "",
+					"promo_feature_3": "",
+					"promo_feature_4": ""
 				}
 			},
 			{
@@ -1102,7 +1307,26 @@
 					"gallery_label": "Bahas galeri",
 					"news_label": "Bahas pembaruan",
 					"widgets_label": "Bahas widget",
-					"sticky_label": "Chat via WhatsApp"
+					"sticky_label": "Chat via WhatsApp",
+					"maps_embed_url": "",
+					"business_address": "",
+					"opening_hours": "",
+					"google_maps_url": "",
+					"schema_type": "",
+					"business_name": "",
+					"business_description": "",
+					"business_phone": "",
+					"price_range": "",
+					"promo_enabled": true,
+					"promo_title": "",
+					"promo_text": "",
+					"promo_price": "",
+					"promo_discount": "",
+					"promo_cta_message": "",
+					"promo_feature_1": "",
+					"promo_feature_2": "",
+					"promo_feature_3": "",
+					"promo_feature_4": ""
 				}
 			}
 		]
