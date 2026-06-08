@@ -331,6 +331,7 @@ require_contains 'pnpm --version' "$RUNTIME_PREREQS_SCRIPT"
 require_contains 'python3 --version' "$RUNTIME_PREREQS_SCRIPT"
 require_contains 'rsync --version' "$RUNTIME_PREREQS_SCRIPT"
 require_contains 'check-runtime-prereqs.sh' "$VALIDATION_SCRIPT"
+require_contains 'pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync' "$VALIDATION_SCRIPT"
 require_contains 'check-runtime-prereqs.sh' "$COMBINED_SCRIPT"
 
 log "Checking sync preflight gate"

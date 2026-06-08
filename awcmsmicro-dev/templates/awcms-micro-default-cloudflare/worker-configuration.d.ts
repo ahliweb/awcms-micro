@@ -8,6 +8,8 @@ declare namespace Cloudflare {
 		IMAGES: ImagesBinding;
 		AWCMS_MICRO_SITE_URL?: string;
 		AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL?: string;
+		AWCMS_MICRO_SIKESRA_TENANT_ID?: string;
+		AWCMS_MICRO_SIKESRA_SITE_ID?: string;
 	}
 }
 

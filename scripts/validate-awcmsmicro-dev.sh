@@ -81,6 +81,7 @@ bash -n scripts/update-emdash-latest.sh
 bash -n scripts/update-awcmsmicro-dev.sh
 bash -n scripts/validate-awcmsmicro-dev.sh
 bash -n scripts/sync-and-validate-awcmsmicro-dev.sh
+pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync
 \`\`\`
 
 ## Result Summary
@@ -165,6 +166,7 @@ run_step "pnpm-build-registry-lexicons" "AWCMS-Micro added file failure" pnpm --
 run_step "pnpm-build-workspace" "AWCMS-Micro added file failure" pnpm build
 run_step "pnpm-typecheck" "AWCMS-Micro added file failure" pnpm typecheck
 run_step "pnpm-lint-quick" "AWCMS-Micro added file failure" pnpm lint:quick
+run_step "pnpm-sikesra-sync-guardrails" "AWCMS-Micro added file failure" pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync
 run_step "pnpm-admin-locale-compile" "Upstream EmDash test failure" pnpm --filter @emdash-cms/admin exec node --run locale:compile
 run_step "playwright-install-chromium" "Upstream EmDash test failure" pnpm --filter @emdash-cms/admin exec playwright install chromium
 export EMDASH_WORKERD_PLUGIN_PORT_BASE=28000

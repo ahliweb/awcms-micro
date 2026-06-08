@@ -126,13 +126,16 @@ const galleryWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.galle
 const newsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.newsMessage);
 const widgetsWhatsAppHref = createWhatsAppUrl(websiteSocial, websiteSocial.widgetsMessage);
 
-const storageBaseUrl = import.meta.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL 
+const storageBaseUrl = import.meta.env.AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL
+	|| import.meta.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL
+	|| (typeof process !== "undefined" ? process.env.AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL : undefined)
 	|| (typeof process !== "undefined" ? process.env.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL : undefined)
+	|| (Astro.locals as any).runtime?.env?.AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL
 	|| (Astro.locals as any).runtime?.env?.CLOUDFLARE_WORKER_STORAGE_PUBLIC_BASE_URL
-	|| "/_emdash/api/media/file";
+	|| null;
 
-const dashboardMockupUrl = `${storageBaseUrl}/dashboard_mockup.png`;
-const networkShowcaseUrl = `${storageBaseUrl}/network_showcase.png`;
+const dashboardMockupUrl = storageBaseUrl ? `${storageBaseUrl}/dashboard_mockup.png` : "/dashboard_mockup.png";
+const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.png` : "/network_showcase.png";
 ---
 
 <Base title={siteTitle} description={siteTagline} showFooterWidgets={false}>
@@ -166,7 +169,7 @@ const networkShowcaseUrl = `${storageBaseUrl}/network_showcase.png`;
 		</div>
 		<div class="landing-hero__visual reveal-scale">
 			<div class="hero-mockup-wrapper">
-				<img src={dashboardMockupUrl} alt="AWCMS Micro Developer Dashboard" class="hero-mockup-image" loading="eager" />
+				<img src={dashboardMockupUrl} alt="AWCMS Micro Developer Dashboard" class="hero-mockup-image" loading="eager" onerror="this.onerror=null;this.src='/dashboard_mockup.png'" />
 				<div class="hero-mockup-glow"></div>
 			</div>
 		</div>
@@ -193,7 +196,7 @@ const networkShowcaseUrl = `${storageBaseUrl}/network_showcase.png`;
 		</div>
 		<div class="landing-split__visual reveal-scale">
 			<div class="split-image-wrapper">
-				<img src={networkShowcaseUrl} alt="Cloudflare Edge Network Showcase" class="split-image" loading="lazy" />
+				<img src={networkShowcaseUrl} alt="Cloudflare Edge Network Showcase" class="split-image" loading="lazy" onerror="this.onerror=null;this.src='/network_showcase.png'" />
 				<div class="split-image-glow"></div>
 			</div>
 		</div>

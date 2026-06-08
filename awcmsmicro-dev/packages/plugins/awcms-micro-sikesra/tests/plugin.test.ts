@@ -2637,6 +2637,90 @@ describe("awcms micro sikesra plugin", () => {
 		}
 	});
 
+	it("does not merge reference registry fixtures into production public aggregates", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		await routes["settings/save"]!.handler({
+			...ctx,
+			request: createAdminRequest(),
+			input: { smallCellThreshold: 1 },
+		} as any);
+
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+
+		try {
+			const result = (await routes["public/status"]!.handler({
+				...ctx,
+				input: {},
+			} as any)) as any;
+			const rumahIbadah = result.publicAggregate.categories.find(
+				(category: any) => category.code === "rumah_ibadah",
+			);
+
+			expect(rumahIbadah).toMatchObject({ total: 0, verified: 0, suppressed: true });
+			expectPublicSafeOutput(result);
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
+
+	it("allows reference registry fixtures only when production explicitly enables reference mode", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes({ referenceFixturesMode: "enabled" });
+		await routes["settings/save"]!.handler({
+			...ctx,
+			request: createAdminRequest(),
+			input: { smallCellThreshold: 1 },
+		} as any);
+
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+
+		try {
+			const result = (await routes["public/status"]!.handler({
+				...ctx,
+				input: {},
+			} as any)) as any;
+			const rumahIbadah = result.publicAggregate.categories.find(
+				(category: any) => category.code === "rumah_ibadah",
+			);
+
+			expect(rumahIbadah).toMatchObject({ total: 1, verified: 1, suppressed: false });
+			expectPublicSafeOutput(result);
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
+
+	it("does not merge reference registry fixtures into production registry lists", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
+		const previousMode = runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+		runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = "production";
+
+		try {
+			const result = (await routes["registry/list"]!.handler({
+				...ctx,
+				request: createAdminRequest(),
+				user: { id: "emdash-production-admin", role: 50 },
+				input: {},
+			} as any)) as any;
+
+			expect(result.items).toEqual([]);
+			expect(result.nextCursor).toBeUndefined();
+			expect(result.pagination).toMatchObject({ total: 0 });
+		} finally {
+			if (previousMode === undefined) delete runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__;
+			else runtimeGlobal.__AWCMS_SIKESRA_RUNTIME_MODE__ = previousMode;
+		}
+	});
+
 	it("keeps trusted-admin overview summary available when production D1 access is not ready", async () => {
 		const { ctx } = createMockContext();
 		const runtimeGlobal = globalThis as { __AWCMS_SIKESRA_RUNTIME_MODE__?: string };
@@ -4681,6 +4765,102 @@ describe("awcms micro sikesra plugin", () => {
 				classification: "internal",
 			}),
 		);
+	});
+
+	it("paginates document and export workflow lists with cursor metadata", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		await routes["registry/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				id: "registry-entity-paging-01",
+				code: "PG-001",
+				label: "Paging Registry Entity",
+				entityType: "rumah_ibadah",
+				sensitivity: "public_safe",
+				provinceCode: "62",
+				regencyCode: "6201",
+				districtCode: "620101",
+				villageCode: "6201010001",
+			},
+		} as any);
+
+		for (const index of [1, 2, 3]) {
+			await routes["documents/save"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: {
+					id: `doc-paging-0${index}`,
+					registryEntityId: "registry-entity-paging-01",
+					documentType: "surat_keterangan",
+					title: `Paging Document ${index}`,
+					sensitivity: "public_safe",
+					contentType: "application/pdf",
+					fileSizeBytes: 1024,
+					checksumSha256: String(index).repeat(64),
+					safeFilename: `paging-document-${index}.pdf`,
+				},
+			} as any);
+
+			await routes["exports/create"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: {
+					id: `export-paging-0${index}`,
+					exportType: "registry",
+					entityType: "rumah_ibadah",
+					requestedFields: ["code", "label"],
+					sensitivityLevel: "public_safe",
+				},
+			} as any);
+		}
+
+		const documentsFirstPage = (await routes["documents/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { registryEntityId: "registry-entity-paging-01", limit: 2 },
+		} as any)) as any;
+		expect(documentsFirstPage.items).toHaveLength(2);
+		expect(documentsFirstPage.nextCursor).toBe("2");
+		expect(documentsFirstPage.pagination).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+
+		const documentsSecondPage = (await routes["documents/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				registryEntityId: "registry-entity-paging-01",
+				limit: 2,
+				cursor: documentsFirstPage.nextCursor,
+			},
+		} as any)) as any;
+		expect(documentsSecondPage.items).toHaveLength(1);
+		expect(documentsSecondPage.nextCursor).toBeUndefined();
+		expect(documentsSecondPage.pagination).toMatchObject({ page: 2, pageSize: 2, total: 3 });
+		expect(JSON.stringify(documentsFirstPage.items)).not.toContain("checksum");
+		expect(JSON.stringify(documentsFirstPage.items)).not.toContain("storageKey");
+
+		const exportsFirstPage = (await routes["exports/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { pageSize: 2 },
+		} as any)) as any;
+		expect(exportsFirstPage.items).toHaveLength(2);
+		expect(exportsFirstPage.nextCursor).toBe("2");
+		expect(exportsFirstPage.pagination).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+
+		const exportsSecondPage = (await routes["exports/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { pageSize: 2, cursor: exportsFirstPage.nextCursor },
+		} as any)) as any;
+		expect(exportsSecondPage.items).toHaveLength(1);
+		expect(exportsSecondPage.nextCursor).toBeUndefined();
+		expect(exportsSecondPage.pagination).toMatchObject({ page: 2, pageSize: 2, total: 3 });
+		expect(JSON.stringify(exportsFirstPage.items)).not.toContain("nik");
+		expect(JSON.stringify(exportsFirstPage.items)).not.toContain("alamat_ktp");
 	});
 
 	it("redacts restricted document metadata from document readers without restricted permission", async () => {

@@ -10,7 +10,15 @@ const REQUIRED_DESTRUCTIVE_MARKERS = ["backup-note:", "rollback-note:", "approva
 const addColumnPattern = /\bALTER\s+TABLE\s+[`"]?([a-zA-Z0-9_]+)[`"]?\s+ADD\s+COLUMN\s+[`"]?([a-zA-Z0-9_]+)[`"]?/gi;
 const destructivePatterns = [
 	{ label: "DROP TABLE", pattern: /\bDROP\s+TABLE\b/i },
+	{ label: "DROP INDEX", pattern: /\bDROP\s+INDEX\b/i },
+	{ label: "DROP TRIGGER", pattern: /\bDROP\s+TRIGGER\b/i },
 	{ label: "DROP COLUMN", pattern: /\bDROP\s+COLUMN\b/i },
+	{ label: "ALTER TABLE RENAME", pattern: /\bALTER\s+TABLE\s+[`"]?sikesra_[a-zA-Z0-9_]*[`"]?\s+RENAME\b/i },
+	{ label: "RENAME COLUMN", pattern: /\bRENAME\s+COLUMN\b/i },
+	{ label: "CREATE TABLE AS", pattern: /\bCREATE\s+TABLE\s+[`"]?sikesra_[a-zA-Z0-9_]*[`"]?\s+AS\b/i },
+	{ label: "UPDATE sikesra_", pattern: /\bUPDATE\s+[`"]?sikesra_/i },
+	{ label: "REPLACE INTO", pattern: /\bREPLACE\s+INTO\s+[`"]?sikesra_/i },
+	{ label: "INSERT OR REPLACE", pattern: /\bINSERT\s+OR\s+REPLACE\s+INTO\s+[`"]?sikesra_/i },
 	{ label: "DELETE FROM sikesra_", pattern: /\bDELETE\s+FROM\s+[`"]?sikesra_/i },
 	{ label: "TRUNCATE", pattern: /\bTRUNCATE\b/i },
 	{ label: "CREATE OR REPLACE TABLE", pattern: /\bCREATE\s+OR\s+REPLACE\s+TABLE\b/i },

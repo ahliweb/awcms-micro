@@ -47,6 +47,8 @@ require_not_contains '"database_id": "REPLACE_WITH_AWCMS_MICRO_D1_DATABASE_ID"' 
 require_not_contains '"id": "REPLACE_WITH_AWCMS_MICRO_SESSION_NAMESPACE_ID"' "$WRANGLER_FILE"
 require_contains '"AWCMS_MICRO_SITE_URL": "https://awcms-micro.ahlikoding.com"' "$WRANGLER_FILE"
 require_contains '"AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL": "https://awcms-micro-s3.ahlikoding.com"' "$WRANGLER_FILE"
+require_contains '"AWCMS_MICRO_SIKESRA_TENANT_ID": "t-production"' "$WRANGLER_FILE"
+require_contains '"AWCMS_MICRO_SIKESRA_SITE_ID": "production"' "$WRANGLER_FILE"
 require_contains '"binding": "MEDIA"' "$WRANGLER_FILE"
 require_contains '"binding": "LOADER"' "$WRANGLER_FILE"
 require_contains '"binding": "SESSION"' "$WRANGLER_FILE"

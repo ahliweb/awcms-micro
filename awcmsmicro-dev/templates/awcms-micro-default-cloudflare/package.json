@@ -11,7 +11,7 @@
 		"dev": "astro dev",
 		"build": "astro build",
 		"preview": "astro preview",
-		"deploy": "astro build && wrangler deploy",
+		"deploy": "pnpm validate:cloudflare-env && astro build && wrangler deploy",
 		"validate:cloudflare-env": "bash ./scripts/validate-cloudflare-env.sh",
 		"typecheck": "astro check",
 		"test": "pnpm typecheck && node --test tests/locales.test.mjs"

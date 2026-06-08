@@ -12,6 +12,10 @@ const createTablePattern = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[`"]?([a-z
 const schemaTablePattern = /:\s*"(sikesra_[a-z0-9_]+)"/g;
 const coreTableWritePattern =
 	/\b(?:insertInto|updateTable|deleteFrom)\(\s*["'](?:_emdash_users|users|_emdash_sessions|_emdash_accounts)["']/;
+const rawCoreTableSqlPattern =
+	/\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+[`"]?(?:_emdash_users|users|_emdash_sessions|_emdash_accounts)\b/i;
+const rawUnprefixedSikesraTablePattern =
+	/\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|CREATE\s+TABLE)\s+[`"]?(?!sikesra_|sqlite_|_)([a-z][a-z0-9_]*sikesra[a-z0-9_]*)\b/i;
 const sourceFilePattern = /\.(ts|tsx|js|mjs)$/;
 const ignoredDirs = new Set(["dist", "node_modules", ".git", ".astro", ".vite", ".wrangler"]);
 
@@ -66,6 +70,17 @@ for (const file of walkFiles(srcDir)) {
 	if (coreTableWritePattern.test(source)) {
 		violations.push(
 			`source writes to EmDash/core user table: ${file.replace(`${pluginDir}/`, "")}`,
+		);
+	}
+	if (rawCoreTableSqlPattern.test(source)) {
+		violations.push(
+			`source contains raw SQL write to EmDash/core user table: ${file.replace(`${pluginDir}/`, "")}`,
+		);
+	}
+	const rawUnprefixedSikesraTable = source.match(rawUnprefixedSikesraTablePattern)?.[1];
+	if (rawUnprefixedSikesraTable) {
+		violations.push(
+			`source contains raw SQL write to unprefixed SIKESRA-like table '${rawUnprefixedSikesraTable}': ${file.replace(`${pluginDir}/`, "")}`,
 		);
 	}
 }

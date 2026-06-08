@@ -32,6 +32,10 @@ const MEDIA_DETAIL_REGEX = /<details class="landing-media-detail">/;
 const CONTACT_CARDS_REGEX = /class="landing-contact-cards"/;
 const WHATSAPP_NUMBER_REGEX = /websiteSocial\.whatsappNumber/;
 const BASE_LAYOUT_COLLECTIONS_REGEX = /collections=\{\["posts", "pages", "news", "galleries"\]\}/;
+const SIKESRA_TENANT_ENV_REGEX = /AWCMS_MICRO_SIKESRA_TENANT_ID/;
+const SIKESRA_SITE_ENV_REGEX = /AWCMS_MICRO_SIKESRA_SITE_ID/;
+const STORAGE_PUBLIC_BASE_ENV_REGEX = /AWCMS_MICRO_STORAGE_PUBLIC_BASE_URL/;
+const DEPLOY_SCRIPT_REGEX = /pnpm validate:cloudflare-env && astro build && wrangler deploy/;
 
 await test("PO catalogs cover every Cloudflare template copy key", async () => {
 	const expectedKeys = flattenKeys(AWCMS_MICRO_CLOUDFLARE_PUBLIC_COPY.en).toSorted();
@@ -72,11 +76,36 @@ await test("Cloudflare public template keeps default-template parity surfaces", 
 	assert.match(baseLayout, BASE_LAYOUT_COLLECTIONS_REGEX);
 	assert.match(galleryIndex, GALLERIES_COLLECTION_REGEX);
 	assert.match(galleryDetail, GALLERIES_COLLECTION_REGEX);
-	assert.ok(collectionSlugs.includes("galleries"), "Cloudflare seed must define galleries");
-	assert.ok(collectionSlugs.includes("website_social"), "Cloudflare seed must define website_social");
+	const collectionSlugSet = new Set(collectionSlugs);
+	assert.ok(collectionSlugSet.has("galleries"), "Cloudflare seed must define galleries");
+	assert.ok(collectionSlugSet.has("website_social"), "Cloudflare seed must define website_social");
 	assert.ok(homepageWidgetArea, "Cloudflare seed must define homepage widget area");
 	assert.ok(
 		primaryMenus.every((menu) => menu.items.some((item) => item.url === "/gallery")),
 		"Every primary menu locale must include Gallery",
 	);
+});
+
+await test("Cloudflare deployment config declares SIKESRA scope and storage URL vars", async () => {
+	const [astroConfig, wranglerConfig, envExample, devVarsExample, validationScript, packageJson] =
+		await Promise.all([
+			readFile(new URL("../astro.config.mjs", import.meta.url), "utf8"),
+			readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
+			readFile(new URL("../.env.example", import.meta.url), "utf8"),
+			readFile(new URL("../.dev.vars.example", import.meta.url), "utf8"),
+			readFile(new URL("../scripts/validate-cloudflare-env.sh", import.meta.url), "utf8"),
+			readFile(new URL("../package.json", import.meta.url), "utf8"),
+		]);
+
+	for (const source of [astroConfig, wranglerConfig, envExample, devVarsExample, validationScript]) {
+		assert.match(source, SIKESRA_TENANT_ENV_REGEX);
+		assert.match(source, SIKESRA_SITE_ENV_REGEX);
+	}
+
+	for (const source of [wranglerConfig, envExample, devVarsExample, validationScript]) {
+		assert.match(source, STORAGE_PUBLIC_BASE_ENV_REGEX);
+	}
+
+	assert.match(await readFile(new URL("../src/pages/index.astro", import.meta.url), "utf8"), STORAGE_PUBLIC_BASE_ENV_REGEX);
+	assert.match(packageJson, DEPLOY_SCRIPT_REGEX);
 });

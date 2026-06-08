@@ -388,12 +388,14 @@ const AWCMS_SIKESRA_DEFAULT_SITE_ID = "default";
 export interface AwcmsMicroSikesraRuntimeOptions {
 	tenantId?: string;
 	siteId?: string;
+	referenceFixturesMode?: "auto" | "enabled" | "disabled";
 }
 
 interface SikesraScopedPluginContext extends PluginContext {
 	__awcmsSikesraScope?: {
 		tenantId: string;
 		siteId: string;
+		referenceFixturesMode: "auto" | "enabled" | "disabled";
 	};
 }
 
@@ -401,6 +403,7 @@ function normalizeSikesraScope(options: AwcmsMicroSikesraRuntimeOptions = {}) {
 	return {
 		tenantId: options.tenantId?.trim() || AWCMS_SIKESRA_DEFAULT_TENANT_ID,
 		siteId: options.siteId?.trim() || AWCMS_SIKESRA_DEFAULT_SITE_ID,
+		referenceFixturesMode: options.referenceFixturesMode ?? "auto",
 	};
 }
 
@@ -2065,6 +2068,21 @@ function canUseLegacyRuntimeStateFallback(_ctx: PluginContext) {
 	return !isProductionRuntime();
 }
 
+function canUseReferenceFixtures(ctx: PluginContext) {
+	const mode = (ctx as SikesraScopedPluginContext).__awcmsSikesraScope?.referenceFixturesMode ?? "auto";
+	if (mode === "enabled") return true;
+	if (mode === "disabled") return false;
+	return !isProductionRuntime();
+}
+
+function getReferenceRegistryFixtures(ctx: PluginContext) {
+	return canUseReferenceFixtures(ctx) ? SIKESRA_REFERENCE_FIXTURES.registryEntities : [];
+}
+
+function getReferenceSupportingDocumentFixtures(ctx: PluginContext) {
+	return canUseReferenceFixtures(ctx) ? SIKESRA_REFERENCE_FIXTURES.supportingDocuments : [];
+}
+
 function allowClientUserHeadersInDev() {
 	return !isProductionRuntime();
 }
@@ -2245,13 +2263,13 @@ async function getRegistryEntities(ctx: PluginContext): Promise<SikesraReference
 		await ctx.kv.delete("custom:registryEntities");
 	}
 	if (d1Entities.length > 0 || legacy.length > 0) {
-		return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, d1Entities, legacy);
+		return mergeById(getReferenceRegistryFixtures(ctx), d1Entities, legacy);
 	}
 
 	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
 		ctx.storage.sikesra_registry_entities,
 	);
-	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, legacy, stored);
+	return mergeById(getReferenceRegistryFixtures(ctx), legacy, stored);
 }
 
 async function getRegistryEntitiesReadOnly(
@@ -2263,7 +2281,7 @@ async function getRegistryEntitiesReadOnly(
 	const stored = await listStorageValues<SikesraReferenceRegistryEntity>(
 		ctx.storage.sikesra_registry_entities,
 	);
-	return mergeById(SIKESRA_REFERENCE_FIXTURES.registryEntities, d1Entities, legacy, stored);
+	return mergeById(getReferenceRegistryFixtures(ctx), d1Entities, legacy, stored);
 }
 
 async function saveRegistryEntity(
@@ -2637,13 +2655,13 @@ async function getSupportingDocuments(
 		await ctx.kv.delete("custom:supportingDocuments");
 	}
 	if (d1Documents.length > 0 || legacy.length > 0) {
-		return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, d1Documents, legacy);
+		return mergeById(getReferenceSupportingDocumentFixtures(ctx), d1Documents, legacy);
 	}
 
 	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
 		ctx.storage.sikesra_supporting_documents,
 	);
-	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, legacy, stored);
+	return mergeById(getReferenceSupportingDocumentFixtures(ctx), legacy, stored);
 }
 
 async function getSupportingDocumentsReadOnly(
@@ -2655,7 +2673,7 @@ async function getSupportingDocumentsReadOnly(
 	const stored = await listStorageValues<SikesraReferenceSupportingDocument>(
 		ctx.storage.sikesra_supporting_documents,
 	);
-	return mergeById(SIKESRA_REFERENCE_FIXTURES.supportingDocuments, d1Documents, legacy, stored);
+	return mergeById(getReferenceSupportingDocumentFixtures(ctx), d1Documents, legacy, stored);
 }
 
 async function saveSupportingDocument(ctx: PluginContext, doc: SikesraReferenceSupportingDocument) {
@@ -5256,12 +5274,10 @@ const documentsListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (classification) docs = docs.filter((doc) => doc.sensitivity === classification);
 	if (validationStatus)
 		docs = docs.filter((doc) => (doc.validationStatus ?? "pending") === validationStatus);
-	const limit = Math.min(getNumber(routeCtx.input, "limit") ?? docs.length, 100);
-	return {
-		items: docs.slice(0, limit).map((doc) =>
-			toSafeDocumentAccessResponse(doc, { includeRestrictedMetadata: restrictedAccess.allowed }),
-		),
-	};
+	const safeDocs = docs.map((doc) =>
+		toSafeDocumentAccessResponse(doc, { includeRestrictedMetadata: restrictedAccess.allowed }),
+	);
+	return paginateSikesraItems(safeDocs, routeCtx.input);
 };
 
 const documentsSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
@@ -6476,8 +6492,7 @@ const exportsListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	if (sensitivityLevel)
 		items = items.filter((item) => item.sensitivityLevel === sensitivityLevel);
 	if (actorUserId) items = items.filter((item) => item.actorUserId === actorUserId);
-	const limit = Math.min(getNumber(routeCtx.input, "limit") ?? items.length, 100);
-	return { items: items.slice(0, limit) };
+	return paginateSikesraItems(items, routeCtx.input);
 };
 
 const CUSTOM_ATTRIBUTE_SCOPE_TYPES = [
