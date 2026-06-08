@@ -11,6 +11,7 @@ function WebsiteSocialAdminPage() {
 	const tips = [
 		copy("websiteSocial.tipPhone"),
 		copy("websiteSocial.tipLabels"),
+		copy("websiteSocial.tipLocation"),
 		copy("websiteSocial.tipSafety"),
 		copy("websiteSocial.tipLocale"),
 	];
@@ -35,7 +36,7 @@ function WebsiteSocialAdminPage() {
 				</div>
 			</section>
 
-			<section className="grid gap-4 md:grid-cols-4">
+			<section className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
 				{tips.map((item) => (
 					<article className="rounded-lg border border-kumo-border bg-kumo-background p-4 text-sm text-kumo-subtle" key={item}>
 						{item}

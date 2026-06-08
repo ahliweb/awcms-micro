@@ -168,6 +168,11 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		visitAhliweb: "Visit ahliweb.com",
 		footerCopyright: "© 2026 AWCMS-Micro. All rights reserved. Built with EmDash.",
 		footerPoweredBy: "Powered by",
+		footerLocationHeading: "Location & Contact",
+		footerLocationAddress: "Address",
+		footerLocationHours: "Opening Hours",
+		footerLocationOpenMaps: "Open in Google Maps",
+		footerLocationMapTitle: "Business location map",
 		featuredPagesTitle: "Featured pages",
 		featuredPagesDescription:
 			"Published pages are editable from the Pages collection and can be promoted into the public navigation.",
@@ -420,6 +425,11 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		footerCopyright:
 			"© 2026 AWCMS-Micro. Hak cipta dilindungi undang-undang. Dibangun dengan EmDash.",
 		footerPoweredBy: "Didukung oleh",
+		footerLocationHeading: "Lokasi & Kontak",
+		footerLocationAddress: "Alamat",
+		footerLocationHours: "Jam Operasional",
+		footerLocationOpenMaps: "Buka di Google Maps",
+		footerLocationMapTitle: "Peta lokasi bisnis",
 		featuredPagesTitle: "Halaman unggulan",
 		featuredPagesDescription:
 			"Halaman terpublikasi dapat diedit dari koleksi Pages dan dipromosikan ke navigasi publik.",

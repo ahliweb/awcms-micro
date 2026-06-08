@@ -23,6 +23,10 @@ export interface WebsiteSocialConfig {
 	newsLabel: string;
 	widgetsLabel: string;
 	stickyLabel: string;
+	mapsEmbedUrl: string;
+	businessAddress: string;
+	openingHours: string;
+	googleMapsUrl: string;
 }
 
 const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
@@ -48,6 +52,10 @@ const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
 	newsLabel: "Discuss updates",
 	widgetsLabel: "Discuss widgets",
 	stickyLabel: "Chat on WhatsApp",
+	mapsEmbedUrl: "",
+	businessAddress: "",
+	openingHours: "",
+	googleMapsUrl: "",
 };
 
 function asString(value: unknown, fallback: string) {
@@ -93,6 +101,10 @@ export async function getWebsiteSocialConfig(locale: string | undefined): Promis
 			newsLabel: asString(data.news_label, DEFAULT_SOCIAL_CONFIG.newsLabel),
 			widgetsLabel: asString(data.widgets_label, DEFAULT_SOCIAL_CONFIG.widgetsLabel),
 			stickyLabel: asString(data.sticky_label, DEFAULT_SOCIAL_CONFIG.stickyLabel),
+			mapsEmbedUrl: asString(data.maps_embed_url, DEFAULT_SOCIAL_CONFIG.mapsEmbedUrl),
+			businessAddress: asString(data.business_address, DEFAULT_SOCIAL_CONFIG.businessAddress),
+			openingHours: asString(data.opening_hours, DEFAULT_SOCIAL_CONFIG.openingHours),
+			googleMapsUrl: asString(data.google_maps_url, DEFAULT_SOCIAL_CONFIG.googleMapsUrl),
 		};
 	} catch {
 		return DEFAULT_SOCIAL_CONFIG;

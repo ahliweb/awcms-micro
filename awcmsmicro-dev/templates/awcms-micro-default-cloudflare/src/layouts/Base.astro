@@ -524,6 +524,115 @@ const pageCtx = createPublicPageContext({
 				opacity: 1;
 			}
 
+			.footer-location-section {
+				max-width: 1200px;
+				margin: 0 auto 3rem;
+				padding: 2rem;
+				background: rgba(99, 102, 241, 0.03);
+				border: 1px solid var(--surface-border);
+				border-radius: 1.25rem;
+			}
+
+			.footer-location-heading {
+				font-size: 0.8rem;
+				font-weight: 800;
+				text-transform: uppercase;
+				letter-spacing: 0.09em;
+				color: var(--text-main);
+				margin: 0 0 1.25rem;
+			}
+
+			.footer-location-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 1.5rem;
+				align-items: start;
+			}
+
+			.footer-map-embed {
+				position: relative;
+				overflow: hidden;
+				border-radius: 0.875rem;
+				border: 1px solid var(--surface-border);
+				min-height: 200px;
+			}
+
+			.footer-map-iframe {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+				border: 0;
+			}
+
+			.footer-location-info {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+			}
+
+			.footer-location-item {
+				display: flex;
+				align-items: flex-start;
+				gap: 0.75rem;
+			}
+
+			.footer-location-icon {
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 2rem;
+				height: 2rem;
+				border-radius: 0.5rem;
+				background: rgba(99, 102, 241, 0.08);
+				color: var(--accent);
+				border: 1px solid var(--surface-border);
+				margin-top: 0.1rem;
+			}
+
+			.footer-location-label {
+				display: block;
+				font-size: 0.7rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				color: var(--accent);
+				margin-bottom: 0.2rem;
+			}
+
+			.footer-location-value {
+				display: block;
+				font-size: 0.875rem;
+				color: var(--text-muted);
+				line-height: 1.5;
+			}
+
+			.footer-maps-btn {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+				font-size: 0.8rem;
+				font-weight: 600;
+				color: var(--accent);
+				background: rgba(99, 102, 241, 0.06);
+				border: 1px solid var(--surface-border);
+				padding: 0.45rem 1rem;
+				border-radius: 999px;
+				text-decoration: none;
+				transition: all 0.22s ease;
+				margin-top: 0.25rem;
+				width: fit-content;
+			}
+
+			.footer-maps-btn:hover {
+				background: rgba(99, 102, 241, 0.12);
+				border-color: var(--accent);
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+				text-shadow: none;
+			}
+
 			.footer-widgets-container {
 				max-width: 1200px;
 				margin: 0 auto 3rem;
@@ -676,6 +785,16 @@ const pageCtx = createPublicPageContext({
 				.footer-links-grid {
 					grid-template-columns: 1fr;
 					gap: 1.5rem;
+				}
+			}
+
+			@media (max-width: 640px) {
+				.footer-location-grid {
+					grid-template-columns: 1fr;
+				}
+
+				.footer-map-embed {
+					min-height: 180px;
 				}
 			}
 
@@ -917,6 +1036,61 @@ const pageCtx = createPublicPageContext({
 						</div>
 					</div>
 				</div>
+
+				{(websiteSocial.mapsEmbedUrl || websiteSocial.businessAddress) && (
+					<div class="footer-location-section">
+						<h4 class="footer-location-heading">{copy.footerLocationHeading}</h4>
+						<div class="footer-location-grid">
+							{websiteSocial.mapsEmbedUrl && (
+								<div class="footer-map-embed">
+									<iframe
+										src={websiteSocial.mapsEmbedUrl}
+										class="footer-map-iframe"
+										allowfullscreen=""
+										loading="lazy"
+										referrerpolicy="no-referrer-when-downgrade"
+										title={copy.footerLocationMapTitle}
+									></iframe>
+								</div>
+							)}
+							<div class="footer-location-info">
+								{websiteSocial.businessAddress && (
+									<div class="footer-location-item">
+										<span class="footer-location-icon" aria-hidden="true">
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+										</span>
+										<div>
+											<span class="footer-location-label">{copy.footerLocationAddress}</span>
+											<span class="footer-location-value">{websiteSocial.businessAddress}</span>
+										</div>
+									</div>
+								)}
+								{websiteSocial.openingHours && (
+									<div class="footer-location-item">
+										<span class="footer-location-icon" aria-hidden="true">
+											<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+										</span>
+										<div>
+											<span class="footer-location-label">{copy.footerLocationHours}</span>
+											<span class="footer-location-value">{websiteSocial.openingHours}</span>
+										</div>
+									</div>
+								)}
+								{websiteSocial.googleMapsUrl && (
+									<a
+										href={websiteSocial.googleMapsUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="footer-maps-btn"
+									>
+										<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+										{copy.footerLocationOpenMaps}
+									</a>
+								)}
+							</div>
+						</div>
+					</div>
+				)}
 
 				{showFooterWidgets && (
 					<div class="footer-widgets-container">
