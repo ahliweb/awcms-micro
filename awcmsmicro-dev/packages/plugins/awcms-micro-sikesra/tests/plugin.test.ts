@@ -7796,6 +7796,100 @@ describe("awcms micro sikesra plugin", () => {
 		expect(collections.auditEvents.size).toBeGreaterThanOrEqual(1);
 	});
 
+	it("aggregates a per-user SIKESRA profile from EmDash identity and assignments", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+		const targetUser = "user-demo-doc-reviewer";
+
+		await routes["access/users/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { emdashUserId: targetUser, roles: ["verifier-kabkota"], isActive: true },
+		} as any);
+		await routes["access/scopes/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				userId: targetUser,
+				regionScopeType: "regency",
+				regionScopeCode: "3372",
+				organizationScopeType: "sopd",
+				organizationScopeCode: "dinsos",
+				isActive: true,
+			},
+		} as any);
+		await routes["abac/subjects/save"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { subjectId: targetUser, attributes: { clearance: "internal" } },
+		} as any);
+
+		const denied = (await routes["access/users/profile"]!.handler({
+			...ctx,
+			request: new Request("https://example.test"),
+			input: { userId: targetUser },
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+
+		const missing = (await routes["access/users/profile"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(missing.success).toBe(false);
+		expect(missing.error.code).toBe("VALIDATION_ERROR");
+
+		const profile = (await routes["access/users/profile"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: targetUser },
+		} as any)) as any;
+
+		expect(profile.userId).toBe(targetUser);
+		expect(profile.orphaned).toBe(false);
+		expect(profile.emdashUser).toMatchObject({
+			id: targetUser,
+			email: "reviewer@example.test",
+		});
+		expect(profile.roles).toContain("verifier-kabkota");
+		expect(profile.roleActive).toBe(true);
+		expect(profile.scopes).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ regionScopeType: "regency", regionScopeCode: "3372" }),
+			]),
+		);
+		expect(profile.abacAttributes).toMatchObject({ clearance: "internal" });
+		expect(Array.isArray(profile.effectivePermissions)).toBe(true);
+		expect(Array.isArray(profile.recentAudit)).toBe(true);
+		expect(profile.hasSikesraProfile).toBe(true);
+		// Audit summary entries must not expose raw metadata payloads.
+		for (const entry of profile.recentAudit) {
+			expect(entry).not.toHaveProperty("metadata");
+			expect(entry).toHaveProperty("summary");
+		}
+	});
+
+	it("flags orphaned EmDash references in the SIKESRA profile view", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		const profile = (await routes["access/users/profile"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { userId: "user-does-not-exist" },
+		} as any)) as any;
+
+		expect(profile.userId).toBe("user-does-not-exist");
+		expect(profile.emdashUser).toBeNull();
+		expect(profile.orphaned).toBe(true);
+		expect(profile.roles).toEqual([]);
+		expect(profile.scopes).toEqual([]);
+		expect(profile.abacAttributes).toEqual({});
+		expect(profile.hasSikesraProfile).toBe(false);
+	});
+
 	it("validates EmDash user scope assignments", async () => {
 		const { ctx, collections } = createMockContext();
 		const routes = createNativeRoutes();

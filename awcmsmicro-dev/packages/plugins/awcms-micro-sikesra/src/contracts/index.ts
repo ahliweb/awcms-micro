@@ -56,6 +56,11 @@ export type {
 	SikesraAccessPreviewDto,
 	SikesraAccessPreviewRequest,
 	SikesraRoleAssignmentRequest,
+	SikesraUserProfileRequest,
+	SikesraUserProfileDto,
+	SikesraUserProfileEmdashReferenceDto,
+	SikesraUserProfileScopeDto,
+	SikesraUserProfileAuditEntryDto,
 } from "./rbac-contracts.js";
 export type { SikesraAbacDecisionDto, SikesraAbacPreviewRequest } from "./abac-contracts.js";
 export type { SikesraAuditEventDto, SikesraAuditListRequest } from "./audit-contracts.js";

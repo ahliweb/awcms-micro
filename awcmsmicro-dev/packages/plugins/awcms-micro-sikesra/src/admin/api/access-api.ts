@@ -1,6 +1,7 @@
 import type {
 	SikesraAccessPreviewRequest,
 	SikesraRoleAssignmentRequest,
+	SikesraUserProfileRequest,
 } from "../../contracts/index.js";
 import { postSikesraPlugin, type SikesraAdminApiRequest } from "./client.js";
 
@@ -66,6 +67,17 @@ export function saveUserRoles<TResponse>(
 	return postSikesraPlugin<TResponse, SikesraRoleAssignmentRequest>({
 		...options,
 		path: "access/users/save",
+		payload,
+	});
+}
+
+export function getUserProfile<TResponse>(
+	payload: SikesraUserProfileRequest,
+	options: RequestOptions<SikesraUserProfileRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraUserProfileRequest>({
+		...options,
+		path: "access/users/profile",
 		payload,
 	});
 }

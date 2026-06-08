@@ -8203,6 +8203,152 @@ const accessUsersListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	};
 };
 
+async function resolveUserRoleAssignment(
+	ctx: PluginContext,
+	userId: string,
+): Promise<{
+	assignment: UserRoleAssignment | null;
+	source: "d1" | "storage" | "default" | "none";
+}> {
+	const d1Assignment = await getD1UserRoleAssignment(ctx, userId);
+	if (d1Assignment) return { assignment: d1Assignment, source: "d1" };
+	const storedAssignment = (await safeCollectionGet(
+		ctx.storage.sikesra_user_role_assignments,
+		userId,
+	)) as UserRoleAssignment | null;
+	if (storedAssignment) return { assignment: storedAssignment, source: "storage" };
+	const defaultAssignment = DEFAULT_USER_ROLE_ASSIGNMENTS.find(
+		(assignment) => assignment.userId === userId,
+	);
+	if (defaultAssignment) return { assignment: touchUpdatedAt(defaultAssignment), source: "default" };
+	return { assignment: null, source: "none" };
+}
+
+async function listAuditEventsForActor(ctx: PluginContext, userId: string, limit = 10) {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+	let rows: SikesraAuditEventRow[];
+	try {
+		await ensureAuditEventTable(db);
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_AUDIT_TABLE)
+			.select(["id", "timestamp", "kind", "scope", "actor_user_id", "actor_name", "summary"])
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
+			.where("actor_user_id", "=", userId)
+			.orderBy("timestamp", "desc")
+			.orderBy("id", "desc")
+			.execute()) as SikesraAuditEventRow[];
+	} catch (cause) {
+		logD1ReadFallback(ctx, "audit (actor)", cause);
+		return [];
+	}
+	// Return summary-level fields only; sensitive audit metadata is redacted by
+	// default and never surfaced through the per-user profile view.
+	return rows
+		.toSorted((a, b) => {
+			const timeDiff = toTimestamp(b.timestamp) - toTimestamp(a.timestamp);
+			return timeDiff || b.id.localeCompare(a.id);
+		})
+		.slice(0, Math.min(Math.max(Math.trunc(limit), 1), 50))
+		.map((row) => ({
+			id: row.id,
+			timestamp: row.timestamp,
+			kind: row.kind,
+			scope: row.scope,
+			summary: row.summary,
+		}));
+}
+
+const accessUsersProfileRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const userId =
+		getString(routeCtx.input, "userId")?.trim() ||
+		getString(routeCtx.input, "emdashUserId")?.trim() ||
+		"";
+	if (!userId) return createValidationError(["userId"]);
+
+	// EmDash identity reference only — never mutate EmDash core user records.
+	let emdashUser: {
+		id: string;
+		email: string;
+		name: string | null;
+		role: number;
+		createdAt: string;
+	} | null = null;
+	try {
+		const found = await ctx.users?.get(userId);
+		emdashUser = found
+			? {
+					id: found.id,
+					email: found.email,
+					name: found.name,
+					role: found.role,
+					createdAt: found.createdAt,
+				}
+			: null;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "emdash user reference", cause);
+		emdashUser = null;
+	}
+
+	const { assignment: roleAssignment, source: roleSource } = await resolveUserRoleAssignment(
+		ctx,
+		userId,
+	);
+	const roles = roleAssignment?.roles ?? [];
+	const roleActive = roleAssignment?.isActive ?? false;
+
+	const scopes = (await listUserScopeAssignments(ctx))
+		.filter((scope) => scope.userId === userId)
+		.map((scope) => ({
+			regionScopeType: scope.regionScopeType,
+			regionScopeCode: scope.regionScopeCode,
+			organizationScopeType: scope.organizationScopeType,
+			organizationScopeCode: scope.organizationScopeCode,
+			isActive: scope.isActive,
+			validFrom: scope.validFrom,
+			validUntil: scope.validUntil,
+			updatedAt: scope.updatedAt,
+		}));
+
+	const abacSubject =
+		(await getD1AbacSubjectAssignment(ctx, userId)) ??
+		((await safeCollectionGet(
+			ctx.storage.sikesra_abac_subject_assignments,
+			userId,
+		)) as AbacSubjectAssignment | null);
+
+	const preview = await previewAccess(ctx, {
+		userId,
+		permissionSlug: "sikesra.registry.read",
+	});
+
+	const auditLimit = Math.min(Math.max(Number(getNumber(routeCtx.input, "auditLimit") ?? 10), 1), 50);
+	const recentAudit = await listAuditEventsForActor(ctx, userId, auditLimit);
+
+	const hasSikesraProfile =
+		roles.length > 0 ||
+		scopes.length > 0 ||
+		Boolean(abacSubject) ||
+		recentAudit.length > 0;
+
+	return {
+		userId,
+		emdashUser,
+		orphaned: !emdashUser,
+		hasSikesraProfile,
+		roles,
+		roleActive,
+		roleSource,
+		scopes,
+		abacAttributes: abacSubject?.attributes ?? {},
+		effectivePermissions: preview.effectivePermissions ?? [],
+		recentAudit,
+	};
+};
+
 const accessRolesSaveRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.rbac.manage");
 	if (!permission.allowed) return { success: false, error: permission.error };
@@ -8963,6 +9109,7 @@ const SIKESRA_READ_ONLY_ROUTE_PATHS = new Set([
 	"access/permissions/list",
 	"access/roles/list",
 	"access/users/list",
+	"access/users/profile",
 	"access/scopes/list",
 	"access/matrix/get",
 	"access/health",
@@ -9043,6 +9190,7 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"access/roles/list": { handler: accessRolesListRoute },
 	"access/roles/save": { handler: accessRolesSaveRoute },
 	"access/users/list": { handler: accessUsersListRoute },
+	"access/users/profile": { handler: accessUsersProfileRoute },
 	"access/users/save": { handler: accessUserAssignmentsSaveRoute },
 	"access/scopes/list": { handler: accessScopesListRoute },
 	"access/scopes/save": { handler: accessScopesSaveRoute },

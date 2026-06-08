@@ -56,6 +56,7 @@ export const SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS = [
 	"access/roles/list",
 	"access/roles/save",
 	"access/users/list",
+	"access/users/profile",
 	"access/users/save",
 	"access/scopes/list",
 	"access/scopes/save",
@@ -93,6 +94,7 @@ export {
 export {
 	getAccessHealth,
 	getAccessMatrix,
+	getUserProfile,
 	listPermissions,
 	listRoles,
 	listScopes,
