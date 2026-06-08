@@ -27,7 +27,7 @@ export interface WebsiteSocialConfig {
 
 const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
 	enabled: true,
-	whatsappNumber: "6281234567890",
+	whatsappNumber: "6289513380400",
 	defaultMessage: "Hello AWCMS-Micro team, I would like to discuss a website project.",
 	heroMessage: "Hello AWCMS-Micro team, I am interested in building a public website with EmDash.",
 	sectionMessage: "Hello AWCMS-Micro team, I want to learn more about this public website section.",

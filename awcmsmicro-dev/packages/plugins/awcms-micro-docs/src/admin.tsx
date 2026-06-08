@@ -21,8 +21,24 @@ function DocsAdminPage() {
 					<LinkButton href="/docs" external>
 						{copy.viewPublicDocs}
 					</LinkButton>
+					<LinkButton href="/_emdash/admin/content/pages" external>
+						{copy.openDocsAdmin}
+					</LinkButton>
 					<LinkButton href="/_emdash/admin" external>
 						{copy.openAdmin}
+					</LinkButton>
+				</div>
+			</section>
+
+			<section className="space-y-4">
+				<h2 className="text-xl font-semibold text-kumo-foreground">{copy.publicPagesTitle}</h2>
+				<p className="max-w-3xl text-sm leading-6 text-kumo-subtle">{copy.publicPagesDescription}</p>
+				<div className="flex flex-wrap gap-3">
+					<LinkButton href="/_emdash/admin/content/pages" external>
+						{copy.managePagesInAdmin}
+					</LinkButton>
+					<LinkButton href="/docs" external>
+						{copy.openPage}
 					</LinkButton>
 				</div>
 			</section>

@@ -25,7 +25,7 @@ msgid "websiteSocial.viewPublic"
 msgstr "Lihat website publik"
 
 msgid "websiteSocial.tipPhone"
-msgstr "Gunakan nomor telepon gaya E.164 tanpa tanda plus, misalnya 6281234567890."
+msgstr "Gunakan nomor telepon gaya E.164 tanpa tanda plus, misalnya 6289513380400."
 
 msgid "websiteSocial.tipSafety"
 msgstr "Jaga pesan tetap aman untuk publik dan hindari rahasia personal, sensitif, atau operasional."

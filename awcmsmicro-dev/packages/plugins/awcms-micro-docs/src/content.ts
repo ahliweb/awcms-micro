@@ -89,7 +89,7 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 				intro:
 					"AWCMS-Micro-owned work lives in explicit plugin, template, docs, demo, and release paths.",
 				bullets: [
-					"Plugins: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, and `packages/plugins/awcms-micro-docs`.",
+					"Plugins: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, `packages/plugins/awcms-micro-docs`, and `packages/plugins/awcms-micro-website-social`.",
 					"Templates: `templates/awcms-micro-default` and `templates/awcms-micro-default-cloudflare`.",
 					"Docs and release metadata stay inside the approved downstream boundaries listed in the implementation-boundaries document.",
 				],
@@ -173,7 +173,7 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 				intro:
 					"Pekerjaan milik AWCMS-Micro berada di path plugin, template, docs, demo, dan release yang eksplisit.",
 				bullets: [
-					"Plugin: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, dan `packages/plugins/awcms-micro-docs`.",
+					"Plugin: `packages/plugins/awcms-micro-sikesra`, `packages/plugins/awcms-micro-gallery`, `packages/plugins/awcms-micro-docs`, dan `packages/plugins/awcms-micro-website-social`.",
 					"Template: `templates/awcms-micro-default` dan `templates/awcms-micro-default-cloudflare`.",
 					"Docs dan metadata rilis tetap berada di boundary downstream yang disetujui pada dokumen implementation-boundaries.",
 				],

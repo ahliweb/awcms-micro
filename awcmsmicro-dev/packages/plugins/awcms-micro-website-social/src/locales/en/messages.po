@@ -25,7 +25,7 @@ msgid "websiteSocial.viewPublic"
 msgstr "View public website"
 
 msgid "websiteSocial.tipPhone"
-msgstr "Use E.164 style phone numbers without plus signs, for example 6281234567890."
+msgstr "Use E.164 style phone numbers without plus signs, for example 6289513380400."
 
 msgid "websiteSocial.tipSafety"
 msgstr "Keep messages public-safe and avoid personal, sensitive, or operational secrets."
