@@ -94,6 +94,17 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 					"Docs and release metadata stay inside the approved downstream boundaries listed in the implementation-boundaries document.",
 				],
 			},
+			{
+				title: "Public landing page features",
+				intro: "Both templates include standard landing page sections driven by D1 configuration.",
+				bullets: [
+					"PromoPopup — sticky trigger and overlay with WhatsApp CTA, auto-shows after 2s, dismissed state in sessionStorage.",
+					"FAQ accordion — details/summary pattern with animated chevron, copy managed in messages.ts.",
+					"Footer location section — Google Maps iframe embed, business address, opening hours, and directions link from website_social D1 fields.",
+					"Floating WhatsApp CTA — locale-aware, driven by website_social collection.",
+					"Gallery — managed by awcms-micro-gallery plugin at /gallery.",
+				],
+			},
 		],
 		referencesTitle: "Reference documents",
 		references: [
@@ -114,6 +125,10 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 			{
 				title: "docs/operator-workflow.md",
 				description: "Continuation vs fresh-clone guidance for operators.",
+			},
+			{
+				title: "awcmsmicro-dev/docs/awcms-micro/public-landing-page-standard.md",
+				description: "Standard components and patterns for public landing pages derived from reference repos.",
 			},
 		],
 	},
@@ -178,6 +193,17 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 					"Docs dan metadata rilis tetap berada di boundary downstream yang disetujui pada dokumen implementation-boundaries.",
 				],
 			},
+			{
+				title: "Fitur halaman publik",
+				intro: "Kedua template menyertakan section landing page standar yang digerakkan oleh konfigurasi D1.",
+				bullets: [
+					"PromoPopup — trigger sticky dan overlay dengan CTA WhatsApp, tampil otomatis setelah 2 detik, status dismissed disimpan di sessionStorage.",
+					"FAQ accordion — pola details/summary dengan chevron animasi, copy dikelola di messages.ts.",
+					"Section lokasi footer — embed Google Maps iframe, alamat bisnis, jam operasional, dan tautan rute dari field D1 website_social.",
+					"Floating CTA WhatsApp — locale-aware, digerakkan oleh koleksi website_social.",
+					"Galeri — dikelola oleh plugin awcms-micro-gallery di /gallery.",
+				],
+			},
 		],
 		referencesTitle: "Dokumen referensi",
 		references: [
@@ -201,6 +227,10 @@ const DOCS_COPY: Record<DocsLocale, DocsCopy> = {
 			{
 				title: "docs/operator-workflow.md",
 				description: "Panduan continuation vs fresh-clone untuk operator.",
+			},
+			{
+				title: "awcmsmicro-dev/docs/awcms-micro/public-landing-page-standard.md",
+				description: "Komponen standar dan pola untuk halaman publik yang diturunkan dari repo referensi.",
 			},
 		],
 	},

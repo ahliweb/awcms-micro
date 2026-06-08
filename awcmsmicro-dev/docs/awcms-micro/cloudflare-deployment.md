@@ -8,6 +8,21 @@ The target template is:
 
 - `templates/awcms-micro-default-cloudflare/`
 
+## Template Features
+
+The cloudflare template includes:
+
+- **Public landing page** — hero, features, contact, news, and gallery sections
+- **PromoPopup** — sticky bottom-left promo trigger and overlay, driven by `website_social` D1 config, dismissed via `sessionStorage`
+- **FAQ accordion** — `<details>/<summary>` pattern with animated chevron, copy from `messages.ts`
+- **Footer location section** — Google Maps iframe embed, address, opening hours, and directions link; renders only when `maps_embed_url` or `business_address` is set in the `website_social` record
+- **WhatsApp floating CTA** — fixed bottom-right button, locale-aware message from `website_social`
+- **Gallery** — managed by `awcms-micro-gallery` plugin at `/gallery`
+- **Bilingual routing** — EN/ID locale support via `[lang]/` Astro routes
+- **Dark mode** — persisted in `localStorage`, inline script prevents FOUC
+
+For full landing page section documentation see `public-landing-page-standard.md`.
+
 ## Deployment Scope
 
 This deployment flow assumes:
@@ -145,6 +160,14 @@ After deploy:
 9. Media upload and retrieval work through the configured R2 binding.
 10. D1-backed content and settings are available.
 11. Worker Loader binding exists when sandboxed plugin support is enabled later.
+
+**Landing page feature smoke tests:**
+
+- FAQ section renders on `GET /` with at least one `<details>` element visible.
+- PromoPopup trigger is visible bottom-left when `website_social.enabled` and `whatsappNumber` are set in the D1 record.
+- Footer location section renders Google Maps iframe and business info when `maps_embed_url` and `business_address` are set in the `website_social` record.
+- `GET /gallery` returns HTTP 200 and renders the gallery managed by `awcms-micro-gallery` plugin.
+- WhatsApp floating CTA is visible on all public pages when `website_social.enabled` is true.
 
 ## Rollback
 

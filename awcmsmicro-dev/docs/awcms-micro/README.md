@@ -6,18 +6,23 @@ Use it only for AWCMS-Micro-owned documentation.
 
 ```mermaid
 flowchart TD
-  Boundary[awcmsmicro-dev/docs/awcms-micro] --> Navigation[Navigation docs]
+  Boundary[awcmsmicro-dev/docs/awcms-micro] --> LandingPage[Public landing page standard]
+  Boundary --> Navigation[Navigation docs]
   Boundary --> Deployment[Cloudflare deployment docs]
   Boundary --> I18N[I18N and PO standards]
   Boundary --> Sikesra[SIKESRA reference docs]
   Boundary --> Sync[Upstream sync notes]
   Sync --> RootSync[Root upstream-sync records]
+  LandingPage --> Promo[PromoPopup]
+  LandingPage --> FAQ[FAQ section]
+  LandingPage --> Location[Footer location & Maps]
 ```
 
 ## Documents
 
 - `product-docs-map.md`: map of the main AWCMS-Micro product-facing docs in this boundary
 - `cloudflare-deployment.md`: deployment, validation, smoke test, and rollback guidance for `templates/awcms-micro-default-cloudflare/`
+- `public-landing-page-standard.md`: standard components and patterns for public landing pages, derived from `sample-awcmsastro-ahlikoding-com` and `gubuk-kuliner` reference repos
 - `navigation-standard.md`: layered public and plugin navigation standard for AWCMS-Micro templates and the SIKESRA plugin
 - `navigation-release-notes.md`: concise release notes for the navigation standard and validation paths
 - `admin-navigation.md`: plugin-owned admin navigation compatibility guidance
