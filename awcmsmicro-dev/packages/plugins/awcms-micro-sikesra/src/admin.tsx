@@ -54,6 +54,7 @@ import type {
 	SikesraRegistryAddressGroupDto,
 	SikesraRegistryCreateRequest,
 	SikesraRegistryDomicileAddressGroupDto,
+	SikesraUserProfileDto,
 } from "./contracts/index.js";
 import {
 	SIKESRA_FIELD_STANDARDS,
@@ -1613,6 +1614,145 @@ function RegistryDetailPage() {
 	);
 }
 
+function AccessUserProfilePanel({ userId }: { userId: string }) {
+	const { i18n } = useLingui();
+	const copy = getExampleAdminCopy(i18n.locale);
+	const { data, error, loading, reload } = usePluginData<SikesraUserProfileDto>(
+		"access/users/profile",
+		{ userId },
+	);
+
+	return (
+		<Card title={copy.userProfile} description={copy.userProfileDescription}>
+			{loading ? (
+				<LoadingState label={copy.loadingUserProfile} />
+			) : error ? (
+				<ErrorState message={error} onRetry={() => void reload()} />
+			) : !data ? null : (
+				<div className="space-y-5">
+					<div className="rounded-xl border border-kumo-line bg-kumo-base p-4">
+						{data.emdashUser ? (
+							<>
+								<div className="font-semibold text-kumo-default">
+									{data.emdashUser.name || data.emdashUser.email}
+								</div>
+								<div className="mt-1 text-xs text-kumo-subtle">{data.emdashUser.email}</div>
+								<div className="mt-2 font-mono text-xs text-kumo-subtle">{data.userId}</div>
+							</>
+						) : (
+							<div>
+								<Pill tone="warning">{copy.orphanedEmdashReference}</Pill>
+								<div className="mt-2 font-mono text-xs text-kumo-subtle">{data.userId}</div>
+								<p className="mt-2 text-sm text-kumo-subtle">
+									{copy.orphanedEmdashReferenceDescription}
+								</p>
+							</div>
+						)}
+					</div>
+
+					{!data.hasSikesraProfile ? (
+						<EmptyState
+							title={copy.noSikesraProfile}
+							description={copy.noSikesraProfileDescription}
+						/>
+					) : (
+						<div className="grid gap-4 md:grid-cols-2">
+							<section>
+								<h4 className="text-sm font-semibold text-kumo-default">{copy.assignedRoles}</h4>
+								<div className="mt-2 flex flex-wrap items-center gap-2">
+									{data.roles.length === 0 ? (
+										<span className="text-xs text-kumo-subtle">{copy.noneAssigned}</span>
+									) : (
+										<>
+											{data.roles.map((role) => (
+												<Pill key={role}>{role}</Pill>
+											))}
+											<Pill tone={data.roleActive ? "success" : "warning"}>
+												{data.roleActive ? copy.active : copy.inactive}
+											</Pill>
+										</>
+									)}
+								</div>
+							</section>
+							<section>
+								<h4 className="text-sm font-semibold text-kumo-default">
+									{copy.effectivePermissions}
+								</h4>
+								<div className="mt-2 flex flex-wrap gap-2">
+									{data.effectivePermissions.length === 0 ? (
+										<span className="text-xs text-kumo-subtle">{copy.noneAssigned}</span>
+									) : (
+										data.effectivePermissions.map((permission) => (
+											<Pill key={permission}>{permission}</Pill>
+										))
+									)}
+								</div>
+							</section>
+							<section>
+								<h4 className="text-sm font-semibold text-kumo-default">{copy.assignedScopes}</h4>
+								{data.scopes.length === 0 ? (
+									<span className="text-xs text-kumo-subtle">{copy.noneAssigned}</span>
+								) : (
+									<ul className="mt-2 space-y-2">
+										{data.scopes.map((scope, index) => (
+											<li
+												key={`${scope.regionScopeType}-${scope.organizationScopeType}-${index}`}
+												className="flex flex-wrap items-center gap-2 rounded-lg border border-kumo-line p-2 text-xs text-kumo-subtle"
+											>
+												<span className="font-mono">
+													{`${scope.regionScopeType}:${scope.regionScopeCode || "*"}`}
+												</span>
+												<span className="font-mono">
+													{`${scope.organizationScopeType}:${scope.organizationScopeCode || "*"}`}
+												</span>
+												<Pill tone={scope.isActive ? "success" : "warning"}>
+													{scope.isActive ? copy.active : copy.inactive}
+												</Pill>
+											</li>
+										))}
+									</ul>
+								)}
+							</section>
+							<section>
+								<h4 className="text-sm font-semibold text-kumo-default">
+									{copy.abacSubjectAttributes}
+								</h4>
+								{Object.keys(data.abacAttributes).length === 0 ? (
+									<span className="text-xs text-kumo-subtle">{copy.noneAssigned}</span>
+								) : (
+									<div className="mt-2 flex flex-wrap gap-2">
+										{Object.entries(data.abacAttributes).map(([key, value]) => (
+											<Pill key={key}>{`${key}: ${value}`}</Pill>
+										))}
+									</div>
+								)}
+							</section>
+						</div>
+					)}
+
+					<section>
+						<h4 className="text-sm font-semibold text-kumo-default">{copy.recentActivity}</h4>
+						{data.recentAudit.length === 0 ? (
+							<p className="mt-2 text-xs text-kumo-subtle">{copy.noRecentActivity}</p>
+						) : (
+							<ul className="mt-2 space-y-2">
+								{data.recentAudit.map((entry) => (
+									<li key={entry.id} className="rounded-lg border border-kumo-line p-2">
+										<div className="text-sm text-kumo-default">{entry.summary}</div>
+										<div className="mt-1 text-xs text-kumo-subtle">
+											{`${entry.kind} · ${entry.scope} · ${formatDateTime(entry.timestamp, i18n.locale)}`}
+										</div>
+									</li>
+								))}
+							</ul>
+						)}
+					</section>
+				</div>
+			)}
+		</Card>
+	);
+}
+
 function AccessUsersPage() {
 	const { i18n } = useLingui();
 	const copy = getExampleAdminCopy(i18n.locale);
@@ -1622,6 +1762,7 @@ function AccessUsersPage() {
 		limit: 100,
 	});
 	const [userState, setUserState] = React.useState({ userId: "", roles: "", isActive: true });
+	const [profileUserId, setProfileUserId] = React.useState("");
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
 	const [saving, setSaving] = React.useState(false);
@@ -1758,18 +1899,29 @@ function AccessUsersPage() {
 								type="button"
 								variant="ghost"
 								className="h-auto justify-start rounded-xl border border-kumo-line bg-kumo-base p-4 text-start transition hover:border-kumo-brand"
-								onClick={() => setUserState((current) => ({ ...current, userId: user.id }))}
+								onClick={() => {
+									setUserState((current) => ({ ...current, userId: user.id }));
+									setProfileUserId(user.id);
+								}}
 							>
 								<span className="block">
 									<span className="block font-semibold text-kumo-default">{user.name || user.email}</span>
 									<span className="mt-1 block text-xs text-kumo-subtle">{user.email}</span>
 									<span className="mt-3 block font-mono text-xs text-kumo-subtle">{user.id}</span>
+									<span className="mt-3 block text-xs font-semibold text-kumo-brand">{copy.viewUserProfile}</span>
 								</span>
 							</Button>
 						))}
 					</div>
 				)}
 			</Card>
+			{profileUserId ? (
+				<AccessUserProfilePanel key={profileUserId} userId={profileUserId} />
+			) : (
+				<Card title={copy.userProfile} description={copy.userProfileDescription}>
+					<EmptyState title={copy.userProfile} description={copy.selectUserToViewProfile} />
+				</Card>
+			)}
 			<Card title={copy.availableRoles} description={copy.availableRolesDescription}>
 				<div className="flex flex-wrap gap-2">
 					{data?.roles.map((role) => (

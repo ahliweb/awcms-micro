@@ -1930,6 +1930,66 @@ msgctxt "awcms.adminCopy.availableRolesDescription"
 msgid "Use these slugs in the user assignment form."
 msgstr "Use these slugs in the user assignment form."
 
+msgctxt "awcms.adminCopy.userProfile"
+msgid "User profile"
+msgstr "User profile"
+
+msgctxt "awcms.adminCopy.userProfileDescription"
+msgid "Consolidated SIKESRA identity, roles, scopes, attributes, and recent activity for the selected EmDash user."
+msgstr "Consolidated SIKESRA identity, roles, scopes, attributes, and recent activity for the selected EmDash user."
+
+msgctxt "awcms.adminCopy.viewUserProfile"
+msgid "View profile"
+msgstr "View profile"
+
+msgctxt "awcms.adminCopy.loadingUserProfile"
+msgid "Loading user profile..."
+msgstr "Loading user profile..."
+
+msgctxt "awcms.adminCopy.selectUserToViewProfile"
+msgid "Select an EmDash user to view their SIKESRA profile."
+msgstr "Select an EmDash user to view their SIKESRA profile."
+
+msgctxt "awcms.adminCopy.orphanedEmdashReference"
+msgid "Orphaned EmDash reference"
+msgstr "Orphaned EmDash reference"
+
+msgctxt "awcms.adminCopy.orphanedEmdashReferenceDescription"
+msgid "This user ID is not present in EmDash. SIKESRA assignments may be stale."
+msgstr "This user ID is not present in EmDash. SIKESRA assignments may be stale."
+
+msgctxt "awcms.adminCopy.noSikesraProfile"
+msgid "No SIKESRA profile data"
+msgstr "No SIKESRA profile data"
+
+msgctxt "awcms.adminCopy.noSikesraProfileDescription"
+msgid "This EmDash user has no SIKESRA roles, scopes, attributes, or activity yet."
+msgstr "This EmDash user has no SIKESRA roles, scopes, attributes, or activity yet."
+
+msgctxt "awcms.adminCopy.assignedRoles"
+msgid "Assigned roles"
+msgstr "Assigned roles"
+
+msgctxt "awcms.adminCopy.assignedScopes"
+msgid "Scope assignments"
+msgstr "Scope assignments"
+
+msgctxt "awcms.adminCopy.abacSubjectAttributes"
+msgid "ABAC subject attributes"
+msgstr "ABAC subject attributes"
+
+msgctxt "awcms.adminCopy.recentActivity"
+msgid "Recent activity"
+msgstr "Recent activity"
+
+msgctxt "awcms.adminCopy.noRecentActivity"
+msgid "No recent activity"
+msgstr "No recent activity"
+
+msgctxt "awcms.adminCopy.noneAssigned"
+msgid "None assigned"
+msgstr "None assigned"
+
 msgctxt "awcms.adminCopy.userScopesSaved"
 msgid "User region and organization scopes saved for the EmDash user reference."
 msgstr "User region and organization scopes saved for the EmDash user reference."

@@ -455,6 +455,24 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 			"The plugin can still save assignments by exact EmDash user ID.",
 		availableRoles: "Available roles",
 		availableRolesDescription: "Use these slugs in the user assignment form.",
+		userProfile: "User profile",
+		userProfileDescription:
+			"Consolidated SIKESRA identity, roles, scopes, attributes, and recent activity for the selected EmDash user.",
+		viewUserProfile: "View profile",
+		loadingUserProfile: "Loading user profile...",
+		selectUserToViewProfile: "Select an EmDash user to view their SIKESRA profile.",
+		orphanedEmdashReference: "Orphaned EmDash reference",
+		orphanedEmdashReferenceDescription:
+			"This user ID is not present in EmDash. SIKESRA assignments may be stale.",
+		noSikesraProfile: "No SIKESRA profile data",
+		noSikesraProfileDescription:
+			"This EmDash user has no SIKESRA roles, scopes, attributes, or activity yet.",
+		assignedRoles: "Assigned roles",
+		assignedScopes: "Scope assignments",
+		abacSubjectAttributes: "ABAC subject attributes",
+		recentActivity: "Recent activity",
+		noRecentActivity: "No recent activity",
+		noneAssigned: "None assigned",
 		userScopesSaved:
 			"User region and organization scopes saved for the EmDash user reference.",
 		failedToSaveUserScopes: "Failed to save user scopes.",
@@ -1445,6 +1463,24 @@ const SIKESRA_ADMIN_COPY_MESSAGES = {
 			"Plugin tetap dapat menyimpan penugasan menggunakan ID pengguna EmDash yang tepat.",
 		availableRoles: "Peran tersedia",
 		availableRolesDescription: "Gunakan slug ini dalam formulir penugasan pengguna.",
+		userProfile: "Profil pengguna",
+		userProfileDescription:
+			"Ringkasan identitas, peran, cakupan, atribut, dan aktivitas terbaru SIKESRA untuk pengguna EmDash yang dipilih.",
+		viewUserProfile: "Lihat profil",
+		loadingUserProfile: "Memuat profil pengguna...",
+		selectUserToViewProfile: "Pilih pengguna EmDash untuk melihat profil SIKESRA mereka.",
+		orphanedEmdashReference: "Referensi EmDash yatim",
+		orphanedEmdashReferenceDescription:
+			"ID pengguna ini tidak ada di EmDash. Penugasan SIKESRA mungkin sudah usang.",
+		noSikesraProfile: "Belum ada data profil SIKESRA",
+		noSikesraProfileDescription:
+			"Pengguna EmDash ini belum memiliki peran, cakupan, atribut, atau aktivitas SIKESRA.",
+		assignedRoles: "Peran yang ditugaskan",
+		assignedScopes: "Penugasan cakupan",
+		abacSubjectAttributes: "Atribut subjek ABAC",
+		recentActivity: "Aktivitas terbaru",
+		noRecentActivity: "Belum ada aktivitas terbaru",
+		noneAssigned: "Tidak ada yang ditugaskan",
 		userScopesSaved:
 			"Cakupan wilayah dan organisasi pengguna tersimpan untuk referensi pengguna EmDash.",
 		failedToSaveUserScopes: "Gagal menyimpan cakupan pengguna.",

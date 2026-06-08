@@ -1930,6 +1930,66 @@ msgctxt "awcms.adminCopy.availableRolesDescription"
 msgid "Use these slugs in the user assignment form."
 msgstr "Gunakan slug ini dalam formulir penugasan pengguna."
 
+msgctxt "awcms.adminCopy.userProfile"
+msgid "User profile"
+msgstr "Profil pengguna"
+
+msgctxt "awcms.adminCopy.userProfileDescription"
+msgid "Consolidated SIKESRA identity, roles, scopes, attributes, and recent activity for the selected EmDash user."
+msgstr "Ringkasan identitas, peran, cakupan, atribut, dan aktivitas terbaru SIKESRA untuk pengguna EmDash yang dipilih."
+
+msgctxt "awcms.adminCopy.viewUserProfile"
+msgid "View profile"
+msgstr "Lihat profil"
+
+msgctxt "awcms.adminCopy.loadingUserProfile"
+msgid "Loading user profile..."
+msgstr "Memuat profil pengguna..."
+
+msgctxt "awcms.adminCopy.selectUserToViewProfile"
+msgid "Select an EmDash user to view their SIKESRA profile."
+msgstr "Pilih pengguna EmDash untuk melihat profil SIKESRA mereka."
+
+msgctxt "awcms.adminCopy.orphanedEmdashReference"
+msgid "Orphaned EmDash reference"
+msgstr "Referensi EmDash yatim"
+
+msgctxt "awcms.adminCopy.orphanedEmdashReferenceDescription"
+msgid "This user ID is not present in EmDash. SIKESRA assignments may be stale."
+msgstr "ID pengguna ini tidak ada di EmDash. Penugasan SIKESRA mungkin sudah usang."
+
+msgctxt "awcms.adminCopy.noSikesraProfile"
+msgid "No SIKESRA profile data"
+msgstr "Belum ada data profil SIKESRA"
+
+msgctxt "awcms.adminCopy.noSikesraProfileDescription"
+msgid "This EmDash user has no SIKESRA roles, scopes, attributes, or activity yet."
+msgstr "Pengguna EmDash ini belum memiliki peran, cakupan, atribut, atau aktivitas SIKESRA."
+
+msgctxt "awcms.adminCopy.assignedRoles"
+msgid "Assigned roles"
+msgstr "Peran yang ditugaskan"
+
+msgctxt "awcms.adminCopy.assignedScopes"
+msgid "Scope assignments"
+msgstr "Penugasan cakupan"
+
+msgctxt "awcms.adminCopy.abacSubjectAttributes"
+msgid "ABAC subject attributes"
+msgstr "Atribut subjek ABAC"
+
+msgctxt "awcms.adminCopy.recentActivity"
+msgid "Recent activity"
+msgstr "Aktivitas terbaru"
+
+msgctxt "awcms.adminCopy.noRecentActivity"
+msgid "No recent activity"
+msgstr "Belum ada aktivitas terbaru"
+
+msgctxt "awcms.adminCopy.noneAssigned"
+msgid "None assigned"
+msgstr "Tidak ada yang ditugaskan"
+
 msgctxt "awcms.adminCopy.userScopesSaved"
 msgid "User region and organization scopes saved for the EmDash user reference."
 msgstr "Cakupan wilayah dan organisasi pengguna tersimpan untuk referensi pengguna EmDash."
