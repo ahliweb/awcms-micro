@@ -45,6 +45,24 @@ const pageCtx = createPublicPageContext({
 	content,
 	siteName: siteTitle,
 });
+
+const businessJsonLd = websiteSocial.schemaType
+	? JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": websiteSocial.schemaType || "Organization",
+			...(websiteSocial.businessName ? { name: websiteSocial.businessName } : { name: siteTitle }),
+			...(websiteSocial.businessDescription && { description: websiteSocial.businessDescription }),
+			url: Astro.url.origin,
+			...(websiteSocial.whatsappNumber && { telephone: `+${websiteSocial.whatsappNumber}` }),
+			...(websiteSocial.businessPhone && { telephone: `+${websiteSocial.businessPhone}` }),
+			...(websiteSocial.businessAddress && {
+				address: { "@type": "PostalAddress", streetAddress: websiteSocial.businessAddress },
+			}),
+			...(websiteSocial.openingHours && { openingHours: websiteSocial.openingHours }),
+			...(websiteSocial.googleMapsUrl && { hasMap: websiteSocial.googleMapsUrl }),
+			...(websiteSocial.priceRange && { priceRange: websiteSocial.priceRange }),
+	  })
+	: null;
 ---
 
 <!doctype html>
@@ -66,6 +84,7 @@ const pageCtx = createPublicPageContext({
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
 		<EmDashHead page={pageCtx} />
+		{businessJsonLd && <script is:inline type="application/ld+json" set:html={businessJsonLd} />}
 		<style>
 			:root {
 				color-scheme: light;
@@ -293,7 +312,7 @@ const pageCtx = createPublicPageContext({
 		<EmDashBodyStart page={pageCtx} />
 		
 		<slot name="header">
-			<SiteHeader content={content} />
+			<SiteHeader content={content} openingHours={websiteSocial.openingHours || undefined} />
 		</slot>
 
 		<main class="main">

@@ -52,6 +52,27 @@ const pageCtx = createPublicPageContext({
 	content,
 	siteName: siteTitle,
 });
+
+const businessJsonLd = websiteSocial.schemaType
+	? JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": websiteSocial.schemaType || "Organization",
+			...(websiteSocial.businessName ? { name: websiteSocial.businessName } : { name: siteTitle }),
+			...(websiteSocial.businessDescription && { description: websiteSocial.businessDescription }),
+			url: Astro.url.origin,
+			...(websiteSocial.businessPhone
+				? { telephone: `+${websiteSocial.businessPhone}` }
+				: websiteSocial.whatsappNumber
+					? { telephone: `+${websiteSocial.whatsappNumber}` }
+					: {}),
+			...(websiteSocial.businessAddress && {
+				address: { "@type": "PostalAddress", streetAddress: websiteSocial.businessAddress },
+			}),
+			...(websiteSocial.openingHours && { openingHours: websiteSocial.openingHours }),
+			...(websiteSocial.googleMapsUrl && { hasMap: websiteSocial.googleMapsUrl }),
+			...(websiteSocial.priceRange && { priceRange: websiteSocial.priceRange }),
+	  })
+	: null;
 ---
 
 <!doctype html>
@@ -70,6 +91,7 @@ const pageCtx = createPublicPageContext({
 			</>
 		)}
 		<EmDashHead page={pageCtx} />
+		{businessJsonLd && <script is:inline type="application/ld+json" set:html={businessJsonLd} />}
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 		<style>
 			:root {
@@ -297,6 +319,40 @@ const pageCtx = createPublicPageContext({
 				align-items: center;
 				gap: 1.25rem;
 				margin-left: auto;
+			}
+
+			.header-hours-badge {
+				display: none;
+				align-items: center;
+				gap: 0.4rem;
+				font-size: 0.72rem;
+				font-weight: 600;
+				color: var(--text-muted);
+				background: rgba(99, 102, 241, 0.06);
+				border: 1px solid var(--surface-border);
+				padding: 0.3rem 0.75rem;
+				border-radius: 999px;
+				white-space: nowrap;
+			}
+
+			@media (min-width: 769px) {
+				.header-hours-badge {
+					display: inline-flex;
+				}
+			}
+
+			.header-hours-dot {
+				width: 0.5rem;
+				height: 0.5rem;
+				border-radius: 50%;
+				background: #22c55e;
+				animation: pulse-dot 2s ease-in-out infinite;
+				flex-shrink: 0;
+			}
+
+			@keyframes pulse-dot {
+				0%, 100% { opacity: 1; transform: scale(1); }
+				50% { opacity: 0.6; transform: scale(0.85); }
 			}
 
 			.header-search {
@@ -915,6 +971,12 @@ const pageCtx = createPublicPageContext({
 					</div>
 					
 					<div class="nav-right">
+						{websiteSocial.openingHours && (
+							<span class="header-hours-badge" aria-label={copy.headerOpenHoursLabel}>
+								<span class="header-hours-dot" aria-hidden="true"></span>
+								{websiteSocial.openingHours}
+							</span>
+						)}
 						<div class="header-search">
 							<LiveSearch placeholder={copy.searchPlaceholder} collections={["posts", "pages", "news", "galleries"]} />
 						</div>

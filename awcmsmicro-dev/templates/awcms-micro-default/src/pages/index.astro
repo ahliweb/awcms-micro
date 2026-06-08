@@ -362,6 +362,22 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 		)}
 	</section>
 
+	<section class="landing-section landing-section--steps reveal">
+		<div class="landing-section__heading">
+			<p class="landing-eyebrow">{copy.landingOrderStepsEyebrow}</p>
+			<h2>{copy.landingOrderStepsHeading}</h2>
+		</div>
+		<div class="landing-steps-grid">
+			{copy.landingOrderSteps.map(([num, title, desc]) => (
+				<div class="landing-step-card">
+					<span class="landing-step-num">{num}</span>
+					<h3>{title}</h3>
+					<p>{desc}</p>
+				</div>
+			))}
+		</div>
+	</section>
+
 	<section class="landing-split landing-split--faq reveal">
 		<div>
 			<p class="landing-eyebrow">{copy.landingFaqEyebrow}</p>
@@ -1101,6 +1117,44 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 		margin: 0;
 		color: var(--text-muted);
 		font-size: 0.9rem;
+		line-height: 1.6;
+	}
+
+	.landing-steps-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.landing-step-card {
+		background: var(--surface-main);
+		border: 1px solid var(--surface-border);
+		border-radius: var(--radius-md);
+		padding: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.landing-step-num {
+		font-size: 2rem;
+		font-weight: 800;
+		color: var(--accent);
+		opacity: 0.35;
+		line-height: 1;
+	}
+
+	.landing-step-card h3 {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	.landing-step-card p {
+		margin: 0;
+		color: var(--text-muted);
+		font-size: 0.875rem;
 		line-height: 1.6;
 	}
 </style>
