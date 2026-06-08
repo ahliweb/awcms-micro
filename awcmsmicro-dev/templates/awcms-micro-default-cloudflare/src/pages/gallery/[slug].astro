@@ -61,11 +61,19 @@ const formattedDate = gallery.data.event_date
 			day: "numeric",
 		})
 	: null;
+
+const galleryCoverSrc = gallery.data.cover_image?.src ?? null;
+const galleryOgImage = galleryCoverSrc
+	? galleryCoverSrc.startsWith("http")
+		? galleryCoverSrc
+		: new URL(galleryCoverSrc, Astro.url.origin).toString()
+	: null;
 ---
 
 <Base
 	title={gallery.data.title || copy.galleryTitle}
 	description={gallery.data.description}
+	image={galleryOgImage}
 	content={{ collection: "galleries", id: gallery.id, slug }}
 	showFooterWidgets={false}
 >

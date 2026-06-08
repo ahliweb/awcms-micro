@@ -38,6 +38,7 @@ const seo = getSeoMeta(item, {
 	pageTitle={seo.ogTitle}
 	description={seo.description}
 	canonical={seo.canonical}
+	image={seo.ogImage}
 	content={{ collection: "news", id: asString(item.data.id), slug }}
 >
 	<article class="card">

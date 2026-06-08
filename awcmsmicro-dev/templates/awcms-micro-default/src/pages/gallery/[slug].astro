@@ -85,6 +85,13 @@ function formatDate(dateValue: unknown) {
 
 const formattedDate = formatDate(gallery.data.event_date);
 
+const galleryCoverSrc = gallery.data.cover_image?.src ?? null;
+const galleryOgImage = galleryCoverSrc
+	? galleryCoverSrc.startsWith("http")
+		? galleryCoverSrc
+		: new URL(galleryCoverSrc, Astro.url.origin).toString()
+	: null;
+
 function getTypeLabel(type: string) {
 	if (type === "photo") return copy.galleryFilterPhoto;
 	if (type === "video") return copy.galleryFilterVideo;
@@ -95,6 +102,7 @@ function getTypeLabel(type: string) {
 <BaseLayout
 	title={gallery.data.title || copy.galleryTitle}
 	description={gallery.data.description}
+	image={galleryOgImage}
 	content={{ collection: "galleries", id: gallery.id, slug }}
 	showFooterWidgets={false}
 >

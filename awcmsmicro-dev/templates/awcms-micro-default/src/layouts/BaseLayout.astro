@@ -74,6 +74,7 @@ const businessJsonLd = websiteSocial.schemaType
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
 		{!hasCustomFavicon && <link rel="icon" type="image/png" href="/awcms-logo.png" />}
+		<meta name="twitter:card" content={hasOgImage ? "summary_large_image" : "summary"} />
 		{fallbackOgImageUrl && (
 			<>
 				<meta property="og:image" content={fallbackOgImageUrl} />
