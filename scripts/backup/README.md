@@ -71,19 +71,19 @@ shred -u scripts/backup/.backup-config
 
 ## Configuration Reference
 
-| Setting                 | Description                  | Example                  |
-| ----------------------- | ---------------------------- | ------------------------ |
-| `GITLAB_USERNAME`       | GitLab account username      | `myusername`             |
-| `GITLAB_REPO_NAME`      | GitLab repo for mirror       | `awcms-micro`            |
-| `GITLAB_PAT`            | GitLab personal access token | `glpat-...`              |
-| `R2_BUCKET_NAME`        | Cloudflare R2 bucket         | `awcms-micro-backups`    |
-| `CLOUDFLARE_API_TOKEN`  | Cloudflare API token         | `abc123...`              |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID        | `def456...`              |
-| `D1_DATABASE_NAME`      | D1 database to backup        | `awcms-micro-d1-20260530` |
-| `BACKUP_PASSPHRASE`     | Master encryption key        | `your-secure-passphrase` |
-| `BACKUP_CRON_SCHEDULE`  | Backup schedule (cron)       | `0 2 * * *`              |
-| `BACKUP_SSH_KEYS`       | Include SSH keys in backup   | `true`                   |
-| `NOTIFICATION_METHOD`   | Backup notifications         | `none`, `discord`        |
+| Setting                 | Description                  | Example                    |
+| ----------------------- | ---------------------------- | -------------------------- |
+| `GITLAB_USERNAME`       | GitLab account username      | `myusername`               |
+| `GITLAB_REPO_NAME`      | GitLab repo for mirror       | `awcms-micro`              |
+| `GITLAB_PAT`            | GitLab personal access token | `glpat-...`                |
+| `R2_BUCKET_NAME`        | Cloudflare R2 bucket         | `awcms-micro-backups`      |
+| `CLOUDFLARE_API_TOKEN`  | Cloudflare API token         | `abc123...`                |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID        | `def456...`                |
+| `D1_DATABASE_NAME`      | D1 database to backup        | `awcms-micro-d1-20260530`  |
+| `BACKUP_PASSPHRASE`     | Master encryption key        | `your-secure-passphrase`   |
+| `BACKUP_CRON_SCHEDULE`  | Backup schedule (cron)       | `0 2 * * *`                |
+| `BACKUP_SSH_KEYS`       | Include SSH keys in backup   | `true`                     |
+| `NOTIFICATION_METHOD`   | Backup notifications         | `none`, `discord`          |
 
 ### Cloudflare Deployment Fields
 
@@ -135,6 +135,12 @@ bash scripts/backup/encrypt-all-env.sh
 | `backup-db.sh` | Backup database to R2 with encryption |
 
 Database exports filter out D1 virtual FTS tables automatically and write encrypted `.sql.enc` files before uploading to R2.
+
+**Retention cleanup** keeps the `--keep` most recent backups (default 7). The script tries two methods in order:
+
+1. `wrangler r2 object list` — used when the installed Wrangler version supports it.
+2. Cloudflare REST API — used when `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` are available (loaded via `load-config.sh`). Wrangler 4.95.0 does not support `r2 object list`, so this path is used on the current host.
+3. If neither is available, cleanup is skipped with a non-fatal warning. The uploaded backup is preserved; remove old backups manually via the Cloudflare dashboard.
 
 ```bash
 # Uses config defaults (D1 + R2)

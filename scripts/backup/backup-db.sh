@@ -198,28 +198,55 @@ else
     echo -e "${GREEN}Uploaded to: r2://$R2_BUCKET/$R2_KEY${NC}"
 fi
 
+# Returns 0 if wrangler r2 object list is available, 1 otherwise
+_wrangler_has_r2_list() {
+    wrangler r2 object --help 2>&1 | grep -q '\blist\b'
+}
+
+# List R2 object keys via Cloudflare REST API; prints one key per line.
+# Returns 1 and prints nothing if credentials are missing.
+_r2_api_list_keys() {
+    local bucket="$1" prefix="$2"
+    [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] && [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || return 1
+    curl -sf \
+        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+        "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/r2/buckets/${bucket}/objects?prefix=${prefix}" \
+        | jq -r '.result.objects[].key' 2>/dev/null
+}
+
 # Cleanup old backups (keep only KEEP_COUNT most recent)
 echo -e "${BLUE}Cleaning up old backups (keeping $KEEP_COUNT)...${NC}"
 
 if [ "$DRY_RUN" = true ]; then
-    echo -e "${YELLOW}[DRY RUN] Would list and cleanup old backups.${NC}"
+    echo -e "${YELLOW}[DRY RUN] Would list $R2_BUCKET/$R2_PREFIX/ and delete oldest beyond $KEEP_COUNT.${NC}"
 else
-    # List backups, sort, delete oldest beyond keep count
-    mapfile -t OLD_BACKUPS < <(
-        wrangler r2 object list "$R2_BUCKET" --prefix "$R2_PREFIX/" --remote --format json 2>/dev/null |
-        jq -r '.objects[].key' |
-        sort |
-        head -n -$KEEP_COUNT
-    )
+    BACKUP_KEYS=""
+    LIST_AVAILABLE=false
 
-    if [ ${#OLD_BACKUPS[@]} -gt 0 ]; then
-        for old_key in "${OLD_BACKUPS[@]}"; do
-            echo -e "${YELLOW}Deleting old backup: $old_key${NC}"
-            wrangler r2 object delete "$R2_BUCKET/$old_key" --remote -y
-        done
-        echo -e "${GREEN}Cleaned up ${#OLD_BACKUPS[@]} old backup(s).${NC}"
+    if _wrangler_has_r2_list; then
+        LIST_AVAILABLE=true
+        BACKUP_KEYS=$(wrangler r2 object list "$R2_BUCKET" --prefix "$R2_PREFIX/" --remote --format json 2>/dev/null \
+            | jq -r '.objects[].key' 2>/dev/null || true)
+    elif [ -n "${CLOUDFLARE_ACCOUNT_ID:-}" ] && [ -n "${CLOUDFLARE_API_TOKEN:-}" ]; then
+        LIST_AVAILABLE=true
+        BACKUP_KEYS=$(_r2_api_list_keys "$R2_BUCKET" "$R2_PREFIX/" || true)
+    fi
+
+    if [ "$LIST_AVAILABLE" = false ]; then
+        echo -e "${YELLOW}Warning: R2 object listing unavailable (wrangler r2 object list not supported; no Cloudflare API credentials found). Skipping retention cleanup — backup was uploaded successfully. Remove old backups manually via the Cloudflare dashboard if needed.${NC}"
     else
-        echo -e "${GREEN}No old backups to clean up.${NC}"
+        mapfile -t OLD_BACKUPS < <(printf '%s\n' "$BACKUP_KEYS" | grep -v '^$' | sort | head -n -"$KEEP_COUNT")
+
+        if [ ${#OLD_BACKUPS[@]} -gt 0 ] && [ -n "${OLD_BACKUPS[0]:-}" ]; then
+            for old_key in "${OLD_BACKUPS[@]}"; do
+                [ -n "$old_key" ] || continue
+                echo -e "${YELLOW}Deleting old backup: $old_key${NC}"
+                wrangler r2 object delete "$R2_BUCKET/$old_key" --remote -y
+            done
+            echo -e "${GREEN}Cleaned up ${#OLD_BACKUPS[@]} old backup(s).${NC}"
+        else
+            echo -e "${GREEN}No old backups to clean up.${NC}"
+        fi
     fi
 fi
 

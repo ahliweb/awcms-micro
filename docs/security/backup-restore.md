@@ -36,7 +36,7 @@
    r2://awcms-micro-backups/backups/db/backup-20260608-212224.sql.enc
    ```
 
-   Wrangler 4.95.0 on this host supports `wrangler r2 object get`, `put`, and `delete`, but not `wrangler r2 object list`; do not rely on an object-list command in restore runbooks until the backup retention workflow is updated.
+   Wrangler 4.95.0 on this host supports `wrangler r2 object get`, `put`, and `delete`, but not `wrangler r2 object list`. The retention cleanup in `backup-db.sh` was updated (issue #182) to fall back to the Cloudflare REST API when `wrangler r2 object list` is unavailable, using `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` from `scripts/backup/load-config.sh`. If neither path is available the upload succeeds and cleanup is skipped with a warning.
 
 2. **Download backup**:
    ```bash
