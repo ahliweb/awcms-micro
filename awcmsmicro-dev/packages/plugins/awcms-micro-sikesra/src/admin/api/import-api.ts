@@ -1,6 +1,8 @@
 import type {
+	SikesraImportBatchListRequest,
 	SikesraImportCreateRequest,
 	SikesraImportPromotionRequest,
+	SikesraImportStagingListRequest,
 } from "../../contracts/index.js";
 import { postSikesraPlugin, type SikesraAdminApiRequest } from "./client.js";
 
@@ -24,6 +26,28 @@ export function promoteImportRows<TResponse>(
 	return postSikesraPlugin<TResponse, SikesraImportPromotionRequest>({
 		...options,
 		path: "import/promote",
+		payload,
+	});
+}
+
+export function listImportBatches<TResponse>(
+	payload: SikesraImportBatchListRequest,
+	options: RequestOptions<SikesraImportBatchListRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraImportBatchListRequest>({
+		...options,
+		path: "import/list",
+		payload,
+	});
+}
+
+export function listImportStagingRows<TResponse>(
+	payload: SikesraImportStagingListRequest,
+	options: RequestOptions<SikesraImportStagingListRequest>,
+) {
+	return postSikesraPlugin<TResponse, SikesraImportStagingListRequest>({
+		...options,
+		path: "import/staging/list",
 		payload,
 	});
 }

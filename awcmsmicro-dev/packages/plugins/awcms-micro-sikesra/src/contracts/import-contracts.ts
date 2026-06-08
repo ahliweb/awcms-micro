@@ -5,6 +5,13 @@ export interface SikesraImportBatchListRequest extends SikesraPaginationRequest 
 	entityType?: string;
 }
 
+export interface SikesraImportStagingListRequest extends SikesraPaginationRequest {
+	batchId: string;
+	validationStatus?: "valid" | "invalid";
+	promotionStatus?: "not_promoted" | "promoted";
+	duplicateStatus?: "unchecked" | "duplicate_risk" | "cleared";
+}
+
 export interface SikesraImportPromotionRequest {
 	batchId?: string;
 	rowIds?: string[];
@@ -31,4 +38,30 @@ export interface SikesraImportBatchDto {
 	totalRows: number;
 	validRows: number;
 	invalidRows: number;
+}
+
+export interface SikesraImportBatchListItemDto extends SikesraImportBatchDto {
+	mappingTemplateId?: string;
+	subtypeCode?: string;
+	duplicateRiskRows: number;
+	promotedRows: number;
+	sourceFilename?: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface SikesraImportStagingRowSummaryDto {
+	id: string;
+	batchId: string;
+	rowNumber: number;
+	entityType: string;
+	subtypeCode?: string;
+	validationStatus: "valid" | "invalid";
+	validationErrors: string[];
+	duplicateStatus: "unchecked" | "duplicate_risk" | "cleared";
+	promotionStatus: "not_promoted" | "promoted";
+	promotedRegistryEntityId?: string;
+	code?: string;
+	label?: string;
+	mappedFieldCount: number;
 }

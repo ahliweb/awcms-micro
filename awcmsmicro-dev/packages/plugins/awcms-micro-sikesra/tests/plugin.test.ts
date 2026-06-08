@@ -489,6 +489,16 @@ function createMockContext() {
 							})
 							.map((row) => ({ ...row }));
 					}
+					if (_table === "sikesra_import_batches") {
+						return importBatchTableRows
+							.filter((row) => {
+								for (const [key, value] of Object.entries(filters)) {
+									if ((row as Record<string, unknown>)[key] !== value) return false;
+								}
+								return true;
+							})
+							.map((row) => ({ ...row }));
+					}
 					if (_table === "sikesra_export_jobs") {
 						return exportJobTableRows
 							.filter((row) => {
@@ -3108,6 +3118,8 @@ describe("awcms micro sikesra plugin", () => {
 				"documents/access",
 				"import/create",
 				"import/promote",
+				"import/list",
+				"import/staging/list",
 				"duplicates/decide",
 				"exports/create",
 				"exports/list",
@@ -5639,6 +5651,150 @@ describe("awcms micro sikesra plugin", () => {
 		expect([...collections.auditEvents.values()]).not.toContainEqual(
 			expect.objectContaining({ kind: "registry.import.promote" }),
 		);
+	});
+
+	it("paginates persisted import batches with standardized list contract", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		for (const batchId of ["batch-list-01", "batch-list-02"]) {
+			await routes["import/create"]!.handler({
+				...ctx,
+				request: adminRequest,
+				input: {
+					batchId,
+					entityType: "rumah_ibadah",
+					rows: [
+						{
+							code: `${batchId}-CODE`,
+							label: `Import Row ${batchId}`,
+							entityType: "rumah_ibadah",
+							provinceCode: "62",
+							regencyCode: "6201",
+							districtCode: "620101",
+							villageCode: "6201010001",
+						},
+					],
+				},
+			} as any);
+		}
+
+		const denied = (await routes["import/list"]!.handler({
+			...ctx,
+			request: new Request("https://example.test"),
+			input: {},
+		} as any)) as any;
+		expect(denied.success).toBe(false);
+
+		const firstPage = (await routes["import/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { limit: 1 },
+		} as any)) as any;
+		expect(firstPage.items).toHaveLength(1);
+		expect(firstPage.nextCursor).toBe("1");
+		expect(firstPage.pagination).toMatchObject({ page: 1, pageSize: 1, total: 2 });
+		expect(firstPage.items[0]).toMatchObject({
+			entityType: "rumah_ibadah",
+			totalRows: 1,
+			validRows: 1,
+		});
+
+		const secondPage = (await routes["import/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { limit: 1, cursor: firstPage.nextCursor },
+		} as any)) as any;
+		expect(secondPage.items).toHaveLength(1);
+		expect(secondPage.nextCursor).toBeUndefined();
+		expect(secondPage.pagination).toMatchObject({ page: 2, pageSize: 1, total: 2 });
+
+		const batchIds = [...firstPage.items, ...secondPage.items].map((item: any) => item.id);
+		expect(new Set(batchIds)).toEqual(new Set(["batch-list-01", "batch-list-02"]));
+
+		const filtered = (await routes["import/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { status: "no_such_status" },
+		} as any)) as any;
+		expect(filtered.items).toHaveLength(0);
+		expect(filtered.pagination).toMatchObject({ total: 0 });
+	});
+
+	it("paginates staged import rows and masks raw payloads", async () => {
+		const { ctx } = createMockContext();
+		const routes = createNativeRoutes();
+		const adminRequest = createAdminRequest();
+
+		await routes["import/create"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {
+				batchId: "batch-staging-01",
+				entityType: "rumah_ibadah",
+				rows: [
+					{
+						code: "STG-001",
+						label: "Staged Row One",
+						entityType: "rumah_ibadah",
+						nik: "3201010101010001",
+						provinceCode: "62",
+						regencyCode: "6201",
+						districtCode: "620101",
+						villageCode: "6201010001",
+					},
+					{
+						code: "STG-002",
+						label: "Staged Row Two",
+						entityType: "rumah_ibadah",
+						nik: "3201010101010002",
+						provinceCode: "62",
+						regencyCode: "6201",
+						districtCode: "620101",
+						villageCode: "6201010001",
+					},
+				],
+			},
+		} as any);
+
+		const missingBatch = (await routes["import/staging/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: {},
+		} as any)) as any;
+		expect(missingBatch.success).toBe(false);
+		expect(missingBatch.error.code).toBe("VALIDATION_ERROR");
+
+		const firstPage = (await routes["import/staging/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-staging-01", limit: 1 },
+		} as any)) as any;
+		expect(firstPage.items).toHaveLength(1);
+		expect(firstPage.nextCursor).toBe("1");
+		expect(firstPage.pagination).toMatchObject({ page: 1, pageSize: 1, total: 2 });
+		expect(firstPage.items[0]).toMatchObject({
+			batchId: "batch-staging-01",
+			rowNumber: 1,
+			code: "STG-001",
+			label: "Staged Row One",
+			validationStatus: "valid",
+			promotionStatus: "not_promoted",
+		});
+		// Raw personal payloads (e.g. NIK) must not leak through the list contract.
+		expect(JSON.stringify(firstPage.items[0])).not.toContain("3201010101010001");
+		expect(firstPage.items[0]).toHaveProperty("mappedFieldCount");
+
+		const secondPage = (await routes["import/staging/list"]!.handler({
+			...ctx,
+			request: adminRequest,
+			input: { batchId: "batch-staging-01", limit: 1, cursor: firstPage.nextCursor },
+		} as any)) as any;
+		expect(secondPage.items).toHaveLength(1);
+		expect(secondPage.items[0]).toMatchObject({ rowNumber: 2, code: "STG-002" });
+		expect(secondPage.nextCursor).toBeUndefined();
+		expect(secondPage.pagination).toMatchObject({ page: 2, pageSize: 1, total: 2 });
 	});
 
 	it("builds staged import UI payloads through create then promote contracts", () => {

@@ -26,6 +26,8 @@ export const SIKESRA_TYPED_ADMIN_API_WRAPPER_PATHS = [
 	"documents/access",
 	"import/create",
 	"import/promote",
+	"import/list",
+	"import/staging/list",
 	"duplicates/decide",
 	"exports/create",
 	"exports/list",
@@ -122,7 +124,12 @@ export { accessDocument, listDocuments, saveDocument } from "./documents-api.js"
 export { decideDuplicate } from "./duplicates-api.js";
 export { createExportJob, listExportJobs } from "./export-api.js";
 export type { SikesraExportApiContract } from "./export-api.js";
-export { createImportBatch, promoteImportRows } from "./import-api.js";
+export {
+	createImportBatch,
+	promoteImportRows,
+	listImportBatches,
+	listImportStagingRows,
+} from "./import-api.js";
 export { getDashboardSummary, getOverviewSummary, getPublicStatus } from "./overview-api.js";
 export {
 	correctRegistrySikesraId,

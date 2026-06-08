@@ -40,8 +40,11 @@ export type {
 } from "./documents-contracts.js";
 export type {
 	SikesraImportBatchDto,
+	SikesraImportBatchListItemDto,
 	SikesraImportCreateRequest,
 	SikesraImportBatchListRequest,
+	SikesraImportStagingListRequest,
+	SikesraImportStagingRowSummaryDto,
 	SikesraImportPromotionRequest,
 } from "./import-contracts.js";
 export type {

@@ -5997,6 +5997,97 @@ async function persistImportCustomAttributeValues(
 	}
 }
 
+type SikesraImportBatchSummary = {
+	id: string;
+	mappingTemplateId?: string;
+	entityType: string;
+	subtypeCode?: string;
+	status: string;
+	totalRows: number;
+	validRows: number;
+	invalidRows: number;
+	duplicateRiskRows: number;
+	promotedRows: number;
+	sourceFilename?: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+async function listD1ImportBatches(ctx: PluginContext): Promise<SikesraImportBatchSummary[]> {
+	const db = (ctx as PluginContext & { db?: unknown }).db as any;
+	if (!db?.selectFrom) return [];
+	let rows: Array<Record<string, unknown>>;
+	try {
+		rows = (await db
+			.selectFrom(AWCMS_SIKESRA_IMPORT_BATCHES_TABLE)
+			.select([
+				"id",
+				"mapping_template_id",
+				"entity_type",
+				"subtype_code",
+				"status",
+				"total_rows",
+				"valid_rows",
+				"invalid_rows",
+				"duplicate_risk_rows",
+				"promoted_rows",
+				"source_filename",
+				"created_at",
+				"updated_at",
+			])
+			.where("tenant_id", "=", getSikesraTenantId(ctx))
+			.where("site_id", "=", getSikesraSiteId(ctx))
+			.where("deleted_at", "is", null)
+			.orderBy("created_at", "desc")
+			.orderBy("id", "desc")
+			.execute()) as Array<Record<string, unknown>>;
+	} catch (cause) {
+		logD1ReadFallback(ctx, "import batches", cause);
+		return [];
+	}
+
+	return rows
+		.map(
+			(row): SikesraImportBatchSummary => ({
+				id: String(row.id),
+				mappingTemplateId:
+					typeof row.mapping_template_id === "string" ? row.mapping_template_id : undefined,
+				entityType: String(row.entity_type),
+				subtypeCode: typeof row.subtype_code === "string" ? row.subtype_code : undefined,
+				status: String(row.status),
+				totalRows: Number(row.total_rows ?? 0),
+				validRows: Number(row.valid_rows ?? 0),
+				invalidRows: Number(row.invalid_rows ?? 0),
+				duplicateRiskRows: Number(row.duplicate_risk_rows ?? 0),
+				promotedRows: Number(row.promoted_rows ?? 0),
+				sourceFilename: typeof row.source_filename === "string" ? row.source_filename : undefined,
+				createdAt: String(row.created_at ?? ""),
+				updatedAt: String(row.updated_at ?? ""),
+			}),
+		)
+		.toSorted((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+}
+
+function toSafeStagedImportRowSummary(row: StagedImportRow) {
+	const code = typeof row.mappedRow.code === "string" ? row.mappedRow.code : undefined;
+	const label = typeof row.mappedRow.label === "string" ? row.mappedRow.label : undefined;
+	return {
+		id: row.id,
+		batchId: row.batchId,
+		rowNumber: row.rowNumber,
+		entityType: row.entityType,
+		subtypeCode: row.subtypeCode,
+		validationStatus: row.validationStatus,
+		validationErrors: row.validationErrors,
+		duplicateStatus: row.duplicateStatus,
+		promotionStatus: row.promotionStatus,
+		promotedRegistryEntityId: row.promotedRegistryEntityId,
+		code,
+		label,
+		mappedFieldCount: Object.keys(row.mappedRow).length,
+	};
+}
+
 const importCreateRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	const permission = await requireRoutePermission(ctx, "sikesra.import.create");
 	if (!permission.allowed) return { success: false, error: permission.error };
@@ -6141,6 +6232,39 @@ const importPromoteRoute: SharedRouteHandler = async (routeCtx, ctx) => {
 	);
 
 	return { success: true, batchId, count };
+};
+
+const importListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.import.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	let items = await listD1ImportBatches(ctx);
+	const status = getString(routeCtx.input, "status");
+	const entityType = getString(routeCtx.input, "entityType");
+	if (status) items = items.filter((item) => item.status === status);
+	if (entityType) items = items.filter((item) => item.entityType === entityType);
+	return paginateSikesraItems(items, routeCtx.input);
+};
+
+const importStagingListRoute: SharedRouteHandler = async (routeCtx, ctx) => {
+	const permission = await requireRoutePermission(ctx, "sikesra.import.read");
+	if (!permission.allowed) return { success: false, error: permission.error };
+	const batchId = getString(routeCtx.input, "batchId");
+	if (!batchId) return createValidationError(["batchId"]);
+	const rows = await getD1ImportStagingRows(ctx, batchId);
+	const validationStatus = getString(routeCtx.input, "validationStatus");
+	const promotionStatus = getString(routeCtx.input, "promotionStatus");
+	const duplicateStatus = getString(routeCtx.input, "duplicateStatus");
+	let filtered = rows;
+	if (validationStatus)
+		filtered = filtered.filter((row) => row.validationStatus === validationStatus);
+	if (promotionStatus)
+		filtered = filtered.filter((row) => row.promotionStatus === promotionStatus);
+	if (duplicateStatus)
+		filtered = filtered.filter((row) => row.duplicateStatus === duplicateStatus);
+	const safeRows = filtered
+		.toSorted((a, b) => a.rowNumber - b.rowNumber)
+		.map(toSafeStagedImportRowSummary);
+	return paginateSikesraItems(safeRows, routeCtx.input);
 };
 
 const SIKESRA_DUPLICATE_DECISIONS = new Set([
@@ -8825,6 +8949,8 @@ const SIKESRA_READ_ONLY_ROUTE_PATHS = new Set([
 	"registry/archive/list",
 	"documents/list",
 	"exports/list",
+	"import/list",
+	"import/staging/list",
 	"custom-attributes/definitions/list",
 	"custom-attributes/values/list",
 	"crud/permanent-delete/requests/list",
@@ -8884,6 +9010,8 @@ const sharedRouteEntries: Record<string, { public?: boolean; handler: SharedRout
 	"documents/access": { handler: documentsAccessRoute },
 	"import/create": { handler: importCreateRoute },
 	"import/promote": { handler: importPromoteRoute },
+	"import/list": { handler: importListRoute },
+	"import/staging/list": { handler: importStagingListRoute },
 	"duplicates/decide": { handler: duplicateDecisionRoute },
 	"exports/create": { handler: exportsCreateRoute },
 	"exports/list": { handler: exportsListRoute },
