@@ -670,4 +670,182 @@ describe("awcms micro gallery plugin", () => {
 		expect(json).toContain("Community Cleanup Gallery");
 		expect(ctx.log.error).not.toHaveBeenCalled();
 	});
+
+	it("creates a gallery from the sandbox admin save_gallery interaction", async () => {
+		const ctx = createMockContext() as any;
+		const handler = (
+			sandboxPlugin.routes?.admin as {
+				handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown>;
+			}
+		)?.handler;
+		const request = { headers: { "accept-language": "en-US,en;q=0.9" } };
+
+		// Enter the create view first so the save handler knows to create.
+		await handler?.(
+			{ input: { type: "block_action", action_id: "nav_create" }, request } as never,
+			ctx as never,
+		);
+		await handler?.(
+			{
+				input: {
+					type: "form_submit",
+					action_id: "save_gallery",
+					values: {
+						title: "New Sandbox Gallery",
+						description: "Created in sandbox",
+						gallery_type: "photo",
+						event_date: "2026-06-01",
+						gallery_items: [],
+					},
+				},
+				request,
+			} as never,
+			ctx as never,
+		);
+
+		expect(ctx.content.create).toHaveBeenCalledTimes(1);
+		expect(ctx.content.create).toHaveBeenCalledWith(
+			"galleries",
+			expect.objectContaining({
+				slug: "new-sandbox-gallery",
+				status: "published",
+				data: expect.objectContaining({
+					title: "New Sandbox Gallery",
+					event_date: "2026-06-01T00:00:00.000Z",
+				}),
+			}),
+		);
+		expect([...ctx._galleryAuditRows.values()]).toContainEqual(
+			expect.objectContaining({ kind: "gallery.entry.create" }),
+		);
+		expect(ctx.log.error).not.toHaveBeenCalled();
+	});
+
+	it("updates a gallery from the sandbox admin save_gallery interaction", async () => {
+		const ctx = createMockContext() as any;
+		const handler = (
+			sandboxPlugin.routes?.admin as {
+				handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown>;
+			}
+		)?.handler;
+		const request = { headers: { "accept-language": "en-US,en;q=0.9" } };
+
+		await handler?.(
+			{
+				input: { type: "block_action", action_id: "nav_edit", value: "gallery-1" },
+				request,
+			} as never,
+			ctx as never,
+		);
+		await handler?.(
+			{
+				input: {
+					type: "form_submit",
+					action_id: "save_gallery",
+					values: {
+						title: "Updated Sandbox Gallery",
+						description: "Updated in sandbox",
+						gallery_type: "mixed",
+						layout_variant: "carousel",
+						event_date: "2026-06-02",
+						location: "Bandung",
+						gallery_items: [],
+					},
+				},
+				request,
+			} as never,
+			ctx as never,
+		);
+
+		expect(ctx.content.update).toHaveBeenCalledTimes(1);
+		expect(ctx.content.update).toHaveBeenCalledWith(
+			"galleries",
+			"gallery-1",
+			expect.objectContaining({
+				slug: "updated-sandbox-gallery",
+				status: "published",
+				data: expect.objectContaining({
+					title: "Updated Sandbox Gallery",
+					event_date: "2026-06-02T00:00:00.000Z",
+				}),
+			}),
+		);
+		expect([...ctx._galleryAuditRows.values()]).toContainEqual(
+			expect.objectContaining({ kind: "gallery.entry.update" }),
+		);
+		expect(ctx.log.error).not.toHaveBeenCalled();
+	});
+
+	it("deletes a gallery from the sandbox admin delete_gallery interaction", async () => {
+		const ctx = createMockContext() as any;
+		const handler = (
+			sandboxPlugin.routes?.admin as {
+				handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown>;
+			}
+		)?.handler;
+
+		await handler?.(
+			{
+				input: { type: "block_action", action_id: "delete_gallery", value: "gallery-xyz" },
+				request: { headers: { "accept-language": "en" } },
+			} as never,
+			ctx as never,
+		);
+
+		expect(ctx.content.delete).toHaveBeenCalledWith("galleries", "gallery-xyz");
+		expect([...ctx._galleryAuditRows.values()]).toContainEqual(
+			expect.objectContaining({ kind: "gallery.entry.delete" }),
+		);
+	});
+
+	it("imports media from the sandbox admin import_media interaction", async () => {
+		const ctx = createMockContext() as any;
+		const handler = (
+			sandboxPlugin.routes?.admin as {
+				handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown>;
+			}
+		)?.handler;
+
+		await handler?.(
+			{
+				input: {
+					type: "form_submit",
+					action_id: "import_media",
+					values: { source_url: "https://example.test/photo.jpg", filename: "photo.jpg" },
+				},
+				request: { headers: { "accept-language": "en" } },
+			} as never,
+			ctx as never,
+		);
+
+		expect(ctx.media.upload).toHaveBeenCalled();
+		expect([...ctx._galleryAuditRows.values()]).toContainEqual(
+			expect.objectContaining({ kind: "gallery.media.import" }),
+		);
+	});
+
+	it("applies the search filter from the sandbox admin search_galleries interaction", async () => {
+		const ctx = createMockContext() as any;
+		const handler = (
+			sandboxPlugin.routes?.admin as {
+				handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown>;
+			}
+		)?.handler;
+
+		await handler?.(
+			{
+				input: {
+					type: "form_submit",
+					action_id: "search_galleries",
+					values: { search_query: "cleanup" },
+				},
+				request: { headers: { "accept-language": "en" } },
+			} as never,
+			ctx as never,
+		);
+
+		const state = (await ctx.kv.get("admin:state")) as { search?: string; view?: string };
+		expect(state.search).toBe("cleanup");
+		expect(state.view).toBe("list");
+	});
 });
