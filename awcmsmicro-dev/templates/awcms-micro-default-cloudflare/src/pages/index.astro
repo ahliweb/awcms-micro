@@ -365,6 +365,28 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 		)}
 	</section>
 
+	<section class="landing-split landing-split--faq reveal">
+		<div>
+			<p class="landing-eyebrow">{copy.landingFaqEyebrow}</p>
+			<h2>{copy.landingFaqHeading}</h2>
+		</div>
+		<div class="landing-faq-list">
+			{copy.landingFaqItems.map(([question, answer]) => (
+				<details class="landing-faq-item">
+					<summary>
+						<span>{question}</span>
+						<svg class="landing-faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<polyline points="6 9 12 15 18 9"/>
+						</svg>
+					</summary>
+					<div class="landing-faq-content">
+						<p>{answer}</p>
+					</div>
+				</details>
+			))}
+		</div>
+	</section>
+
 	<section class="landing-contact reveal">
 		<p class="landing-eyebrow">{copy.landingContactEyebrow}</p>
 		<h2>{copy.ctaTitle}</h2>
@@ -1031,5 +1053,64 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 		.hero-mockup-wrapper:hover, .split-image-wrapper:hover {
 			transform: none !important;
 		}
+	}
+
+	.landing-faq-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.65rem;
+	}
+
+	.landing-faq-item {
+		border: 1px solid var(--surface-border);
+		border-radius: 1rem;
+		background: rgba(255, 255, 255, 0.04);
+		backdrop-filter: blur(8px);
+		overflow: hidden;
+		transition: border-color 0.25s ease;
+	}
+
+	.landing-faq-item[open] {
+		border-color: var(--accent);
+	}
+
+	:root.dark .landing-faq-item {
+		background: rgba(15, 23, 42, 0.35);
+	}
+
+	.landing-faq-item summary {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 1rem 1.25rem;
+		cursor: pointer;
+		font-weight: 700;
+		color: var(--text-main);
+		list-style: none;
+		user-select: none;
+	}
+
+	.landing-faq-item summary::-webkit-details-marker { display: none; }
+
+	.landing-faq-chevron {
+		flex-shrink: 0;
+		color: var(--accent);
+		transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+	}
+
+	.landing-faq-item[open] .landing-faq-chevron {
+		transform: rotate(180deg);
+	}
+
+	.landing-faq-content {
+		padding: 0 1.25rem 1rem;
+	}
+
+	.landing-faq-content p {
+		margin: 0;
+		color: var(--text-muted);
+		font-size: 0.9rem;
+		line-height: 1.6;
 	}
 </style>

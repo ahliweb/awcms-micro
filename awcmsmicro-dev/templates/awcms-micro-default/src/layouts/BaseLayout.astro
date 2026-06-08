@@ -3,9 +3,11 @@ import { getI18nConfig, getSiteSettings } from "emdash";
 import { createPublicPageContext } from "emdash/page";
 import { EmDashBodyEnd, EmDashBodyStart, EmDashHead } from "emdash/ui";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
+import PromoPopup from "../components/PromoPopup.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import WhatsAppFloatingCta from "../components/WhatsAppFloatingCta.astro";
+import { getPublicCopy } from "../utils/public-copy";
 import { getWebsiteSocialConfig } from "../utils/website-social";
 
 interface Props {
@@ -25,6 +27,7 @@ const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
 const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const websiteSocial = await getWebsiteSocialConfig(currentLocale);
+const copy = getPublicCopy(currentLocale);
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const hasOgImage = !!image || !!siteSettings?.seo?.defaultOgImage?.url;
@@ -302,6 +305,7 @@ const pageCtx = createPublicPageContext({
 		</slot>
 
 		<WhatsAppFloatingCta config={websiteSocial} />
+		<PromoPopup config={websiteSocial} copy={copy} />
 
 		<EmDashBodyEnd page={pageCtx} />
 		<script is:inline>
