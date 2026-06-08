@@ -80,6 +80,7 @@ Expected root scripts include:
 - SIKESRA plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
 - Docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
 - Gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
+- Website social plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`

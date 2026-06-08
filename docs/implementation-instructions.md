@@ -54,6 +54,7 @@ When choosing where a change belongs:
 - AWCMS-Micro SIKESRA plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`.
 - AWCMS-Micro docs plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-docs/` and `awcmsmicro-dev/docs/awcms-micro/`.
 - AWCMS-Micro gallery plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`.
+- AWCMS-Micro website social plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/`.
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.

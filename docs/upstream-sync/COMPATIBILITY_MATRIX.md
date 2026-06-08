@@ -17,6 +17,7 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | `packages/plugins/awcms-micro-sikesra` | Isolated AWCMS-Micro governance plugin carrying SIKESRA navigation, access, audit, and ABAC-oriented workflows | Compatible | Medium | adapt |
 | `packages/plugins/awcms-micro-docs` | Isolated AWCMS-Micro docs plugin providing a plugin descriptor, admin docs page, and shared public docs copy | Compatible | Low | adapt |
 | `packages/plugins/awcms-micro-gallery` | Isolated AWCMS-Micro gallery plugin providing gallery settings, public list, media validation, and audit-ready hooks | Compatible | Medium | adapt |
+| `packages/plugins/awcms-micro-website-social` | Isolated AWCMS-Micro website social plugin providing public social contact configuration and WhatsApp CTA management | Compatible | Low | adapt |
 | Plugin-owned navigation compatibility layer | Keep navigation normalization and label resolution in plugin exports rather than a new shared core layer | Compatible | Medium | adapt |
 | Supporting docs, demos, and E2E boundaries | Keep as validation and operator surfaces only | Compatible | Low | adapt |
 | Downstream patch overlays | Replay narrow source-level overrides from `.awcms-patches/` after rebuild instead of preserving broad upstream-owned files | Compatible | Medium | adapt |

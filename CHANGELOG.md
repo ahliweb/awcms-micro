@@ -1,5 +1,9 @@
 # AWCMS-Micro Changelog
 
+## 0.1.30 - 2026-06-08
+
+- Align the protected-path documentation and boundary validation contract with the existing `awcms-micro-website-social` downstream plugin boundary.
+- Wire SIKESRA data-safety guardrails into root workspace validation and expand static migration/data-boundary checks.
 ## 0.1.29 - 2026-06-06
 
 - Updates root documentation to match the current AWCMS-Micro plugin inventory, downstream boundary wording, maintenance scripts, and release-readiness guidance.
@@ -96,16 +100,17 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-06
+## Workspace Snapshot - 2026-06-08
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.29`
+- Root version: `0.1.30`
 
 ### Plugins
 
 - `@awcms-micro/plugin-docs` `0.0.1` - (no changelog yet)
 - `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
 - `@awcms-micro/plugin-sikesra` `0.1.1` - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
+- `@awcms-micro/plugin-website-social` `0.0.1` - (no changelog yet)
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
