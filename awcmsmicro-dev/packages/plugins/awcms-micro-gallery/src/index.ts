@@ -3,6 +3,11 @@ import type { PluginDescriptor, ResolvedPlugin } from "emdash";
 import { version } from "../package.json";
 import {
 	AWCMS_GALLERY_TRANSLATIONS,
+	formatEventDate,
+	normalizeGalleryLocale,
+	resolveRequestLocale,
+	toDateInputValue,
+	toIsoDateOrNull,
 	translateGallery,
 	type GalleryTranslationKey,
 } from "./i18n.js";
@@ -452,9 +457,7 @@ async function buildAdminBlocks(
 							type: "date_input",
 							action_id: "event_date",
 							label: t("gallery.event_date_label"),
-							initial_value: entry?.event_date
-								? new Date(entry.event_date).toISOString().split("T")[0]
-								: "",
+							initial_value: toDateInputValue(entry?.event_date),
 						},
 						{
 							type: "text_input",
@@ -541,9 +544,7 @@ async function buildAdminBlocks(
 		title: asString(g.data?.title, g.id),
 		description: asString(g.data?.description),
 		location: asString(g.data?.location, "-"),
-		date: g.data?.event_date
-			? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" })
-			: "-",
+		date: formatEventDate(g.data?.event_date, normalizeGalleryLocale(locale)),
 		type: asString(g.data?.gallery_type, "mixed"),
 		items: getGalleryItemsCount(g),
 		id: g.id,
@@ -787,7 +788,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 						value?: string;
 						values?: Record<string, unknown>;
 					};
-					const locale = ctx.request?.headers?.["accept-language"] || "en";
+					const locale = resolveRequestLocale(ctx);
 					try {
 						const settings = await readSettings(ctx, options);
 
@@ -916,10 +917,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 									typeof values.gallery_type === "string" ? values.gallery_type : "photo";
 								const layout_variant =
 									typeof values.layout_variant === "string" ? values.layout_variant : "grid";
-								const event_date =
-									typeof values.event_date === "string" && values.event_date
-										? new Date(values.event_date).toISOString()
-										: null;
+								const event_date = toIsoDateOrNull(values.event_date);
 								const location = typeof values.location === "string" ? values.location : "";
 								const featured = values.featured === true;
 								const cover_image_src = asString(values.cover_image_src);
@@ -1040,7 +1038,7 @@ export function createPlugin(options: AwcmsMicroGalleryPluginOptions = {}): Reso
 			},
 			"media/validate": {
 				handler: async (ctx: any) => {
-					const locale = ctx.request?.headers?.["accept-language"] || "en";
+					const locale = resolveRequestLocale(ctx);
 					const item = (await ctx.request.json()) as unknown;
 					const settings = await readSettings(ctx, options);
 					const result = validateGalleryItem(item, 0, settings, locale);

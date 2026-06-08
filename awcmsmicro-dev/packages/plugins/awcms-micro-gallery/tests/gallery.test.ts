@@ -335,6 +335,75 @@ describe("awcms micro gallery plugin", () => {
 		expect(ctx.content.list).toHaveBeenCalledWith("galleries", { limit: 50 });
 	});
 
+	it("renders the admin page when the raw Accept-Language header is a full header value", async () => {
+		// Regression: the raw Accept-Language header (e.g. "id-ID,id;q=0.9,en;q=0.8")
+		// is NOT a valid Intl locale and previously crashed toLocaleDateString with a
+		// RangeError, producing a 500 "Plugin route error" on the admin page.
+		const plugin = createPlugin();
+		const ctx = createMockContext() as any;
+		ctx.content.list = vi.fn(async () => ({
+			items: [
+				{
+					id: "gallery-with-date",
+					data: {
+						title: "Community Cleanup Gallery",
+						location: "Community Hall",
+						event_date: "2026-05-01T00:00:00.000Z",
+						gallery_type: "mixed",
+						gallery_items: [],
+					},
+				},
+			],
+			cursor: undefined,
+			hasMore: false,
+		}));
+		const handler = plugin.routes?.admin?.handler;
+		expect(handler).toBeDefined();
+
+		const response = (await handler?.({
+			...ctx,
+			input: { type: "page_load", page: "/" },
+			request: new Request("https://example.test", {
+				headers: { "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7" },
+			}),
+		} as never)) as { blocks?: any[] };
+
+		// The gallery table must render (not the degraded error blocks), proving the
+		// locale was normalized and the event date formatted without throwing.
+		const json = JSON.stringify(response);
+		expect(json).toContain("gallery-table");
+		expect(json).toContain("Community Cleanup Gallery");
+		expect(ctx.log.error).not.toHaveBeenCalled();
+	});
+
+	it("renders the admin page with a malformed stored event_date without crashing", async () => {
+		const plugin = createPlugin();
+		const ctx = createMockContext() as any;
+		ctx.content.list = vi.fn(async () => ({
+			items: [
+				{
+					id: "gallery-bad-date",
+					data: { title: "Broken Date Gallery", event_date: "not-a-real-date", gallery_items: [] },
+				},
+			],
+			cursor: undefined,
+			hasMore: false,
+		}));
+		const handler = plugin.routes?.admin?.handler;
+
+		const response = (await handler?.({
+			...ctx,
+			input: { type: "page_load", page: "/" },
+			request: new Request("https://example.test", {
+				headers: { "accept-language": "en-US,en;q=0.9" },
+			}),
+		} as never)) as { blocks?: any[] };
+
+		const json = JSON.stringify(response);
+		expect(json).toContain("Broken Date Gallery");
+		expect(ctx.log.error).not.toHaveBeenCalled();
+	});
+
 	it("migrates legacy gallery audit storage on activate", async () => {
 		const plugin = createPlugin();
 		const hook = plugin.hooks?.["plugin:activate"];
@@ -560,5 +629,45 @@ describe("awcms micro gallery plugin", () => {
 		expect(formBlock).toMatchObject({
 			submit: expect.objectContaining({ label: "Simpan pengaturan" }),
 		});
+	});
+
+	it("renders the sandbox admin page on page_load with a raw Accept-Language header", async () => {
+		// Regression for the production 500 "Plugin route error": the sandbox entry
+		// (the runtime entrypoint) crashed when toLocaleDateString received the raw
+		// Accept-Language header as a locale while rendering a gallery event date.
+		const ctx = createMockContext() as any;
+		ctx.content.list = vi.fn(async () => ({
+			items: [
+				{
+					id: "gallery-with-date",
+					data: {
+						title: "Community Cleanup Gallery",
+						event_date: "2026-05-01T00:00:00.000Z",
+						gallery_type: "mixed",
+						gallery_items: [],
+					},
+				},
+			],
+			cursor: undefined,
+			hasMore: false,
+		}));
+		const handler = (
+			sandboxPlugin.routes?.admin as
+				| { handler?: (routeCtx: unknown, pluginCtx: unknown) => Promise<unknown> }
+				| undefined
+		)?.handler;
+
+		const response = (await handler?.(
+			{
+				input: { type: "page_load", page: "/" },
+				request: { headers: { "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7" } },
+			} as never,
+			ctx as never,
+		)) as { blocks?: any[] };
+
+		const json = JSON.stringify(response);
+		expect(json).toContain("gallery-table");
+		expect(json).toContain("Community Cleanup Gallery");
+		expect(ctx.log.error).not.toHaveBeenCalled();
 	});
 });

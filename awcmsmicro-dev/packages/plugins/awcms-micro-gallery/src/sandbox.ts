@@ -1,6 +1,13 @@
 import type { PluginContext, SandboxedPlugin } from "emdash/plugin";
 
-import { translateGallery, type GalleryTranslationKey } from "./i18n.js";
+import {
+	formatEventDate,
+	normalizeGalleryLocale,
+	resolveRequestLocale,
+	toDateInputValue,
+	translateGallery,
+	type GalleryTranslationKey,
+} from "./i18n.js";
 import {
 	AWCMS_GALLERY_COLLECTION,
 	AWCMS_GALLERY_STORAGE_COLLECTION,
@@ -348,9 +355,7 @@ async function buildAdminBlocks(
 							type: "date_input",
 							action_id: "event_date",
 							label: t("gallery.event_date_label"),
-							initial_value: entry?.event_date
-								? new Date(entry.event_date).toISOString().split("T")[0]
-								: "",
+							initial_value: toDateInputValue(entry?.event_date),
 						},
 						{
 							type: "text_input",
@@ -437,9 +442,7 @@ async function buildAdminBlocks(
 		title: asString(g.data?.title, g.id),
 		description: asString(g.data?.description),
 		location: asString(g.data?.location, "-"),
-		date: g.data?.event_date
-			? new Date(g.data.event_date).toLocaleDateString(locale, { dateStyle: "medium" })
-			: "-",
+		date: formatEventDate(g.data?.event_date, normalizeGalleryLocale(locale)),
 		type: asString(g.data?.gallery_type, "mixed"),
 		items: getGalleryItemsCount(g),
 		id: g.id,
@@ -678,7 +681,7 @@ const sandboxPlugin: SandboxedPlugin = {
 					value?: string;
 					values?: Record<string, unknown>;
 				};
-				const locale = routeCtx.request?.headers?.["accept-language"];
+				const locale = resolveRequestLocale(routeCtx);
 				try {
 					const settings = await readSettings(pluginCtx, {});
 					let state = (await pluginCtx.kv.get("admin:state")) as AdminState | null;
@@ -812,7 +815,7 @@ const sandboxPlugin: SandboxedPlugin = {
 		},
 		"media/validate": {
 			handler: async (routeCtx: any, pluginCtx: PluginContext): Promise<unknown> => {
-				const locale = routeCtx.request?.headers?.["accept-language"];
+				const locale = resolveRequestLocale(routeCtx);
 				const item = (await routeCtx.request.json()) as unknown;
 				const settings = await readSettings(pluginCtx, {});
 				const result = validateGalleryItem(item, 0, settings, locale);
