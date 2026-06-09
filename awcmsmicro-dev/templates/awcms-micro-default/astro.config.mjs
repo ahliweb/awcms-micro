@@ -1,6 +1,7 @@
 import node from "@astrojs/node";
 import react from "@astrojs/react";
 import { awcmsMicroDocsPlugin } from "@awcms-micro/plugin-docs";
+import { awcmsEmailMailketingPlugin } from "@awcms-micro/plugin-email-mailketing";
 import { awcmsMicroGalleryPlugin } from "@awcms-micro/plugin-gallery";
 import { awcmsMicroSikesraPlugin } from "@awcms-micro/plugin-sikesra";
 import { awcmsMicroWebsiteSocialPlugin } from "@awcms-micro/plugin-website-social";
@@ -37,6 +38,7 @@ export default defineConfig({
 			siteUrl: "https://example.awcms-micro.local",
 			plugins: [
 				awcmsMicroDocsPlugin(),
+				awcmsEmailMailketingPlugin({ tenantId: "t-local-dev", siteId: "default" }),
 				awcmsMicroGalleryPlugin(),
 				awcmsMicroWebsiteSocialPlugin(),
 				awcmsMicroSikesraPlugin({ tenantId: "t-local-dev", siteId: "default" }),

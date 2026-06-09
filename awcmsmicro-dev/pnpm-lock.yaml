@@ -394,7 +394,7 @@ importers:
     devDependencies:
       '@cloudflare/vite-plugin':
         specifier: 'catalog:'
-        version: 1.36.3(vite@6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260603.1)(wrangler@4.98.0)
+        version: 1.36.3(vite@6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260507.1)(wrangler@4.98.0)
       '@cloudflare/vitest-pool-workers':
         specifier: 'catalog:'
         version: 0.16.3(@vitest/runner@4.1.5)(@vitest/snapshot@4.1.5)(vitest@4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@26.1.0)(vite@6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)))
@@ -688,7 +688,7 @@ importers:
         version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.1)
       agents:
         specifier: ^0.12.0
-        version: 0.12.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@4.20260305.1)(@x402/core@2.8.0)(@x402/evm@2.8.0(typescript@6.0.3))(ai@6.0.172(zod@4.4.1))(react@19.2.4)(rolldown@1.0.2)(vite@8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))(zod@4.4.1)
+        version: 0.12.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@4.20260305.1)(@x402/core@2.8.0)(@x402/evm@2.8.0(typescript@6.0.3))(ai@6.0.172(zod@4.4.1))(react@19.2.4)(rolldown@1.0.2)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(zod@4.4.1)
       astro:
         specifier: 'catalog:'
         version: 6.4.4(@types/node@25.9.1)(aws4fetch@1.0.20)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.61.1)(yaml@2.9.0)
@@ -1119,7 +1119,7 @@ importers:
         version: 4.2.1
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1214,7 +1214,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1306,7 +1306,7 @@ importers:
         version: 19.2.4(react@19.2.4)
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1389,7 +1389,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1414,7 +1414,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1607,7 +1607,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1645,7 +1645,7 @@ importers:
         version: 24.10.13
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1670,7 +1670,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1767,7 +1767,7 @@ importers:
         version: 1.1.1
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       zod:
         specifier: 'catalog:'
         version: 4.4.1
@@ -1798,7 +1798,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1857,7 +1857,7 @@ importers:
         version: 3.3.1
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1876,7 +1876,7 @@ importers:
         version: link:../../plugin-cli
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1904,7 +1904,41 @@ importers:
         version: link:../../core
       tsdown:
         specifier: ^0.20.3
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.0)(@types/node@24.10.13)(jsdom@26.1.0)(vite@8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
+
+  packages/plugins/awcms-micro-email-mailketing:
+    dependencies:
+      '@lingui/react':
+        specifier: 'catalog:'
+        version: 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(typescript@6.0.3))(react@19.2.4)
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.2.4
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.1
+    devDependencies:
+      '@cloudflare/kumo':
+        specifier: 'catalog:'
+        version: 2.4.1(@date-fns/tz@1.4.1)(@phosphor-icons/react@2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(date-fns@4.1.0)(echarts@6.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zod@4.4.1)
+      '@types/node':
+        specifier: 24.10.13
+        version: 24.10.13
+      '@types/react':
+        specifier: ^19.2.14
+        version: 19.2.14
+      emdash:
+        specifier: workspace:*
+        version: link:../../core
+      tsdown:
+        specifier: ^0.20.3
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1922,7 +1956,7 @@ importers:
         version: link:../../core
       tsdown:
         specifier: ^0.20.3
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1956,7 +1990,7 @@ importers:
         version: link:../../core
       tsdown:
         specifier: ^0.20.3
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1987,7 +2021,7 @@ importers:
         version: link:../../core
       tsdown:
         specifier: ^0.20.3
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2096,7 +2130,7 @@ importers:
         version: link:../../plugin-cli
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2112,7 +2146,7 @@ importers:
         version: link:../../plugin-cli
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2128,7 +2162,7 @@ importers:
         version: link:../../plugin-cli
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2165,7 +2199,7 @@ importers:
         version: 7.8.1
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2193,7 +2227,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2224,7 +2258,7 @@ importers:
         version: 0.29.2
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2256,7 +2290,7 @@ importers:
         version: 0.3.17
       tsdown:
         specifier: 'catalog:'
-        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
+        version: 0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -2279,6 +2313,9 @@ importers:
       '@awcms-micro/plugin-docs':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-docs
+      '@awcms-micro/plugin-email-mailketing':
+        specifier: workspace:*
+        version: link:../../packages/plugins/awcms-micro-email-mailketing
       '@awcms-micro/plugin-gallery':
         specifier: workspace:*
         version: link:../../packages/plugins/awcms-micro-gallery
@@ -7837,10 +7874,6 @@ packages:
   emojilib@2.4.0:
     resolution: {integrity: sha512-5U0rVMU5Y2n2+ykNLQqMoqklN9ICBT/KsvC1Gz6vqHbz2AXXGkG+Pm5rMWk/8Vjrr/mY9985Hi8DYzn1F09Nyw==}
 
-  empathic@2.0.0:
-    resolution: {integrity: sha512-i6UzDscO/XfAcNYD75CfICkmfLedpyPDdozrLMmQc5ORaQcdMoc21OnlEylMIqI7U8eniKrPMxxtj8k0vhmJhA==}
-    engines: {node: '>=14'}
-
   empathic@2.0.1:
     resolution: {integrity: sha512-YGRs8knHhKHVShLkFET/rWAU8kmHbOV5LwN938RHI0pljAJ1Gf6SzXsSmRaEzcXTtOOmVqJ5+WtQPL5uigY50Q==}
     engines: {node: '>=14'}
@@ -10412,10 +10445,6 @@ packages:
 
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
-    engines: {node: '>=12.0.0'}
-
-  tinyglobby@0.2.16:
-    resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
 
   tinyglobby@0.2.17:
@@ -13077,9 +13106,9 @@ snapshots:
       - utf-8-validate
       - workerd
 
-  '@cloudflare/vite-plugin@1.36.3(vite@6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260603.1)(wrangler@4.98.0)':
+  '@cloudflare/vite-plugin@1.36.3(vite@6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(workerd@1.20260507.1)(wrangler@4.98.0)':
     dependencies:
-      '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260603.1)
+      '@cloudflare/unenv-preset': 2.16.1(unenv@2.0.0-rc.24)(workerd@1.20260507.1)
       miniflare: 4.20260507.1
       unenv: 2.0.0-rc.24
       vite: 6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
@@ -14004,7 +14033,7 @@ snapshots:
 
   '@lingui/conf@5.9.5(typescript@6.0.3)':
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.7
       cosmiconfig: 8.3.6(typescript@6.0.3)
       jest-validate: 29.7.0
       jiti: 2.6.1
@@ -14044,7 +14073,7 @@ snapshots:
 
   '@lingui/react@5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(typescript@6.0.3))(react@19.2.4)':
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.7
       '@lingui/core': 5.9.5(@lingui/babel-plugin-lingui-macro@5.9.5(typescript@6.0.3))
       react: 19.2.4
     optionalDependencies:
@@ -14726,14 +14755,20 @@ snapshots:
   '@rolldown/binding-openharmony-arm64@1.0.2':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.3':
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-rc.5':
+  '@rolldown/binding-wasm32-wasi@1.0.0-rc.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.1
+      '@napi-rs/wasm-runtime': 1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@rolldown/binding-wasm32-wasi@1.0.2':
@@ -14760,6 +14795,15 @@ snapshots:
 
   '@rolldown/binding-win32-x64-msvc@1.0.2':
     optional: true
+
+  '@rolldown/plugin-babel@0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.0.2)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))':
+    dependencies:
+      '@babel/core': 7.29.7
+      picomatch: 4.0.4
+      rolldown: 1.0.2
+    optionalDependencies:
+      '@babel/runtime': 7.29.7
+      vite: 7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
 
   '@rolldown/plugin-babel@0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.0.2)(vite@8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
@@ -16485,12 +16529,12 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  agents@0.12.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@4.20260305.1)(@x402/core@2.8.0)(@x402/evm@2.8.0(typescript@6.0.3))(ai@6.0.172(zod@4.4.1))(react@19.2.4)(rolldown@1.0.2)(vite@8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))(zod@4.4.1):
+  agents@0.12.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@4.20260305.1)(@x402/core@2.8.0)(@x402/evm@2.8.0(typescript@6.0.3))(ai@6.0.172(zod@4.4.1))(react@19.2.4)(rolldown@1.0.2)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))(zod@4.4.1):
     dependencies:
       '@babel/plugin-proposal-decorators': 7.29.0(@babel/core@7.29.7)
       '@cfworker/json-schema': 4.1.1
       '@modelcontextprotocol/sdk': 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.1)
-      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.0.2)(vite@8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0))
+      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.0.2)(vite@7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
       ai: 6.0.172(zod@4.4.1)
       cron-schedule: 6.0.0
       mimetext: 3.0.28
@@ -16503,7 +16547,7 @@ snapshots:
     optionalDependencies:
       '@x402/core': 2.8.0
       '@x402/evm': 2.8.0(typescript@6.0.3)
-      vite: 8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0)
+      vite: 7.3.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/plugin-transform-runtime'
@@ -17501,8 +17545,6 @@ snapshots:
 
   emojilib@2.4.0: {}
 
-  empathic@2.0.0: {}
-
   empathic@2.0.1: {}
 
   encodeurl@2.0.0: {}
@@ -18272,7 +18314,7 @@ snapshots:
 
   i18next@23.16.8:
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.7
 
   iconv-lite@0.6.3:
     dependencies:
@@ -20278,7 +20320,7 @@ snapshots:
 
   reusify@1.0.4: {}
 
-  rolldown-plugin-dts@0.22.2(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(rolldown@1.0.0-rc.3)(typescript@6.0.3):
+  rolldown-plugin-dts@0.22.2(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(rolldown@1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@6.0.3):
     dependencies:
       '@babel/generator': 8.0.0-rc.1
       '@babel/helper-validator-identifier': 8.0.0-rc.1
@@ -20289,14 +20331,14 @@ snapshots:
       dts-resolver: 2.1.3(oxc-resolver@11.16.4)
       get-tsconfig: 4.13.6
       obug: 2.1.1
-      rolldown: 1.0.0-rc.3
+      rolldown: 1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optionalDependencies:
       '@typescript/native-preview': 7.0.0-dev.20260421.2
       typescript: 6.0.3
     transitivePeerDependencies:
       - oxc-resolver
 
-  rolldown@1.0.0-rc.3:
+  rolldown@1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0):
     dependencies:
       '@oxc-project/types': 0.112.0
       '@rolldown/pluginutils': 1.0.0-rc.3
@@ -20311,11 +20353,14 @@ snapshots:
       '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.3
       '@rolldown/binding-linux-x64-musl': 1.0.0-rc.3
       '@rolldown/binding-openharmony-arm64': 1.0.0-rc.3
-      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.3
+      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.3
       '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.3
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
-  rolldown@1.0.0-rc.5:
+  rolldown@1.0.0-rc.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0):
     dependencies:
       '@oxc-project/types': 0.114.0
       '@rolldown/pluginutils': 1.0.0-rc.5
@@ -20330,9 +20375,12 @@ snapshots:
       '@rolldown/binding-linux-x64-gnu': 1.0.0-rc.5
       '@rolldown/binding-linux-x64-musl': 1.0.0-rc.5
       '@rolldown/binding-openharmony-arm64': 1.0.0-rc.5
-      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.5
+      '@rolldown/binding-wasm32-wasi': 1.0.0-rc.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.5
       '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.5
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   rolldown@1.0.2:
     dependencies:
@@ -20810,11 +20858,6 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
 
-  tinyglobby@0.2.16:
-    dependencies:
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
-
   tinyglobby@0.2.17:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
@@ -20868,29 +20911,31 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.0-beta
 
-  tsdown@0.20.3(@arethetypeswrong/core@0.18.2)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3):
+  tsdown@0.20.3(@arethetypeswrong/core@0.18.2)(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(publint@0.3.17)(typescript@6.0.3):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
       defu: 6.1.7
-      empathic: 2.0.0
+      empathic: 2.0.1
       hookable: 6.0.1
       import-without-cache: 0.2.5
       obug: 2.1.1
       picomatch: 4.0.4
-      rolldown: 1.0.0-rc.3
-      rolldown-plugin-dts: 0.22.2(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(rolldown@1.0.0-rc.3)(typescript@6.0.3)
-      semver: 7.7.4
+      rolldown: 1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      rolldown-plugin-dts: 0.22.2(@typescript/native-preview@7.0.0-dev.20260421.2)(oxc-resolver@11.16.4)(rolldown@1.0.0-rc.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@6.0.3)
+      semver: 7.8.1
       tinyexec: 1.0.4
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       tree-kill: 1.2.2
       unconfig-core: 7.4.2
-      unrun: 0.2.28
+      unrun: 0.2.28(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optionalDependencies:
       '@arethetypeswrong/core': 0.18.2
       publint: 0.3.17
       typescript: 6.0.3
     transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
       - '@ts-macro/tsc'
       - '@typescript/native-preview'
       - oxc-resolver
@@ -21048,9 +21093,12 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unrun@0.2.28:
+  unrun@0.2.28(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0):
     dependencies:
-      rolldown: 1.0.0-rc.5
+      rolldown: 1.0.0-rc.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   unstorage@1.17.4(aws4fetch@1.0.20):
     dependencies:
@@ -21263,7 +21311,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 6.4.3(@types/node@24.10.13)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0
@@ -21292,7 +21340,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.14(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0
@@ -21321,7 +21369,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 6.4.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0
@@ -21351,7 +21399,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 6.4.3(@types/node@25.9.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0
@@ -21381,7 +21429,7 @@ snapshots:
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.0.4
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
       vite: 8.0.14(@types/node@25.9.1)(esbuild@0.27.3)(jiti@2.7.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0

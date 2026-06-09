@@ -16,6 +16,7 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `packages/plugins/awcms-micro-docs`
 - `packages/plugins/awcms-micro-gallery`
 - `packages/plugins/awcms-micro-website-social`
+- `packages/plugins/awcms-micro-email-mailketing`
 - `demos/awcms-micro-cloudflare`
 - `docs/awcms-micro`
 - `docs/package.json`

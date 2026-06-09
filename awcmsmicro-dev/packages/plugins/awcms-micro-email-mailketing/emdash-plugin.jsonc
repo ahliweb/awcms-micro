@@ -1,0 +1,39 @@
+{
+	"$schema": "https://emdashcms.com/schemas/emdash-plugin.schema.json",
+
+	"slug": "awcms-email-mailketing",
+	"version": "0.1.0",
+	"license": "LicenseRef-AW-NC-1.0",
+	"publisher": "ahliweb.co.id",
+	"author": { "name": "AWCMS-Micro / AhliWeb" },
+	"name": "AWCMS Email Mailketing",
+	"description": "Mailketing.co.id email provider plugin for AWCMS-Micro. Delivers emails via the Mailketing REST API and adds send-log CRUD, campaign contact management, plugin-scoped RBAC, and audit trail.",
+	"keywords": ["awcms-micro", "email", "mailketing", "emdash", "plugin", "email-provider"],
+
+	"capabilities": ["email:provide", "network:request", "users:read"],
+	"allowedHosts": ["mailketing.co.id"],
+	"storage": {
+		"mailketing_send_log": {
+			"indexes": ["timestamp", "status", "recipient", ["status", "timestamp"]]
+		},
+		"mailketing_settings_state": {
+			"indexes": ["key", "updatedAt"]
+		}
+	},
+
+	"admin": {
+		"pages": [
+			{ "path": "/overview", "label": "Overview", "icon": "stack" },
+			{ "path": "/send-log", "label": "Send Log", "icon": "list" },
+			{ "path": "/settings", "label": "Settings", "icon": "gear" },
+			{ "path": "/access/users", "label": "Users", "icon": "users" },
+			{ "path": "/access/roles", "label": "Roles", "icon": "shield" },
+			{ "path": "/access/permissions", "label": "Permissions", "icon": "lock" },
+			{ "path": "/audit", "label": "Audit Log", "icon": "list" }
+		],
+		"widgets": [
+			{ "id": "email-status", "title": "Email Status", "size": "half" },
+			{ "id": "send-stats", "title": "Send Statistics", "size": "half" }
+		]
+	}
+}

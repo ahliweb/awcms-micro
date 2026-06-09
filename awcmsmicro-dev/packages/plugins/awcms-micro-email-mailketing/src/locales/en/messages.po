@@ -1,0 +1,199 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: @awcms-micro/plugin-email-mailketing\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "mailketing.nav.overview"
+msgstr "Overview"
+
+msgid "mailketing.nav.sendLog"
+msgstr "Send Log"
+
+msgid "mailketing.nav.settings"
+msgstr "Settings"
+
+msgid "mailketing.nav.users"
+msgstr "Users"
+
+msgid "mailketing.nav.roles"
+msgstr "Roles"
+
+msgid "mailketing.nav.permissions"
+msgstr "Permissions"
+
+msgid "mailketing.nav.audit"
+msgstr "Audit Log"
+
+msgid "mailketing.overview.title"
+msgstr "Email Mailketing"
+
+msgid "mailketing.overview.description"
+msgstr "Deliver transactional and marketing emails through the Mailketing.co.id API. Monitor delivery status, manage roles, and review audit history from this dashboard."
+
+msgid "mailketing.overview.configureSettings"
+msgstr "Configure Settings"
+
+msgid "mailketing.overview.viewSendLog"
+msgstr "View Send Log"
+
+msgid "mailketing.overview.statSent"
+msgstr "Sent"
+
+msgid "mailketing.overview.statFailed"
+msgstr "Failed"
+
+msgid "mailketing.overview.statPending"
+msgstr "Pending"
+
+msgid "mailketing.overview.stat24hSent"
+msgstr "Last 24h Sent"
+
+msgid "mailketing.overview.stat24hFailed"
+msgstr "Last 24h Failed"
+
+msgid "mailketing.overview.providerStatus"
+msgstr "Provider Status"
+
+msgid "mailketing.overview.statusActive"
+msgstr "Active"
+
+msgid "mailketing.overview.statusNotConfigured"
+msgstr "Not Configured"
+
+msgid "mailketing.overview.statusDisabled"
+msgstr "Disabled"
+
+msgid "mailketing.overview.fromEmail"
+msgstr "From Email"
+
+msgid "mailketing.overview.fromName"
+msgstr "From Name"
+
+msgid "mailketing.settings.title"
+msgstr "Settings"
+
+msgid "mailketing.settings.description"
+msgstr "Configure the Mailketing.co.id API integration."
+
+msgid "mailketing.settings.apiToken"
+msgstr "API Token"
+
+msgid "mailketing.settings.apiTokenHint"
+msgstr "Your Mailketing API token. Leave blank to keep the current token."
+
+msgid "mailketing.settings.fromEmail"
+msgstr "From Email"
+
+msgid "mailketing.settings.fromEmailHint"
+msgstr "Sender email address (must be verified in Mailketing)."
+
+msgid "mailketing.settings.fromName"
+msgstr "From Name"
+
+msgid "mailketing.settings.fromNameHint"
+msgstr "Display name shown in the From field."
+
+msgid "mailketing.settings.enabled"
+msgstr "Enable Provider"
+
+msgid "mailketing.settings.enabledHint"
+msgstr "When disabled, no emails will be sent through this plugin."
+
+msgid "mailketing.settings.logOutbound"
+msgstr "Log Outbound Emails"
+
+msgid "mailketing.settings.logOutboundHint"
+msgstr "Record each send attempt in the Send Log for audit and troubleshooting."
+
+msgid "mailketing.settings.save"
+msgstr "Save Settings"
+
+msgid "mailketing.settings.testConnection"
+msgstr "Test Connection"
+
+msgid "mailketing.settings.testSuccess"
+msgstr "Connection successful"
+
+msgid "mailketing.settings.testFailed"
+msgstr "Connection test failed"
+
+msgid "mailketing.settings.saveSuccess"
+msgstr "Settings saved"
+
+msgid "mailketing.settings.configured"
+msgstr "Configured"
+
+msgid "mailketing.settings.notConfigured"
+msgstr "Not configured — add API token and From Email to activate."
+
+msgid "mailketing.sendLog.title"
+msgstr "Send Log"
+
+msgid "mailketing.sendLog.description"
+msgstr "History of all outbound email attempts with delivery status."
+
+msgid "mailketing.sendLog.colRecipient"
+msgstr "Recipient"
+
+msgid "mailketing.sendLog.colSubject"
+msgstr "Subject"
+
+msgid "mailketing.sendLog.colStatus"
+msgstr "Status"
+
+msgid "mailketing.sendLog.colSentAt"
+msgstr "Sent At"
+
+msgid "mailketing.sendLog.statusSent"
+msgstr "Sent"
+
+msgid "mailketing.sendLog.statusFailed"
+msgstr "Failed"
+
+msgid "mailketing.sendLog.statusPending"
+msgstr "Pending"
+
+msgid "mailketing.sendLog.statusCancelled"
+msgstr "Cancelled"
+
+msgid "mailketing.sendLog.noEntries"
+msgstr "No send log entries found."
+
+msgid "mailketing.access.usersTitle"
+msgstr "Plugin Users"
+
+msgid "mailketing.access.rolesTitle"
+msgstr "Roles"
+
+msgid "mailketing.access.permissionsTitle"
+msgstr "Permissions"
+
+msgid "mailketing.audit.title"
+msgstr "Audit Log"
+
+msgid "mailketing.audit.description"
+msgstr "Track all plugin activity for compliance and troubleshooting."
+
+msgid "mailketing.common.loading"
+msgstr "Loading…"
+
+msgid "mailketing.common.error"
+msgstr "An error occurred: {error}"
+
+msgid "mailketing.common.save"
+msgstr "Save"
+
+msgid "mailketing.common.cancel"
+msgstr "Cancel"
+
+msgid "mailketing.common.delete"
+msgstr "Delete"
+
+msgid "mailketing.common.edit"
+msgstr "Edit"
+
+msgid "mailketing.common.create"
+msgstr "Create"
