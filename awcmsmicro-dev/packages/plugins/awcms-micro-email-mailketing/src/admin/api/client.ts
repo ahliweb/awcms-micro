@@ -1,6 +1,6 @@
 import { apiFetch, parseApiResponse } from "emdash/plugin-utils";
 
-export const MAILKETING_PLUGIN_ROUTE_BASE = "/api/plugins/awcms-email-mailketing";
+export const MAILKETING_PLUGIN_ROUTE_BASE = "/_emdash/api/plugins/awcms-email-mailketing";
 
 export async function postMailketingPlugin<TResponse, TPayload = Record<string, unknown>>(opts: {
 	path: string;

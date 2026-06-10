@@ -1191,16 +1191,13 @@ function AuditLogPage() {
 
 // ── Plugin admin exports ──────────────────────────────────────────────────────
 
-const pluginAdminExports: PluginAdminExports = {
-	pages: {
-		"/overview": <OverviewPage />,
-		"/send-log": <SendLogPage />,
-		"/settings": <SettingsPage />,
-		"/access/users": <AccessUsersPage />,
-		"/access/roles": <AccessRolesPage />,
-		"/access/permissions": <AccessPermissionsPage />,
-		"/audit": <AuditLogPage />,
-	},
+export const pages: PluginAdminExports["pages"] = {
+	"/": OverviewPage,
+	"/overview": OverviewPage,
+	"/send-log": SendLogPage,
+	"/settings": SettingsPage,
+	"/access/users": AccessUsersPage,
+	"/access/roles": AccessRolesPage,
+	"/access/permissions": AccessPermissionsPage,
+	"/audit": AuditLogPage,
 };
-
-export default pluginAdminExports;

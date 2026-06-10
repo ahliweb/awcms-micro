@@ -166,6 +166,7 @@ function ctxToStorage(ctx: PluginContext): MailketingStorageContext {
 export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 	return {
 		"email:deliver": {
+			exclusive: true,
 			priority: 100,
 			timeout: 30000,
 			handler: async (event: EmailDeliverEvent, ctx: PluginContext) => {
