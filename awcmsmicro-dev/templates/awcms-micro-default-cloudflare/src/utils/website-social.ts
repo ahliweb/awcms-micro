@@ -35,6 +35,7 @@ export interface WebsiteSocialConfig {
 	promoEnabled: boolean;
 	promoTitle: string;
 	promoText: string;
+	promoOriginalPrice: string;
 	promoPrice: string;
 	promoDiscount: string;
 	promoCtaMessage: string;
@@ -79,6 +80,7 @@ const DEFAULT_SOCIAL_CONFIG: WebsiteSocialConfig = {
 	promoEnabled: true,
 	promoTitle: "",
 	promoText: "",
+	promoOriginalPrice: "",
 	promoPrice: "",
 	promoDiscount: "",
 	promoCtaMessage: "",
@@ -143,6 +145,7 @@ export async function getWebsiteSocialConfig(locale: string | undefined): Promis
 			promoEnabled: data.promo_enabled !== false,
 			promoTitle: asString(data.promo_title, DEFAULT_SOCIAL_CONFIG.promoTitle),
 			promoText: asString(data.promo_text, DEFAULT_SOCIAL_CONFIG.promoText),
+			promoOriginalPrice: asString(data.promo_original_price, DEFAULT_SOCIAL_CONFIG.promoOriginalPrice),
 			promoPrice: asString(data.promo_price, DEFAULT_SOCIAL_CONFIG.promoPrice),
 			promoDiscount: asString(data.promo_discount, DEFAULT_SOCIAL_CONFIG.promoDiscount),
 			promoCtaMessage: asString(data.promo_cta_message, DEFAULT_SOCIAL_CONFIG.promoCtaMessage),
