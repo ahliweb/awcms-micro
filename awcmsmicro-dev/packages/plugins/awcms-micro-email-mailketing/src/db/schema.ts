@@ -1,129 +1,98 @@
-export const MAILKETING_D1_TABLES = {
-	settings: "mailketing_settings",
-	pluginState: "mailketing_plugin_state",
+// ── Storage collection names ──────────────────────────────────────────────────
+
+export const MAILKETING_STORAGE_COLLECTIONS = {
 	sendLog: "mailketing_send_log",
-	permissions: "mailketing_permission_catalog",
-	roles: "mailketing_role_catalog",
+	permissionCatalog: "mailketing_permission_catalog",
+	roleCatalog: "mailketing_role_catalog",
 	rolePermissions: "mailketing_role_permission_assignments",
 	userRoles: "mailketing_user_role_assignments",
 	userProfile: "mailketing_user_profile",
 	auditEvents: "mailketing_audit_events",
 } as const;
 
-export type MailketingD1TableName = (typeof MAILKETING_D1_TABLES)[keyof typeof MAILKETING_D1_TABLES];
+export type MailketingStorageCollectionName =
+	(typeof MAILKETING_STORAGE_COLLECTIONS)[keyof typeof MAILKETING_STORAGE_COLLECTIONS];
 
-export function assertMailketingTableName(table: string): asserts table is MailketingD1TableName {
-	if (!table.startsWith("mailketing_")) {
-		throw new Error(`Mailketing repository table must use mailketing_ prefix: ${table}`);
-	}
-}
+// ── Document shapes (stored as JSON in _plugin_storage) ──────────────────────
 
-// ── Row types matching D1 columns ────────────────────────────────────────────
-
-export interface MailketingSettingsRow {
-	tenant_id: string;
-	site_id: string;
-	key: string;
-	value_json: string;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
-	created_by: string | null;
-	updated_by: string | null;
-}
-
-export interface MailketingSendLogRow {
-	tenant_id: string;
-	site_id: string;
+export interface MailketingSendLogDoc {
 	id: string;
 	recipient: string;
 	subject: string;
 	source: string;
 	status: string;
-	provider_message_id: string | null;
-	error_message: string | null;
-	request_payload_json: string | null;
-	response_json: string | null;
-	sent_at: string | null;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
-	created_by: string | null;
+	providerMessageId: string | null;
+	errorMessage: string | null;
+	requestPayloadJson: string | null;
+	responseJson: string | null;
+	sentAt: string | null;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	createdBy: string | null;
 }
 
-export interface MailketingPermissionRow {
-	tenant_id: string;
-	site_id: string;
+export interface MailketingPermissionDoc {
 	id: string;
 	slug: string;
 	label: string;
 	description: string | null;
 	scope: string;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
 }
 
-export interface MailketingRoleRow {
-	tenant_id: string;
-	site_id: string;
+export interface MailketingRoleDoc {
 	id: string;
 	slug: string;
 	label: string;
 	description: string | null;
-	is_system_role: number;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
-	created_by: string | null;
+	isSystemRole: boolean;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	createdBy: string | null;
 }
 
-export interface MailketingRolePermissionRow {
-	tenant_id: string;
-	site_id: string;
-	role_id: string;
-	permission_id: string;
-	created_at: string;
-	created_by: string | null;
+export interface MailketingRolePermissionDoc {
+	roleId: string;
+	permissionId: string;
+	createdAt: string;
+	createdBy: string | null;
 }
 
-export interface MailketingUserRoleRow {
-	tenant_id: string;
-	site_id: string;
-	user_id: string;
-	role_id: string;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
-	created_by: string | null;
-	updated_by: string | null;
+export interface MailketingUserRoleDoc {
+	userId: string;
+	roleId: string;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	createdBy: string | null;
+	updatedBy: string | null;
 }
 
-export interface MailketingUserProfileRow {
-	tenant_id: string;
-	site_id: string;
-	user_id: string;
-	display_name: string | null;
+export interface MailketingUserProfileDoc {
+	userId: string;
+	displayName: string | null;
 	phone: string | null;
-	meta_json: string | null;
-	created_at: string;
-	updated_at: string;
-	deleted_at: string | null;
-	updated_by: string | null;
+	meta: Record<string, unknown>;
+	createdAt: string;
+	updatedAt: string;
+	deletedAt: string | null;
+	updatedBy: string | null;
 }
 
-export interface MailketingAuditEventRow {
-	tenant_id: string;
-	site_id: string;
+export interface MailketingAuditEventDoc {
 	id: string;
-	event_kind: string;
-	actor_id: string | null;
-	actor_email: string | null;
-	target_type: string | null;
-	target_id: string | null;
+	eventKind: string;
+	actorId: string | null;
+	actorEmail: string | null;
+	targetType: string | null;
+	targetId: string | null;
 	summary: string;
-	detail_json: string | null;
-	ip_address: string | null;
-	user_agent: string | null;
-	created_at: string;
+	detail: Record<string, unknown> | null;
+	ipAddress: string | null;
+	userAgent: string | null;
+	createdAt: string;
 }

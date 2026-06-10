@@ -72,19 +72,30 @@ export class MailketingClient {
 	}
 
 	async testConnection(): Promise<{ ok: boolean; error?: string }> {
+		// Probe the API by sending a minimal request and checking auth.
+		// HTTP 401 = invalid token. Any other response (including 4xx validation errors)
+		// means the token was accepted and the API is reachable.
+		const url = `${this.baseUrl}/api/v1/send`;
+		let response: Response;
 		try {
-			const result = await this.sendEmail({
-				to: "test@mailketing-probe.invalid",
-				from: "probe@mailketing-probe.invalid",
-				from_name: "AWCMS-Micro Probe",
-				subject: "Connection test",
-				text: "This is a connection test from AWCMS-Micro Email Mailketing plugin.",
+			response = await this.fetchFn(url, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${this.apiToken}`,
+					"Accept": "application/json",
+				},
+				body: JSON.stringify({ to: "", from: "", from_name: "", subject: "", text: "" }),
 			});
-			return { ok: result.success };
 		} catch (err) {
-			const msg = err instanceof MailketingApiError ? err.message : String(err);
-			return { ok: false, error: msg };
+			return { ok: false, error: `Network error: ${err instanceof Error ? err.message : String(err)}` };
 		}
+
+		if (response.status === 401) {
+			return { ok: false, error: "Invalid API token (HTTP 401)" };
+		}
+		// Any non-401 response (including 422 validation errors) means the token is accepted
+		return { ok: true };
 	}
 }
 

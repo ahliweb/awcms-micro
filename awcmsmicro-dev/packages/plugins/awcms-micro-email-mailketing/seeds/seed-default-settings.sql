@@ -1,15 +1,17 @@
 -- AWCMS-Micro Email Mailketing: default settings seed
--- Seeds the default API token and sender configuration for development/testing.
+-- NOTE: This SQL seed targets the legacy raw mailketing_* SQL tables.
+-- The plugin now uses EmDash ctx.kv (via _emdash_options table) and
+-- ctx.storage (via _plugin_storage table). Settings are bootstrapped
+-- automatically at first route access via ensureDefaultSettings().
+-- This file is kept for reference only. Do NOT apply it to a fresh install.
 -- SECURITY: Do NOT commit real production credentials into source control.
--- The API token below is the configured Mailketing token for this project.
--- Replace with environment-specific values before deploying to production.
 
 INSERT INTO mailketing_settings
 	(tenant_id, site_id, key, value_json, created_at, updated_at)
 VALUES
 	('t-local-dev', 'default', 'api_token',    '"70e3b49ec472fb3b945929c1a43fed36"',   datetime('now'), datetime('now')),
-	('t-local-dev', 'default', 'from_email',   '"noreply@ahliweb.co.id"',              datetime('now'), datetime('now')),
-	('t-local-dev', 'default', 'from_name',    '"AWCMS-Micro"',                        datetime('now'), datetime('now')),
+	('t-local-dev', 'default', 'from_email',   '"sender@satpamsiber.com"',             datetime('now'), datetime('now')),
+	('t-local-dev', 'default', 'from_name',    '"AWCMS Email"',                        datetime('now'), datetime('now')),
 	('t-local-dev', 'default', 'enabled',      'true',                                 datetime('now'), datetime('now')),
 	('t-local-dev', 'default', 'log_outbound', 'true',                                 datetime('now'), datetime('now'))
 ON CONFLICT (tenant_id, site_id, key)

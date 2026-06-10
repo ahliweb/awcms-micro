@@ -1,3 +1,52 @@
-export * from "./connection.js";
-export * from "./repositories.js";
-export * from "./schema.js";
+export type {
+	MailketingAuditEventDoc,
+	MailketingPermissionDoc,
+	MailketingRoleDoc,
+	MailketingRolePermissionDoc,
+	MailketingSendLogDoc,
+	MailketingUserProfileDoc,
+	MailketingUserRoleDoc,
+} from "./schema.js";
+export { MAILKETING_STORAGE_COLLECTIONS } from "./schema.js";
+export type { MailketingStorageContext } from "./connection.js";
+export {
+	getAuditCollection,
+	getPermissionCollection,
+	getRoleCollection,
+	getRolePermissionsCollection,
+	getSendLogCollection,
+	getUserProfileCollection,
+	getUserRolesCollection,
+} from "./connection.js";
+export {
+	assignUserRole,
+	ensureDefaultPermissions,
+	ensureDefaultRoles,
+	ensureDefaultSettings,
+	getRoleById,
+	getRoleBySlug,
+	getRolePermissions,
+	getSendLogById,
+	getSendStats,
+	getSettingValue,
+	getUserProfile,
+	getUserRoles,
+	insertAuditEvent,
+	insertRole,
+	insertSendLog,
+	listAuditEvents,
+	listPermissions,
+	listRoles,
+	listSendLog,
+	permanentDeleteSendLog,
+	restoreSendLog,
+	revokeUserRole,
+	setRolePermissions,
+	softDeleteRole,
+	softDeleteSendLog,
+	updateRole,
+	updateSendLogStatus,
+	upsertPermission,
+	upsertSetting,
+	upsertUserProfile,
+} from "./repositories.js";

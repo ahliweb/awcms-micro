@@ -2,7 +2,9 @@ import type {
 	PluginContext,
 	PluginRoute as NativePluginRoute,
 	PluginStorageConfig,
+	StorageCollection,
 } from "emdash";
+import { PluginRouteError } from "emdash";
 import type { EmailDeliverEvent } from "emdash/plugin";
 
 import {
@@ -24,6 +26,12 @@ import {
 	type MailketingUserRoleRevokeRequest,
 } from "./contracts/index.js";
 import {
+	assignUserRole,
+	ensureDefaultPermissions,
+	ensureDefaultRoles,
+	ensureDefaultSettings,
+	getRoleById,
+	getSendLogById,
 	getSendStats,
 	getSettingValue,
 	getUserProfile,
@@ -36,9 +44,7 @@ import {
 	listRoles,
 	listSendLog,
 	permanentDeleteSendLog,
-	requireMailketingD1Database,
 	restoreSendLog,
-	assignUserRole,
 	revokeUserRole,
 	setRolePermissions,
 	softDeleteRole,
@@ -48,6 +54,9 @@ import {
 	upsertPermission,
 	upsertSetting,
 	upsertUserProfile,
+	type MailketingRoleDoc,
+	type MailketingSendLogDoc,
+	type MailketingStorageContext,
 } from "./db/index.js";
 import { MAILKETING_PO_LOCALE_MESSAGES } from "./locales/messages.js";
 import { createMailketingClient } from "./services/mailketing-api.js";
@@ -79,21 +88,29 @@ export const AWCMS_MAILKETING_ALLOWED_HOSTS = ["mailketing.co.id"] as const;
 
 export const AWCMS_MAILKETING_STORAGE: PluginStorageConfig = {
 	mailketing_send_log: {
-		indexes: ["timestamp", "status", "recipient"],
+		indexes: ["status", "recipient", "createdAt", "deletedAt"],
 	},
-	mailketing_settings_state: {
-		indexes: ["key", "updatedAt"],
+	mailketing_permission_catalog: {
+		indexes: ["slug", "scope"],
+	},
+	mailketing_role_catalog: {
+		indexes: ["slug"],
+	},
+	mailketing_role_permission_assignments: {
+		indexes: ["roleId", "permissionId"],
+	},
+	mailketing_user_role_assignments: {
+		indexes: ["userId", "roleId"],
+	},
+	mailketing_user_profile: {
+		indexes: ["userId"],
+	},
+	mailketing_audit_events: {
+		indexes: ["eventKind", "actorId", "createdAt"],
 	},
 };
 
-export const AWCMS_MAILKETING_DESCRIPTOR_STORAGE = {
-	mailketing_send_log: {
-		indexes: ["timestamp", "status", "recipient", ["status", "timestamp"]],
-	},
-	mailketing_settings_state: {
-		indexes: ["key", "updatedAt"],
-	},
-};
+export const AWCMS_MAILKETING_DESCRIPTOR_STORAGE = AWCMS_MAILKETING_STORAGE;
 
 export const AWCMS_MAILKETING_MANIFEST = {
 	i18n: {
@@ -103,31 +120,33 @@ export const AWCMS_MAILKETING_MANIFEST = {
 	},
 };
 
-// ── Settings helpers ──────────────────────────────────────────────────────────
+// ── Plugin options ────────────────────────────────────────────────────────────
 
-const DEFAULT_TENANT = "default";
-const DEFAULT_SITE = "default";
-
-function getScope(options: MailketingRuntimeOptions = {}) {
-	return {
-		tenantId: options.tenantId ?? DEFAULT_TENANT,
-		siteId: options.siteId ?? DEFAULT_SITE,
-	};
+export interface MailketingRuntimeOptions {
+	tenantId?: string;
+	siteId?: string;
+	defaultFromEmail?: string;
+	defaultFromName?: string;
 }
 
-async function readSettings(db: ReturnType<typeof requireMailketingD1Database>, scope: ReturnType<typeof getScope>) {
-	const apiToken = await getSettingValue(db, scope, "api_token");
-	const fromEmail = await getSettingValue(db, scope, "from_email");
-	const fromName = await getSettingValue(db, scope, "from_name");
-	const enabled = await getSettingValue(db, scope, "enabled");
-	const logOutbound = await getSettingValue(db, scope, "log_outbound");
+const DEFAULT_FROM_EMAIL = "sender@satpamsiber.com";
+const DEFAULT_FROM_NAME = "AWCMS Email";
+
+// ── Settings helpers ──────────────────────────────────────────────────────────
+
+async function readSettings(ctx: MailketingStorageContext) {
+	const apiToken = await getSettingValue(ctx, "api_token");
+	const fromEmail = await getSettingValue(ctx, "from_email");
+	const fromName = await getSettingValue(ctx, "from_name");
+	const enabled = await ctx.kv.get<boolean>("settings:enabled");
+	const logOutbound = await ctx.kv.get<boolean>("settings:log_outbound");
 
 	return {
-		apiToken: apiToken ? JSON.parse(apiToken) as string : "",
-		fromEmail: fromEmail ? JSON.parse(fromEmail) as string : "",
-		fromName: fromName ? JSON.parse(fromName) as string : "AWCMS Email",
-		enabled: enabled ? JSON.parse(enabled) as boolean : true,
-		logOutbound: logOutbound ? JSON.parse(logOutbound) as boolean : true,
+		apiToken: typeof apiToken === "string" ? apiToken : "",
+		fromEmail: typeof fromEmail === "string" ? fromEmail : DEFAULT_FROM_EMAIL,
+		fromName: typeof fromName === "string" ? fromName : DEFAULT_FROM_NAME,
+		enabled: typeof enabled === "boolean" ? enabled : true,
+		logOutbound: typeof logOutbound === "boolean" ? logOutbound : true,
 	};
 }
 
@@ -135,12 +154,14 @@ function generateId(): string {
 	return `mk_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// ── Email deliver hook ────────────────────────────────────────────────────────
-
-export interface MailketingRuntimeOptions {
-	tenantId?: string;
-	siteId?: string;
+function ctxToStorage(ctx: PluginContext): MailketingStorageContext {
+	return {
+		storage: ctx.storage as Record<string, StorageCollection>,
+		kv: ctx.kv,
+	};
 }
+
+// ── Email deliver hook ────────────────────────────────────────────────────────
 
 export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 	return {
@@ -148,20 +169,26 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 			priority: 100,
 			timeout: 30000,
 			handler: async (event: EmailDeliverEvent, ctx: PluginContext) => {
-				const db = requireMailketingD1Database(
-					(ctx as unknown as { db?: unknown }).db as ReturnType<typeof requireMailketingD1Database> | undefined,
+				const s = ctxToStorage(ctx);
+
+				await ensureDefaultSettings(
+					s,
+					options.defaultFromEmail ?? DEFAULT_FROM_EMAIL,
+					options.defaultFromName ?? DEFAULT_FROM_NAME,
 				);
-				const scope = getScope(options);
-				const settings = await readSettings(db, scope);
+				await ensureDefaultPermissions(s, options.tenantId ?? "default", options.siteId ?? "default");
+				await ensureDefaultRoles(s);
+
+				const settings = await readSettings(s);
 
 				if (!settings.apiToken) {
-					throw new Error("Mailketing API token is not configured. Go to Email Mailketing > Settings.");
+					throw new Error("Mailketing API token not configured. Go to Email Mailketing > Settings.");
 				}
 				if (!settings.enabled) {
-					throw new Error("Mailketing email provider is disabled in settings.");
+					throw new Error("Mailketing email provider is disabled.");
 				}
 				if (!settings.fromEmail) {
-					throw new Error("Mailketing sender email is not configured.");
+					throw new Error("Mailketing sender email not configured.");
 				}
 
 				const fetchFn = ctx.http?.fetch;
@@ -170,30 +197,27 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 				}
 
 				const client = createMailketingClient(settings.apiToken, fetchFn as typeof fetch);
-
 				const logId = generateId();
 				const now = new Date().toISOString();
 
 				if (settings.logOutbound) {
-					await insertSendLog(db, scope, {
+					const logEntry: MailketingSendLogDoc = {
 						id: logId,
 						recipient: event.message.to,
 						subject: event.message.subject,
-						source: event.source,
+						source: event.source ?? "system",
 						status: "pending",
-						provider_message_id: null,
-						error_message: null,
-						request_payload_json: JSON.stringify({
-							to: event.message.to,
-							subject: event.message.subject,
-						}),
-						response_json: null,
-						sent_at: null,
-						created_at: now,
-						updated_at: now,
-						deleted_at: null,
-						created_by: null,
-					});
+						providerMessageId: null,
+						errorMessage: null,
+						requestPayloadJson: JSON.stringify({ to: event.message.to, subject: event.message.subject }),
+						responseJson: null,
+						sentAt: null,
+						createdAt: now,
+						updatedAt: now,
+						deletedAt: null,
+						createdBy: null,
+					};
+					await insertSendLog(s, logEntry);
 				}
 
 				try {
@@ -202,14 +226,13 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 						from: settings.fromEmail,
 						from_name: settings.fromName,
 						subject: event.message.subject,
-						text: event.message.text,
+						text: event.message.text ?? "",
 						html: event.message.html,
 					});
 
 					if (settings.logOutbound) {
 						await updateSendLogStatus(
-							db,
-							scope,
+							s,
 							logId,
 							result.success ? "sent" : "failed",
 							result.message_id ?? null,
@@ -220,20 +243,11 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 					}
 
 					if (!result.success) {
-						throw new Error(`Mailketing delivery failed: ${result.error ?? result.message ?? "Unknown error"}`);
+						throw new Error(`Mailketing delivery failed: ${result.error ?? result.message ?? "Unknown"}`);
 					}
 				} catch (err) {
 					if (settings.logOutbound) {
-						await updateSendLogStatus(
-							db,
-							scope,
-							logId,
-							"failed",
-							null,
-							err instanceof Error ? err.message : String(err),
-							null,
-							null,
-						).catch(() => void 0);
+						await updateSendLogStatus(s, logId, "failed", null, err instanceof Error ? err.message : String(err), null, null).catch(() => void 0);
 					}
 					throw err;
 				}
@@ -242,649 +256,290 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 	};
 }
 
-// ── Admin routes ──────────────────────────────────────────────────────────────
+// ── Native routes ─────────────────────────────────────────────────────────────
 
-type RouteMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-
-function ok<T>(data: T) {
-	return new Response(JSON.stringify({ success: true, data }), {
-		status: 200,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-function err(message: string, status = 400) {
-	return new Response(JSON.stringify({ success: false, error: message }), {
-		status,
-		headers: { "Content-Type": "application/json" },
-	});
-}
-
-async function parseBody<T>(request: Request): Promise<T> {
-	const text = await request.text();
-	return JSON.parse(text) as T;
-}
-
-export function createNativeRoutes(options: MailketingRuntimeOptions = {}): Record<string, NativePluginRoute & { method: RouteMethod }> {
-	const scope = getScope(options);
+export function createNativeRoutes(
+	options: MailketingRuntimeOptions = {},
+): Record<string, NativePluginRoute> {
+	const bootstrap = async (s: MailketingStorageContext) => {
+		await ensureDefaultSettings(s, options.defaultFromEmail ?? DEFAULT_FROM_EMAIL, options.defaultFromName ?? DEFAULT_FROM_NAME);
+		await ensureDefaultPermissions(s, options.tenantId ?? "default", options.siteId ?? "default");
+		await ensureDefaultRoles(s);
+	};
 
 	return {
 		// ── Overview ──────────────────────────────────────────────────────────
 		"overview/stats": {
-			method: "GET",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const settings = await readSettings(db, scope);
-					const stats = await getSendStats(db, scope);
-					return ok({
-						totalSent: stats.sent,
-						totalFailed: stats.failed,
-						totalPending: stats.pending,
-						last24hSent: stats.last24hSent,
-						last24hFailed: stats.last24hFailed,
-						providerConfigured: !!settings.apiToken && !!settings.fromEmail,
-						providerEnabled: settings.enabled,
-						fromEmail: settings.fromEmail,
-						fromName: settings.fromName,
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				await bootstrap(s);
+				const settings = await readSettings(s);
+				const stats = await getSendStats(s);
+				return {
+					totalSent: stats.sent,
+					totalFailed: stats.failed,
+					totalPending: stats.pending,
+					last24hSent: stats.last24hSent,
+					last24hFailed: stats.last24hFailed,
+					providerConfigured: !!settings.apiToken && !!settings.fromEmail,
+					providerEnabled: settings.enabled,
+					fromEmail: settings.fromEmail,
+					fromName: settings.fromName,
+				};
 			},
 		},
 
-		// ── Send Log CRUD ─────────────────────────────────────────────────────
+		// ── Send Log ─────────────────────────────────────────────────────────
 		"send-log/list": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSendLogListRequest>(ctx.request);
-					const { page, pageSize } = normalizeMailketingPage(body.page, body.pageSize);
-					const result = await listSendLog(db, scope, {
-						page,
-						pageSize,
-						status: body.status,
-						recipient: body.recipient,
-						includeDeleted: body.includeDeleted,
-					});
-					return ok({
-						items: result.items.map(mapSendLogRow),
-						total: result.total,
-						page,
-						pageSize,
-						totalPages: Math.ceil(result.total / pageSize),
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSendLogListRequest;
+				const { page, pageSize } = normalizeMailketingPage(body?.page, body?.pageSize);
+				const result = await listSendLog(s, { page, pageSize, status: body?.status, recipient: body?.recipient, includeDeleted: body?.includeDeleted });
+				return { items: result.items.map(mapSendLogDoc), total: result.total, page, pageSize, totalPages: Math.ceil(result.total / pageSize) || 1 };
 			},
 		},
 
 		"send-log/detail": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSendLogDetailRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-					const { getSendLogById } = await import("./db/repositories.js");
-					const row = await getSendLogById(db, scope, body.id);
-					if (!row) return err("Not found", 404);
-					return ok(mapSendLogRow(row));
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSendLogDetailRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				const doc = await getSendLogById(s, body.id);
+				if (!doc) throw PluginRouteError.notFound("Send log entry not found");
+				return mapSendLogDoc(doc);
 			},
 		},
 
 		"send-log/soft-delete": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSendLogSoftDeleteRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-					await softDeleteSendLog(db, scope, body.id);
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "send_log.soft_delete",
-						actor_id: null,
-						actor_email: null,
-						target_type: "send_log",
-						target_id: body.id,
-						summary: `Send log ${body.id} soft-deleted`,
-						detail_json: body.reason ? JSON.stringify({ reason: body.reason }) : null,
-						ip_address: null,
-						user_agent: null,
-						created_at: new Date().toISOString(),
-					});
-					return ok({ deleted: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSendLogSoftDeleteRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				await softDeleteSendLog(s, body.id);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "send_log.soft_delete", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "send_log", targetId: body.id, summary: `Send log ${body.id} soft-deleted`, detail: body.reason ? { reason: body.reason } : null, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { deleted: true };
 			},
 		},
 
 		"send-log/restore": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSendLogRestoreRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-					await restoreSendLog(db, scope, body.id);
-					return ok({ restored: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSendLogRestoreRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				await restoreSendLog(s, body.id);
+				return { restored: true };
 			},
 		},
 
 		"send-log/permanent-delete": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSendLogPermanentDeleteRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-					if (!body.reason || body.reason.trim().length === 0)
-						return err("reason is required for permanent delete");
-					await permanentDeleteSendLog(db, scope, body.id);
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "send_log.permanent_delete",
-						actor_id: null,
-						actor_email: null,
-						target_type: "send_log",
-						target_id: body.id,
-						summary: `Send log ${body.id} permanently deleted`,
-						detail_json: JSON.stringify({ reason: body.reason }),
-						ip_address: null,
-						user_agent: null,
-						created_at: new Date().toISOString(),
-					});
-					return ok({ deleted: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSendLogPermanentDeleteRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				if (!body.reason?.trim()) throw PluginRouteError.badRequest("reason is required for permanent delete");
+				await permanentDeleteSendLog(s, body.id);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "send_log.permanent_delete", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "send_log", targetId: body.id, summary: `Send log ${body.id} permanently deleted`, detail: { reason: body.reason }, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { deleted: true };
 			},
 		},
 
 		// ── Settings ──────────────────────────────────────────────────────────
 		"settings/get": {
-			method: "GET",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const settings = await readSettings(db, scope);
-					// Mask API token for security — only indicate whether it's set
-					return ok({
-						settings: {
-							apiToken: settings.apiToken ? "••••••••" : "",
-							fromEmail: settings.fromEmail,
-							fromName: settings.fromName,
-							enabled: settings.enabled,
-							logOutbound: settings.logOutbound,
-						},
-						configured: !!settings.apiToken && !!settings.fromEmail,
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				await bootstrap(s);
+				const settings = await readSettings(s);
+				return {
+					settings: {
+						apiToken: settings.apiToken ? "••••••••" : "",
+						fromEmail: settings.fromEmail,
+						fromName: settings.fromName,
+						enabled: settings.enabled,
+						logOutbound: settings.logOutbound,
+					},
+					configured: !!settings.apiToken && !!settings.fromEmail,
+				};
 			},
 		},
 
 		"settings/save": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingSettingsSaveRequest>(ctx.request);
-
-					if (body.apiToken !== undefined && body.apiToken !== "••••••••") {
-						await upsertSetting(db, scope, "api_token", JSON.stringify(body.apiToken), null);
-					}
-					if (body.fromEmail !== undefined)
-						await upsertSetting(db, scope, "from_email", JSON.stringify(body.fromEmail), null);
-					if (body.fromName !== undefined)
-						await upsertSetting(db, scope, "from_name", JSON.stringify(body.fromName), null);
-					if (body.enabled !== undefined)
-						await upsertSetting(db, scope, "enabled", JSON.stringify(body.enabled), null);
-					if (body.logOutbound !== undefined)
-						await upsertSetting(db, scope, "log_outbound", JSON.stringify(body.logOutbound), null);
-
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "settings.save",
-						actor_id: null,
-						actor_email: null,
-						target_type: "settings",
-						target_id: null,
-						summary: "Plugin settings updated",
-						detail_json: JSON.stringify({
-							fields: Object.keys(body).filter((k) => k !== "apiToken"),
-						}),
-						ip_address: null,
-						user_agent: null,
-						created_at: new Date().toISOString(),
-					});
-
-					return ok({ saved: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingSettingsSaveRequest;
+				if (!body || typeof body !== "object") throw PluginRouteError.badRequest("Invalid request body");
+				if (body.apiToken !== undefined && body.apiToken !== "••••••••") {
+					await upsertSetting(s, "api_token", body.apiToken);
 				}
+				if (body.fromEmail !== undefined) await upsertSetting(s, "from_email", body.fromEmail);
+				if (body.fromName !== undefined) await upsertSetting(s, "from_name", body.fromName);
+				if (body.enabled !== undefined) await ctx.kv.set("settings:enabled", body.enabled);
+				if (body.logOutbound !== undefined) await ctx.kv.set("settings:log_outbound", body.logOutbound);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "settings.save", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "settings", targetId: null, summary: "Plugin settings updated", detail: { fields: Object.keys(body).filter((k) => k !== "apiToken") }, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { saved: true };
 			},
 		},
 
 		"settings/test-connection": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
 				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const settings = await readSettings(db, scope);
-
-					if (!settings.apiToken) {
-						return ok({ ok: false, error: "API token is not configured" });
-					}
-
-					const fetchFn = (ctx as unknown as { http?: { fetch: typeof fetch } }).http?.fetch;
-					if (!fetchFn) {
-						return ok({ ok: false, error: "HTTP capability not available" });
-					}
-
+					const s = ctxToStorage(ctx);
+					const settings = await readSettings(s);
+					if (!settings.apiToken) return { ok: false, error: "API token is not configured" };
+					const fetchFn = ctx.http?.fetch;
+					if (!fetchFn) return { ok: false, error: "HTTP capability not available" };
 					const client = createMailketingClient(settings.apiToken, fetchFn as typeof fetch);
-					const result = await client.testConnection();
-					return ok(result);
+					return await client.testConnection();
 				} catch (e) {
-					return ok({ ok: false, error: e instanceof Error ? e.message : String(e) });
+					return { ok: false, error: e instanceof Error ? e.message : String(e) };
 				}
 			},
 		},
 
 		// ── Permissions ───────────────────────────────────────────────────────
 		"access/permissions/list": {
-			method: "GET",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const permissions = await listPermissions(db, scope);
-					return ok(permissions.map((p) => ({
-						id: p.id,
-						slug: p.slug,
-						label: p.label,
-						description: p.description,
-						scope: p.scope,
-					})));
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				await bootstrap(s);
+				const permissions = await listPermissions(s);
+				return permissions.map((p) => ({ id: p.id, slug: p.slug, label: p.label, description: p.description, scope: p.scope }));
 			},
 		},
 
-		// ── Roles CRUD ────────────────────────────────────────────────────────
+		// ── Roles ─────────────────────────────────────────────────────────────
 		"access/roles/list": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingRoleListRequest>(ctx.request).catch(() => ({}) as MailketingRoleListRequest);
-					const { page, pageSize } = normalizeMailketingPage(
-						(body as { page?: unknown }).page,
-						(body as { pageSize?: unknown }).pageSize,
-					);
-					const result = await listRoles(db, scope, { page, pageSize });
-					return ok({
-						items: result.items.map(mapRoleRow),
-						total: result.total,
-						page,
-						pageSize,
-						totalPages: Math.ceil(result.total / pageSize),
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				await bootstrap(s);
+				const body = ctx.input as MailketingRoleListRequest | null | undefined;
+				const { page, pageSize } = normalizeMailketingPage(body?.page, body?.pageSize);
+				const result = await listRoles(s, { page, pageSize });
+				return { items: result.items.map(mapRoleDoc), total: result.total, page, pageSize, totalPages: Math.ceil(result.total / pageSize) || 1 };
 			},
 		},
 
 		"access/roles/create": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingRoleCreateRequest>(ctx.request);
-					if (!body.slug || !body.label) return err("slug and label are required");
-
-					const id = generateId();
-					const now = new Date().toISOString();
-					await insertRole(db, scope, {
-						id,
-						slug: body.slug,
-						label: body.label,
-						description: body.description ?? null,
-						is_system_role: 0,
-						created_at: now,
-						updated_at: now,
-						deleted_at: null,
-						created_by: null,
-					});
-
-					if (body.permissionIds?.length) {
-						await setRolePermissions(db, scope, id, body.permissionIds, null);
-					}
-
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "role.create",
-						actor_id: null,
-						actor_email: null,
-						target_type: "role",
-						target_id: id,
-						summary: `Role '${body.label}' created`,
-						detail_json: JSON.stringify({ slug: body.slug }),
-						ip_address: null,
-						user_agent: null,
-						created_at: now,
-					});
-
-					return ok({ id, created: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingRoleCreateRequest;
+				if (!body?.slug || !body?.label) throw PluginRouteError.badRequest("slug and label are required");
+				const id = generateId();
+				const now = new Date().toISOString();
+				const doc: MailketingRoleDoc = { id, slug: body.slug, label: body.label, description: body.description ?? null, isSystemRole: false, createdAt: now, updatedAt: now, deletedAt: null, createdBy: ctx.user?.id ?? null };
+				await insertRole(s, doc);
+				if (body.permissionIds?.length) await setRolePermissions(s, id, body.permissionIds, ctx.user?.id ?? null);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "role.create", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "role", targetId: id, summary: `Role '${body.label}' created`, detail: { slug: body.slug }, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: now });
+				return { id, created: true };
 			},
 		},
 
 		"access/roles/update": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingRoleUpdateRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-
-					if (body.label !== undefined) {
-						await updateRole(db, scope, body.id, body.label, body.description ?? null);
-					}
-					if (body.permissionIds !== undefined) {
-						await setRolePermissions(db, scope, body.id, body.permissionIds, null);
-					}
-
-					return ok({ updated: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingRoleUpdateRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				if (body.label !== undefined) await updateRole(s, body.id, body.label, body.description ?? null);
+				if (body.permissionIds !== undefined) await setRolePermissions(s, body.id, body.permissionIds, ctx.user?.id ?? null);
+				return { updated: true };
 			},
 		},
 
 		"access/roles/delete": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingRoleDeleteRequest>(ctx.request);
-					if (!body.id) return err("id is required");
-					await softDeleteRole(db, scope, body.id);
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "role.delete",
-						actor_id: null,
-						actor_email: null,
-						target_type: "role",
-						target_id: body.id,
-						summary: `Role ${body.id} deleted`,
-						detail_json: null,
-						ip_address: null,
-						user_agent: null,
-						created_at: new Date().toISOString(),
-					});
-					return ok({ deleted: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingRoleDeleteRequest;
+				if (!body?.id) throw PluginRouteError.badRequest("id is required");
+				const role = await getRoleById(s, body.id);
+				if (!role) throw PluginRouteError.notFound("Role not found");
+				if (role.isSystemRole) throw PluginRouteError.badRequest("System roles cannot be deleted");
+				await softDeleteRole(s, body.id);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "role.delete", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "role", targetId: body.id, summary: `Role '${role.label}' deleted`, detail: null, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { deleted: true };
 			},
 		},
 
-		// ── User access ───────────────────────────────────────────────────────
+		// ── Users ─────────────────────────────────────────────────────────────
 		"access/users/list": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingUserListRequest>(ctx.request).catch(() => ({}) as MailketingUserListRequest);
-					const { page, pageSize } = normalizeMailketingPage(
-						(body as { page?: unknown }).page,
-						(body as { pageSize?: unknown }).pageSize,
-					);
-
-					if (!ctx.users) {
-						return err("users:read capability is not available", 500);
-					}
-
-					const emdashUsers = await ctx.users.list({ limit: pageSize });
-					const items = await Promise.all(
-						emdashUsers.items.map(async (u) => {
-							const userRoles = await getUserRoles(db, scope, u.id);
-							const profile = await getUserProfile(db, scope, u.id);
-
-							const roleDetails = await Promise.all(
-								userRoles.map(async (ur) => {
-									const { getRoleById } = await import("./db/repositories.js");
-									const role = await getRoleById(db, scope, ur.role_id);
-									return role
-										? {
-												id: role.id,
-												slug: role.slug,
-												label: role.label,
-												description: role.description,
-												isSystemRole: role.is_system_role === 1,
-												createdAt: role.created_at,
-												updatedAt: role.updated_at,
-												deletedAt: role.deleted_at,
-											}
-										: null;
-								}),
-							);
-
-							return {
-								userId: u.id,
-								email: u.email,
-								name: u.name,
-								roles: roleDetails.filter(Boolean),
-								profile: profile
-									? {
-											userId: profile.user_id,
-											displayName: profile.display_name,
-											phone: profile.phone,
-											meta: profile.meta_json ? JSON.parse(profile.meta_json) : {},
-											createdAt: profile.created_at,
-											updatedAt: profile.updated_at,
-										}
-									: null,
-							};
-						}),
-					);
-
-					return ok({
-						items,
-						total: items.length,
-						page,
-						pageSize,
-						totalPages: Math.ceil(items.length / pageSize),
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				await bootstrap(s);
+				if (!ctx.users) throw PluginRouteError.internal("users:read capability is not available");
+				const body = ctx.input as MailketingUserListRequest | null | undefined;
+				const { page, pageSize } = normalizeMailketingPage(body?.page, body?.pageSize);
+				const emdashUsers = await ctx.users.list({ limit: 100 });
+				const items = await Promise.all(
+					emdashUsers.items.map(async (u) => {
+						const userRoleDocs = await getUserRoles(s, u.id);
+						const profile = await getUserProfile(s, u.id);
+						const roleDetails = await Promise.all(userRoleDocs.map(async (ur) => { const role = await getRoleById(s, ur.roleId); return role ? mapRoleDoc(role) : null; }));
+						return { userId: u.id, email: u.email, name: u.name ?? null, roles: roleDetails.filter((r): r is NonNullable<typeof r> => r !== null), profile: profile ? { userId: profile.userId, displayName: profile.displayName, phone: profile.phone, meta: profile.meta, createdAt: profile.createdAt, updatedAt: profile.updatedAt } : null };
+					}),
+				);
+				const total = items.length;
+				const offset = (page - 1) * pageSize;
+				return { items: items.slice(offset, offset + pageSize), total, page, pageSize, totalPages: Math.ceil(total / pageSize) || 1 };
 			},
 		},
 
 		"access/users/assign-role": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingUserRoleAssignRequest>(ctx.request);
-					if (!body.userId || !body.roleId) return err("userId and roleId are required");
-					await assignUserRole(db, scope, body.userId, body.roleId, null);
-					await insertAuditEvent(db, scope, {
-						id: generateId(),
-						event_kind: "user_role.assign",
-						actor_id: null,
-						actor_email: null,
-						target_type: "user",
-						target_id: body.userId,
-						summary: `Role ${body.roleId} assigned to user ${body.userId}`,
-						detail_json: JSON.stringify({ roleId: body.roleId }),
-						ip_address: null,
-						user_agent: null,
-						created_at: new Date().toISOString(),
-					});
-					return ok({ assigned: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingUserRoleAssignRequest;
+				if (!body?.userId || !body?.roleId) throw PluginRouteError.badRequest("userId and roleId are required");
+				await assignUserRole(s, body.userId, body.roleId, ctx.user?.id ?? null);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "user_role.assign", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "user", targetId: body.userId, summary: `Role ${body.roleId} assigned to user ${body.userId}`, detail: { roleId: body.roleId }, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { assigned: true };
 			},
 		},
 
 		"access/users/revoke-role": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingUserRoleRevokeRequest>(ctx.request);
-					if (!body.userId || !body.roleId) return err("userId and roleId are required");
-					await revokeUserRole(db, scope, body.userId, body.roleId);
-					return ok({ revoked: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingUserRoleRevokeRequest;
+				if (!body?.userId || !body?.roleId) throw PluginRouteError.badRequest("userId and roleId are required");
+				await revokeUserRole(s, body.userId, body.roleId);
+				await insertAuditEvent(s, { id: generateId(), eventKind: "user_role.revoke", actorId: ctx.user?.id ?? null, actorEmail: ctx.user?.email ?? null, targetType: "user", targetId: body.userId, summary: `Role ${body.roleId} revoked from user ${body.userId}`, detail: { roleId: body.roleId }, ipAddress: ctx.requestMeta?.ip ?? null, userAgent: null, createdAt: new Date().toISOString() });
+				return { revoked: true };
 			},
 		},
 
 		"access/users/profile/save": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<{
-						userId: string;
-						displayName?: string;
-						phone?: string;
-						meta?: Record<string, unknown>;
-					}>(ctx.request);
-					if (!body.userId) return err("userId is required");
-					await upsertUserProfile(
-						db,
-						scope,
-						body.userId,
-						body.displayName ?? null,
-						body.phone ?? null,
-						body.meta ? JSON.stringify(body.meta) : null,
-						null,
-					);
-					return ok({ saved: true });
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as { userId: string; displayName?: string; phone?: string; meta?: Record<string, unknown> };
+				if (!body?.userId) throw PluginRouteError.badRequest("userId is required");
+				await upsertUserProfile(s, body.userId, body.displayName ?? null, body.phone ?? null, body.meta ?? null, ctx.user?.id ?? null);
+				return { saved: true };
 			},
 		},
 
 		// ── Audit ─────────────────────────────────────────────────────────────
 		"audit/list": {
-			method: "POST",
 			public: false,
 			handler: async (ctx) => {
-				try {
-					const db = requireMailketingD1Database(
-						(ctx as unknown as { db?: unknown }).db as Parameters<typeof requireMailketingD1Database>[0],
-					);
-					const body = await parseBody<MailketingAuditListRequest>(ctx.request).catch(() => ({}) as MailketingAuditListRequest);
-					const { page, pageSize } = normalizeMailketingPage(
-						(body as { page?: unknown }).page,
-						(body as { pageSize?: unknown }).pageSize,
-					);
-					const result = await listAuditEvents(db, scope, {
-						page,
-						pageSize,
-						eventKind: body.eventKind,
-						actorId: body.actorId,
-					});
-					return ok({
-						items: result.items.map((e) => ({
-							id: e.id,
-							eventKind: e.event_kind,
-							actorId: e.actor_id,
-							actorEmail: e.actor_email,
-							targetType: e.target_type,
-							targetId: e.target_id,
-							summary: e.summary,
-							detail: e.detail_json ? JSON.parse(e.detail_json) : null,
-							ipAddress: e.ip_address,
-							userAgent: e.user_agent,
-							createdAt: e.created_at,
-						})),
-						total: result.total,
-						page,
-						pageSize,
-						totalPages: Math.ceil(result.total / pageSize),
-					});
-				} catch (e) {
-					return err(e instanceof Error ? e.message : String(e), 500);
-				}
+				const s = ctxToStorage(ctx);
+				const body = ctx.input as MailketingAuditListRequest | null | undefined;
+				const { page, pageSize } = normalizeMailketingPage(body?.page, body?.pageSize);
+				const result = await listAuditEvents(s, { page, pageSize, eventKind: body?.eventKind, actorId: body?.actorId });
+				return { items: result.items.map((e) => ({ id: e.id, eventKind: e.eventKind, actorId: e.actorId, actorEmail: e.actorEmail, targetType: e.targetType, targetId: e.targetId, summary: e.summary, detail: e.detail, ipAddress: e.ipAddress, userAgent: e.userAgent, createdAt: e.createdAt })), total: result.total, page, pageSize, totalPages: Math.ceil(result.total / pageSize) || 1 };
 			},
 		},
 	};
@@ -892,38 +547,15 @@ export function createNativeRoutes(options: MailketingRuntimeOptions = {}): Reco
 
 // ── Row mappers ───────────────────────────────────────────────────────────────
 
-import type { MailketingSendLogRow as SLRow, MailketingRoleRow as RRow } from "./db/schema.js";
-
-function mapSendLogRow(row: SLRow) {
-	return {
-		id: row.id,
-		recipient: row.recipient,
-		subject: row.subject,
-		source: row.source,
-		status: row.status,
-		providerMessageId: row.provider_message_id,
-		errorMessage: row.error_message,
-		sentAt: row.sent_at,
-		createdAt: row.created_at,
-		updatedAt: row.updated_at,
-		deletedAt: row.deleted_at,
-	};
+function mapSendLogDoc(doc: MailketingSendLogDoc) {
+	return { id: doc.id, recipient: doc.recipient, subject: doc.subject, source: doc.source, status: doc.status, providerMessageId: doc.providerMessageId, errorMessage: doc.errorMessage, sentAt: doc.sentAt, createdAt: doc.createdAt, updatedAt: doc.updatedAt, deletedAt: doc.deletedAt };
 }
 
-function mapRoleRow(row: RRow) {
-	return {
-		id: row.id,
-		slug: row.slug,
-		label: row.label,
-		description: row.description,
-		isSystemRole: row.is_system_role === 1,
-		createdAt: row.created_at,
-		updatedAt: row.updated_at,
-		deletedAt: row.deleted_at,
-	};
+function mapRoleDoc(doc: MailketingRoleDoc) {
+	return { id: doc.id, slug: doc.slug, label: doc.label, description: doc.description, isSystemRole: doc.isSystemRole, createdAt: doc.createdAt, updatedAt: doc.updatedAt, deletedAt: doc.deletedAt };
 }
 
-// ── Sandbox routes (mirrors native but runs in plugin sandbox) ────────────────
+// ── Sandbox / Settings schema ─────────────────────────────────────────────────
 
 export function createSandboxRoutes() {
 	return {} as Record<string, never>;
@@ -939,3 +571,5 @@ export const AWCMS_MAILKETING_SETTINGS_SCHEMA = {
 		logOutbound: { type: "boolean" as const },
 	},
 };
+
+export { upsertPermission };
