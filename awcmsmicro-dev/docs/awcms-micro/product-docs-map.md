@@ -26,6 +26,13 @@ This document maps the main AWCMS-Micro product-facing documentation that lives 
 5. Read the SIKESRA reference documents when planning governance-style plugin or template work.
 6. Read `i18n-po-translation-standard.md` before adding or modifying user-facing copy.
 
+## Plugin-Specific Notes
+
+Plugin packages carry their own `README.md`. No separate product doc is required unless a plugin has AWCMS-Micro-specific integration constraints that must survive future syncs. Current notes:
+
+- `awcms-micro-email-mailketing` — see `divergence-log.md` for API integration specifics (endpoint, auth, field names).
+- `awcms-micro-sikesra` — governed by `sikesra-reference-prd.md` and `sikesra-reference-standard.md`.
+
 ## Ownership Rule
 
 Documents in this boundary should describe AWCMS-Micro-owned plugin, template, deployment, and validation behavior. They should not restate upstream EmDash core documentation unless needed for a direct AWCMS-Micro decision or compatibility note.
