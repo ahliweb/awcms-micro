@@ -38,7 +38,7 @@ const currentYear = new Date().getFullYear();
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const hasCmsOgImage = !!siteSettings?.seo?.defaultOgImage?.url;
-const fallbackOgImageUrl = (image || hasCmsOgImage) ? null : new URL("/dashboard_mockup.png", Astro.url.origin).toString();
+const fallbackOgImageUrl = (image || hasCmsOgImage) ? null : new URL("/og-image.png", Astro.url.origin).toString();
 const effectiveImage = image || fallbackOgImageUrl;
 
 const pageCtx = createPublicPageContext({
@@ -48,7 +48,7 @@ const pageCtx = createPublicPageContext({
 	title: fullTitle,
 	pageTitle: pageTitle ?? title,
 	description: pageDescription,
-	canonical,
+	canonical: canonical || Astro.url.href,
 	image: effectiveImage,
 	content,
 	siteName: siteTitle,
