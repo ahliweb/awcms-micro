@@ -1,7 +1,7 @@
 // ── Plugin identity ───────────────────────────────────────────────────────────
 
 export const MAILKETING_PLUGIN_ID = "awcms-email-mailketing";
-export const MAILKETING_PLUGIN_VERSION = "0.1.0";
+export const MAILKETING_PLUGIN_VERSION = "0.2.0";
 export const MAILKETING_API_BASE = "https://api.mailketing.co.id";
 export const MAILKETING_API_SEND_PATH = "/api/v1/send";
 

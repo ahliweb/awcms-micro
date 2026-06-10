@@ -1,6 +1,6 @@
 {
 	"name": "@awcms-micro/plugin-email-mailketing",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "AWCMS-Micro Email Mailketing plugin — integrates the Mailketing.co.id API as an EmDash email provider with send-log CRUD, RBAC/ABAC, and audit support",
 	"type": "module",
 	"main": "dist/index.js",
