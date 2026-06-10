@@ -53,8 +53,9 @@ export class MailketingClient {
 		const rawBody = await response.text().catch(() => "");
 
 		if (!response.ok) {
+			const bodyHint = rawBody ? `: ${rawBody.slice(0, 300)}` : "";
 			throw new MailketingApiError(
-				`Mailketing API returned HTTP ${response.status}`,
+				`Mailketing API returned HTTP ${response.status}${bodyHint}`,
 				response.status,
 				rawBody,
 			);
@@ -94,7 +95,12 @@ export class MailketingClient {
 		if (response.status === 401) {
 			return { ok: false, error: "Invalid API token (HTTP 401)" };
 		}
-		// Any non-401 response (including 422 validation errors) means the token is accepted
+		if (response.status >= 500) {
+			const body = await response.text().catch(() => "");
+			const hint = body ? `: ${body.slice(0, 200)}` : "";
+			return { ok: false, error: `Mailketing API server error (HTTP ${response.status})${hint}` };
+		}
+		// Any non-401, non-5xx response (e.g. 422 validation errors) means the token is accepted
 		return { ok: true };
 	}
 }

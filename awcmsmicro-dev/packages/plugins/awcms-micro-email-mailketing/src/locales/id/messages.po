@@ -147,6 +147,9 @@ msgstr "Status"
 msgid "mailketing.sendLog.colSentAt"
 msgstr "Dikirim"
 
+msgid "mailketing.sendLog.colError"
+msgstr "Error"
+
 msgid "mailketing.sendLog.statusSent"
 msgstr "Terkirim"
 

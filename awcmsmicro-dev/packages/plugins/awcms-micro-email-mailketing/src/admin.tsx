@@ -356,6 +356,7 @@ function SendLogPage() {
 										<th className="py-2 pr-4">{copy("mailketing.sendLog.colSubject")}</th>
 										<th className="py-2 pr-4">{copy("mailketing.sendLog.colStatus")}</th>
 										<th className="py-2 pr-4">{copy("mailketing.sendLog.colSentAt")}</th>
+										<th className="py-2 pr-4">{copy("mailketing.sendLog.colError")}</th>
 										<th className="py-2">{copy("mailketing.sendLog.colActions")}</th>
 									</tr>
 								</thead>
@@ -372,6 +373,18 @@ function SendLogPage() {
 											</td>
 											<td className="py-2 pr-4 text-xs text-kumo-subtle">
 												{entry.sentAt ? new Date(entry.sentAt).toLocaleString() : "—"}
+											</td>
+											<td className="py-2 pr-4 max-w-xs text-xs">
+												{entry.errorMessage ? (
+													<span
+														className="text-red-700 break-words"
+														title={entry.errorMessage}
+													>
+														{entry.errorMessage.length > 80
+															? `${entry.errorMessage.slice(0, 80)}…`
+															: entry.errorMessage}
+													</span>
+												) : "—"}
 											</td>
 											<td className="py-2 flex gap-1 flex-wrap">
 												{!entry.deletedAt ? (
