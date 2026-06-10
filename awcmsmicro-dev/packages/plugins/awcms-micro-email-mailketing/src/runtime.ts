@@ -84,7 +84,7 @@ export const AWCMS_MAILKETING_ADMIN_WIDGETS = [
 ];
 
 export const AWCMS_MAILKETING_CAPABILITIES = ["email:provide", "network:request", "users:read"] as const;
-export const AWCMS_MAILKETING_ALLOWED_HOSTS = ["mailketing.co.id"] as const;
+export const AWCMS_MAILKETING_ALLOWED_HOSTS = ["api.mailketing.co.id"] as const;
 
 export const AWCMS_MAILKETING_STORAGE: PluginStorageConfig = {
 	mailketing_send_log: {
@@ -223,12 +223,11 @@ export function createSharedHooks(options: MailketingRuntimeOptions = {}) {
 
 				try {
 					const result = await client.sendEmail({
-						to: event.message.to,
-						from: settings.fromEmail,
+						recipient: event.message.to,
+						from_email: settings.fromEmail,
 						from_name: settings.fromName,
 						subject: event.message.subject,
-						text: event.message.text ?? "",
-						html: event.message.html,
+						content: event.message.html ?? event.message.text ?? "",
 					});
 
 					if (settings.logOutbound) {

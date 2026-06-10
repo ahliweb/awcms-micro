@@ -2,7 +2,7 @@
 
 export const MAILKETING_PLUGIN_ID = "awcms-email-mailketing";
 export const MAILKETING_PLUGIN_VERSION = "0.1.0";
-export const MAILKETING_API_BASE = "https://mailketing.co.id";
+export const MAILKETING_API_BASE = "https://api.mailketing.co.id";
 export const MAILKETING_API_SEND_PATH = "/api/v1/send";
 
 // ── Send log ─────────────────────────────────────────────────────────────────
@@ -223,12 +223,14 @@ export interface MailketingOverviewStats {
 // ── Mailketing API request/response ─────────────────────────────────────────
 
 export interface MailketingApiSendRequest {
-	to: string;
-	from: string;
+	recipient: string;
+	from_email: string;
 	from_name: string;
 	subject: string;
-	html?: string;
-	text: string;
+	content: string;
+	attach1?: string;
+	attach2?: string;
+	attach3?: string;
 }
 
 export interface MailketingApiSendResponse {

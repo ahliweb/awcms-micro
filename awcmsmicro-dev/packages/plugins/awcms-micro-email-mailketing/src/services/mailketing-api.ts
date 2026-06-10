@@ -26,23 +26,31 @@ export class MailketingClient {
 
 	constructor(config: MailketingClientConfig, fetchFn?: typeof fetch) {
 		this.apiToken = config.apiToken;
-		this.baseUrl = config.baseUrl ?? "https://mailketing.co.id";
+		this.baseUrl = config.baseUrl ?? "https://api.mailketing.co.id";
 		this.fetchFn = fetchFn ?? globalThis.fetch;
 	}
 
 	async sendEmail(payload: MailketingApiSendRequest): Promise<MailketingApiSendResponse> {
 		const url = `${this.baseUrl}/api/v1/send`;
 
+		const formData = new URLSearchParams({
+			api_token: this.apiToken,
+			recipient: payload.recipient,
+			from_email: payload.from_email,
+			from_name: payload.from_name,
+			subject: payload.subject,
+			content: payload.content,
+		});
+		if (payload.attach1) formData.set("attach1", payload.attach1);
+		if (payload.attach2) formData.set("attach2", payload.attach2);
+		if (payload.attach3) formData.set("attach3", payload.attach3);
+
 		let response: Response;
 		try {
 			response = await this.fetchFn(url, {
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${this.apiToken}`,
-					"Accept": "application/json",
-				},
-				body: JSON.stringify(payload),
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: formData.toString(),
 			});
 		} catch (err) {
 			throw new MailketingApiError(
@@ -61,46 +69,67 @@ export class MailketingClient {
 			);
 		}
 
-		let parsed: MailketingApiSendResponse;
+		// API returns: {"status":"success","response":"Mail Sent"} or {"status":"failed","response":"<reason>"}
+		let apiResp: { status?: string; response?: string; message_id?: string };
 		try {
-			parsed = JSON.parse(rawBody) as MailketingApiSendResponse;
+			apiResp = JSON.parse(rawBody) as typeof apiResp;
 		} catch {
-			// API returned 2xx but non-JSON body — treat as success with no message_id
 			return { success: true };
 		}
 
-		return parsed;
+		const ok = apiResp.status === "success";
+		return {
+			success: ok,
+			message: ok ? (apiResp.response ?? "Mail Sent") : undefined,
+			error: ok ? undefined : (apiResp.response ?? "Unknown error from Mailketing"),
+			message_id: apiResp.message_id,
+		};
 	}
 
 	async testConnection(): Promise<{ ok: boolean; error?: string }> {
-		// Probe the API by sending a minimal request and checking auth.
-		// HTTP 401 = invalid token. Any other response (including 4xx validation errors)
-		// means the token was accepted and the API is reachable.
+		// Probe with empty fields: a valid token gets a field-validation error (e.g. "Empty Recipient"),
+		// an invalid token gets "User Not Found or Wrong API Token", and a down server returns 5xx.
 		const url = `${this.baseUrl}/api/v1/send`;
+		const formData = new URLSearchParams({
+			api_token: this.apiToken,
+			recipient: "",
+			from_email: "",
+			from_name: "",
+			subject: "",
+			content: "",
+		});
+
 		let response: Response;
 		try {
 			response = await this.fetchFn(url, {
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": `Bearer ${this.apiToken}`,
-					"Accept": "application/json",
-				},
-				body: JSON.stringify({ to: "", from: "", from_name: "", subject: "", text: "" }),
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: formData.toString(),
 			});
 		} catch (err) {
 			return { ok: false, error: `Network error: ${err instanceof Error ? err.message : String(err)}` };
 		}
 
-		if (response.status === 401) {
-			return { ok: false, error: "Invalid API token (HTTP 401)" };
-		}
+		const rawBody = await response.text().catch(() => "");
+
 		if (response.status >= 500) {
-			const body = await response.text().catch(() => "");
-			const hint = body ? `: ${body.slice(0, 200)}` : "";
+			const hint = rawBody ? `: ${rawBody.slice(0, 200)}` : "";
 			return { ok: false, error: `Mailketing API server error (HTTP ${response.status})${hint}` };
 		}
-		// Any non-401, non-5xx response (e.g. 422 validation errors) means the token is accepted
+
+		let parsed: { status?: string; response?: string } = {};
+		try { parsed = JSON.parse(rawBody) as typeof parsed; } catch { /**/ }
+
+		// Invalid token signals
+		if (
+			parsed.status === "failed" &&
+			parsed.response &&
+			(parsed.response.includes("Wrong API Token") || parsed.response.includes("Invalid Token"))
+		) {
+			return { ok: false, error: `Invalid API token: ${parsed.response}` };
+		}
+
+		// Any other response (field validation errors like "Empty Recipient") = token accepted = ok
 		return { ok: true };
 	}
 }
