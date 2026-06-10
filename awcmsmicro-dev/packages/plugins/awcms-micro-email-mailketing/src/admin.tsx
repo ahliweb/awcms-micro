@@ -1202,7 +1202,101 @@ function AuditLogPage() {
 	);
 }
 
+// ── Dashboard widgets ─────────────────────────────────────────────────────────
+
+function EmailStatusWidget() {
+	const { i18n } = useLingui();
+	const copy = getMailketingAdminCopy(i18n.locale);
+	const [stats, setStats] = React.useState<MailketingOverviewStats | null>(null);
+	const [loading, setLoading] = React.useState(true);
+	const [error, setError] = React.useState<string | null>(null);
+
+	React.useEffect(() => {
+		setLoading(true);
+		getMailketingPlugin<MailketingOverviewStats>({ path: "overview/stats" })
+			.then(setStats)
+			.catch((e) => setError(e instanceof Error ? e.message : String(e)))
+			.finally(() => setLoading(false));
+	}, []);
+
+	if (loading) return <p className="text-kumo-subtle text-sm">{copy("mailketing.overview.loading")}</p>;
+	if (error) return <ErrorBanner message={error} />;
+	if (!stats) return null;
+
+	const providerStatusLabel = !stats.providerConfigured
+		? copy("mailketing.overview.statusNotConfigured")
+		: !stats.providerEnabled
+			? copy("mailketing.overview.statusDisabled")
+			: copy("mailketing.overview.statusActive");
+	const providerStatusColor =
+		!stats.providerConfigured || !stats.providerEnabled ? "text-red-600" : "text-green-600";
+
+	return (
+		<div className="space-y-2">
+			<p className={`text-lg font-semibold ${providerStatusColor}`}>{providerStatusLabel}</p>
+			{stats.fromEmail && (
+				<p className="text-sm text-kumo-subtle">
+					{copy("mailketing.overview.fromEmail")}: {stats.fromEmail}
+				</p>
+			)}
+			{stats.fromName && (
+				<p className="text-sm text-kumo-subtle">
+					{copy("mailketing.overview.fromName")}: {stats.fromName}
+				</p>
+			)}
+			<LinkButton href="/_emdash/admin/plugins/awcms-email-mailketing/settings" external>
+				{copy("mailketing.overview.configureSettings")}
+			</LinkButton>
+		</div>
+	);
+}
+
+function SendStatsWidget() {
+	const { i18n } = useLingui();
+	const copy = getMailketingAdminCopy(i18n.locale);
+	const [stats, setStats] = React.useState<MailketingOverviewStats | null>(null);
+	const [loading, setLoading] = React.useState(true);
+	const [error, setError] = React.useState<string | null>(null);
+
+	React.useEffect(() => {
+		setLoading(true);
+		getMailketingPlugin<MailketingOverviewStats>({ path: "overview/stats" })
+			.then(setStats)
+			.catch((e) => setError(e instanceof Error ? e.message : String(e)))
+			.finally(() => setLoading(false));
+	}, []);
+
+	if (loading) return <p className="text-kumo-subtle text-sm">{copy("mailketing.overview.loading")}</p>;
+	if (error) return <ErrorBanner message={error} />;
+	if (!stats) return null;
+
+	return (
+		<div className="grid grid-cols-2 gap-3">
+			{(
+				[
+					["mailketing.overview.statSent", stats.totalSent, "text-green-600"],
+					["mailketing.overview.statFailed", stats.totalFailed, "text-red-600"],
+					["mailketing.overview.stat24hSent", stats.last24hSent, "text-green-600"],
+					["mailketing.overview.stat24hFailed", stats.last24hFailed, "text-red-600"],
+				] as const
+			).map(([key, value, color]) => (
+				<article key={key} className="rounded border border-kumo-border bg-kumo-background p-3 space-y-1">
+					<p className="text-xs font-medium uppercase tracking-wider text-kumo-subtle">
+						{copy(key)}
+					</p>
+					<p className={`text-2xl font-bold ${color}`}>{value}</p>
+				</article>
+			))}
+		</div>
+	);
+}
+
 // ── Plugin admin exports ──────────────────────────────────────────────────────
+
+export const widgets: PluginAdminExports["widgets"] = {
+	"email-status": EmailStatusWidget,
+	"send-stats": SendStatsWidget,
+};
 
 export const pages: PluginAdminExports["pages"] = {
 	"/": OverviewPage,
