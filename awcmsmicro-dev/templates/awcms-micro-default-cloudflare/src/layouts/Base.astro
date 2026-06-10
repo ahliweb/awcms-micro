@@ -37,8 +37,9 @@ const copy = getPublicCopy(currentLocale);
 const currentYear = new Date().getFullYear();
 const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 const pageDescription = description ?? siteTagline;
-const hasOgImage = !!image || !!siteSettings?.seo?.defaultOgImage?.url;
-const fallbackOgImageUrl = hasOgImage ? null : new URL("/awcms-logo.png", Astro.url.origin).toString();
+const hasCmsOgImage = !!siteSettings?.seo?.defaultOgImage?.url;
+const fallbackOgImageUrl = (image || hasCmsOgImage) ? null : new URL("/dashboard_mockup.png", Astro.url.origin).toString();
+const effectiveImage = image || fallbackOgImageUrl;
 
 const pageCtx = createPublicPageContext({
 	Astro,
@@ -48,7 +49,7 @@ const pageCtx = createPublicPageContext({
 	pageTitle: pageTitle ?? title,
 	description: pageDescription,
 	canonical,
-	image,
+	image: effectiveImage,
 	content,
 	siteName: siteTitle,
 });
@@ -84,13 +85,7 @@ const businessJsonLd = websiteSocial.schemaType
 		{pageDescription && <meta name="description" content={pageDescription} />}
 		{canonical && <link rel="canonical" href={canonical} />}
 		{!hasCustomFavicon && <link rel="icon" type="image/png" href="/awcms-logo.png" />}
-		<meta name="twitter:card" content={hasOgImage ? "summary_large_image" : "summary"} />
-		{fallbackOgImageUrl && (
-			<>
-				<meta property="og:image" content={fallbackOgImageUrl} />
-				<meta name="twitter:image" content={fallbackOgImageUrl} />
-			</>
-		)}
+		<meta name="twitter:card" content="summary_large_image" />
 		<EmDashHead page={pageCtx} />
 		{businessJsonLd && <script is:inline type="application/ld+json" set:html={businessJsonLd} />}
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
