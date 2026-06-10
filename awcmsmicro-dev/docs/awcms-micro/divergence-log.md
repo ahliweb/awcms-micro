@@ -38,6 +38,16 @@ The `awcms-email-mailketing` plugin integrates with the Mailketing.co.id transac
 - **Dashboard widgets**: plugin exports both `pages` and `widgets` named exports from `admin.tsx`; widget IDs `email-status` and `send-stats` match `AWCMS_MAILKETING_ADMIN_WIDGETS` in `runtime.ts`
 - **`testConnection` probe**: detects invalid tokens from API response body (`"Wrong API Token"` / `"Invalid Token"` strings), not HTTP 401; detects server errors via HTTP 5xx
 
+## Social Sharing / OG Meta Tag Notes
+
+Both templates override EmDashHead's OG image behavior for improved social sharing compatibility:
+
+- **`og-image.png`**: A real PNG (1200×630) generated via ImageMagick — gradient `#0ea5e9→#6366f1` with logo + site name. Used as fallback when neither a page-level `image` prop nor a CMS `defaultOgImage` is configured. Files: `templates/*/public/og-image.png`.
+- **`og:url` always set**: Layouts pass `canonical || Astro.url.href` to `createPublicPageContext` so `og:url` is always emitted even when no explicit `canonical` prop is provided. Without this, WhatsApp shows only the raw domain instead of title/image.
+- **`twitter:card` hardcoded to `summary_large_image`**: Since a fallback image is always guaranteed, the card type is always large image.
+- **Image format rule**: OG fallback image must be a real PNG (magic bytes `89504e47`). `dashboard_mockup.png` and `network_showcase.png` in `public/` are JPEG files misnamed as `.png` — do NOT use them as `og:image` fallback. Only `og-image.png` and `awcms-logo.png` are true PNGs.
+- **Duplicate meta tags**: `<meta name="description">` and `<meta name="twitter:card">` appear twice in rendered HTML — once from the layout's own `<head>` (early-guarantee) and once from EmDashHead. Both have identical values; first occurrence wins in all major scrapers.
+
 ## Required Update Rule
 
 Update this log when a sync pass introduces a new downstream patch, persistent compatibility workaround, or intentional AWCMS-Micro behavior that must survive future EmDash rebuilds.
