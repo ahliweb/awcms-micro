@@ -2,6 +2,16 @@
 
 This log tracks downstream SIKESRA and AWCMS-Micro behavior that intentionally differs from upstream EmDash while staying inside approved downstream boundaries.
 
+## Plugin Registration Matrix
+
+| Plugin | Source | Local template | Cloudflare template |
+| ------ | ------ | -------------- | ------------------- |
+| `awcms-micro-docs` | `packages/plugins/awcms-micro-docs/` | ✓ | ✓ |
+| `awcms-email-mailketing` | `packages/plugins/awcms-micro-email-mailketing/` | ✓ | ✓ |
+| `awcms-micro-gallery` | `packages/plugins/awcms-micro-gallery/` | ✓ | ✓ |
+| `awcms-micro-website-social` | `packages/plugins/awcms-micro-website-social/` | ✓ | ✓ |
+| `awcms-micro-sikesra` | `packages/plugins/awcms-micro-sikesra/` | ✓ | ✓ |
+
 ## Current SIKESRA Downstream Boundaries
 
 - SIKESRA plugin source: `packages/plugins/awcms-micro-sikesra/`
