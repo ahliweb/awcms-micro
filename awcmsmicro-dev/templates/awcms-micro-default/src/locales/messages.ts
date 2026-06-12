@@ -9,6 +9,12 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		aggregateTitle: "Public Aggregate",
 		aggregateDescription:
 			"A public-safe reference page that summarizes site content without exposing private records.",
+		sitemapTitle: "Site Map",
+		sitemapDescription: "A complete list of all pages available on this website.",
+		sitemapSectionMain: "Main Pages",
+		sitemapSectionInfo: "Information",
+		sitemapSectionLegal: "Legal",
+		sitemapSectionServices: "Services",
 		aggregateKicker: "Reference",
 		aggregateHeading: (siteTitle: string) => `Public aggregate for ${siteTitle}`,
 		aggregateIntro:
@@ -159,6 +165,7 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		footerLinksCompany: "Company",
 		footerLinkFeatures: "Features",
 		footerLinkDocs: "Docs",
+		footerLinkSitemap: "Site Map",
 		footerLinkAggregate: "Aggregate",
 		footerLinkSikesra: "Sikesra App",
 		footerLinkPrivacy: "Privacy Policy",
@@ -312,6 +319,12 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		aggregateTitle: "Agregat Publik",
 		aggregateDescription:
 			"Halaman referensi aman-publik yang merangkum konten situs tanpa mengekspos data privat.",
+		sitemapTitle: "Peta Situs",
+		sitemapDescription: "Daftar lengkap semua halaman yang tersedia di website ini.",
+		sitemapSectionMain: "Halaman Utama",
+		sitemapSectionInfo: "Informasi",
+		sitemapSectionLegal: "Legal",
+		sitemapSectionServices: "Layanan",
 		aggregateKicker: "Referensi",
 		aggregateHeading: (siteTitle: string) => `Agregat publik untuk ${siteTitle}`,
 		aggregateIntro:
@@ -462,6 +475,7 @@ export const AWCMS_MICRO_DEFAULT_PUBLIC_COPY = {
 		footerLinksCompany: "Perusahaan",
 		footerLinkFeatures: "Fitur",
 		footerLinkDocs: "Dokumentasi",
+		footerLinkSitemap: "Peta Situs",
 		footerLinkAggregate: "Agregat",
 		footerLinkSikesra: "Aplikasi Sikesra",
 		footerLinkPrivacy: "Kebijakan Privasi",

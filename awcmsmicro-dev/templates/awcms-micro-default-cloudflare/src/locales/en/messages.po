@@ -18,6 +18,30 @@ msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Public Aggregate"
 
+msgctxt "sitemapTitle"
+msgid "Site Map"
+msgstr "Site Map"
+
+msgctxt "sitemapDescription"
+msgid "A complete list of all pages available on this website."
+msgstr "A complete list of all pages available on this website."
+
+msgctxt "sitemapSectionMain"
+msgid "Main Pages"
+msgstr "Main Pages"
+
+msgctxt "sitemapSectionInfo"
+msgid "Information"
+msgstr "Information"
+
+msgctxt "sitemapSectionLegal"
+msgid "Legal"
+msgstr "Legal"
+
+msgctxt "sitemapSectionServices"
+msgid "Services"
+msgstr "Services"
+
 msgctxt "aggregateDescription"
 msgid "A public-safe summary page for the AWCMS-Micro Cloudflare template."
 msgstr "A public-safe summary page for the AWCMS-Micro Cloudflare template."
@@ -421,6 +445,10 @@ msgstr "Features"
 msgctxt "footerLinkDocs"
 msgid "Docs"
 msgstr "Docs"
+
+msgctxt "footerLinkSitemap"
+msgid "Site Map"
+msgstr "Site Map"
 
 msgctxt "footerLinkAggregate"
 msgid "Aggregate"

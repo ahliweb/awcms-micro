@@ -18,6 +18,30 @@ msgctxt "aggregateTitle"
 msgid "Public Aggregate"
 msgstr "Agregat Publik"
 
+msgctxt "sitemapTitle"
+msgid "Site Map"
+msgstr "Peta Situs"
+
+msgctxt "sitemapDescription"
+msgid "A complete list of all pages available on this website."
+msgstr "Daftar lengkap semua halaman yang tersedia di website ini."
+
+msgctxt "sitemapSectionMain"
+msgid "Main Pages"
+msgstr "Halaman Utama"
+
+msgctxt "sitemapSectionInfo"
+msgid "Information"
+msgstr "Informasi"
+
+msgctxt "sitemapSectionLegal"
+msgid "Legal"
+msgstr "Legal"
+
+msgctxt "sitemapSectionServices"
+msgid "Services"
+msgstr "Layanan"
+
 msgctxt "aggregateDescription"
 msgid "A public-safe reference page that summarizes site content without exposing private records."
 msgstr "Halaman referensi aman-publik yang merangkum konten situs tanpa mengekspos data privat."
@@ -501,6 +525,10 @@ msgstr "Fitur"
 msgctxt "footerLinkDocs"
 msgid "Docs"
 msgstr "Dokumentasi"
+
+msgctxt "footerLinkSitemap"
+msgid "Site Map"
+msgstr "Peta Situs"
 
 msgctxt "footerLinkAggregate"
 msgid "Aggregate"

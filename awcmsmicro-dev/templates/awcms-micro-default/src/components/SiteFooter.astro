@@ -76,6 +76,7 @@ const currentYear = new Date().getFullYear();
 					<h4 class="footer-links-title">{copy.footerLinksResources}</h4>
 					<ul class="footer-links-list">
 						<li><a href="/docs" data-astro-prefetch="hover">{copy.footerLinkDocs}</a></li>
+						<li><a href={toLocalePath("/sitemap", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkSitemap}</a></li>
 						<li><a href={toLocalePath("/gallery", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.galleryLinkFooter}</a></li>
 						<li><a href={toLocalePath("/aggregate", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkAggregate}</a></li>
 						<li><a href={toLocalePath("/sikesra", currentLocale, localeOptions)} data-astro-prefetch="hover">{copy.footerLinkSikesra}</a></li>
