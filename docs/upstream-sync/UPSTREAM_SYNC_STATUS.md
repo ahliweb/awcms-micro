@@ -45,11 +45,11 @@ Synced to EmDash `ff5855ab`. Upstream `main` advanced 20 commits (0.17.2 → 0.1
 | SIKESRA compatibility validation | Passed | `pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync` passed |
 | AWCMS-Micro Node template validation | Passed | `pnpm test && pnpm build` passed |
 | AWCMS-Micro Cloudflare template validation | Passed | `pnpm test && pnpm build` passed |
-| Cloudflare credentialed deployment readiness | Pending | Deployment pending after changeset + commit |
-| Cloudflare production packaging dry run | Pending | Run after commit and deployment step |
-| Cloudflare production deployment | Pending | Scheduled after changeset + release workflow |
-| Cloudflare post-deploy smoke checks | Pending | Run after deployment |
-| Production D1 migration status | Pending | Migration 043 will auto-apply on next boot (adds `_emdash_relations`, `_emdash_content_references`) |
+| Cloudflare credentialed deployment readiness | Passed | Dry-run clean; 282 modules, all bindings confirmed |
+| Cloudflare production packaging dry run | Passed | `wrangler deploy --dry-run` succeeded |
+| Cloudflare production deployment | Passed | Deployed 2026-06-12; Version ID `dcc86676-1b34-4ec5-9b39-309481f535f3`; route `awcms-micro.ahlikoding.com/*` |
+| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts` all return 200 |
+| Production D1 migration status | Passed | Migration 043 applied 2026-06-12 14:38:31 (42/42 migrations total); `_emdash_relations` and `_emdash_content_references` tables created |
 
 ## Notes
 

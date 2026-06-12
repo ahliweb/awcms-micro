@@ -7,6 +7,23 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 - `docs/`: parent-repository technical documentation
 - `scripts/`: root maintenance scripts
 
+## Current EmDash Version
+
+- **Version:** 0.18.0
+- **Upstream commit:** `ff5855ab41ef8a5417889ac123a7cbd82c9fa3fa`
+- **Synced:** 2026-06-12
+- **Status:** deployed to production; migration 043 auto-applied on first boot
+
+### Key 0.18.0 Features
+
+- **Scheduled publishing** (`@emdash-cms/cloudflare/worker`): exports default SSR handler + `scheduled()` Cron Trigger handler + `PluginBridge`. The Cloudflare template `src/worker.ts` re-exports this entry point. `wrangler.jsonc` must include `"triggers": { "crons": ["* * * * *"] }`.
+- **Migration 043** (additive, no breaking changes): adds `_emdash_relations` and `_emdash_content_references` tables for the content references feature. Auto-runs on next boot.
+- **TaxonomyTerm hydration**: taxonomy terms are now attached directly to entries as `entry.data.terms?: Record<string, TaxonomyTerm[]>`. No separate `getEntryTerms()` call needed. Update `emdash-env.d.ts` to import `TaxonomyTerm` and add `terms?` to all collection interfaces.
+- **D1 batch coalescing** (`packages/cloudflare/src/db/coalescing-d1.ts`): same-turn SELECT queries are batched into one `D1.batch()` round trip, reducing per-request query counts automatically.
+- **`emdash-env.d.ts`**: this file is tracked in git and must be updated manually when EmDash adds new exported types. It does not regenerate automatically without a dev server restart.
+
+For detailed architecture documentation and Mermaid diagrams, read `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`.
+
 ## Core Intent
 
 Analyze `https://github.com/emdash-cms/emdash`, then update `https://github.com/ahliweb/awcms-micro` so it stays fully synchronized with EmDash.
@@ -119,6 +136,10 @@ Before changing the default templates' public pages, also read:
 - `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/docs/PUBLIC_ARCHITECTURE.md`
 - `awcmsmicro-dev/templates/awcms-micro-default/docs/PUBLIC_ARCHITECTURE.md`
 
+Before changing the Cloudflare worker entry point, cron triggers, or scheduled publishing behavior, also read:
+
+- `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`
+
 The default templates' public pages follow the ahliweb.com (ahliwebcom) section architecture while staying CMS-sourced and admin-integrated. Keep both templates consistent, source content from EmDash collections (not hardcoded), and use the shared `src/styles/public.css` and `src/components/public/` instead of duplicating styles. New public page types should be admin-editable EmDash collections with EN/ID content and `seo` support so they flow into the auto-injected sitemap.
 
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
@@ -222,3 +243,4 @@ Required rules for agents:
 - `docs/decision-records.md`
 - `docs/backup/gitlab-mirror-setup.md`
 - `docs/security/backup-restore.md`
+- `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`
