@@ -1,0 +1,206 @@
+---
+import { decodeSlug, getBylineBySlug, getEntriesByByline, getI18nConfig, getSeoMeta, getSiteSettings } from "emdash";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+import { resolveAwcmsMicroSiteIdentity } from "../../utils/site-identity";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) return Astro.redirect("/404");
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
+
+const byline = await getBylineBySlug(slug, { locale: currentLocale });
+if (!byline) return Astro.redirect("/404");
+
+const { entries: bylineEntries } = await getEntriesByByline(
+	"posts",
+	byline.translationGroup ?? byline.id,
+	{ orderBy: { published_at: "desc" }, status: "published", locale: currentLocale },
+);
+
+const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
+const copy = getPublicCopy(currentLocale);
+
+const pageTitle = `${byline.displayName} — ${copy.authorsTitle}`;
+const pageDescription = byline.bio || `${copy.authorPostsHeading}: ${bylineEntries.length}`;
+const canonical = toLocalePath(`/authors/${slug}`, currentLocale, localeOptions);
+---
+
+<BaseLayout
+	title={pageTitle}
+	description={pageDescription}
+	canonical={`${Astro.url.origin}${canonical}`}
+>
+	<section class="author-profile">
+		<div class="author-profile__header">
+			<div class="author-profile__avatar">
+				{byline.avatarStorageKey ? (
+					<img
+						src={`/_emdash/media/${byline.avatarStorageKey}`}
+						alt={byline.avatarAlt || byline.displayName}
+						loading="eager"
+					/>
+				) : (
+					<span class="author-profile__initials">{byline.displayName.slice(0, 2).toUpperCase()}</span>
+				)}
+			</div>
+			<div>
+				<p class="kicker">{copy.authorsKicker}</p>
+				<h1>{byline.displayName}</h1>
+				{byline.bio && <p class="author-profile__bio">{byline.bio}</p>}
+				{byline.websiteUrl && (
+					<a href={byline.websiteUrl} class="author-profile__website" target="_blank" rel="noopener noreferrer">
+						{byline.websiteUrl}
+					</a>
+				)}
+			</div>
+		</div>
+	</section>
+
+	<section class="author-posts">
+		<h2>{copy.authorPostsHeading}</h2>
+		{bylineEntries.length === 0 ? (
+			<p class="author-posts__empty">{copy.authorNoEntries}</p>
+		) : (
+			<ul class="author-posts__list">
+				{bylineEntries.map((entry) => {
+					const entrySlug = resolveEntrySlug(entry);
+					return (
+						<li class="author-posts__item">
+							<a href={toLocalePath(`/posts/${entrySlug}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
+								{(entry.data as Record<string, unknown>).title as string}
+							</a>
+							{(entry.data as Record<string, unknown>).published_at && (
+								<time datetime={String((entry.data as Record<string, unknown>).published_at)}>
+									{new Date(String((entry.data as Record<string, unknown>).published_at)).toLocaleDateString(
+										currentLocale.startsWith("id") ? "id-ID" : "en-US",
+										{ year: "numeric", month: "long", day: "numeric" },
+									)}
+								</time>
+							)}
+						</li>
+					);
+				})}
+			</ul>
+		)}
+	</section>
+</BaseLayout>
+
+<style>
+	.author-profile {
+		margin-bottom: 3rem;
+	}
+
+	.author-profile__header {
+		display: flex;
+		gap: 1.5rem;
+		align-items: flex-start;
+	}
+
+	.author-profile__avatar {
+		flex-shrink: 0;
+		width: 80px;
+		height: 80px;
+		border-radius: 50%;
+		overflow: hidden;
+		background: var(--accent);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.author-profile__avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.author-profile__initials {
+		color: #fff;
+		font-size: 1.5rem;
+		font-weight: 700;
+	}
+
+	.author-profile__header h1 {
+		margin: 0.25rem 0 0.5rem;
+	}
+
+	.author-profile__bio {
+		color: var(--text-muted);
+		margin: 0 0 0.75rem;
+	}
+
+	.author-profile__website {
+		font-size: 0.9rem;
+		color: var(--accent);
+		word-break: break-all;
+	}
+
+	.author-posts h2 {
+		font-size: 1.1rem;
+		font-weight: 700;
+		margin: 0 0 1rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid var(--surface-border);
+	}
+
+	.author-posts__empty {
+		color: var(--text-muted);
+	}
+
+	.author-posts__list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.author-posts__item {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+		padding: 0.75rem 0;
+		border-bottom: 1px solid var(--surface-border);
+	}
+
+	.author-posts__item:last-child {
+		border-bottom: none;
+	}
+
+	.author-posts__item a {
+		font-weight: 500;
+		color: var(--text-main);
+		text-decoration: none;
+	}
+
+	.author-posts__item a:hover {
+		color: var(--accent);
+	}
+
+	.author-posts__item time {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		white-space: nowrap;
+	}
+
+	@media (max-width: 600px) {
+		.author-profile__header {
+			flex-direction: column;
+		}
+
+		.author-posts__item {
+			flex-direction: column;
+			gap: 0.25rem;
+		}
+	}
+</style>

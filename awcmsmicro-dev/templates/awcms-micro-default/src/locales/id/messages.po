@@ -626,6 +626,46 @@ msgctxt "counts.galleries"
 msgid "Galleries"
 msgstr "Galeri"
 
+msgctxt "counts.authors"
+msgid "Authors"
+msgstr "Penulis"
+
+msgctxt "authorsTitle"
+msgid "Authors"
+msgstr "Penulis"
+
+msgctxt "authorsDescription"
+msgid "Browse contributors and content authors published on this site."
+msgstr "Telusuri kontributor dan penulis konten yang dipublikasikan di situs ini."
+
+msgctxt "authorsKicker"
+msgid "Contributors"
+msgstr "Kontributor"
+
+msgctxt "authorsHeading"
+msgid "Meet the authors"
+msgstr "Kenali para penulis"
+
+msgctxt "authorsIntro"
+msgid "All published content contributors on this site, including co-authors and editors."
+msgstr "Semua kontributor konten yang dipublikasikan di situs ini, termasuk penulis bersama dan editor."
+
+msgctxt "authorPostsHeading"
+msgid "Published posts"
+msgstr "Pos yang dipublikasikan"
+
+msgctxt "authorNoEntries"
+msgid "No published entries yet."
+msgstr "Belum ada entri yang dipublikasikan."
+
+msgctxt "authorEntriesCount"
+msgid "authorEntriesCount"
+msgstr "authorEntriesCount"
+
+msgctxt "noAuthorsYet"
+msgid "No authors yet."
+msgstr "Belum ada penulis."
+
 msgctxt "galleryTitle"
 msgid "Gallery"
 msgstr "Galeri"

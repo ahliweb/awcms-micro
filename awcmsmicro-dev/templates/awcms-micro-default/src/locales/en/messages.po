@@ -626,6 +626,46 @@ msgctxt "counts.galleries"
 msgid "Galleries"
 msgstr "Galleries"
 
+msgctxt "counts.authors"
+msgid "Authors"
+msgstr "Authors"
+
+msgctxt "authorsTitle"
+msgid "Authors"
+msgstr "Authors"
+
+msgctxt "authorsDescription"
+msgid "Browse contributors and content authors published on this site."
+msgstr "Browse contributors and content authors published on this site."
+
+msgctxt "authorsKicker"
+msgid "Contributors"
+msgstr "Contributors"
+
+msgctxt "authorsHeading"
+msgid "Meet the authors"
+msgstr "Meet the authors"
+
+msgctxt "authorsIntro"
+msgid "All published content contributors on this site, including co-authors and editors."
+msgstr "All published content contributors on this site, including co-authors and editors."
+
+msgctxt "authorPostsHeading"
+msgid "Published posts"
+msgstr "Published posts"
+
+msgctxt "authorNoEntries"
+msgid "No published entries yet."
+msgstr "No published entries yet."
+
+msgctxt "authorEntriesCount"
+msgid "authorEntriesCount"
+msgstr "authorEntriesCount"
+
+msgctxt "noAuthorsYet"
+msgid "No authors yet."
+msgstr "No authors yet."
+
 msgctxt "galleryTitle"
 msgid "Gallery"
 msgstr "Gallery"

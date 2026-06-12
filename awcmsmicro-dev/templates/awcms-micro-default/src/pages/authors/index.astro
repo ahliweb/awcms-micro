@@ -1,0 +1,159 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import type { BylineSummary } from "emdash";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = {
+	defaultLocale,
+	locales: i18nConfig?.locales || ["en", "id"],
+};
+const copy = getPublicCopy(currentLocale);
+
+const { entries: posts } = await getEmDashCollection("posts", {
+	orderBy: { published_at: "desc" },
+	locale: currentLocale,
+});
+
+// Collect unique bylines from published posts
+const bylineMap = new Map<string, { byline: BylineSummary; count: number }>();
+for (const post of posts) {
+	const credits = (post.data as Record<string, unknown>).bylines as BylineSummary[] | undefined;
+	const primary = (post.data as Record<string, unknown>).byline as BylineSummary | null | undefined;
+	const allCredits = credits?.length ? credits : primary ? [primary] : [];
+	for (const b of allCredits) {
+		if (!b?.slug) continue;
+		const key = b.slug;
+		const existing = bylineMap.get(key);
+		if (existing) {
+			existing.count++;
+		} else {
+			bylineMap.set(key, { byline: b, count: 1 });
+		}
+	}
+}
+
+const authors = Array.from(bylineMap.values()).sort((a, b) => b.count - a.count);
+---
+
+<BaseLayout title={copy.authorsTitle} description={copy.authorsDescription} showFooterWidgets={false}>
+	<section class="content-hero">
+		<p class="kicker">{copy.authorsKicker}</p>
+		<h1>{copy.authorsHeading}</h1>
+		<p>{copy.authorsIntro}</p>
+		<div class="content-hero__meta">
+			<span>{authors.length} {copy.counts.authors}</span>
+		</div>
+	</section>
+
+	{authors.length === 0 ? (
+		<section class="card empty-state">
+			<p>{copy.noAuthorsYet}</p>
+		</section>
+	) : (
+		<section class="author-grid">
+			{authors.map(({ byline, count }) => (
+				<a
+					class="author-card"
+					href={toLocalePath(`/authors/${byline.slug}`, currentLocale, localeOptions)}
+					data-astro-prefetch="hover"
+				>
+					<div class="author-card__avatar">
+						{byline.avatarStorageKey ? (
+							<img src={`/_emdash/media/${byline.avatarStorageKey}`} alt={byline.avatarAlt || byline.displayName} loading="lazy" />
+						) : (
+							<span class="author-card__initials">{byline.displayName.slice(0, 2).toUpperCase()}</span>
+						)}
+					</div>
+					<div class="author-card__body">
+						<h2>{byline.displayName}</h2>
+						{byline.bio && <p class="author-card__bio">{byline.bio}</p>}
+						<span class="author-card__count">{copy.authorEntriesCount(count)}</span>
+					</div>
+				</a>
+			))}
+		</section>
+	)}
+</BaseLayout>
+
+<style>
+	.author-grid {
+		display: grid;
+		gap: 1.5rem;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		margin-top: 2rem;
+	}
+
+	.author-card {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+		padding: 1.25rem;
+		border: 1px solid var(--surface-border);
+		border-radius: 1rem;
+		background: var(--gradient-surface);
+		text-decoration: none;
+		color: var(--text-main);
+		transition: transform 0.2s ease, border-color 0.2s ease;
+	}
+
+	.author-card:hover {
+		transform: translateY(-3px);
+		border-color: var(--accent);
+	}
+
+	.author-card__avatar {
+		flex-shrink: 0;
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		overflow: hidden;
+		background: var(--accent);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.author-card__avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.author-card__initials {
+		color: #fff;
+		font-size: 1.1rem;
+		font-weight: 700;
+	}
+
+	.author-card__body h2 {
+		font-size: 1rem;
+		font-weight: 700;
+		margin: 0 0 0.25rem;
+	}
+
+	.author-card__bio {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+		margin: 0 0 0.5rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.author-card__count {
+		font-size: 0.8rem;
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	.empty-state {
+		padding: 2rem;
+		text-align: center;
+	}
+</style>

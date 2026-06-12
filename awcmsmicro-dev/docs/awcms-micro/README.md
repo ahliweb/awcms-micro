@@ -12,6 +12,8 @@ flowchart TD
   Boundary --> I18N[I18N and PO standards]
   Boundary --> Sikesra[SIKESRA reference docs]
   Boundary --> Sync[Upstream sync notes]
+  Boundary --> ContentRefs[Content references schema]
+  Boundary --> ScheduledPub[Scheduled publishing architecture]
   Sync --> RootSync[Root upstream-sync records]
   LandingPage --> Promo[PromoPopup]
   LandingPage --> FAQ[FAQ section]
@@ -32,3 +34,5 @@ flowchart TD
 - `i18n-po-translation-standard.md`: Lingui-compatible gettext PO catalog standard for AWCMS-Micro plugins and templates
 - `sikesra-reference-prd.md`: SIKESRA reference PRD and backlog map for the AWCMS-Micro example standard
 - `sikesra-reference-standard.md`: SIKESRA-grade reference scope, implementation order, and guardrails for the SIKESRA plugin and templates
+- `scheduled-publishing.md`: scheduled publishing architecture with Cron Trigger, `publishDueContent` sweep, D1 coalescing, and Node.js scheduler state machine (EmDash 0.19.0)
+- `content-references.md`: content-to-content relations schema (`_emdash_relations` + `_emdash_content_references`), AWCMS-Micro planned relation types, and implementation checklist (EmDash 0.18.0+)

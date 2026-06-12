@@ -1,5 +1,9 @@
 # AWCMS-Micro Changelog
 
+## 0.1.39 - 2026-06-13
+
+- Implement GitHub issues #202, #204, #205: (1) `awcmsmicro-dev/docs/awcms-micro/content-references.md` — documents the EmDash 0.18.0+ content references schema (`_emdash_relations` + `_emdash_content_references`) with ER and data-flow Mermaid diagrams, planned AWCMS-Micro relation types, and implementation checklist; docs/awcms-micro/README.md index updated. (2) Author archive pages added to both default templates (`/authors` and `/authors/[slug]`) using `getEntriesByByline()` (EmDash 0.19.0), bilingual EN/ID strings in messages.ts and all 4 PO catalogs, sitemap.astro updated; all 5 locale tests pass. (3) Issue #205 verified: production Cron Trigger `* * * * *` confirmed live via Cloudflare API, worker.ts and wrangler.jsonc configuration confirmed correct; verification comment posted on GitHub issue.
+
 ## 0.1.38 - 2026-06-12
 
 - Sync emdash-latest and awcmsmicro-dev to EmDash 0.19.0 (upstream HEAD 34dd430b35). Key changes: scheduled publishing heartbeat fix (publishDueContent sweep replaces PiggybackScheduler), migration 043 (_emdash_relations + _emdash_content_references tables, first-time apply in production), getEntriesByByline() helper for author archive pages, responsive srcset via Astro image service, status/author/date-range filtering in admin content list, getTaxonomyTerms() description fix for flat taxonomies, seed CLI locale fix. Patch 0007-core-vite context updated for @vitest/ui ^4.1.8 bump. GitHub issues #204 (author archive pages) and #205 (scheduled publishing verification) created.

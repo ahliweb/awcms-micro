@@ -16,9 +16,9 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 ### Key 0.19.0 Features
 
-- **Scheduled publishing heartbeat fix** (`publishDueContent` sweep): content scheduled via the admin now actually transitions to `published` when its time arrives. The `PiggybackScheduler` (request-side-effect based) is removed; a real Cron Trigger drives the sweep. AWCMS-Micro templates already have the required `src/worker.ts` and `wrangler.jsonc` from the 0.18.0 sync — no additional template changes needed. Verify end-to-end with issue #205.
-- **Migration 043** (already applied in production): adds `_emdash_relations` (relationship-type definitions, row-per-locale) and `_emdash_content_references` (directed edges between content entries) tables. Applied to production at the 0.18.0 sync (commit `ff5855ab`) — migration 043 was present in the main branch at that time even though it was not in the formal `emdash@0.18.0` tag. Confirmed in the `emdash@0.19.0` release tag. See issue #202 for content references implementation planning.
-- **`getEntriesByByline()`**: new helper returning all entries credited to a byline in any position (including co-authored). Enables author archive pages — see issue #204. `getEmDashCollection` also accepts `where: { byline: translationGroup }` to filter by byline credit.
+- **Scheduled publishing heartbeat fix** (`publishDueContent` sweep): content scheduled via the admin now actually transitions to `published` when its time arrives. The `PiggybackScheduler` (request-side-effect based) is removed; a real Cron Trigger drives the sweep. AWCMS-Micro templates already have the required `src/worker.ts` and `wrangler.jsonc` from the 0.18.0 sync — no additional template changes needed. Production Cron Trigger `* * * * *` confirmed live via Cloudflare API (issue #205 verified 2026-06-13).
+- **Migration 043** (already applied in production): adds `_emdash_relations` (relationship-type definitions, row-per-locale) and `_emdash_content_references` (directed edges between content entries) tables. Applied to production at the 0.18.0 sync. Documented in `awcmsmicro-dev/docs/awcms-micro/content-references.md` with ER Mermaid diagram and planned AWCMS-Micro relation types (see issue #202).
+- **`getEntriesByByline()`**: new helper returning all entries credited to a byline in any position (including co-authored). Author archive pages (`/authors`, `/authors/[slug]`) implemented in both default templates (issue #204 closed). `getEmDashCollection` also accepts `where: { byline: translationGroup }` to filter by byline credit.
 - **Responsive srcset for media**: EmDash routes media through Astro's configured image service (Cloudflare Images on Workers, sharp on Node), producing width-appropriate candidates and modern formats. Automatic — no template changes required.
 - **Admin content list filtering**: `authorId`, `dateField`, `dateFrom`, `dateTo` query params added to the content list API. New `GET /_emdash/api/content/{collection}/authors` endpoint lists distinct content authors. Server-side filtering across the full collection.
 - **`RelationRepository`** (`packages/core/src/database/repositories/relation.ts`): data layer for content references. Groundwork only — no field type, API, or admin UI yet.
@@ -146,7 +146,16 @@ Before changing the Cloudflare worker entry point, cron triggers, or scheduled p
 
 - `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`
 
+Before implementing content-to-content relationships or seeding `_emdash_relations` / `_emdash_content_references`, read:
+
+- `awcmsmicro-dev/docs/awcms-micro/content-references.md`
+
 The default templates' public pages follow the ahliweb.com (ahliwebcom) section architecture while staying CMS-sourced and admin-integrated. Keep both templates consistent, source content from EmDash collections (not hardcoded), and use the shared `src/styles/public.css` and `src/components/public/` instead of duplicating styles. New public page types should be admin-editable EmDash collections with EN/ID content and `seo` support so they flow into the auto-injected sitemap.
+
+Current public route inventory (both default templates):
+`/`, `/posts`, `/posts/[slug]`, `/news`, `/news/[slug]`, `/services`, `/services/[slug]`, `/gallery`, `/gallery/[slug]`, `/portfolio`, `/portfolio/[slug]`, `/testimonials`, `/authors`, `/authors/[slug]`, `/[slug]` (CMS pages), `/sitemap`, `/aggregate`, `/sikesra`, `/docs`.
+
+When adding new i18n strings to a template's `src/locales/messages.ts`, also add matching `msgctxt` entries to all four PO catalogs (`en/messages.po` and `id/messages.po` in both templates) and run `node --test templates/awcms-micro-default/tests/locales.test.mjs templates/awcms-micro-default-cloudflare/tests/locales.test.mjs` to verify all 5 locale tests pass.
 
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
 
