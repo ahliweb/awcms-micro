@@ -28,15 +28,24 @@ Keep AWCMS-Micro aligned with the latest EmDash source while preserving a strict
 
 ```mermaid
 flowchart TD
-  Analyze[Analyze upstream EmDash] --> Preflight[Run sync preflight]
-  Preflight --> Fetch[Refresh emdash-latest]
-  Fetch --> Backup[Back up protected paths]
-  Backup --> Rebuild[Rebuild awcmsmicro-dev]
-  Rebuild --> Restore[Restore protected paths]
-  Restore --> Patches[Replay .awcms-patches]
-  Patches --> Lockfile[Refresh lockfile]
-  Lockfile --> Validate[Validate workspace]
-  Validate --> Snapshot[Update sync docs and changelog snapshot]
+  Backup[Back up production D1 database] --> Analyze[Analyze upstream EmDash commits]
+  Analyze --> Breaking{Breaking changes<br/>or major features?}
+  Breaking -->|Yes| Issues[Create GitHub issues<br/>for tracked implementation]
+  Breaking -->|No| Preflight
+  Issues --> Preflight[Run sync preflight checklist]
+  Preflight --> Fetch[bash update-emdash-latest.sh]
+  Fetch --> PatchFix{Patches apply cleanly?}
+  PatchFix -->|No| UpdatePatch[Update .awcms-patches overlay]
+  UpdatePatch --> Rebuild
+  PatchFix -->|Yes| Rebuild[bash update-awcmsmicro-dev.sh]
+  Rebuild --> LintFix{Lint errors?}
+  LintFix -->|Yes| FixLint[Fix downstream lint errors]
+  FixLint --> Validate
+  LintFix -->|No| Validate[bash validate-awcmsmicro-dev.sh]
+  Validate --> Downstream[Apply downstream changes<br/>worker.ts, emdash-env.d.ts, etc.]
+  Downstream --> Changeset[Add .awcms-changesets entry]
+  Changeset --> Snapshot[Update sync docs and CHANGELOG]
+  Snapshot --> Deploy[Deploy to production Cloudflare]
 ```
 
 ### Downstream Patch Policy

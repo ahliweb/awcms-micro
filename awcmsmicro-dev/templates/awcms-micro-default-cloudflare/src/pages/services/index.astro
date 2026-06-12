@@ -32,7 +32,7 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
 const copy = getPublicCopy(currentLocale);
 
-const services = (rawServices as unknown as ServiceEntry[]).sort(
+const services = (rawServices as unknown as ServiceEntry[]).toSorted(
 	(a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
 );
 ---

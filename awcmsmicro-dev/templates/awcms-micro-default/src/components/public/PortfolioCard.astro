@@ -33,13 +33,14 @@ const CATEGORY_LABELS: Record<string, { en: string; id: string }> = {
 	hospital: { en: "Hospital Website", id: "Website Rumah Sakit" },
 };
 
+const WWW_RE = /^www\./;
 const catKey = typeof category === "string" ? category : "";
 const catLabel = CATEGORY_LABELS[catKey] ? (isId ? CATEGORY_LABELS[catKey].id : CATEGORY_LABELS[catKey].en) : catKey;
 const techList = Array.isArray(tech) ? (tech as string[]) : [];
 const host = (() => {
 	if (!url) return "";
 	try {
-		return new URL(url).hostname.replace(/^www\./, "");
+		return new URL(url).hostname.replace(WWW_RE, "");
 	} catch {
 		return "";
 	}

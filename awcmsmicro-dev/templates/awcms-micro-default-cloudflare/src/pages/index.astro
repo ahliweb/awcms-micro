@@ -84,8 +84,7 @@ interface TestimonialEntry {
 	data: { quote: string; name?: string; role?: string; featured?: boolean; order?: number };
 }
 const featuredTestimonials = (rawTestimonials as unknown as TestimonialEntry[])
-	.slice()
-	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
+	.toSorted((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
 	.slice(0, 3);
 
 interface PortfolioEntry {
@@ -94,8 +93,7 @@ interface PortfolioEntry {
 	data: { title: string; category?: string; tech?: unknown; url?: string; stage?: string; featured?: boolean; order?: number };
 }
 const featuredPortfolio = (rawPortfolio as unknown as PortfolioEntry[])
-	.slice()
-	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
+	.toSorted((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
 	.filter((item) => item.data.featured)
 	.slice(0, 6);
 
@@ -105,8 +103,7 @@ interface ServiceEntry {
 	data: { slug?: string; title: string; description?: string; icon?: string; order?: number };
 }
 const services = (rawServices as unknown as ServiceEntry[])
-	.slice()
-	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+	.toSorted((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
 const featuredServices = services.slice(0, 6);
 
 const galleries = rawGalleries as unknown as GalleryEntry[];

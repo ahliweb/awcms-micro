@@ -24,7 +24,7 @@ const { entries: rawTestimonials, cacheHint } = await getEmDashCollection("testi
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 const copy = getPublicCopy(currentLocale);
 
-const testimonials = (rawTestimonials as unknown as TestimonialEntry[]).sort(
+const testimonials = (rawTestimonials as unknown as TestimonialEntry[]).toSorted(
 	(a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
 );
 ---

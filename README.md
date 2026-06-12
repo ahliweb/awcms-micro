@@ -32,21 +32,20 @@ Keep these flows separate so root maintenance releases do not mix with package r
 
 ## Root Structure
 
-- `emdash-latest/`: latest synchronized snapshot of upstream EmDash
+- `emdash-latest/`: latest synchronized snapshot of upstream EmDash (current: `0.18.0` @ `ff5855ab`, 2026-06-12)
 - `awcmsmicro-dev/`: clone of `emdash-latest/` used as the active AWCMS-Micro development workspace
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
 ```mermaid
 flowchart LR
-  Upstream[Upstream EmDash] --> Latest[emdash-latest]
-  Latest --> Dev[awcmsmicro-dev]
-  Dev --> Plugins[AWCMS-Micro plugins]
-  Dev --> Templates[AWCMS-Micro templates]
-  Docs[Root docs] --> Rules[Boundaries and workflow]
-  Scripts[Root scripts] --> Latest
-  Scripts --> Dev
-  Rules --> Scripts
+  GH["github.com/emdash-cms/emdash"] -->|"update-emdash-latest.sh"| Latest["emdash-latest/\n(upstream snapshot)"]
+  Latest -->|"update-awcmsmicro-dev.sh\n+ patch overlays"| Dev["awcmsmicro-dev/\n(development workspace)"]
+  Dev --> Plugins["packages/plugins/awcms-micro-*\n(AWCMS-Micro plugins)"]
+  Dev --> Templates["templates/awcms-micro-default*\n(AWCMS-Micro templates)"]
+  Dev -->|"wrangler deploy"| CF["Cloudflare Workers\n(production)"]
+  Docs["docs/ + scripts/"] -->|"governs"| Dev
+  Patches["awcmsmicro-dev/.awcms-patches/\n(downstream overlays)"] -->|"replayed by update script"| Dev
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.

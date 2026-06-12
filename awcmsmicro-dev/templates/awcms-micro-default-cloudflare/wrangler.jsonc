@@ -5,6 +5,11 @@
 	"compatibility_date": "2026-05-14",
 	"compatibility_flags": ["nodejs_compat"],
 	"placement": { "mode": "smart" },
+	"triggers": {
+		// Drive scheduled publishing and plugin cron every minute.
+		// Requires @emdash-cms/cloudflare/worker as the worker entry point.
+		"crons": ["* * * * *"],
+	},
 	"routes": [
 		{
 			"pattern": "awcms-micro.ahlikoding.com/*",
