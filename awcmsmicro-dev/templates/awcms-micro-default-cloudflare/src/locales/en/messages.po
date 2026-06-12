@@ -438,6 +438,22 @@ msgctxt "footerLinkTerms"
 msgid "Terms of Service"
 msgstr "Terms of Service"
 
+msgctxt "footerLinkAup"
+msgid "Acceptable Use Policy"
+msgstr "Acceptable Use Policy"
+
+msgctxt "footerLinkSla"
+msgid "SLA"
+msgstr "SLA"
+
+msgctxt "footerLinkPerjanjian"
+msgid "Service Agreement"
+msgstr "Service Agreement"
+
+msgctxt "footerLinkSmki"
+msgid "ISMS Policy"
+msgstr "ISMS Policy"
+
 msgctxt "viewAboutPage"
 msgid "View about page"
 msgstr "View about page"

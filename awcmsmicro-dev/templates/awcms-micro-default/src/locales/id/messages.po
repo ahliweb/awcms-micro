@@ -518,6 +518,22 @@ msgctxt "footerLinkTerms"
 msgid "Terms of Service"
 msgstr "Ketentuan Layanan"
 
+msgctxt "footerLinkAup"
+msgid "Acceptable Use Policy"
+msgstr "Kebijakan Penggunaan"
+
+msgctxt "footerLinkSla"
+msgid "SLA"
+msgstr "SLA"
+
+msgctxt "footerLinkPerjanjian"
+msgid "Service Agreement"
+msgstr "Perjanjian Layanan"
+
+msgctxt "footerLinkSmki"
+msgid "ISMS Policy"
+msgstr "Kebijakan SMKI"
+
 msgctxt "footerAdminLogin"
 msgid "Admin Login"
 msgstr "Login Admin"

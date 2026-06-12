@@ -1211,6 +1211,5312 @@
 						}
 					]
 				}
+			},
+			{
+				"id": "privacy",
+				"slug": "privacy",
+				"status": "published",
+				"data": {
+					"title": "Privacy Policy",
+					"seo": {
+						"title": "Privacy Policy",
+						"description": "Our privacy policy explains how we collect, use, and protect your personal information."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Information We Collect",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional (\"AhliWeb\", \"we\") collects information you provide directly to us, such as name, email address, phone number, and business information when you use our services or contact us.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Use of Information",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "The information we collect is used to:",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Provide, maintain, and improve our services",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Communicate with you about services, updates, and offers",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Process transactions and send related information",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Comply with applicable legal obligations",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Protect the security and integrity of our platform",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Information Sharing",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We do not sell, trade, or transfer your personal information to third parties without your consent, except as necessary to provide services or as required by law.",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Data Security",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We implement reasonable security measures to protect your information from unauthorized access, improper use, or unintended disclosure. However, no method of data transmission over the internet is entirely secure.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Cookies and Tracking Technologies",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Our website uses cookies and similar tracking technologies to improve user experience. You can control cookie usage through your browser settings.",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Data Retention",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We retain your information as long as necessary to provide services and meet legal obligations. When no longer needed, data will be securely deleted.",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Your Rights",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "You have the right to access, correct, or delete your personal information. To exercise these rights, contact us at solutions@ahliweb.com.",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Policy Changes",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We may update this privacy policy from time to time. Significant changes will be notified to you via email or notice on our website.",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Contact",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "If you have questions about this privacy policy, please contact us at: ",
+									"_key": "b23s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b23s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b23"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "privacy-id",
+				"slug": "privacy",
+				"translationOf": "privacy",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Kebijakan Privasi",
+					"seo": {
+						"title": "Kebijakan Privasi",
+						"description": "Kebijakan privasi kami menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Informasi yang Kami Kumpulkan",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional (\"AhliWeb\", \"kami\") mengumpulkan informasi yang Anda berikan secara langsung kepada kami, seperti nama, alamat email, nomor telepon, dan informasi bisnis ketika Anda menggunakan layanan kami atau menghubungi kami.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Penggunaan Informasi",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Informasi yang kami kumpulkan digunakan untuk:",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Menyediakan, memelihara, dan meningkatkan layanan kami",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Berkomunikasi dengan Anda tentang layanan, pembaruan, dan penawaran",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Memproses transaksi dan mengirim informasi terkait",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Mematuhi kewajiban hukum yang berlaku",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Melindungi keamanan dan integritas platform kami",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Berbagi Informasi",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami tidak menjual, memperdagangkan, atau memindahkan informasi pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali sebagaimana diperlukan untuk menyediakan layanan atau diwajibkan oleh hukum.",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Keamanan Data",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami menerapkan langkah-langkah keamanan yang wajar untuk melindungi informasi Anda dari akses tidak sah, penggunaan yang tidak tepat, atau pengungkapan yang tidak diinginkan. Namun, tidak ada metode transmisi data melalui internet yang sepenuhnya aman.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Cookie dan Teknologi Pelacakan",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Website kami menggunakan cookie dan teknologi pelacakan serupa untuk meningkatkan pengalaman pengguna. Anda dapat mengontrol penggunaan cookie melalui pengaturan browser Anda.",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Retensi Data",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami menyimpan informasi Anda selama diperlukan untuk memberikan layanan dan memenuhi kewajiban hukum. Setelah tidak diperlukan, data akan dihapus secara aman.",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Hak Anda",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Anda memiliki hak untuk mengakses, mengoreksi, atau menghapus informasi pribadi Anda. Untuk menggunakan hak-hak ini, hubungi kami di solutions@ahliweb.com.",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Perubahan Kebijakan",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami dapat memperbarui kebijakan privasi ini dari waktu ke waktu. Perubahan signifikan akan diberitahukan kepada Anda melalui email atau pemberitahuan di website kami.",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Kontak",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Jika Anda memiliki pertanyaan tentang kebijakan privasi ini, silakan hubungi kami di: ",
+									"_key": "b23s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b23s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b23"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "terms",
+				"slug": "terms",
+				"status": "published",
+				"data": {
+					"title": "Terms of Service",
+					"seo": {
+						"title": "Terms of Service",
+						"description": "Terms and conditions governing use of AhliWeb's digital services."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Acceptance of Terms",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "By accessing and using PT Ahli Web Internasional (\"AhliWeb\") services, you agree to be bound by these terms and conditions of use. If you do not agree to these terms, please do not use our services.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Service Description",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb provides integrated digital services including website development, hosting, cloud server, cyber security, ERP, digital marketing, and related IT services. We reserve the right to modify, suspend, or discontinue services at any time with reasonable notice.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Accounts and Security",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. You must immediately notify us of any unauthorized use of your account.",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Payment and Billing",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Our services are charged according to the selected package. Payment must be made according to the agreed schedule. Late payment may result in service suspension. All prices exclude taxes unless otherwise stated.",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Refund Policy",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Refunds may be considered in certain cases per our applicable refund policy. Fully delivered services cannot be refunded. For refund requests, contact our team within 7 business days of identifying the issue.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Intellectual Property Rights",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "All content, features, and functionality of our services are the exclusive property of AhliWeb and are protected by copyright, trademark, and intellectual property law. Deliverables become client property upon full payment.",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Limitation of Liability",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb is not liable for indirect, incidental, special, consequential, or punitive damages arising from use or inability to use our services. Our liability is limited to amounts paid for the relevant service.",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Prohibited Use",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "You are not permitted to use our services for illegal activities, spreading harmful content, spam, or activities that violate applicable Indonesian law.",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Governing Law",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "These terms and conditions are governed by the laws of the Republic of Indonesia. Any disputes will be resolved through deliberation and consensus, and if no agreement is reached, through the competent court in Indonesia.",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Changes to Terms",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We reserve the right to modify these terms and conditions at any time. Changes take effect immediately upon publication on our website. Your continued use of our services constitutes acceptance of such changes.",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "11. Contact",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Questions about these terms and conditions can be sent to: ",
+									"_key": "b22s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b22s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b22"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "terms-id",
+				"slug": "terms",
+				"translationOf": "terms",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Syarat dan Ketentuan",
+					"seo": {
+						"title": "Syarat dan Ketentuan",
+						"description": "Syarat dan ketentuan penggunaan layanan digital AhliWeb."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Penerimaan Syarat",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Dengan mengakses dan menggunakan layanan PT Ahli Web Internasional (\"AhliWeb\"), Anda menyetujui untuk terikat oleh syarat dan ketentuan penggunaan ini. Jika Anda tidak setuju dengan syarat-syarat ini, harap tidak menggunakan layanan kami.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Deskripsi Layanan",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb menyediakan layanan digital terpadu yang mencakup pengembangan website, hosting, cloud server, keamanan siber, ERP, pemasaran digital, dan layanan IT terkait. Kami berhak untuk mengubah, menangguhkan, atau menghentikan layanan kapan saja dengan pemberitahuan yang wajar.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Akun dan Keamanan",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Anda bertanggung jawab untuk menjaga kerahasiaan informasi akun Anda dan untuk semua aktivitas yang terjadi di bawah akun Anda. Anda wajib segera memberitahu kami jika terjadi penggunaan tidak sah atas akun Anda.",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Pembayaran dan Penagihan",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Layanan kami dikenakan biaya sesuai dengan paket yang dipilih. Pembayaran harus dilakukan sesuai jadwal yang disepakati. Keterlambatan pembayaran dapat mengakibatkan penangguhan layanan. Semua harga tidak termasuk pajak kecuali dinyatakan sebaliknya.",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Kebijakan Refund",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Refund dapat dipertimbangkan dalam kasus tertentu sesuai dengan kebijakan refund kami yang berlaku. Layanan yang sudah diberikan secara penuh tidak dapat di-refund. Untuk pengajuan refund, hubungi tim kami dalam 7 hari kerja setelah masalah teridentifikasi.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Hak Kekayaan Intelektual",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Seluruh konten, fitur, dan fungsionalitas layanan kami adalah milik eksklusif AhliWeb dan dilindungi oleh hukum hak cipta, merek dagang, dan kekayaan intelektual. Hasil kerja yang diserahkan kepada klien menjadi hak milik klien setelah pembayaran lunas.",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Batasan Tanggung Jawab",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb tidak bertanggung jawab atas kerugian tidak langsung, insidental, khusus, konsekuensial, atau hukuman yang timbul dari penggunaan atau ketidakmampuan untuk menggunakan layanan kami. Tanggung jawab kami terbatas pada jumlah yang dibayarkan untuk layanan terkait.",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Penggunaan yang Dilarang",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Anda tidak diperbolehkan menggunakan layanan kami untuk aktivitas ilegal, penyebaran konten berbahaya, spam, atau aktivitas yang melanggar hukum yang berlaku di Indonesia.",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Hukum yang Berlaku",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Syarat dan ketentuan ini diatur oleh hukum Republik Indonesia. Setiap perselisihan akan diselesaikan melalui musyawarah mufakat, dan jika tidak tercapai kesepakatan, melalui pengadilan yang berwenang di Indonesia.",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Perubahan Syarat",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami berhak mengubah syarat dan ketentuan ini kapan saja. Perubahan akan berlaku segera setelah dipublikasikan di website kami. Penggunaan layanan Anda yang berkelanjutan merupakan penerimaan atas perubahan tersebut.",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "11. Kontak",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pertanyaan tentang syarat dan ketentuan ini dapat dikirimkan ke: ",
+									"_key": "b22s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b22s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b22"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "aup",
+				"slug": "aup",
+				"status": "published",
+				"data": {
+					"title": "Acceptable Use Policy",
+					"seo": {
+						"title": "Acceptable Use Policy",
+						"description": "Standards of acceptable behavior for all users of AhliWeb services."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "This Acceptable Use Policy (AUP) establishes standards of acceptable behavior for all users of PT Ahli Web Internasional (\"AhliWeb\") services.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Permitted Use",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb services may only be used for lawful purposes and in compliance with:",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Applicable laws and regulations in Indonesia",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Rights of third parties",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Applicable AhliWeb policies and guidelines",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Prohibited Use",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Users may not use the services for:",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Illegal activities or those violating Indonesian law",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Distributing malware, viruses, or other malicious code",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Spam or unauthorized bulk email sending",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Phishing activities or online fraud",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Infringement of copyright or intellectual property",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pornographic, hate, or morally harmful content",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Activities disrupting services for other users",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Cyber attacks or hacking activities",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Unauthorized cryptocurrency mining that drains server resources",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Prohibited Content",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "The following content is prohibited on AhliWeb platforms:",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Content infringing copyright without valid license",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Content containing hate speech or discrimination",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Content threatening national security",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Third-party personal information without consent",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. User Responsibility",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Users are fully responsible for content they upload or store on AhliWeb services. AhliWeb reserves the right to remove content violating this AUP without prior notice.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Policy Enforcement",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Violations of this AUP may result in:",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Official warning",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Temporary service suspension",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Permanent service termination",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Reporting to authorities if necessary",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Reporting Violations",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "If you become aware of a violation of this AUP, please report it to us at: ",
+									"_key": "b33s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b33s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b33"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "aup-id",
+				"slug": "aup",
+				"translationOf": "aup",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Kebijakan Penggunaan yang Dapat Diterima",
+					"seo": {
+						"title": "Kebijakan Penggunaan yang Dapat Diterima",
+						"description": "Standar perilaku yang dapat diterima bagi semua pengguna layanan AhliWeb."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kebijakan Penggunaan yang Dapat Diterima (AUP) ini menetapkan standar perilaku yang dapat diterima bagi semua pengguna layanan PT Ahli Web Internasional (\"AhliWeb\").",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Penggunaan yang Diizinkan",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Layanan AhliWeb hanya boleh digunakan untuk tujuan yang sah dan sesuai dengan:",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hukum dan peraturan yang berlaku di Indonesia",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hak-hak pihak ketiga",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kebijakan dan panduan AhliWeb yang berlaku",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Penggunaan yang Dilarang",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pengguna tidak diperbolehkan menggunakan layanan untuk:",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Aktivitas ilegal atau yang melanggar hukum Indonesia",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penyebaran malware, virus, atau kode berbahaya lainnya",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Spam atau pengiriman email massal tanpa izin",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Aktivitas phishing atau penipuan online",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pelanggaran hak cipta atau kekayaan intelektual",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten pornografi, SARA, atau yang dapat merusak moralitas",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Aktivitas yang mengganggu layanan kepada pengguna lain",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Serangan siber atau aktivitas hacking",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penambangan kripto tanpa izin yang menguras sumber daya server",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Konten yang Dilarang",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten berikut dilarang di platform AhliWeb:",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten yang melanggar hak cipta tanpa lisensi yang sah",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten yang mengandung ujaran kebencian atau diskriminasi",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten yang mengancam keamanan nasional",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Informasi pribadi pihak ketiga tanpa persetujuan",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Tanggung Jawab Pengguna",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pengguna sepenuhnya bertanggung jawab atas konten yang mereka unggah atau simpan di layanan AhliWeb. AhliWeb berhak untuk menghapus konten yang melanggar AUP ini tanpa pemberitahuan sebelumnya.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Penegakan Kebijakan",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pelanggaran AUP ini dapat mengakibatkan:",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Peringatan resmi",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penangguhan layanan sementara",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penghentian layanan permanen",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pelaporan kepada pihak berwenang jika diperlukan",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Pelaporan Pelanggaran",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Jika Anda mengetahui pelanggaran AUP ini, silakan laporkan kepada kami melalui: ",
+									"_key": "b33s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b33s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b33"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "sla",
+				"slug": "sla",
+				"status": "published",
+				"data": {
+					"title": "Service Level Agreement",
+					"seo": {
+						"title": "Service Level Agreement",
+						"description": "AhliWeb's service level commitments for uptime, support response, and compensation."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "This Service Level Agreement (SLA) establishes the service levels AhliWeb commits to provide to its customers.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Service Availability",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb commits to providing ",
+									"_key": "b03s1"
+								},
+								{
+									"_type": "span",
+									"text": "99.9%",
+									"_key": "b03s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " uptime for hosting and cloud server services monthly, measured on a monthly basis (excluding scheduled maintenance).",
+									"_key": "b03s3"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Support Response Times",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Critical (server down, website inaccessible): Response 1 hour | Resolution 4 hours",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "High (significant performance degradation): Response 4 hours | Resolution 12 hours",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Medium (specific feature not working): Response 8 business hours | Resolution 2 business days",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Low (general questions, new requests): Response 1 business day | Resolution 5 business days",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Scheduled Maintenance",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Regular maintenance is scheduled on Sundays between 02:00–06:00 WIB. Customers will be notified at least 48 hours before maintenance that may affect services.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. SLA Compensation",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "If monthly uptime falls below 99.9%, customers are entitled to service credit compensation as follows:",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "99.0% – 99.9%: 10% credit of monthly invoice",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "95.0% – 99.0%: 25% credit of monthly invoice",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Below 95.0%: 50% credit of monthly invoice",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. SLA Exclusions",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "The SLA does not apply to outages caused by:",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Force majeure (natural disasters, riots, etc.)",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Customer actions or negligence",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "DDoS attacks or malicious activities from third parties",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Third-party infrastructure failures (ISP, cloud provider)",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Notified scheduled maintenance",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Claims Procedure",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SLA claims must be submitted within 30 days after an incident via email: ",
+									"_key": "b24s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b24s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " with subject \"SLA Claim - [Company Name/Domain]\".",
+									"_key": "b24s3"
+								}
+							],
+							"_key": "b24"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "sla-id",
+				"slug": "sla",
+				"translationOf": "sla",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Perjanjian Tingkat Layanan",
+					"seo": {
+						"title": "Perjanjian Tingkat Layanan",
+						"description": "Komitmen tingkat layanan AhliWeb untuk uptime, respons dukungan, dan kompensasi."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Perjanjian Tingkat Layanan (SLA) ini menetapkan tingkat layanan yang berkomitmen AhliWeb berikan kepada pelanggan.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Ketersediaan Layanan",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb berkomitmen untuk menyediakan uptime layanan hosting dan cloud server sebesar ",
+									"_key": "b03s1"
+								},
+								{
+									"_type": "span",
+									"text": "99.9%",
+									"_key": "b03s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " setiap bulannya, diukur secara bulanan (tidak termasuk pemeliharaan terjadwal).",
+									"_key": "b03s3"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Waktu Respons Dukungan",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kritis (server down, website tidak dapat diakses): Respons 1 jam | Resolusi 4 jam",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tinggi (performa terdegradasi signifikan): Respons 4 jam | Resolusi 12 jam",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sedang (fitur tertentu tidak berfungsi): Respons 8 jam kerja | Resolusi 2 hari kerja",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Rendah (pertanyaan umum, permintaan baru): Respons 1 hari kerja | Resolusi 5 hari kerja",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Pemeliharaan Terjadwal",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pemeliharaan rutin dijadwalkan pada hari Minggu antara pukul 02.00–06.00 WIB. Pelanggan akan diberitahu minimal 48 jam sebelum pemeliharaan yang dapat mempengaruhi layanan.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Kompensasi SLA",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Jika uptime bulanan turun di bawah 99.9%, pelanggan berhak mendapatkan kompensasi kredit layanan sebagai berikut:",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "99.0% – 99.9%: Kredit 10% dari tagihan bulanan",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "95.0% – 99.0%: Kredit 25% dari tagihan bulanan",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Di bawah 95.0%: Kredit 50% dari tagihan bulanan",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Pengecualian SLA",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SLA tidak berlaku untuk gangguan yang disebabkan oleh:",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Force majeure (bencana alam, kerusuhan, dll.)",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tindakan atau kelalaian pelanggan",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Serangan DDoS atau aktivitas berbahaya dari pihak ketiga",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kegagalan pada infrastruktur pihak ketiga (ISP, cloud provider)",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pemeliharaan terjadwal yang telah diberitahukan",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Prosedur Klaim",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Klaim SLA harus diajukan dalam 30 hari setelah insiden terjadi melalui email: ",
+									"_key": "b24s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b24s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " dengan subjek \"SLA Claim - [Nama Perusahaan/Domain]\".",
+									"_key": "b24s3"
+								}
+							],
+							"_key": "b24"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "perjanjian-layanan",
+				"slug": "perjanjian-layanan",
+				"status": "published",
+				"data": {
+					"title": "Service Agreement",
+					"seo": {
+						"title": "Service Agreement",
+						"description": "Binding service agreement between AhliWeb and its clients."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "This Service Agreement is a binding contract between PT Ahli Web Internasional (\"AhliWeb\") and the customer (\"you\" or \"Client\") using our services.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Parties",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Service Provider: ",
+									"_key": "b03s1"
+								},
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional",
+									"_key": "b03s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": ", operating as AhliWeb, provides integrated digital services in Indonesia.",
+									"_key": "b03s3"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Client: ",
+									"_key": "b04s1"
+								},
+								{
+									"_type": "span",
+									"text": "Individual or business entity",
+									"_key": "b04s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " that registers and uses AhliWeb services.",
+									"_key": "b04s3"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Scope of Services",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb provides services per the agreed package or proposal, including but not limited to:",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Website design and development",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hosting and server management",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Maintenance and technical support",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Cyber security services",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Digital and ERP consulting",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. AhliWeb Obligations",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Provide services per agreed specifications",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Provide technical support per applicable SLA",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Maintain confidentiality of client data and information",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Notify clients of significant service changes",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Client Obligations",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pay service fees per agreed schedule",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Provide access and information needed for service delivery",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Use services per applicable AUP and terms",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Notify AhliWeb of service requirement changes",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Payment",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Payment is made based on invoices issued by AhliWeb. Payment delays exceeding 7 business days may result in service suspension. A 2% per month late payment fee may be charged.",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Confidentiality",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Both parties must maintain confidentiality of business, technical, and commercial information shared during the cooperation period and for 2 years after the agreement ends.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Intellectual Property Rights",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Deliverables become client property upon full payment. AhliWeb retains rights to generic components, frameworks, libraries, and code developed before or outside this contract.",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Term and Termination",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "The agreement is effective from the date of signing or first payment, and continues until either party provides 30 days prior termination notice. Unilateral termination without valid reason does not eliminate payment obligations already due.",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Dispute Resolution",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Disputes will first be resolved through deliberation. If no agreement within 30 days, disputes are submitted to the Indonesian National Arbitration Board (BANI) or competent court.",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Contact",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Service agreement inquiries: ",
+									"_key": "b33s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b33s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b33"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "perjanjian-layanan-id",
+				"slug": "perjanjian-layanan",
+				"translationOf": "perjanjian-layanan",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Perjanjian Layanan",
+					"seo": {
+						"title": "Perjanjian Layanan",
+						"description": "Kontrak perjanjian layanan yang mengikat antara AhliWeb dan klien."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Perjanjian Layanan ini merupakan kontrak yang mengikat antara PT Ahli Web Internasional (\"AhliWeb\") dan pelanggan (\"Anda\" atau \"Klien\") yang menggunakan layanan kami.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Para Pihak",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penyedia Layanan: ",
+									"_key": "b03s1"
+								},
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional",
+									"_key": "b03s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": ", yang beroperasi sebagai AhliWeb, menyediakan layanan digital terpadu di Indonesia.",
+									"_key": "b03s3"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Klien: ",
+									"_key": "b04s1"
+								},
+								{
+									"_type": "span",
+									"text": "Individu atau badan usaha",
+									"_key": "b04s2",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": " yang mendaftarkan diri dan menggunakan layanan AhliWeb.",
+									"_key": "b04s3"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Ruang Lingkup Layanan",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb menyediakan layanan sesuai dengan paket atau proposal yang telah disepakati, yang mencakup namun tidak terbatas pada:",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Perancangan dan pengembangan website",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hosting dan manajemen server",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pemeliharaan dan dukungan teknis",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Layanan keamanan siber",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konsultasi digital dan ERP",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Kewajiban AhliWeb",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Menyediakan layanan sesuai dengan spesifikasi yang disepakati",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Memberikan dukungan teknis sesuai SLA yang berlaku",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Menjaga kerahasiaan data dan informasi klien",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Memberikan notifikasi atas perubahan layanan yang signifikan",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Kewajiban Klien",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Membayar biaya layanan sesuai jadwal yang disepakati",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Memberikan akses dan informasi yang diperlukan untuk pelaksanaan layanan",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Menggunakan layanan sesuai dengan AUP dan ketentuan yang berlaku",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Memberitahu AhliWeb atas perubahan kebutuhan layanan",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Pembayaran",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pembayaran dilakukan berdasarkan invoice yang diterbitkan AhliWeb. Keterlambatan pembayaran lebih dari 7 hari kerja dapat mengakibatkan penangguhan layanan. Biaya keterlambatan sebesar 2% per bulan dapat dikenakan.",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Kerahasiaan",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kedua belah pihak wajib menjaga kerahasiaan informasi bisnis, teknis, dan komersial yang dibagikan selama periode kerjasama dan dalam waktu 2 tahun setelah berakhirnya perjanjian.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Hak Kekayaan Intelektual",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hasil kerja yang diserahkan kepada klien menjadi hak milik klien setelah pembayaran lunas. AhliWeb mempertahankan hak atas komponen generik, framework, library, dan kode yang dikembangkan sebelum atau di luar kontrak ini.",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Jangka Waktu dan Pengakhiran",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Perjanjian berlaku sejak tanggal penandatanganan atau pembayaran pertama, dan berlanjut hingga salah satu pihak memberikan pemberitahuan pengakhiran 30 hari sebelumnya. Pengakhiran sepihak tanpa alasan yang sah tidak menghapus kewajiban pembayaran yang telah jatuh tempo.",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Penyelesaian Sengketa",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sengketa yang timbul akan diselesaikan terlebih dahulu melalui musyawarah. Jika tidak tercapai kesepakatan dalam 30 hari, sengketa diserahkan kepada Badan Arbitrase Nasional Indonesia (BANI) atau pengadilan yang berwenang.",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Kontak",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pertanyaan tentang perjanjian layanan: ",
+									"_key": "b33s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b33s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b33"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "kebijakan-smki",
+				"slug": "kebijakan-smki",
+				"status": "published",
+				"data": {
+					"title": "ISMS Policy",
+					"seo": {
+						"title": "Information Security Management System Policy",
+						"description": "AhliWeb's ISMS policy establishes the framework for protecting information security."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional's Information Security Management System (ISMS) Policy establishes the framework for protecting the security of information and digital assets of the company and its customers.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Management Commitment",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional commits to:",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Protecting the confidentiality, integrity, and availability of information",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Complying with applicable information security requirements",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Continuously improving the information security management system",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Building a security culture throughout the organization",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Scope",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "This policy applies to all information processed, stored, or transmitted by AhliWeb, including:",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Customer and business partner data",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Information technology infrastructure",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Managed systems and applications",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "All employees, contractors, and partners with access to AhliWeb systems",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Information Security Principles",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb applies the following information security principles:",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Confidentiality: ",
+									"_key": "b16s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Information is only accessible by authorized parties",
+									"_key": "b16s2"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Integrity: ",
+									"_key": "b17s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Information accuracy is maintained and not modified without authorization",
+									"_key": "b17s2"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Availability: ",
+									"_key": "b18s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Systems and information are available when needed by authorized users",
+									"_key": "b18s2"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Authenticity: ",
+									"_key": "b19s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Identity of parties accessing systems can be verified",
+									"_key": "b19s2"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Non-repudiation: ",
+									"_key": "b20s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Actions cannot be denied by the actor",
+									"_key": "b20s2"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Risk Management",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb conducts periodic risk assessments to identify, analyze, and evaluate information security risks. Identified risks are addressed through appropriate security controls.",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Access Control",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Access to systems and information is managed based on the principle of least privilege. Each user is only granted the access necessary to perform their duties.",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Physical and Environmental Security",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Physical infrastructure is housed in high-security data center facilities with physical access controls, cooling systems, and disaster protection.",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Security Incident Management",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb has security incident handling procedures covering:",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Incident detection and reporting",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Incident response and recovery",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Root cause analysis and corrective actions",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Notification to affected parties",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Compliance",
+									"_key": "b33s1"
+								}
+							],
+							"_key": "b33"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb complies with applicable information security regulations and standards, including Indonesia's Personal Data Protection Law (UU PDP) and international standard ISO/IEC 27001.",
+									"_key": "b34s1"
+								}
+							],
+							"_key": "b34"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Training and Awareness",
+									"_key": "b35s1"
+								}
+							],
+							"_key": "b35"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "All AhliWeb personnel receive periodic information security training to ensure understanding and compliance with this policy.",
+									"_key": "b36s1"
+								}
+							],
+							"_key": "b36"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Policy Review",
+									"_key": "b37s1"
+								}
+							],
+							"_key": "b37"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "This ISMS policy is reviewed and updated periodically, at least annually, or when significant changes occur in the business environment or security threats.",
+									"_key": "b38s1"
+								}
+							],
+							"_key": "b38"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "11. ISMS Contact",
+									"_key": "b39s1"
+								}
+							],
+							"_key": "b39"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Questions about the ISMS policy: ",
+									"_key": "b40s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b40s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b40"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "kebijakan-smki-id",
+				"slug": "kebijakan-smki",
+				"translationOf": "kebijakan-smki",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Kebijakan SMKI",
+					"seo": {
+						"title": "Kebijakan Sistem Manajemen Keamanan Informasi",
+						"description": "Kebijakan SMKI AhliWeb menetapkan kerangka kerja perlindungan keamanan informasi."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kebijakan Sistem Manajemen Keamanan Informasi (SMKI) PT Ahli Web Internasional menetapkan kerangka kerja untuk melindungi keamanan informasi dan aset digital perusahaan serta pelanggan.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "1. Komitmen Manajemen",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional berkomitmen untuk:",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Melindungi kerahasiaan, integritas, dan ketersediaan informasi",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Mematuhi persyaratan keamanan informasi yang berlaku",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Terus meningkatkan sistem manajemen keamanan informasi",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Membangun budaya keamanan di seluruh organisasi",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "2. Ruang Lingkup",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kebijakan ini berlaku untuk semua informasi yang diproses, disimpan, atau ditransmisikan oleh AhliWeb, termasuk:",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Data pelanggan dan mitra bisnis",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Infrastruktur teknologi informasi",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sistem dan aplikasi yang dikelola",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Seluruh karyawan, kontraktor, dan mitra yang memiliki akses ke sistem AhliWeb",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "3. Prinsip Keamanan Informasi",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb menerapkan prinsip-prinsip keamanan informasi berikut:",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kerahasiaan: ",
+									"_key": "b16s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Informasi hanya dapat diakses oleh pihak yang berwenang",
+									"_key": "b16s2"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Integritas: ",
+									"_key": "b17s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Informasi dijaga ketepatannya dan tidak dimodifikasi secara tidak sah",
+									"_key": "b17s2"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Ketersediaan: ",
+									"_key": "b18s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Sistem dan informasi tersedia ketika dibutuhkan oleh pengguna yang berwenang",
+									"_key": "b18s2"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Autentisitas: ",
+									"_key": "b19s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Identitas pihak yang mengakses sistem dapat diverifikasi",
+									"_key": "b19s2"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Non-repudiasi: ",
+									"_key": "b20s1",
+									"marks": [
+										"strong"
+									]
+								},
+								{
+									"_type": "span",
+									"text": "Tindakan tidak dapat disangkal oleh pelakunya",
+									"_key": "b20s2"
+								}
+							],
+							"_key": "b20",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "4. Manajemen Risiko",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb melakukan penilaian risiko secara berkala untuk mengidentifikasi, menganalisis, dan mengevaluasi risiko keamanan informasi. Risiko yang teridentifikasi ditangani melalui penerapan kontrol keamanan yang tepat.",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "5. Kontrol Akses",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Akses ke sistem dan informasi dikelola berdasarkan prinsip hak akses minimal (least privilege). Setiap pengguna hanya diberikan akses yang diperlukan untuk menjalankan tugasnya.",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "6. Keamanan Fisik dan Lingkungan",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Infrastruktur fisik ditempatkan di fasilitas data center berstandar keamanan tinggi dengan kontrol akses fisik, sistem pendingin, dan perlindungan dari bencana.",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "7. Pengelolaan Insiden Keamanan",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb memiliki prosedur penanganan insiden keamanan yang mencakup:",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Deteksi dan pelaporan insiden",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Respons dan pemulihan insiden",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Analisis penyebab dan tindakan perbaikan",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Notifikasi kepada pihak-pihak yang terdampak",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "8. Kepatuhan",
+									"_key": "b33s1"
+								}
+							],
+							"_key": "b33"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "AhliWeb mematuhi regulasi dan standar keamanan informasi yang berlaku, termasuk Undang-Undang Perlindungan Data Pribadi Indonesia (UU PDP) dan standar internasional ISO/IEC 27001.",
+									"_key": "b34s1"
+								}
+							],
+							"_key": "b34"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "9. Pelatihan dan Kesadaran",
+									"_key": "b35s1"
+								}
+							],
+							"_key": "b35"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Seluruh personel AhliWeb menerima pelatihan keamanan informasi secara berkala untuk memastikan pemahaman dan kepatuhan terhadap kebijakan ini.",
+									"_key": "b36s1"
+								}
+							],
+							"_key": "b36"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "10. Tinjauan Kebijakan",
+									"_key": "b37s1"
+								}
+							],
+							"_key": "b37"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kebijakan SMKI ini ditinjau dan diperbarui secara berkala, minimal setahun sekali, atau ketika terjadi perubahan signifikan dalam lingkungan bisnis atau ancaman keamanan.",
+									"_key": "b38s1"
+								}
+							],
+							"_key": "b38"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "11. Kontak SMKI",
+									"_key": "b39s1"
+								}
+							],
+							"_key": "b39"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pertanyaan tentang kebijakan SMKI: ",
+									"_key": "b40s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b40s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b40"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
 			}
 		],
 		"galleries": [
