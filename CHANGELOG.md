@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.33 - 2026-06-12
+
+- Adds `awcms-micro-email-mailketing` to the protected-path documentation and all plugin inventory lists that were missing it; adds the email-mailketing scope to the versioning doc and release-readiness checklist; adds Mermaid diagrams to `implementation-instructions.md`, `decision-records.md`, and `awcms-micro-d1-mirror-sync.md`; adds the email-mailketing Required References entry to `implementation-instructions.md`; fixes a pre-existing blank-line lint issue in `README.md`.
 ## 0.1.32 - 2026-06-08
 
 - Record the production redeploy that aligned the Cloudflare template D1 database name with the current production D1 resource.
@@ -106,14 +109,15 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-08
+## Workspace Snapshot - 2026-06-12
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.32`
+- Root version: `0.1.33`
 
 ### Plugins
 
 - `@awcms-micro/plugin-docs` `0.0.1` - (no changelog yet)
+- `@awcms-micro/plugin-email-mailketing` `0.2.0` - Fixes Mailketing API integration: corrects base URL to `api.mailketing.co.id` subdomain, switches authentication from `Authorization: Bearer` header to `api_token` form field, changes content type to `application/x-www-form-urlencoded`, and aligns request field names (`recipient`, `from_email`, `content`) with the Mailketing API spec. - `testConnection` now correctly detects HTTP 5xx server errors and invalid-token strings in the API response body instead of only checking for HTTP 401. - Send error messages now include the API response body (truncated) so failed entries in the Send Log show the actual rejection reason. - Send Log table shows a new `Error` column for failed entries. - Adds `EmailStatusWidget` and `SendStatsWidget` dashboard widget components as a named `widgets` export from `admin.tsx`, fixing 404 errors shown for the "Email Status" and "Send Statistics" cards on the EmDash admin dashboard.
 - `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
 - `@awcms-micro/plugin-sikesra` `0.1.1` - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
 - `@awcms-micro/plugin-website-social` `0.0.1` - (no changelog yet)

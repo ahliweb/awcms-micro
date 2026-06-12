@@ -256,6 +256,7 @@ The D1 mirror workflow for DBeaver is documented separately in `docs/awcms-micro
 - Docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
 - Gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`
 - Website social plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/`
+- Email Mailketing plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/`
 - Reserved Cloudflare demo boundary: `awcmsmicro-dev/demos/awcms-micro-cloudflare/`
 - Reserved docs boundary: `awcmsmicro-dev/docs/awcms-micro/`
 - Reserved E2E boundary: `awcmsmicro-dev/e2e/awcms-micro/`
@@ -288,6 +289,7 @@ flowchart TD
   Patches --> Validate[Validate boundaries and workspace]
   Validate --> Implement[Implement only in approved boundaries]
 ```
+
 5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
 6. Update root documentation when structure or process changes.
 

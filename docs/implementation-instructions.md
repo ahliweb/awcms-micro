@@ -44,6 +44,17 @@ When choosing where a change belongs:
 - if it is new product behavior, prefer `awcmsmicro-dev/packages/plugins/` or `awcmsmicro-dev/templates/` rather than a new shared core layer
 - if it changes repository governance or operator workflow, it belongs in the root docs or `scripts/`
 
+```mermaid
+flowchart TD
+  Change[Where does this change belong?] --> IsUpstream{Is it upstream EmDash?}
+  IsUpstream -->|Yes| Latest[emdash-latest/]
+  IsUpstream -->|No| IsProduct{Is it new product behavior?}
+  IsProduct -->|Plugin| Plugins[packages/plugins/]
+  IsProduct -->|Template| Templates[templates/]
+  IsProduct -->|Source override| Patches[.awcms-patches/]
+  IsProduct -->|No — governance or workflow| Root[root docs/ or scripts/]
+```
+
 ## Required References
 
 - Sync governance and validation records live in `docs/upstream-sync/`.
@@ -55,6 +66,7 @@ When choosing where a change belongs:
 - AWCMS-Micro docs plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-docs/` and `awcmsmicro-dev/docs/awcms-micro/`.
 - AWCMS-Micro gallery plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`.
 - AWCMS-Micro website social plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/`.
+- AWCMS-Micro email mailketing plugin work belongs in `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/`.
 - Reserved Cloudflare demo work belongs in `awcmsmicro-dev/demos/awcms-micro-cloudflare/`.
 - Reserved docs work belongs in `awcmsmicro-dev/docs/awcms-micro/`.
 - Reserved E2E work belongs in `awcmsmicro-dev/e2e/awcms-micro/`.

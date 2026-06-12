@@ -13,6 +13,15 @@ It is a limited two-way sync model, not a live remote connection.
 - DBeaver connects to that SQLite file.
 - The local mirror can be edited in DBeaver and refreshed from a new production export when needed.
 
+```mermaid
+flowchart LR
+  D1[(Production D1\nawcms-micro-d1-20260530)] -->|wrangler d1 export --remote| Export[SQL export file]
+  Export -->|load into local SQLite| Mirror[(Local SQLite mirror\nd1-mirror/awcms-micro-d1.dbeaver.sqlite)]
+  Mirror -->|SQLite connection| DBeaver[DBeaver]
+  DBeaver -->|edit rows| Mirror
+  Mirror -->|manual export/import cycle| D1
+```
+
 ## Available Helper
 
 - `pnpm --dir awcmsmicro-dev d1:mirror:status` prints a read-only summary of the local mirror and checks content-table parity against `_emdash_collections`.

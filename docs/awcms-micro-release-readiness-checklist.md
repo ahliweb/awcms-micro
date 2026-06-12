@@ -71,8 +71,10 @@ Minimum recommended checks:
 7. `pnpm --filter @awcms-micro/plugin-gallery test`
 8. `pnpm --filter @awcms-micro/plugin-sikesra typecheck`
 9. `pnpm --filter @awcms-micro/plugin-sikesra test`
-10. `pnpm --filter @awcms-micro/template-default-example typecheck`
-11. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
+10. `pnpm --filter @awcms-micro/plugin-email-mailketing typecheck`
+11. `pnpm --filter @awcms-micro/plugin-email-mailketing test`
+12. `pnpm --filter @awcms-micro/template-default-example typecheck`
+13. `pnpm --filter @awcms-micro/template-default-cloudflare typecheck`
 
 These commands are examples. Repeat the relevant plugin or template checks for every package in the current release scope, and add any surface-specific UI, backend, or database checks that apply.
 

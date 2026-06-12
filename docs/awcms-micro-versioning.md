@@ -18,6 +18,7 @@ It covers:
 - `@awcms-micro/plugin-docs`
 - `@awcms-micro/plugin-gallery`
 - `@awcms-micro/plugin-website-social`
+- `@awcms-micro/plugin-email-mailketing`
 - `@awcms-micro/template-default-example`
 - `@awcms-micro/template-default-cloudflare`
 

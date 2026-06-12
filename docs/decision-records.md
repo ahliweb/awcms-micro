@@ -6,6 +6,21 @@ This file is a lightweight index of major AWCMS-Micro repository decisions.
 
 Use it as the shortest entry point when you need to understand why the repository is structured the way it is before reading the full supporting documents.
 
+```mermaid
+flowchart LR
+  DR001[DR-001\nUpstream stays core] --> DR002[DR-002\nPlugin-and-template only]
+  DR002 --> DR003[DR-003\nRoot docs are governance]
+  DR002 --> DR004[DR-004\nPromotion path prepared]
+  DR002 --> DR010[DR-010\nPlugin-first admin nav]
+  DR001 --> DR005[DR-005\nDivergence logged]
+  DR001 --> DR009[DR-009\nPerf hotspots escalated upstream]
+  DR002 --> DR006[DR-006\nAWCMS versioning separate]
+  DR006 --> DR011[DR-011\nWorkspace packages on Changesets]
+  DR006 --> DR007[DR-007\nRoot changelog snapshot]
+  DR002 --> DR008[DR-008\nSidebar grouping and i18n rules]
+  DR003 --> DR012[DR-012\nFresh-clone bootstrap explicit]
+```
+
 ## Current Decisions
 
 ### DR-001: Upstream EmDash Remains The Core Source
