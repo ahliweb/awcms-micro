@@ -13,14 +13,15 @@ const slug = decodeSlug(Astro.params.slug);
 
 if (!slug) return Astro.rewrite("/404");
 
-const { entry: item, cacheHint } = await getEmDashEntry("news", slug);
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+
+const { entry: item, cacheHint } = await getEmDashEntry("news", slug, { locale: currentLocale });
 
 if (!item) return Astro.rewrite("/404");
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
-const i18nConfig = getI18nConfig();
-const defaultLocale = i18nConfig?.defaultLocale || "en";
-const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const localeOptions = {
 	defaultLocale,
 	locales: i18nConfig?.locales || ["en", "id"],

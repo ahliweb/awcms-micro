@@ -46,6 +46,10 @@ interface GalleryEntry {
 	};
 }
 
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+
 const [
 	{ entries: posts, cacheHint: postsCacheHint },
 	{ entries: newsItems, cacheHint: newsCacheHint },
@@ -55,13 +59,13 @@ const [
 	{ entries: rawPortfolio, cacheHint: portfolioCacheHint },
 	{ entries: rawTestimonials, cacheHint: testimonialsCacheHint },
 ] = await Promise.all([
-	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6 }),
-	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4 }),
-	getEmDashCollection("pages", { orderBy: { published_at: "desc" }, limit: 12 }),
-	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12 }),
-	getEmDashCollection("services", { orderBy: { published_at: "desc" }, limit: 12 }),
-	getEmDashCollection("portfolio", { orderBy: { published_at: "desc" }, limit: 60 }),
-	getEmDashCollection("testimonials", { orderBy: { published_at: "desc" }, limit: 12 }),
+	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6, locale: currentLocale }),
+	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4, locale: currentLocale }),
+	getEmDashCollection("pages", { orderBy: { published_at: "desc" }, limit: 12, locale: currentLocale }),
+	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12, locale: currentLocale }),
+	getEmDashCollection("services", { orderBy: { published_at: "desc" }, limit: 12, locale: currentLocale }),
+	getEmDashCollection("portfolio", { orderBy: { published_at: "desc" }, limit: 60, locale: currentLocale }),
+	getEmDashCollection("testimonials", { orderBy: { published_at: "desc" }, limit: 12, locale: currentLocale }),
 ]);
 
 if (Astro.cache?.enabled) {
@@ -107,9 +111,6 @@ const featuredServices = services.slice(0, 6);
 
 const galleries = rawGalleries as unknown as GalleryEntry[];
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
-const i18nConfig = getI18nConfig();
-const defaultLocale = i18nConfig?.defaultLocale || "en";
-const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
 const copy = getPublicCopy(currentLocale);
 const websiteSocial = await getWebsiteSocialConfig(currentLocale);

@@ -32,17 +32,19 @@ function asImage(value: unknown) {
 }
 
 const slug = Astro.params.slug as string;
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+
 const { entries: rawGalleries, cacheHint } = await getEmDashCollection("galleries", {
 	orderBy: { published_at: "desc" },
 	limit: 100,
+	locale: currentLocale,
 });
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
 const galleries = rawGalleries as unknown as GalleryEntry[];
-const i18nConfig = getI18nConfig();
-const defaultLocale = i18nConfig?.defaultLocale || "en";
-const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
 const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
 const copy = getPublicCopy(currentLocale);
 const gallery = galleries.find((item) => resolveEntrySlug(item) === slug);
