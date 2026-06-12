@@ -39,8 +39,9 @@ Synced to EmDash `34dd430b` (HEAD, includes 0.19.0 release + `feat(create-emdash
 | SIKESRA compatibility validation | Passed | `pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync` passed |
 | AWCMS-Micro Node template validation | Passed | `pnpm test && pnpm build` passed |
 | AWCMS-Micro Cloudflare template validation | Passed | `pnpm test && pnpm build` passed |
-| Cloudflare production deployment | Pending | Not yet deployed; previous deploy at `dcc86676-1b34-4ec5-9b39-309481f535f3` (0.18.0 era) |
-| Scheduled publishing post-deploy verification | Pending | See issue #205 |
+| Cloudflare production deployment | Passed | Deployed 2026-06-13; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b`; route `awcms-micro.ahlikoding.com/*`; schedule `* * * * *` active |
+| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts`, `/services` all return 200 |
+| Scheduled publishing post-deploy verification | Pending | See issue #205 — schedule a test post and confirm it auto-publishes |
 
 ## Notes
 

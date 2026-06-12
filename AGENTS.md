@@ -12,7 +12,7 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 - **Version:** 0.19.0
 - **Upstream commit:** `34dd430b35032535a972e9ed718c0eacaeae2029`
 - **Synced:** 2026-06-13
-- **Status:** pending production deploy; migration 043 will auto-apply on first boot
+- **Status:** deployed to production; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` (2026-06-13); smoke checks passed; migration 043 was already applied from the 0.18.0 sync
 
 ### Key 0.19.0 Features
 
