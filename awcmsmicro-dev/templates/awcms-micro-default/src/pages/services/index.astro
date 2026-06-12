@@ -1,0 +1,58 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHeading from "../../components/public/SectionHeading.astro";
+import ServiceCard from "../../components/public/ServiceCard.astro";
+import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
+import { getPublicCopy } from "../../utils/public-copy";
+
+interface ServiceEntry {
+	id: string;
+	slug: string;
+	data: {
+		slug?: string;
+		title: string;
+		description?: string;
+		icon?: string;
+		order?: number;
+	};
+}
+
+const { entries: rawServices, cacheHint } = await getEmDashCollection("services", {
+	orderBy: { published_at: "desc" },
+	limit: 50,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const localeOptions = { defaultLocale, locales: i18nConfig?.locales || ["en", "id"] };
+const copy = getPublicCopy(currentLocale);
+
+const services = (rawServices as unknown as ServiceEntry[]).sort(
+	(a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
+);
+---
+
+<BaseLayout title={copy.servicesTitle} description={copy.servicesDescription} showFooterWidgets={false}>
+	<section class="section-shell">
+		<SectionHeading eyebrow={copy.servicesKicker} title={copy.servicesHeading} subtitle={copy.servicesIntro} />
+		{services.length === 0 ? (
+			<p class="section-subtitle">{copy.servicesEmpty}</p>
+		) : (
+			<div class="public-grid public-grid--3">
+				{services.map((service) => (
+					<ServiceCard
+						href={toLocalePath(`/services/${resolveEntrySlug(service)}`, currentLocale, localeOptions)}
+						icon={service.data.icon}
+						title={service.data.title}
+						description={service.data.description}
+						moreLabel={copy.servicesLearnMore}
+					/>
+				))}
+			</div>
+		)}
+	</section>
+</BaseLayout>

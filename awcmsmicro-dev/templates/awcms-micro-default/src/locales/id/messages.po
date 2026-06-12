@@ -765,3 +765,47 @@ msgstr "Tidak tersedia"
 msgctxt "sikesraGovernanceFallback"
 msgid "public-safe fallback"
 msgstr "fallback aman-publik"
+
+msgctxt "servicesTitle"
+msgid "Services"
+msgstr "Layanan"
+
+msgctxt "servicesDescription"
+msgid "Explore the AhliWeb digital services delivered through the AWCMS-Micro ecosystem."
+msgstr "Jelajahi layanan digital AhliWeb yang dihadirkan melalui ekosistem AWCMS-Micro."
+
+msgctxt "servicesKicker"
+msgid "Services & Solutions"
+msgstr "Layanan & Solusi"
+
+msgctxt "servicesHeading"
+msgid "Digital services for every growth stage"
+msgstr "Layanan digital untuk setiap tahap pertumbuhan"
+
+msgctxt "servicesIntro"
+msgid "From websites and apps to ERP, security, IoT, and consulting — every service is managed as CMS content and ready to localize."
+msgstr "Dari website dan aplikasi hingga ERP, keamanan, IoT, dan konsultasi — setiap layanan dikelola sebagai konten CMS dan siap dilokalkan."
+
+msgctxt "servicesSectionHeading"
+msgid "Services and solutions"
+msgstr "Layanan dan solusi"
+
+msgctxt "servicesSectionSubtitle"
+msgid "Managed as CMS content, each service can be edited and localized from the EmDash admin."
+msgstr "Dikelola sebagai konten CMS, setiap layanan dapat diedit dan dilokalkan dari admin EmDash."
+
+msgctxt "servicesLearnMore"
+msgid "Learn more"
+msgstr "Selengkapnya"
+
+msgctxt "servicesViewAll"
+msgid "View all services"
+msgstr "Lihat semua layanan"
+
+msgctxt "servicesEmpty"
+msgid "No services published yet. Add one from the Services collection in admin."
+msgstr "Belum ada layanan dipublikasikan. Tambahkan dari koleksi Services di admin."
+
+msgctxt "servicesBackToList"
+msgid "Back to all services"
+msgstr "Kembali ke semua layanan"
