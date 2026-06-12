@@ -313,7 +313,7 @@ export interface EmDashHandlers {
 	handleContentPublish: (
 		collection: string,
 		id: string,
-		options?: { publishedAt?: string },
+		options?: { publishedAt?: string; requireScheduledDue?: boolean },
 	) => Promise<HandlerResponse>;
 
 	handleContentUnpublish: (collection: string, id: string) => Promise<HandlerResponse>;

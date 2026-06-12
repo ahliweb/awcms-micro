@@ -587,6 +587,7 @@ function ContentListItem({
 				<Link
 					to="/content/$collection/$id"
 					params={{ collection, id: item.id }}
+					search={{ locale: item.locale }}
 					className="font-medium hover:text-kumo-brand"
 				>
 					{title}
@@ -621,6 +622,7 @@ function ContentListItem({
 					<RouterLinkButton
 						to="/content/$collection/$id"
 						params={{ collection, id: item.id }}
+						search={{ locale: item.locale }}
 						aria-label={t`Edit ${title}`}
 						variant="ghost"
 						shape="square"
