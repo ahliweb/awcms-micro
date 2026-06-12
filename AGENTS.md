@@ -110,6 +110,9 @@ Before changing the AWCMS-Micro gallery plugin, also read:
 Before changing the AWCMS-Micro Email Mailketing plugin, also read:
 
 - `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/README.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/IMPLEMENTATION_GOVERNANCE.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/TECHNICAL_PRD.md`
+- `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/SECURITY.md`
 
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
 

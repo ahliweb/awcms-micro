@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.34 - 2026-06-12
+
+- Adds `docs/IMPLEMENTATION_GOVERNANCE.md`, `docs/TECHNICAL_PRD.md`, and `docs/SECURITY.md` to the `awcms-micro-email-mailketing` plugin; updates root `AGENTS.md` to require reading all three governance documents before changing the plugin. Closes #187.
 ## 0.1.33 - 2026-06-12
 
 - Adds `awcms-micro-email-mailketing` to the protected-path documentation and all plugin inventory lists that were missing it; adds the email-mailketing scope to the versioning doc and release-readiness checklist; adds Mermaid diagrams to `implementation-instructions.md`, `decision-records.md`, and `awcms-micro-d1-mirror-sync.md`; adds the email-mailketing Required References entry to `implementation-instructions.md`; fixes a pre-existing blank-line lint issue in `README.md`.
@@ -112,7 +115,7 @@
 ## Workspace Snapshot - 2026-06-12
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.33`
+- Root version: `0.1.34`
 
 ### Plugins
 
