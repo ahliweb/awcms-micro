@@ -5,6 +5,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHeading from "../components/public/SectionHeading.astro";
 import ServiceCard from "../components/public/ServiceCard.astro";
 import PortfolioCard from "../components/public/PortfolioCard.astro";
+import TestimonialCard from "../components/public/TestimonialCard.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
@@ -52,6 +53,7 @@ const [
 	{ entries: rawGalleries, cacheHint: galleriesCacheHint },
 	{ entries: rawServices, cacheHint: servicesCacheHint },
 	{ entries: rawPortfolio, cacheHint: portfolioCacheHint },
+	{ entries: rawTestimonials, cacheHint: testimonialsCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6 }),
 	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4 }),
@@ -59,6 +61,7 @@ const [
 	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12 }),
 	getEmDashCollection("services", { orderBy: { published_at: "desc" }, limit: 12 }),
 	getEmDashCollection("portfolio", { orderBy: { published_at: "desc" }, limit: 60 }),
+	getEmDashCollection("testimonials", { orderBy: { published_at: "desc" }, limit: 12 }),
 ]);
 
 if (Astro.cache?.enabled) {
@@ -68,7 +71,18 @@ if (Astro.cache?.enabled) {
 	Astro.cache.set(galleriesCacheHint);
 	Astro.cache.set(servicesCacheHint);
 	Astro.cache.set(portfolioCacheHint);
+	Astro.cache.set(testimonialsCacheHint);
 }
+
+interface TestimonialEntry {
+	id: string;
+	slug: string;
+	data: { quote: string; name?: string; role?: string; featured?: boolean; order?: number };
+}
+const featuredTestimonials = (rawTestimonials as unknown as TestimonialEntry[])
+	.slice()
+	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
+	.slice(0, 3);
 
 interface PortfolioEntry {
 	id: string;
@@ -417,6 +431,23 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 			</a>
 		)}
 	</section>
+
+	{featuredTestimonials.length > 0 && (
+		<section class="section-shell reveal">
+			<SectionHeading eyebrow={copy.testimonialsKicker} title={copy.testimonialsSectionHeading} subtitle={copy.testimonialsSectionSubtitle}>
+				<Fragment slot="actions">
+					<a class="landing-button landing-button--secondary" href={toLocalePath("/testimonials", currentLocale, localeOptions)} data-astro-prefetch="hover">
+						{copy.testimonialsTitle}
+					</a>
+				</Fragment>
+			</SectionHeading>
+			<div class="public-grid public-grid--3">
+				{featuredTestimonials.map((item) => (
+					<TestimonialCard quote={item.data.quote} name={item.data.name || ""} role={item.data.role} />
+				))}
+			</div>
+		</section>
+	)}
 
 	<section class="landing-section landing-section--steps reveal">
 		<div class="landing-section__heading">

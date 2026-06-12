@@ -917,3 +917,35 @@ msgstr "Apakah bisa menambah fitur sendiri?"
 msgctxt "landingFaqItems.3.1"
 msgid "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
 msgstr "Ya. AWCMS-Micro menggunakan model overlay plugin dan template yang disetujui sehingga fitur bisa ditambah tanpa memodifikasi core EmDash."
+
+msgctxt "testimonialsTitle"
+msgid "Testimonials"
+msgstr "Testimoni"
+
+msgctxt "testimonialsDescription"
+msgid "What clients say about working with AhliWeb and the AWCMS-Micro ecosystem."
+msgstr "Apa kata klien tentang bekerja sama dengan AhliWeb dan ekosistem AWCMS-Micro."
+
+msgctxt "testimonialsKicker"
+msgid "Testimonials"
+msgstr "Testimoni"
+
+msgctxt "testimonialsHeading"
+msgid "Trusted by teams across sectors"
+msgstr "Dipercaya tim lintas sektor"
+
+msgctxt "testimonialsIntro"
+msgid "Feedback from the organizations whose websites and apps we have delivered."
+msgstr "Masukan dari organisasi yang website dan aplikasinya kami kerjakan."
+
+msgctxt "testimonialsSectionHeading"
+msgid "What clients say"
+msgstr "Apa kata klien"
+
+msgctxt "testimonialsSectionSubtitle"
+msgid "Real feedback from education, government, media, and business teams."
+msgstr "Masukan nyata dari tim pendidikan, pemerintahan, media, dan bisnis."
+
+msgctxt "testimonialsEmpty"
+msgid "No testimonials yet. Add one from the Testimonials collection in admin."
+msgstr "Belum ada testimoni. Tambahkan dari koleksi Testimonials di admin."
