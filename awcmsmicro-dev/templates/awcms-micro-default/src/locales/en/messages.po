@@ -985,3 +985,55 @@ msgstr "Can I add my own features?"
 msgctxt "landingFaqItems.3.1"
 msgid "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
 msgstr "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
+
+msgctxt "portfolioTitle"
+msgid "Portfolio"
+msgstr "Portfolio"
+
+msgctxt "portfolioDescription"
+msgid "Selected client projects delivered by AhliWeb across education, government, health, media, and more."
+msgstr "Selected client projects delivered by AhliWeb across education, government, health, media, and more."
+
+msgctxt "portfolioKicker"
+msgid "Portfolio"
+msgstr "Portfolio"
+
+msgctxt "portfolioHeading"
+msgid "Projects we have delivered"
+msgstr "Projects we have delivered"
+
+msgctxt "portfolioIntro"
+msgid "A selection of websites and applications delivered for clients across sectors."
+msgstr "A selection of websites and applications delivered for clients across sectors."
+
+msgctxt "portfolioCompleted"
+msgid "Completed projects"
+msgstr "Completed projects"
+
+msgctxt "portfolioInDevelopment"
+msgid "In development"
+msgstr "In development"
+
+msgctxt "portfolioVisit"
+msgid "Visit site"
+msgstr "Visit site"
+
+msgctxt "portfolioInDevBadge"
+msgid "In development"
+msgstr "In development"
+
+msgctxt "portfolioSectionHeading"
+msgid "Selected portfolio"
+msgstr "Selected portfolio"
+
+msgctxt "portfolioSectionSubtitle"
+msgid "Real client websites and apps delivered with the AWCMS-Micro ecosystem."
+msgstr "Real client websites and apps delivered with the AWCMS-Micro ecosystem."
+
+msgctxt "portfolioViewAll"
+msgid "View full portfolio"
+msgstr "View full portfolio"
+
+msgctxt "portfolioEmpty"
+msgid "No portfolio items yet. Add one from the Portfolio collection in admin."
+msgstr "No portfolio items yet. Add one from the Portfolio collection in admin."

@@ -689,3 +689,231 @@ msgstr "Belum ada layanan dipublikasikan. Tambahkan dari koleksi Services di adm
 msgctxt "servicesBackToList"
 msgid "Back to all services"
 msgstr "Kembali ke semua layanan"
+
+msgctxt "headerOpenHoursLabel"
+msgid "Business hours"
+msgstr "Jam operasional"
+
+msgctxt "footerLocationHeading"
+msgid "Location & Contact"
+msgstr "Lokasi & Kontak"
+
+msgctxt "footerLocationAddress"
+msgid "Address"
+msgstr "Alamat"
+
+msgctxt "footerLocationHours"
+msgid "Opening Hours"
+msgstr "Jam Operasional"
+
+msgctxt "footerLocationOpenMaps"
+msgid "Open in Google Maps"
+msgstr "Buka di Google Maps"
+
+msgctxt "footerLocationMapTitle"
+msgid "Business location map"
+msgstr "Peta lokasi bisnis"
+
+msgctxt "portfolioTitle"
+msgid "Portfolio"
+msgstr "Portofolio"
+
+msgctxt "portfolioDescription"
+msgid "Selected client projects delivered by AhliWeb across education, government, health, media, and more."
+msgstr "Pilihan proyek klien yang dikerjakan AhliWeb di bidang pendidikan, pemerintahan, kesehatan, media, dan lainnya."
+
+msgctxt "portfolioKicker"
+msgid "Portfolio"
+msgstr "Portofolio"
+
+msgctxt "portfolioHeading"
+msgid "Projects we have delivered"
+msgstr "Proyek yang telah kami kerjakan"
+
+msgctxt "portfolioIntro"
+msgid "A selection of websites and applications delivered for clients across sectors."
+msgstr "Sejumlah website dan aplikasi yang kami kerjakan untuk klien lintas sektor."
+
+msgctxt "portfolioCompleted"
+msgid "Completed projects"
+msgstr "Proyek selesai"
+
+msgctxt "portfolioInDevelopment"
+msgid "In development"
+msgstr "Dalam pengembangan"
+
+msgctxt "portfolioVisit"
+msgid "Visit site"
+msgstr "Kunjungi situs"
+
+msgctxt "portfolioInDevBadge"
+msgid "In development"
+msgstr "Dalam pengembangan"
+
+msgctxt "portfolioSectionHeading"
+msgid "Selected portfolio"
+msgstr "Portofolio pilihan"
+
+msgctxt "portfolioSectionSubtitle"
+msgid "Real client websites and apps delivered with the AWCMS-Micro ecosystem."
+msgstr "Website dan aplikasi klien nyata yang dikerjakan dengan ekosistem AWCMS-Micro."
+
+msgctxt "portfolioViewAll"
+msgid "View full portfolio"
+msgstr "Lihat portofolio lengkap"
+
+msgctxt "portfolioEmpty"
+msgid "No portfolio items yet. Add one from the Portfolio collection in admin."
+msgstr "Belum ada item portofolio. Tambahkan dari koleksi Portfolio di admin."
+
+msgctxt "promoTriggerLabel"
+msgid "Promo & Discounts"
+msgstr "Promo & Diskon"
+
+msgctxt "promoLimitedOffer"
+msgid "LIMITED TIME OFFER"
+msgstr "PENAWARAN TERBATAS"
+
+msgctxt "promoTitle"
+msgid "Launch Your Website with AWCMS-Micro!"
+msgstr "Luncurkan Website dengan AWCMS-Micro!"
+
+msgctxt "promoText"
+msgid "Get a fast, secure, CMS-powered public website with gallery, bilingual content, and Cloudflare delivery."
+msgstr "Dapatkan website publik yang cepat, aman, dan dikelola CMS dengan galeri, konten bilingual, dan delivery Cloudflare."
+
+msgctxt "promoOriginalPrice"
+msgid "IDR 599.000"
+msgstr "IDR 599.000"
+
+msgctxt "promoPrice"
+msgid "IDR 479.000"
+msgstr "IDR 479.000"
+
+msgctxt "promoDiscount"
+msgid "20%"
+msgstr "20%"
+
+msgctxt "promoCta"
+msgid "Claim via WhatsApp"
+msgstr "Klaim via WhatsApp"
+
+msgctxt "promoCloseLabel"
+msgid "Close promo"
+msgstr "Tutup promo"
+
+msgctxt "promoWaMessage"
+msgid "Hello AWCMS-Micro team, I want to get the website promo."
+msgstr "Halo tim AWCMS-Micro, saya ingin mendapatkan promo website."
+
+msgctxt "promoFeature1"
+msgid "CMS-powered website on Cloudflare"
+msgstr "Website bertenaga CMS di Cloudflare"
+
+msgctxt "promoFeature2"
+msgid "Photo & Video gallery management"
+msgstr "Manajemen galeri foto & video"
+
+msgctxt "promoFeature3"
+msgid "Bilingual EN/ID content"
+msgstr "Konten bilingual EN/ID"
+
+msgctxt "promoFeature4"
+msgid "WhatsApp consultation integration"
+msgstr "Integrasi konsultasi WhatsApp"
+
+msgctxt "landingOrderStepsEyebrow"
+msgid "How it works"
+msgstr "Cara kerjanya"
+
+msgctxt "landingOrderStepsHeading"
+msgid "Get started in 4 steps."
+msgstr "Mulai dalam 4 langkah."
+
+msgctxt "landingOrderSteps.0.0"
+msgid "01"
+msgstr "01"
+
+msgctxt "landingOrderSteps.0.1"
+msgid "Consult"
+msgstr "Konsultasi"
+
+msgctxt "landingOrderSteps.0.2"
+msgid "Share your project goals via WhatsApp and get a free consultation with our team."
+msgstr "Bagikan tujuan proyek Anda via WhatsApp dan dapatkan konsultasi gratis bersama tim kami."
+
+msgctxt "landingOrderSteps.1.0"
+msgid "02"
+msgstr "02"
+
+msgctxt "landingOrderSteps.1.1"
+msgid "Plan"
+msgstr "Rencanakan"
+
+msgctxt "landingOrderSteps.1.2"
+msgid "We map out the content structure, features, and Cloudflare deployment setup together."
+msgstr "Kami memetakan struktur konten, fitur, dan setup deployment Cloudflare bersama Anda."
+
+msgctxt "landingOrderSteps.2.0"
+msgid "03"
+msgstr "03"
+
+msgctxt "landingOrderSteps.2.1"
+msgid "Build"
+msgstr "Bangun"
+
+msgctxt "landingOrderSteps.2.2"
+msgid "Your site is built on EmDash CMS with bilingual content, gallery, and public pages ready."
+msgstr "Situs Anda dibangun di EmDash CMS dengan konten bilingual, galeri, dan halaman publik siap pakai."
+
+msgctxt "landingOrderSteps.3.0"
+msgid "04"
+msgstr "04"
+
+msgctxt "landingOrderSteps.3.1"
+msgid "Launch"
+msgstr "Luncurkan"
+
+msgctxt "landingOrderSteps.3.2"
+msgid "We deploy to Cloudflare Workers and hand over the admin panel for your team to manage."
+msgstr "Kami deploy ke Cloudflare Workers dan menyerahkan panel admin untuk dikelola tim Anda."
+
+msgctxt "landingFaqEyebrow"
+msgid "FAQ"
+msgstr "FAQ"
+
+msgctxt "landingFaqHeading"
+msgid "Common questions."
+msgstr "Pertanyaan umum."
+
+msgctxt "landingFaqItems.0.0"
+msgid "What is AWCMS-Micro?"
+msgstr "Apa itu AWCMS-Micro?"
+
+msgctxt "landingFaqItems.0.1"
+msgid "AWCMS-Micro is a downstream overlay of EmDash CMS, delivering CMS-powered public websites on Cloudflare with D1, R2, and Workers."
+msgstr "AWCMS-Micro adalah overlay downstream dari EmDash CMS yang menghadirkan website publik bertenaga CMS di Cloudflare dengan D1, R2, dan Workers."
+
+msgctxt "landingFaqItems.1.0"
+msgid "How is content managed?"
+msgstr "Bagaimana konten dikelola?"
+
+msgctxt "landingFaqItems.1.1"
+msgid "All content — pages, posts, news, galleries, and widgets — is managed from the EmDash admin panel and published directly to the public site."
+msgstr "Semua konten — halaman, pos, berita, galeri, dan widget — dikelola dari panel admin EmDash dan dipublikasikan langsung ke situs publik."
+
+msgctxt "landingFaqItems.2.0"
+msgid "Is bilingual content supported?"
+msgstr "Apakah konten bilingual didukung?"
+
+msgctxt "landingFaqItems.2.1"
+msgid "Yes. AWCMS-Micro supports EN and ID locales with row-per-locale content in D1 and locale-aware public routing."
+msgstr "Ya. AWCMS-Micro mendukung lokal EN dan ID dengan konten row-per-locale di D1 dan routing publik berbasis lokal."
+
+msgctxt "landingFaqItems.3.0"
+msgid "Can I add my own features?"
+msgstr "Apakah bisa menambah fitur sendiri?"
+
+msgctxt "landingFaqItems.3.1"
+msgid "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
+msgstr "Ya. AWCMS-Micro menggunakan model overlay plugin dan template yang disetujui sehingga fitur bisa ditambah tanpa memodifikasi core EmDash."

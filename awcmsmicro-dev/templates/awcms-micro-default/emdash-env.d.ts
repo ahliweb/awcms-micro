@@ -49,6 +49,24 @@ export interface Page {
   bylines?: ContentBylineCredit[];
 }
 
+export interface PortfolioItem {
+  id: string;
+  slug: string | null;
+  status: string;
+  title: string;
+  description?: string;
+  category?: string;
+  tech?: unknown;
+  url?: string;
+  stage?: string;
+  featured?: boolean;
+  order?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+}
+
 export interface Post {
   id: string;
   slug: string | null;
@@ -134,6 +152,7 @@ declare module "emdash" {
     galleries: Gallery;
     news: NewsItem;
     pages: Page;
+    portfolio: PortfolioItem;
     posts: Post;
     services: Service;
     website_social: WebsiteSocialSettings;

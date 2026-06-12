@@ -4,6 +4,7 @@ import { Image, WidgetArea } from "emdash/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHeading from "../components/public/SectionHeading.astro";
 import ServiceCard from "../components/public/ServiceCard.astro";
+import PortfolioCard from "../components/public/PortfolioCard.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
@@ -50,12 +51,14 @@ const [
 	{ entries: pages, cacheHint: pagesCacheHint },
 	{ entries: rawGalleries, cacheHint: galleriesCacheHint },
 	{ entries: rawServices, cacheHint: servicesCacheHint },
+	{ entries: rawPortfolio, cacheHint: portfolioCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6 }),
 	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4 }),
 	getEmDashCollection("pages", { orderBy: { published_at: "desc" }, limit: 12 }),
 	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12 }),
 	getEmDashCollection("services", { orderBy: { published_at: "desc" }, limit: 12 }),
+	getEmDashCollection("portfolio", { orderBy: { published_at: "desc" }, limit: 60 }),
 ]);
 
 if (Astro.cache?.enabled) {
@@ -64,7 +67,19 @@ if (Astro.cache?.enabled) {
 	Astro.cache.set(pagesCacheHint);
 	Astro.cache.set(galleriesCacheHint);
 	Astro.cache.set(servicesCacheHint);
+	Astro.cache.set(portfolioCacheHint);
 }
+
+interface PortfolioEntry {
+	id: string;
+	slug: string;
+	data: { title: string; category?: string; tech?: unknown; url?: string; stage?: string; featured?: boolean; order?: number };
+}
+const featuredPortfolio = (rawPortfolio as unknown as PortfolioEntry[])
+	.slice()
+	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999))
+	.filter((item) => item.data.featured)
+	.slice(0, 6);
 
 const galleries = rawGalleries as unknown as GalleryEntry[];
 
@@ -239,6 +254,31 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 			</div>
 		)}
 	</section>
+
+	{featuredPortfolio.length > 0 && (
+		<section class="section-shell reveal">
+			<SectionHeading eyebrow={copy.portfolioKicker} title={copy.portfolioSectionHeading} subtitle={copy.portfolioSectionSubtitle}>
+				<Fragment slot="actions">
+					<a class="landing-button landing-button--secondary" href={toLocalePath("/portfolio", currentLocale, localeOptions)} data-astro-prefetch="hover">
+						{copy.portfolioViewAll}
+					</a>
+				</Fragment>
+			</SectionHeading>
+			<div class="public-grid public-grid--3">
+				{featuredPortfolio.map((item) => (
+					<PortfolioCard
+						title={item.data.title}
+						category={item.data.category}
+						tech={item.data.tech}
+						url={item.data.url}
+						locale={currentLocale}
+						visitLabel={copy.portfolioVisit}
+						inDevLabel={copy.portfolioInDevBadge}
+					/>
+				))}
+			</div>
+		</section>
+	)}
 
 	<section class="landing-section landing-section--dark reveal">
 		<div class="landing-section__heading landing-section__heading--inline">

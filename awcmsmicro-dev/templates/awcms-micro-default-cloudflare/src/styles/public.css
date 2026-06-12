@@ -367,3 +367,108 @@
 	.section-shell { padding-block: 3rem; }
 	.section-heading { margin-bottom: 1.75rem; }
 }
+
+/* ── Portfolio card ──────────────────────────────────────────────────────── */
+.portfolio-group + .portfolio-group {
+	margin-top: 3rem;
+}
+
+.portfolio-group__title {
+	font-size: 1.1rem;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	margin: 0 0 1.25rem;
+	color: var(--text-main);
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+
+.portfolio-group__count {
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--accent);
+	background: rgba(14, 165, 233, 0.1);
+	border: 1px solid var(--surface-border);
+	border-radius: 999px;
+	padding: 0.15rem 0.65rem;
+}
+
+.portfolio-card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1.5rem;
+	border-radius: 1.25rem;
+	background: var(--gradient-surface);
+	border: 1px solid var(--surface-border);
+	height: 100%;
+	transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.portfolio-card:hover {
+	transform: translateY(-4px);
+	border-color: var(--accent);
+	box-shadow: 0 16px 40px rgba(14, 165, 233, 0.14);
+}
+
+.portfolio-card__cat {
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--accent);
+}
+
+.portfolio-card__title {
+	font-family: "Outfit", "Inter", system-ui, sans-serif;
+	font-size: 1.1rem;
+	font-weight: 700;
+	margin: 0;
+	color: var(--text-main);
+	line-height: 1.3;
+}
+
+.portfolio-card__tech {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin-top: auto;
+}
+
+.portfolio-tag {
+	font-size: 0.72rem;
+	font-weight: 600;
+	color: var(--text-muted);
+	background: rgba(99, 102, 241, 0.06);
+	border: 1px solid var(--surface-border);
+	border-radius: 999px;
+	padding: 0.2rem 0.6rem;
+}
+
+.portfolio-card__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-top: 0.25rem;
+}
+
+.portfolio-card__visit {
+	font-size: 0.82rem;
+	font-weight: 700;
+	color: var(--accent);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+}
+
+.portfolio-card__badge {
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: var(--text-muted);
+	background: rgba(99, 102, 241, 0.06);
+	border: 1px dashed var(--surface-border);
+	border-radius: 999px;
+	padding: 0.2rem 0.6rem;
+}

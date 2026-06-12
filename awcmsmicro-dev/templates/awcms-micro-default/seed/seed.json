@@ -243,6 +243,71 @@
 			"urlPattern": "/services/{slug}"
 		},
 		{
+			"slug": "portfolio",
+			"label": "Portfolio",
+			"labelSingular": "Portfolio Item",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "Project Name",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "description",
+					"label": "Description",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "category",
+					"label": "Category",
+					"type": "string"
+				},
+				{
+					"slug": "tech",
+					"label": "Tech",
+					"type": "json"
+				},
+				{
+					"slug": "url",
+					"label": "Project URL",
+					"type": "string"
+				},
+				{
+					"slug": "stage",
+					"label": "Stage",
+					"type": "select",
+					"options": [
+						{
+							"label": "Completed",
+							"value": "completed"
+						},
+						{
+							"label": "In Development",
+							"value": "in_development"
+						}
+					]
+				},
+				{
+					"slug": "featured",
+					"label": "Featured",
+					"type": "boolean"
+				},
+				{
+					"slug": "order",
+					"label": "Order",
+					"type": "number"
+				}
+			]
+		},
+		{
 			"slug": "website_social",
 			"label": "Website Social",
 			"labelSingular": "Website Social Settings",
@@ -12316,6 +12381,804 @@
 							]
 						}
 					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			}
+		],
+		"portfolio": [
+			{
+				"id": "darul-hikmah-islamic-boarding-school",
+				"slug": "darul-hikmah-islamic-boarding-school",
+				"status": "published",
+				"data": {
+					"title": "Darul Hikmah Islamic Boarding School",
+					"description": "",
+					"category": "education",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://darulhikmahibs.sch.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 1
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "darul-hikmah-islamic-boarding-school-id",
+				"translationOf": "darul-hikmah-islamic-boarding-school",
+				"locale": "id",
+				"slug": "darul-hikmah-islamic-boarding-school",
+				"status": "published",
+				"data": {
+					"title": "Darul Hikmah Islamic Boarding School",
+					"description": "",
+					"category": "education",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://darulhikmahibs.sch.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 1
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "nlp-tech",
+				"slug": "nlp-tech",
+				"status": "published",
+				"data": {
+					"title": "NLP Tech",
+					"description": "",
+					"category": "tech",
+					"tech": [
+						"Company Profile"
+					],
+					"url": "https://nlptech.co.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 2
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "nlp-tech-id",
+				"translationOf": "nlp-tech",
+				"locale": "id",
+				"slug": "nlp-tech",
+				"status": "published",
+				"data": {
+					"title": "NLP Tech",
+					"description": "",
+					"category": "tech",
+					"tech": [
+						"Company Profile"
+					],
+					"url": "https://nlptech.co.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 2
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "orangutan-foundation",
+				"slug": "orangutan-foundation",
+				"status": "published",
+				"data": {
+					"title": "Orangutan Foundation",
+					"description": "",
+					"category": "foundation",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://orangutanfoundation.or.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 3
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "orangutan-foundation-id",
+				"translationOf": "orangutan-foundation",
+				"locale": "id",
+				"slug": "orangutan-foundation",
+				"status": "published",
+				"data": {
+					"title": "Orangutan Foundation",
+					"description": "",
+					"category": "foundation",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://orangutanfoundation.or.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 3
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "pemkab-pasaman",
+				"slug": "pemkab-pasaman",
+				"status": "published",
+				"data": {
+					"title": "Pemkab Pasaman",
+					"description": "",
+					"category": "government",
+					"tech": [
+						"Portal"
+					],
+					"url": "https://pasamankab.go.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 4
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "pemkab-pasaman-id",
+				"translationOf": "pemkab-pasaman",
+				"locale": "id",
+				"slug": "pemkab-pasaman",
+				"status": "published",
+				"data": {
+					"title": "Pemkab Pasaman",
+					"description": "",
+					"category": "government",
+					"tech": [
+						"Portal"
+					],
+					"url": "https://pasamankab.go.id",
+					"stage": "completed",
+					"featured": true,
+					"order": 4
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "lkp-enter",
+				"slug": "lkp-enter",
+				"status": "published",
+				"data": {
+					"title": "LKP Enter",
+					"description": "",
+					"category": "training",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://lpkenter.com",
+					"stage": "completed",
+					"featured": true,
+					"order": 5
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "lkp-enter-id",
+				"translationOf": "lkp-enter",
+				"locale": "id",
+				"slug": "lkp-enter",
+				"status": "published",
+				"data": {
+					"title": "LKP Enter",
+					"description": "",
+					"category": "training",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://lpkenter.com",
+					"stage": "completed",
+					"featured": true,
+					"order": 5
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "bina-pajak",
+				"slug": "bina-pajak",
+				"status": "published",
+				"data": {
+					"title": "Bina Pajak (BIJAK)",
+					"description": "",
+					"category": "tax",
+					"tech": [
+						"Web App"
+					],
+					"url": "https://binapajak.com",
+					"stage": "completed",
+					"featured": true,
+					"order": 6
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "bina-pajak-id",
+				"translationOf": "bina-pajak",
+				"locale": "id",
+				"slug": "bina-pajak",
+				"status": "published",
+				"data": {
+					"title": "Bina Pajak (BIJAK)",
+					"description": "",
+					"category": "tax",
+					"tech": [
+						"Web App"
+					],
+					"url": "https://binapajak.com",
+					"stage": "completed",
+					"featured": true,
+					"order": 6
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "puskesmas-teluk-bogam",
+				"slug": "puskesmas-teluk-bogam",
+				"status": "published",
+				"data": {
+					"title": "Puskesmas Teluk Bogam",
+					"description": "",
+					"category": "health",
+					"tech": [
+						"Government"
+					],
+					"url": "https://pkm-telukbogam.kotawaringinbaratkab.go.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 7
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "puskesmas-teluk-bogam-id",
+				"translationOf": "puskesmas-teluk-bogam",
+				"locale": "id",
+				"slug": "puskesmas-teluk-bogam",
+				"status": "published",
+				"data": {
+					"title": "Puskesmas Teluk Bogam",
+					"description": "",
+					"category": "health",
+					"tech": [
+						"Government"
+					],
+					"url": "https://pkm-telukbogam.kotawaringinbaratkab.go.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 7
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "genius-education-centre",
+				"slug": "genius-education-centre",
+				"status": "published",
+				"data": {
+					"title": "Genius Education Centre",
+					"description": "",
+					"category": "education",
+					"tech": [
+						"WordPress",
+						"Cloudflare"
+					],
+					"url": "https://genius.co.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 8
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "genius-education-centre-id",
+				"translationOf": "genius-education-centre",
+				"locale": "id",
+				"slug": "genius-education-centre",
+				"status": "published",
+				"data": {
+					"title": "Genius Education Centre",
+					"description": "",
+					"category": "education",
+					"tech": [
+						"WordPress",
+						"Cloudflare"
+					],
+					"url": "https://genius.co.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 8
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "desa-wisata-sendangsari",
+				"slug": "desa-wisata-sendangsari",
+				"status": "published",
+				"data": {
+					"title": "Desa Wisata Sendangsari",
+					"description": "",
+					"category": "tourism",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://visitsendangsari.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 9
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "desa-wisata-sendangsari-id",
+				"translationOf": "desa-wisata-sendangsari",
+				"locale": "id",
+				"slug": "desa-wisata-sendangsari",
+				"status": "published",
+				"data": {
+					"title": "Desa Wisata Sendangsari",
+					"description": "",
+					"category": "tourism",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://visitsendangsari.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 9
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "media-semesta",
+				"slug": "media-semesta",
+				"status": "published",
+				"data": {
+					"title": "Media Semesta",
+					"description": "",
+					"category": "media",
+					"tech": [
+						"News Portal"
+					],
+					"url": "https://mediasemesta.co.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 10
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "media-semesta-id",
+				"translationOf": "media-semesta",
+				"locale": "id",
+				"slug": "media-semesta",
+				"status": "published",
+				"data": {
+					"title": "Media Semesta",
+					"description": "",
+					"category": "media",
+					"tech": [
+						"News Portal"
+					],
+					"url": "https://mediasemesta.co.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 10
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "myesha-by-pj",
+				"slug": "myesha-by-pj",
+				"status": "published",
+				"data": {
+					"title": "Myesha by PJ",
+					"description": "",
+					"category": "ecommerce",
+					"tech": [
+						"E-commerce"
+					],
+					"url": "https://myeshabypj.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 11
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "myesha-by-pj-id",
+				"translationOf": "myesha-by-pj",
+				"locale": "id",
+				"slug": "myesha-by-pj",
+				"status": "published",
+				"data": {
+					"title": "Myesha by PJ",
+					"description": "",
+					"category": "ecommerce",
+					"tech": [
+						"E-commerce"
+					],
+					"url": "https://myeshabypj.id",
+					"stage": "completed",
+					"featured": false,
+					"order": 11
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "berita-sampit",
+				"slug": "berita-sampit",
+				"status": "published",
+				"data": {
+					"title": "Berita Sampit",
+					"description": "",
+					"category": "media",
+					"tech": [
+						"News Portal"
+					],
+					"url": "https://beritasampit.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 12
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "berita-sampit-id",
+				"translationOf": "berita-sampit",
+				"locale": "id",
+				"slug": "berita-sampit",
+				"status": "published",
+				"data": {
+					"title": "Berita Sampit",
+					"description": "",
+					"category": "media",
+					"tech": [
+						"News Portal"
+					],
+					"url": "https://beritasampit.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 12
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "putra-pandawa-transport-and-homestay",
+				"slug": "putra-pandawa-transport-and-homestay",
+				"status": "published",
+				"data": {
+					"title": "Putra Pandawa Transport & Homestay",
+					"description": "",
+					"category": "transport",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://putrapandawatransport.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 13
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "putra-pandawa-transport-and-homestay-id",
+				"translationOf": "putra-pandawa-transport-and-homestay",
+				"locale": "id",
+				"slug": "putra-pandawa-transport-and-homestay",
+				"status": "published",
+				"data": {
+					"title": "Putra Pandawa Transport & Homestay",
+					"description": "",
+					"category": "transport",
+					"tech": [
+						"WordPress"
+					],
+					"url": "https://putrapandawatransport.com",
+					"stage": "completed",
+					"featured": false,
+					"order": 13
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "rumah-sehat-noesantara",
+				"slug": "rumah-sehat-noesantara",
+				"status": "published",
+				"data": {
+					"title": "Rumah Sehat NoeSantara (RSN)",
+					"description": "",
+					"category": "mobile",
+					"tech": [
+						"Flutter",
+						"Golang",
+						"PostgreSQL"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 14
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "rumah-sehat-noesantara-id",
+				"translationOf": "rumah-sehat-noesantara",
+				"locale": "id",
+				"slug": "rumah-sehat-noesantara",
+				"status": "published",
+				"data": {
+					"title": "Rumah Sehat NoeSantara (RSN)",
+					"description": "",
+					"category": "mobile",
+					"tech": [
+						"Flutter",
+						"Golang",
+						"PostgreSQL"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 14
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "aplikasi-tnkb-kotawaringin-barat",
+				"slug": "aplikasi-tnkb-kotawaringin-barat",
+				"status": "published",
+				"data": {
+					"title": "Aplikasi TNKB Kotawaringin Barat",
+					"description": "",
+					"category": "mobile",
+					"tech": [
+						"Flutter",
+						"Golang",
+						"Redis"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 15
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "aplikasi-tnkb-kotawaringin-barat-id",
+				"translationOf": "aplikasi-tnkb-kotawaringin-barat",
+				"locale": "id",
+				"slug": "aplikasi-tnkb-kotawaringin-barat",
+				"status": "published",
+				"data": {
+					"title": "Aplikasi TNKB Kotawaringin Barat",
+					"description": "",
+					"category": "mobile",
+					"tech": [
+						"Flutter",
+						"Golang",
+						"Redis"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 15
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "rumah-sakit-harapan-insani",
+				"slug": "rumah-sakit-harapan-insani",
+				"status": "published",
+				"data": {
+					"title": "Rumah Sakit Harapan Insani",
+					"description": "",
+					"category": "hospital",
+					"tech": [
+						"WordPress",
+						"Elementor"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 16
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "rumah-sakit-harapan-insani-id",
+				"translationOf": "rumah-sakit-harapan-insani",
+				"locale": "id",
+				"slug": "rumah-sakit-harapan-insani",
+				"status": "published",
+				"data": {
+					"title": "Rumah Sakit Harapan Insani",
+					"description": "",
+					"category": "hospital",
+					"tech": [
+						"WordPress",
+						"Elementor"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 16
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "abi-properti",
+				"slug": "abi-properti",
+				"status": "published",
+				"data": {
+					"title": "Abi Properti",
+					"description": "",
+					"category": "property",
+					"tech": [
+						"WordPress",
+						"Elementor"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 17
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "abi-properti-id",
+				"translationOf": "abi-properti",
+				"locale": "id",
+				"slug": "abi-properti",
+				"status": "published",
+				"data": {
+					"title": "Abi Properti",
+					"description": "",
+					"category": "property",
+					"tech": [
+						"WordPress",
+						"Elementor"
+					],
+					"url": "",
+					"stage": "in_development",
+					"featured": false,
+					"order": 17
 				},
 				"bylines": [
 					{

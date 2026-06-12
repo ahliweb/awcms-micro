@@ -985,3 +985,55 @@ msgstr "Apakah bisa menambah fitur sendiri?"
 msgctxt "landingFaqItems.3.1"
 msgid "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
 msgstr "Ya. AWCMS-Micro menggunakan model overlay plugin dan template yang disetujui sehingga fitur bisa ditambah tanpa memodifikasi core EmDash."
+
+msgctxt "portfolioTitle"
+msgid "Portfolio"
+msgstr "Portofolio"
+
+msgctxt "portfolioDescription"
+msgid "Selected client projects delivered by AhliWeb across education, government, health, media, and more."
+msgstr "Pilihan proyek klien yang dikerjakan AhliWeb di bidang pendidikan, pemerintahan, kesehatan, media, dan lainnya."
+
+msgctxt "portfolioKicker"
+msgid "Portfolio"
+msgstr "Portofolio"
+
+msgctxt "portfolioHeading"
+msgid "Projects we have delivered"
+msgstr "Proyek yang telah kami kerjakan"
+
+msgctxt "portfolioIntro"
+msgid "A selection of websites and applications delivered for clients across sectors."
+msgstr "Sejumlah website dan aplikasi yang kami kerjakan untuk klien lintas sektor."
+
+msgctxt "portfolioCompleted"
+msgid "Completed projects"
+msgstr "Proyek selesai"
+
+msgctxt "portfolioInDevelopment"
+msgid "In development"
+msgstr "Dalam pengembangan"
+
+msgctxt "portfolioVisit"
+msgid "Visit site"
+msgstr "Kunjungi situs"
+
+msgctxt "portfolioInDevBadge"
+msgid "In development"
+msgstr "Dalam pengembangan"
+
+msgctxt "portfolioSectionHeading"
+msgid "Selected portfolio"
+msgstr "Portofolio pilihan"
+
+msgctxt "portfolioSectionSubtitle"
+msgid "Real client websites and apps delivered with the AWCMS-Micro ecosystem."
+msgstr "Website dan aplikasi klien nyata yang dikerjakan dengan ekosistem AWCMS-Micro."
+
+msgctxt "portfolioViewAll"
+msgid "View full portfolio"
+msgstr "Lihat portofolio lengkap"
+
+msgctxt "portfolioEmpty"
+msgid "No portfolio items yet. Add one from the Portfolio collection in admin."
+msgstr "Belum ada item portofolio. Tambahkan dari koleksi Portfolio di admin."
