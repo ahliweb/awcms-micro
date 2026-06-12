@@ -308,6 +308,46 @@
 			]
 		},
 		{
+			"slug": "testimonials",
+			"label": "Testimonials",
+			"labelSingular": "Testimonial",
+			"supports": [
+				"drafts",
+				"revisions",
+				"search"
+			],
+			"fields": [
+				{
+					"slug": "quote",
+					"label": "Quote",
+					"type": "text",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "name",
+					"label": "Name / Role",
+					"type": "string",
+					"searchable": true
+				},
+				{
+					"slug": "role",
+					"label": "Sector",
+					"type": "string"
+				},
+				{
+					"slug": "featured",
+					"label": "Featured",
+					"type": "boolean"
+				},
+				{
+					"slug": "order",
+					"label": "Order",
+					"type": "number"
+				}
+			]
+		},
+		{
 			"slug": "website_social",
 			"label": "Website Social",
 			"labelSingular": "Website Social Settings",
@@ -13139,6 +13179,224 @@
 					"stage": "in_development",
 					"featured": false,
 					"order": 17
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			}
+		],
+		"testimonials": [
+			{
+				"id": "testimonial-1",
+				"slug": "testimonial-1",
+				"status": "published",
+				"data": {
+					"quote": "Our boarding-school website is now tidy and easy to manage. The process was structured and communication was pleasant throughout.",
+					"name": "Web Administrator",
+					"role": "Islamic Education Institution",
+					"featured": true,
+					"order": 1
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-1-id",
+				"translationOf": "testimonial-1",
+				"locale": "id",
+				"slug": "testimonial-1",
+				"status": "published",
+				"data": {
+					"quote": "Website pesantren kami kini rapi dan mudah dikelola. Proses pengerjaan terstruktur dan komunikasinya enak diajak diskusi.",
+					"name": "Pengelola Web",
+					"role": "Lembaga Pendidikan Islam",
+					"featured": true,
+					"order": 1
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-2",
+				"slug": "testimonial-2",
+				"status": "published",
+				"data": {
+					"quote": "Our news portal loads faster and stays stable under high traffic. The team responded to editorial needs promptly.",
+					"name": "Editorial Team",
+					"role": "News Portal",
+					"featured": true,
+					"order": 2
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-2-id",
+				"translationOf": "testimonial-2",
+				"locale": "id",
+				"slug": "testimonial-2",
+				"status": "published",
+				"data": {
+					"quote": "Portal berita kami jadi lebih cepat diakses dan stabil saat trafik tinggi. Tim merespons kebutuhan redaksi dengan sigap.",
+					"name": "Tim Redaksi",
+					"role": "Portal Berita",
+					"featured": true,
+					"order": 2
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-3",
+				"slug": "testimonial-3",
+				"status": "published",
+				"data": {
+					"quote": "Our public service now has better-organized information that residents can find easily. The result matched our agency needs.",
+					"name": "Service Admin",
+					"role": "Government Agency",
+					"featured": true,
+					"order": 3
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-3-id",
+				"translationOf": "testimonial-3",
+				"locale": "id",
+				"slug": "testimonial-3",
+				"status": "published",
+				"data": {
+					"quote": "Layanan publik kami kini punya informasi yang lebih tertata dan mudah dicari warga. Hasilnya sesuai kebutuhan instansi.",
+					"name": "Admin Layanan",
+					"role": "Instansi Pemerintah",
+					"featured": true,
+					"order": 3
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-4",
+				"slug": "testimonial-4",
+				"status": "published",
+				"data": {
+					"quote": "Our foundation profile looks professional and engaging. Donors now understand our conservation programs more easily.",
+					"name": "Program Manager",
+					"role": "Conservation Foundation",
+					"featured": true,
+					"order": 4
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-4-id",
+				"translationOf": "testimonial-4",
+				"locale": "id",
+				"slug": "testimonial-4",
+				"status": "published",
+				"data": {
+					"quote": "Profil yayasan tampil profesional dan menggugah. Donatur lebih mudah memahami program konservasi yang kami jalankan.",
+					"name": "Pengelola Program",
+					"role": "Yayasan Konservasi",
+					"featured": true,
+					"order": 4
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-5",
+				"slug": "testimonial-5",
+				"status": "published",
+				"data": {
+					"quote": "Our online store is easier for customers to use and product display looks attractive. It has helped our sales flow.",
+					"name": "Business Owner",
+					"role": "Online Store (MSME)",
+					"featured": true,
+					"order": 5
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-5-id",
+				"translationOf": "testimonial-5",
+				"locale": "id",
+				"slug": "testimonial-5",
+				"status": "published",
+				"data": {
+					"quote": "Toko online kami lebih mudah dipakai pelanggan dan tampilan produknya menarik. Penjualan terasa lebih terbantu.",
+					"name": "Pemilik Usaha",
+					"role": "Toko Online (UMKM)",
+					"featured": true,
+					"order": 5
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-6",
+				"slug": "testimonial-6",
+				"status": "published",
+				"data": {
+					"quote": "Our tourism-village website made package info and contacts clear. Visitors can reach us much more easily now.",
+					"name": "Tourism Village Manager",
+					"role": "Tourism",
+					"featured": true,
+					"order": 6
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "testimonial-6-id",
+				"translationOf": "testimonial-6",
+				"locale": "id",
+				"slug": "testimonial-6",
+				"status": "published",
+				"data": {
+					"quote": "Website desa wisata kami membuat informasi paket dan kontak jadi jelas. Pengunjung lebih mudah menjangkau kami.",
+					"name": "Pengelola Desa Wisata",
+					"role": "Pariwisata",
+					"featured": true,
+					"order": 6
 				},
 				"bylines": [
 					{

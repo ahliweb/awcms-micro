@@ -917,3 +917,35 @@ msgstr "Can I add my own features?"
 msgctxt "landingFaqItems.3.1"
 msgid "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
 msgstr "Yes. AWCMS-Micro uses an approved plugin and template overlay model so you can add features without modifying EmDash core."
+
+msgctxt "testimonialsTitle"
+msgid "Testimonials"
+msgstr "Testimonials"
+
+msgctxt "testimonialsDescription"
+msgid "What clients say about working with AhliWeb and the AWCMS-Micro ecosystem."
+msgstr "What clients say about working with AhliWeb and the AWCMS-Micro ecosystem."
+
+msgctxt "testimonialsKicker"
+msgid "Testimonials"
+msgstr "Testimonials"
+
+msgctxt "testimonialsHeading"
+msgid "Trusted by teams across sectors"
+msgstr "Trusted by teams across sectors"
+
+msgctxt "testimonialsIntro"
+msgid "Feedback from the organizations whose websites and apps we have delivered."
+msgstr "Feedback from the organizations whose websites and apps we have delivered."
+
+msgctxt "testimonialsSectionHeading"
+msgid "What clients say"
+msgstr "What clients say"
+
+msgctxt "testimonialsSectionSubtitle"
+msgid "Real feedback from education, government, media, and business teams."
+msgstr "Real feedback from education, government, media, and business teams."
+
+msgctxt "testimonialsEmpty"
+msgid "No testimonials yet. Add one from the Testimonials collection in admin."
+msgstr "No testimonials yet. Add one from the Testimonials collection in admin."

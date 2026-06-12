@@ -96,6 +96,21 @@ export interface Service {
   bylines?: ContentBylineCredit[];
 }
 
+export interface Testimonial {
+  id: string;
+  slug: string | null;
+  status: string;
+  quote: string;
+  name?: string;
+  role?: string;
+  featured?: boolean;
+  order?: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+}
+
 export interface WebsiteSocialSettings {
   id: string;
   slug: string | null;
@@ -155,6 +170,7 @@ declare module "emdash" {
     portfolio: PortfolioItem;
     posts: Post;
     services: Service;
+    testimonials: Testimonial;
     website_social: WebsiteSocialSettings;
   }
 }
