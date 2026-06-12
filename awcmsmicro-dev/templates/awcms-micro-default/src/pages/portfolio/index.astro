@@ -1,0 +1,75 @@
+---
+import { getEmDashCollection, getI18nConfig } from "emdash";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SectionHeading from "../../components/public/SectionHeading.astro";
+import PortfolioCard from "../../components/public/PortfolioCard.astro";
+import { getPublicCopy } from "../../utils/public-copy";
+
+interface PortfolioEntry {
+	id: string;
+	slug: string;
+	data: {
+		title: string;
+		category?: string;
+		tech?: unknown;
+		url?: string;
+		stage?: string;
+		featured?: boolean;
+		order?: number;
+	};
+}
+
+const { entries: rawPortfolio, cacheHint } = await getEmDashCollection("portfolio", {
+	orderBy: { published_at: "desc" },
+	limit: 100,
+});
+
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+
+const i18nConfig = getI18nConfig();
+const defaultLocale = i18nConfig?.defaultLocale || "en";
+const currentLocale = Astro.locals.awcmsLocale || Astro.currentLocale || defaultLocale;
+const copy = getPublicCopy(currentLocale);
+
+const items = (rawPortfolio as unknown as PortfolioEntry[]).sort(
+	(a, b) => (a.data.order ?? 999) - (b.data.order ?? 999),
+);
+const completed = items.filter((i) => i.data.stage !== "in_development");
+const inDev = items.filter((i) => i.data.stage === "in_development");
+
+const groups = [
+	{ title: copy.portfolioCompleted, list: completed },
+	{ title: copy.portfolioInDevelopment, list: inDev },
+].filter((g) => g.list.length > 0);
+---
+
+<BaseLayout title={copy.portfolioTitle} description={copy.portfolioDescription} showFooterWidgets={false}>
+	<section class="section-shell">
+		<SectionHeading eyebrow={copy.portfolioKicker} title={copy.portfolioHeading} subtitle={copy.portfolioIntro} />
+		{items.length === 0 ? (
+			<p class="section-subtitle">{copy.portfolioEmpty}</p>
+		) : (
+			groups.map((group) => (
+				<div class="portfolio-group">
+					<h2 class="portfolio-group__title">
+						{group.title}
+						<span class="portfolio-group__count">{group.list.length}</span>
+					</h2>
+					<div class="public-grid public-grid--3">
+						{group.list.map((item) => (
+							<PortfolioCard
+								title={item.data.title}
+								category={item.data.category}
+								tech={item.data.tech}
+								url={item.data.url}
+								locale={currentLocale}
+								visitLabel={copy.portfolioVisit}
+								inDevLabel={copy.portfolioInDevBadge}
+							/>
+						))}
+					</div>
+				</div>
+			))
+		)}
+	</section>
+</BaseLayout>
