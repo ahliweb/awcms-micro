@@ -48,7 +48,7 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, E2E, and release-automation boundaries listed above
 
-Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names.
+Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names. See the prefix standard below.
 
 Local bootstrap state used by sync and backup workflows is also preserved across rebuilds:
 
@@ -56,6 +56,51 @@ Local bootstrap state used by sync and backup workflows is also preserved across
 - `awcmsmicro-dev/.env.age`
 
 The current allowlist is stored in `scripts/awcmsmicro-dev-protected-paths.txt`.
+
+## D1 Table and Storage Collection Prefix Standard
+
+Every AWCMS-Micro plugin that owns Cloudflare D1 tables or EmDash plugin storage collections **must** use a dedicated, plugin-specific prefix for all of its table and collection names.
+
+This keeps every plugin's data visually grouped and unambiguously identifiable inside the shared D1 database — both in the Cloudflare dashboard and in Wrangler query output.
+
+```mermaid
+flowchart LR
+  D1[(Cloudflare D1\nawcms-micro-d1)] --> Emdash[ec_* tables\nEmDash core collections]
+  D1 --> Sikesra[sikesra_* tables\nSIKESRA plugin]
+  D1 --> Mailketing[mailketing_* tables\nEmail Mailketing plugin]
+  D1 --> Gallery[gallery_* tables\nGallery plugin\nreserved — future]
+  D1 --> WebSocial[website_social_* tables\nWebsite Social plugin\nreserved — future]
+  D1 --> Docs[docs_* tables\nDocs plugin\nreserved — future]
+  D1 --> Mobile[mobile_* tables\nMobile services plugin\nplanned]
+```
+
+### Prefix Rules
+
+- Every plugin-owned D1 table name must begin with `{prefix}_`.
+- Every plugin-owned EmDash storage collection name must begin with `{prefix}_`.
+- The prefix must be lowercase alphanumeric with underscores only.
+- No two AWCMS-Micro plugins may share the same prefix.
+- A plugin's prefix must be consistent across all of its tables and collections — do not mix prefixes within one plugin.
+- Plugins that use EmDash content collections via the EmDash content API (which creates `ec_*` tables) do not need to rename those collections. The `ec_` prefix is applied by EmDash core. Reserve your plugin prefix for any plugin-owned D1 tables added via migrations.
+- When a new plugin is created, claim its prefix in the registry below before adding any migrations.
+
+### Active Prefix Registry
+
+| Plugin | Package | Assigned Prefix | Tables owned |
+| --- | --- | --- | --- |
+| SIKESRA | `@awcms-micro/plugin-sikesra` | `sikesra_` | `sikesra_persons`, `sikesra_audit_events`, etc. |
+| Email Mailketing | `@awcms-micro/plugin-email-mailketing` | `mailketing_` | `mailketing_settings`, `mailketing_send_log`, `mailketing_audit_events`, etc. |
+| Gallery | `@awcms-micro/plugin-gallery` | `gallery_` *(reserved)* | None yet — uses EmDash `ec_galleries` content collection |
+| Website Social | `@awcms-micro/plugin-website-social` | `website_social_` *(reserved)* | None yet — uses EmDash `ec_website_social` content collection |
+| Docs | `@awcms-micro/plugin-docs` | `docs_` *(reserved)* | None yet — uses EmDash content API |
+| Mobile services *(planned)* | `@awcms-micro/plugin-mobile-services` | `mobile_` | Planned — see `docs/awcms-micro-mobile-services-plugin-standard.md` |
+
+### Adding a New Plugin Prefix
+
+1. Choose a short, unique keyword derived from the plugin's identifier.
+2. Add it to the registry table above in the same commit that adds the plugin boundary to `scripts/awcmsmicro-dev-protected-paths.txt`.
+3. Name all plugin migration files `{prefix}_*` and all storage collections `{prefix}_*`.
+4. Add a prefix validation test (see SIKESRA's `pnpm awcms:sikesra:check-d1-prefix` as a model).
 
 ## Upstream-Only Paths
 

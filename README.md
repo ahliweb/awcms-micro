@@ -63,6 +63,7 @@ See `docs/operator-workflow.md` for the `continuation` and `fresh-clone` update 
 - Work step by step using small, atomic changes.
 - When a task is too large, split it into smaller follow-up tasks or GitHub issues.
 - If a downstream source tweak must survive sync but does not belong in a plugin or template boundary, encode it as a patch under `awcmsmicro-dev/.awcms-patches/` so the rebuild script can reapply it automatically.
+- Every plugin that owns Cloudflare D1 tables or EmDash storage collections must use a dedicated `{prefix}_` for all table and collection names. The prefix must be unique per plugin and registered in `docs/awcms-micro-implementation-boundaries.md`. See the **D1 Table and Storage Collection Prefix Standard** section there for the active prefix registry and rules.
 
 ## GitHub Issue Execution System
 
@@ -137,7 +138,7 @@ SIKESRA must follow these rules:
 
 - keep all SIKESRA-owned logic inside the plugin, templates, docs, scripts, tests, and approved downstream boundaries;
 - do not modify EmDash core for SIKESRA-specific behavior;
-- use dedicated D1 tables and plugin collections with the `sikesra_` prefix;
+- use dedicated D1 tables and plugin collections with the `sikesra_` prefix (the registered prefix for this plugin per `docs/awcms-micro-implementation-boundaries.md`);
 - treat dedicated D1 tables as the production source of truth once the D1 migration issues are implemented;
 - use EmDash users as shared identity references, while storing SIKESRA roles, scopes, and ABAC policies in `sikesra_` tables;
 - connect admin UI, API routes, service layer, repository layer, serializers, and D1 tables through typed contracts;
