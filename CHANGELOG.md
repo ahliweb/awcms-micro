@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.36 - 2026-06-12
+
+- Document the ahliweb.com (ahliwebcom) public-page architecture adopted by both default templates: a shared CMS-sourced public design system, ported public components, a client-side Mermaid initializer, and an admin-editable `services` collection with `/services` routes seeded with ten bilingual services. Updates root `README.md` and `AGENTS.md` with a templates public-architecture reading reference, and adds `docs/PUBLIC_ARCHITECTURE.md` to each default template. Downstream template version bumps are tracked via `awcmsmicro-dev/.awcms-changesets/`.
 ## 0.1.35 - 2026-06-12
 
 - Formalizes the Cloudflare D1 table and storage collection prefix standard across all project documentation. Expands the one-line storage rule in `docs/awcms-micro-implementation-boundaries.md` into a full "D1 Table and Storage Collection Prefix Standard" section with a Mermaid isolation diagram, the active prefix registry for all current and planned plugins, and step-by-step guidance for registering a new plugin prefix. Updates `AGENTS.md` General Rules and `README.md` Repository Rules to explicitly require unique `{prefix}_` naming for all plugin-owned D1 tables and storage collections.
@@ -118,7 +121,7 @@
 ## Workspace Snapshot - 2026-06-12
 
 - EmDash upstream: `1986dd45427ecd59da28674affb66e892fa47307` from `emdash-latest/`
-- Root version: `0.1.35`
+- Root version: `0.1.36`
 
 ### Plugins
 

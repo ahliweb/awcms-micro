@@ -114,6 +114,13 @@ Before changing the AWCMS-Micro Email Mailketing plugin, also read:
 - `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/TECHNICAL_PRD.md`
 - `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/SECURITY.md`
 
+Before changing the default templates' public pages, also read:
+
+- `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/docs/PUBLIC_ARCHITECTURE.md`
+- `awcmsmicro-dev/templates/awcms-micro-default/docs/PUBLIC_ARCHITECTURE.md`
+
+The default templates' public pages follow the ahliweb.com (ahliwebcom) section architecture while staying CMS-sourced and admin-integrated. Keep both templates consistent, source content from EmDash collections (not hardcoded), and use the shared `src/styles/public.css` and `src/components/public/` instead of duplicating styles. New public page types should be admin-editable EmDash collections with EN/ID content and `seo` support so they flow into the auto-injected sitemap.
+
 For future plugins and templates, read the matching project README/governance/PRD when present and apply the same GitHub issue system.
 
 Before planning, designing, or implementing a mobile services plugin for Android, iOS, Flutter, native Java/Kotlin, Swift, API authentication, mobile app versioning, push notifications, or offline sync, read:
