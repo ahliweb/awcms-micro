@@ -32,7 +32,7 @@ Keep these flows separate so root maintenance releases do not mix with package r
 
 ## Root Structure
 
-- `emdash-latest/`: latest synchronized snapshot of upstream EmDash (current: `0.18.0` @ `ff5855ab`, 2026-06-12)
+- `emdash-latest/`: latest synchronized snapshot of upstream EmDash (current: `0.19.0` @ `34dd430b`, 2026-06-13)
 - `awcmsmicro-dev/`: clone of `emdash-latest/` used as the active AWCMS-Micro development workspace
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
@@ -291,7 +291,7 @@ flowchart TD
   Validate --> Implement[Implement only in approved boundaries]
 ```
 
-5. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
-6. Update root documentation when structure or process changes.
+1. Prepare `.awcms-changesets/` entries when AWCMS plugins or templates need downstream version bumps.
+1. Update root documentation when structure or process changes.
 
 During rebuilds, `bash scripts/update-awcmsmicro-dev.sh` preserves only the explicitly approved AWCMS-Micro paths listed in `scripts/awcmsmicro-dev-protected-paths.txt` and governed by `docs/awcms-micro-implementation-boundaries.md`, including `awcmsmicro-dev/.changeset/` for workspace package-release metadata.

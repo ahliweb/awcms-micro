@@ -68,6 +68,8 @@ The active divergences in this repository are expected to remain isolated to plu
 | 2026-06-06 | `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/` | add | active | Added an isolated AWCMS-Micro gallery plugin package | Keep gallery settings, public list, media validation, and audit-ready hooks in a downstream plugin boundary rather than EmDash core | If the gallery plugin is retired, split, or upstream EmDash adds equivalent gallery plugin capability | OpenCode / GPT-5.5 |
 | 2026-06-08 | `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/` | add | active | Added an isolated AWCMS-Micro website social plugin package for public social contact settings and WhatsApp CTA management | Keep website contact behavior in a downstream plugin boundary rather than modifying EmDash core or hard-coding template values | If the website social plugin is retired, folded into another downstream plugin, or upstream EmDash adds equivalent plugin capability | OpenCode / GPT-5.4 |
 
+| 2026-06-13 | `awcmsmicro-dev/.awcms-patches/0007-core-vite.patch` | adapt | active | Updated hunk context for patch `0007-core-vite.patch`: `@vitest/ui` bumped `^4.1.7` → `^4.1.8` in 0.19.0, breaking the context match; the semantic change (pin `vite` to `catalog:`) is unchanged | Keep `vite` pinned to the workspace catalog for the downstream Vite 8 security posture across rebuilds | If upstream EmDash adopts the same catalog pin for `vite` in `packages/core/package.json` | Claude Sonnet 4.6 |
+
 ## Review Reminder
 
 When adding a new row, also check whether `COMPATIBILITY_MATRIX.md`, deployment docs, or security docs should be updated in the same change.

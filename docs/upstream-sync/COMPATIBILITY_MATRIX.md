@@ -27,6 +27,15 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | EmDash `0.17.2` plugin admin root routing fix | Adopt upstream admin routing behavior; keep SIKESRA route normalization inside the plugin boundary as downstream compatibility coverage | Compatible | Low | adopt |
 | EmDash `0.17.2` SEO media URL and setup probe hardening | Adopt upstream core fixes directly through `emdash-latest` and rebuilt `awcmsmicro-dev`; no downstream override required | Compatible | Low | adopt |
 | EmDash `0.17.2` Postgres schema introspection isolation | Adopt upstream database test/runtime improvements; keep SIKESRA canonical data isolated in future `sikesra_` tables | Compatible | Low | adopt |
+| EmDash `0.18.0` scheduled publishing driver (`@emdash-cms/cloudflare/worker`) | Adopted; AWCMS-Micro Cloudflare template `src/worker.ts` re-exports `@emdash-cms/cloudflare/worker`; `wrangler.jsonc` includes `triggers.crons` | Compatible | Low | adopt |
+| EmDash `0.18.0` D1 batch coalescing | Adopt upstream behavior directly; no template changes required | Compatible | Low | adopt |
+| EmDash `0.18.0` TaxonomyTerm hydration on entries | Adopted; AWCMS-Micro templates include `terms?: Record<string, TaxonomyTerm[]>` in `emdash-env.d.ts` | Compatible | Low | adopt |
+| EmDash `0.19.0` scheduled publishing heartbeat fix (`publishDueContent` sweep) | Adopted; `src/worker.ts` and `wrangler.jsonc` already correct from 0.18.0 sync; post-deploy verification tracked in issue #205 | Compatible | Low | adopt |
+| EmDash `0.19.0` `getEntriesByByline()` helper | Additive; AWCMS-Micro templates do not yet use it; author archive pages planned in issue #204 | Compatible | Low | delay |
+| EmDash `0.19.0` responsive srcset for media | Automatic through Astro image service; no template changes required | Compatible | Low | adopt |
+| EmDash `0.19.0` admin content list filtering (author, date-range) | Adopt upstream admin behavior directly; no template changes required | Compatible | Low | adopt |
+| EmDash `0.19.0` `RelationRepository` data layer | Foundation only; no field type, API, or admin UI yet; content references implementation planned in issue #202 | Compatible | Low | delay |
+| EmDash `0.19.0` migration 043 (`_emdash_relations`, `_emdash_content_references`) | Already applied in production from 0.18.0 sync (was present at `ff5855ab`); confirmed in 0.19.0 release tag | Compatible | Low | adopt |
 
 ## Usage Notes
 

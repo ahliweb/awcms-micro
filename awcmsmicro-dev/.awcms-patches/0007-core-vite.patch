@@ -2,7 +2,7 @@ diff --git a/packages/core/package.json b/packages/core/package.json
 --- a/packages/core/package.json
 +++ b/packages/core/package.json
 @@ -262,7 +262,7 @@
-     "@vitest/ui": "^4.1.7",
+     "@vitest/ui": "^4.1.8",
      "publint": "catalog:",
      "tsdown": "catalog:",
      "typescript": "catalog:",

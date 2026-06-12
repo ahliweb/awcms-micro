@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.38 - 2026-06-12
+
+- Sync emdash-latest and awcmsmicro-dev to EmDash 0.19.0 (upstream HEAD 34dd430b35). Key changes: scheduled publishing heartbeat fix (publishDueContent sweep replaces PiggybackScheduler), migration 043 (_emdash_relations + _emdash_content_references tables, first-time apply in production), getEntriesByByline() helper for author archive pages, responsive srcset via Astro image service, status/author/date-range filtering in admin content list, getTaxonomyTerms() description fix for flat taxonomies, seed CLI locale fix. Patch 0007-core-vite context updated for @vitest/ui ^4.1.8 bump. GitHub issues #204 (author archive pages) and #205 (scheduled publishing verification) created.
 ## 0.1.37 - 2026-06-12
 
 - chore(sync): sync emdash-latest and awcmsmicro-dev to EmDash 0.18.0 - `emdash-latest/` refreshed to upstream EmDash `ff5855ab` (version 0.18.0) - `awcmsmicro-dev/` rebuilt with all downstream patches; patch `0016-cloudflare-astro.patch` updated for new cloudflare package.json context (added `@astrojs/cloudflare` peerDependency line) - Production D1 backed up to R2 before sync (`backup-20260612-210105.sql.enc`) - GitHub issues #201 (Cloudflare scheduled publishing worker) and #202 (content references planning) created - `docs/upstream-sync/UPSTREAM_SYNC_STATUS.md` and `LAST_UPSTREAM_FETCH.md` updated - `docs/synchronization-workflow.md` Mermaid diagram expanded with DB backup, patch-fix, and deploy steps - `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md` created — architecture doc with Mermaid diagrams for scheduled publishing, D1 coalescing, content references schema, and Node.js scheduler state machine - `README.md` root structure Mermaid diagram improved; EmDash version reference updated to 0.18.0
@@ -123,8 +126,8 @@
 
 ## Workspace Snapshot - 2026-06-12
 
-- EmDash upstream: `ff5855ab41ef8a5417889ac123a7cbd82c9fa3fa` from `emdash-latest/`
-- Root version: `0.1.37`
+- EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
+- Root version: `0.1.38`
 
 ### Plugins
 
@@ -138,9 +141,9 @@
 - `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.22` - latest changelog section: 0.1.22
+- `@emdash-cms/plugin-embeds` `0.1.23` - latest changelog section: 0.1.23
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
-- `@emdash-cms/plugin-forms` `0.2.3` - latest changelog section: 0.2.3
+- `@emdash-cms/plugin-forms` `0.2.4` - latest changelog section: 0.2.4
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2
 - `@emdash-cms/plugin-sandboxed-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-webhook-notifier` `0.2.0` - latest changelog section: 0.2.0

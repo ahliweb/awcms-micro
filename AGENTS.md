@@ -9,17 +9,23 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 ## Current EmDash Version
 
-- **Version:** 0.18.0
-- **Upstream commit:** `ff5855ab41ef8a5417889ac123a7cbd82c9fa3fa`
-- **Synced:** 2026-06-12
-- **Status:** deployed to production; migration 043 auto-applied on first boot
+- **Version:** 0.19.0
+- **Upstream commit:** `34dd430b35032535a972e9ed718c0eacaeae2029`
+- **Synced:** 2026-06-13
+- **Status:** pending production deploy; migration 043 will auto-apply on first boot
 
-### Key 0.18.0 Features
+### Key 0.19.0 Features
 
-- **Scheduled publishing** (`@emdash-cms/cloudflare/worker`): exports default SSR handler + `scheduled()` Cron Trigger handler + `PluginBridge`. The Cloudflare template `src/worker.ts` re-exports this entry point. `wrangler.jsonc` must include `"triggers": { "crons": ["* * * * *"] }`.
-- **Migration 043** (additive, no breaking changes): adds `_emdash_relations` and `_emdash_content_references` tables for the content references feature. Auto-runs on next boot.
-- **TaxonomyTerm hydration**: taxonomy terms are now attached directly to entries as `entry.data.terms?: Record<string, TaxonomyTerm[]>`. No separate `getEntryTerms()` call needed. Update `emdash-env.d.ts` to import `TaxonomyTerm` and add `terms?` to all collection interfaces.
-- **D1 batch coalescing** (`packages/cloudflare/src/db/coalescing-d1.ts`): same-turn SELECT queries are batched into one `D1.batch()` round trip, reducing per-request query counts automatically.
+- **Scheduled publishing heartbeat fix** (`publishDueContent` sweep): content scheduled via the admin now actually transitions to `published` when its time arrives. The `PiggybackScheduler` (request-side-effect based) is removed; a real Cron Trigger drives the sweep. AWCMS-Micro templates already have the required `src/worker.ts` and `wrangler.jsonc` from the 0.18.0 sync — no additional template changes needed. Verify end-to-end with issue #205.
+- **Migration 043** (already applied in production): adds `_emdash_relations` (relationship-type definitions, row-per-locale) and `_emdash_content_references` (directed edges between content entries) tables. Applied to production at the 0.18.0 sync (commit `ff5855ab`) — migration 043 was present in the main branch at that time even though it was not in the formal `emdash@0.18.0` tag. Confirmed in the `emdash@0.19.0` release tag. See issue #202 for content references implementation planning.
+- **`getEntriesByByline()`**: new helper returning all entries credited to a byline in any position (including co-authored). Enables author archive pages — see issue #204. `getEmDashCollection` also accepts `where: { byline: translationGroup }` to filter by byline credit.
+- **Responsive srcset for media**: EmDash routes media through Astro's configured image service (Cloudflare Images on Workers, sharp on Node), producing width-appropriate candidates and modern formats. Automatic — no template changes required.
+- **Admin content list filtering**: `authorId`, `dateField`, `dateFrom`, `dateTo` query params added to the content list API. New `GET /_emdash/api/content/{collection}/authors` endpoint lists distinct content authors. Server-side filtering across the full collection.
+- **`RelationRepository`** (`packages/core/src/database/repositories/relation.ts`): data layer for content references. Groundwork only — no field type, API, or admin UI yet.
+- **Bug fixes**: `getTaxonomyTerms()` now returns `description` for flat (non-hierarchical) taxonomies; seed CLI `export-seed`/`seed` preserves non-`en` default locales; taxonomy terms are hydrated in the entry's resolved locale (not the request-context locale).
+- **`create-emdash` scaffold**: new Cloudflare projects now scaffold `.env` instead of `.dev.vars` for secrets (landed in HEAD after 0.19.0 tag).
+- **TaxonomyTerm hydration** (carried from 0.18.0): taxonomy terms are attached directly to entries as `entry.data.terms?: Record<string, TaxonomyTerm[]>`. No separate `getEntryTerms()` call needed.
+- **D1 batch coalescing** (carried from 0.18.0): same-turn SELECT queries are batched into one `D1.batch()` round trip, reducing per-request query counts automatically.
 - **`emdash-env.d.ts`**: this file is tracked in git and must be updated manually when EmDash adds new exported types. It does not regenerate automatically without a dev server restart.
 
 For detailed architecture documentation and Mermaid diagrams, read `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`.

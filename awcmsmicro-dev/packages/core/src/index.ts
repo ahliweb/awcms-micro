@@ -46,6 +46,7 @@ export type {
 // API handlers
 export {
 	handleContentList,
+	handleContentAuthors,
 	handleContentGet,
 	handleContentGetIncludingTrashed,
 	handleContentCreate,
@@ -412,7 +413,7 @@ export type {
 } from "./menus/types.js";
 
 // Bylines
-export { getByline, getBylineBySlug } from "./bylines/index.js";
+export { getByline, getBylineBySlug, getEntriesByByline } from "./bylines/index.js";
 export type { BylineSummary, ContentBylineCredit } from "./database/repositories/types.js";
 
 // Taxonomies
