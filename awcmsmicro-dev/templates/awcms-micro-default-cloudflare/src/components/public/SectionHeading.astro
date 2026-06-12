@@ -1,0 +1,28 @@
+---
+/**
+ * Section heading block (eyebrow + title + optional subtitle), modeled on the
+ * ahliweb.com public section architecture. Pure presentation; styled by
+ * public.css. Use `inline` to place an actions slot beside the heading.
+ */
+interface Props {
+	eyebrow?: string | null;
+	title: string;
+	subtitle?: string | null;
+	inline?: boolean;
+	id?: string;
+}
+const { eyebrow, title, subtitle, inline = false, id } = Astro.props;
+const hasActions = Astro.slots.has("actions");
+---
+<div class={`section-heading${inline || hasActions ? " section-heading--inline" : ""}`}>
+	<div class="section-heading__text">
+		{eyebrow && <p class="section-eyebrow">{eyebrow}</p>}
+		<h2 class="section-title" id={id}>{title}</h2>
+		{subtitle && <p class="section-subtitle">{subtitle}</p>}
+	</div>
+	{hasActions && (
+		<div class="section-heading__actions">
+			<slot name="actions" />
+		</div>
+	)}
+</div>

@@ -1,0 +1,42 @@
+---
+/**
+ * Decorative, theme-aware animated SVG motif rendered behind hero text.
+ * Purely ornamental: aria-hidden, pointer-events:none, no external library.
+ * Ported from the ahliweb.com public architecture and themed via public.css.
+ * `variant` shifts the accent so heroes across pages do not look identical.
+ */
+interface Props {
+	variant?: "a" | "b" | "c";
+}
+const { variant = "a" } = Astro.props;
+---
+<div class={`hero-graphic hero-graphic--${variant}`} aria-hidden="true">
+	<svg viewBox="0 0 600 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+		<g class="hg-lines" stroke="currentColor" stroke-width="1" fill="none" opacity="0.45">
+			<line x1="90" y1="70" x2="220" y2="130" />
+			<line x1="220" y1="130" x2="360" y2="80" />
+			<line x1="360" y1="80" x2="500" y2="150" />
+			<line x1="220" y1="130" x2="270" y2="250" />
+			<line x1="360" y1="80" x2="430" y2="240" />
+			<line x1="270" y1="250" x2="430" y2="240" />
+			<line x1="90" y1="70" x2="120" y2="220" />
+			<line x1="120" y1="220" x2="270" y2="250" />
+		</g>
+		<g class="hg-nodes" fill="currentColor">
+			<circle class="hg-node n1" cx="90" cy="70" r="4" />
+			<circle class="hg-node n2" cx="220" cy="130" r="6" />
+			<circle class="hg-node n3" cx="360" cy="80" r="5" />
+			<circle class="hg-node n4" cx="500" cy="150" r="4" />
+			<circle class="hg-node n5" cx="270" cy="250" r="5" />
+			<circle class="hg-node n6" cx="430" cy="240" r="6" />
+			<circle class="hg-node n7" cx="120" cy="220" r="4" />
+		</g>
+		<g class="hg-dots" fill="currentColor" opacity="0.5">
+			<circle class="hg-dot d1" cx="160" cy="40" r="2" />
+			<circle class="hg-dot d2" cx="470" cy="60" r="2.5" />
+			<circle class="hg-dot d3" cx="540" cy="240" r="2" />
+			<circle class="hg-dot d4" cx="60" cy="170" r="2.5" />
+			<circle class="hg-dot d5" cx="330" cy="290" r="2" />
+		</g>
+	</svg>
+</div>

@@ -645,3 +645,47 @@ msgstr "Unavailable"
 msgctxt "sikesraGovernanceFallback"
 msgid "public-safe fallback"
 msgstr "public-safe fallback"
+
+msgctxt "servicesTitle"
+msgid "Services"
+msgstr "Services"
+
+msgctxt "servicesDescription"
+msgid "Explore the AhliWeb digital services delivered through the AWCMS-Micro ecosystem."
+msgstr "Explore the AhliWeb digital services delivered through the AWCMS-Micro ecosystem."
+
+msgctxt "servicesKicker"
+msgid "Services & Solutions"
+msgstr "Services & Solutions"
+
+msgctxt "servicesHeading"
+msgid "Digital services for every growth stage"
+msgstr "Digital services for every growth stage"
+
+msgctxt "servicesIntro"
+msgid "From websites and apps to ERP, security, IoT, and consulting — every service is managed as CMS content and ready to localize."
+msgstr "From websites and apps to ERP, security, IoT, and consulting — every service is managed as CMS content and ready to localize."
+
+msgctxt "servicesSectionHeading"
+msgid "Services and solutions"
+msgstr "Services and solutions"
+
+msgctxt "servicesSectionSubtitle"
+msgid "Managed as CMS content, each service can be edited and localized from the EmDash admin."
+msgstr "Managed as CMS content, each service can be edited and localized from the EmDash admin."
+
+msgctxt "servicesLearnMore"
+msgid "Learn more"
+msgstr "Learn more"
+
+msgctxt "servicesViewAll"
+msgid "View all services"
+msgstr "View all services"
+
+msgctxt "servicesEmpty"
+msgid "No services published yet. Add one from the Services collection in admin."
+msgstr "No services published yet. Add one from the Services collection in admin."
+
+msgctxt "servicesBackToList"
+msgid "Back to all services"
+msgstr "Back to all services"

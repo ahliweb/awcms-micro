@@ -2,6 +2,8 @@
 import { getEmDashCollection, getI18nConfig, getSiteSettings } from "emdash";
 import { Image, WidgetArea } from "emdash/ui";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHeading from "../components/public/SectionHeading.astro";
+import ServiceCard from "../components/public/ServiceCard.astro";
 import { resolveEntrySlug, toLocalePath } from "../utils/locale-path";
 import { getPublicCopy } from "../utils/public-copy";
 import { resolveAwcmsMicroSiteIdentity } from "../utils/site-identity";
@@ -47,11 +49,13 @@ const [
 	{ entries: newsItems, cacheHint: newsCacheHint },
 	{ entries: pages, cacheHint: pagesCacheHint },
 	{ entries: rawGalleries, cacheHint: galleriesCacheHint },
+	{ entries: rawServices, cacheHint: servicesCacheHint },
 ] = await Promise.all([
 	getEmDashCollection("posts", { orderBy: { published_at: "desc" }, limit: 6 }),
 	getEmDashCollection("news", { orderBy: { published_at: "desc" }, limit: 4 }),
 	getEmDashCollection("pages", { orderBy: { published_at: "desc" }, limit: 12 }),
 	getEmDashCollection("galleries", { orderBy: { published_at: "desc" }, limit: 12 }),
+	getEmDashCollection("services", { orderBy: { published_at: "desc" }, limit: 12 }),
 ]);
 
 if (Astro.cache?.enabled) {
@@ -59,9 +63,20 @@ if (Astro.cache?.enabled) {
 	Astro.cache.set(newsCacheHint);
 	Astro.cache.set(pagesCacheHint);
 	Astro.cache.set(galleriesCacheHint);
+	Astro.cache.set(servicesCacheHint);
 }
 
 const galleries = rawGalleries as unknown as GalleryEntry[];
+
+interface ServiceEntry {
+	id: string;
+	slug: string;
+	data: { slug?: string; title: string; description?: string; icon?: string; order?: number };
+}
+const services = (rawServices as unknown as ServiceEntry[])
+	.slice()
+	.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+const featuredServices = services.slice(0, 6);
 const { siteTitle, siteTagline } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const i18nConfig = getI18nConfig();
 const defaultLocale = i18nConfig?.defaultLocale || "en";
@@ -72,10 +87,6 @@ const websiteSocial = await getWebsiteSocialConfig(currentLocale);
 
 const findPage = (slug: string) => pages.find((page) => resolveEntrySlug(page) === slug);
 const profilePage = findPage("about") ?? pages[0];
-const servicePages = ["public-site-guide", "publishing-workflow", "docs-roadmap"]
-	.map(findPage)
-	.filter((page): page is (typeof pages)[number] => Boolean(page))
-	.slice(0, 3);
 const featuredPosts = posts.slice(0, 3);
 const featuredNews = newsItems.slice(0, 3);
 const featuredGalleries = galleries.filter((gallery) => gallery.data.featured).slice(0, 3);
@@ -199,29 +210,34 @@ const networkShowcaseUrl = storageBaseUrl ? `${storageBaseUrl}/network_showcase.
 		</div>
 	</section>
 
-	<section class="landing-section reveal">
-		<div class="landing-section__heading">
-			<p class="landing-eyebrow">{copy.landingServicesEyebrow}</p>
-			<h2>{copy.howConnectsTitle}</h2>
-		</div>
-		{showWhatsAppCta && (
-			<a class="landing-text-link landing-text-link--whatsapp" href={servicesWhatsAppHref} target="_blank" rel="noopener noreferrer">
-				{websiteSocial.servicesLabel}
-			</a>
-		)}
-		<div class="landing-feature-grid">
-			{servicePages.length === 0 ? (
-				<p class="landing-empty">{copy.noPostsCreateOne}</p>
-			) : (
-				servicePages.map((page) => (
-					<a class="landing-feature-card" href={toLocalePath(`/${resolveEntrySlug(page)}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
-						<span>{resolveEntrySlug(page)}</span>
-						<h3>{page.data.title}</h3>
-						<p>{copy.landingAdminContentHint}</p>
+	<section class="section-shell reveal">
+		<SectionHeading eyebrow={copy.servicesKicker} title={copy.servicesSectionHeading} subtitle={copy.servicesSectionSubtitle}>
+			<Fragment slot="actions">
+				{showWhatsAppCta && (
+					<a class="landing-button landing-button--whatsapp" href={servicesWhatsAppHref} target="_blank" rel="noopener noreferrer">
+						{websiteSocial.servicesLabel}
 					</a>
-				))
-			)}
-		</div>
+				)}
+				<a class="landing-button landing-button--secondary" href={toLocalePath("/services", currentLocale, localeOptions)} data-astro-prefetch="hover">
+					{copy.servicesViewAll}
+				</a>
+			</Fragment>
+		</SectionHeading>
+		{featuredServices.length === 0 ? (
+			<p class="section-subtitle">{copy.servicesEmpty}</p>
+		) : (
+			<div class="public-grid public-grid--3">
+				{featuredServices.map((service) => (
+					<ServiceCard
+						href={toLocalePath(`/services/${resolveEntrySlug(service)}`, currentLocale, localeOptions)}
+						icon={service.data.icon}
+						title={service.data.title}
+						description={service.data.description}
+						moreLabel={copy.servicesLearnMore}
+					/>
+				))}
+			</div>
+		)}
 	</section>
 
 	<section class="landing-section landing-section--dark reveal">

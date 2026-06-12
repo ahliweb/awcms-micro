@@ -18,6 +18,7 @@ This folder is an AWCMS-Micro example template. It is not a replacement for EmDa
 - EmDash-compatible: the template uses standard Astro and EmDash integration points only.
 - No EmDash core modification: manual adoption is documented here instead of changing built-in template registration.
 - Plugin admin UI surfaces should use theme-aware semantic tokens; avoid hardcoded white/black card colors in plugin components.
+- Public pages follow the ahliweb.com (ahliwebcom) section architecture while staying CMS-sourced: a shared design system in `src/styles/public.css`, reusable components under `src/components/public/`, an admin-editable `services` collection with `/services` routes, and client-side Mermaid rendering for CMS content. See `docs/PUBLIC_ARCHITECTURE.md`.
 
 ```mermaid
 flowchart LR

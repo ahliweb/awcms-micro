@@ -253,6 +253,7 @@ The D1 mirror workflow for DBeaver is documented separately in `docs/awcms-micro
 
 - Default template: `awcmsmicro-dev/templates/awcms-micro-default/`
 - Cloudflare template: `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/`
+- Both default templates' public pages follow the ahliweb.com (ahliwebcom) section architecture while staying CMS-sourced (shared `src/styles/public.css`, `src/components/public/`, an admin-editable `services` collection with `/services` routes, and client-side Mermaid for CMS content). See each template's `docs/PUBLIC_ARCHITECTURE.md`.
 - SIKESRA plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/`
 - Docs plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-docs/`
 - Gallery plugin: `awcmsmicro-dev/packages/plugins/awcms-micro-gallery/`

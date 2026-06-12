@@ -12,7 +12,9 @@ It keeps EmDash core untouched and lives only inside `awcmsmicro-dev/templates/a
 
 ## What It Includes
 
-- public homepage
+- public homepage with an ahliweb.com-aligned section architecture (hero, profile, services, portfolio, media, news, FAQ, contact)
+- admin-editable `services` collection with public `/services` index and `/services/[slug]` detail routes (CMS-sourced, Mermaid-in-content)
+- shared public design system in `src/styles/public.css` and reusable components under `src/components/public/`
 - public posts and news routes
 - public page route for site pages such as `/about`
 - public aggregate reference route
