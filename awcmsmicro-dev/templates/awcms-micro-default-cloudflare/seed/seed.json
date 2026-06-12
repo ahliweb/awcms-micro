@@ -6439,6 +6439,2992 @@
 						"byline": "byline-awcms-editorial"
 					}
 				]
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "Contact Us",
+					"seo": {
+						"title": "Contact Us",
+						"description": "Get in touch with the AhliWeb team via WhatsApp, email, or online coordination."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Get in Touch",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Connect with our team through any of the following channels. We respond quickly to all inquiries.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Chat directly with our team via WhatsApp for fast 24/7 support.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "+62-895-1338-0400",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Send your questions or project proposals by email.",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Remote Service",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We serve all of Indonesia remotely through:",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp & Phone",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Online Coordination",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Project Tracking Systems",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Payment Methods",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We accept payments through the following methods:",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "BSI (Bank Syariah Indonesia)",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "QRIS",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Operating Hours",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Monday – Friday: 08:00 – 17:00 WIB",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Saturday: 09:00 – 14:00 WIB",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp: 24/7",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "contact-id",
+				"slug": "contact",
+				"translationOf": "contact",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Hubungi Kami",
+					"seo": {
+						"title": "Hubungi Kami",
+						"description": "Hubungi tim AhliWeb melalui WhatsApp, email, atau koordinasi online."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hubungi Kami",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hubungi tim kami melalui salah satu saluran berikut. Kami merespons dengan cepat setiap pertanyaan.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Chat langsung dengan tim kami via WhatsApp. Respons cepat 24/7.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "+62-895-1338-0400",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kirim pertanyaan atau proposal proyek Anda melalui email.",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Layanan Remote",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami melayani seluruh Indonesia secara remote melalui:",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp & Telepon",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Koordinasi Online",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sistem Pelacakan Proyek",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Metode Pembayaran",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami menerima pembayaran melalui metode berikut:",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "BSI (Bank Syariah Indonesia)",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "QRIS",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Jam Operasional",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Senin – Jumat: 08:00 – 17:00 WIB",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sabtu: 09:00 – 14:00 WIB",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp: 24/7",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "hiring",
+				"slug": "hiring",
+				"status": "published",
+				"data": {
+					"title": "Join Our Team",
+					"seo": {
+						"title": "Careers – Join Our Team",
+						"description": "Open positions for freelance web developers, designers, DevOps engineers, and digital marketing specialists at AhliWeb."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Why Join AhliWeb?",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "100% Remote — Work from anywhere, flexible to your work rhythm.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Competitive Compensation — Fair project payment based on skills and contribution.",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Grow Together — Learning opportunities, mentoring, and career development.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Solid Team — Collaborate with experienced professionals in their fields.",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sharia-Based — Work environment upholding Islamic values.",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Real Projects — Directly involved in diverse business client projects.",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Open Positions",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Developer (Frontend) — Freelance / Remote",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We are looking for experienced frontend developers to help with our client website projects. Experience with Astro or React is highly preferred.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: HTML, CSS, JavaScript, Astro / React, Git",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Developer (Backend) — Freelance / Remote",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Join our team to work on backend projects, APIs, and system integrations. Experience with Laravel or Node.js is highly preferred.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: Node.js, PHP, MySQL, REST API, Git",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "UI/UX Designer — Freelance / Remote",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We need a creative UI/UX designer experienced in creating intuitive and attractive interfaces.",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: Figma, Prototyping, User Research, Responsive Design",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "DevOps / Server Engineer — Freelance / Remote",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Join as a server and DevOps engineer to manage hosting infrastructure and deployment for our client projects.",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: Linux, Nginx, Docker, Cloudflare, SSL/TLS, Monitoring",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Digital Marketing Specialist — Freelance / Remote",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "We are looking for a digital marketing specialist who can improve online visibility and develop content strategies for our clients.",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: SEO, Google Analytics, Content Marketing, Social Media",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Odoo ERP Consultant — Freelance / Remote",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Help our clients with implementation, customization, and integration of Odoo-based ERP systems.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Skills: Odoo, Python, PostgreSQL, Business Process",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Recruitment Process",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Send Application — Chat via WhatsApp with your portfolio or CV.",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Document Selection — Our team will review your profile and portfolio.",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Online Interview — Brief discussion via WhatsApp call or Google Meet.",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Technical Test — Short test based on the position applied (optional).",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Onboarding — Join and start contributing to your first project.",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "No Matching Position?",
+									"_key": "b33s1"
+								}
+							],
+							"_key": "b33"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Send us your profile and CV. We are always open to talented professionals who want to join. Contact us at solutions@ahliweb.com via WhatsApp or email.",
+									"_key": "b34s1"
+								}
+							],
+							"_key": "b34"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "hiring-id",
+				"slug": "hiring",
+				"translationOf": "hiring",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Bergabung Bersama Kami",
+					"seo": {
+						"title": "Karir – Bergabung Bersama Kami",
+						"description": "Posisi terbuka untuk pengembang web freelance, desainer, insinyur DevOps, dan spesialis pemasaran digital di AhliWeb."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Mengapa Bergabung dengan AhliWeb?",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Remote 100% — Bekerja dari mana saja, fleksibel sesuai ritme kerja Anda.",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kompensasi Kompetitif — Bayaran proyek yang adil sesuai keahlian dan kontribusi.",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Berkembang Bersama — Kesempatan belajar, mentoring, dan pengembangan karir.",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tim yang Solid — Kolaborasi dengan profesional berpengalaman di bidangnya.",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Berbasis Syariah — Lingkungan kerja yang menjunjung nilai-nilai Islam.",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Proyek Nyata — Terlibat langsung dalam proyek klien bisnis yang beragam.",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Posisi Terbuka",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Developer (Frontend) — Freelance / Remote",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami mencari pengembang frontend yang berpengalaman untuk membantu proyek website klien kami. Pengalaman dengan Astro atau React sangat diutamakan.",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: HTML, CSS, JavaScript, Astro / React, Git",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Developer (Backend) — Freelance / Remote",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bergabunglah dengan tim kami untuk mengerjakan proyek backend, API, dan integrasi sistem. Pengalaman Laravel atau Node.js sangat diutamakan.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: Node.js, PHP, MySQL, REST API, Git",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "UI/UX Designer — Freelance / Remote",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami membutuhkan desainer UI/UX yang kreatif dan berpengalaman dalam membuat antarmuka yang intuitif dan menarik.",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: Figma, Prototyping, User Research, Responsive Design",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "DevOps / Server Engineer — Freelance / Remote",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bergabunglah sebagai engineer server dan DevOps untuk mengelola infrastruktur hosting dan deployment proyek klien kami.",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: Linux, Nginx, Docker, Cloudflare, SSL/TLS, Monitoring",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Digital Marketing Specialist — Freelance / Remote",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kami mencari spesialis pemasaran digital yang mampu meningkatkan visibilitas online dan mengembangkan strategi konten klien kami.",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: SEO, Google Analytics, Content Marketing, Social Media",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23"
+						},
+						{
+							"_type": "block",
+							"style": "h3",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Odoo ERP Consultant — Freelance / Remote",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bantu klien kami dalam implementasi, kustomisasi, dan integrasi sistem ERP berbasis Odoo.",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keahlian: Odoo, Python, PostgreSQL, Business Process",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Proses Rekrutmen",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kirim Lamaran — Chat via WhatsApp dengan portofolio atau CV Anda.",
+									"_key": "b28s1"
+								}
+							],
+							"_key": "b28",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Seleksi Berkas — Tim kami akan mereview profil dan portofolio Anda.",
+									"_key": "b29s1"
+								}
+							],
+							"_key": "b29",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Interview Online — Diskusi singkat via WhatsApp call atau Google Meet.",
+									"_key": "b30s1"
+								}
+							],
+							"_key": "b30",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Test Teknis — Ujian singkat sesuai posisi yang dilamar (opsional).",
+									"_key": "b31s1"
+								}
+							],
+							"_key": "b31",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Onboarding — Bergabung dan mulai berkontribusi di proyek perdana Anda.",
+									"_key": "b32s1"
+								}
+							],
+							"_key": "b32",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tidak Ada Posisi Yang Cocok?",
+									"_key": "b33s1"
+								}
+							],
+							"_key": "b33"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Kirim profil dan CV Anda kepada kami. Kami selalu terbuka untuk profesional berbakat yang ingin bergabung. Hubungi kami di solutions@ahliweb.com via WhatsApp atau email.",
+									"_key": "b34s1"
+								}
+							],
+							"_key": "b34"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "knowledgebase",
+				"slug": "knowledgebase",
+				"status": "published",
+				"data": {
+					"title": "Knowledge Base",
+					"seo": {
+						"title": "Knowledge Base",
+						"description": "Technical guides and best practices for web hosting, development, cyber security, and DNS management."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Technical guides, best practices, and how-to articles for web hosting, development, security, and DNS management.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hosting & Server",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Setting up Ubuntu VPS for production websites",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Nginx reverse proxy configuration with Let's Encrypt SSL",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Server performance optimization: caching, gzip, HTTP/2",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Automatic backups with rsync and cron jobs",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Server monitoring with Netdata / Uptime Kuma",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Development",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Building static websites with Astro & Cloudflare Pages",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Technical SEO: sitemap, robots.txt, structured data",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Core Web Vitals optimization: LCP, FID, CLS",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Implementing dark mode with CSS custom properties",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Using TypeScript in Astro projects",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Cyber Security",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Linux server hardening: UFW firewall, fail2ban",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SSL/TLS best practices and HSTS configuration",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SQL injection and XSS prevention",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Content Security Policy (CSP) implementation",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Website security auditing with free tools",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Domain & DNS",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "How to configure DNS in Cloudflare",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Subdomain and wildcard DNS setup",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "HTTP to HTTPS redirect with Cloudflare Page Rules",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email deliverability: SPF, DKIM, DMARC",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Moving hosting without downtime",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Need Specific Guide?",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Our knowledge base content keeps growing. If you have specific technical questions, our team is ready to help directly. Contact us at solutions@ahliweb.com.",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "knowledgebase-id",
+				"slug": "knowledgebase",
+				"translationOf": "knowledgebase",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Basis Pengetahuan",
+					"seo": {
+						"title": "Basis Pengetahuan",
+						"description": "Panduan teknis dan praktik terbaik untuk hosting web, pengembangan, keamanan siber, dan manajemen DNS."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Panduan teknis, praktik terbaik, dan artikel cara kerja untuk hosting web, pengembangan, keamanan, dan manajemen DNS.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hosting & Server",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Cara setup VPS Ubuntu untuk website production",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konfigurasi Nginx reverse proxy dengan SSL Let's Encrypt",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Optimasi performa server: caching, gzip, HTTP/2",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Backup otomatis dengan rsync dan cron job",
+									"_key": "b06s1"
+								}
+							],
+							"_key": "b06",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Monitoring server dengan Netdata / Uptime Kuma",
+									"_key": "b07s1"
+								}
+							],
+							"_key": "b07",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Web Development",
+									"_key": "b08s1"
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Membangun website statis dengan Astro & Cloudflare Pages",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SEO teknis: sitemap, robots.txt, structured data",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Optimasi Core Web Vitals: LCP, FID, CLS",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Implementasi dark mode dengan CSS custom properties",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Penggunaan TypeScript dalam proyek Astro",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Keamanan Siber",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Hardening server Linux: firewall UFW, fail2ban",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "SSL/TLS best practices dan konfigurasi HSTS",
+									"_key": "b16s1"
+								}
+							],
+							"_key": "b16",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pencegahan SQL injection dan XSS",
+									"_key": "b17s1"
+								}
+							],
+							"_key": "b17",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Implementasi Content Security Policy (CSP)",
+									"_key": "b18s1"
+								}
+							],
+							"_key": "b18",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Audit keamanan website dengan tools gratis",
+									"_key": "b19s1"
+								}
+							],
+							"_key": "b19",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Domain & DNS",
+									"_key": "b20s1"
+								}
+							],
+							"_key": "b20"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Cara konfigurasi DNS di Cloudflare",
+									"_key": "b21s1"
+								}
+							],
+							"_key": "b21",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Setup subdomain dan wildcard DNS",
+									"_key": "b22s1"
+								}
+							],
+							"_key": "b22",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Redirect HTTP ke HTTPS dengan Cloudflare Page Rules",
+									"_key": "b23s1"
+								}
+							],
+							"_key": "b23",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email deliverability: SPF, DKIM, DMARC",
+									"_key": "b24s1"
+								}
+							],
+							"_key": "b24",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pindah hosting tanpa downtime",
+									"_key": "b25s1"
+								}
+							],
+							"_key": "b25",
+							"listItem": "bullet",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Butuh Panduan Khusus?",
+									"_key": "b26s1"
+								}
+							],
+							"_key": "b26"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konten knowledge base kami terus berkembang. Jika Anda memiliki pertanyaan teknis spesifik, tim kami siap membantu langsung. Hubungi kami di solutions@ahliweb.com.",
+									"_key": "b27s1"
+								}
+							],
+							"_key": "b27"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "payment",
+				"slug": "payment",
+				"status": "published",
+				"data": {
+					"title": "Payment Information",
+					"seo": {
+						"title": "Payment Information",
+						"description": "Payment methods and bank transfer details for AhliWeb services."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Information about payment methods and bank transfer details for AhliWeb services.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "QRIS",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pay using any mobile banking or e-wallet app by scanning the QRIS code. Contact us for the QRIS code.",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Merchant: AHLIWEB.COM, DIGITAL & KREATIF",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bank Transfer",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bank: ",
+									"_key": "b06s1"
+								},
+								{
+									"_type": "span",
+									"text": "BSI (Bank Syariah Indonesia)",
+									"_key": "b06s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Account Number: ",
+									"_key": "b07s1"
+								},
+								{
+									"_type": "span",
+									"text": "7202893699",
+									"_key": "b07s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Account Name: ",
+									"_key": "b08s1"
+								},
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional",
+									"_key": "b08s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Payment Instructions",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Choose the payment method you prefer (QRIS or bank transfer).",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Transfer the exact invoice amount you received.",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Include the unique code or invoice number in the transfer notes.",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Confirm payment via WhatsApp to +62-895-1338-0400.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Our team will process your service after confirmation is received.",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Contact for Payment Confirmation",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp: ",
+									"_key": "b16s1"
+								},
+								{
+									"_type": "span",
+									"text": "+62-895-1338-0400",
+									"_key": "b16s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email: ",
+									"_key": "b17s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b17s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b17"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
+			},
+			{
+				"id": "payment-id",
+				"slug": "payment",
+				"translationOf": "payment",
+				"locale": "id",
+				"status": "published",
+				"data": {
+					"title": "Informasi Pembayaran",
+					"seo": {
+						"title": "Informasi Pembayaran",
+						"description": "Metode pembayaran dan detail rekening bank untuk layanan AhliWeb."
+					},
+					"content": [
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Informasi metode pembayaran dan detail rekening bank untuk layanan AhliWeb.",
+									"_key": "b01s1"
+								}
+							],
+							"_key": "b01"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "QRIS",
+									"_key": "b02s1"
+								}
+							],
+							"_key": "b02"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bayar menggunakan aplikasi mobile banking atau e-wallet apapun dengan memindai kode QRIS. Hubungi kami untuk kode QRIS.",
+									"_key": "b03s1"
+								}
+							],
+							"_key": "b03"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Merchant: AHLIWEB.COM, DIGITAL & KREATIF",
+									"_key": "b04s1"
+								}
+							],
+							"_key": "b04"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Transfer Bank",
+									"_key": "b05s1"
+								}
+							],
+							"_key": "b05"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Bank: ",
+									"_key": "b06s1"
+								},
+								{
+									"_type": "span",
+									"text": "BSI (Bank Syariah Indonesia)",
+									"_key": "b06s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b06"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Nomor Rekening: ",
+									"_key": "b07s1"
+								},
+								{
+									"_type": "span",
+									"text": "7202893699",
+									"_key": "b07s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b07"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Atas Nama: ",
+									"_key": "b08s1"
+								},
+								{
+									"_type": "span",
+									"text": "PT Ahli Web Internasional",
+									"_key": "b08s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b08"
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Petunjuk Pembayaran",
+									"_key": "b09s1"
+								}
+							],
+							"_key": "b09"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Pilih metode pembayaran yang Anda inginkan (QRIS atau transfer bank).",
+									"_key": "b10s1"
+								}
+							],
+							"_key": "b10",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Lakukan transfer sesuai nominal tagihan yang diterima.",
+									"_key": "b11s1"
+								}
+							],
+							"_key": "b11",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Sertakan kode unik atau nomor invoice pada catatan transfer.",
+									"_key": "b12s1"
+								}
+							],
+							"_key": "b12",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konfirmasi pembayaran via WhatsApp ke +62-895-1338-0400.",
+									"_key": "b13s1"
+								}
+							],
+							"_key": "b13",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Tim kami akan memproses layanan setelah konfirmasi diterima.",
+									"_key": "b14s1"
+								}
+							],
+							"_key": "b14",
+							"listItem": "number",
+							"level": 1
+						},
+						{
+							"_type": "block",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Konfirmasi Pembayaran",
+									"_key": "b15s1"
+								}
+							],
+							"_key": "b15"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "WhatsApp: ",
+									"_key": "b16s1"
+								},
+								{
+									"_type": "span",
+									"text": "+62-895-1338-0400",
+									"_key": "b16s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b16"
+						},
+						{
+							"_type": "block",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"text": "Email: ",
+									"_key": "b17s1"
+								},
+								{
+									"_type": "span",
+									"text": "solutions@ahliweb.com",
+									"_key": "b17s2",
+									"marks": [
+										"strong"
+									]
+								}
+							],
+							"_key": "b17"
+						}
+					]
+				},
+				"bylines": [
+					{
+						"byline": "byline-awcms-editorial"
+					}
+				]
 			}
 		],
 		"posts": [
