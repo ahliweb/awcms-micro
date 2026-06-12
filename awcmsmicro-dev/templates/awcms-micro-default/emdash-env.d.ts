@@ -63,11 +63,79 @@ export interface Post {
   bylines?: ContentBylineCredit[];
 }
 
+export interface Service {
+  id: string;
+  slug: string | null;
+  status: string;
+  title: string;
+  description?: string;
+  icon?: string;
+  order?: number;
+  content?: PortableTextBlock[];
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+}
+
+export interface WebsiteSocialSettings {
+  id: string;
+  slug: string | null;
+  status: string;
+  enabled?: boolean;
+  whatsapp_number: string;
+  default_message?: string;
+  hero_message?: string;
+  section_message?: string;
+  contact_message?: string;
+  profile_message?: string;
+  services_message?: string;
+  posts_message?: string;
+  gallery_message?: string;
+  news_message?: string;
+  widgets_message?: string;
+  hero_label?: string;
+  section_label?: string;
+  contact_label?: string;
+  profile_label?: string;
+  services_label?: string;
+  posts_label?: string;
+  gallery_label?: string;
+  news_label?: string;
+  widgets_label?: string;
+  sticky_label?: string;
+  maps_embed_url?: string;
+  business_address?: string;
+  opening_hours?: string;
+  google_maps_url?: string;
+  schema_type?: string;
+  business_name?: string;
+  business_description?: string;
+  business_phone?: string;
+  price_range?: string;
+  promo_enabled?: boolean;
+  promo_title?: string;
+  promo_text?: string;
+  promo_price?: string;
+  promo_discount?: string;
+  promo_cta_message?: string;
+  promo_feature_1?: string;
+  promo_feature_2?: string;
+  promo_feature_3?: string;
+  promo_feature_4?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date | null;
+  bylines?: ContentBylineCredit[];
+}
+
 declare module "emdash" {
   interface EmDashCollections {
     galleries: Gallery;
     news: NewsItem;
     pages: Page;
     posts: Post;
+    services: Service;
+    website_social: WebsiteSocialSettings;
   }
 }

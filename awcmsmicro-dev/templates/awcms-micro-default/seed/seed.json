@@ -791,13 +791,6 @@
 			"id": "byline-awcms-editorial",
 			"slug": "awcms-micro-editorial",
 			"displayName": "AWCMS-Micro Editorial"
-		},
-		{
-			"id": "byline-awcms-editorial-id",
-			"translationOf": "byline-awcms-editorial",
-			"locale": "id",
-			"slug": "awcms-micro-editorial",
-			"displayName": "Editorial AWCMS-Micro"
 		}
 	],
 	"content": {
