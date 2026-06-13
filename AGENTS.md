@@ -179,6 +179,7 @@ These rules apply to every plugin, template, database, UI/UX, API, integration, 
 - Keep custom behavior inside approved AWCMS-Micro boundaries.
 - Do not modify EmDash core for project-specific behavior unless an issue explicitly justifies it as upstream work.
 - Use typed contracts when UI, API routes, backend services, and database models interact.
+- **Plugin admin export pattern (critical):** Every plugin `admin.tsx` must use named exports, not `export default`. EmDash's `virtual:emdash/admin-registry` does `import * as admin0 from adminEntry` — pages must be at `admin0.pages`, not `admin0.default.pages`. Use `export const pages: PluginAdminExports["pages"] = { "/": ComponentRef }` where `ComponentRef` is a React component reference (not rendered JSX `<Component />`). Wrong pattern: `export default { pages: { "/": <Component /> } }`.
 - Every plugin that owns Cloudflare D1 tables or EmDash plugin storage collections must use a dedicated `{prefix}_` for all table and collection names. The prefix must be unique to the plugin and consistent across all its tables. Register the prefix in `docs/awcms-micro-implementation-boundaries.md` before adding migrations. Do not share a prefix between plugins, and do not store plugin data in unprefixed or `ec_*` tables.
 - Keep public output public-safe and avoid exposing protected operational data.
 - Add Mermaid diagrams when design, architecture, database, UI/UX, integration, security, deployment, migration, or data preservation behavior changes.

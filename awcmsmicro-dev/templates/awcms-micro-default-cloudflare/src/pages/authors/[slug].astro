@@ -32,6 +32,22 @@ const copy = getPublicCopy(currentLocale);
 const pageTitle = `${byline.displayName} — ${copy.authorsTitle}`;
 const pageDescription = byline.bio || `${copy.authorPostsHeading}: ${bylineEntries.length}`;
 const canonical = toLocalePath(`/authors/${slug}`, currentLocale, localeOptions);
+
+const dateLocale = currentLocale.startsWith("id") ? "id-ID" : "en-US";
+const dateFormatOpts: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+
+interface PostRow { href: string; title: string; publishedAt: string | null; dateLabel: string | null }
+const postRows: PostRow[] = bylineEntries.map((entry) => {
+	const entrySlug = resolveEntrySlug(entry);
+	const d = entry.data as { title?: unknown; published_at?: unknown };
+	const publishedAt = d.published_at ? String(d.published_at) : null;
+	return {
+		href: toLocalePath(`/posts/${entrySlug}`, currentLocale, localeOptions),
+		title: String(d.title ?? ""),
+		publishedAt,
+		dateLabel: publishedAt ? new Date(publishedAt).toLocaleDateString(dateLocale, dateFormatOpts) : null,
+	};
+});
 ---
 
 <Base
@@ -67,28 +83,16 @@ const canonical = toLocalePath(`/authors/${slug}`, currentLocale, localeOptions)
 
 	<section class="author-posts">
 		<h2>{copy.authorPostsHeading}</h2>
-		{bylineEntries.length === 0 ? (
+		{postRows.length === 0 ? (
 			<p class="author-posts__empty">{copy.authorNoEntries}</p>
 		) : (
 			<ul class="author-posts__list">
-				{bylineEntries.map((entry) => {
-					const entrySlug = resolveEntrySlug(entry);
-					return (
-						<li class="author-posts__item">
-							<a href={toLocalePath(`/posts/${entrySlug}`, currentLocale, localeOptions)} data-astro-prefetch="hover">
-								{(entry.data as Record<string, unknown>).title as string}
-							</a>
-							{(entry.data as Record<string, unknown>).published_at && (
-								<time datetime={String((entry.data as Record<string, unknown>).published_at)}>
-									{new Date(String((entry.data as Record<string, unknown>).published_at)).toLocaleDateString(
-										currentLocale.startsWith("id") ? "id-ID" : "en-US",
-										{ year: "numeric", month: "long", day: "numeric" },
-									)}
-								</time>
-							)}
-						</li>
-					);
-				})}
+				{postRows.map((row) => (
+					<li class="author-posts__item">
+						<a href={row.href} data-astro-prefetch="hover">{row.title}</a>
+						{row.publishedAt && <time datetime={row.publishedAt}>{row.dateLabel}</time>}
+					</li>
+				))}
 			</ul>
 		)}
 	</section>

@@ -47,10 +47,6 @@ function WebsiteSocialAdminPage() {
 	);
 }
 
-const pluginAdminExports: PluginAdminExports = {
-	pages: {
-		"/": <WebsiteSocialAdminPage />,
-	},
+export const pages: PluginAdminExports["pages"] = {
+	"/": WebsiteSocialAdminPage,
 };
-
-export default pluginAdminExports;

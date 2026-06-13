@@ -101,10 +101,6 @@ function DocsAdminPage() {
 	);
 }
 
-const pluginAdminExports: PluginAdminExports = {
-	pages: {
-		"/": <DocsAdminPage />,
-	},
+export const pages: PluginAdminExports["pages"] = {
+	"/": DocsAdminPage,
 };
-
-export default pluginAdminExports;

@@ -1,5 +1,9 @@
 # AWCMS-Micro Changelog
 
+## 0.1.40 - 2026-06-13
+
+- Fix plugin admin 404 errors for `awcms-micro-website-social` and `awcms-micro-docs`: both used `export default { pages: { "/": <Component /> } }` (rendered JSX, default export) which EmDash's `virtual:emdash/admin-registry` cannot reach via `import * as admin0` — pages were at `admin0.default.pages` (undefined at `admin0.pages`), causing `usePluginPage()` → null → `SandboxedPluginPage` → POST 404. Fixed to `export const pages: PluginAdminExports["pages"] = { "/": ComponentRef }` (named export, component reference). Author archive pages (`/authors`, `/authors/[slug]`) added to both default templates with TypeScript-in-JSX fix (data pre-processed in Astro frontmatter as `PostRow[]` to avoid esbuild misreading `Record<string, unknown>` generics as JSX). Deployed to production (Version ID: f0c5fbc4-66a8-47be-adf4-66e3f20bb6a2).
+
 ## 0.1.39 - 2026-06-13
 
 - Implement GitHub issues #202, #204, #205: (1) `awcmsmicro-dev/docs/awcms-micro/content-references.md` — documents the EmDash 0.18.0+ content references schema (`_emdash_relations` + `_emdash_content_references`) with ER and data-flow Mermaid diagrams, planned AWCMS-Micro relation types, and implementation checklist; docs/awcms-micro/README.md index updated. (2) Author archive pages added to both default templates (`/authors` and `/authors/[slug]`) using `getEntriesByByline()` (EmDash 0.19.0), bilingual EN/ID strings in messages.ts and all 4 PO catalogs, sitemap.astro updated; all 5 locale tests pass. (3) Issue #205 verified: production Cron Trigger `* * * * *` confirmed live via Cloudflare API, worker.ts and wrangler.jsonc configuration confirmed correct; verification comment posted on GitHub issue.
