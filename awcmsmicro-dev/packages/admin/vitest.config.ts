@@ -10,6 +10,10 @@ export default defineConfig({
 			},
 		}),
 	],
+	optimizeDeps: {
+		// esbuild 0.28.x cannot downlevel Rolldown-generated destructuring to old browser targets.
+		esbuildOptions: { target: "esnext" },
+	},
 	test: {
 		globals: true,
 		include: ["tests/**/*.test.{ts,tsx}"],

@@ -178,6 +178,73 @@ describe("SidebarNav helpers", () => {
 		expect(groups[0]?.items[0]?.icon).toBe(resolveSidebarIcon("book"));
 	});
 
+	it("respects explicit group order over alphabetical", () => {
+		const groups = buildSidebarPluginGroups(
+			{
+				collections: {},
+				plugins: {
+					"awcms-micro-docs": {
+						enabled: true,
+						adminMode: "react",
+						adminPages: [{ path: "/", label: "Docs", icon: "book" }],
+					},
+					"awcms-micro-sikesra": {
+						name: "AWCMS-Micro SIKESRA Plugin",
+						enabled: true,
+						adminMode: "react",
+						adminPages: [{ path: "/", label: "SIKESRA", icon: "shield" }],
+					},
+				},
+				taxonomies: [],
+			},
+			{
+				"awcms-micro-docs": { pages: { "/": {} } },
+				"awcms-micro-sikesra": { pages: { "/": {} } },
+			},
+			["awcms-micro-sikesra", "awcms-micro-docs"],
+		);
+
+		// SIKESRA (S) must precede Docs (D) even though "D" < "S" alphabetically
+		expect(groups.map((g) => g.id)).toEqual([
+			"plugin-awcms-micro-sikesra",
+			"plugin-awcms-micro-docs",
+		]);
+	});
+
+	it("appends unlisted plugins alphabetically after listed ones", () => {
+		const groups = buildSidebarPluginGroups(
+			{
+				collections: {},
+				plugins: {
+					"awcms-micro-sikesra": {
+						enabled: true,
+						adminMode: "blocks",
+						adminPages: [{ path: "/", label: "SIKESRA" }],
+					},
+					"unknown-plugin-b": {
+						enabled: true,
+						adminMode: "blocks",
+						adminPages: [{ path: "/", label: "Beta Tool" }],
+					},
+					"unknown-plugin-a": {
+						enabled: true,
+						adminMode: "blocks",
+						adminPages: [{ path: "/", label: "Alpha Tool" }],
+					},
+				},
+				taxonomies: [],
+			},
+			{},
+			["awcms-micro-sikesra"],
+		);
+
+		expect(groups.map((g) => g.id)).toEqual([
+			"plugin-awcms-micro-sikesra", // listed → position 0
+			"plugin-unknown-plugin-a", // unlisted, alphabetical: "Alpha Tool" < "Beta Tool"
+			"plugin-unknown-plugin-b",
+		]);
+	});
+
 	it("renders a single separator after dashboard", async () => {
 		mockedPluginAdmins = {
 			"awcms-micro-docs": { pages: { "/": () => null } },
@@ -211,11 +278,13 @@ describe("SidebarNav helpers", () => {
 			document.querySelectorAll('[data-sidebar="group-label"]'),
 			(node) => node.textContent,
 		);
-		expect(groupLabels.slice(0, 2)).toEqual(["Alpha Plugin", "Docs"]);
+		// awcms-micro-docs is in SIDEBAR_PLUGIN_GROUP_ORDER (pos=2); alpha-plugin is unlisted (falls to end)
+		expect(groupLabels.slice(0, 2)).toEqual(["Docs", "Alpha Plugin"]);
 		await expect.element(screen.getByRole("link", { name: "Docs" })).toBeInTheDocument();
 		await expect.element(screen.getByText("Alpha Plugin")).toBeInTheDocument();
+		// awcms-micro-docs is config-ordered (pos=2) so it is the first group/summary rendered
 		expect(document.querySelector("summary [data-sidebar='group-label']")?.textContent).toBe(
-			"Alpha Plugin",
+			"Docs",
 		);
 		const sidebarStyles = Array.from(
 			document.querySelectorAll("style"),

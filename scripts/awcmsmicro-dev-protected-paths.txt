@@ -24,6 +24,8 @@ infra/perf-monitor/package.json
 AGENTS.md
 .env
 .env.age
+packages/admin/src/config/sidebar-plugin-order.config.ts
+packages/admin/vitest.config.ts
 packages/admin/src/components/Sidebar.tsx
 packages/admin/src/components/Shell.tsx
 packages/admin/src/components/AdminCommandPalette.tsx

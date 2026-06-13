@@ -36,6 +36,7 @@ import * as React from "react";
 
 import { fetchCommentCounts } from "../lib/api/comments";
 import { useCurrentUser } from "../lib/api/current-user";
+import { SIDEBAR_PLUGIN_GROUP_ORDER } from "../config/sidebar-plugin-order.config.js";
 import { usePluginAdmins } from "../lib/plugin-context";
 import { cn } from "../lib/utils";
 import { BrandIcon } from "./Logo.js";
@@ -268,6 +269,7 @@ export function formatSidebarFooterLabels(
 export function buildSidebarPluginGroups(
 	manifest: SidebarNavProps["manifest"],
 	pluginAdmins: Record<string, { pages?: Record<string, unknown> }>,
+	groupOrder: readonly string[] = SIDEBAR_PLUGIN_GROUP_ORDER,
 ): PluginGroup[] {
 	return Object.entries(manifest.plugins)
 		.filter(([, config]) => config.enabled !== false && (config.adminPages?.length ?? 0) > 0)
@@ -293,11 +295,19 @@ export function buildSidebarPluginGroups(
 			};
 		})
 		.filter((group) => group.items.length > 0)
-		.toSorted(
-			(a, b) =>
+		.toSorted((a, b) => {
+			const pluginIdA = a.id.replace(/^plugin-/, "");
+			const pluginIdB = b.id.replace(/^plugin-/, "");
+			const posA = groupOrder.indexOf(pluginIdA);
+			const posB = groupOrder.indexOf(pluginIdB);
+			const effectivePosA = posA >= 0 ? posA : groupOrder.length;
+			const effectivePosB = posB >= 0 ? posB : groupOrder.length;
+			if (effectivePosA !== effectivePosB) return effectivePosA - effectivePosB;
+			return (
 				a.label.localeCompare(b.label, undefined, { sensitivity: "base" }) ||
-				a.id.localeCompare(b.id),
-		);
+				a.id.localeCompare(b.id)
+			);
+		});
 }
 
 /** Checks if a nav item is active based on the current router path. */

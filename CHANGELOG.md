@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.0 - 2026-06-13
+
+- feat(admin): add config-as-code sidebar plugin group order Introduces `packages/admin/src/config/sidebar-plugin-order.config.ts` with `SIDEBAR_PLUGIN_GROUP_ORDER` — a protected, build-time readonly array that controls the display order of plugin groups in the admin sidebar and command palette. `buildSidebarPluginGroups()` gains an optional third parameter `groupOrder` (defaults to `SIDEBAR_PLUGIN_GROUP_ORDER`). Listed plugins sort by their config index; unlisted plugins fall alphabetically after all listed ones. `AdminCommandPalette` passes the same config so both surfaces stay in sync. Also fixes `optimizeDeps.esbuildOptions.target: "esnext"` in `packages/admin/vitest.config.ts` so browser-mode tests run cleanly under the pinned esbuild 0.28.x toolchain.
 ## 0.1.42 - 2026-06-13
 
 - Fixes CI build failure in `packages/blocks/playground`: adds `build.target: "esnext"` to both `awcmsmicro-dev` and `emdash-latest` Vite configs so esbuild 0.28.x (pinned for GHSA-gv7w-rqvm-qjhr/GHSA-g7r4-m6w7-qqqr) no longer fails to downlevel Rolldown-generated destructuring patterns. The playground is a dev-only tool; modern browsers are assumed. Build verified locally (✓ built in 5.01s).
@@ -142,7 +145,7 @@
 ## Workspace Snapshot - 2026-06-13
 
 - EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
-- Root version: `0.1.42`
+- Root version: `0.2.0`
 
 ### Plugins
 

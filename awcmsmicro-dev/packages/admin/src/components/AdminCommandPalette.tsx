@@ -30,6 +30,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import { apiFetch, type AdminManifest } from "../lib/api/client.js";
 import { useCurrentUser } from "../lib/api/current-user";
+import { SIDEBAR_PLUGIN_GROUP_ORDER } from "../config/sidebar-plugin-order.config.js";
 import { usePluginAdmins } from "../lib/plugin-context";
 import { buildSidebarPluginGroups } from "./Sidebar.js";
 
@@ -143,7 +144,7 @@ export function buildNavItems(
 		},
 	];
 
-	// Add plugin pages immediately after Dashboard, ordered by plugin name.
+	// Add plugin pages immediately after Dashboard, ordered by sidebar config.
 	for (const group of buildSidebarPluginGroups(
 		{
 			collections: manifest.collections,
@@ -151,6 +152,7 @@ export function buildNavItems(
 			taxonomies: [],
 		},
 		pluginAdmins,
+		SIDEBAR_PLUGIN_GROUP_ORDER,
 	)) {
 		for (const page of group.items) {
 			items.push({
