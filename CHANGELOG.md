@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.1.42 - 2026-06-13
+
+- Fixes CI build failure in `packages/blocks/playground`: adds `build.target: "esnext"` to both `awcmsmicro-dev` and `emdash-latest` Vite configs so esbuild 0.28.x (pinned for GHSA-gv7w-rqvm-qjhr/GHSA-g7r4-m6w7-qqqr) no longer fails to downlevel Rolldown-generated destructuring patterns. The playground is a dev-only tool; modern browsers are assumed. Build verified locally (✓ built in 5.01s).
 ## 0.1.41 - 2026-06-13
 
 - Security: fix 8 Dependabot alerts (4 HIGH GHSA-gv7w-rqvm-qjhr + 4 LOW GHSA-g7r4-m6w7-qqqr) by pinning esbuild to `^0.28.1` via pnpm overrides in all four affected workspaces: `awcmsmicro-dev/pnpm-workspace.yaml`, `awcmsmicro-dev/.flue/pnpm-workspace.yaml`, `emdash-latest/pnpm-workspace.yaml`, `emdash-latest/.flue/pnpm-workspace.yaml`. All four lockfiles now resolve esbuild@0.28.1 only (previously resolved 0.25.12 and 0.27.3). Build verified, deployed to production (Version ID: 3fa75a5d-a422-48dd-8d0f-f3416a84a837).
@@ -136,10 +139,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-12
+## Workspace Snapshot - 2026-06-13
 
 - EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
-- Root version: `0.1.38`
+- Root version: `0.1.42`
 
 ### Plugins
 
