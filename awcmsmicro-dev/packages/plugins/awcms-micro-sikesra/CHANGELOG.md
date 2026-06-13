@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-06-13
+
+- Adds client-side search to three admin list pages: audit log (filter by kind, scope, or summary), permissions catalog (filter by slug, label, or scope), and roles list (filter by slug or label). All new UI strings are localized in both `en` and `id`.
+
 ## Unreleased
 
 - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.

@@ -1,4 +1,4 @@
-import { Button, LinkButton } from "@cloudflare/kumo";
+import { Button, Input, LinkButton } from "@cloudflare/kumo";
 import { useLingui } from "@lingui/react";
 import type { PluginAdminExports } from "emdash";
 import * as React from "react";
@@ -634,6 +634,7 @@ function AccessUsersPage() {
 	const copy = getMailketingAdminCopy(i18n.locale);
 
 	const [page, setPage] = React.useState(1);
+	const [searchQuery, setSearchQuery] = React.useState("");
 	const [data, setData] = React.useState<MailketingUserListResponse | null>(null);
 	const [roles, setRoles] = React.useState<MailketingRole[]>([]);
 	const [loading, setLoading] = React.useState(true);
@@ -690,6 +691,15 @@ function AccessUsersPage() {
 		}
 	};
 
+	const lowerUserSearch = searchQuery.toLowerCase();
+	const filteredUsers = searchQuery
+		? (data?.items ?? []).filter(
+				(u) =>
+					(u.name ?? "").toLowerCase().includes(lowerUserSearch) ||
+					u.email.toLowerCase().includes(lowerUserSearch),
+			)
+		: (data?.items ?? []);
+
 	return (
 		<div className="space-y-6">
 			<div className="space-y-1">
@@ -700,6 +710,25 @@ function AccessUsersPage() {
 			</div>
 
 			{error && <ErrorBanner message={error} />}
+
+			{!loading && (data?.items.length ?? 0) > 0 && (
+				<div className="flex items-center gap-3">
+					<div className="flex-1 max-w-sm">
+						<Input
+							type="search"
+							placeholder={copy("mailketing.access.searchUsers")}
+							value={searchQuery}
+							onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+							aria-label={copy("mailketing.access.searchUsersLabel")}
+						/>
+					</div>
+					{searchQuery && (
+						<span className="text-sm text-kumo-subtle">
+							{filteredUsers.length} / {data?.items.length}
+						</span>
+					)}
+				</div>
+			)}
 
 			{loading ? (
 				<p className="text-sm text-kumo-subtle">{copy("mailketing.access.loading")}</p>
@@ -717,7 +746,13 @@ function AccessUsersPage() {
 							</tr>
 						</thead>
 						<tbody>
-							{data?.items.map((user: MailketingUserSummary) => (
+							{filteredUsers.length === 0 && searchQuery ? (
+								<tr>
+									<td colSpan={4} className="py-4 text-center text-sm text-kumo-subtle">
+										{copy("mailketing.access.noUsersMatch")}
+									</td>
+								</tr>
+							) : filteredUsers.map((user: MailketingUserSummary) => (
 								<tr key={user.userId} className="border-b border-kumo-border/50">
 									<td className="py-2 pr-4 text-kumo-foreground">
 										{user.name ?? user.email}
@@ -809,6 +844,7 @@ function AccessRolesPage() {
 	const copy = getMailketingAdminCopy(i18n.locale);
 
 	const [page, setPage] = React.useState(1);
+	const [searchQuery, setSearchQuery] = React.useState("");
 	const [data, setData] = React.useState<MailketingRoleListResponse | null>(null);
 	const [loading, setLoading] = React.useState(true);
 	const [error, setError] = React.useState<string | null>(null);
@@ -869,6 +905,15 @@ function AccessRolesPage() {
 			setError(e instanceof Error ? e.message : String(e));
 		}
 	};
+
+	const lowerRoleSearch = searchQuery.toLowerCase();
+	const filteredRoles = searchQuery
+		? (data?.items ?? []).filter(
+				(r) =>
+					r.label.toLowerCase().includes(lowerRoleSearch) ||
+					r.slug.toLowerCase().includes(lowerRoleSearch),
+			)
+		: (data?.items ?? []);
 
 	return (
 		<div className="space-y-6">
@@ -936,6 +981,25 @@ function AccessRolesPage() {
 				</div>
 			)}
 
+			{!loading && (data?.items.length ?? 0) > 0 && (
+				<div className="flex items-center gap-3">
+					<div className="flex-1 max-w-sm">
+						<Input
+							type="search"
+							placeholder={copy("mailketing.access.searchRoles")}
+							value={searchQuery}
+							onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+							aria-label={copy("mailketing.access.searchRolesLabel")}
+						/>
+					</div>
+					{searchQuery && (
+						<span className="text-sm text-kumo-subtle">
+							{filteredRoles.length} / {data?.items.length}
+						</span>
+					)}
+				</div>
+			)}
+
 			{loading ? (
 				<p className="text-sm text-kumo-subtle">{copy("mailketing.access.loading")}</p>
 			) : data?.items.length === 0 ? (
@@ -952,7 +1016,13 @@ function AccessRolesPage() {
 							</tr>
 						</thead>
 						<tbody>
-							{data?.items.map((role: MailketingRole) => (
+							{filteredRoles.length === 0 && searchQuery ? (
+								<tr>
+									<td colSpan={4} className="py-4 text-center text-sm text-kumo-subtle">
+										{copy("mailketing.access.noRolesMatch")}
+									</td>
+								</tr>
+							) : filteredRoles.map((role: MailketingRole) => (
 								<tr key={role.id} className="border-b border-kumo-border/50">
 									{editId === role.id ? (
 										<>

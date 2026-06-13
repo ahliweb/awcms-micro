@@ -174,6 +174,30 @@ msgstr "Roles"
 msgid "mailketing.access.permissionsTitle"
 msgstr "Permissions"
 
+msgid "mailketing.access.searchUsers"
+msgstr "Search by name or email…"
+
+msgid "mailketing.access.searchUsersLabel"
+msgstr "Search users"
+
+msgid "mailketing.access.noUsersMatch"
+msgstr "No users match your search."
+
+msgid "mailketing.access.searchRoles"
+msgstr "Search by label or slug…"
+
+msgid "mailketing.access.searchRolesLabel"
+msgstr "Search roles"
+
+msgid "mailketing.access.noRolesMatch"
+msgstr "No roles match your search."
+
+msgid "mailketing.common.clearSearch"
+msgstr "Clear search"
+
+msgid "mailketing.common.xOfY"
+msgstr "{count} of {total}"
+
 msgid "mailketing.audit.title"
 msgstr "Audit Log"
 

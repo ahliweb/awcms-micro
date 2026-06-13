@@ -6245,9 +6245,20 @@ function AuditPage() {
 	const { data, error, loading, reload } = usePluginData<AuditListResponse>("audit/list", {
 		limit: 25,
 	});
+	const [kindFilter, setKindFilter] = React.useState("");
 
 	if (loading) return <LoadingState label={copy.loadingAuditLog} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	const lowerKind = kindFilter.toLowerCase();
+	const filteredAudit = kindFilter
+		? (data?.items ?? []).filter(
+				(item) =>
+					item.kind.toLowerCase().includes(lowerKind) ||
+					item.scope.toLowerCase().includes(lowerKind) ||
+					item.summary.toLowerCase().includes(lowerKind),
+			)
+		: (data?.items ?? []);
 
 	return (
 		<PageShell>
@@ -6269,7 +6280,24 @@ function AuditPage() {
 					<EmptyState title={copy.noAuditEvents} description={copy.noAuditEventsDescription} />
 				) : (
 					<div className="space-y-3.5">
-						{data.items.map((item) => {
+						<div className="flex items-center gap-3">
+							<Input
+								type="search"
+								placeholder={copy.filterAuditKind}
+								value={kindFilter}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKindFilter(e.target.value)}
+								aria-label={copy.filterAuditKindLabel}
+								className="max-w-xs"
+							/>
+							{kindFilter && (
+								<span className="text-sm text-kumo-subtle">
+									{filteredAudit.length} / {data.items.length}
+								</span>
+							)}
+						</div>
+						{filteredAudit.length === 0 ? (
+							<EmptyState title={copy.noAuditMatch} description={copy.noAuditEventsDescription} />
+						) : filteredAudit.map((item) => {
 							const scopeColors: Record<string, string> = {
 								registry: "border-s-4 border-s-kumo-brand",
 								documents: "border-s-4 border-s-kumo-success",
@@ -6340,6 +6368,7 @@ function PermissionsPage() {
 	const [saving, setSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [searchPermQuery, setSearchPermQuery] = React.useState("");
 	const [formState, setFormState] = React.useState({
 		slug: "",
 		label: "",
@@ -6367,6 +6396,16 @@ function PermissionsPage() {
 
 	if (loading) return <LoadingState label={copy.loadingPermissions} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	const lowerPermSearch = searchPermQuery.toLowerCase();
+	const filteredPermissions = searchPermQuery
+		? (data?.items ?? []).filter(
+				(item) =>
+					item.slug.toLowerCase().includes(lowerPermSearch) ||
+					item.label.toLowerCase().includes(lowerPermSearch) ||
+					item.scope.toLowerCase().includes(lowerPermSearch),
+			)
+		: (data?.items ?? []);
 
 	return (
 		<PageShell>
@@ -6429,7 +6468,29 @@ function PermissionsPage() {
 						/>
 					) : (
 						<div className="grid gap-3">
-							{data.items.map((item) => (
+							<div className="flex items-center gap-3">
+								<Input
+									type="search"
+									placeholder={copy.searchPermissions}
+									value={searchPermQuery}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setSearchPermQuery(e.target.value)
+									}
+									aria-label={copy.searchPermissionsLabel}
+									className="max-w-xs"
+								/>
+								{searchPermQuery && (
+									<span className="text-sm text-kumo-subtle">
+										{filteredPermissions.length} / {data.items.length}
+									</span>
+								)}
+							</div>
+							{filteredPermissions.length === 0 ? (
+								<EmptyState
+									title={copy.noPermissionsMatch}
+									description={copy.noPermissionsYetDescription}
+								/>
+							) : filteredPermissions.map((item) => (
 								<div
 									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
 									key={item.slug}
@@ -6460,6 +6521,7 @@ function RolesPage() {
 	const [userSaving, setUserSaving] = React.useState(false);
 	const [notice, setNotice] = React.useState<string | null>(null);
 	const [saveError, setSaveError] = React.useState<string | null>(null);
+	const [searchRolesQuery, setSearchRolesQuery] = React.useState("");
 	const [roleState, setRoleState] = React.useState({ slug: "", label: "", description: "" });
 	const [userState, setUserState] = React.useState({ userId: "", roles: "" });
 
@@ -6507,6 +6569,15 @@ function RolesPage() {
 
 	if (loading) return <LoadingState label={copy.loadingRoles} />;
 	if (error) return <ErrorState message={error} onRetry={() => void reload()} />;
+
+	const lowerRolesSearch = searchRolesQuery.toLowerCase();
+	const filteredRoles = searchRolesQuery
+		? (data?.roles ?? []).filter(
+				(item) =>
+					item.slug.toLowerCase().includes(lowerRolesSearch) ||
+					item.label.toLowerCase().includes(lowerRolesSearch),
+			)
+		: (data?.roles ?? []);
 
 	return (
 		<PageShell>
@@ -6582,7 +6653,29 @@ function RolesPage() {
 						<EmptyState title={copy.noRolesYet} description={copy.noRolesYetDescription} />
 					) : (
 						<div className="space-y-3">
-							{data.roles.map((item) => (
+							<div className="flex items-center gap-3">
+								<Input
+									type="search"
+									placeholder={copy.searchRoles}
+									value={searchRolesQuery}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setSearchRolesQuery(e.target.value)
+									}
+									aria-label={copy.searchRolesLabel}
+									className="max-w-xs"
+								/>
+								{searchRolesQuery && (
+									<span className="text-sm text-kumo-subtle">
+										{filteredRoles.length} / {data.roles.length}
+									</span>
+								)}
+							</div>
+							{filteredRoles.length === 0 ? (
+								<EmptyState
+									title={copy.noRolesMatch}
+									description={copy.noRolesYetDescription}
+								/>
+							) : filteredRoles.map((item) => (
 								<div
 									className="rounded-xl border border-kumo-line bg-kumo-base p-4 text-kumo-default"
 									key={item.slug}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 - 2026-06-13
+
+- Adds client-side search to the plugin users list (filters by name or email) and the roles list (filters by label or slug), with a live count display and localized no-match messages in both `en` and `id`.
+
 ## 0.2.0 - 2026-06-10
 
 - Fixes Mailketing API integration: corrects base URL to `api.mailketing.co.id` subdomain, switches authentication from `Authorization: Bearer` header to `api_token` form field, changes content type to `application/x-www-form-urlencoded`, and aligns request field names (`recipient`, `from_email`, `content`) with the Mailketing API spec.

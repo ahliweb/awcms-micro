@@ -1,5 +1,9 @@
 # AWCMS-Micro Changelog
 
+## 0.2.2 - 2026-06-13
+
+- feat(admin): add client-side search to plugin admin list pages and cursor-based "Load More" pagination to form submissions. Forms: search filters the forms list by name or slug; submissions loads additional entries on demand backed by cursor pagination. Mailketing: search filters the plugin users list by name/email and the roles list by label/slug. SIKESRA: search filters the audit log by kind/scope/summary, the permissions catalog by slug/label/scope, and the roles list by slug/label. All new UI strings are localized in both `en` and `id` catalogs.
+
 ## 0.2.1 - 2026-06-13
 
 - fix(admin/test): stub window.Image in MediaPickerModal probe test The "URL input: typing a URL and submitting triggers probe" test was asserting `false` because `probeImageDimensions` uses `new window.Image()` which fires a real HTTP request in headless Playwright Chromium. External URLs like example.com hang past the 3 s `vi.waitFor` timeout, so neither `onSelect` nor the "Could not load image from URL" error message appeared. Fix: wrap the test in a `vi.stubGlobal("Image", FailingImage)` stub that immediately fires `onerror` after a microtask, making the probe always reject deterministically. The test now verifies the error-path rendering reliably (1003/1003 pass).

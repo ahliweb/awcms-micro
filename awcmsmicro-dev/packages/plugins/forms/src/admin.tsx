@@ -19,6 +19,7 @@ import {
 	Envelope,
 	ListBullets,
 	ArrowLeft,
+	MagnifyingGlass,
 } from "@phosphor-icons/react";
 import type { PluginAdminExports } from "emdash";
 import { apiFetch as baseFetch, getErrorMessage, parseApiResponse } from "emdash/plugin-utils";
@@ -182,6 +183,7 @@ function FormsListPage() {
 	const [error, setError] = React.useState<string | null>(null);
 	const [editingForm, setEditingForm] = React.useState<FormItem | null>(null);
 	const [creating, setCreating] = React.useState(false);
+	const [searchQuery, setSearchQuery] = React.useState("");
 
 	const loadForms = React.useCallback(async () => {
 		try {
@@ -259,6 +261,15 @@ function FormsListPage() {
 		);
 	}
 
+	const lowerSearch = searchQuery.toLowerCase();
+	const filteredForms = searchQuery
+		? forms.filter(
+				(f) =>
+					f.name.toLowerCase().includes(lowerSearch) ||
+					f.slug.toLowerCase().includes(lowerSearch),
+			)
+		: forms;
+
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
@@ -283,6 +294,41 @@ function FormsListPage() {
 					}
 				/>
 			) : (
+				<>
+					<div className="flex items-center gap-3">
+						<div className="relative flex-1 max-w-sm">
+							<MagnifyingGlass
+								className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+								aria-hidden="true"
+							/>
+							<Input
+								type="search"
+								placeholder="Search by name or slug…"
+								className="ps-10"
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+								aria-label="Search forms"
+							/>
+						</div>
+						{searchQuery && (
+							<span className="text-sm text-muted-foreground">
+								{filteredForms.length} of {forms.length}
+							</span>
+						)}
+					</div>
+
+				{filteredForms.length === 0 ? (
+					<EmptyState
+						icon={MagnifyingGlass}
+						title="No forms match your search"
+						description="Try a different name or slug."
+						action={
+							<Button variant="outline" onClick={() => setSearchQuery("")}>
+								Clear search
+							</Button>
+						}
+					/>
+				) : (
 				<div className="border rounded-lg overflow-x-auto">
 					<table className="w-full text-sm">
 						<thead>
@@ -296,7 +342,7 @@ function FormsListPage() {
 							</tr>
 						</thead>
 						<tbody>
-							{forms.map((form) => (
+							{filteredForms.map((form) => (
 								<tr key={form.id} className="border-b last:border-0 hover:bg-muted/30">
 									<td className="p-3 font-medium">{form.name}</td>
 									<td className="p-3 text-muted-foreground font-mono text-xs">{form.slug}</td>
@@ -356,7 +402,9 @@ function FormsListPage() {
 					</table>
 				</div>
 			)}
-		</div>
+			</>
+		)}
+	</div>
 	);
 }
 
@@ -855,6 +903,9 @@ function SubmissionsPage() {
 	const [statusFilter, setStatusFilter] = React.useState<string>("");
 	const [loading, setLoading] = React.useState(true);
 	const [subsLoading, setSubsLoading] = React.useState(false);
+	const [loadingMore, setLoadingMore] = React.useState(false);
+	const [cursor, setCursor] = React.useState<string | undefined>(undefined);
+	const [hasMore, setHasMore] = React.useState(false);
 	const [selectedSub, setSelectedSub] = React.useState<SubmissionItem | null>(null);
 
 	React.useEffect(() => {
@@ -878,6 +929,7 @@ function SubmissionsPage() {
 		if (!selectedFormId) return;
 		setSubsLoading(true);
 		setSelectedSub(null);
+		setCursor(undefined);
 		void (async () => {
 			try {
 				const body: Record<string, unknown> = {
@@ -887,14 +939,48 @@ function SubmissionsPage() {
 				if (statusFilter) body.status = statusFilter;
 				const res = await apiFetch("submissions/list", body);
 				if (res.ok) {
-					const data = await parseApiResponse<{ items: SubmissionItem[] }>(res);
+					const data = await parseApiResponse<{
+						items: SubmissionItem[];
+						hasMore: boolean;
+						cursor?: string;
+					}>(res);
 					setSubmissions(data.items);
+					setHasMore(data.hasMore);
+					setCursor(data.cursor);
 				}
 			} finally {
 				setSubsLoading(false);
 			}
 		})();
 	}, [selectedFormId, statusFilter]);
+
+	const handleLoadMore = React.useCallback(() => {
+		if (!selectedFormId || !cursor || loadingMore) return;
+		setLoadingMore(true);
+		void (async () => {
+			try {
+				const body: Record<string, unknown> = {
+					formId: selectedFormId,
+					limit: 50,
+					cursor,
+				};
+				if (statusFilter) body.status = statusFilter;
+				const res = await apiFetch("submissions/list", body);
+				if (res.ok) {
+					const data = await parseApiResponse<{
+						items: SubmissionItem[];
+						hasMore: boolean;
+						cursor?: string;
+					}>(res);
+					setSubmissions((prev) => [...prev, ...data.items]);
+					setHasMore(data.hasMore);
+					setCursor(data.cursor);
+				}
+			} finally {
+				setLoadingMore(false);
+			}
+		})();
+	}, [selectedFormId, cursor, statusFilter, loadingMore]);
 
 	const handleToggleStar = async (sub: SubmissionItem) => {
 		const res = await apiFetch("submissions/update", {
@@ -1145,6 +1231,13 @@ function SubmissionsPage() {
 									})}
 								</tbody>
 							</table>
+						</div>
+					)}
+					{hasMore && !subsLoading && (
+						<div className="flex justify-center pt-2">
+							<Button variant="outline" onClick={handleLoadMore} disabled={loadingMore}>
+								{loadingMore ? "Loading…" : "Load More"}
+							</Button>
 						</div>
 					)}
 				</div>

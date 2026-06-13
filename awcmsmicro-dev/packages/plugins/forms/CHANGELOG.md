@@ -1,5 +1,11 @@
 # @emdash-cms/plugin-forms
 
+## 0.2.5
+
+### Patch Changes
+
+- Adds client-side search to the forms list (filters by name or slug) and cursor-based "Load More" pagination to the submissions table (50 items per page, appends on demand).
+
 ## 0.2.4
 
 ### Patch Changes

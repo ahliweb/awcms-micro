@@ -1,6 +1,6 @@
 {
 	"name": "@awcms-micro/plugin-sikesra",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "AWCMS-Micro SIKESRA plugin for EmDash-compatible projects",
 	"type": "module",
 	"main": "dist/index.js",
