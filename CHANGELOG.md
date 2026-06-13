@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.1 - 2026-06-13
+
+- fix(admin/test): stub window.Image in MediaPickerModal probe test The "URL input: typing a URL and submitting triggers probe" test was asserting `false` because `probeImageDimensions` uses `new window.Image()` which fires a real HTTP request in headless Playwright Chromium. External URLs like example.com hang past the 3 s `vi.waitFor` timeout, so neither `onSelect` nor the "Could not load image from URL" error message appeared. Fix: wrap the test in a `vi.stubGlobal("Image", FailingImage)` stub that immediately fires `onerror` after a microtask, making the probe always reject deterministically. The test now verifies the error-path rendering reliably (1003/1003 pass).
 ## 0.2.0 - 2026-06-13
 
 - feat(admin): add config-as-code sidebar plugin group order Introduces `packages/admin/src/config/sidebar-plugin-order.config.ts` with `SIDEBAR_PLUGIN_GROUP_ORDER` — a protected, build-time readonly array that controls the display order of plugin groups in the admin sidebar and command palette. `buildSidebarPluginGroups()` gains an optional third parameter `groupOrder` (defaults to `SIDEBAR_PLUGIN_GROUP_ORDER`). Listed plugins sort by their config index; unlisted plugins fall alphabetically after all listed ones. `AdminCommandPalette` passes the same config so both surfaces stay in sync. Also fixes `optimizeDeps.esbuildOptions.target: "esnext"` in `packages/admin/vitest.config.ts` so browser-mode tests run cleanly under the pinned esbuild 0.28.x toolchain.
@@ -145,7 +148,7 @@
 ## Workspace Snapshot - 2026-06-13
 
 - EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
-- Root version: `0.2.0`
+- Root version: `0.2.1`
 
 ### Plugins
 

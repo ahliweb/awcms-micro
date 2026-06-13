@@ -32,4 +32,5 @@ packages/admin/src/components/AdminCommandPalette.tsx
 packages/admin/src/components/WelcomeModal.tsx
 packages/admin/tests/components/Sidebar.test.tsx
 packages/admin/tests/components/AdminCommandPalette.test.tsx
+packages/admin/tests/components/MediaPickerModal.test.tsx
 packages/admin/tests/components/WelcomeModal.test.tsx

@@ -197,36 +197,57 @@ describe("MediaPickerModal", () => {
 
 		it("URL input: typing a URL and submitting triggers probe", async () => {
 			const onSelect = vi.fn();
-			const screen = await renderModal({ onSelect });
 
-			const urlInput = screen.getByLabelText("Image URL");
-			const inputEl = urlInput.element() as HTMLInputElement;
-			const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-				HTMLInputElement.prototype,
-				"value",
-			)!.set!;
-			nativeInputValueSetter.call(inputEl, "https://example.com/test.jpg");
-			inputEl.dispatchEvent(new Event("input", { bubbles: true }));
-			inputEl.dispatchEvent(new Event("change", { bubbles: true }));
+			// Stub window.Image so the probe rejects immediately.
+			// Without this stub, new window.Image() fires a real HTTP request in headless
+			// Chromium; external URLs like example.com hang past the 3 s waitFor timeout,
+			// so neither onSelect nor the error message ever appears within the window.
+			class FailingImage {
+				naturalWidth = 0;
+				naturalHeight = 0;
+				onload: (() => void) | null = null;
+				onerror: (() => void) | null = null;
+				set src(_url: string) {
+					// Defer one microtask so onload/onerror are assigned before firing.
+					Promise.resolve().then(() => this.onerror?.());
+				}
+			}
+			vi.stubGlobal("Image", FailingImage);
 
-			// Click URL Insert button
-			await vi.waitFor(() => {
-				const urlInsert = [...document.querySelectorAll("button")].find(
-					(b) => b.textContent?.trim() === "Insert",
-				)!;
-				urlInsert.click();
-			});
+			try {
+				const screen = await renderModal({ onSelect });
 
-			// Image probe will fail in test env, so either onSelect called or error shown
-			await vi.waitFor(
-				() => {
-					const called = onSelect.mock.calls.length > 0;
-					const hasError =
-						document.body.textContent?.includes("Could not load image from URL") ?? false;
-					expect(called || hasError).toBe(true);
-				},
-				{ timeout: 3000 },
-			);
+				const urlInput = screen.getByLabelText("Image URL");
+				const inputEl = urlInput.element() as HTMLInputElement;
+				const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+					HTMLInputElement.prototype,
+					"value",
+				)!.set!;
+				nativeInputValueSetter.call(inputEl, "https://example.com/test.jpg");
+				inputEl.dispatchEvent(new Event("input", { bubbles: true }));
+				inputEl.dispatchEvent(new Event("change", { bubbles: true }));
+
+				// Click URL Insert button
+				await vi.waitFor(() => {
+					const urlInsert = [...document.querySelectorAll("button")].find(
+						(b) => b.textContent?.trim() === "Insert",
+					)!;
+					urlInsert.click();
+				});
+
+				// Probe always fails (stubbed), so the error message must appear.
+				await vi.waitFor(
+					() => {
+						const called = onSelect.mock.calls.length > 0;
+						const hasError =
+							document.body.textContent?.includes("Could not load image from URL") ?? false;
+						expect(called || hasError).toBe(true);
+					},
+					{ timeout: 3000 },
+				);
+			} finally {
+				vi.unstubAllGlobals();
+			}
 		});
 
 		it("hideUrlInput hides the URL input section (for non-image pickers)", async () => {
