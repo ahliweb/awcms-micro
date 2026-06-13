@@ -919,7 +919,7 @@ importers:
         specifier: ^0.13.3
         version: 0.13.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@cloudflare/workers-types@4.20260305.1)(@x402/core@2.8.0)(@x402/evm@2.8.0(typescript@6.0.3))(ai@6.0.172(zod@4.4.1))(react@19.2.4)(rolldown@1.0.3)(vite@8.0.16(@types/node@25.9.1)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(zod@4.4.1)
       hono:
-        specifier: ^4.12.23
+        specifier: ^4.12.21
         version: 4.12.23
       valibot:
         specifier: ^1.4.1
@@ -1706,8 +1706,8 @@ importers:
   packages/marketplace:
     dependencies:
       hono:
-        specifier: ^4.12.7
-        version: 4.12.7
+        specifier: ^4.12.21
+        version: 4.12.23
       jose:
         specifier: ^6.1.3
         version: 6.1.3
@@ -8230,10 +8230,6 @@ packages:
 
   hono@4.12.23:
     resolution: {integrity: sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==}
-    engines: {node: '>=16.9.0'}
-
-  hono@4.12.7:
-    resolution: {integrity: sha512-jq9l1DM0zVIvsm3lv9Nw9nlJnMNPOcAtsbsgiUhWcFzPE99Gvo6yRTlszSLLYacMeQ6quHD6hMfId8crVHvexw==}
     engines: {node: '>=16.9.0'}
 
   hookable@6.0.1:
@@ -18824,8 +18820,6 @@ snapshots:
       hono: 4.12.23
 
   hono@4.12.23: {}
-
-  hono@4.12.7: {}
 
   hookable@6.0.1: {}
 
