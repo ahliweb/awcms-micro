@@ -12,3 +12,8 @@ allowBuilds:
   "node-liblzma": false
   protobufjs: false
   sharp: false
+
+overrides:
+  # GHSA-gv7w-rqvm-qjhr (HIGH) + GHSA-g7r4-m6w7-qqqr (LOW): esbuild < 0.28.1
+  # missing binary integrity check and dev-server arbitrary file read.
+  esbuild: ^0.28.1
