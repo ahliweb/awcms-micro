@@ -1,5 +1,14 @@
 # AWCMS-Micro Parent Repository
 
+> ## 🏛️ Architecture Update (2026-06-17)
+>
+> Penyelarasan dengan fondasi product line AWCMS. Keputusan yang berlaku untuk repo ini:
+> - **AWCMS-Micro tetap EmDash-based di Cloudflare D1 + R2** (plugin/template; no core fork) — posisi tidak berubah.
+> - **SIKESRA produksi dibangun di AWCMS-Mini** (PostgreSQL, RLS wajib, audit kuat); plugin `awcms-micro-sikesra` **di-deprecate/bekukan** — ADR-016. Tracking: #210, #211.
+> - Data `highly_restricted` (kesehatan/personal) bukan beban Micro/D1 → naik ke Mini.
+>
+> Backlog penyelarasan: #210 (deprecate plugin SIKESRA), #211 (update boundaries/PRD).
+
 This repository is the parent maintenance workspace for keeping AWCMS-Micro aligned with the latest EmDash source.
 
 ## Purpose
