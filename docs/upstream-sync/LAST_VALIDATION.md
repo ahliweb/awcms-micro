@@ -3,8 +3,8 @@
 ## Validation Run Metadata
 
 - Date:
-  - Started: 2026-07-02T03:24:47Z
-  - Completed: 2026-07-02T03:28:50Z
+  - Started: 2026-07-02T10:44:28Z
+  - Completed: 2026-07-02T10:46:58Z
 - Operator: unggul
 - Branch: `main`
 - Upstream commit SHA: `90ffe40a1a31193b2f29ef92202e4f339a2487fa`
@@ -44,9 +44,12 @@ Scope: all 66 workspace projects
 [WARN] There are cyclic workspace dependencies: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth-atproto, /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core
 Lockfile is up to date, resolution step is skipped
 Progress: resolved 1, reused 0, downloaded 0, added 0
-Packages: +1677
+Packages: +1660
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Progress: resolved 1677, reused 1654, downloaded 0, added 1677, done
+Progress: resolved 1660, reused 1638, downloaded 3, added 1478
+Progress: resolved 1660, reused 1638, downloaded 5, added 1659
+Progress: resolved 1660, reused 1638, downloaded 6, added 1659
+Progress: resolved 1660, reused 1638, downloaded 6, added 1660, done
 
 devDependencies:
 + @axe-core/playwright 4.12.1
@@ -75,23 +78,24 @@ packages/plugins/awcms-micro-sikesra prepare$ node --run build
 packages/plugins/awcms-micro-docs prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 .../plugins/awcms-micro-email-mailketing prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugins/awcms-micro-gallery prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/plugins/awcms-micro-sikesra prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugins/awcms-micro-docs prepare: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-docs/tsdown.config.ts
+.../plugins/awcms-micro-website-social prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugins/awcms-micro-docs prepare: ℹ entry: src/index.ts, src/admin.tsx
 packages/plugins/awcms-micro-docs prepare: ℹ target: es2023
 packages/plugins/awcms-micro-docs prepare: ℹ tsconfig: tsconfig.json
 packages/plugins/awcms-micro-docs prepare: ℹ Build start
-packages/plugins/awcms-micro-sikesra prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/plugins/awcms-micro-docs prepare: ℹ Cleaning 10 files
 .../plugins/awcms-micro-email-mailketing prepare: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/tsdown.config.ts
 .../plugins/awcms-micro-email-mailketing prepare: ℹ entry: src/index.ts, src/admin.tsx, src/sandbox.ts
 .../plugins/awcms-micro-email-mailketing prepare: ℹ target: es2023
 .../plugins/awcms-micro-email-mailketing prepare: ℹ tsconfig: tsconfig.json
 .../plugins/awcms-micro-email-mailketing prepare: ℹ Build start
-.../plugins/awcms-micro-website-social prepare: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
-.../plugins/awcms-micro-email-mailketing prepare: ℹ Cleaning 8 files
 packages/plugins/awcms-micro-gallery prepare: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts
 packages/plugins/awcms-micro-gallery prepare: ℹ entry: src/index.ts, src/sandbox.ts
 packages/plugins/awcms-micro-gallery prepare: ℹ target: es2023
 packages/plugins/awcms-micro-gallery prepare: ℹ tsconfig: tsconfig.json
+.../plugins/awcms-micro-email-mailketing prepare: ℹ Cleaning 8 files
 packages/plugins/awcms-micro-gallery prepare: ℹ Build start
 packages/plugins/awcms-micro-gallery prepare: ℹ Cleaning 10 files
 packages/plugins/awcms-micro-sikesra prepare: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/tsdown.config.ts
@@ -117,7 +121,7 @@ packages/plugins/awcms-micro-gallery prepare: ℹ dist/sandbox.d.mts.map        
 packages/plugins/awcms-micro-gallery prepare: ℹ dist/index.d.mts                   3.57 kB │ gzip:  1.02 kB
 packages/plugins/awcms-micro-gallery prepare: ℹ dist/sandbox.d.mts                 0.21 kB │ gzip:  0.16 kB
 packages/plugins/awcms-micro-gallery prepare: ℹ 10 files, total: 213.24 kB
-packages/plugins/awcms-micro-gallery prepare: ✔ Build complete in 2136ms
+packages/plugins/awcms-micro-gallery prepare: ✔ Build complete in 2479ms
 packages/plugins/awcms-micro-gallery prepare: Done
 packages/plugins/awcms-micro-docs prepare: ℹ dist/admin.js                  5.05 kB │ gzip: 1.02 kB
 packages/plugins/awcms-micro-docs prepare: ℹ dist/index.js                  0.97 kB │ gzip: 0.45 kB
@@ -130,7 +134,7 @@ packages/plugins/awcms-micro-docs prepare: ℹ dist/admin.d.ts.map            0.
 packages/plugins/awcms-micro-docs prepare: ℹ dist/index.d.ts                1.30 kB │ gzip: 0.51 kB
 packages/plugins/awcms-micro-docs prepare: ℹ dist/admin.d.ts                0.19 kB │ gzip: 0.15 kB
 packages/plugins/awcms-micro-docs prepare: ℹ 10 files, total: 37.57 kB
-packages/plugins/awcms-micro-docs prepare: ✔ Build complete in 2938ms
+packages/plugins/awcms-micro-docs prepare: ✔ Build complete in 2820ms
 .../plugins/awcms-micro-website-social prepare: ℹ dist/admin.js        5.02 kB │ gzip: 1.83 kB
 .../plugins/awcms-micro-website-social prepare: ℹ dist/index.js        1.17 kB │ gzip: 0.47 kB
 .../plugins/awcms-micro-website-social prepare: ℹ dist/admin.js.map    6.88 kB │ gzip: 2.51 kB
@@ -140,13 +144,7 @@ packages/plugins/awcms-micro-docs prepare: ✔ Build complete in 2938ms
 .../plugins/awcms-micro-website-social prepare: ℹ dist/index.d.ts      0.70 kB │ gzip: 0.33 kB
 .../plugins/awcms-micro-website-social prepare: ℹ dist/admin.d.ts      0.19 kB │ gzip: 0.15 kB
 .../plugins/awcms-micro-website-social prepare: ℹ 8 files, total: 15.93 kB
-.../plugins/awcms-micro-website-social prepare: ✔ Build complete in 3090ms
-.../plugins/awcms-micro-website-social prepare: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
-.../plugins/awcms-micro-website-social prepare:   - rolldown-plugin-dts:generate (75%)
-.../plugins/awcms-micro-website-social prepare:   - tsdown:external (25%)
-.../plugins/awcms-micro-website-social prepare: See https://rolldown.rs/options/checks#plugintimings for more details.
-packages/plugins/awcms-micro-docs prepare: Done
-.../plugins/awcms-micro-website-social prepare: Done
+.../plugins/awcms-micro-website-social prepare: ✔ Build complete in 2975ms
 .../plugins/awcms-micro-email-mailketing prepare: ℹ dist/admin.js              54.09 kB │ gzip: 7.63 kB
 .../plugins/awcms-micro-email-mailketing prepare: ℹ dist/index.js               1.78 kB │ gzip: 0.61 kB
 .../plugins/awcms-micro-email-mailketing prepare: ℹ dist/sandbox.js             0.26 kB │ gzip: 0.18 kB
@@ -156,9 +154,11 @@ packages/plugins/awcms-micro-docs prepare: Done
 .../plugins/awcms-micro-email-mailketing prepare: ℹ dist/sandbox.d.ts           0.44 kB │ gzip: 0.27 kB
 .../plugins/awcms-micro-email-mailketing prepare: ℹ dist/admin.d.ts             0.21 kB │ gzip: 0.15 kB
 .../plugins/awcms-micro-email-mailketing prepare: ℹ 8 files, total: 106.61 kB
+.../plugins/awcms-micro-email-mailketing prepare: ✔ Build complete in 3362ms
 .../plugins/awcms-micro-email-mailketing prepare: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/options/checks#plugintimings for more details.
-.../plugins/awcms-micro-email-mailketing prepare: ✔ Build complete in 3525ms
 .../plugins/awcms-micro-email-mailketing prepare: Done
+.../plugins/awcms-micro-website-social prepare: Done
+packages/plugins/awcms-micro-docs prepare: Done
 packages/plugins/awcms-micro-sikesra prepare: ℹ dist/admin.js                           364.00 kB │ gzip: 54.79 kB
 packages/plugins/awcms-micro-sikesra prepare: ℹ dist/index.js                             2.79 kB │ gzip:  0.99 kB
 packages/plugins/awcms-micro-sikesra prepare: ℹ dist/navigation.js                        0.78 kB │ gzip:  0.32 kB
@@ -171,10 +171,10 @@ packages/plugins/awcms-micro-sikesra prepare: ℹ dist/navigation.d.ts          
 packages/plugins/awcms-micro-sikesra prepare: ℹ dist/admin.d.ts                           3.20 kB │ gzip:  1.04 kB
 packages/plugins/awcms-micro-sikesra prepare: ℹ dist/sandbox.d.ts                         2.51 kB │ gzip:  0.53 kB
 packages/plugins/awcms-micro-sikesra prepare: ℹ 11 files, total: 814.19 kB
-packages/plugins/awcms-micro-sikesra prepare: ✔ Build complete in 3779ms
 packages/plugins/awcms-micro-sikesra prepare: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/options/checks#plugintimings for more details.
+packages/plugins/awcms-micro-sikesra prepare: ✔ Build complete in 3714ms
 packages/plugins/awcms-micro-sikesra prepare: Done
-Done in 14s using pnpm v11.5.1
+Done in 16s using pnpm v11.5.1
 $ pnpm --filter emdash build
 ==> pnpm-build-emdash
 $ tsdown
@@ -416,7 +416,7 @@ $ tsdown
 ℹ dist/import-Bb1T9WJS.mjs                                                       48.70 kB │ gzip: 11.84 kB
 ℹ dist/astro/middleware/auth.mjs.map                                             44.92 kB │ gzip: 12.45 kB
 ℹ dist/taxonomies-ckPjz-6d.mjs.map                                               40.89 kB │ gzip: 11.23 kB
-ℹ dist/index-BQ3jEtYy.d.mts.map                                                  40.09 kB │ gzip: 11.04 kB
+ℹ dist/index-X8Kp2c_z.d.mts.map                                                  40.09 kB │ gzip: 11.04 kB
 ℹ dist/byline-DEKSVPTy.mjs                                                       38.21 kB │ gzip: 10.24 kB
 ℹ dist/content-RmfHoWqK.mjs                                                      37.26 kB │ gzip:  9.09 kB
 ℹ dist/taxonomies-DChKcVxf.mjs.map                                               36.46 kB │ gzip:  8.73 kB
@@ -510,7 +510,7 @@ $ tsdown
 ℹ dist/transport-_2nBz7e9.mjs.map                                                 9.12 kB │ gzip:  3.18 kB
 ℹ dist/resolve-C7I0qiR0.mjs.map                                                   9.12 kB │ gzip:  3.20 kB
 ℹ dist/astro/routes/api/import/wordpress/rewrite-url-helpers.mjs.map              9.07 kB │ gzip:  3.12 kB
-ℹ dist/byline-fields-xUtsKKF1.d.mts.map                                           9.02 kB │ gzip:  1.55 kB
+ℹ dist/byline-fields-DCKy6OTw.d.mts.map                                           9.02 kB │ gzip:  1.56 kB
 ℹ dist/astro/routes/api/setup/dev-bypass.mjs.map                                  8.99 kB │ gzip:  3.39 kB
 ℹ dist/byline-fields-DaMKzkhO.mjs.map                                             8.96 kB │ gzip:  2.15 kB
 ℹ dist/patterns-BKmjvM7K.mjs.map                                                  8.92 kB │ gzip:  3.02 kB
@@ -823,7 +823,7 @@ $ tsdown
 ℹ dist/astro/routes/api/import/wordpress/media.d.mts.map                          0.60 kB │ gzip:  0.31 kB
 ℹ dist/media/image-endpoint.d.mts.map                                             0.60 kB │ gzip:  0.32 kB
 ℹ dist/types-BkZ8DUEI.d.mts.map                                                   0.59 kB │ gzip:  0.31 kB
-ℹ dist/version-Bs6hVNug.mjs.map                                                   0.59 kB │ gzip:  0.33 kB
+ℹ dist/version-R9OspWlx.mjs.map                                                   0.59 kB │ gzip:  0.33 kB
 ℹ dist/request-context.d.mts.map                                                  0.59 kB │ gzip:  0.32 kB
 ℹ dist/escape-Bjio4ZsM.mjs.map                                                    0.58 kB │ gzip:  0.34 kB
 ℹ dist/mode-BB0F8xTC.mjs                                                          0.58 kB │ gzip:  0.36 kB
@@ -976,7 +976,7 @@ $ tsdown
 ℹ dist/astro/routes/api/auth/signup/request.d.mts.map                             0.17 kB │ gzip:  0.15 kB
 ℹ dist/astro/routes/api/menus/_name_/reorder.d.mts.map                            0.17 kB │ gzip:  0.15 kB
 ℹ dist/astro/routes/api/schema/orphans/_slug_.d.mts.map                           0.17 kB │ gzip:  0.15 kB
-ℹ dist/version-Bs6hVNug.mjs                                                       0.17 kB │ gzip:  0.16 kB
+ℹ dist/version-R9OspWlx.mjs                                                       0.17 kB │ gzip:  0.16 kB
 ℹ dist/astro/middleware/redirect.d.mts.map                                        0.17 kB │ gzip:  0.15 kB
 ℹ dist/astro/routes/api/oauth/token/refresh.d.mts.map                             0.17 kB │ gzip:  0.15 kB
 ℹ dist/astro/routes/api/auth/passkey/verify.d.mts.map                             0.17 kB │ gzip:  0.15 kB
@@ -1229,8 +1229,8 @@ $ tsdown
 ℹ dist/astro/routes/robots.txt.d.mts                                              0.22 kB │ gzip:  0.17 kB
 ℹ dist/astro/routes/api/auth/mode.d.mts                                           0.22 kB │ gzip:  0.17 kB
 ℹ dist/cli/index.d.mts                                                            0.01 kB │ gzip:  0.03 kB
-ℹ dist/index-BQ3jEtYy.d.mts                                                     179.53 kB │ gzip: 49.48 kB
-ℹ dist/byline-fields-xUtsKKF1.d.mts                                              82.12 kB │ gzip:  9.56 kB
+ℹ dist/index-X8Kp2c_z.d.mts                                                     179.53 kB │ gzip: 49.48 kB
+ℹ dist/byline-fields-DCKy6OTw.d.mts                                              82.12 kB │ gzip:  9.56 kB
 ℹ dist/types-DKwtts2d.d.mts                                                      41.82 kB │ gzip: 11.01 kB
 ℹ dist/types-xIfVRNLp.d.mts                                                      14.69 kB │ gzip:  3.18 kB
 ℹ dist/validate-DXGa7rZc.d.mts                                                    9.84 kB │ gzip:  3.16 kB
@@ -1251,10 +1251,10 @@ $ tsdown
 ℹ 1063 files, total: 7894.58 kB
 [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
   - rolldown-plugin-dts:generate (55%)
-  - rolldown-plugin-dts:resolver (34%)
+  - rolldown-plugin-dts:resolver (32%)
 See https://rolldown.rs/options/checks#plugintimings for more details.
 
-✔ Build complete in 6611ms
+✔ Build complete in 6222ms
 $ pnpm --filter @emdash-cms/registry-lexicons build
 ==> pnpm-build-registry-lexicons
 $ pnpm run build:lexicons && pnpm run build:types
@@ -1318,44 +1318,44 @@ $ tsdown
 ℹ dist/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.d.ts       1.25 kB │ gzip: 0.58 kB
 ℹ dist/generated/types/com/emdashcms/experimental/aggregator/getPackage.d.ts             1.20 kB │ gzip: 0.57 kB
 ℹ 49 files, total: 169.12 kB
-✔ Build complete in 653ms
+✔ Build complete in 663ms
 $ pnpm build
 ==> pnpm-build-workspace
 $ pnpm run --filter {./packages/**} build
 Scope: 34 of 66 workspace projects
-packages/auth build$ tsdown
 packages/blocks build$ tsdown
+packages/auth build$ tsdown
 packages/contentful-to-portable-text build$ tsdown src/index.ts --format esm --dts --clean
 packages/create-emdash build$ tsdown
-packages/create-emdash build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
-packages/auth build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/blocks build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/contentful-to-portable-text build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/auth build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/create-emdash build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/contentful-to-portable-text build: ℹ entry: src/index.ts
 packages/contentful-to-portable-text build: ℹ tsconfig: tsconfig.json
 packages/contentful-to-portable-text build: ℹ Build start
 packages/contentful-to-portable-text build: ℹ Cleaning 4 files
+packages/auth build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth/tsdown.config.ts
+packages/auth build: ℹ entry: src/index.ts, src/passkey/index.ts, src/adapters/kysely.ts, src/oauth/providers/github.ts, src/oauth/providers/google.ts
+packages/auth build: ℹ tsconfig: tsconfig.json
+packages/auth build: ℹ Build start
 packages/create-emdash build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash/tsdown.config.ts
 packages/create-emdash build: ℹ entry: src/index.ts
 packages/create-emdash build: ℹ tsconfig: tsconfig.json
 packages/create-emdash build: ℹ Build start
+packages/auth build: ℹ Cleaning 32 files
 packages/create-emdash build: ℹ Cleaning 3 files
 packages/blocks build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks/tsdown.config.ts
-packages/auth build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth/tsdown.config.ts
 packages/blocks build: ℹ entry: src/index.ts, src/server.ts
 packages/blocks build: ℹ tsconfig: tsconfig.json
-packages/auth build: ℹ entry: src/index.ts, src/passkey/index.ts, src/adapters/kysely.ts, src/oauth/providers/github.ts, src/oauth/providers/google.ts
-packages/auth build: ℹ tsconfig: tsconfig.json
 packages/blocks build: ℹ Build start
-packages/auth build: ℹ Build start
 packages/blocks build: ℹ Cleaning 10 files
-packages/auth build: ℹ Cleaning 32 files
 packages/contentful-to-portable-text build: ℹ dist/index.mjs        15.95 kB │ gzip: 4.30 kB
 packages/contentful-to-portable-text build: ℹ dist/index.mjs.map    39.25 kB │ gzip: 9.30 kB
 packages/contentful-to-portable-text build: ℹ dist/index.d.mts.map   0.66 kB │ gzip: 0.33 kB
 packages/contentful-to-portable-text build: ℹ dist/index.d.mts       2.15 kB │ gzip: 0.88 kB
 packages/contentful-to-portable-text build: ℹ 4 files, total: 58.01 kB
-packages/contentful-to-portable-text build: ✔ Build complete in 574ms
+packages/contentful-to-portable-text build: ✔ Build complete in 627ms
 packages/contentful-to-portable-text build: Done
 packages/gutenberg-to-portable-text build$ tsdown src/index.ts --format esm --dts --clean
 packages/gutenberg-to-portable-text build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -1368,7 +1368,7 @@ packages/create-emdash build: ℹ dist/index.mjs      20.49 kB │ gzip:  6.60 k
 packages/create-emdash build: ℹ dist/index.mjs.map  39.98 kB │ gzip: 12.21 kB
 packages/create-emdash build: ℹ dist/index.d.mts     0.01 kB │ gzip:  0.03 kB
 packages/create-emdash build: ℹ 3 files, total: 60.48 kB
-packages/create-emdash build: ✔ Build complete in 788ms
+packages/create-emdash build: ✔ Build complete in 933ms
 packages/create-emdash build: Done
 packages/plugin-types build$ tsdown
 packages/plugin-types build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -1378,21 +1378,6 @@ packages/plugin-types build: ℹ target: es2023
 packages/plugin-types build: ℹ tsconfig: tsconfig.json
 packages/plugin-types build: ℹ Build start
 packages/plugin-types build: ℹ Cleaning 4 files
-packages/plugin-types build: ℹ dist/index.js         7.69 kB │ gzip: 2.88 kB
-packages/plugin-types build: ℹ dist/index.js.map    21.67 kB │ gzip: 7.13 kB
-packages/plugin-types build: ℹ dist/index.d.ts.map   1.79 kB │ gzip: 0.72 kB
-packages/plugin-types build: ℹ dist/index.d.ts      13.70 kB │ gzip: 4.95 kB
-packages/plugin-types build: ℹ 4 files, total: 44.85 kB
-packages/plugin-types build: ✔ Build complete in 428ms
-packages/plugin-types build: Done
-packages/registry-lexicons build$ pnpm run build:lexicons && pnpm run build:types
-packages/gutenberg-to-portable-text build: ℹ dist/index.mjs           43.04 kB │ gzip:  9.98 kB
-packages/gutenberg-to-portable-text build: ℹ dist/index.mjs.map       92.72 kB │ gzip: 20.21 kB
-packages/gutenberg-to-portable-text build: ℹ dist/index.d.mts.map      3.63 kB │ gzip:  1.02 kB
-packages/gutenberg-to-portable-text build: ℹ dist/chunk-DQk6qfdC.mjs   0.38 kB │ gzip:  0.26 kB
-packages/gutenberg-to-portable-text build: ℹ dist/index.d.mts         11.56 kB │ gzip:  2.98 kB
-packages/gutenberg-to-portable-text build: ℹ 5 files, total: 151.34 kB
-packages/gutenberg-to-portable-text build: ✔ Build complete in 802ms
 packages/auth build: ℹ dist/index.mjs                         26.94 kB │ gzip:  6.91 kB
 packages/auth build: ℹ dist/adapters/kysely.mjs               14.12 kB │ gzip:  3.19 kB
 packages/auth build: ℹ dist/oauth/providers/github.mjs         1.64 kB │ gzip:  0.81 kB
@@ -1422,11 +1407,26 @@ packages/auth build: ℹ dist/types-DZ0waGOT.d.mts               6.77 kB │ gzi
 packages/auth build: ℹ dist/authenticate-Da9jec28.d.mts        5.21 kB │ gzip:  1.49 kB
 packages/auth build: ℹ dist/types-Bu4irX9A.d.mts               0.76 kB │ gzip:  0.38 kB
 packages/auth build: ℹ 28 files, total: 245.46 kB
-packages/auth build: ✔ Build complete in 1480ms
-packages/gutenberg-to-portable-text build: Done
-packages/x402 build$ tsdown
+packages/auth build: ✔ Build complete in 1551ms
+packages/plugin-types build: ℹ dist/index.js         7.69 kB │ gzip: 2.88 kB
+packages/plugin-types build: ℹ dist/index.js.map    21.67 kB │ gzip: 7.13 kB
+packages/plugin-types build: ℹ dist/index.d.ts.map   1.79 kB │ gzip: 0.72 kB
+packages/plugin-types build: ℹ dist/index.d.ts      13.70 kB │ gzip: 4.95 kB
+packages/plugin-types build: ℹ 4 files, total: 44.85 kB
+packages/plugin-types build: ✔ Build complete in 471ms
 packages/auth build: Done
+packages/registry-lexicons build$ pnpm run build:lexicons && pnpm run build:types
+packages/plugin-types build: Done
+packages/x402 build$ tsdown
 packages/x402 build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/gutenberg-to-portable-text build: ℹ dist/index.mjs           43.04 kB │ gzip:  9.98 kB
+packages/gutenberg-to-portable-text build: ℹ dist/index.mjs.map       92.72 kB │ gzip: 20.21 kB
+packages/gutenberg-to-portable-text build: ℹ dist/index.d.mts.map      3.63 kB │ gzip:  1.02 kB
+packages/gutenberg-to-portable-text build: ℹ dist/chunk-DQk6qfdC.mjs   0.38 kB │ gzip:  0.26 kB
+packages/gutenberg-to-portable-text build: ℹ dist/index.d.mts         11.56 kB │ gzip:  2.98 kB
+packages/gutenberg-to-portable-text build: ℹ 5 files, total: 151.34 kB
+packages/gutenberg-to-portable-text build: ✔ Build complete in 954ms
+packages/gutenberg-to-portable-text build: Done
 packages/x402 build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402/tsdown.config.ts
 packages/x402 build: ℹ entry: src/index.ts, src/middleware.ts
 packages/x402 build: ℹ tsconfig: tsconfig.json
@@ -1434,7 +1434,6 @@ packages/x402 build: ℹ Build start
 packages/x402 build: ℹ Cleaning 10 files
 packages/registry-lexicons build: $ node scripts/copy-lexicons.mjs
 packages/registry-lexicons build: using in-package lexicon copy at /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/lexicons/com/emdashcms/experimental (no source at /home/data/dev_react/awcms-micro/awcmsmicro-dev/lexicons/com/emdashcms/experimental)
-packages/registry-lexicons build: $ tsdown
 packages/blocks build: ℹ dist/index.js                      31.73 kB │ gzip:  7.17 kB
 packages/blocks build: ℹ dist/server.js                      0.14 kB │ gzip:  0.11 kB
 packages/blocks build: ℹ dist/validation-Dq-a7CXm.js.map    79.81 kB │ gzip: 10.78 kB
@@ -1446,8 +1445,9 @@ packages/blocks build: ℹ dist/index.d.ts                     2.83 kB │ gzip:
 packages/blocks build: ℹ dist/server.d.ts                    1.22 kB │ gzip:  0.45 kB
 packages/blocks build: ℹ dist/validation-5vL6669b.d.ts      15.63 kB │ gzip:  3.89 kB
 packages/blocks build: ℹ 10 files, total: 240.44 kB
-packages/blocks build: ✔ Build complete in 2164ms
+packages/blocks build: ✔ Build complete in 2020ms
 packages/blocks build: Done
+packages/registry-lexicons build: $ tsdown
 packages/registry-lexicons build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/registry-lexicons build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons/tsdown.config.ts
 packages/registry-lexicons build: ℹ entry: src/index.ts, src/generated/types/com/emdashcms/experimental/aggregator/defs.ts, src/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.ts, src/generated/types/com/emdashcms/experimental/aggregator/getPackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/listReleases.ts, src/generated/types/com/emdashcms/experimental/aggregator/resolvePackage.ts, src/generated/types/com/emdashcms/experimental/aggregator/searchPackages.ts, src/generated/types/com/emdashcms/experimental/package/profile.ts, src/generated/types/com/emdashcms/experimental/package/release.ts, src/generated/types/com/emdashcms/experimental/package/releaseExtension.ts, src/generated/types/com/emdashcms/experimental/publisher/profile.ts, src/generated/types/com/emdashcms/experimental/publisher/verification.ts
@@ -1466,7 +1466,7 @@ packages/x402 build: ℹ dist/middleware.d.mts.map      0.12 kB │ gzip: 0.12 k
 packages/x402 build: ℹ dist/index.d.mts               4.73 kB │ gzip: 1.83 kB
 packages/x402 build: ℹ dist/middleware.d.mts          0.38 kB │ gzip: 0.26 kB
 packages/x402 build: ℹ 10 files, total: 47.75 kB
-packages/x402 build: ✔ Build complete in 1122ms
+packages/x402 build: ✔ Build complete in 1147ms
 packages/x402 build: Done
 packages/registry-lexicons build: ℹ dist/generated/types/com/emdashcms/experimental/package/releaseExtension.js            8.10 kB │ gzip: 1.10 kB
 packages/registry-lexicons build: ℹ dist/generated/types/com/emdashcms/experimental/package/profile.js                     4.45 kB │ gzip: 0.78 kB
@@ -1518,7 +1518,7 @@ packages/registry-lexicons build: ℹ dist/generated/types/com/emdashcms/experim
 packages/registry-lexicons build: ℹ dist/generated/types/com/emdashcms/experimental/aggregator/getLatestRelease.d.ts       1.25 kB │ gzip: 0.58 kB
 packages/registry-lexicons build: ℹ dist/generated/types/com/emdashcms/experimental/aggregator/getPackage.d.ts             1.20 kB │ gzip: 0.57 kB
 packages/registry-lexicons build: ℹ 49 files, total: 169.12 kB
-packages/registry-lexicons build: ✔ Build complete in 684ms
+packages/registry-lexicons build: ✔ Build complete in 711ms
 packages/registry-lexicons build: Done
 packages/blocks/playground build$ vite build
 packages/registry-client build$ tsdown
@@ -1529,8 +1529,13 @@ packages/registry-client build: ℹ target: node22
 packages/registry-client build: ℹ tsconfig: tsconfig.json
 packages/registry-client build: ℹ Build start
 packages/registry-client build: ℹ Cleaning 30 files
-packages/blocks/playground build: vite v6.4.3 building for production...
-packages/blocks/playground build: transforming...
+packages/blocks/playground build: 5:44:58 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+packages/blocks/playground build: `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
+packages/blocks/playground build: [vite:react-babel] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance. More information at https://vite.dev/rolldown
+packages/blocks/playground build: vite v8.0.16 building client environment for production...
+packages/blocks/playground build: [2K
+packages/blocks/playground build: transforming...✓ 5238 modules transformed.
+packages/blocks/playground build: rendering chunks...
 packages/registry-client build: ℹ dist/discovery/index.js           6.51 kB │ gzip:  2.58 kB
 packages/registry-client build: ℹ dist/env/index.js                 5.11 kB │ gzip:  2.05 kB
 packages/registry-client build: ℹ dist/publishing/index.js          5.04 kB │ gzip:  1.73 kB
@@ -1558,26 +1563,25 @@ packages/registry-client build: ℹ dist/credentials/index.d.ts       1.13 kB �
 packages/registry-client build: ℹ dist/types-DNGNVV4Q.d.ts          3.66 kB │ gzip:  1.65 kB
 packages/registry-client build: ℹ dist/memory-Ci3gbSC-.d.ts         1.94 kB │ gzip:  0.60 kB
 packages/registry-client build: ℹ 26 files, total: 224.38 kB
-packages/registry-client build: ✔ Build complete in 826ms
+packages/registry-client build: ✔ Build complete in 927ms
 packages/registry-client build: Done
-packages/blocks/playground build: ✓ 5242 modules transformed.
-packages/blocks/playground build: rendering chunks...
 packages/blocks/playground build: computing gzip size...
-packages/blocks/playground build: dist/index.html                     0.40 kB │ gzip:   0.28 kB
-packages/blocks/playground build: dist/assets/index-DelOjJH_.css    139.75 kB │ gzip:  22.49 kB
-packages/blocks/playground build: dist/assets/index-D-SmLJ8w.js   1,235.55 kB │ gzip: 397.30 kB
-packages/blocks/playground build: ✓ built in 5.48s
+packages/blocks/playground build: dist/index.html                     0.39 kB │ gzip:   0.27 kB
+packages/blocks/playground build: dist/assets/index-CnehOzKc.css    139.31 kB │ gzip:  22.51 kB
+packages/blocks/playground build: dist/assets/index-BTgSgvhZ.js   1,238.78 kB │ gzip: 397.62 kB
+packages/blocks/playground build: [plugin builtin:vite-reporter]
 packages/blocks/playground build: (!) Some chunks are larger than 500 kB after minification. Consider:
 packages/blocks/playground build: - Using dynamic import() to code-split the application
-packages/blocks/playground build: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+packages/blocks/playground build: - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
 packages/blocks/playground build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+packages/blocks/playground build: ✓ built in 879ms
 packages/blocks/playground build: Done
 packages/admin build$ node --run locale:compile && tsdown && node --run locale:copy && npx @tailwindcss/cli -i src/styles.css -o dist/styles.css --minify
 packages/plugin-cli build$ node --run gen-schema && tsdown
 packages/plugin-cli build: Wrote /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli/schemas/emdash-plugin.schema.json
-packages/admin build: Compiling message catalogs…
 packages/plugin-cli build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugin-cli build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli/tsdown.config.ts
+packages/admin build: Compiling message catalogs…
 packages/plugin-cli build: ℹ entry: src/index.ts
 packages/plugin-cli build: ℹ target: node22
 packages/plugin-cli build: ℹ tsconfig: tsconfig.json
@@ -1586,7 +1590,7 @@ packages/plugin-cli build: ℹ target: node22
 packages/plugin-cli build: ℹ tsconfig: tsconfig.json
 packages/plugin-cli build: ℹ Build start
 packages/plugin-cli build: ℹ Cleaning 5 files
-packages/admin build: Done in 626ms
+packages/admin build: Done in 596ms
 packages/admin build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/admin build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tsdown.config.ts
 packages/admin build: ℹ entry: src/index.ts, src/locales/index.ts
@@ -1596,13 +1600,13 @@ packages/admin build: ℹ Cleaning 98 files
 packages/plugin-cli build: ℹ Granting execute permission to dist/index.mjs
 packages/plugin-cli build: ℹ dist/index.mjs  268.05 kB │ gzip: 82.42 kB
 packages/plugin-cli build: ℹ 1 files, total: 268.05 kB
-packages/plugin-cli build: ✔ Build complete in 1227ms
+packages/plugin-cli build: ✔ Build complete in 1198ms
 packages/plugin-cli build: ℹ dist/api.mjs        105.38 kB │ gzip: 32.65 kB
 packages/plugin-cli build: ℹ dist/api.mjs.map    219.48 kB │ gzip: 59.08 kB
 packages/plugin-cli build: ℹ dist/api.d.mts.map    3.72 kB │ gzip:  1.30 kB
 packages/plugin-cli build: ℹ dist/api.d.mts       18.09 kB │ gzip:  5.83 kB
 packages/plugin-cli build: ℹ 4 files, total: 346.67 kB
-packages/plugin-cli build: ✔ Build complete in 1247ms
+packages/plugin-cli build: ✔ Build complete in 1213ms
 packages/plugin-cli build: Done
 packages/admin build: ℹ dist/index.js                                 1308.91 kB
 packages/admin build: ℹ dist/locales/index.js                            0.42 kB │ gzip:  0.20 kB
@@ -1658,15 +1662,14 @@ packages/admin build: ℹ dist/config-DpQrGzsu.d.ts.map                    0.70 
 packages/admin build: ℹ dist/index.d.ts                                132.61 kB │ gzip: 25.74 kB
 packages/admin build: ℹ dist/locales/index.d.ts                          0.47 kB │ gzip:  0.23 kB
 packages/admin build: ℹ dist/config-DpQrGzsu.d.ts                        2.97 kB │ gzip:  1.25 kB
-packages/admin build: ℹ 54 files, total: 7633.68 kB
+packages/admin build: ℹ 54 files, total: 7633.69 kB
+packages/admin build: ✔ Build complete in 4955ms
 packages/admin build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
-packages/admin build:   - rolldown-plugin-dts:generate (55%)
-packages/admin build:   - tsdown:external (22%)
-packages/admin build:   - lingui-macro (19%)
+packages/admin build:   - rolldown-plugin-dts:generate (60%)
+packages/admin build:   - tsdown:external (24%)
 packages/admin build: See https://rolldown.rs/options/checks#plugintimings for more details.
-packages/admin build: ✔ Build complete in 4739ms
 packages/admin build: ≈ tailwindcss v4.3.1
-packages/admin build: Done in 328ms
+packages/admin build: Done in 316ms
 packages/admin build: Done
 packages/core build$ tsdown
 packages/core build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -1913,16 +1916,17 @@ packages/core build: ℹ dist/content-RmfHoWqK.mjs                              
 packages/core build: ℹ dist/taxonomies-DChKcVxf.mjs.map                                               36.46 kB │ gzip:  8.73 kB
 packages/core build: ℹ dist/validate-CRkcYZAR.mjs.map                                                 35.48 kB │ gzip:  7.73 kB
 packages/core build: ℹ dist/byline-registry-BOjqDOim.mjs.map                                          33.30 kB │ gzip:  9.67 kB
-packages/core build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
-packages/core build:   - rolldown-plugin-dts:generate (67%)
-packages/core build:   - rolldown-plugin-dts:resolver (18%)
-packages/core build: See https://rolldown.rs/options/checks#plugintimings for more details.
 packages/core build: ℹ dist/client/index.mjs.map                                                      33.25 kB │ gzip:  7.97 kB
 packages/core build: ℹ dist/redirects-9218MmYl.mjs.map                                                33.20 kB │ gzip:  8.44 kB
 packages/core build: ℹ dist/apply-pGLLd675.mjs                                                        32.70 kB │ gzip:  8.28 kB
 packages/core build: ℹ dist/page/index.mjs.map                                                        31.64 kB │ gzip:  8.67 kB
 packages/core build: ℹ dist/query-B0M-9LYR.mjs                                                        31.35 kB │ gzip:  9.66 kB
 packages/core build: ℹ dist/loader-4K37qA-y.mjs                                                       31.26 kB │ gzip:  9.60 kB
+packages/core build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugins. Here is a breakdown:
+packages/core build:   - rolldown-plugin-dts:generate (37%)
+packages/core build:   - rolldown-plugin-dts:resolver (33%)
+packages/core build:   - rolldown-plugin-dts:fake-js (23%)
+packages/core build: See https://rolldown.rs/options/checks#plugintimings for more details.
 packages/core build: ℹ dist/context-CzUU_WzL.mjs                                                      30.33 kB │ gzip:  8.11 kB
 packages/core build: ℹ dist/device-flow-DENDCQ9F.mjs.map                                              29.83 kB │ gzip:  7.18 kB
 packages/core build: ℹ dist/registry-DP-iEtdR.mjs                                                     28.18 kB │ gzip:  7.17 kB
@@ -2005,7 +2009,7 @@ packages/core build: ℹ dist/manifest-schema-kPGX7VS-.mjs                      
 packages/core build: ℹ dist/transport-_2nBz7e9.mjs.map                                                 9.12 kB │ gzip:  3.18 kB
 packages/core build: ℹ dist/resolve-C7I0qiR0.mjs.map                                                   9.12 kB │ gzip:  3.20 kB
 packages/core build: ℹ dist/astro/routes/api/import/wordpress/rewrite-url-helpers.mjs.map              9.07 kB │ gzip:  3.12 kB
-packages/core build: ℹ dist/byline-fields-BvxS7ih3.d.mts.map                                           9.02 kB │ gzip:  1.55 kB
+packages/core build: ℹ dist/byline-fields-Ce70gUP6.d.mts.map                                           9.02 kB │ gzip:  1.56 kB
 packages/core build: ℹ dist/astro/routes/api/setup/dev-bypass.mjs.map                                  8.99 kB │ gzip:  3.39 kB
 packages/core build: ℹ dist/byline-fields-DaMKzkhO.mjs.map                                             8.96 kB │ gzip:  2.15 kB
 packages/core build: ℹ dist/patterns-BKmjvM7K.mjs.map                                                  8.92 kB │ gzip:  3.02 kB
@@ -2318,7 +2322,7 @@ packages/core build: ℹ dist/storage/local.d.mts.map                           
 packages/core build: ℹ dist/astro/routes/api/import/wordpress/media.d.mts.map                          0.60 kB │ gzip:  0.31 kB
 packages/core build: ℹ dist/media/image-endpoint.d.mts.map                                             0.60 kB │ gzip:  0.32 kB
 packages/core build: ℹ dist/types-BkZ8DUEI.d.mts.map                                                   0.59 kB │ gzip:  0.31 kB
-packages/core build: ℹ dist/version-Bs6hVNug.mjs.map                                                   0.59 kB │ gzip:  0.33 kB
+packages/core build: ℹ dist/version-R9OspWlx.mjs.map                                                   0.59 kB │ gzip:  0.33 kB
 packages/core build: ℹ dist/request-context.d.mts.map                                                  0.59 kB │ gzip:  0.32 kB
 packages/core build: ℹ dist/escape-Bjio4ZsM.mjs.map                                                    0.58 kB │ gzip:  0.34 kB
 packages/core build: ℹ dist/mode-BB0F8xTC.mjs                                                          0.58 kB │ gzip:  0.36 kB
@@ -2471,7 +2475,7 @@ packages/core build: ℹ dist/astro/routes/api/auth/passkey/options.d.mts.map   
 packages/core build: ℹ dist/astro/routes/api/auth/signup/request.d.mts.map                             0.17 kB │ gzip:  0.15 kB
 packages/core build: ℹ dist/astro/routes/api/menus/_name_/reorder.d.mts.map                            0.17 kB │ gzip:  0.15 kB
 packages/core build: ℹ dist/astro/routes/api/schema/orphans/_slug_.d.mts.map                           0.17 kB │ gzip:  0.15 kB
-packages/core build: ℹ dist/version-Bs6hVNug.mjs                                                       0.17 kB │ gzip:  0.16 kB
+packages/core build: ℹ dist/version-R9OspWlx.mjs                                                       0.17 kB │ gzip:  0.16 kB
 packages/core build: ℹ dist/astro/middleware/redirect.d.mts.map                                        0.17 kB │ gzip:  0.15 kB
 packages/core build: ℹ dist/astro/routes/api/oauth/token/refresh.d.mts.map                             0.17 kB │ gzip:  0.15 kB
 packages/core build: ℹ dist/astro/routes/api/auth/passkey/verify.d.mts.map                             0.17 kB │ gzip:  0.15 kB
@@ -2538,7 +2542,7 @@ packages/core build: ℹ dist/client/cf-access.d.mts                            
 packages/core build: ℹ dist/astro/routes/api/import/wordpress/analyze.d.mts                            2.52 kB │ gzip:  0.95 kB
 packages/core build: ℹ dist/seo/index.d.mts                                                            2.45 kB │ gzip:  1.01 kB
 packages/core build: ℹ dist/astro/routes/api/import/wordpress/rewrite-url-helpers.d.mts                2.14 kB │ gzip:  0.89 kB
-packages/core build: ℹ dist/astro/routes/api/import/wordpress/media.d.mts                              1.80 kB │ gzip:  0.77 kB
+packages/core build: ℹ dist/astro/routes/api/import/wordpress/media.d.mts                              1.80 kB │ gzip:  0.78 kB
 packages/core build: ℹ dist/media/local-runtime.d.mts                                                  1.80 kB │ gzip:  0.84 kB
 packages/core build: ℹ dist/storage/s3.d.mts                                                           1.61 kB │ gzip:  0.75 kB
 packages/core build: ℹ dist/storage/local.d.mts                                                        1.50 kB │ gzip:  0.70 kB
@@ -2725,7 +2729,7 @@ packages/core build: ℹ dist/astro/routes/robots.txt.d.mts                     
 packages/core build: ℹ dist/astro/routes/api/auth/mode.d.mts                                           0.22 kB │ gzip:  0.17 kB
 packages/core build: ℹ dist/cli/index.d.mts                                                            0.01 kB │ gzip:  0.03 kB
 packages/core build: ℹ dist/index-X8Kp2c_z.d.mts                                                     179.53 kB │ gzip: 49.48 kB
-packages/core build: ℹ dist/byline-fields-BvxS7ih3.d.mts                                              82.12 kB │ gzip:  9.56 kB
+packages/core build: ℹ dist/byline-fields-Ce70gUP6.d.mts                                              82.12 kB │ gzip:  9.55 kB
 packages/core build: ℹ dist/types-DKwtts2d.d.mts                                                      41.82 kB │ gzip: 11.01 kB
 packages/core build: ℹ dist/types-xIfVRNLp.d.mts                                                      14.69 kB │ gzip:  3.18 kB
 packages/core build: ℹ dist/validate-DXGa7rZc.d.mts                                                    9.84 kB │ gzip:  3.16 kB
@@ -2744,7 +2748,7 @@ packages/core build: ℹ dist/runner-BbR3DfrL.d.mts                             
 packages/core build: ℹ dist/transport-Blrl2k_o.d.mts                                                   1.67 kB │ gzip:  0.76 kB
 packages/core build: ℹ dist/scheduled-publish-BMljtY5G.d.mts                                           0.30 kB │ gzip:  0.22 kB
 packages/core build: ℹ 1063 files, total: 7894.58 kB
-packages/core build: ✔ Build complete in 6437ms
+packages/core build: ✔ Build complete in 4994ms
 packages/core build: Done
 packages/cloudflare build$ tsdown
 packages/plugins/atproto build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
@@ -2756,68 +2760,43 @@ packages/cloudflare build: ℹ config file: /home/data/dev_react/awcms-micro/awc
 packages/cloudflare build: ℹ entry: src/index.ts, src/db/d1.ts, src/db/hyperdrive.ts, src/db/do.ts, src/db/do-sql.ts, src/db/playground.ts, src/db/playground-middleware.ts, src/storage/r2.ts, src/image-endpoint.ts, src/auth/index.ts, src/sandbox/index.ts, src/worker.ts, src/plugins/index.ts, src/media/images-runtime.ts, src/media/stream-runtime.ts, src/cache/runtime.ts, src/cache/config.ts, src/cache/kv.ts
 packages/cloudflare build: ℹ tsconfig: tsconfig.json
 packages/cloudflare build: ℹ Build start
+packages/cloudflare build: ℹ Cleaning 54 files
 packages/plugins/awcms-micro-docs build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-docs/tsdown.config.ts
 packages/plugins/awcms-micro-docs build: ℹ entry: src/index.ts, src/admin.tsx
 packages/plugins/awcms-micro-docs build: ℹ target: es2023
 packages/plugins/awcms-micro-docs build: ℹ tsconfig: tsconfig.json
 packages/plugins/awcms-micro-docs build: ℹ Build start
 packages/plugins/awcms-micro-docs build: ℹ Cleaning 10 files
-packages/plugins/audit-log build: ◐ Building plugin...
-packages/plugins/audit-log build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/emdash-plugin.jsonc
-packages/plugins/audit-log build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/src/plugin.ts
-packages/plugins/audit-log build: ℹ Package: @emdash-cms/plugin-audit-log
 packages/plugins/atproto build: ◐ Building plugin...
 packages/plugins/atproto build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/emdash-plugin.jsonc
 packages/plugins/atproto build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/src/plugin.ts
 packages/plugins/atproto build: ℹ Package: @emdash-cms/plugin-atproto
-packages/plugins/audit-log build: ◐ Building runtime entry...
-packages/plugins/audit-log build: ℹ entry: src/plugin.ts
-packages/plugins/audit-log build: ℹ tsconfig: tsconfig.json
-packages/plugins/audit-log build: ℹ Build start
 packages/plugins/atproto build: ◐ Building runtime entry...
 packages/plugins/atproto build: ℹ entry: src/plugin.ts
 packages/plugins/atproto build: ℹ tsconfig: tsconfig.json
 packages/plugins/atproto build: ℹ Build start
-packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-ihM3jZ/runtime/plugin.mjs         4.80 kB │ gzip: 1.60 kB
-packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-ihM3jZ/runtime/plugin.mjs.map    17.30 kB │ gzip: 4.37 kB
-packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-ihM3jZ/runtime/plugin.d.mts.map   0.40 kB │ gzip: 0.21 kB
-packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-ihM3jZ/runtime/plugin.d.mts       4.76 kB │ gzip: 0.81 kB
-packages/plugins/audit-log build: ℹ 4 files, total: 27.26 kB
-packages/plugins/audit-log build: ✔ Build complete in 1933ms
-packages/plugins/audit-log build: ✔ Built plugin.mjs
-packages/plugins/audit-log build: ◐ Probing plugin surface...
+packages/plugins/audit-log build: ◐ Building plugin...
+packages/plugins/audit-log build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/emdash-plugin.jsonc
+packages/plugins/audit-log build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/src/plugin.ts
+packages/plugins/audit-log build: ℹ Package: @emdash-cms/plugin-audit-log
+packages/plugins/audit-log build: ◐ Building runtime entry...
 packages/plugins/audit-log build: ℹ entry: src/plugin.ts
 packages/plugins/audit-log build: ℹ tsconfig: tsconfig.json
 packages/plugins/audit-log build: ℹ Build start
-packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-ihM3jZ/plugin-probe/plugin.mjs  8.20 kB │ gzip: 2.12 kB
-packages/plugins/audit-log build: ℹ 1 files, total: 8.20 kB
-packages/plugins/audit-log build: ✔ Build complete in 9ms
-packages/plugins/audit-log build: ℹ   Hooks: plugin:install, plugin:activate, plugin:deactivate, plugin:uninstall, content:beforeSave, content:afterSave, content:beforeDelete, content:afterDelete, media:afterUpload
-packages/plugins/audit-log build: ℹ   Routes: admin, recent, history
-packages/plugins/audit-log build: ✔ Wrote manifest.json
-packages/plugins/audit-log build: ◐ Generating descriptor module...
-packages/plugins/audit-log build: ✔ Wrote index.mjs
-packages/plugins/audit-log build: ✔ Plugin built: audit-log@0.2.0
-packages/plugins/audit-log build: ℹ Output:
-packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/index.mjs
-packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/plugin.mjs
-packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/manifest.json
-packages/plugins/audit-log build: Done
-.../plugins/awcms-micro-email-mailketing build$ tsdown
-packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-Nlect5/runtime/plugin.mjs        20.41 kB │ gzip:  6.02 kB
-packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-Nlect5/runtime/plugin.mjs.map    81.86 kB │ gzip: 18.76 kB
-packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-Nlect5/runtime/plugin.d.mts.map   0.79 kB │ gzip:  0.32 kB
-packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-Nlect5/runtime/plugin.d.mts       3.14 kB │ gzip:  0.80 kB
+packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-honB9R/runtime/plugin.mjs        20.41 kB │ gzip:  6.02 kB
+packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-honB9R/runtime/plugin.mjs.map    81.86 kB │ gzip: 18.76 kB
+packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-honB9R/runtime/plugin.d.mts.map   0.79 kB │ gzip:  0.32 kB
+packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-honB9R/runtime/plugin.d.mts       3.14 kB │ gzip:  0.80 kB
 packages/plugins/atproto build: ℹ 4 files, total: 106.20 kB
-packages/plugins/atproto build: ✔ Build complete in 2008ms
+packages/plugins/atproto build: ✔ Build complete in 1805ms
 packages/plugins/atproto build: ✔ Built plugin.mjs
 packages/plugins/atproto build: ◐ Probing plugin surface...
 packages/plugins/atproto build: ℹ entry: src/plugin.ts
 packages/plugins/atproto build: ℹ tsconfig: tsconfig.json
 packages/plugins/atproto build: ℹ Build start
-packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-Nlect5/plugin-probe/plugin.mjs  37.45 kB │ gzip: 8.81 kB
+packages/plugins/atproto build: ℹ ../../../../../../../../tmp/emdash-build-honB9R/plugin-probe/plugin.mjs  37.45 kB │ gzip: 8.81 kB
 packages/plugins/atproto build: ℹ 1 files, total: 37.45 kB
-packages/plugins/atproto build: ✔ Build complete in 14ms
+packages/plugins/atproto build: ✔ Build complete in 16ms
 packages/plugins/atproto build: ℹ   Hooks: plugin:install, content:afterSave, content:afterPublish, content:afterDelete, page:metadata
 packages/plugins/atproto build: ℹ   Routes: status, test-connection, sync-publication, recent-syncs, verification, admin
 packages/plugins/atproto build: ✔ Wrote manifest.json
@@ -2828,15 +2807,41 @@ packages/plugins/atproto build: ℹ Output:
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/index.mjs
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/plugin.mjs
 packages/plugins/atproto build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/atproto/dist/manifest.json
-.../plugins/awcms-micro-email-mailketing build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugins/atproto build: Done
-packages/plugins/awcms-micro-gallery build$ tsdown
+.../plugins/awcms-micro-email-mailketing build$ tsdown
+.../plugins/awcms-micro-email-mailketing build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-iELZkG/runtime/plugin.mjs         4.80 kB │ gzip: 1.60 kB
+packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-iELZkG/runtime/plugin.mjs.map    17.30 kB │ gzip: 4.37 kB
+packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-iELZkG/runtime/plugin.d.mts.map   0.40 kB │ gzip: 0.21 kB
+packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-iELZkG/runtime/plugin.d.mts       4.76 kB │ gzip: 0.81 kB
+packages/plugins/audit-log build: ℹ 4 files, total: 27.26 kB
+packages/plugins/audit-log build: ✔ Build complete in 1916ms
+packages/plugins/audit-log build: ✔ Built plugin.mjs
+packages/plugins/audit-log build: ◐ Probing plugin surface...
+packages/plugins/audit-log build: ℹ entry: src/plugin.ts
+packages/plugins/audit-log build: ℹ tsconfig: tsconfig.json
+packages/plugins/audit-log build: ℹ Build start
+packages/plugins/audit-log build: ℹ ../../../../../../../../tmp/emdash-build-iELZkG/plugin-probe/plugin.mjs  8.20 kB │ gzip: 2.12 kB
+packages/plugins/audit-log build: ℹ 1 files, total: 8.20 kB
+packages/plugins/audit-log build: ✔ Build complete in 8ms
+packages/plugins/audit-log build: ℹ   Hooks: plugin:install, plugin:activate, plugin:deactivate, plugin:uninstall, content:beforeSave, content:afterSave, content:beforeDelete, content:afterDelete, media:afterUpload
+packages/plugins/audit-log build: ℹ   Routes: admin, recent, history
+packages/plugins/audit-log build: ✔ Wrote manifest.json
+packages/plugins/audit-log build: ◐ Generating descriptor module...
+packages/plugins/audit-log build: ✔ Wrote index.mjs
+packages/plugins/audit-log build: ✔ Plugin built: audit-log@0.2.0
+packages/plugins/audit-log build: ℹ Output:
+packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/index.mjs
+packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/plugin.mjs
+packages/plugins/audit-log build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/audit-log/dist/manifest.json
 .../plugins/awcms-micro-email-mailketing build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/tsdown.config.ts
 .../plugins/awcms-micro-email-mailketing build: ℹ entry: src/index.ts, src/admin.tsx, src/sandbox.ts
 .../plugins/awcms-micro-email-mailketing build: ℹ target: es2023
 .../plugins/awcms-micro-email-mailketing build: ℹ tsconfig: tsconfig.json
 .../plugins/awcms-micro-email-mailketing build: ℹ Build start
 .../plugins/awcms-micro-email-mailketing build: ℹ Cleaning 8 files
+packages/plugins/audit-log build: Done
+packages/plugins/awcms-micro-gallery build$ tsdown
 packages/plugins/awcms-micro-gallery build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
 packages/plugins/awcms-micro-gallery build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/awcms-micro-gallery/tsdown.config.ts
 packages/plugins/awcms-micro-gallery build: ℹ entry: src/index.ts, src/sandbox.ts
@@ -2892,6 +2897,7 @@ packages/cloudflare build: ℹ dist/images-8pzIkVKN.d.mts               2.10 kB 
 packages/cloudflare build: ℹ dist/stream-Cq6HYyUK.d.mts               1.93 kB │ gzip:  0.74 kB
 packages/cloudflare build: ℹ dist/do-types-BJix_n_E.d.mts             0.47 kB │ gzip:  0.30 kB
 packages/cloudflare build: ℹ 47 files, total: 262.19 kB
+packages/cloudflare build: ✔ Build complete in 2600ms
 packages/cloudflare build: src/db/playground-middleware.ts (16:33) [33m[UNRESOLVED_IMPORT] Warning:[0m Could not resolve 'astro:middleware' in src/db/playground-middleware.ts
 packages/cloudflare build:     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/db/playground-middleware.ts:16:34 [38;5;246m][0m
 packages/cloudflare build:     [38;5;246m│[0m
@@ -2906,7 +2912,6 @@ packages/cloudflare build:  [38;5;246m21 │[0m [38;5;249mi[0m[38;5;249mm[
 packages/cloudflare build:  [38;5;240m   │[0m                           ───────────┬───────────
 packages/cloudflare build:  [38;5;240m   │[0m                                      ╰───────────── Module not found, treating it as an external dependency
 packages/cloudflare build: [38;5;246m────╯[0m
-packages/cloudflare build: ✔ Build complete in 2409ms
 packages/cloudflare build: Done
 packages/plugins/awcms-micro-sikesra build$ tsdown
 packages/plugins/awcms-micro-sikesra build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -2927,7 +2932,7 @@ packages/plugins/awcms-micro-docs build: ℹ dist/admin.d.ts.map            0.11
 packages/plugins/awcms-micro-docs build: ℹ dist/index.d.ts                1.30 kB │ gzip: 0.51 kB
 packages/plugins/awcms-micro-docs build: ℹ dist/admin.d.ts                0.19 kB │ gzip: 0.15 kB
 packages/plugins/awcms-micro-docs build: ℹ 10 files, total: 37.57 kB
-packages/plugins/awcms-micro-docs build: ✔ Build complete in 2760ms
+packages/plugins/awcms-micro-docs build: ✔ Build complete in 2830ms
 packages/plugins/awcms-micro-docs build: Done
 .../plugins/awcms-micro-website-social build$ tsdown
 .../plugins/awcms-micro-website-social build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -2948,7 +2953,7 @@ packages/plugins/awcms-micro-gallery build: ℹ dist/sandbox.d.mts.map          
 packages/plugins/awcms-micro-gallery build: ℹ dist/index.d.mts                   3.57 kB │ gzip:  1.02 kB
 packages/plugins/awcms-micro-gallery build: ℹ dist/sandbox.d.mts                 0.21 kB │ gzip:  0.16 kB
 packages/plugins/awcms-micro-gallery build: ℹ 10 files, total: 213.24 kB
-packages/plugins/awcms-micro-gallery build: ✔ Build complete in 1973ms
+packages/plugins/awcms-micro-gallery build: ✔ Build complete in 1753ms
 packages/plugins/awcms-micro-gallery build: Done
 packages/plugins/marketplace-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/marketplace-test build: ◐ Building plugin...
@@ -2968,8 +2973,7 @@ packages/plugins/marketplace-test build: ℹ Build start
 .../plugins/awcms-micro-email-mailketing build: ℹ dist/sandbox.d.ts           0.44 kB │ gzip: 0.27 kB
 .../plugins/awcms-micro-email-mailketing build: ℹ dist/admin.d.ts             0.21 kB │ gzip: 0.15 kB
 .../plugins/awcms-micro-email-mailketing build: ℹ 8 files, total: 106.61 kB
-.../plugins/awcms-micro-email-mailketing build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/options/checks#plugintimings for more details.
-.../plugins/awcms-micro-email-mailketing build: ✔ Build complete in 3323ms
+.../plugins/awcms-micro-email-mailketing build: ✔ Build complete in 2802ms
 .../plugins/awcms-micro-email-mailketing build: Done
 packages/plugins/sandboxed-test build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
 packages/plugins/sandboxed-test build: ◐ Building plugin...
@@ -2989,10 +2993,13 @@ packages/plugins/sandboxed-test build: ℹ Build start
 .../plugins/awcms-micro-website-social build: ℹ dist/index.d.ts      0.70 kB │ gzip: 0.33 kB
 .../plugins/awcms-micro-website-social build: ℹ dist/admin.d.ts      0.19 kB │ gzip: 0.15 kB
 .../plugins/awcms-micro-website-social build: ℹ 8 files, total: 15.93 kB
-.../plugins/awcms-micro-website-social build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/options/checks#plugintimings for more details.
-.../plugins/awcms-micro-website-social build: ✔ Build complete in 3090ms
+.../plugins/awcms-micro-website-social build: ✔ Build complete in 2592ms
 .../plugins/awcms-micro-website-social build: Done
 packages/plugins/webhook-notifier build$ node node_modules/@emdash-cms/plugin-cli/dist/index.mjs build
+packages/plugins/webhook-notifier build: ◐ Building plugin...
+packages/plugins/webhook-notifier build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/emdash-plugin.jsonc
+packages/plugins/webhook-notifier build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/src/plugin.ts
+packages/plugins/webhook-notifier build: ℹ Package: @emdash-cms/plugin-webhook-notifier
 packages/plugins/awcms-micro-sikesra build: ℹ dist/admin.js                           364.00 kB │ gzip: 54.79 kB
 packages/plugins/awcms-micro-sikesra build: ℹ dist/index.js                             2.79 kB │ gzip:  0.99 kB
 packages/plugins/awcms-micro-sikesra build: ℹ dist/navigation.js                        0.78 kB │ gzip:  0.32 kB
@@ -3005,22 +3012,29 @@ packages/plugins/awcms-micro-sikesra build: ℹ dist/navigation.d.ts            
 packages/plugins/awcms-micro-sikesra build: ℹ dist/admin.d.ts                           3.20 kB │ gzip:  1.04 kB
 packages/plugins/awcms-micro-sikesra build: ℹ dist/sandbox.d.ts                         2.51 kB │ gzip:  0.53 kB
 packages/plugins/awcms-micro-sikesra build: ℹ 11 files, total: 814.19 kB
-packages/plugins/awcms-micro-sikesra build: ✔ Build complete in 3652ms
+packages/plugins/awcms-micro-sikesra build: ✔ Build complete in 3097ms
 packages/plugins/awcms-micro-sikesra build: [33m[PLUGIN_TIMINGS] Warning:[0m Your build spent significant time in plugin `rolldown-plugin-dts:generate`. See https://rolldown.rs/options/checks#plugintimings for more details.
-packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-Shz7sh/runtime/plugin.mjs        0.58 kB │ gzip: 0.34 kB
-packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-Shz7sh/runtime/plugin.mjs.map    2.47 kB │ gzip: 1.12 kB
-packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-Shz7sh/runtime/plugin.d.mts.map  0.18 kB │ gzip: 0.15 kB
-packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-Shz7sh/runtime/plugin.d.mts      1.59 kB │ gzip: 0.70 kB
+packages/plugins/webhook-notifier build: ◐ Building runtime entry...
+packages/plugins/webhook-notifier build: ℹ entry: src/plugin.ts
+packages/plugins/webhook-notifier build: ℹ tsconfig: tsconfig.json
+packages/plugins/webhook-notifier build: ℹ Build start
+packages/plugins/awcms-micro-sikesra build: Done
+packages/workerd build$ tsdown
+packages/workerd build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
+packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-SZUtNl/runtime/plugin.mjs        0.58 kB │ gzip: 0.34 kB
+packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-SZUtNl/runtime/plugin.mjs.map    2.47 kB │ gzip: 1.12 kB
+packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-SZUtNl/runtime/plugin.d.mts.map  0.18 kB │ gzip: 0.15 kB
+packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-SZUtNl/runtime/plugin.d.mts      1.59 kB │ gzip: 0.70 kB
 packages/plugins/marketplace-test build: ℹ 4 files, total: 4.82 kB
-packages/plugins/marketplace-test build: ✔ Build complete in 1609ms
+packages/plugins/marketplace-test build: ✔ Build complete in 1686ms
 packages/plugins/marketplace-test build: ✔ Built plugin.mjs
 packages/plugins/marketplace-test build: ◐ Probing plugin surface...
 packages/plugins/marketplace-test build: ℹ entry: src/plugin.ts
 packages/plugins/marketplace-test build: ℹ tsconfig: tsconfig.json
 packages/plugins/marketplace-test build: ℹ Build start
-packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-Shz7sh/plugin-probe/plugin.mjs  0.85 kB │ gzip: 0.44 kB
+packages/plugins/marketplace-test build: ℹ ../../../../../../../../tmp/emdash-build-SZUtNl/plugin-probe/plugin.mjs  0.85 kB │ gzip: 0.44 kB
 packages/plugins/marketplace-test build: ℹ 1 files, total: 0.85 kB
-packages/plugins/marketplace-test build: ✔ Build complete in 9ms
+packages/plugins/marketplace-test build: ✔ Build complete in 7ms
 packages/plugins/marketplace-test build: ℹ   Hooks: content:beforeSave
 packages/plugins/marketplace-test build: ℹ   Routes: ping, events
 packages/plugins/marketplace-test build: ✔ Wrote manifest.json
@@ -3031,27 +3045,16 @@ packages/plugins/marketplace-test build: ℹ Output:
 packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/dist/index.mjs
 packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/dist/plugin.mjs
 packages/plugins/marketplace-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/marketplace-test/dist/manifest.json
-packages/plugins/marketplace-test build: Done
-packages/workerd build$ tsdown
-packages/plugins/awcms-micro-sikesra build: Done
-packages/plugins/webhook-notifier build: ◐ Building plugin...
-packages/workerd build: ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
-packages/plugins/webhook-notifier build: ℹ Manifest: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/emdash-plugin.jsonc
-packages/plugins/webhook-notifier build: ℹ Plugin entry: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/webhook-notifier/src/plugin.ts
-packages/plugins/webhook-notifier build: ℹ Package: @emdash-cms/plugin-webhook-notifier
 packages/workerd build: ℹ config file: /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/workerd/tsdown.config.ts
-packages/plugins/webhook-notifier build: ◐ Building runtime entry...
-packages/plugins/webhook-notifier build: ℹ entry: src/plugin.ts
-packages/plugins/webhook-notifier build: ℹ tsconfig: tsconfig.json
 packages/workerd build: ℹ entry: src/index.ts, src/sandbox/index.ts
 packages/workerd build: ℹ tsconfig: tsconfig.json
-packages/plugins/webhook-notifier build: ℹ Build start
 packages/workerd build: ℹ Build start
 packages/workerd build: ℹ Cleaning 7 files
-packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-Sn7qls/runtime/plugin.mjs        19.59 kB │ gzip:  5.31 kB
-packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-Sn7qls/runtime/plugin.mjs.map    62.07 kB │ gzip: 13.43 kB
-packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-Sn7qls/runtime/plugin.d.mts.map   1.75 kB │ gzip:  0.37 kB
-packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-Sn7qls/runtime/plugin.d.mts       8.47 kB │ gzip:  1.15 kB
+packages/plugins/marketplace-test build: Done
+packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-JY3X3k/runtime/plugin.mjs        19.59 kB │ gzip:  5.31 kB
+packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-JY3X3k/runtime/plugin.mjs.map    62.07 kB │ gzip: 13.43 kB
+packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-JY3X3k/runtime/plugin.d.mts.map   1.75 kB │ gzip:  0.37 kB
+packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-JY3X3k/runtime/plugin.d.mts       8.47 kB │ gzip:  1.15 kB
 packages/plugins/sandboxed-test build: ℹ 4 files, total: 91.88 kB
 packages/plugins/sandboxed-test build: src/plugin.ts (359:24) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:359:25 [38;5;246m][0m
@@ -3071,13 +3074,13 @@ packages/plugins/sandboxed-test build:  [38;5;240m     │[0m          ╰─�
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m──────╯[0m
-packages/plugins/sandboxed-test build: ✔ Build complete in 1667ms
+packages/plugins/sandboxed-test build: ✔ Build complete in 1844ms
 packages/plugins/sandboxed-test build: ✔ Built plugin.mjs
 packages/plugins/sandboxed-test build: ◐ Probing plugin surface...
 packages/plugins/sandboxed-test build: ℹ entry: src/plugin.ts
 packages/plugins/sandboxed-test build: ℹ tsconfig: tsconfig.json
 packages/plugins/sandboxed-test build: ℹ Build start
-packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-Sn7qls/plugin-probe/plugin.mjs  29.37 kB │ gzip: 6.51 kB
+packages/plugins/sandboxed-test build: ℹ ../../../../../../../../tmp/emdash-build-JY3X3k/plugin-probe/plugin.mjs  29.37 kB │ gzip: 6.51 kB
 packages/plugins/sandboxed-test build: ℹ 1 files, total: 29.37 kB
 packages/plugins/sandboxed-test build: src/plugin.ts (359:24) [33m[EVAL] Warning:[0m Use of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
 packages/plugins/sandboxed-test build:      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/plugin.ts:359:25 [38;5;246m][0m
@@ -3097,7 +3100,7 @@ packages/plugins/sandboxed-test build:  [38;5;240m     │[0m          ╰─�
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m
 packages/plugins/sandboxed-test build:  [38;5;240m     │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
 packages/plugins/sandboxed-test build: [38;5;246m──────╯[0m
-packages/plugins/sandboxed-test build: ✔ Build complete in 9ms
+packages/plugins/sandboxed-test build: ✔ Build complete in 14ms
 packages/plugins/sandboxed-test build: ℹ   Hooks: content:beforeSave, content:afterSave
 packages/plugins/sandboxed-test build: ℹ   Routes: admin, ping, debug/http, kv/test, storage/test, content/list, http/test, enforce/blocked-host, enforce/kv-isolation, enforce/storage-isolation, enforce/no-direct-db, enforce/globals-blocked, evil/exfil-to-attacker, evil/steal-other-plugin-kv, evil/steal-other-plugin-storage, evil/access-raw-db, evil/escalate-capabilities, evil/run-all, enforce/run-all
 packages/plugins/sandboxed-test build: ✔ Wrote manifest.json
@@ -3109,20 +3112,20 @@ packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsm
 packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/dist/plugin.mjs
 packages/plugins/sandboxed-test build:   /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugins/sandboxed-test/dist/manifest.json
 packages/plugins/sandboxed-test build: Done
-packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-Uky4M1/runtime/plugin.mjs         9.25 kB │ gzip: 3.05 kB
-packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-Uky4M1/runtime/plugin.mjs.map    28.71 kB │ gzip: 7.20 kB
-packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-Uky4M1/runtime/plugin.d.mts.map   0.30 kB │ gzip: 0.21 kB
-packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-Uky4M1/runtime/plugin.d.mts       2.94 kB │ gzip: 0.70 kB
+packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-ebbYRt/runtime/plugin.mjs         9.25 kB │ gzip: 3.05 kB
+packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-ebbYRt/runtime/plugin.mjs.map    28.71 kB │ gzip: 7.20 kB
+packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-ebbYRt/runtime/plugin.d.mts.map   0.30 kB │ gzip: 0.21 kB
+packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-ebbYRt/runtime/plugin.d.mts       2.94 kB │ gzip: 0.70 kB
 packages/plugins/webhook-notifier build: ℹ 4 files, total: 41.20 kB
-packages/plugins/webhook-notifier build: ✔ Build complete in 1577ms
+packages/plugins/webhook-notifier build: ✔ Build complete in 1498ms
 packages/plugins/webhook-notifier build: ✔ Built plugin.mjs
 packages/plugins/webhook-notifier build: ◐ Probing plugin surface...
 packages/plugins/webhook-notifier build: ℹ entry: src/plugin.ts
 packages/plugins/webhook-notifier build: ℹ tsconfig: tsconfig.json
 packages/plugins/webhook-notifier build: ℹ Build start
-packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-Uky4M1/plugin-probe/plugin.mjs  14.88 kB │ gzip: 3.94 kB
+packages/plugins/webhook-notifier build: ℹ ../../../../../../../../tmp/emdash-build-ebbYRt/plugin-probe/plugin.mjs  14.88 kB │ gzip: 3.94 kB
 packages/plugins/webhook-notifier build: ℹ 1 files, total: 14.88 kB
-packages/plugins/webhook-notifier build: ✔ Build complete in 8ms
+packages/plugins/webhook-notifier build: ✔ Build complete in 9ms
 packages/plugins/webhook-notifier build: ℹ   Hooks: content:afterSave, content:afterDelete, media:afterUpload
 packages/plugins/webhook-notifier build: ℹ   Routes: admin, status, settings, settings/save, test
 packages/plugins/webhook-notifier build: ✔ Wrote manifest.json
@@ -3141,7 +3144,7 @@ packages/workerd build: ℹ dist/sandbox/index.d.mts             0.25 kB │ gzi
 packages/workerd build: ℹ dist/index.d.mts                     0.18 kB │ gzip:  0.14 kB
 packages/workerd build: ℹ dist/bridge-handler-O1ayzB49.d.mts  11.52 kB │ gzip:  3.97 kB
 packages/workerd build: ℹ 6 files, total: 96.34 kB
-packages/workerd build: ✔ Build complete in 1827ms
+packages/workerd build: ✔ Build complete in 1625ms
 packages/workerd build: Done
 $ node scripts/relink-bins-if-needed.mjs
 $ pnpm typecheck
@@ -3156,9 +3159,9 @@ packages/atproto-test-utils typecheck: Done
 packages/create-emdash typecheck$ tsgo --noEmit
 packages/contentful-to-portable-text typecheck: Done
 packages/gutenberg-to-portable-text typecheck$ tsgo --noEmit
-packages/create-emdash typecheck: Done
-packages/marketplace typecheck$ tsc --noEmit
 packages/auth typecheck: Done
+packages/marketplace typecheck$ tsc --noEmit
+packages/create-emdash typecheck: Done
 packages/plugin-types typecheck$ tsgo --noEmit
 packages/gutenberg-to-portable-text typecheck: Done
 packages/registry-lexicons typecheck$ tsgo --noEmit
@@ -3170,17 +3173,17 @@ packages/x402 typecheck: Done
 packages/marketplace typecheck: Done
 packages/registry-client typecheck$ tsgo --noEmit
 packages/registry-client typecheck: Done
-packages/plugin-cli typecheck$ tsgo --noEmit
 packages/admin typecheck$ tsgo --noEmit
+packages/plugin-cli typecheck$ tsgo --noEmit
 packages/plugin-cli typecheck: Done
 packages/admin typecheck: Done
 packages/auth-atproto typecheck$ tsgo --noEmit
 packages/core typecheck$ tsgo --noEmit
 packages/auth-atproto typecheck: Done
 packages/core typecheck: Done
+packages/plugins/ai-moderation typecheck$ tsgo --noEmit
 packages/cloudflare typecheck$ tsgo --noEmit
 packages/plugins/atproto typecheck$ tsgo --noEmit
-packages/plugins/ai-moderation typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck$ tsgo --noEmit
 packages/plugins/audit-log typecheck: Done
 packages/plugins/awcms-micro-docs typecheck$ tsc --noEmit -p tsconfig.json
@@ -3202,9 +3205,9 @@ packages/plugins/field-kit typecheck$ tsgo --noEmit
 packages/plugins/forms typecheck$ tsgo --noEmit
 packages/plugins/field-kit typecheck: Done
 packages/plugins/marketplace-test typecheck$ tsgo --noEmit
-packages/plugins/marketplace-test typecheck: Done
-packages/plugins/sandboxed-test typecheck$ tsgo --noEmit
 packages/plugins/forms typecheck: Done
+packages/plugins/sandboxed-test typecheck$ tsgo --noEmit
+packages/plugins/marketplace-test typecheck: Done
 packages/plugins/webhook-notifier typecheck$ tsgo --noEmit
 packages/plugins/sandboxed-test typecheck: Done
 packages/workerd typecheck$ tsgo --noEmit
@@ -3221,7 +3224,7 @@ $ oxlint -f json
               "number_of_files": 2235,
               "number_of_rules": 139,
               "threads_count": 20,
-              "start_time": 2.21740995
+              "start_time": 2.179890368
             }
             $ pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync
 ==> pnpm-sikesra-sync-guardrails
@@ -3235,8 +3238,8 @@ $ vitest run tests/migration-prefix.test.ts
 
  Test Files  1 passed (1)
       Tests  13 passed (13)
-   Start at  10:26:00
-   Duration  1.33s (transform 266ms, setup 0ms, import 1.22s, tests 17ms, environment 0ms)
+   Start at  17:45:36
+   Duration  1.34s (transform 262ms, setup 0ms, import 1.22s, tests 16ms, environment 0ms)
 
 $ node scripts/check-data-boundary.mjs
 SIKESRA data-boundary guard passed.
@@ -3255,8 +3258,8 @@ $ vitest run tests/plugin.test.ts -t 'registers required SIKESRA plugin routes|u
 
  Test Files  1 passed (1)
       Tests  2 passed | 143 skipped (145)
-   Start at  10:26:04
-   Duration  2.82s (transform 1.36s, setup 0ms, import 2.71s, tests 10ms, environment 0ms)
+   Start at  17:45:40
+   Duration  2.68s (transform 1.35s, setup 0ms, import 2.56s, tests 10ms, environment 0ms)
 
 $ vitest run tests/plugin.test.ts -t 'declares admin pages'
 
@@ -3265,8 +3268,8 @@ $ vitest run tests/plugin.test.ts -t 'declares admin pages'
 
  Test Files  1 passed (1)
       Tests  1 passed | 144 skipped (145)
-   Start at  10:26:07
-   Duration  2.70s (transform 1.37s, setup 0ms, import 2.59s, tests 4ms, environment 0ms)
+   Start at  17:45:43
+   Duration  2.56s (transform 1.29s, setup 0ms, import 2.46s, tests 4ms, environment 0ms)
 
 $ tsc --noEmit -p tsconfig.json
 $ vitest run
@@ -3276,8 +3279,8 @@ $ vitest run
 
  Test Files  7 passed (7)
       Tests  206 passed (206)
-   Start at  10:26:15
-   Duration  2.73s (transform 3.24s, setup 0ms, import 6.02s, tests 429ms, environment 1ms)
+   Start at  17:45:51
+   Duration  2.81s (transform 3.30s, setup 0ms, import 6.25s, tests 442ms, environment 1ms)
 
 $ tsdown
 ℹ tsdown v0.20.3 powered by rolldown v1.0.0-rc.3
@@ -3299,44 +3302,16 @@ $ tsdown
 ℹ dist/admin.d.ts                           3.20 kB │ gzip:  1.04 kB
 ℹ dist/sandbox.d.ts                         2.51 kB │ gzip:  0.53 kB
 ℹ 11 files, total: 814.19 kB
-✔ Build complete in 2801ms
+✔ Build complete in 2494ms
 $ pnpm --filter @emdash-cms/admin exec node --run locale:compile
 ==> pnpm-admin-locale-compile
 Compiling message catalogs…
-Done in 538ms
+Done in 539ms
 $ pnpm --filter @emdash-cms/admin exec playwright install chromium
 ==> playwright-install-chromium
-Removing unused browser at /home/unggul/.cache/ms-playwright/chromium-1223
-Removing unused browser at /home/unggul/.cache/ms-playwright/chromium_headless_shell-1223
-BEWARE: your OS is not officially supported by Playwright; downloading fallback build for ubuntu24.04-x64.
-Downloading Chrome for Testing 149.0.7827.55 (playwright chromium v1228)[2m from https://cdn.playwright.dev/builds/cft/149.0.7827.55/linux64/chrome-linux64.zip[22m
-|                                                                                |   0% of 177 MiB
-|■■■■■■■■                                                                        |  10% of 177 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 177 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 177 MiB
-Chrome for Testing 149.0.7827.55 (playwright chromium v1228) downloaded to /home/unggul/.cache/ms-playwright/chromium-1228
 BEWARE: your OS is not officially supported by Playwright; downloading fallback build for ubuntu24.04-x64.
 BEWARE: your OS is not officially supported by Playwright; downloading fallback build for ubuntu24.04-x64.
-Downloading Chrome Headless Shell 149.0.7827.55 (playwright chromium-headless-shell v1228)[2m from https://cdn.playwright.dev/builds/cft/149.0.7827.55/linux64/chrome-headless-shell-linux64.zip[22m
-|                                                                                |   0% of 114.2 MiB
-|■■■■■■■■                                                                        |  10% of 114.2 MiB
-|■■■■■■■■■■■■■■■■                                                                |  20% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.2 MiB
-|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.2 MiB
-Chrome Headless Shell 149.0.7827.55 (playwright chromium-headless-shell v1228) downloaded to /home/unggul/.cache/ms-playwright/chromium_headless_shell-1228
+BEWARE: your OS is not officially supported by Playwright; downloading fallback build for ubuntu24.04-x64.
 $ pnpm test
 ==> pnpm-test
 $ pnpm run --filter {./packages/*} test
@@ -3345,677 +3320,694 @@ packages/atproto-test-utils test$ vitest run
 packages/auth test$ vitest
 packages/blocks test$ vitest
 packages/contentful-to-portable-text test$ vitest
-packages/blocks test: 10:27:52 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+packages/blocks test: 5:46:00 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
 packages/blocks test: `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
-packages/atproto-test-utils test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/atproto-test-utils
+packages/auth test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth
 packages/blocks test: Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
 packages/blocks test: [vite:react-babel] We recommend switching to `@vitejs/plugin-react-oxc` for improved performance. More information at https://vite.dev/rolldown
-packages/blocks test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks
-packages/auth test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/auth
 packages/contentful-to-portable-text test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/contentful-to-portable-text
+packages/blocks test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/blocks
+packages/atproto-test-utils test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/atproto-test-utils
 packages/contentful-to-portable-text test:  Test Files  2 passed (2)
 packages/contentful-to-portable-text test:       Tests  60 passed (60)
-packages/contentful-to-portable-text test:    Start at  10:27:52
-packages/contentful-to-portable-text test:    Duration  272ms (transform 238ms, setup 0ms, import 301ms, tests 28ms, environment 0ms)
+packages/contentful-to-portable-text test:    Start at  17:46:00
+packages/contentful-to-portable-text test:    Duration  287ms (transform 148ms, setup 0ms, import 217ms, tests 40ms, environment 0ms)
 packages/contentful-to-portable-text test: Done
 packages/create-emdash test$ vitest run
 packages/auth test:  Test Files  5 passed (5)
 packages/auth test:       Tests  57 passed (57)
-packages/auth test:    Start at  10:27:52
-packages/auth test:    Duration  428ms (transform 225ms, setup 0ms, import 506ms, tests 394ms, environment 1ms)
+packages/auth test:    Start at  17:46:00
+packages/auth test:    Duration  358ms (transform 332ms, setup 0ms, import 572ms, tests 289ms, environment 1ms)
 packages/auth test: Done
 packages/gutenberg-to-portable-text test$ vitest
 packages/atproto-test-utils test:  Test Files  1 passed (1)
 packages/atproto-test-utils test:       Tests  17 passed (17)
-packages/atproto-test-utils test:    Start at  10:27:52
-packages/atproto-test-utils test:    Duration  526ms (transform 93ms, setup 0ms, import 259ms, tests 128ms, environment 0ms)
+packages/atproto-test-utils test:    Start at  17:46:00
+packages/atproto-test-utils test:    Duration  561ms (transform 90ms, setup 0ms, import 265ms, tests 159ms, environment 0ms)
+packages/create-emdash test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash
 packages/atproto-test-utils test: Done
 packages/marketplace test$ vitest
-packages/create-emdash test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/create-emdash
 packages/gutenberg-to-portable-text test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/gutenberg-to-portable-text
-packages/marketplace test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/marketplace
 packages/create-emdash test:  Test Files  2 passed (2)
 packages/create-emdash test:       Tests  103 passed (103)
-packages/create-emdash test:    Start at  10:27:52
-packages/create-emdash test:    Duration  229ms (transform 99ms, setup 0ms, import 141ms, tests 49ms, environment 0ms)
+packages/create-emdash test:    Start at  17:46:00
+packages/create-emdash test:    Duration  234ms (transform 86ms, setup 0ms, import 150ms, tests 42ms, environment 0ms)
 packages/create-emdash test: Done
 packages/plugin-types test$ vitest run
+packages/marketplace test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/marketplace
 packages/blocks test:  Test Files  3 passed (3)
 packages/blocks test:       Tests  97 passed (97)
-packages/blocks test:    Start at  10:27:52
-packages/blocks test:    Duration  945ms (transform 412ms, setup 0ms, import 807ms, tests 253ms, environment 1.09s)
-packages/blocks test: Done
-packages/registry-lexicons test$ vitest run
-packages/marketplace test:  Test Files  4 passed (4)
-packages/marketplace test:       Tests  43 passed (43)
-packages/marketplace test:    Start at  10:27:53
-packages/marketplace test:    Duration  227ms (transform 135ms, setup 0ms, import 229ms, tests 48ms, environment 0ms)
-packages/marketplace test: Done
-packages/x402 test$ vitest
+packages/blocks test:    Start at  17:46:00
+packages/blocks test:    Duration  936ms (transform 396ms, setup 0ms, import 682ms, tests 342ms, environment 1.08s)
 packages/gutenberg-to-portable-text test:  Test Files  2 passed (2)
 packages/gutenberg-to-portable-text test:       Tests  140 passed (140)
-packages/gutenberg-to-portable-text test:    Start at  10:27:52
-packages/gutenberg-to-portable-text test:    Duration  370ms (transform 175ms, setup 0ms, import 297ms, tests 91ms, environment 0ms)
+packages/gutenberg-to-portable-text test:    Start at  17:46:00
+packages/gutenberg-to-portable-text test:    Duration  318ms (transform 194ms, setup 0ms, import 264ms, tests 78ms, environment 0ms)
 packages/gutenberg-to-portable-text test: Done
+packages/blocks test: Done
+packages/registry-lexicons test$ vitest run
+packages/x402 test$ vitest
+packages/marketplace test:  Test Files  4 passed (4)
+packages/marketplace test:       Tests  43 passed (43)
+packages/marketplace test:    Start at  17:46:00
+packages/marketplace test:    Duration  194ms (transform 131ms, setup 0ms, import 223ms, tests 42ms, environment 0ms)
+packages/marketplace test: Done
 packages/plugin-types test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-types
-packages/registry-lexicons test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons
 packages/x402 test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/x402
+packages/registry-lexicons test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-lexicons
 packages/plugin-types test:  Test Files  2 passed (2)
 packages/plugin-types test:       Tests  32 passed (32)
-packages/plugin-types test:    Start at  10:27:53
-packages/plugin-types test:    Duration  285ms (transform 106ms, setup 0ms, import 144ms, tests 91ms, environment 0ms)
+packages/plugin-types test:    Start at  17:46:01
+packages/plugin-types test:    Duration  227ms (transform 80ms, setup 0ms, import 112ms, tests 66ms, environment 0ms)
 packages/plugin-types test: Done
 packages/x402 test:  Test Files  1 passed (1)
 packages/x402 test:       Tests  17 passed (17)
-packages/x402 test:    Start at  10:27:53
-packages/x402 test:    Duration  233ms (transform 59ms, setup 0ms, import 66ms, tests 50ms, environment 0ms)
+packages/x402 test:    Start at  17:46:01
+packages/x402 test:    Duration  198ms (transform 55ms, setup 0ms, import 60ms, tests 46ms, environment 0ms)
+packages/x402 test: Done
 packages/registry-lexicons test:  Test Files  1 passed (1)
 packages/registry-lexicons test:       Tests  10 passed (10)
-packages/registry-lexicons test:    Start at  10:27:53
-packages/registry-lexicons test:    Duration  289ms (transform 101ms, setup 0ms, import 155ms, tests 11ms, environment 0ms)
-packages/x402 test: Done
+packages/registry-lexicons test:    Start at  17:46:01
+packages/registry-lexicons test:    Duration  243ms (transform 76ms, setup 0ms, import 114ms, tests 7ms, environment 0ms)
 packages/registry-lexicons test: Done
 packages/registry-client test$ vitest run
 packages/registry-client test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/registry-client
 packages/registry-client test:  Test Files  4 passed (4)
 packages/registry-client test:       Tests  70 passed (70)
-packages/registry-client test:    Start at  10:27:54
-packages/registry-client test:    Duration  307ms (transform 214ms, setup 0ms, import 391ms, tests 107ms, environment 1ms)
+packages/registry-client test:    Start at  17:46:01
+packages/registry-client test:    Duration  291ms (transform 268ms, setup 0ms, import 439ms, tests 122ms, environment 0ms)
 packages/registry-client test: Done
 packages/admin test$ vitest
 packages/plugin-cli test$ vitest run
 packages/plugin-cli test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/plugin-cli
-packages/admin test: 10:27:54 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+packages/admin test: 5:46:02 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
 packages/admin test: `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
 packages/admin test: Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ jsx: 'automatic', jsxImportSource: undefined }`
 packages/admin test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin
 packages/admin test: Loaded  vitest@4.1.5  and  @vitest/browser@4.1.9 .
 packages/admin test: Running mixed versions is not supported and may lead into bugs
 packages/admin test: Update your dependencies and make sure the versions match.
-packages/admin test: 10:27:54 AM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
+packages/admin test: 5:46:02 PM [vite] warning: `esbuild` option was specified by "vite:react-babel" plugin. This option is deprecated, please use `oxc` instead.
 packages/admin test: `optimizeDeps.rollupOptions` / `ssr.optimizeDeps.rollupOptions` is deprecated. Use `optimizeDeps.rolldownOptions` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
 packages/admin test: You or a plugin you are using have set `optimizeDeps.esbuildOptions` but this option is now deprecated. Vite now uses Rolldown to optimize the dependencies. Please use `optimizeDeps.rolldownOptions` instead.
-packages/admin test: 10:27:54 AM [vite] (client) Re-optimizing dependencies because lockfile has changed
+packages/admin test: 5:46:02 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
 packages/admin test: [33mWarning: Invalid input options (1 issue found)
 packages/admin test: - For the "jsx". Invalid key: Expected never but received "jsx". [0m
 packages/admin test: [33mWarning: Invalid input options (1 issue found)
 packages/admin test: - For the "jsx". Invalid key: Expected never but received "jsx". [0m
-packages/admin test: 10:27:56 AM [vite] (client) [optimizer] bundling dependencies...
+packages/admin test: 5:46:04 PM [vite] (client) [optimizer] bundling dependencies...
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/slash-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/RevisionHistory.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/toolbar.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/bubble-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:10 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:02 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:11 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:12 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/UserDetail.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:03 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/block-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:04 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:05 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/settings/AllowedDomainsSettings.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:13 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:06 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
 packages/plugin-cli test:  Test Files  20 passed (20)
 packages/plugin-cli test:       Tests  393 passed (393)
-packages/plugin-cli test:    Start at  10:27:54
-packages/plugin-cli test:    Duration  12.58s (transform 5.06s, setup 0ms, import 8.05s, tests 12.62s, environment 2ms)
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/plugin-cli test:    Start at  17:46:02
+packages/plugin-cli test:    Duration  12.02s (transform 4.49s, setup 0ms, import 7.77s, tests 12.12s, environment 2ms)
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
 packages/plugin-cli test: Done
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] Warning: useRouter must be used inside a <RouterProvider> component!
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:14 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/editor/block-menu.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/UserDetail.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:07 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:08 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:09 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/settings/AllowedDomainsSettings.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test: 10:28:09 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:15 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:09 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:16 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:17 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:17 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
-packages/admin test:   - label prop: <Input label='Email' />
-packages/admin test:   - aria-label: <Input aria-label='Email address' />
-packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:10 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:17 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/components/users/InviteUserModal.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:19 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:13 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
-packages/admin test: 10:28:14 AM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
 packages/admin test:   - label prop: <Input label='Email' />
 packages/admin test:   - aria-label: <Input aria-label='Email address' />
 packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:20 PM [vite] (client) [console.warn] [Kumo Input]: Input must have an accessible name. Provide either:
+packages/admin test:   - label prop: <Input label='Email' />
+packages/admin test:   - aria-label: <Input aria-label='Email address' />
+packages/admin test:   - aria-labelledby for custom label association
+packages/admin test: 5:46:21 PM [vite] (client) [console.error] An update to LocaleButton inside a test was not wrapped in act(...).
+packages/admin test: When testing, code that causes React state updates should be wrapped into act(...):
+packages/admin test: act(() => {
+packages/admin test:   /* fire events that update state */
+packages/admin test: });
+packages/admin test: /* assert on the output */
+packages/admin test: This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+packages/admin test: 5:46:21 PM [vite] (client) [console.error] An update to LocaleDirectionProvider inside a test was not wrapped in act(...).
+packages/admin test: When testing, code that causes React state updates should be wrapped into act(...):
+packages/admin test: act(() => {
+packages/admin test:   /* fire events that update state */
+packages/admin test: });
+packages/admin test: /* assert on the output */
+packages/admin test: This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+packages/admin test: 5:46:21 PM [vite] (client) [console.error] An update to I18nProvider inside a test was not wrapped in act(...).
+packages/admin test: When testing, code that causes React state updates should be wrapped into act(...):
+packages/admin test: act(() => {
+packages/admin test:   /* fire events that update state */
+packages/admin test: });
+packages/admin test: /* assert on the output */
+packages/admin test: This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
 packages/admin test:  DEPRECATED  /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/admin/tests/lib/hooks.test.tsx tries to load a deprecated "@vitest/browser/context" module. This import will stop working in the next major version. Please, use "vitest/browser" instead.
 packages/admin test:  Test Files  84 passed (84)
 packages/admin test:       Tests  1030 passed (1030)
-packages/admin test:    Start at  10:27:54
-packages/admin test:    Duration  23.22s (transform 0ms, setup 9.75s, import 125.60s, tests 65.48s, environment 0ms)
+packages/admin test:    Start at  17:46:02
+packages/admin test:    Duration  23.13s (transform 0ms, setup 10.38s, import 125.70s, tests 71.33s, environment 0ms)
 packages/admin test: Done
 packages/auth-atproto test$ vitest run
 packages/core test$ vitest
@@ -4023,13 +4015,13 @@ packages/auth-atproto test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsm
 packages/core test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/core
 packages/auth-atproto test:  Test Files  3 passed (3)
 packages/auth-atproto test:       Tests  27 passed (27)
-packages/auth-atproto test:    Start at  10:28:18
-packages/auth-atproto test:    Duration  271ms (transform 119ms, setup 0ms, import 165ms, tests 179ms, environment 0ms)
+packages/auth-atproto test:    Start at  17:46:26
+packages/auth-atproto test:    Duration  327ms (transform 134ms, setup 0ms, import 201ms, tests 262ms, environment 0ms)
 packages/auth-atproto test: Done
 packages/core test:  Test Files  313 passed (313)
 packages/core test:       Tests  4268 passed (4268)
-packages/core test:    Start at  10:28:18
-packages/core test:    Duration  21.88s (transform 35.24s, setup 0ms, import 165.85s, tests 185.00s, environment 39ms)
+packages/core test:    Start at  17:46:26
+packages/core test:    Duration  22.51s (transform 36.98s, setup 0ms, import 172.57s, tests 190.76s, environment 39ms)
 packages/core test: Done
 packages/cloudflare test$ vitest run
 packages/workerd test$ vitest run
@@ -4037,12 +4029,12 @@ packages/cloudflare test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmic
 packages/workerd test:  RUN  v4.1.5 /home/data/dev_react/awcms-micro/awcmsmicro-dev/packages/workerd
 packages/cloudflare test:  Test Files  15 passed (15)
 packages/cloudflare test:       Tests  211 passed (211)
-packages/cloudflare test:    Start at  10:28:40
-packages/cloudflare test:    Duration  521ms (transform 1.99s, setup 0ms, import 3.40s, tests 295ms, environment 4ms)
+packages/cloudflare test:    Start at  17:46:48
+packages/cloudflare test:    Duration  513ms (transform 1.50s, setup 0ms, import 2.79s, tests 276ms, environment 2ms)
 packages/cloudflare test: Done
 packages/workerd test:  Test Files  11 passed (11)
 packages/workerd test:       Tests  73 passed (73)
-packages/workerd test:    Start at  10:28:40
-packages/workerd test:    Duration  9.35s (transform 6.42s, setup 0ms, import 11.80s, tests 8.73s, environment 1ms)
+packages/workerd test:    Start at  17:46:48
+packages/workerd test:    Duration  9.48s (transform 7.11s, setup 0ms, import 12.95s, tests 8.75s, environment 1ms)
 packages/workerd test: Done
 ```

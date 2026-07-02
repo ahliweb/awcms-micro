@@ -43,8 +43,82 @@ trustPolicyExclude:
   - "reselect@5.1.1" # provenance -> none (old pinned util)
 
 overrides:
+  # Downstream supply-chain override for Dependabot open alerts 2026-07-02.
+  # Re-check on next upstream EmDash sync before keeping these snapshot overrides.
+  # fast-uri GHSA-q3j6-qgpj-74h6/GHSA-v39h-62p7-jpjc: path traversal and host-confusion fixes.
+  fast-uri: 3.1.2
+  # express-rate-limit GHSA-46wh-pxpv-q5gq: dual-stack IPv4-mapped IPv6 rate-limit bypass fix.
+  express-rate-limit: 8.5.2
+  # qs GHSA-q8mj-m7cp-5q26: remotely triggerable stringify DoS fix.
+  qs: 6.15.2
+  # brace-expansion GHSA-jxxr-4gwj-5jf2: numeric-range DoS fix.
+  brace-expansion: 5.0.6
+  # devalue GHSA-77vg-94rm-hx3p/GHSA-mwv9-gp5h-frr4/GHSA-cfw5-2vxh-hr84:
+  # sparse-array DoS and prototype-pollution fixes.
+  devalue: ^5.8.1
+  # defu GHSA-737v-mqg7-c878: prototype-pollution fix.
+  defu: ^6.1.7
+  # h3 GHSA-22cc-p3c6-wpvm/GHSA-4hxc-9384-m385/GHSA-72gr-qfp7-vwhw/GHSA-wr4h-v87w-p3r7:
+  # SSE injection, double-decoding, and static path traversal fixes.
+  h3: ^1.15.11
+  # ajv GHSA-2g4f-4pwh-qvx6: ReDoS fix for $data schema option.
+  ajv: ^8.18.0
+  # markdown-it GHSA-38c4-r59v-3vqw/GHSA-6v5v-wf23-fmfq: ReDoS and smartquotes DoS fixes.
+  markdown-it: ^14.1.2
+  # path-to-regexp GHSA-j3q9-mxjg-w52f/GHSA-27v5-c462-wpq7: route-pattern DoS fixes.
+  path-to-regexp: ^8.4.2
+  # postcss GHSA-qx2v-qp2m-jg93: CSS stringify XSS fix.
+  postcss: ^8.5.15
+  # rollup GHSA-mw96-cpmx-2vgc: path-traversal arbitrary file write fix.
+  rollup: ^4.59.0
+  # simple-git GHSA-hffm-xvc3-vprc: remote code execution fix.
+  simple-git: ^3.36.0
+  # ws GHSA-96hv-2xvq-fx4p/GHSA-58qx-3vcg-4xpx: memory exhaustion and memory disclosure fixes.
+  ws: ^8.21.0
+  # yaml GHSA-48c2-rrv3-qjmp: deeply nested YAML stack-overflow fix.
+  yaml: ^2.9.0
+  # @hono/node-server GHSA-wc8c-qw6v-h7f6/GHSA-92pp-h63x-v22m:
+  # encoded-slash and repeated-slash static middleware bypass fixes.
+  "@hono/node-server@<1.19.13": 1.19.13
+  # tar GHSA-34x7-hfp2-rc4v/GHSA-83g3-92jg-28cx/GHSA-8qq5-rm4j-mr97/GHSA-9ppj-qmqm-q256/GHSA-qffp-2rhf-9h96/GHSA-r6q2-hw4h-h46w/GHSA-vmf3-w455-68vh:
+  # hardlink/symlink traversal, overwrite, and parser differential fixes.
+  tar: ^7.5.19
+  # linkify-it GHSA-22p9-wv53-3rq4: quadratic scan DoS fix.
+  linkify-it: ^5.0.1
+  # Lodash GHSA-f23m-r3pf-42rh/GHSA-r5fr-rjxr-66jc/GHSA-xxjr-mmjv-4gpg:
+  # prototype pollution and template code-injection fixes.
+  lodash: ^4.18.1
+  # DOMPurify GHSA-39q2-94rc-95cp/GHSA-76mc-f452-cxcm/GHSA-cmwh-pvxp-8882/GHSA-crv5-9vww-q3g8/GHSA-gvmj-g25r-r7wr/GHSA-h7mw-gpvr-xq4m/GHSA-hpcv-96wg-7vj8/GHSA-r47g-fvhr-h676/GHSA-rp9w-3fw7-7cwq/GHSA-v9jr-rg53-9pgp/GHSA-vxr8-fq34-vvx9/GHSA-x4vx-rjvf-j5p4:
+  # sanitizer bypass, hook/config pollution, and Trusted Types fixes.
+  dompurify: ^3.4.11
+  # Astro GHSA-2pvr-wf23-7pc7/GHSA-8hv8-536x-4wqp/GHSA-j687-52p2-xcff/GHSA-jrpj-wcv7-9fh9/GHSA-xr5h-phrj-8vxv:
+  # SSRF, XSS, and server-island parameter replay fixes.
+  astro: ^7.0.5
+  # @astrojs/cloudflare GHSA-88gm-j2wx-58h6: image binding transform SSRF fix.
+  "@astrojs/cloudflare": ^14.0.0
+  # ECharts GHSA-fgmj-fm8m-jvvx: XSS fix for chart rendering.
+  echarts: ^6.1.0
+  # smol-toml GHSA-v3rj-xjv7-4jmq: comment-line DoS fix for TOML parsing.
+  smol-toml: ^1.7.0
   # 1.3.0 is deprecated (CWE-502); pin the patched line.
   "@ungap/structured-clone": "^1.3.1"
+  # Hono GHSA-2gcr-mfcq-wcc3/GHSA-3hrh-pfw6-9m5x/GHSA-458j-xx4x-4375/GHSA-69xw-7hcm-h432/GHSA-88fw-hqm2-52qc/GHSA-9vqf-7f2p-gf9v/GHSA-f577-qrjj-4474/GHSA-hm8q-7f3q-5f36/GHSA-j6c9-x7qj-28xf/GHSA-p77w-8qqv-26rm/GHSA-qp7p-654g-cw7p/GHSA-rv63-4mwf-qqc2/GHSA-wgpf-jwqj-8h8p/GHSA-wwfh-h76j-fc44/GHSA-xrhx-7g5j-rcj5:
+  # cache leakage, header/cookie injection, body-limit bypass, path traversal, JWT validation, IP restriction bypass, and JSX injection fixes.
+  hono: ^4.12.27
+  # Undici GHSA-35p6-xmwp-9g52/GHSA-g8m3-5g58-fq7m/GHSA-hm92-r4w5-c3mj/GHSA-p88m-4jfj-68fv/GHSA-pr7r-676h-xcf6/GHSA-vmh5-mc38-953g/GHSA-vxpw-j846-p89q:
+  # WebSocket DoS, header injection, queue poisoning, TLS validation, SOCKS proxy, and cache disclosure fixes.
+  undici: ^7.28.0
+  # Vite GHSA-fx2h-pf6j-xcff/GHSA-v6wh-96g9-6wx3/GHSA-4w7w-66w2-5vf9/GHSA-p9ff-h696-f583/GHSA-v2wj-q39q-566r:
+  # dev-server fs deny/path traversal and launch-editor UNC handling fixes.
+  vite: ^8.0.16
+  # JS-YAML GHSA-h67p-54hq-rp68: quadratic-complexity DoS in merge key handling.
+  "js-yaml@<4": 3.15.0
+  "js-yaml@>=4 <4.2.0": 4.2.0
+  # protobufjs GHSA-f38q-mgvj-vph7: schema-derived names can shadow runtime-significant properties.
+  protobufjs: ^7.6.3
+  # GHSA-gv7w-rqvm-qjhr (HIGH) + GHSA-g7r4-m6w7-qqqr (LOW): esbuild < 0.28.1
+  # missing binary integrity check and dev-server arbitrary file read.
+  esbuild: ^0.28.1
 
 enablePrePostScripts: true
 

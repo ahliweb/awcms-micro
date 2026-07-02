@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.13 - 2026-07-02
+
+- Hardens the AWCMS-Micro and EmDash snapshot dependency graph by adding reviewed pnpm overrides for open Dependabot and audit advisories across the root workspace, `emdash-latest/`, `awcmsmicro-dev/`, and their `.flue/` workspaces.
 ## 0.2.12 - 2026-07-02
 
 - Clarifies the AWCMS-Micro PRD, product README sources, and decision records so Micro remains the full-EmDash D1 + R2 product while highly restricted SIKESRA-style production workloads move to AWCMS-Mini.
@@ -184,7 +187,7 @@
 ## Workspace Snapshot - 2026-07-02
 
 - EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.12`
+- Root version: `0.2.13`
 
 ### Plugins
 
