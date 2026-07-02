@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.12 - 2026-07-02
+
+- Clarifies the AWCMS-Micro PRD, product README sources, and decision records so Micro remains the full-EmDash D1 + R2 product while highly restricted SIKESRA-style production workloads move to AWCMS-Mini.
 ## 0.2.11 - 2026-07-02
 
 - Marks the Micro SIKESRA plugin as deprecated and frozen, documents the migration path to AWCMS-Mini, and updates the governance boundary for compatibility-only maintenance.
@@ -181,7 +184,7 @@
 ## Workspace Snapshot - 2026-07-02
 
 - EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.11`
+- Root version: `0.2.12`
 
 ### Plugins
 

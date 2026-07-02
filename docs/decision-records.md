@@ -19,6 +19,7 @@ flowchart LR
   DR006 --> DR007[DR-007\nRoot changelog snapshot]
   DR002 --> DR008[DR-008\nSidebar grouping and i18n rules]
   DR003 --> DR012[DR-012\nFresh-clone bootstrap explicit]
+  DR002 --> DR014[DR-014\nRestricted data moves to Mini]
 ```
 
 ## Current Decisions
@@ -100,6 +101,12 @@ flowchart LR
 - Decision: render plugin admin links as one collapsible group per plugin, order the groups alphabetically by plugin name, mirror the same ordering in the admin command palette, and use contextual page icons from plugin metadata where available
 - Why: keep plugin navigation clear, stable across rebuilds, and visually aligned with the content each plugin actually exposes
 - See: `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `docs/awcms-micro-implementation-boundaries.md`
+
+### DR-014: Highly Restricted Production Workloads Move To AWCMS-Mini
+
+- Decision: keep AWCMS-Micro as the full-EmDash D1 + R2 product and move SIKESRA/SatuSehatKobar-style `highly_restricted` production workloads to AWCMS-Mini
+- Why: those workloads require PostgreSQL, mandatory RLS, and stronger audit controls than the Micro D1 boundary is meant to carry
+- See: `docs/ahliweb-architecture-decisions.md`, `docs/awcms-micro-prd.md`, `docs/awcms-micro-implementation-boundaries.md`
 
 ## How To Extend
 

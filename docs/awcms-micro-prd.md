@@ -6,6 +6,23 @@ AWCMS-Micro is a downstream, EmDash-compatible example repository that stays syn
 
 This PRD describes the product direction for the eventual independent `awcms-micro` repository and the same implementation model already used in `awcmsmicro-dev/`.
 
+### Product Position
+
+AWCMS-Micro is the full-EmDash product in the AWCMS product line. It adopts upstream EmDash as the core runtime and keeps AWCMS-specific behavior in plugin and template boundaries. Its primary Cloudflare production shape is D1 for relational data and R2 for object/media storage.
+
+AWCMS-Micro is not the production host for `highly_restricted` workloads such as SIKESRA or SatuSehatKobar. Those workloads require the AWCMS-Mini architecture with PostgreSQL, mandatory RLS, and stronger audit controls. The Micro `awcms-micro-sikesra` plugin is deprecated and frozen as compatibility, historical, and migration-source reference only.
+
+```mermaid
+flowchart LR
+  Upstream["Upstream EmDash"] --> Micro["AWCMS-Micro\nfull EmDash adoption"]
+  Micro --> D1["Cloudflare D1\nCMS + plugin data"]
+  Micro --> R2["Cloudflare R2\nmedia and objects"]
+  Micro --> Plugins["Plugins + templates\nsync-safe boundaries"]
+  Restricted["highly_restricted workloads\nSIKESRA / SatuSehatKobar"] --> Mini["AWCMS-Mini\nPostgreSQL + RLS + audit"]
+  Micro -. compatibility only .-> Frozen["awcms-micro-sikesra\ndeprecated / frozen"]
+  Frozen -. migration source .-> Mini
+```
+
 ### Product Goals
 
 - keep the product aligned with upstream EmDash without forking core behavior
@@ -18,6 +35,7 @@ This PRD describes the product direction for the eventual independent `awcms-mic
 - no new shared core layer parallel to EmDash
 - no nested-product hosting at the repository root
 - no hidden behavior that depends on untracked secrets or undocumented infrastructure
+- no production ownership of `highly_restricted` personal, health, or welfare data in Micro/D1
 
 ## 1.1 Personas
 
@@ -87,6 +105,7 @@ This PRD describes the product direction for the eventual independent `awcms-mic
 - The root maintenance workspace must keep a current snapshot of the active EmDash SHA and the latest version/changelog entry of every plugin and template.
 - Cloudflare-oriented templates must support deployment bindings, D1, R2, and secret injection.
 - Database and API work must respect EmDash route, handler, migration, and auth rules.
+- Plugin or template work that handles `highly_restricted` production data must be moved to AWCMS-Mini rather than implemented in Micro/D1.
 
 ### Non-Functional Requirements
 
@@ -199,6 +218,7 @@ flowchart TD
 - backend: EmDash handlers, routes, auth, and plugin hooks
 - database: EmDash schema tables and plugin-owned data tables when needed
 - storage: D1 for relational data, R2 for media, optional KV for settings or edge state
+- excluded production workload class: `highly_restricted` personal, health, or welfare systems that require PostgreSQL, RLS, and stronger audit controls
 
 ```mermaid
 flowchart LR
@@ -207,10 +227,12 @@ flowchart LR
   Workspace --> BE[Plugins / API / Handlers]
   Workspace --> DB[D1 database]
   Workspace --> ST[R2 / KV / Secrets]
+  Restricted[Highly restricted workloads] --> Mini[AWCMS-Mini]
   FE --> User[End user]
   BE --> User
   BE --> DB
   BE --> ST
+  Workspace -. not production host .-> Restricted
 ```
 
 ## 6. Database Schema
@@ -330,6 +352,7 @@ erDiagram
 - keep migrations forward-only
 - preserve locale-aware content handling
 - avoid schema drift that breaks upstream compatibility
+- do not add Micro/D1 production schemas for `highly_restricted` workloads; keep deprecated SIKESRA data as compatibility or migration-source data only
 
 ### Release And Workflow Constraints
 
@@ -453,6 +476,7 @@ This section is a product-planning checklist, not legal advice. Confirm jurisdic
 - public content may be eligible for AI-assisted processing when allowed by policy
 - private content, credentials, secrets, and internal operator notes must be excluded unless explicitly approved
 - personal data requires stricter handling, minimization, and retention rules
+- `highly_restricted` production data is out of scope for AWCMS-Micro and belongs in AWCMS-Mini
 - any data sent to a third-party model/provider must be reviewed as a transfer of information
 
 ### Data Handling Rules
@@ -483,6 +507,7 @@ This section is a product-planning checklist, not legal advice. Confirm jurisdic
 - deployment and validation paths are documented
 - versioning/changelog behavior is visible for root and per package
 - the repository remains EmDash-compatible and upstream-safe
+- the PRD clearly states that Micro is EmDash-based on D1 + R2 and does not host `highly_restricted` production data
 - personas, scope per release, and out-of-scope boundaries are explicit
 - business management and legal/regulatory considerations are documented for operators and reviewers
 - AI strategy, UX, evaluation, and data policy are documented for modern AI-enabled development

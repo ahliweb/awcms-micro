@@ -17,6 +17,8 @@ AWCMS-Micro is an EmDash-based implementation workspace that stays aligned with 
 
 AWCMS-Micro is intended to show how an EmDash-based project can remain sync-friendly with upstream EmDash while still defining its own conventions for navigation, governance-style plugin flows, media handling, deployment, and operational guidance.
 
+Its standard Cloudflare shape is EmDash on D1 for relational data and R2 for media/object storage. It is not the production host for `highly_restricted` workloads such as SIKESRA or SatuSehatKobar; those move to AWCMS-Mini, where PostgreSQL, RLS, and stronger audit controls are required.
+
 ## What AWCMS-Micro Is
 
 - an independent repository built on EmDash
@@ -30,6 +32,7 @@ AWCMS-Micro is intended to show how an EmDash-based project can remain sync-frie
 - not a replacement upstream for EmDash
 - not a host for unrelated nested products
 - not a second shared core layer parallel to EmDash
+- not a production system for `highly_restricted` personal, health, or welfare data
 
 ## Development Model
 
@@ -44,7 +47,7 @@ Supporting documentation, demos, and E2E coverage may exist alongside them, but 
 
 - `packages/plugins/awcms-micro-docs/`: documentation plugin with an admin docs page and shared public docs copy
 - `packages/plugins/awcms-micro-gallery/`: gallery plugin with settings, public listing, media validation, and audit-ready hooks
-- `packages/plugins/awcms-micro-sikesra/`: governance, navigation, access, audit, and ABAC-oriented plugin
+- `packages/plugins/awcms-micro-sikesra/`: deprecated/frozen compatibility and migration-source plugin; production SIKESRA belongs in AWCMS-Mini
 - `templates/awcms-micro-default/`: Node/SQLite reference template
 - `templates/awcms-micro-default-cloudflare/`: Cloudflare reference template
 

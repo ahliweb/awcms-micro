@@ -24,7 +24,7 @@ flowchart TD
 - `awcms-micro-github-issue-system.md`: repository issue-management standard, including `SEQ`, priority, dependency, Mermaid diagram, and agent execution rules
 - `awcms-micro-mermaid-diagram-standard.md`: repository-wide Mermaid diagram standard for PRDs, database/D1, UI/UX, integration, security, deployment, and governance docs
 - `awcms-micro-documentation-workflow.md`: required workflow for deciding whether to update or create docs, when to add Mermaid diagrams, and when to update README indexes or `AGENTS.md`
-- `awcms-micro-sikesra-plugin-governance.md`: SIKESRA plugin governance, issue backlog mapping, D1 boundary, EmDash user reference rule, field standards, public aggregate rule, RBAC/ABAC, CRUD, and update/rebuild safety
+- `awcms-micro-sikesra-plugin-governance.md`: deprecated/frozen SIKESRA plugin governance, historical issue backlog mapping, D1 compatibility boundary, Mini migration path, EmDash user reference rule, field standards, public aggregate rule, RBAC/ABAC, CRUD, and update/rebuild safety
 - `awcms-micro-mobile-services-plugin-standard.md`: official standard for a future mobile services plugin that manages Android, iOS, Flutter, native mobile, API, auth, versioning, notifications, offline sync, deployment, monitoring, and governance workflows
 - `awcms-admin-branding.md`: admin branding persistence model and downstream patch overlay for sidebar footer versioning
 - `ahliweb-architecture-decisions.md`: canonical AhliWeb product-line ADR mirror for AWCMS-Micro applicability, including the full-EmDash/D1/R2 boundary and SIKESRA deprecation decision
@@ -114,7 +114,7 @@ Sequenced GitHub issues use this title pattern:
 [PRODUCT][SEQ-XX][TYPE][PRIORITY] Title
 ```
 
-`SEQ` controls execution order. Priority controls risk and urgency. Mermaid diagrams are required when an issue changes architecture, database/D1, UI/UX flow, integration, security flow, deployment topology, migration, or data preservation behavior. For the SIKESRA plugin, the current ordered backlog is documented in `awcms-micro-github-issue-system.md` and mirrored in the SIKESRA governance docs.
+`SEQ` controls execution order. Priority controls risk and urgency. Mermaid diagrams are required when an issue changes architecture, database/D1, UI/UX flow, integration, security flow, deployment topology, migration, or data preservation behavior. For the SIKESRA plugin, the frozen historical backlog is documented in `awcms-micro-github-issue-system.md` and mirrored in the SIKESRA governance docs.
 
 ## Language Policy
 
