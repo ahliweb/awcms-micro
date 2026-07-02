@@ -26,7 +26,9 @@ Do not commit tokens, secrets, or private credentials. This repository's referen
 - Workers runtime for the public application
 - D1 database for application data
 - R2 bucket for media and file storage
-- KV only when a specific feature requires it
+- KV for sessions in the current reference template; additional KV namespaces only when a specific feature requires them
+- Cloudflare Images binding for media/image runtime support
+- Worker Loader binding for plugin sandbox support
 - environment variables and secrets for deployment-time configuration
 - custom domains for the app and public storage edge
 - SSL/TLS for all public endpoints
@@ -38,8 +40,10 @@ flowchart LR
   Route --> Worker[AWCMS-Micro Worker]
   Worker --> D1[(D1 database)]
   Worker --> R2[(R2 media bucket)]
-  Worker --> KV[(Session KV)]
+  Worker --> SessionKV[(Session KV)]
+  Worker --> Images[Images binding]
   Worker --> Loader[Worker Loader]
+  Worker --> Cron[Cron Trigger]
   Worker --> Plugins[AWCMS-Micro plugins]
 ```
 
@@ -58,10 +62,35 @@ flowchart LR
 | --- | --- | --- | --- |
 | `D1` / database binding | Primary application database | template `wrangler.jsonc` | Keep the committed ID aligned with the intended example deployment target |
 | `MEDIA` | Media object storage | template `wrangler.jsonc` | Backed by R2 |
+| `IMAGES` | Cloudflare Images runtime support | template `wrangler.jsonc` | Used by the Cloudflare media/image runtime |
 | `LOADER` | Worker Loader / plugin sandbox support | template `wrangler.jsonc` | Keep prepared even if no sandboxed plugin is active yet |
 | session namespace or equivalent | Session storage | template config / deployment env | Keep the committed ID aligned with the intended example deployment target |
 | public app hostname | User-facing site domain | DNS + Worker route config | Example: `awcms-micro.ahlikoding.com` |
 | storage hostname | Public storage edge domain | DNS + R2/public edge config | Example: `awcms-micro-s3.ahlikoding.com` |
+
+## Optional Cloudflare Features
+
+The EmDash 0.26.0 sync makes more Cloudflare adapters available upstream, but AWCMS-Micro does not add their bindings by default. The current accepted topology remains D1 + R2 + session KV + Images + Worker Loader. See `docs/upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`.
+
+```mermaid
+flowchart TD
+  Current[Accepted reference topology] --> D1R2[D1 + R2 + SESSION KV + IMAGES + LOADER]
+  Optional[Optional upstream features] --> Need{Focused issue and operational need?}
+  Need -->|No| Deferred[Do not add binding]
+  Need -->|Yes| Review[Plan binding, security, rollback, validation]
+  Review --> Feature{Feature type}
+  Feature --> DO[Durable Object SQLite\nDB migration project]
+  Feature --> Hyperdrive[Hyperdrive\nPostgres/MySQL exception]
+  Feature --> Cache[KV object cache or route cache\ncache strategy project]
+  Feature --> Email[Cloudflare Email Sending\ntransactional email project]
+```
+
+Deferred bindings:
+
+- `DB_DO` / `durable_objects`: deferred because it changes the database backend.
+- `HYPERDRIVE` / `HYPERDRIVE_CACHED`: deferred because AWCMS-Micro's product-line ADR keeps Micro on D1.
+- `CACHE`: deferred until measured D1 read pressure justifies object-cache TTL, invalidation, and rollback work.
+- `EMAIL` / `send_email`: deferred until transactional email scope, sender-domain onboarding, deliverability, consent, and security review are complete.
 
 ## Secrets And Variables
 
@@ -111,6 +140,8 @@ The 2026-07-02 sync verified the checked-in Cloudflare deployment shape locally:
 - `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare exec wrangler deploy --dry-run` passed with Wrangler `4.100.0` and reported the expected `SESSION`, `DB`, `MEDIA`, `IMAGES`, `ASSETS`, `LOADER`, and production `AWCMS_MICRO_*` bindings.
 
 Production was later observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed at `2026-07-02T04:14:49.517603Z`. D1 migrations 044-048 were applied and verified against `awcms-micro-d1-20260530`; see `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
+
+The Cloudflare architecture decision for EmDash 0.26.0 keeps the current production binding shape and defers optional DO, Hyperdrive, object-cache, route-cache, and Email Sending bindings until focused issues justify them.
 
 ## Pre-Deploy Checks
 

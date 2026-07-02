@@ -54,6 +54,7 @@ flowchart TD
 - `upstream-sync/LAST_UPSTREAM_FETCH.md`: exact upstream revision copied into `emdash-latest/`
 - `upstream-sync/UPSTREAM_SYNC_STATUS.md`: current upstream synchronization status and validation table
 - `upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`: production D1 migration 044-048 impact, SQL verification, smoke checks, and rollback guidance for the EmDash 0.26.0 sync
+- `upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: Cloudflare architecture adoption/deferral decisions for EmDash 0.20.0-0.26.0 features in the AWCMS-Micro Cloudflare template
 - `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether a discovered issue belongs in downstream boundaries or upstream EmDash core
 - `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin-sidebar ordering support
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes

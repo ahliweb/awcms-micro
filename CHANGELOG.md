@@ -1,5 +1,11 @@
 # AWCMS-Micro Changelog
 
+## 0.2.9 - 2026-07-02
+
+- Record closure of the EmDash 0.26.0-era synchronization tracking issues after #220, #221, #222, and #223 were completed and closed.
+## 0.2.8 - 2026-07-02
+
+- Record the EmDash 0.26.0 Cloudflare architecture decision for AWCMS-Micro: keep the reference template on D1, R2, session KV, Images, Worker Loader, and cron; adopt additive upstream media/search improvements; defer Durable Object SQLite, Hyperdrive, KV object cache, route cache, and Cloudflare Email Sending bindings until focused future issues justify them.
 ## 0.2.7 - 2026-07-02
 
 - Record the post-deploy production verification for the EmDash 0.26.0 synchronization: Worker version 5be81778-b5ba-45e5-aa1c-164655845a5d was observed live, production D1 migrations 044-048 were verified in place, new migration tables and indexes were audited, smoke checks passed, and issue #221 is documented as complete.
@@ -169,7 +175,7 @@
 ## Workspace Snapshot - 2026-07-02
 
 - EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.7`
+- Root version: `0.2.9`
 
 ### Plugins
 
