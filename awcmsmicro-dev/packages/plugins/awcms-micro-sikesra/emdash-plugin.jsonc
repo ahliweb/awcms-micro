@@ -8,8 +8,8 @@
 	"author": { "name": "AWCMS-Micro / AhliWeb" },
 	// Add `security` and `repo` when the final standalone package location is known.
 	"name": "AWCMS-Micro SIKESRA Plugin",
-	"description": "SIKESRA welfare and social-religious registry plugin for AWCMS-Micro, including region-scoped registry data, verification workflow, documents, import/export, RBAC/ABAC, audit, and public-safe aggregate reporting.",
-	"keywords": ["awcms-micro", "sikesra", "emdash", "plugin", "tenant-ready"],
+	"description": "Deprecated and frozen AWCMS-Micro SIKESRA compatibility plugin. Former SIKESRA welfare and social-religious registry plugin for AWCMS-Micro; production SIKESRA has moved to AWCMS-Mini. Keep this package for historical reference, EmDash compatibility, and migration-source guidance.",
+	"keywords": ["awcms-micro", "sikesra", "emdash", "plugin", "tenant-ready", "deprecated"],
 
 	// Keep this trust contract aligned with the real runtime surface before release.
 	"capabilities": ["content:read", "content:write", "media:read", "media:write", "users:read"],

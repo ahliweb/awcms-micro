@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.11 - 2026-07-02
+
+- Marks the Micro SIKESRA plugin as deprecated and frozen, documents the migration path to AWCMS-Mini, and updates the governance boundary for compatibility-only maintenance.
 ## 0.2.10 - 2026-07-02
 
 - Record the 2026-07-02 production scheduled publishing verification: a temporary scheduled post was published by the Cloudflare cron sweep with published_at matching scheduled_at, the unscheduled guard row remained draft, Worker logs recorded the scheduled publish event, and all temporary rows/revisions were cleaned up.
@@ -178,7 +181,7 @@
 ## Workspace Snapshot - 2026-07-02
 
 - EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.10`
+- Root version: `0.2.11`
 
 ### Plugins
 

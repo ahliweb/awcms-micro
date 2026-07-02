@@ -2,7 +2,15 @@
 
 This document summarizes the repository-level governance rules for the AWCMS-Micro SIKESRA plugin.
 
-The detailed implementation backlog is tracked in GitHub issues #119 through #143 and follows the issue execution standard in `docs/awcms-micro-github-issue-system.md`.
+Status: deprecated and frozen in AWCMS-Micro under issue #210. Production SIKESRA work belongs in AWCMS-Mini. The detailed Micro implementation backlog in GitHub issues #119 through #143 is retained as historical design context and compatibility reference, not as an active feature backlog.
+
+```mermaid
+flowchart LR
+  Micro["AWCMS-Micro\nawcms-micro-sikesra"] --> Frozen["Deprecated / frozen\ncompatibility boundary"]
+  Frozen --> Inventory["Read-only inventory\nand migration guidance"]
+  Inventory --> Mini["AWCMS-Mini SIKESRA\nPostgreSQL + RLS + audit"]
+  Frozen -. no new production features .-> Closed["Feature backlog closed\nunless reopened by issue"]
+```
 
 ## 1. Plugin Boundary
 
@@ -64,10 +72,10 @@ Rules:
 - `SEQ` controls execution order.
 - `P0/P1/P2/P3` controls risk and urgency.
 - Suffixes such as `SEQ-01A` or `SEQ-07A` insert urgent or dependency issues without renumbering the backlog.
-- Before executing an issue, read its related issues and the current sequence order.
-- When the issue order changes, update this document, `docs/awcms-micro-github-issue-system.md`, `README.md`, `AGENTS.md`, and plugin-local docs.
+- Before executing a maintenance issue, read its related issues and the frozen sequence order.
+- When the issue order changes or a maintenance exception is approved, update this document, `docs/awcms-micro-github-issue-system.md`, `README.md`, `AGENTS.md`, and plugin-local docs.
 
-## 3. Current Ordered Backlog
+## 3. Frozen Historical Backlog
 
 | Order | Issue | Purpose |
 | ---: | ---: | --- |
@@ -99,7 +107,7 @@ Rules:
 
 ## 4. Execution Guidance
 
-Recommended phases:
+Historical recommended phases:
 
 1. **Identity and immediate admin safety**: #140, #141.
 2. **UI/UX standard**: #142.
@@ -110,11 +118,26 @@ Recommended phases:
 7. **Core workflows**: #126, #127, #128, #129, #130, #131, #134.
 8. **Advanced extensibility and lifecycle governance**: #138, #139.
 
-Do not start later workflow implementation before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+Do not start new SIKESRA production implementation in Micro. Use this sequence only to understand historical dependencies or to scope a focused compatibility, security, documentation, or migration-support issue.
+
+Allowed work in Micro:
+
+- security fixes;
+- EmDash update/rebuild compatibility fixes;
+- migration inventory or export guidance for moving to AWCMS-Mini;
+- documentation corrections;
+- tests that keep the deprecated boundary stable.
+
+Disallowed work in Micro:
+
+- new production SIKESRA features;
+- new D1 production schemas for highly restricted SIKESRA data;
+- public exposure of personal, sensitive personal, restricted, address, or document data;
+- changes that make Micro the canonical SIKESRA production host again.
 
 ## 5. D1 Data Boundary
 
-All canonical SIKESRA production tables must use the `sikesra_` prefix.
+All existing or compatibility SIKESRA tables in Micro must use the `sikesra_` prefix. This prefix remains required for rebuild safety and migration inventory, but Micro is no longer the target production data host for SIKESRA.
 
 Examples:
 
@@ -134,7 +157,8 @@ Rules:
 
 - Do not create unprefixed SIKESRA tables.
 - Do not store SIKESRA canonical business data in EmDash core tables.
-- Do not store SIKESRA canonical production data only in generic plugin storage once D1 migration is implemented.
+- Do not add new Micro D1 production tables for SIKESRA unless a focused maintenance or migration-source issue explicitly approves it.
+- Treat existing Micro plugin storage, KV, or D1 rows as compatibility, historical, or migration-source data.
 - Every business table must be tenant-ready and site-ready.
 - Every normal read must be tenant/site scoped.
 - Soft-deleted rows must be excluded by default.
@@ -344,7 +368,7 @@ bash scripts/validate-awcmsmicro-dev.sh
 ## 13. Non-Negotiable Rules
 
 - Do not modify EmDash core for SIKESRA-specific behavior.
-- Do not store SIKESRA production data in unprefixed tables.
+- Do not store SIKESRA compatibility, historical, or migration-source data in unprefixed tables.
 - Do not expose personal or sensitive SIKESRA data publicly.
 - Do not trust client-provided SIKESRA user headers in production.
 - Do not use high-risk migrations by default.

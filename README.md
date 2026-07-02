@@ -135,9 +135,9 @@ The SIKESRA plugin is an AWCMS-Micro downstream plugin under:
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/
 ```
 
-SIKESRA development is tracked through GitHub issues #119 through #143. These issues define the current implementation backlog for plugin identity, admin route safety, UI/UX standards, D1 table isolation, repository layer, frontend-backend-D1 integration, field standards, RBAC/ABAC, EmDash user references, document metadata, import/export, audit, data preservation, custom attributes, and CRUD governance.
+SIKESRA production development has moved to AWCMS-Mini. The Micro plugin is deprecated and frozen under issue #210. GitHub issues #119 through #143 are retained as historical design contracts and compatibility references only; they must not be used to add new SIKESRA production features in Micro unless a later issue explicitly reopens a maintenance-only task.
 
-Current ordered SIKESRA execution begins with:
+Frozen historical SIKESRA execution order:
 
 ```txt
 #140 plugin identity
@@ -155,9 +155,10 @@ Current ordered SIKESRA execution begins with:
 SIKESRA must follow these rules:
 
 - keep all SIKESRA-owned logic inside the plugin, templates, docs, scripts, tests, and approved downstream boundaries;
+- do not add new SIKESRA production features in AWCMS-Micro; use AWCMS-Mini for production SIKESRA implementation and migration work;
 - do not modify EmDash core for SIKESRA-specific behavior;
 - use dedicated D1 tables and plugin collections with the `sikesra_` prefix (the registered prefix for this plugin per `docs/awcms-micro-implementation-boundaries.md`);
-- treat dedicated D1 tables as the production source of truth once the D1 migration issues are implemented;
+- treat any existing Micro `sikesra_` data as compatibility, historical, or migration-source data, not the target production source of truth;
 - use EmDash users as shared identity references, while storing SIKESRA roles, scopes, and ABAC policies in `sikesra_` tables;
 - connect admin UI, API routes, service layer, repository layer, serializers, and D1 tables through typed contracts;
 - keep public output aggregate-only and public-safe;

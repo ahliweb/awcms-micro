@@ -52,6 +52,8 @@ These are the active product-development boundaries:
 - template boundaries under `templates/`
 - supporting docs, demos, E2E, and release-automation boundaries listed above
 
+`packages/plugins/awcms-micro-sikesra` is a deprecated and frozen compatibility boundary. Keep the path preserved so existing code, historical fixtures, and migration-source data references survive EmDash rebuilds, but do not add new SIKESRA production features in Micro. Production SIKESRA implementation and data migration belong in AWCMS-Mini.
+
 Plugin-owned storage collections must use a plugin-specific prefix and remain isolated from other plugins' collection names. See the prefix standard below.
 
 Local bootstrap state used by sync and backup workflows is also preserved across rebuilds:
@@ -92,7 +94,7 @@ flowchart LR
 
 | Plugin | Package | Assigned Prefix | Tables owned |
 | --- | --- | --- | --- |
-| SIKESRA | `@awcms-micro/plugin-sikesra` | `sikesra_` | `sikesra_persons`, `sikesra_audit_events`, etc. |
+| SIKESRA *(deprecated/frozen in Micro)* | `@awcms-micro/plugin-sikesra` | `sikesra_` | Compatibility, historical, and migration-source data only; no new Micro production tables |
 | Email Mailketing | `@awcms-micro/plugin-email-mailketing` | `mailketing_` | `mailketing_settings`, `mailketing_send_log`, `mailketing_audit_events`, etc. |
 | Gallery | `@awcms-micro/plugin-gallery` | `gallery_` *(reserved)* | None yet — uses EmDash `ec_galleries` content collection |
 | Website Social | `@awcms-micro/plugin-website-social` | `website_social_` *(reserved)* | None yet — uses EmDash `ec_website_social` content collection |
@@ -105,6 +107,34 @@ flowchart LR
 2. Add it to the registry table above in the same commit that adds the plugin boundary to `scripts/awcmsmicro-dev-protected-paths.txt`.
 3. Name all plugin migration files `{prefix}_*` and all storage collections `{prefix}_*`.
 4. Add a prefix validation test (see SIKESRA's `pnpm awcms:sikesra:check-d1-prefix` as a model).
+
+## Deprecated SIKESRA Boundary And Migration Path
+
+ADR-016 moves production SIKESRA to AWCMS-Mini because SIKESRA handles `highly_restricted` personal and welfare data that requires PostgreSQL, RLS, and stronger audit controls than the Micro D1 boundary should carry.
+
+```mermaid
+flowchart LR
+  Micro["awcms-micro-sikesra\nDeprecated / frozen"] --> Preserve["Preserve boundary\nfor compatibility"]
+  Preserve --> Inventory["Inventory existing\nsikesra_ data"]
+  Inventory --> Export["Controlled export\nor migration source"]
+  Export --> Mini["AWCMS-Mini SIKESRA\nPostgreSQL + RLS + audit"]
+  Micro -. no new production features .-> Stop["Feature work closed\nin Micro"]
+```
+
+Allowed Micro work for this boundary:
+
+- security fixes;
+- compatibility fixes required by EmDash updates;
+- documentation and migration guidance;
+- read-only inventory/export support for migration to Mini;
+- tests that protect the frozen boundary from rebuild regressions.
+
+Disallowed Micro work for this boundary:
+
+- new SIKESRA production workflows;
+- new highly restricted data storage designs in D1;
+- new D1 production migrations except migration-source preservation tasks approved by a focused issue;
+- public exposure of personal, sensitive personal, restricted, document, or address data.
 
 ## Upstream-Only Paths
 

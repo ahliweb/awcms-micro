@@ -2,11 +2,13 @@
 
 This package is the AWCMS-Micro SIKESRA plugin for EmDash-compatible projects.
 
+> **Deprecated / frozen in AWCMS-Micro:** Production SIKESRA has moved to AWCMS-Mini, where PostgreSQL, RLS, and stronger audit controls are required for highly restricted data. This package is preserved for compatibility, historical reference, and migration-source guidance only. Do not add new SIKESRA production features in Micro.
+
 SIKESRA is a downstream AWCMS-Micro plugin for social, welfare, religious, institutional, document, verification, audit, import/export, RBAC/ABAC, typed frontend-backend-D1 integration, and public-safe aggregate workflows. It must remain isolated from EmDash core.
 
 ## Current Implementation Status
 
-This package currently contains the SIKESRA plugin boundary, admin UI, routes, hooks, storage declarations, fixtures, and reference workflows. The production-grade implementation backlog is tracked through GitHub issues #119 through #143.
+This package currently contains the SIKESRA plugin boundary, admin UI, routes, hooks, storage declarations, fixtures, and reference workflows. The former production-grade Micro backlog in GitHub issues #119 through #143 is frozen as historical design context. New production implementation belongs in AWCMS-Mini.
 
 The plugin now uses the dedicated SIKESRA identity. New code should use `awcmsMicroSikesraPlugin`. The old `awcmsMicroExamplePlugin` export remains only as a temporary deprecated compatibility alias.
 
@@ -22,6 +24,8 @@ flowchart LR
   Routes --> Public[Public-safe aggregate output]
   Admin --> Contracts[Typed contracts]
   Contracts --> Routes
+  Plugin --> Migration[Migration-source guidance]
+  Migration --> Mini[AWCMS-Mini SIKESRA]
 ```
 
 ## GitHub Issue System
@@ -55,12 +59,38 @@ Rules:
 - Do not start later workflow issues before earlier identity, route, UI/UX, naming, guardrail, migration, repository, integration-contract, field-standard, RBAC/ABAC, and audit foundations are ready.
 - Update SIKESRA Mermaid diagrams when an issue changes architecture, database/D1, UI/UX flow, frontend-backend integration, RBAC/ABAC, security, deployment, migration, or data preservation.
 
+## Deprecation And Migration Path
+
+```mermaid
+flowchart LR
+  Existing["Existing Micro plugin\ncode and sikesra_ data"] --> Freeze["Freeze feature work"]
+  Freeze --> Inventory["Inventory compatibility\nand migration-source data"]
+  Inventory --> Export["Controlled export\nwith audit notes"]
+  Export --> Mini["AWCMS-Mini\nPostgreSQL + RLS + audit"]
+  Freeze -. security and compatibility only .-> Maintain["Maintenance-only fixes"]
+```
+
+Allowed work:
+
+- security fixes;
+- EmDash update compatibility fixes;
+- documentation and migration guidance;
+- read-only inventory/export support for migration to Mini;
+- tests that keep the frozen boundary stable.
+
+Disallowed work:
+
+- new Micro production workflows;
+- new highly restricted D1 production data models;
+- new public exposure of personal, sensitive personal, restricted, address, or document data;
+- changes that make Micro the canonical SIKESRA production host again.
+
 ## Purpose
 
-- keep SIKESRA-specific governance, registry, verification, access, audit, import/export, document, and ABAC behavior inside an isolated plugin boundary;
-- provide an EmDash-compatible SIKESRA plugin without forking or modifying EmDash core;
-- use dedicated SIKESRA data boundaries with `sikesra_` table and collection prefixes;
-- support future production D1 tables and Cloudflare R2-compatible document metadata;
+- keep historical SIKESRA-specific governance, registry, verification, access, audit, import/export, document, and ABAC behavior inside an isolated plugin boundary;
+- preserve an EmDash-compatible SIKESRA plugin without forking or modifying EmDash core;
+- keep existing SIKESRA data boundaries with `sikesra_` table and collection prefixes;
+- support compatibility, documentation, and migration-source workflows for moving production SIKESRA to AWCMS-Mini;
 - integrate admin UI, API routes, service layer, repository layer, serializers, and D1 tables through typed contracts;
 - preserve SIKESRA data across EmDash updates, dependency reinstalls, workspace rebuilds, local template rebuilds, and Cloudflare rebuilds.
 
@@ -80,7 +110,7 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
 awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/UI_UX_DESIGN_STANDARD.md
 ```
 
-Current ordered backlog:
+Frozen historical backlog:
 
 | Order | Issue | Purpose                                                                |
 | ----: | ----: | ---------------------------------------------------------------------- |
@@ -159,7 +189,7 @@ sikesra_delete_requests
 
 ### Production data source
 
-Dedicated D1 tables are the target production source of truth once the D1 migration issues are implemented. Plugin storage/KV may be used only as the current compatibility layer, migration source, or temporary fallback.
+AWCMS-Micro is no longer the target production source of truth for SIKESRA. Existing D1/plugin-storage/KV rows may be used only as compatibility data, historical data, migration-source data, or temporary local fallback. Production SIKESRA belongs in AWCMS-Mini.
 
 ### Typed integration contract
 

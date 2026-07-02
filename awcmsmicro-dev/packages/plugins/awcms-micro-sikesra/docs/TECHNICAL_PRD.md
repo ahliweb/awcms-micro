@@ -6,6 +6,8 @@ This document describes the technical implementation requirements for `@awcms-mi
 
 The plugin is an EmDash-compatible AWCMS-Micro downstream plugin for SIKESRA workflows. It must remain plugin-owned and must not move responsibilities into EmDash core.
 
+Status: deprecated and frozen in AWCMS-Micro. Production SIKESRA implementation belongs in AWCMS-Mini. This PRD is retained as historical technical context and as a compatibility/migration-source reference for the Micro plugin boundary.
+
 SIKESRA covers social, welfare, religious, institutional, document, verification, audit, import/export, RBAC/ABAC, typed frontend-backend-D1 integration, custom attribute, and public-safe aggregate workflows.
 
 For diagram standards, read:
@@ -23,6 +25,7 @@ awcmsmicro-dev/packages/plugins/awcms-micro-sikesra/docs/MERMAID_DIAGRAMS.md
 - target factory export: `awcmsMicroSikesraPlugin`
 - temporary deprecated alias: `awcmsMicroExamplePlugin`
 - package version: current package version in `package.json`
+- status: deprecated and frozen in Micro; production implementation moved to AWCMS-Mini
 - localization: `en` default, `id` supported
 - UI system: Kumo components for admin surfaces
 - upstream compatibility: EmDash-compatible plugin boundary; no EmDash core fork
@@ -40,6 +43,7 @@ flowchart LR
   Services --> Audit[Audit]
   Documents[Document Workflow] --> R2[(R2-compatible Storage)]
   Serializers --> Public[Public Safe Aggregate]
+  Repositories -. migration source only .-> Mini[AWCMS-Mini SIKESRA]
 ```
 
 ## 2. GitHub Issue System
@@ -62,7 +66,7 @@ Issue #144 adds repository-wide Mermaid diagram standards. SIKESRA-specific impl
 
 ## 3. Issue Backlog Alignment
 
-This PRD is aligned with GitHub issues #119 through #144.
+This PRD is aligned with GitHub issues #119 through #144 as historical Micro design context. Do not treat the sequence as an active production backlog in Micro after issue #210.
 
 | Order | Issue | Requirement Area                               |
 | ----: | ----: | ---------------------------------------------- |
@@ -93,7 +97,7 @@ This PRD is aligned with GitHub issues #119 through #144.
 |    25 |  #139 | CRUD and highest-admin governance              |
 |    26 |  #144 | Mermaid diagram standards                      |
 
-Do not implement later workflow issues before the earlier identity, route, UI/UX, naming, guardrail, migration, repository, typed integration, field-standard, RBAC/ABAC, audit, and diagram foundations are ready.
+Do not implement new production SIKESRA workflow issues in Micro. Use this order only for compatibility, security, documentation, or migration-source work that keeps the deprecated boundary stable.
 
 ## 4. Functional Requirements
 
@@ -318,7 +322,7 @@ sikesra_import_batches
 sikesra_export_jobs
 ```
 
-Do not create SIKESRA production tables without the `sikesra_` prefix. Do not store canonical SIKESRA business data in generic EmDash tables, generic plugin tables, or shared plugin collections unless it is only for compatibility, migration, or temporary fallback. The canonical production source of truth for SIKESRA must be dedicated D1 tables with the `sikesra_` prefix.
+Do not create new SIKESRA production tables in Micro without a focused maintenance or migration-source issue. Do not store canonical SIKESRA business data in generic EmDash tables, generic plugin tables, or shared plugin collections. Existing Micro `sikesra_` data is compatibility, historical, local prototype, or migration-source data; AWCMS-Mini is the canonical production target.
 
 ### Current Compatibility Layer
 
@@ -326,9 +330,9 @@ The plugin currently uses plugin-owned storage collections and selected D1 suppo
 
 ### Target Production Source of Truth
 
-Dedicated D1 tables with `sikesra_` prefix are the target production source of truth.
+AWCMS-Mini is the target production source of truth for SIKESRA. Existing Micro D1/plugin-storage data with the `sikesra_` prefix may be treated as compatibility, historical, local prototype, or migration-source data only.
 
-Required table categories:
+Historical Micro table categories:
 
 ```txt
 settings and catalogs
@@ -382,7 +386,7 @@ D1/database implementation issues should update that file when relationships, ta
 
 - use `sikesra_` prefix for every SIKESRA-owned D1 table and plugin collection;
 - do not write SIKESRA canonical business data to EmDash core tables;
-- do not depend on generic plugin storage as production source of truth once D1 migration is implemented;
+- do not depend on generic plugin storage as the production source of truth; AWCMS-Mini is the production target;
 - keep D1 migrations idempotent and data-preserving;
 - use R2-compatible storage organization for documents.
 

@@ -7,6 +7,7 @@
 ## Unreleased
 
 - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
+- Marks the Micro SIKESRA plugin as deprecated and frozen, with production SIKESRA moved to AWCMS-Mini and this package retained for compatibility, historical reference, and migration-source guidance.
 
 ## 0.1.1 - 2026-05-28
 

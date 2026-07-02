@@ -200,9 +200,9 @@ These rules apply to every plugin, template, database, UI/UX, API, integration, 
 
 The SIKESRA plugin is a downstream AWCMS-Micro plugin, not an EmDash core feature. Work on it only inside approved downstream boundaries unless an issue explicitly requires a sync-safe root script or root documentation change.
 
-Current SIKESRA implementation backlog is tracked in GitHub issues #119 through #143. These issues are the source of truth for current SIKESRA requirements.
+Current SIKESRA production development has moved to AWCMS-Mini. In this repository, `awcms-micro-sikesra` is deprecated and frozen under issue #210. GitHub issues #119 through #143 remain historical design contracts and compatibility references only; do not use them to add new Micro production features unless a later issue explicitly reopens maintenance-only work.
 
-Current starting sequence:
+Frozen historical starting sequence:
 
 ```txt
 #140 plugin identity
@@ -222,8 +222,9 @@ Required rules for agents:
 - Finalize plugin identity as `AWCMS-Micro SIKESRA Plugin`; do not introduce new `example plugin` naming.
 - Keep the plugin slug stable as `awcms-micro-sikesra`.
 - Prefer `awcmsMicroSikesraPlugin`; keep `awcmsMicroExamplePlugin` only as a temporary deprecated alias while migration is required.
+- Do not add new SIKESRA production features to AWCMS-Micro; production SIKESRA belongs in AWCMS-Mini.
 - Do not modify EmDash core for SIKESRA-specific behavior.
-- Put SIKESRA canonical business data in dedicated `sikesra_` D1 tables once the D1 migration work is implemented.
+- Treat any existing Micro `sikesra_` data as compatibility, historical, or migration-source data; canonical production data belongs in AWCMS-Mini.
 - Keep any plugin storage collection under the `sikesra_` prefix.
 - Do not store SIKESRA canonical production data in generic EmDash core tables or unprefixed plugin collections.
 - Use EmDash users as shared identity references; do not duplicate, reset, or delete EmDash core user accounts from the SIKESRA plugin.

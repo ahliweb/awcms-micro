@@ -2,7 +2,15 @@
 
 This document is the plugin-local implementation guide for the AWCMS-Micro SIKESRA plugin.
 
-It reflects the current GitHub issue backlog #119 through #143 and the repository issue standard in `docs/awcms-micro-github-issue-system.md`.
+Status: deprecated and frozen in AWCMS-Micro. Production SIKESRA belongs in AWCMS-Mini. This document preserves the historical Micro implementation contract for compatibility, security fixes, documentation, and migration-source guidance only.
+
+```mermaid
+flowchart LR
+  Micro["Micro plugin boundary"] --> Frozen["Deprecated / frozen"]
+  Frozen --> Compat["Compatibility and security fixes"]
+  Frozen --> Migration["Inventory / migration guidance"]
+  Migration --> Mini["AWCMS-Mini production SIKESRA"]
+```
 
 ## 1. Identity
 
@@ -22,6 +30,7 @@ Rules:
 - New code must use `awcmsMicroSikesraPlugin`.
 - `awcmsMicroExamplePlugin` may remain only as a temporary deprecated compatibility alias.
 - Do not introduce new `Example Plugin` wording except inside explicit migration/deprecation notes.
+- Do not add new SIKESRA production features in Micro.
 
 ## 2. GitHub Issue System
 
@@ -61,9 +70,9 @@ awcmsmicro-dev/.awcms-changesets/
 
 Do not move SIKESRA-specific logic into EmDash core packages.
 
-## 4. Required Execution Order
+## 4. Frozen Historical Execution Order
 
-Recommended issue order:
+Historical issue order:
 
 | Order | Issue | Purpose                                                    |
 | ----: | ----: | ---------------------------------------------------------- |
@@ -93,7 +102,7 @@ Recommended issue order:
 |    24 |  #138 | Dynamic custom attributes                                  |
 |    25 |  #139 | Full CRUD and highest-admin governance                     |
 
-Do not start later workflow work before earlier identity, admin route safety, UI/UX, naming, guardrail, migration, repository, integration contract, field-standard, RBAC/ABAC, and audit foundations are ready.
+Do not start new SIKESRA production work in Micro. Use this order only when scoping focused compatibility, security, documentation, or migration-support work that keeps the deprecated boundary stable.
 
 ## 5. D1 Naming and Storage Rule
 
@@ -117,10 +126,10 @@ sikesra_delete_requests
 
 Rules:
 
-- Do not create SIKESRA production tables without `sikesra_` prefix.
+- Do not create SIKESRA compatibility, historical, or migration-source tables without the `sikesra_` prefix.
 - Do not store SIKESRA canonical production data in generic EmDash tables.
-- Do not write SIKESRA canonical production data only to `_plugin_storage` once D1 migration is implemented.
-- Use plugin storage/KV only as compatibility, fallback, migration source, or local prototype until the related D1 issues are implemented.
+- Do not write SIKESRA canonical production data to `_plugin_storage`, D1, or EmDash core tables in Micro.
+- Use plugin storage/KV/D1 only as compatibility, fallback, migration source, or local prototype data. Production SIKESRA belongs in AWCMS-Mini.
 
 ## 6. D1 Migration Rules
 
