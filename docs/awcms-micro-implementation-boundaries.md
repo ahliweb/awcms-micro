@@ -34,12 +34,15 @@ These paths are relative to `awcmsmicro-dev/` and are the only locations that ma
 - `AGENTS.md`
 - `.env`
 - `.env.age`
+- `packages/admin/src/config/sidebar-plugin-order.config.ts`
+- `packages/admin/vitest.config.ts`
 - `packages/admin/src/components/Sidebar.tsx`
 - `packages/admin/src/components/Shell.tsx`
 - `packages/admin/src/components/AdminCommandPalette.tsx`
 - `packages/admin/src/components/WelcomeModal.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
 - `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- `packages/admin/tests/components/MediaPickerModal.test.tsx`
 - `packages/admin/tests/components/WelcomeModal.test.tsx`
 
 These are the active product-development boundaries:
@@ -127,12 +130,17 @@ No arbitrary unknown paths are preserved.
 
 ```mermaid
 flowchart TD
-  Existing[Existing awcmsmicro-dev] --> Backup[Back up allowlisted paths]
-  Backup --> Replace[Replace from emdash-latest]
-  Replace --> Restore[Restore allowlisted paths]
-  Restore --> Apply[Apply patch overlays]
-  Apply --> Validate[Boundary validation]
-  Validate --> Safe[Sync-safe downstream workspace]
+  Existing["Existing awcmsmicro-dev"] --> Classify{"Classify each difference"}
+  Classify -->|AWCMS-owned boundary| Backup["Back up allowlisted path"]
+  Classify -->|Narrow upstream-owned override| Patch["Keep .awcms-patches overlay"]
+  Classify -->|Generated or local artifact| Drop["Do not preserve"]
+  Backup --> Replace["rsync --delete from emdash-latest"]
+  Replace --> Restore["Restore allowlisted paths only"]
+  Restore --> Apply["Replay patch overlays"]
+  Patch --> Apply
+  Drop --> Validate["Boundary validation"]
+  Apply --> Validate
+  Validate --> Safe["Rebuild-safe downstream workspace"]
 ```
 
 ## Preserved Change Categories
@@ -145,8 +153,8 @@ When `emdash-latest/` is refreshed and `awcmsmicro-dev/` is rebuilt, these chang
 - preserved Dependabot config in `awcmsmicro-dev/.github/dependabot.yml`
 - dev-workspace agent guidance in `awcmsmicro-dev/AGENTS.md`
 - local bootstrap state in `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
-- sidebar branding/header/footer, welcome modal branding, plugin-group ordering, command-palette ordering, contextual sidebar icons, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
-- file-level persistence exceptions include `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/src/components/WelcomeModal.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, `packages/admin/tests/components/AdminCommandPalette.test.tsx`, and `packages/admin/tests/components/WelcomeModal.test.tsx`
+- sidebar branding/header/footer, welcome modal branding, plugin-group ordering, command-palette ordering, contextual sidebar icons, deterministic media-picker tests, and their regression tests are preserved through the protected path allowlist and restore step during `update-awcmsmicro-dev.sh`
+- file-level persistence exceptions include `packages/admin/src/config/sidebar-plugin-order.config.ts`, `packages/admin/vitest.config.ts`, `packages/admin/src/components/Sidebar.tsx`, `packages/admin/src/components/Shell.tsx`, `packages/admin/src/components/AdminCommandPalette.tsx`, `packages/admin/src/components/WelcomeModal.tsx`, `packages/admin/tests/components/Sidebar.test.tsx`, `packages/admin/tests/components/AdminCommandPalette.test.tsx`, `packages/admin/tests/components/MediaPickerModal.test.tsx`, and `packages/admin/tests/components/WelcomeModal.test.tsx`
 - workspace configuration persistence exceptions include `pnpm-workspace.yaml`, `docs/package.json`, `infra/perf-monitor/package.json`, and `packages/blocks/playground/package.json`
 - local workspace database persistence includes `awcmsmicro-dev/templates/awcms-micro-default/data.db` when present, so menu/content edits can survive rebuilds via the protected-path restore step
 - persistent source-level downstream overrides in `awcmsmicro-dev/.awcms-patches/`
@@ -194,16 +202,19 @@ Do not create new shared AWCMS-Micro product code outside plugin or template bou
 
 ```mermaid
 flowchart TD
-  NewWork[New AWCMS-Micro work] --> ExistingBoundary{Fits existing boundary?}
-  ExistingBoundary -->|Yes| Place[Place in approved path]
-  ExistingBoundary -->|No| SourceOverride{Source-level override?}
-  SourceOverride -->|Yes| Patch[Create narrow patch overlay]
-  SourceOverride -->|No| Propose[Propose allowlist/doc/script update]
-  Patch --> Log[Record divergence]
-  Propose --> Docs[Update boundary docs]
-  Place --> Validate[Run boundary validation]
+  NewWork["New or discovered downstream change"] --> Artifact{"Generated artifact?"}
+  Artifact -->|Yes| Discard["Remove from git or keep untracked"]
+  Artifact -->|No| ExistingBoundary{"Fits approved AWCMS boundary?"}
+  ExistingBoundary -->|Yes| Place["Keep under protected path"]
+  ExistingBoundary -->|No| SourceOverride{"Narrow upstream-owned override?"}
+  SourceOverride -->|Yes| Patch["Create or update .awcms-patches overlay"]
+  SourceOverride -->|No| Propose["Propose new boundary with docs and validation"]
+  Patch --> Log["Record patch in DIVERGENCE_LOG"]
+  Propose --> Docs["Update allowlist docs and script"]
+  Place --> Validate["Run boundary validation"]
   Log --> Validate
   Docs --> Validate
+  Discard --> Validate
 ```
 
 ## Rollback Notes

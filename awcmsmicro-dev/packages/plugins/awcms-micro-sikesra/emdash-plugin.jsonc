@@ -2,7 +2,7 @@
 	"$schema": "https://emdashcms.com/schemas/emdash-plugin.schema.json",
 
 	"slug": "awcms-micro-sikesra",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "LicenseRef-AW-NC-1.0",
 	"publisher": "ahliweb.co.id",
 	"author": { "name": "AWCMS-Micro / AhliWeb" },

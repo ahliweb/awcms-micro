@@ -34,12 +34,15 @@ These paths are relative to `awcmsmicro-dev/`:
 - `AGENTS.md`
 - `.env`
 - `.env.age`
+- `packages/admin/src/config/sidebar-plugin-order.config.ts`
+- `packages/admin/vitest.config.ts`
 - `packages/admin/src/components/Sidebar.tsx`
 - `packages/admin/src/components/Shell.tsx`
 - `packages/admin/src/components/AdminCommandPalette.tsx`
 - `packages/admin/src/components/WelcomeModal.tsx`
 - `packages/admin/tests/components/Sidebar.test.tsx`
 - `packages/admin/tests/components/AdminCommandPalette.test.tsx`
+- `packages/admin/tests/components/MediaPickerModal.test.tsx`
 - `packages/admin/tests/components/WelcomeModal.test.tsx`
 
 ## How Rebuild Preservation Works
@@ -57,11 +60,14 @@ This keeps `emdash-latest/` disposable and upstream-faithful while preserving ex
 
 ```mermaid
 flowchart TD
-  Allowlist[Protected path allowlist] --> Backup[Temporary backup]
-  Backup --> Rebuild[rsync --delete from emdash-latest]
-  Rebuild --> Restore[Restore approved paths]
-  Restore --> Patches[Replay patch overlays]
-  Patches --> Validation[Boundary validation]
+  Allowlist["Protected path allowlist"] --> Backup["Temporary backup of approved paths"]
+  Backup --> Rebuild["rsync --delete from emdash-latest"]
+  Rebuild --> Restore["Restore approved paths"]
+  Restore --> Patches["Replay .awcms-patches overlays"]
+  Patches --> DriftCheck{"Any unprotected drift?"}
+  DriftCheck -->|No| Validation["Boundary validation passes"]
+  DriftCheck -->|Yes| Fix["Add boundary, add patch, or remove artifact"]
+  Fix --> Validation
 ```
 
 Patch overlays under `.awcms-patches/` are the protection mechanism for narrow source-level downstream overrides whose target files should otherwise remain upstream-owned. Do not add those target files to the allowlist unless the downstream version of the whole file must be restored before patch replay. Active overlay files must also be recorded in `docs/upstream-sync/DIVERGENCE_LOG.md` so rebuild-sensitive changes have an auditable reason and review trigger.

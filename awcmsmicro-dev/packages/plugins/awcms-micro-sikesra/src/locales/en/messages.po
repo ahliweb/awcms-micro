@@ -1438,6 +1438,18 @@ msgctxt "awcms.adminCopy.noPermissionsYet"
 msgid "No permissions yet"
 msgstr "No permissions yet"
 
+msgctxt "awcms.adminCopy.searchPermissions"
+msgid "Search by slug or label…"
+msgstr "Search by slug or label…"
+
+msgctxt "awcms.adminCopy.searchPermissionsLabel"
+msgid "Search permissions"
+msgstr "Search permissions"
+
+msgctxt "awcms.adminCopy.noPermissionsMatch"
+msgid "No permissions match your search."
+msgstr "No permissions match your search."
+
 msgctxt "awcms.adminCopy.noPermissionsYetDescription"
 msgid "Create a permission to begin building the role matrix."
 msgstr "Create a permission to begin building the role matrix."
@@ -1513,6 +1525,18 @@ msgstr "Roles"
 msgctxt "awcms.adminCopy.rolesDescription"
 msgid "{count} role(s) available."
 msgstr "{count} role(s) available."
+
+msgctxt "awcms.adminCopy.searchRoles"
+msgid "Search by slug or label…"
+msgstr "Search by slug or label…"
+
+msgctxt "awcms.adminCopy.searchRolesLabel"
+msgid "Search roles"
+msgstr "Search roles"
+
+msgctxt "awcms.adminCopy.noRolesMatch"
+msgid "No roles match your search."
+msgstr "No roles match your search."
 
 msgctxt "awcms.adminCopy.noRolesYet"
 msgid "No roles yet"
@@ -2969,6 +2993,18 @@ msgstr "Duplicate decisions"
 msgctxt "awcms.adminCopy.auditEvents"
 msgid "Audit events"
 msgstr "Audit events"
+
+msgctxt "awcms.adminCopy.filterAuditKind"
+msgid "Filter by event kind…"
+msgstr "Filter by event kind…"
+
+msgctxt "awcms.adminCopy.filterAuditKindLabel"
+msgid "Filter audit by kind"
+msgstr "Filter audit by kind"
+
+msgctxt "awcms.adminCopy.noAuditMatch"
+msgid "No audit events match your filter."
+msgstr "No audit events match your filter."
 
 msgctxt "awcms.adminCopy.promoting"
 msgid "Promoting..."

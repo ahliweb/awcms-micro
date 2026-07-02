@@ -10,8 +10,8 @@ function asString(v: unknown): string {
 }
 
 function entryUrlSlug(entry: { id: string; data: unknown }): string {
-	const slug = (entry as Record<string, unknown>).slug;
-	return typeof slug === "string" && slug.length > 0 ? slug : resolveEntrySlug(entry);
+	const data = entry.data as { slug?: unknown };
+	return typeof data.slug === "string" && data.slug.length > 0 ? data.slug : resolveEntrySlug({ id: entry.id, data });
 }
 
 const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());

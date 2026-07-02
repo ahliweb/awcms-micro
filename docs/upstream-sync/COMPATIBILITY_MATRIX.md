@@ -21,6 +21,8 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | Plugin-owned navigation compatibility layer | Keep navigation normalization and label resolution in plugin exports rather than a new shared core layer | Compatible | Medium | adapt |
 | Supporting docs, demos, and E2E boundaries | Keep as validation and operator surfaces only | Compatible | Low | adapt |
 | Downstream patch overlays | Replay narrow source-level overrides from `.awcms-patches/` after rebuild instead of preserving broad upstream-owned files | Compatible | Medium | adapt |
+| Built-in Forms plugin admin usability overlay | Preserved as patch overlay `0029-forms-admin-search-pagination.patch` instead of adding the upstream-owned plugin to the protected allowlist | Compatible | Medium | adapt |
+| Flue review worker dependency overlay | Preserved as patch overlay `0030-flue-review-hono.patch` instead of adding the upstream-owned worker to the protected allowlist | Compatible | Low | adapt |
 | Cloudflare deployment overlays | Document as environment-specific deployment guidance | Compatible | Medium | adapt |
 | Compliance and security baselines | Document as operational guidance rather than core changes | Compatible | Low | adapt |
 | EmDash `0.17.2` experimental plugin registry documentation and release asset workflow | Adopt upstream docs/runtime directly; keep AWCMS-Micro plugins published and wired through isolated workspace package/template dependencies | Compatible | Medium | adopt |

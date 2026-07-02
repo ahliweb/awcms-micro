@@ -22,8 +22,9 @@ const { entries: posts } = await getEmDashCollection("posts", {
 // Collect unique bylines from published posts
 const bylineMap = new Map<string, { byline: BylineSummary; count: number }>();
 for (const post of posts) {
-	const credits = (post.data as Record<string, unknown>).bylines as BylineSummary[] | undefined;
-	const primary = (post.data as Record<string, unknown>).byline as BylineSummary | null | undefined;
+	const data = post.data as unknown as Record<string, unknown>;
+	const credits = data.bylines as BylineSummary[] | undefined;
+	const primary = data.byline as BylineSummary | null | undefined;
 	const allCredits = credits?.length ? credits : primary ? [primary] : [];
 	for (const b of allCredits) {
 		if (!b?.slug) continue;
@@ -37,7 +38,7 @@ for (const post of posts) {
 	}
 }
 
-const authors = Array.from(bylineMap.values()).sort((a, b) => b.count - a.count);
+const authors = [...bylineMap.values()].toSorted((a, b) => b.count - a.count);
 ---
 
 <BaseLayout title={copy.authorsTitle} description={copy.authorsDescription} showFooterWidgets={false}>

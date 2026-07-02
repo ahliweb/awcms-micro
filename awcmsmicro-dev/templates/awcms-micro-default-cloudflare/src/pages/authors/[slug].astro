@@ -1,9 +1,8 @@
 ---
-import { decodeSlug, getBylineBySlug, getEntriesByByline, getI18nConfig, getSiteSettings } from "emdash";
+import { decodeSlug, getBylineBySlug, getEntriesByByline, getI18nConfig } from "emdash";
 import Base from "../../layouts/Base.astro";
 import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
 import { getPublicCopy } from "../../utils/public-copy";
-import { resolveAwcmsMicroSiteIdentity } from "../../utils/site-identity";
 
 const slug = decodeSlug(Astro.params.slug);
 if (!slug) return Astro.redirect("/404");
@@ -19,13 +18,11 @@ const localeOptions = {
 const byline = await getBylineBySlug(slug, { locale: currentLocale });
 if (!byline) return Astro.redirect("/404");
 
-const { entries: bylineEntries, cacheHint } = await getEntriesByByline(
+const bylineEntries = await getEntriesByByline(
 	"posts",
 	byline.translationGroup ?? byline.id,
 	{ orderBy: { published_at: "desc" }, status: "published", locale: currentLocale },
 );
-
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 
 const copy = getPublicCopy(currentLocale);
 

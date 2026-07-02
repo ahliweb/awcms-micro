@@ -637,7 +637,7 @@ async function migrateLegacyStorageCollections(ctx: PluginContext) {
 export const AWCMS_SIKESRA_MANIFEST: AwcmsModuleManifest = {
 	id: "awcms-micro-sikesra",
 	name: "AWCMS-Micro SIKESRA Plugin",
-	version: "0.1.1",
+	version: "0.1.2",
 	description: "SIKESRA welfare and social-religious registry plugin for AWCMS-Micro projects.",
 	navigation: {
 		groups: [

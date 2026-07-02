@@ -94,11 +94,23 @@ flowchart TD
   Bindings --> Resources[Confirm D1, R2, KV, domains]
   Resources --> Secrets[Inject secrets outside git]
   Secrets --> Build[Build template]
-  Build --> Deploy[Deploy Worker]
+  Build --> DryRun[Run wrangler deploy --dry-run]
+  DryRun --> Deploy[Deploy Worker]
   Deploy --> Smoke[Run smoke checks]
   Smoke -->|Pass| Cutover[Promote route or DNS]
   Smoke -->|Fail| Rollback[Rollback and restore previous state]
 ```
+
+## Latest Local/Production Consistency Audit
+
+The 2026-07-02 audit kept production unchanged and verified the checked-in Cloudflare deployment shape locally:
+
+- `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare validate:cloudflare-env` passed without requiring credentials.
+- `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare test` passed.
+- `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build` passed.
+- `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare exec wrangler deploy --dry-run` passed with Wrangler `4.100.0` and reported the expected `SESSION`, `DB`, `MEDIA`, `IMAGES`, `ASSETS`, `LOADER`, and production `AWCMS_MICRO_*` bindings.
+
+No production deploy was run during this audit because the upstream EmDash sync gap remains open: local AWCMS-Micro is still synced to EmDash `0.19.0` at `34dd430b`, while upstream `emdash-cms/emdash` is ahead at `90ffe40a` with latest visible tag `emdash@0.26.0`.
 
 ## Pre-Deploy Checks
 

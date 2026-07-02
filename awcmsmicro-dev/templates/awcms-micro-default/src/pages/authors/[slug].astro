@@ -1,9 +1,8 @@
 ---
-import { decodeSlug, getBylineBySlug, getEntriesByByline, getI18nConfig, getSeoMeta, getSiteSettings } from "emdash";
+import { decodeSlug, getBylineBySlug, getEntriesByByline, getI18nConfig } from "emdash";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { resolveEntrySlug, toLocalePath } from "../../utils/locale-path";
 import { getPublicCopy } from "../../utils/public-copy";
-import { resolveAwcmsMicroSiteIdentity } from "../../utils/site-identity";
 
 const slug = decodeSlug(Astro.params.slug);
 if (!slug) return Astro.redirect("/404");
@@ -19,13 +18,12 @@ const localeOptions = {
 const byline = await getBylineBySlug(slug, { locale: currentLocale });
 if (!byline) return Astro.redirect("/404");
 
-const { entries: bylineEntries } = await getEntriesByByline(
+const bylineEntries = await getEntriesByByline(
 	"posts",
 	byline.translationGroup ?? byline.id,
 	{ orderBy: { published_at: "desc" }, status: "published", locale: currentLocale },
 );
 
-const { siteTitle } = resolveAwcmsMicroSiteIdentity(await getSiteSettings());
 const copy = getPublicCopy(currentLocale);
 
 const pageTitle = `${byline.displayName} — ${copy.authorsTitle}`;

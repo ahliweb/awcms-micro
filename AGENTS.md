@@ -13,6 +13,7 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 - **Upstream commit:** `34dd430b35032535a972e9ed718c0eacaeae2029`
 - **Synced:** 2026-06-13
 - **Status:** deployed to production; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` (2026-06-13); smoke checks passed; migration 043 was already applied from the 0.18.0 sync
+- **Upstream audit note:** 2026-07-02 check found upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` with latest visible tag `emdash@0.26.0`; the local `emdash-latest/` snapshot has not yet been synced past `34dd430b`.
 
 ### Key 0.19.0 Features
 
@@ -110,6 +111,7 @@ Before changing code, docs, scripts, or generated outputs in this workspace, rea
 - `docs/synchronization-workflow.md`
 - `docs/implementation-instructions.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/ahliweb-architecture-decisions.md`
 - `docs/repository-structure.md`
 - `docs/operator-workflow.md`
 
@@ -249,6 +251,7 @@ Required rules for agents:
 - `docs/awcms-micro-mermaid-diagram-standard.md`
 - `docs/awcms-micro-documentation-workflow.md`
 - `docs/awcms-micro-implementation-boundaries.md`
+- `docs/ahliweb-architecture-decisions.md`
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/awcms-micro-mobile-services-plugin-standard.md`
 - `docs/repository-structure.md`

@@ -1,5 +1,12 @@
 # AWCMS-Micro Changelog
 
+## 0.2.4 - 2026-07-02
+
+- Record the 2026-07-02 protection audit: local EmDash remains `0.19.0` at `34dd430b` while upstream `main` is `90ffe40a` with latest visible tag `emdash@0.26.0`; full workspace validation, template typechecks, Cloudflare template build, and Wrangler dry-run all pass after fixing author archive and sitemap type compatibility in both default templates. Follow-up upstream sync is tracked in GitHub issue #220.
+## 0.2.3 - 2026-07-02
+
+- Add Architecture Update (2026-06-17) note to root README aligning AWCMS-Micro with the AWCMS product-line foundation: Micro stays EmDash-based on D1+R2; SIKESRA production moves to AWCMS-Mini and the `awcms-micro-sikesra` plugin is deprecated (ADR-016). References tracking issues #210 and #211.
+- Protect downstream AWCMS-Micro changes from EmDash rebuilds by recording the Forms admin search/pagination and Flue review Hono dependency overrides as patch overlays, aligning protected-path documentation with the active allowlist, indexing the AhliWeb architecture decisions document, and removing committed Vitest screenshot artifacts that would be deleted by rebuild validation.
 ## 0.2.2 - 2026-06-13
 
 - feat(admin): add client-side search to plugin admin list pages and cursor-based "Load More" pagination to form submissions. Forms: search filters the forms list by name or slug; submissions loads additional entries on demand backed by cursor pagination. Mailketing: search filters the plugin users list by name/email and the roles list by label/slug. SIKESRA: search filters the audit log by kind/scope/summary, the permissions catalog by slug/label/scope, and the roles list by slug/label. All new UI strings are localized in both `en` and `id` catalogs.
@@ -149,17 +156,17 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-06-13
+## Workspace Snapshot - 2026-07-01
 
 - EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
-- Root version: `0.2.1`
+- Root version: `0.2.4`
 
 ### Plugins
 
 - `@awcms-micro/plugin-docs` `0.0.1` - (no changelog yet)
-- `@awcms-micro/plugin-email-mailketing` `0.2.0` - Fixes Mailketing API integration: corrects base URL to `api.mailketing.co.id` subdomain, switches authentication from `Authorization: Bearer` header to `api_token` form field, changes content type to `application/x-www-form-urlencoded`, and aligns request field names (`recipient`, `from_email`, `content`) with the Mailketing API spec. - `testConnection` now correctly detects HTTP 5xx server errors and invalid-token strings in the API response body instead of only checking for HTTP 401. - Send error messages now include the API response body (truncated) so failed entries in the Send Log show the actual rejection reason. - Send Log table shows a new `Error` column for failed entries. - Adds `EmailStatusWidget` and `SendStatsWidget` dashboard widget components as a named `widgets` export from `admin.tsx`, fixing 404 errors shown for the "Email Status" and "Send Statistics" cards on the EmDash admin dashboard.
+- `@awcms-micro/plugin-email-mailketing` `0.2.1` - Adds client-side search to the plugin users list (filters by name or email) and the roles list (filters by label or slug), with a live count display and localized no-match messages in both `en` and `id`.
 - `@awcms-micro/plugin-gallery` `0.0.4` - Fix gallery admin media picking, add media import/listing, and restore paginated gallery management.
-- `@awcms-micro/plugin-sikesra` `0.1.1` - Allows trusted EmDash admins to bootstrap SIKESRA admin access and safely falls back when production D1 SIKESRA tables are missing or still use transition-state schemas, preventing protected admin and public status pages from failing during the current transition state.
+- `@awcms-micro/plugin-sikesra` `0.1.2` - Adds client-side search to three admin list pages: audit log (filter by kind, scope, or summary), permissions catalog (filter by slug, label, or scope), and roles list (filter by slug or label). All new UI strings are localized in both `en` and `id`.
 - `@awcms-micro/plugin-website-social` `0.0.1` - (no changelog yet)
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
@@ -168,7 +175,7 @@
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-embeds` `0.1.23` - latest changelog section: 0.1.23
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
-- `@emdash-cms/plugin-forms` `0.2.4` - latest changelog section: 0.2.4
+- `@emdash-cms/plugin-forms` `0.2.5` - latest changelog section: 0.2.5
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2
 - `@emdash-cms/plugin-sandboxed-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-webhook-notifier` `0.2.0` - latest changelog section: 0.2.0

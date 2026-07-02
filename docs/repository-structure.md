@@ -105,19 +105,23 @@ New AWCMS-Micro product development should be implemented as:
 - release-note inputs under `awcmsmicro-dev/.awcms-changesets/`
 - workflow automation under preserved `.github/` boundaries when needed for AWCMS-Micro-specific release operations
 - local bootstrap state under `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
-- protected admin branding/navigation file exceptions listed in `scripts/awcmsmicro-dev-protected-paths.txt`
+- protected admin branding, navigation ordering, test, and config file exceptions listed in `scripts/awcmsmicro-dev-protected-paths.txt`
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 
 ```mermaid
 flowchart LR
-  Product[AWCMS-Micro product behavior] --> Plugins[Plugin boundaries]
-  Product --> Templates[Template boundaries]
-  Product --> Supporting[Docs, demos, E2E support]
-  Plugins --> Protected[Protected path allowlist]
+  Product["AWCMS-Micro product behavior"] --> Plugins["Plugin boundaries"]
+  Product --> Templates["Template boundaries"]
+  Product --> Supporting["Docs, demos, E2E support"]
+  Product --> AdminExceptions["Narrow admin UI/test exceptions"]
+  SourceTweaks["Upstream-owned source tweaks"] --> Patches[".awcms-patches overlays"]
+  Plugins --> Protected["Protected path allowlist"]
   Templates --> Protected
   Supporting --> Protected
-  Protected --> Rebuild[Survives awcmsmicro-dev rebuild]
+  AdminExceptions --> Protected
+  Protected --> Rebuild["Restored during awcmsmicro-dev rebuild"]
+  Patches --> Rebuild
 ```
 
 ## Root-Level Supporting Files

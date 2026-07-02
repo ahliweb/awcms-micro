@@ -47,6 +47,7 @@ export { KumoSidebar as Sidebar, useSidebar };
 // Role levels (matching @emdash-cms/auth)
 const ROLE_ADMIN = 50;
 const ROLE_EDITOR = 40;
+const PLUGIN_GROUP_ID_PREFIX = /^plugin-/;
 
 export const BYLINE_SCHEMA_NAV_ITEM = {
 	to: "/byline-schema" as const,
@@ -296,8 +297,8 @@ export function buildSidebarPluginGroups(
 		})
 		.filter((group) => group.items.length > 0)
 		.toSorted((a, b) => {
-			const pluginIdA = a.id.replace(/^plugin-/, "");
-			const pluginIdB = b.id.replace(/^plugin-/, "");
+				const pluginIdA = a.id.replace(PLUGIN_GROUP_ID_PREFIX, "");
+				const pluginIdB = b.id.replace(PLUGIN_GROUP_ID_PREFIX, "");
 			const posA = groupOrder.indexOf(pluginIdA);
 			const posB = groupOrder.indexOf(pluginIdB);
 			const effectivePosA = posA >= 0 ? posA : groupOrder.length;

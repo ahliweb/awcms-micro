@@ -1438,6 +1438,18 @@ msgctxt "awcms.adminCopy.noPermissionsYet"
 msgid "No permissions yet"
 msgstr "Belum ada izin"
 
+msgctxt "awcms.adminCopy.searchPermissions"
+msgid "Search by slug or label…"
+msgstr "Cari berdasarkan slug atau label…"
+
+msgctxt "awcms.adminCopy.searchPermissionsLabel"
+msgid "Search permissions"
+msgstr "Cari izin"
+
+msgctxt "awcms.adminCopy.noPermissionsMatch"
+msgid "No permissions match your search."
+msgstr "Tidak ada izin yang cocok dengan pencarian Anda."
+
 msgctxt "awcms.adminCopy.noPermissionsYetDescription"
 msgid "Create a permission to begin building the role matrix."
 msgstr "Buat izin untuk mulai membangun matriks peran."
@@ -1513,6 +1525,18 @@ msgstr "Peran"
 msgctxt "awcms.adminCopy.rolesDescription"
 msgid "{count} role(s) available."
 msgstr "{count} peran tersedia."
+
+msgctxt "awcms.adminCopy.searchRoles"
+msgid "Search by slug or label…"
+msgstr "Cari berdasarkan slug atau label…"
+
+msgctxt "awcms.adminCopy.searchRolesLabel"
+msgid "Search roles"
+msgstr "Cari peran"
+
+msgctxt "awcms.adminCopy.noRolesMatch"
+msgid "No roles match your search."
+msgstr "Tidak ada peran yang cocok dengan pencarian Anda."
 
 msgctxt "awcms.adminCopy.noRolesYet"
 msgid "No roles yet"
@@ -2969,6 +2993,18 @@ msgstr "Keputusan duplikasi"
 msgctxt "awcms.adminCopy.auditEvents"
 msgid "Audit events"
 msgstr "Event audit"
+
+msgctxt "awcms.adminCopy.filterAuditKind"
+msgid "Filter by event kind…"
+msgstr "Filter berdasarkan jenis event…"
+
+msgctxt "awcms.adminCopy.filterAuditKindLabel"
+msgid "Filter audit by kind"
+msgstr "Filter audit berdasarkan jenis"
+
+msgctxt "awcms.adminCopy.noAuditMatch"
+msgid "No audit events match your filter."
+msgstr "Tidak ada event audit yang cocok dengan filter Anda."
 
 msgctxt "awcms.adminCopy.promoting"
 msgid "Promoting..."

@@ -46,6 +46,8 @@ Keep these flows separate so root maintenance releases do not mix with package r
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
+Audit note 2026-07-02: the local synchronized EmDash snapshot is still `0.19.0` at `34dd430b`, while upstream `emdash-cms/emdash` currently advertises `main` at `90ffe40a` and latest tag `emdash@0.26.0`. Treat this as a pending upstream-sync gap, not as a completed local sync.
+
 ```mermaid
 flowchart LR
   GH["github.com/emdash-cms/emdash"] -->|"update-emdash-latest.sh"| Latest["emdash-latest/\n(upstream snapshot)"]
@@ -55,6 +57,8 @@ flowchart LR
   Dev -->|"wrangler deploy"| CF["Cloudflare Workers\n(production)"]
   Docs["docs/ + scripts/"] -->|"governs"| Dev
   Patches["awcmsmicro-dev/.awcms-patches/\n(downstream overlays)"] -->|"replayed by update script"| Dev
+  Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"guards"| Dev
+  Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\n(no upload)"]
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
@@ -197,6 +201,7 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 - `docs/awcms-micro-sikesra-plugin-governance.md`
 - `docs/awcms-micro-mobile-services-plugin-standard.md`
 - `docs/awcms-admin-branding.md`
+- `docs/ahliweb-architecture-decisions.md`
 - `docs/awcmsmicro-dev-protected-paths.md`
 - `docs/repository-assessment.md`
 - `docs/decision-records.md`
