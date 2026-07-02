@@ -46,7 +46,7 @@ Keep these flows separate so root maintenance releases do not mix with package r
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` (deployed 2026-07-02T04:14:49Z), with D1 migrations 044-048 applied and verified in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`. Cloudflare architecture decisions are recorded in `docs/upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: keep the current D1 + R2 + session KV + Images + Worker Loader topology, adopt additive media/search improvements from upstream, and defer optional DO/Hyperdrive/cache/email bindings until focused issues justify them.
+Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` (deployed 2026-07-02T04:14:49Z), with D1 migrations 044-048 applied and verified in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`; scheduled publishing is also verified end to end in production. Cloudflare architecture decisions are recorded in `docs/upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: keep the current D1 + R2 + session KV + Images + Worker Loader topology, adopt additive media/search improvements from upstream, and defer optional DO/Hyperdrive/cache/email bindings until focused issues justify them.
 
 ```mermaid
 flowchart LR
@@ -64,6 +64,7 @@ flowchart LR
   Dev -->|"observed production deployment"| CF26["production Worker\n5be81778"]
   CF26 -->|"auto-migrated"| D1Migrations["D1 migrations\n044-048 verified"]
   CF26 -->|"architecture decision"| CFDecision["D1 + R2 kept\noptional bindings deferred"]
+  CF26 -->|"cron verified"| Scheduler["scheduled publishing\nE2E passed"]
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.

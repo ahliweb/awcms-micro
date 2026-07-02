@@ -179,6 +179,38 @@ After deploying:
 
 See issue #205 for the post-deploy verification task.
 
+## Production Verification
+
+The EmDash 0.26.0 production deployment was verified end to end on 2026-07-02.
+
+```mermaid
+sequenceDiagram
+    participant Agent as Verification agent
+    participant D1 as Production D1
+    participant Cron as Cloudflare Cron
+    participant Worker as awcms-micro Worker
+    participant Logs as Wrangler tail
+
+    Agent->>D1: Insert temporary scheduled post
+    Agent->>D1: Insert and immediately unschedule guard post
+    Cron->>Worker: scheduled tick (* * * * *)
+    Worker->>D1: publishDueContent()
+    Worker->>Logs: [scheduled] Published 1 scheduled item(s)
+    Agent->>D1: Verify status and timestamps
+    Agent->>D1: Delete temporary rows and revision
+```
+
+Evidence:
+
+- Scheduled test row: `schedtest_publish_20260702075130`
+- Unschedule guard row: `schedtest_unschedule_20260702075130`
+- Scheduled time: `2026-07-02T07:53:30Z`
+- Verification poll: `2026-07-02T07:54:02Z`
+- Result: scheduled row became `published`, `scheduled_at` became `NULL`, and `published_at` remained `2026-07-02T07:53:30Z`
+- Guard result: unscheduled row stayed `draft` with `scheduled_at = NULL` and `published_at = NULL`
+- Worker log: `[scheduled] Published 1 scheduled item(s)`
+- Cleanup: temporary content rows and the generated revision were deleted; `/posts/scheduled-publish-test-20260702075130` returned `404`, while `/posts` and `/sitemap.xml` returned `200`
+
 ## References
 
 - EmDash PR #1312 — scheduling heartbeat driver (0.19.0)

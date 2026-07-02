@@ -54,7 +54,7 @@ Local and development synchronization is complete and validated. Production is n
 | Production D1 migration 044-048 verification | Passed | `_emdash_migrations` records through `048_restore_content_taxonomies_term_index`; new tables and indexes verified |
 | Cloudflare architecture adoption decision | Passed | #222 keeps D1 + R2 as the default template topology and defers new DO/Hyperdrive/KV cache/Email bindings to focused future issues |
 | Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts`, `/services`, `/_emdash/api/setup/status`, and `/_emdash/api/auth/mode` return 200 |
-| Scheduled publishing post-deploy verification | Pending | See issue #205 — schedule a test post and confirm it auto-publishes |
+| Scheduled publishing post-deploy verification | Passed | 2026-07-02: temporary post `schedtest_publish_20260702075130` scheduled for `2026-07-02T07:53:30Z` was published by cron by `2026-07-02T07:54:02Z`; `published_at` equals scheduled time, Worker tail logged `[scheduled] Published 1 scheduled item(s)`, unscheduled guard row stayed draft, and all test rows/revisions were removed |
 
 ## Notes
 
@@ -64,5 +64,6 @@ Local and development synchronization is complete and validated. Production is n
 - Migration 043 (`_emdash_content_references` and `_emdash_relations`) was already applied in production from the 0.18.0 sync. Migrations 044-048 are now verified in production; see `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
 - Optional Cloudflare architecture improvements from EmDash 0.20.0-0.26.0 are not production bindings by default; see `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`.
 - The `@emdash-cms/cloudflare/worker` entry point requires `"triggers": { "crons": ["* * * * *"] }` in `wrangler.jsonc` — already present in AWCMS-Micro templates.
+- Scheduled publishing is verified end to end in production after the EmDash 0.26.0 deployment; issue #205 has a 2026-07-02 evidence comment.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.
 - 2026-07-02 sync repair aligned active patch overlays with EmDash 0.26.0, protected the downstream lockfile, rebuilt `awcmsmicro-dev/`, verified boundaries and full workspace validation, validated both default templates, and confirmed Cloudflare packaging with a dry-run.
