@@ -9,10 +9,10 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 ## Current EmDash Version
 
-- **Upstream snapshot (`emdash-latest/`):** EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa`, fetched 2026-07-02.
-- **Development workspace (`awcmsmicro-dev/`):** rebuilt from EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` with approved AWCMS-Micro overlays replayed; full validation passed 2026-07-02.
-- **Production status:** observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed 2026-07-02T04:14:49Z; smoke checks passed; D1 migrations 044-048 are applied and verified; scheduled publishing was verified end to end on 2026-07-02. Previous 0.19.0 production reference was version `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` from 2026-06-13.
-- **2026-07-02 sync status:** GitHub was current, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, `emdash-latest/` was refreshed to `0.26.0`, `awcmsmicro-dev/` was rebuilt and validated, production D1 migration 044-048 verification was recorded in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`, Cloudflare architecture adoption decisions were recorded in `docs/upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`, and GitHub issues #220-#223 were closed.
+- **Upstream snapshot (`emdash-latest/`):** EmDash upstream `main` at `932f4ba3adef8be21abc39b4cc7612609895e88c`, fetched 2026-07-02T22:13:04Z; latest released tag in this delta is `emdash@0.27.0`.
+- **Development workspace (`awcmsmicro-dev/`):** rebuilt from upstream `932f4ba3adef8be21abc39b4cc7612609895e88c` with approved AWCMS-Micro overlays replayed.
+- **Production status:** observed on Worker version `d369494d-96b1-4ba1-8af6-6056e79c94c6`, deployed 2026-07-02T22:23:14Z; smoke checks passed; D1 migrations 044-049 are applied and verified; scheduled publishing was verified end to end after the 0.27.0 deploy on 2026-07-02T22:29:28Z. Previous 0.26.0 production reference was Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` from 2026-07-02T04:14:49Z.
+- **2026-07-03 local / 2026-07-02 UTC sync status:** GitHub was current, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260703-051234.sql.enc`, `emdash-latest/` was refreshed to upstream `932f4ba3`, `awcmsmicro-dev/` was rebuilt, production was deployed to Worker version `d369494d-96b1-4ba1-8af6-6056e79c94c6`, migration 049 verification was recorded in `docs/upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`, Cloudflare/template adoption decisions were recorded in `docs/upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`, issue #226 was completed, and issue #227 remains open for protected-template semantic token review.
 
 ### Key 0.19.0 Features
 
@@ -34,6 +34,14 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 - **Cloudflare architecture options:** Durable Object SQLite adapter, Hyperdrive adapter with optional cached binding, KV-backed object cache, Cloudflare media image endpoint improvements, and Cloudflare Email Sending provider plugin. #222 keeps the AWCMS-Micro Cloudflare template on D1 + R2 + session KV + Images + Worker Loader, adopts additive media/search improvements from upstream, and defers new DO/Hyperdrive/cache/email bindings to focused future issues.
 - **Public/runtime improvements:** offset pagination for `getEmDashCollection`, LiveSearch route templates, public search suggestions, CSP-compatible JSON-LD, sitemap hreflang fixes, text alignment round-trip rendering, media LQIP placeholders, and content schedule/restore hooks.
 - **Admin improvements:** Kumo sidebar behavior updates, repeater select typeahead, byline avatar picker, route-scoped admin CSS, CJK editor metrics, code block picker focus fix, and additional admin locales. Downstream AWCMS-Micro admin/sidebar overlays replay cleanly after the 0.26.0 rebuild.
+
+### Key 0.27.0 Upstream Additions
+
+- **Migration 049:** creates `idx_taxonomies_name_locale` on `taxonomies(name, locale)` and drops the covered `idx_taxonomies_name` index. Production verification is complete in #226 and `docs/upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`.
+- **Runtime/admin fixes:** admin branding can fall back to the Site Title, published slug changes through draft/revision publish now create 301 redirects, `--no-content` seeding skips sample bylines and taxonomy terms, and Cloudflare/Vite first-party dependency optimization is hardened.
+- **Cloudflare Email provider descriptor:** `cloudflareEmail()` now returns a bundlable plugin descriptor. AWCMS-Micro still defers default email binding adoption until a focused email implementation issue defines sender, deliverability, consent, and binding rules.
+- **Schema-evolution documentation:** upstream adds deployed-site schema evolution guidance; AWCMS-Micro docs should reference this model when changing live content schemas.
+- **Semantic template tokens:** upstream built-in templates now use a semantic `tokens.css` architecture. AWCMS-Micro default-template adoption is not automatic because those templates are protected downstream boundaries; track the review in #227.
 
 For detailed architecture documentation and Mermaid diagrams, read `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`.
 
@@ -269,6 +277,8 @@ Required rules for agents:
 - `docs/awcms-micro-root-versioning.md`
 - `docs/operator-workflow.md`
 - `docs/decision-records.md`
+- `docs/upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`
+- `docs/upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`
 - `docs/backup/gitlab-mirror-setup.md`
 - `docs/security/backup-restore.md`
 - `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`

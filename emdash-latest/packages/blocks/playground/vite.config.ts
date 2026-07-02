@@ -6,9 +6,6 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
-	build: {
-		target: "esnext",
-	},
 	resolve: {
 		alias: {
 			// Resolve @emdash-cms/blocks from source for HMR

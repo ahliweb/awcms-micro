@@ -4,66 +4,62 @@
 
 - Upstream repository URL: `https://github.com/emdash-cms/emdash`
 - Upstream branch: `main`
-- Upstream commit SHA: `90ffe40a1a31193b2f29ef92202e4f339a2487fa`
-- Sync date: `2026-07-02T03:09:00Z`
+- Upstream commit SHA: `932f4ba3adef8be21abc39b4cc7612609895e88c`
+- Sync date: `2026-07-02T22:13:04Z`
 - Operator: `unggul`
 - Target folder: `emdash-latest/`
 - Development workspace: `awcmsmicro-dev/`
 
 ## Status Summary
 
-`emdash-latest/` was refreshed to EmDash `0.26.0` at upstream `main` commit `90ffe40a1a31193b2f29ef92202e4f339a2487fa` after confirming local GitHub state was current and backing up production D1 to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`.
+`emdash-latest/` was refreshed from upstream EmDash `main` at `932f4ba3adef8be21abc39b4cc7612609895e88c` after confirming the parent repository `main` branch was current with GitHub and backing up production D1 to `r2://awcms-micro-backups/backups/db/backup-20260703-051234.sql.enc`.
 
-`awcmsmicro-dev/` has been rebuilt from the refreshed EmDash `0.26.0` snapshot with approved AWCMS-Micro overlays replayed. The 0.26.0 rebuild required patch-context updates for dependency/security overlays, retirement of the obsolete Lunaria lockfile integrity overlay, protection of the downstream lockfile, and removal of a stale AT Protocol manifest version hunk from the code-scanning hardening overlay.
+`awcmsmicro-dev/` has been rebuilt from the refreshed upstream snapshot with approved AWCMS-Micro protected paths restored and all 21 active downstream patch overlays replayed successfully.
 
-Local and development synchronization is complete and validated. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed 2026-07-02T04:14:49Z. Production D1 migrations 044-048 are applied and verified in `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`. Optional Cloudflare architecture decisions are recorded in `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: keep the current D1 + R2 + session KV + Images + Worker Loader topology, adopt additive media/search improvements from upstream, and defer Durable Object SQLite, Hyperdrive, KV object cache, route cache, and Cloudflare Email Sending until focused issues justify new bindings.
+EmDash 0.27.0 introduces migration `049_taxonomies_name_locale_index`; production verification is complete and recorded in issue #226 and `EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`. Upstream also adds a deployed-site schema-evolution guide, improves the Cloudflare Email provider descriptor, documents D1 session incompatibility with `global_fetch_strictly_public`, and moves built-in templates toward semantic theme tokens. AWCMS-Micro adoption/deferral decisions are recorded in `EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`; protected default-template token adoption is tracked in issue #227.
 
 ## Key Changes in This Sync
 
-- **EmDash 0.20.0-0.26.0** — key upstream additions now present in `emdash-latest/` and rebuilt into `awcmsmicro-dev/`:
-  - **Migrations 044-048**: comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Production D1 now records through migration `048_restore_content_taxonomies_term_index`. See `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
-  - **Cloudflare architecture features**: Durable Object SQLite adapter, Hyperdrive adapter and cached binding, KV-backed object cache, Cloudflare media image endpoint improvements, and Cloudflare Email Sending provider plugin. Decisions are recorded in `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`.
-  - **Public/runtime features**: offset pagination, LiveSearch route templates, public search suggestions, CSP-compatible JSON-LD, sitemap hreflang fixes, media LQIP placeholders, content schedule/restore hooks, and text-alignment round-trip rendering.
-  - **Admin features**: route-scoped admin CSS, Kumo sidebar updates, repeater field typeahead, byline avatar picker, CJK editor metrics, code block picker focus fix, and additional admin locales.
-- **EmDash 0.19.0** — previous deployed workspace baseline:
-  - **Scheduled publishing heartbeat fix**: `publishDueContent` sweep replaces `PiggybackScheduler`; scheduled content now actually transitions to `published`. AWCMS-Micro templates already have correct `worker.ts` and `wrangler.jsonc`. See issue #205 for post-deploy verification.
-  - **`getEntriesByByline()`**: new helper for author archive pages. `getEmDashCollection` also accepts `where: { byline: translationGroup }`. See issue #204.
-  - **Responsive srcset for media**: automatic through Astro image service — no template changes required.
-  - **Admin content list filtering**: `authorId`, `dateField`, `dateFrom`, `dateTo` params; new `/authors` endpoint.
-  - **`RelationRepository`** data layer for content references (foundation only, no field/API/UI yet).
-  - **Bug fixes**: `getTaxonomyTerms()` description for flat taxonomies; seed CLI `defaultLocale`; taxonomy term hydration uses entry's resolved locale.
-  - **`create-emdash` scaffold**: HEAD adds `.env` instead of `.dev.vars` for new Cloudflare projects.
-- **Patch overlay repair** — refreshed 0.26.0 contexts for `0004`, `0007`, `0011`, `0016`, `0021`, `0023`, and `0030`; retired `0024-lunaria-lockfile-integrity.patch`; removed the stale AT Protocol manifest version hunk from `0028`; restored the documented blocks playground `build.target: "esnext"` compatibility setting.
-- **Protected boundary update** — `awcmsmicro-dev/pnpm-lock.yaml` is now a protected downstream path because the workspace-level security overrides intentionally generate a downstream lockfile that differs from upstream.
-- Migration 043 (`_emdash_relations` + `_emdash_content_references`) was already applied in production from the previous sync (present at `ff5855ab`). Not a new apply in this sync.
-- Production D1 backup completed before this sync: `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`
-- GitHub issue #220 (EmDash 0.26.0-era synchronization) is closed. Follow-up issues #221 (production D1 migrations 044-048), #222 (Cloudflare architecture adoption), and #223 (patch overlay repair) were also completed by this sync.
+- **EmDash 0.27.0 core/runtime**:
+  - admin branding falls back to the Site Title when no build-time `admin.siteName` is configured;
+  - published slug changes made through the draft/revision publish path now create 301 auto-redirects;
+  - `emdash seed --no-content` and setup `?content=0` skip sample bylines and taxonomy terms;
+  - first-party packages are excluded from the workerd dependency optimizer for more stable Cloudflare dev/setup/content paths.
+- **D1 migration 049**:
+  - creates `idx_taxonomies_name_locale` on `taxonomies(name, locale)`;
+  - drops the superseded `idx_taxonomies_name`;
+  - keeps `idx_taxonomies_locale` for locale-only lookups.
+- **Cloudflare changes**:
+  - `cloudflareEmail()` now returns a bundlable plugin descriptor;
+  - D1 read-replica sessions remain disabled by default for AWCMS-Micro templates, especially where `global_fetch_strictly_public` may be required.
+- **Docs and template architecture**:
+  - upstream adds deployed-site schema-evolution docs;
+  - built-in blog/marketing/portfolio templates adopt semantic `tokens.css` styling;
+  - AWCMS-Micro default templates keep their protected CMS-sourced public architecture until #227 evaluates token adoption.
+- **Patch overlay replay**:
+  - existing AWCMS-Micro overlays replay cleanly after the 0.27.0 rebuild.
 
 ## Validation Status
 
 | Check | Status | Notes |
 | --- | --- | --- |
-| Upstream fetch into `emdash-latest/` | Passed | Refreshed from upstream EmDash `main` at `90ffe40a` |
-| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | `bash scripts/update-awcmsmicro-dev.sh continuation` rebuilt from EmDash 0.26.0 after overlay repair |
-| Boundary validation | Passed | `bash scripts/validate-awcmsmicro-boundaries.sh` passed after downstream lockfile protection and patch overlay replay checks |
-| Validation script execution | Passed | `bash scripts/validate-awcmsmicro-dev.sh` passed for the rebuilt 0.26.0 workspace |
-| SIKESRA compatibility validation | Passed | Included in `validate-awcmsmicro-dev.sh`: `pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync` |
-| AWCMS-Micro Node template validation | Passed | 2026-07-02: `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default typecheck` and `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default test` passed |
-| AWCMS-Micro Cloudflare template validation | Passed | 2026-07-02: `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare test`, `build`, and `wrangler deploy --dry-run` passed |
-| Cloudflare production deployment | Passed | Observed 2026-07-02 deployment, Version ID `5be81778-b5ba-45e5-aa1c-164655845a5d`, at 100% traffic |
-| Production D1 migration 044-048 verification | Passed | `_emdash_migrations` records through `048_restore_content_taxonomies_term_index`; new tables and indexes verified |
-| Cloudflare architecture adoption decision | Passed | #222 keeps D1 + R2 as the default template topology and defers new DO/Hyperdrive/KV cache/Email bindings to focused future issues |
-| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts`, `/services`, `/_emdash/api/setup/status`, and `/_emdash/api/auth/mode` return 200 |
-| Scheduled publishing post-deploy verification | Passed | 2026-07-02: temporary post `schedtest_publish_20260702075130` scheduled for `2026-07-02T07:53:30Z` was published by cron by `2026-07-02T07:54:02Z`; `published_at` equals scheduled time, Worker tail logged `[scheduled] Published 1 scheduled item(s)`, unscheduled guard row stayed draft, and all test rows/revisions were removed |
+| GitHub current-state check | Passed | Local `main` equals `origin/main` at `faca0ffa69ed7bfcbb7264b6d890aba2258a6364` before sync |
+| Production D1 backup | Passed | `r2://awcms-micro-backups/backups/db/backup-20260703-051234.sql.enc` |
+| Upstream analysis | Passed | Compared `90ffe40a` to `932f4ba3`; latest released tag in the delta is `emdash@0.27.0` |
+| Issue creation | Passed | #226 tracked D1 migration 049 and is closed after verification; #227 tracks protected-template semantic token review |
+| Upstream fetch into `emdash-latest/` | Passed | `bash scripts/update-emdash-latest.sh continuation` refreshed to `932f4ba3` |
+| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | `bash scripts/update-awcmsmicro-dev.sh continuation`; 21 patch overlays replayed |
+| Boundary validation | Passed | `bash scripts/validate-awcmsmicro-boundaries.sh` passed after root versioning |
+| Full workspace validation | Passed | `bash scripts/validate-awcmsmicro-dev.sh` passed; see `LAST_VALIDATION.md` |
+| Cloudflare deploy dry-run | Passed | `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build` and `wrangler deploy --dry-run` passed |
+| Production deployment | Passed | Worker version `d369494d-96b1-4ba1-8af6-6056e79c94c6`, deployment created 2026-07-02T22:23:14.118Z |
+| Production D1 migration 049 verification | Passed | `_emdash_migrations` contains `049_taxonomies_name_locale_index`; `idx_taxonomies_name_locale` and `idx_taxonomies_locale` exist; `idx_taxonomies_name` is absent |
+| Cloudflare post-deploy smoke checks | Passed | Public/API routes returned 200; scheduled publishing test row published at `2026-07-02T22:29:28Z`; temporary rows and revision were cleaned up |
 
 ## Notes
 
-- `emdash-latest/` remains the upstream reference snapshot, with the documented local `build.target: "esnext"` playground compatibility exception carried in `DIVERGENCE_LOG.md`.
+- `emdash-latest/` is the upstream reference snapshot.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
-- Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
-- Migration 043 (`_emdash_content_references` and `_emdash_relations`) was already applied in production from the 0.18.0 sync. Migrations 044-048 are now verified in production; see `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
-- Optional Cloudflare architecture improvements from EmDash 0.20.0-0.26.0 are not production bindings by default; see `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`.
-- The `@emdash-cms/cloudflare/worker` entry point requires `"triggers": { "crons": ["* * * * *"] }` in `wrangler.jsonc` — already present in AWCMS-Micro templates.
-- Scheduled publishing is verified end to end in production after the EmDash 0.26.0 deployment; issue #205 has a 2026-07-02 evidence comment.
-- Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.
-- 2026-07-02 sync repair aligned active patch overlays with EmDash 0.26.0, protected the downstream lockfile, rebuilt `awcmsmicro-dev/`, verified boundaries and full workspace validation, validated both default templates, and confirmed Cloudflare packaging with a dry-run.
+- Optional Cloudflare Email binding adoption remains deferred until a focused email issue defines sender, deliverability, consent, and binding rules.
+- D1 read-replica sessions remain disabled by default for AWCMS-Micro templates.
+- The current production Worker version is `d369494d-96b1-4ba1-8af6-6056e79c94c6`; the previous 0.26.0 reference was `5be81778-b5ba-45e5-aa1c-164655845a5d`.

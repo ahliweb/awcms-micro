@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.14 - 2026-07-02
+
+- Synchronize the parent workspace to upstream EmDash 0.27.0 at 932f4ba3, record the pre-sync production D1 backup, rebuild AWCMS-Micro with approved overlays, deploy Worker version d369494d-96b1-4ba1-8af6-6056e79c94c6, verify D1 migration 049 and scheduled publishing, add template-token follow-up tracking, and refresh root sync documentation.
 ## 0.2.13 - 2026-07-02
 
 - Hardens the AWCMS-Micro and EmDash snapshot dependency graph by adding reviewed pnpm overrides for open Dependabot and audit advisories across the root workspace, `emdash-latest/`, `awcmsmicro-dev/`, and their `.flue/` workspaces.
@@ -186,8 +189,8 @@
 
 ## Workspace Snapshot - 2026-07-02
 
-- EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.13`
+- EmDash upstream: `932f4ba3adef8be21abc39b4cc7612609895e88c` from `emdash-latest/`
+- Root version: `0.2.14`
 
 ### Plugins
 
@@ -201,7 +204,7 @@
 - `@emdash-cms/plugin-atproto` `0.2.1` - latest changelog section: 0.2.1
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.32` - latest changelog section: 0.1.32
+- `@emdash-cms/plugin-embeds` `0.1.33` - latest changelog section: 0.1.33
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
 - `@emdash-cms/plugin-forms` `0.2.4` - latest changelog section: 0.2.5
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2

@@ -41,30 +41,30 @@ Keep these flows separate so root maintenance releases do not mix with package r
 
 ## Root Structure
 
-- `emdash-latest/`: latest refreshed upstream EmDash snapshot (current: `0.26.0` @ `90ffe40a`, fetched 2026-07-02)
-- `awcmsmicro-dev/`: active AWCMS-Micro development workspace; rebuilt from EmDash `0.26.0` with approved AWCMS-Micro overlays replayed and validation passing
+- `emdash-latest/`: latest refreshed upstream EmDash snapshot (current: `0.27.0` / upstream `main` @ `932f4ba3`, fetched 2026-07-02T22:13:04Z)
+- `awcmsmicro-dev/`: active AWCMS-Micro development workspace; rebuilt from EmDash `0.27.0` with approved AWCMS-Micro overlays replayed
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` (deployed 2026-07-02T04:14:49Z), with D1 migrations 044-048 applied and verified in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`; scheduled publishing is also verified end to end in production. Cloudflare architecture decisions are recorded in `docs/upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: keep the current D1 + R2 + session KV + Images + Worker Loader topology, adopt additive media/search improvements from upstream, and defer optional DO/Hyperdrive/cache/email bindings until focused issues justify them.
+Sync note 2026-07-03 local time / 2026-07-02 UTC: GitHub `main` was current before sync, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260703-051234.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `932f4ba3adef8be21abc39b4cc7612609895e88c` (latest released tag in the delta: `emdash@0.27.0`). `awcmsmicro-dev/` was rebuilt from that snapshot with approved AWCMS-Micro overlays replayed. Production was deployed to Worker version `d369494d-96b1-4ba1-8af6-6056e79c94c6`, migration 049 was verified in D1, and scheduled publishing was smoke-tested after deployment. Migration evidence is recorded in `docs/upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md` and completed issue #226; 0.27.0 Cloudflare/template decisions are tracked in `docs/upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md` and open issue #227.
 
 ```mermaid
 flowchart LR
   GH["github.com/emdash-cms/emdash"] -->|"update-emdash-latest.sh"| Latest["emdash-latest/\n(upstream snapshot)"]
   Latest -->|"update-awcmsmicro-dev.sh\n+ patch overlays"| Gate{"patch overlays\napply cleanly?"}
   Gate -->|"No"| Blocked["repair or retire overlays\nbefore rebuild"]
-  Gate -->|"Yes"| Dev["awcmsmicro-dev/\n(0.26.0 validated workspace)"]
+  Gate -->|"Yes"| Dev["awcmsmicro-dev/\n(0.27.0 rebuilt workspace)"]
   Dev --> Plugins["packages/plugins/awcms-micro-*\n(AWCMS-Micro plugins)"]
   Dev --> Templates["templates/awcms-micro-default*\n(AWCMS-Micro templates)"]
   Dev -->|"wrangler deploy"| CF["Cloudflare Workers\n(production)"]
   Docs["docs/ + scripts/"] -->|"governs"| Dev
   Patches["awcmsmicro-dev/.awcms-patches/\n(downstream overlays)"] -->|"replayed by update script"| Dev
-  Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"passed 2026-07-02"| Dev
+  Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"required after sync"| Dev
   Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\npassed"]
-  Dev -->|"observed production deployment"| CF26["production Worker\n5be81778"]
-  CF26 -->|"auto-migrated"| D1Migrations["D1 migrations\n044-048 verified"]
-  CF26 -->|"architecture decision"| CFDecision["D1 + R2 kept\noptional bindings deferred"]
-  CF26 -->|"cron verified"| Scheduler["scheduled publishing\nE2E passed"]
+  Dev -->|"production deploy"| CF27["Cloudflare Worker\n0.27.0 version d369494d"]
+  CF27 -->|"auto-migrated"| D1Migrations["D1 migration\n049 verified"]
+  CF27 -->|"architecture decision"| CFDecision["D1 + R2 kept\nemail/tokens tracked separately"]
+  CF27 -->|"cron smoke"| Scheduler["scheduled publishing\nmust remain verified"]
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.
@@ -220,6 +220,8 @@ The authoritative standard lives in `awcmsmicro-dev/docs/awcms-micro/i18n-po-tra
 - `docs/awcms-micro-licensing.md`
 - `docs/awcms-micro-d1-mirror-sync.md`
 - `docs/upstream-sync/README.md`
+- `docs/upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`
+- `docs/upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`
 - `docs/upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`
 - `docs/upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`
 - `docs/deployment/cloudflare.md`

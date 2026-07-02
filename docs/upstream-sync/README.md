@@ -28,6 +28,8 @@ flowchart LR
 - `COMPATIBILITY_MATRIX.md`: feature-level compatibility review between upstream EmDash and AWCMS-Micro usage
 - `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: Cloudflare architecture adoption and deferral decisions for EmDash 0.20.0-0.26.0 features
 - `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`: production D1 migration 044-048 verification for the EmDash 0.26.0 sync
+- `EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`: production D1 migration 049 backup, deploy, and verification record for the EmDash 0.27.0 sync
+- `EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`: 0.27.0 Cloudflare Email, D1 session, schema-evolution, and semantic template-token decisions
 - `LAST_VALIDATION.md`: latest validation run template and results
 - `ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether an issue should be fixed downstream or upstream
 - `UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for consuming plugin sidebar ordering metadata in the global admin sidebar
@@ -40,9 +42,11 @@ flowchart LR
 4. Read `COMPATIBILITY_MATRIX.md` for feature-level adoption and adaptation notes.
 5. Read `EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md` before changing optional Cloudflare bindings in the AWCMS-Micro template.
 6. Read `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md` before reviewing production migration 044-048 state.
-7. Read `DIVERGENCE_LOG.md` for downstream decisions that intentionally differ from a plain upstream checkout.
-8. Read `ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before deciding whether a finding belongs in downstream boundaries or upstream EmDash core.
-9. Read `UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing the upstream sidebar ordering PR plan.
+7. Read `EMDASH_0_27_D1_MIGRATION_VERIFICATION.md` before reviewing production migration 049 state.
+8. Read `EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md` before adopting Cloudflare Email bindings, D1 session modes, or upstream semantic template tokens.
+9. Read `DIVERGENCE_LOG.md` for downstream decisions that intentionally differ from a plain upstream checkout.
+10. Read `ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before deciding whether a finding belongs in downstream boundaries or upstream EmDash core.
+11. Read `UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing the upstream sidebar ordering PR plan.
 
 ## Operating Rule
 

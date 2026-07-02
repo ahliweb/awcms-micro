@@ -55,6 +55,8 @@ flowchart TD
 - `upstream-sync/UPSTREAM_SYNC_STATUS.md`: current upstream synchronization status and validation table
 - `upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`: production D1 migration 044-048 impact, SQL verification, smoke checks, and rollback guidance for the EmDash 0.26.0 sync
 - `upstream-sync/EMDASH_0_26_CLOUDFLARE_ARCHITECTURE_DECISIONS.md`: Cloudflare architecture adoption/deferral decisions for EmDash 0.20.0-0.26.0 features in the AWCMS-Micro Cloudflare template
+- `upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`: production D1 migration 049 backup, deploy, and verification record for the EmDash 0.27.0 sync
+- `upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`: Cloudflare Email, D1 session, schema-evolution, and semantic template-token decisions for EmDash 0.27.0
 - `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md`: triage guide for deciding whether a discovered issue belongs in downstream boundaries or upstream EmDash core
 - `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md`: narrow upstream PR plan for global admin-sidebar ordering support
 - `deployment/cloudflare.md`: Cloudflare deployment guidance and related infrastructure notes
@@ -104,7 +106,9 @@ flowchart TD
 29. Read `upstream-sync/README.md` before reviewing sync state or divergence.
 30. Read `upstream-sync/ISSUE_CLASSIFICATION_DOWNSTREAM_VS_UPSTREAM.md` before triaging whether a defect should be fixed downstream or escalated upstream.
 31. Read `upstream-sync/UPSTREAM_PR_PLAN_ADMIN_SIDEBAR_ORDERING.md` before preparing upstream admin-sidebar ordering work.
-32. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
+32. Read `upstream-sync/EMDASH_0_27_D1_MIGRATION_VERIFICATION.md` before reviewing production migration 049 state.
+33. Read `upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md` before adopting Cloudflare Email bindings, D1 session modes, or upstream semantic template tokens.
+34. Read `deployment/cloudflare.md` and `security/security-baseline.md` before infrastructure or governance changes.
 
 ## Issue System Summary
 
