@@ -46,7 +46,7 @@ Keep these flows separate so root maintenance releases do not mix with package r
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production remains on the previous deployed worker until migration 044-048 and Cloudflare adoption decisions are completed in #221 and #222.
+Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` (deployed 2026-07-02T04:14:49Z), with D1 migrations 044-048 applied and verified in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`. Optional Cloudflare architecture adoption decisions remain tracked in #222.
 
 ```mermaid
 flowchart LR
@@ -60,8 +60,9 @@ flowchart LR
   Docs["docs/ + scripts/"] -->|"governs"| Dev
   Patches["awcmsmicro-dev/.awcms-patches/\n(downstream overlays)"] -->|"replayed by update script"| Dev
   Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"passed 2026-07-02"| Dev
-  Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\npassed, no upload"]
-  DryRun -->|"blocked until #221"| ProdGate["migration 044-048\nproduction cutover gate"]
+  Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\npassed"]
+  Dev -->|"observed production deployment"| CF26["production Worker\n5be81778"]
+  CF26 -->|"auto-migrated"| D1Migrations["D1 migrations\n044-048 verified"]
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.

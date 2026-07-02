@@ -103,14 +103,14 @@ flowchart TD
 
 ## Latest Local/Production Consistency Audit
 
-The 2026-07-02 audit kept production unchanged and verified the checked-in Cloudflare deployment shape locally:
+The 2026-07-02 sync verified the checked-in Cloudflare deployment shape locally:
 
 - `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare validate:cloudflare-env` passed without requiring credentials.
 - `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare test` passed.
 - `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build` passed.
 - `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare exec wrangler deploy --dry-run` passed with Wrangler `4.100.0` and reported the expected `SESSION`, `DB`, `MEDIA`, `IMAGES`, `ASSETS`, `LOADER`, and production `AWCMS_MICRO_*` bindings.
 
-No production deploy was run during this audit because the upstream EmDash sync gap remains open: local AWCMS-Micro is still synced to EmDash `0.19.0` at `34dd430b`, while upstream `emdash-cms/emdash` is ahead at `90ffe40a` with latest visible tag `emdash@0.26.0`.
+Production was later observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed at `2026-07-02T04:14:49.517603Z`. D1 migrations 044-048 were applied and verified against `awcms-micro-d1-20260530`; see `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
 
 ## Pre-Deploy Checks
 
@@ -146,7 +146,7 @@ Minimum checks after deploy:
 - `GET /_emdash/api/plugins/awcms-micro-sikesra/public/status` returns the public-safe plugin response
 - media upload and retrieval work against the configured R2 bucket
 
-Latest recorded production deployment verification on 2026-06-08 used Worker version `84f637cf-3ef1-46cd-90db-1799f13bdf01` and confirmed the smoke checks above, plus remote D1 `_emdash_migrations` count `41`.
+Latest recorded production deployment verification on 2026-07-02 used Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d` and confirmed public smoke checks, setup/auth mode checks, remote D1 `_emdash_migrations` count `47`, and schema objects for migrations 044-048.
 
 ## Rollback Procedure
 

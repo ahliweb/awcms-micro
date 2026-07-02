@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.7 - 2026-07-02
+
+- Record the post-deploy production verification for the EmDash 0.26.0 synchronization: Worker version 5be81778-b5ba-45e5-aa1c-164655845a5d was observed live, production D1 migrations 044-048 were verified in place, new migration tables and indexes were audited, smoke checks passed, and issue #221 is documented as complete.
 ## 0.2.6 - 2026-07-02
 
 - Finalize the EmDash 0.26.0 synchronization by recording the successful downstream rebuild, boundary validation, full workspace validation, template checks, Cloudflare build, and Wrangler dry-run.
@@ -166,7 +169,7 @@
 ## Workspace Snapshot - 2026-07-02
 
 - EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
-- Root version: `0.2.6`
+- Root version: `0.2.7`
 
 ### Plugins
 

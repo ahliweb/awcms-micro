@@ -45,7 +45,7 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | EmDash `0.24.0` offset pagination | Present in the synchronized 0.26.0 workspace; template adoption for numbered archive UX remains optional | Compatible | Low | adapt |
 | EmDash `0.26.0` content schedule hooks and 0.25.0 restore hook | Present in the synchronized 0.26.0 workspace; downstream plugin usage requires focused design when needed | Compatible | Medium | adapt |
 | EmDash `0.26.0` Cloudflare Email Sending provider plugin | Relevant to Email Mailketing integration, but requires explicit design and security review | Pending decision | Medium | adapt |
-| EmDash `0.26.0` migrations 044-048 | Production D1 is currently at migration 043; plan migration safety and verification in #221 before production deploy | Blocked for production | High | adapt |
+| EmDash `0.26.0` migrations 044-048 | Production D1 records through migration 048; schema objects and smoke checks verified in #221 | Compatible | Medium | adapt |
 | EmDash `0.26.0` admin/sidebar and route-scoped CSS changes | Upstream admin files changed heavily; AWCMS protected admin overlays replay after context repair and validation passes | Compatible | Medium | adapt |
 | Downstream patch overlays against EmDash `0.26.0` | Repaired or retired stale overlays; `update-awcmsmicro-dev.sh` rebuild and boundary validation pass | Compatible | Medium | adapt |
 

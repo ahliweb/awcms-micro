@@ -11,8 +11,8 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 - **Upstream snapshot (`emdash-latest/`):** EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa`, fetched 2026-07-02.
 - **Development workspace (`awcmsmicro-dev/`):** rebuilt from EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` with approved AWCMS-Micro overlays replayed; full validation passed 2026-07-02.
-- **Production status:** still the deployed EmDash `0.19.0` workspace; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` (2026-06-13); smoke checks passed; migration 043 was already applied from the 0.18.0 sync.
-- **2026-07-02 sync status:** GitHub was current, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, `emdash-latest/` was refreshed to `0.26.0`, and `awcmsmicro-dev/` was rebuilt and validated. Production deployment remains gated by migration 044-048 planning in #221 and Cloudflare architecture adoption decisions in #222.
+- **Production status:** observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed 2026-07-02T04:14:49Z; smoke checks passed; D1 migrations 044-048 are applied and verified. Previous 0.19.0 production reference was version `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` from 2026-06-13.
+- **2026-07-02 sync status:** GitHub was current, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, `emdash-latest/` was refreshed to `0.26.0`, `awcmsmicro-dev/` was rebuilt and validated, and production D1 migration 044-048 verification was recorded in `docs/upstream-sync/EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`. Optional Cloudflare architecture adoption decisions remain tracked in #222.
 
 ### Key 0.19.0 Features
 
@@ -30,7 +30,7 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 ### Key 0.20.0-0.26.0 Upstream Additions
 
-- **Migrations 044-048:** comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Present in the synchronized local/dev workspaces; production D1 currently records only through `043_content_references`, so plan and verify migration 044-048 in #221 before production deployment.
+- **Migrations 044-048:** comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Present in the synchronized local/dev workspaces and verified in production D1 on 2026-07-02.
 - **Cloudflare architecture options:** Durable Object SQLite adapter, Hyperdrive adapter with optional cached binding, KV-backed object cache, Cloudflare media image endpoint improvements, and Cloudflare Email Sending provider plugin. Decide AWCMS-Micro template adoption or deferral in #222.
 - **Public/runtime improvements:** offset pagination for `getEmDashCollection`, LiveSearch route templates, public search suggestions, CSP-compatible JSON-LD, sitemap hreflang fixes, text alignment round-trip rendering, media LQIP placeholders, and content schedule/restore hooks.
 - **Admin improvements:** Kumo sidebar behavior updates, repeater select typeahead, byline avatar picker, route-scoped admin CSS, CJK editor metrics, code block picker focus fix, and additional admin locales. Downstream AWCMS-Micro admin/sidebar overlays replay cleanly after the 0.26.0 rebuild.

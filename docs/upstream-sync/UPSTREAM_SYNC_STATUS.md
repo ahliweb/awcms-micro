@@ -16,12 +16,12 @@
 
 `awcmsmicro-dev/` has been rebuilt from the refreshed EmDash `0.26.0` snapshot with approved AWCMS-Micro overlays replayed. The 0.26.0 rebuild required patch-context updates for dependency/security overlays, retirement of the obsolete Lunaria lockfile integrity overlay, protection of the downstream lockfile, and removal of a stale AT Protocol manifest version hunk from the code-scanning hardening overlay.
 
-Local and development synchronization is complete and validated. Production is intentionally not cut over yet: D1 still records through `043_content_references`, while EmDash 0.26.0 adds migrations 044-048. Complete #221 before applying production migrations or deploying the 0.26.0 worker, and complete #222 before adopting optional Cloudflare architecture features such as Durable Object SQLite, Hyperdrive, KV object cache, or Cloudflare Email Sending.
+Local and development synchronization is complete and validated. Production is now observed on Worker version `5be81778-b5ba-45e5-aa1c-164655845a5d`, deployed 2026-07-02T04:14:49Z. Production D1 migrations 044-048 are applied and verified in `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`. Complete #222 before adopting optional Cloudflare architecture features such as Durable Object SQLite, Hyperdrive, KV object cache, or Cloudflare Email Sending beyond the currently deployed template shape.
 
 ## Key Changes in This Sync
 
 - **EmDash 0.20.0-0.26.0** — key upstream additions now present in `emdash-latest/` and rebuilt into `awcmsmicro-dev/`:
-  - **Migrations 044-048**: comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Production D1 currently records through migration `043_content_references` only. See #221.
+  - **Migrations 044-048**: comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Production D1 now records through migration `048_restore_content_taxonomies_term_index`. See `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
   - **Cloudflare architecture features**: Durable Object SQLite adapter, Hyperdrive adapter and cached binding, KV-backed object cache, Cloudflare media image endpoint improvements, and Cloudflare Email Sending provider plugin. See #222.
   - **Public/runtime features**: offset pagination, LiveSearch route templates, public search suggestions, CSP-compatible JSON-LD, sitemap hreflang fixes, media LQIP placeholders, content schedule/restore hooks, and text-alignment round-trip rendering.
   - **Admin features**: route-scoped admin CSS, Kumo sidebar updates, repeater field typeahead, byline avatar picker, CJK editor metrics, code block picker focus fix, and additional admin locales.
@@ -37,7 +37,7 @@ Local and development synchronization is complete and validated. Production is i
 - **Protected boundary update** — `awcmsmicro-dev/pnpm-lock.yaml` is now a protected downstream path because the workspace-level security overrides intentionally generate a downstream lockfile that differs from upstream.
 - Migration 043 (`_emdash_relations` + `_emdash_content_references`) was already applied in production from the previous sync (present at `ff5855ab`). Not a new apply in this sync.
 - Production D1 backup completed before this sync: `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`
-- GitHub issues #221 (production D1 migrations 044-048), #222 (Cloudflare architecture adoption), and #223 (patch overlay repair) created; #223 was completed by this sync.
+- GitHub issues #221 (production D1 migrations 044-048), #222 (Cloudflare architecture adoption), and #223 (patch overlay repair) created; #221 and #223 were completed by this sync.
 
 ## Validation Status
 
@@ -50,8 +50,9 @@ Local and development synchronization is complete and validated. Production is i
 | SIKESRA compatibility validation | Passed | Included in `validate-awcmsmicro-dev.sh`: `pnpm --filter @awcms-micro/plugin-sikesra awcms:sikesra:validate-after-emdash-sync` |
 | AWCMS-Micro Node template validation | Passed | 2026-07-02: `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default typecheck` and `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default test` passed |
 | AWCMS-Micro Cloudflare template validation | Passed | 2026-07-02: `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare test`, `build`, and `wrangler deploy --dry-run` passed |
-| Cloudflare production deployment | Deferred | Current production remains the 2026-06-13 deployment, Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b`; deploy 0.26.0 only after #221 migration safety checks |
-| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts`, `/services` all return 200 |
+| Cloudflare production deployment | Passed | Observed 2026-07-02 deployment, Version ID `5be81778-b5ba-45e5-aa1c-164655845a5d`, at 100% traffic |
+| Production D1 migration 044-048 verification | Passed | `_emdash_migrations` records through `048_restore_content_taxonomies_term_index`; new tables and indexes verified |
+| Cloudflare post-deploy smoke checks | Passed | `/`, `/posts`, `/news`, `/about`, `/sitemap.xml`, `/id`, `/id/posts`, `/services`, `/_emdash/api/setup/status`, and `/_emdash/api/auth/mode` return 200 |
 | Scheduled publishing post-deploy verification | Pending | See issue #205 — schedule a test post and confirm it auto-publishes |
 
 ## Notes
@@ -59,7 +60,7 @@ Local and development synchronization is complete and validated. Production is i
 - `emdash-latest/` remains the upstream reference snapshot, with the documented local `build.target: "esnext"` playground compatibility exception carried in `DIVERGENCE_LOG.md`.
 - `awcmsmicro-dev/` is the workspace for AWCMS-Micro-specific plugin and template additions.
 - Validation passes on this host with `EMDASH_WORKERD_PLUGIN_PORT_BASE=28000` exported by `scripts/validate-awcmsmicro-dev.sh`.
-- Migration 043 (`_emdash_content_references` and `_emdash_relations`) is already applied in production from the 0.18.0 sync. The 0.26.0-era deployment will introduce migrations 044-048; see #221 before production deployment.
+- Migration 043 (`_emdash_content_references` and `_emdash_relations`) was already applied in production from the 0.18.0 sync. Migrations 044-048 are now verified in production; see `EMDASH_0_26_D1_MIGRATION_VERIFICATION.md`.
 - The `@emdash-cms/cloudflare/worker` entry point requires `"triggers": { "crons": ["* * * * *"] }` in `wrangler.jsonc` — already present in AWCMS-Micro templates.
 - Any accepted downstream divergence must be logged in `DIVERGENCE_LOG.md`.
 - 2026-07-02 sync repair aligned active patch overlays with EmDash 0.26.0, protected the downstream lockfile, rebuilt `awcmsmicro-dev/`, verified boundaries and full workspace validation, validated both default templates, and confirmed Cloudflare packaging with a dry-run.
