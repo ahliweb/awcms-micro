@@ -176,18 +176,6 @@ index 6425c8c..1c3ede9 100644
  	it("shows misconfigured warning when rows or columns are missing", () => {
  		render(
  			<Grid
-diff --git a/packages/plugins/atproto/emdash-plugin.jsonc b/packages/plugins/atproto/emdash-plugin.jsonc
-index 9b9829c..7ef6115 100644
---- a/packages/plugins/atproto/emdash-plugin.jsonc
-+++ b/packages/plugins/atproto/emdash-plugin.jsonc
-@@ -2,6 +2,7 @@
- 	"$schema": "../../plugin-cli/schemas/emdash-plugin.schema.json",
- 
- 	"slug": "atproto",
-+	"version": "0.2.0",
- 	"publisher": "did:plc:xyraubanwc5fwemkduw3upi6", // plugins.emdashcms.com
- 
- 	"license": "MIT",
 diff --git a/packages/plugins/atproto/src/standard-site.ts b/packages/plugins/atproto/src/standard-site.ts
 index 2f7956a..cd39433 100644
 --- a/packages/plugins/atproto/src/standard-site.ts

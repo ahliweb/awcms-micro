@@ -1,11 +1,12 @@
 diff --git a/packages/cloudflare/package.json b/packages/cloudflare/package.json
 --- a/packages/cloudflare/package.json
 +++ b/packages/cloudflare/package.json
-@@ -83,6 +83,6 @@
+@@ -99,7 +99,7 @@
    "peerDependencies": {
      "@astrojs/cloudflare": ">=12.0.0",
      "@cloudflare/workers-types": ">=4.0.0",
 -    "astro": ">=6.0.0-beta.0",
 +    "astro": ">=6.3.5",
-     "kysely": ">=0.28.17"
+     "kysely": ">=0.28.17",
+     "pg": ">=8.16.3"
    },

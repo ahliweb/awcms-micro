@@ -1,5 +1,12 @@
 # AWCMS-Micro Changelog
 
+## 0.2.6 - 2026-07-02
+
+- Finalize the EmDash 0.26.0 synchronization by recording the successful downstream rebuild, boundary validation, full workspace validation, template checks, Cloudflare build, and Wrangler dry-run.
+- Document the remaining production cutover gate for D1 migrations 044-048 and optional Cloudflare architecture adoption decisions.
+## 0.2.5 - 2026-07-02
+
+- Refresh `emdash-latest/` to upstream EmDash `0.26.0` at `90ffe40a`, record the pre-sync production D1 backup, create focused follow-up issues for migration/template/patch-overlay work, and document that the `awcmsmicro-dev/` rebuild is blocked until patch overlays are repaired.
 ## 0.2.4 - 2026-07-02
 
 - Record the 2026-07-02 protection audit: local EmDash remains `0.19.0` at `34dd430b` while upstream `main` is `90ffe40a` with latest visible tag `emdash@0.26.0`; full workspace validation, template typechecks, Cloudflare template build, and Wrangler dry-run all pass after fixing author archive and sitemap type compatibility in both default templates. Follow-up upstream sync is tracked in GitHub issue #220.
@@ -156,10 +163,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-07-01
+## Workspace Snapshot - 2026-07-02
 
-- EmDash upstream: `34dd430b35032535a972e9ed718c0eacaeae2029` from `emdash-latest/`
-- Root version: `0.2.4`
+- EmDash upstream: `90ffe40a1a31193b2f29ef92202e4f339a2487fa` from `emdash-latest/`
+- Root version: `0.2.6`
 
 ### Plugins
 
@@ -170,12 +177,12 @@
 - `@awcms-micro/plugin-website-social` `0.0.1` - (no changelog yet)
 - `@emdash-cms/plugin-ai-moderation` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-api-test` `0.0.3` - latest changelog section: 0.0.3
-- `@emdash-cms/plugin-atproto` `0.2.0` - latest changelog section: 0.2.0
+- `@emdash-cms/plugin-atproto` `0.2.1` - latest changelog section: 0.2.1
 - `@emdash-cms/plugin-audit-log` `0.2.0` - latest changelog section: 0.2.0
 - `@emdash-cms/plugin-color` `0.2.0` - latest changelog section: 0.2.0
-- `@emdash-cms/plugin-embeds` `0.1.23` - latest changelog section: 0.1.23
+- `@emdash-cms/plugin-embeds` `0.1.32` - latest changelog section: 0.1.32
 - `@emdash-cms/plugin-field-kit` `0.1.0` - latest changelog section: 0.1.0
-- `@emdash-cms/plugin-forms` `0.2.5` - latest changelog section: 0.2.5
+- `@emdash-cms/plugin-forms` `0.2.4` - latest changelog section: 0.2.5
 - `@emdash-cms/plugin-marketplace-test` `0.1.2` - latest changelog section: 0.1.2
 - `@emdash-cms/plugin-sandboxed-test` `0.0.3` - latest changelog section: 0.0.3
 - `@emdash-cms/plugin-webhook-notifier` `0.2.0` - latest changelog section: 0.2.0

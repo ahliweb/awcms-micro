@@ -106,6 +106,7 @@ New AWCMS-Micro product development should be implemented as:
 - workflow automation under preserved `.github/` boundaries when needed for AWCMS-Micro-specific release operations
 - local bootstrap state under `awcmsmicro-dev/.env` and `awcmsmicro-dev/.env.age`
 - protected admin branding, navigation ordering, test, and config file exceptions listed in `scripts/awcmsmicro-dev-protected-paths.txt`
+- refreshed downstream workspace lockfile `awcmsmicro-dev/pnpm-lock.yaml` when protected workspace configuration or overrides make it differ from upstream
 
 The approved preserved path list for rebuilds lives in `scripts/awcmsmicro-dev-protected-paths.txt` and is governed by `docs/awcms-micro-implementation-boundaries.md`.
 

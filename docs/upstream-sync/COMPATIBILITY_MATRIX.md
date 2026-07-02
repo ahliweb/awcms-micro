@@ -38,6 +38,16 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | EmDash `0.19.0` admin content list filtering (author, date-range) | Adopt upstream admin behavior directly; no template changes required | Compatible | Low | adopt |
 | EmDash `0.19.0` `RelationRepository` data layer | Foundation only; no field type, API, or admin UI yet; content references implementation planned in issue #202 | Compatible | Low | delay |
 | EmDash `0.19.0` migration 043 (`_emdash_relations`, `_emdash_content_references`) | Already applied in production from 0.18.0 sync (was present at `ff5855ab`); confirmed in 0.19.0 release tag | Compatible | Low | adopt |
+| EmDash `0.20.0` Durable Object SQLite adapter | Useful upstream option for globally distributed reads, but current AWCMS-Micro production remains D1 + R2 | Pending decision | Medium | delay |
+| EmDash `0.22.0` KV-backed object cache | Potentially improves public read pressure on D1; requires explicit KV binding and template/deployment docs | Pending decision | Medium | adapt |
+| EmDash `0.22.0` Cloudflare media image endpoint | Present in the synchronized 0.26.0 workspace; Cloudflare template build and deploy dry-run pass | Compatible | Medium | adopt |
+| EmDash `0.23.0` Hyperdrive adapter | Optional PostgreSQL route; AWCMS-Micro ADR keeps production on D1, so document as optional only if needed | Pending decision | Medium | delay |
+| EmDash `0.24.0` offset pagination | Present in the synchronized 0.26.0 workspace; template adoption for numbered archive UX remains optional | Compatible | Low | adapt |
+| EmDash `0.26.0` content schedule hooks and 0.25.0 restore hook | Present in the synchronized 0.26.0 workspace; downstream plugin usage requires focused design when needed | Compatible | Medium | adapt |
+| EmDash `0.26.0` Cloudflare Email Sending provider plugin | Relevant to Email Mailketing integration, but requires explicit design and security review | Pending decision | Medium | adapt |
+| EmDash `0.26.0` migrations 044-048 | Production D1 is currently at migration 043; plan migration safety and verification in #221 before production deploy | Blocked for production | High | adapt |
+| EmDash `0.26.0` admin/sidebar and route-scoped CSS changes | Upstream admin files changed heavily; AWCMS protected admin overlays replay after context repair and validation passes | Compatible | Medium | adapt |
+| Downstream patch overlays against EmDash `0.26.0` | Repaired or retired stale overlays; `update-awcmsmicro-dev.sh` rebuild and boundary validation pass | Compatible | Medium | adapt |
 
 ## Usage Notes
 

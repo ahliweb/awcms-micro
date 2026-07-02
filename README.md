@@ -41,24 +41,27 @@ Keep these flows separate so root maintenance releases do not mix with package r
 
 ## Root Structure
 
-- `emdash-latest/`: latest synchronized snapshot of upstream EmDash (current: `0.19.0` @ `34dd430b`, 2026-06-13)
-- `awcmsmicro-dev/`: clone of `emdash-latest/` used as the active AWCMS-Micro development workspace
+- `emdash-latest/`: latest refreshed upstream EmDash snapshot (current: `0.26.0` @ `90ffe40a`, fetched 2026-07-02)
+- `awcmsmicro-dev/`: active AWCMS-Micro development workspace; rebuilt from EmDash `0.26.0` with approved AWCMS-Micro overlays replayed and validation passing
 - `docs/`: root-level technical documentation for structure, sync workflow, and implementation rules
 - `scripts/`: maintenance scripts for refreshing `emdash-latest/` and rebuilding `awcmsmicro-dev/`
 
-Audit note 2026-07-02: the local synchronized EmDash snapshot is still `0.19.0` at `34dd430b`, while upstream `emdash-cms/emdash` currently advertises `main` at `90ffe40a` and latest tag `emdash@0.26.0`. Treat this as a pending upstream-sync gap, not as a completed local sync.
+Sync note 2026-07-02: production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, then `emdash-latest/` was refreshed to upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` (`emdash@0.26.0`). `awcmsmicro-dev/` was rebuilt from that snapshot after repairing stale patch-overlay contexts and retiring the obsolete Lunaria integrity overlay. `bash scripts/validate-awcmsmicro-boundaries.sh`, `bash scripts/validate-awcmsmicro-dev.sh`, both default-template validation paths, the Cloudflare template build, and `wrangler deploy --dry-run` pass. Production remains on the previous deployed worker until migration 044-048 and Cloudflare adoption decisions are completed in #221 and #222.
 
 ```mermaid
 flowchart LR
   GH["github.com/emdash-cms/emdash"] -->|"update-emdash-latest.sh"| Latest["emdash-latest/\n(upstream snapshot)"]
-  Latest -->|"update-awcmsmicro-dev.sh\n+ patch overlays"| Dev["awcmsmicro-dev/\n(development workspace)"]
+  Latest -->|"update-awcmsmicro-dev.sh\n+ patch overlays"| Gate{"patch overlays\napply cleanly?"}
+  Gate -->|"No"| Blocked["repair or retire overlays\nbefore rebuild"]
+  Gate -->|"Yes"| Dev["awcmsmicro-dev/\n(0.26.0 validated workspace)"]
   Dev --> Plugins["packages/plugins/awcms-micro-*\n(AWCMS-Micro plugins)"]
   Dev --> Templates["templates/awcms-micro-default*\n(AWCMS-Micro templates)"]
   Dev -->|"wrangler deploy"| CF["Cloudflare Workers\n(production)"]
   Docs["docs/ + scripts/"] -->|"governs"| Dev
   Patches["awcmsmicro-dev/.awcms-patches/\n(downstream overlays)"] -->|"replayed by update script"| Dev
-  Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"guards"| Dev
-  Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\n(no upload)"]
+  Validate["validate-awcmsmicro-dev.sh\nboundary + tests + build"] -->|"passed 2026-07-02"| Dev
+  Dev -->|"wrangler deploy --dry-run"| DryRun["Cloudflare deploy dry-run\npassed, no upload"]
+  DryRun -->|"blocked until #221"| ProdGate["migration 044-048\nproduction cutover gate"]
 ```
 
 Hidden root files such as `.gitignore` and local-only `.env` support the parent workspace and are not part of the product structure.

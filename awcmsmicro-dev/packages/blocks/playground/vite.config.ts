@@ -7,7 +7,6 @@ import { defineConfig } from "vite";
 export default defineConfig({
 	plugins: [react(), tailwindcss()],
 	build: {
-		// esbuild 0.28.x can't downlevel Rolldown-generated destructuring to browser targets; playground is dev-only.
 		target: "esnext",
 	},
 	resolve: {

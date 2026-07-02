@@ -30,6 +30,7 @@ These paths are relative to `awcmsmicro-dev/`:
 - `.github/scripts`
 - `.github/dependabot.yml`
 - `pnpm-workspace.yaml`
+- `pnpm-lock.yaml`
 - `infra/perf-monitor/package.json`
 - `AGENTS.md`
 - `.env`

@@ -9,11 +9,10 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 
 ## Current EmDash Version
 
-- **Version:** 0.19.0
-- **Upstream commit:** `34dd430b35032535a972e9ed718c0eacaeae2029`
-- **Synced:** 2026-06-13
-- **Status:** deployed to production; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` (2026-06-13); smoke checks passed; migration 043 was already applied from the 0.18.0 sync
-- **Upstream audit note:** 2026-07-02 check found upstream `main` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` with latest visible tag `emdash@0.26.0`; the local `emdash-latest/` snapshot has not yet been synced past `34dd430b`.
+- **Upstream snapshot (`emdash-latest/`):** EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa`, fetched 2026-07-02.
+- **Development workspace (`awcmsmicro-dev/`):** rebuilt from EmDash `0.26.0` at `90ffe40a1a31193b2f29ef92202e4f339a2487fa` with approved AWCMS-Micro overlays replayed; full validation passed 2026-07-02.
+- **Production status:** still the deployed EmDash `0.19.0` workspace; Version ID `0ef03174-32c5-46c7-9fbe-51b3adc8fa5b` (2026-06-13); smoke checks passed; migration 043 was already applied from the 0.18.0 sync.
+- **2026-07-02 sync status:** GitHub was current, production D1 was backed up to `r2://awcms-micro-backups/backups/db/backup-20260702-100524.sql.enc`, `emdash-latest/` was refreshed to `0.26.0`, and `awcmsmicro-dev/` was rebuilt and validated. Production deployment remains gated by migration 044-048 planning in #221 and Cloudflare architecture adoption decisions in #222.
 
 ### Key 0.19.0 Features
 
@@ -28,6 +27,13 @@ This repository is a parent maintenance workspace for AWCMS-Micro and EmDash ali
 - **TaxonomyTerm hydration** (carried from 0.18.0): taxonomy terms are attached directly to entries as `entry.data.terms?: Record<string, TaxonomyTerm[]>`. No separate `getEntryTerms()` call needed.
 - **D1 batch coalescing** (carried from 0.18.0): same-turn SELECT queries are batched into one `D1.batch()` round trip, reducing per-request query counts automatically.
 - **`emdash-env.d.ts`**: this file is tracked in git and must be updated manually when EmDash adds new exported types. It does not regenerate automatically without a dev server restart.
+
+### Key 0.20.0-0.26.0 Upstream Additions
+
+- **Migrations 044-048:** comment reactions, taxonomy parent translation-group backfill, media usage index tables, and restored taxonomy indexes. Present in the synchronized local/dev workspaces; production D1 currently records only through `043_content_references`, so plan and verify migration 044-048 in #221 before production deployment.
+- **Cloudflare architecture options:** Durable Object SQLite adapter, Hyperdrive adapter with optional cached binding, KV-backed object cache, Cloudflare media image endpoint improvements, and Cloudflare Email Sending provider plugin. Decide AWCMS-Micro template adoption or deferral in #222.
+- **Public/runtime improvements:** offset pagination for `getEmDashCollection`, LiveSearch route templates, public search suggestions, CSP-compatible JSON-LD, sitemap hreflang fixes, text alignment round-trip rendering, media LQIP placeholders, and content schedule/restore hooks.
+- **Admin improvements:** Kumo sidebar behavior updates, repeater select typeahead, byline avatar picker, route-scoped admin CSS, CJK editor metrics, code block picker focus fix, and additional admin locales. Downstream AWCMS-Micro admin/sidebar overlays replay cleanly after the 0.26.0 rebuild.
 
 For detailed architecture documentation and Mermaid diagrams, read `awcmsmicro-dev/docs/awcms-micro/scheduled-publishing.md`.
 
