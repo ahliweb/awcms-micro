@@ -15,7 +15,7 @@ flowchart TD
   D1 --> Verify["Verify in production (#226)"]
   Cloudflare --> DeferEmail["Keep optional email binding deferred"]
   Docs --> Reference["Reference in AWCMS docs"]
-  Templates --> Review["Evaluate for AWCMS templates (#227)"]
+  Templates --> Review["Evaluate AWCMS templates (#227)"]
 ```
 
 ## Adopted Directly
@@ -34,7 +34,7 @@ Cloudflare Email Sending remains optional and deferred for AWCMS-Micro productio
 
 D1 read replica sessions remain disabled by default for AWCMS-Micro templates. EmDash 0.27.0 documents that D1 Sessions API modes are incompatible with the `global_fetch_strictly_public` compatibility flag. The current AWCMS-Micro D1-first topology does not add replica sessions in this sync.
 
-The upstream semantic theme-token architecture for built-in blog, marketing, and portfolio templates is tracked in #227. The AWCMS-Micro default templates use protected CMS-sourced public page architecture and must not be silently reshaped by upstream built-in-template changes.
+The upstream semantic theme-token architecture for built-in blog, marketing, and portfolio templates was reviewed in #227. Immediate AWCMS-Micro default-template adoption is deferred because the default templates use protected CMS-sourced public page architecture and must not be silently reshaped by upstream built-in-template changes.
 
 ## Template Decision Flow
 
@@ -44,7 +44,7 @@ flowchart LR
   Fits -->|"Yes"| Adapt["Adapt in both default templates"]
   Fits -->|"No"| Defer["Keep public.css architecture"]
   Adapt --> Parity["Verify Node and Cloudflare parity"]
-  Defer --> Track["Document deferral in #227"]
+  Defer --> Track["Document deferral\nclose #227"]
   Parity --> Tests["Locale tests, builds, boundary validation"]
 ```
 
@@ -53,4 +53,4 @@ flowchart LR
 - Adopt 0.27.0 core/runtime/database changes through upstream sync.
 - Keep migration 049 verification evidence in `EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`.
 - Defer Cloudflare Email binding adoption until a dedicated email implementation issue exists.
-- Track semantic template-token adoption in #227 before changing protected template styling.
+- Defer semantic template-token adoption for protected AWCMS-Micro default templates. Future adoption requires a focused issue that preserves CMS-sourced public routes, sitemap behavior, locale catalogs, and Node/Cloudflare parity.

@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.15 - 2026-07-03
+
+- Close the remaining EmDash 0.27.0 template-token tracking issue after documenting the defer decision, and harden the `emdash-latest` snapshot lockfiles so open Dependabot alerts resolve through documented pnpm overrides.
 ## 0.2.14 - 2026-07-02
 
 - Synchronize the parent workspace to upstream EmDash 0.27.0 at 932f4ba3, record the pre-sync production D1 backup, rebuild AWCMS-Micro with approved overlays, deploy Worker version d369494d-96b1-4ba1-8af6-6056e79c94c6, verify D1 migration 049 and scheduled publishing, add template-token follow-up tracking, and refresh root sync documentation.
@@ -187,10 +190,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-07-02
+## Workspace Snapshot - 2026-07-03
 
 - EmDash upstream: `932f4ba3adef8be21abc39b4cc7612609895e88c` from `emdash-latest/`
-- Root version: `0.2.14`
+- Root version: `0.2.15`
 
 ### Plugins
 

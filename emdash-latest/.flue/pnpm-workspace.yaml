@@ -12,3 +12,27 @@ allowBuilds:
   "node-liblzma": false
   protobufjs: false
   sharp: false
+
+overrides:
+  # AWCMS-Micro local snapshot hardening for Dependabot alerts.
+  # Re-check these overrides on the next upstream EmDash sync and remove any
+  # entry that upstream has adopted or no longer needs.
+  # Hono GHSA-2gcr-mfcq-wcc3/GHSA-3hrh-pfw6-9m5x/GHSA-458j-xx4x-4375/GHSA-69xw-7hcm-h432/GHSA-88fw-hqm2-52qc/GHSA-9vqf-7f2p-gf9v/GHSA-f577-qrjj-4474/GHSA-hm8q-7f3q-5f36/GHSA-j6c9-x7qj-28xf/GHSA-p77w-8qqv-26rm/GHSA-qp7p-654g-cw7p/GHSA-rv63-4mwf-qqc2/GHSA-wgpf-jwqj-8h8p/GHSA-wwfh-h76j-fc44/GHSA-xrhx-7g5j-rcj5:
+  # cache leakage, header/cookie injection, body-limit bypass, path traversal, JWT validation, IP restriction bypass, and JSX injection fixes.
+  hono: ^4.12.27
+  # Undici GHSA-35p6-xmwp-9g52/GHSA-g8m3-5g58-fq7m/GHSA-hm92-r4w5-c3mj/GHSA-p88m-4jfj-68fv/GHSA-pr7r-676h-xcf6/GHSA-vmh5-mc38-953g/GHSA-vxpw-j846-p89q:
+  # WebSocket DoS, header injection, queue poisoning, TLS validation, SOCKS proxy, and cache disclosure fixes.
+  undici: ^7.28.0
+  # Vite GHSA-fx2h-pf6j-xcff/GHSA-v6wh-96g9-6wx3/GHSA-4w7w-66w2-5vf9/GHSA-p9ff-h696-f583/GHSA-v2wj-q39q-566r:
+  # dev-server fs deny/path traversal and launch-editor UNC handling fixes.
+  vite: ^8.0.16
+  # JS-YAML GHSA-h67p-54hq-rp68: quadratic-complexity DoS in merge key handling.
+  "js-yaml@<4": 3.15.0
+  "js-yaml@>=4 <4.2.0": 4.2.0
+  # protobufjs GHSA-f38q-mgvj-vph7: schema-derived names can shadow runtime-significant properties.
+  protobufjs: ^7.6.3
+  # ws GHSA-96hv-2xvq-fx4p/GHSA-58qx-3vcg-4xpx: memory exhaustion and memory disclosure fixes.
+  ws: ^8.21.0
+  # GHSA-gv7w-rqvm-qjhr (HIGH) + GHSA-g7r4-m6w7-qqqr (LOW): esbuild < 0.28.1
+  # missing binary integrity check and dev-server arbitrary file read.
+  esbuild: ^0.28.1
