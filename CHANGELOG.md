@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.16 - 2026-07-03
+
+- Records the perf-monitor CodeQL alert #282 hardening overlay in the root divergence log.
 ## 0.2.15 - 2026-07-03
 
 - Close the remaining EmDash 0.27.0 template-token tracking issue after documenting the defer decision, and harden the `emdash-latest` snapshot lockfiles so open Dependabot alerts resolve through documented pnpm overrides.
@@ -193,7 +196,7 @@
 ## Workspace Snapshot - 2026-07-03
 
 - EmDash upstream: `932f4ba3adef8be21abc39b4cc7612609895e88c` from `emdash-latest/`
-- Root version: `0.2.15`
+- Root version: `0.2.16`
 
 ### Plugins
 
