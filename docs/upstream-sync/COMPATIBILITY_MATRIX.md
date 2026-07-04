@@ -53,7 +53,7 @@ AWCMS-Micro currently adopts upstream EmDash core directly and keeps downstream 
 | EmDash `0.27.0` Cloudflare Email descriptor fix | Runtime fix adopted through sync, but default AWCMS-Micro email binding remains deferred until sender/deliverability/consent/binding scope is designed | Compatible | Medium | delay |
 | EmDash `0.27.0` D1 Sessions warning for `global_fetch_strictly_public` | Keep D1 read-replica sessions disabled by default in AWCMS-Micro templates; document as an adoption guardrail | Compatible | Medium | adapt |
 | EmDash `0.27.0` semantic theme-token template architecture | Built-in template changes are adopted upstream; protected AWCMS-Micro default-template adaptation was reviewed in #227 and deferred pending a focused parity-preserving implementation issue | Compatible | Medium | delay |
-| Downstream patch overlays against EmDash `0.27.0` | `update-awcmsmicro-dev.sh` replayed all 21 active overlays cleanly after the 0.27.0 refresh | Compatible | Medium | adapt |
+| Downstream patch overlays against EmDash `0.27.0` | `update-awcmsmicro-dev.sh` replayed all 22 active overlays cleanly after the 0.27.0 refresh (patch `0031-perf-monitor-error-text.patch` added 2026-07-03) | Compatible | Medium | adapt |
 
 ## Usage Notes
 

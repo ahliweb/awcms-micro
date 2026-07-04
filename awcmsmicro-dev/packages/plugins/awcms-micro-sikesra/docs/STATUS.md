@@ -1,6 +1,6 @@
 # SIKESRA Implementation Status
 
-This status note tracks current implementation state against the active GitHub issue backlog.
+This status note tracks current implementation state against the frozen historical GitHub issue backlog (issues #119-#143). Production SIKESRA development has moved to AWCMS-Mini; this backlog is preserved as historical design context only, per README.md and issue #210.
 
 ## SIKESRA D1 Table and Collection Naming Rule
 

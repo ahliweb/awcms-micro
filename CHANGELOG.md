@@ -1,5 +1,8 @@
 # AWCMS-Micro Changelog
 
+## 0.2.17 - 2026-07-04
+
+- Fixes documentation drift found during a full-repo staleness audit: corrects the SIKESRA plugin STATUS.md contradiction with its frozen/historical backlog status, updates the email-mailketing plugin PRD version marker and a stale Bearer-token auth diagram line, adds a required-reading entry for the website-social plugin to root AGENTS.md, corrects the downstream patch overlay count (21 -> 22, covering `0031-perf-monitor-error-text.patch`) in `docs/upstream-sync/UPSTREAM_SYNC_STATUS.md` and `docs/upstream-sync/COMPATIBILITY_MATRIX.md`, and clarifies that issue #227 is closed in `docs/upstream-sync/EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`.
 ## 0.2.16 - 2026-07-03
 
 - Records the perf-monitor CodeQL alert #282 hardening overlay in the root divergence log.
@@ -193,10 +196,10 @@
 
 - Introduces the root-level AWCMS-Micro versioning and changelog system for maintenance-workspace changes.
 
-## Workspace Snapshot - 2026-07-03
+## Workspace Snapshot - 2026-07-04
 
 - EmDash upstream: `932f4ba3adef8be21abc39b4cc7612609895e88c` from `emdash-latest/`
-- Root version: `0.2.16`
+- Root version: `0.2.17`
 
 ### Plugins
 

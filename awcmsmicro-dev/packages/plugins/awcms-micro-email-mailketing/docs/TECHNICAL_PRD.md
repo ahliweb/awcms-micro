@@ -11,7 +11,7 @@ The plugin registers as an EmDash `email:deliver` provider backed by the [Mailke
 ```txt
 Package:     @awcms-micro/plugin-email-mailketing
 Plugin ID:   awcms-email-mailketing
-Version:     0.2.0 (see package.json)
+Version:     0.2.1 (see package.json)
 Locales:     en (source), id (full translation required)
 Format:      native EmDash plugin descriptor
 ```
@@ -67,7 +67,7 @@ sequenceDiagram
 
   EmDash->>Hook: EmailDeliverEvent { to, subject, html }
   Hook->>Client: sendEmail(payload)
-  Client->>API: POST /api/v1/send (form-encoded, Bearer token)
+  Client->>API: POST /api/v1/send (form-encoded, api_token field)
   API-->>Client: { success, message_id } or { error }
   Client-->>Hook: MailketingApiSendResponse
   Hook->>Log: insertSendLog (status = sent | failed)

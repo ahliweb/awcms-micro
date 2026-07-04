@@ -153,6 +153,10 @@ Before changing the AWCMS-Micro Email Mailketing plugin, also read:
 - `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/TECHNICAL_PRD.md`
 - `awcmsmicro-dev/packages/plugins/awcms-micro-email-mailketing/docs/SECURITY.md`
 
+Before changing the AWCMS-Micro website social plugin, also read:
+
+- `awcmsmicro-dev/packages/plugins/awcms-micro-website-social/README.md`
+
 Before changing the default templates' public pages, also read:
 
 - `awcmsmicro-dev/templates/awcms-micro-default-cloudflare/docs/PUBLIC_ARCHITECTURE.md`

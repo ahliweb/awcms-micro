@@ -14,7 +14,7 @@
 
 `emdash-latest/` was refreshed from upstream EmDash `main` at `932f4ba3adef8be21abc39b4cc7612609895e88c` after confirming the parent repository `main` branch was current with GitHub and backing up production D1 to `r2://awcms-micro-backups/backups/db/backup-20260703-051234.sql.enc`.
 
-`awcmsmicro-dev/` has been rebuilt from the refreshed upstream snapshot with approved AWCMS-Micro protected paths restored and all 21 active downstream patch overlays replayed successfully.
+`awcmsmicro-dev/` has been rebuilt from the refreshed upstream snapshot with approved AWCMS-Micro protected paths restored and all 22 active downstream patch overlays replayed successfully.
 
 EmDash 0.27.0 introduces migration `049_taxonomies_name_locale_index`; production verification is complete and recorded in issue #226 and `EMDASH_0_27_D1_MIGRATION_VERIFICATION.md`. Upstream also adds a deployed-site schema-evolution guide, improves the Cloudflare Email provider descriptor, documents D1 session incompatibility with `global_fetch_strictly_public`, and moves built-in templates toward semantic theme tokens. AWCMS-Micro adoption/deferral decisions are recorded in `EMDASH_0_27_CLOUDFLARE_AND_TEMPLATE_DECISIONS.md`; protected default-template token adoption was reviewed and deferred in issue #227.
 
@@ -48,7 +48,7 @@ EmDash 0.27.0 introduces migration `049_taxonomies_name_locale_index`; productio
 | Upstream analysis | Passed | Compared `90ffe40a` to `932f4ba3`; latest released tag in the delta is `emdash@0.27.0` |
 | Issue closure | Passed | #226 closed after D1 migration 049 verification; #227 closed after documenting semantic token defer decision |
 | Upstream fetch into `emdash-latest/` | Passed | `bash scripts/update-emdash-latest.sh continuation` refreshed to `932f4ba3` |
-| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | `bash scripts/update-awcmsmicro-dev.sh continuation`; 21 patch overlays replayed |
+| Rebuild `awcmsmicro-dev/` from `emdash-latest/` | Passed | `bash scripts/update-awcmsmicro-dev.sh continuation`; 22 patch overlays replayed |
 | Boundary validation | Passed | `bash scripts/validate-awcmsmicro-boundaries.sh` passed after root versioning |
 | Full workspace validation | Passed | `bash scripts/validate-awcmsmicro-dev.sh` passed; see `LAST_VALIDATION.md` |
 | Cloudflare deploy dry-run | Passed | `pnpm --dir awcmsmicro-dev/templates/awcms-micro-default-cloudflare build` and `wrangler deploy --dry-run` passed |

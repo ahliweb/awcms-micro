@@ -34,7 +34,7 @@ Cloudflare Email Sending remains optional and deferred for AWCMS-Micro productio
 
 D1 read replica sessions remain disabled by default for AWCMS-Micro templates. EmDash 0.27.0 documents that D1 Sessions API modes are incompatible with the `global_fetch_strictly_public` compatibility flag. The current AWCMS-Micro D1-first topology does not add replica sessions in this sync.
 
-The upstream semantic theme-token architecture for built-in blog, marketing, and portfolio templates was reviewed in #227. Immediate AWCMS-Micro default-template adoption is deferred because the default templates use protected CMS-sourced public page architecture and must not be silently reshaped by upstream built-in-template changes.
+The upstream semantic theme-token architecture for built-in blog, marketing, and portfolio templates was reviewed and closed in #227. Immediate AWCMS-Micro default-template adoption is deferred because the default templates use protected CMS-sourced public page architecture and must not be silently reshaped by upstream built-in-template changes.
 
 ## Template Decision Flow
 
