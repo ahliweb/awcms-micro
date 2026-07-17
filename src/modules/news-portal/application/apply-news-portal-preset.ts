@@ -24,6 +24,7 @@ import { recordAuditEvent } from "../../logging/application/audit-log";
 import { applyModulePreset } from "../../module-management/application/module-presets";
 import type { ApplyModulePresetResult } from "../../module-management/application/module-presets";
 import { markFullOnlineR2ModeApplied } from "./news-portal-tenant-state";
+import { markManagedMediaEnforced } from "../../media-library/application/media-library-tenant-state";
 import { evaluateNewsPortalFullOnlineR2Readiness } from "../domain/news-portal-preset-readiness";
 
 export const NEWS_PORTAL_FULL_ONLINE_R2_PRESET_NAME =
@@ -149,6 +150,23 @@ export async function applyNewsPortalFullOnlineR2Preset(
     // timestamp always reflects the most recent confirmed-ready
     // activation.
     await markFullOnlineR2ModeApplied(tx, tenantId);
+
+    // ADR-0026 steps 3-4 — this preset is now ONE WRITER of `media_library`'s
+    // enforcement flag, not the owner of the concept. Applying the R2-only
+    // preset has always implied "this tenant's media references must be
+    // registry-backed"; that implication is now recorded where the module which
+    // ANSWERS it can read it (sql/078), instead of `blog_content`'s gate having
+    // to reach into this module's editorial state to infer it.
+    //
+    // Same transaction as `markFullOnlineR2ModeApplied` above, deliberately: the
+    // two markers describe one activation, and a tenant left with one but not
+    // the other would be in a state neither module's code contemplates.
+    //
+    // The reverse is explicitly NOT true — a tenant may have this flag WITHOUT
+    // ever applying this preset (that is the brochure-site case ADR-0026 exists
+    // for). So nothing here may be read back as "did they apply the preset";
+    // `awcms_micro_news_portal_tenant_state` remains the only answer to that.
+    await markManagedMediaEnforced(tx, tenantId);
 
     await recordAuditEvent(tx, {
       tenantId,

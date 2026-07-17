@@ -55,12 +55,19 @@ describe("social_publishing module descriptor (Issue #643)", () => {
     ]);
   });
 
-  test("declares the social_publishing capability it provides and consumes news_media optionally", () => {
+  test("declares the social_publishing capability it provides and consumes media_library optionally — never news_portal", () => {
     expect(socialPublishingModule.capabilities?.provides).toEqual([
       "social_publishing"
     ]);
+    // ADR-0026 steps 3-4: was `news_media` providedBy `news_portal`. This module
+    // only ever wanted a verified image URL — resolving one must not require a
+    // news portal to be the provider.
     expect(socialPublishingModule.capabilities?.consumes).toEqual([
-      { capability: "news_media", providedBy: "news_portal", optional: true }
+      {
+        capability: "media_library",
+        providedBy: "media_library",
+        optional: true
+      }
     ]);
   });
 

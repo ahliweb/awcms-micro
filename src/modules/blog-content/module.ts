@@ -13,9 +13,10 @@ export const blogContentModule = defineModule({
   // `public_content` capability (`_shared/ports/public-content-port.ts`,
   // implemented by `application/public-content-port-adapter.ts`) that
   // `news_portal`'s homepage section composer (Issue #637) consumes, and
-  // CONSUMES `news_portal`'s `news_media` capability
-  // (`_shared/ports/news-media-port.ts`) for R2-only-mode media reference
-  // validation (Issue #636). Neither direction is a `dependencies` edge —
+  // CONSUMES `media_library`'s `media_library` capability
+  // (`_shared/ports/media-library-port.ts`) for managed-media reference
+  // validation (Issue #636; re-pointed from `news_portal`'s retired
+  // `news_media` by ADR-0026 steps 3-4). Neither direction is a `dependencies` edge —
   // see that field's own comment above and `news_portal/module.ts`'s
   // identical note for why (Issue #632's original reasoning still holds).
   // Issue #643 (epic `social_publishing`) additionally CONSUMES
@@ -32,7 +33,16 @@ export const blogContentModule = defineModule({
   capabilities: {
     provides: ["public_content"],
     consumes: [
-      { capability: "news_media", providedBy: "news_portal", optional: true },
+      // ADR-0026 steps 3-4: was `news_media` providedBy `news_portal` — the
+      // capability is retired and `media_library` provides its successor. Still
+      // `optional`, and for the same reason as before: the media gate safely
+      // no-ops when managed-media enforcement isn't active for the tenant. What
+      // changed is that enforcement no longer requires a news portal to exist.
+      {
+        capability: "media_library",
+        providedBy: "media_library",
+        optional: true
+      },
       {
         capability: "social_publishing",
         providedBy: "social_publishing",

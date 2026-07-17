@@ -2209,7 +2209,7 @@ msgid "admin.layout.nav_aria_label"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/blog-content/module.ts:45
+#: src/modules/blog-content/module.ts:55
 msgid "admin.layout.nav_blog"
 msgstr ""
 
@@ -2233,12 +2233,12 @@ msgid "admin.layout.nav_modules"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/news-portal/module.ts:43
+#: src/modules/news-portal/module.ts:50
 msgid "admin.layout.nav_news_portal_ad_placements"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/news-portal/module.ts:37
+#: src/modules/news-portal/module.ts:44
 msgid "admin.layout.nav_news_portal_homepage_sections"
 msgstr ""
 
@@ -2267,17 +2267,17 @@ msgid "admin.layout.nav_settings"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/social-publishing/module.ts:52
+#: src/modules/social-publishing/module.ts:60
 msgid "admin.layout.nav_social_publishing_accounts"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/social-publishing/module.ts:64
+#: src/modules/social-publishing/module.ts:72
 msgid "admin.layout.nav_social_publishing_jobs"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/social-publishing/module.ts:58
+#: src/modules/social-publishing/module.ts:66
 msgid "admin.layout.nav_social_publishing_rules"
 msgstr ""
 

@@ -25,8 +25,8 @@
       "capabilitiesProvided": ["public_content"],
       "capabilitiesConsumed": [
         {
-          "capability": "news_media",
-          "providedBy": "news_portal",
+          "capability": "media_library",
+          "providedBy": "media_library",
           "optional": true
         },
         {
@@ -152,7 +152,7 @@
       "type": "system",
       "source": "base",
       "dependencies": ["tenant_admin", "identity_access"],
-      "capabilitiesProvided": [],
+      "capabilitiesProvided": ["media_library"],
       "capabilitiesConsumed": [],
       "permissionCount": 9,
       "navigationCount": 0,
@@ -186,11 +186,16 @@
       "type": "domain",
       "source": "base",
       "dependencies": ["tenant_admin", "identity_access"],
-      "capabilitiesProvided": ["news_media"],
+      "capabilitiesProvided": [],
       "capabilitiesConsumed": [
         {
           "capability": "public_content",
           "providedBy": "blog_content",
+          "optional": false
+        },
+        {
+          "capability": "media_library",
+          "providedBy": "media_library",
           "optional": false
         }
       ],
@@ -252,8 +257,8 @@
       "capabilitiesProvided": ["social_publishing"],
       "capabilitiesConsumed": [
         {
-          "capability": "news_media",
-          "providedBy": "news_portal",
+          "capability": "media_library",
+          "providedBy": "media_library",
           "optional": true
         }
       ],

@@ -150,7 +150,7 @@ describe("lineViolatesModuleBoundary (pattern correctness, PR #702 re-review)", 
   test("does not flag an import from _shared/ports/ (the whole point of a port)", () => {
     expect(
       lineViolatesModuleBoundary(
-        'import type { NewsMediaPort } from "../../_shared/ports/news-media-port";',
+        'import type { MediaLibraryPort } from "../../_shared/ports/media-library-port";',
         "news-portal"
       )
     ).toBe(false);

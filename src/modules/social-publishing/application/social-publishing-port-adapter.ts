@@ -1,4 +1,4 @@
-import type { NewsMediaPort } from "../../_shared/ports/news-media-port";
+import type { MediaLibraryPort } from "../../_shared/ports/media-library-port";
 import type {
   ArticlePublishedEventInput,
   ArticlePublishedPortResult,
@@ -10,13 +10,13 @@ import { createSocialPublishJobsForArticle } from "./create-social-publish-jobs"
 /**
  * Concrete `SocialPublishingPort` implementation (Issue #643). A FACTORY,
  * not a ready-made singleton — see `_shared/ports/social-publishing-port.ts`'s
- * header comment for why: this adapter needs `news_portal`'s `NewsMediaPort`
+ * header comment for why: this adapter needs `news_portal`'s `MediaLibraryPort`
  * to resolve a verified R2 image URL, but `social_publishing/application`
  * must never import `news_portal`'s concrete adapter directly (the same
  * anti-pattern Issue #681 fixed for `blog_content`/`news_portal`). Only the
  * TRUE composition root (`pages/api/v1/blog/posts/[id]/publish.ts`,
  * `scripts/blog-scheduled-publish.ts`) calls
- * `createSocialPublishingPortAdapter(newsMediaPortAdapter)`.
+ * `createSocialPublishingPortAdapter(mediaLibraryPortAdapter)`.
  *
  * This file DOES import `blog_content`'s `public-route-settings.ts` — that
  * is allowed: `blog_content` is the CONSUMER of this port (it calls
@@ -33,7 +33,7 @@ import { createSocialPublishJobsForArticle } from "./create-social-publish-jobs"
  * this one function is imported, never `blog_content`'s own directories.
  */
 export function createSocialPublishingPortAdapter(
-  mediaPort: NewsMediaPort
+  mediaPort: MediaLibraryPort
 ): SocialPublishingPort {
   return {
     async onArticlePublished(

@@ -1,4 +1,4 @@
-import type { NewsMediaPort } from "../../_shared/ports/news-media-port";
+import type { MediaLibraryPort } from "../../_shared/ports/media-library-port";
 import { log } from "../../../lib/logging/logger";
 import { recordAuditEvent } from "../../logging/application/audit-log";
 import { isSocialPublishingDeploymentActive } from "../domain/social-publishing-config";
@@ -55,7 +55,7 @@ export async function createSocialPublishJobsForArticle(
   tenantId: string,
   article: PublishedArticleSnapshot,
   trigger: SocialPublishTriggerEvent,
-  mediaPort: NewsMediaPort,
+  mediaPort: MediaLibraryPort,
   env: NodeJS.ProcessEnv = process.env,
   correlationId?: string
 ): Promise<CreateSocialPublishJobsResult> {
