@@ -30,18 +30,26 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Extension map for the mime types `news-media-r2-config.ts` allows by
- * default. Deliberately explicit (no generic `mime.split("/")[1]` fallback)
- * — if an operator ever widens `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` to a mime
- * type not listed here, `deriveExtensionFromMimeType` must fail loudly
- * (forcing this map to be extended deliberately) rather than silently
- * deriving an unreviewed extension from the mime subtype string.
+ * Extension map for every mime type `media-mime-sniffer.ts` can recognize —
+ * which since ADR-0026 step 5c is a WIDER set than what
+ * `media-r2-config.ts` allows by default (PDF is recognized but opt-in).
+ * Mapping a type here is not permission to store it; it only means that IF a
+ * deployment allows it, its object key gets a reviewed extension.
+ *
+ * Deliberately explicit (no generic `mime.split("/")[1]` fallback) — if an
+ * operator ever widens `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` to a mime type not
+ * listed here, `deriveExtensionFromMimeType` must fail loudly (forcing this map
+ * to be extended deliberately) rather than silently deriving an unreviewed
+ * extension from the mime subtype string. That fallback would have produced
+ * `.pdf` on its own — and been wrong for `image/jpeg` -> `.jpeg`, which is
+ * exactly why the map exists.
  */
 const MIME_TYPE_TO_EXTENSION: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
-  "image/gif": "gif"
+  "image/gif": "gif",
+  "application/pdf": "pdf"
 };
 
 /** `undefined` when `mimeType` has no known-safe extension mapping. */

@@ -59,6 +59,7 @@ import {
 } from "./validate-env";
 import { resolveVisitorAnalyticsConfig } from "../src/modules/visitor-analytics/domain/visitor-analytics-config";
 import {
+  allowedDocumentMimeTypes,
   allowsSvgMimeType,
   findNewsMediaR2PublicBaseUrlProductionUnsafeReason,
   resolveNewsMediaR2Config
@@ -1978,6 +1979,61 @@ export function checkNewsMediaR2SvgNotAllowed(
 }
 
 /**
+ * Warning (not critical): reports a deployment that has opted into
+ * `NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES` (ADR-0026 step 5c —
+ * `application/pdf` today).
+ *
+ * Deliberately NOT the same thing as `checkNewsMediaR2SvgNotAllowed` above,
+ * despite the similar shape. That check flags a broadening that CANNOT work (no
+ * SVG signature exists, so every SVG upload still fails) — it is really a
+ * misconfiguration warning. This one flags a broadening that DOES work: PDFs
+ * genuinely upload and publish. There is nothing wrong with that, and this is
+ * not an accusation.
+ *
+ * It is reported because a go-live reviewer should see what the site accepts,
+ * and because a PDF is a document format that can embed JavaScript and carry
+ * malware or phishing content. Sniffing proves the bytes are a real PDF; it
+ * proves nothing about what the PDF does. That residual risk is the operator's
+ * to accept knowingly, which requires it being visible rather than inferred from
+ * an env var nobody re-reads.
+ */
+export function checkNewsMediaR2DocumentTypesOptIn(
+  env: NodeJS.ProcessEnv = process.env
+): SecurityCheckResult {
+  const name = "News media R2 document-type opt-in is deliberate";
+  const severity: CheckSeverity = "warning";
+
+  if (env.NEWS_MEDIA_R2_ENABLED !== "true") {
+    return {
+      name,
+      severity,
+      status: "pass",
+      evidence:
+        'NEWS_MEDIA_R2_ENABLED is not "true" — no MIME allow-list in effect.'
+    };
+  }
+
+  const documentTypes = allowedDocumentMimeTypes(env);
+
+  if (documentTypes.length > 0) {
+    return {
+      name,
+      severity,
+      status: "fail",
+      evidence: `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES includes ${documentTypes.join(", ")} — these uploads WILL succeed (unlike an SVG override, which cannot). Confirm the deployment intends to host editor-uploaded documents: a PDF can embed JavaScript and carry malware/phishing content, and MIME sniffing proves only that the bytes are a real PDF, never that it is harmless.`
+    };
+  }
+
+  return {
+    name,
+    severity,
+    status: "pass",
+    evidence:
+      "NEWS_MEDIA_R2_ALLOWED_MIME_TYPES contains images only — no document types opted into."
+  };
+}
+
+/**
  * Issue #635, architecture doc §11: production must use a real custom
  * domain for `NEWS_MEDIA_R2_PUBLIC_BASE_URL`, never the `r2.dev` default
  * (unstable for production, no caching/branding control) or a loopback
@@ -2709,6 +2765,7 @@ export async function runSecurityReadinessChecks(): Promise<
     checkVisitorAnalyticsVisitorKeyCookieTtlReady(),
     checkNewsPortalFullOnlineR2PresetReady(),
     checkNewsMediaR2SvgNotAllowed(),
+    checkNewsMediaR2DocumentTypesOptIn(),
     checkNewsMediaR2PublicBaseUrlProductionSafe(),
     await checkNewsMediaR2NoStalePendingObjects(),
     await checkSocialPublishingProviderReadiness(),

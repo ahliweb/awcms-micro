@@ -6,7 +6,9 @@ import {
   checkGoogleOidcReady,
   checkLoginLockoutImplemented,
   checkLoginRateLimitImplemented,
+  checkNewsMediaR2DocumentTypesOptIn,
   checkNewsMediaR2PublicBaseUrlProductionSafe,
+  checkNewsMediaR2SvgNotAllowed,
   checkOnlineAuthSecurityReady,
   checkSyncHmacSecretNotDefault,
   checkMfaReady,
@@ -597,5 +599,81 @@ describe("checkNewsMediaR2PublicBaseUrlProductionSafe (Issue #635)", () => {
     } as NodeJS.ProcessEnv);
 
     expect(result.status).toBe("fail");
+  });
+});
+
+/**
+ * ADR-0026 step 5c. Neither of these two checks had a unit test — the SVG one
+ * has been shipping untested since Issue #635. They look alike and mean
+ * opposite things, which is exactly why both are pinned here:
+ *
+ *   * SVG allow-listed reports a broadening that CANNOT work. No SVG signature
+ *     exists, so every SVG upload still fails; the warning is really "your
+ *     config does not do what you think".
+ *   * PDF allow-listed reports a broadening that DOES work. The uploads
+ *     succeed. The warning is "confirm you meant to host documents".
+ *
+ * If a future change ever gives SVG a sniffer signature, the first check's
+ * meaning silently flips from misconfiguration-warning to live-XSS-warning.
+ * These tests are where that would be noticed.
+ */
+describe("news media R2 MIME allow-list readiness checks (ADR-0026 step 5c)", () => {
+  const enabled = { NEWS_MEDIA_R2_ENABLED: "true" };
+
+  test("document opt-in check passes when the allow-list is images only", () => {
+    const result = checkNewsMediaR2DocumentTypesOptIn({
+      ...enabled,
+      NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "image/jpeg,image/png"
+    });
+    expect(result.status).toBe("pass");
+    expect(result.severity).toBe("warning");
+  });
+
+  test("document opt-in check passes when R2 is disabled — no allow-list is in effect", () => {
+    const result = checkNewsMediaR2DocumentTypesOptIn({
+      NEWS_MEDIA_R2_ENABLED: "false",
+      NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "application/pdf"
+    });
+    expect(result.status).toBe("pass");
+  });
+
+  test("document opt-in check reports PDF, and says the uploads really will succeed", () => {
+    const result = checkNewsMediaR2DocumentTypesOptIn({
+      ...enabled,
+      NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "image/jpeg,application/pdf"
+    });
+    expect(result.status).toBe("fail");
+    expect(result.severity).toBe("warning");
+    expect(result.evidence).toContain("application/pdf");
+    expect(result.evidence).toContain("WILL succeed");
+  });
+
+  test("the default allow-list (unset) opts into no document types", () => {
+    // The whole point of PDF being opt-in: an existing deployment that upgrades
+    // and changes nothing must not start accepting documents.
+    const result = checkNewsMediaR2DocumentTypesOptIn({ ...enabled });
+    expect(result.status).toBe("pass");
+  });
+
+  test("SVG check still reports an SVG override — untested until now", () => {
+    const result = checkNewsMediaR2SvgNotAllowed({
+      ...enabled,
+      NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "image/jpeg,image/svg+xml"
+    });
+    expect(result.status).toBe("fail");
+    expect(result.evidence).toContain("image/svg+xml");
+  });
+
+  test("SVG check passes on the default allow-list", () => {
+    expect(checkNewsMediaR2SvgNotAllowed({ ...enabled }).status).toBe("pass");
+  });
+
+  test("the two checks are independent — opting into PDF never trips the SVG check", () => {
+    const env = {
+      ...enabled,
+      NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "image/jpeg,application/pdf"
+    };
+    expect(checkNewsMediaR2SvgNotAllowed(env).status).toBe("pass");
+    expect(checkNewsMediaR2DocumentTypesOptIn(env).status).toBe("fail");
   });
 });
