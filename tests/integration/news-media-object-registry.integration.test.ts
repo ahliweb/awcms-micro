@@ -19,7 +19,7 @@ import {
 
 import { getDatabaseClient } from "../../src/lib/database/client";
 import { withTenant } from "../../src/lib/database/tenant-context";
-import type { NewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
+import type { NewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
 import {
   attachNewsMediaObject,
   createPendingNewsMediaObject,
@@ -34,7 +34,7 @@ import {
   revertNewsMediaObjectUploadClaim,
   softDeleteNewsMediaObject,
   UnsupportedNewsMediaMimeTypeInputError
-} from "../../src/modules/news-portal/application/news-media-object-directory";
+} from "../../src/modules/media-library/application/media-object-directory";
 
 const TENANT_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 const TENANT_B = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
@@ -71,7 +71,7 @@ async function fetchAuditRows(
   const admin = getAdminSql();
   return (await admin`
     SELECT action, severity FROM awcms_micro_audit_events
-    WHERE tenant_id = ${tenantId} AND module_key = 'news_portal'
+    WHERE tenant_id = ${tenantId} AND module_key = 'media_library'
     ORDER BY created_at ASC
   `) as { action: string; severity: string }[];
 }

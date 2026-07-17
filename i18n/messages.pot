@@ -2233,12 +2233,12 @@ msgid "admin.layout.nav_modules"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/news-portal/module.ts:40
+#: src/modules/news-portal/module.ts:43
 msgid "admin.layout.nav_news_portal_ad_placements"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/news-portal/module.ts:34
+#: src/modules/news-portal/module.ts:37
 msgid "admin.layout.nav_news_portal_homepage_sections"
 msgstr ""
 

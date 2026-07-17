@@ -24,25 +24,25 @@
  * a soft-deletable resource with an attach/detach lifecycle
  * (`blog_content`'s `posts.create`/`.update`/`.delete`/`.restore`/`.purge`).
  */
-export const NEWS_MEDIA_PERMISSION_ACTIVITY_CODE = "media";
+export const MEDIA_PERMISSION_ACTIVITY_CODE = "media";
 
-export const NEWS_MEDIA_PERMISSIONS = {
+export const MEDIA_PERMISSIONS = {
   /** Create a pending media object metadata record (also gates starting a presigned upload session, Issue #634). */
-  create: "news_portal.media.create",
+  create: "media_library.media.create",
   /** Read media object metadata (list/detail). */
-  read: "news_portal.media.read",
+  read: "media_library.media.read",
   /** Mark an uploaded object verified (MIME/checksum/dimension check passed) — also gates the finalize endpoint, Issue #634. */
-  verify: "news_portal.media.verify",
+  verify: "media_library.media.verify",
   /** Attach a verified media object to an owning blog/news resource. */
-  attach: "news_portal.media.attach",
+  attach: "media_library.media.attach",
   /** Detach a media object from its current owning resource. */
-  detach: "news_portal.media.detach",
+  detach: "media_library.media.detach",
   /** Soft delete media object metadata. */
-  delete: "news_portal.media.delete",
+  delete: "media_library.media.delete",
   /** Restore a soft-deleted media object. */
-  restore: "news_portal.media.restore",
+  restore: "media_library.media.restore",
   /** Hard purge an already soft-deleted media object. */
-  purge: "news_portal.media.purge",
+  purge: "media_library.media.purge",
   /**
    * Abort one's own not-yet-uploaded upload session (Issue #634). New in
    * this issue — #633's original set (create/read/verify/attach/detach/
@@ -54,9 +54,9 @@ export const NEWS_MEDIA_PERMISSIONS = {
    * attached) is a materially lower-risk action than soft-deleting a real,
    * previously-verified media object.
    */
-  cancel: "news_portal.media.cancel"
+  cancel: "media_library.media.cancel"
 } as const;
 
-export type NewsMediaPermissionKey = keyof typeof NEWS_MEDIA_PERMISSIONS;
+export type NewsMediaPermissionKey = keyof typeof MEDIA_PERMISSIONS;
 export type NewsMediaPermissionValue =
-  (typeof NEWS_MEDIA_PERMISSIONS)[NewsMediaPermissionKey];
+  (typeof MEDIA_PERMISSIONS)[NewsMediaPermissionKey];

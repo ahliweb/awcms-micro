@@ -89,7 +89,7 @@ import { registerSocialProviderAdapter } from "./social-provider-registry";
 // `.claude/skills/awcms-micro-social-publishing/SKILL.md`'s §643 Keputusan
 // kunci #6 "Catatan khusus"): no DB access, no side effects, not the
 // application-layer port-adapter re-import pattern Issue #681 fixed.
-import { resolveNewsMediaR2Config } from "../../news-portal/domain/news-media-r2-config";
+import { resolveNewsMediaR2Config } from "../../media-library/domain/media-r2-config";
 
 export const LINKEDIN_PROVIDER_KEY = "linkedin_organization";
 

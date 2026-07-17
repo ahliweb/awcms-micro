@@ -3,7 +3,7 @@
  * `social_publishing` #643-#647). Pure — no `process.env` reads except the
  * default parameter value, same split every other conditional-provider
  * config file in this repo uses (`src/lib/auth/google-oidc-config.ts`,
- * `email/domain/email-config.ts`, `news-portal/domain/news-media-r2-config.ts`).
+ * `email/domain/email-config.ts`, `media-library/domain/media-r2-config.ts`).
  *
  * `LINKEDIN_PROVIDER_ENABLED` is a THIRD, independent flag layered on top of
  * the two existing social-publishing gates

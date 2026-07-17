@@ -23,7 +23,7 @@
  * notes": enforce hard in R2-only mode, but the mode itself stays opt-in).
  *
  * Issue #681 (epic #679, platform-hardening) — this file previously
- * imported `news-portal/application/news-media-object-directory.ts` and
+ * imported `media-library/application/media-object-directory.ts` and
  * `news-portal/application/news-portal-tenant-state.ts`/`domain/
  * news-portal-preset-readiness.ts` (via `news-portal-r2-mode-gate.ts`)
  * directly, a genuine `blog_content` application-layer import of

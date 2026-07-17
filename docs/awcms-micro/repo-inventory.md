@@ -8,29 +8,29 @@
 
 17 modules registered in `src/modules/index.ts` `listModules()`.
 
-| Key                    | Version | Status         | Type     | Dependencies                                                                       |
-| ---------------------- | ------- | -------------- | -------- | ---------------------------------------------------------------------------------- |
-| `blog_content`         | `0.9.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `data_lifecycle`       | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
-| `domain_event_runtime` | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
-| `email`                | `0.5.0` | `active`       | `-`      | `tenant_admin`, `profile_identity`, `identity_access`                              |
-| `form_drafts`          | `1.0.0` | `active`       | `-`      | `identity_access`                                                                  |
-| `identity_access`      | `1.0.0` | `active`       | `-`      | `tenant_admin`, `profile_identity`                                                 |
-| `logging`              | `1.0.0` | `active`       | `-`      | `tenant_admin`                                                                     |
-| `media_library`        | `0.1.0` | `experimental` | `system` | `tenant_admin`, `identity_access`                                                  |
-| `module_management`    | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`                                                  |
-| `news_portal`          | `0.4.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `profile_identity`     | `1.1.0` | `active`       | `-`      | `tenant_admin`                                                                     |
-| `reporting`            | `1.2.0` | `active`       | `-`      | `tenant_admin`, `identity_access`, `sync_storage`, `email`, `domain_event_runtime` |
-| `social_publishing`    | `0.1.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `sync_storage`         | `1.0.0` | `active`       | `-`      | `tenant_admin`                                                                     |
-| `tenant_admin`         | `1.0.0` | `active`       | `-`      | -                                                                                  |
-| `tenant_domain`        | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`                                                  |
-| `visitor_analytics`    | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`, `reporting`                          |
+| Key                    | Version | Status   | Type     | Dependencies                                                                       |
+| ---------------------- | ------- | -------- | -------- | ---------------------------------------------------------------------------------- |
+| `blog_content`         | `0.9.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `data_lifecycle`       | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
+| `domain_event_runtime` | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
+| `email`                | `0.5.0` | `active` | `-`      | `tenant_admin`, `profile_identity`, `identity_access`                              |
+| `form_drafts`          | `1.0.0` | `active` | `-`      | `identity_access`                                                                  |
+| `identity_access`      | `1.0.0` | `active` | `-`      | `tenant_admin`, `profile_identity`                                                 |
+| `logging`              | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
+| `media_library`        | `0.2.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
+| `module_management`    | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
+| `news_portal`          | `0.4.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `profile_identity`     | `1.1.0` | `active` | `-`      | `tenant_admin`                                                                     |
+| `reporting`            | `1.2.0` | `active` | `-`      | `tenant_admin`, `identity_access`, `sync_storage`, `email`, `domain_event_runtime` |
+| `social_publishing`    | `0.1.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `sync_storage`         | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
+| `tenant_admin`         | `1.0.0` | `active` | `-`      | -                                                                                  |
+| `tenant_domain`        | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
+| `visitor_analytics`    | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`, `reporting`                          |
 
 ## Migrations
 
-61 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `070_awcms_micro_reporting_projections_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+62 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `077_awcms_micro_media_library_permission_ownership.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -95,6 +95,7 @@
 | 062 | `062_awcms_micro_business_scope_permissions.sql`                   |
 | 069 | `069_awcms_micro_reporting_projections_schema.sql`                 |
 | 070 | `070_awcms_micro_reporting_projections_permissions.sql`            |
+| 077 | `077_awcms_micro_media_library_permission_ownership.sql`           |
 
 ## Tables & Row-Level Security
 
@@ -118,14 +119,14 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-288 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+289 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
 | `e2e`         | 9          |
 | `integration` | 88         |
-| `modules`     | 4          |
+| `modules`     | 5          |
 | `unit`        | 142        |
 
 ## Routes / Operations (summary)

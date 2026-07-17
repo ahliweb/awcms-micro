@@ -44,13 +44,13 @@ import {
   createPendingNewsMediaObject,
   markNewsMediaObjectUploaded,
   markNewsMediaObjectVerified
-} from "../../src/modules/news-portal/application/news-media-object-directory";
+} from "../../src/modules/media-library/application/media-object-directory";
 import {
   listActiveAdPlacementsForRendering,
   renderAdPlacementHtml,
   selectAndRenderActiveAdsForPlacement
 } from "../../src/modules/news-portal/application/ad-placement-directory";
-import type { NewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
+import type { NewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
 
 const OWNER_LOGIN = "owner@example.com";
 const OWNER_PASSWORD = "integration-test-owner-password";

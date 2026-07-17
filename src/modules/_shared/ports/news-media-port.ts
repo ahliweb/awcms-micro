@@ -22,7 +22,7 @@
  * and `blog-content/application/news-media-reference-gate.ts` imported
  * `news-portal/application/news-portal-tenant-state.ts`,
  * `news-portal/domain/news-portal-preset-readiness.ts`, and
- * `news-portal/application/news-media-object-directory.ts` directly — see
+ * `media-library/application/media-object-directory.ts` directly — see
  * `news-media-port-adapter.ts`'s header for the full "three failed
  * attempts" history behind `isFullOnlineR2ModeActiveForTenant`, preserved
  * there rather than lost in this extraction.

@@ -53,22 +53,22 @@ import {
 
 import { withTenant } from "../../src/lib/database/tenant-context";
 import { resetProviderCircuitBreakersForTests } from "../../src/lib/database/circuit-breaker";
-import type { NewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
+import type { NewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
 import {
   createNewsMediaR2Client,
   type NewsMediaR2Client
-} from "../../src/modules/news-portal/infrastructure/news-media-r2-client";
+} from "../../src/modules/media-library/infrastructure/media-r2-client";
 import {
   createPendingNewsMediaObject,
   fetchNewsMediaObjectById,
   markNewsMediaObjectOrphaned,
   markNewsMediaObjectUploaded,
   markNewsMediaObjectVerified
-} from "../../src/modules/news-portal/application/news-media-object-directory";
+} from "../../src/modules/media-library/application/media-object-directory";
 import {
   reconcileNewsMediaForAllTenants,
   reconcileNewsMediaForTenant
-} from "../../src/modules/news-portal/application/news-media-reconciliation";
+} from "../../src/modules/media-library/application/media-reconciliation";
 
 const TENANT_A = "aaaaaaaa-0000-0000-0000-000000000001";
 const TENANT_B = "aaaaaaaa-0000-0000-0000-000000000002";
