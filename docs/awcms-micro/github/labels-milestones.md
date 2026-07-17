@@ -3,9 +3,9 @@
 | Metadata         | Nilai                    |
 | ---------------- | ------------------------ |
 | Repository       | `ahliweb/awcms-micro`    |
-| Snapshot         | 2026-07-15T16:41:33.367Z |
-| Total labels     | 100                      |
-| Total milestones | 25                       |
+| Snapshot         | 2026-07-17T02:26:02.042Z |
+| Total labels     | 25                       |
+| Total milestones | 0                        |
 
 Label diurutkan menjadi dua kelompok: **taksonomi doc 06** (dipakai backlog issue atomic base generik) dan **peninggalan proyek sebelumnya** (SIKESRA/governance-overlay, dibiarkan apa adanya, tidak dihapus/diubah).
 

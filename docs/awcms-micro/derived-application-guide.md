@@ -65,30 +65,19 @@ Lima contoh berikut menunjukkan bagaimana base yang sama melayani domain yang sa
 
 Setiap aplikasi di atas **tetap** memakai identity/login, RBAC/ABAC, RLS, audit trail, i18n, dan admin shell base yang sama — modul domain di atas hanya menambah entitas + endpoint + layar yang spesifik pada domainnya, mengikuti 9 langkah di atas.
 
-## Ekstensi ERP (lapisan terpisah dari Derived Application biasa — Issue #755, ADR-0020)
+## Ekstensi ERP — tidak didukung di repositori ini
+
+AWCMS-Micro adalah turunan scope **website** (ADR-0025). Kontrak kesiapan
+ekstensi ERP milik upstream (`_shared/business-transaction-contract.ts`,
+`_shared/erp-reference-data-contract.ts`, `_shared/ports/period-lock-port.ts`,
+Issue #755 / ADR-0020) **tidak diport ke sini**, jadi tidak ada kontrak
+posting/period-lock/inventory-movement yang bisa dikonsumsi dari base ini.
 
 Bila aplikasi turunan Anda adalah/menggunakan ERP (akuntansi, inventori,
-sales/purchase order, payroll, pajak) — bukan hanya "aplikasi domain
-biasa" seperti lima contoh di atas — baca dulu
-[`erp-extension-contracts.md`](erp-extension-contracts.md) dan
-`docs/adr/0020-erp-extension-readiness-contracts.md` sebelum menulis
-kode apa pun. Base ini **tidak pernah** menyediakan chart of accounts/
-jurnal/ledger/valuasi inventori/AR-AP/payroll/pajak — base hanya
-menyediakan **kontrak netral** (referensi transaksi bisnis, envelope
-posting request/result, period-lock, item/currency/UoM, inventory
-movement, reconciliation) yang ekstensi ERP Anda implementasikan/
-konsumsi di repository ANDA sendiri, mengikuti pola build-time
-composition yang sama (§Alur di atas): base tetap tidak diedit
-registrynya, ekstensi ERP Anda hanya mengisi
-`src/modules/application-registry.ts` miliknya sendiri.
-
-`tests/fixtures/derived-application-example/modules/
-example-erp-extension/` adalah contoh nyata yang bisa dijalankan
-(`bun test tests/unit/erp-extension-contracts.test.ts`) — module
-descriptor yang mengonsumsi capability `party_directory`/
-`organization_hierarchy_resolution` secara opsional, mesin posting
-idempotent+fail-closed-period-lock, dan satu kontribusi `reporting`
-projection — semua tanpa satu baris pun logika akuntansi nyata.
+sales/purchase order, payroll, pajak), basisnya **bukan repositori ini** —
+pakai `ahliweb/awcms-mini` (basis standar, tempat kontrak itu hidup) atau
+`ahliweb/awcms` (turunan scope ERP). Panduan build-time composition di bawah
+tetap berlaku untuk modul domain **website** apa pun.
 
 ## Checklist keamanan & kepatuhan praktis
 
@@ -130,11 +119,6 @@ index.ts` base, taksonomi kegagalan komposisi, dan konvensi namespace
   capability/manifest-schema, immutabilitas checksum migration historis,
   dan di mana `bun run extension:check` benar-benar memblokir CI/preflight
   (Issue #741).
-- [`erp-extension-contracts.md`](erp-extension-contracts.md) dan
-  [`docs/adr/0020-erp-extension-readiness-contracts.md`](../adr/0020-erp-extension-readiness-contracts.md)
-  — kontrak business transaction/posting/period-lock/item/currency/UoM/
-  inventory-movement/reconciliation/report-projection untuk ekstensi ERP
-  (Issue #755).
 - [`extension-compatibility-policy.md`](extension-compatibility-policy.md)
   — kebijakan compatibility/deprecation/support-window lengkap untuk
   keenam skema versioning independen (package, REST, event, module

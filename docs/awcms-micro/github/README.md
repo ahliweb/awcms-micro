@@ -2,23 +2,23 @@
 
 Dokumen ini mencatat snapshot live repository GitHub `ahliweb/awcms-micro`. Folder ini adalah **snapshot state GitHub**, bukan backlog rencana; backlog rencana tetap berada di `docs/awcms-micro/06_github_issues_detail.md`. Metadata label/milestone di folder ini adalah salinan faktual dari GitHub saat refresh; bila ada deskripsi lama yang berbeda dari arsitektur Bun + Astro 7 + PostgreSQL, ikuti `README.md`, `AGENTS.md`, dan dokumen utama `docs/awcms-micro/`.
 
-| Metadata     | Nilai                            |
-| ------------ | -------------------------------- |
-| Repository   | `ahliweb/awcms-micro`            |
-| Snapshot     | 2026-07-15T16:41:33.367Z         |
-| Total issue  | 219                              |
-| Open issue   | 1                                |
-| Closed issue | 218                              |
-| Labels       | 100 (25 doc 06 + 74 peninggalan) |
-| Milestones   | 25 (6 doc 06 + 19 peninggalan)   |
+| Metadata     | Nilai                           |
+| ------------ | ------------------------------- |
+| Repository   | `ahliweb/awcms-micro`           |
+| Snapshot     | 2026-07-17T02:26:02.042Z        |
+| Total issue  | 177                             |
+| Open issue   | 0                               |
+| Closed issue | 177                             |
+| Labels       | 25 (25 doc 06 + 74 peninggalan) |
+| Milestones   | 0 (6 doc 06 + 19 peninggalan)   |
 
 ## File snapshot
 
 | State           | File                                         |                                         Jumlah issue |
 | --------------- | -------------------------------------------- | ---------------------------------------------------: |
-| OPEN            | [issues-open-001.md](issues-open-001.md)     |                                                    1 |
-| CLOSED          | [issues-closed-001.md](issues-closed-001.md) |                                                  218 |
-| LABEL/MILESTONE | [labels-milestones.md](labels-milestones.md) |                            100 labels, 25 milestones |
+| OPEN            | [issues-open-001.md](issues-open-001.md)     |                                                    0 |
+| CLOSED          | [issues-closed-001.md](issues-closed-001.md) |                                                  177 |
+| LABEL/MILESTONE | [labels-milestones.md](labels-milestones.md) |                              25 labels, 0 milestones |
 | SECURITY        | [security.md](security.md)                   | Security policy, Dependabot, secret scanning, CodeQL |
 
 ## Aturan pencatatan

@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "name": "Derived Application Example (fixture)"
   },
-  "compatibleAwcmsMicroRange": ">=0.20.0 <1.0.0",
+  "compatibleAwcmsMicroRange": ">=0.2.0 <1.0.0",
   "moduleContractVersion": "1.0.0",
   "contributedModules": [
     {
@@ -15,10 +15,6 @@
     },
     {
       "key": "example_loyalty",
-      "minVersion": "0.1.0"
-    },
-    {
-      "key": "example_erp_extension",
       "minVersion": "0.1.0"
     }
   ],

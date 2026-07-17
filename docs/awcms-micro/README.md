@@ -228,7 +228,11 @@ SemVer + [Changesets](../../.changeset/README.md); riwayat di [`../../CHANGELOG.
 
 ## Langkah berikutnya
 
-**Base generik sudah selesai** (v0.23.5) — seluruh 18 issue backlog base (doc 06) + peningkatan pasca-backlog milestone M9 tuntas (ringkasan di [`../../README.md`](../../README.md) §Versioning dan log per-issue di `AUDIT_STANDAR_PENGEMBANGAN_2026-07-04.md`). Tenant/office, identity/login, RBAC/ABAC, Sync Storage, reporting, audit/logging, workflow approval, dan deployment profile **sudah** ada dan berjalan; jangan membangunnya ulang.
+> **Peringatan drift (ADR-0025 §Konsekuensi).** Paket dokumen ini diwarisi dari basis standar upstream `ahliweb/awcms-mini` dan **belum seluruhnya diselaraskan** dengan registry 16 modul repositori ini. Sebagian dokumen masih menjelaskan modul scope ERP yang **tidak diport** (`workflow`, `organization_structure`, `document_infrastructure`, `data_exchange`, `integration_hub`, `reference_data`, `idn_admin_regions`). Urutan otoritas: **`src/` + `sql/` + gate `bun run check`** > [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md) > [`AGENTS.md`](../../AGENTS.md) > dokumen di folder ini.
+
+**Fondasi sudah selesai** (`0.2.0`, belum dirilis) — fondasi standar AWCMS-Mini diadopsi utuh: tenant/office, identity/login, RBAC/ABAC, sync storage, reporting, audit/logging, dan deployment profile **sudah** ada dan berjalan; jangan membangunnya ulang. Modul website (`tenant_domain`, `blog_content`, `news_portal`, `social_publishing`, `visitor_analytics`) juga sudah lengkap dengan admin UI, route publik, dan test.
+
+**Belum ada** — modul yang dituntut scope website tapi tidak ada di upstream: media library, SEO/distribusi (sitemap, RSS, canonical/OG, JSON-LD, redirect), theming/template, site search, comments, newsletter. Masing-masing diadmisi lewat ADR lebih dulu (ADR-0025 §6, doc 21 §Alur admission).
 
 Kontribusi baru masuk salah satu dari dua jalur:
 

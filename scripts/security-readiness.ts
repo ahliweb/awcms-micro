@@ -414,23 +414,23 @@ export function checkLoginLockoutImplemented(): SecurityCheckResult {
  *   job/command catalog, instance-level health check history), synced from
  *   trusted descriptors, never tenant-writable. Same reasoning as
  *   `awcms_micro_modules` above.
- * - `awcms_micro_idn_region_datasets`, `awcms_micro_idn_admin_regions`
- *   (sql/054, Issue #657, epic #654) — Indonesia administrative region
- *   master data sourced from the third-party `cahyadsn/wilayah` dataset.
- *   Identical for every tenant (a region hierarchy doesn't vary per
- *   tenant), so this is global reference data, not tenant-scoped — same
- *   reasoning as `awcms_micro_permissions` above. See
- *   `.claude/skills/awcms-micro-idn-admin-regions/SKILL.md`.
- * - `awcms_micro_reference_value_sets`, `awcms_micro_reference_codes`,
- *   `awcms_micro_reference_code_translations`, `awcms_micro_reference_imports`
- *   (sql/069, Issue #750, epic #738, ADR-0021) — reference value set/code
- *   baseline and import batches. Identical for every tenant by design
- *   (the whole point of a shared baseline), same reasoning as
- *   `awcms_micro_permissions`/`awcms_micro_idn_admin_regions` above. The
- *   TENANT-scoped override/extension layer
- *   (`awcms_micro_reference_tenant_codes`, `awcms_micro_reference_tenant_
- *   code_translations`) is NOT in this list — it IS RLS FORCE'd (migration
- *   069), predicate always and only `tenant_id`.
+ *
+ * Upstream AWCMS-Mini exempts six more tables here, owned by its
+ * `idn_admin_regions` (`awcms_mini_idn_region_datasets`,
+ * `awcms_mini_idn_admin_regions`) and `reference_data`
+ * (`awcms_mini_reference_value_sets`/`_codes`/`_code_translations`/`_imports`)
+ * modules. AWCMS-Micro ports neither module (ADR-0025 §3), so those entries are
+ * REMOVED rather than left inert.
+ *
+ * They would have been inert — `checkRlsEnabled` only inspects tables that
+ * actually exist in the live database, so an exemption for a table no migration
+ * creates can never wrongly excuse anything today. They are removed anyway
+ * because this is a `critical`-severity, go-live-blocking allow-list: its whole
+ * value is that every line is a reviewed decision that a named table is
+ * genuinely NOT tenant-scoped. A reader auditing it cannot tell an inert
+ * leftover from a live exemption without grepping `sql/`, and a future migration
+ * that happens to reuse one of those names would inherit a silent RLS bypass
+ * nobody chose. ADR-0025 §5.6 calls out exactly this class of stale allow-list.
  */
 const RLS_FREE_TABLES = new Set([
   "awcms_micro_schema_migrations",
@@ -441,13 +441,7 @@ const RLS_FREE_TABLES = new Set([
   "awcms_micro_module_dependencies",
   "awcms_micro_module_navigation",
   "awcms_micro_module_jobs",
-  "awcms_micro_module_health_checks",
-  "awcms_micro_idn_region_datasets",
-  "awcms_micro_idn_admin_regions",
-  "awcms_micro_reference_value_sets",
-  "awcms_micro_reference_codes",
-  "awcms_micro_reference_code_translations",
-  "awcms_micro_reference_imports"
+  "awcms_micro_module_health_checks"
 ]);
 
 export async function checkRlsEnabled(): Promise<SecurityCheckResult> {
