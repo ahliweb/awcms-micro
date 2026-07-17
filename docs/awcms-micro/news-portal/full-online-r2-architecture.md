@@ -124,19 +124,19 @@ sudah dipakai `sync-storage`.
 Prefix **`NEWS_MEDIA_R2_`** — sengaja berbeda dari `R2_*` generik
 (§2, disambiguasi eksplisit dari bucket sync):
 
-| Var                                          | Wajib bila   | Default                                     | Catatan                                                                                                                                                                                                                                                                              |
-| -------------------------------------------- | ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEWS_MEDIA_R2_ENABLED`                      | –            | `false`                                     | Master switch mode R2-only news media. Bagian dari preset #632.                                                                                                                                                                                                                      |
-| `NEWS_MEDIA_R2_ACCOUNT_ID`                   | bila enabled | –                                           | Boleh sama dengan `R2_ACCOUNT_ID` (satu akun Cloudflare) atau berbeda (§2).                                                                                                                                                                                                          |
-| `NEWS_MEDIA_R2_ACCESS_KEY_ID`                | bila enabled | –                                           | Token least-privilege terpisah dari `R2_ACCESS_KEY_ID` — **wajib** berbeda (§2, §13).                                                                                                                                                                                                |
-| `NEWS_MEDIA_R2_SECRET_ACCESS_KEY`            | bila enabled | –                                           | Idem.                                                                                                                                                                                                                                                                                |
-| `NEWS_MEDIA_R2_BUCKET`                       | bila enabled | –                                           | **Wajib** berbeda dari `R2_BUCKET` (§2) — divalidasi tidak sama saat `config:validate`/`security:readiness` (diimplementasikan #632, bukan #635 — #635 masih menambah check readiness lain di luar separation ini, mis. MIME sniffing/checksum runtime enforcement).                 |
-| `NEWS_MEDIA_R2_PUBLIC_BASE_URL`              | bila enabled | –                                           | Custom domain publik (§11), mis. `https://media.contoh-berita.id`. Harus HTTPS absolut. Saat `APP_ENV=production`, WAJIB custom domain nyata — bukan `*.r2.dev`/loopback (Issue #635, `checkNewsMediaR2PublicBaseUrlProductionSafe`).                                                |
-| `NEWS_MEDIA_R2_PRESIGNED_UPLOAD_TTL_SECONDS` | –            | `300`                                       | TTL presigned PUT (§8). Bukan TTL baca — baca selalu publik lewat custom domain. Maksimum `3600` detik (Issue #635, `NEWS_MEDIA_R2_MAX_PRESIGNED_UPLOAD_TTL_SECONDS`).                                                                                                               |
-| `NEWS_MEDIA_R2_MAX_UPLOAD_BYTES`             | –            | `10485760` (10 MiB)                         | Batas ukuran per file (§9).                                                                                                                                                                                                                                                          |
-| `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES`           | –            | `image/jpeg,image/png,image/webp,image/gif` | Allow-list MIME (§9) — **tidak termasuk** `image/svg+xml` default (§9 alasan). Entri di luar `NEWS_MEDIA_R2_KNOWN_MIME_TYPES` (kelima tipe di atas) ditolak `config:validate` (Issue #635).                                                                                          |
-| `NEWS_MEDIA_R2_PENDING_TTL_MINUTES`          | –            | `60`                                        | Batas usia objek `pending_upload` sebelum dibersihkan otomatis oleh `bun run news-media:reconcile` (`r2-backup-lifecycle.md` §2, Issue #690); `checkNewsMediaR2NoStalePendingObjects` (Issue #635) melaporkan warning bila job itu tidak berjalan/tidak sempat.                      |
-| `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`            | –            | `30`                                        | Masa tenggang (hari) sebelum `bun run news-media:reconcile` menghapus fisik objek R2 milik media `orphaned` + soft-delete baris metadatanya (`r2-backup-lifecycle.md` §3/§4, Issue #690). Minimum `30` hari, ditegakkan `config:validate` (`checkNewsMediaR2OrphanGraceLowerBound`). |
+| Var                                          | Wajib bila   | Default                                     | Catatan                                                                                                                                                                                                                                                                                                            |
+| -------------------------------------------- | ------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEWS_MEDIA_R2_ENABLED`                      | –            | `false`                                     | Master switch mode R2-only news media. Bagian dari preset #632.                                                                                                                                                                                                                                                    |
+| `NEWS_MEDIA_R2_ACCOUNT_ID`                   | bila enabled | –                                           | Boleh sama dengan `R2_ACCOUNT_ID` (satu akun Cloudflare) atau berbeda (§2).                                                                                                                                                                                                                                        |
+| `NEWS_MEDIA_R2_ACCESS_KEY_ID`                | bila enabled | –                                           | Token least-privilege terpisah dari `R2_ACCESS_KEY_ID` — **wajib** berbeda (§2, §13).                                                                                                                                                                                                                              |
+| `NEWS_MEDIA_R2_SECRET_ACCESS_KEY`            | bila enabled | –                                           | Idem.                                                                                                                                                                                                                                                                                                              |
+| `NEWS_MEDIA_R2_BUCKET`                       | bila enabled | –                                           | **Wajib** berbeda dari `R2_BUCKET` (§2) — divalidasi tidak sama saat `config:validate`/`security:readiness` (diimplementasikan #632, bukan #635 — #635 masih menambah check readiness lain di luar separation ini, mis. MIME sniffing/checksum runtime enforcement).                                               |
+| `NEWS_MEDIA_R2_PUBLIC_BASE_URL`              | bila enabled | –                                           | Custom domain publik (§11), mis. `https://media.contoh-berita.id`. Harus HTTPS absolut. Saat `APP_ENV=production`, WAJIB custom domain nyata — bukan `*.r2.dev`/loopback (Issue #635, `checkNewsMediaR2PublicBaseUrlProductionSafe`).                                                                              |
+| `NEWS_MEDIA_R2_PRESIGNED_UPLOAD_TTL_SECONDS` | –            | `300`                                       | TTL presigned PUT (§8). Bukan TTL baca — baca selalu publik lewat custom domain. Maksimum `3600` detik (Issue #635, `NEWS_MEDIA_R2_MAX_PRESIGNED_UPLOAD_TTL_SECONDS`).                                                                                                                                             |
+| `NEWS_MEDIA_R2_MAX_UPLOAD_BYTES`             | –            | `10485760` (10 MiB)                         | Batas ukuran per file (§9).                                                                                                                                                                                                                                                                                        |
+| `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES`           | –            | `image/jpeg,image/png,image/webp,image/gif` | Allow-list MIME (§9) — **tidak termasuk** `image/svg+xml` maupun `application/pdf` secara default (§9 alasan; keduanya beda alasan). Entri di luar `NEWS_MEDIA_R2_KNOWN_MIME_TYPES` (keenam tipe: empat raster + `application/pdf` + `image/svg+xml`) ditolak `config:validate` (Issue #635, ADR-0026 langkah 5c). |
+| `NEWS_MEDIA_R2_PENDING_TTL_MINUTES`          | –            | `60`                                        | Batas usia objek `pending_upload` sebelum dibersihkan otomatis oleh `bun run news-media:reconcile` (`r2-backup-lifecycle.md` §2, Issue #690); `checkNewsMediaR2NoStalePendingObjects` (Issue #635) melaporkan warning bila job itu tidak berjalan/tidak sempat.                                                    |
+| `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`            | –            | `30`                                        | Masa tenggang (hari) sebelum `bun run news-media:reconcile` menghapus fisik objek R2 milik media `orphaned` + soft-delete baris metadatanya (`r2-backup-lifecycle.md` §3/§4, Issue #690). Minimum `30` hari, ditegakkan `config:validate` (`checkNewsMediaR2OrphanGraceLowerBound`).                               |
 
 Implementor (#632/#633/#634/#635) wajib memakai nama ini persis — jangan
 memilih nama lain "yang mirip" tanpa memperbarui tabel ini.
@@ -372,7 +372,8 @@ R2, pada kedua jalur:
    bukan ekstensi nama file, dan bukan checksum yang diklaim client
    (ketiganya adalah input tidak tepercaya yang mudah
    dipalsukan/self-referential). Allow-list default
-   `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` (§4): JPEG, PNG, WebP, GIF.
+   `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` (§4): JPEG, PNG, WebP, GIF —
+   plus `application/pdf` bila operator opt-in (poin 3a).
    Mismatch antara MIME yang diklaim saat inisiasi dan MIME hasil
    sniffing berarti `REJECTED`, objek dijadwalkan penghapusan, dan
    baris metadata tidak pernah naik status ke `confirmed`.
@@ -382,28 +383,55 @@ R2, pada kedua jalur:
    (vektor XSS well-known). Mengizinkan SVG di masa depan membutuhkan
    pipeline sanitasi khusus (di luar cakupan epic ini) dan keputusan
    eksplisit terpisah, bukan sekadar menambah ke allow-list.
-4. **Ekstensi object key diturunkan dari MIME tervalidasi** (§6), bukan
-   dari ekstensi asli — menutup celah "file dengan MIME benar tapi
-   ekstensi berbahaya (`.php.jpg`, `.jpg.exe`)" karena ekstensi asli
-   tidak pernah dipercaya sama sekali.
-5. **Checksum SHA-256** — dihitung **server-side dari isi objek yang
-   benar-benar dibaca di langkah 2** (Jalur A: server menyelesaikan
-   `GET` penuh objek untuk menghitung digest, dibatasi
-   `NEWS_MEDIA_R2_MAX_UPLOAD_BYTES` dari langkah 1, bukan hanya
-   membaca beberapa byte pertama untuk sniffing; Jalur B: server sudah
-   menghitung on-the-fly saat streaming). Checksum yang diklaim client
-   saat inisiasi (Jalur A) **hanya dipakai sebagai deteksi korupsi
-   transport** (bandingkan dua nilai yang sama-sama dihitung dari byte
-   yang benar-benar diterima server) — **tidak pernah** menjadi
-   satu-satunya bukti validasi konten/MIME, karena nilai itu
-   self-referential terhadap klaim client sendiri. Mismatch berarti
-   `REJECTED`, baris metadata tidak pernah naik status ke `confirmed`,
-   dan objek di R2 dijadwalkan pembersihan (bukan dibiarkan `pending`
-   selamanya — `r2-backup-lifecycle.md`).
-6. Lima langkah di atas adalah **defense in depth** yang berurutan —
-   satu langkah gagal berarti seluruh upload ditolak, tidak ada
-   "sebagian lolos", dan tidak ada langkah yang dilewati hanya karena
-   sebuah jalur (A vs B) "sudah dipercaya lebih aman".
+
+   **Penting (ADR-0026 langkah 5c):** menambahkan `image/svg+xml` ke
+   allow-list hari ini **tidak berpengaruh apa pun** — sniffer tidak
+   punya signature SVG, dan sniffing-lah yang menentukan, jadi setiap
+   unggahan SVG tetap ditolak `mime_not_recognized`. `config:validate`
+   menerimanya (ia ada di himpunan "known" justru karena jalur override
+   itu didokumentasikan) dan `security:readiness` memperingatkannya,
+   tetapi hasil praktisnya adalah konfigurasi yang menolak semuanya.
+   Mengizinkan SVG sungguhan menuntut signature sniffer **dan** pipeline
+   sanitasi — dua-duanya, bukan salah satu.
+
+3a. **`application/pdf` diizinkan lewat opt-in operator** (ADR-0026 langkah
+5c) — bukan default. Berbeda dari SVG dalam dua hal yang menentukan:
+sniffer **punya** signature-nya (`%PDF-`), jadi opt-in-nya benar-benar
+berfungsi; dan PDF dirender di viewer sandbox browser sendiri sehingga
+tidak bisa men-script origin yang menautkannya — itulah yang membuat SVG
+ditolak permanen sementara PDF layak jadi opt-in.
+
+Yang diterima operator saat opt-in, terus terang: PDF bisa menyisipkan
+JavaScript dan bisa menjadi pembawa malware/phishing. Sniffing membuktikan
+byte-nya benar-benar PDF — **tidak** membuktikan PDF-nya aman. Permission
+`media_library.media.create` tetap gerbang sesungguhnya atas siapa yang
+boleh mengunggah. `security:readiness` melaporkan opt-in ini
+(`checkNewsMediaR2DocumentTypesOptIn`, severity warning) supaya reviewer
+go-live melihat apa yang diterima situs, bukan menyimpulkannya dari env var
+yang tak pernah dibaca ulang.
+
+Alasannya opt-in dan bukan default: V14.3 ("konfigurasi aman by default")
+— tipe yang **dikenali** codebase bukan berarti tipe yang diam-diam mulai
+diterima setiap deployment yang sekadar upgrade. 4. **Ekstensi object key diturunkan dari MIME tervalidasi** (§6), bukan
+dari ekstensi asli — menutup celah "file dengan MIME benar tapi
+ekstensi berbahaya (`.php.jpg`, `.jpg.exe`)" karena ekstensi asli
+tidak pernah dipercaya sama sekali. 5. **Checksum SHA-256** — dihitung **server-side dari isi objek yang
+benar-benar dibaca di langkah 2** (Jalur A: server menyelesaikan
+`GET` penuh objek untuk menghitung digest, dibatasi
+`NEWS_MEDIA_R2_MAX_UPLOAD_BYTES` dari langkah 1, bukan hanya
+membaca beberapa byte pertama untuk sniffing; Jalur B: server sudah
+menghitung on-the-fly saat streaming). Checksum yang diklaim client
+saat inisiasi (Jalur A) **hanya dipakai sebagai deteksi korupsi
+transport** (bandingkan dua nilai yang sama-sama dihitung dari byte
+yang benar-benar diterima server) — **tidak pernah** menjadi
+satu-satunya bukti validasi konten/MIME, karena nilai itu
+self-referential terhadap klaim client sendiri. Mismatch berarti
+`REJECTED`, baris metadata tidak pernah naik status ke `confirmed`,
+dan objek di R2 dijadwalkan pembersihan (bukan dibiarkan `pending`
+selamanya — `r2-backup-lifecycle.md`). 6. Lima langkah di atas adalah **defense in depth** yang berurutan —
+satu langkah gagal berarti seluruh upload ditolak, tidak ada
+"sebagian lolos", dan tidak ada langkah yang dilewati hanya karena
+sebuah jalur (A vs B) "sudah dipercaya lebih aman".
 
 ## 10. Konfigurasi CORS
 

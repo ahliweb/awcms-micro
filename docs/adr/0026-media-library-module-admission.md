@@ -83,7 +83,7 @@ Diverifikasi belum ada di kode hari ini:
 5. Tambah preset/endpoint penyalaan, varian gambar, tipe non-gambar, dan admin media browser (§4).
    - **5a. Endpoint penyalaan enforcement (selesai)** — `GET`/`POST /api/v1/media/enforcement`, `sql/079`. Melunasi utang yang dicatat langkah 3–4: situs brosur kini punya tombolnya, bukan hanya kapabilitasnya.
    - 5b. Varian gambar/`srcset` — belum.
-   - 5c. Tipe media non-gambar — belum.
+   - **5c. Tipe media non-gambar (selesai)** — `application/pdf`, dikenali sniffer, opt-in operator.
    - **5d. Admin media browser (selesai)** — `/admin/media`. Permukaan UI pertama modul ini; entry `navigation` pertamanya juga.
 
 ### Koreksi staging: langkah 3 dan 4 ternyata satu pekerjaan
@@ -141,7 +141,34 @@ Jadi `mime_type` di registry hari ini mustahil bernilai `image/svg+xml`. Guard p
 
 **Konsekuensi untuk 5c:** menambah tipe media non-gambar bukan sekadar memperlebar allow-list konfigurasi — ia menuntut permukaan **sniffer** ikut diperlebar, karena allow-list tanpa signature yang cocok adalah no-op yang menolak semuanya. `media-r2-config.ts` sudah menyatakan ini (`config:validate` memperlakukan tipe di luar himpunan "known" sebagai hard error justru karena sniffer tak akan pernah menerimanya); catatan sisa pekerjaan yang salah itulah yang mengaburkannya.
 
-**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`) dan 5c (tipe non-gambar). Keduanya fitur tersendiri, bukan pelunasan utang.
+### Langkah 5c — tipe media non-gambar (PDF)
+
+Dikerjakan persis seperti yang diramalkan koreksi 5d di atas: yang perlu diperlebar adalah **sniffer**, bukan allow-list konfigurasi. `application/pdf` kini punya signature (`%PDF-`), entri di `MIME_TYPE_TO_EXTENSION`, dan tempat di `NEWS_MEDIA_R2_KNOWN_MIME_TYPES`.
+
+**Tiga himpunan yang dulu identik, kini sengaja berbeda.** Ini inti langkah 5c, dan menyamakan dua di antaranya adalah kekeliruan nyata ke dua arah — keduanya senyap:
+
+| Himpunan               | Isi                                    |
+| ---------------------- | -------------------------------------- |
+| Dikenali sniffer       | JPEG, PNG, WebP, GIF, **PDF**          |
+| Diizinkan default      | JPEG, PNG, WebP, GIF                   |
+| "Known" (boleh di-opt) | keempatnya + **PDF** + `image/svg+xml` |
+
+- **Sniffable ⊇ allowed** adalah yang membuat entri allow-list bermakna. Tipe yang diizinkan tanpa signature adalah no-op yang menolak semuanya — persis keadaan `image/svg+xml`, dan harus tetap begitu.
+- **Allowed ⊉ sniffable** adalah yang mencegah "mengenali" berubah diam-diam menjadi "mengirimkan ke semua deployment saat upgrade". PDF dikenali; tak seorang pun yang tidak memintanya mulai menerimanya.
+
+**PDF opt-in, bukan default.** Alasannya bukan alasan SVG, dan membedakannya penting:
+
+- SVG ditolak **permanen**: SVG yang disajikan dari domain media milik tenant mengeksekusi `<script>`-nya di origin itu. PDF dirender viewer sandbox browser dan tidak bisa men-script halaman yang menautkannya.
+- Yang membuatnya opt-in justru V14.3 ("konfigurasi aman by default"): tipe yang **dikenali** codebase bukan berarti tipe yang diam-diam diterima setiap deployment yang sekadar upgrade. Memperlebar apa yang boleh diterbitkan editor ke situs live adalah keputusan operator, sekali, bukan efek samping bump versi.
+- Yang diterima operator, terus terang: PDF bisa menyisipkan JavaScript dan menjadi pembawa malware/phishing. Sniffing membuktikan byte-nya PDF; ia tidak dan tidak bisa membuktikan PDF-nya aman. `security:readiness` melaporkan opt-in ini (`checkNewsMediaR2DocumentTypesOptIn`) supaya risiko sisa itu terlihat, bukan disimpulkan dari env var yang tak dibaca ulang.
+
+Ini **bukan** penghalang yang dirobohkan ADR-0026. Yang itu menuntut menyalakan sebuah **modul domain** demi punya media sama sekali — kekeliruan pemodelan produk. Ini satu env var milik operator yang memperlebar tipe yang diterima pustaka media yang tenant-nya sudah punya.
+
+**Efek samping yang menghidupkan guard tidur.** `ad-placement-policy.ts` memegang allow-list empat tipe sendiri, dengan komentarnya sendiri yang menyebut pemeriksaannya "saat ini redundan — mime type objek terverifikasi selalu salah satu dari empat ini". Benar saat ditulis, **salah sejak 5c**: deployment yang opt-in bisa menyimpan objek `application/pdf` terverifikasi, dan `/admin/media` (langkah 5d) justru menunjukkan id-nya kepada editor. Jadi mesin defense-in-depth yang dibangun untuk kebutuhan masa depan menjadi beban nyata tepat saat pustaka media mengenal tipe yang bukan banner — ia yang mengembalikan `AD_PLACEMENT_REFERENCE_INVALID` alih-alih merender `<img>` rusak ke portal berita live. Komentarnya dikoreksi dan guard-nya dikunci test yang diverifikasi gagal saat daftarnya "disinkronkan ulang" dengan config media.
+
+Dicatat juga: `checkNewsMediaR2SvgNotAllowed` tidak pernah punya unit test sejak Issue #635. Sekarang punya, berdampingan dengan yang baru — keduanya mirip bentuk tapi berlawanan makna (yang satu memperingatkan konfigurasi yang tidak bekerja, yang lain memperingatkan konfigurasi yang bekerja).
+
+**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`). Satu fitur tersendiri, bukan pelunasan utang.
 
 ## Alternatif yang ditolak
 

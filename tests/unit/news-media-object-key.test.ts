@@ -25,9 +25,24 @@ describe("deriveExtensionFromMimeType", () => {
     expect(deriveExtensionFromMimeType(" IMAGE/JPEG ")).toBe("jpg");
   });
 
-  test("returns undefined for an unmapped mime type (e.g. svg, disallowed by default)", () => {
+  test("maps application/pdf — mapped but NOT default-allowed (ADR-0026 step 5c)", () => {
+    // This test used `application/pdf` as its example of an UNMAPPED type until
+    // step 5c, which is why that assertion moved here rather than being deleted.
+    // The mapping is not permission to store one: `media-r2-config.ts` keeps PDF
+    // out of the default allow-list, and `media-recognized-vs-allowed.test.ts`
+    // pins that. Mapping it here only means that IF a deployment opts in, the
+    // object key gets a reviewed extension instead of throwing.
+    expect(deriveExtensionFromMimeType("application/pdf")).toBe("pdf");
+  });
+
+  test("returns undefined for an unmapped mime type", () => {
+    // SVG stays unmapped and must: it has no sniffer signature either, so no
+    // SVG can reach key derivation in the first place.
     expect(deriveExtensionFromMimeType("image/svg+xml")).toBeUndefined();
-    expect(deriveExtensionFromMimeType("application/pdf")).toBeUndefined();
+    expect(
+      deriveExtensionFromMimeType("application/octet-stream")
+    ).toBeUndefined();
+    expect(deriveExtensionFromMimeType("text/html")).toBeUndefined();
   });
 });
 

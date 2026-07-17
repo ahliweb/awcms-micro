@@ -69,12 +69,20 @@ export function isAdRotationMode(value: unknown): value is AdRotationMode {
 }
 
 /**
- * Same base raster allow-list `NEWS_MEDIA_R2_KNOWN_MIME_TYPES`
- * (`news-media-r2-config.ts`) sniffs for (`news-media-mime-sniffer.ts`) —
- * SVG is excluded by design (Keputusan kunci #5). Duplicated here as a
- * plain literal rather than imported: this file must stay a dependency-free
- * pure module (no `Bun.SQL`/config plumbing) importable from both the
- * application layer and tests without pulling in env-var resolution.
+ * The four raster types an advertisement may use. SVG is excluded by design
+ * (Keputusan kunci #5). Duplicated here as a plain literal rather than imported:
+ * this file must stay a dependency-free pure module (no `Bun.SQL`/config
+ * plumbing) importable from both the application layer and tests without pulling
+ * in env-var resolution.
+ *
+ * ADR-0026 step 5c: this list used to be described as "the same set
+ * `NEWS_MEDIA_R2_KNOWN_MIME_TYPES` sniffs for". That is no longer true — the
+ * sniffer now also recognizes `application/pdf`, and a deployment may allow it.
+ * The two lists have diverged permanently and correctly: what a media library
+ * may STORE and what an ad banner may DISPLAY are different questions. A PDF is
+ * not a banner. Keeping this literal at four types is the answer, not an
+ * omission to fix by re-syncing it with the media config
+ * (`tests/unit/ad-placement-policy.test.ts` pins exactly that).
  */
 export const AD_PLACEMENT_DEFAULT_MEDIA_TYPES: readonly string[] = [
   "image/jpeg",
@@ -88,15 +96,23 @@ export type AdPlacementPreset = {
   recommendedSize: string;
   /**
    * Restricts which of the referenced media object's (already server-side
-   * sniffed, see `news-media-mime-sniffer.ts`) MIME types may be used in
-   * this placement. Every preset below currently shares the same default
-   * set, so this check is currently redundant with what the R2 upload
-   * pipeline already guarantees (a verified media object's `mimeType` is
-   * always one of these four) — it exists as real, tested, defense-in-depth
-   * machinery (`../application/ad-placement-reference-validation.ts`) so a
-   * FUTURE placement can narrow its allow-list (e.g. disallow animated GIF
-   * in a tight banner slot) without a new migration or a new validation
-   * mechanism, not because any placement narrows it today.
+   * sniffed, see `media-mime-sniffer.ts`) MIME types may be used in this
+   * placement.
+   *
+   * **No longer redundant, as of ADR-0026 step 5c.** This was written as
+   * defense-in-depth for a hypothetical future preset that might narrow its own
+   * list, and this comment said so — "a verified media object's `mimeType` is
+   * always one of these four". True then, FALSE now: a deployment that opts into
+   * `NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES` can hold verified
+   * `application/pdf` objects, and nothing stops an editor pasting such an id
+   * into an ad placement's `mediaObjectId` — `/admin/media` (step 5d) now shows
+   * them those ids next to every object.
+   *
+   * So machinery built for a future need became load-bearing the moment the
+   * media library learned a type that is not a banner. It is what returns
+   * `AD_PLACEMENT_REFERENCE_INVALID` for a PDF instead of rendering a broken
+   * `<img>` into a live news portal.
+   * `../application/ad-placement-reference-validation.ts` enforces it.
    */
   allowedMediaTypes: readonly string[];
   /**

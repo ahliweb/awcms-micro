@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  AD_PLACEMENT_DEFAULT_MEDIA_TYPES,
   AD_PLACEMENT_KEYS,
   AD_PLACEMENT_PRESETS,
   AD_ROTATION_MODES,
@@ -252,5 +253,51 @@ describe("validateUpdateAdPlacementInput (Issue #638)", () => {
       linkUrl: "javascript:alert(1)"
     });
     expect(result.valid).toBe(false);
+  });
+});
+
+/**
+ * ADR-0026 step 5c. `allowedMediaTypes` was written as defense-in-depth for a
+ * preset that might one day narrow its own list, and its own comment recorded
+ * that it was redundant: "a verified media object's mimeType is always one of
+ * these four". Step 5c made that false — a deployment opting into
+ * `NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES` can hold verified
+ * `application/pdf` objects, and an editor can paste one's id into
+ * `mediaObjectId`.
+ *
+ * These pin the two halves that keep a PDF out of a live ad slot. The real
+ * rejection lives in `ad-placement-reference-validation.ts:66`
+ * (`!preset.allowedMediaTypes.includes(media.mimeType)`), which reads the data
+ * asserted here — so if a well-meaning future change "re-syncs" this list with
+ * the media config, this fails rather than a PDF quietly rendering into an
+ * `<img>` on a news portal.
+ */
+describe("ad placement media types vs the media library's wider set (ADR-0026 step 5c)", () => {
+  test("no placement preset admits application/pdf — a PDF is not a banner", () => {
+    for (const key of AD_PLACEMENT_KEYS) {
+      expect(AD_PLACEMENT_PRESETS[key].allowedMediaTypes).not.toContain(
+        "application/pdf"
+      );
+    }
+  });
+
+  test("every placement preset admits ONLY raster image types", () => {
+    // Deliberately a positive assertion, not just "no PDF": the next
+    // non-image type step 5c admits (DOCX, ...) must fail here too, without
+    // anyone remembering to add it to the negative check above.
+    for (const key of AD_PLACEMENT_KEYS) {
+      for (const mimeType of AD_PLACEMENT_PRESETS[key].allowedMediaTypes) {
+        expect(mimeType.startsWith("image/")).toBe(true);
+      }
+    }
+  });
+
+  test("AD_PLACEMENT_DEFAULT_MEDIA_TYPES stays the four rasters — never re-synced to the media allow-list", () => {
+    expect(AD_PLACEMENT_DEFAULT_MEDIA_TYPES).toEqual([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif"
+    ]);
   });
 });

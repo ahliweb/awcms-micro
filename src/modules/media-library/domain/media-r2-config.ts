@@ -39,22 +39,63 @@ export const NEWS_MEDIA_R2_DEFAULT_ALLOWED_MIME_TYPES = [
 export const NEWS_MEDIA_R2_DISALLOWED_MIME_TYPE_DEFAULT = "image/svg+xml";
 
 /**
+ * Document types an operator may opt into (ADR-0026 step 5c). Excluded from the
+ * default allow-list above, and NOT for the reason SVG is.
+ *
+ * A PDF cannot script the page that links to it — it renders in the browser's
+ * own sandboxed viewer. That is precisely the distinction that keeps SVG out
+ * permanently (an SVG served from a tenant's custom media domain executes its
+ * embedded `<script>` in that origin) while making PDF a reasonable opt-in.
+ *
+ * It is opt-in rather than default-allowed on the repo's own established terms:
+ * `full-online-r2-architecture.md`'s V14.3 ("konfigurasi aman by default"), and
+ * the same shape `image/svg+xml` already set — a type this codebase KNOWS about
+ * is not thereby a type every existing deployment silently starts accepting on
+ * upgrade. Widening what an editor may publish to a live site is an operator's
+ * decision to make once, not a side effect of a version bump.
+ *
+ * What an operator accepts by opting in, stated plainly: a PDF is a document
+ * format that can embed JavaScript and can carry malware or phishing content.
+ * MIME sniffing proves the bytes really are a PDF (`%PDF-`) — it does not and
+ * cannot prove the PDF is harmless. `media_library.media.create` remains the
+ * real gate on who may upload one.
+ *
+ * This is deliberately NOT the barrier ADR-0026 was written to tear down. That
+ * one required enabling a whole domain MODULE to get media at all — a
+ * product-modelling error. This is one environment variable, owned by the
+ * operator, widening which types a media library the tenant already has accepts.
+ */
+export const NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES = [
+  "application/pdf"
+] as const;
+
+/**
  * Every MIME type this codebase actually knows how to reason about for
- * `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` (Issue #635): the four raster types
- * `news-media-mime-sniffer.ts` can sniff from magic bytes, PLUS
- * `image/svg+xml` (excluded by default above, but a real, deliberate
- * override path exists for it — `checkNewsMediaR2SvgNotAllowed`,
- * `scripts/security-readiness.ts` — so it belongs in the "known" set, not
- * the "unknown/unsafe" one). An operator listing anything OUTSIDE this set
- * (`text/html`, `application/octet-stream`, a typo, ...) has misconfigured
- * the allow-list: the sniffer can never accept such an upload (every real
- * upload would fail-safe reject at `finalize`), so config:validate treats
- * it as a hard error rather than a silent no-op, per Issue #635's
- * acceptance criteria ("Allowed MIME types include unsafe/non-image
- * types").
+ * `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` (Issue #635, extended by ADR-0026 step
+ * 5c): the four raster types plus `application/pdf` — all five of which
+ * `media-mime-sniffer.ts` can sniff from magic bytes — PLUS `image/svg+xml`,
+ * which it deliberately CANNOT.
+ *
+ * SVG's membership here is the odd one out and always has been: it is known
+ * because a real, deliberate override path exists for it
+ * (`checkNewsMediaR2SvgNotAllowed`, `scripts/security-readiness.ts`), not
+ * because an SVG upload could ever succeed. Sniffing decides, and no SVG
+ * signature exists, so allow-listing SVG stays a no-op that rejects every SVG
+ * upload. Removing it from this set would turn a documented, warned-about
+ * override into a hard config error — a separate decision, not this one.
+ *
+ * That asymmetry is why "sniffable", "allowed", and "known" are three different
+ * sets, and why step 5c had to widen the SNIFFER rather than only this list. An
+ * operator listing anything OUTSIDE this set (`text/html`,
+ * `application/octet-stream`, a typo, ...) has misconfigured the allow-list: the
+ * sniffer can never accept such an upload (every real upload would fail-safe
+ * reject at `finalize`), so config:validate treats it as a hard error rather
+ * than a silent no-op, per Issue #635's acceptance criteria ("Allowed MIME types
+ * include unsafe/non-image types").
  */
 export const NEWS_MEDIA_R2_KNOWN_MIME_TYPES = [
   ...NEWS_MEDIA_R2_DEFAULT_ALLOWED_MIME_TYPES,
+  ...NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES,
   NEWS_MEDIA_R2_DISALLOWED_MIME_TYPE_DEFAULT
 ] as const;
 
@@ -264,6 +305,24 @@ export function allowsSvgMimeType(
 ): boolean {
   return resolveNewsMediaR2Config(env).allowedMimeTypes.includes(
     NEWS_MEDIA_R2_DISALLOWED_MIME_TYPE_DEFAULT
+  );
+}
+
+/**
+ * The document types (`NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES`) this
+ * deployment has opted into, or `[]` (ADR-0026 step 5c). Unlike
+ * `allowsSvgMimeType`, a non-empty result here is a WORKING configuration, not a
+ * no-op: PDF has a real sniffer signature, so these uploads genuinely succeed.
+ * That is exactly why `security:readiness` reports it — see
+ * `checkNewsMediaR2DocumentTypesOptIn`.
+ */
+export function allowedDocumentMimeTypes(
+  env: NodeJS.ProcessEnv = process.env
+): string[] {
+  const allowed = resolveNewsMediaR2Config(env).allowedMimeTypes;
+
+  return NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES.filter((type) =>
+    allowed.includes(type)
   );
 }
 

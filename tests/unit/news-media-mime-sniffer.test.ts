@@ -65,3 +65,40 @@ describe("sniffNewsMediaMimeType (Issue #634)", () => {
     expect(sniffNewsMediaMimeType(svg)).toBeUndefined();
   });
 });
+
+/**
+ * ADR-0026 step 5c — the first non-image signature. These pin the property that
+ * makes it safe to recognize a document format at all: recognizing is not
+ * allowing. `media-r2-config.ts` keeps `application/pdf` out of the default
+ * allow-list, and `decideNewsMediaFinalizeOutcome` checks that list separately.
+ */
+describe("PDF signature (ADR-0026 step 5c)", () => {
+  test("recognizes a real PDF header", () => {
+    const pdf = new TextEncoder().encode("%PDF-1.7\n%\xE2\xE3\xCF\xD3\n");
+    expect(sniffNewsMediaMimeType(pdf)).toBe("application/pdf");
+  });
+
+  test("recognizes every PDF version, since the version digits are not parsed", () => {
+    for (const version of ["1.0", "1.4", "1.7", "2.0"]) {
+      const pdf = new TextEncoder().encode(`%PDF-${version}\n`);
+      expect(sniffNewsMediaMimeType(pdf)).toBe("application/pdf");
+    }
+  });
+
+  test("requires the hyphen — bare '%PDF' text is not a PDF", () => {
+    // Without the hyphen in the signature, a text file whose first word happens
+    // to be "%PDF" would sniff as a PDF.
+    const notPdf = new TextEncoder().encode("%PDF is a file format.");
+    expect(sniffNewsMediaMimeType(notPdf)).toBeUndefined();
+  });
+
+  test("HTML claiming to be a PDF still sniffs to undefined", () => {
+    const html = new TextEncoder().encode("<html><script>alert(1)</script>");
+    expect(sniffNewsMediaMimeType(html)).toBeUndefined();
+  });
+
+  test("a PDF header buried after other bytes is NOT recognized — the signature must be at offset 0", () => {
+    const padded = new TextEncoder().encode("GARBAGE%PDF-1.7");
+    expect(sniffNewsMediaMimeType(padded)).toBeUndefined();
+  });
+});
