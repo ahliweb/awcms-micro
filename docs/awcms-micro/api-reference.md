@@ -5543,6 +5543,164 @@ Returns 404 — never 403 — for another tenant's id, exactly as for a nonexist
 | 404    | Resource not found or hidden by soft-delete policy. | [`ApiError`](#standard-error-envelope)                   |
 | 500    | Internal server error without stack trace.          | [`ApiError`](#standard-error-envelope)                   |
 
+### `DELETE /api/v1/media/objects/{id}` — Soft delete a media object
+
+- **operationId**: `mediaObjectsDelete`
+- **Security**: bearerAuth + tenantHeader
+
+Reversible via `POST /{id}/restore`. `reason` is required — a soft delete removes an image from live content, so the audit trail must record why (same convention as `DELETE /api/v1/blog/posts/{id}`).
+
+Deliberately does NOT detach first: the object keeps its `ownerResourceType`/`ownerResourceId` so restoring genuinely undoes the delete rather than half-undoing it into a detached state. Content may therefore still reference a soft-deleted object — the media reference gate rejects it, because only `verified`/`attached` objects are safe to reference.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                                                              | Schema                                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200                                    | Soft deleted.                                                                                                                                                                                                                                                                                                                            | [`ApiSuccess`](#standard-success-envelope)&lt;[`MediaObjectDeleted`](#schema-mediaobjectdeleted)&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                                                               |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                                                               |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                                                               |
+| 404                                    | Resource not found or hidden by soft-delete policy.                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                                                               |
+| 409                                    | The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place. |
+| [`ApiError`](#standard-error-envelope) |
+| 413                                    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`.                                                                                                                         | [`ApiError`](#standard-error-envelope)                                                               |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                               | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `POST /api/v1/media/objects/{id}/attach` — Attach a verified media object to an owning resource
+
+- **operationId**: `mediaObjectsAttach`
+- **Security**: bearerAuth + tenantHeader
+
+`verified -> attached`. Requires the object to be `verified` and not deleted; otherwise 409 naming its current state.
+
+The owning resource's existence is NOT checked here — `media_library` never reads another module's tables (ADR-0013 §6), and `ownerResourceId` is deliberately a plain column rather than a foreign key for the same reason. The caller is the composition root that already knows the post/page is real.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `Idempotency-Key`  | header | yes      | string        | Required for high-risk mutations.           |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                                                              | Schema                                                   |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200                                    | Attached.                                                                                                                                                                                                                                                                                                                                | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                   |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                   |
+| 404                                    | Resource not found or hidden by soft-delete policy.                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 409                                    | The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place. |
+| [`ApiError`](#standard-error-envelope) |
+| 413                                    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`.                                                                                                                         | [`ApiError`](#standard-error-envelope)                   |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                               | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/media/objects/{id}/detach` — Detach a media object from its owning resource
+
+- **operationId**: `mediaObjectsDetach`
+- **Security**: bearerAuth + tenantHeader
+
+`attached -> verified`. A detached object is reusable and its bytes stay in the bucket — it does NOT become `orphaned` here; the reconciliation job decides orphanhood on its own schedule.
+
+A distinct permission from `attach` (`media_library.media.detach`): detaching is what strips an image from live content, so a role may attach media without being allowed to remove it from a published article.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `Idempotency-Key`  | header | yes      | string        | Required for high-risk mutations.           |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                                                              | Schema                                                   |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200                                    | Detached.                                                                                                                                                                                                                                                                                                                                | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                   |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                   |
+| 404                                    | Resource not found or hidden by soft-delete policy.                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 409                                    | The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place. |
+| [`ApiError`](#standard-error-envelope) |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                               | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/media/objects/{id}/purge` — Irreversibly purge an already soft-deleted media object
+
+- **operationId**: `mediaObjectsPurge`
+- **Security**: bearerAuth + tenantHeader
+
+Requires the object to be soft-deleted first — purge is not a shortcut for delete. The two-step delete-then-purge is what makes an irreversible removal take two deliberate acts under two distinct permissions.
+
+**This does not delete the object from storage, and cannot.** It drops the metadata row only; the bytes stay in the bucket until `news-media:r2:reconcile` sweeps them as an orphan-in-R2 once older than `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`. Deleting from R2 is a provider call and must never happen inside a DB transaction (ADR-0006), so the sweep is asynchronous by design. **The object therefore remains publicly reachable at its `publicUrl` until then** — if you need something unreachable immediately, this endpoint does not do that.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `Idempotency-Key`  | header | yes      | string        | Required for high-risk mutations.           |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                                                              | Schema                                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 200                                    | Metadata row purged. The stored object is swept asynchronously.                                                                                                                                                                                                                                                                          | [`ApiSuccess`](#standard-success-envelope)&lt;[`MediaObjectPurged`](#schema-mediaobjectpurged)&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                                                             |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                                                             |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                                                             |
+| 404                                    | Resource not found or hidden by soft-delete policy.                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                                                             |
+| 409                                    | The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place. |
+| [`ApiError`](#standard-error-envelope) |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                               | [`ApiError`](#standard-error-envelope)                                                             |
+
+### `POST /api/v1/media/objects/{id}/restore` — Restore a soft-deleted media object
+
+- **operationId**: `mediaObjectsRestore`
+- **Security**: bearerAuth + tenantHeader
+
+Undoes a soft delete. The object keeps its pre-delete status — if it was `attached`, it is attached again the moment this returns, because the delete never cleared its owner reference.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `Idempotency-Key`  | header | yes      | string        | Required for high-risk mutations.           |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                                                              | Schema                                                   |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200                                    | Restored.                                                                                                                                                                                                                                                                                                                                | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                   |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                   |
+| 404                                    | Resource not found or hidden by soft-delete policy.                                                                                                                                                                                                                                                                                      | [`ApiError`](#standard-error-envelope)                   |
+| 409                                    | The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place. |
+| [`ApiError`](#standard-error-envelope) |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                               | [`ApiError`](#standard-error-envelope)                   |
+
 ## News Portal Homepage Sections
 
 Editorial homepage section composer for `/news` (epic `news_portal` #631-#642/#649, Issue #637) — tenant-scoped, RLS-protected CRUD for configurable homepage sections (headline, latest_posts, featured_posts, editor_picks, category_grid, gallery_block). `config` shape is validated per `sectionType` server-side; every post/category/media reference in `config` must already exist for the same tenant, and (for `gallery_block`) be a verified R2 media object. `sectionType` is immutable after creation. Reordering is just another patchable field (`sortOrder`) — there is no separate bulk-reorder endpoint.
@@ -10019,6 +10177,38 @@ Locale code (2-letter, e.g. "en", "id") to string. Must include an "en" entry.
   "ready": false,
   "reasons": ["news_media_r2_disabled"],
   "detail": ["string"]
+}
+```
+
+### Schema: MediaObjectDeleted
+
+| Field     | Type          | Required | Nullable | Description |
+| --------- | ------------- | -------- | -------- | ----------- |
+| `deleted` | enum(`true`)  | yes      | no       |             |
+| `id`      | string (uuid) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "deleted": true,
+  "id": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+### Schema: MediaObjectPurged
+
+| Field    | Type          | Required | Nullable | Description |
+| -------- | ------------- | -------- | -------- | ----------- |
+| `purged` | enum(`true`)  | yes      | no       |             |
+| `id`     | string (uuid) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "purged": true,
+  "id": "00000000-0000-0000-0000-000000000000"
 }
 ```
 

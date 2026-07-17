@@ -16,24 +16,21 @@ import { mediaLibraryModule } from "../../src/modules/media-library/module";
  * of them. Issue #634 declared the full set while shipping only the upload flow,
  * so 6 of them were grantable authority that conferred nothing — exactly what
  * `media-permissions.ts`'s original header warned about. (`awcms-mini` has the
- * identical gap; this is inherited upstream shape, not something micro invented.)
+ * identical gap; it was inherited upstream shape, not something micro invented.)
  *
- * ADR-0026 step 5's read API closed part of it: `read` is now enforced by
- * `GET /api/v1/media/objects` and `GET /api/v1/media/objects/{id}`. When that
- * route landed, THIS TEST FAILED AND NAMED `read` — which is the whole point of
- * it existing. The remaining 5 (`attach`, `detach`, `delete`, `restore`,
- * `purge`) are still inert, with working application functions behind them and
- * no route.
+ * ADR-0026 step 5 closed it in two moves, and this test drove both: when the
+ * read API landed it FAILED AND NAMED `read`; when the lifecycle API landed it
+ * failed and named the other five. That is the whole point of it existing — the
+ * gap was a fact the suite knew, not a comment someone had to notice.
  *
- * Two directions of drift both fail here:
+ * It stays after the gap is closed, because the drift it guards runs both ways:
  *
- *   * A route starts guarding one of the remaining 5 → this fails naming it →
- *     whoever lands it updates the list and, doing so, reads the header
- *     explaining these keys are a contract being IMPLEMENTED, not free naming.
- *     That matters: a tenant may already have granted `media.purge` for no
- *     effect, and it becomes real the instant a purge route exists.
- *   * Someone declares a NEW permission with no route → it lands in neither set
- *     → the totals stop matching → they have to say which it is.
+ *   * A NEW permission declared with no route → it lands in neither set → the
+ *     totals stop matching → whoever added it has to say why it is unreachable.
+ *     That matters: an inert key can be granted for no effect and silently
+ *     becomes real the instant a route appears.
+ *   * A guard naming an undeclared key → caught below (a dead endpoint: 403 with
+ *     no way to grant past it).
  *
  * Deliberately scans `src/` as a whole, not just `src/pages/`: `verify`'s guard
  * lives in `application/media-finalize-upload-session.ts` and its route merely
@@ -75,29 +72,20 @@ function findGuardedActions(activityCode: string): Set<string> {
 }
 
 describe("media permission reachability", () => {
-  test("4 of the 9 declared `media.*` permissions have a guard — the other 5 are still seeded but inert", () => {
+  test("all 9 declared `media.*` permissions are now reachable — the seeded-but-inert gap is closed", () => {
     const guarded = findGuardedActions("media");
 
-    // `read` joined this list with ADR-0026 step 5's read API. If it grows
-    // again, the lifecycle routes have landed: update `unreachable` below AND
-    // `media-permissions.ts`'s header, which states the same split in prose.
-    expect([...guarded].sort()).toEqual(["cancel", "create", "read", "verify"]);
+    // The gap is gone: `read` closed with step 5's read API, and
+    // `attach`/`detach`/`delete`/`restore`/`purge` with the lifecycle API. Every
+    // declared media permission is now enforced by a route, which is what
+    // `media-permissions.ts`'s original header asked for before Issue #634
+    // declared all 9 while shipping only the upload flow.
+    expect([...guarded].sort()).toEqual(Object.keys(MEDIA_PERMISSIONS).sort());
 
     const unreachable = Object.keys(MEDIA_PERMISSIONS).filter(
       (action) => !guarded.has(action)
     );
-
-    // Each of these already has a working application function
-    // (`attachNewsMediaObject`, `softDeleteNewsMediaObject`, ...) — only the
-    // route is missing. So they are inert authority sitting on live code, which
-    // is why granting one today is a no-op that silently becomes real later.
-    expect(unreachable.sort()).toEqual([
-      "attach",
-      "delete",
-      "detach",
-      "purge",
-      "restore"
-    ]);
+    expect(unreachable).toEqual([]);
   });
 
   test("both `enforcement.*` permissions are reachable — ADR-0026 step 5a shipped its routes with its keys", () => {

@@ -7351,6 +7351,323 @@ paths:
           $ref: "#/components/responses/NotFound"
         "500":
           $ref: "#/components/responses/InternalError"
+    delete:
+      tags:
+        - News Media
+      summary: Soft delete a media object
+      description: |
+        Reversible via `POST /{id}/restore`. `reason` is required — a soft delete removes an image from live content, so the audit trail must record why (same convention as `DELETE /api/v1/blog/posts/{id}`).
+
+        Deliberately does NOT detach first: the object keeps its `ownerResourceType`/`ownerResourceId` so restoring genuinely undoes the delete rather than half-undoing it into a detached state. Content may therefore still reference a soft-deleted object — the media reference gate rejects it, because only `verified`/`attached` objects are safe to reference.
+      operationId: mediaObjectsDelete
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              additionalProperties: false
+              properties:
+                reason:
+                  type: string
+                  minLength: 1
+      responses:
+        "200":
+          description: Soft deleted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MediaObjectDeleted"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: |
+            The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/media/objects/{id}/attach:
+    post:
+      tags:
+        - News Media
+      summary: Attach a verified media object to an owning resource
+      description: |
+        `verified -> attached`. Requires the object to be `verified` and not deleted; otherwise 409 naming its current state.
+
+        The owning resource's existence is NOT checked here — `media_library` never reads another module's tables (ADR-0013 §6), and `ownerResourceId` is deliberately a plain column rather than a foreign key for the same reason. The caller is the composition root that already knows the post/page is real.
+      operationId: mediaObjectsAttach
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ownerResourceType
+                - ownerResourceId
+              additionalProperties: false
+              properties:
+                ownerResourceType:
+                  $ref: "#/components/schemas/MediaOwnerResourceType"
+                ownerResourceId:
+                  type: string
+                  minLength: 1
+      responses:
+        "200":
+          description: Attached.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - object
+                        additionalProperties: false
+                        properties:
+                          object:
+                            $ref: "#/components/schemas/MediaObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: |
+            The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/media/objects/{id}/detach:
+    post:
+      tags:
+        - News Media
+      summary: Detach a media object from its owning resource
+      description: |
+        `attached -> verified`. A detached object is reusable and its bytes stay in the bucket — it does NOT become `orphaned` here; the reconciliation job decides orphanhood on its own schedule.
+
+        A distinct permission from `attach` (`media_library.media.detach`): detaching is what strips an image from live content, so a role may attach media without being allowed to remove it from a published article.
+      operationId: mediaObjectsDetach
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detached.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - object
+                        additionalProperties: false
+                        properties:
+                          object:
+                            $ref: "#/components/schemas/MediaObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: |
+            The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/media/objects/{id}/purge:
+    post:
+      tags:
+        - News Media
+      summary: Irreversibly purge an already soft-deleted media object
+      description: |
+        Requires the object to be soft-deleted first — purge is not a shortcut for delete. The two-step delete-then-purge is what makes an irreversible removal take two deliberate acts under two distinct permissions.
+
+        **This does not delete the object from storage, and cannot.** It drops the metadata row only; the bytes stay in the bucket until `news-media:r2:reconcile` sweeps them as an orphan-in-R2 once older than `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`. Deleting from R2 is a provider call and must never happen inside a DB transaction (ADR-0006), so the sweep is asynchronous by design. **The object therefore remains publicly reachable at its `publicUrl` until then** — if you need something unreachable immediately, this endpoint does not do that.
+      operationId: mediaObjectsPurge
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Metadata row purged. The stored object is swept asynchronously.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MediaObjectPurged"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: |
+            The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/media/objects/{id}/restore:
+    post:
+      tags:
+        - News Media
+      summary: Restore a soft-deleted media object
+      description: |
+        Undoes a soft delete. The object keeps its pre-delete status — if it was `attached`, it is attached again the moment this returns, because the delete never cleared its owner reference.
+      operationId: mediaObjectsRestore
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Restored.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - object
+                        additionalProperties: false
+                        properties:
+                          object:
+                            $ref: "#/components/schemas/MediaObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: |
+            The media object exists but is in the wrong state for this transition (the message names its current state), or the `Idempotency-Key` was already used with a different request. A 409 rather than 404 on purpose: telling a caller an object "does not exist" when it is merely already attached sends them looking in the wrong place.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/modules:
     get:
       tags:
@@ -17192,6 +17509,34 @@ components:
             - string
             - "null"
           format: date-time
+    MediaObjectDeleted:
+      type: object
+      required:
+        - deleted
+        - id
+      additionalProperties: false
+      properties:
+        deleted:
+          type: boolean
+          enum:
+            - true
+        id:
+          type: string
+          format: uuid
+    MediaObjectPurged:
+      type: object
+      required:
+        - purged
+        - id
+      additionalProperties: false
+      properties:
+        purged:
+          type: boolean
+          enum:
+            - true
+        id:
+          type: string
+          format: uuid
     MediaObjectStatus:
       type: string
       enum:
