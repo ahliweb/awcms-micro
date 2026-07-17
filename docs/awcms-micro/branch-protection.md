@@ -2,15 +2,35 @@
 
 Issue #685 (epic #679, platform-hardening) acceptance criterion: "Branch
 protection documentation identifies required checks." This document is
-that reference — it does **not** itself configure GitHub, and as of this
-writing `main` has **no branch protection rule at all**
-(`gh api repos/ahliweb/awcms-micro/branches/main/protection` returns
-`404 Branch not protected`). Every check below already runs and reports
-its status on every PR; none of them currently **block** a merge — a PR
-with a failing check can still be merged today. Enabling branch protection
-is a repo-admin, shared-state change (affects every contributor's merge
-flow) and is deliberately left to a maintainer to apply explicitly, not
-done automatically by this doc or by CI itself.
+that reference — it does **not** itself configure GitHub.
+
+## Status: APPLIED
+
+`main` **is protected** as of 2026-07-17, with exactly the configuration this
+document recommends below — all six required status checks, `strict: true`
+(branches must be up to date before merging), and `enforce_admins: true`.
+
+Verify it live:
+
+```bash
+gh api repos/ahliweb/awcms-micro/branches/main/protection \
+  --jq '{strict: .required_status_checks.strict, contexts: .required_status_checks.contexts, enforce_admins: .enforce_admins.enabled}'
+```
+
+Two consequences worth stating plainly, because they change how everyone works:
+
+- **No direct pushes to `main`, for anyone — admins included.** `enforce_admins`
+  is on, so a `git push origin main` is rejected with
+  `GH006: Protected branch update failed ... 6 of 6 required status checks are
+expected`. Verified by actually attempting it, not inferred from the API
+  response. All work lands through a PR.
+- **A red check now genuinely blocks a merge.** Before this, every check below
+  reported but none blocked — a PR with a failing check could still merge. That
+  is no longer true.
+
+Enabling this was a repo-admin, shared-state change (it affects every
+contributor's merge flow), so it was applied explicitly by a maintainer rather
+than by this doc or by CI.
 
 ## Required status checks (recommended)
 
