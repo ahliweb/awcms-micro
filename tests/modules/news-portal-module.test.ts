@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { getModuleByKey, listModules } from "../../src/modules";
 import { newsPortalModule } from "../../src/modules/news-portal/module";
-import { NEWS_MEDIA_PERMISSIONS } from "../../src/modules/news-portal/domain/news-media-permissions";
+import { MEDIA_PERMISSIONS } from "../../src/modules/media-library/domain/media-permissions";
 
 describe("news_portal module descriptor (Issue #632, extended #634)", () => {
   test("listModules() includes news_portal", () => {
@@ -47,9 +47,11 @@ describe("news_portal module descriptor (Issue #632, extended #634)", () => {
       }
     ]);
 
+    // ADR-0026 step 2: the media basePath moved to `media_library` with the
+    // registry. What remains is genuinely this module's own surface.
     expect(newsPortalModule.api).toEqual({
       openApiPath: "openapi/awcms-micro-public-api.openapi.yaml",
-      basePath: "/api/v1/media/news-images"
+      basePath: "/api/v1/news-portal"
     });
 
     expect(newsPortalModule.navigation).toEqual([
@@ -70,25 +72,18 @@ describe("news_portal module descriptor (Issue #632, extended #634)", () => {
     expect(newsPortalModule.permissions).toBeDefined();
   });
 
-  test("every declared `media` activityCode permission reproduces exactly one NEWS_MEDIA_PERMISSIONS constant from #633/#634 — no invented/duplicated/orphaned permission key", () => {
-    const permissions = (newsPortalModule.permissions ?? []).filter(
+  // ADR-0026 step 2 — this module must no longer declare ANY media permission:
+  // they moved to `media_library` (sql/077). The parity test that used to live
+  // here now lives in tests/modules/media-library-module.test.ts, against the new
+  // owner. Asserting the absence here is the half that catches a regression the
+  // new test cannot see — a stray media permission left behind on news_portal
+  // would satisfy the new module's parity check and still be wrong.
+  test("declares no `media` activityCode permission — media ownership moved to media_library (ADR-0026 step 2)", () => {
+    const mediaPermissions = (newsPortalModule.permissions ?? []).filter(
       (p) => p.activityCode === "media"
     );
-    const expectedKeys = new Set(Object.values(NEWS_MEDIA_PERMISSIONS));
 
-    expect(permissions.length).toBe(expectedKeys.size);
-
-    const declaredKeys = permissions.map(
-      (p) => `news_portal.${p.activityCode}.${p.action}`
-    );
-
-    expect(new Set(declaredKeys)).toEqual(expectedKeys);
-    // No duplicates.
-    expect(declaredKeys.length).toBe(new Set(declaredKeys).size);
-
-    for (const permission of permissions) {
-      expect(permission.description.length).toBeGreaterThan(0);
-    }
+    expect(mediaPermissions).toEqual([]);
   });
 
   test("Issue #637 declares exactly the homepage_sections read/configure permission pair", () => {

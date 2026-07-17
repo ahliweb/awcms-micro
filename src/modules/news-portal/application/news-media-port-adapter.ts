@@ -56,7 +56,7 @@ import { evaluateNewsPortalFullOnlineR2Readiness } from "../domain/news-portal-p
 import {
   fetchNewsMediaObjectById,
   isNewsMediaObjectSafeForPublicReference
-} from "./news-media-object-directory";
+} from "../../media-library/application/media-object-directory";
 import type {
   NewsMediaPort,
   ResolvedNewsMediaReferenceDTO

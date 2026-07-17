@@ -45,7 +45,7 @@ import { GET as getNewsDetail } from "../../src/pages/news/[slug]";
 import { getDatabaseClient } from "../../src/lib/database/client";
 import { withTenant } from "../../src/lib/database/tenant-context";
 import { applyNewsPortalFullOnlineR2Preset } from "../../src/modules/news-portal/application/apply-news-portal-preset";
-import type { NewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
+import type { NewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
 import {
   createPendingNewsMediaObject,
   markNewsMediaObjectFailed,
@@ -53,7 +53,7 @@ import {
   markNewsMediaObjectVerified,
   softDeleteNewsMediaObject,
   type NewsMediaObjectView
-} from "../../src/modules/news-portal/application/news-media-object-directory";
+} from "../../src/modules/media-library/application/media-object-directory";
 
 const OWNER_LOGIN = "owner@example.com";
 const OWNER_PASSWORD = "integration-test-owner-password";

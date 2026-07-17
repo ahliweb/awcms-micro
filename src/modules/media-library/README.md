@@ -3,12 +3,15 @@
 Modul **System Foundation** (lapisan ADR-0013 #2) — registry objek media
 tenant-scoped dan alur unggahnya, dipakai ulang oleh setiap modul website.
 
-> **Status: `experimental` — modul ini belum memiliki kode apa pun.**
-> Ia adalah **pemilik yang sudah dideklarasikan** untuk registry media, tapi
-> registry itu sendiri masih hidup di `news_portal` sampai ADR-0026 langkah 2.
-> Jangan bergantung pada modul ini dulu, dan jangan menambahkan tabel/route
-> media baru di `news_portal` — semuanya bermuara ke sini.
-> Keputusan lengkap: [ADR-0026](../../../docs/adr/0026-media-library-module-admission.md).
+> **Status: `active` — modul ini kini MEMILIKI registry media** (ADR-0026 langkah 2).
+> Registry, alur presigned upload/finalize/cancel, MIME sniffing, object key, R2
+> config/client, verifikasi, rekonsiliasi, dan 9 permission (`media_library.media.*`,
+> `sql/077`) semuanya ada di sini. Jangan menambahkan tabel/route media baru di
+> `news_portal`. Keputusan lengkap:
+> [ADR-0026](../../../docs/adr/0026-media-library-module-admission.md).
+>
+> **Yang belum:** media masih hanya terjangkau lewat gate R2-only milik `news_portal`,
+> jadi situs brosur tetap belum punya media terkelola — langkah 3–4 yang menutupnya.
 
 ## Kenapa modul ini ada
 
@@ -36,6 +39,18 @@ orphan, dan job rekonsiliasi, lalu meninggalkan dua sumber kebenaran.
 
 Ini pola yang sama dengan **generic idempotency store** (ADR-0025 §3): infrastruktur
 bersama yang lahir di dalam modul yang epic-nya kebetulan pertama membutuhkannya.
+
+### Apa yang TIDAK ikut pindah, dan kenapa
+
+`news-media-port-adapter.ts` **tetap di `news_portal`**. Ia bukan urusan media: ia
+mengomposisikan registry modul ini dengan kebijakan editorial R2-only milik
+`news_portal` (`news-portal-tenant-state.ts`, `news-portal-preset-readiness.ts`).
+Memindahkannya akan membuat `media_library` mengimpor `news_portal` — modul System
+Foundation bergantung pada modul domain, yaitu inversi ADR-0013 §1 yang justru
+ingin dihapus ekstraksi ini. Percobaan memindahkannya langsung ditangkap typecheck.
+
+Adaptor itu berpindah/pensiun di langkah 3–4, saat gate R2-only dilepas dari
+kepemilikan `news_portal`.
 
 ### Bukti tambahan: pengecualian batas yang hanya ada karena salah tempat
 
@@ -71,7 +86,7 @@ dan tiga migrasi, jadi **bukan satu commit raksasa**.
 | #   | Langkah                                                                                                    | Status      |
 | --- | ---------------------------------------------------------------------------------------------------------- | ----------- |
 | 1   | Daftarkan modul ini (`experimental`, tanpa kode)                                                           | **selesai** |
-| 2   | Pindahkan registry/directory/upload-session ke sini; `news_portal` mengonsumsi lewat port                  | belum       |
+| 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)                   | **selesai** |
 | 3   | Rewire `blog_content` + `social_publishing` ke port `media_library`; lepas `news_media`                    | belum       |
 | 4   | Lepas gate R2-only dari kepemilikan `news_portal` → media bekerja tanpa portal berita; modul jadi `active` | belum       |
 | 5   | Tambah varian gambar/`srcset`, tipe media non-gambar, admin media browser                                  | belum       |

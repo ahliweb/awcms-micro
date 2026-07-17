@@ -52,7 +52,7 @@ import {
   findMissingNewsMediaR2Vars,
   findNewsMediaR2SeparationViolations,
   isNewsMediaR2Enabled
-} from "./news-media-r2-config";
+} from "../../media-library/domain/media-r2-config";
 
 export const NEWS_PORTAL_PROFILES = ["full_online_r2"] as const;
 export type NewsPortalProfile = (typeof NEWS_PORTAL_PROFILES)[number];

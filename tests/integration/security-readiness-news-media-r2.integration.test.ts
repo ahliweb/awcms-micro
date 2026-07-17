@@ -33,8 +33,8 @@ import {
 
 import { getDatabaseClient } from "../../src/lib/database/client";
 import { withTenant } from "../../src/lib/database/tenant-context";
-import type { NewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
-import { createPendingNewsMediaObject } from "../../src/modules/news-portal/application/news-media-object-directory";
+import type { NewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
+import { createPendingNewsMediaObject } from "../../src/modules/media-library/application/media-object-directory";
 import { checkNewsMediaR2NoStalePendingObjects } from "../../scripts/security-readiness";
 
 const TENANT_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";

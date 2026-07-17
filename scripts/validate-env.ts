@@ -136,7 +136,7 @@
  *     NEWS_MEDIA_R2_ENABLED === "true", NEWS_MEDIA_R2_ACCOUNT_ID,
  *     NEWS_MEDIA_R2_ACCESS_KEY_ID, NEWS_MEDIA_R2_SECRET_ACCESS_KEY,
  *     NEWS_MEDIA_R2_BUCKET, and NEWS_MEDIA_R2_PUBLIC_BASE_URL must all be
- *     set (`../src/modules/news-portal/domain/news-media-r2-config`) —
+ *     set (`../src/modules/media-library/domain/media-r2-config`) —
  *     mirrors the R2_ENABLED conditional check above (item 3), deliberately
  *     namespaced `NEWS_MEDIA_R2_*` rather than reusing `R2_*` (see that
  *     file's header comment: news-portal media is a public bucket, wholly
@@ -235,7 +235,7 @@ import {
   NEWS_MEDIA_R2_MIN_ORPHAN_GRACE_DAYS,
   NEWS_MEDIA_R2_REQUIRED_WHEN_ENABLED,
   resolveNewsMediaR2Config
-} from "../src/modules/news-portal/domain/news-media-r2-config";
+} from "../src/modules/media-library/domain/media-r2-config";
 import {
   isKnownNewsPortalProfile,
   NEWS_PORTAL_PROFILES

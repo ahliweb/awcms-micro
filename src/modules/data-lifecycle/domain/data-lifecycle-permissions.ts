@@ -1,6 +1,6 @@
 /**
  * Permission KEY CONSTANTS for `data_lifecycle` (Issue #745). Mirrors the
- * convention `news-portal/domain/news-media-permissions.ts` established:
+ * convention `media-library/domain/media-permissions.ts` established:
  * a typed constants object, reused verbatim by `module.ts`'s `permissions`
  * array, the permission-seed migration, and every route handler's
  * `authorizeInTransaction` guard — never re-typed as a string literal at

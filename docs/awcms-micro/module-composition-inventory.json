@@ -147,14 +147,14 @@
     {
       "key": "media_library",
       "name": "Media Library",
-      "version": "0.1.0",
-      "status": "experimental",
+      "version": "0.2.0",
+      "status": "active",
       "type": "system",
       "source": "base",
       "dependencies": ["tenant_admin", "identity_access"],
       "capabilitiesProvided": [],
       "capabilitiesConsumed": [],
-      "permissionCount": 0,
+      "permissionCount": 9,
       "navigationCount": 0,
       "jobCount": 0,
       "hasHealthCheck": false,
@@ -194,7 +194,7 @@
           "optional": false
         }
       ],
-      "permissionCount": 13,
+      "permissionCount": 4,
       "navigationCount": 2,
       "jobCount": 1,
       "hasHealthCheck": false,

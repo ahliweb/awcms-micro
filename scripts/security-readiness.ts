@@ -62,7 +62,7 @@ import {
   allowsSvgMimeType,
   findNewsMediaR2PublicBaseUrlProductionUnsafeReason,
   resolveNewsMediaR2Config
-} from "../src/modules/news-portal/domain/news-media-r2-config";
+} from "../src/modules/media-library/domain/media-r2-config";
 import { evaluateNewsPortalFullOnlineR2Readiness } from "../src/modules/news-portal/domain/news-portal-preset-readiness";
 import { isSocialPublishingEnabled } from "../src/modules/social-publishing/domain/social-publishing-config";
 import { isTelegramProviderEnabled } from "../src/modules/social-publishing/domain/telegram-config";

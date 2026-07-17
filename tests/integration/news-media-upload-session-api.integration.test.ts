@@ -54,10 +54,10 @@ import { POST as authLogin } from "../../src/pages/api/v1/auth/login";
 import { POST as createUploadSession } from "../../src/pages/api/v1/media/news-images/upload-sessions/index";
 import { POST as cancelUploadSession } from "../../src/pages/api/v1/media/news-images/upload-sessions/[id]/cancel";
 import { POST as finalizeUploadSessionRoute } from "../../src/pages/api/v1/media/news-images/upload-sessions/[id]/finalize";
-import { finalizeNewsMediaUploadSession } from "../../src/modules/news-portal/application/news-media-finalize-upload-session";
-import { resolveNewsMediaR2Config } from "../../src/modules/news-portal/domain/news-media-r2-config";
+import { finalizeNewsMediaUploadSession } from "../../src/modules/media-library/application/media-finalize-upload-session";
+import { resolveNewsMediaR2Config } from "../../src/modules/media-library/domain/media-r2-config";
 import { getDatabaseClient } from "../../src/lib/database/client";
-import { createNewsMediaR2Client } from "../../src/modules/news-portal/infrastructure/news-media-r2-client";
+import { createNewsMediaR2Client } from "../../src/modules/media-library/infrastructure/media-r2-client";
 import { hashSessionToken } from "../../src/lib/auth/session-token";
 
 const OWNER_LOGIN = "owner@example.com";
@@ -104,7 +104,7 @@ async function bootstrap(
   return { tenantId: setup.body.data.tenantId, token: login.body.data.token };
 }
 
-/** Provisions a second tenant user with only `news_portal.media.read` (no `create`) — used for the ABAC default-deny test. */
+/** Provisions a second tenant user with only `media_library.media.read` (no `create`) — used for the ABAC default-deny test. */
 async function provisionReadOnlyUser(
   tenantId: string,
   loginIdentifier: string
@@ -136,7 +136,7 @@ async function provisionReadOnlyUser(
 
     const permission = (await tx`
       SELECT id FROM awcms_micro_permissions
-      WHERE module_key = 'news_portal' AND activity_code = 'media' AND action = 'read'
+      WHERE module_key = 'media_library' AND activity_code = 'media' AND action = 'read'
     `) as { id: string }[];
 
     await tx`
@@ -317,7 +317,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
     expect(response.status).toBe(400);
   });
 
-  test("create: ABAC default-deny for a user without news_portal.media.create", async () => {
+  test("create: ABAC default-deny for a user without media_library.media.create", async () => {
     const owner = await bootstrap();
     const readOnly = await provisionReadOnlyUser(
       owner.tenantId,

@@ -165,7 +165,12 @@ describe("module registry", () => {
     // state that the extraction is genuinely done.
     expect(getModuleByKey("media_library")).toMatchObject({
       key: "media_library",
-      status: "experimental",
+      // ADR-0026 step 2 flipped this from `experimental` to `active`: the media
+      // registry, its presigned upload flow, and its 9 permissions now genuinely
+      // live in this module (sql/077), so the status describes reality. Step 1's
+      // comment promised this pin would force whoever flips it to say so here —
+      // this is that statement.
+      status: "active",
       type: "system",
       dependencies: ["tenant_admin", "identity_access"]
     });
@@ -571,7 +576,8 @@ describe("database migration runner helpers", () => {
       "061_awcms_micro_business_scope_assignments_schema.sql",
       "062_awcms_micro_business_scope_permissions.sql",
       "069_awcms_micro_reporting_projections_schema.sql",
-      "070_awcms_micro_reporting_projections_permissions.sql"
+      "070_awcms_micro_reporting_projections_permissions.sql",
+      "077_awcms_micro_media_library_permission_ownership.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);
