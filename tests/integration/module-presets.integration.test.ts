@@ -172,18 +172,19 @@ suite("tenant module preset application service", () => {
     // same module — domain_event_runtime only needs ONE active enabled
     // dependent to stay enabled, and `reporting` alone is now that
     // dependent.
+    // media_library (ADR-0026 step 1) is a pure leaf here: it is registered but
+    // owns no code yet, nothing depends on it, and online_website does not list
+    // it — so it disables cleanly like the other unlisted leaves. It joins this
+    // list rather than getting an exception; when ADR-0026 step 4 makes media
+    // work without news_portal, online_website should LIST it, and this test is
+    // where that change has to be stated.
     for (const key of [
-      "workflow",
       "form_drafts",
       "visitor_analytics",
       "news_portal",
-      "idn_admin_regions",
+      "media_library",
       "social_publishing",
-      "data_lifecycle",
-      "organization_structure",
-      "document_infrastructure",
-      "data_exchange",
-      "integration_hub"
+      "data_lifecycle"
     ]) {
       expect(changeByKey.get(key)?.outcome).toBe("applied");
       expect(changeByKey.get(key)?.action).toBe("disabled");
@@ -218,18 +219,12 @@ suite("tenant module preset application service", () => {
     expect(state.get("sync_storage")).not.toBe(false);
     expect(state.get("domain_event_runtime")).not.toBe(false);
     expect(state.get("logging")).not.toBe(false);
-    expect(state.get("workflow")).toBe(false);
     expect(state.get("form_drafts")).toBe(false);
     expect(state.get("visitor_analytics")).toBe(false);
     expect(state.get("news_portal")).toBe(false);
-    expect(state.get("idn_admin_regions")).toBe(false);
+    expect(state.get("media_library")).toBe(false);
     expect(state.get("social_publishing")).toBe(false);
     expect(state.get("data_lifecycle")).toBe(false);
-    expect(state.get("organization_structure")).toBe(false);
-    expect(state.get("document_infrastructure")).toBe(false);
-    expect(state.get("data_exchange")).toBe(false);
-    expect(state.get("integration_hub")).toBe(false);
-    expect(state.get("reference_data")).toBe(false);
 
     const auditRows = await fetchAuditActions(owner.tenantId);
     const disabledResourceIds = auditRows
@@ -239,17 +234,11 @@ suite("tenant module preset application service", () => {
     expect(disabledResourceIds).toEqual(
       [
         "form_drafts",
-        "workflow",
         "visitor_analytics",
         "news_portal",
-        "idn_admin_regions",
+        "media_library",
         "social_publishing",
-        "data_lifecycle",
-        "organization_structure",
-        "document_infrastructure",
-        "data_exchange",
-        "integration_hub",
-        "reference_data"
+        "data_lifecycle"
       ].sort()
     );
     // No audit event for modules that were already in the target state.
@@ -334,11 +323,10 @@ suite("tenant module preset application service", () => {
       "reporting",
       "sync_storage",
       "tenant_domain",
-      "workflow",
       "form_drafts",
       "visitor_analytics",
       "news_portal",
-      "idn_admin_regions",
+      "media_library",
       "social_publishing",
       "data_lifecycle",
       "domain_event_runtime"
