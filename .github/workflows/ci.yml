@@ -147,13 +147,19 @@ jobs:
       - name: Business-scope SoD rule registry validation check
         run: bun run identity-access:sod-registry:check
 
-      # Issue #750 (epic #738): added alongside the other registry checks
-      # above, for the exact same "CI silently runs a subset of `bun run
-      # check`" reason Issue #685/#740/#745/#746 already documented for
-      # the other checks in this file — do not rely on `bun run check`
-      # alone.
-      - name: Reference-data module contribution registry validation check
-        run: bun run reference-data:contributions:check
+      # Upstream AWCMS-Mini runs `reference-data:contributions:check` here
+      # (Issue #750). AWCMS-Micro does not port `reference_data` (ADR-0025 §3),
+      # so that script no longer exists and the step is gone.
+      #
+      # This step is why the FIRST CI run on this repository failed while
+      # `bun run check` was green locally: the aggregate chain in package.json
+      # had dropped the gate cleanly, but this workflow lists its steps
+      # individually — deliberately, see every comment above — so removing a
+      # script from `check` does not remove it from CI. That decoupling is the
+      # point (CI must never silently run a subset of `check`); its cost is
+      # that a pruned gate has to be deleted in BOTH places. ADR-0025 §5 makes
+      # that binding, and `tests/unit/workflow-script-parity.test.ts` now makes
+      # it mechanical rather than something a reviewer must remember.
 
       # Issue #753 (epic #738): added alongside the other registry checks
       # above, for the exact same "CI silently runs a subset of `bun run
