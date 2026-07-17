@@ -5,39 +5,33 @@
  * `awcms_micro_permissions` (`sql/042`, ownership moved to `media_library` by
  * `sql/077` when ADR-0026 step 2 extracted this module).
  *
- * ## Only 4 of the 9 are actually REACHABLE today — do not read this list as an API
+ * ## All 9 are reachable — the seeded-but-inert gap is closed (ADR-0026 step 5)
  *
- * Enforced via `authorizeInTransaction` (skill `awcms-micro-abac-guard`):
- * `create` (upload-sessions), `verify` (finalize — its guard lives in
- * `application/media-finalize-upload-session.ts`, not the route file, which
- * delegates to it), `cancel`, and `read` (ADR-0026 step 5's
- * `GET /api/v1/media/objects` + `/{id}`).
+ * Every key below is enforced by a route via `authorizeInTransaction` (skill
+ * `awcms-micro-abac-guard`): `create` (upload-sessions), `verify` (finalize —
+ * its guard lives in `application/media-finalize-upload-session.ts`, not the
+ * route file, which delegates to it), `cancel`, `read` (`GET /api/v1/media/objects`
+ * + `/{id}`), and `attach`/`detach`/`delete`/`restore`/`purge` (the lifecycle
+ * API).
  *
- * `attach`, `detach`, `delete`, `restore`, and `purge` are seeded but **nothing
- * checks them** — no route exists, even though each already has a working
- * application function behind it (`attachNewsMediaObject`,
- * `softDeleteNewsMediaObject`, ...). They are permissions that "exist" in the
- * catalog and cannot be exercised, which is exactly what this file's original
- * header (Issue #633) warned against before the descriptor declared them:
+ * It was not always so, and the history is the point. Issue #633 built the whole
+ * application directory; Issue #634 declared all 9 permissions while wiring only
+ * the upload flow. That left 6 of them grantable authority that conferred
+ * nothing — a tenant could grant `media_library.media.purge` for no effect — sitting
+ * on top of working code, which is exactly what this file's ORIGINAL header
+ * warned against before the descriptor declared them:
  *
  * > declaring them in the module descriptor now would sync permission rows into
  * > `awcms_micro_permissions` with nothing that ever checks them, which is
  * > misleading (a permission that "exists" but is unreachable)
  *
- * Issue #634 declared all 9 anyway while adding only the upload flow, so the
- * repo did the thing that comment warned about. `awcms-mini` has the identical
- * 9-declared/3-enforced shape, so this is inherited upstream, not invented here.
+ * `awcms-mini` still has the identical 9-declared/3-enforced shape, so this was
+ * inherited upstream, not invented here.
  *
- * Recorded rather than quietly tidied because it is real, granted-but-inert
- * authority: a tenant can grant `media_library.media.purge` to a role today and
- * it confers nothing, and it silently becomes meaningful the moment a purge
- * route exists. Whoever adds the remaining routes must treat these keys as a
- * contract they are IMPLEMENTING, never as free naming.
- * `tests/unit/media-permission-reachability.test.ts` enforces that by failing,
- * by name, the moment one of the 5 becomes guarded.
- *
- * (An earlier revision of this header claimed all 9 were enforced. They were
- * not — corrected after an audit across both the route and application layers.)
+ * `tests/unit/media-permission-reachability.test.ts` is what closed it: it made
+ * the gap a fact the suite knew, and failed by name as each route landed. Keep
+ * it that way — declare a permission in the same change that routes it, or the
+ * test will ask you why not.
  *
  * This file remains the single source for the key strings: `module.ts`, the
  * guards, and `tests/modules/media-library-module.test.ts`'s parity assertion

@@ -63,6 +63,22 @@ export type AccessAction =
   // endpoint needs it" precedent as `verify`/`set_primary` above. Read-only,
   // not added to `HIGH_RISK_ACTIONS`.
   | "preview"
+  // ADR-0026 step 5 (media_library): `media.attach`/`media.detach` — seeded by
+  // `sql/042` back in Issue #634 and declared in `module.ts` ever since, but no
+  // endpoint enforced them until the media object lifecycle API, so they never
+  // reached this union. The same "seed permission first, add the action when a
+  // real endpoint needs it" precedent as `verify`/`set_primary`/`preview` above.
+  //
+  // Neither is added to `HIGH_RISK_ACTIONS`. `attach` binds a verified media
+  // object to an owning resource and `detach` releases it back to `verified` —
+  // both are reversible by their counterpart, neither deletes bytes or touches
+  // credential-bearing state, so they classify with `verify`/`set_primary`
+  // rather than with `delete`/`purge`. Both endpoints still require
+  // `Idempotency-Key` and are audited by the directory functions regardless
+  // (`isHighRiskAction` is metadata, not a gate on either — `retry`'s documented
+  // precedent).
+  | "attach"
+  | "detach"
   // Issue #745 (data_lifecycle): `legal_hold.release` — ending an active
   // legal hold. Deliberately its OWN action (not reusing `cancel`/
   // `restore`/`configure`) so a role can be granted `legal_hold.create`

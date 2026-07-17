@@ -526,6 +526,26 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/media/objects/[id]/attach.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/media/objects/[id]/detach.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/media/objects/[id]/purge.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/media/objects/[id]/restore.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/media/objects/index.ts",
       "workClass": "interactive",
       "source": "default"
