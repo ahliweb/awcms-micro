@@ -1,4 +1,4 @@
-# CI AWCMS-Mini — kualitas dokumentasi, unit test, & hygiene (Bun-only).
+# CI AWCMS-Micro — kualitas dokumentasi, unit test, & hygiene (Bun-only).
 # Repo saat ini foundation skeleton + tooling; gate build aktif sejak Issue 0.1.
 #
 # Issue #685 (epic #679, platform-hardening): this file previously ran only
@@ -46,21 +46,21 @@ jobs:
     # this file — so secret scanners don't flag a throwaway CI credential as a
     # leaked connection string; DATABASE_URL is assembled at runtime below.
     env:
-      POSTGRES_USER: awcms-mini
-      POSTGRES_PASSWORD: awcms_mini_password
-      POSTGRES_DB: awcms-mini
+      POSTGRES_USER: awcms-micro
+      POSTGRES_PASSWORD: awcms_micro_password
+      POSTGRES_DB: awcms-micro
 
     services:
       postgres:
         image: postgres:18.4
         env:
-          POSTGRES_USER: awcms-mini
-          POSTGRES_PASSWORD: awcms_mini_password
-          POSTGRES_DB: awcms-mini
+          POSTGRES_USER: awcms-micro
+          POSTGRES_PASSWORD: awcms_micro_password
+          POSTGRES_DB: awcms-micro
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U awcms-mini -d awcms-mini"
+          --health-cmd "pg_isready -U awcms-micro -d awcms-micro"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -175,7 +175,7 @@ jobs:
       # no real network calls, no version-sensitive pg_dump/pg_restore
       # requirement) — the "full" tier (adds a real backup/restore/rollback
       # round trip via deploy/backup/restore-drill.sh) is intentionally NOT
-      # run here; see docs/awcms-mini/resilience-dr-verification.md §CI
+      # run here; see docs/awcms-micro/resilience-dr-verification.md §CI
       # safe subset vs. full drill cadence for the scheduled/on-demand full
       # run. APP_ENV=test (never production) + --confirm-non-production=test
       # satisfy the drill's own non-overridable safety interlock
@@ -190,7 +190,7 @@ jobs:
       # RLS-enforced queries through `withTenant` (never a privileged/
       # superuser bypass — see src/lib/performance/fixture-seeder.ts's own
       # header comment on why), so — like the e2e-smoke job further below —
-      # they must run as the least-privilege `awcms_mini_app` role, never
+      # they must run as the least-privilege `awcms_micro_app` role, never
       # the migration-owner/superuser role this job's `DATABASE_URL`
       # otherwise points at. Mirrors e2e-smoke's own "Activate the
       # least-privilege app role's login" step exactly, with its own
@@ -203,7 +203,7 @@ jobs:
           bun -e '
             const sql = new Bun.SQL(process.env.DATABASE_URL);
             await sql.unsafe(
-              `ALTER ROLE awcms_mini_app WITH LOGIN PASSWORD ${"\x27"}${process.env.APP_ROLE_PASSWORD}${"\x27"}`
+              `ALTER ROLE awcms_micro_app WITH LOGIN PASSWORD ${"\x27"}${process.env.APP_ROLE_PASSWORD}${"\x27"}`
             );
             await sql.end();
           '
@@ -216,7 +216,7 @@ jobs:
       # critical-transaction/reporting/background-sync/saturation-and-
       # recovery). The heavier `--full` lane (large fixture scale + the
       # soak-stability scenario) is intentionally NOT run here — see
-      # docs/awcms-mini/performance-suite.md §Safe subset vs. full lane for
+      # docs/awcms-micro/performance-suite.md §Safe subset vs. full lane for
       # the scheduled/on-demand full run. Reuses the SAME non-overridable
       # target guard as the DR drill above (src/lib/resilience/
       # target-guard.ts) — this step can never touch anything that looks
@@ -224,7 +224,7 @@ jobs:
       - name: Performance suite (safe tier)
         env:
           APP_ENV: test
-          DATABASE_URL: "postgres://awcms_mini_app:ci-performance-app-role-password@localhost:5432/awcms-mini"
+          DATABASE_URL: "postgres://awcms_micro_app:ci-performance-app-role-password@localhost:5432/awcms-micro"
         run: bun run performance:suite -- --confirm-non-production=test
 
       # Issue #744: query-plan regression budgets (RLS-scoped pagination,
@@ -238,7 +238,7 @@ jobs:
       - name: Performance query-plan budget check
         env:
           APP_ENV: test
-          DATABASE_URL: "postgres://awcms_mini_app:ci-performance-app-role-password@localhost:5432/awcms-mini"
+          DATABASE_URL: "postgres://awcms_micro_app:ci-performance-app-role-password@localhost:5432/awcms-micro"
         run: bun run performance:query-plan:check -- --confirm-non-production=test
 
       - name: Build Astro foundation
@@ -269,9 +269,9 @@ jobs:
     permissions:
       contents: read
     env:
-      POSTGRES_USER: awcms-mini
-      POSTGRES_PASSWORD: awcms_mini_password
-      POSTGRES_DB: awcms-mini
+      POSTGRES_USER: awcms-micro
+      POSTGRES_PASSWORD: awcms_micro_password
+      POSTGRES_DB: awcms-micro
 
     # Issue #685 acceptance criterion: "E2E provisions an isolated database
     # and cleans it safely." A fresh `services.postgres` container is
@@ -284,13 +284,13 @@ jobs:
       postgres:
         image: postgres:18.4
         env:
-          POSTGRES_USER: awcms-mini
-          POSTGRES_PASSWORD: awcms_mini_password
-          POSTGRES_DB: awcms-mini
+          POSTGRES_USER: awcms-micro
+          POSTGRES_PASSWORD: awcms_micro_password
+          POSTGRES_DB: awcms-micro
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U awcms-mini -d awcms-mini"
+          --health-cmd "pg_isready -U awcms-micro -d awcms-micro"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -322,7 +322,7 @@ jobs:
         env:
           DATABASE_URL: ${{ env.ADMIN_DATABASE_URL }}
 
-      # Migration 013 creates `awcms_mini_app` NOLOGIN — mirrors
+      # Migration 013 creates `awcms_micro_app` NOLOGIN — mirrors
       # tests/integration/harness.ts's own provisionAppRole() (same
       # activate-with-a-throwaway-password pattern) so the running app
       # connects as the least-privilege role, exactly like production,
@@ -332,7 +332,7 @@ jobs:
           bun -e '
             const sql = new Bun.SQL(process.env.ADMIN_DATABASE_URL);
             await sql.unsafe(
-              `ALTER ROLE awcms_mini_app WITH LOGIN PASSWORD ${"\x27"}${process.env.APP_ROLE_PASSWORD}${"\x27"}`
+              `ALTER ROLE awcms_micro_app WITH LOGIN PASSWORD ${"\x27"}${process.env.APP_ROLE_PASSWORD}${"\x27"}`
             );
             await sql.end();
           '
@@ -363,7 +363,7 @@ jobs:
           nohup bun run start > app-server-phase1.log 2>&1 &
           echo "APP_SERVER_PID=$!" >> "$GITHUB_ENV"
         env:
-          DATABASE_URL: "postgres://awcms_mini_app:ci-e2e-app-role-password@localhost:5432/awcms-mini"
+          DATABASE_URL: "postgres://awcms_micro_app:ci-e2e-app-role-password@localhost:5432/awcms-micro"
           HOST: "0.0.0.0"
           PORT: "4321"
           APP_ENV: production
@@ -407,7 +407,7 @@ jobs:
           nohup bun run start > app-server-phase2.log 2>&1 &
           echo "APP_SERVER_PID=$!" >> "$GITHUB_ENV"
         env:
-          DATABASE_URL: "postgres://awcms_mini_app:ci-e2e-app-role-password@localhost:5432/awcms-mini"
+          DATABASE_URL: "postgres://awcms_micro_app:ci-e2e-app-role-password@localhost:5432/awcms-micro"
           HOST: "0.0.0.0"
           PORT: "4321"
           APP_ENV: production

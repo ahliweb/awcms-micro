@@ -1,0 +1,1266 @@
+asyncapi: 3.0.0
+info:
+  title: AWCMS-Micro Domain Events
+  version: 1.0.0
+  description: >-
+    Stable AsyncAPI contract for AWCMS-Micro domain events and sync
+    envelopes (ADR-0008 — contract version is independent of the package
+    release version; bumped only when the contract shape itself changes).
+defaultContentType: application/json
+servers:
+  local:
+    host: localhost:4321
+    protocol: http
+    description: Local AWCMS-Micro runtime.
+channels:
+  awcms-micro.sync.push.requested:
+    address: awcms-micro.sync.push.requested
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: Baseline sync push event envelope for future sync-storage implementation.
+  awcms-micro.database.pool.saturated:
+    address: awcms-micro.database.pool.saturated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Emitted when a work-class concurrency gate times out a queued caller
+      (Issue 10.2, doc 16 §Connection pooling dan backpressure, doc 05 "DB
+      Connectivity" category). Documented contract only — this repo has no
+      live pub/sub dispatcher for any domain event yet; the concrete producer
+      is the structured JSON logger (`src/lib/logging/logger.ts`) invoked
+      from `withTenant` (`src/lib/database/tenant-context.ts`), consistent
+      with how AsyncAPI events have been documented since Issue 0.3 without
+      requiring a live producer.
+  awcms-micro.database.pool.rejected:
+    address: awcms-micro.database.pool.rejected
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Emitted when a work-class concurrency gate's bounded FIFO queue is
+      already full and a caller is rejected IMMEDIATELY, without ever
+      waiting (Issue #743, epic #738 platform-evolution — distinct from
+      `database.pool.saturated` above, which is a caller that waited and
+      THEN timed out; doc 16 §Connection pooling dan backpressure, doc 05
+      "DB Connectivity" category). Documented contract only, same
+      convention as `database.pool.saturated` — the concrete producer is
+      the structured JSON logger (`src/lib/logging/logger.ts`) invoked from
+      `withTenant` (`src/lib/database/tenant-context.ts`) on a
+      `WorkClassQueueFullError`.
+  awcms-micro.email.message.queued:
+    address: awcms-micro.email.message.queued
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An email message was enqueued into `awcms_micro_email_messages` (Issue
+      #494/#497). Documented contract only, same convention as
+      `database.pool.saturated` above — the concrete producer is the
+      structured JSON logger, invoked from
+      `email/application/announcement-directory.ts`'s `enqueueAnnouncement`
+      (`email.message.queued` log line).
+  awcms-micro.email.message.sent:
+    address: awcms-micro.email.message.sent
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      The email dispatcher (Issue #495, `bun run email:dispatch`)
+      successfully delivered a message through the configured provider.
+      Documented contract only; producer is the structured JSON logger
+      (`email/application/email-dispatch.ts`'s `email.dispatch.sent` log
+      line).
+  awcms-micro.email.message.failed:
+    address: awcms-micro.email.message.failed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      The email dispatcher exhausted retries (or hit a non-retryable
+      failure) for a queued message. Documented contract only; producer is
+      the structured JSON logger (`email/application/email-dispatch.ts`'s
+      `email.dispatch.failed` log line).
+  awcms-micro.email.message.suppressed:
+    address: awcms-micro.email.message.suppressed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      The email dispatcher (Issue #499) found a claimed message's recipient
+      newly present on `awcms_micro_email_suppression_list` (added after
+      enqueue, before dispatch) and skipped the provider call entirely.
+      Documented contract only; producer is the structured JSON logger
+      (`email/application/email-dispatch.ts`'s `email.dispatch.suppressed`
+      log line).
+  awcms-micro.email.message.cancelled:
+    address: awcms-micro.email.message.cancelled
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An operator cancelled a still-queued message (Issue #499,
+      `POST /api/v1/email/messages/{id}/cancel`) — the technical mitigation
+      for the "accidental bulk send" incident scenario. Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/email/messages/[id]/cancel.ts` (`email.message.cancelled`
+      log line).
+  awcms-micro.blog-content.post.created:
+    address: awcms-micro.blog-content.post.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post draft was created (Issue #538/#541). Documented contract
+      only, same convention as the email channels above — producer is the
+      structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/index.ts`'s `POST` handler
+      (`blog-content.post.created` log line).
+  awcms-micro.blog-content.post.updated:
+    address: awcms-micro.blog-content.post.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post was updated (Issue #538/#541). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/[id].ts`'s `PATCH` handler
+      (`blog-content.post.updated` log line).
+  awcms-micro.blog-content.post.submitted-for-review:
+    address: awcms-micro.blog-content.post.submitted-for-review
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post moved from `draft`/`review` into `review` (Issue
+      #538/#541). Documented contract only; producer is the structured JSON
+      logger, invoked from
+      `pages/api/v1/blog/posts/[id]/submit-review.ts`
+      (`blog-content.post.submitted-for-review` log line).
+  awcms-micro.blog-content.post.published:
+    address: awcms-micro.blog-content.post.published
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post transitioned to `published` (Issue #538/#541), either via
+      the admin `POST /api/v1/blog/posts/{id}/publish` action or the
+      `bun run blog:publish:scheduled` job publishing a due `scheduled`
+      post. Documented contract only; producer is the structured JSON
+      logger, invoked from `pages/api/v1/blog/posts/[id]/publish.ts` and
+      `blog-content/application/blog-scheduled-publish.ts`
+      (`blog-content.post.published` log line, `trigger` attribute
+      distinguishes the two callers).
+  awcms-micro.blog-content.post.scheduled:
+    address: awcms-micro.blog-content.post.scheduled
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post was scheduled for future publication (Issue #538/#541).
+      Documented contract only; producer is the structured JSON logger,
+      invoked from `pages/api/v1/blog/posts/[id]/schedule.ts`
+      (`blog-content.post.scheduled` log line).
+  awcms-micro.blog-content.post.archived:
+    address: awcms-micro.blog-content.post.archived
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post was archived (Issue #538/#541). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/[id]/archive.ts`
+      (`blog-content.post.archived` log line).
+  awcms-micro.blog-content.post.deleted:
+    address: awcms-micro.blog-content.post.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post was soft-deleted (Issue #538/#541). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/[id].ts`'s `DELETE` handler
+      (`blog-content.post.deleted` log line).
+  awcms-micro.blog-content.post.restored:
+    address: awcms-micro.blog-content.post.restored
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A soft-deleted blog post was restored (Issue #538/#541 — not to be
+      confused with `revision.created`, which fires when a *revision* is
+      restored onto the live post). Documented contract only; producer is
+      the structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/[id]/restore.ts`
+      (`blog-content.post.restored` log line).
+  awcms-micro.blog-content.post.purged:
+    address: awcms-micro.blog-content.post.purged
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A blog post was hard-deleted (Issue #538/#541). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/posts/[id]/purge.ts`
+      (`blog-content.post.purged` log line).
+  awcms-micro.blog-content.revision.created:
+    address: awcms-micro.blog-content.revision.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A new row was appended to `awcms_micro_blog_revisions` (Issue #541) —
+      either a significant title/contentJson/contentText change on
+      `PATCH /api/v1/blog/{posts,pages}/{id}`, or a revision restore
+      (`POST /api/v1/blog/posts/{id}/revisions/{revisionId}/restore`)
+      appending the restored snapshot. `awcms_micro_blog_revisions` is
+      append-only — this event never corresponds to an `UPDATE`/`DELETE` of
+      an existing revision row. Documented contract only; producer is the
+      structured JSON logger, invoked from
+      `blog-content/application/blog-revision-directory.ts`'s
+      `createBlogRevision` (`blog-content.revision.created` log line).
+  awcms-micro.blog-content.term.created:
+    address: awcms-micro.blog-content.term.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A taxonomy term (category/tag) was created (Issue #539/#541).
+      Documented contract only; producer is the structured JSON logger,
+      invoked from `pages/api/v1/blog/terms/index.ts`'s `POST` handler
+      (`blog-content.term.created` log line).
+  awcms-micro.blog-content.term.updated:
+    address: awcms-micro.blog-content.term.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A taxonomy term (category/tag) was updated (Issue #539/#541).
+      Documented contract only; producer is the structured JSON logger,
+      invoked from `pages/api/v1/blog/terms/[id].ts`'s `PATCH` handler
+      (`blog-content.term.updated` log line).
+  awcms-micro.blog-content.settings.updated:
+    address: awcms-micro.blog-content.settings.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Reserved for when `awcms_micro_blog_settings` (migration 026) gets a
+      write route — the `blog_content.settings.configure` permission was
+      seeded in Issue #537 but no endpoint consumes it yet. Documented
+      contract only, no current producer (unlike every other channel in
+      this module) — listed now per doc issue #541's required AsyncAPI
+      event set so the contract is complete ahead of the route landing in a
+      later issue.
+  awcms-micro.blog-content.template.created:
+    address: awcms-micro.blog-content.template.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A presentation template was created (Issue #542). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/templates/index.ts`'s `POST` handler
+      (`blog-content.template.created` log line).
+  awcms-micro.blog-content.template.updated:
+    address: awcms-micro.blog-content.template.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A presentation template was updated (Issue #542). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/templates/[id].ts`'s `PATCH` handler
+      (`blog-content.template.updated` log line).
+  awcms-micro.blog-content.template.deleted:
+    address: awcms-micro.blog-content.template.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A presentation template was soft-deleted (Issue #542). Documented
+      contract only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/templates/[id].ts`'s `DELETE` handler
+      (`blog-content.template.deleted` log line).
+  awcms-micro.blog-content.menu.created:
+    address: awcms-micro.blog-content.menu.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A navigation menu was created (Issue #542). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/menus/index.ts`'s `POST` handler
+      (`blog-content.menu.created` log line).
+  awcms-micro.blog-content.menu.updated:
+    address: awcms-micro.blog-content.menu.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A navigation menu (or its item tree, full-replace) was updated
+      (Issue #542). Documented contract only; producer is the structured
+      JSON logger, invoked from `pages/api/v1/blog/menus/[id].ts`'s
+      `PATCH` handler (`blog-content.menu.updated` log line).
+  awcms-micro.blog-content.menu.deleted:
+    address: awcms-micro.blog-content.menu.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A navigation menu was soft-deleted (Issue #542). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/menus/[id].ts`'s `DELETE` handler
+      (`blog-content.menu.deleted` log line).
+  awcms-micro.blog-content.widget.created:
+    address: awcms-micro.blog-content.widget.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A widget was created (Issue #542). Documented contract only; producer
+      is the structured JSON logger, invoked from
+      `pages/api/v1/blog/widgets/index.ts`'s `POST` handler
+      (`blog-content.widget.created` log line).
+  awcms-micro.blog-content.widget.updated:
+    address: awcms-micro.blog-content.widget.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A widget was updated (Issue #542). Documented contract only; producer
+      is the structured JSON logger, invoked from
+      `pages/api/v1/blog/widgets/[id].ts`'s `PATCH` handler
+      (`blog-content.widget.updated` log line).
+  awcms-micro.blog-content.widget.deleted:
+    address: awcms-micro.blog-content.widget.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A widget was soft-deleted (Issue #542). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/widgets/[id].ts`'s `DELETE` handler
+      (`blog-content.widget.deleted` log line).
+  awcms-micro.blog-content.ad.created:
+    address: awcms-micro.blog-content.ad.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An advertisement was created (Issue #542). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/ads/index.ts`'s `POST` handler
+      (`blog-content.ad.created` log line).
+  awcms-micro.blog-content.ad.updated:
+    address: awcms-micro.blog-content.ad.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An advertisement (or its placement targeting, full-replace) was
+      updated (Issue #542). Documented contract only; producer is the
+      structured JSON logger, invoked from
+      `pages/api/v1/blog/ads/[id].ts`'s `PATCH` handler
+      (`blog-content.ad.updated` log line).
+  awcms-micro.blog-content.ad.deleted:
+    address: awcms-micro.blog-content.ad.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An advertisement was soft-deleted (Issue #542). Documented contract
+      only; producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/ads/[id].ts`'s `DELETE` handler
+      (`blog-content.ad.deleted` log line).
+  awcms-micro.blog-content.theme.updated:
+    address: awcms-micro.blog-content.theme.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      The tenant's blog theme mode override was set (Issue #542) — a
+      blog-scoped override of the base tenant theme engine
+      (`awcms_micro_tenants.default_theme`, migration 002), not a
+      replacement for it. Documented contract only; producer is the
+      structured JSON logger, invoked from `pages/api/v1/blog/theme/
+      index.ts`'s `PATCH` handler (`blog-content.theme.updated` log line).
+  awcms-micro.blog-content.internal-tag-linking-policy.updated:
+    address: awcms-micro.blog-content.internal-tag-linking-policy.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      This tenant's automatic internal tag linking policy (enabled,
+      caseInsensitive, disabledTagIds — `awcms_micro_blog_internal_tag_link_
+      settings`) was updated (Issue #641). Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `pages/api/v1/blog/internal-tag-links/settings.ts`'s `PATCH` handler
+      (`blog-content.internal-tag-linking-policy.updated` log line).
+  awcms-micro.social-publishing.account.connected:
+    address: awcms-micro.social-publishing.account.connected
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A social account was connected or reconnected/reauthorized (Issue
+      #643). Documented contract only, same producer convention as every
+      other event in this file — the structured JSON logger, invoked from
+      `social-publishing/application/social-account-directory.ts`'s
+      `connectSocialAccount` (`social_publishing.account.connected` audit
+      event + log line).
+  awcms-micro.social-publishing.account.disconnected:
+    address: awcms-micro.social-publishing.account.disconnected
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A social account was disconnected (Issue #643) — a status
+      transition, not a delete. Producer:
+      `social-account-directory.ts`'s `disconnectSocialAccount`.
+  awcms-micro.social-publishing.account.needs-reauth:
+    address: awcms-micro.social-publishing.account.needs-reauth
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A connected social account's token expired/was rejected by its
+      provider and now requires reauthorization (Issue #643). Producer:
+      `social-account-directory.ts`'s `markSocialAccountNeedsReauth`,
+      called by the outbox dispatcher on a `needs_reauth` publish outcome.
+  awcms-micro.social-publishing.account.verified:
+    address: awcms-micro.social-publishing.account.verified
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A connected social account was verified — the provider adapter
+      confirmed the credential can post to the connected target (Issue
+      #646, the Telegram channel adapter's `verifyCredentials`; also
+      exercised by the Meta adapter's `verifyCredentials`, Issue #644).
+      Producer: `social-account-directory.ts`'s
+      `recordSocialAccountVerification`, called from
+      `POST /api/v1/social-publishing/accounts/{id}/verify`.
+  awcms-micro.social-publishing.account.verification-failed:
+    address: awcms-micro.social-publishing.account.verification-failed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A connected social account's verification check failed (e.g. the bot
+      lacks channel-administrator permission, or a Meta token has expired/
+      lost a required scope) (Issue #646). Informational — does NOT itself
+      change `connection_status`/`auto_publish_enabled`. Producer:
+      `social-account-directory.ts`'s `recordSocialAccountVerification`.
+  awcms-micro.social-publishing.rule.created:
+    address: awcms-micro.social-publishing.rule.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A social publish rule was created (Issue #643). Producer:
+      `social-publish-rule-directory.ts`'s `createSocialPublishRule`.
+  awcms-micro.social-publishing.rule.updated:
+    address: awcms-micro.social-publishing.rule.updated
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A social publish rule was updated (Issue #643). Producer:
+      `social-publish-rule-directory.ts`'s `updateSocialPublishRule`.
+  awcms-micro.social-publishing.rule.deleted:
+    address: awcms-micro.social-publishing.rule.deleted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A social publish rule was soft-deleted (Issue #643). Producer:
+      `social-publish-rule-directory.ts`'s `softDeleteSocialPublishRule`.
+  awcms-micro.social-publishing.job.created:
+    address: awcms-micro.social-publishing.job.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      An outbox job was created after an eligible article publish event
+      (Issue #643 acceptance criterion: "Publishing jobs are created after
+      eligible article publish event"). Idempotent per
+      article/account/action (deterministic idempotency key). Producer:
+      `social-publishing/application/create-social-publish-jobs.ts`'s
+      `createSocialPublishJobsForArticle`, invoked by `blog_content`'s
+      publish route/scheduled-publish worker via `SocialPublishingPort`.
+  awcms-micro.social-publishing.job.approved:
+    address: awcms-micro.social-publishing.job.approved
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A job pending approval was approved and may now be dispatched to its
+      provider (Issue #643). Producer:
+      `social-publish-job-directory.ts`'s `approveSocialPublishJob`.
+  awcms-micro.social-publishing.job.cancelled:
+    address: awcms-micro.social-publishing.job.cancelled
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A job was cancelled (Issue #643), from any non-terminal-success
+      status. Producer: `social-publish-job-directory.ts`'s
+      `cancelSocialPublishJob`.
+  awcms-micro.social-publishing.job.retry-requested:
+    address: awcms-micro.social-publishing.job.retry-requested
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A manual retry was requested for a failed/rate-limited/needs-reauth
+      job (Issue #643) — `attemptCount` is not reset. Producer:
+      `social-publish-job-directory.ts`'s `retrySocialPublishJob`.
+  awcms-micro.social-publishing.job.published:
+    address: awcms-micro.social-publishing.job.published
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A job was successfully published to its provider (Issue #643) —
+      `externalPostId`/`externalPostUrl` now set. This foundation issue
+      ships zero real provider adapters, so this event is only ever
+      producible once an adapter (#644/#645/#646) is registered. Producer:
+      `social-publishing/application/social-publish-dispatch.ts`'s
+      `dispatchSocialPublishQueue`.
+  awcms-micro.social-publishing.job.publish-failed:
+    address: awcms-micro.social-publishing.job.publish-failed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A publish attempt failed but is still eligible for exponential
+      backoff retry (Issue #643). Producer: `social-publish-dispatch.ts`.
+  awcms-micro.social-publishing.job.publish-failed-terminal:
+    address: awcms-micro.social-publishing.job.publish-failed-terminal
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A job permanently failed after exhausting its retry budget (Issue
+      #643 acceptance criterion: "terminal failed state"). Producer:
+      `social-publish-dispatch.ts`.
+  awcms-micro.social-publishing.job.rate-limited:
+    address: awcms-micro.social-publishing.job.rate-limited
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A provider reported a rate limit for a publish attempt (Issue #643)
+      — backoff seeded from the provider's own `retryAfterSeconds` hint
+      when present. Producer: `social-publish-dispatch.ts`.
+  awcms-micro.social-publishing.job.needs-reauth:
+    address: awcms-micro.social-publishing.job.needs-reauth
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A provider reported an expired/invalid token for a publish attempt
+      (Issue #643 acceptance criterion: "Support reauthorization flow when
+      token expires") — the linked account is also flipped to
+      `needs_reauth`. Producer: `social-publish-dispatch.ts`.
+  awcms-micro.domain-event-runtime.sample.recorded:
+    address: awcms-micro.domain-event-runtime.sample.recorded
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Reference/example event (Issue #742, epic `platform-evolution` #738)
+      used to exercise the domain-event-runtime outbox, dispatcher,
+      ordering, retry/backoff, dead-letter, and replay mechanism end-to-end.
+      Real producer modules publish their OWN event types the same way, via
+      `appendDomainEvent` — this one is intentionally self-contained rather
+      than tied to another module's business logic in this foundation
+      issue (see `src/modules/domain-event-runtime/domain/event-type-
+      registry.ts`'s own doc comment). Producer: any caller of
+      `application/append-domain-event.ts`'s `appendDomainEvent` for this
+      event type (test fixtures in this issue); consumers:
+      `infrastructure/consumer-registry.ts`'s reference consumers, including
+      `reporting`'s `eventActivityProjectorConsumer` (Issue #753) —
+      demonstrating a real module-contributed incremental projection
+      updater consuming this event type end-to-end, not just the
+      foundation-issue test fixtures.
+  awcms-micro.profile-identity.profile.merged:
+    address: awcms-micro.profile-identity.profile.merged
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a profile merge request is executed (Issue #748,
+      epic `platform-evolution` #738 Wave 2): the loser profile is
+      soft-deleted (`merged_into_profile_id` set) and its
+      `awcms_micro_profile_entity_links` rows are repointed to the
+      survivor. Payload: `mergeRequestId`, `survivorProfileId`,
+      `loserProfileId`, `entityLinksRepointedCount`. Lets domain modules
+      react to the merge mapping through the outbox instead of importing
+      `profile_identity` tables directly (see
+      `src/modules/_shared/ports/party-directory-port.ts` for the
+      pull-based equivalent). Producer:
+      `profile-identity/application/merge-workflow.ts`'s
+      `executeMergeRequest`.
+operations:
+  publishSyncPushRequested:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.sync.push.requested"
+    messages:
+      - $ref: "#/channels/awcms-micro.sync.push.requested/messages/DomainEvent"
+  publishDatabasePoolSaturated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.database.pool.saturated"
+    messages:
+      - $ref: "#/channels/awcms-micro.database.pool.saturated/messages/DomainEvent"
+  publishDatabasePoolRejected:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.database.pool.rejected"
+    messages:
+      - $ref: "#/channels/awcms-micro.database.pool.rejected/messages/DomainEvent"
+  publishEmailMessageQueued:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.email.message.queued"
+    messages:
+      - $ref: "#/channels/awcms-micro.email.message.queued/messages/DomainEvent"
+  publishEmailMessageSent:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.email.message.sent"
+    messages:
+      - $ref: "#/channels/awcms-micro.email.message.sent/messages/DomainEvent"
+  publishEmailMessageFailed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.email.message.failed"
+    messages:
+      - $ref: "#/channels/awcms-micro.email.message.failed/messages/DomainEvent"
+  publishEmailMessageSuppressed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.email.message.suppressed"
+    messages:
+      - $ref: "#/channels/awcms-micro.email.message.suppressed/messages/DomainEvent"
+  publishEmailMessageCancelled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.email.message.cancelled"
+    messages:
+      - $ref: "#/channels/awcms-micro.email.message.cancelled/messages/DomainEvent"
+  publishBlogContentPostCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.created/messages/DomainEvent"
+  publishBlogContentPostUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.updated/messages/DomainEvent"
+  publishBlogContentPostSubmittedForReview:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.submitted-for-review"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.submitted-for-review/messages/DomainEvent"
+  publishBlogContentPostPublished:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.published"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.published/messages/DomainEvent"
+  publishBlogContentPostScheduled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.scheduled"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.scheduled/messages/DomainEvent"
+  publishBlogContentPostArchived:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.archived"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.archived/messages/DomainEvent"
+  publishBlogContentPostDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.deleted/messages/DomainEvent"
+  publishBlogContentPostRestored:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.restored"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.restored/messages/DomainEvent"
+  publishBlogContentPostPurged:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.post.purged"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.post.purged/messages/DomainEvent"
+  publishBlogContentRevisionCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.revision.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.revision.created/messages/DomainEvent"
+  publishBlogContentTermCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.term.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.term.created/messages/DomainEvent"
+  publishBlogContentTermUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.term.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.term.updated/messages/DomainEvent"
+  publishBlogContentSettingsUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.settings.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.settings.updated/messages/DomainEvent"
+  publishBlogContentTemplateCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.template.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.template.created/messages/DomainEvent"
+  publishBlogContentTemplateUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.template.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.template.updated/messages/DomainEvent"
+  publishBlogContentTemplateDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.template.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.template.deleted/messages/DomainEvent"
+  publishBlogContentMenuCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.menu.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.menu.created/messages/DomainEvent"
+  publishBlogContentMenuUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.menu.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.menu.updated/messages/DomainEvent"
+  publishBlogContentMenuDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.menu.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.menu.deleted/messages/DomainEvent"
+  publishBlogContentWidgetCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.widget.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.widget.created/messages/DomainEvent"
+  publishBlogContentWidgetUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.widget.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.widget.updated/messages/DomainEvent"
+  publishBlogContentWidgetDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.widget.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.widget.deleted/messages/DomainEvent"
+  publishBlogContentAdCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.ad.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.ad.created/messages/DomainEvent"
+  publishBlogContentAdUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.ad.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.ad.updated/messages/DomainEvent"
+  publishBlogContentAdDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.ad.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.ad.deleted/messages/DomainEvent"
+  publishBlogContentThemeUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.theme.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.theme.updated/messages/DomainEvent"
+  publishBlogContentInternalTagLinkingPolicyUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.blog-content.internal-tag-linking-policy.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.blog-content.internal-tag-linking-policy.updated/messages/DomainEvent"
+  publishSocialPublishingAccountConnected:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.account.connected"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.account.connected/messages/DomainEvent"
+  publishSocialPublishingAccountDisconnected:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.account.disconnected"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.account.disconnected/messages/DomainEvent"
+  publishSocialPublishingAccountNeedsReauth:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.account.needs-reauth"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.account.needs-reauth/messages/DomainEvent"
+  publishSocialPublishingAccountVerified:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.account.verified"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.account.verified/messages/DomainEvent"
+  publishSocialPublishingAccountVerificationFailed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.account.verification-failed"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.account.verification-failed/messages/DomainEvent"
+  publishSocialPublishingRuleCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.rule.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.rule.created/messages/DomainEvent"
+  publishSocialPublishingRuleUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.rule.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.rule.updated/messages/DomainEvent"
+  publishSocialPublishingRuleDeleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.rule.deleted"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.rule.deleted/messages/DomainEvent"
+  publishSocialPublishingJobCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.created/messages/DomainEvent"
+  publishSocialPublishingJobApproved:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.approved"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.approved/messages/DomainEvent"
+  publishSocialPublishingJobCancelled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.cancelled"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.cancelled/messages/DomainEvent"
+  publishSocialPublishingJobRetryRequested:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.retry-requested"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.retry-requested/messages/DomainEvent"
+  publishSocialPublishingJobPublished:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.published"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.published/messages/DomainEvent"
+  publishSocialPublishingJobPublishFailed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.publish-failed"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.publish-failed/messages/DomainEvent"
+  publishSocialPublishingJobPublishFailedTerminal:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.publish-failed-terminal"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.publish-failed-terminal/messages/DomainEvent"
+  publishSocialPublishingJobRateLimited:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.rate-limited"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.rate-limited/messages/DomainEvent"
+  publishSocialPublishingJobNeedsReauth:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.social-publishing.job.needs-reauth"
+    messages:
+      - $ref: "#/channels/awcms-micro.social-publishing.job.needs-reauth/messages/DomainEvent"
+  publishDomainEventRuntimeSampleRecorded:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.domain-event-runtime.sample.recorded"
+    messages:
+      - $ref: "#/channels/awcms-micro.domain-event-runtime.sample.recorded/messages/DomainEvent"
+  subscribeDomainEventRuntimeSampleRecorded:
+    action: receive
+    channel:
+      $ref: "#/channels/awcms-micro.domain-event-runtime.sample.recorded"
+    messages:
+      - $ref: "#/channels/awcms-micro.domain-event-runtime.sample.recorded/messages/DomainEvent"
+  publishWorkflowInstanceStarted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.instance.started"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.instance.started/messages/DomainEvent"
+  publishWorkflowInstanceAdvanced:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.instance.advanced"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.instance.advanced/messages/DomainEvent"
+  publishWorkflowInstanceApproved:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.instance.approved"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.instance.approved/messages/DomainEvent"
+  publishWorkflowInstanceRejected:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.instance.rejected"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.instance.rejected/messages/DomainEvent"
+  publishWorkflowInstanceCancelled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.instance.cancelled"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.instance.cancelled/messages/DomainEvent"
+  publishWorkflowTaskEscalated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.task.escalated"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.task.escalated/messages/DomainEvent"
+  publishWorkflowDelegationCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.delegation.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.delegation.created/messages/DomainEvent"
+  publishWorkflowDelegationRevoked:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.workflow.delegation.revoked"
+    messages:
+      - $ref: "#/channels/awcms-micro.workflow.delegation.revoked/messages/DomainEvent"
+  publishProfileIdentityProfileMerged:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.profile-identity.profile.merged"
+    messages:
+      - $ref: "#/channels/awcms-micro.profile-identity.profile.merged/messages/DomainEvent"
+  publishOrganizationStructureLegalEntityCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.legal-entity.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.legal-entity.created/messages/DomainEvent"
+  publishOrganizationStructureLegalEntityUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.legal-entity.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.legal-entity.updated/messages/DomainEvent"
+  publishOrganizationStructureLegalEntityDeactivated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.legal-entity.deactivated"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.legal-entity.deactivated/messages/DomainEvent"
+  publishOrganizationStructureUnitCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.unit.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.unit.created/messages/DomainEvent"
+  publishOrganizationStructureUnitUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.unit.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.unit.updated/messages/DomainEvent"
+  publishOrganizationStructureUnitDeactivated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.unit.deactivated"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.unit.deactivated/messages/DomainEvent"
+  publishOrganizationStructureHierarchyChanged:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.hierarchy.changed"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.hierarchy.changed/messages/DomainEvent"
+  publishOrganizationStructureAssignmentCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.assignment.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.assignment.created/messages/DomainEvent"
+  publishOrganizationStructureAssignmentEnded:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.organization-structure.assignment.ended"
+    messages:
+      - $ref: "#/channels/awcms-micro.organization-structure.assignment.ended/messages/DomainEvent"
+  publishReferenceDataValueSetCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.value-set.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.value-set.created/messages/DomainEvent"
+  publishReferenceDataValueSetUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.value-set.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.value-set.updated/messages/DomainEvent"
+  publishReferenceDataValueSetDeprecated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.value-set.deprecated"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.value-set.deprecated/messages/DomainEvent"
+  publishReferenceDataCodeCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.code.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.code.created/messages/DomainEvent"
+  publishReferenceDataCodeUpdated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.code.updated"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.code.updated/messages/DomainEvent"
+  publishReferenceDataCodeDeprecated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.code.deprecated"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.code.deprecated/messages/DomainEvent"
+  publishReferenceDataImportCommitted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.import.committed"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.import.committed/messages/DomainEvent"
+  publishReferenceDataImportRolledBack:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.import.rolled-back"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.import.rolled-back/messages/DomainEvent"
+  publishReferenceDataTenantCodeCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.tenant-code.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.tenant-code.created/messages/DomainEvent"
+  publishReferenceDataTenantCodeDeprecated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.reference-data.tenant-code.deprecated"
+    messages:
+      - $ref: "#/channels/awcms-micro.reference-data.tenant-code.deprecated/messages/DomainEvent"
+  publishDocumentInfrastructureDocumentCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.document.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.document.created/messages/DomainEvent"
+  publishDocumentInfrastructureDocumentVoided:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.document.voided"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.document.voided/messages/DomainEvent"
+  publishDocumentInfrastructureDocumentRestored:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.document.restored"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.document.restored/messages/DomainEvent"
+  publishDocumentInfrastructureDocumentReclassified:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.document.reclassified"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.document.reclassified/messages/DomainEvent"
+  publishDocumentInfrastructureVersionCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.version.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.version.created/messages/DomainEvent"
+  publishDocumentInfrastructureNumberReserved:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.number.reserved"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.number.reserved/messages/DomainEvent"
+  publishDocumentInfrastructureNumberCommitted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.number.committed"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.number.committed/messages/DomainEvent"
+  publishDocumentInfrastructureNumberCanceled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.document-infrastructure.number.canceled"
+    messages:
+      - $ref: "#/channels/awcms-micro.document-infrastructure.number.canceled/messages/DomainEvent"
+  publishDataExchangeImportStaged:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.import.staged"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.import.staged/messages/DomainEvent"
+  publishDataExchangeImportPreviewed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.import.previewed"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.import.previewed/messages/DomainEvent"
+  publishDataExchangeImportCommitted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.import.committed"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.import.committed/messages/DomainEvent"
+  publishDataExchangeImportFailed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.import.failed"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.import.failed/messages/DomainEvent"
+  publishDataExchangeExportCompleted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.export.completed"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.export.completed/messages/DomainEvent"
+  publishDataExchangeReconciliationMismatch:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.data-exchange.reconciliation.mismatch"
+    messages:
+      - $ref: "#/channels/awcms-micro.data-exchange.reconciliation.mismatch/messages/DomainEvent"
+  publishIntegrationHubInboundMessageNormalized:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.integration-hub.inbound-message.normalized"
+    messages:
+      - $ref: "#/channels/awcms-micro.integration-hub.inbound-message.normalized/messages/DomainEvent"
+  subscribeIntegrationHubInboundMessageNormalized:
+    action: receive
+    channel:
+      $ref: "#/channels/awcms-micro.integration-hub.inbound-message.normalized"
+    messages:
+      - $ref: "#/channels/awcms-micro.integration-hub.inbound-message.normalized/messages/DomainEvent"
+components:
+  securitySchemes:
+    syncHmac:
+      type: httpApiKey
+      in: header
+      name: X-AWCMS-Micro-Signature
+      description: HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.
+  messages:
+    DomainEvent:
+      name: DomainEvent
+      title: AWCMS-Micro domain event envelope
+      payload:
+        $ref: "#/components/schemas/DomainEventEnvelope"
+      headers:
+        type: object
+        required:
+          - X-AWCMS-Micro-Node-ID
+          - X-AWCMS-Micro-Timestamp
+          - X-AWCMS-Micro-Signature
+        properties:
+          X-AWCMS-Micro-Node-ID:
+            type: string
+          X-AWCMS-Micro-Timestamp:
+            type: string
+            format: date-time
+          X-AWCMS-Micro-Signature:
+            type: string
+  schemas:
+    DomainEventEnvelope:
+      type: object
+      required:
+        - event_id
+        - event_type
+        - occurred_at
+        - producer
+        - payload
+      additionalProperties: false
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          pattern: "^[a-z0-9]+(\\.[a-z0-9_]+)+$"
+        occurred_at:
+          type: string
+          format: date-time
+        producer:
+          type: object
+          required:
+            - service
+            - module
+          additionalProperties: false
+          properties:
+            service:
+              type: string
+              const: awcms-micro
+            module:
+              type: string
+        tenant_id:
+          type:
+            - string
+            - "null"
+          format: uuid
+        correlation_id:
+          type:
+            - string
+            - "null"
+        payload:
+          type: object
+          additionalProperties: true

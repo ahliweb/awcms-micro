@@ -18,7 +18,7 @@ Closes #
 ## Checklist (Definition of Done)
 
 - [ ] Scope sesuai issue, tidak ada perubahan unrelated (atomic).
-- [ ] Migration ditambahkan bila schema berubah (`NNN_awcms_mini_*.sql`, tanpa `BEGIN/COMMIT`).
+- [ ] Migration ditambahkan bila schema berubah (`NNN_awcms_micro_*.sql`, tanpa `BEGIN/COMMIT`).
 - [ ] OpenAPI diperbarui bila API berubah; AsyncAPI diperbarui bila event berubah (`api:spec:check` lolos).
 - [ ] Mutation high-risk memakai `Idempotency-Key`.
 - [ ] Data tenant-scoped memakai tenant context + ABAC (default deny) + RLS.
@@ -26,7 +26,7 @@ Closes #
 - [ ] Soft delete diterapkan untuk resource deletable; data posted tetap immutable.
 - [ ] Test relevan lulus; `bun run build` lulus (bila menyentuh kode).
 - [ ] Dokumentasi diperbarui.
-- [ ] Bila PR ini menambah/mengubah kategori modul (Core/System/Official Optional Module) atau provider eksternal baru: sudah mengikuti `docs/awcms-mini/21_module_admission_governance.md` + `docs/awcms-mini/templates/module-admission-decision-checklist.md`.
+- [ ] Bila PR ini menambah/mengubah kategori modul (Core/System/Official Optional Module) atau provider eksternal baru: sudah mengikuti `docs/awcms-micro/21_module_admission_governance.md` + `docs/awcms-micro/templates/module-admission-decision-checklist.md`.
 - [ ] Changeset ditambahkan bila perubahan mempengaruhi perilaku (`bun run changeset`).
 - [ ] **Tidak ada** secret, kredensial, dump DB, atau data pengguna asli dalam diff.
 

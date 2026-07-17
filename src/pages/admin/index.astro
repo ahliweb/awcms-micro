@@ -1,0 +1,251 @@
+---
+/**
+ * Admin dashboard (Issue 9.1 — Add Management Reporting Views).
+ *
+ * Issue 8.1 deliberately left this page as a placeholder ("Dashboard belum
+ * tersedia — lihat Issue 9.1") and deferred wiring it to this issue. SSR
+ * fetches the four generic reporting views directly via `withTenant`/raw
+ * query (same pattern `AdminLayout.astro` already uses for the tenant name
+ * lookup) — not an HTTP round-trip to this app's own `GET /reports/*`
+ * endpoints, which would be redundant. Those endpoints still exist and are
+ * documented in the OpenAPI contract for external/API callers.
+ */
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import StateNotice from "../../components/ui/StateNotice.astro";
+import { getDatabaseClient } from "../../lib/database/client";
+import { withTenant } from "../../lib/database/tenant-context";
+import { permissionKey } from "../../modules/identity-access/domain/access-control";
+import { fetchTenantActivityReport } from "../../modules/reporting/application/tenant-activity-report";
+import { fetchAccessAuditReport } from "../../modules/reporting/application/access-audit-report";
+import { fetchSyncHealthReport } from "../../modules/reporting/application/sync-health-report";
+import { fetchModuleUsageReport } from "../../modules/reporting/application/module-usage-report";
+import { createTranslator } from "../../lib/i18n/translate";
+import { logAdminPageError } from "../../lib/logging/error-log";
+
+const context = Astro.locals.ssrContext;
+
+if (!context) {
+  throw new Error(
+    "admin/index.astro rendered without Astro.locals.ssrContext — src/middleware.ts should have redirected to /login before this page ever runs."
+  );
+}
+
+const t = await createTranslator(Astro.locals.locale);
+
+const REPORTING_DASHBOARD_PERMISSION = permissionKey(
+  "reporting",
+  "dashboard",
+  "read"
+);
+const hasDashboardAccess = context.permissions.has(
+  REPORTING_DASHBOARD_PERMISSION
+);
+
+// Issue #434 (UX/UI audit) — see `admin/access-users.astro` for the same
+// denied-vs-error split (doc 14 §State pattern wajib Error branch): a
+// failure in any of these four report queries previously had no graceful
+// rendering path (unhandled 500) on the one page every admin lands on
+// first.
+let dashboard: {
+  tenantActivity: Awaited<ReturnType<typeof fetchTenantActivityReport>>;
+  accessAudit: Awaited<ReturnType<typeof fetchAccessAuditReport>>;
+  syncHealth: Awaited<ReturnType<typeof fetchSyncHealthReport>>;
+  moduleUsage: Awaited<ReturnType<typeof fetchModuleUsageReport>>;
+} | null = null;
+let loadError = false;
+
+if (hasDashboardAccess) {
+  try {
+    dashboard = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => ({
+        tenantActivity: await fetchTenantActivityReport(tx, context.tenantId),
+        accessAudit: await fetchAccessAuditReport(tx, context.tenantId),
+        syncHealth: await fetchSyncHealthReport(tx, context.tenantId),
+        moduleUsage: await fetchModuleUsageReport(tx, context.tenantId)
+      })
+    );
+  } catch (error) {
+    logAdminPageError("admin/index.astro: failed to load dashboard", error, {
+      correlationId: Astro.locals.correlationId
+    });
+    loadError = true;
+  }
+}
+---
+
+<AdminLayout title={t("admin.layout.nav_dashboard")}>
+  {
+    !hasDashboardAccess && (
+      <StateNotice
+        kind="denied"
+        title={t("admin.dashboard.access_denied_title")}
+        body={t("admin.dashboard.access_denied_body", {
+          permission: REPORTING_DASHBOARD_PERMISSION
+        })}
+      />
+    )
+  }
+  {
+    hasDashboardAccess && loadError && (
+      <StateNotice
+        kind="error"
+        title={t("common.error_title")}
+        body={t("common.error_body")}
+        retryLabel={t("common.retry")}
+        retryHref={Astro.url.pathname}
+      />
+    )
+  }
+  {
+    dashboard && (
+      <div class="dashboard-grid">
+        <section class="dashboard-card">
+          <h2>{t("admin.dashboard.tenant_activity_title")}</h2>
+          <dl>
+            <dt>{t("admin.dashboard.tenant_label")}</dt>
+            <dd>
+              {dashboard.tenantActivity.tenantName} (
+              {dashboard.tenantActivity.tenantStatus})
+            </dd>
+            <dt>{t("admin.dashboard.active_users_label")}</dt>
+            <dd>{dashboard.tenantActivity.activeUserCount}</dd>
+            <dt>{t("admin.dashboard.active_offices_label")}</dt>
+            <dd>{dashboard.tenantActivity.activeOfficeCount}</dd>
+            <dt>{t("admin.dashboard.last_login_label")}</dt>
+            <dd>{dashboard.tenantActivity.mostRecentLoginAt ?? "-"}</dd>
+          </dl>
+        </section>
+        <section class="dashboard-card">
+          <h2>{t("admin.dashboard.access_audit_title")}</h2>
+          <dl>
+            <dt>
+              {t("admin.dashboard.allow_count_label", {
+                days: dashboard.accessAudit.decisionWindowDays
+              })}
+            </dt>
+            <dd>{dashboard.accessAudit.allowCount}</dd>
+            <dt>
+              {t("admin.dashboard.deny_count_label", {
+                days: dashboard.accessAudit.decisionWindowDays
+              })}
+            </dt>
+            <dd>{dashboard.accessAudit.denyCount}</dd>
+            <dt>{t("admin.dashboard.total_decision_log_label")}</dt>
+            <dd>{dashboard.accessAudit.totalDecisionCount}</dd>
+            <dt>{t("admin.dashboard.profile_audit_log_label")}</dt>
+            <dd>{dashboard.accessAudit.profileAuditLogCount}</dd>
+          </dl>
+        </section>
+        <section class="dashboard-card">
+          <h2>{t("admin.dashboard.sync_health_title")}</h2>
+          <dl>
+            <dt>{t("admin.dashboard.active_nodes_label")}</dt>
+            <dd>
+              {dashboard.syncHealth.activeNodeCount} /{" "}
+              {dashboard.syncHealth.totalNodeCount}
+            </dd>
+            <dt>{t("admin.dashboard.open_conflicts_label")}</dt>
+            <dd>{dashboard.syncHealth.openConflictCount}</dd>
+            <dt>{t("admin.dashboard.pending_objects_label")}</dt>
+            <dd>{dashboard.syncHealth.pendingObjectCount}</dd>
+            <dt>{t("admin.dashboard.failed_objects_label")}</dt>
+            <dd>{dashboard.syncHealth.failedObjectCount}</dd>
+            <dt>{t("admin.dashboard.status_label")}</dt>
+            <dd>
+              {dashboard.syncHealth.isHealthy
+                ? t("admin.dashboard.status_healthy")
+                : t("admin.dashboard.status_needs_attention")}
+            </dd>
+          </dl>
+        </section>
+        <section class="dashboard-card">
+          <h2>{t("admin.dashboard.module_usage_title")}</h2>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>{t("admin.dashboard.module_column")}</th>
+                  <th>{t("admin.dashboard.metric_column")}</th>
+                  <th>{t("admin.dashboard.count_column")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dashboard.moduleUsage.length === 0 && (
+                  <tr>
+                    <td colspan={3}>{t("admin.dashboard.no_module_usage")}</td>
+                  </tr>
+                )}
+                {dashboard.moduleUsage.map((entry) => (
+                  <tr>
+                    <td>{entry.moduleName}</td>
+                    <td>{entry.metricLabel}</td>
+                    <td>{entry.recordCount}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--sp-4);
+  }
+
+  .dashboard-card {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--sp-4);
+  }
+
+  .dashboard-card h2 {
+    margin-top: 0;
+    font-size: var(--fs-md);
+  }
+
+  .dashboard-card dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--sp-1) var(--sp-3);
+    margin: 0;
+  }
+
+  .dashboard-card dt {
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .dashboard-card dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* Responsive (doc 14 §Responsif) — wide tables scroll in their own
+     container instead of forcing the whole page to scroll horizontally. */
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .dashboard-card table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .dashboard-card th,
+  .dashboard-card td {
+    text-align: left;
+    padding: var(--sp-1) var(--sp-2);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--fs-sm);
+  }
+</style>

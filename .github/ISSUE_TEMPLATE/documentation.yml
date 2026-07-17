@@ -8,7 +8,7 @@ body:
     id: location
     attributes:
       label: Lokasi dokumen
-      description: Path file + bagian/heading (mis. `docs/awcms-mini/16_...md` §RLS context).
+      description: Path file + bagian/heading (mis. `docs/awcms-micro/16_...md` §RLS context).
     validations:
       required: true
   - type: textarea

@@ -1,0 +1,3501 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: awcms-micro\n"
+"Language: en\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. auth.login
+msgid "auth.login.page_title"
+msgstr "Sign in · AWCMS-Micro"
+
+msgid "auth.login.tenant_id_label"
+msgstr "Tenant ID"
+
+msgid "auth.login.identifier_label"
+msgstr "Login identifier"
+
+msgid "auth.login.password_label"
+msgstr "Password"
+
+msgid "auth.login.submit"
+msgstr "Sign in"
+
+msgid "auth.login.google_button"
+msgstr "Continue with Google"
+
+msgid "auth.login.generic_error"
+msgstr "Login failed. Try again."
+
+#. common
+msgid "common.network_error"
+msgstr "Could not reach the server. Try again."
+
+msgid "common.error_title"
+msgstr "Something went wrong."
+
+msgid "common.error_body"
+msgstr "We could not load this page's data. Please try again."
+
+msgid "common.retry"
+msgstr "Try again"
+
+msgid "common.please_wait"
+msgstr "Please wait…"
+
+msgid "common.back"
+msgstr "Back"
+
+msgid "common.next"
+msgstr "Next"
+
+msgid "common.submit"
+msgstr "Submit"
+
+msgid "common.yes"
+msgstr "Yes"
+
+msgid "common.no"
+msgstr "No"
+
+#. ConfirmDialog.astro (Issue #693, epic #679 platform-hardening)
+msgid "common.confirm_button"
+msgstr "Confirm"
+
+msgid "common.cancel_button"
+msgstr "Cancel"
+
+msgid "common.reason_required_error"
+msgstr "A reason is required."
+
+#. error codes (doc 05 §Error code standard)
+msgid "error.validation_error"
+msgstr "The submitted data is invalid."
+
+msgid "error.auth_required"
+msgstr "Please sign in to continue."
+
+msgid "error.auth_invalid_credentials"
+msgstr "Invalid login identifier or password."
+
+msgid "error.token_expired"
+msgstr "Your session has expired. Please sign in again."
+
+msgid "error.access_denied"
+msgstr "You do not have permission to do that."
+
+msgid "error.tenant_required"
+msgstr "A tenant is required for this request."
+
+msgid "error.resource_not_found"
+msgstr "The requested item could not be found."
+
+msgid "error.resource_deleted"
+msgstr "This item has been archived."
+
+msgid "error.resource_conflict"
+msgstr "This action conflicts with the current state."
+
+msgid "error.idempotency_required"
+msgstr "This action requires an idempotency key."
+
+msgid "error.idempotency_conflict"
+msgstr "This action was already submitted with different data."
+
+msgid "error.workflow_approval_required"
+msgstr "This action requires approval first."
+
+msgid "error.stock_not_available"
+msgstr "Not enough stock is available."
+
+msgid "error.sync_conflict"
+msgstr "A sync conflict was detected."
+
+msgid "error.database_busy"
+msgstr "The system is busy. Please try again shortly."
+
+msgid "error.provider_error"
+msgstr "An external service failed. Please try again."
+
+msgid "error.social_account_unsupported_type"
+msgstr "This provider does not support this account type."
+
+msgid "error.internal_error"
+msgstr "Something went wrong. Please try again."
+
+msgid "error.purge_blocked_by_dependents"
+msgstr "This cannot be permanently deleted while other records depend on it."
+
+msgid "error.purge_requires_soft_delete"
+msgstr "This must be archived before it can be permanently deleted."
+
+msgid "error.hostname_conflict"
+msgstr "This hostname is already mapped to a tenant."
+
+msgid "error.invalid_status_transition"
+msgstr "This action is not allowed for the current status."
+
+msgid "error.concurrent_update"
+msgstr "Another request already changed this. Please try again."
+
+msgid "error.turnstile_required"
+msgstr "Please complete the verification challenge."
+
+msgid "error.turnstile_invalid"
+msgstr "Verification failed. Please try again."
+
+msgid "error.mfa_required"
+msgstr "Multi-factor authentication is required to complete sign-in."
+
+msgid "error.mfa_disabled"
+msgstr "Multi-factor authentication is not enabled for this deployment."
+
+msgid "error.mfa_already_active"
+msgstr "Multi-factor authentication is already active for this account."
+
+msgid "error.mfa_not_active"
+msgstr "Multi-factor authentication is not currently active for this account."
+
+msgid "error.mfa_enrollment_not_found"
+msgstr "No pending MFA enrollment found. Start enrollment again."
+
+msgid "error.mfa_invalid_code"
+msgstr "Invalid verification code."
+
+msgid "error.mfa_challenge_invalid"
+msgstr "This MFA challenge is invalid, expired, or already used."
+
+msgid "error.mfa_misconfigured"
+msgstr "Multi-factor authentication is misconfigured on this server."
+
+msgid "error.google_login_disabled"
+msgstr "Google login is not enabled for this deployment."
+
+msgid "error.google_oauth_state_invalid"
+msgstr "Google sign-in could not be verified. Please try again."
+
+msgid "error.google_token_exchange_failed"
+msgstr "Google sign-in could not be completed. Please try again."
+
+msgid "error.google_id_token_invalid"
+msgstr "Google sign-in could not be verified. Please try again."
+
+msgid "error.google_account_not_linked"
+msgstr "No account is linked to this Google account."
+
+msgid "error.google_already_linked"
+msgstr "A Google account is already linked."
+
+msgid "error.google_not_linked"
+msgstr "No Google account is currently linked."
+
+msgid "error.google_misconfigured"
+msgstr "Google login is misconfigured on this server."
+
+msgid "error.sso_disabled"
+msgstr "Tenant OIDC SSO is not enabled for this deployment."
+
+msgid "error.sso_provider_not_found"
+msgstr "No enabled SSO provider matches this key."
+
+msgid "error.sso_provider_disabled"
+msgstr "This SSO provider is disabled."
+
+msgid "error.sso_provider_unavailable"
+msgstr "The SSO provider could not be reached. Try again later."
+
+msgid "error.sso_oauth_state_invalid"
+msgstr "SSO sign-in could not be verified. Please try again."
+
+msgid "error.sso_token_exchange_failed"
+msgstr "SSO sign-in could not be completed. Please try again."
+
+msgid "error.sso_id_token_invalid"
+msgstr "SSO sign-in could not be verified. Please try again."
+
+msgid "error.sso_account_not_linked"
+msgstr "No account is linked to this SSO identity."
+
+msgid "error.sso_already_linked"
+msgstr "An SSO account is already linked."
+
+msgid "error.sso_not_linked"
+msgstr "No SSO account is currently linked."
+
+msgid "error.sso_misconfigured"
+msgstr "Tenant OIDC SSO is misconfigured on this server."
+
+msgid "error.sso_provider_key_conflict"
+msgstr "A provider already exists for this provider key."
+
+msgid "error.sso_provider_limit_exceeded"
+msgstr "This tenant has reached its maximum number of configured SSO providers."
+
+msgid "error.break_glass_required"
+msgstr "This change requires at least one currently-active break-glass identity."
+
+msgid "error.password_login_disabled"
+msgstr "Password login is disabled for this account. Use single sign-on instead."
+
+msgid "error.news_media_reference_invalid"
+msgstr "One or more images are not verified R2 media objects. Upload the image first and select it from the media library."
+
+msgid "error.homepage_section_reference_invalid"
+msgstr "This section references content that does not exist, does not belong to this tenant, or is not verified yet."
+
+msgid "error.homepage_section_key_conflict"
+msgstr "That section key is already in use."
+
+msgid "error.content_quality_checklist_blocked"
+msgstr "Publishing is blocked by the content quality checklist. Fix the listed issues and try again."
+
+#. admin.layout (shared shell)
+msgid "admin.layout.no_role"
+msgstr "No role"
+
+msgid "admin.layout.logout"
+msgstr "Log out"
+
+msgid "admin.layout.nav_aria_label"
+msgstr "Main navigation"
+
+#. Responsive sidebar/drawer hamburger toggle (Issue #693, epic #679
+#. platform-hardening) — visible only below `--bp-md`; open/closed state is
+#. conveyed via `aria-expanded`, not a separate label per state.
+msgid "admin.layout.nav_toggle_aria_label"
+msgstr "Toggle navigation menu"
+
+msgid "admin.layout.nav_dashboard"
+msgstr "Dashboard"
+
+#. Issue #742, epic platform-evolution #738 Wave 1 — obsolete: navigation
+#. entries removed from module.ts (reviewer finding, PR #772) until a real
+#. admin UI page exists at these paths.
+#~ msgid "admin.layout.nav_domain_events_deliveries"
+#~ msgstr "Domain Event Deliveries"
+
+#~ msgid "admin.layout.nav_domain_events_consumers"
+#~ msgstr "Domain Event Consumers"
+
+msgid "admin.layout.nav_access_users"
+msgstr "Access & Users"
+
+msgid "admin.layout.nav_sync"
+msgstr "Sync"
+
+msgid "admin.layout.nav_settings"
+msgstr "Settings"
+
+msgid "admin.layout.nav_tenant_domains"
+msgstr "Tenant Domains"
+
+msgid "admin.layout.nav_modules"
+msgstr "Modules"
+
+#. Issue #566, epic #555 — tenant-module matrix admin screen
+msgid "admin.layout.nav_module_matrix"
+msgstr "Module Matrix"
+
+#. Issue #592, epic: full-online auth hardening #587-#593
+msgid "admin.layout.nav_security"
+msgstr "Security"
+
+msgid "admin.layout.breadcrumb_aria_label"
+msgstr "Breadcrumb"
+
+msgid "admin.layout.active_tenant_aria_label"
+msgstr "Active tenant"
+
+msgid "admin.layout.sync_active"
+msgstr "Sync active"
+
+msgid "admin.layout.sync_inactive"
+msgstr "Sync inactive"
+
+msgid "admin.layout.skip_to_content"
+msgstr "Skip to main content"
+
+msgid "admin.layout.theme_toggle_aria_label"
+msgstr "Change display theme"
+
+msgid "admin.layout.theme_system"
+msgstr "System"
+
+msgid "admin.layout.theme_light"
+msgstr "Light"
+
+msgid "admin.layout.theme_dark"
+msgstr "Dark"
+
+#. admin.dashboard
+msgid "admin.dashboard.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.dashboard.access_denied_body"
+msgstr "Your account does not have the {permission} permission to view this dashboard. Contact your tenant admin/owner to request access."
+
+msgid "admin.dashboard.tenant_activity_title"
+msgstr "Tenant Activity"
+
+msgid "admin.dashboard.tenant_label"
+msgstr "Tenant"
+
+msgid "admin.dashboard.active_users_label"
+msgstr "Active users"
+
+msgid "admin.dashboard.active_offices_label"
+msgstr "Active offices"
+
+msgid "admin.dashboard.last_login_label"
+msgstr "Last login"
+
+msgid "admin.dashboard.access_audit_title"
+msgstr "Access & Audit"
+
+msgid "admin.dashboard.allow_count_label"
+msgstr "Allow ({days} days)"
+
+msgid "admin.dashboard.deny_count_label"
+msgstr "Deny ({days} days)"
+
+msgid "admin.dashboard.total_decision_log_label"
+msgstr "Total decision logs"
+
+msgid "admin.dashboard.profile_audit_log_label"
+msgstr "Profile audit logs"
+
+msgid "admin.dashboard.sync_health_title"
+msgstr "Sync Health"
+
+msgid "admin.dashboard.active_nodes_label"
+msgstr "Active nodes"
+
+msgid "admin.dashboard.open_conflicts_label"
+msgstr "Open conflicts"
+
+msgid "admin.dashboard.pending_objects_label"
+msgstr "Pending objects"
+
+msgid "admin.dashboard.failed_objects_label"
+msgstr "Failed objects"
+
+msgid "admin.dashboard.status_label"
+msgstr "Status"
+
+msgid "admin.dashboard.status_healthy"
+msgstr "Healthy"
+
+msgid "admin.dashboard.status_needs_attention"
+msgstr "Needs attention"
+
+msgid "admin.dashboard.module_usage_title"
+msgstr "Module Usage"
+
+msgid "admin.dashboard.module_column"
+msgstr "Module"
+
+msgid "admin.dashboard.metric_column"
+msgstr "Metric"
+
+msgid "admin.dashboard.count_column"
+msgstr "Count"
+
+msgid "admin.dashboard.no_module_usage"
+msgstr "No module usage recorded yet."
+
+#. common (shared across pages)
+msgid "common.status_active"
+msgstr "Active"
+
+msgid "common.status_inactive"
+msgstr "Inactive"
+
+#. admin.access_users
+msgid "admin.access_users.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.access_users.access_denied_body"
+msgstr "Your account does not have permission to view users or roles/permissions. Contact your tenant admin/owner to request access."
+
+msgid "admin.access_users.users_title"
+msgstr "Users"
+
+msgid "admin.access_users.name_column"
+msgstr "Name"
+
+msgid "admin.access_users.login_column"
+msgstr "Login"
+
+msgid "admin.access_users.status_column"
+msgstr "Status"
+
+msgid "admin.access_users.role_column"
+msgstr "Role"
+
+msgid "admin.access_users.actions_column"
+msgstr "Actions"
+
+msgid "admin.access_users.no_users"
+msgstr "No users yet."
+
+msgid "admin.access_users.no_roles"
+msgstr "No roles yet."
+
+msgid "admin.access_users.unassign_role_aria_label"
+msgstr "Unassign role {role}"
+
+msgid "admin.access_users.assign_role_placeholder"
+msgstr "+ assign role"
+
+#. Accessible name for the per-user role-assign <select> (Issue #693 a11y
+#. smoke test found it had none — the visible "+ assign role" placeholder
+#. option text is not a substitute for a real accessible name).
+msgid "admin.access_users.assign_role_select_aria_label"
+msgstr "Assign a role to {user}"
+
+msgid "admin.access_users.assign_button"
+msgstr "Assign"
+
+msgid "admin.access_users.deactivate_button"
+msgstr "Deactivate"
+
+msgid "admin.access_users.activate_button"
+msgstr "Activate"
+
+msgid "admin.access_users.create_user_summary"
+msgstr "Add user"
+
+msgid "admin.access_users.name_label"
+msgstr "Name"
+
+msgid "admin.access_users.login_identifier_label"
+msgstr "Login identifier"
+
+msgid "admin.access_users.password_label"
+msgstr "Password"
+
+msgid "admin.access_users.initial_roles_legend"
+msgstr "Initial roles (optional)"
+
+msgid "admin.access_users.create_user_submit"
+msgstr "Create user"
+
+msgid "admin.access_users.roles_title"
+msgstr "Roles & Permissions"
+
+msgid "admin.access_users.code_column"
+msgstr "Code"
+
+msgid "admin.access_users.permission_column"
+msgstr "Permissions"
+
+msgid "admin.access_users.users_column"
+msgstr "Users"
+
+msgid "admin.access_users.system_role_badge"
+msgstr "System"
+
+msgid "admin.access_users.edit_summary"
+msgstr "Edit"
+
+msgid "admin.access_users.role_name_label"
+msgstr "Role name"
+
+msgid "admin.access_users.permission_legend"
+msgstr "Permissions"
+
+msgid "admin.access_users.system_role_note"
+msgstr "(system role — cannot be changed)"
+
+msgid "admin.access_users.save_button"
+msgstr "Save"
+
+msgid "admin.access_users.delete_button"
+msgstr "Delete"
+
+msgid "admin.access_users.create_role_summary"
+msgstr "Add role"
+
+msgid "admin.access_users.role_code_label"
+msgstr "Role code"
+
+msgid "admin.access_users.role_code_placeholder"
+msgstr "e.g. viewer"
+
+msgid "admin.access_users.create_role_submit"
+msgstr "Create role"
+
+msgid "admin.access_users.create_user_success"
+msgstr "User created successfully."
+
+msgid "admin.access_users.create_role_success"
+msgstr "Role created successfully."
+
+msgid "admin.access_users.update_role_success"
+msgstr "Role updated successfully."
+
+msgid "admin.access_users.delete_role_success"
+msgstr "Role deleted successfully."
+
+msgid "admin.access_users.update_status_success"
+msgstr "User status updated."
+
+msgid "admin.access_users.assign_role_success"
+msgstr "Role assigned successfully."
+
+msgid "admin.access_users.unassign_role_success"
+msgstr "Role unassigned successfully."
+
+msgid "admin.access_users.delete_role_prompt"
+msgstr "Reason for deleting this role:"
+
+#. ConfirmDialog title/body for role deletion (Issue #693)
+msgid "admin.access_users.delete_role_confirm_title"
+msgstr "Delete role?"
+
+msgid "admin.access_users.delete_role_confirm_body"
+msgstr "This role will be removed and unassigned from any users who have it. This action is recorded in the audit log."
+
+#. admin.sync
+msgid "admin.sync.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.sync.access_denied_body"
+msgstr "Your account does not have permission to view sync nodes, conflicts, or the object queue. Contact your tenant admin/owner to request access."
+
+msgid "admin.sync.summary_title"
+msgstr "Summary"
+
+msgid "admin.sync.nodes_title"
+msgstr "Sync Nodes"
+
+msgid "admin.sync.node_column"
+msgstr "Node"
+
+msgid "admin.sync.last_pushed_column"
+msgstr "Last pushed"
+
+msgid "admin.sync.last_pulled_column"
+msgstr "Last pulled"
+
+msgid "admin.sync.no_nodes"
+msgstr "No nodes registered yet."
+
+msgid "admin.sync.open_conflicts_title"
+msgstr "Open Conflicts"
+
+msgid "admin.sync.aggregate_column"
+msgstr "Aggregate"
+
+msgid "admin.sync.conflict_type_column"
+msgstr "Conflict type"
+
+msgid "admin.sync.batch_column"
+msgstr "Batch"
+
+msgid "admin.sync.created_column"
+msgstr "Created"
+
+msgid "admin.sync.resolution_column"
+msgstr "Resolution"
+
+msgid "admin.sync.no_open_conflicts"
+msgstr "No open conflicts."
+
+msgid "admin.sync.resolution_accept_incoming"
+msgstr "Accept incoming data"
+
+msgid "admin.sync.resolution_keep_existing"
+msgstr "Keep existing data"
+
+msgid "admin.sync.resolution_manual"
+msgstr "Manual"
+
+msgid "admin.sync.resolution_note_placeholder"
+msgstr "Note (optional)"
+
+msgid "admin.sync.resolve_button"
+msgstr "Resolve"
+
+msgid "admin.sync.failed_queue_title"
+msgstr "Failed Object Queue"
+
+msgid "admin.sync.object_key_column"
+msgstr "Object key"
+
+msgid "admin.sync.retry_column"
+msgstr "Retries"
+
+msgid "admin.sync.last_error_column"
+msgstr "Last error"
+
+msgid "admin.sync.no_failed_objects"
+msgstr "No failed objects."
+
+msgid "admin.sync.retry_button"
+msgstr "Retry"
+
+msgid "admin.sync.update_node_success"
+msgstr "Node status updated."
+
+msgid "admin.sync.resolve_conflict_success"
+msgstr "Conflict resolved successfully."
+
+msgid "admin.sync.retry_object_success"
+msgstr "Object retried successfully."
+
+msgid "admin.layout.language_switcher_aria_label"
+msgstr "Language"
+
+#. admin.settings
+msgid "admin.settings.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.settings.access_denied_body"
+msgstr "Your account does not have permission to view tenant settings. Contact your tenant admin/owner to request access."
+
+msgid "admin.settings.tenant_profile_legend"
+msgstr "Tenant Profile"
+
+msgid "admin.settings.tenant_name_label"
+msgstr "Tenant name"
+
+msgid "admin.settings.legal_name_label"
+msgstr "Legal name (optional)"
+
+msgid "admin.settings.display_preferences_legend"
+msgstr "Display Preferences"
+
+msgid "admin.settings.default_locale_label"
+msgstr "Default language"
+
+msgid "admin.settings.default_theme_label"
+msgstr "Default theme"
+
+msgid "admin.settings.default_theme_hint"
+msgstr "The default theme applies to new sessions/browsers that have never manually picked a theme. Your personal theme choice (the topbar button) still wins on this browser."
+
+msgid "admin.settings.timezone_legend"
+msgstr "Timezone"
+
+msgid "admin.settings.timezone_label"
+msgstr "Timezone (IANA)"
+
+msgid "admin.settings.feature_flags_legend"
+msgstr "Feature Flags"
+
+msgid "admin.settings.feature_flags_json_label"
+msgstr "JSON object"
+
+msgid "admin.settings.feature_flags_hint"
+msgstr "Must be a valid JSON object (e.g. {\"betaReports\": true})."
+
+msgid "admin.settings.invalid_feature_flags"
+msgstr "Feature flags must be a valid JSON object."
+
+msgid "admin.settings.save_success"
+msgstr "Settings saved successfully."
+
+#. admin.modules — Issue #518 (minimal read-only list; full UI is #521)
+msgid "admin.modules.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.modules.access_denied_body"
+msgstr "Your account does not have permission to view the module registry. Contact your tenant admin/owner to request access."
+
+msgid "admin.modules.module_column"
+msgstr "Module"
+
+msgid "admin.modules.version_column"
+msgstr "Version"
+
+msgid "admin.modules.status_column"
+msgstr "Status"
+
+msgid "admin.modules.type_column"
+msgstr "Type"
+
+msgid "admin.modules.core_column"
+msgstr "Core"
+
+msgid "admin.modules.no_modules"
+msgstr "No modules registered."
+
+#. admin.modules — Issue #521 (full list + detail admin UI)
+msgid "admin.modules.filters_aria_label"
+msgstr "Module filters"
+
+msgid "admin.modules.filter_type_label"
+msgstr "Type"
+
+msgid "admin.modules.filter_status_label"
+msgstr "Status"
+
+msgid "admin.modules.filter_health_label"
+msgstr "Health"
+
+msgid "admin.modules.filter_all"
+msgstr "All"
+
+msgid "admin.modules.health_column"
+msgstr "Health"
+
+msgid "admin.modules.actions_column"
+msgstr "Actions"
+
+msgid "admin.modules.view_detail_link"
+msgstr "View"
+
+msgid "admin.modules.detail_not_found_title"
+msgstr "Module not found."
+
+msgid "admin.modules.detail_not_found_body"
+msgstr "This module key is not registered."
+
+msgid "admin.modules.back_to_list"
+msgstr "Back to module list"
+
+msgid "admin.modules.dependencies_legend"
+msgstr "Dependencies"
+
+msgid "admin.modules.no_dependencies"
+msgstr "No dependencies."
+
+msgid "admin.modules.tenant_enablement_legend"
+msgstr "Tenant Availability"
+
+msgid "admin.modules.enabled_label"
+msgstr "Enabled"
+
+msgid "admin.modules.disabled_label"
+msgstr "Disabled"
+
+msgid "admin.modules.enable_button"
+msgstr "Enable for this tenant"
+
+msgid "admin.modules.disable_button"
+msgstr "Disable for this tenant"
+
+msgid "admin.modules.disable_reason_prompt"
+msgstr "Reason for disabling this module"
+
+msgid "admin.modules.enable_success"
+msgstr "Module enabled for this tenant."
+
+msgid "admin.modules.disable_success"
+msgstr "Module disabled for this tenant."
+
+msgid "admin.modules.settings_legend"
+msgstr "Settings"
+
+msgid "admin.modules.settings_json_label"
+msgstr "Tenant override (JSON object)"
+
+msgid "admin.modules.settings_hint"
+msgstr "Only the keys you set here override the module's own defaults. Never enter a provider secret/token here — those belong in environment variables."
+
+msgid "admin.modules.invalid_settings"
+msgstr "Settings must be valid JSON."
+
+msgid "admin.modules.settings_save_button"
+msgstr "Save settings"
+
+msgid "admin.modules.settings_save_success"
+msgstr "Settings saved."
+
+msgid "admin.modules.permissions_legend"
+msgstr "Permission Sync Status"
+
+msgid "admin.modules.permission_activity_column"
+msgstr "Activity"
+
+msgid "admin.modules.permission_action_column"
+msgstr "Action"
+
+msgid "admin.modules.no_permissions"
+msgstr "No permissions declared or seeded."
+
+msgid "admin.modules.navigation_legend"
+msgstr "Admin Navigation"
+
+msgid "admin.modules.no_navigation"
+msgstr "This module declares no admin navigation entries."
+
+msgid "admin.modules.nav_label_column"
+msgstr "Label"
+
+msgid "admin.modules.nav_path_column"
+msgstr "Path"
+
+msgid "admin.modules.nav_order_column"
+msgstr "Order"
+
+msgid "admin.modules.nav_permission_column"
+msgstr "Required Permission"
+
+msgid "admin.modules.jobs_legend"
+msgstr "Operational Jobs"
+
+msgid "admin.modules.no_jobs"
+msgstr "This module declares no operational jobs."
+
+msgid "admin.modules.job_command_column"
+msgstr "Command"
+
+msgid "admin.modules.job_purpose_column"
+msgstr "Purpose"
+
+msgid "admin.modules.job_schedule_column"
+msgstr "Recommended Schedule"
+
+msgid "admin.modules.job_offline_lan_column"
+msgstr "Safe Offline/LAN"
+
+msgid "admin.modules.health_legend"
+msgstr "Health / Readiness"
+
+msgid "admin.modules.health_check_button"
+msgstr "Run health check"
+
+msgid "admin.modules.health_check_success"
+msgstr "Health check completed."
+
+msgid "admin.modules.signal_column"
+msgstr "Signal"
+
+msgid "admin.modules.signal_status_column"
+msgstr "Status"
+
+msgid "admin.modules.signal_detail_column"
+msgstr "Detail"
+
+msgid "admin.modules.audit_legend"
+msgstr "Recent Activity"
+
+msgid "admin.modules.audit_action_column"
+msgstr "Action"
+
+msgid "admin.modules.audit_severity_column"
+msgstr "Severity"
+
+msgid "admin.modules.audit_message_column"
+msgstr "Message"
+
+msgid "admin.modules.audit_time_column"
+msgstr "Time"
+
+msgid "admin.modules.no_audit_events"
+msgstr "No recent activity for this module."
+
+#. admin.modules.matrix_* — Issue #566, epic #555 (tenant-module matrix,
+#. single-tenant scope — see src/pages/admin/modules/tenants.astro's own
+#. docblock for the binding scope decision)
+msgid "admin.modules.matrix_title"
+msgstr "Module x Tenant Matrix"
+
+msgid "admin.modules.matrix_intro"
+msgstr "This view shows every module for your current tenant only — it is not a cross-tenant view. Use it to spot dependency issues, protected modules, and health problems across all modules at a glance."
+
+msgid "admin.modules.matrix_filter_warning_label"
+msgstr "Only show modules with a warning"
+
+msgid "admin.modules.tenant_status_column"
+msgstr "Tenant Status"
+
+msgid "admin.modules.warnings_column"
+msgstr "Warnings"
+
+msgid "admin.modules.protected_label"
+msgstr "Protected"
+
+msgid "admin.modules.matrix_dependency_warning_prefix"
+msgstr "Dependency issue:"
+
+msgid "admin.modules.matrix_reverse_dependency_warning_prefix"
+msgstr "Would block disabling:"
+
+#. admin.examples.wizard — Issue #483, non-domain fixture page
+msgid "admin.examples.wizard.nav_title"
+msgstr "Wizard Example"
+
+msgid "admin.examples.wizard.intro"
+msgstr "Non-domain fixture demonstrating the reusable wizard pattern with dummy data. See docs/awcms-micro/examples/wizard-form-pattern.md."
+
+msgid "admin.examples.wizard.stepper_label"
+msgstr "Wizard steps"
+
+msgid "admin.examples.wizard.step_current"
+msgstr "Current"
+
+msgid "admin.examples.wizard.step_completed"
+msgstr "Completed"
+
+msgid "admin.examples.wizard.step_pending"
+msgstr "Pending"
+
+msgid "admin.examples.wizard.error_summary_heading"
+msgstr "Please review the following fields:"
+
+msgid "admin.examples.wizard.step_basic_title"
+msgstr "Basic info"
+
+msgid "admin.examples.wizard.step_basic_description"
+msgstr "Title and category for this example item."
+
+msgid "admin.examples.wizard.step_details_title"
+msgstr "Details"
+
+msgid "admin.examples.wizard.step_details_description"
+msgstr "Optional notes."
+
+msgid "admin.examples.wizard.step_review_title"
+msgstr "Review"
+
+msgid "admin.examples.wizard.step_review_description"
+msgstr "Check your answers before submitting."
+
+msgid "admin.examples.wizard.field_title_label"
+msgstr "Title"
+
+msgid "admin.examples.wizard.field_category_label"
+msgstr "Category"
+
+msgid "admin.examples.wizard.field_category_option_general"
+msgstr "General"
+
+msgid "admin.examples.wizard.field_category_option_reference"
+msgstr "Reference"
+
+msgid "admin.examples.wizard.field_category_option_misc"
+msgstr "Miscellaneous"
+
+msgid "admin.examples.wizard.field_notes_label"
+msgstr "Notes"
+
+msgid "admin.examples.wizard.validation_title_required"
+msgstr "Title is required."
+
+msgid "admin.examples.wizard.validation_category_required"
+msgstr "Category is required."
+
+msgid "admin.examples.wizard.submit_success_message"
+msgstr "Submitted — draft saved via the form-drafts API (no domain action was taken)."
+
+msgid "admin.examples.wizard.draft_save_error"
+msgstr "Could not save your progress. Your entries are still here — try again."
+
+msgid "admin.examples.wizard.draft_resumed_notice"
+msgstr "Resumed your saved draft."
+
+#. admin.blog — Issue #543 (admin UI)
+msgid "admin.layout.nav_blog"
+msgstr "Blog"
+
+msgid "common.filter_all"
+msgstr "All"
+
+msgid "common.previous_page"
+msgstr "Previous page"
+
+msgid "common.next_page"
+msgstr "Next page"
+
+msgid "admin.blog.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.blog.access_denied_body"
+msgstr "Your account does not have permission to view this blog screen. Contact your tenant admin/owner to request access."
+
+msgid "admin.blog.dashboard.title"
+msgstr "Blog dashboard"
+
+msgid "admin.blog.dashboard.posts_title"
+msgstr "Posts"
+
+msgid "admin.blog.dashboard.total_posts_label"
+msgstr "Total posts"
+
+msgid "admin.blog.dashboard.draft_posts_label"
+msgstr "Drafts"
+
+msgid "admin.blog.dashboard.scheduled_posts_label"
+msgstr "Scheduled"
+
+msgid "admin.blog.dashboard.pages_title"
+msgstr "Pages"
+
+msgid "admin.blog.dashboard.total_pages_label"
+msgstr "Total pages"
+
+msgid "admin.blog.dashboard.quick_links_title"
+msgstr "Quick links"
+
+msgid "admin.blog.dashboard.new_post_link"
+msgstr "New post"
+
+msgid "admin.blog.dashboard.new_page_link"
+msgstr "New page"
+
+msgid "admin.blog.dashboard.manage_posts_link"
+msgstr "Manage posts"
+
+msgid "admin.blog.dashboard.manage_pages_link"
+msgstr "Manage pages"
+
+msgid "admin.blog.dashboard.manage_categories_link"
+msgstr "Manage categories"
+
+msgid "admin.blog.dashboard.manage_tags_link"
+msgstr "Manage tags"
+
+msgid "admin.blog.dashboard.manage_settings_link"
+msgstr "Blog settings"
+
+msgid "admin.blog.dashboard.manage_internal_tag_links_link"
+msgstr "Internal tag linking"
+
+msgid "admin.blog.dashboard.recent_updates_title"
+msgstr "Recently updated"
+
+msgid "admin.blog.dashboard.no_recent_updates"
+msgstr "No posts yet."
+
+msgid "admin.blog.status.draft"
+msgstr "Draft"
+
+msgid "admin.blog.status.review"
+msgstr "In review"
+
+msgid "admin.blog.status.scheduled"
+msgstr "Scheduled"
+
+msgid "admin.blog.status.published"
+msgstr "Published"
+
+msgid "admin.blog.status.archived"
+msgstr "Archived"
+
+msgid "admin.blog.visibility.public"
+msgstr "Public"
+
+msgid "admin.blog.visibility.private"
+msgstr "Private"
+
+msgid "admin.blog.visibility.unlisted"
+msgstr "Unlisted"
+
+msgid "admin.blog.page_type.standard"
+msgstr "Standard"
+
+msgid "admin.blog.page_type.landing"
+msgstr "Landing"
+
+msgid "admin.blog.page_type.legal"
+msgstr "Legal"
+
+msgid "admin.blog.page_type.system"
+msgstr "System"
+
+msgid "admin.blog.posts.title"
+msgstr "Blog posts"
+
+msgid "admin.blog.posts.new_title"
+msgstr "New post"
+
+msgid "admin.blog.posts.new_button"
+msgstr "New post"
+
+msgid "admin.blog.posts.filters_aria_label"
+msgstr "Post filters"
+
+msgid "admin.blog.posts.search_label"
+msgstr "Search"
+
+msgid "admin.blog.posts.status_filter_label"
+msgstr "Status"
+
+msgid "admin.blog.posts.term_filter_label"
+msgstr "Category/tag"
+
+msgid "admin.blog.posts.apply_filters_button"
+msgstr "Apply filters"
+
+msgid "admin.blog.posts.reset_filters_link"
+msgstr "Reset filters"
+
+msgid "admin.blog.posts.no_posts"
+msgstr "No posts match these filters."
+
+msgid "admin.blog.posts.title_column"
+msgstr "Title"
+
+msgid "admin.blog.posts.status_column"
+msgstr "Status"
+
+msgid "admin.blog.posts.author_column"
+msgstr "Author"
+
+msgid "admin.blog.posts.locale_column"
+msgstr "Locale"
+
+msgid "admin.blog.posts.published_column"
+msgstr "Published"
+
+msgid "admin.blog.posts.updated_column"
+msgstr "Updated"
+
+msgid "admin.blog.posts.unknown_author"
+msgstr "Unknown"
+
+msgid "admin.blog.posts.pagination_aria_label"
+msgstr "Post pagination"
+
+msgid "admin.blog.posts.page_indicator"
+msgstr "Page {page} of {totalPages}"
+
+msgid "admin.blog.posts.not_found_title"
+msgstr "Post not found."
+
+msgid "admin.blog.posts.not_found_body"
+msgstr "This post id does not exist or you do not have permission to view it."
+
+msgid "admin.blog.posts.back_to_list"
+msgstr "Back to post list"
+
+msgid "admin.blog.posts.field_title"
+msgstr "Title"
+
+msgid "admin.blog.posts.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.posts.slug_hint"
+msgstr "Lowercase letters, numbers, and single hyphens only."
+
+msgid "admin.blog.posts.field_excerpt"
+msgstr "Excerpt"
+
+msgid "admin.blog.posts.field_content_text"
+msgstr "Content (plain text)"
+
+msgid "admin.blog.posts.field_content_json"
+msgstr "Content blocks (JSON)"
+
+msgid "admin.blog.posts.content_json_hint"
+msgstr "Structured content as { \"blocks\": [...] } — paragraph, heading, list, quote, gallery, and video_news blocks only. Leave as an empty blocks array if unsure."
+
+msgid "admin.blog.posts.field_visibility"
+msgstr "Visibility"
+
+msgid "admin.blog.posts.field_locale"
+msgstr "Locale"
+
+msgid "admin.blog.posts.field_featured_media_id"
+msgstr "Featured media reference (UUID)"
+
+msgid "admin.blog.posts.field_seo_image_media_id"
+msgstr "Social/SEO preview image reference (UUID)"
+
+msgid "admin.blog.posts.field_seo_image_media_id_hint"
+msgstr "Optional. Overrides the featured image for og:image, twitter:image, and JSON-LD when a shared link should show a different image."
+
+msgid "admin.blog.posts.featured_media_hint"
+msgstr "Optional. There is no media library yet — enter a UUID reference only."
+
+msgid "admin.blog.posts.field_categories"
+msgstr "Categories"
+
+msgid "admin.blog.posts.no_categories"
+msgstr "No categories yet."
+
+msgid "admin.blog.posts.field_tags"
+msgstr "Tags"
+
+msgid "admin.blog.posts.no_tags"
+msgstr "No tags yet."
+
+msgid "admin.blog.posts.seo_legend"
+msgstr "SEO"
+
+msgid "admin.blog.posts.field_seo_title"
+msgstr "SEO title"
+
+msgid "admin.blog.posts.field_meta_description"
+msgstr "Meta description"
+
+msgid "admin.blog.posts.field_canonical_url"
+msgstr "Canonical URL"
+
+msgid "admin.blog.posts.field_auto_internal_tag_links_disabled"
+msgstr "Disable automatic internal tag linking for this post"
+
+msgid "admin.blog.posts.create_submit"
+msgstr "Create post"
+
+msgid "admin.blog.posts.create_success"
+msgstr "Post created."
+
+msgid "admin.blog.posts.invalid_content_json"
+msgstr "Content blocks must be valid JSON."
+
+msgid "admin.blog.posts.save_button"
+msgstr "Save changes"
+
+msgid "admin.blog.posts.save_success"
+msgstr "Post saved."
+
+msgid "admin.blog.posts.author_label"
+msgstr "Author"
+
+msgid "admin.blog.posts.deleted_label"
+msgstr "Deleted"
+
+msgid "admin.blog.posts.submit_review_button"
+msgstr "Submit for review"
+
+msgid "admin.blog.posts.submit_review_success"
+msgstr "Post submitted for review."
+
+msgid "admin.blog.posts.publish_button"
+msgstr "Publish"
+
+msgid "admin.blog.posts.publish_confirm"
+msgstr "Publish this post now? It will become visible on the public blog if visibility is public."
+
+msgid "admin.blog.posts.publish_success"
+msgstr "Post published."
+
+msgid "admin.blog.posts.schedule_button"
+msgstr "Schedule"
+
+msgid "admin.blog.posts.scheduled_at_prompt"
+msgstr "Publish at (e.g. 2026-08-01T09:00):"
+
+msgid "admin.blog.posts.schedule_confirm"
+msgstr "Schedule this post for automatic publishing at the time you entered?"
+
+msgid "admin.blog.posts.schedule_success"
+msgstr "Post scheduled."
+
+msgid "admin.blog.posts.archive_button"
+msgstr "Archive"
+
+msgid "admin.blog.posts.archive_confirm"
+msgstr "Archive this post? It will no longer be publicly visible."
+
+msgid "admin.blog.posts.archive_success"
+msgstr "Post archived."
+
+msgid "admin.blog.posts.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.posts.delete_reason_prompt"
+msgstr "Reason for deleting this post:"
+
+msgid "admin.blog.posts.delete_success"
+msgstr "Post deleted."
+
+msgid "admin.blog.posts.restore_button"
+msgstr "Restore"
+
+msgid "admin.blog.posts.restore_confirm"
+msgstr "Restore this deleted post?"
+
+msgid "admin.blog.posts.restore_success"
+msgstr "Post restored."
+
+msgid "admin.blog.posts.purge_button"
+msgstr "Purge permanently"
+
+msgid "admin.blog.posts.purge_confirm"
+msgstr "Permanently delete this post? This cannot be undone."
+
+msgid "admin.blog.posts.purge_success"
+msgstr "Post permanently deleted."
+
+msgid "admin.blog.posts.quality_checklist_title"
+msgstr "Content quality checklist"
+
+msgid "admin.blog.posts.quality_checklist_not_applicable"
+msgstr "Not applicable — full-online R2-only news portal mode is not active for this tenant."
+
+msgid "admin.blog.posts.quality_checklist_passed"
+msgstr "All checks passed."
+
+msgid "admin.blog.posts.quality_checklist_blocking_label"
+msgstr "Blocking"
+
+msgid "admin.blog.posts.quality_checklist_warning_label"
+msgstr "Warning"
+
+msgid "admin.blog.posts.quality_checklist_info_label"
+msgstr "Info"
+
+msgid "admin.blog.posts.quality_checklist_load_error"
+msgstr "Could not load the content quality checklist."
+
+msgid "admin.blog.posts.internal_links_title"
+msgstr "Automatic internal tag links"
+
+msgid "admin.blog.posts.internal_links_load_error"
+msgstr "Could not load the internal tag linking preview."
+
+msgid "admin.blog.posts.internal_links_none"
+msgstr "No terms in this post match an existing tag."
+
+msgid "admin.blog.posts.internal_links_disabled_deployment"
+msgstr "Automatic internal tag linking is disabled for this deployment."
+
+msgid "admin.blog.posts.internal_links_disabled_tenant"
+msgstr "Automatic internal tag linking is disabled for this tenant."
+
+msgid "admin.blog.posts.internal_links_disabled_post"
+msgstr "Automatic internal tag linking is disabled for this post."
+
+msgid "admin.blog.posts.revisions_title"
+msgstr "Revision history"
+
+msgid "admin.blog.posts.no_revisions"
+msgstr "No revisions yet."
+
+msgid "admin.blog.posts.revision_number_column"
+msgstr "#"
+
+msgid "admin.blog.posts.revision_title_column"
+msgstr "Title"
+
+msgid "admin.blog.posts.revision_status_column"
+msgstr "Status"
+
+msgid "admin.blog.posts.revision_note_column"
+msgstr "Note"
+
+msgid "admin.blog.posts.revision_created_column"
+msgstr "Created"
+
+msgid "admin.blog.posts.revision_actions_column"
+msgstr "Actions"
+
+msgid "admin.blog.posts.revision_restore_button"
+msgstr "Restore this revision"
+
+msgid "admin.blog.posts.revision_restore_confirm"
+msgstr "Restore the post's content to this revision? A new revision recording this restore will be added — no history is lost."
+
+msgid "admin.blog.posts.revision_restore_success"
+msgstr "Post restored from revision."
+
+msgid "admin.blog.pages.title"
+msgstr "Blog pages"
+
+msgid "admin.blog.pages.new_title"
+msgstr "New page"
+
+msgid "admin.blog.pages.new_button"
+msgstr "New page"
+
+msgid "admin.blog.pages.filters_aria_label"
+msgstr "Page filters"
+
+msgid "admin.blog.pages.search_label"
+msgstr "Search"
+
+msgid "admin.blog.pages.status_filter_label"
+msgstr "Status"
+
+msgid "admin.blog.pages.type_filter_label"
+msgstr "Page type"
+
+msgid "admin.blog.pages.apply_filters_button"
+msgstr "Apply filters"
+
+msgid "admin.blog.pages.reset_filters_link"
+msgstr "Reset filters"
+
+msgid "admin.blog.pages.no_pages"
+msgstr "No pages match these filters."
+
+msgid "admin.blog.pages.title_column"
+msgstr "Title"
+
+msgid "admin.blog.pages.status_column"
+msgstr "Status"
+
+msgid "admin.blog.pages.type_column"
+msgstr "Type"
+
+msgid "admin.blog.pages.menu_order_column"
+msgstr "Menu order"
+
+msgid "admin.blog.pages.locale_column"
+msgstr "Locale"
+
+msgid "admin.blog.pages.updated_column"
+msgstr "Updated"
+
+msgid "admin.blog.pages.pagination_aria_label"
+msgstr "Page pagination"
+
+msgid "admin.blog.pages.not_found_title"
+msgstr "Page not found."
+
+msgid "admin.blog.pages.not_found_body"
+msgstr "This page id does not exist or you do not have permission to view it."
+
+msgid "admin.blog.pages.back_to_list"
+msgstr "Back to page list"
+
+msgid "admin.blog.pages.field_title"
+msgstr "Title"
+
+msgid "admin.blog.pages.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.pages.field_page_type"
+msgstr "Page type"
+
+msgid "admin.blog.pages.field_parent_page"
+msgstr "Parent page"
+
+msgid "admin.blog.pages.no_parent_option"
+msgstr "No parent"
+
+msgid "admin.blog.pages.field_menu_order"
+msgstr "Menu order"
+
+msgid "admin.blog.pages.create_submit"
+msgstr "Create page"
+
+msgid "admin.blog.pages.create_success"
+msgstr "Page created."
+
+msgid "admin.blog.pages.save_button"
+msgstr "Save changes"
+
+msgid "admin.blog.pages.save_success"
+msgstr "Page saved."
+
+msgid "admin.blog.pages.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.pages.delete_reason_prompt"
+msgstr "Reason for deleting this page:"
+
+msgid "admin.blog.pages.delete_success"
+msgstr "Page deleted."
+
+msgid "admin.blog.categories.title"
+msgstr "Categories"
+
+msgid "admin.blog.categories.no_categories"
+msgstr "No categories yet."
+
+msgid "admin.blog.categories.name_column"
+msgstr "Name"
+
+msgid "admin.blog.categories.slug_column"
+msgstr "Slug"
+
+msgid "admin.blog.categories.parent_column"
+msgstr "Parent"
+
+msgid "admin.blog.categories.actions_column"
+msgstr "Actions"
+
+msgid "admin.blog.categories.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.categories.field_name"
+msgstr "Name"
+
+msgid "admin.blog.categories.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.categories.field_description"
+msgstr "Description"
+
+msgid "admin.blog.categories.field_parent"
+msgstr "Parent category"
+
+msgid "admin.blog.categories.no_parent_option"
+msgstr "No parent"
+
+msgid "admin.blog.categories.save_button"
+msgstr "Save"
+
+msgid "admin.blog.categories.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.categories.create_summary"
+msgstr "Add category"
+
+msgid "admin.blog.categories.create_submit"
+msgstr "Create category"
+
+msgid "admin.blog.categories.create_success"
+msgstr "Category created."
+
+msgid "admin.blog.categories.update_success"
+msgstr "Category updated."
+
+msgid "admin.blog.categories.delete_reason_prompt"
+msgstr "Reason for deleting this category:"
+
+msgid "admin.blog.categories.delete_confirm"
+msgstr "Delete this category? Posts using it will keep their other terms."
+
+msgid "admin.blog.categories.delete_success"
+msgstr "Category deleted."
+
+msgid "admin.blog.tags.title"
+msgstr "Tags"
+
+msgid "admin.blog.tags.no_tags"
+msgstr "No tags yet."
+
+msgid "admin.blog.tags.name_column"
+msgstr "Name"
+
+msgid "admin.blog.tags.slug_column"
+msgstr "Slug"
+
+msgid "admin.blog.tags.actions_column"
+msgstr "Actions"
+
+msgid "admin.blog.tags.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.tags.field_name"
+msgstr "Name"
+
+msgid "admin.blog.tags.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.tags.field_description"
+msgstr "Description"
+
+msgid "admin.blog.tags.save_button"
+msgstr "Save"
+
+msgid "admin.blog.tags.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.tags.create_summary"
+msgstr "Add tag"
+
+msgid "admin.blog.tags.create_submit"
+msgstr "Create tag"
+
+msgid "admin.blog.tags.create_success"
+msgstr "Tag created."
+
+msgid "admin.blog.tags.update_success"
+msgstr "Tag updated."
+
+msgid "admin.blog.tags.delete_reason_prompt"
+msgstr "Reason for deleting this tag:"
+
+msgid "admin.blog.tags.delete_confirm"
+msgstr "Delete this tag? Posts using it will keep their other terms."
+
+msgid "admin.blog.tags.delete_success"
+msgstr "Tag deleted."
+
+msgid "admin.blog.taxonomy.category_prefix"
+msgstr "Category: {name}"
+
+msgid "admin.blog.taxonomy.tag_prefix"
+msgstr "Tag: {name}"
+
+msgid "admin.blog.settings.title"
+msgstr "Blog settings"
+
+msgid "admin.blog.settings.general_legend"
+msgstr "General"
+
+msgid "admin.blog.settings.field_blog_title"
+msgstr "Blog title"
+
+msgid "admin.blog.settings.field_blog_description"
+msgstr "Blog description"
+
+msgid "admin.blog.settings.field_posts_per_page"
+msgstr "Posts per page"
+
+msgid "admin.blog.settings.field_rss_enabled"
+msgstr "Enable RSS feed"
+
+msgid "admin.blog.settings.field_sitemap_enabled"
+msgstr "Enable sitemap"
+
+msgid "admin.blog.settings.field_default_locale"
+msgstr "Default locale"
+
+msgid "admin.blog.settings.field_default_visibility"
+msgstr "Default visibility"
+
+msgid "admin.blog.settings.field_seo_default_title"
+msgstr "Default SEO title template"
+
+msgid "admin.blog.settings.field_seo_default_description"
+msgstr "Default meta description"
+
+msgid "admin.blog.settings.field_checklist_policy"
+msgstr "Content quality checklist policy (JSON)"
+
+msgid "admin.blog.settings.checklist_policy_hint"
+msgstr "Maps excerpt_present, meta_description_present, featured_image_exists, featured_image_alt_text, featured_image_dimensions, og_image_trusted, taxonomy_exists, social_preview_image_ready, social_preview_image_alt_text to blocking, warning, or info. Security rules cannot be overridden here."
+
+msgid "admin.blog.settings.field_social_preview_fallback_image"
+msgstr "Fallback social preview image reference (UUID)"
+
+msgid "admin.blog.settings.social_preview_fallback_image_hint"
+msgstr "Used for og:image/twitter:image/JSON-LD only when a post has no explicit SEO image, no featured image, and no usable verified image in its own content."
+
+msgid "admin.blog.settings.field_social_preview_content_image_fallback_enabled"
+msgstr "Allow using the first verified image found in a post's own content as its social preview when no explicit SEO image or featured image is set"
+
+msgid "admin.blog.settings.invalid_checklist_policy_json"
+msgstr "Content quality checklist policy must be valid JSON."
+
+msgid "admin.blog.settings.save_button"
+msgstr "Save"
+
+msgid "admin.blog.settings.save_success"
+msgstr "Blog settings saved."
+
+msgid "admin.blog.settings.theme_legend"
+msgstr "Theme mode"
+
+msgid "admin.blog.settings.theme_override_note"
+msgstr "This tenant has a blog-specific theme override in effect."
+
+msgid "admin.blog.settings.theme_inherited_note"
+msgstr "No blog-specific override — the tenant's default theme is used."
+
+msgid "admin.blog.settings.field_theme_mode"
+msgstr "Theme mode"
+
+msgid "admin.blog.settings.theme_mode_light"
+msgstr "Light"
+
+msgid "admin.blog.settings.theme_mode_dark"
+msgstr "Dark"
+
+msgid "admin.blog.settings.theme_mode_system"
+msgstr "System"
+
+msgid "admin.blog.settings.theme_save_success"
+msgstr "Theme mode saved."
+
+msgid "admin.blog.internal_tag_links.title"
+msgstr "Internal tag linking"
+
+msgid "admin.blog.internal_tag_links.save_success"
+msgstr "Internal tag linking settings saved."
+
+msgid "admin.blog.internal_tag_links.deployment_legend"
+msgstr "Deployment configuration"
+
+msgid "admin.blog.internal_tag_links.deployment_hint"
+msgstr "These values are set by the deployment operator and cannot be changed here."
+
+msgid "admin.blog.internal_tag_links.deployment_enabled"
+msgstr "Enabled for this deployment"
+
+msgid "admin.blog.internal_tag_links.max_per_post"
+msgstr "Maximum links per post"
+
+msgid "admin.blog.internal_tag_links.max_per_tag"
+msgstr "Maximum links per tag"
+
+msgid "admin.blog.internal_tag_links.min_term_length"
+msgstr "Minimum tag name length"
+
+msgid "admin.blog.internal_tag_links.link_first_occurrence_only"
+msgstr "Link only the first occurrence"
+
+msgid "admin.blog.internal_tag_links.exclude_headings"
+msgstr "Exclude headings"
+
+msgid "admin.blog.internal_tag_links.tenant_legend"
+msgstr "Your settings"
+
+msgid "admin.blog.internal_tag_links.field_enabled"
+msgstr "Enable automatic internal tag linking"
+
+msgid "admin.blog.internal_tag_links.field_case_insensitive"
+msgstr "Match tag names regardless of case"
+
+msgid "admin.blog.internal_tag_links.field_disabled_tags"
+msgstr "Disabled tags"
+
+msgid "admin.blog.internal_tag_links.disabled_tags_hint"
+msgstr "Selected tags will never be automatically linked in article content."
+
+msgid "admin.blog.internal_tag_links.no_tags"
+msgstr "No tags yet."
+
+msgid "admin.blog.internal_tag_links.save_button"
+msgstr "Save"
+
+msgid "admin.blog.templates.title"
+msgstr "Templates"
+
+msgid "admin.blog.templates.no_templates"
+msgstr "No templates yet."
+
+msgid "admin.blog.templates.key_column"
+msgstr "Key"
+
+msgid "admin.blog.templates.name_column"
+msgstr "Name"
+
+msgid "admin.blog.templates.columns_column"
+msgstr "Columns"
+
+msgid "admin.blog.templates.sidebar_column"
+msgstr "Sidebar"
+
+msgid "admin.blog.templates.active_column"
+msgstr "Active"
+
+msgid "admin.blog.templates.actions_column"
+msgstr "Actions"
+
+msgid "admin.blog.templates.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.templates.field_key"
+msgstr "Key"
+
+msgid "admin.blog.templates.field_name"
+msgstr "Name"
+
+msgid "admin.blog.templates.field_columns"
+msgstr "Columns"
+
+msgid "admin.blog.templates.field_sidebar"
+msgstr "Sidebar position"
+
+msgid "admin.blog.templates.sidebar_left"
+msgstr "Left"
+
+msgid "admin.blog.templates.sidebar_right"
+msgstr "Right"
+
+msgid "admin.blog.templates.sidebar_none"
+msgstr "None"
+
+msgid "admin.blog.templates.field_active"
+msgstr "Active"
+
+msgid "admin.blog.templates.save_button"
+msgstr "Save"
+
+msgid "admin.blog.templates.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.templates.create_summary"
+msgstr "Add template"
+
+msgid "admin.blog.templates.create_submit"
+msgstr "Create template"
+
+msgid "admin.blog.templates.create_success"
+msgstr "Template created."
+
+msgid "admin.blog.templates.update_success"
+msgstr "Template updated."
+
+msgid "admin.blog.templates.delete_reason_prompt"
+msgstr "Reason for deleting this template:"
+
+msgid "admin.blog.templates.delete_confirm"
+msgstr "Delete this template?"
+
+msgid "admin.blog.templates.delete_success"
+msgstr "Template deleted."
+
+msgid "admin.blog.widgets.title"
+msgstr "Widgets"
+
+msgid "admin.blog.widgets.no_widgets"
+msgstr "No widgets yet."
+
+msgid "admin.blog.widgets.title_column"
+msgstr "Title"
+
+msgid "admin.blog.widgets.position_column"
+msgstr "Position"
+
+msgid "admin.blog.widgets.sort_order_column"
+msgstr "Sort order"
+
+msgid "admin.blog.widgets.active_column"
+msgstr "Active"
+
+msgid "admin.blog.widgets.actions_column"
+msgstr "Actions"
+
+msgid "admin.blog.widgets.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.widgets.field_title"
+msgstr "Title"
+
+msgid "admin.blog.widgets.field_position"
+msgstr "Position"
+
+msgid "admin.blog.widgets.position_header"
+msgstr "Header"
+
+msgid "admin.blog.widgets.position_sidebar"
+msgstr "Sidebar"
+
+msgid "admin.blog.widgets.position_footer"
+msgstr "Footer"
+
+msgid "admin.blog.widgets.position_content_before"
+msgstr "Before content"
+
+msgid "admin.blog.widgets.position_content_after"
+msgstr "After content"
+
+msgid "admin.blog.widgets.field_body_text"
+msgstr "Body text"
+
+msgid "admin.blog.widgets.field_sort_order"
+msgstr "Sort order"
+
+msgid "admin.blog.widgets.field_active"
+msgstr "Active"
+
+msgid "admin.blog.widgets.save_button"
+msgstr "Save"
+
+msgid "admin.blog.widgets.delete_button"
+msgstr "Delete"
+
+msgid "admin.blog.widgets.create_summary"
+msgstr "Add widget"
+
+msgid "admin.blog.widgets.create_submit"
+msgstr "Create widget"
+
+msgid "admin.blog.widgets.create_success"
+msgstr "Widget created."
+
+msgid "admin.blog.widgets.update_success"
+msgstr "Widget updated."
+
+msgid "admin.blog.widgets.delete_reason_prompt"
+msgstr "Reason for deleting this widget:"
+
+msgid "admin.blog.widgets.delete_confirm"
+msgstr "Delete this widget?"
+
+msgid "admin.blog.widgets.delete_success"
+msgstr "Widget deleted."
+
+msgid "admin.blog.menus.title"
+msgstr "Menus"
+
+msgid "admin.blog.menus.no_menus"
+msgstr "No menus yet."
+
+msgid "admin.blog.menus.field_key"
+msgstr "Key"
+
+msgid "admin.blog.menus.field_name"
+msgstr "Name"
+
+msgid "admin.blog.menus.field_items"
+msgstr "Menu items (JSON)"
+
+msgid "admin.blog.menus.items_hint"
+msgstr "Array of { id, parentItemId, label, linkType, targetId, url, sortOrder }. Each item's id must be a UUID you supply yourself (use \"Copy new id\" below) — saving replaces the whole item list. One level of nesting only."
+
+msgid "admin.blog.menus.generate_id_button"
+msgstr "Copy new id"
+
+msgid "admin.blog.menus.invalid_items_json"
+msgstr "Menu items must be valid JSON."
+
+msgid "admin.blog.menus.save_button"
+msgstr "Save"
+
+msgid "admin.blog.menus.delete_button"
+msgstr "Delete menu"
+
+msgid "admin.blog.menus.create_summary"
+msgstr "Add menu"
+
+msgid "admin.blog.menus.create_submit"
+msgstr "Create menu"
+
+msgid "admin.blog.menus.create_success"
+msgstr "Menu created."
+
+msgid "admin.blog.menus.update_success"
+msgstr "Menu updated."
+
+msgid "admin.blog.menus.delete_reason_prompt"
+msgstr "Reason for deleting this menu:"
+
+msgid "admin.blog.menus.delete_confirm"
+msgstr "Delete this menu and all its items?"
+
+msgid "admin.blog.menus.delete_success"
+msgstr "Menu deleted."
+
+msgid "admin.blog.ads.title"
+msgstr "Advertisements"
+
+msgid "admin.blog.ads.no_ads"
+msgstr "No advertisements yet."
+
+msgid "admin.blog.ads.field_name"
+msgstr "Name"
+
+msgid "admin.blog.ads.field_image_url"
+msgstr "Image URL"
+
+msgid "admin.blog.ads.field_link_url"
+msgstr "Link URL"
+
+msgid "admin.blog.ads.field_starts_at"
+msgstr "Starts at"
+
+msgid "admin.blog.ads.field_ends_at"
+msgstr "Ends at"
+
+msgid "admin.blog.ads.field_active"
+msgstr "Active"
+
+msgid "admin.blog.ads.field_placements"
+msgstr "Placements (JSON)"
+
+msgid "admin.blog.ads.placements_hint"
+msgstr "Array of { placementType, targetId }. placementType is one of global, widget, post, page — targetId is required for all except global. Saving replaces the whole placement list."
+
+msgid "admin.blog.ads.invalid_placements_json"
+msgstr "Placements must be valid JSON."
+
+msgid "admin.blog.ads.save_button"
+msgstr "Save"
+
+msgid "admin.blog.ads.delete_button"
+msgstr "Delete ad"
+
+msgid "admin.blog.ads.create_summary"
+msgstr "Add advertisement"
+
+msgid "admin.blog.ads.create_submit"
+msgstr "Create advertisement"
+
+msgid "admin.blog.ads.create_success"
+msgstr "Advertisement created."
+
+msgid "admin.blog.ads.update_success"
+msgstr "Advertisement updated."
+
+msgid "admin.blog.ads.delete_reason_prompt"
+msgstr "Reason for deleting this advertisement:"
+
+msgid "admin.blog.ads.delete_confirm"
+msgstr "Delete this advertisement?"
+
+msgid "admin.blog.ads.delete_success"
+msgstr "Advertisement deleted."
+
+#. admin.news_portal.homepage_sections (Issue #637)
+msgid "admin.news_portal.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.news_portal.access_denied_body"
+msgstr "You do not have permission to view this page."
+
+msgid "admin.news_portal.homepage_sections.title"
+msgstr "Homepage Sections"
+
+msgid "admin.news_portal.homepage_sections.no_sections"
+msgstr "No homepage sections yet."
+
+msgid "admin.news_portal.homepage_sections.field_section_key"
+msgstr "Section key"
+
+msgid "admin.news_portal.homepage_sections.field_section_type"
+msgstr "Section type"
+
+msgid "admin.news_portal.homepage_sections.field_title"
+msgstr "Title"
+
+msgid "admin.news_portal.homepage_sections.field_config"
+msgstr "Config (JSON)"
+
+msgid "admin.news_portal.homepage_sections.config_hint"
+msgstr "Shape depends on section type — headline: {postId}; latest_posts: {limit?, categorySlug?}; featured_posts/editor_picks: {postIds: []}; category_grid: {categorySlugs: [], postsPerCategory?}; gallery_block: {mediaObjectIds: [], caption?}. Every id/slug must already exist for this tenant."
+
+msgid "admin.news_portal.homepage_sections.field_sort_order"
+msgstr "Sort order"
+
+msgid "admin.news_portal.homepage_sections.field_enabled"
+msgstr "Enabled"
+
+msgid "admin.news_portal.homepage_sections.field_starts_at"
+msgstr "Starts at"
+
+msgid "admin.news_portal.homepage_sections.field_ends_at"
+msgstr "Ends at"
+
+msgid "admin.news_portal.homepage_sections.invalid_config_json"
+msgstr "Config must be valid JSON."
+
+msgid "admin.news_portal.homepage_sections.save_button"
+msgstr "Save"
+
+msgid "admin.news_portal.homepage_sections.delete_button"
+msgstr "Delete section"
+
+msgid "admin.news_portal.homepage_sections.create_summary"
+msgstr "Add homepage section"
+
+msgid "admin.news_portal.homepage_sections.create_submit"
+msgstr "Create section"
+
+msgid "admin.news_portal.homepage_sections.create_success"
+msgstr "Homepage section created."
+
+msgid "admin.news_portal.homepage_sections.update_success"
+msgstr "Homepage section updated."
+
+msgid "admin.news_portal.homepage_sections.delete_reason_prompt"
+msgstr "Reason for deleting this homepage section:"
+
+msgid "admin.news_portal.homepage_sections.delete_confirm"
+msgstr "Delete this homepage section?"
+
+msgid "admin.news_portal.homepage_sections.delete_success"
+msgstr "Homepage section deleted."
+
+#. admin.tenant_domain (Issue #563)
+msgid "admin.tenant_domain.title"
+msgstr "Tenant Domains"
+
+msgid "admin.tenant_domain.access_denied_title"
+msgstr "Access denied."
+
+msgid "admin.tenant_domain.access_denied_body"
+msgstr "Your account does not have permission to view tenant domains. Contact your tenant admin/owner to request access."
+
+msgid "admin.tenant_domain.no_domains"
+msgstr "No domains yet. Add a platform subdomain or a custom domain to get started."
+
+msgid "admin.tenant_domain.hostname_column"
+msgstr "Hostname"
+
+msgid "admin.tenant_domain.type_column"
+msgstr "Type"
+
+msgid "admin.tenant_domain.status_column"
+msgstr "Status"
+
+msgid "admin.tenant_domain.verification_column"
+msgstr "Verification"
+
+msgid "admin.tenant_domain.actions_column"
+msgstr "Actions"
+
+msgid "admin.tenant_domain.domain_type.subdomain"
+msgstr "Platform subdomain"
+
+msgid "admin.tenant_domain.domain_type.custom_domain"
+msgstr "Custom domain"
+
+msgid "admin.tenant_domain.route_mode.canonical"
+msgstr "Canonical (/news)"
+
+msgid "admin.tenant_domain.route_mode.legacy_blog"
+msgstr "Legacy (/blog/{tenantCode})"
+
+msgid "admin.tenant_domain.status.pending_verification"
+msgstr "Pending verification"
+
+msgid "admin.tenant_domain.status.active"
+msgstr "Active"
+
+msgid "admin.tenant_domain.status.suspended"
+msgstr "Suspended"
+
+msgid "admin.tenant_domain.status.failed"
+msgstr "Failed"
+
+msgid "admin.tenant_domain.primary_badge_label"
+msgstr "Primary domain"
+
+msgid "admin.tenant_domain.verification_method.dns_txt"
+msgstr "TXT record"
+
+msgid "admin.tenant_domain.verification_method.dns_cname"
+msgstr "CNAME record"
+
+msgid "admin.tenant_domain.verification_method.file"
+msgstr "File upload"
+
+msgid "admin.tenant_domain.verification_method.manual"
+msgstr "Manual (operator-attested)"
+
+msgid "admin.tenant_domain.verification_method_none"
+msgstr "No verification method set"
+
+msgid "admin.tenant_domain.no_record_configured"
+msgstr "No DNS record configured for this verification method yet."
+
+msgid "admin.tenant_domain.record_name_label"
+msgstr "Record name/host"
+
+msgid "admin.tenant_domain.record_value_label"
+msgstr "Record value"
+
+msgid "admin.tenant_domain.copy_button"
+msgstr "Copy"
+
+msgid "admin.tenant_domain.copy_success"
+msgstr "Copied to clipboard."
+
+msgid "admin.tenant_domain.copy_error"
+msgstr "Could not copy automatically — please copy it manually."
+
+msgid "admin.tenant_domain.preview_link"
+msgstr "Open public /news site"
+
+msgid "admin.tenant_domain.preview_hint"
+msgstr "Only resolves publicly if host-based public routing is enabled for this deployment."
+
+msgid "admin.tenant_domain.verify_button"
+msgstr "Verify"
+
+msgid "admin.tenant_domain.verify_confirm"
+msgstr "Verify this domain now? This marks it active based on your attestation that DNS/ownership is correct."
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.verify_confirm_title"
+msgstr "Verify domain?"
+
+msgid "admin.tenant_domain.verify_success"
+msgstr "Domain verified."
+
+msgid "admin.tenant_domain.set_primary_button"
+msgstr "Set as primary"
+
+msgid "admin.tenant_domain.set_primary_confirm"
+msgstr "Set this domain as the tenant's primary domain?"
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.set_primary_confirm_title"
+msgstr "Set as primary domain?"
+
+msgid "admin.tenant_domain.set_primary_success"
+msgstr "Primary domain updated."
+
+msgid "admin.tenant_domain.delete_button"
+msgstr "Delete"
+
+msgid "admin.tenant_domain.delete_reason_prompt"
+msgstr "Reason for deleting this domain mapping:"
+
+msgid "admin.tenant_domain.delete_confirm"
+msgstr "Delete this domain mapping? This cannot be undone from this screen."
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.delete_confirm_title"
+msgstr "Delete domain mapping?"
+
+msgid "admin.tenant_domain.delete_success"
+msgstr "Domain mapping deleted."
+
+msgid "admin.tenant_domain.edit_summary"
+msgstr "Edit"
+
+msgid "admin.tenant_domain.save_button"
+msgstr "Save"
+
+msgid "admin.tenant_domain.update_success"
+msgstr "Domain mapping updated."
+
+msgid "admin.tenant_domain.field_status_no_change"
+msgstr "Leave unchanged"
+
+msgid "admin.tenant_domain.field_status_active_hint"
+msgstr "This domain is currently active. Choosing a status below (e.g. Suspended) will take it out of service — the change applies immediately when you save."
+
+msgid "admin.tenant_domain.field_verification_method_none_option"
+msgstr "Not set"
+
+msgid "admin.tenant_domain.create_summary"
+msgstr "Add a domain or subdomain"
+
+msgid "admin.tenant_domain.create_submit"
+msgstr "Add domain"
+
+msgid "admin.tenant_domain.create_success"
+msgstr "Domain mapping added."
+
+msgid "admin.tenant_domain.field_hostname"
+msgstr "Hostname"
+
+msgid "admin.tenant_domain.field_hostname_hint"
+msgstr "Enter the full hostname, e.g. shop.example.com — no scheme (https://), no port."
+
+msgid "admin.tenant_domain.field_domain_type"
+msgstr "Domain type"
+
+msgid "admin.tenant_domain.field_route_mode"
+msgstr "Route mode"
+
+msgid "admin.tenant_domain.field_verification_method"
+msgstr "Verification method"
+
+msgid "admin.tenant_domain.field_record_name"
+msgstr "Verification record name/host (optional)"
+
+msgid "admin.tenant_domain.field_record_value"
+msgstr "Verification record value (optional)"
+
+msgid "admin.tenant_domain.field_redirect_to_primary"
+msgstr "Redirect to primary domain"
+
+msgid "admin.tenant_domain.field_status"
+msgstr "Status"
+
+msgid "admin.tenant_domain.invalid_hostname"
+msgstr "Enter a valid hostname (no scheme, no port, e.g. shop.example.com)."
+
+
+#. admin.security (Issue #592, epic: full-online auth hardening #587-#593)
+
+msgid "admin.security.heading"
+msgstr "Full-online auth security"
+
+msgid "admin.security.gate_disabled_title"
+msgstr "Full-online auth hardening is disabled for this deployment profile."
+
+msgid "admin.security.gate_disabled_body"
+msgstr "This deployment runs with local/offline/LAN authentication only. Cloudflare Turnstile, MFA, Google login, and SSO configuration controls are hidden because AUTH_ONLINE_SECURITY_ENABLED/AUTH_ONLINE_SECURITY_PROFILE are not set to full_online on this server. Ask an operator to enable the full-online security profile if this tenant needs these features."
+
+msgid "admin.security.access_denied_title"
+msgstr "You do not have access to security settings."
+
+msgid "admin.security.access_denied_body"
+msgstr "Ask a tenant admin to grant you the authentication policy or SSO provider permission."
+
+msgid "admin.security.status_legend"
+msgstr "Online auth hardening status"
+
+msgid "admin.security.gate_label"
+msgstr "Full-online security gate"
+
+msgid "admin.security.gate_active_value"
+msgstr "Active"
+
+msgid "admin.security.gate_inactive_value"
+msgstr "Inactive"
+
+msgid "admin.security.gate_profile_label"
+msgstr "Deployment profile"
+
+msgid "admin.security.feature_status_enabled"
+msgstr "Enabled"
+
+msgid "admin.security.feature_status_disabled"
+msgstr "Disabled"
+
+msgid "admin.security.feature_configured"
+msgstr "Configured"
+
+msgid "admin.security.feature_not_configured"
+msgstr "Not configured"
+
+msgid "admin.security.turnstile_label"
+msgstr "Cloudflare Turnstile"
+
+msgid "admin.security.mfa_label"
+msgstr "MFA / TOTP"
+
+msgid "admin.security.google_login_label"
+msgstr "Google login"
+
+msgid "admin.security.sso_label"
+msgstr "Generic tenant SSO"
+
+msgid "admin.security.policy_legend"
+msgstr "Tenant authentication policy"
+
+msgid "admin.security.password_login_enabled_label"
+msgstr "Local password login enabled"
+
+msgid "admin.security.sso_enabled_label"
+msgstr "SSO login enabled"
+
+msgid "admin.security.sso_required_label"
+msgstr "SSO login required (disables password login for non-break-glass identities)"
+
+msgid "admin.security.sso_required_hint"
+msgstr "Requires at least one currently-active break-glass local owner selected below, or the server will reject this change."
+
+msgid "admin.security.auto_link_verified_email_label"
+msgstr "Auto-link accounts by verified email domain"
+
+msgid "admin.security.allowed_email_domains_label"
+msgstr "Allowed email domains (comma-separated)"
+
+msgid "admin.security.allowed_email_domains_hint"
+msgstr "Leave blank to allow every domain the provider itself allows. Example: example.com, example.org"
+
+msgid "admin.security.break_glass_legend"
+msgstr "Break-glass local owners"
+
+msgid "admin.security.break_glass_hint"
+msgstr "At least one selected identity here must remain an active local login for this tenant if SSO is required or password login is disabled."
+
+msgid "admin.security.break_glass_manual_label"
+msgstr "Break-glass identity IDs (comma-separated UUIDs)"
+
+msgid "admin.security.break_glass_manual_hint"
+msgstr "You do not have permission to browse the user list, so enter identity UUIDs directly. Ask a user administrator for the correct values."
+
+msgid "admin.security.break_glass_client_warning"
+msgstr "Select at least one break-glass local owner before requiring SSO login or disabling password login."
+
+msgid "admin.security.policy_save_button"
+msgstr "Save authentication policy"
+
+msgid "admin.security.policy_save_success"
+msgstr "Authentication policy saved."
+
+msgid "admin.security.providers_legend"
+msgstr "Tenant SSO providers"
+
+msgid "admin.security.providers_table_key_column"
+msgstr "Provider key"
+
+msgid "admin.security.providers_table_name_column"
+msgstr "Display name"
+
+msgid "admin.security.providers_table_issuer_column"
+msgstr "Issuer URL"
+
+msgid "admin.security.providers_table_secret_column"
+msgstr "Client secret"
+
+msgid "admin.security.providers_table_scopes_column"
+msgstr "Scopes"
+
+msgid "admin.security.providers_table_domains_column"
+msgstr "Allowed domains"
+
+msgid "admin.security.providers_table_status_column"
+msgstr "Status"
+
+msgid "admin.security.providers_table_actions_column"
+msgstr "Actions"
+
+msgid "admin.security.no_providers"
+msgstr "No SSO providers configured yet."
+
+msgid "admin.security.provider_enabled_value"
+msgstr "Enabled"
+
+msgid "admin.security.provider_disabled_value"
+msgstr "Disabled"
+
+msgid "admin.security.secret_source_encrypted_value"
+msgstr "Encrypted (hidden)"
+
+msgid "admin.security.secret_source_env_value"
+msgstr "Env var: {name}"
+
+msgid "admin.security.create_provider_summary"
+msgstr "Add SSO provider"
+
+msgid "admin.security.provider_key_label"
+msgstr "Provider key"
+
+msgid "admin.security.provider_key_hint"
+msgstr "Lowercase letters, numbers, hyphens, underscores only. Cannot be changed later. Example: okta"
+
+msgid "admin.security.display_name_label"
+msgstr "Display name"
+
+msgid "admin.security.issuer_url_label"
+msgstr "Issuer URL (https only)"
+
+msgid "admin.security.client_id_label"
+msgstr "Client ID"
+
+msgid "admin.security.client_secret_label"
+msgstr "Client secret value"
+
+msgid "admin.security.client_secret_hint"
+msgstr "Stored encrypted at rest. Never shown again after saving — leave blank when editing to keep the current secret."
+
+msgid "admin.security.client_secret_env_var_label"
+msgstr "Client secret environment variable name"
+
+msgid "admin.security.client_secret_env_var_hint"
+msgstr "The server reads the secret from this environment variable instead of storing it in the database. Provide exactly one of client secret value or environment variable name."
+
+msgid "admin.security.scopes_label"
+msgstr "OAuth scopes"
+
+msgid "admin.security.enabled_label"
+msgstr "Enabled"
+
+msgid "admin.security.create_provider_submit"
+msgstr "Add provider"
+
+msgid "admin.security.create_provider_success"
+msgstr "SSO provider added."
+
+msgid "admin.security.edit_provider_summary"
+msgstr "Edit"
+
+msgid "admin.security.update_provider_submit"
+msgstr "Save changes"
+
+msgid "admin.security.update_provider_success"
+msgstr "SSO provider updated."
+
+msgid "admin.security.delete_provider_button"
+msgstr "Delete"
+
+msgid "admin.security.delete_provider_prompt"
+msgstr "Reason for deleting this SSO provider:"
+
+msgid "admin.security.delete_provider_success"
+msgstr "SSO provider deleted."
+
+msgid "admin.security.invalid_secret_choice"
+msgstr "Provide at most one of client secret value or environment variable name."
+
+msgid "admin.security.invalid_create_secret_choice"
+msgstr "Provide exactly one of client secret value or environment variable name."
+
+#. admin.layout.nav_visitor_analytics (Issue #617/#622, epic: visitor analytics #617-#624)
+msgid "admin.layout.nav_visitor_analytics"
+msgstr "Visitor Analytics"
+
+#. admin.layout.nav_news_portal_homepage_sections (Issue #637, epic: news_portal #631-#642/#649)
+msgid "admin.layout.nav_news_portal_homepage_sections"
+msgstr "Homepage Sections"
+
+#. admin.analytics (Issue #622, epic: visitor analytics #617-#624) — /admin/analytics dashboard
+msgid "admin.analytics.heading"
+msgstr "Visitor Analytics"
+
+msgid "admin.analytics.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.analytics.access_denied_body"
+msgstr "You do not have permission to view the visitor analytics dashboard."
+
+msgid "admin.analytics.state_loading"
+msgstr "Loading…"
+
+msgid "admin.analytics.state_empty_generic"
+msgstr "No analytics data yet for this period."
+
+msgid "admin.analytics.state_error_generic"
+msgstr "Could not load this section. Try again later."
+
+msgid "admin.analytics.online_heading"
+msgstr "Who's online now"
+
+msgid "admin.analytics.online_refresh_button"
+msgstr "Refresh"
+
+msgid "admin.analytics.online_human_label"
+msgstr "Human visitors online"
+
+msgid "admin.analytics.online_admin_label"
+msgstr "Admin pages"
+
+msgid "admin.analytics.online_public_label"
+msgstr "Public pages"
+
+msgid "admin.analytics.online_api_label"
+msgstr "API / other"
+
+msgid "admin.analytics.summary_heading"
+msgstr "Human visitors"
+
+msgid "admin.analytics.summary_24h_label"
+msgstr "Last 24 hours"
+
+msgid "admin.analytics.summary_7d_label"
+msgstr "Last 7 days"
+
+msgid "admin.analytics.summary_30d_label"
+msgstr "Last 30 days"
+
+msgid "admin.analytics.summary_pageviews_label"
+msgstr "pageviews"
+
+msgid "admin.analytics.range_filter_label"
+msgstr "Range"
+
+msgid "admin.analytics.range_24h"
+msgstr "Last 24 hours"
+
+msgid "admin.analytics.range_7d"
+msgstr "Last 7 days"
+
+msgid "admin.analytics.range_30d"
+msgstr "Last 30 days"
+
+msgid "admin.analytics.range_12m"
+msgstr "Last 12 months"
+
+msgid "admin.analytics.pages_heading"
+msgstr "Top pages"
+
+msgid "admin.analytics.pages_column_path"
+msgstr "Path"
+
+msgid "admin.analytics.pages_column_views"
+msgstr "Views"
+
+msgid "admin.analytics.devices_heading"
+msgstr "Devices & browsers"
+
+msgid "admin.analytics.devices_browsers_subheading"
+msgstr "Top browsers"
+
+msgid "admin.analytics.devices_devices_subheading"
+msgstr "Device types"
+
+msgid "admin.analytics.devices_column_name"
+msgstr "Name"
+
+msgid "admin.analytics.devices_column_count"
+msgstr "Count"
+
+msgid "admin.analytics.locations_heading"
+msgstr "Locations"
+
+msgid "admin.analytics.locations_column_country"
+msgstr "Country"
+
+msgid "admin.analytics.locations_column_count"
+msgstr "Visits"
+
+msgid "admin.analytics.locations_disabled_title"
+msgstr "Location tracking is disabled"
+
+msgid "admin.analytics.locations_disabled_body"
+msgstr "Enable geolocation in this tenant's deployment configuration to see country-level visitor data."
+
+msgid "admin.analytics.security_heading"
+msgstr "Bot & suspicious traffic"
+
+msgid "admin.analytics.security_total_label"
+msgstr "Bot pageviews"
+
+msgid "admin.analytics.security_by_reason_heading"
+msgstr "By reason"
+
+msgid "admin.analytics.security_by_area_heading"
+msgstr "By area"
+
+msgid "admin.analytics.sessions_heading"
+msgstr "Active sessions"
+
+msgid "admin.analytics.sessions_area_filter_label"
+msgstr "Area"
+
+msgid "admin.analytics.sessions_type_filter_label"
+msgstr "Visitor type"
+
+msgid "admin.analytics.sessions_filter_all"
+msgstr "All"
+
+msgid "admin.analytics.sessions_filter_admin"
+msgstr "Admin"
+
+msgid "admin.analytics.sessions_filter_public"
+msgstr "Public"
+
+msgid "admin.analytics.sessions_filter_api"
+msgstr "API"
+
+msgid "admin.analytics.sessions_filter_human"
+msgstr "Human"
+
+msgid "admin.analytics.sessions_filter_bot"
+msgstr "Bot"
+
+msgid "admin.analytics.sessions_column_area"
+msgstr "Area"
+
+msgid "admin.analytics.sessions_column_path"
+msgstr "Current path"
+
+msgid "admin.analytics.sessions_column_browser"
+msgstr "Browser"
+
+msgid "admin.analytics.sessions_column_os"
+msgstr "OS"
+
+msgid "admin.analytics.sessions_column_device"
+msgstr "Device"
+
+msgid "admin.analytics.sessions_column_type"
+msgstr "Type"
+
+msgid "admin.analytics.sessions_column_country"
+msgstr "Country"
+
+msgid "admin.analytics.sessions_column_last_seen"
+msgstr "Last seen"
+
+msgid "admin.analytics.sessions_column_ip"
+msgstr "IP address"
+
+msgid "admin.analytics.sessions_column_ip_hash"
+msgstr "IP hash"
+
+msgid "admin.analytics.sessions_column_user_agent_hash"
+msgstr "User-agent hash"
+
+msgid "admin.analytics.sessions_column_login_identifier"
+msgstr "Login identifier"
+
+msgid "admin.analytics.sessions_value_human"
+msgstr "Human"
+
+msgid "admin.analytics.sessions_value_bot"
+msgstr "Bot"
+
+msgid "admin.analytics.sessions_load_more_button"
+msgstr "Load more"
+
+msgid "admin.analytics.sessions_empty"
+msgstr "No active sessions in the current window."
+
+msgid "admin.analytics.sessions_filtered_empty"
+msgstr "No sessions match the selected filters."
+
+#. Issue #638 ad placements (recovered after merge conflict)
+msgid "admin.layout.nav_news_portal_ad_placements"
+msgstr "Ad Placements"
+
+msgid "admin.news_portal.ad_placements.create_submit"
+msgstr "Create placement"
+
+msgid "admin.news_portal.ad_placements.create_success"
+msgstr "Ad placement created."
+
+msgid "admin.news_portal.ad_placements.create_summary"
+msgstr "Add ad placement"
+
+msgid "admin.news_portal.ad_placements.delete_button"
+msgstr "Delete placement"
+
+msgid "admin.news_portal.ad_placements.delete_confirm"
+msgstr "Delete this ad placement?"
+
+msgid "admin.news_portal.ad_placements.delete_reason_prompt"
+msgstr "Reason for deleting this ad placement:"
+
+msgid "admin.news_portal.ad_placements.delete_success"
+msgstr "Ad placement deleted."
+
+msgid "admin.news_portal.ad_placements.field_active"
+msgstr "Active"
+
+msgid "admin.news_portal.ad_placements.field_ends_at"
+msgstr "Ends at"
+
+msgid "admin.news_portal.ad_placements.field_link_url"
+msgstr "Link URL (optional)"
+
+msgid "admin.news_portal.ad_placements.field_media_object_id"
+msgstr "Media object ID"
+
+msgid "admin.news_portal.ad_placements.field_name"
+msgstr "Name"
+
+msgid "admin.news_portal.ad_placements.field_placement_key"
+msgstr "Placement"
+
+msgid "admin.news_portal.ad_placements.field_priority"
+msgstr "Priority"
+
+msgid "admin.news_portal.ad_placements.field_rotation_mode"
+msgstr "Rotation mode"
+
+msgid "admin.news_portal.ad_placements.field_starts_at"
+msgstr "Starts at"
+
+msgid "admin.news_portal.ad_placements.media_object_id_hint"
+msgstr "Must be the ID of a verified R2 media object belonging to this tenant."
+
+msgid "admin.news_portal.ad_placements.no_placements"
+msgstr "No ad placements yet."
+
+msgid "admin.news_portal.ad_placements.preset_guide_summary"
+msgstr "Placement preset guide"
+
+msgid "admin.news_portal.ad_placements.preset_max_items"
+msgstr "Max items shown at once"
+
+msgid "admin.news_portal.ad_placements.preset_recommended_size"
+msgstr "Recommended size"
+
+msgid "admin.news_portal.ad_placements.save_button"
+msgstr "Save"
+
+msgid "admin.news_portal.ad_placements.title"
+msgstr "Ad Placements"
+
+msgid "admin.news_portal.ad_placements.update_success"
+msgstr "Ad placement updated."
+
+msgid "error.ad_placement_reference_invalid"
+msgstr "This ad placement references a media object that does not exist, does not belong to this tenant, is not verified yet, or is not an allowed image type for this placement."
+
+#. admin.layout.nav_social_publishing_* (Issue #643, epic social_publishing #643-#647)
+msgid "admin.layout.nav_social_publishing_accounts"
+msgstr "Social Accounts"
+
+msgid "admin.layout.nav_social_publishing_jobs"
+msgstr "Social Publish Jobs"
+
+msgid "admin.layout.nav_social_publishing_rules"
+msgstr "Social Publish Rules"
+
+msgid "admin.social_publishing.access_denied_body"
+msgstr "You do not have permission to view social publishing configuration."
+
+msgid "admin.social_publishing.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.social_publishing.accounts.connect_submit"
+msgstr "Connect account"
+
+msgid "admin.social_publishing.accounts.connect_success"
+msgstr "Social account connected."
+
+msgid "admin.social_publishing.accounts.connect_summary"
+msgstr "Connect a social account"
+
+msgid "admin.social_publishing.accounts.disconnect_button"
+msgstr "Disconnect"
+
+msgid "admin.social_publishing.accounts.disconnect_confirm"
+msgstr "Disconnect this social account? Auto-publishing will stop until it is reconnected."
+
+msgid "admin.social_publishing.accounts.disconnect_reason_prompt"
+msgstr "Reason for disconnecting this account:"
+
+msgid "admin.social_publishing.accounts.disconnect_success"
+msgstr "Social account disconnected."
+
+msgid "admin.social_publishing.accounts.field_auto_publish"
+msgstr "Auto-publish enabled"
+
+msgid "admin.social_publishing.accounts.field_last_verified"
+msgstr "Last verified"
+
+msgid "admin.social_publishing.accounts.field_provider_account_id"
+msgstr "Provider account ID"
+
+msgid "admin.social_publishing.accounts.field_provider_account_name"
+msgstr "Provider account name"
+
+msgid "admin.social_publishing.accounts.field_provider_account_type"
+msgstr "Account type"
+
+msgid "admin.social_publishing.accounts.field_provider_key"
+msgstr "Provider key"
+
+msgid "admin.social_publishing.accounts.field_status"
+msgstr "Status"
+
+msgid "admin.social_publishing.accounts.field_token_reference"
+msgstr "Token reference"
+
+msgid "admin.social_publishing.accounts.no_accounts"
+msgstr "No social accounts connected yet."
+
+msgid "admin.social_publishing.accounts.not_verified"
+msgstr "Not verified yet"
+
+msgid "admin.social_publishing.accounts.save_button"
+msgstr "Save"
+
+msgid "admin.social_publishing.accounts.title"
+msgstr "Social Accounts"
+
+msgid "admin.social_publishing.accounts.token_reference_hint"
+msgstr "An opaque reference into your secret storage (e.g. a secrets-manager key name) — never the raw access token or JWT itself."
+
+msgid "admin.social_publishing.accounts.update_success"
+msgstr "Social account updated."
+
+msgid "admin.social_publishing.accounts.verify_button"
+msgstr "Verify"
+
+msgid "admin.social_publishing.accounts.verify_failed_prefix"
+msgstr "Verification failed:"
+
+msgid "admin.social_publishing.accounts.verify_success"
+msgstr "Account verified — the provider confirmed it can post to this target."
+
+msgid "admin.social_publishing.jobs.approve_button"
+msgstr "Approve"
+
+msgid "admin.social_publishing.jobs.approve_success"
+msgstr "Job approved."
+
+msgid "admin.social_publishing.jobs.attempts_summary"
+msgstr "Attempt history"
+
+msgid "admin.social_publishing.jobs.cancel_button"
+msgstr "Cancel"
+
+msgid "admin.social_publishing.jobs.cancel_confirm"
+msgstr "Cancel this social publish job?"
+
+msgid "admin.social_publishing.jobs.cancel_reason_prompt"
+msgstr "Reason for cancelling this job:"
+
+msgid "admin.social_publishing.jobs.cancel_success"
+msgstr "Job cancelled."
+
+msgid "admin.social_publishing.jobs.field_attempts"
+msgstr "Attempts"
+
+msgid "admin.social_publishing.jobs.field_error"
+msgstr "Error"
+
+msgid "admin.social_publishing.jobs.field_external_url"
+msgstr "Published URL"
+
+msgid "admin.social_publishing.jobs.field_outcome"
+msgstr "Outcome"
+
+msgid "admin.social_publishing.jobs.field_started_at"
+msgstr "Started at"
+
+msgid "admin.social_publishing.jobs.no_jobs"
+msgstr "No social publish jobs yet."
+
+msgid "admin.social_publishing.jobs.retry_button"
+msgstr "Retry"
+
+msgid "admin.social_publishing.jobs.retry_success"
+msgstr "Job retry requested."
+
+msgid "admin.social_publishing.jobs.title"
+msgstr "Social Publish Jobs"
+
+msgid "admin.social_publishing.rules.caption_template_hint"
+msgstr "Supports {{title}}, {{excerpt}}, and {{canonicalUrl}} placeholders."
+
+msgid "admin.social_publishing.rules.create_submit"
+msgstr "Create rule"
+
+msgid "admin.social_publishing.rules.create_success"
+msgstr "Social publish rule created."
+
+msgid "admin.social_publishing.rules.create_summary"
+msgstr "Create a rule"
+
+msgid "admin.social_publishing.rules.delete_button"
+msgstr "Delete"
+
+msgid "admin.social_publishing.rules.delete_confirm"
+msgstr "Delete this item?"
+
+msgid "admin.social_publishing.rules.delete_reason_prompt"
+msgstr "Reason for deleting this item:"
+
+msgid "admin.social_publishing.rules.delete_success"
+msgstr "Deleted."
+
+msgid "admin.social_publishing.rules.field_account"
+msgstr "Social account"
+
+msgid "admin.social_publishing.rules.field_active"
+msgstr "Active"
+
+msgid "admin.social_publishing.rules.field_caption_template"
+msgstr "Caption template"
+
+msgid "admin.social_publishing.rules.field_enabled"
+msgstr "Enabled"
+
+msgid "admin.social_publishing.rules.field_name"
+msgstr "Name"
+
+msgid "admin.social_publishing.rules.field_requires_approval"
+msgstr "Requires approval before posting"
+
+msgid "admin.social_publishing.rules.field_template"
+msgstr "Caption template"
+
+msgid "admin.social_publishing.rules.field_trigger_event"
+msgstr "Trigger event"
+
+msgid "admin.social_publishing.rules.no_rules"
+msgstr "No social publish rules configured yet."
+
+msgid "admin.social_publishing.rules.no_template"
+msgstr "(no template)"
+
+msgid "admin.social_publishing.rules.no_templates"
+msgstr "No caption templates yet."
+
+msgid "admin.social_publishing.rules.save_button"
+msgstr "Save"
+
+msgid "admin.social_publishing.rules.section_rules"
+msgstr "Rules"
+
+msgid "admin.social_publishing.rules.section_templates"
+msgstr "Caption templates"
+
+msgid "admin.social_publishing.rules.template_create_submit"
+msgstr "Create template"
+
+msgid "admin.social_publishing.rules.template_create_success"
+msgstr "Caption template created."
+
+msgid "admin.social_publishing.rules.template_create_summary"
+msgstr "Create a caption template"
+
+msgid "admin.social_publishing.rules.template_delete_success"
+msgstr "Caption template deleted."
+
+msgid "admin.social_publishing.rules.template_update_success"
+msgstr "Caption template updated."
+
+msgid "admin.social_publishing.rules.title"
+msgstr "Social Publish Rules"
+
+msgid "admin.social_publishing.rules.update_success"
+msgstr "Social publish rule updated."
+
+#. Issue #746, epic #738 platform-evolution Wave 2 — business-scope
+#. assignments + segregation-of-duties (SoD) admin screen.
+msgid "admin.layout.nav_business_scope"
+msgstr "Business Scope"
+
+msgid "admin.business_scope.access_denied_body"
+msgstr "You do not have permission to view business-scope assignments, exceptions, or conflicts."
+
+msgid "admin.business_scope.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.business_scope.approve_button"
+msgstr "Approve"
+
+msgid "admin.business_scope.approve_exception_success"
+msgstr "SoD conflict exception approved."
+
+msgid "admin.business_scope.assignments_empty"
+msgstr "No business-scope assignments yet."
+
+msgid "admin.business_scope.assignments_heading"
+msgstr "Business-scope assignments"
+
+msgid "admin.business_scope.col_actions"
+msgstr "Actions"
+
+msgid "admin.business_scope.col_effective_to"
+msgstr "Effective until"
+
+msgid "admin.business_scope.col_outcome"
+msgstr "Outcome"
+
+msgid "admin.business_scope.col_reason"
+msgstr "Reason"
+
+msgid "admin.business_scope.col_rule"
+msgstr "Rule"
+
+msgid "admin.business_scope.col_scope"
+msgstr "Scope"
+
+msgid "admin.business_scope.col_status"
+msgstr "Status"
+
+msgid "admin.business_scope.col_subject"
+msgstr "Subject"
+
+msgid "admin.business_scope.col_trigger"
+msgstr "Trigger"
+
+msgid "admin.business_scope.conflicts_empty"
+msgstr "No SoD conflict evaluations recorded yet."
+
+msgid "admin.business_scope.conflicts_heading"
+msgstr "Segregation-of-duties conflicts"
+
+msgid "admin.business_scope.create_assignment_button"
+msgstr "Create assignment"
+
+msgid "admin.business_scope.create_assignment_heading"
+msgstr "Create a business-scope assignment"
+
+msgid "admin.business_scope.create_assignment_success"
+msgstr "Business-scope assignment created."
+
+msgid "admin.business_scope.create_exception_button"
+msgstr "Request exception"
+
+msgid "admin.business_scope.create_exception_heading"
+msgstr "Request a SoD conflict exception"
+
+msgid "admin.business_scope.create_exception_success"
+msgstr "SoD conflict exception requested."
+
+msgid "admin.business_scope.exceptions_empty"
+msgstr "No SoD conflict exceptions yet."
+
+msgid "admin.business_scope.exceptions_heading"
+msgstr "Segregation-of-duties conflict exceptions"
+
+msgid "admin.business_scope.field_effective_to"
+msgstr "Effective until"
+
+msgid "admin.business_scope.field_is_temporary"
+msgstr "Temporary assignment"
+
+msgid "admin.business_scope.field_justification"
+msgstr "Justification"
+
+msgid "admin.business_scope.field_reason"
+msgstr "Reason"
+
+msgid "admin.business_scope.field_role"
+msgstr "Role"
+
+msgid "admin.business_scope.field_role_none"
+msgstr "No role (scope only)"
+
+msgid "admin.business_scope.field_scope_id"
+msgstr "Scope ID"
+
+msgid "admin.business_scope.field_scope_type"
+msgstr "Scope type"
+
+msgid "admin.business_scope.field_scope_type_hint"
+msgstr "Only \"office\" resolves today; other scope types require an organization module."
+
+msgid "admin.business_scope.page_description"
+msgstr "Manage business-scope assignments, review segregation-of-duties conflicts, and handle conflict exceptions."
+
+msgid "admin.business_scope.page_title"
+msgstr "Business Scope & SoD"
+
+msgid "admin.business_scope.reject_button"
+msgstr "Reject"
+
+msgid "admin.business_scope.reject_exception_success"
+msgstr "SoD conflict exception rejected."
+
+msgid "admin.business_scope.revoke_assignment_success"
+msgstr "Business-scope assignment revoked."
+
+msgid "admin.business_scope.revoke_button"
+msgstr "Revoke"
+
+msgid "admin.business_scope.revoke_exception_success"
+msgstr "SoD conflict exception revoked."
+
+msgid "admin.business_scope.revoke_reason_prompt"
+msgstr "Enter a reason for revoking this:"
+#. admin.profile_identity
+msgid "admin.profile_identity.access_denied_body"
+msgstr "You do not have permission to view this page. Contact your administrator if you believe this is an error."
+
+msgid "admin.profile_identity.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.profile_identity.parties.title"
+msgstr "Parties"
+
+msgid "admin.profile_identity.parties.filter_q"
+msgstr "Search name"
+
+msgid "admin.profile_identity.parties.filter_type"
+msgstr "Type"
+
+msgid "admin.profile_identity.parties.filter_all"
+msgstr "All"
+
+msgid "admin.profile_identity.parties.filter_submit"
+msgstr "Filter"
+
+msgid "admin.profile_identity.parties.field_name"
+msgstr "Display name"
+
+msgid "admin.profile_identity.parties.field_type"
+msgstr "Type"
+
+msgid "admin.profile_identity.parties.field_status"
+msgstr "Status"
+
+msgid "admin.profile_identity.parties.field_verification"
+msgstr "Verification"
+
+msgid "admin.profile_identity.parties.field_legal_name"
+msgstr "Legal name"
+
+msgid "admin.profile_identity.parties.field_risk_level"
+msgstr "Risk level"
+
+msgid "admin.profile_identity.parties.manage_link"
+msgstr "Manage"
+
+msgid "admin.profile_identity.parties.no_parties"
+msgstr "No parties found."
+
+msgid "admin.profile_identity.parties.create_summary"
+msgstr "Create a party"
+
+msgid "admin.profile_identity.parties.create_submit"
+msgstr "Create party"
+
+msgid "admin.profile_identity.parties.create_success"
+msgstr "Party created."
+
+msgid "admin.profile_identity.detail.title"
+msgstr "Party detail"
+
+msgid "admin.profile_identity.detail.not_found"
+msgstr "Party not found."
+
+msgid "admin.profile_identity.detail.update_success"
+msgstr "Party updated."
+
+msgid "admin.profile_identity.detail.archive_button"
+msgstr "Archive"
+
+msgid "admin.profile_identity.detail.archive_success"
+msgstr "Party archived."
+
+msgid "admin.profile_identity.detail.archive_reason_prompt"
+msgstr "Reason for archiving this party:"
+
+msgid "admin.profile_identity.detail.restore_button"
+msgstr "Restore"
+
+msgid "admin.profile_identity.detail.restore_success"
+msgstr "Party restored."
+
+msgid "admin.profile_identity.detail.no_records"
+msgstr "No records."
+
+msgid "admin.profile_identity.detail.add_button"
+msgstr "Add"
+
+msgid "admin.profile_identity.detail.delete_button"
+msgstr "Delete"
+
+msgid "admin.profile_identity.detail.delete_reason_prompt"
+msgstr "Reason for deleting this record:"
+
+msgid "admin.profile_identity.detail.identifiers_title"
+msgstr "Identifiers"
+
+msgid "admin.profile_identity.detail.identifier_value_placeholder"
+msgstr "Identifier value"
+
+msgid "admin.profile_identity.detail.identifier_added"
+msgstr "Identifier added."
+
+msgid "admin.profile_identity.detail.identifier_deleted"
+msgstr "Identifier deleted."
+
+msgid "admin.profile_identity.detail.addresses_title"
+msgstr "Addresses"
+
+msgid "admin.profile_identity.detail.address_line_placeholder"
+msgstr "Address line"
+
+msgid "admin.profile_identity.detail.address_added"
+msgstr "Address added."
+
+msgid "admin.profile_identity.detail.address_deleted"
+msgstr "Address deleted."
+
+msgid "admin.profile_identity.detail.channels_title"
+msgstr "Communication channels"
+
+msgid "admin.profile_identity.detail.channel_added"
+msgstr "Channel added."
+
+msgid "admin.profile_identity.detail.channel_deleted"
+msgstr "Channel deleted."
+
+msgid "admin.profile_identity.detail.relationships_title"
+msgstr "Relationships"
+
+msgid "admin.profile_identity.detail.other_profile_id_placeholder"
+msgstr "Other party's profile id"
+
+msgid "admin.profile_identity.detail.field_is_representative"
+msgstr "Authorized representative"
+
+msgid "admin.profile_identity.detail.relationship_added"
+msgstr "Relationship added."
+
+msgid "admin.profile_identity.detail.relationship_ended"
+msgstr "Relationship ended."
+
+msgid "admin.profile_identity.detail.end_relationship_button"
+msgstr "End"
+
+msgid "admin.profile_identity.detail.duplicate_candidates_title"
+msgstr "Duplicate candidates"
+
+msgid "admin.profile_identity.detail.scan_button"
+msgstr "Scan for duplicates"
+
+msgid "admin.profile_identity.detail.scan_success"
+msgstr "Duplicate-candidate scan completed."
+
+msgid "admin.profile_identity.detail.confirm_duplicate_button"
+msgstr "Confirm duplicate"
+
+msgid "admin.profile_identity.detail.not_duplicate_button"
+msgstr "Not a duplicate"
+
+msgid "admin.profile_identity.detail.review_notes_prompt"
+msgstr "Review notes (optional):"
+
+msgid "admin.profile_identity.detail.review_success"
+msgstr "Duplicate candidate reviewed."
+
+msgid "admin.profile_identity.detail.start_merge_title"
+msgstr "Start a merge"
+
+msgid "admin.profile_identity.detail.survivor_profile_id_placeholder"
+msgstr "Survivor profile id"
+
+msgid "admin.profile_identity.detail.merge_reason_placeholder"
+msgstr "Reason for merging"
+
+msgid "admin.profile_identity.detail.start_merge_button"
+msgstr "Create merge request"
+
+msgid "admin.profile_identity.detail.merge_request_created"
+msgstr "Merge request created."
+
+msgid "admin.profile_identity.detail.view_merge_requests_link"
+msgstr "View merge requests"
+
+msgid "admin.profile_identity.merge_requests.title"
+msgstr "Merge Requests"
+
+msgid "admin.profile_identity.merge_requests.no_requests"
+msgstr "No merge requests found."
+
+msgid "admin.profile_identity.merge_requests.field_source"
+msgstr "Source (loser)"
+
+msgid "admin.profile_identity.merge_requests.field_target"
+msgstr "Target (survivor)"
+
+msgid "admin.profile_identity.merge_requests.field_status"
+msgstr "Status"
+
+msgid "admin.profile_identity.merge_requests.approve_button"
+msgstr "Approve"
+
+msgid "admin.profile_identity.merge_requests.reject_button"
+msgstr "Reject"
+
+msgid "admin.profile_identity.merge_requests.reject_reason_prompt"
+msgstr "Reason for rejecting this merge request:"
+
+msgid "admin.profile_identity.merge_requests.execute_button"
+msgstr "Execute merge"
+
+msgid "admin.profile_identity.merge_requests.execute_confirm"
+msgstr "Execute this merge? The source profile will be archived and its references repointed to the target."
+
+msgid "admin.profile_identity.merge_requests.decision_success"
+msgstr "Decision recorded."
+
+msgid "admin.profile_identity.merge_requests.execute_success"
+msgstr "Merge executed."
+
+msgid "admin.layout.nav_profile_identity_parties"
+msgstr "Parties"
+
+msgid "admin.layout.nav_profile_identity_merge_requests"
+msgstr "Merge Requests"
+
+msgid "admin.layout.nav_reporting_projections"
+msgstr "Reporting Projections"
+
+msgid "admin.reporting_projections.access_denied_body"
+msgstr "You do not have permission to view reporting projections or scheduled exports."
+
+msgid "admin.reporting_projections.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.reporting_projections.cancel_rebuild_button"
+msgstr "Cancel rebuild"
+
+msgid "admin.reporting_projections.col_actions"
+msgstr "Actions"
+
+msgid "admin.reporting_projections.col_drill_down"
+msgstr "Source"
+
+msgid "admin.reporting_projections.col_expires_at"
+msgstr "Expires at"
+
+msgid "admin.reporting_projections.col_format"
+msgstr "Format"
+
+msgid "admin.reporting_projections.col_freshness"
+msgstr "Freshness"
+
+msgid "admin.reporting_projections.col_interval"
+msgstr "Interval"
+
+msgid "admin.reporting_projections.col_key"
+msgstr "Key"
+
+msgid "admin.reporting_projections.col_last_success"
+msgstr "Last success"
+
+msgid "admin.reporting_projections.col_metrics"
+msgstr "Metrics"
+
+msgid "admin.reporting_projections.col_row_count"
+msgstr "Rows"
+
+msgid "admin.reporting_projections.col_status"
+msgstr "Status"
+
+msgid "admin.reporting_projections.create_schedule_button"
+msgstr "Create schedule"
+
+msgid "admin.reporting_projections.create_schedule_heading"
+msgstr "Create scheduled export"
+
+msgid "admin.reporting_projections.disable_button"
+msgstr "Disable"
+
+msgid "admin.reporting_projections.disable_reason_prompt"
+msgstr "Reason for disabling this scheduled export:"
+
+msgid "admin.reporting_projections.download_link"
+msgstr "Download"
+
+msgid "admin.reporting_projections.export_button"
+msgstr "Export now"
+
+msgid "admin.reporting_projections.export_runs_empty"
+msgstr "No export runs yet."
+
+msgid "admin.reporting_projections.export_runs_heading"
+msgstr "Export run history"
+
+msgid "admin.reporting_projections.export_triggered"
+msgstr "Export generated."
+
+msgid "admin.reporting_projections.field_interval_minutes"
+msgstr "Interval (minutes)"
+
+msgid "admin.reporting_projections.freshness_current"
+msgstr "Current"
+
+msgid "admin.reporting_projections.freshness_delayed"
+msgstr "Delayed"
+
+msgid "admin.reporting_projections.freshness_failed"
+msgstr "Failed"
+
+msgid "admin.reporting_projections.freshness_rebuilding"
+msgstr "Rebuilding"
+
+msgid "admin.reporting_projections.freshness_stale"
+msgstr "Stale"
+
+msgid "admin.reporting_projections.page_description"
+msgstr "Module-contributed read-model projections — incremental updates, freshness status, rebuild, reconciliation, and scheduled exports."
+
+msgid "admin.reporting_projections.page_title"
+msgstr "Reporting Projections"
+
+msgid "admin.reporting_projections.projections_empty"
+msgstr "No registered projections."
+
+msgid "admin.reporting_projections.projections_heading"
+msgstr "Projections"
+
+msgid "admin.reporting_projections.rebuild_button"
+msgstr "Rebuild"
+
+msgid "admin.reporting_projections.rebuild_cancel_requested"
+msgstr "Cancellation requested."
+
+msgid "admin.reporting_projections.rebuild_reason_prompt"
+msgstr "Reason for this rebuild:"
+
+msgid "admin.reporting_projections.rebuild_resumed"
+msgstr "A rebuild was already running — progress will continue."
+
+msgid "admin.reporting_projections.rebuild_triggered"
+msgstr "Rebuild triggered."
+
+msgid "admin.reporting_projections.reconcile_button"
+msgstr "Reconcile"
+
+msgid "admin.reporting_projections.reconcile_complete"
+msgstr "Reconciliation complete — no mismatch found."
+
+msgid "admin.reporting_projections.reconcile_mismatch"
+msgstr "Reconciliation complete — a mismatch was found."
+
+msgid "admin.reporting_projections.schedule_created"
+msgstr "Scheduled export created."
+
+msgid "admin.reporting_projections.schedule_disabled"
+msgstr "Scheduled export disabled."
+
+msgid "admin.reporting_projections.scheduled_exports_empty"
+msgstr "No scheduled exports configured."
+
+msgid "admin.reporting_projections.scheduled_exports_heading"
+msgstr "Scheduled exports"
+
+msgid "admin.reporting_projections.status_disabled"
+msgstr "Disabled"
+
+msgid "admin.reporting_projections.status_enabled"
+msgstr "Enabled"
+
+msgid "admin.reporting_projections.view_source_link"
+msgstr "View live source"
+
+#. error (data_exchange additions, Issue #752)
+msgid "error.unsupported_media_type"
+msgstr "The uploaded file's type is not supported for this import."
+
+msgid "error.payload_too_large"
+msgstr "The uploaded file is too large."
+
+msgid "error.invalid_state"
+msgstr "This action is not valid for the resource's current status."
+
+msgid "error.checksum_mismatch"
+msgstr "The uploaded file's checksum did not match."

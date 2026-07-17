@@ -1,0 +1,3500 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: awcms-micro\n"
+"Language: id\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. auth.login
+msgid "auth.login.page_title"
+msgstr "Masuk · AWCMS-Micro"
+
+msgid "auth.login.tenant_id_label"
+msgstr "Tenant ID"
+
+msgid "auth.login.identifier_label"
+msgstr "Login identifier"
+
+msgid "auth.login.password_label"
+msgstr "Kata sandi"
+
+msgid "auth.login.submit"
+msgstr "Masuk"
+
+msgid "auth.login.google_button"
+msgstr "Lanjutkan dengan Google"
+
+msgid "auth.login.generic_error"
+msgstr "Login gagal. Coba lagi."
+
+#. common
+msgid "common.network_error"
+msgstr "Tidak dapat menghubungi server. Coba lagi."
+
+msgid "common.error_title"
+msgstr "Terjadi kesalahan."
+
+msgid "common.error_body"
+msgstr "Data halaman ini gagal dimuat. Silakan coba lagi."
+
+msgid "common.retry"
+msgstr "Coba lagi"
+
+msgid "common.please_wait"
+msgstr "Mohon tunggu…"
+
+msgid "common.back"
+msgstr "Kembali"
+
+msgid "common.next"
+msgstr "Lanjut"
+
+msgid "common.submit"
+msgstr "Kirim"
+
+msgid "common.yes"
+msgstr "Ya"
+
+msgid "common.no"
+msgstr "Tidak"
+
+#. ConfirmDialog.astro (Issue #693, epic #679 platform-hardening)
+msgid "common.confirm_button"
+msgstr "Konfirmasi"
+
+msgid "common.cancel_button"
+msgstr "Batal"
+
+msgid "common.reason_required_error"
+msgstr "Alasan wajib diisi."
+
+#. error codes (doc 05 §Error code standard)
+msgid "error.validation_error"
+msgstr "Data yang dikirim tidak valid."
+
+msgid "error.auth_required"
+msgstr "Silakan masuk untuk melanjutkan."
+
+msgid "error.auth_invalid_credentials"
+msgstr "Login identifier atau kata sandi salah."
+
+msgid "error.token_expired"
+msgstr "Sesi Anda telah berakhir. Silakan masuk kembali."
+
+msgid "error.access_denied"
+msgstr "Anda tidak memiliki izin untuk melakukan ini."
+
+msgid "error.tenant_required"
+msgstr "Tenant wajib diisi untuk permintaan ini."
+
+msgid "error.resource_not_found"
+msgstr "Data yang diminta tidak ditemukan."
+
+msgid "error.resource_deleted"
+msgstr "Data ini telah diarsipkan."
+
+msgid "error.resource_conflict"
+msgstr "Aksi ini bertentangan dengan status saat ini."
+
+msgid "error.idempotency_required"
+msgstr "Aksi ini memerlukan idempotency key."
+
+msgid "error.idempotency_conflict"
+msgstr "Aksi ini sudah pernah dikirim dengan data berbeda."
+
+msgid "error.workflow_approval_required"
+msgstr "Aksi ini memerlukan persetujuan terlebih dahulu."
+
+msgid "error.stock_not_available"
+msgstr "Stok tidak mencukupi."
+
+msgid "error.sync_conflict"
+msgstr "Terdeteksi konflik sinkronisasi."
+
+msgid "error.database_busy"
+msgstr "Sistem sedang sibuk. Coba lagi sebentar."
+
+msgid "error.provider_error"
+msgstr "Layanan eksternal gagal. Coba lagi."
+
+msgid "error.social_account_unsupported_type"
+msgstr "Provider ini tidak mendukung tipe akun tersebut."
+
+msgid "error.internal_error"
+msgstr "Terjadi kesalahan. Coba lagi."
+
+msgid "error.purge_blocked_by_dependents"
+msgstr "Tidak dapat dihapus permanen selama masih direferensikan data lain."
+
+msgid "error.purge_requires_soft_delete"
+msgstr "Data ini harus diarsipkan dulu sebelum dapat dihapus permanen."
+
+msgid "error.hostname_conflict"
+msgstr "Hostname ini sudah dipetakan ke tenant lain."
+
+msgid "error.invalid_status_transition"
+msgstr "Aksi ini tidak diizinkan untuk status saat ini."
+
+msgid "error.concurrent_update"
+msgstr "Permintaan lain sudah mengubah data ini. Silakan coba lagi."
+
+msgid "error.turnstile_required"
+msgstr "Mohon selesaikan verifikasi terlebih dahulu."
+
+msgid "error.turnstile_invalid"
+msgstr "Verifikasi gagal. Silakan coba lagi."
+
+msgid "error.mfa_required"
+msgstr "Autentikasi multi-faktor diperlukan untuk menyelesaikan proses masuk."
+
+msgid "error.mfa_disabled"
+msgstr "Autentikasi multi-faktor tidak diaktifkan untuk deployment ini."
+
+msgid "error.mfa_already_active"
+msgstr "Autentikasi multi-faktor sudah aktif untuk akun ini."
+
+msgid "error.mfa_not_active"
+msgstr "Autentikasi multi-faktor sedang tidak aktif untuk akun ini."
+
+msgid "error.mfa_enrollment_not_found"
+msgstr "Tidak ada pendaftaran MFA yang tertunda. Mulai pendaftaran lagi."
+
+msgid "error.mfa_invalid_code"
+msgstr "Kode verifikasi tidak valid."
+
+msgid "error.mfa_challenge_invalid"
+msgstr "Tantangan MFA ini tidak valid, kedaluwarsa, atau sudah digunakan."
+
+msgid "error.mfa_misconfigured"
+msgstr "Autentikasi multi-faktor salah konfigurasi di server ini."
+
+msgid "error.google_login_disabled"
+msgstr "Login Google tidak diaktifkan untuk deployment ini."
+
+msgid "error.google_oauth_state_invalid"
+msgstr "Login Google tidak dapat diverifikasi. Silakan coba lagi."
+
+msgid "error.google_token_exchange_failed"
+msgstr "Login Google tidak dapat diselesaikan. Silakan coba lagi."
+
+msgid "error.google_id_token_invalid"
+msgstr "Login Google tidak dapat diverifikasi. Silakan coba lagi."
+
+msgid "error.google_account_not_linked"
+msgstr "Tidak ada akun yang tertaut dengan akun Google ini."
+
+msgid "error.google_already_linked"
+msgstr "Akun Google sudah tertaut."
+
+msgid "error.google_not_linked"
+msgstr "Tidak ada akun Google yang sedang tertaut."
+
+msgid "error.google_misconfigured"
+msgstr "Login Google salah konfigurasi di server ini."
+
+msgid "error.sso_disabled"
+msgstr "SSO OIDC tenant tidak diaktifkan untuk deployment ini."
+
+msgid "error.sso_provider_not_found"
+msgstr "Tidak ada provider SSO aktif yang cocok dengan kunci ini."
+
+msgid "error.sso_provider_disabled"
+msgstr "Provider SSO ini dinonaktifkan."
+
+msgid "error.sso_provider_unavailable"
+msgstr "Provider SSO tidak dapat dihubungi. Coba lagi nanti."
+
+msgid "error.sso_oauth_state_invalid"
+msgstr "Login SSO tidak dapat diverifikasi. Silakan coba lagi."
+
+msgid "error.sso_token_exchange_failed"
+msgstr "Login SSO tidak dapat diselesaikan. Silakan coba lagi."
+
+msgid "error.sso_id_token_invalid"
+msgstr "Login SSO tidak dapat diverifikasi. Silakan coba lagi."
+
+msgid "error.sso_account_not_linked"
+msgstr "Tidak ada akun yang tertaut ke identitas SSO ini."
+
+msgid "error.sso_already_linked"
+msgstr "Akun SSO sudah tertaut."
+
+msgid "error.sso_not_linked"
+msgstr "Tidak ada akun SSO yang sedang tertaut."
+
+msgid "error.sso_misconfigured"
+msgstr "SSO OIDC tenant salah konfigurasi di server ini."
+
+msgid "error.sso_provider_key_conflict"
+msgstr "Provider dengan kunci ini sudah ada."
+
+msgid "error.sso_provider_limit_exceeded"
+msgstr "Tenant ini sudah mencapai jumlah maksimum provider SSO yang dikonfigurasi."
+
+msgid "error.break_glass_required"
+msgstr "Perubahan ini membutuhkan minimal satu identitas break-glass yang masih aktif."
+
+msgid "error.password_login_disabled"
+msgstr "Login password dinonaktifkan untuk akun ini. Gunakan single sign-on."
+
+msgid "error.news_media_reference_invalid"
+msgstr "Satu atau lebih gambar bukan objek media R2 yang terverifikasi. Unggah gambar terlebih dahulu lalu pilih dari pustaka media."
+
+msgid "error.homepage_section_reference_invalid"
+msgstr "Section ini merujuk konten yang tidak ada, bukan milik tenant ini, atau belum terverifikasi."
+
+msgid "error.homepage_section_key_conflict"
+msgstr "Section key tersebut sudah dipakai."
+
+msgid "error.content_quality_checklist_blocked"
+msgstr "Publikasi diblokir oleh checklist kualitas konten. Perbaiki masalah yang tercantum lalu coba lagi."
+
+#. admin.layout (shared shell)
+msgid "admin.layout.no_role"
+msgstr "Tanpa role"
+
+msgid "admin.layout.logout"
+msgstr "Keluar"
+
+msgid "admin.layout.nav_aria_label"
+msgstr "Navigasi utama"
+
+#. Responsive sidebar/drawer hamburger toggle (Issue #693, epic #679
+#. platform-hardening) — hanya tampil di bawah `--bp-md`; status buka/tutup
+#. disampaikan lewat `aria-expanded`, bukan label terpisah per status.
+msgid "admin.layout.nav_toggle_aria_label"
+msgstr "Buka/tutup menu navigasi"
+
+msgid "admin.layout.nav_dashboard"
+msgstr "Dashboard"
+
+#. Issue #742, epic platform-evolution #738 Wave 1 — obsolete: navigation
+#. entries removed from module.ts (reviewer finding, PR #772) until a real
+#. admin UI page exists at these paths.
+#~ msgid "admin.layout.nav_domain_events_deliveries"
+#~ msgstr "Pengiriman Domain Event"
+
+#~ msgid "admin.layout.nav_domain_events_consumers"
+#~ msgstr "Consumer Domain Event"
+
+msgid "admin.layout.nav_access_users"
+msgstr "Access & Users"
+
+msgid "admin.layout.nav_sync"
+msgstr "Sync"
+
+msgid "admin.layout.nav_settings"
+msgstr "Pengaturan"
+
+msgid "admin.layout.nav_tenant_domains"
+msgstr "Domain Tenant"
+
+msgid "admin.layout.nav_modules"
+msgstr "Modul"
+
+#. Issue #566, epic #555 — layar admin matriks tenant-modul
+msgid "admin.layout.nav_module_matrix"
+msgstr "Matriks Modul"
+
+#. Issue #592, epic: full-online auth hardening #587-#593
+msgid "admin.layout.nav_security"
+msgstr "Keamanan"
+
+msgid "admin.layout.breadcrumb_aria_label"
+msgstr "Breadcrumb"
+
+msgid "admin.layout.active_tenant_aria_label"
+msgstr "Tenant aktif"
+
+msgid "admin.layout.sync_active"
+msgstr "Sync aktif"
+
+msgid "admin.layout.sync_inactive"
+msgstr "Sync nonaktif"
+
+msgid "admin.layout.skip_to_content"
+msgstr "Lewati ke konten utama"
+
+msgid "admin.layout.theme_toggle_aria_label"
+msgstr "Ganti tema tampilan"
+
+msgid "admin.layout.theme_system"
+msgstr "Sistem"
+
+msgid "admin.layout.theme_light"
+msgstr "Terang"
+
+msgid "admin.layout.theme_dark"
+msgstr "Gelap"
+
+#. admin.dashboard
+msgid "admin.dashboard.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.dashboard.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin {permission} untuk melihat dashboard ini. Hubungi admin/owner tenant Anda untuk meminta akses."
+
+msgid "admin.dashboard.tenant_activity_title"
+msgstr "Aktivitas Tenant"
+
+msgid "admin.dashboard.tenant_label"
+msgstr "Tenant"
+
+msgid "admin.dashboard.active_users_label"
+msgstr "User aktif"
+
+msgid "admin.dashboard.active_offices_label"
+msgstr "Kantor aktif"
+
+msgid "admin.dashboard.last_login_label"
+msgstr "Login terakhir"
+
+msgid "admin.dashboard.access_audit_title"
+msgstr "Access & Audit"
+
+msgid "admin.dashboard.allow_count_label"
+msgstr "Allow ({days} hari)"
+
+msgid "admin.dashboard.deny_count_label"
+msgstr "Deny ({days} hari)"
+
+msgid "admin.dashboard.total_decision_log_label"
+msgstr "Total decision log"
+
+msgid "admin.dashboard.profile_audit_log_label"
+msgstr "Profile audit log"
+
+msgid "admin.dashboard.sync_health_title"
+msgstr "Sync Health"
+
+msgid "admin.dashboard.active_nodes_label"
+msgstr "Node aktif"
+
+msgid "admin.dashboard.open_conflicts_label"
+msgstr "Konflik terbuka"
+
+msgid "admin.dashboard.pending_objects_label"
+msgstr "Objek pending"
+
+msgid "admin.dashboard.failed_objects_label"
+msgstr "Objek gagal"
+
+msgid "admin.dashboard.status_label"
+msgstr "Status"
+
+msgid "admin.dashboard.status_healthy"
+msgstr "Sehat"
+
+msgid "admin.dashboard.status_needs_attention"
+msgstr "Perlu perhatian"
+
+msgid "admin.dashboard.module_usage_title"
+msgstr "Penggunaan Modul"
+
+msgid "admin.dashboard.module_column"
+msgstr "Modul"
+
+msgid "admin.dashboard.metric_column"
+msgstr "Metrik"
+
+msgid "admin.dashboard.count_column"
+msgstr "Jumlah"
+
+msgid "admin.dashboard.no_module_usage"
+msgstr "Belum ada penggunaan modul yang tercatat."
+
+#. common (shared across pages)
+msgid "common.status_active"
+msgstr "Aktif"
+
+msgid "common.status_inactive"
+msgstr "Nonaktif"
+
+#. admin.access_users
+msgid "admin.access_users.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.access_users.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat pengguna maupun role/permission. Hubungi admin/owner tenant Anda untuk meminta akses."
+
+msgid "admin.access_users.users_title"
+msgstr "Pengguna"
+
+msgid "admin.access_users.name_column"
+msgstr "Nama"
+
+msgid "admin.access_users.login_column"
+msgstr "Login"
+
+msgid "admin.access_users.status_column"
+msgstr "Status"
+
+msgid "admin.access_users.role_column"
+msgstr "Role"
+
+msgid "admin.access_users.actions_column"
+msgstr "Aksi"
+
+msgid "admin.access_users.no_users"
+msgstr "Belum ada pengguna."
+
+msgid "admin.access_users.no_roles"
+msgstr "Belum ada role."
+
+msgid "admin.access_users.unassign_role_aria_label"
+msgstr "Lepas role {role}"
+
+msgid "admin.access_users.assign_role_placeholder"
+msgstr "+ assign role"
+
+#. Nama aksesibel untuk <select> assign-role per user (Issue #693 — a11y
+#. smoke test menemukan elemen ini tanpa nama aksesibel).
+msgid "admin.access_users.assign_role_select_aria_label"
+msgstr "Assign role untuk {user}"
+
+msgid "admin.access_users.assign_button"
+msgstr "Assign"
+
+msgid "admin.access_users.deactivate_button"
+msgstr "Nonaktifkan"
+
+msgid "admin.access_users.activate_button"
+msgstr "Aktifkan"
+
+msgid "admin.access_users.create_user_summary"
+msgstr "Tambah pengguna"
+
+msgid "admin.access_users.name_label"
+msgstr "Nama"
+
+msgid "admin.access_users.login_identifier_label"
+msgstr "Login identifier"
+
+msgid "admin.access_users.password_label"
+msgstr "Password"
+
+msgid "admin.access_users.initial_roles_legend"
+msgstr "Role awal (opsional)"
+
+msgid "admin.access_users.create_user_submit"
+msgstr "Buat pengguna"
+
+msgid "admin.access_users.roles_title"
+msgstr "Role & Permission"
+
+msgid "admin.access_users.code_column"
+msgstr "Kode"
+
+msgid "admin.access_users.permission_column"
+msgstr "Permission"
+
+msgid "admin.access_users.users_column"
+msgstr "Pengguna"
+
+msgid "admin.access_users.system_role_badge"
+msgstr "Sistem"
+
+msgid "admin.access_users.edit_summary"
+msgstr "Edit"
+
+msgid "admin.access_users.role_name_label"
+msgstr "Nama role"
+
+msgid "admin.access_users.permission_legend"
+msgstr "Permission"
+
+msgid "admin.access_users.system_role_note"
+msgstr "(role sistem — tidak dapat diubah)"
+
+msgid "admin.access_users.save_button"
+msgstr "Simpan"
+
+msgid "admin.access_users.delete_button"
+msgstr "Hapus"
+
+msgid "admin.access_users.create_role_summary"
+msgstr "Tambah role"
+
+msgid "admin.access_users.role_code_label"
+msgstr "Kode role"
+
+msgid "admin.access_users.role_code_placeholder"
+msgstr "mis. viewer"
+
+msgid "admin.access_users.create_role_submit"
+msgstr "Buat role"
+
+msgid "admin.access_users.create_user_success"
+msgstr "Pengguna berhasil dibuat."
+
+msgid "admin.access_users.create_role_success"
+msgstr "Role berhasil dibuat."
+
+msgid "admin.access_users.update_role_success"
+msgstr "Role berhasil diperbarui."
+
+msgid "admin.access_users.delete_role_success"
+msgstr "Role berhasil dihapus."
+
+msgid "admin.access_users.update_status_success"
+msgstr "Status pengguna diperbarui."
+
+msgid "admin.access_users.assign_role_success"
+msgstr "Role berhasil di-assign."
+
+msgid "admin.access_users.unassign_role_success"
+msgstr "Role berhasil dilepas."
+
+msgid "admin.access_users.delete_role_prompt"
+msgstr "Alasan menghapus role ini:"
+
+#. ConfirmDialog title/body for role deletion (Issue #693)
+msgid "admin.access_users.delete_role_confirm_title"
+msgstr "Hapus role?"
+
+msgid "admin.access_users.delete_role_confirm_body"
+msgstr "Role ini akan dihapus dan dilepas dari semua pengguna yang memilikinya. Tindakan ini dicatat di audit log."
+
+#. admin.sync
+msgid "admin.sync.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.sync.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat node, konflik, maupun antrean sync. Hubungi admin/owner tenant Anda untuk meminta akses."
+
+msgid "admin.sync.summary_title"
+msgstr "Ringkasan"
+
+msgid "admin.sync.nodes_title"
+msgstr "Node Sync"
+
+msgid "admin.sync.node_column"
+msgstr "Node"
+
+msgid "admin.sync.last_pushed_column"
+msgstr "Push terakhir"
+
+msgid "admin.sync.last_pulled_column"
+msgstr "Pull terakhir"
+
+msgid "admin.sync.no_nodes"
+msgstr "Belum ada node terdaftar."
+
+msgid "admin.sync.open_conflicts_title"
+msgstr "Konflik Terbuka"
+
+msgid "admin.sync.aggregate_column"
+msgstr "Aggregate"
+
+msgid "admin.sync.conflict_type_column"
+msgstr "Tipe konflik"
+
+msgid "admin.sync.batch_column"
+msgstr "Batch"
+
+msgid "admin.sync.created_column"
+msgstr "Dibuat"
+
+msgid "admin.sync.resolution_column"
+msgstr "Resolusi"
+
+msgid "admin.sync.no_open_conflicts"
+msgstr "Tidak ada konflik terbuka."
+
+msgid "admin.sync.resolution_accept_incoming"
+msgstr "Terima data masuk"
+
+msgid "admin.sync.resolution_keep_existing"
+msgstr "Pertahankan data lama"
+
+msgid "admin.sync.resolution_manual"
+msgstr "Manual"
+
+msgid "admin.sync.resolution_note_placeholder"
+msgstr "Catatan (opsional)"
+
+msgid "admin.sync.resolve_button"
+msgstr "Resolve"
+
+msgid "admin.sync.failed_queue_title"
+msgstr "Antrean Objek Gagal"
+
+msgid "admin.sync.object_key_column"
+msgstr "Object key"
+
+msgid "admin.sync.retry_column"
+msgstr "Retry"
+
+msgid "admin.sync.last_error_column"
+msgstr "Error terakhir"
+
+msgid "admin.sync.no_failed_objects"
+msgstr "Tidak ada objek gagal."
+
+msgid "admin.sync.retry_button"
+msgstr "Retry"
+
+msgid "admin.sync.update_node_success"
+msgstr "Status node diperbarui."
+
+msgid "admin.sync.resolve_conflict_success"
+msgstr "Konflik berhasil diresolusi."
+
+msgid "admin.sync.retry_object_success"
+msgstr "Objek berhasil di-retry."
+
+msgid "admin.layout.language_switcher_aria_label"
+msgstr "Bahasa"
+
+#. admin.settings
+msgid "admin.settings.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.settings.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat pengaturan tenant. Hubungi admin/owner tenant Anda untuk meminta akses."
+
+msgid "admin.settings.tenant_profile_legend"
+msgstr "Profil Tenant"
+
+msgid "admin.settings.tenant_name_label"
+msgstr "Nama tenant"
+
+msgid "admin.settings.legal_name_label"
+msgstr "Nama legal (opsional)"
+
+msgid "admin.settings.display_preferences_legend"
+msgstr "Preferensi Tampilan"
+
+msgid "admin.settings.default_locale_label"
+msgstr "Bahasa default"
+
+msgid "admin.settings.default_theme_label"
+msgstr "Tema default"
+
+msgid "admin.settings.default_theme_hint"
+msgstr "Tema default berlaku untuk sesi/browser baru yang belum pernah memilih tema secara manual. Pilihan tema pribadi Anda (tombol di topbar) tetap menang di browser ini."
+
+msgid "admin.settings.timezone_legend"
+msgstr "Zona Waktu"
+
+msgid "admin.settings.timezone_label"
+msgstr "Timezone (IANA)"
+
+msgid "admin.settings.feature_flags_legend"
+msgstr "Feature Flags"
+
+msgid "admin.settings.feature_flags_json_label"
+msgstr "JSON object"
+
+msgid "admin.settings.feature_flags_hint"
+msgstr "Harus berupa JSON object valid (mis. {\"betaReports\": true})."
+
+msgid "admin.settings.invalid_feature_flags"
+msgstr "Feature flags harus berupa JSON object yang valid."
+
+msgid "admin.settings.save_success"
+msgstr "Pengaturan berhasil disimpan."
+
+#. admin.modules — Issue #518 (daftar baca-saja minimal; UI lengkap di #521)
+msgid "admin.modules.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.modules.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat registry modul. Hubungi admin/owner tenant Anda untuk meminta akses."
+
+msgid "admin.modules.module_column"
+msgstr "Modul"
+
+msgid "admin.modules.version_column"
+msgstr "Versi"
+
+msgid "admin.modules.status_column"
+msgstr "Status"
+
+msgid "admin.modules.type_column"
+msgstr "Tipe"
+
+msgid "admin.modules.core_column"
+msgstr "Inti"
+
+msgid "admin.modules.no_modules"
+msgstr "Belum ada modul yang terdaftar."
+
+#. admin.modules — Issue #521 (UI admin daftar + detail lengkap)
+msgid "admin.modules.filters_aria_label"
+msgstr "Filter modul"
+
+msgid "admin.modules.filter_type_label"
+msgstr "Tipe"
+
+msgid "admin.modules.filter_status_label"
+msgstr "Status"
+
+msgid "admin.modules.filter_health_label"
+msgstr "Kesehatan"
+
+msgid "admin.modules.filter_all"
+msgstr "Semua"
+
+msgid "admin.modules.health_column"
+msgstr "Kesehatan"
+
+msgid "admin.modules.actions_column"
+msgstr "Aksi"
+
+msgid "admin.modules.view_detail_link"
+msgstr "Lihat"
+
+msgid "admin.modules.detail_not_found_title"
+msgstr "Modul tidak ditemukan."
+
+msgid "admin.modules.detail_not_found_body"
+msgstr "Kunci modul ini tidak terdaftar."
+
+msgid "admin.modules.back_to_list"
+msgstr "Kembali ke daftar modul"
+
+msgid "admin.modules.dependencies_legend"
+msgstr "Dependensi"
+
+msgid "admin.modules.no_dependencies"
+msgstr "Tidak ada dependensi."
+
+msgid "admin.modules.tenant_enablement_legend"
+msgstr "Ketersediaan untuk Tenant"
+
+msgid "admin.modules.enabled_label"
+msgstr "Aktif"
+
+msgid "admin.modules.disabled_label"
+msgstr "Nonaktif"
+
+msgid "admin.modules.enable_button"
+msgstr "Aktifkan untuk tenant ini"
+
+msgid "admin.modules.disable_button"
+msgstr "Nonaktifkan untuk tenant ini"
+
+msgid "admin.modules.disable_reason_prompt"
+msgstr "Alasan menonaktifkan modul ini"
+
+msgid "admin.modules.enable_success"
+msgstr "Modul diaktifkan untuk tenant ini."
+
+msgid "admin.modules.disable_success"
+msgstr "Modul dinonaktifkan untuk tenant ini."
+
+msgid "admin.modules.settings_legend"
+msgstr "Pengaturan"
+
+msgid "admin.modules.settings_json_label"
+msgstr "Override tenant (JSON object)"
+
+msgid "admin.modules.settings_hint"
+msgstr "Hanya key yang Anda isi di sini yang menimpa default modul. Jangan pernah memasukkan secret/token provider di sini — itu harus di environment variable."
+
+msgid "admin.modules.invalid_settings"
+msgstr "Settings harus berupa JSON yang valid."
+
+msgid "admin.modules.settings_save_button"
+msgstr "Simpan pengaturan"
+
+msgid "admin.modules.settings_save_success"
+msgstr "Pengaturan tersimpan."
+
+msgid "admin.modules.permissions_legend"
+msgstr "Status Sinkronisasi Permission"
+
+msgid "admin.modules.permission_activity_column"
+msgstr "Aktivitas"
+
+msgid "admin.modules.permission_action_column"
+msgstr "Aksi"
+
+msgid "admin.modules.no_permissions"
+msgstr "Tidak ada permission yang dideklarasikan atau di-seed."
+
+msgid "admin.modules.navigation_legend"
+msgstr "Navigasi Admin"
+
+msgid "admin.modules.no_navigation"
+msgstr "Modul ini tidak mendeklarasikan entri navigasi admin."
+
+msgid "admin.modules.nav_label_column"
+msgstr "Label"
+
+msgid "admin.modules.nav_path_column"
+msgstr "Path"
+
+msgid "admin.modules.nav_order_column"
+msgstr "Urutan"
+
+msgid "admin.modules.nav_permission_column"
+msgstr "Permission Wajib"
+
+msgid "admin.modules.jobs_legend"
+msgstr "Job Operasional"
+
+msgid "admin.modules.no_jobs"
+msgstr "Modul ini tidak mendeklarasikan job operasional."
+
+msgid "admin.modules.job_command_column"
+msgstr "Command"
+
+msgid "admin.modules.job_purpose_column"
+msgstr "Tujuan"
+
+msgid "admin.modules.job_schedule_column"
+msgstr "Jadwal Disarankan"
+
+msgid "admin.modules.job_offline_lan_column"
+msgstr "Aman Offline/LAN"
+
+msgid "admin.modules.health_legend"
+msgstr "Kesehatan / Kesiapan"
+
+msgid "admin.modules.health_check_button"
+msgstr "Jalankan health check"
+
+msgid "admin.modules.health_check_success"
+msgstr "Health check selesai."
+
+msgid "admin.modules.signal_column"
+msgstr "Sinyal"
+
+msgid "admin.modules.signal_status_column"
+msgstr "Status"
+
+msgid "admin.modules.signal_detail_column"
+msgstr "Detail"
+
+msgid "admin.modules.audit_legend"
+msgstr "Aktivitas Terbaru"
+
+msgid "admin.modules.audit_action_column"
+msgstr "Aksi"
+
+msgid "admin.modules.audit_severity_column"
+msgstr "Tingkat"
+
+msgid "admin.modules.audit_message_column"
+msgstr "Pesan"
+
+msgid "admin.modules.audit_time_column"
+msgstr "Waktu"
+
+msgid "admin.modules.no_audit_events"
+msgstr "Belum ada aktivitas terbaru untuk modul ini."
+
+#. admin.modules.matrix_* — Issue #566, epic #555 (matriks tenant-modul,
+#. scope single-tenant — lihat docblock src/pages/admin/modules/tenants.astro
+#. untuk keputusan scope mengikat)
+msgid "admin.modules.matrix_title"
+msgstr "Matriks Modul x Tenant"
+
+msgid "admin.modules.matrix_intro"
+msgstr "Tampilan ini menampilkan semua modul hanya untuk tenant Anda saat ini — ini bukan tampilan lintas-tenant. Gunakan untuk melihat masalah dependensi, modul terproteksi, dan masalah kesehatan di semua modul sekaligus."
+
+msgid "admin.modules.matrix_filter_warning_label"
+msgstr "Hanya tampilkan modul dengan peringatan"
+
+msgid "admin.modules.tenant_status_column"
+msgstr "Status Tenant"
+
+msgid "admin.modules.warnings_column"
+msgstr "Peringatan"
+
+msgid "admin.modules.protected_label"
+msgstr "Terproteksi"
+
+msgid "admin.modules.matrix_dependency_warning_prefix"
+msgstr "Masalah dependensi:"
+
+msgid "admin.modules.matrix_reverse_dependency_warning_prefix"
+msgstr "Akan menghalangi penonaktifan:"
+
+#. admin.examples.wizard — Issue #483, fixture non-domain
+msgid "admin.examples.wizard.nav_title"
+msgstr "Contoh Wizard"
+
+msgid "admin.examples.wizard.intro"
+msgstr "Fixture non-domain yang mendemonstrasikan pola wizard reusable dengan data dummy. Lihat docs/awcms-micro/examples/wizard-form-pattern.md."
+
+msgid "admin.examples.wizard.stepper_label"
+msgstr "Langkah wizard"
+
+msgid "admin.examples.wizard.step_current"
+msgstr "Saat ini"
+
+msgid "admin.examples.wizard.step_completed"
+msgstr "Selesai"
+
+msgid "admin.examples.wizard.step_pending"
+msgstr "Belum"
+
+msgid "admin.examples.wizard.error_summary_heading"
+msgstr "Periksa kembali isian berikut:"
+
+msgid "admin.examples.wizard.step_basic_title"
+msgstr "Info dasar"
+
+msgid "admin.examples.wizard.step_basic_description"
+msgstr "Judul dan kategori untuk item contoh ini."
+
+msgid "admin.examples.wizard.step_details_title"
+msgstr "Detail"
+
+msgid "admin.examples.wizard.step_details_description"
+msgstr "Catatan opsional."
+
+msgid "admin.examples.wizard.step_review_title"
+msgstr "Review"
+
+msgid "admin.examples.wizard.step_review_description"
+msgstr "Periksa kembali jawaban Anda sebelum submit."
+
+msgid "admin.examples.wizard.field_title_label"
+msgstr "Judul"
+
+msgid "admin.examples.wizard.field_category_label"
+msgstr "Kategori"
+
+msgid "admin.examples.wizard.field_category_option_general"
+msgstr "Umum"
+
+msgid "admin.examples.wizard.field_category_option_reference"
+msgstr "Referensi"
+
+msgid "admin.examples.wizard.field_category_option_misc"
+msgstr "Lainnya"
+
+msgid "admin.examples.wizard.field_notes_label"
+msgstr "Catatan"
+
+msgid "admin.examples.wizard.validation_title_required"
+msgstr "Judul wajib diisi."
+
+msgid "admin.examples.wizard.validation_category_required"
+msgstr "Kategori wajib diisi."
+
+msgid "admin.examples.wizard.submit_success_message"
+msgstr "Terkirim — draft disimpan lewat API form-drafts (tidak ada aksi domain yang dijalankan)."
+
+msgid "admin.examples.wizard.draft_save_error"
+msgstr "Progres tidak bisa disimpan. Isian Anda masih ada — coba lagi."
+
+msgid "admin.examples.wizard.draft_resumed_notice"
+msgstr "Draft tersimpan Anda dilanjutkan."
+
+#. admin.blog — Issue #543 (admin UI)
+msgid "admin.layout.nav_blog"
+msgstr "Blog"
+
+msgid "common.filter_all"
+msgstr "Semua"
+
+msgid "common.previous_page"
+msgstr "Halaman sebelumnya"
+
+msgid "common.next_page"
+msgstr "Halaman berikutnya"
+
+msgid "admin.blog.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.blog.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat layar blog ini. Hubungi admin/pemilik tenant Anda untuk meminta akses."
+
+msgid "admin.blog.dashboard.title"
+msgstr "Dasbor blog"
+
+msgid "admin.blog.dashboard.posts_title"
+msgstr "Post"
+
+msgid "admin.blog.dashboard.total_posts_label"
+msgstr "Total post"
+
+msgid "admin.blog.dashboard.draft_posts_label"
+msgstr "Draf"
+
+msgid "admin.blog.dashboard.scheduled_posts_label"
+msgstr "Terjadwal"
+
+msgid "admin.blog.dashboard.pages_title"
+msgstr "Halaman"
+
+msgid "admin.blog.dashboard.total_pages_label"
+msgstr "Total halaman"
+
+msgid "admin.blog.dashboard.quick_links_title"
+msgstr "Tautan cepat"
+
+msgid "admin.blog.dashboard.new_post_link"
+msgstr "Post baru"
+
+msgid "admin.blog.dashboard.new_page_link"
+msgstr "Halaman baru"
+
+msgid "admin.blog.dashboard.manage_posts_link"
+msgstr "Kelola post"
+
+msgid "admin.blog.dashboard.manage_pages_link"
+msgstr "Kelola halaman"
+
+msgid "admin.blog.dashboard.manage_categories_link"
+msgstr "Kelola kategori"
+
+msgid "admin.blog.dashboard.manage_tags_link"
+msgstr "Kelola tag"
+
+msgid "admin.blog.dashboard.manage_settings_link"
+msgstr "Pengaturan blog"
+
+msgid "admin.blog.dashboard.manage_internal_tag_links_link"
+msgstr "Tautan tag internal"
+
+msgid "admin.blog.dashboard.recent_updates_title"
+msgstr "Baru diperbarui"
+
+msgid "admin.blog.dashboard.no_recent_updates"
+msgstr "Belum ada post."
+
+msgid "admin.blog.status.draft"
+msgstr "Draf"
+
+msgid "admin.blog.status.review"
+msgstr "Dalam peninjauan"
+
+msgid "admin.blog.status.scheduled"
+msgstr "Terjadwal"
+
+msgid "admin.blog.status.published"
+msgstr "Diterbitkan"
+
+msgid "admin.blog.status.archived"
+msgstr "Diarsipkan"
+
+msgid "admin.blog.visibility.public"
+msgstr "Publik"
+
+msgid "admin.blog.visibility.private"
+msgstr "Privat"
+
+msgid "admin.blog.visibility.unlisted"
+msgstr "Tidak terdaftar"
+
+msgid "admin.blog.page_type.standard"
+msgstr "Standar"
+
+msgid "admin.blog.page_type.landing"
+msgstr "Landing"
+
+msgid "admin.blog.page_type.legal"
+msgstr "Legal"
+
+msgid "admin.blog.page_type.system"
+msgstr "Sistem"
+
+msgid "admin.blog.posts.title"
+msgstr "Post blog"
+
+msgid "admin.blog.posts.new_title"
+msgstr "Post baru"
+
+msgid "admin.blog.posts.new_button"
+msgstr "Post baru"
+
+msgid "admin.blog.posts.filters_aria_label"
+msgstr "Filter post"
+
+msgid "admin.blog.posts.search_label"
+msgstr "Cari"
+
+msgid "admin.blog.posts.status_filter_label"
+msgstr "Status"
+
+msgid "admin.blog.posts.term_filter_label"
+msgstr "Kategori/tag"
+
+msgid "admin.blog.posts.apply_filters_button"
+msgstr "Terapkan filter"
+
+msgid "admin.blog.posts.reset_filters_link"
+msgstr "Atur ulang filter"
+
+msgid "admin.blog.posts.no_posts"
+msgstr "Tidak ada post yang cocok dengan filter ini."
+
+msgid "admin.blog.posts.title_column"
+msgstr "Judul"
+
+msgid "admin.blog.posts.status_column"
+msgstr "Status"
+
+msgid "admin.blog.posts.author_column"
+msgstr "Penulis"
+
+msgid "admin.blog.posts.locale_column"
+msgstr "Locale"
+
+msgid "admin.blog.posts.published_column"
+msgstr "Diterbitkan"
+
+msgid "admin.blog.posts.updated_column"
+msgstr "Diperbarui"
+
+msgid "admin.blog.posts.unknown_author"
+msgstr "Tidak diketahui"
+
+msgid "admin.blog.posts.pagination_aria_label"
+msgstr "Navigasi halaman post"
+
+msgid "admin.blog.posts.page_indicator"
+msgstr "Halaman {page} dari {totalPages}"
+
+msgid "admin.blog.posts.not_found_title"
+msgstr "Post tidak ditemukan."
+
+msgid "admin.blog.posts.not_found_body"
+msgstr "Id post ini tidak ada atau Anda tidak memiliki izin untuk melihatnya."
+
+msgid "admin.blog.posts.back_to_list"
+msgstr "Kembali ke daftar post"
+
+msgid "admin.blog.posts.field_title"
+msgstr "Judul"
+
+msgid "admin.blog.posts.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.posts.slug_hint"
+msgstr "Hanya huruf kecil, angka, dan tanda hubung tunggal."
+
+msgid "admin.blog.posts.field_excerpt"
+msgstr "Ringkasan"
+
+msgid "admin.blog.posts.field_content_text"
+msgstr "Konten (teks polos)"
+
+msgid "admin.blog.posts.field_content_json"
+msgstr "Blok konten (JSON)"
+
+msgid "admin.blog.posts.content_json_hint"
+msgstr "Konten terstruktur berbentuk { \"blocks\": [...] } — hanya blok paragraph, heading, list, quote, gallery, dan video_news. Biarkan array blocks kosong bila ragu."
+
+msgid "admin.blog.posts.field_visibility"
+msgstr "Visibilitas"
+
+msgid "admin.blog.posts.field_locale"
+msgstr "Locale"
+
+msgid "admin.blog.posts.field_featured_media_id"
+msgstr "Referensi media unggulan (UUID)"
+
+msgid "admin.blog.posts.field_seo_image_media_id"
+msgstr "Referensi gambar pratinjau sosial/SEO (UUID)"
+
+msgid "admin.blog.posts.field_seo_image_media_id_hint"
+msgstr "Opsional. Menggantikan gambar unggulan untuk og:image, twitter:image, dan JSON-LD saat tautan yang dibagikan perlu menampilkan gambar berbeda."
+
+msgid "admin.blog.posts.featured_media_hint"
+msgstr "Opsional. Belum ada pustaka media — cukup masukkan referensi UUID."
+
+msgid "admin.blog.posts.field_categories"
+msgstr "Kategori"
+
+msgid "admin.blog.posts.no_categories"
+msgstr "Belum ada kategori."
+
+msgid "admin.blog.posts.field_tags"
+msgstr "Tag"
+
+msgid "admin.blog.posts.no_tags"
+msgstr "Belum ada tag."
+
+msgid "admin.blog.posts.seo_legend"
+msgstr "SEO"
+
+msgid "admin.blog.posts.field_seo_title"
+msgstr "Judul SEO"
+
+msgid "admin.blog.posts.field_meta_description"
+msgstr "Meta deskripsi"
+
+msgid "admin.blog.posts.field_canonical_url"
+msgstr "URL kanonis"
+
+msgid "admin.blog.posts.field_auto_internal_tag_links_disabled"
+msgstr "Nonaktifkan tautan tag internal otomatis untuk post ini"
+
+msgid "admin.blog.posts.create_submit"
+msgstr "Buat post"
+
+msgid "admin.blog.posts.create_success"
+msgstr "Post berhasil dibuat."
+
+msgid "admin.blog.posts.invalid_content_json"
+msgstr "Blok konten harus berupa JSON yang valid."
+
+msgid "admin.blog.posts.save_button"
+msgstr "Simpan perubahan"
+
+msgid "admin.blog.posts.save_success"
+msgstr "Post berhasil disimpan."
+
+msgid "admin.blog.posts.author_label"
+msgstr "Penulis"
+
+msgid "admin.blog.posts.deleted_label"
+msgstr "Dihapus"
+
+msgid "admin.blog.posts.submit_review_button"
+msgstr "Ajukan untuk ditinjau"
+
+msgid "admin.blog.posts.submit_review_success"
+msgstr "Post diajukan untuk ditinjau."
+
+msgid "admin.blog.posts.publish_button"
+msgstr "Terbitkan"
+
+msgid "admin.blog.posts.publish_confirm"
+msgstr "Terbitkan post ini sekarang? Post akan tampil di blog publik jika visibilitasnya publik."
+
+msgid "admin.blog.posts.publish_success"
+msgstr "Post berhasil diterbitkan."
+
+msgid "admin.blog.posts.schedule_button"
+msgstr "Jadwalkan"
+
+msgid "admin.blog.posts.scheduled_at_prompt"
+msgstr "Terbitkan pada (mis. 2026-08-01T09:00):"
+
+msgid "admin.blog.posts.schedule_confirm"
+msgstr "Jadwalkan post ini untuk diterbitkan otomatis pada waktu yang Anda masukkan?"
+
+msgid "admin.blog.posts.schedule_success"
+msgstr "Post berhasil dijadwalkan."
+
+msgid "admin.blog.posts.archive_button"
+msgstr "Arsipkan"
+
+msgid "admin.blog.posts.archive_confirm"
+msgstr "Arsipkan post ini? Post tidak akan lagi tampil di publik."
+
+msgid "admin.blog.posts.archive_success"
+msgstr "Post berhasil diarsipkan."
+
+msgid "admin.blog.posts.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.posts.delete_reason_prompt"
+msgstr "Alasan menghapus post ini:"
+
+msgid "admin.blog.posts.delete_success"
+msgstr "Post berhasil dihapus."
+
+msgid "admin.blog.posts.restore_button"
+msgstr "Pulihkan"
+
+msgid "admin.blog.posts.restore_confirm"
+msgstr "Pulihkan post yang dihapus ini?"
+
+msgid "admin.blog.posts.restore_success"
+msgstr "Post berhasil dipulihkan."
+
+msgid "admin.blog.posts.purge_button"
+msgstr "Hapus permanen"
+
+msgid "admin.blog.posts.purge_confirm"
+msgstr "Hapus post ini secara permanen? Tindakan ini tidak dapat dibatalkan."
+
+msgid "admin.blog.posts.purge_success"
+msgstr "Post berhasil dihapus permanen."
+
+msgid "admin.blog.posts.quality_checklist_title"
+msgstr "Checklist kualitas konten"
+
+msgid "admin.blog.posts.quality_checklist_not_applicable"
+msgstr "Tidak berlaku — mode news portal full-online R2-only belum aktif untuk tenant ini."
+
+msgid "admin.blog.posts.quality_checklist_passed"
+msgstr "Semua pemeriksaan lolos."
+
+msgid "admin.blog.posts.quality_checklist_blocking_label"
+msgstr "Blocking"
+
+msgid "admin.blog.posts.quality_checklist_warning_label"
+msgstr "Peringatan"
+
+msgid "admin.blog.posts.quality_checklist_info_label"
+msgstr "Info"
+
+msgid "admin.blog.posts.quality_checklist_load_error"
+msgstr "Checklist kualitas konten gagal dimuat."
+
+msgid "admin.blog.posts.internal_links_title"
+msgstr "Tautan tag internal otomatis"
+
+msgid "admin.blog.posts.internal_links_load_error"
+msgstr "Pratinjau tautan tag internal gagal dimuat."
+
+msgid "admin.blog.posts.internal_links_none"
+msgstr "Tidak ada istilah pada post ini yang cocok dengan tag yang ada."
+
+msgid "admin.blog.posts.internal_links_disabled_deployment"
+msgstr "Tautan tag internal otomatis dinonaktifkan untuk deployment ini."
+
+msgid "admin.blog.posts.internal_links_disabled_tenant"
+msgstr "Tautan tag internal otomatis dinonaktifkan untuk tenant ini."
+
+msgid "admin.blog.posts.internal_links_disabled_post"
+msgstr "Tautan tag internal otomatis dinonaktifkan untuk post ini."
+
+msgid "admin.blog.posts.revisions_title"
+msgstr "Riwayat revisi"
+
+msgid "admin.blog.posts.no_revisions"
+msgstr "Belum ada revisi."
+
+msgid "admin.blog.posts.revision_number_column"
+msgstr "#"
+
+msgid "admin.blog.posts.revision_title_column"
+msgstr "Judul"
+
+msgid "admin.blog.posts.revision_status_column"
+msgstr "Status"
+
+msgid "admin.blog.posts.revision_note_column"
+msgstr "Catatan"
+
+msgid "admin.blog.posts.revision_created_column"
+msgstr "Dibuat"
+
+msgid "admin.blog.posts.revision_actions_column"
+msgstr "Aksi"
+
+msgid "admin.blog.posts.revision_restore_button"
+msgstr "Pulihkan revisi ini"
+
+msgid "admin.blog.posts.revision_restore_confirm"
+msgstr "Pulihkan konten post ke revisi ini? Revisi baru yang mencatat pemulihan ini akan ditambahkan — tidak ada riwayat yang hilang."
+
+msgid "admin.blog.posts.revision_restore_success"
+msgstr "Post berhasil dipulihkan dari revisi."
+
+msgid "admin.blog.pages.title"
+msgstr "Halaman blog"
+
+msgid "admin.blog.pages.new_title"
+msgstr "Halaman baru"
+
+msgid "admin.blog.pages.new_button"
+msgstr "Halaman baru"
+
+msgid "admin.blog.pages.filters_aria_label"
+msgstr "Filter halaman"
+
+msgid "admin.blog.pages.search_label"
+msgstr "Cari"
+
+msgid "admin.blog.pages.status_filter_label"
+msgstr "Status"
+
+msgid "admin.blog.pages.type_filter_label"
+msgstr "Jenis halaman"
+
+msgid "admin.blog.pages.apply_filters_button"
+msgstr "Terapkan filter"
+
+msgid "admin.blog.pages.reset_filters_link"
+msgstr "Atur ulang filter"
+
+msgid "admin.blog.pages.no_pages"
+msgstr "Tidak ada halaman yang cocok dengan filter ini."
+
+msgid "admin.blog.pages.title_column"
+msgstr "Judul"
+
+msgid "admin.blog.pages.status_column"
+msgstr "Status"
+
+msgid "admin.blog.pages.type_column"
+msgstr "Jenis"
+
+msgid "admin.blog.pages.menu_order_column"
+msgstr "Urutan menu"
+
+msgid "admin.blog.pages.locale_column"
+msgstr "Locale"
+
+msgid "admin.blog.pages.updated_column"
+msgstr "Diperbarui"
+
+msgid "admin.blog.pages.pagination_aria_label"
+msgstr "Navigasi halaman"
+
+msgid "admin.blog.pages.not_found_title"
+msgstr "Halaman tidak ditemukan."
+
+msgid "admin.blog.pages.not_found_body"
+msgstr "Id halaman ini tidak ada atau Anda tidak memiliki izin untuk melihatnya."
+
+msgid "admin.blog.pages.back_to_list"
+msgstr "Kembali ke daftar halaman"
+
+msgid "admin.blog.pages.field_title"
+msgstr "Judul"
+
+msgid "admin.blog.pages.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.pages.field_page_type"
+msgstr "Jenis halaman"
+
+msgid "admin.blog.pages.field_parent_page"
+msgstr "Halaman induk"
+
+msgid "admin.blog.pages.no_parent_option"
+msgstr "Tanpa induk"
+
+msgid "admin.blog.pages.field_menu_order"
+msgstr "Urutan menu"
+
+msgid "admin.blog.pages.create_submit"
+msgstr "Buat halaman"
+
+msgid "admin.blog.pages.create_success"
+msgstr "Halaman berhasil dibuat."
+
+msgid "admin.blog.pages.save_button"
+msgstr "Simpan perubahan"
+
+msgid "admin.blog.pages.save_success"
+msgstr "Halaman berhasil disimpan."
+
+msgid "admin.blog.pages.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.pages.delete_reason_prompt"
+msgstr "Alasan menghapus halaman ini:"
+
+msgid "admin.blog.pages.delete_success"
+msgstr "Halaman berhasil dihapus."
+
+msgid "admin.blog.categories.title"
+msgstr "Kategori"
+
+msgid "admin.blog.categories.no_categories"
+msgstr "Belum ada kategori."
+
+msgid "admin.blog.categories.name_column"
+msgstr "Nama"
+
+msgid "admin.blog.categories.slug_column"
+msgstr "Slug"
+
+msgid "admin.blog.categories.parent_column"
+msgstr "Induk"
+
+msgid "admin.blog.categories.actions_column"
+msgstr "Aksi"
+
+msgid "admin.blog.categories.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.categories.field_name"
+msgstr "Nama"
+
+msgid "admin.blog.categories.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.categories.field_description"
+msgstr "Deskripsi"
+
+msgid "admin.blog.categories.field_parent"
+msgstr "Kategori induk"
+
+msgid "admin.blog.categories.no_parent_option"
+msgstr "Tanpa induk"
+
+msgid "admin.blog.categories.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.categories.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.categories.create_summary"
+msgstr "Tambah kategori"
+
+msgid "admin.blog.categories.create_submit"
+msgstr "Buat kategori"
+
+msgid "admin.blog.categories.create_success"
+msgstr "Kategori berhasil dibuat."
+
+msgid "admin.blog.categories.update_success"
+msgstr "Kategori berhasil diperbarui."
+
+msgid "admin.blog.categories.delete_reason_prompt"
+msgstr "Alasan menghapus kategori ini:"
+
+msgid "admin.blog.categories.delete_confirm"
+msgstr "Hapus kategori ini? Post yang menggunakannya akan tetap mempertahankan term lainnya."
+
+msgid "admin.blog.categories.delete_success"
+msgstr "Kategori berhasil dihapus."
+
+msgid "admin.blog.tags.title"
+msgstr "Tag"
+
+msgid "admin.blog.tags.no_tags"
+msgstr "Belum ada tag."
+
+msgid "admin.blog.tags.name_column"
+msgstr "Nama"
+
+msgid "admin.blog.tags.slug_column"
+msgstr "Slug"
+
+msgid "admin.blog.tags.actions_column"
+msgstr "Aksi"
+
+msgid "admin.blog.tags.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.tags.field_name"
+msgstr "Nama"
+
+msgid "admin.blog.tags.field_slug"
+msgstr "Slug"
+
+msgid "admin.blog.tags.field_description"
+msgstr "Deskripsi"
+
+msgid "admin.blog.tags.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.tags.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.tags.create_summary"
+msgstr "Tambah tag"
+
+msgid "admin.blog.tags.create_submit"
+msgstr "Buat tag"
+
+msgid "admin.blog.tags.create_success"
+msgstr "Tag berhasil dibuat."
+
+msgid "admin.blog.tags.update_success"
+msgstr "Tag berhasil diperbarui."
+
+msgid "admin.blog.tags.delete_reason_prompt"
+msgstr "Alasan menghapus tag ini:"
+
+msgid "admin.blog.tags.delete_confirm"
+msgstr "Hapus tag ini? Post yang menggunakannya akan tetap mempertahankan term lainnya."
+
+msgid "admin.blog.tags.delete_success"
+msgstr "Tag berhasil dihapus."
+
+msgid "admin.blog.taxonomy.category_prefix"
+msgstr "Kategori: {name}"
+
+msgid "admin.blog.taxonomy.tag_prefix"
+msgstr "Tag: {name}"
+
+msgid "admin.blog.settings.title"
+msgstr "Pengaturan blog"
+
+msgid "admin.blog.settings.general_legend"
+msgstr "Umum"
+
+msgid "admin.blog.settings.field_blog_title"
+msgstr "Judul blog"
+
+msgid "admin.blog.settings.field_blog_description"
+msgstr "Deskripsi blog"
+
+msgid "admin.blog.settings.field_posts_per_page"
+msgstr "Post per halaman"
+
+msgid "admin.blog.settings.field_rss_enabled"
+msgstr "Aktifkan feed RSS"
+
+msgid "admin.blog.settings.field_sitemap_enabled"
+msgstr "Aktifkan sitemap"
+
+msgid "admin.blog.settings.field_default_locale"
+msgstr "Locale default"
+
+msgid "admin.blog.settings.field_default_visibility"
+msgstr "Visibilitas default"
+
+msgid "admin.blog.settings.field_seo_default_title"
+msgstr "Template judul SEO default"
+
+msgid "admin.blog.settings.field_seo_default_description"
+msgstr "Meta deskripsi default"
+
+msgid "admin.blog.settings.field_checklist_policy"
+msgstr "Kebijakan checklist kualitas konten (JSON)"
+
+msgid "admin.blog.settings.checklist_policy_hint"
+msgstr "Memetakan excerpt_present, meta_description_present, featured_image_exists, featured_image_alt_text, featured_image_dimensions, og_image_trusted, taxonomy_exists, social_preview_image_ready, social_preview_image_alt_text ke blocking, warning, atau info. Aturan keamanan tidak bisa di-override di sini."
+
+msgid "admin.blog.settings.field_social_preview_fallback_image"
+msgstr "Referensi gambar pratinjau sosial cadangan (UUID)"
+
+msgid "admin.blog.settings.social_preview_fallback_image_hint"
+msgstr "Dipakai untuk og:image/twitter:image/JSON-LD hanya ketika sebuah post tidak punya gambar SEO eksplisit, gambar unggulan, maupun gambar terverifikasi yang bisa dipakai di dalam kontennya sendiri."
+
+msgid "admin.blog.settings.field_social_preview_content_image_fallback_enabled"
+msgstr "Izinkan memakai gambar terverifikasi pertama di dalam konten post sebagai pratinjau sosial saat tidak ada gambar SEO eksplisit atau gambar unggulan"
+
+msgid "admin.blog.settings.invalid_checklist_policy_json"
+msgstr "Kebijakan checklist kualitas konten harus berupa JSON yang valid."
+
+msgid "admin.blog.settings.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.settings.save_success"
+msgstr "Pengaturan blog berhasil disimpan."
+
+msgid "admin.blog.settings.theme_legend"
+msgstr "Mode tema"
+
+msgid "admin.blog.settings.theme_override_note"
+msgstr "Tenant ini memiliki override tema khusus blog yang sedang aktif."
+
+msgid "admin.blog.settings.theme_inherited_note"
+msgstr "Belum ada override khusus blog — tema default tenant yang digunakan."
+
+msgid "admin.blog.settings.field_theme_mode"
+msgstr "Mode tema"
+
+msgid "admin.blog.settings.theme_mode_light"
+msgstr "Terang"
+
+msgid "admin.blog.settings.theme_mode_dark"
+msgstr "Gelap"
+
+msgid "admin.blog.settings.theme_mode_system"
+msgstr "Sistem"
+
+msgid "admin.blog.settings.theme_save_success"
+msgstr "Mode tema berhasil disimpan."
+
+msgid "admin.blog.internal_tag_links.title"
+msgstr "Tautan tag internal"
+
+msgid "admin.blog.internal_tag_links.save_success"
+msgstr "Pengaturan tautan tag internal berhasil disimpan."
+
+msgid "admin.blog.internal_tag_links.deployment_legend"
+msgstr "Konfigurasi deployment"
+
+msgid "admin.blog.internal_tag_links.deployment_hint"
+msgstr "Nilai ini diatur oleh operator deployment dan tidak dapat diubah di sini."
+
+msgid "admin.blog.internal_tag_links.deployment_enabled"
+msgstr "Aktif untuk deployment ini"
+
+msgid "admin.blog.internal_tag_links.max_per_post"
+msgstr "Maksimum link per post"
+
+msgid "admin.blog.internal_tag_links.max_per_tag"
+msgstr "Maksimum link per tag"
+
+msgid "admin.blog.internal_tag_links.min_term_length"
+msgstr "Panjang minimum nama tag"
+
+msgid "admin.blog.internal_tag_links.link_first_occurrence_only"
+msgstr "Hanya tautkan kemunculan pertama"
+
+msgid "admin.blog.internal_tag_links.exclude_headings"
+msgstr "Kecualikan heading"
+
+msgid "admin.blog.internal_tag_links.tenant_legend"
+msgstr "Pengaturan Anda"
+
+msgid "admin.blog.internal_tag_links.field_enabled"
+msgstr "Aktifkan tautan tag internal otomatis"
+
+msgid "admin.blog.internal_tag_links.field_case_insensitive"
+msgstr "Cocokkan nama tag tanpa memperhatikan huruf besar/kecil"
+
+msgid "admin.blog.internal_tag_links.field_disabled_tags"
+msgstr "Tag yang dinonaktifkan"
+
+msgid "admin.blog.internal_tag_links.disabled_tags_hint"
+msgstr "Tag yang dipilih tidak akan pernah ditautkan otomatis di konten artikel."
+
+msgid "admin.blog.internal_tag_links.no_tags"
+msgstr "Belum ada tag."
+
+msgid "admin.blog.internal_tag_links.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.templates.title"
+msgstr "Templat"
+
+msgid "admin.blog.templates.no_templates"
+msgstr "Belum ada templat."
+
+msgid "admin.blog.templates.key_column"
+msgstr "Key"
+
+msgid "admin.blog.templates.name_column"
+msgstr "Nama"
+
+msgid "admin.blog.templates.columns_column"
+msgstr "Kolom"
+
+msgid "admin.blog.templates.sidebar_column"
+msgstr "Sidebar"
+
+msgid "admin.blog.templates.active_column"
+msgstr "Aktif"
+
+msgid "admin.blog.templates.actions_column"
+msgstr "Aksi"
+
+msgid "admin.blog.templates.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.templates.field_key"
+msgstr "Key"
+
+msgid "admin.blog.templates.field_name"
+msgstr "Nama"
+
+msgid "admin.blog.templates.field_columns"
+msgstr "Kolom"
+
+msgid "admin.blog.templates.field_sidebar"
+msgstr "Posisi sidebar"
+
+msgid "admin.blog.templates.sidebar_left"
+msgstr "Kiri"
+
+msgid "admin.blog.templates.sidebar_right"
+msgstr "Kanan"
+
+msgid "admin.blog.templates.sidebar_none"
+msgstr "Tidak ada"
+
+msgid "admin.blog.templates.field_active"
+msgstr "Aktif"
+
+msgid "admin.blog.templates.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.templates.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.templates.create_summary"
+msgstr "Tambah templat"
+
+msgid "admin.blog.templates.create_submit"
+msgstr "Buat templat"
+
+msgid "admin.blog.templates.create_success"
+msgstr "Templat berhasil dibuat."
+
+msgid "admin.blog.templates.update_success"
+msgstr "Templat berhasil diperbarui."
+
+msgid "admin.blog.templates.delete_reason_prompt"
+msgstr "Alasan menghapus templat ini:"
+
+msgid "admin.blog.templates.delete_confirm"
+msgstr "Hapus templat ini?"
+
+msgid "admin.blog.templates.delete_success"
+msgstr "Templat berhasil dihapus."
+
+msgid "admin.blog.widgets.title"
+msgstr "Widget"
+
+msgid "admin.blog.widgets.no_widgets"
+msgstr "Belum ada widget."
+
+msgid "admin.blog.widgets.title_column"
+msgstr "Judul"
+
+msgid "admin.blog.widgets.position_column"
+msgstr "Posisi"
+
+msgid "admin.blog.widgets.sort_order_column"
+msgstr "Urutan"
+
+msgid "admin.blog.widgets.active_column"
+msgstr "Aktif"
+
+msgid "admin.blog.widgets.actions_column"
+msgstr "Aksi"
+
+msgid "admin.blog.widgets.edit_summary"
+msgstr "Edit"
+
+msgid "admin.blog.widgets.field_title"
+msgstr "Judul"
+
+msgid "admin.blog.widgets.field_position"
+msgstr "Posisi"
+
+msgid "admin.blog.widgets.position_header"
+msgstr "Header"
+
+msgid "admin.blog.widgets.position_sidebar"
+msgstr "Sidebar"
+
+msgid "admin.blog.widgets.position_footer"
+msgstr "Footer"
+
+msgid "admin.blog.widgets.position_content_before"
+msgstr "Sebelum konten"
+
+msgid "admin.blog.widgets.position_content_after"
+msgstr "Setelah konten"
+
+msgid "admin.blog.widgets.field_body_text"
+msgstr "Isi teks"
+
+msgid "admin.blog.widgets.field_sort_order"
+msgstr "Urutan"
+
+msgid "admin.blog.widgets.field_active"
+msgstr "Aktif"
+
+msgid "admin.blog.widgets.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.widgets.delete_button"
+msgstr "Hapus"
+
+msgid "admin.blog.widgets.create_summary"
+msgstr "Tambah widget"
+
+msgid "admin.blog.widgets.create_submit"
+msgstr "Buat widget"
+
+msgid "admin.blog.widgets.create_success"
+msgstr "Widget berhasil dibuat."
+
+msgid "admin.blog.widgets.update_success"
+msgstr "Widget berhasil diperbarui."
+
+msgid "admin.blog.widgets.delete_reason_prompt"
+msgstr "Alasan menghapus widget ini:"
+
+msgid "admin.blog.widgets.delete_confirm"
+msgstr "Hapus widget ini?"
+
+msgid "admin.blog.widgets.delete_success"
+msgstr "Widget berhasil dihapus."
+
+msgid "admin.blog.menus.title"
+msgstr "Menu"
+
+msgid "admin.blog.menus.no_menus"
+msgstr "Belum ada menu."
+
+msgid "admin.blog.menus.field_key"
+msgstr "Key"
+
+msgid "admin.blog.menus.field_name"
+msgstr "Nama"
+
+msgid "admin.blog.menus.field_items"
+msgstr "Item menu (JSON)"
+
+msgid "admin.blog.menus.items_hint"
+msgstr "Array berisi { id, parentItemId, label, linkType, targetId, url, sortOrder }. Id setiap item harus UUID yang Anda tentukan sendiri (gunakan \"Salin id baru\" di bawah) — menyimpan akan mengganti seluruh daftar item. Hanya satu tingkat nesting."
+
+msgid "admin.blog.menus.generate_id_button"
+msgstr "Salin id baru"
+
+msgid "admin.blog.menus.invalid_items_json"
+msgstr "Item menu harus berupa JSON yang valid."
+
+msgid "admin.blog.menus.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.menus.delete_button"
+msgstr "Hapus menu"
+
+msgid "admin.blog.menus.create_summary"
+msgstr "Tambah menu"
+
+msgid "admin.blog.menus.create_submit"
+msgstr "Buat menu"
+
+msgid "admin.blog.menus.create_success"
+msgstr "Menu berhasil dibuat."
+
+msgid "admin.blog.menus.update_success"
+msgstr "Menu berhasil diperbarui."
+
+msgid "admin.blog.menus.delete_reason_prompt"
+msgstr "Alasan menghapus menu ini:"
+
+msgid "admin.blog.menus.delete_confirm"
+msgstr "Hapus menu ini beserta seluruh itemnya?"
+
+msgid "admin.blog.menus.delete_success"
+msgstr "Menu berhasil dihapus."
+
+msgid "admin.blog.ads.title"
+msgstr "Iklan"
+
+msgid "admin.blog.ads.no_ads"
+msgstr "Belum ada iklan."
+
+msgid "admin.blog.ads.field_name"
+msgstr "Nama"
+
+msgid "admin.blog.ads.field_image_url"
+msgstr "URL gambar"
+
+msgid "admin.blog.ads.field_link_url"
+msgstr "URL tautan"
+
+msgid "admin.blog.ads.field_starts_at"
+msgstr "Mulai pada"
+
+msgid "admin.blog.ads.field_ends_at"
+msgstr "Berakhir pada"
+
+msgid "admin.blog.ads.field_active"
+msgstr "Aktif"
+
+msgid "admin.blog.ads.field_placements"
+msgstr "Penempatan (JSON)"
+
+msgid "admin.blog.ads.placements_hint"
+msgstr "Array berisi { placementType, targetId }. placementType salah satu dari global, widget, post, page — targetId wajib diisi kecuali untuk global. Menyimpan akan mengganti seluruh daftar penempatan."
+
+msgid "admin.blog.ads.invalid_placements_json"
+msgstr "Penempatan harus berupa JSON yang valid."
+
+msgid "admin.blog.ads.save_button"
+msgstr "Simpan"
+
+msgid "admin.blog.ads.delete_button"
+msgstr "Hapus iklan"
+
+msgid "admin.blog.ads.create_summary"
+msgstr "Tambah iklan"
+
+msgid "admin.blog.ads.create_submit"
+msgstr "Buat iklan"
+
+msgid "admin.blog.ads.create_success"
+msgstr "Iklan berhasil dibuat."
+
+msgid "admin.blog.ads.update_success"
+msgstr "Iklan berhasil diperbarui."
+
+msgid "admin.blog.ads.delete_reason_prompt"
+msgstr "Alasan menghapus iklan ini:"
+
+msgid "admin.blog.ads.delete_confirm"
+msgstr "Hapus iklan ini?"
+
+msgid "admin.blog.ads.delete_success"
+msgstr "Iklan berhasil dihapus."
+
+#. admin.news_portal.homepage_sections (Issue #637)
+msgid "admin.news_portal.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.news_portal.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat halaman ini."
+
+msgid "admin.news_portal.homepage_sections.title"
+msgstr "Section Homepage"
+
+msgid "admin.news_portal.homepage_sections.no_sections"
+msgstr "Belum ada section homepage."
+
+msgid "admin.news_portal.homepage_sections.field_section_key"
+msgstr "Section key"
+
+msgid "admin.news_portal.homepage_sections.field_section_type"
+msgstr "Tipe section"
+
+msgid "admin.news_portal.homepage_sections.field_title"
+msgstr "Judul"
+
+msgid "admin.news_portal.homepage_sections.field_config"
+msgstr "Config (JSON)"
+
+msgid "admin.news_portal.homepage_sections.config_hint"
+msgstr "Bentuknya tergantung tipe section — headline: {postId}; latest_posts: {limit?, categorySlug?}; featured_posts/editor_picks: {postIds: []}; category_grid: {categorySlugs: [], postsPerCategory?}; gallery_block: {mediaObjectIds: [], caption?}. Semua id/slug harus sudah ada untuk tenant ini."
+
+msgid "admin.news_portal.homepage_sections.field_sort_order"
+msgstr "Urutan"
+
+msgid "admin.news_portal.homepage_sections.field_enabled"
+msgstr "Aktif"
+
+msgid "admin.news_portal.homepage_sections.field_starts_at"
+msgstr "Mulai pada"
+
+msgid "admin.news_portal.homepage_sections.field_ends_at"
+msgstr "Berakhir pada"
+
+msgid "admin.news_portal.homepage_sections.invalid_config_json"
+msgstr "Config harus berupa JSON yang valid."
+
+msgid "admin.news_portal.homepage_sections.save_button"
+msgstr "Simpan"
+
+msgid "admin.news_portal.homepage_sections.delete_button"
+msgstr "Hapus section"
+
+msgid "admin.news_portal.homepage_sections.create_summary"
+msgstr "Tambah section homepage"
+
+msgid "admin.news_portal.homepage_sections.create_submit"
+msgstr "Buat section"
+
+msgid "admin.news_portal.homepage_sections.create_success"
+msgstr "Section homepage berhasil dibuat."
+
+msgid "admin.news_portal.homepage_sections.update_success"
+msgstr "Section homepage berhasil diperbarui."
+
+msgid "admin.news_portal.homepage_sections.delete_reason_prompt"
+msgstr "Alasan menghapus section homepage ini:"
+
+msgid "admin.news_portal.homepage_sections.delete_confirm"
+msgstr "Hapus section homepage ini?"
+
+msgid "admin.news_portal.homepage_sections.delete_success"
+msgstr "Section homepage berhasil dihapus."
+
+#. admin.tenant_domain (Issue #563)
+msgid "admin.tenant_domain.title"
+msgstr "Domain Tenant"
+
+msgid "admin.tenant_domain.access_denied_title"
+msgstr "Akses ditolak."
+
+msgid "admin.tenant_domain.access_denied_body"
+msgstr "Akun Anda tidak memiliki izin untuk melihat domain tenant. Hubungi admin/pemilik tenant Anda untuk meminta akses."
+
+msgid "admin.tenant_domain.no_domains"
+msgstr "Belum ada domain. Tambahkan subdomain platform atau domain kustom untuk memulai."
+
+msgid "admin.tenant_domain.hostname_column"
+msgstr "Hostname"
+
+msgid "admin.tenant_domain.type_column"
+msgstr "Tipe"
+
+msgid "admin.tenant_domain.status_column"
+msgstr "Status"
+
+msgid "admin.tenant_domain.verification_column"
+msgstr "Verifikasi"
+
+msgid "admin.tenant_domain.actions_column"
+msgstr "Aksi"
+
+msgid "admin.tenant_domain.domain_type.subdomain"
+msgstr "Subdomain platform"
+
+msgid "admin.tenant_domain.domain_type.custom_domain"
+msgstr "Domain kustom"
+
+msgid "admin.tenant_domain.route_mode.canonical"
+msgstr "Canonical (/news)"
+
+msgid "admin.tenant_domain.route_mode.legacy_blog"
+msgstr "Legacy (/blog/{tenantCode})"
+
+msgid "admin.tenant_domain.status.pending_verification"
+msgstr "Menunggu verifikasi"
+
+msgid "admin.tenant_domain.status.active"
+msgstr "Aktif"
+
+msgid "admin.tenant_domain.status.suspended"
+msgstr "Ditangguhkan"
+
+msgid "admin.tenant_domain.status.failed"
+msgstr "Gagal"
+
+msgid "admin.tenant_domain.primary_badge_label"
+msgstr "Domain utama"
+
+msgid "admin.tenant_domain.verification_method.dns_txt"
+msgstr "Rekaman TXT"
+
+msgid "admin.tenant_domain.verification_method.dns_cname"
+msgstr "Rekaman CNAME"
+
+msgid "admin.tenant_domain.verification_method.file"
+msgstr "Unggah file"
+
+msgid "admin.tenant_domain.verification_method.manual"
+msgstr "Manual (atestasi operator)"
+
+msgid "admin.tenant_domain.verification_method_none"
+msgstr "Belum ada metode verifikasi"
+
+msgid "admin.tenant_domain.no_record_configured"
+msgstr "Belum ada rekaman DNS untuk metode verifikasi ini."
+
+msgid "admin.tenant_domain.record_name_label"
+msgstr "Nama/host rekaman"
+
+msgid "admin.tenant_domain.record_value_label"
+msgstr "Nilai rekaman"
+
+msgid "admin.tenant_domain.copy_button"
+msgstr "Salin"
+
+msgid "admin.tenant_domain.copy_success"
+msgstr "Berhasil disalin ke clipboard."
+
+msgid "admin.tenant_domain.copy_error"
+msgstr "Gagal menyalin otomatis — silakan salin secara manual."
+
+msgid "admin.tenant_domain.preview_link"
+msgstr "Buka situs publik /news"
+
+msgid "admin.tenant_domain.preview_hint"
+msgstr "Hanya bisa diakses publik jika routing publik berbasis host diaktifkan pada deployment ini."
+
+msgid "admin.tenant_domain.verify_button"
+msgstr "Verifikasi"
+
+msgid "admin.tenant_domain.verify_confirm"
+msgstr "Verifikasi domain ini sekarang? Ini akan menandainya aktif berdasarkan atestasi Anda bahwa DNS/kepemilikan sudah benar."
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.verify_confirm_title"
+msgstr "Verifikasi domain?"
+
+msgid "admin.tenant_domain.verify_success"
+msgstr "Domain terverifikasi."
+
+msgid "admin.tenant_domain.set_primary_button"
+msgstr "Jadikan utama"
+
+msgid "admin.tenant_domain.set_primary_confirm"
+msgstr "Jadikan domain ini sebagai domain utama tenant?"
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.set_primary_confirm_title"
+msgstr "Jadikan domain utama?"
+
+msgid "admin.tenant_domain.set_primary_success"
+msgstr "Domain utama berhasil diperbarui."
+
+msgid "admin.tenant_domain.delete_button"
+msgstr "Hapus"
+
+msgid "admin.tenant_domain.delete_reason_prompt"
+msgstr "Alasan menghapus pemetaan domain ini:"
+
+msgid "admin.tenant_domain.delete_confirm"
+msgstr "Hapus pemetaan domain ini? Tindakan ini tidak dapat dibatalkan dari layar ini."
+
+#. ConfirmDialog title (Issue #693)
+msgid "admin.tenant_domain.delete_confirm_title"
+msgstr "Hapus pemetaan domain?"
+
+msgid "admin.tenant_domain.delete_success"
+msgstr "Pemetaan domain berhasil dihapus."
+
+msgid "admin.tenant_domain.edit_summary"
+msgstr "Ubah"
+
+msgid "admin.tenant_domain.save_button"
+msgstr "Simpan"
+
+msgid "admin.tenant_domain.update_success"
+msgstr "Pemetaan domain berhasil diperbarui."
+
+msgid "admin.tenant_domain.field_status_no_change"
+msgstr "Biarkan tidak berubah"
+
+msgid "admin.tenant_domain.field_status_active_hint"
+msgstr "Domain ini sedang aktif. Memilih status di bawah (mis. Ditangguhkan) akan menonaktifkannya — perubahan berlaku langsung saat disimpan."
+
+msgid "admin.tenant_domain.field_verification_method_none_option"
+msgstr "Tidak diset"
+
+msgid "admin.tenant_domain.create_summary"
+msgstr "Tambah domain atau subdomain"
+
+msgid "admin.tenant_domain.create_submit"
+msgstr "Tambah domain"
+
+msgid "admin.tenant_domain.create_success"
+msgstr "Pemetaan domain berhasil ditambahkan."
+
+msgid "admin.tenant_domain.field_hostname"
+msgstr "Hostname"
+
+msgid "admin.tenant_domain.field_hostname_hint"
+msgstr "Masukkan hostname lengkap, mis. shop.example.com — tanpa skema (https://), tanpa port."
+
+msgid "admin.tenant_domain.field_domain_type"
+msgstr "Tipe domain"
+
+msgid "admin.tenant_domain.field_route_mode"
+msgstr "Mode rute"
+
+msgid "admin.tenant_domain.field_verification_method"
+msgstr "Metode verifikasi"
+
+msgid "admin.tenant_domain.field_record_name"
+msgstr "Nama/host rekaman verifikasi (opsional)"
+
+msgid "admin.tenant_domain.field_record_value"
+msgstr "Nilai rekaman verifikasi (opsional)"
+
+msgid "admin.tenant_domain.field_redirect_to_primary"
+msgstr "Alihkan ke domain utama"
+
+msgid "admin.tenant_domain.field_status"
+msgstr "Status"
+
+msgid "admin.tenant_domain.invalid_hostname"
+msgstr "Masukkan hostname yang valid (tanpa skema, tanpa port, mis. shop.example.com)."
+
+
+#. admin.security (Issue #592, epic: full-online auth hardening #587-#593)
+
+msgid "admin.security.heading"
+msgstr "Keamanan autentikasi full-online"
+
+msgid "admin.security.gate_disabled_title"
+msgstr "Pengerasan autentikasi full-online dinonaktifkan untuk profil deployment ini."
+
+msgid "admin.security.gate_disabled_body"
+msgstr "Deployment ini berjalan hanya dengan autentikasi lokal/offline/LAN. Kontrol konfigurasi Cloudflare Turnstile, MFA, login Google, dan SSO disembunyikan karena AUTH_ONLINE_SECURITY_ENABLED/AUTH_ONLINE_SECURITY_PROFILE belum diset ke full_online di server ini. Minta operator mengaktifkan profil keamanan full-online jika tenant ini membutuhkan fitur-fitur ini."
+
+msgid "admin.security.access_denied_title"
+msgstr "Anda tidak memiliki akses ke pengaturan keamanan."
+
+msgid "admin.security.access_denied_body"
+msgstr "Minta admin tenant memberikan izin kebijakan autentikasi atau penyedia SSO kepada Anda."
+
+msgid "admin.security.status_legend"
+msgstr "Status pengerasan autentikasi online"
+
+msgid "admin.security.gate_label"
+msgstr "Gerbang keamanan full-online"
+
+msgid "admin.security.gate_active_value"
+msgstr "Aktif"
+
+msgid "admin.security.gate_inactive_value"
+msgstr "Tidak aktif"
+
+msgid "admin.security.gate_profile_label"
+msgstr "Profil deployment"
+
+msgid "admin.security.feature_status_enabled"
+msgstr "Aktif"
+
+msgid "admin.security.feature_status_disabled"
+msgstr "Nonaktif"
+
+msgid "admin.security.feature_configured"
+msgstr "Terkonfigurasi"
+
+msgid "admin.security.feature_not_configured"
+msgstr "Belum terkonfigurasi"
+
+msgid "admin.security.turnstile_label"
+msgstr "Cloudflare Turnstile"
+
+msgid "admin.security.mfa_label"
+msgstr "MFA / TOTP"
+
+msgid "admin.security.google_login_label"
+msgstr "Login Google"
+
+msgid "admin.security.sso_label"
+msgstr "SSO tenant generik"
+
+msgid "admin.security.policy_legend"
+msgstr "Kebijakan autentikasi tenant"
+
+msgid "admin.security.password_login_enabled_label"
+msgstr "Login password lokal diaktifkan"
+
+msgid "admin.security.sso_enabled_label"
+msgstr "Login SSO diaktifkan"
+
+msgid "admin.security.sso_required_label"
+msgstr "Login SSO wajib (menonaktifkan login password untuk identitas non-break-glass)"
+
+msgid "admin.security.sso_required_hint"
+msgstr "Membutuhkan minimal satu pemilik lokal break-glass yang saat ini aktif dipilih di bawah, atau server akan menolak perubahan ini."
+
+msgid "admin.security.auto_link_verified_email_label"
+msgstr "Tautkan otomatis akun berdasarkan domain email terverifikasi"
+
+msgid "admin.security.allowed_email_domains_label"
+msgstr "Domain email yang diizinkan (pisahkan dengan koma)"
+
+msgid "admin.security.allowed_email_domains_hint"
+msgstr "Kosongkan untuk mengizinkan semua domain yang diizinkan provider itu sendiri. Contoh: example.com, example.org"
+
+msgid "admin.security.break_glass_legend"
+msgstr "Pemilik lokal break-glass"
+
+msgid "admin.security.break_glass_hint"
+msgstr "Minimal satu identitas yang dipilih di sini harus tetap bisa login lokal aktif untuk tenant ini jika SSO diwajibkan atau login password dinonaktifkan."
+
+msgid "admin.security.break_glass_manual_label"
+msgstr "ID identitas break-glass (UUID dipisahkan koma)"
+
+msgid "admin.security.break_glass_manual_hint"
+msgstr "Anda tidak memiliki izin untuk menelusuri daftar pengguna, jadi masukkan UUID identitas secara langsung. Minta nilai yang benar dari admin pengguna."
+
+msgid "admin.security.break_glass_client_warning"
+msgstr "Pilih minimal satu pemilik lokal break-glass sebelum mewajibkan login SSO atau menonaktifkan login password."
+
+msgid "admin.security.policy_save_button"
+msgstr "Simpan kebijakan autentikasi"
+
+msgid "admin.security.policy_save_success"
+msgstr "Kebijakan autentikasi disimpan."
+
+msgid "admin.security.providers_legend"
+msgstr "Penyedia SSO tenant"
+
+msgid "admin.security.providers_table_key_column"
+msgstr "Kunci provider"
+
+msgid "admin.security.providers_table_name_column"
+msgstr "Nama tampilan"
+
+msgid "admin.security.providers_table_issuer_column"
+msgstr "URL issuer"
+
+msgid "admin.security.providers_table_secret_column"
+msgstr "Client secret"
+
+msgid "admin.security.providers_table_scopes_column"
+msgstr "Scopes"
+
+msgid "admin.security.providers_table_domains_column"
+msgstr "Domain yang diizinkan"
+
+msgid "admin.security.providers_table_status_column"
+msgstr "Status"
+
+msgid "admin.security.providers_table_actions_column"
+msgstr "Aksi"
+
+msgid "admin.security.no_providers"
+msgstr "Belum ada penyedia SSO yang dikonfigurasi."
+
+msgid "admin.security.provider_enabled_value"
+msgstr "Aktif"
+
+msgid "admin.security.provider_disabled_value"
+msgstr "Nonaktif"
+
+msgid "admin.security.secret_source_encrypted_value"
+msgstr "Terenkripsi (disembunyikan)"
+
+msgid "admin.security.secret_source_env_value"
+msgstr "Env var: {name}"
+
+msgid "admin.security.create_provider_summary"
+msgstr "Tambah penyedia SSO"
+
+msgid "admin.security.provider_key_label"
+msgstr "Kunci provider"
+
+msgid "admin.security.provider_key_hint"
+msgstr "Hanya huruf kecil, angka, tanda hubung, garis bawah. Tidak dapat diubah setelah dibuat. Contoh: okta"
+
+msgid "admin.security.display_name_label"
+msgstr "Nama tampilan"
+
+msgid "admin.security.issuer_url_label"
+msgstr "URL issuer (hanya https)"
+
+msgid "admin.security.client_id_label"
+msgstr "Client ID"
+
+msgid "admin.security.client_secret_label"
+msgstr "Nilai client secret"
+
+msgid "admin.security.client_secret_hint"
+msgstr "Disimpan terenkripsi. Tidak pernah ditampilkan lagi setelah disimpan — kosongkan saat mengedit untuk mempertahankan secret saat ini."
+
+msgid "admin.security.client_secret_env_var_label"
+msgstr "Nama environment variable client secret"
+
+msgid "admin.security.client_secret_env_var_hint"
+msgstr "Server membaca secret dari environment variable ini alih-alih menyimpannya di database. Isi tepat salah satu: nilai client secret atau nama environment variable."
+
+msgid "admin.security.scopes_label"
+msgstr "OAuth scopes"
+
+msgid "admin.security.enabled_label"
+msgstr "Aktif"
+
+msgid "admin.security.create_provider_submit"
+msgstr "Tambah provider"
+
+msgid "admin.security.create_provider_success"
+msgstr "Penyedia SSO ditambahkan."
+
+msgid "admin.security.edit_provider_summary"
+msgstr "Edit"
+
+msgid "admin.security.update_provider_submit"
+msgstr "Simpan perubahan"
+
+msgid "admin.security.update_provider_success"
+msgstr "Penyedia SSO diperbarui."
+
+msgid "admin.security.delete_provider_button"
+msgstr "Hapus"
+
+msgid "admin.security.delete_provider_prompt"
+msgstr "Alasan menghapus penyedia SSO ini:"
+
+msgid "admin.security.delete_provider_success"
+msgstr "Penyedia SSO dihapus."
+
+msgid "admin.security.invalid_secret_choice"
+msgstr "Isi paling banyak salah satu: nilai client secret atau nama environment variable."
+
+msgid "admin.security.invalid_create_secret_choice"
+msgstr "Isi tepat salah satu: nilai client secret atau nama environment variable."
+
+#. admin.layout.nav_visitor_analytics (Issue #617/#622, epic: visitor analytics #617-#624)
+msgid "admin.layout.nav_visitor_analytics"
+msgstr "Analitik Pengunjung"
+
+#. admin.layout.nav_news_portal_homepage_sections (Issue #637, epic: news_portal #631-#642/#649)
+msgid "admin.layout.nav_news_portal_homepage_sections"
+msgstr "Section Homepage"
+
+#. admin.analytics (Issue #622, epic: visitor analytics #617-#624) — dashboard /admin/analytics
+msgid "admin.analytics.heading"
+msgstr "Analitik Pengunjung"
+
+msgid "admin.analytics.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.analytics.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat dashboard analitik pengunjung."
+
+msgid "admin.analytics.state_loading"
+msgstr "Memuat…"
+
+msgid "admin.analytics.state_empty_generic"
+msgstr "Belum ada data analitik untuk periode ini."
+
+msgid "admin.analytics.state_error_generic"
+msgstr "Bagian ini gagal dimuat. Coba lagi nanti."
+
+msgid "admin.analytics.online_heading"
+msgstr "Yang sedang online"
+
+msgid "admin.analytics.online_refresh_button"
+msgstr "Segarkan"
+
+msgid "admin.analytics.online_human_label"
+msgstr "Pengunjung manusia online"
+
+msgid "admin.analytics.online_admin_label"
+msgstr "Halaman admin"
+
+msgid "admin.analytics.online_public_label"
+msgstr "Halaman publik"
+
+msgid "admin.analytics.online_api_label"
+msgstr "API / lainnya"
+
+msgid "admin.analytics.summary_heading"
+msgstr "Pengunjung manusia"
+
+msgid "admin.analytics.summary_24h_label"
+msgstr "24 jam terakhir"
+
+msgid "admin.analytics.summary_7d_label"
+msgstr "7 hari terakhir"
+
+msgid "admin.analytics.summary_30d_label"
+msgstr "30 hari terakhir"
+
+msgid "admin.analytics.summary_pageviews_label"
+msgstr "tampilan halaman"
+
+msgid "admin.analytics.range_filter_label"
+msgstr "Rentang"
+
+msgid "admin.analytics.range_24h"
+msgstr "24 jam terakhir"
+
+msgid "admin.analytics.range_7d"
+msgstr "7 hari terakhir"
+
+msgid "admin.analytics.range_30d"
+msgstr "30 hari terakhir"
+
+msgid "admin.analytics.range_12m"
+msgstr "12 bulan terakhir"
+
+msgid "admin.analytics.pages_heading"
+msgstr "Halaman teratas"
+
+msgid "admin.analytics.pages_column_path"
+msgstr "Path"
+
+msgid "admin.analytics.pages_column_views"
+msgstr "Tampilan"
+
+msgid "admin.analytics.devices_heading"
+msgstr "Perangkat & browser"
+
+msgid "admin.analytics.devices_browsers_subheading"
+msgstr "Browser teratas"
+
+msgid "admin.analytics.devices_devices_subheading"
+msgstr "Jenis perangkat"
+
+msgid "admin.analytics.devices_column_name"
+msgstr "Nama"
+
+msgid "admin.analytics.devices_column_count"
+msgstr "Jumlah"
+
+msgid "admin.analytics.locations_heading"
+msgstr "Lokasi"
+
+msgid "admin.analytics.locations_column_country"
+msgstr "Negara"
+
+msgid "admin.analytics.locations_column_count"
+msgstr "Kunjungan"
+
+msgid "admin.analytics.locations_disabled_title"
+msgstr "Pelacakan lokasi dinonaktifkan"
+
+msgid "admin.analytics.locations_disabled_body"
+msgstr "Aktifkan geolokasi pada konfigurasi deployment tenant ini untuk melihat data pengunjung per negara."
+
+msgid "admin.analytics.security_heading"
+msgstr "Lalu lintas bot & mencurigakan"
+
+msgid "admin.analytics.security_total_label"
+msgstr "Tampilan halaman oleh bot"
+
+msgid "admin.analytics.security_by_reason_heading"
+msgstr "Berdasarkan alasan"
+
+msgid "admin.analytics.security_by_area_heading"
+msgstr "Berdasarkan area"
+
+msgid "admin.analytics.sessions_heading"
+msgstr "Sesi aktif"
+
+msgid "admin.analytics.sessions_area_filter_label"
+msgstr "Area"
+
+msgid "admin.analytics.sessions_type_filter_label"
+msgstr "Jenis pengunjung"
+
+msgid "admin.analytics.sessions_filter_all"
+msgstr "Semua"
+
+msgid "admin.analytics.sessions_filter_admin"
+msgstr "Admin"
+
+msgid "admin.analytics.sessions_filter_public"
+msgstr "Publik"
+
+msgid "admin.analytics.sessions_filter_api"
+msgstr "API"
+
+msgid "admin.analytics.sessions_filter_human"
+msgstr "Manusia"
+
+msgid "admin.analytics.sessions_filter_bot"
+msgstr "Bot"
+
+msgid "admin.analytics.sessions_column_area"
+msgstr "Area"
+
+msgid "admin.analytics.sessions_column_path"
+msgstr "Path saat ini"
+
+msgid "admin.analytics.sessions_column_browser"
+msgstr "Browser"
+
+msgid "admin.analytics.sessions_column_os"
+msgstr "OS"
+
+msgid "admin.analytics.sessions_column_device"
+msgstr "Perangkat"
+
+msgid "admin.analytics.sessions_column_type"
+msgstr "Jenis"
+
+msgid "admin.analytics.sessions_column_country"
+msgstr "Negara"
+
+msgid "admin.analytics.sessions_column_last_seen"
+msgstr "Terakhir terlihat"
+
+msgid "admin.analytics.sessions_column_ip"
+msgstr "Alamat IP"
+
+msgid "admin.analytics.sessions_column_ip_hash"
+msgstr "Hash IP"
+
+msgid "admin.analytics.sessions_column_user_agent_hash"
+msgstr "Hash user-agent"
+
+msgid "admin.analytics.sessions_column_login_identifier"
+msgstr "Identifier login"
+
+msgid "admin.analytics.sessions_value_human"
+msgstr "Manusia"
+
+msgid "admin.analytics.sessions_value_bot"
+msgstr "Bot"
+
+msgid "admin.analytics.sessions_load_more_button"
+msgstr "Muat lagi"
+
+msgid "admin.analytics.sessions_empty"
+msgstr "Tidak ada sesi aktif pada jendela waktu saat ini."
+
+msgid "admin.analytics.sessions_filtered_empty"
+msgstr "Tidak ada sesi yang cocok dengan filter yang dipilih."
+
+#. Issue #638 ad placements (recovered after merge conflict)
+msgid "admin.layout.nav_news_portal_ad_placements"
+msgstr "Penempatan Iklan"
+
+msgid "admin.news_portal.ad_placements.create_submit"
+msgstr "Buat penempatan"
+
+msgid "admin.news_portal.ad_placements.create_success"
+msgstr "Penempatan iklan berhasil dibuat."
+
+msgid "admin.news_portal.ad_placements.create_summary"
+msgstr "Tambah penempatan iklan"
+
+msgid "admin.news_portal.ad_placements.delete_button"
+msgstr "Hapus penempatan"
+
+msgid "admin.news_portal.ad_placements.delete_confirm"
+msgstr "Hapus penempatan iklan ini?"
+
+msgid "admin.news_portal.ad_placements.delete_reason_prompt"
+msgstr "Alasan menghapus penempatan iklan ini:"
+
+msgid "admin.news_portal.ad_placements.delete_success"
+msgstr "Penempatan iklan berhasil dihapus."
+
+msgid "admin.news_portal.ad_placements.field_active"
+msgstr "Aktif"
+
+msgid "admin.news_portal.ad_placements.field_ends_at"
+msgstr "Berakhir pada"
+
+msgid "admin.news_portal.ad_placements.field_link_url"
+msgstr "URL tautan (opsional)"
+
+msgid "admin.news_portal.ad_placements.field_media_object_id"
+msgstr "ID objek media"
+
+msgid "admin.news_portal.ad_placements.field_name"
+msgstr "Nama"
+
+msgid "admin.news_portal.ad_placements.field_placement_key"
+msgstr "Penempatan"
+
+msgid "admin.news_portal.ad_placements.field_priority"
+msgstr "Prioritas"
+
+msgid "admin.news_portal.ad_placements.field_rotation_mode"
+msgstr "Mode rotasi"
+
+msgid "admin.news_portal.ad_placements.field_starts_at"
+msgstr "Mulai pada"
+
+msgid "admin.news_portal.ad_placements.media_object_id_hint"
+msgstr "Harus berupa ID objek media R2 terverifikasi milik tenant ini."
+
+msgid "admin.news_portal.ad_placements.no_placements"
+msgstr "Belum ada penempatan iklan."
+
+msgid "admin.news_portal.ad_placements.preset_guide_summary"
+msgstr "Panduan preset penempatan"
+
+msgid "admin.news_portal.ad_placements.preset_max_items"
+msgstr "Maks item ditampilkan sekaligus"
+
+msgid "admin.news_portal.ad_placements.preset_recommended_size"
+msgstr "Ukuran yang disarankan"
+
+msgid "admin.news_portal.ad_placements.save_button"
+msgstr "Simpan"
+
+msgid "admin.news_portal.ad_placements.title"
+msgstr "Penempatan Iklan"
+
+msgid "admin.news_portal.ad_placements.update_success"
+msgstr "Penempatan iklan berhasil diperbarui."
+
+msgid "error.ad_placement_reference_invalid"
+msgstr "Iklan ini merujuk objek media yang tidak ada, bukan milik tenant ini, belum terverifikasi, atau bukan tipe gambar yang diizinkan untuk penempatan ini."
+
+#. admin.layout.nav_social_publishing_* (Issue #643, epic social_publishing #643-#647)
+msgid "admin.layout.nav_social_publishing_accounts"
+msgstr "Akun Sosial"
+
+msgid "admin.layout.nav_social_publishing_jobs"
+msgstr "Job Publikasi Sosial"
+
+msgid "admin.layout.nav_social_publishing_rules"
+msgstr "Aturan Publikasi Sosial"
+
+msgid "admin.social_publishing.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat konfigurasi publikasi sosial."
+
+msgid "admin.social_publishing.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.social_publishing.accounts.connect_submit"
+msgstr "Hubungkan akun"
+
+msgid "admin.social_publishing.accounts.connect_success"
+msgstr "Akun sosial berhasil dihubungkan."
+
+msgid "admin.social_publishing.accounts.connect_summary"
+msgstr "Hubungkan akun sosial"
+
+msgid "admin.social_publishing.accounts.disconnect_button"
+msgstr "Putuskan"
+
+msgid "admin.social_publishing.accounts.disconnect_confirm"
+msgstr "Putuskan akun sosial ini? Auto-publish akan berhenti sampai dihubungkan kembali."
+
+msgid "admin.social_publishing.accounts.disconnect_reason_prompt"
+msgstr "Alasan memutuskan akun ini:"
+
+msgid "admin.social_publishing.accounts.disconnect_success"
+msgstr "Akun sosial berhasil diputuskan."
+
+msgid "admin.social_publishing.accounts.field_auto_publish"
+msgstr "Auto-publish aktif"
+
+msgid "admin.social_publishing.accounts.field_last_verified"
+msgstr "Terakhir diverifikasi"
+
+msgid "admin.social_publishing.accounts.field_provider_account_id"
+msgstr "ID akun provider"
+
+msgid "admin.social_publishing.accounts.field_provider_account_name"
+msgstr "Nama akun provider"
+
+msgid "admin.social_publishing.accounts.field_provider_account_type"
+msgstr "Tipe akun"
+
+msgid "admin.social_publishing.accounts.field_provider_key"
+msgstr "Kunci provider"
+
+msgid "admin.social_publishing.accounts.field_status"
+msgstr "Status"
+
+msgid "admin.social_publishing.accounts.field_token_reference"
+msgstr "Referensi token"
+
+msgid "admin.social_publishing.accounts.no_accounts"
+msgstr "Belum ada akun sosial yang terhubung."
+
+msgid "admin.social_publishing.accounts.not_verified"
+msgstr "Belum diverifikasi"
+
+msgid "admin.social_publishing.accounts.save_button"
+msgstr "Simpan"
+
+msgid "admin.social_publishing.accounts.title"
+msgstr "Akun Sosial"
+
+msgid "admin.social_publishing.accounts.token_reference_hint"
+msgstr "Referensi buram ke secret storage Anda (mis. nama key di secrets manager) — bukan token akses/JWT asli."
+
+msgid "admin.social_publishing.accounts.update_success"
+msgstr "Akun sosial berhasil diperbarui."
+
+msgid "admin.social_publishing.accounts.verify_button"
+msgstr "Verifikasi"
+
+msgid "admin.social_publishing.accounts.verify_failed_prefix"
+msgstr "Verifikasi gagal:"
+
+msgid "admin.social_publishing.accounts.verify_success"
+msgstr "Akun terverifikasi — provider mengonfirmasi dapat memposting ke target ini."
+
+msgid "admin.social_publishing.jobs.approve_button"
+msgstr "Setujui"
+
+msgid "admin.social_publishing.jobs.approve_success"
+msgstr "Job disetujui."
+
+msgid "admin.social_publishing.jobs.attempts_summary"
+msgstr "Riwayat percobaan"
+
+msgid "admin.social_publishing.jobs.cancel_button"
+msgstr "Batalkan"
+
+msgid "admin.social_publishing.jobs.cancel_confirm"
+msgstr "Batalkan job publikasi sosial ini?"
+
+msgid "admin.social_publishing.jobs.cancel_reason_prompt"
+msgstr "Alasan membatalkan job ini:"
+
+msgid "admin.social_publishing.jobs.cancel_success"
+msgstr "Job berhasil dibatalkan."
+
+msgid "admin.social_publishing.jobs.field_attempts"
+msgstr "Percobaan"
+
+msgid "admin.social_publishing.jobs.field_error"
+msgstr "Error"
+
+msgid "admin.social_publishing.jobs.field_external_url"
+msgstr "URL hasil publikasi"
+
+msgid "admin.social_publishing.jobs.field_outcome"
+msgstr "Hasil"
+
+msgid "admin.social_publishing.jobs.field_started_at"
+msgstr "Dimulai pada"
+
+msgid "admin.social_publishing.jobs.no_jobs"
+msgstr "Belum ada job publikasi sosial."
+
+msgid "admin.social_publishing.jobs.retry_button"
+msgstr "Coba lagi"
+
+msgid "admin.social_publishing.jobs.retry_success"
+msgstr "Percobaan ulang job diminta."
+
+msgid "admin.social_publishing.jobs.title"
+msgstr "Job Publikasi Sosial"
+
+msgid "admin.social_publishing.rules.caption_template_hint"
+msgstr "Mendukung placeholder {{title}}, {{excerpt}}, dan {{canonicalUrl}}."
+
+msgid "admin.social_publishing.rules.create_submit"
+msgstr "Buat aturan"
+
+msgid "admin.social_publishing.rules.create_success"
+msgstr "Aturan publikasi sosial berhasil dibuat."
+
+msgid "admin.social_publishing.rules.create_summary"
+msgstr "Buat aturan"
+
+msgid "admin.social_publishing.rules.delete_button"
+msgstr "Hapus"
+
+msgid "admin.social_publishing.rules.delete_confirm"
+msgstr "Hapus item ini?"
+
+msgid "admin.social_publishing.rules.delete_reason_prompt"
+msgstr "Alasan menghapus item ini:"
+
+msgid "admin.social_publishing.rules.delete_success"
+msgstr "Berhasil dihapus."
+
+msgid "admin.social_publishing.rules.field_account"
+msgstr "Akun sosial"
+
+msgid "admin.social_publishing.rules.field_active"
+msgstr "Aktif"
+
+msgid "admin.social_publishing.rules.field_caption_template"
+msgstr "Template caption"
+
+msgid "admin.social_publishing.rules.field_enabled"
+msgstr "Diaktifkan"
+
+msgid "admin.social_publishing.rules.field_name"
+msgstr "Nama"
+
+msgid "admin.social_publishing.rules.field_requires_approval"
+msgstr "Wajib disetujui sebelum diposting"
+
+msgid "admin.social_publishing.rules.field_template"
+msgstr "Template caption"
+
+msgid "admin.social_publishing.rules.field_trigger_event"
+msgstr "Trigger event"
+
+msgid "admin.social_publishing.rules.no_rules"
+msgstr "Belum ada aturan publikasi sosial yang dikonfigurasi."
+
+msgid "admin.social_publishing.rules.no_template"
+msgstr "(tanpa template)"
+
+msgid "admin.social_publishing.rules.no_templates"
+msgstr "Belum ada template caption."
+
+msgid "admin.social_publishing.rules.save_button"
+msgstr "Simpan"
+
+msgid "admin.social_publishing.rules.section_rules"
+msgstr "Aturan"
+
+msgid "admin.social_publishing.rules.section_templates"
+msgstr "Template caption"
+
+msgid "admin.social_publishing.rules.template_create_submit"
+msgstr "Buat template"
+
+msgid "admin.social_publishing.rules.template_create_success"
+msgstr "Template caption berhasil dibuat."
+
+msgid "admin.social_publishing.rules.template_create_summary"
+msgstr "Buat template caption"
+
+msgid "admin.social_publishing.rules.template_delete_success"
+msgstr "Template caption berhasil dihapus."
+
+msgid "admin.social_publishing.rules.template_update_success"
+msgstr "Template caption berhasil diperbarui."
+
+msgid "admin.social_publishing.rules.title"
+msgstr "Aturan Publikasi Sosial"
+
+msgid "admin.social_publishing.rules.update_success"
+msgstr "Aturan publikasi sosial berhasil diperbarui."
+
+#. Issue #746, epic #738 platform-evolution Wave 2 — business-scope
+#. assignments + segregation-of-duties (SoD) admin screen.
+msgid "admin.layout.nav_business_scope"
+msgstr "Scope Bisnis"
+
+msgid "admin.business_scope.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat assignment scope bisnis, pengecualian, atau konflik."
+
+msgid "admin.business_scope.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.business_scope.approve_button"
+msgstr "Setujui"
+
+msgid "admin.business_scope.approve_exception_success"
+msgstr "Pengecualian konflik SoD disetujui."
+
+msgid "admin.business_scope.assignments_empty"
+msgstr "Belum ada assignment scope bisnis."
+
+msgid "admin.business_scope.assignments_heading"
+msgstr "Assignment scope bisnis"
+
+msgid "admin.business_scope.col_actions"
+msgstr "Aksi"
+
+msgid "admin.business_scope.col_effective_to"
+msgstr "Berlaku sampai"
+
+msgid "admin.business_scope.col_outcome"
+msgstr "Hasil"
+
+msgid "admin.business_scope.col_reason"
+msgstr "Alasan"
+
+msgid "admin.business_scope.col_rule"
+msgstr "Aturan"
+
+msgid "admin.business_scope.col_scope"
+msgstr "Cakupan"
+
+msgid "admin.business_scope.col_status"
+msgstr "Status"
+
+msgid "admin.business_scope.col_subject"
+msgstr "Subjek"
+
+msgid "admin.business_scope.col_trigger"
+msgstr "Pemicu"
+
+msgid "admin.business_scope.conflicts_empty"
+msgstr "Belum ada evaluasi konflik SoD yang tercatat."
+
+msgid "admin.business_scope.conflicts_heading"
+msgstr "Konflik pemisahan tugas (SoD)"
+
+msgid "admin.business_scope.create_assignment_button"
+msgstr "Buat assignment"
+
+msgid "admin.business_scope.create_assignment_heading"
+msgstr "Buat assignment scope bisnis"
+
+msgid "admin.business_scope.create_assignment_success"
+msgstr "Assignment scope bisnis berhasil dibuat."
+
+msgid "admin.business_scope.create_exception_button"
+msgstr "Ajukan pengecualian"
+
+msgid "admin.business_scope.create_exception_heading"
+msgstr "Ajukan pengecualian konflik SoD"
+
+msgid "admin.business_scope.create_exception_success"
+msgstr "Pengecualian konflik SoD berhasil diajukan."
+
+msgid "admin.business_scope.exceptions_empty"
+msgstr "Belum ada pengecualian konflik SoD."
+
+msgid "admin.business_scope.exceptions_heading"
+msgstr "Pengecualian konflik pemisahan tugas (SoD)"
+
+msgid "admin.business_scope.field_effective_to"
+msgstr "Berlaku sampai"
+
+msgid "admin.business_scope.field_is_temporary"
+msgstr "Assignment sementara"
+
+msgid "admin.business_scope.field_justification"
+msgstr "Justifikasi"
+
+msgid "admin.business_scope.field_reason"
+msgstr "Alasan"
+
+msgid "admin.business_scope.field_role"
+msgstr "Peran"
+
+msgid "admin.business_scope.field_role_none"
+msgstr "Tanpa peran (hanya scope)"
+
+msgid "admin.business_scope.field_scope_id"
+msgstr "ID Scope"
+
+msgid "admin.business_scope.field_scope_type"
+msgstr "Jenis scope"
+
+msgid "admin.business_scope.field_scope_type_hint"
+msgstr "Hanya \"office\" yang dapat diresolusikan saat ini; jenis scope lain memerlukan modul organisasi."
+
+msgid "admin.business_scope.page_description"
+msgstr "Kelola assignment scope bisnis, tinjau konflik pemisahan tugas (SoD), dan tangani pengecualian konflik."
+
+msgid "admin.business_scope.page_title"
+msgstr "Scope Bisnis & SoD"
+
+msgid "admin.business_scope.reject_button"
+msgstr "Tolak"
+
+msgid "admin.business_scope.reject_exception_success"
+msgstr "Pengecualian konflik SoD ditolak."
+
+msgid "admin.business_scope.revoke_assignment_success"
+msgstr "Assignment scope bisnis berhasil dicabut."
+
+msgid "admin.business_scope.revoke_button"
+msgstr "Cabut"
+
+msgid "admin.business_scope.revoke_exception_success"
+msgstr "Pengecualian konflik SoD berhasil dicabut."
+
+msgid "admin.business_scope.revoke_reason_prompt"
+msgstr "Masukkan alasan pencabutan:"
+#. admin.profile_identity
+msgid "admin.profile_identity.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat halaman ini. Hubungi administrator Anda bila menurut Anda ini keliru."
+
+msgid "admin.profile_identity.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.profile_identity.parties.title"
+msgstr "Pihak (Party)"
+
+msgid "admin.profile_identity.parties.filter_q"
+msgstr "Cari nama"
+
+msgid "admin.profile_identity.parties.filter_type"
+msgstr "Tipe"
+
+msgid "admin.profile_identity.parties.filter_all"
+msgstr "Semua"
+
+msgid "admin.profile_identity.parties.filter_submit"
+msgstr "Filter"
+
+msgid "admin.profile_identity.parties.field_name"
+msgstr "Nama tampilan"
+
+msgid "admin.profile_identity.parties.field_type"
+msgstr "Tipe"
+
+msgid "admin.profile_identity.parties.field_status"
+msgstr "Status"
+
+msgid "admin.profile_identity.parties.field_verification"
+msgstr "Verifikasi"
+
+msgid "admin.profile_identity.parties.field_legal_name"
+msgstr "Nama legal"
+
+msgid "admin.profile_identity.parties.field_risk_level"
+msgstr "Tingkat risiko"
+
+msgid "admin.profile_identity.parties.manage_link"
+msgstr "Kelola"
+
+msgid "admin.profile_identity.parties.no_parties"
+msgstr "Tidak ada pihak ditemukan."
+
+msgid "admin.profile_identity.parties.create_summary"
+msgstr "Buat pihak baru"
+
+msgid "admin.profile_identity.parties.create_submit"
+msgstr "Buat pihak"
+
+msgid "admin.profile_identity.parties.create_success"
+msgstr "Pihak berhasil dibuat."
+
+msgid "admin.profile_identity.detail.title"
+msgstr "Detail Pihak"
+
+msgid "admin.profile_identity.detail.not_found"
+msgstr "Pihak tidak ditemukan."
+
+msgid "admin.profile_identity.detail.update_success"
+msgstr "Pihak berhasil diperbarui."
+
+msgid "admin.profile_identity.detail.archive_button"
+msgstr "Arsipkan"
+
+msgid "admin.profile_identity.detail.archive_success"
+msgstr "Pihak berhasil diarsipkan."
+
+msgid "admin.profile_identity.detail.archive_reason_prompt"
+msgstr "Alasan mengarsipkan pihak ini:"
+
+msgid "admin.profile_identity.detail.restore_button"
+msgstr "Pulihkan"
+
+msgid "admin.profile_identity.detail.restore_success"
+msgstr "Pihak berhasil dipulihkan."
+
+msgid "admin.profile_identity.detail.no_records"
+msgstr "Tidak ada data."
+
+msgid "admin.profile_identity.detail.add_button"
+msgstr "Tambah"
+
+msgid "admin.profile_identity.detail.delete_button"
+msgstr "Hapus"
+
+msgid "admin.profile_identity.detail.delete_reason_prompt"
+msgstr "Alasan menghapus data ini:"
+
+msgid "admin.profile_identity.detail.identifiers_title"
+msgstr "Identifier"
+
+msgid "admin.profile_identity.detail.identifier_value_placeholder"
+msgstr "Nilai identifier"
+
+msgid "admin.profile_identity.detail.identifier_added"
+msgstr "Identifier berhasil ditambahkan."
+
+msgid "admin.profile_identity.detail.identifier_deleted"
+msgstr "Identifier berhasil dihapus."
+
+msgid "admin.profile_identity.detail.addresses_title"
+msgstr "Alamat"
+
+msgid "admin.profile_identity.detail.address_line_placeholder"
+msgstr "Baris alamat"
+
+msgid "admin.profile_identity.detail.address_added"
+msgstr "Alamat berhasil ditambahkan."
+
+msgid "admin.profile_identity.detail.address_deleted"
+msgstr "Alamat berhasil dihapus."
+
+msgid "admin.profile_identity.detail.channels_title"
+msgstr "Kanal komunikasi"
+
+msgid "admin.profile_identity.detail.channel_added"
+msgstr "Kanal berhasil ditambahkan."
+
+msgid "admin.profile_identity.detail.channel_deleted"
+msgstr "Kanal berhasil dihapus."
+
+msgid "admin.profile_identity.detail.relationships_title"
+msgstr "Relasi"
+
+msgid "admin.profile_identity.detail.other_profile_id_placeholder"
+msgstr "Profile id pihak lain"
+
+msgid "admin.profile_identity.detail.field_is_representative"
+msgstr "Perwakilan resmi (authorized representative)"
+
+msgid "admin.profile_identity.detail.relationship_added"
+msgstr "Relasi berhasil ditambahkan."
+
+msgid "admin.profile_identity.detail.relationship_ended"
+msgstr "Relasi berhasil diakhiri."
+
+msgid "admin.profile_identity.detail.end_relationship_button"
+msgstr "Akhiri"
+
+msgid "admin.profile_identity.detail.duplicate_candidates_title"
+msgstr "Kandidat duplikat"
+
+msgid "admin.profile_identity.detail.scan_button"
+msgstr "Pindai duplikat"
+
+msgid "admin.profile_identity.detail.scan_success"
+msgstr "Pemindaian kandidat duplikat selesai."
+
+msgid "admin.profile_identity.detail.confirm_duplicate_button"
+msgstr "Konfirmasi duplikat"
+
+msgid "admin.profile_identity.detail.not_duplicate_button"
+msgstr "Bukan duplikat"
+
+msgid "admin.profile_identity.detail.review_notes_prompt"
+msgstr "Catatan review (opsional):"
+
+msgid "admin.profile_identity.detail.review_success"
+msgstr "Kandidat duplikat berhasil direview."
+
+msgid "admin.profile_identity.detail.start_merge_title"
+msgstr "Mulai merge"
+
+msgid "admin.profile_identity.detail.survivor_profile_id_placeholder"
+msgstr "Profile id survivor"
+
+msgid "admin.profile_identity.detail.merge_reason_placeholder"
+msgstr "Alasan merge"
+
+msgid "admin.profile_identity.detail.start_merge_button"
+msgstr "Buat permintaan merge"
+
+msgid "admin.profile_identity.detail.merge_request_created"
+msgstr "Permintaan merge berhasil dibuat."
+
+msgid "admin.profile_identity.detail.view_merge_requests_link"
+msgstr "Lihat permintaan merge"
+
+msgid "admin.profile_identity.merge_requests.title"
+msgstr "Permintaan Merge"
+
+msgid "admin.profile_identity.merge_requests.no_requests"
+msgstr "Tidak ada permintaan merge ditemukan."
+
+msgid "admin.profile_identity.merge_requests.field_source"
+msgstr "Sumber (loser)"
+
+msgid "admin.profile_identity.merge_requests.field_target"
+msgstr "Target (survivor)"
+
+msgid "admin.profile_identity.merge_requests.field_status"
+msgstr "Status"
+
+msgid "admin.profile_identity.merge_requests.approve_button"
+msgstr "Setujui"
+
+msgid "admin.profile_identity.merge_requests.reject_button"
+msgstr "Tolak"
+
+msgid "admin.profile_identity.merge_requests.reject_reason_prompt"
+msgstr "Alasan menolak permintaan merge ini:"
+
+msgid "admin.profile_identity.merge_requests.execute_button"
+msgstr "Eksekusi merge"
+
+msgid "admin.profile_identity.merge_requests.execute_confirm"
+msgstr "Eksekusi merge ini? Profile sumber akan diarsipkan dan referensinya dialihkan ke target."
+
+msgid "admin.profile_identity.merge_requests.decision_success"
+msgstr "Keputusan berhasil dicatat."
+
+msgid "admin.profile_identity.merge_requests.execute_success"
+msgstr "Merge berhasil dieksekusi."
+
+msgid "admin.layout.nav_profile_identity_parties"
+msgstr "Pihak (Party)"
+
+msgid "admin.layout.nav_profile_identity_merge_requests"
+msgstr "Permintaan Merge"
+
+msgid "admin.layout.nav_reporting_projections"
+msgstr "Proyeksi Reporting"
+
+msgid "admin.reporting_projections.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat proyeksi reporting atau ekspor terjadwal."
+
+msgid "admin.reporting_projections.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.reporting_projections.cancel_rebuild_button"
+msgstr "Batalkan rebuild"
+
+msgid "admin.reporting_projections.col_actions"
+msgstr "Aksi"
+
+msgid "admin.reporting_projections.col_drill_down"
+msgstr "Sumber"
+
+msgid "admin.reporting_projections.col_expires_at"
+msgstr "Kedaluwarsa pada"
+
+msgid "admin.reporting_projections.col_format"
+msgstr "Format"
+
+msgid "admin.reporting_projections.col_freshness"
+msgstr "Kesegaran"
+
+msgid "admin.reporting_projections.col_interval"
+msgstr "Interval"
+
+msgid "admin.reporting_projections.col_key"
+msgstr "Kunci"
+
+msgid "admin.reporting_projections.col_last_success"
+msgstr "Sukses terakhir"
+
+msgid "admin.reporting_projections.col_metrics"
+msgstr "Metrik"
+
+msgid "admin.reporting_projections.col_row_count"
+msgstr "Baris"
+
+msgid "admin.reporting_projections.col_status"
+msgstr "Status"
+
+msgid "admin.reporting_projections.create_schedule_button"
+msgstr "Buat jadwal"
+
+msgid "admin.reporting_projections.create_schedule_heading"
+msgstr "Buat ekspor terjadwal"
+
+msgid "admin.reporting_projections.disable_button"
+msgstr "Nonaktifkan"
+
+msgid "admin.reporting_projections.disable_reason_prompt"
+msgstr "Alasan menonaktifkan ekspor terjadwal ini:"
+
+msgid "admin.reporting_projections.download_link"
+msgstr "Unduh"
+
+msgid "admin.reporting_projections.export_button"
+msgstr "Ekspor sekarang"
+
+msgid "admin.reporting_projections.export_runs_empty"
+msgstr "Belum ada riwayat ekspor."
+
+msgid "admin.reporting_projections.export_runs_heading"
+msgstr "Riwayat ekspor"
+
+msgid "admin.reporting_projections.export_triggered"
+msgstr "Ekspor berhasil dibuat."
+
+msgid "admin.reporting_projections.field_interval_minutes"
+msgstr "Interval (menit)"
+
+msgid "admin.reporting_projections.freshness_current"
+msgstr "Terkini"
+
+msgid "admin.reporting_projections.freshness_delayed"
+msgstr "Tertunda"
+
+msgid "admin.reporting_projections.freshness_failed"
+msgstr "Gagal"
+
+msgid "admin.reporting_projections.freshness_rebuilding"
+msgstr "Sedang rebuild"
+
+msgid "admin.reporting_projections.freshness_stale"
+msgstr "Basi"
+
+msgid "admin.reporting_projections.page_description"
+msgstr "Proyeksi read-model kontribusi modul — pembaruan inkremental, status kesegaran, rebuild, rekonsiliasi, dan ekspor terjadwal."
+
+msgid "admin.reporting_projections.page_title"
+msgstr "Proyeksi Reporting"
+
+msgid "admin.reporting_projections.projections_empty"
+msgstr "Belum ada proyeksi terdaftar."
+
+msgid "admin.reporting_projections.projections_heading"
+msgstr "Proyeksi"
+
+msgid "admin.reporting_projections.rebuild_button"
+msgstr "Rebuild"
+
+msgid "admin.reporting_projections.rebuild_cancel_requested"
+msgstr "Pembatalan diminta."
+
+msgid "admin.reporting_projections.rebuild_reason_prompt"
+msgstr "Alasan rebuild ini:"
+
+msgid "admin.reporting_projections.rebuild_resumed"
+msgstr "Rebuild sudah berjalan — progres akan dilanjutkan."
+
+msgid "admin.reporting_projections.rebuild_triggered"
+msgstr "Rebuild dipicu."
+
+msgid "admin.reporting_projections.reconcile_button"
+msgstr "Rekonsiliasi"
+
+msgid "admin.reporting_projections.reconcile_complete"
+msgstr "Rekonsiliasi selesai — tidak ada ketidakcocokan."
+
+msgid "admin.reporting_projections.reconcile_mismatch"
+msgstr "Rekonsiliasi selesai — ditemukan ketidakcocokan."
+
+msgid "admin.reporting_projections.schedule_created"
+msgstr "Ekspor terjadwal dibuat."
+
+msgid "admin.reporting_projections.schedule_disabled"
+msgstr "Ekspor terjadwal dinonaktifkan."
+
+msgid "admin.reporting_projections.scheduled_exports_empty"
+msgstr "Belum ada ekspor terjadwal."
+
+msgid "admin.reporting_projections.scheduled_exports_heading"
+msgstr "Ekspor terjadwal"
+
+msgid "admin.reporting_projections.status_disabled"
+msgstr "Nonaktif"
+
+msgid "admin.reporting_projections.status_enabled"
+msgstr "Aktif"
+
+msgid "admin.reporting_projections.view_source_link"
+msgstr "Lihat sumber langsung"
+
+#. error (data_exchange additions, Issue #752)
+msgid "error.unsupported_media_type"
+msgstr "Tipe file yang diunggah tidak didukung untuk impor ini."
+
+msgid "error.payload_too_large"
+msgstr "File yang diunggah terlalu besar."
+
+msgid "error.invalid_state"
+msgstr "Aksi ini tidak valid untuk status sumber daya saat ini."
+
+msgid "error.checksum_mismatch"
+msgstr "Checksum file yang diunggah tidak cocok."

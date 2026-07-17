@@ -1,0 +1,327 @@
+---
+/**
+ * Login page (Issue 8.1). Posts to `POST /api/v1/auth/login`, which now
+ * additionally sets the two httpOnly SSR session cookies
+ * (`src/pages/api/v1/auth/login.ts`) consumed by
+ * `src/lib/auth/ssr-session.ts` / `src/layouts/AdminLayout.astro`.
+ *
+ * i18n (Issue #433): `Astro.locals.locale` is cookie-only resolved (no
+ * tenant known yet pre-login — see `src/middleware.ts`). The client-side
+ * `<script>` cannot read the `.po` catalog itself (that's server-side only,
+ * via `Bun.file`), so the strings/error-code map it needs are injected as a
+ * `<script type="application/json">` blob — the same pattern the admin
+ * pages' action banners use.
+ *
+ * Cloudflare Turnstile (Issue #588, epic: full-online auth hardening) —
+ * the widget only renders when `isTurnstileRequired()` (Issue #587's
+ * full-online gate AND `TURNSTILE_ENABLED=true`) is true; every local/
+ * offline/LAN deployment (the default) renders this page identically to
+ * before this issue. `TURNSTILE_SITE_KEY` is not a secret (Cloudflare's own
+ * docs: embedded in every public Turnstile widget) — only
+ * `TURNSTILE_SECRET_KEY` (server-side verification only, never sent here)
+ * needs the redaction discipline `src/lib/security/turnstile.ts` applies.
+ *
+ * Google OIDC login (Issue #590) — the "Continue with Google" button only
+ * renders when `isGoogleLoginRequired()` is true. It's a plain button (not
+ * an `<a href>`) because the destination URL needs the Tenant ID field's
+ * CURRENT value at click time (`GET /auth/providers/google/start
+ * ?tenantId=...` — see that endpoint's own comment for why a query param
+ * fallback exists there pre-login).
+ */
+import "../styles/tokens.css";
+import { createTranslator } from "../lib/i18n/translate";
+import { buildClientErrorMessages } from "../lib/i18n/error-messages";
+import { isTurnstileRequired } from "../lib/security/turnstile";
+import { isGoogleLoginRequired } from "../lib/auth/google-oidc-config";
+
+const locale = Astro.locals.locale;
+const t = await createTranslator(locale);
+const turnstileActive = isTurnstileRequired();
+const turnstileSiteKey = turnstileActive
+  ? process.env.TURNSTILE_SITE_KEY
+  : null;
+const googleLoginActive = isGoogleLoginRequired();
+
+const clientStrings = {
+  genericError: t("auth.login.generic_error"),
+  networkError: t("common.network_error"),
+  pleaseWait: t("common.please_wait"),
+  submitLabel: t("auth.login.submit"),
+  errorMessages: buildClientErrorMessages(t)
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t("auth.login.page_title")}</title>
+  </head>
+  <body>
+    <main class="login-page">
+      <form id="login-form" class="login-form" novalidate>
+        <h1>AWCMS-Micro</h1>
+        <p id="login-error" class="login-error" role="alert" hidden></p>
+
+        <label for="tenant-id">{t("auth.login.tenant_id_label")}</label>
+        <!--
+          Requiring a manual Tenant ID field is a demo simplification for
+          this base repo — a real derived app would resolve the tenant via
+          subdomain/domain mapping instead of asking the user to paste a
+          UUID (out of scope here; see doc 15 §Autentikasi dan sesi).
+        -->
+        <input
+          id="tenant-id"
+          name="tenantId"
+          type="text"
+          required
+          autocomplete="off"
+        />
+
+        <label for="login-identifier">{t("auth.login.identifier_label")}</label>
+        <input
+          id="login-identifier"
+          name="loginIdentifier"
+          type="text"
+          required
+          autocomplete="username"
+        />
+
+        <label for="password">{t("auth.login.password_label")}</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autocomplete="current-password"
+        />
+
+        {
+          turnstileActive && turnstileSiteKey && (
+            <div class="cf-turnstile" data-sitekey={turnstileSiteKey} />
+          )
+        }
+
+        <button type="submit" id="login-submit">
+          {t("auth.login.submit")}
+        </button>
+
+        {
+          googleLoginActive && (
+            <button type="button" id="google-login-button">
+              {t("auth.login.google_button")}
+            </button>
+          )
+        }
+      </form>
+    </main>
+
+    {
+      turnstileActive && turnstileSiteKey && (
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          async
+          defer
+        />
+      )
+    }
+
+    <script
+      type="application/json"
+      id="i18n-strings"
+      set:html={JSON.stringify(clientStrings)}
+    />
+
+    <script>
+      import {
+        lockElement,
+        readClientStrings
+      } from "../lib/ui/admin-form-client";
+
+      interface LoginStrings {
+        genericError: string;
+        networkError: string;
+        pleaseWait: string;
+        errorMessages?: Record<string, string>;
+      }
+
+      const form = document.getElementById(
+        "login-form"
+      ) as HTMLFormElement | null;
+      const errorBox = document.getElementById("login-error");
+      const submitButton = document.getElementById(
+        "login-submit"
+      ) as HTMLButtonElement | null;
+      const strings = readClientStrings<LoginStrings>();
+
+      function showError(message: string): void {
+        if (!errorBox) return;
+        errorBox.textContent = message;
+        errorBox.hidden = false;
+      }
+
+      form?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        // Issue #434 (UX/UI audit): guard + disable the submit button for
+        // the duration of the request — previously a fast double-click (or
+        // double Enter) could fire two login POSTs before the first
+        // redirect landed (doc 14 §Form UX "cegah double-submit").
+        if (!submitButton || submitButton.disabled) {
+          return;
+        }
+        const unlock = lockElement(submitButton, strings.pleaseWait);
+
+        if (errorBox) {
+          errorBox.hidden = true;
+        }
+
+        const formData = new FormData(form);
+        const tenantId = String(formData.get("tenantId") ?? "").trim();
+        const loginIdentifier = String(
+          formData.get("loginIdentifier") ?? ""
+        ).trim();
+        const password = String(formData.get("password") ?? "");
+        // Cloudflare Turnstile (Issue #588) auto-injects a hidden
+        // `cf-turnstile-response` field into this form once solved — absent
+        // entirely when the widget isn't rendered (Turnstile not required
+        // for this deployment), matching the server's own optional field.
+        const turnstileToken = formData.get("cf-turnstile-response");
+
+        try {
+          const response = await fetch("/api/v1/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-AWCMS-Micro-Tenant-ID": tenantId
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              loginIdentifier,
+              password,
+              ...(turnstileToken ? { turnstileToken } : {})
+            })
+          });
+
+          const payload = await response.json().catch(() => null);
+
+          if (!response.ok || !payload || payload.success !== true) {
+            const code = payload?.error?.code as string | undefined;
+            const localized = code ? strings.errorMessages?.[code] : null;
+            showError(localized ?? strings.genericError);
+            unlock();
+            return;
+          }
+
+          // Navigating away — leave the button disabled/busy rather than
+          // unlocking, so it can't be clicked again during the redirect.
+          window.location.href = "/admin";
+        } catch {
+          showError(strings.networkError);
+          unlock();
+        }
+      });
+
+      // Google OIDC login (Issue #590) — the destination needs the Tenant
+      // ID field's CURRENT value, read at click time, as a `?tenantId=`
+      // query param (this page has no tenant cookie yet pre-login, and a
+      // plain navigation can't carry the `X-AWCMS-Micro-Tenant-ID` header
+      // every fetch-based call on this page uses instead).
+      const googleButton = document.getElementById(
+        "google-login-button"
+      ) as HTMLButtonElement | null;
+
+      googleButton?.addEventListener("click", () => {
+        const tenantId = String(
+          (document.getElementById("tenant-id") as HTMLInputElement | null)
+            ?.value ?? ""
+        ).trim();
+
+        if (!tenantId) {
+          showError(strings.genericError);
+          return;
+        }
+
+        window.location.href = `/api/v1/auth/providers/google/start?tenantId=${encodeURIComponent(tenantId)}`;
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    width: 100%;
+    max-width: 360px;
+    padding: var(--sp-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .login-form h1 {
+    margin: 0 0 var(--sp-2);
+    font-size: var(--fs-lg);
+  }
+
+  .login-form label {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .login-form input {
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .login-form button {
+    margin-top: var(--sp-3);
+    padding: var(--sp-2) var(--sp-3);
+    min-height: 44px;
+    background: var(--color-primary-strong);
+    color: var(--color-primary-contrast);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .login-form button:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  #google-login-button {
+    margin-top: var(--sp-2);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .login-form input {
+    min-height: 44px;
+  }
+
+  .login-error {
+    color: var(--color-primary-contrast);
+    background: var(--color-danger-strong);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-2) var(--sp-3);
+    font-size: var(--fs-sm);
+  }
+</style>

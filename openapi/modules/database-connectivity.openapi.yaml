@@ -1,0 +1,140 @@
+# Source fragment for the "Database Connectivity" module/tag (Issue #695, epic #679).
+#
+# Owns every path tagged "Database Connectivity" and every schema referenced ONLY by this
+# tag's operations. Schemas shared with another module/tag live in the root
+# file (openapi/awcms-micro-public-api.src.yaml) instead.
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared
+# components (securitySchemes/parameters/responses, and cross-module
+# schemas) only resolve after `bun run openapi:bundle` merges this file with
+# the root file and every sibling module file into
+# openapi/awcms-micro-public-api.openapi.yaml. Edit this file (or the root
+# file for shared components), never the generated bundle.
+paths:
+  /api/v1/database/pool/health:
+    get:
+      tags:
+        - Database Connectivity
+      summary: Database pool/backpressure health (circuit breaker state, work-class saturation, DB reachability)
+      operationId: getDatabasePoolHealth
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Aggregate pool/backpressure health. Never includes tenant data or query content.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/DatabasePoolHealthResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    DatabasePoolHealthResponse:
+      type: object
+      required:
+        - status
+        - databaseReachable
+        - circuitBreakerState
+        - workClasses
+        - capacity
+        - generatedAt
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+            - degraded
+            - unhealthy
+        databaseReachable:
+          type: boolean
+        circuitBreakerState:
+          type: string
+          enum:
+            - closed
+            - open
+            - half_open
+        workClasses:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkClassSaturation"
+        capacity:
+          $ref: "#/components/schemas/DatabasePoolCapacitySummary"
+        generatedAt:
+          type: string
+          format: date-time
+    WorkClassSaturation:
+      type: object
+      required:
+        - workClass
+        - active
+        - max
+        - queued
+        - maxQueueDepth
+      additionalProperties: false
+      properties:
+        workClass:
+          type: string
+          enum:
+            - critical_transaction
+            - interactive
+            - reporting
+            - background_sync
+            - maintenance
+        active:
+          type: integer
+          minimum: 0
+        max:
+          type: integer
+          minimum: 0
+        queued:
+          type: integer
+          minimum: 0
+        maxQueueDepth:
+          type: integer
+          minimum: 0
+          description: >-
+            Issue #743 — bounded queue cap for this work class (max
+            concurrency x DATABASE_WORK_CLASS_QUEUE_MULTIPLIER). Once
+            `queued` would reach this number, a new caller is rejected
+            immediately instead of joining the queue.
+    DatabasePoolCapacitySummary:
+      type: object
+      required:
+        - processClass
+        - poolMax
+        - approvedConnections
+        - reservedAdminHeadroom
+      additionalProperties: false
+      description: >-
+        Issue #743 — this PROCESS's own capacity configuration only (never
+        an aggregate across other instances; a single process cannot know
+        the fleet-wide count). See docs/awcms-micro/database-capacity-runbook.md
+        for the fleet-wide validation this endpoint does not perform.
+      properties:
+        processClass:
+          type: string
+          enum:
+            - app
+            - worker
+            - setup
+          description: Always "app" for this endpoint (it only ever runs inside the web/SSR process).
+        poolMax:
+          type: integer
+          minimum: 1
+        approvedConnections:
+          type: integer
+          minimum: 1
+        reservedAdminHeadroom:
+          type: integer
+          minimum: 0

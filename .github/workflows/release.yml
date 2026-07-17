@@ -5,7 +5,7 @@
 #   1. `push: tags: v*.*.*`      — a REAL release. Requires the tag's commit
 #      to already be an ancestor of `origin/main` (see "Guard" step below —
 #      this repo has no branch-protection rule today, see
-#      docs/awcms-mini/branch-protection.md, so this is the closest
+#      docs/awcms-micro/branch-protection.md, so this is the closest
 #      workflow-level substitute for "publish only from a protected
 #      branch"), `scripts/release-verify.ts` (version/CHANGELOG/pending-
 #      changeset consistency), creates a GitHub Release, and moves the
@@ -41,7 +41,7 @@ permissions:
   contents: read
 
 env:
-  IMAGE_NAME: ghcr.io/ahliweb/awcms-mini
+  IMAGE_NAME: ghcr.io/ahliweb/awcms-micro
 
 jobs:
   validate:
@@ -50,20 +50,20 @@ jobs:
     permissions:
       contents: read
     env:
-      POSTGRES_USER: awcms-mini
-      POSTGRES_PASSWORD: awcms_mini_password
-      POSTGRES_DB: awcms-mini
+      POSTGRES_USER: awcms-micro
+      POSTGRES_PASSWORD: awcms_micro_password
+      POSTGRES_DB: awcms-micro
     services:
       postgres:
         image: postgres:18.4
         env:
-          POSTGRES_USER: awcms-mini
-          POSTGRES_PASSWORD: awcms_mini_password
-          POSTGRES_DB: awcms-mini
+          POSTGRES_USER: awcms-micro
+          POSTGRES_PASSWORD: awcms_micro_password
+          POSTGRES_DB: awcms-micro
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U awcms-mini -d awcms-mini"
+          --health-cmd "pg_isready -U awcms-micro -d awcms-micro"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -78,8 +78,8 @@ jobs:
 
       # "Publish only from protected tags/branches" (issue scope): this repo
       # has no branch-protection rule configured today (confirmed via
-      # `gh api repos/ahliweb/awcms-mini/branches/main/protection` → 404,
-      # see docs/awcms-mini/branch-protection.md) — a repo-admin action out
+      # `gh api repos/ahliweb/awcms-micro/branches/main/protection` → 404,
+      # see docs/awcms-micro/branch-protection.md) — a repo-admin action out
       # of scope for this issue to apply itself. This is the workflow-level
       # substitute: a tag whose commit is not (yet) part of `origin/main`'s
       # history is refused outright, so a release can never be cut from a
@@ -226,7 +226,7 @@ jobs:
           push: true
           tags: ${{ steps.tags.outputs.tags }}
           labels: |
-            org.opencontainers.image.source=https://github.com/ahliweb/awcms-mini
+            org.opencontainers.image.source=https://github.com/ahliweb/awcms-micro
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.version=${{ needs.validate.outputs.version }}
 
@@ -249,14 +249,14 @@ jobs:
           upload-release-assets: false
 
       - name: Archive source tarball
-        run: git archive --format=tar.gz --prefix="awcms-mini-${{ needs.validate.outputs.version }}/" -o "awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz" HEAD
+        run: git archive --format=tar.gz --prefix="awcms-micro-${{ needs.validate.outputs.version }}/" -o "awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz" HEAD
 
       - name: Generate checksums
         run: |
           sha256sum \
             "sbom-source.cdx.json" \
             "sbom-image.cdx.json" \
-            "awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz" \
+            "awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz" \
             > CHECKSUMS.txt
           cat CHECKSUMS.txt
 
@@ -272,7 +272,7 @@ jobs:
             CHECKSUMS.txt
             sbom-source.cdx.json
             sbom-image.cdx.json
-            awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz
+            awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz
           retention-days: 1
           if-no-files-found: error
 
@@ -285,10 +285,10 @@ jobs:
     # add required reviewers for this to actually pause for approval; until
     # then referencing it here is harmless (GitHub auto-creates an
     # unprotected environment record on first use). See
-    # docs/awcms-mini/release-process.md §Environment approval for the
+    # docs/awcms-micro/release-process.md §Environment approval for the
     # exact manual step — deliberately not applied by this workflow itself
     # (repo-admin, shared-state change, same reasoning as
-    # docs/awcms-mini/branch-protection.md).
+    # docs/awcms-micro/branch-protection.md).
     environment: release
     permissions:
       contents: write # gh release create (real releases only; no-op path for rehearsal — see M-4 note below on why this isn't narrowed further)
@@ -353,14 +353,14 @@ jobs:
       # checksums file, source tarball) — these aren't registry objects, so
       # attestation is keyed on file digest instead, discoverable via
       # `gh attestation verify <file> --owner ahliweb` (see
-      # docs/awcms-mini/release-process.md §Verification for consumers).
+      # docs/awcms-micro/release-process.md §Verification for consumers).
       - name: Attest build provenance — source artifacts
         uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-path: |
             CHECKSUMS.txt
             sbom-source.cdx.json
-            awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz
+            awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz
 
       - name: Upload release artifacts (workflow artifact, always)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -370,7 +370,7 @@ jobs:
             CHECKSUMS.txt
             sbom-source.cdx.json
             sbom-image.cdx.json
-            awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz
+            awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz
           retention-days: 90
           if-no-files-found: error
 
@@ -395,9 +395,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ github.ref_name }}" \
-            --title "awcms-mini ${{ github.ref_name }}" \
+            --title "awcms-micro ${{ github.ref_name }}" \
             --notes-file RELEASE_NOTES.md \
             "CHECKSUMS.txt" \
             "sbom-source.cdx.json" \
             "sbom-image.cdx.json" \
-            "awcms-mini-${{ needs.validate.outputs.version }}-source.tar.gz"
+            "awcms-micro-${{ needs.validate.outputs.version }}-source.tar.gz"

@@ -1,0 +1,296 @@
+# docker-compose.yml — LAN-first single-server stack (Issue 12.2, doc 18
+# §Topologi deployment LAN-first, doc 07 §Profil per-environment; hardened
+# by Issue #682, epic #679, platform-hardening).
+#
+# Default stack: `app` + `db` on one server, matching doc 18's offline/LAN
+# topology (one machine runs the application and PostgreSQL together;
+# clients on the LAN hit the app directly, no internet dependency). See
+# `docs/awcms-micro/deployment-profiles.md` for how this maps to each
+# environment profile, and `deploy/` for the systemd/nginx/pgbouncer/backup
+# assets this compose file complements rather than replaces (systemd is the
+# bare-metal alternative to `app`; this file is the containerized one).
+# For a registry-based/CI-pushed deployment with an immutable pre-built
+# image instead of this file's bind-mount-and-build-at-startup model, see
+# `docker-compose.prod.yml` + `Dockerfile.production` instead — this file
+# stays the LAN-first default, that one is the alternative for the
+# topology where build-at-startup is undesirable (Issue #682's own scope
+# note on this exact tradeoff).
+#
+# Usage:
+#   cp .env.example .env      # then edit secrets/config as needed
+#   export APP_UID=$(id -u) APP_GID=$(id -g)   # see `app.user` note below
+#   docker compose up --build
+#   curl http://localhost:4321/api/v1/health
+#
+# Host ports (Issue #682): NEITHER `db` NOR `pgbouncer` publish a host port
+# by default any more — production/offline-LAN topologies should never
+# need to reach PostgreSQL directly from the host (doc 07 §Production
+# readiness checklist "PostgreSQL tidak public"; only `app`'s
+# `4321:4321` is a genuine topology requirement, and even that is meant to
+# sit behind a reverse proxy for anything internet-facing, see
+# `deploy/nginx/`). For LOCAL DEV convenience (psql/GUI client from the
+# host), copy `docker-compose.override.yml.example` to
+# `docker-compose.override.yml` (auto-loaded by `docker compose`, already
+# git-ignored) — it binds both ports to `127.0.0.1` only, never `0.0.0.0`.
+#
+# `app` image choice: no separate Dockerfile. This mounts the repository
+# into `oven/bun:1.3.14` (pinned — Issue #682; never `node`, AGENTS.md rule
+# 14, doc 18 §Runtime & tooling) and runs
+# `bun install && bun run build && bun ./dist/server/entry.mjs` as the
+# container command. This is the simplest option for a LAN-first,
+# single-server, offline-capable deployment where operators are expected to
+# `git pull`/rebuild in place; it trades a slightly slower container start
+# (install + build happen every `up`) for zero extra Dockerfile/image-layer
+# maintenance — see `docker-compose.prod.yml` above for the alternative.
+services:
+  db:
+    image: postgres:18.4
+    restart: unless-stopped
+    environment:
+      # Matches the default DATABASE_URL documented in .env.example — a
+      # fresh `docker compose up` works out of the box against that file.
+      # Override via `.env`/shell env for a real deployment; never hardcode
+      # real credentials here (doc 10/18 "secrets only from environment").
+      POSTGRES_USER: ${POSTGRES_USER:-awcms-micro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-awcms_micro_password}
+      POSTGRES_DB: ${POSTGRES_DB:-awcms-micro}
+      # Consumed once, at first-cluster-init, by the mounted
+      # deploy/postgres/10-create-app-role.sh hook to create the
+      # least-privilege `awcms_micro_app` login the `app` service connects as
+      # (so FORCE'd RLS is enforced — the `db` superuser would bypass it). The
+      # dev default keeps a fresh `docker compose up` working out of the box;
+      # override it (and app's DATABASE_URL below) for any real deployment.
+      AWCMS_MICRO_APP_DB_PASSWORD: ${AWCMS_MICRO_APP_DB_PASSWORD:-awcms_micro_app_password}
+      # Issue #683 (epic #679): consumed once, at first-cluster-init, by
+      # deploy/postgres/11-create-worker-setup-roles.sh to grant LOGIN to the
+      # `awcms_micro_worker`/`awcms_micro_setup` roles migration 045 creates
+      # (NOLOGIN by default). Unlike AWCMS_MICRO_APP_DB_PASSWORD, these are
+      # genuinely optional — leaving either unset keeps that role NOLOGIN,
+      # and WORKER_DATABASE_URL/SETUP_DATABASE_URL below fall back to
+      # DATABASE_URL (the app role) when unset, so a default `docker compose
+      # up` still works with zero role-separation config.
+      AWCMS_MICRO_WORKER_DB_PASSWORD: ${AWCMS_MICRO_WORKER_DB_PASSWORD:-}
+      AWCMS_MICRO_SETUP_DB_PASSWORD: ${AWCMS_MICRO_SETUP_DB_PASSWORD:-}
+    volumes:
+      # Mount at /var/lib/postgresql (NOT /var/lib/postgresql/data): the
+      # postgres:18+ images store data in a major-version subdirectory
+      # (…/18/docker) and refuse to start if a volume is mounted at the old
+      # /data path (they detect it as a stale pre-18 layout). See
+      # docker-library/postgres#1259. An operator upgrading a pre-18 cluster
+      # must pg_dump/pg_restore into a fresh volume, not swap the image tag.
+      - awcms-micro-db-data:/var/lib/postgresql
+      # First-init hooks (run once, as the superuser, on an empty data volume):
+      # creates the least-privilege app role. The table GRANTs + FORCE RLS come
+      # from migration 013 via the `migrate` service. Re-running against an
+      # existing volume does NOT re-run these — migration 013 is idempotent
+      # about the role already existing, so both orders converge.
+      - ./deploy/postgres:/docker-entrypoint-initdb.d:ro
+    # No `ports:` here by default (Issue #682) — see the file-header note.
+    # For local dev host access, use docker-compose.override.yml.example.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-awcms-micro} -d ${POSTGRES_DB:-awcms-micro}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Least-privilege container runtime (Issue #682). The official
+    # postgres image's own entrypoint needs exactly these 5 capabilities at
+    # startup (chown/chmod on the data dir + socket dir, dropping to the
+    # `postgres` uid) — live-verified: `cap_drop: [ALL]` alone fails
+    # ("Operation not permitted" on `chown`/`chmod`), this exact 5-capability
+    # set starts and reaches "ready to accept connections" cleanly.
+    cap_drop: [ALL]
+    cap_add: [CHOWN, FOWNER, SETUID, SETGID, DAC_OVERRIDE]
+    security_opt:
+      - no-new-privileges:true
+    # Starting-point resource limits (Issue #682) — Compose V2 honors these
+    # on a plain `docker compose up` (no Swarm needed). Sized generously for
+    # a single-server LAN deployment; tune per hardware, not a hard
+    # requirement of the app itself.
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
+  # One-shot migration runner. Runs `bun run db:migrate` as the PRIVILEGED
+  # (owner/superuser) role and exits — the app must NOT run migrations, since
+  # it connects as the least-privilege role that lacks DDL/GRANT rights. `app`
+  # gates on this completing successfully (`service_completed_successfully`),
+  # so a plain `docker compose up` orders it correctly: db init creates the
+  # role -> migrate applies schema + FORCE RLS + grants -> app starts.
+  migrate:
+    image: oven/bun:1.3.14
+    working_dir: /app
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    volumes:
+      - .:/app
+    command: sh -c "bun install --frozen-lockfile && bun run db:migrate"
+    environment:
+      # Privileged URL — migrations create the app role, FORCE RLS, and GRANT
+      # (owner-only operations). Never the least-privilege app credentials.
+      DATABASE_URL: postgres://${POSTGRES_USER:-awcms-micro}:${POSTGRES_PASSWORD:-awcms_micro_password}@db:5432/${POSTGRES_DB:-awcms-micro}
+      HOME: /tmp
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Least-privilege container runtime (Issue #682) — live-verified: Bun
+    # runs `bun install`/migrations fine with every Linux capability
+    # dropped, no `cap_add` needed (unlike `db`, which needs a few for its
+    # own entrypoint's chown/chmod).
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
+  app:
+    image: oven/bun:1.3.14
+    restart: unless-stopped
+    working_dir: /app
+    # Runs as the host user instead of the image's default root — otherwise
+    # `bun install`/`bun run build` write root-owned files
+    # (node_modules/.vite, dist/) into the bind-mounted repo, which then
+    # blocks the *host* user from running `bun run build`/`bun install` on
+    # the same checkout afterwards (a real gotcha hit and fixed during this
+    # issue's live verification: on a host directory with a restrictive
+    # mode, e.g. `700`, a *wrong* uid/gid guess — such as a hardcoded
+    # default of 1000:1000 that doesn't match the real host user — fails
+    # even harder, with `EACCES` on every file, since only the exact owning
+    # uid can traverse into such a directory). Always export APP_UID/APP_GID
+    # to your real host user before `docker compose up` (see the usage
+    # comment above); the `1000:1000` fallback below only exists so
+    # `docker compose config` has something to substitute when the
+    # variables are unset (e.g. a syntax check in CI), not as a safe
+    # standalone default.
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    volumes:
+      - .:/app
+    # `bun install` runs on every `up` so the container always matches the
+    # mounted source tree/lockfile; acceptable for the LAN-first target.
+    # HOME is set explicitly because the container's non-root uid has no
+    # passwd entry (bind-mounted repo, not a real image user) — without it
+    # Bun/Vite cache lookups can fail trying to resolve a home directory.
+    command: sh -c "bun install && bun run build && bun ./dist/server/entry.mjs"
+    env_file:
+      # Copy .env.example to .env before running `docker compose up` — this
+      # file is git-ignored and never committed (doc 18 §Prinsip
+      # konfigurasi). Run `bun run config:validate` to check it before
+      # boot.
+      - .env
+    environment:
+      # This intentionally overrides whatever `.env` contains, for two reasons:
+      # (1) inside the compose network PostgreSQL is reachable at the `db`
+      # service name, not `localhost` (each container has its own network
+      # namespace); (2) the app connects as the LEAST-PRIVILEGE `awcms_micro_app`
+      # role — NOT the `db` superuser — so FORCE'd RLS is actually enforced (a
+      # superuser/owner bypasses RLS). `.env.example`'s default DATABASE_URL
+      # uses `localhost` + the app role for the non-container/systemd case.
+      DATABASE_URL: postgres://awcms_micro_app:${AWCMS_MICRO_APP_DB_PASSWORD:-awcms_micro_app_password}@db:5432/${POSTGRES_DB:-awcms-micro}
+      # Issue #683 (epic #679): only meaningful when AWCMS_MICRO_WORKER_DB_PASSWORD/
+      # AWCMS_MICRO_SETUP_DB_PASSWORD above are also set (that role must have
+      # LOGIN or these URLs simply won't authenticate). Left as the literal
+      # empty string otherwise, which src/lib/database/client.ts's
+      # getWorkerDatabaseClient()/getSetupDatabaseClient() treat the same as
+      # "unset" and fall back to DATABASE_URL. The 7 unattended worker
+      # scripts run via `docker compose exec app bun run <script>` in this
+      # repo's deployment model (no separate worker service), so they need
+      # this on the `app` service's environment, not a new service.
+      WORKER_DATABASE_URL: ${AWCMS_MICRO_WORKER_DB_PASSWORD:+postgres://awcms_micro_worker:${AWCMS_MICRO_WORKER_DB_PASSWORD}@db:5432/${POSTGRES_DB:-awcms-micro}}
+      SETUP_DATABASE_URL: ${AWCMS_MICRO_SETUP_DB_PASSWORD:+postgres://awcms_micro_setup:${AWCMS_MICRO_SETUP_DB_PASSWORD}@db:5432/${POSTGRES_DB:-awcms-micro}}
+      HOST: "0.0.0.0"
+      PORT: "4321"
+      HOME: /tmp
+    ports:
+      - "4321:4321"
+    depends_on:
+      db:
+        condition: service_healthy
+      # Schema + FORCE RLS + grants must be in place (as the superuser) before
+      # the least-privilege app starts — it cannot create them itself.
+      migrate:
+        condition: service_completed_successfully
+    # Live-verified: neither `bun install`/`bun run build` nor the running
+    # server needs any Linux capability — `cap_drop: [ALL]` alone is
+    # sufficient (unlike `db`, see that service's own comment). File writes
+    # into the bind-mounted repo are governed by the `user:` UID/GID above,
+    # not by capabilities.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      # No curl/wget in the debian-based oven/bun image — Bun's own fetch
+      # works fine for this and avoids adding a dependency just for the
+      # healthcheck.
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://localhost:4321/api/v1/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # This limit covers `bun install && bun run build` (runs on every
+    # container start, see the `command:` above) as well as the running
+    # server, not just runtime — a smaller value than docker-compose.prod.yml's
+    # `app` (which only ever runs the pre-built server) can OOM the build
+    # step on constrained hardware.
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
+  # Optional PgBouncer front-end for the `db` service — gated behind the
+  # "pgbouncer" Compose profile so it never starts by default (doc 18's
+  # LAN-first topology does not need it; see
+  # deploy/pgbouncer/pgbouncer.ini.example and
+  # docs/awcms-micro/database-pooling.md §7). Enable explicitly with:
+  #   docker compose --profile pgbouncer up
+  # This illustrates the shape of the service only: `auth_type =
+  # scram-sha-256` (Issue #682 — was `md5`) in the mounted example .ini
+  # requires a real `userlist.txt` with SCRAM verifier strings, which this
+  # compose file does not generate (a secret file, never committed, already
+  # in `.gitignore`) — generate it per `pgbouncer.ini.example`'s header,
+  # then add a second volume mount below, e.g.:
+  #   - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+  # No `ports:` by default (Issue #682) — see the file-header note and
+  # docker-compose.override.yml.example for local dev access. No
+  # `healthcheck:` here (unlike every other service) — the image ships
+  # neither curl/wget nor a credential-free health probe, and a real check
+  # would need the same `userlist.txt` secret this service already can't
+  # start without; `db`'s own healthcheck is the leading indicator for this
+  # optional, profile-gated service.
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.25.2-p0
+    profiles: ["pgbouncer"]
+    restart: unless-stopped
+    volumes:
+      - ./deploy/pgbouncer/pgbouncer.ini.example:/etc/pgbouncer/pgbouncer.ini:ro
+      # - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    # Least-privilege container runtime (Issue #682) — live-verified:
+    # PgBouncer needs zero extra Linux capabilities to start and listen.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+volumes:
+  awcms-micro-db-data:

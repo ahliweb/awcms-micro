@@ -1,0 +1,248 @@
+# Source fragment for the "Logging & Audit" module/tag (Issue #695, epic #679).
+#
+# Owns every path tagged "Logging & Audit" and every schema referenced ONLY by this
+# tag's operations. Schemas shared with another module/tag live in the root
+# file (openapi/awcms-micro-public-api.src.yaml) instead.
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared
+# components (securitySchemes/parameters/responses, and cross-module
+# schemas) only resolve after `bun run openapi:bundle` merges this file with
+# the root file and every sibling module file into
+# openapi/awcms-micro-public-api.openapi.yaml. Edit this file (or the root
+# file for shared components), never the generated bundle.
+paths:
+  /api/v1/logs/audit:
+    get:
+      tags:
+        - Logging & Audit
+      summary: List audit trail events for the tenant (limit 100, newest first)
+      operationId: logsGetAuditTrail
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: resourceType
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - info
+              - warning
+              - critical
+        - $ref: "#/components/parameters/Cursor"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Audit events for the caller's tenant (limit 100, newest first).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AuditEventListResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/logs/observability/dependency-health:
+    get:
+      tags:
+        - Logging & Audit
+      summary: Authorized dependency health — local database vs optional external providers, distinguished (Issue #698)
+      operationId: logsGetObservabilityDependencyHealth
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Local dependency (database circuit/pool state) and optional external provider (email, object storage, SSO/OIDC, Cloudflare DNS, ...) circuit-breaker health, aggregated by provider family. Never a tenant id, per-tenant breakdown, or raw provider registry key.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/DependencyHealthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    DependencyHealthWorkClassSnapshot:
+      type: object
+      required:
+        - workClass
+        - active
+        - max
+        - queued
+      additionalProperties: false
+      properties:
+        workClass:
+          type: string
+          enum:
+            - critical_transaction
+            - interactive
+            - reporting
+            - background_sync
+            - maintenance
+        active:
+          type: integer
+          minimum: 0
+        max:
+          type: integer
+          minimum: 0
+        queued:
+          type: integer
+          minimum: 0
+    DependencyHealthLocalDependency:
+      type: object
+      required:
+        - name
+        - status
+        - circuitBreakerState
+        - workClasses
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - healthy
+            - degraded
+            - unhealthy
+        circuitBreakerState:
+          type: string
+          enum:
+            - closed
+            - open
+            - half_open
+        workClasses:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyHealthWorkClassSnapshot"
+    DependencyHealthOptionalProvider:
+      type: object
+      required:
+        - family
+        - circuitBreakerState
+      additionalProperties: false
+      properties:
+        family:
+          type: string
+          description: Bounded, code-defined provider family label (e.g. "email", "object-storage", "sso-oidc-discovery") — never a raw per-tenant breaker registry key.
+        circuitBreakerState:
+          type: string
+          enum:
+            - closed
+            - open
+            - half_open
+    DependencyHealthResponse:
+      type: object
+      required:
+        - generatedAt
+        - localDependencies
+        - optionalProviders
+      additionalProperties: false
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        localDependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyHealthLocalDependency"
+        optionalProviders:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyHealthOptionalProvider"
+    AuditEventEntry:
+      type: object
+      required:
+        - id
+        - moduleKey
+        - action
+        - resourceType
+        - severity
+        - message
+        - createdAt
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        actorTenantUserId:
+          type: string
+          format: uuid
+        moduleKey:
+          type: string
+        action:
+          type: string
+        resourceType:
+          type: string
+        resourceId:
+          type: string
+        severity:
+          type: string
+          enum:
+            - info
+            - warning
+            - critical
+        message:
+          type: string
+        attributes:
+          type: object
+          description: Already redacted at write time — never raw PII/secrets.
+        correlationId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    AuditEventListResponse:
+      type: object
+      required:
+        - events
+        - nextCursor
+      additionalProperties: false
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditEventEntry"
+        nextCursor:
+          type: string
+          nullable: true
+          description: Opaque keyset pagination cursor; pass back as the `cursor` query parameter to fetch the next page. `null` when this is the last page.

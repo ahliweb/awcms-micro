@@ -1,0 +1,147 @@
+---
+/**
+ * ThemeToggle — Astro island with a minimal inline script (Issue 8.1).
+ *
+ * Cycles system -> light -> dark -> system, persists the choice in
+ * `localStorage["awcms_micro_theme"]`, and updates `data-theme` on `<html>`
+ * live (no reload). The initial no-flash resolution on page load happens
+ * separately, in the `is:inline` script in `src/layouts/AdminLayout.astro`
+ * `<head>` (doc 14 §Theming — "cegah flash"): it falls back to the tenant's
+ * `awcms_micro_tenants.default_theme` (editable at `/admin/settings`, Settings
+ * PR — see `tenant-admin/README.md`) when this browser has no localStorage
+ * override yet. This toggle's own choice always wins once set — it is a
+ * purely personal, per-browser override and is never written back to the
+ * tenant default.
+ *
+ * i18n (Issue #434 UX/UI audit): this component's label/aria-label were
+ * hardcoded Indonesian strings ("Sistem"/"Terang"/"Gelap", "Ganti tema
+ * tampilan") left over from before Issue #433 wired the rest of the admin
+ * shell through the `.po` catalog — a real inconsistency the audit found
+ * (switching the language switcher to English translated everything else in
+ * the topbar except this button). Labels now come in as props, translated
+ * by the caller (`AdminLayout.astro`) via `t()`, and are also serialized
+ * into the button's `data-label-*` attributes so the client-side cycle
+ * script — which cannot read the `.po` catalog itself (server-only, via
+ * `Bun.file`) — can restore the correct translated label after each click
+ * without a full reload.
+ */
+interface Props {
+  ariaLabel: string;
+  systemLabel: string;
+  lightLabel: string;
+  darkLabel: string;
+}
+
+const { ariaLabel, systemLabel, lightLabel, darkLabel } = Astro.props;
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="theme-toggle"
+  data-mode="system"
+  data-label-system={systemLabel}
+  data-label-light={lightLabel}
+  data-label-dark={darkLabel}
+  aria-label={ariaLabel}
+>
+  <span class="theme-toggle-icon" aria-hidden="true">🖥️</span>
+  <span class="theme-toggle-label">{systemLabel}</span>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--sp-1) var(--sp-2);
+    font-size: var(--fs-sm);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    background: var(--color-surface-2);
+  }
+
+  /* Touch target >= 44px on tablet/mobile (doc 14 §Aksesibilitas) — desktop
+     admin keeps the compact density above. */
+  @media (max-width: 768px) {
+    .theme-toggle {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = "awcms_micro_theme";
+  const ORDER = ["system", "light", "dark"] as const;
+  type ThemeMode = (typeof ORDER)[number];
+  const ICONS: Record<ThemeMode, string> = {
+    system: "🖥️",
+    light: "☀️",
+    dark: "🌙"
+  };
+
+  function labelFor(button: HTMLElement, mode: ThemeMode): string {
+    return (
+      button.dataset[
+        `label${mode.charAt(0).toUpperCase()}${mode.slice(1)}` as
+          "labelSystem" | "labelLight" | "labelDark"
+      ] ?? mode
+    );
+  }
+
+  function resolveTheme(mode: ThemeMode): "light" | "dark" {
+    if (mode === "light" || mode === "dark") {
+      return mode;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  function applyButtonState(button: HTMLElement, mode: ThemeMode): void {
+    button.dataset.mode = mode;
+    const icon = button.querySelector(".theme-toggle-icon");
+    const label = button.querySelector(".theme-toggle-label");
+
+    if (icon) {
+      icon.textContent = ICONS[mode];
+    }
+
+    if (label) {
+      label.textContent = labelFor(button, mode);
+    }
+  }
+
+  function init(): void {
+    const button = document.getElementById("theme-toggle");
+
+    if (!button) {
+      return;
+    }
+
+    const stored =
+      (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) ?? "system";
+    applyButtonState(button, stored);
+
+    button.addEventListener("click", () => {
+      const current =
+        (button.dataset.mode as ThemeMode | undefined) ?? "system";
+      const currentIndex = ORDER.indexOf(current);
+      const next = ORDER[(currentIndex + 1) % ORDER.length] ?? "system";
+
+      localStorage.setItem(STORAGE_KEY, next);
+      document.documentElement.setAttribute("data-theme", resolveTheme(next));
+      applyButtonState(button, next);
+    });
+  }
+
+  init();
+</script>

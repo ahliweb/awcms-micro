@@ -1,0 +1,206 @@
+# Source fragment for the "Blog Settings" module/tag (Issue #695, epic #679).
+#
+# Owns every path tagged "Blog Settings" and every schema referenced ONLY by this
+# tag's operations. Schemas shared with another module/tag live in the root
+# file (openapi/awcms-micro-public-api.src.yaml) instead.
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared
+# components (securitySchemes/parameters/responses, and cross-module
+# schemas) only resolve after `bun run openapi:bundle` merges this file with
+# the root file and every sibling module file into
+# openapi/awcms-micro-public-api.openapi.yaml. Edit this file (or the root
+# file for shared components), never the generated bundle.
+paths:
+  /api/v1/blog/settings:
+    get:
+      tags:
+        - Blog Settings
+      summary: Read this tenant's blog settings
+      operationId: blogSettingsGet
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Blog settings, falling back to schema/domain defaults when never configured.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BlogSettingsView"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Blog Settings
+      summary: Update this tenant's blog settings
+      operationId: blogSettingsUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBlogSettingsInput"
+      responses:
+        "200":
+          description: Blog settings updated (partial update — only fields present in the request body are changed).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/BlogSettingsView"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    BlogSettingsView:
+      type: object
+      required:
+        - tenantId
+        - blogTitle
+        - blogDescription
+        - postsPerPage
+        - rssEnabled
+        - sitemapEnabled
+        - defaultLocale
+        - defaultVisibility
+        - seoDefaultTitle
+        - seoDefaultDescription
+        - contentQualityChecklistPolicy
+        - socialPreviewFallbackImageMediaId
+        - socialPreviewContentImageFallbackEnabled
+        - updatedAt
+      additionalProperties: false
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        blogTitle:
+          type: string
+        blogDescription:
+          type: string
+          nullable: true
+        postsPerPage:
+          type: integer
+          minimum: 1
+          maximum: 100
+        rssEnabled:
+          type: boolean
+        sitemapEnabled:
+          type: boolean
+        defaultLocale:
+          type: string
+        defaultVisibility:
+          type: string
+          enum:
+            - public
+            - private
+            - unlisted
+        seoDefaultTitle:
+          type: string
+          nullable: true
+        seoDefaultDescription:
+          type: string
+          nullable: true
+        contentQualityChecklistPolicy:
+          $ref: "#/components/schemas/ContentQualityChecklistPolicy"
+        socialPreviewFallbackImageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: "Issue #649 — tenant-level R2 fallback social preview image (lowest-priority source), re-verified at render time via the same R2-only mechanism as featuredMediaId. null when never configured."
+        socialPreviewContentImageFallbackEnabled:
+          type: boolean
+          description: "Issue #649 — whether the first verified R2 image found in a post's own content may be used as its social preview when no explicit SEO image or featured image is set. Defaults to true."
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+    ContentQualityChecklistPolicy:
+      type: object
+      description: "Tenant override of the content quality checklist's (Issue #640) non-security rule severities. Keys are restricted to excerpt_present, meta_description_present, featured_image_exists, featured_image_alt_text, featured_image_dimensions, og_image_trusted, taxonomy_exists, social_preview_image_ready, social_preview_image_alt_text — a security rule id (e.g. unsafe_html_rejected, no_local_image_path) is rejected with 400, never accepted here, in any environment."
+      additionalProperties:
+        type: string
+        enum:
+          - blocking
+          - warning
+          - info
+    UpdateBlogSettingsInput:
+      type: object
+      description: Partial update — only fields present are validated/changed. blogTitle/blogDescription/rssEnabled/sitemapEnabled live in the row's catch-all `settings` jsonb column; the rest have their own typed columns.
+      additionalProperties: false
+      properties:
+        blogTitle:
+          type: string
+          maxLength: 200
+        blogDescription:
+          type: string
+          maxLength: 500
+          nullable: true
+        postsPerPage:
+          type: integer
+          minimum: 1
+          maximum: 100
+        rssEnabled:
+          type: boolean
+        sitemapEnabled:
+          type: boolean
+        defaultLocale:
+          type: string
+        defaultVisibility:
+          type: string
+          enum:
+            - public
+            - private
+            - unlisted
+        seoDefaultTitle:
+          type: string
+          maxLength: 200
+          nullable: true
+        seoDefaultDescription:
+          type: string
+          maxLength: 300
+          nullable: true
+        contentQualityChecklistPolicy:
+          $ref: "#/components/schemas/ContentQualityChecklistPolicy"
+        socialPreviewFallbackImageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        socialPreviewContentImageFallbackEnabled:
+          type: boolean

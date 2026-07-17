@@ -1,0 +1,49 @@
+---
+/**
+ * SyncIndicator — presentational component (Issue 8.1 shell, wired to real
+ * data in Issue 9.1 — Management Reporting).
+ *
+ * Renders a dot + label only; it has no data-fetching logic of its own.
+ * `GET /sync/status` (Issue 6.1) is HMAC node-auth (machine-to-machine), not
+ * reachable from a human's browser bearer/cookie session, so it cannot back
+ * this component directly — `AdminLayout.astro` instead computes `active`
+ * via `fetchSyncIndicatorActive`
+ * (`src/modules/reporting/application/sync-indicator.ts`), a lightweight
+ * tenant-scoped aggregation over sync nodes/conflicts/object-queue status,
+ * and passes the real boolean in as a prop.
+ */
+interface Props {
+  active?: boolean;
+  activeLabel: string;
+  inactiveLabel: string;
+}
+
+const { active = false, activeLabel, inactiveLabel } = Astro.props;
+const label = active ? activeLabel : inactiveLabel;
+---
+
+<div class="sync-indicator" data-status={active ? "active" : "inactive"}>
+  <span class="sync-indicator-dot" aria-hidden="true"></span>
+  <span class="sync-indicator-label">{label}</span>
+</div>
+
+<style>
+  .sync-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .sync-indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-danger);
+  }
+
+  .sync-indicator[data-status="active"] .sync-indicator-dot {
+    background: var(--color-success);
+  }
+</style>

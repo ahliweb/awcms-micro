@@ -1,0 +1,141 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
+import { describe, expect, test } from "bun:test";
+import { parse } from "yaml";
+
+import { DOMAIN_EVENT_CONSUMERS } from "../../src/modules/domain-event-runtime/infrastructure/consumer-registry";
+import { DOMAIN_EVENT_TYPE_REGISTRY } from "../../src/modules/domain-event-runtime/domain/event-type-registry";
+import {
+  isValidEventType,
+  isValidEventVersion
+} from "../../src/modules/domain-event-runtime/domain/envelope";
+import { listModules } from "../../src/modules/index";
+import { domainEventRuntimeModule } from "../../src/modules/domain-event-runtime/module";
+
+/**
+ * Bidirectional parity between the runtime's own code-level registries and
+ * the published AsyncAPI contract (Issue #742 acceptance criterion:
+ * "Runtime registry and AsyncAPI event types/versions pass bidirectional
+ * parity checks"). Scoped to the events this runtime itself is aware of —
+ * `event-type-registry.ts`'s own doc comment explains why this is a
+ * finer-grained complement to (not a replacement for) the existing
+ * repo-wide `checkModuleEventChannels` (`scripts/api-spec-check.ts`, part
+ * of `bun run api:spec:check`/`bun run check`), which already validates
+ * `module.ts`'s `events.publishes` array against AsyncAPI channels for
+ * EVERY module, including this one.
+ *
+ * Direction 1 (registry -> AsyncAPI): every `DOMAIN_EVENT_TYPE_REGISTRY`
+ * entry must have a matching AsyncAPI channel — `appendDomainEvent`
+ * already enforces this at RUNTIME (`UnregisteredDomainEventTypeError`
+ * only prevents publishing an event NOT in the registry; it says nothing
+ * about whether a registry entry itself has drifted from the published
+ * contract), so this test is what actually closes that gap statically.
+ *
+ * Direction 2 (AsyncAPI -> registry, scoped): every event type any
+ * registered CONSUMER subscribes to must be present in
+ * `DOMAIN_EVENT_TYPE_REGISTRY` — a consumer subscribing to an event type
+ * the registry itself doesn't know about would be silent, undetectable
+ * drift (the consumer would simply never receive anything, since
+ * `appendDomainEvent` can only fan out registry-known types).
+ */
+
+async function loadAsyncApiChannels(): Promise<Record<string, unknown>> {
+  const filePath = path.join(
+    import.meta.dir,
+    "../../asyncapi/awcms-micro-domain-events.asyncapi.yaml"
+  );
+  const source = await readFile(filePath, "utf8");
+  const document = parse(source) as { channels?: Record<string, unknown> };
+
+  return document.channels ?? {};
+}
+
+describe("domain-event-runtime registry <-> AsyncAPI parity (Issue #742)", () => {
+  test("every DOMAIN_EVENT_TYPE_REGISTRY entry has a matching AsyncAPI channel", async () => {
+    const channels = await loadAsyncApiChannels();
+
+    for (const entry of DOMAIN_EVENT_TYPE_REGISTRY) {
+      expect(channels[entry.eventType]).toBeDefined();
+    }
+  });
+
+  test("every consumer's subscribed event type is present in DOMAIN_EVENT_TYPE_REGISTRY", () => {
+    const registeredTypes = new Set(
+      DOMAIN_EVENT_TYPE_REGISTRY.map((entry) => entry.eventType)
+    );
+
+    for (const consumer of DOMAIN_EVENT_CONSUMERS) {
+      for (const eventType of consumer.eventTypes) {
+        expect(registeredTypes.has(eventType)).toBe(true);
+      }
+    }
+  });
+
+  test("module.ts's events.publishes includes every domain_event_runtime-OWNED DOMAIN_EVENT_TYPE_REGISTRY entry", () => {
+    // Issue #747 (epic `platform-evolution` #738, Wave 2) is the first
+    // OTHER module (`workflow`) to add its own entries to this shared
+    // registry, exactly as `event-type-registry.ts`'s own doc comment
+    // anticipates ("Future producer modules add their OWN entries here...
+    // and their own module.ts events.publishes entries") — those entries
+    // are correctly declared in `workflow-approval/module.ts`'s OWN
+    // `events.publishes`, not this module's. Scoped to this runtime's own
+    // namespace (`awcms-micro.domain-event-runtime.*`) so this assertion
+    // stays meaningful as more producer modules register here.
+    const publishes = new Set(domainEventRuntimeModule.events?.publishes ?? []);
+    const ownedEntries = DOMAIN_EVENT_TYPE_REGISTRY.filter((entry) =>
+      entry.eventType.startsWith("awcms-micro.domain-event-runtime.")
+    );
+
+    expect(ownedEntries.length).toBeGreaterThan(0);
+
+    for (const entry of ownedEntries) {
+      expect(publishes.has(entry.eventType)).toBe(true);
+    }
+  });
+
+  test("every DOMAIN_EVENT_TYPE_REGISTRY entry is published by SOME module's module.ts", () => {
+    // Issue #748 (profile_identity, epic #738 Wave 2) is another REAL
+    // external producer added to this shared registry — exactly what
+    // `event-type-registry.ts`'s own doc comment anticipates ("Future
+    // producer modules add their OWN entries here... and their own
+    // module.ts events.publishes entries"). Scoped to ANY module's
+    // `events.publishes`, since the registry is explicitly a shared,
+    // multi-producer catalog, not exclusively domain_event_runtime's own
+    // (the test above already covers that narrower, domain_event_runtime-
+    // specific invariant). The repo-wide `checkModuleEventChannels`
+    // (`scripts/api-spec-check.ts`, part of `bun run check`) already
+    // validates each module's own `events.publishes` against AsyncAPI
+    // channels; this test additionally confirms nothing in THIS registry
+    // is orphaned (published by no module at all).
+    const allPublishedEventTypes = new Set(
+      listModules().flatMap((module) => module.events?.publishes ?? [])
+    );
+
+    for (const entry of DOMAIN_EVENT_TYPE_REGISTRY) {
+      expect(allPublishedEventTypes.has(entry.eventType)).toBe(true);
+    }
+  });
+
+  test("every DOMAIN_EVENT_TYPE_REGISTRY entry has a well-formed event type and version", () => {
+    // Reuses the actual validators (not a re-typed copy of their regex) —
+    // a hand-duplicated pattern here previously drifted from
+    // `envelope.ts`'s real `EVENT_TYPE_PATTERN` and masked the exact bug
+    // `domain-event-runtime-envelope.test.ts` caught (the first namespace
+    // segment, "awcms-micro", contains a hyphen).
+    for (const entry of DOMAIN_EVENT_TYPE_REGISTRY) {
+      expect(isValidEventType(entry.eventType)).toBe(true);
+      expect(isValidEventVersion(entry.eventVersion)).toBe(true);
+    }
+  });
+
+  test("no two DOMAIN_EVENT_TYPE_REGISTRY entries share the same (eventType, eventVersion) pair", () => {
+    const seen = new Set<string>();
+
+    for (const entry of DOMAIN_EVENT_TYPE_REGISTRY) {
+      const key = `${entry.eventType}@${entry.eventVersion}`;
+      expect(seen.has(key)).toBe(false);
+      seen.add(key);
+    }
+  });
+});
