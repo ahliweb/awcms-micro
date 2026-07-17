@@ -30,7 +30,7 @@
 
 ## Migrations
 
-63 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `078_awcms_micro_media_library_tenant_state_schema.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+64 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `079_awcms_micro_media_library_enforcement_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -97,6 +97,7 @@
 | 070 | `070_awcms_micro_reporting_projections_permissions.sql`            |
 | 077 | `077_awcms_micro_media_library_permission_ownership.sql`           |
 | 078 | `078_awcms_micro_media_library_tenant_state_schema.sql`            |
+| 079 | `079_awcms_micro_media_library_enforcement_permissions.sql`        |
 
 ## Tables & Row-Level Security
 
@@ -120,19 +121,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-291 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+293 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
 | `e2e`         | 9          |
-| `integration` | 89         |
+| `integration` | 90         |
 | `modules`     | 5          |
-| `unit`        | 143        |
+| `unit`        | 144        |
 
 ## Routes / Operations (summary)
 
-192 OpenAPI paths, 256 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+193 OpenAPI paths, 258 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 

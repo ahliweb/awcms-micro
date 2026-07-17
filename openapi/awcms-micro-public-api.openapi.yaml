@@ -6968,6 +6968,90 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/media/enforcement:
+    get:
+      tags:
+        - News Media
+      summary: Read whether managed-media enforcement is active for this tenant
+      description: |
+        Reports whether this tenant's content media references must resolve to verified registry objects, and — when enforcement cannot be enabled — the deployment-config reasons why (ADR-0026 step 5a).
+
+        `reasons` name environment variables, never their values, so nothing secret is exposed; the endpoint is still permission-gated (`media_library.enforcement.read`) rather than public.
+      operationId: mediaEnforcementRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Current enforcement state for this tenant plus this deployment's media readiness.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MediaEnforcementState"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags:
+        - News Media
+      summary: Turn managed-media enforcement ON for this tenant (one-way)
+      description: |
+        Enables managed-media enforcement: from then on, content media references must resolve to verified, same-tenant registry objects rather than raw URLs (ADR-0026 step 5a). This is the switch a brochure-site tenant (`blog_content` + `tenant_domain`, no news portal) previously did not have — enforcement used to be reachable only through `news_portal`'s R2-only preset.
+
+        **This operation is one-way and there is deliberately no counterpart that disables enforcement.** A tenant able to switch its own media validation off is a confirmed exploit this design exists to prevent (see migration `sql/043`'s header); the "off" transition therefore does not exist anywhere in the codebase. A deployment that must roll back does so by changing its `NEWS_MEDIA_R2_*` configuration — an operator act outside the tenant's reach.
+
+        Idempotent: re-enabling an already-enforcing tenant succeeds, refreshes the timestamp, and returns `alreadyEnforced: true`. No `Idempotency-Key` is required.
+      operationId: mediaEnforcementEnable
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Enforcement is active for this tenant.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MediaEnforcementEnabled"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: |
+            The deployment's media storage is not ready, so enforcement cannot be enabled — `error.details.reasons` says which check failed. A 409 rather than a 400 on purpose: the request is well-formed and the caller is authorized; it is the deployment, not the request body, that must change.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/media/news-images/upload-sessions:
     post:
       tags:
@@ -16834,6 +16918,55 @@ components:
       properties:
         loggedOut:
           type: boolean
+    MediaEnforcementEnabled:
+      type: object
+      required:
+        - enforced
+        - enforcedAt
+        - alreadyEnforced
+      additionalProperties: false
+      properties:
+        enforced:
+          type: boolean
+          enum:
+            - true
+          description: Always true — a non-enforcing outcome is reported as a 409, never as a 200 whose `enforced` is false.
+        enforcedAt:
+          type: string
+          format: date-time
+          description: When this activation was confirmed. Refreshed on re-activation so it always reflects the most recent confirmed-ready enable.
+        alreadyEnforced:
+          type: boolean
+          description: True when the tenant was already enforcing before this call — an idempotent no-change, still audited.
+    MediaEnforcementState:
+      type: object
+      required:
+        - enforced
+        - ready
+        - reasons
+        - detail
+      additionalProperties: false
+      properties:
+        enforced:
+          type: boolean
+          description: Whether this tenant's content media references must resolve to verified registry objects. Once true it stays true — enforcement is one-way by design.
+        ready:
+          type: boolean
+          description: Whether this DEPLOYMENT's media storage is configured well enough for enforcement to be enabled. Independent of `enforced` — both must hold for validation to actually run.
+        reasons:
+          type: array
+          description: Machine-readable readiness failures; empty when `ready` is true.
+          items:
+            type: string
+            enum:
+              - news_media_r2_disabled
+              - news_media_r2_config_incomplete
+              - news_media_r2_shares_sync_storage_bucket_or_credentials
+        detail:
+          type: array
+          description: Human-readable evidence, one entry per failing check. Names environment variables, never their values.
+          items:
+            type: string
     MeResponse:
       type: object
       required:

@@ -11,11 +11,16 @@ tenant-scoped dan alur unggahnya, dipakai ulang oleh setiap modul website.
 > Jangan menambahkan tabel/route media baru di `news_portal`. Keputusan lengkap:
 > [ADR-0026](../../../docs/adr/0026-media-library-module-admission.md).
 >
-> **Yang belum:** operator situs brosur belum punya cara MENYALAKAN penegakan media
-> — flag `sql/078` hari ini hanya ditulis preset R2-only `news_portal`. Secara
-> arsitektural media sudah lepas dari portal berita (dibuktikan
-> `tests/integration/media-library-tenant-state.integration.test.ts`); yang kurang
-> tinggal preset/endpoint milik modul ini — langkah 5.
+> **Penegakan media punya tombolnya sendiri** (langkah 5a):
+> `GET`/`POST /api/v1/media/enforcement`, permission
+> `media_library.enforcement.read`/`.enable` (`sql/079`). Situs brosur tak lagi
+> butuh portal berita — tidak untuk kapabilitasnya, tidak untuk menyalakannya.
+>
+> **Penegakan itu SATU ARAH dan harus tetap begitu.** Tidak ada `disable`, tidak
+> ada "unmark", tidak ada DELETE ke `awcms_micro_media_library_tenant_state`.
+> Itu properti keamanan (header `sql/043`: desain lama terbukti dieksploitasi
+> karena tenant bisa mematikan validasinya sendiri), bukan API setengah jadi —
+> jangan "lengkapi demi simetri". Empat guard menjaganya.
 
 ## Kenapa modul ini ada
 
@@ -94,23 +99,24 @@ saat langkah 2/3 selesai dan peta impor media sudah stabil.
 Setiap langkah mendarat dengan `bun run check` hijau — ini menyentuh empat modul
 dan tiga migrasi, jadi **bukan satu commit raksasa**.
 
-| #   | Langkah                                                                                           | Status      |
-| --- | ------------------------------------------------------------------------------------------------- | ----------- |
-| 1   | Daftarkan modul ini (`experimental`, tanpa kode)                                                  | **selesai** |
-| 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)          | **selesai** |
-| 3+4 | Pecah kontrak port, rewire konsumen, pensiunkan `news_media`, lepas gate R2-only (`sql/078`)      | **selesai** |
-| 5   | Preset/endpoint penyalaan milik modul ini, varian gambar/`srcset`, tipe non-gambar, admin browser | belum       |
+| #   | Langkah                                                                                      | Status      |
+| --- | -------------------------------------------------------------------------------------------- | ----------- |
+| 1   | Daftarkan modul ini (`experimental`, tanpa kode)                                             | **selesai** |
+| 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)     | **selesai** |
+| 3+4 | Pecah kontrak port, rewire konsumen, pensiunkan `news_media`, lepas gate R2-only (`sql/078`) | **selesai** |
+| 5a  | Endpoint penyalaan enforcement (`/api/v1/media/enforcement`, `sql/079`) — satu arah          | **selesai** |
+| 5b  | Varian gambar/`srcset`                                                                       | belum       |
+| 5c  | Tipe media non-gambar                                                                        | belum       |
+| 5d  | Admin media browser                                                                          | belum       |
 
 Langkah 3 dan 4 direncanakan terpisah tapi **dikerjakan sebagai satu** — koplingnya
 ada di kontrak port, sehingga langkah 3 sendirian hanya akan mengganti nama tanpa
 membalik apa pun. Alasan lengkapnya di ADR-0026 §Konsekuensi.
 
-**Utang yang tersisa:** situs brosur kini secara arsitektural bisa punya media
-terkelola, tapi operatornya belum punya tombol untuk menyalakannya — flag `sql/078`
-hari ini hanya ditulis preset R2-only `news_portal`. Itu langkah 5, dan **jangan**
-diselesaikan lewat `awcms_micro_module_settings`: tabel itu tenant-writable lewat
-endpoint generik, jadi tenant bisa mematikan validasi medianya sendiri (eksploit yang
-didokumentasikan header `sql/043`).
+Langkah 5a melunasi utang yang dicatat langkah 3–4 (kapabilitas ada, tombol tidak),
+dan menaati peringatannya: flag TIDAK diekspos lewat `awcms_micro_module_settings`,
+melainkan lewat endpoint terdedikasi dengan activity code terpisah (`enforcement`,
+bukan `media` — beda radius ledakan) yang hanya bisa menyalakan.
 
 ## Batas scope
 

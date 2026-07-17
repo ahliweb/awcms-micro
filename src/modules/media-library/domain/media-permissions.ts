@@ -56,3 +56,36 @@ export const MEDIA_PERMISSIONS = {
 export type NewsMediaPermissionKey = keyof typeof MEDIA_PERMISSIONS;
 export type NewsMediaPermissionValue =
   (typeof MEDIA_PERMISSIONS)[NewsMediaPermissionKey];
+
+/**
+ * Managed-media ENFORCEMENT permissions (ADR-0026 step 5a, `sql/079`) — a
+ * separate activity code from `media` above, deliberately.
+ *
+ * `media.*` governs individual media OBJECTS (upload this file, delete that
+ * row). `enforcement.*` governs a tenant-wide POLICY: whether content may
+ * reference media by raw URL at all. Those are different blast radii, so they
+ * must be separately grantable — an editor who uploads images all day has no
+ * business flipping the tenant's content-validation policy, and folding this
+ * into `media.create` would have granted exactly that to every such editor.
+ *
+ * There is deliberately **no `disable` action, and there never may be.** See
+ * `application/enable-managed-media-enforcement.ts` for the full reasoning: a
+ * tenant able to turn its own media validation OFF is precisely the exploit
+ * `sql/043`'s header documents as confirmed-exploitable in review. Enforcement
+ * is one-way by construction, not by permission configuration — an operator who
+ * genuinely must roll it back does so through a deployment-level change, which
+ * is an auditable, deliberate act rather than a self-service button.
+ */
+export const MEDIA_ENFORCEMENT_PERMISSION_ACTIVITY_CODE = "enforcement";
+
+export const MEDIA_ENFORCEMENT_PERMISSIONS = {
+  /** Read whether managed-media enforcement is active for this tenant, and why it can/cannot be enabled. */
+  read: "media_library.enforcement.read",
+  /** Turn managed-media enforcement ON for this tenant. One-way — see above. */
+  enable: "media_library.enforcement.enable"
+} as const;
+
+export type MediaEnforcementPermissionKey =
+  keyof typeof MEDIA_ENFORCEMENT_PERMISSIONS;
+export type MediaEnforcementPermissionValue =
+  (typeof MEDIA_ENFORCEMENT_PERMISSIONS)[MediaEnforcementPermissionKey];
