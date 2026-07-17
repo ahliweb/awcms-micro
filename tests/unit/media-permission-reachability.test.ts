@@ -13,19 +13,25 @@ import { mediaLibraryModule } from "../../src/modules/media-library/module";
  * and seeded.
  *
  * `module.ts` declares 9 `media.*` permissions and `sql/042`/`sql/077` seed all
- * of them, but only 3 have a guard: `create`, `verify`, `cancel`. The other 6
- * are grantable authority that confers nothing, because no endpoint exists yet —
- * exactly what `media-permissions.ts`'s original header warned about, and which
- * Issue #634 did anyway when it declared the full set while shipping only the
- * upload flow.
+ * of them. Issue #634 declared the full set while shipping only the upload flow,
+ * so 6 of them were grantable authority that conferred nothing — exactly what
+ * `media-permissions.ts`'s original header warned about. (`awcms-mini` has the
+ * identical gap; this is inherited upstream shape, not something micro invented.)
  *
- * This test exists so that gap is a FACT THE SUITE KNOWS rather than a comment
- * someone has to notice. Two directions of drift both fail here:
+ * ADR-0026 step 5's read API closed part of it: `read` is now enforced by
+ * `GET /api/v1/media/objects` and `GET /api/v1/media/objects/{id}`. When that
+ * route landed, THIS TEST FAILED AND NAMED `read` — which is the whole point of
+ * it existing. The remaining 5 (`attach`, `detach`, `delete`, `restore`,
+ * `purge`) are still inert, with working application functions behind them and
+ * no route.
  *
- *   * Someone adds `GET /api/v1/media/objects` (ADR-0026 step 5's media object
- *     API) → `read` becomes enforced → this fails → they update the list and, in
- *     doing so, read the header explaining these keys are a contract being
- *     implemented, not free naming.
+ * Two directions of drift both fail here:
+ *
+ *   * A route starts guarding one of the remaining 5 → this fails naming it →
+ *     whoever lands it updates the list and, doing so, reads the header
+ *     explaining these keys are a contract being IMPLEMENTED, not free naming.
+ *     That matters: a tenant may already have granted `media.purge` for no
+ *     effect, and it becomes real the instant a purge route exists.
  *   * Someone declares a NEW permission with no route → it lands in neither set
  *     → the totals stop matching → they have to say which it is.
  *
@@ -69,23 +75,27 @@ function findGuardedActions(activityCode: string): Set<string> {
 }
 
 describe("media permission reachability", () => {
-  test("exactly 3 of the 9 declared `media.*` permissions have a guard — the other 6 are seeded but inert", () => {
+  test("4 of the 9 declared `media.*` permissions have a guard — the other 5 are still seeded but inert", () => {
     const guarded = findGuardedActions("media");
 
-    // If this list grows, the media object API has landed: update the
-    // `unreachable` list below and `media-permissions.ts`'s header with it.
-    expect([...guarded].sort()).toEqual(["cancel", "create", "verify"]);
+    // `read` joined this list with ADR-0026 step 5's read API. If it grows
+    // again, the lifecycle routes have landed: update `unreachable` below AND
+    // `media-permissions.ts`'s header, which states the same split in prose.
+    expect([...guarded].sort()).toEqual(["cancel", "create", "read", "verify"]);
 
     const unreachable = Object.keys(MEDIA_PERMISSIONS).filter(
       (action) => !guarded.has(action)
     );
 
+    // Each of these already has a working application function
+    // (`attachNewsMediaObject`, `softDeleteNewsMediaObject`, ...) — only the
+    // route is missing. So they are inert authority sitting on live code, which
+    // is why granting one today is a no-op that silently becomes real later.
     expect(unreachable.sort()).toEqual([
       "attach",
       "delete",
       "detach",
       "purge",
-      "read",
       "restore"
     ]);
   });

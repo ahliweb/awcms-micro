@@ -27,23 +27,50 @@ import {
  * these are treated as routine lifecycle bookkeeping, not high-risk actions.
  */
 
-export type NewsMediaObjectStatus =
-  | "pending_upload"
-  | "uploaded"
-  | "verified"
-  | "attached"
-  | "orphaned"
-  | "deleted"
-  | "failed";
+/**
+ * Derived from an `as const` array rather than a hand-written union so the
+ * runtime guard below and the compile-time type can never disagree — the same
+ * single-source shape `NEWS_PORTAL_PROFILES`/`isKnownNewsPortalProfile` uses.
+ * The guards exist because `GET /api/v1/media/objects` accepts these as query
+ * strings, and an unvalidated one would silently return an empty list (a filter
+ * matching nothing) instead of a 400 saying the value is wrong.
+ */
+export const NEWS_MEDIA_OBJECT_STATUSES = [
+  "pending_upload",
+  "uploaded",
+  "verified",
+  "attached",
+  "orphaned",
+  "deleted",
+  "failed"
+] as const;
+
+export type NewsMediaObjectStatus = (typeof NEWS_MEDIA_OBJECT_STATUSES)[number];
+
+export function isNewsMediaObjectStatus(
+  value: string
+): value is NewsMediaObjectStatus {
+  return (NEWS_MEDIA_OBJECT_STATUSES as readonly string[]).includes(value);
+}
+
+export const NEWS_MEDIA_OWNER_RESOURCE_TYPES = [
+  "blog_post",
+  "blog_page",
+  "homepage_section",
+  "gallery_item",
+  "ad",
+  "video_thumbnail",
+  "seo_image"
+] as const;
 
 export type NewsMediaOwnerResourceType =
-  | "blog_post"
-  | "blog_page"
-  | "homepage_section"
-  | "gallery_item"
-  | "ad"
-  | "video_thumbnail"
-  | "seo_image";
+  (typeof NEWS_MEDIA_OWNER_RESOURCE_TYPES)[number];
+
+export function isNewsMediaOwnerResourceType(
+  value: string
+): value is NewsMediaOwnerResourceType {
+  return (NEWS_MEDIA_OWNER_RESOURCE_TYPES as readonly string[]).includes(value);
+}
 
 /**
  * `true` for exactly the statuses safe to reference from public content
@@ -240,6 +267,70 @@ export async function createPendingNewsMediaObject(
 export type FetchNewsMediaObjectOptions = {
   includeDeleted?: boolean;
 };
+
+export type ListNewsMediaObjectsOptions = {
+  status?: NewsMediaObjectStatus;
+  ownerResourceType?: NewsMediaOwnerResourceType;
+  ownerResourceId?: string;
+  includeDeleted?: boolean;
+  limit?: number;
+};
+
+const DEFAULT_LIST_LIMIT = 20;
+const MAX_LIST_LIMIT = 100;
+
+/**
+ * Bounded list (default 20, max 100), newest-first — the same bounded-list
+ * convention `blog-post-directory.ts`/`party-directory.ts` use, no cursor
+ * pagination yet.
+ *
+ * Optional filters use the `(${value} IS NULL OR column = ${value})` pattern
+ * established by `party-directory.ts`/`domain-event-directory.ts`/
+ * `form-draft-directory.ts` — one literal query, never dynamic SQL string
+ * composition. (`blog-post-directory.ts` branches per filter instead, but it has
+ * exactly one optional filter; branching here would mean 2^4 near-identical
+ * queries for the same result.)
+ *
+ * Every filter combination is index-backed by `sql/041`:
+ * `idx_..._active`/`idx_..._tenant_created` for the default newest-first scan,
+ * `idx_..._tenant_status` for `status`, `idx_..._owner` for the
+ * owner-resource lookup ("which media objects are attached to this post?").
+ *
+ * `createdAt DESC, id DESC` rather than `createdAt DESC` alone: two objects
+ * created in the same transaction share a timestamp, and an unstable order
+ * would make the list non-deterministic between identical requests.
+ */
+export async function listNewsMediaObjects(
+  tx: Bun.SQL,
+  tenantId: string,
+  options: ListNewsMediaObjectsOptions = {}
+): Promise<NewsMediaObjectView[]> {
+  const limit = Math.min(
+    Math.max(options.limit ?? DEFAULT_LIST_LIMIT, 1),
+    MAX_LIST_LIMIT
+  );
+  const status = options.status ?? null;
+  const ownerResourceType = options.ownerResourceType ?? null;
+  const ownerResourceId = options.ownerResourceId ?? null;
+
+  const rows = (await tx`
+    SELECT id, tenant_id, module_key, owner_resource_type, owner_resource_id,
+      storage_driver, bucket_name, object_key, original_filename, public_url,
+      mime_type, size_bytes, checksum_sha256, width, height, alt_text, caption,
+      status, created_by_tenant_user_id, created_at, updated_at,
+      deleted_at, deleted_by, delete_reason, restored_at, restored_by
+    FROM awcms_micro_news_media_objects
+    WHERE tenant_id = ${tenantId}
+      AND (deleted_at IS NULL OR ${options.includeDeleted === true})
+      AND (${status}::text IS NULL OR status = ${status})
+      AND (${ownerResourceType}::text IS NULL OR owner_resource_type = ${ownerResourceType})
+      AND (${ownerResourceId}::text IS NULL OR owner_resource_id = ${ownerResourceId})
+    ORDER BY created_at DESC, id DESC
+    LIMIT ${limit}
+  `) as NewsMediaObjectRow[];
+
+  return rows.map(toView);
+}
 
 export async function fetchNewsMediaObjectById(
   tx: Bun.SQL,

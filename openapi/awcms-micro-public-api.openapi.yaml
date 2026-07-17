@@ -7218,6 +7218,139 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+  /api/v1/media/objects:
+    get:
+      tags:
+        - News Media
+      summary: List this tenant's media objects
+      description: |
+        Newest first, bounded (default 20, max 100 — no cursor pagination yet, matching this repo's other bounded lists). Soft-deleted objects are excluded unless `includeDeleted=true`.
+
+        Never exposes `bucketName`/`objectKey`/`storageDriver`/`checksumSha256`: those describe where the bytes physically live, which no consumer needs and which narrows the search space for anyone probing the bucket. `publicUrl` is the supported way to reach them.
+      operationId: mediaObjectsList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/MediaObjectStatus"
+        - name: ownerResourceType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/MediaOwnerResourceType"
+        - name: ownerResourceId
+          in: query
+          required: false
+          description: Together with `ownerResourceType`, answers "which media objects are attached to this post/page?".
+          schema:
+            type: string
+        - name: includeDeleted
+          in: query
+          required: false
+          description: Include soft-deleted objects. Defaults to false.
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Media objects, newest first.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - objects
+                        additionalProperties: false
+                        properties:
+                          objects:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/MediaObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/media/objects/{id}:
+    get:
+      tags:
+        - News Media
+      summary: Read one media object's metadata
+      description: |
+        Returns 404 — never 403 — for another tenant's id, exactly as for a nonexistent one: a 403 would confirm the id exists somewhere.
+
+        `includeDeleted=true` lets a caller holding `media_library.media.read` inspect a soft-deleted object, which is what a "restore this?" confirmation needs before calling `POST /{id}/restore`.
+      operationId: mediaObjectsRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: includeDeleted
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: The media object.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - object
+                        additionalProperties: false
+                        properties:
+                          object:
+                            $ref: "#/components/schemas/MediaObject"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/modules:
     get:
       tags:
@@ -16967,6 +17100,119 @@ components:
           description: Human-readable evidence, one entry per failing check. Names environment variables, never their values.
           items:
             type: string
+    MediaObject:
+      type: object
+      required:
+        - id
+        - moduleKey
+        - ownerResourceType
+        - ownerResourceId
+        - originalFilename
+        - publicUrl
+        - mimeType
+        - sizeBytes
+        - width
+        - height
+        - altText
+        - caption
+        - status
+        - createdAt
+        - updatedAt
+        - deletedAt
+        - deleteReason
+        - restoredAt
+      additionalProperties: false
+      description: |
+        Deliberately omits `bucketName`, `objectKey`, `storageDriver`, and `checksumSha256` — physical-storage detail no consumer needs, and which would narrow the search space for anyone probing the bucket.
+      properties:
+        id:
+          type: string
+          format: uuid
+        moduleKey:
+          type: string
+          description: |
+            The module the object is recorded against. Always `news_portal` today — `sql/041` carries `CHECK (module_key = 'news_portal')`, so despite the column and its default suggesting a multi-module registry, no other value can be stored. `ownerResourceType`/`ownerResourceId` are the real discriminators (a `blog_post` object is still stamped `news_portal`). Not offered as a list filter for that reason: it could only ever match one value. See ADR-0026.
+        ownerResourceType:
+          oneOf:
+            - $ref: "#/components/schemas/MediaOwnerResourceType"
+            - type: "null"
+          description: Null unless the object is `attached`.
+        ownerResourceId:
+          type:
+            - string
+            - "null"
+        originalFilename:
+          type:
+            - string
+            - "null"
+        publicUrl:
+          type: string
+          format: uri
+        mimeType:
+          type: string
+        sizeBytes:
+          type:
+            - integer
+            - "null"
+        width:
+          type:
+            - integer
+            - "null"
+        height:
+          type:
+            - integer
+            - "null"
+        altText:
+          type:
+            - string
+            - "null"
+        caption:
+          type:
+            - string
+            - "null"
+        status:
+          $ref: "#/components/schemas/MediaObjectStatus"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        deleteReason:
+          type:
+            - string
+            - "null"
+        restoredAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+    MediaObjectStatus:
+      type: string
+      enum:
+        - pending_upload
+        - uploaded
+        - verified
+        - attached
+        - orphaned
+        - deleted
+        - failed
+      description: Registry lifecycle status. Only `verified` and `attached` are safe to reference from public content.
+    MediaOwnerResourceType:
+      type: string
+      enum:
+        - blog_post
+        - blog_page
+        - homepage_section
+        - gallery_item
+        - ad
+        - video_thumbnail
+        - seo_image
     MeResponse:
       type: object
       required:
