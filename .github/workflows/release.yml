@@ -3,11 +3,15 @@
 # Two entry points, deliberately with no boolean toggles between them:
 #
 #   1. `push: tags: v*.*.*`      — a REAL release. Requires the tag's commit
-#      to already be an ancestor of `origin/main` (see "Guard" step below —
-#      this repo has no branch-protection rule today, see
-#      docs/awcms-micro/branch-protection.md, so this is the closest
-#      workflow-level substitute for "publish only from a protected
-#      branch"), `scripts/release-verify.ts` (version/CHANGELOG/pending-
+#      to already be an ancestor of `origin/main` (see "Guard" step below).
+#      `main` IS branch-protected now (6 required checks + enforce_admins,
+#      see docs/awcms-micro/branch-protection.md §Status), so that guard is
+#      no longer this repo's only substitute for "publish only from a
+#      protected branch" — it is now a second, independent layer: protection
+#      governs what may LAND on main, while the guard governs what a TAG may
+#      point at. A tag can be pushed to any commit, protected branch or not,
+#      so the guard stays load-bearing regardless.
+#      `scripts/release-verify.ts` (version/CHANGELOG/pending-
 #      changeset consistency), creates a GitHub Release, and moves the
 #      floating `:latest` image tag.
 #   2. `workflow_dispatch` (any branch, no inputs) — the REHEARSAL path
