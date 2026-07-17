@@ -103,7 +103,7 @@ export function validateInstagramPublishEligibility(
  * Defense-in-depth re-check (Issue #644 acceptance criterion: "R2 image
  * URLs used for provider media must come from verified media objects").
  * By construction, `content.imageUrl` on a job snapshot is ALREADY only
- * ever populated from `NewsMediaPort.resolveMediaReferences`'s
+ * ever populated from `MediaLibraryPort.resolveMediaReferences`'s
  * `publicUrl` (verified/attached R2 objects only — see
  * `create-social-publish-jobs.ts`) — this adapter never accepts an
  * additional caller-supplied image URL (the "optional editor-approved

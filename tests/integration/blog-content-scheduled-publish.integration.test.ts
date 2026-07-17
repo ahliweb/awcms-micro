@@ -32,7 +32,7 @@ import { POST as createPost } from "../../src/pages/api/v1/blog/posts/index";
 import { POST as schedulePost } from "../../src/pages/api/v1/blog/posts/[id]/schedule";
 import { POST as publishPost } from "../../src/pages/api/v1/blog/posts/[id]/publish";
 import { publishDueScheduledPosts } from "../../src/modules/blog-content/application/blog-scheduled-publish";
-import { newsMediaPortAdapter } from "../../src/modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../src/modules/media-library/application/media-library-port-adapter";
 
 const OWNER_LOGIN = "owner@example.com";
 const OWNER_PASSWORD = "integration-test-owner-password";
@@ -142,7 +142,7 @@ suite("blog scheduled publishing", () => {
     const result = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(result.publishedCount).toBe(1);
     expect(result.publishedPostIds).toEqual([postId]);
@@ -182,7 +182,7 @@ suite("blog scheduled publishing", () => {
     const result = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(result.publishedCount).toBe(0);
 
@@ -213,7 +213,7 @@ suite("blog scheduled publishing", () => {
     const result = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(result.publishedCount).toBe(0);
   });
@@ -243,7 +243,7 @@ suite("blog scheduled publishing", () => {
     const first = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(first.publishedCount).toBe(1);
 
@@ -256,7 +256,7 @@ suite("blog scheduled publishing", () => {
     const second = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(second.publishedCount).toBe(0);
 
@@ -291,7 +291,7 @@ suite("blog scheduled publishing", () => {
     const result = await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     expect(result.publishedCount).toBe(1);
 
@@ -329,12 +329,12 @@ suite("blog scheduled publishing", () => {
     await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
     await publishDueScheduledPosts(
       getTestSql(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
 
     const admin = getAdminSql();

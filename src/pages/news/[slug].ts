@@ -11,7 +11,7 @@ import { fetchPublicBlogPostBySlug } from "../../modules/blog-content/applicatio
 import { withNewsTenant } from "../../modules/blog-content/application/public-news-tenant-resolution";
 import { fetchBlogSettings } from "../../modules/blog-content/application/blog-settings-directory";
 import { buildNewsArticleSeoMetadata } from "../../modules/blog-content/application/news-article-seo-metadata";
-import { newsMediaPortAdapter } from "../../modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../modules/media-library/application/media-library-port-adapter";
 import { resolveNewsShareConfig } from "../../modules/news-portal/domain/news-share-config";
 import { renderContentJsonToHtml } from "../../modules/blog-content/domain/content-block-rendering";
 import { renderContentHtmlWithInternalTagLinks } from "../../modules/blog-content/application/internal-tag-link-rendering";
@@ -64,14 +64,14 @@ export const GET: APIRoute = async ({ params, request, url }) => {
         // og:image + dimensions/MIME, robots directive, article:section/tag,
         // NewsArticle JSON-LD) from a SINGLE bulk media resolution, reusing
         // Issue #636's exact R2-verification primitive
-        // (`NewsMediaPort.resolveMediaReferences`) rather than re-deriving
+        // (`MediaLibraryPort.resolveMediaReferences`) rather than re-deriving
         // it. Shared with `/blog/[tenantCode]/[slug].ts` so both routes stay
         // byte-for-byte consistent.
         const blogSettings = await fetchBlogSettings(tx, tenant.tenantId);
         const seoMetadata = await buildNewsArticleSeoMetadata(
           tx,
           tenant.tenantId,
-          newsMediaPortAdapter,
+          mediaLibraryPortAdapter,
           blogSettings,
           {
             post,

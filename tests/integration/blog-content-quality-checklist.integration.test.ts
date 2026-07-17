@@ -50,7 +50,7 @@ import {
   type NewsMediaObjectView
 } from "../../src/modules/media-library/application/media-object-directory";
 import { publishDueScheduledPosts } from "../../src/modules/blog-content/application/blog-scheduled-publish";
-import { newsMediaPortAdapter } from "../../src/modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../src/modules/media-library/application/media-library-port-adapter";
 
 const OWNER_LOGIN = "owner@example.com";
 const OWNER_PASSWORD = "integration-test-owner-password";
@@ -626,7 +626,7 @@ suite("content quality checklist (Issue #640)", () => {
     const result = await publishDueScheduledPosts(
       getDatabaseClient(),
       owner.tenantId,
-      newsMediaPortAdapter
+      mediaLibraryPortAdapter
     );
 
     expect(result.publishedCount).toBe(0);

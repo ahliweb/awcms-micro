@@ -10,14 +10,14 @@
  * simply doesn't get re-published on a re-run.
  *
  * Issue #640: this script is the composition root (ADR-0011) that wires
- * `news_portal`'s `NewsMediaPort` implementation into `blog_content`'s
+ * `news_portal`'s `MediaLibraryPort` implementation into `blog_content`'s
  * scheduled-publish job, so the content quality checklist can gate this
  * transition exactly like the interactive publish/schedule endpoints —
  * `blog-scheduled-publish.ts` itself never imports `news_portal` directly.
  *
  * Issue #643 (epic `social_publishing`): this script is ALSO the
  * composition root that wires `social_publishing`'s
- * `SocialPublishingPort` — `createSocialPublishingPortAdapter(newsMediaPortAdapter)`
+ * `SocialPublishingPort` — `createSocialPublishingPortAdapter(mediaLibraryPortAdapter)`
  * — into `publishDueScheduledPosts`, so a scheduled post that becomes due
  * also gets its social-publishing outbox jobs created (trigger
  * `scheduled_published`), exactly like the manual publish route
@@ -28,11 +28,12 @@
 import { getWorkerDatabaseClient } from "../src/lib/database/client";
 import { logScriptFailure } from "../src/lib/logging/error-log";
 import { publishDueScheduledPosts } from "../src/modules/blog-content/application/blog-scheduled-publish";
-import { newsMediaPortAdapter } from "../src/modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../src/modules/media-library/application/media-library-port-adapter";
 import { createSocialPublishingPortAdapter } from "../src/modules/social-publishing/application/social-publishing-port-adapter";
 
-const socialPublishingPort =
-  createSocialPublishingPortAdapter(newsMediaPortAdapter);
+const socialPublishingPort = createSocialPublishingPortAdapter(
+  mediaLibraryPortAdapter
+);
 
 type TenantRow = { id: string };
 
@@ -54,7 +55,7 @@ async function main() {
       const result = await publishDueScheduledPosts(
         sql,
         tenant.id,
-        newsMediaPortAdapter,
+        mediaLibraryPortAdapter,
         { now, correlationId },
         socialPublishingPort
       );

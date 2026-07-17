@@ -30,7 +30,7 @@ import {
   checklistBlockersToErrorDetails,
   evaluateContentQualityChecklistForContent
 } from "../../../../../../modules/blog-content/application/content-quality-checklist-gate";
-import { newsMediaPortAdapter } from "../../../../../../modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../../../../../modules/media-library/application/media-library-port-adapter";
 import { createSocialPublishingPortAdapter } from "../../../../../../modules/social-publishing/application/social-publishing-port-adapter";
 
 // Issue #643 (epic `social_publishing`): this route is the composition root
@@ -38,8 +38,9 @@ import { createSocialPublishingPortAdapter } from "../../../../../../modules/soc
 // publish action (trigger `post_published`) — see
 // `social-publishing-port-adapter.ts`'s header for why this must stay a
 // factory call here rather than a ready-made singleton import.
-const socialPublishingPort =
-  createSocialPublishingPortAdapter(newsMediaPortAdapter);
+const socialPublishingPort = createSocialPublishingPortAdapter(
+  mediaLibraryPortAdapter
+);
 
 const PUBLISH_GUARD = {
   moduleKey: "blog_content",
@@ -149,7 +150,7 @@ export const POST: APIRoute = async ({ request, params, cookies, locals }) => {
       "post",
       post,
       termIds.length,
-      newsMediaPortAdapter,
+      mediaLibraryPortAdapter,
       blogSettings.contentQualityChecklistPolicy,
       {
         socialPreviewFallback: {

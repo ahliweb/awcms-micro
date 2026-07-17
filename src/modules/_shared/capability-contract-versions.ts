@@ -50,8 +50,18 @@
  */
 export const CAPABILITY_CONTRACT_VERSIONS: Readonly<Record<string, string>> =
   Object.freeze({
-    // news_portal provides — consumed by blog_content (ADR-0011).
-    news_media: "1.0.0",
+    // media_library provides — consumed by blog_content, news_portal, and
+    // social_publishing (ADR-0011).
+    //
+    // Replaces `news_media: "1.0.0"` (ADR-0026 steps 3-4), which `news_portal`
+    // provided only because the media registry was born inside it. This is a NEW
+    // key rather than a MAJOR bump of the old one: the provider changed, and the
+    // contract dropped `isFullOnlineR2ModeActiveForTenant` in favour of a
+    // question media can answer without a news portal. A derived repository
+    // pinned to `news_media` should fail to resolve the capability outright
+    // rather than silently bind to a port that no longer asks what it asked —
+    // which is exactly what an unknown key does here.
+    media_library: "1.0.0",
     // blog_content provides — consumed by news_portal (ADR-0011) and
     // social_publishing.
     public_content: "1.0.0",

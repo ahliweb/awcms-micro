@@ -577,7 +577,8 @@ describe("database migration runner helpers", () => {
       "062_awcms_micro_business_scope_permissions.sql",
       "069_awcms_micro_reporting_projections_schema.sql",
       "070_awcms_micro_reporting_projections_permissions.sql",
-      "077_awcms_micro_media_library_permission_ownership.sql"
+      "077_awcms_micro_media_library_permission_ownership.sql",
+      "078_awcms_micro_media_library_tenant_state_schema.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

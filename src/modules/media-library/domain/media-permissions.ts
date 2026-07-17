@@ -1,22 +1,18 @@
 /**
- * Permission KEY CONSTANTS for the R2-only news media registry (Issue #633).
- * These are documentation/constants ONLY — this file does not touch
- * `module.ts`'s `permissions` array and does not insert any row into
- * `awcms_micro_permissions`.
+ * Permission KEY CONSTANTS for the media registry (Issue #633).
  *
- * Why not wired up yet: `news_portal`'s own `module.ts` deliberately leaves
- * `permissions`/`navigation`/`api`/`settings`/`jobs`/`health` undeclared
- * until the corresponding feature is real (same convention `visitor_analytics`
- * used, Issue #617; see `module.ts`'s own descriptor comment). Issue #633
- * adds domain/application helpers only — no HTTP endpoint exists yet to
- * enforce these permissions, so declaring them in the module descriptor now
- * would sync permission rows into `awcms_micro_permissions` with nothing
- * that ever checks them, which is misleading (a permission that "exists"
- * but is unreachable). Issue #634 (direct-to-R2 presigned upload flow) is
- * expected to be the first issue that adds real endpoints — it MUST reuse
- * these exact string constants (not invent new ones) when declaring
- * `module.ts`'s `permissions` array and calling `authorizeInTransaction`
- * (skill `awcms-micro-abac-guard`).
+ * These are LIVE, not aspirational: `module.ts` declares all 9 in its
+ * `permissions` array (built from `MEDIA_PERMISSION_ACTIVITY_CODE` below),
+ * `sql/042` seeded them, and `sql/077` moved their ownership from `news_portal`
+ * to `media_library` when ADR-0026 step 2 extracted this module. The upload/
+ * finalize/cancel routes enforce them via `authorizeInTransaction` (skill
+ * `awcms-micro-abac-guard`).
+ *
+ * This file remains the single source for the key strings: `module.ts`, the
+ * route guards, and `tests/modules/media-library-module.test.ts`'s parity
+ * assertion all derive from it, so a key can never drift between the descriptor
+ * and the code that checks it. Anything needing a media permission MUST reuse
+ * these constants rather than re-typing the string.
  *
  * `activityCode` follows this module's own resource shape (`media`, plural
  * dropped to match e.g. `blog_content`'s `posts`/`pages` activity codes),

@@ -3,15 +3,19 @@
 Modul **System Foundation** (lapisan ADR-0013 #2) — registry objek media
 tenant-scoped dan alur unggahnya, dipakai ulang oleh setiap modul website.
 
-> **Status: `active` — modul ini kini MEMILIKI registry media** (ADR-0026 langkah 2).
-> Registry, alur presigned upload/finalize/cancel, MIME sniffing, object key, R2
-> config/client, verifikasi, rekonsiliasi, dan 9 permission (`media_library.media.*`,
-> `sql/077`) semuanya ada di sini. Jangan menambahkan tabel/route media baru di
-> `news_portal`. Keputusan lengkap:
+> **Status: `active` — modul ini MEMILIKI registry media dan kapabilitasnya**
+> (ADR-0026 langkah 2–4). Registry, alur presigned upload/finalize/cancel, MIME
+> sniffing, object key, R2 config/client, verifikasi, rekonsiliasi, 9 permission
+> (`media_library.media.*`, `sql/077`), dan port `media_library`
+> (`_shared/ports/media-library-port.ts` + adaptornya di sini) semuanya ada di sini.
+> Jangan menambahkan tabel/route media baru di `news_portal`. Keputusan lengkap:
 > [ADR-0026](../../../docs/adr/0026-media-library-module-admission.md).
 >
-> **Yang belum:** media masih hanya terjangkau lewat gate R2-only milik `news_portal`,
-> jadi situs brosur tetap belum punya media terkelola — langkah 3–4 yang menutupnya.
+> **Yang belum:** operator situs brosur belum punya cara MENYALAKAN penegakan media
+> — flag `sql/078` hari ini hanya ditulis preset R2-only `news_portal`. Secara
+> arsitektural media sudah lepas dari portal berita (dibuktikan
+> `tests/integration/media-library-tenant-state.integration.test.ts`); yang kurang
+> tinggal preset/endpoint milik modul ini — langkah 5.
 
 ## Kenapa modul ini ada
 
@@ -40,17 +44,24 @@ orphan, dan job rekonsiliasi, lalu meninggalkan dua sumber kebenaran.
 Ini pola yang sama dengan **generic idempotency store** (ADR-0025 §3): infrastruktur
 bersama yang lahir di dalam modul yang epic-nya kebetulan pertama membutuhkannya.
 
-### Apa yang TIDAK ikut pindah, dan kenapa
+### Kenapa adaptornya sempat tertinggal di `news_portal` (langkah 2 → 3–4)
 
-`news-media-port-adapter.ts` **tetap di `news_portal`**. Ia bukan urusan media: ia
+Langkah 2 sengaja meninggalkan `news-media-port-adapter.ts` di `news_portal`: ia
 mengomposisikan registry modul ini dengan kebijakan editorial R2-only milik
-`news_portal` (`news-portal-tenant-state.ts`, `news-portal-preset-readiness.ts`).
-Memindahkannya akan membuat `media_library` mengimpor `news_portal` — modul System
-Foundation bergantung pada modul domain, yaitu inversi ADR-0013 §1 yang justru
-ingin dihapus ekstraksi ini. Percobaan memindahkannya langsung ditangkap typecheck.
+`news_portal`, jadi memindahkannya begitu saja akan membuat `media_library`
+mengimpor `news_portal` — inversi ADR-0013 §1 yang justru ingin dihapus ekstraksi
+ini. Percobaan memindahkannya langsung ditangkap typecheck.
 
-Adaptor itu berpindah/pensiun di langkah 3–4, saat gate R2-only dilepas dari
-kepemilikan `news_portal`.
+Langkah 3–4 menemukan **akar sebenarnya**: koplingnya ada di **kontrak port**, bukan
+di letak adaptornya. `NewsMediaPort` membawa `isFullOnlineR2ModeActiveForTenant` —
+pertanyaan `news_portal`, bukan pertanyaan media. Selama method itu ada di kontrak,
+port media wajib menjawab pertanyaan portal berita, dan memindahkan adaptor mustahil.
+
+Karena itu langkah 3 dan 4 dikerjakan **sebagai satu langkah**: kontraknya dipecah
+lebih dulu (media menjawab "apakah referensi harus berbasis registry?", `news_portal`
+menyimpan presetnya sendiri), baru konsumennya di-rewire. Port lama + adaptornya
+dihapus; `news_media` dipensiunkan. Detail dan pelajarannya ada di
+[ADR-0026 §Konsekuensi](../../../docs/adr/0026-media-library-module-admission.md).
 
 ### Bukti tambahan: pengecualian batas yang hanya ada karena salah tempat
 
@@ -83,17 +94,23 @@ saat langkah 2/3 selesai dan peta impor media sudah stabil.
 Setiap langkah mendarat dengan `bun run check` hijau — ini menyentuh empat modul
 dan tiga migrasi, jadi **bukan satu commit raksasa**.
 
-| #   | Langkah                                                                                                    | Status      |
-| --- | ---------------------------------------------------------------------------------------------------------- | ----------- |
-| 1   | Daftarkan modul ini (`experimental`, tanpa kode)                                                           | **selesai** |
-| 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)                   | **selesai** |
-| 3   | Rewire `blog_content` + `social_publishing` ke port `media_library`; lepas `news_media`                    | belum       |
-| 4   | Lepas gate R2-only dari kepemilikan `news_portal` → media bekerja tanpa portal berita; modul jadi `active` | belum       |
-| 5   | Tambah varian gambar/`srcset`, tipe media non-gambar, admin media browser                                  | belum       |
+| #   | Langkah                                                                                           | Status      |
+| --- | ------------------------------------------------------------------------------------------------- | ----------- |
+| 1   | Daftarkan modul ini (`experimental`, tanpa kode)                                                  | **selesai** |
+| 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)          | **selesai** |
+| 3+4 | Pecah kontrak port, rewire konsumen, pensiunkan `news_media`, lepas gate R2-only (`sql/078`)      | **selesai** |
+| 5   | Preset/endpoint penyalaan milik modul ini, varian gambar/`srcset`, tipe non-gambar, admin browser | belum       |
 
-**Utang yang diakui sampai langkah 4 selesai:** tenant tanpa `news_portal` tetap
-tanpa media terkelola. Itu kondisi hari ini, **bukan regresi yang diperkenalkan
-ADR-0026** — dicatat di sini supaya tidak terbaca sebagai fitur.
+Langkah 3 dan 4 direncanakan terpisah tapi **dikerjakan sebagai satu** — koplingnya
+ada di kontrak port, sehingga langkah 3 sendirian hanya akan mengganti nama tanpa
+membalik apa pun. Alasan lengkapnya di ADR-0026 §Konsekuensi.
+
+**Utang yang tersisa:** situs brosur kini secara arsitektural bisa punya media
+terkelola, tapi operatornya belum punya tombol untuk menyalakannya — flag `sql/078`
+hari ini hanya ditulis preset R2-only `news_portal`. Itu langkah 5, dan **jangan**
+diselesaikan lewat `awcms_micro_module_settings`: tabel itu tenant-writable lewat
+endpoint generik, jadi tenant bisa mematikan validasi medianya sendiri (eksploit yang
+didokumentasikan header `sql/043`).
 
 ## Batas scope
 

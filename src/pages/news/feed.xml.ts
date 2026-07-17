@@ -11,7 +11,7 @@ import { listPublicBlogPostsForFeed } from "../../modules/blog-content/applicati
 import { withNewsTenant } from "../../modules/blog-content/application/public-news-tenant-resolution";
 import { fetchBlogSettings } from "../../modules/blog-content/application/blog-settings-directory";
 import { resolveNewsArticlePreviewImage } from "../../modules/blog-content/application/news-article-seo-metadata";
-import { newsMediaPortAdapter } from "../../modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../modules/media-library/application/media-library-port-adapter";
 import { resolveMetaDescription } from "../../modules/blog-content/domain/seo-rendering";
 
 /**
@@ -55,7 +55,7 @@ export const GET: APIRoute = async ({ request, url }) => {
           const previewImage = await resolveNewsArticlePreviewImage(
             tx,
             tenant.tenantId,
-            newsMediaPortAdapter,
+            mediaLibraryPortAdapter,
             blogSettings,
             post
           );

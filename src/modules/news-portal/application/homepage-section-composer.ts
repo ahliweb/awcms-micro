@@ -2,7 +2,7 @@ import type {
   PublicContentPort,
   PublicContentPostSummaryDTO
 } from "../../_shared/ports/public-content-port";
-import type { NewsMediaPort } from "../../_shared/ports/news-media-port";
+import type { MediaLibraryPort } from "../../_shared/ports/media-library-port";
 import {
   renderCategoryGridSectionHtml,
   renderGalleryBlockSectionHtml,
@@ -37,7 +37,7 @@ import type {
  *
  * Issue #681 (epic #679, platform-hardening) — `contentPort`/`mediaPort`
  * are caller-injected (`_shared/ports/public-content-port.ts`/
- * `news-media-port.ts`) rather than this file importing `blog-content`'s
+ * `media-library-port.ts`) rather than this file importing `blog-content`'s
  * application layer directly (as it did before this issue, for post/term
  * queries AND for `resolveVerifiedNewsMediaReferences`, which — before
  * this issue — lived in `blog-content` despite being purely a
@@ -68,7 +68,7 @@ async function resolveMediaForPosts(
   tx: Bun.SQL,
   tenantId: string,
   posts: readonly PublicContentPostSummaryDTO[],
-  mediaPort: NewsMediaPort
+  mediaPort: MediaLibraryPort
 ) {
   const mediaObjectIds = posts
     .map((post) => post.featuredMediaId)
@@ -82,7 +82,7 @@ async function renderPostCards(
   tenantId: string,
   basePath: string,
   posts: readonly PublicContentPostSummaryDTO[],
-  mediaPort: NewsMediaPort
+  mediaPort: MediaLibraryPort
 ): Promise<string> {
   const media = await resolveMediaForPosts(tx, tenantId, posts, mediaPort);
   return renderPostCardListHtml(
@@ -98,7 +98,7 @@ async function renderSectionBody(
   basePath: string,
   section: HomepageSectionView,
   contentPort: PublicContentPort,
-  mediaPort: NewsMediaPort
+  mediaPort: MediaLibraryPort
 ): Promise<string> {
   switch (section.sectionType) {
     case "headline": {
@@ -222,7 +222,7 @@ export async function composeHomepageSectionsHtml(
   tenantId: string,
   basePath: string,
   contentPort: PublicContentPort,
-  mediaPort: NewsMediaPort,
+  mediaPort: MediaLibraryPort,
   now: Date = new Date()
 ): Promise<ComposedHomepageSections> {
   const sections = await listActiveHomepageSectionsForRendering(

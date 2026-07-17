@@ -185,7 +185,7 @@ function buildHeaders(bearerToken: string, apiVersion: string): HeadersInit {
 
 /**
  * Defense-in-depth only — `create-social-publish-jobs.ts` already only
- * ever populates `content.imageUrl` from `NewsMediaPort.resolveMediaReferences`,
+ * ever populates `content.imageUrl` from `MediaLibraryPort.resolveMediaReferences`,
  * which only ever resolves verified/attached, same-tenant R2 objects. This
  * re-check ensures a bug or future refactor elsewhere can never cause this
  * adapter to hand an arbitrary caller-influenced URL to a third-party API.

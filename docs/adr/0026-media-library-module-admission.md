@@ -72,13 +72,31 @@ Diverifikasi belum ada di kode hari ini:
 
 **Negatif / risiko yang diakui.** Ini refaktor lintas modul yang menyentuh empat modul (`news_portal`, `blog_content`, `social_publishing`, dan `media_library` baru), tiga migrasi yang sudah ada, alur presigned upload, dan test-nya — **bukan pekerjaan atomik kecil**. Ia harus dikerjakan sebagai epic bertahap dengan `bun run check` hijau di tiap langkah, bukan satu commit raksasa:
 
-1. Daftarkan modul `media_library` + port `media_library` (di samping `news_media` yang di-deprecate) — belum memindahkan kode.
-2. Pindahkan registry/directory/upload-session ke `media_library`; `news_portal` mengonsumsi lewat port.
-3. Rewire `blog_content` + `social_publishing` ke port baru; lepas `news_media`.
-4. Lepas gate R2-only dari kepemilikan `news_portal` sehingga media bekerja tanpa portal berita.
+1. Daftarkan modul `media_library` + port `media_library` (di samping `news_media` yang di-deprecate) — belum memindahkan kode. **(selesai)**
+2. Pindahkan registry/directory/upload-session ke `media_library`; `news_portal` mengonsumsi lewat port. **(selesai)**
+3. ~~Rewire `blog_content` + `social_publishing` ke port baru; lepas `news_media`.~~
+4. ~~Lepas gate R2-only dari kepemilikan `news_portal` sehingga media bekerja tanpa portal berita.~~
+   → **3–4 dikerjakan sebagai SATU langkah (selesai)** — lihat koreksi di bawah.
 5. Tambah varian gambar, tipe non-gambar, dan admin media browser (§4).
 
-**Utang yang diakui sampai langkah 4 selesai:** tenant tanpa `news_portal` tetap tanpa media terkelola. Ini kondisi hari ini, bukan regresi yang diperkenalkan ADR ini — dicatat di sini supaya tidak dibaca sebagai fitur.
+### Koreksi staging: langkah 3 dan 4 ternyata satu pekerjaan
+
+Staging di atas mengasumsikan langkah 3 (rewire konsumen ke port baru) bisa mendarat sebelum langkah 4 (lepas gate R2-only). **Itu keliru, dan baru terlihat saat langkah 3 dimulai.**
+
+Sebabnya: kopling itu hidup di **kontrak port itu sendiri**, bukan di adaptornya. `NewsMediaPort` membawa method `isFullOnlineR2ModeActiveForTenant` — pertanyaan kebijakan editorial `news_portal`, bukan pertanyaan media. Selama method itu ada di kontrak, port `media_library` tetap wajib menjawab pertanyaan `news_portal`, jadi adaptornya tetap harus mengimpor `news-portal-tenant-state`/`news-portal-preset-readiness`. Melakukan langkah 3 sendirian hanya akan **mengganti nama port tanpa membalik apa pun** — `media_library` akan "menyediakan" kapabilitas yang mustahil ia implementasikan tanpa modul konsumennya.
+
+Dua method lain (`isMediaReferenceSafe`, `resolveMediaReferences`) sudah murni: setelah langkah 2, keduanya hanya memanggil registry di `media_library`. `news_portal` menyediakan `news_media` semata karena registry-nya kebetulan lahir di sana.
+
+Pemecahan yang dikerjakan, dan kenapa ini bukan sekadar rename:
+
+- Pertanyaan **"haruskah referensi media tenant ini berbasis registry?"** adalah pertanyaan media. Ia kini dijawab `media_library` dari readiness deployment-nya sendiri (`domain/managed-media-readiness.ts`, hasil pecahan bagian `NEWS_MEDIA_R2_*` dari readiness preset `news_portal`) dan flag per-tenant miliknya sendiri (`application/media-library-tenant-state.ts`, `sql/078`).
+- Preset R2-only `news_portal` menjadi **salah satu PENULIS** flag itu, bukan pemiliknya. Sebaliknya tidak berlaku: tenant boleh punya flag tanpa pernah menerapkan preset — justru itulah kasus situs brosur.
+- Kapabilitas `news_media` **dipensiunkan**, bukan di-MAJOR-bump: penyedianya berubah DAN kontraknya kehilangan satu method. Repo turunan yang dipin ke `news_media` harus gagal terang-terangan, bukan diam-diam terikat ke port yang tidak lagi menanyakan hal yang ia tanyakan.
+- `sql/078` mem-backfill dari `awcms_micro_news_portal_tenant_state`. Tanpa itu, deploy akan **mematikan** penegakan media persis bagi tenant yang memintanya — regresi keamanan yang menyamar sebagai refaktor. Backfill lintas-tenant membaca tabel ber-RLS `FORCE`; klaim bahwa role migrasi mem-bypass RLS diverifikasi test integrasi (`media-library-tenant-state.integration.test.ts`), bukan dipercaya dari komentar.
+
+**Pelajaran yang bisa dipakai ulang:** saat memindahkan kepemilikan kapabilitas, periksa **kontrak port** lebih dulu, bukan hanya letak adaptornya. Adaptor di modul yang salah adalah gejala; method milik modul yang salah di dalam kontrak adalah penyebabnya.
+
+**Utang yang tersisa:** tidak ada jalur non-`news_portal` untuk MENYALAKAN flag `media_library` — belum ada preset/endpoint `media_library` sendiri. Jadi situs brosur kini secara arsitektural bisa punya media terkelola (dibuktikan test integrasi), tapi operatornya belum punya tombolnya. Itu pekerjaan langkah 5, dan **tidak boleh** diselesaikan dengan mengekspos flag ini lewat `awcms_micro_module_settings`: tabel itu tenant-writable lewat endpoint generik, sehingga tenant bisa mematikan validasi medianya sendiri — persis eksploit yang didokumentasikan header `sql/043`.
 
 ## Alternatif yang ditolak
 

@@ -4,7 +4,7 @@
  * reference a canonical party (person/organization) WITHOUT importing
  * `profile_identity`'s tables or `application`/`domain` code directly. Lives
  * in neutral ground (`_shared`, imports NOTHING from any module), same
- * reasoning `public-content-port.ts`/`news-media-port.ts`/
+ * reasoning `public-content-port.ts`/`media-library-port.ts`/
  * `legal-hold-guard-port.ts` document in their own headers (ADR-0011).
  *
  * Two complementary capabilities:

@@ -30,7 +30,7 @@
 
 ## Migrations
 
-62 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `077_awcms_micro_media_library_permission_ownership.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+63 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `078_awcms_micro_media_library_tenant_state_schema.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -96,10 +96,11 @@
 | 069 | `069_awcms_micro_reporting_projections_schema.sql`                 |
 | 070 | `070_awcms_micro_reporting_projections_permissions.sql`            |
 | 077 | `077_awcms_micro_media_library_permission_ownership.sql`           |
+| 078 | `078_awcms_micro_media_library_tenant_state_schema.sql`            |
 
 ## Tables & Row-Level Security
 
-104 tables created across all migrations; 96 carry a `tenant_id` column; 95 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
+105 tables created across all migrations; 97 carry a `tenant_id` column; 96 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
 
 No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` statement, or is on the reviewed exempt allow-list below.
 
@@ -119,15 +120,15 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-289 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+291 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
 | `e2e`         | 9          |
-| `integration` | 88         |
+| `integration` | 89         |
 | `modules`     | 5          |
-| `unit`        | 142        |
+| `unit`        | 143        |
 
 ## Routes / Operations (summary)
 

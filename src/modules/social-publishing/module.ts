@@ -15,14 +15,22 @@ export const socialPublishingModule = defineModule({
   // `SocialPublishingPort.onArticlePublished(...)`; this module never needs
   // to re-fetch post data itself. It DOES provide the `social_publishing`
   // capability `blog_content` consumes (see `blog-content/module.ts`'s own
-  // `capabilities.consumes` entry) and consumes `news_portal`'s `news_media`
-  // capability (to resolve a verified R2 image URL for the job snapshot) —
-  // both `optional: true` mirroring the existing `news_media`/
-  // `public_content` port precedent from Issue #681.
+  // `capabilities.consumes` entry) and consumes `media_library`'s
+  // `media_library` capability (to resolve a verified image URL for the job
+  // snapshot) — `optional: true`, mirroring the `public_content` port precedent
+  // from Issue #681. ADR-0026 steps 3-4 re-pointed this off `news_portal`'s
+  // retired `news_media`.
   capabilities: {
     provides: ["social_publishing"],
     consumes: [
-      { capability: "news_media", providedBy: "news_portal", optional: true }
+      // ADR-0026 steps 3-4: was `news_media` providedBy `news_portal`. Retired in
+      // favour of `media_library`'s own port — this module only ever wanted to
+      // resolve a verified image URL, which was never `news_portal`'s to answer.
+      {
+        capability: "media_library",
+        providedBy: "media_library",
+        optional: true
+      }
     ]
   },
   events: {

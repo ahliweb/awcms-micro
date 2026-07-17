@@ -19,7 +19,7 @@ import {
 } from "../../modules/blog-content/domain/public-page-rendering";
 import { composeHomepageSectionsHtml } from "../../modules/news-portal/application/homepage-section-composer";
 import { publicContentPortAdapter } from "../../modules/blog-content/application/public-content-port-adapter";
-import { newsMediaPortAdapter } from "../../modules/news-portal/application/news-media-port-adapter";
+import { mediaLibraryPortAdapter } from "../../modules/media-library/application/media-library-port-adapter";
 
 /**
  * `GET /news` (Issue #560, epic #555) — public blog index, tenant-code-free
@@ -66,7 +66,7 @@ export const GET: APIRoute = async ({ request, url }) => {
                 tenant.tenantId,
                 basePath,
                 publicContentPortAdapter,
-                newsMediaPortAdapter
+                mediaLibraryPortAdapter
               )
             : { hasSections: false, html: "" };
 

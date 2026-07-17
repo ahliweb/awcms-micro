@@ -4,7 +4,7 @@
  * `data_lifecycle`: "is this registered high-volume-table descriptor
  * currently under an active legal hold for this tenant?" Lives in neutral
  * ground (`_shared`, imports NOTHING from either module), same reasoning
- * `social-publishing-port.ts`/`news-media-port.ts`/`public-content-port.ts`
+ * `social-publishing-port.ts`/`media-library-port.ts`/`public-content-port.ts`
  * document in their own headers.
  *
  * Exists because each of these 3 modules' OWN existing purge function
