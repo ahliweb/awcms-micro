@@ -155,7 +155,7 @@
       "capabilitiesProvided": ["media_library"],
       "capabilitiesConsumed": [],
       "permissionCount": 11,
-      "navigationCount": 0,
+      "navigationCount": 1,
       "jobCount": 0,
       "hasHealthCheck": false,
       "hasReadinessCheck": false,

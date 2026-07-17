@@ -60,6 +60,26 @@ export const mediaLibraryModule = defineModule({
     openApiPath: "openapi/awcms-micro-public-api.openapi.yaml",
     basePath: "/api/v1/media/news-images"
   },
+  // ADR-0026 step 5d — this module's first admin screen, so `navigation` is now
+  // declared (same convention every other module follows: declare it when a page
+  // exists, not before — see `domain-event-runtime/module.ts` for the inverse).
+  //
+  // Gated on `media.read`, the permission the page's own SSR read requires. That
+  // is visibility only, never authorization: `/admin/media` re-checks the same
+  // key itself and each action re-checks its own, because a nav entry deciding
+  // access would make the menu the guard (`identity-access/module.ts`'s
+  // navigation-visibility-is-not-authorization note).
+  //
+  // Order 45 puts media between blog_content (40) and module_management (50):
+  // it is content-adjacent for an editor, not a platform screen.
+  navigation: [
+    {
+      labelKey: "admin.layout.nav_media_library",
+      path: "/admin/media",
+      order: 45,
+      requiredPermission: "media_library.media.read"
+    }
+  ],
   permissions: [
     {
       activityCode: MEDIA_PERMISSION_ACTIVITY_CODE,

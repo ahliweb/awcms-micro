@@ -108,7 +108,28 @@ export const ERROR_CODE_KEYS: Record<string, string> = {
   // Reviewer finding on PR #782 (High): media-type verification was
   // documented as done but never implemented -- UNSUPPORTED_MEDIA_TYPE is
   // its real error code, added alongside the fix.
-  UNSUPPORTED_MEDIA_TYPE: "error.unsupported_media_type"
+  UNSUPPORTED_MEDIA_TYPE: "error.unsupported_media_type",
+  // ADR-0026 step 5d. `NOT_FOUND` is NOT this map's canonical 404 code --
+  // `RESOURCE_NOT_FOUND` above is, and 121 routes use it against this
+  // one's 17. But those 17 exist (16 predate the media work: reporting
+  // projections/exports, data_lifecycle, business scope), they all return
+  // a real 404 to a real admin UI, and NONE of them was ever translated:
+  // an unmapped code falls through to `translateErrorCode`'s raw-message
+  // fallback, which is always English. Mapping it here is additive and
+  // fixes every one of them at once. Unifying the two codes is the right
+  // end state and is deliberately NOT done here -- it would change the
+  // response body of 17 endpoints, which is an API contract change that
+  // needs its own PR and its own OpenAPI diff, not a drive-by inside a UI
+  // change.
+  NOT_FOUND: "error.not_found",
+  // `media-object-lifecycle-failure.ts`'s 409. The server's own message is
+  // richer than this static string (it names the required state and the
+  // current one), and mapping the code here does discard that detail --
+  // accepted on the same terms `INVALID_STATUS_TRANSITION` above already
+  // set, plus one specific to this screen: `/admin/media` renders each
+  // object's status badge directly above the button that raised the error,
+  // so the detail the translation drops is on screen anyway.
+  INVALID_MEDIA_STATUS: "error.invalid_media_status"
 };
 
 /**

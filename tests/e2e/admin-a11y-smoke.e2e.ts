@@ -93,6 +93,13 @@ test.describe("Admin — accessibility smoke (axe-core, WCAG 2.2 AA)", () => {
     await page.goto("/admin/tenant/domains");
     await assertNoSeriousViolations(page, "/admin/tenant/domains");
 
+    // ADR-0026 step 5d. A fresh tenant has no media, so this exercises the
+    // filter form + empty state rather than the card grid — worth having anyway:
+    // the filter form is where this page's own labelled controls live, and the
+    // grid reuses markup axe already covers elsewhere.
+    await page.goto("/admin/media");
+    await assertNoSeriousViolations(page, "/admin/media");
+
     // Mobile viewport (320px) with the drawer open — the shape acceptance
     // criteria call out explicitly ("Layout works at 320px... and
     // keyboard-only use").
