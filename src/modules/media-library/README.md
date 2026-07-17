@@ -37,6 +37,32 @@ orphan, dan job rekonsiliasi, lalu meninggalkan dua sumber kebenaran.
 Ini pola yang sama dengan **generic idempotency store** (ADR-0025 §3): infrastruktur
 bersama yang lahir di dalam modul yang epic-nya kebetulan pertama membutuhkannya.
 
+### Bukti tambahan: pengecualian batas yang hanya ada karena salah tempat
+
+Audit impor lintas-modul (dijalankan saat menyiapkan langkah 2) menemukan
+`social-publishing/infrastructure/linkedin-provider-adapter.ts` mengimpor
+`news-portal/domain/news-media-r2-config` **secara langsung**, padahal `news_portal`
+bukan `dependencies` terdeklarasi `social_publishing`.
+
+Ini **bukan pelanggaran liar** — impornya sengaja dan terdokumentasi di file itu
+("narrow, documented cross-module import of a single pure config getter... no DB
+access, no side effects"), mengikuti preseden yang sudah ada. Jadi jangan
+diperlakukan sebagai bug.
+
+Yang penting: **pengecualian itu hanya perlu ada karena konfigurasinya salah tempat.**
+`resolveNewsMediaR2Config` adalah konfigurasi _media_, tapi ia hidup di modul _portal
+berita_ — sehingga modul mana pun yang butuh media terpaksa meminta pengecualian batas
+untuk menjangkaunya. Setelah langkah 2, config itu milik `media_library` (System
+Foundation), dan impornya menjadi jenis panggilan infrastruktur yang memang disanksi
+repo ini — sama seperti ~10 modul yang memanggil `logging` langsung tanpa port
+(lihat header `domain-event-runtime/infrastructure/consumer-registry.ts`).
+
+Catatan gate: `tests/unit/module-boundary.test.ts` hanya memindai pasangan
+`blog_content` ↔ `news_portal`, jadi ia tidak melihat tepi ini sama sekali. Itu
+disengaja di upstream (pasangan itulah yang pernah menumbuhkan siklus), tapi artinya
+audit batas lintas-modul di repo ini masih manual — pertimbangkan memperluas cakupannya
+saat langkah 2/3 selesai dan peta impor media sudah stabil.
+
 ## Rencana bertahap (ADR-0026 §Konsekuensi)
 
 Setiap langkah mendarat dengan `bun run check` hijau — ini menyentuh empat modul
