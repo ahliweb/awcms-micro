@@ -13,11 +13,27 @@
  * the news portal on" (that is `news_portal`'s own business, and the whole point
  * of ADR-0026 is that media must not have to ask).
  *
- * `markManagedMediaEnforced` must only ever be called from a sanctioned preset
- * entry point (today: `news_portal`'s `apply-news-portal-preset.ts`). There is
- * deliberately no "unmark"/"clear" function and no HTTP route writes this table:
- * a tenant able to clear this flag could switch off its own media validation,
- * which is precisely the exploit sql/043's header documents.
+ * `markManagedMediaEnforced` must only ever be called from a sanctioned entry
+ * point. There are exactly two, and both gate on readiness first:
+ *
+ *   1. `news_portal`'s `apply-news-portal-preset.ts` — the R2-only preset, which
+ *      implies enforcement.
+ *   2. `media_library`'s own `enable-managed-media-enforcement.ts` (ADR-0026
+ *      step 5a) — the direct switch, exposed as `POST /api/v1/media/enforcement`
+ *      for tenants with no news portal.
+ *
+ * There is deliberately no "unmark"/"clear" function, no `enforcement.disable`
+ * permission, and no code path anywhere that DELETEs from this table. A tenant
+ * able to clear this flag could switch off its own media validation, which is
+ * precisely the exploit sql/043's header documents as confirmed-exploitable in
+ * review. Enforcement is one-way BY CONSTRUCTION — that is the security
+ * property, not an unfinished API. Do not add the symmetric operation.
+ *
+ * (2) means an HTTP route can now cause a write here, which sql/078's header
+ * predates. That header's actual claim — no GENERIC write endpoint, nothing a
+ * tenant can reach through an unrelated permission — still holds: the route is
+ * dedicated, gated by its own dedicated permission, and can only ever turn
+ * enforcement ON. See `sql/079`'s header for the full reconciliation.
  */
 
 export async function markManagedMediaEnforced(

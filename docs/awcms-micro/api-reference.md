@@ -5343,6 +5343,62 @@ Shallow JSON-merge patch. Rejects any secret-shaped key or value anywhere in the
 
 Direct-to-R2 presigned upload flow for news images (epic `news_portal` #631-#642/#649, Issue #634) — create an upload session (server-generated object key + short-lived presigned `PUT` URL), finalize (real R2 `GET` + magic-byte MIME sniffing + server-side SHA-256 checksum — never a bare `HEAD`, per the security-auditor Critical finding on Issue #631), and cancel a still-`pending_upload` session. R2 credentials are never exposed to the browser; only a scoped, expiring presigned URL is returned.
 
+### `GET /api/v1/media/enforcement` — Read whether managed-media enforcement is active for this tenant
+
+- **operationId**: `mediaEnforcementRead`
+- **Security**: bearerAuth + tenantHeader
+
+Reports whether this tenant's content media references must resolve to verified registry objects, and — when enforcement cannot be enabled — the deployment-config reasons why (ADR-0026 step 5a).
+
+`reasons` name environment variables, never their values, so nothing secret is exposed; the endpoint is still permission-gated (`media_library.enforcement.read`) rather than public.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                                       | Schema                                                                                                     |
+| ------ | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 200    | Current enforcement state for this tenant plus this deployment's media readiness. | [`ApiSuccess`](#standard-success-envelope)&lt;[`MediaEnforcementState`](#schema-mediaenforcementstate)&gt; |
+| 400    | Validation or request error.                                                      | [`ApiError`](#standard-error-envelope)                                                                     |
+| 401    | Authentication required or expired.                                               | [`ApiError`](#standard-error-envelope)                                                                     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                    | [`ApiError`](#standard-error-envelope)                                                                     |
+| 500    | Internal server error without stack trace.                                        | [`ApiError`](#standard-error-envelope)                                                                     |
+
+### `POST /api/v1/media/enforcement` — Turn managed-media enforcement ON for this tenant (one-way)
+
+- **operationId**: `mediaEnforcementEnable`
+- **Security**: bearerAuth + tenantHeader
+
+Enables managed-media enforcement: from then on, content media references must resolve to verified, same-tenant registry objects rather than raw URLs (ADR-0026 step 5a). This is the switch a brochure-site tenant (`blog_content` + `tenant_domain`, no news portal) previously did not have — enforcement used to be reachable only through `news_portal`'s R2-only preset.
+
+**This operation is one-way and there is deliberately no counterpart that disables enforcement.** A tenant able to switch its own media validation off is a confirmed exploit this design exists to prevent (see migration `sql/043`'s header); the "off" transition therefore does not exist anywhere in the codebase. A deployment that must roll back does so by changing its `NEWS_MEDIA_R2_*` configuration — an operator act outside the tenant's reach.
+
+Idempotent: re-enabling an already-enforcing tenant succeeds, refreshes the timestamp, and returns `alreadyEnforced: true`. No `Idempotency-Key` is required.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status                                 | Description                                                                                                                                                                                                                                                                                 | Schema                                                                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 200                                    | Enforcement is active for this tenant.                                                                                                                                                                                                                                                      | [`ApiSuccess`](#standard-success-envelope)&lt;[`MediaEnforcementEnabled`](#schema-mediaenforcementenabled)&gt; |
+| 400                                    | Validation or request error.                                                                                                                                                                                                                                                                | [`ApiError`](#standard-error-envelope)                                                                         |
+| 401                                    | Authentication required or expired.                                                                                                                                                                                                                                                         | [`ApiError`](#standard-error-envelope)                                                                         |
+| 403                                    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                         |
+| 409                                    | The deployment's media storage is not ready, so enforcement cannot be enabled — `error.details.reasons` says which check failed. A 409 rather than a 400 on purpose: the request is well-formed and the caller is authorized; it is the deployment, not the request body, that must change. |
+| [`ApiError`](#standard-error-envelope) |
+| 500                                    | Internal server error without stack trace.                                                                                                                                                                                                                                                  | [`ApiError`](#standard-error-envelope)                                                                         |
+
 ### `POST /api/v1/media/news-images/upload-sessions` — Create a direct-to-R2 presigned upload session for a news image
 
 - **operationId**: `newsMediaUploadSessionsCreate`
@@ -9865,6 +9921,44 @@ Locale code (2-letter, e.g. "en", "id") to string. Must include an "en" entry.
 ```json
 {
   "loggedOut": false
+}
+```
+
+### Schema: MediaEnforcementEnabled
+
+| Field             | Type               | Required | Nullable | Description                                                                                                                  |
+| ----------------- | ------------------ | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `enforced`        | enum(`true`)       | yes      | no       | Always true — a non-enforcing outcome is reported as a 409, never as a 200 whose `enforced` is false.                        |
+| `enforcedAt`      | string (date-time) | yes      | no       | When this activation was confirmed. Refreshed on re-activation so it always reflects the most recent confirmed-ready enable. |
+| `alreadyEnforced` | boolean            | yes      | no       | True when the tenant was already enforcing before this call — an idempotent no-change, still audited.                        |
+
+**Example**
+
+```json
+{
+  "enforced": true,
+  "enforcedAt": "2026-01-01T00:00:00.000Z",
+  "alreadyEnforced": false
+}
+```
+
+### Schema: MediaEnforcementState
+
+| Field      | Type                                                                                                                                  | Required | Nullable | Description                                                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enforced` | boolean                                                                                                                               | yes      | no       | Whether this tenant's content media references must resolve to verified registry objects. Once true it stays true — enforcement is one-way by design.                       |
+| `ready`    | boolean                                                                                                                               | yes      | no       | Whether this DEPLOYMENT's media storage is configured well enough for enforcement to be enabled. Independent of `enforced` — both must hold for validation to actually run. |
+| `reasons`  | array of enum(`news_media_r2_disabled`, `news_media_r2_config_incomplete`, `news_media_r2_shares_sync_storage_bucket_or_credentials`) | yes      | no       | Machine-readable readiness failures; empty when `ready` is true.                                                                                                            |
+| `detail`   | array of string                                                                                                                       | yes      | no       | Human-readable evidence, one entry per failing check. Names environment variables, never their values.                                                                      |
+
+**Example**
+
+```json
+{
+  "enforced": false,
+  "ready": false,
+  "reasons": ["news_media_r2_disabled"],
+  "detail": ["string"]
 }
 ```
 

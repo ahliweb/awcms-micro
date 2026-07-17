@@ -77,7 +77,11 @@ Diverifikasi belum ada di kode hari ini:
 3. ~~Rewire `blog_content` + `social_publishing` ke port baru; lepas `news_media`.~~
 4. ~~Lepas gate R2-only dari kepemilikan `news_portal` sehingga media bekerja tanpa portal berita.~~
    → **3–4 dikerjakan sebagai SATU langkah (selesai)** — lihat koreksi di bawah.
-5. Tambah varian gambar, tipe non-gambar, dan admin media browser (§4).
+5. Tambah preset/endpoint penyalaan, varian gambar, tipe non-gambar, dan admin media browser (§4).
+   - **5a. Endpoint penyalaan enforcement (selesai)** — `GET`/`POST /api/v1/media/enforcement`, `sql/079`. Melunasi utang yang dicatat langkah 3–4: situs brosur kini punya tombolnya, bukan hanya kapabilitasnya.
+   - 5b. Varian gambar/`srcset` — belum.
+   - 5c. Tipe media non-gambar — belum.
+   - 5d. Admin media browser — belum.
 
 ### Koreksi staging: langkah 3 dan 4 ternyata satu pekerjaan
 
@@ -96,7 +100,21 @@ Pemecahan yang dikerjakan, dan kenapa ini bukan sekadar rename:
 
 **Pelajaran yang bisa dipakai ulang:** saat memindahkan kepemilikan kapabilitas, periksa **kontrak port** lebih dulu, bukan hanya letak adaptornya. Adaptor di modul yang salah adalah gejala; method milik modul yang salah di dalam kontrak adalah penyebabnya.
 
-**Utang yang tersisa:** tidak ada jalur non-`news_portal` untuk MENYALAKAN flag `media_library` — belum ada preset/endpoint `media_library` sendiri. Jadi situs brosur kini secara arsitektural bisa punya media terkelola (dibuktikan test integrasi), tapi operatornya belum punya tombolnya. Itu pekerjaan langkah 5, dan **tidak boleh** diselesaikan dengan mengekspos flag ini lewat `awcms_micro_module_settings`: tabel itu tenant-writable lewat endpoint generik, sehingga tenant bisa mematikan validasi medianya sendiri — persis eksploit yang didokumentasikan header `sql/043`.
+**Utang yang tersisa (dilunasi langkah 5a).** Saat langkah 3–4 mendarat, tidak ada jalur non-`news_portal` untuk MENYALAKAN flag `media_library`, jadi situs brosur punya kapabilitasnya tanpa tombolnya. Langkah 5a menutupnya.
+
+### Langkah 5a — endpoint penyalaan enforcement
+
+`GET`/`POST /api/v1/media/enforcement` (`sql/079`: permission `media_library.enforcement.read`/`.enable`), didukung entry point tersanksi `application/enable-managed-media-enforcement.ts` yang menjalankan gate readiness lebih dulu — sama seperti `apply-news-portal-preset.ts`, dan di entry point-nya (bukan di satu pemanggil) supaya pemanggil kedua di masa depan tak bisa melewatinya.
+
+Peringatan di utang lama **ditaati**: flag ini tidak diekspos lewat `awcms_micro_module_settings`. Sebagai gantinya:
+
+- **Activity code terpisah (`enforcement`, bukan `media`).** `media.*` mengatur OBJEK media; `enforcement.*` mengatur KEBIJAKAN konten se-tenant. Beda radius ledakan, jadi harus bisa diberikan terpisah — melipatnya ke `media.create` berarti menyerahkan saklar kebijakan ke setiap editor yang mengunggah gambar.
+- **Satu arah, secara konstruksi.** Tidak ada action `disable`, tidak ada fungsi "unmark", tidak ada DELETE terhadap tabelnya di mana pun. Ini **properti keamanan, bukan API yang belum selesai**: header `sql/043` mencatat desain lama terbukti dieksploitasi end-to-end justru karena tenant bisa membersihkan marker-nya sendiri dan diam-diam mematikan seluruh validasi medianya. Menambahkan jalur disable "demi simetri" mengembalikan eksploit itu dengan nama yang lebih ramah. Empat guard independen menjaganya (`tests/unit/media-enforcement-one-way.test.ts` + test integrasi), dan sudah diverifikasi **gagal** saat jalur disable disuntikkan kembali.
+- **Jalan mundur yang sah** adalah mengubah konfigurasi `NEWS_MEDIA_R2_*` — tindakan operator yang deliberate dan auditable, di luar jangkauan tenant, yang sudah diperlakukan fail-closed oleh `evaluateManagedMediaReadiness`.
+
+Rekonsiliasi dengan header `sql/078` ("tidak ada write endpoint generik"): klaim itu **tetap benar**. Yang ditolak `sql/043` adalah endpoint GENERIK (`PATCH /api/v1/tenant/modules/{moduleKey}/settings`) yang dijaga permission generik tak terkait. Endpoint ini terdedikasi, dijaga permission terdedikasi sendiri, dan hanya bisa menyalakan. Detail lengkap di header `sql/079`.
+
+**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`), 5c (tipe non-gambar), 5d (admin media browser). Ketiganya fitur tersendiri, bukan pelunasan utang.
 
 ## Alternatif yang ditolak
 

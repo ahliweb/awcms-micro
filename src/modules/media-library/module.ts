@@ -1,5 +1,8 @@
 import { defineModule } from "../_shared/module-contract";
-import { MEDIA_PERMISSION_ACTIVITY_CODE } from "./domain/media-permissions";
+import {
+  MEDIA_ENFORCEMENT_PERMISSION_ACTIVITY_CODE,
+  MEDIA_PERMISSION_ACTIVITY_CODE
+} from "./domain/media-permissions";
 
 /**
  * ADR-0026 steps 2-4 of 5 — this module OWNS the tenant media registry AND the
@@ -103,6 +106,26 @@ export const mediaLibraryModule = defineModule({
       activityCode: MEDIA_PERMISSION_ACTIVITY_CODE,
       action: "cancel",
       description: "Cancel one's own not-yet-uploaded media upload session"
+    },
+    // ADR-0026 step 5a (`sql/079`) — a separate activity code from `media` on
+    // purpose: `media.*` governs individual objects, `enforcement.*` governs a
+    // tenant-wide content policy. Folding these into `media.create` would hand
+    // the policy switch to every editor who uploads images.
+    //
+    // There is no `disable` action here, and there must never be — see
+    // `application/enable-managed-media-enforcement.ts`: a tenant able to switch
+    // its own media validation off is the exploit `sql/043` documents.
+    {
+      activityCode: MEDIA_ENFORCEMENT_PERMISSION_ACTIVITY_CODE,
+      action: "read",
+      description:
+        "Read whether managed-media enforcement is active for this tenant, and why it can or cannot be enabled"
+    },
+    {
+      activityCode: MEDIA_ENFORCEMENT_PERMISSION_ACTIVITY_CODE,
+      action: "enable",
+      description:
+        "Turn managed-media enforcement ON for this tenant (one-way — there is deliberately no disable)"
     }
   ]
 });
