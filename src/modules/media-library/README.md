@@ -24,10 +24,10 @@ tenant-scoped dan alur unggahnya, dipakai ulang oleh setiap modul website.
 
 ## Kenapa modul ini ada
 
-Registry media **sudah ada dan sudah generik** — `awcms_micro_news_media_objects`
-(`sql/041`) punya kolom `module_key text NOT NULL DEFAULT 'news_portal'` plus
-`owner_resource_type`/`owner_resource_id`. Kolom itu tidak punya alasan untuk ada
-kecuali tabelnya memang dirancang melayani lebih dari satu modul. Ia lengkap:
+Registry media **sudah ada dan sudah melayani lebih dari satu modul** —
+`awcms_micro_news_media_objects` (`sql/041`) punya `owner_resource_type`/
+`owner_resource_id` yang sudah dipakai `blog_post`, `blog_page`, `ad`,
+`video_thumbnail`, `seo_image`. Ia lengkap:
 presigned upload langsung ke R2, verifikasi magic-byte + checksum, lifecycle
 orphan (`sql/046`), job rekonsiliasi, dan capability port yang sudah dikonsumsi
 `blog_content` + `social_publishing`.
@@ -133,8 +133,35 @@ Modul ini **tidak pernah**:
 
 ## Catatan penamaan tabel
 
+### Koreksi: `module_key` BUKAN pembeda pemilik
+
+Revisi awal dokumen ini menyebut `module_key` "sudah menjadi pembeda pemilik
+sesungguhnya". **Itu salah**, dan ADR-0026 memakai kolom itu sebagai bukti utama
+("kolom yang tak punya alasan ada kecuali tabelnya dirancang multi-modul") sambil
+melewatkan hal ini:
+
+```sql
+CONSTRAINT awcms_micro_news_media_objects_module_key_check
+  CHECK (module_key = 'news_portal'),
+```
+
+Kolomnya ada, default-nya ada — dan CHECK-nya **melarang nilai lain**.
+`createPendingNewsMediaObject` tak pernah menyetelnya, jadi setiap objek media
+(termasuk milik `blog_post`) berstempel `news_portal`. Pembeda yang sesungguhnya
+adalah **`owner_resource_type`**. CHECK ini juga ada di `awcms-mini` — warisan
+upstream, bukan bikinan micro.
+
+Ekstraksinya tetap benar (registry memang melayani banyak modul, lewat
+`owner_resource_type`), tapi klaim "generik lewat `module_key`" itu aspirasional
+sampai CHECK-nya dilonggarkan. Dikunci oleh
+`tests/integration/media-registry-module-key-constraint.integration.test.ts`:
+saat CHECK dilonggarkan, test itu gagal dan pelakunya harus menyatakan set nilai
+barunya. `GET /api/v1/media/objects` sengaja **tidak** menawarkan filter
+`moduleKey` karena hari ini hanya bisa cocok dengan satu nilai.
+
 Tabel **tidak akan di-rename** jadi `awcms_micro_media_objects`, meski namanya kini
 keliru menyebut pemilik (ADR-0026 §3, alasan sama dengan gap penomoran migrasi
 ADR-0025 §4): namanya dirujuk `sql/041`/`042`/`046`, seluruh application layer, dan
 puluhan komentar. Me-rename-nya menukar ketidaknyamanan kosmetik dengan risiko nyata
-dan diff yang tak terbaca. `module_key` sudah menjadi pembeda pemilik sesungguhnya.
+dan diff yang tak terbaca. Pembeda pemilik yang sesungguhnya adalah
+`owner_resource_type` — lihat koreksi `module_key` di atas.

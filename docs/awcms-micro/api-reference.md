@@ -5483,6 +5483,66 @@ Verifies the object actually uploaded to R2 by performing a HEAD (existence + re
 | 500    | Internal server error without stack trace.                                                                                                                                                                                                                                                                                                                           | [`ApiError`](#standard-error-envelope)                                                                 |
 | 502    | Unable to verify the uploaded object right now (R2 provider error/circuit breaker open) — retry shortly.                                                                                                                                                                                                                                                             | [`ApiError`](#standard-error-envelope)                                                                 |
 
+### `GET /api/v1/media/objects` — List this tenant's media objects
+
+- **operationId**: `mediaObjectsList`
+- **Security**: bearerAuth + tenantHeader
+
+Newest first, bounded (default 20, max 100 — no cursor pagination yet, matching this repo's other bounded lists). Soft-deleted objects are excluded unless `includeDeleted=true`.
+
+Never exposes `bucketName`/`objectKey`/`storageDriver`/`checksumSha256`: those describe where the bytes physically live, which no consumer needs and which narrows the search space for anyone probing the bucket. `publicUrl` is the supported way to reach them.
+
+**Parameters**
+
+| Name                | In     | Required | Type                                                       | Description                                                                                       |
+| ------------------- | ------ | -------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `X-Correlation-ID`  | header | no       | string                                                     | Optional server-side trace correlation ID.                                                        |
+| `X-Request-ID`      | header | no       | string                                                     | Optional client-generated request trace ID.                                                       |
+| `status`            | query  | no       | [`MediaObjectStatus`](#schema-mediaobjectstatus)           |                                                                                                   |
+| `ownerResourceType` | query  | no       | [`MediaOwnerResourceType`](#schema-mediaownerresourcetype) |                                                                                                   |
+| `ownerResourceId`   | query  | no       | string                                                     | Together with `ownerResourceType`, answers "which media objects are attached to this post/page?". |
+| `includeDeleted`    | query  | no       | boolean                                                    | Include soft-deleted objects. Defaults to false.                                                  |
+| `limit`             | query  | no       | integer                                                    |                                                                                                   |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | Media objects, newest first.                   | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `GET /api/v1/media/objects/{id}` — Read one media object's metadata
+
+- **operationId**: `mediaObjectsRead`
+- **Security**: bearerAuth + tenantHeader
+
+Returns 404 — never 403 — for another tenant's id, exactly as for a nonexistent one: a 403 would confirm the id exists somewhere.
+
+`includeDeleted=true` lets a caller holding `media_library.media.read` inspect a soft-deleted object, which is what a "restore this?" confirmation needs before calling `POST /{id}/restore`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `includeDeleted`   | query  | no       | boolean       |                                             |
+
+**Responses**
+
+| Status | Description                                         | Schema                                                   |
+| ------ | --------------------------------------------------- | -------------------------------------------------------- |
+| 200    | The media object.                                   | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                        | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.                 | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.      | [`ApiError`](#standard-error-envelope)                   |
+| 404    | Resource not found or hidden by soft-delete policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.          | [`ApiError`](#standard-error-envelope)                   |
+
 ## News Portal Homepage Sections
 
 Editorial homepage section composer for `/news` (epic `news_portal` #631-#642/#649, Issue #637) — tenant-scoped, RLS-protected CRUD for configurable homepage sections (headline, latest_posts, featured_posts, editor_picks, category_grid, gallery_block). `config` shape is validated per `sectionType` server-side; every post/category/media reference in `config` must already exist for the same tenant, and (for `gallery_block`) be a verified R2 media object. `sectionType` is immutable after creation. Reordering is just another patchable field (`sortOrder`) — there is no separate bulk-reorder endpoint.
@@ -9960,6 +10020,28 @@ Locale code (2-letter, e.g. "en", "id") to string. Must include an "en" entry.
   "reasons": ["news_media_r2_disabled"],
   "detail": ["string"]
 }
+```
+
+### Schema: MediaObjectStatus
+
+Registry lifecycle status. Only `verified` and `attached` are safe to reference from public content.
+
+Enum values: `pending_upload`, `uploaded`, `verified`, `attached`, `orphaned`, `deleted`, `failed`.
+
+**Example**
+
+```json
+"pending_upload"
+```
+
+### Schema: MediaOwnerResourceType
+
+Enum values: `blog_post`, `blog_page`, `homepage_section`, `gallery_item`, `ad`, `video_thumbnail`, `seo_image`.
+
+**Example**
+
+```json
+"blog_post"
 ```
 
 ### Schema: MeResponse

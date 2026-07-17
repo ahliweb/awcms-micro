@@ -11,7 +11,10 @@ ADR-0025 §6 mendaftar **media library** sebagai modul yang dituntut scope websi
 
 Registry media **sudah ada**, hidup di dalam `news_portal`, dan **sudah generik**:
 
-- `sql/041_awcms_micro_news_media_object_registry_schema.sql` mendeklarasikan `awcms_micro_news_media_objects` dengan kolom **`module_key text NOT NULL DEFAULT 'news_portal'`** plus `owner_resource_type`/`owner_resource_id` — referensi resource generik. Kolom itu tidak punya alasan untuk ada kecuali tabelnya memang dirancang melayani lebih dari satu modul.
+- `sql/041_awcms_micro_news_media_object_registry_schema.sql` mendeklarasikan `awcms_micro_news_media_objects` dengan **`owner_resource_type`/`owner_resource_id`** — referensi resource generik yang hari ini sudah menunjuk ke `blog_post`, `blog_page`, `ad`, `video_thumbnail`, dan `seo_image`. Tabelnya nyata-nyata sudah melayani lebih dari satu modul.
+
+  > **Koreksi (langkah 5).** Revisi awal ADR ini memakai kolom `module_key text NOT NULL DEFAULT 'news_portal'` sebagai bukti utamanya — "kolom yang tak punya alasan ada kecuali tabelnya dirancang multi-modul". Itu **keliru**: `sql/041` juga membawa `CHECK (module_key = 'news_portal')`, yang melarang setiap nilai lain, dan `createPendingNewsMediaObject` tak pernah menyetel kolom itu. Jadi semua objek media berstempel `news_portal` dan kolomnya tidak membawa informasi apa pun tentang modul yang dilayani. Kesimpulan ADR ini tidak berubah — buktinya yang diperbaiki: yang membuat registry ini generik adalah `owner_resource_type`, bukan `module_key`. CHECK-nya juga ada di `awcms-mini` (warisan upstream). Dikunci `tests/integration/media-registry-module-key-constraint.integration.test.ts`.
+
 - Isinya sudah selengkap media library: `storage_driver`, `bucket_name`, `object_key`, `public_url`, `mime_type`, `size_bytes`, `width`, `height`, `alt_text`, `caption`, `status`, soft-delete.
 - Sudah ada alur upload presigned (`/api/v1/media/news-images/upload-sessions/*`), gate R2-only, lifecycle orphan (`sql/046`), dan job rekonsiliasi R2.
 - Sudah dikonsumsi lintas modul lewat capability port `news_media` (`_shared/ports/news-media-port.ts`) oleh `blog_content` **dan** `social_publishing` — persis pola ADR-0011.
@@ -49,7 +52,7 @@ Capability port `news_media` **di-supersede** oleh port `media_library` yang set
 
 ### 3. Kompatibilitas & migrasi data
 
-Tabel **`awcms_micro_news_media_objects` TIDAK di-rename**, meski namanya kini keliru menyebut pemilik. Alasannya sama dengan §4 ADR-0025 (gap penomoran migrasi dipertahankan): nama tabel dirujuk `sql/041`/`042`/`046`, seluruh application layer, dan puluhan komentar; me-rename-nya menukar satu ketidaknyamanan kosmetik dengan risiko nyata dan diff yang tak terbaca. Kolom `module_key` sudah menjadi pembeda pemilik sesungguhnya. Migrasi baru **menambahkan** apa yang kurang (§4), tidak menulis ulang yang sudah ada. Keputusan ini ditinjau ulang bila suatu saat ada alasan lain yang menuntut migrasi tabel itu.
+Tabel **`awcms_micro_news_media_objects` TIDAK di-rename**, meski namanya kini keliru menyebut pemilik. Alasannya sama dengan §4 ADR-0025 (gap penomoran migrasi dipertahankan): nama tabel dirujuk `sql/041`/`042`/`046`, seluruh application layer, dan puluhan komentar; me-rename-nya menukar satu ketidaknyamanan kosmetik dengan risiko nyata dan diff yang tak terbaca. Pembeda pemilik yang sesungguhnya adalah `owner_resource_type` (lihat koreksi §2 soal `module_key`). Migrasi baru **menambahkan** apa yang kurang (§4), tidak menulis ulang yang sudah ada. Keputusan ini ditinjau ulang bila suatu saat ada alasan lain yang menuntut migrasi tabel itu.
 
 ### 4. Yang ditambahkan (gap nyata untuk scope website)
 
@@ -68,7 +71,7 @@ Diverifikasi belum ada di kode hari ini:
 
 ## Konsekuensi
 
-**Positif.** Media menjadi kapabilitas platform, bukan sandera modul berita — preset `online_website` akhirnya berarti website yang utuh. Satu sumber kebenaran untuk objek media dipertahankan (nol duplikasi). Kolom `module_key` yang sudah ada berarti ekstraksi ini terutama memindahkan kepemilikan dan mengganti nama port, bukan memodelkan ulang data.
+**Positif.** Media menjadi kapabilitas platform, bukan sandera modul berita — preset `online_website` akhirnya berarti website yang utuh. Satu sumber kebenaran untuk objek media dipertahankan (nol duplikasi). Referensi `owner_resource_type`/`owner_resource_id` yang sudah ada berarti ekstraksi ini terutama memindahkan kepemilikan dan mengganti nama port, bukan memodelkan ulang data.
 
 **Negatif / risiko yang diakui.** Ini refaktor lintas modul yang menyentuh empat modul (`news_portal`, `blog_content`, `social_publishing`, dan `media_library` baru), tiga migrasi yang sudah ada, alur presigned upload, dan test-nya — **bukan pekerjaan atomik kecil**. Ia harus dikerjakan sebagai epic bertahap dengan `bun run check` hijau di tiap langkah, bukan satu commit raksasa:
 
