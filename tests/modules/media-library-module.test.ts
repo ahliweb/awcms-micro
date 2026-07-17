@@ -74,4 +74,45 @@ describe("media_library module descriptor (ADR-0026 step 2)", () => {
       expect(key.startsWith("news_portal.")).toBe(false);
     }
   });
+
+  /**
+   * ADR-0026 step 5d. A `labelKey` is a string and a `requiredPermission` is a
+   * string, so nothing but an assertion stops either from pointing at something
+   * that does not exist — and neither failure is loud. A `labelKey` with no
+   * catalog entry renders the raw key as the menu label (`translate.ts` returns
+   * the key on a miss); a `requiredPermission` naming a permission this module
+   * never declares can never be granted, so the entry silently vanishes for
+   * everyone and the page looks broken rather than forbidden.
+   */
+  describe("navigation (step 5d — the module's first admin screen)", () => {
+    test("declares exactly the one media browser entry, gated on a permission this module actually declares", () => {
+      expect(mediaLibraryModule.navigation).toHaveLength(1);
+
+      const entry = mediaLibraryModule.navigation![0]!;
+      expect(entry.path).toBe("/admin/media");
+      expect(entry.requiredPermission).toBe(MEDIA_PERMISSIONS.read);
+
+      const declaredKeys = new Set(
+        (mediaLibraryModule.permissions ?? []).map(
+          (p) => `${mediaLibraryModule.key}.${p.activityCode}.${p.action}`
+        )
+      );
+      expect(declaredKeys.has(entry.requiredPermission!)).toBe(true);
+    });
+
+    test("the nav label has a real entry in BOTH runtime catalogs — not just the English one", async () => {
+      // id.po missing the key would fall back to English rather than fail
+      // (`translate.ts`'s locale -> DEFAULT_LOCALE fallback), which is exactly
+      // the silent, permanent gap `i18n:parity:check` exists for. That gate
+      // proves en/id/pot agree on the key SET; this proves this specific key is
+      // in the set at all, which a parity check passing on two empty catalogs
+      // would not.
+      const entry = mediaLibraryModule.navigation![0]!;
+
+      for (const catalog of ["i18n/en.po", "i18n/id.po"]) {
+        const content = await Bun.file(catalog).text();
+        expect(content).toContain(`msgid "${entry.labelKey}"`);
+      }
+    });
+  });
 });

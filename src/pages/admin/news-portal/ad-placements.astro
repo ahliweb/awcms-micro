@@ -5,11 +5,14 @@
  * uses, minus the JSON textarea — every field here is a flat scalar
  * (`placementKey`/`name`/`mediaObjectId`/`linkUrl`/`rotationMode`/
  * `priority`/`isActive`/`startsAt`/`endsAt`), so a plain form is enough.
- * `mediaObjectId` is a manually-typed UUID — no media picker UI exists
- * anywhere in this repo yet (same acknowledged gap `awcms-micro-blog-content`
- * README documents for `featuredMediaId`/gallery `mediaObjectId`); the
- * server returns a clear `AD_PLACEMENT_REFERENCE_INVALID` error (rendered
- * via the generic action banner) when the id doesn't resolve to a
+ * `mediaObjectId` is a manually-typed UUID. There is still no media PICKER
+ * component to embed here (same acknowledged gap `awcms-micro-blog-content`
+ * README documents for `featuredMediaId`/gallery `mediaObjectId`), but as of
+ * ADR-0026 step 5d the id is at least findable: `/admin/media` lists every
+ * media object with its id next to its thumbnail, ready to copy. Typing a
+ * UUID by hand remains the flow; sourcing it no longer requires a database
+ * query. The server returns a clear `AD_PLACEMENT_REFERENCE_INVALID` error
+ * (rendered via the generic action banner) when the id doesn't resolve to a
  * verified, same-tenant, allowed-mime-type media object.
  */
 import AdminLayout from "../../../layouts/AdminLayout.astro";

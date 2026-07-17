@@ -84,7 +84,7 @@ Diverifikasi belum ada di kode hari ini:
    - **5a. Endpoint penyalaan enforcement (selesai)** — `GET`/`POST /api/v1/media/enforcement`, `sql/079`. Melunasi utang yang dicatat langkah 3–4: situs brosur kini punya tombolnya, bukan hanya kapabilitasnya.
    - 5b. Varian gambar/`srcset` — belum.
    - 5c. Tipe media non-gambar — belum.
-   - 5d. Admin media browser — belum.
+   - **5d. Admin media browser (selesai)** — `/admin/media`. Permukaan UI pertama modul ini; entry `navigation` pertamanya juga.
 
 ### Koreksi staging: langkah 3 dan 4 ternyata satu pekerjaan
 
@@ -117,7 +117,31 @@ Peringatan di utang lama **ditaati**: flag ini tidak diekspos lewat `awcms_micro
 
 Rekonsiliasi dengan header `sql/078` ("tidak ada write endpoint generik"): klaim itu **tetap benar**. Yang ditolak `sql/043` adalah endpoint GENERIK (`PATCH /api/v1/tenant/modules/{moduleKey}/settings`) yang dijaga permission generik tak terkait. Endpoint ini terdedikasi, dijaga permission terdedikasi sendiri, dan hanya bisa menyalakan. Detail lengkap di header `sql/079`.
 
-**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`), 5c (tipe non-gambar), 5d (admin media browser). Ketiganya fitur tersendiri, bukan pelunasan utang.
+### Langkah 5d — admin media browser
+
+`/admin/media`. Sampai langkah ini, seluruh permukaan media hanya bisa dijangkau dengan `curl`: langkah 5 menegakkan kesembilan permission `media.*`, tapi tak satu pun punya layar. Dua akibat konkret yang ditutup halaman ini:
+
+- **Id objek media akhirnya bisa dilihat.** Header `admin/news-portal/ad-placements.astro` mencatat celahnya terang-terangan — "no media picker UI exists anywhere in this repo yet". Editor harus mengetik UUID `mediaObjectId` tanpa cara apa pun untuk mengetahuinya selain query database. Halaman ini menampilkan id di samping thumbnail-nya, siap disalin. Ini **bukan** picker: picker adalah komponen yang tertanam di form-form itu, pekerjaan tersendiri yang lebih besar. Mengetik UUID tetap alurnya; yang berubah, sumbernya bukan lagi database.
+- **Objek yang di-soft-delete bisa dipulihkan lewat UI.** `restore` ada sejak Issue #633 dan tak pernah punya tombol.
+
+Keputusan yang layak dicatat:
+
+- **Baca lewat modul, tulis lewat API.** Baca SSR memanggil `listNewsMediaObjects` di dalam `withTenant` setelah memeriksa `context.permissions` — konvensi setiap halaman admin di repo ini. Mutasinya sengaja TIDAK begitu: attach/detach/restore/purge masing-masing menuntut `Idempotency-Key`, mengaudit aktornya, dan menjawab 404-vs-409 lewat `media-object-lifecycle-failure.ts`. Menyalin aturan itu ke frontmatter halaman berarti mem-fork-nya, bukan memakainya ulang.
+- **Tombol yang disembunyikan bukan penegakan.** Sebuah tombol muncul hanya bila permission-nya dipegang DAN status objeknya mengizinkan transisinya. Itu kesopanan UX; servernya menolak panggilan yang sama terlepas dari itu — konvensi _navigation-visibility-is-not-authorization_ yang didokumentasikan `identity-access/module.ts`.
+- **Preview opt-in, bukan opt-out.** Hanya empat tipe raster yang di-`<img>`-kan, lewat allow-list eksplisit, bukan lewat prefiks `image/`. Lihat koreksi fakta di bawah.
+
+#### Koreksi fakta: sniffer TIDAK mengenal SVG
+
+Catatan sisa pekerjaan sebelumnya (termasuk milik saya sendiri) menyebut sniffer MIME mengenal "4 tipe raster + SVG". **Itu salah**, dan baru ketahuan saat komentar kode yang mengklaimnya diperiksa alih-alih dipercaya:
+
+- `media-mime-sniffer.ts` hanya mengenali **empat** signature secara positif — JPEG/PNG/WebP/GIF. Apa pun selainnya menghasilkan `undefined`, yang selalu diperlakukan finalize sebagai **tolak keras**.
+- `image/svg+xml` memang ada di `NEWS_MEDIA_R2_KNOWN_MIME_TYPES` dan punya jalur override konfigurasi yang sah (`allowsSvgMimeType`, `checkNewsMediaR2SvgNotAllowed`) — tapi jalur itu tak pernah bisa menghasilkan objek SVG tersimpan, karena sniffing-lah yang menentukan, bukan allow-list. Deployment yang mengizinkan SVG tetap menolak setiap unggahan SVG.
+
+Jadi `mime_type` di registry hari ini mustahil bernilai `image/svg+xml`. Guard preview tetap dipasang, bukan karena ada lubang hidup, melainkan karena yang membuatnya mustahil adalah fakta tentang **sniffer**, bukan tentang halaman ini — dan **5c justru ada untuk memperlebar himpunan tipe yang diterima**. Preview yang opt-in ke empat tipe raster yang diketahui inert akan fail-closed saat hari itu tiba; preview yang mempercayai prefiks `image/` akan diam-diam mulai merender apa pun yang diizinkan 5c.
+
+**Konsekuensi untuk 5c:** menambah tipe media non-gambar bukan sekadar memperlebar allow-list konfigurasi — ia menuntut permukaan **sniffer** ikut diperlebar, karena allow-list tanpa signature yang cocok adalah no-op yang menolak semuanya. `media-r2-config.ts` sudah menyatakan ini (`config:validate` memperlakukan tipe di luar himpunan "known" sebagai hard error justru karena sniffer tak akan pernah menerimanya); catatan sisa pekerjaan yang salah itulah yang mengaburkannya.
+
+**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`) dan 5c (tipe non-gambar). Keduanya fitur tersendiri, bukan pelunasan utang.
 
 ## Alternatif yang ditolak
 
