@@ -1,18 +1,43 @@
 /**
  * Permission KEY CONSTANTS for the media registry (Issue #633).
  *
- * These are LIVE, not aspirational: `module.ts` declares all 9 in its
- * `permissions` array (built from `MEDIA_PERMISSION_ACTIVITY_CODE` below),
- * `sql/042` seeded them, and `sql/077` moved their ownership from `news_portal`
- * to `media_library` when ADR-0026 step 2 extracted this module. The upload/
- * finalize/cancel routes enforce them via `authorizeInTransaction` (skill
- * `awcms-micro-abac-guard`).
+ * All 9 are declared in `module.ts`'s `permissions` array and seeded into
+ * `awcms_micro_permissions` (`sql/042`, ownership moved to `media_library` by
+ * `sql/077` when ADR-0026 step 2 extracted this module).
+ *
+ * ## Only 3 of the 9 are actually REACHABLE today — do not read this list as an API
+ *
+ * `create` (upload-sessions), `verify` (finalize — its guard lives in
+ * `application/media-finalize-upload-session.ts`, not the route file, which
+ * delegates to it), and `cancel` are enforced via `authorizeInTransaction`
+ * (skill `awcms-micro-abac-guard`).
+ *
+ * `read`, `attach`, `detach`, `delete`, `restore`, and `purge` are seeded but
+ * **nothing checks them** — no endpoint exists. They are permissions that
+ * "exist" in the catalog and cannot be exercised, which is exactly what this
+ * file's original header (Issue #633) warned against before the descriptor
+ * declared them:
+ *
+ * > declaring them in the module descriptor now would sync permission rows into
+ * > `awcms_micro_permissions` with nothing that ever checks them, which is
+ * > misleading (a permission that "exists" but is unreachable)
+ *
+ * Issue #634 declared all 9 anyway while adding only the upload flow, so the
+ * repo did the thing that comment warned about. Recorded here rather than
+ * quietly tidied because it is real, granted-but-inert authority: a tenant can
+ * grant `media_library.media.purge` to a role today and it confers nothing,
+ * which will silently become meaningful the moment ADR-0026 step 5's media
+ * object API lands. That step must treat these keys as a contract it is
+ * IMPLEMENTING, never as free naming.
+ *
+ * (An earlier revision of this header claimed all 9 were enforced. They are not
+ * — corrected after an audit across both the route and application layers.)
  *
  * This file remains the single source for the key strings: `module.ts`, the
- * route guards, and `tests/modules/media-library-module.test.ts`'s parity
- * assertion all derive from it, so a key can never drift between the descriptor
- * and the code that checks it. Anything needing a media permission MUST reuse
- * these constants rather than re-typing the string.
+ * guards, and `tests/modules/media-library-module.test.ts`'s parity assertion
+ * all derive from it, so a key can never drift between the descriptor and the
+ * code that checks it. Anything needing a media permission MUST reuse these
+ * constants rather than re-typing the string.
  *
  * `activityCode` follows this module's own resource shape (`media`, plural
  * dropped to match e.g. `blog_content`'s `posts`/`pages` activity codes),
