@@ -8,6 +8,7 @@ import { emailModule } from "./email/module";
 import { formDraftsModule } from "./form-drafts/module";
 import { identityAccessModule } from "./identity-access/module";
 import { loggingModule } from "./logging/module";
+import { mediaLibraryModule } from "./media-library/module";
 import { moduleManagementModule } from "./module-management/module";
 import { newsPortalModule } from "./news-portal/module";
 import { profileIdentityModule } from "./profile-identity/module";
@@ -43,6 +44,10 @@ const baseModules: ModuleDescriptor[] = [
   moduleManagementModule,
   // Platform services shared by the website modules.
   syncStorageModule,
+  // ADR-0026 step 1 — registered `experimental`, owns no code yet: it is the
+  // declared owner the media registry moves INTO at step 2, not a second media
+  // implementation beside `news_portal`'s. See its README for the staged plan.
+  mediaLibraryModule,
   domainEventRuntimeModule,
   dataLifecycleModule,
   reportingModule,

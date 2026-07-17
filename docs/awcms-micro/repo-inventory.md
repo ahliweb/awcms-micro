@@ -6,26 +6,27 @@
 
 ## Modules
 
-16 modules registered in `src/modules/index.ts` `listModules()`.
+17 modules registered in `src/modules/index.ts` `listModules()`.
 
-| Key                    | Version | Status   | Type     | Dependencies                                                                       |
-| ---------------------- | ------- | -------- | -------- | ---------------------------------------------------------------------------------- |
-| `blog_content`         | `0.9.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `data_lifecycle`       | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
-| `domain_event_runtime` | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
-| `email`                | `0.5.0` | `active` | `-`      | `tenant_admin`, `profile_identity`, `identity_access`                              |
-| `form_drafts`          | `1.0.0` | `active` | `-`      | `identity_access`                                                                  |
-| `identity_access`      | `1.0.0` | `active` | `-`      | `tenant_admin`, `profile_identity`                                                 |
-| `logging`              | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
-| `module_management`    | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
-| `news_portal`          | `0.4.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `profile_identity`     | `1.1.0` | `active` | `-`      | `tenant_admin`                                                                     |
-| `reporting`            | `1.2.0` | `active` | `-`      | `tenant_admin`, `identity_access`, `sync_storage`, `email`, `domain_event_runtime` |
-| `social_publishing`    | `0.1.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
-| `sync_storage`         | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
-| `tenant_admin`         | `1.0.0` | `active` | `-`      | -                                                                                  |
-| `tenant_domain`        | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
-| `visitor_analytics`    | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`, `reporting`                          |
+| Key                    | Version | Status         | Type     | Dependencies                                                                       |
+| ---------------------- | ------- | -------------- | -------- | ---------------------------------------------------------------------------------- |
+| `blog_content`         | `0.9.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `data_lifecycle`       | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
+| `domain_event_runtime` | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
+| `email`                | `0.5.0` | `active`       | `-`      | `tenant_admin`, `profile_identity`, `identity_access`                              |
+| `form_drafts`          | `1.0.0` | `active`       | `-`      | `identity_access`                                                                  |
+| `identity_access`      | `1.0.0` | `active`       | `-`      | `tenant_admin`, `profile_identity`                                                 |
+| `logging`              | `1.0.0` | `active`       | `-`      | `tenant_admin`                                                                     |
+| `media_library`        | `0.1.0` | `experimental` | `system` | `tenant_admin`, `identity_access`                                                  |
+| `module_management`    | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`                                                  |
+| `news_portal`          | `0.4.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `profile_identity`     | `1.1.0` | `active`       | `-`      | `tenant_admin`                                                                     |
+| `reporting`            | `1.2.0` | `active`       | `-`      | `tenant_admin`, `identity_access`, `sync_storage`, `email`, `domain_event_runtime` |
+| `social_publishing`    | `0.1.0` | `active`       | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `sync_storage`         | `1.0.0` | `active`       | `-`      | `tenant_admin`                                                                     |
+| `tenant_admin`         | `1.0.0` | `active`       | `-`      | -                                                                                  |
+| `tenant_domain`        | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`                                                  |
+| `visitor_analytics`    | `0.1.0` | `active`       | `system` | `tenant_admin`, `identity_access`, `logging`, `reporting`                          |
 
 ## Migrations
 

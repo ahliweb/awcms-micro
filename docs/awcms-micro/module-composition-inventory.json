@@ -1,8 +1,8 @@
 {
-  "baseModuleCount": 16,
+  "baseModuleCount": 17,
   "applicationModuleCount": 0,
   "applicationRegistryId": null,
-  "totalModuleCount": 16,
+  "totalModuleCount": 17,
   "valid": true,
   "issueCount": 0,
   "migrationNamespaces": [
@@ -140,6 +140,23 @@
       "permissionCount": 0,
       "navigationCount": 0,
       "jobCount": 1,
+      "hasHealthCheck": false,
+      "hasReadinessCheck": false,
+      "deploymentProfiles": null
+    },
+    {
+      "key": "media_library",
+      "name": "Media Library",
+      "version": "0.1.0",
+      "status": "experimental",
+      "type": "system",
+      "source": "base",
+      "dependencies": ["tenant_admin", "identity_access"],
+      "capabilitiesProvided": [],
+      "capabilitiesConsumed": [],
+      "permissionCount": 0,
+      "navigationCount": 0,
+      "jobCount": 0,
       "hasHealthCheck": false,
       "hasReadinessCheck": false,
       "deploymentProfiles": null

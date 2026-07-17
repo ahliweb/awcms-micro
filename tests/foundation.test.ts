@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 16 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(16);
+  test("the 17 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(17);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -157,6 +157,30 @@ describe("module registry", () => {
       type: "system",
       dependencies: ["tenant_admin", "identity_access", "logging"]
     });
+    // ADR-0026 step 1: `media_library` is the DECLARED owner of the media
+    // registry, but owns no code yet — the registry still lives in
+    // `news_portal` until step 2. `experimental` is what says so out loud, and
+    // pinning it here means step 4 (flip to `active` once media works without
+    // `news_portal`) cannot land silently: whoever flips it must come here and
+    // state that the extraction is genuinely done.
+    expect(getModuleByKey("media_library")).toMatchObject({
+      key: "media_library",
+      status: "experimental",
+      type: "system",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Media must never depend on the modules that consume it — inverting that
+    // direction is the whole point of ADR-0026 (ADR-0013 §1).
+    for (const consumer of [
+      "news_portal",
+      "blog_content",
+      "social_publishing"
+    ]) {
+      expect(getModuleByKey("media_library")?.dependencies ?? []).not.toContain(
+        consumer
+      );
+    }
+
     // The prune IS the product decision this repo exists to express (ADR-0025),
     // so assert it directly rather than only implying it via the length check:
     // a future edit that re-registers an ERP module fails HERE with a readable
