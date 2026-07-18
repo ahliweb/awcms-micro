@@ -61,9 +61,11 @@ import { resolveVisitorAnalyticsConfig } from "../src/modules/visitor-analytics/
 import {
   allowedDocumentMimeTypes,
   allowsSvgMimeType,
+  findMissingNewsMediaR2Vars,
   findNewsMediaR2PublicBaseUrlProductionUnsafeReason,
   resolveNewsMediaR2Config
 } from "../src/modules/media-library/domain/media-r2-config";
+import { evaluateDurableStorageReadiness } from "../src/lib/deployment/storage-profile";
 import { evaluateNewsPortalFullOnlineR2Readiness } from "../src/modules/news-portal/domain/news-portal-preset-readiness";
 import { isSocialPublishingEnabled } from "../src/modules/social-publishing/domain/social-publishing-config";
 import { isTelegramProviderEnabled } from "../src/modules/social-publishing/domain/telegram-config";
@@ -1944,6 +1946,55 @@ export function checkNewsPortalFullOnlineR2PresetReady(
  * accidental broadening. This check flags the override, it does not block
  * go-live on its own.
  */
+const R2_SYNC_REQUIRED_WHEN_ENABLED = [
+  "R2_ACCOUNT_ID",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET"
+] as const;
+
+/**
+ * Durable managed-media storage readiness (Issue #262, ADR-0027 §Aturan
+ * durable storage). Delegates the whole severity decision to the pure
+ * `evaluateDurableStorageReadiness` (`src/lib/deployment/storage-profile.ts`)
+ * — this wrapper only reads `process.env`, normalizes the object-storage
+ * enablement + credential-completeness signals, and maps the finding onto
+ * the security-readiness gate.
+ *
+ * Only a `critical` finding blocks go-live (production with no durable
+ * object storage, or object storage enabled with incomplete credentials).
+ * `full_online_single_host` (APP_ENV=staging) with host-local storage is a
+ * `warning` — a mounted durable volume is legitimate but unverifiable here.
+ * `development` is `info`. Deliberately keyed on the same `APP_ENV`/`R2_*`/
+ * `NEWS_MEDIA_R2_*` signals the rest of this file already uses — no new
+ * `DEPLOYMENT_PROFILE` env var (see storage-profile.ts header).
+ */
+export function checkDurableMediaStorageReady(
+  env: NodeJS.ProcessEnv = process.env
+): SecurityCheckResult {
+  const name = "Durable managed-media storage (no ephemeral FS in production)";
+
+  const r2Enabled = env.R2_ENABLED === "true";
+  const newsMediaR2Enabled = env.NEWS_MEDIA_R2_ENABLED === "true";
+
+  const finding = evaluateDurableStorageReadiness({
+    appEnv: env.APP_ENV,
+    r2Enabled,
+    r2CredentialsComplete: R2_SYNC_REQUIRED_WHEN_ENABLED.every(
+      (varName) => (env[varName] ?? "").trim().length > 0
+    ),
+    newsMediaR2Enabled,
+    newsMediaR2CredentialsComplete: findMissingNewsMediaR2Vars(env).length === 0
+  });
+
+  return {
+    name: `${name} [${finding.profile}]`,
+    severity: finding.severity,
+    status: finding.status,
+    evidence: finding.evidence
+  };
+}
+
 export function checkNewsMediaR2SvgNotAllowed(
   env: NodeJS.ProcessEnv = process.env
 ): SecurityCheckResult {
@@ -2827,6 +2878,7 @@ export async function runSecurityReadinessChecks(): Promise<
     checkVisitorAnalyticsRetentionOrderingReady(),
     checkVisitorAnalyticsHashSaltReady(),
     checkVisitorAnalyticsVisitorKeyCookieTtlReady(),
+    checkDurableMediaStorageReady(),
     checkNewsPortalFullOnlineR2PresetReady(),
     checkNewsMediaR2SvgNotAllowed(),
     checkNewsMediaR2DocumentTypesOptIn(),

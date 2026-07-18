@@ -69,8 +69,8 @@ flowchart TB
 - **PostgreSQL** sebagai database utama.
 - **Modular monolith** sebagai arsitektur utama.
 - **Microservice-ready**, tetapi tidak dipisah sejak awal.
-- **Offline-first / LAN-first**, dengan optional online sync.
-- **Cloudflare R2 optional** untuk object/file storage.
+- **Full online** — profil `development`/`full_online_single_host`/`full_online_production` ([ADR-0027](../adr/0027-full-online-deployment-and-durable-storage-profiles.md)); bukan offline-first/LAN-first. `sync_storage` = object queue/outbox untuk unggah media, bukan sync data bisnis offline.
+- **Object storage provider-neutral** untuk media terkelola (Cloudflare R2 adapter rekomendasi, bukan wajib); produksi tidak boleh mengandalkan FS container ephemeral.
 - **Provider eksternal opsional** (pesan/notifikasi/AI) via feature flag + outbox — ini adalah _slot_ base; provider konkret (mis. StarSender/Mailketing/AI analyst pada AWPOS) adalah contoh domain turunan.
 - **OpenAPI** untuk API contract.
 - **AsyncAPI** untuk domain event contract.
@@ -129,7 +129,7 @@ Dokumen dikelompokkan mengikuti alur pengembangan agar mudah diimplementasi.
 |   – | `database-migrations.md`                              | Panduan runner migrasi PostgreSQL Bun-native                                                                                                                                                                                                     |
 |   – | `database-pooling.md`                                 | Connection pooling per work class, backpressure, circuit breaker, dan antrean timeout database (Issue 10.2, doc 16/05/20)                                                                                                                        |
 |   – | `database-capacity-runbook.md`                        | Model kapasitas koneksi lintas-instance (deployment-aware), kalkulator, stage preflight `database:capacity`, dan SOP incident saturasi/connection-storm (Issue #743, epic #738 platform-evolution)                                               |
-|   – | `deployment-profiles.md`                              | Profil deployment (development/staging/production/offline-LAN) dan model dua-peran basis data                                                                                                                                                    |
+|   – | `deployment-profiles.md`                              | Profil deployment full-online (development/full_online_single_host/full_online_production, ADR-0027), aturan durable storage, dan model dua-peran basis data                                                                                     |
 |   – | `observability-metrics.md`                            | Metrics port: counter/histogram/gauge berkardinalitas rendah untuk request/pool/job/provider, SLI/SLO awal, dan endpoint dependency-health (Issue #698, epic #679)                                                                               |
 |   – | `deploy-coolify.md`                                   | Panduan deploy Coolify: single-VPS, multi-aplikasi, opsi PostgreSQL, checklist keamanan (Issue #462)                                                                                                                                             |
 |   – | `production-preflight-runbook.md`                     | Rehearsal staging, bukti backup, apply migrasi bergerbang, dan rollback untuk `bun run production:preflight` (Issue #684, epic #679)                                                                                                             |

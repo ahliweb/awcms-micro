@@ -1,18 +1,27 @@
 ---
 name: awcms-micro-deploy
-description: Pilih dan jalankan profil deployment AWCMS-Micro (development/staging/production/offline-LAN). Gunakan saat menyiapkan deployment baru, memutuskan LAN-first vs registry-based, atau deploy ke Coolify. Sesuai doc 18 dan deployment-profiles.md/deploy-coolify.md.
+description: Pilih dan jalankan profil deployment AWCMS-Micro (development/full_online_single_host/full_online_production). Gunakan saat menyiapkan deployment baru, memutuskan single-host compose vs registry-based image, atau deploy ke Coolify. Full-online (ADR-0027) — bukan offline/LAN-first. Sesuai doc 18 dan deployment-profiles.md/deploy-coolify.md.
 ---
 
 # AWCMS-Micro — Deployment Profile & Execution
 
 Ikuti `docs/awcms-micro/deployment-profiles.md` (peta profil ke berkas
-`deploy/*`) dan `docs/awcms-micro/deploy-coolify.md` (khusus Coolify).
+`deploy/*`), `docs/awcms-micro/deploy-coolify.md` (khusus Coolify), dan
+`docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md`
+(profil kanonik + aturan durable storage).
+
+Profil kanonik: **`development`**, **`full_online_single_host`** (satu host,
+volume durable atau object storage), **`full_online_production`** (object
+storage wajib, R2 rekomendasi). AWCMS-Micro platform **full online** — bukan
+offline/LAN-first. Produksi tidak boleh mengandalkan FS container ephemeral
+untuk media terkelola; `security:readiness` `checkDurableMediaStorageReady`
+memblokir go-live bila `APP_ENV=production` tanpa object storage.
 
 ## Pilih jalur
 
 ```mermaid
 flowchart TD
-  A{Topologi target?} -->|LAN-first satu server,\noperator git pull in-place| B[docker-compose.yml]
+  A{Topologi target?} -->|Single-host,\noperator git pull in-place| B[docker-compose.yml]
   A -->|Registry/CI-push,\norkestrator container| C[Dockerfile.production]
   C --> D{Orkestrator?}
   D -->|Docker Compose langsung| G[docker-compose.prod.yml]
@@ -21,7 +30,7 @@ flowchart TD
 ```
 
 `docker-compose.yml` tetap jalur yang **direkomendasikan** untuk
-LAN-first/offline satu server — jangan beralih ke `Dockerfile.production`
+single-host (`full_online_single_host`) — jangan beralih ke `Dockerfile.production`
 kecuali orkestrator memang mengharapkan image siap-pakai (build-saat-startup
 tidak diinginkan). Untuk registry-based via Compose (bukan Coolify/k8s),
 pakai `docker-compose.prod.yml` (Issue #682) — standalone, bukan override
@@ -54,7 +63,7 @@ bun run production:preflight # orkestrasi migrate -> api:spec:check -> test -> b
 
 ## Checklist per topologi
 
-**LAN-first (`docker-compose.yml`)**: `export APP_UID=$(id -u) APP_GID=$(id -g)`
+**Single-host (`docker-compose.yml`)**: `export APP_UID=$(id -u) APP_GID=$(id -g)`
 sebelum `docker compose up --build` (wajib — tanpanya container jadi root
 dan menulis `node_modules/`/`dist/` sebagai root di bind mount host);
 health check `curl http://localhost:4321/api/v1/health`.

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   checkAbacDefaultDeny,
+  checkDurableMediaStorageReady,
   checkEmailProviderConfigReady,
   checkGoogleOidcReady,
   checkLoginLockoutImplemented,
@@ -737,5 +738,57 @@ describe("checkNewsMediaR2ImageResizingSafe (ADR-0026 step 5b)", () => {
     expect(result.status).toBe("fail");
     expect(result.severity).toBe("warning");
     expect(result.evidence).toContain("Image Resizing");
+  });
+});
+
+describe("checkDurableMediaStorageReady", () => {
+  test("development: pass/info, profile label in name", () => {
+    const result = checkDurableMediaStorageReady({
+      APP_ENV: "development"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("pass");
+    expect(result.severity).toBe("info");
+    expect(result.name).toContain("development");
+  });
+
+  test("production with no object storage: critical fail (blocks go-live)", () => {
+    const result = checkDurableMediaStorageReady({
+      APP_ENV: "production"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("fail");
+    expect(result.severity).toBe("critical");
+    expect(result.name).toContain("full_online_single_host");
+  });
+
+  test("production with complete NEWS_MEDIA_R2 credentials: pass/info", () => {
+    const result = checkDurableMediaStorageReady({
+      APP_ENV: "production",
+      NEWS_MEDIA_R2_ENABLED: "true",
+      NEWS_MEDIA_R2_ACCOUNT_ID: "acc",
+      NEWS_MEDIA_R2_ACCESS_KEY_ID: "key",
+      NEWS_MEDIA_R2_SECRET_ACCESS_KEY: "secret",
+      NEWS_MEDIA_R2_BUCKET: "bucket",
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "https://media.example.com"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("pass");
+    expect(result.severity).toBe("info");
+    expect(result.name).toContain("full_online_production");
+  });
+
+  test("production with R2 enabled but missing credentials: critical fail", () => {
+    const result = checkDurableMediaStorageReady({
+      APP_ENV: "production",
+      R2_ENABLED: "true"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("fail");
+    expect(result.severity).toBe("critical");
+  });
+
+  test("staging single-host, no object storage: warning (not blocking)", () => {
+    const result = checkDurableMediaStorageReady({
+      APP_ENV: "staging"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("pass");
+    expect(result.severity).toBe("warning");
   });
 });

@@ -370,8 +370,45 @@ Point-in-Time Recovery (PITR)"](https://www.postgresql.org/docs/current/continuo
 for the authoritative setup and restore procedure — this repo does not
 implement or wrap WAL archiving.
 
+## Object-storage (managed media) backup & reconciliation
+
+These scripts back up **PostgreSQL only** — the metadata tier. For a
+full-online deployment (ADR-0027), managed media _bytes_ live in
+**provider-neutral object storage** (Cloudflare R2 recommended), not on the
+container filesystem. A complete backup story for `full_online_production`
+covers **three** things, and go-live evidence must include all three:
+
+1. **PostgreSQL metadata** — the media object rows
+   (`awcms_micro_news_media_objects`, etc.). Covered by
+   `backup-postgres.sh` above.
+2. **Object bytes / provider backup** — the durability of the bucket
+   objects themselves. This is a **provider-side** concern (bucket
+   versioning, cross-region/lifecycle replication, or a periodic bucket
+   copy) — configure it in the object-storage provider, outside these
+   Postgres scripts. R2's own object versioning / lifecycle is the
+   recommended baseline; the bucket must not be the single copy of
+   irreplaceable media without it.
+3. **Reconciliation evidence** — proof that metadata and bytes still
+   agree. `bun run news-media:reconcile` (Issue #690,
+   [`../../docs/awcms-micro/news-portal/r2-backup-lifecycle.md`](../../docs/awcms-micro/news-portal/r2-backup-lifecycle.md))
+   reconciles the two tiers: it cleans up `pending_upload` rows past their
+   TTL and detects orphan objects (bytes with no metadata row, or metadata
+   rows whose bytes are gone). `security:readiness`
+   `checkNewsMediaR2NoStalePendingObjects` fails go-live when stale
+   `pending_upload` objects prove the reconciliation job is not running or
+   not keeping up.
+
+`full_online_single_host` deployments that keep managed media on a durable
+mounted volume instead of object storage MUST include that volume in the
+host's own backup regime (it is not covered here), and
+`checkDurableMediaStorageReady` warns (`APP_ENV=staging`) or blocks
+(`APP_ENV=production`) accordingly — see ADR-0027 §5.
+
 ## See also
 
+- [`../../docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md`](../../docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md)
+  — deployment/storage profiles, durable-storage rules, and the readiness
+  severity matrix these backups feed.
 - [`../../docs/awcms-micro/deployment-profiles.md`](../../docs/awcms-micro/deployment-profiles.md)
   — which profile needs backups, and how this fits with the rest of
   `deploy/`.

@@ -43,7 +43,7 @@ Kontributor & coding agent **wajib membaca [`AGENTS.md`](AGENTS.md) lebih dulu**
 
 ```mermaid
 flowchart TB
-  subgraph Client["Client / LAN"]
+  subgraph Client["Client (internet)"]
     ADM[Admin]
     VIS[Pengunjung publik<br/>situs tenant]
   end
@@ -57,11 +57,11 @@ flowchart TB
 
   subgraph Data["Data & Storage"]
     PG[(PostgreSQL<br/>RLS + Audit)]
-    FILE[Local file storage]
+    OBJ[(Object storage<br/>media terkelola · durable)]
   end
 
   subgraph Ext["Provider eksternal (OPSIONAL, non-blocking)"]
-    R2[Cloudflare R2]
+    R2[Cloudflare R2<br/>adapter rekomendasi]
     PROV[Provider domain<br/>mis. pesan/notifikasi]
   end
 
@@ -69,25 +69,13 @@ flowchart TB
   VIS --> API
   API --> MW --> MOD
   MOD --> PG
-  MOD --> FILE
   MOD --> EVT
-  MOD -. queue/outbox .-> R2
+  MOD -. queue/outbox .-> OBJ
+  OBJ -. adapter .-> R2
   MOD -. queue/outbox .-> PROV
 ```
 
-Provider eksternal terhubung lewat **outbox/queue**, bukan jalur langsung transaksi — sehingga alur kritikal tetap jalan saat koneksi eksternal bermasalah.
-
-## Prinsip offline-first
-
-```mermaid
-flowchart LR
-  Tx[Aksi operasional] --> Local[(DB lokal / LAN)]
-  Local --> Outbox[Outbox event + object queue]
-  Outbox -->|saat online| Sync[Sync push/pull<br/>HMAC signed]
-  Sync --> Server[(Server pusat)]
-  Outbox -->|saat online| Deliver[Kirim ke provider · upload R2]
-  Server -->|conflict| Manual[Resolusi manual + audit]
-```
+Media terkelola disimpan di **object storage yang durable** lewat kontrak provider-neutral (Cloudflare R2 = adapter rekomendasi pertama, bukan wajib). Provider eksternal terhubung lewat **outbox/queue** di luar transaksi DB — alur transaksional tetap jalan saat koneksi provider bermasalah. Profil deployment, tujuan `sync_storage` (object queue/outbox, **bukan** sinkronisasi data bisnis offline), dan aturan durable storage didefinisikan di **[ADR-0027](docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md)**.
 
 ## Stack
 
@@ -95,14 +83,15 @@ flowchart LR
 - Web framework: **Astro 7** (SSR di atas Bun)
 - Database: **PostgreSQL** dengan **RLS** ([ADR-0003](docs/adr/0003-postgresql-rls-multi-tenant.md))
 - Arsitektur: **Modular monolith, microservice-ready** ([ADR-0001](docs/adr/0001-modular-monolith-architecture.md))
-- Mode operasi: **Offline-first / LAN-first**, optional online sync ([ADR-0006](docs/adr/0006-offline-first-sync-outbox.md))
-- Storage file opsional: **Cloudflare R2**
+- Mode operasi: **Full online** — profil `development` / `full_online_single_host` / `full_online_production` ([ADR-0027](docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md))
+- Storage media terkelola: **object storage provider-neutral**, durable; **Cloudflare R2** adapter rekomendasi pertama (bukan wajib)
+- Outbox transaksional + sync HMAC untuk delivery provider & object queue ([ADR-0006](docs/adr/0006-offline-first-sync-outbox.md), diamandemen ADR-0027)
 - Security baseline: **RBAC + ABAC + PostgreSQL RLS + Audit Log** ([ADR-0004](docs/adr/0004-rbac-abac-default-deny.md))
 - Kontrak: **OpenAPI** + **AsyncAPI** ([ADR-0007](docs/adr/0007-openapi-asyncapi-contracts.md))
 
 ## Prinsip utama
 
-1. Alur operasional kritikal tetap berjalan tanpa internet bila mode offline/LAN diaktifkan.
+1. Platform **full online**: media terkelola pada profil produksi wajib di object storage durable, tidak boleh mengandalkan filesystem container ephemeral ([ADR-0027](docs/adr/0027-full-online-deployment-and-durable-storage-profiles.md)).
 2. Provider eksternal (R2, pesan, dsb.) tidak boleh menjadi dependency alur kritikal dan tidak boleh dipanggil di dalam DB transaction.
 3. Data yang sudah posted (bila aplikasi turunan memilikinya) bersifat immutable, idempotent, atomic, dan audit-ready.
 4. Multi-tenant wajib memakai `tenant_id`, RLS, tenant context, dan ABAC.

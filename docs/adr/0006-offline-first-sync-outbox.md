@@ -1,8 +1,10 @@
 # ADR-0006 — Offline-first + transactional outbox + sync HMAC
 
-- **Status:** Accepted
+- **Status:** Accepted (diamandemen dalam scope oleh ADR-0027)
 - **Tanggal:** 2026-07-05
-- **Terkait:** `docs/awcms-micro/15_frontend_architecture_integration.md`, `docs/awcms-micro/16_backend_data_access_integration.md`, `docs/awcms-micro/10_template_kode_coding_standard.md` (§Sync HMAC)
+- **Terkait:** ADR-0025 §2, ADR-0027 (profil deployment full-online), `docs/awcms-micro/15_frontend_architecture_integration.md`, `docs/awcms-micro/16_backend_data_access_integration.md`, `docs/awcms-micro/10_template_kode_coding_standard.md` (§Sync HMAC)
+
+> **Amandemen scope (ADR-0027, 2026-07-19).** AWCMS-Micro adalah platform **website online penuh** (ADR-0025). Yang **dipertahankan** dari ADR ini di repo turunan: pola **transactional outbox** (event/pesan provider/upload objek ditulis dalam transaksi lalu dikirim worker terpisah; provider tidak pernah dipanggil di dalam transaksi DB) dan **sync HMAC + anti-replay** sebagai infrastruktur. Yang **ditarik** untuk base ini: klaim **offline-first / LAN-first sebagai mode operasi** — website base tidak punya kapabilitas offline yang terimplementasi/teruji. `sync_storage` di sini = **object queue/outbox untuk unggah media**, bukan sinkronisasi data bisnis offline node-to-node (ADR-0025 §2). Konteks "aplikasi turunan dapat berjalan di lingkungan LAN/offline" di bawah tetap berlaku untuk **aplikasi turunan** yang menambah modulnya sendiri, bukan untuk website base.
 
 ## Konteks
 

@@ -2,7 +2,7 @@
   "name": "awcms-micro",
   "version": "0.3.1",
   "private": true,
-  "description": "AWCMS-Micro — Modular Monolith Standard (Bun + Astro foundation skeleton)",
+  "description": "AWCMS-Micro — full-online multi-tenant website platform (Bun + Astro 7 SSR + PostgreSQL/RLS), turunan scope website dari standar AWCMS-Mini",
   "license": "MIT",
   "author": "AhliWeb",
   "homepage": "https://github.com/ahliweb/awcms-micro#readme",
@@ -22,7 +22,8 @@
     "rbac",
     "abac",
     "rls",
-    "offline-first",
+    "full-online",
+    "website-platform",
     "standard"
   ],
   "type": "module",
