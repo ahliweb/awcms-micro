@@ -53,12 +53,17 @@ describe("looksLikeRawSecretToken (Issue #643)", () => {
   });
 
   test("flags a realistic Telegram Bot API token (Issue #731 review round 1, security-auditor High finding)", () => {
-    // Realistic shape: <bot_id 6-10 digits>:<35-char secret>. The original
+    // Realistic shape: <bot_id 6-10 digits>:<30-45-char secret>. The original
     // catch-all blob check exempted ANY colon-containing string from the
     // entropy rejection, which incidentally whitelisted this exact shape —
     // Telegram is the very next provider adapter this epic ships (#646).
+    // The secret half is a self-documenting synthetic placeholder, NOT a real
+    // credential: the canonical public Telegram-docs example value that used
+    // to live here tripped GitHub secret scanning (secret-scanning alert #1,
+    // a false positive — this is a test fixture). Any same-shape value drives
+    // the same code path, so no realism is lost by using an inert one.
     expect(
-      looksLikeRawSecretToken("110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw")
+      looksLikeRawSecretToken("110201543:AATestFixtureNotARealBotTokenValue")
     ).toBe(true);
     expect(
       looksLikeRawSecretToken("5012345678:AAFxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
