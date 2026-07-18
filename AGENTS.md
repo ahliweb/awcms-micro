@@ -8,7 +8,7 @@ Dokumen ini adalah **kontrak kerja** untuk coding agent (Claude Code, Codex, dsb
 >
 > **AWCMS-Micro adalah turunan scope WEBSITE dari standar [`ahliweb/awcms-mini`](https://github.com/ahliweb/awcms-mini)**, sejajar dengan `ahliweb/awcms` yang turunan scope ERP. Keputusan lengkapnya: **[ADR-0025](docs/adr/0025-website-scope-derivation-from-awcms-mini.md) — wajib dibaca sebelum menambah/menghapus modul.**
 >
-> **Scope = website online penuh.** Bukan ERP, bukan POS. Registry base = **16 modul**: fondasi (`tenant_admin`, `profile_identity`, `identity_access`, `logging`, `module_management`), layanan platform (`sync_storage`, `domain_event_runtime`, `data_lifecycle`, `reporting`, `email`, `form_drafts`), website (`tenant_domain`, `blog_content`, `news_portal`, `social_publishing`, `visitor_analytics`).
+> **Scope = website online penuh.** Bukan ERP, bukan POS. Registry base = **17 modul**: fondasi (`tenant_admin`, `profile_identity`, `identity_access`, `logging`, `module_management`), layanan platform (`sync_storage`, `media_library`, `domain_event_runtime`, `data_lifecycle`, `reporting`, `email`, `form_drafts`), website (`tenant_domain`, `blog_content`, `news_portal`, `social_publishing`, `visitor_analytics`). Lihat `src/modules/index.ts` untuk daftar & jumlah yang selalu terkini.
 >
 > **Tujuh modul upstream TIDAK diport** — `workflow`, `organization_structure`, `document_infrastructure`, `data_exchange`, `integration_hub`, `reference_data`, `idn_admin_regions`. Jangan "memperbaiki" rujukan ke modul-modul itu dengan menghidupkannya kembali; itu keputusan scope, bukan kelalaian. Kalau butuh salah satunya, jalurnya `application-registry.ts` di aplikasi turunan (ADR-0014), bukan mengedit registry base.
 >

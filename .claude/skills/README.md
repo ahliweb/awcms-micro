@@ -4,50 +4,50 @@ Skill Claude Code tingkat-proyek untuk AWCMS-Micro. Setiap skill meng-encode sta
 
 > Baca [`../../AGENTS.md`](../../AGENTS.md) lebih dulu untuk aturan wajib & alur kerja.
 
+> **Catatan scope (ADR-0025).** Katalog ini sengaja **tidak** memuat skill
+> untuk tujuh modul ERP upstream awcms-mini (`workflow`, `organization_structure`,
+> `document_infrastructure`, `data_exchange`, `integration_hub`, `reference_data`,
+> `idn_admin_regions`) — modul-modul itu tidak diport ke repo ini. Jangan
+> salin baris skill untuk modul-modul tersebut dari katalog skill mini.
+
 ## Katalog
 
-| Skill                                                    | Kapan dipakai                                                                                                                                                                            | Sumber docs                                                  |
-| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `awcms-micro-implement-issue`                            | Orkestrator: kerjakan satu issue/sprint atomic end-to-end                                                                                                                                | 06, 11, 12                                                   |
-| `awcms-micro-new-module`                                 | Scaffold modul baru di `src/modules/`                                                                                                                                                    | 10, 11                                                       |
-| `awcms-micro-module-management`                          | Kelola/konsumsi sistem Module Management (registry, lifecycle, settings, health)                                                                                                         | module-management/README.md                                  |
-| `awcms-micro-new-migration`                              | Buat/ubah migration SQL (tabel, index, RLS)                                                                                                                                              | 04, 10                                                       |
-| `awcms-micro-new-endpoint`                               | Tambah/ubah endpoint REST + OpenAPI                                                                                                                                                      | 05, 10                                                       |
-| `awcms-micro-new-event`                                  | Tambah/ubah domain event + AsyncAPI                                                                                                                                                      | 05                                                           |
-| `awcms-micro-idempotency`                                | Mutation high-risk anti double-submit                                                                                                                                                    | 10                                                           |
-| `awcms-micro-abac-guard`                                 | Kontrol akses default-deny + RLS                                                                                                                                                         | 03, 10                                                       |
-| `awcms-micro-audit-log`                                  | Audit aksi high-risk + redaction                                                                                                                                                         | 03, 10                                                       |
-| `awcms-micro-observability`                              | Correlation ID otomatis, retensi/purge audit log, extension point log/audit                                                                                                              | 10, 16, 20                                                   |
-| `awcms-micro-new-migration` + `awcms-micro-new-endpoint` | Soft delete/restore/purge resource deletable                                                                                                                                             | 04, 05, 10, 16                                               |
-| `awcms-micro-sensitive-data`                             | Normalize/hash/mask identifier sensitif                                                                                                                                                  | 04                                                           |
-| `awcms-micro-sync-hmac`                                  | Sync push/pull bertanda HMAC + anti-replay                                                                                                                                               | 08, 10                                                       |
-| `awcms-micro-security-review`                            | Review keamanan modul                                                                                                                                                                    | 12, 13                                                       |
-| `awcms-micro-codeql-triage`                              | Triase & perbaiki temuan CodeQL code scanning (termasuk katalog false-positive)                                                                                                          | 20                                                           |
-| `awcms-micro-pr-review`                                  | Review pull request terhadap DoD                                                                                                                                                         | 09, 10, 12                                                   |
-| `awcms-micro-testing`                                    | Tulis test berlapis (unit→security)                                                                                                                                                      | 07                                                           |
-| `awcms-micro-browser-test`                               | E2E browser sungguhan (Playwright + Bun) — puncak piramida testing                                                                                                                       | 07, browser-test/SKILL.md                                    |
-| `awcms-micro-production-preflight`                       | Preflight & go-live readiness                                                                                                                                                            | 07, 12                                                       |
-| `awcms-micro-deploy`                                     | Pilih & jalankan profil deployment (LAN-first vs registry/Coolify)                                                                                                                       | 18, deploy-coolify.md                                        |
-| `awcms-micro-ui-screen`                                  | Implementasi layar/komponen UI sesuai design system                                                                                                                                      | 14, 15                                                       |
-| `awcms-micro-wizard-form`                                | Form multi-step (reusable wizard pattern)                                                                                                                                                | wizard-form-pattern.md                                       |
-| `awcms-micro-form-drafts`                                | Server-side draft persistence (resume lintas sesi/perangkat)                                                                                                                             | form-drafts/README.md                                        |
-| `awcms-micro-email`                                      | Kirim email transaksional (provider-neutral, template management, outbox)                                                                                                                | email/README.md                                              |
-| `awcms-micro-i18n`                                       | String UI `.po` gettext & konten multi-bahasa                                                                                                                                            | 14, 04, 19                                                   |
-| `awcms-micro-release`                                    | Rilis versi via Changesets (bump, CHANGELOG, tag)                                                                                                                                        | 09                                                           |
-| `awcms-micro-legacy-migration`                           | Migrasi data legacy aman (dry-run, backfill)                                                                                                                                             | 07, 06                                                       |
-| `awcms-micro-blog-content`                               | Kerjakan bagian mana pun epic blog_content (Issue #537-#543)                                                                                                                             | blog-content/README.md                                       |
-| `awcms-micro-tenant-domain-routing`                      | Kerjakan bagian mana pun epic online public routing & tenant domain (Issue #556-#567)                                                                                                    | tenant-domain-routing/SKILL.md                               |
-| `awcms-micro-auth-online-hardening`                      | Kerjakan bagian mana pun epic full-online auth security hardening (Issue #587-#593)                                                                                                      | auth-online-hardening/SKILL.md                               |
-| `awcms-micro-visitor-analytics`                          | Kerjakan bagian mana pun epic visitor analytics (Issue #617-#624)                                                                                                                        | visitor-analytics/SKILL.md                                   |
-| `awcms-micro-news-portal`                                | Kerjakan bagian mana pun epic news_portal full-online R2-only media (Issue #631-#642, #649)                                                                                              | news-portal/SKILL.md                                         |
-| `awcms-micro-idn-admin-regions`                          | Kerjakan bagian mana pun epic master data wilayah administratif Indonesia (Issue #655-#664)                                                                                              | idn-admin-regions/SKILL.md                                   |
-| `awcms-micro-social-publishing`                          | Kerjakan bagian mana pun epic social_publishing auto-posting outbox foundation (Issue #643-#647)                                                                                         | social-publishing/SKILL.md                                   |
-| `awcms-micro-data-lifecycle`                             | Daftarkan tabel bervolume tinggi ke registry retensi/partisi/arsip/legal hold/purge (Issue #745)                                                                                         | data-lifecycle/README.md, data-lifecycle.md                  |
-| `awcms-micro-erp-extension-readiness`                    | Konsumsi/evolusikan kontrak kesiapan ekstensi ERP — business transaction, posting, period-lock, item/currency/UoM, inventory movement, reconciliation, reporting projection (Issue #755) | erp-extension-readiness/SKILL.md, erp-extension-contracts.md |
-| `awcms-micro-document-infrastructure`                    | Kerjakan bagian mana pun modul document_infrastructure — registry dokumen generik, versioning, classification, numbering (Issue #751)                                                    | document-infrastructure/SKILL.md                             |
-| `awcms-micro-integration-hub`                            | Kerjakan bagian mana pun modul integration_hub — inbound webhook, outbound subscription, adapter health, SSRF guard (Issue #754)                                                         | integration-hub/SKILL.md                                     |
-| `awcms-micro-workflow-approval`                          | Kerjakan bagian mana pun modul workflow_approval — graph engine, quorum, delegation, escalation (Issue 11.1, evolved #747)                                                               | workflow-approval/SKILL.md                                   |
-| `awcms-micro-profile-identity`                           | Kerjakan bagian mana pun modul profile_identity — party CRUD, dedup, merge workflow, cross-tenant guard (Issue 2.2, dilengkapi #748)                                                     | profile-identity/SKILL.md                                    |
+| Skill                                                    | Kapan dipakai                                                                                                                        | Sumber docs                                 |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| `awcms-micro-implement-issue`                            | Orkestrator: kerjakan satu issue/sprint atomic end-to-end                                                                            | 06, 11, 12                                  |
+| `awcms-micro-new-module`                                 | Scaffold modul baru di `src/modules/`                                                                                                | 10, 11                                      |
+| `awcms-micro-module-management`                          | Kelola/konsumsi sistem Module Management (registry, lifecycle, settings, health)                                                     | module-management/README.md                 |
+| `awcms-micro-new-migration`                              | Buat/ubah migration SQL (tabel, index, RLS)                                                                                          | 04, 10                                      |
+| `awcms-micro-new-endpoint`                               | Tambah/ubah endpoint REST + OpenAPI                                                                                                  | 05, 10                                      |
+| `awcms-micro-new-event`                                  | Tambah/ubah domain event + AsyncAPI                                                                                                  | 05                                          |
+| `awcms-micro-idempotency`                                | Mutation high-risk anti double-submit                                                                                                | 10                                          |
+| `awcms-micro-abac-guard`                                 | Kontrol akses default-deny + RLS                                                                                                     | 03, 10                                      |
+| `awcms-micro-audit-log`                                  | Audit aksi high-risk + redaction                                                                                                     | 03, 10                                      |
+| `awcms-micro-observability`                              | Correlation ID otomatis, retensi/purge audit log, extension point log/audit                                                          | 10, 16, 20                                  |
+| `awcms-micro-new-migration` + `awcms-micro-new-endpoint` | Soft delete/restore/purge resource deletable                                                                                         | 04, 05, 10, 16                              |
+| `awcms-micro-sensitive-data`                             | Normalize/hash/mask identifier sensitif                                                                                              | 04                                          |
+| `awcms-micro-sync-hmac`                                  | Sync push/pull bertanda HMAC + anti-replay                                                                                           | 08, 10                                      |
+| `awcms-micro-security-review`                            | Review keamanan modul                                                                                                                | 12, 13                                      |
+| `awcms-micro-codeql-triage`                              | Triase & perbaiki temuan CodeQL code scanning (termasuk katalog false-positive)                                                      | 20                                          |
+| `awcms-micro-pr-review`                                  | Review pull request terhadap DoD                                                                                                     | 09, 10, 12                                  |
+| `awcms-micro-testing`                                    | Tulis test berlapis (unit→security)                                                                                                  | 07                                          |
+| `awcms-micro-browser-test`                               | E2E browser sungguhan (Playwright + Bun) — puncak piramida testing                                                                   | 07, browser-test/SKILL.md                   |
+| `awcms-micro-production-preflight`                       | Preflight & go-live readiness                                                                                                        | 07, 12                                      |
+| `awcms-micro-deploy`                                     | Pilih & jalankan profil deployment (LAN-first vs registry/Coolify)                                                                   | 18, deploy-coolify.md                       |
+| `awcms-micro-ui-screen`                                  | Implementasi layar/komponen UI sesuai design system                                                                                  | 14, 15                                      |
+| `awcms-micro-wizard-form`                                | Form multi-step (reusable wizard pattern)                                                                                            | wizard-form-pattern.md                      |
+| `awcms-micro-form-drafts`                                | Server-side draft persistence (resume lintas sesi/perangkat)                                                                         | form-drafts/README.md                       |
+| `awcms-micro-email`                                      | Kirim email transaksional (provider-neutral, template management, outbox)                                                            | email/README.md                             |
+| `awcms-micro-i18n`                                       | String UI `.po` gettext & konten multi-bahasa                                                                                        | 14, 04, 19                                  |
+| `awcms-micro-release`                                    | Rilis versi via Changesets (bump, CHANGELOG, tag)                                                                                    | 09                                          |
+| `awcms-micro-blog-content`                               | Kerjakan bagian mana pun epic blog_content (Issue #537-#543)                                                                         | blog-content/README.md                      |
+| `awcms-micro-tenant-domain-routing`                      | Kerjakan bagian mana pun epic online public routing & tenant domain (Issue #556-#567)                                                | tenant-domain-routing/SKILL.md              |
+| `awcms-micro-auth-online-hardening`                      | Kerjakan bagian mana pun epic full-online auth security hardening (Issue #587-#593)                                                  | auth-online-hardening/SKILL.md              |
+| `awcms-micro-visitor-analytics`                          | Kerjakan bagian mana pun epic visitor analytics (Issue #617-#624)                                                                    | visitor-analytics/SKILL.md                  |
+| `awcms-micro-news-portal`                                | Kerjakan bagian mana pun epic news_portal full-online R2-only media (Issue #631-#642, #649)                                          | news-portal/SKILL.md                        |
+| `awcms-micro-social-publishing`                          | Kerjakan bagian mana pun epic social_publishing auto-posting outbox foundation (Issue #643-#647)                                     | social-publishing/SKILL.md                  |
+| `awcms-micro-data-lifecycle`                             | Daftarkan tabel bervolume tinggi ke registry retensi/partisi/arsip/legal hold/purge (Issue #745)                                     | data-lifecycle/README.md, data-lifecycle.md |
+| `awcms-micro-profile-identity`                           | Kerjakan bagian mana pun modul profile_identity — party CRUD, dedup, merge workflow, cross-tenant guard (Issue 2.2, dilengkapi #748) | profile-identity/SKILL.md                   |
 
 ## Katalog peningkatan (improvement/hardening)
 
@@ -97,7 +97,6 @@ flowchart TD
   WIZ --> DRAFT[awcms-micro-form-drafts]
   DRAFT --> IDEM
   DRAFT --> ABAC
-  II --> LEG[awcms-micro-legacy-migration]
   II --> BLOG[awcms-micro-blog-content]
   BLOG --> EP
   BLOG --> MIG
@@ -144,28 +143,6 @@ flowchart TD
   DL --> ABAC
   DL --> AUD
   DL --> IDEM
-  II --> ERPX[awcms-micro-erp-extension-readiness]
-  ERPX --> IDEM
-  ERPX --> EV
-  II --> DOCI[awcms-micro-document-infrastructure]
-  DOCI --> MIG
-  DOCI --> EP
-  DOCI --> ABAC
-  DOCI --> AUD
-  DOCI --> IDEM
-  II --> IH[awcms-micro-integration-hub]
-  IH --> MIG
-  IH --> EP
-  IH --> ABAC
-  IH --> AUD
-  IH --> INT
-  II --> WF[awcms-micro-workflow-approval]
-  WF --> MIG
-  WF --> EP
-  WF --> ABAC
-  WF --> AUD
-  WF --> IDEM
-  WF --> EV
   II --> PI[awcms-micro-profile-identity]
   PI --> MIG
   PI --> EP

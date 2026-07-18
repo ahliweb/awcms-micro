@@ -419,10 +419,9 @@ also syncs the registry first (same reasoning as
 `/admin/modules/{moduleKey}` (full detail) — the last issue in epic #510.
 
 - **List**: catalog table + client-side type/status/health filters (pure
-  `data-*` attribute show/hide — only 16 modules exist in this
-  base as of the current registry (see `src/modules/index.ts`'s `modules`
-  array for the current count), a server round-trip per filter change
-  would be pure overhead) + a health
+  `data-*` attribute show/hide — the base registry is small (see
+  `src/modules/index.ts`'s `modules` array for the current count), a server
+  round-trip per filter change would be pure overhead) + a health
   status column (every module's `fetchModuleHealthReport`, #520, computed
   in parallel — each check is individually cheap/bounded by design, and
   this only runs on an explicit admin page load).
@@ -673,8 +672,9 @@ implementation summary.
   historically being `return modules`, zero validation, ever). Because this
   base repository's `applicationModuleRegistry` is always `undefined`,
   `listModules()`'s effective value is a byte-identical pass-through of the
-  16 base modules — the composition mechanism changes nothing about this
-  repo's own shipped behavior.
+  base modules (17 as of `media_library`'s admission, ADR-0026) — the
+  composition mechanism changes nothing about this repo's own shipped
+  behavior.
 - **`validateComposedModuleRegistry()` / `composeModuleRegistry()`** — the
   actual rule engine, called explicitly by `bun run modules:compose:check`
   (`scripts/validate-module-composition.ts`, wired into `bun run check`),

@@ -110,7 +110,7 @@ Tidak ada baris untuk `workflow`, `organization_structure`, `document_infrastruc
 
 Index: unique `tenant_code`.
 
-`default_locale` — locale default tenant (min **en**, **id**). **Target default `'en'`**; migration `002` saat ini masih `DEFAULT 'id'` — diubah ke `'en'` via migration baru saat i18n dibangun (issue #433, milestone M9). Locale efektif = preferensi per-user (bila ada) → `default_locale` tenant.
+`default_locale` — locale default tenant (min **en**, **id**). Migration `002` awalnya set `DEFAULT 'id'`; migration `016` (issue #433, milestone M9, sudah selesai) mengubahnya menjadi `DEFAULT 'en'` untuk tenant BARU — nilai tenant yang sudah ada tidak disentuh (mengubah `DEFAULT` kolom bukan migrasi data). Locale efektif = preferensi per-user (bila ada) → `default_locale` tenant.
 
 ### `awcms_micro_offices`
 

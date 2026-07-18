@@ -95,7 +95,7 @@ Jangan karang nama channel domain retail/POS (mis. `sales.*`/
 `warehouse.*`/`tax.*`/`crm.*`) sebagai contoh — modul-modul itu tidak ada
 di base repo ini, dipindahkan ke aplikasi turunan contoh (mis. AWPOS);
 lihat `docs/awcms-micro/06_github_issues_detail.md` §"Riwayat perubahan
-backlog" dan skill `awcms-micro-legacy-migration`. Event baru mengikuti
+backlog". Event baru mengikuti
 pola `namespace.aggregate.action` di atas, dengan `namespace` = `module_key`
 modul nyata yang menerbitkannya.
 

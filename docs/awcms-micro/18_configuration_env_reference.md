@@ -144,14 +144,18 @@ role Postgres, bukan dua:
    request — lihat header `sql/045...sql` untuk matriks lengkap per
    tabel.
 3. **`awcms_micro_worker`** ("background worker", `WORKER_DATABASE_URL`,
-   BARU) — 9 script cron/systemd-timer tanpa endpoint HTTP (jumlah
-   dikoreksi Issue #743; lihat `src/lib/database/work-class-registry.ts`'s
-   `JOB_WORK_CLASS_REGISTRY` untuk daftar hidup): `analytics:rollup`,
-   `analytics:purge`, `logs:audit:purge`, `sync:objects:dispatch`,
-   `email:dispatch`, `blog:publish:scheduled`, `form-drafts:purge`,
-   `social-publishing:dispatch`, `news-media:reconcile`. Nol akses ke 9
-   tabel global kecuali `SELECT` di `awcms_micro_tenants` (untuk iterasi
-   tenant aktif).
+   BARU) — script cron/systemd-timer tanpa endpoint HTTP; jumlahnya tumbuh
+   seiring modul baru, jadi lihat `docs/awcms-micro/work-class-registry.generated.json`
+   (dijaga selalu terkini oleh gate CI `bun run db:work-class:check`, bagian
+   `bun run check`) untuk daftar hidup, bukan angka statis di sini —
+   contohnya termasuk `analytics:rollup`, `analytics:purge`,
+   `logs:audit:purge`, `sync:objects:dispatch`, `email:dispatch`,
+   `blog:publish:scheduled`, `form-drafts:purge`,
+   `social-publishing:dispatch`, `news-media:reconcile`, dan job-job yang
+   ditambah issue-issue setelahnya (data-lifecycle, domain-events,
+   identity-access business-scope, reporting exports/projections). Nol
+   akses ke 9 tabel global kecuali `SELECT` di `awcms_micro_tenants` (untuk
+   iterasi tenant aktif).
 4. **`awcms_micro_setup`** ("bootstrap/setup", `SETUP_DATABASE_URL`, BARU)
    — hanya `POST /api/v1/setup/initialize` (wizard setup sekali-jalan).
    Defense-in-depth di atas kunci singleton `awcms_micro_setup_state` yang

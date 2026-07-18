@@ -223,7 +223,6 @@ menyentuh tabel banyak modul sekaligus, bukan schema satu modul — lihat
 | Kelola sistem Module Management              | `awcms-micro-module-management` (+ `awcms-micro-new-module` untuk scaffold field descriptor)               |
 | Kerjakan epic blog_content (Issue #537-#543) | `awcms-micro-blog-content`                                                                                 |
 | Rilis/CHANGELOG                              | `awcms-micro-release`                                                                                      |
-| Legacy migration                             | `awcms-micro-legacy-migration`                                                                             |
 | Implementasi issue                           | skill `awcms-micro-implement-issue` + agent `awcms-micro-coder`                                            |
 | Snapshot docs GitHub                         | `awcms-micro-github-snapshot`                                                                              |
 

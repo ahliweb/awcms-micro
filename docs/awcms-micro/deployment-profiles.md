@@ -298,11 +298,9 @@ konvensi penamaan lengkap dan
   berita **publik** by design (custom domain, CORS) — menyatukan
   keduanya berisiko membocorkan objek sync privat lewat konfigurasi
   publik yang ditujukan untuk media berita.
-- **Tidak ada fallback lokal**: berbeda dari `STORAGE_DRIVER=local`
-  (default base generik) yang tetap didukung penuh untuk kebutuhan lain,
-  mode R2-only news media secara eksplisit **melarang** fallback
-  filesystem lokal untuk gambar berita — kegagalan upload R2 gagal
-  secara eksplisit ke editor, bukan diam-diam ditulis ke
+- **Tidak ada fallback lokal**: mode R2-only news media secara eksplisit
+  **melarang** fallback filesystem lokal untuk gambar berita — kegagalan
+  upload R2 gagal secara eksplisit ke editor, bukan diam-diam ditulis ke
   `LOCAL_STORAGE_PATH`.
 
 ## Cara menjalankan tiap profil
@@ -598,8 +596,9 @@ Membuat peran aplikasi:
   (`DATABASE_URL` di `.env`). Lihat `.env.example` §Database.
 
 Sejak Issue #683 (epic #679), migrasi 045 menambah DUA peran OPSIONAL di
-atas fondasi dua-peran ini — `awcms_micro_worker` (7 script background,
-`WORKER_DATABASE_URL`) dan `awcms_micro_setup` (hanya
+atas fondasi dua-peran ini — `awcms_micro_worker` (script background, lihat
+`docs/awcms-micro/work-class-registry.generated.json` untuk daftar hidup
+yang selalu terkini, `WORKER_DATABASE_URL`) dan `awcms_micro_setup` (hanya
 `POST /api/v1/setup/initialize`, `SETUP_DATABASE_URL`) — keduanya
 fallback ke `DATABASE_URL`/`awcms_micro_app` bila tidak di-set, jadi
 model dua-peran di atas tetap fondasi minimum yang wajib; dua peran
@@ -735,7 +734,9 @@ idempoten/aman dijalankan berulang, no-op aman bila fiturnya nonaktif:
 | `identity-access:business-scope:expiry`   | identity_access        | Per jam (Issue #746)                                                  |
 
 Semua bersifat operasi database murni (kecuali `sync:objects:dispatch`
-yang menyentuh R2 bila `STORAGE_DRIVER` bukan `local`, dan
+yang menyentuh R2 bila `R2_ENABLED` adalah `"true"` (bukan `STORAGE_DRIVER`,
+yang **DEPRECATED**/tidak pernah dibaca — lihat
+`18_configuration_env_reference.md` §Config registry), dan
 `news-media:reconcile` yang menyentuh R2 bila `NEWS_MEDIA_R2_ENABLED`
 adalah `"true"`) — aman dijadwalkan di profil offline/LAN sekalipun,
 termasuk kedua job visitor analytics: baik rollup maupun purge murni

@@ -10,23 +10,36 @@ RBAC/ABAC default-deny, ADR-0005 soft delete/immutability, dan skill
 ```mermaid
 flowchart LR
   Pre[bun run production:preflight] --> Cfg[config:validate]
-  Cfg --> Mig[db:migrate]
-  Mig --> Spec[api:spec:check]
-  Spec --> Test[bun test]
+  Cfg --> Sec[security:readiness]
+  Sec --> Cap[database:capacity]
+  Cap --> Conn[db:connectivity]
+  Conn --> Spec[api:spec:check]
+  Spec --> Compose[modules:compose:check]
+  Compose --> Ext[extension:check]
+  Ext --> Test[bun test]
   Test --> Build[build]
   Build --> Probe{Server reachable?}
   Probe -->|ya| Pool[db:pool:health]
-  Probe -->|tidak| Skip[skip - dicatat, bukan gagal]
-  Pool --> Sec[security:readiness]
-  Skip --> Sec
-  Sec --> Gate{Critical finding?}
-  Gate -->|ya| Block[GO-LIVE DIBLOKIR]
-  Gate -->|tidak| Ready[GO-LIVE DIIZINKAN]
+  Probe -->|tidak, APP_ENV != production| Skip[skip - dicatat, bukan gagal]
+  Probe -->|tidak, APP_ENV == production| PoolFail[gagal - blokir go-live]
+  Pool --> Plan[migration:plan]
+  Skip --> Plan
+  Plan --> Gate{Semua tahap read-only lulus?}
+  Gate -->|tidak| Block[GO-LIVE DIBLOKIR]
+  Gate -->|ya| Ready[GO-LIVE DIIZINKAN]
+  Ready -.->|opsional, --apply-migrations + --backup-verified + --acknowledge-target| Apply[migration APPLY - satu-satunya tahap yang menulis]
 ```
 
 `config:validate` (Issue 12.2) jalan **paling pertama** — config harus
-valid sebelum tahap manapun mencoba konek database atau menjalankan
-migration (`scripts/production-preflight.ts`'s `STAGES` array).
+valid sebelum tahap manapun mencoba konek database
+(`scripts/production-preflight.ts`'s `READ_ONLY_STAGES`). **Reworked oleh
+Issue #684** (epic #679, platform-hardening) supaya seluruh tahap ini
+read-only secara default (lihat daftar tahap di §3 di bawah — jangan
+hardcode jumlahnya di sini, karena bertambah seiring skrip berkembang) —
+lihat
+`docs/awcms-micro/production-preflight-runbook.md` untuk urutan tahap yang
+otoritatif dan selalu-terkini (dokumen ini memberi ringkasan konseptual,
+bukan daftar tahap definitif).
 
 Tiga skrip baru menjadi deliverable inti issue ini:
 
@@ -93,7 +106,7 @@ persis diagram gate skill `awcms-micro-production-preflight`.
 | Least-privilege DB user                       | **Otomatis sebagian** (critical, cakupan connection role — lihat "App DB connection role does not bypass RLS" di atas) + **manual** untuk provisioning grant/role menyeluruh                                                                                                                                                                                        |
 | Backup aktif / restore tested                 | **Manual** (SOP + skrip sudah ada di `deploy/backup/{backup,restore}-postgres.sh` sejak Issue 12.2, dikeraskan Issue #691: enkripsi + manifest bertanda tangan + checksum-before-restore + restore drill terjadwal — lihat skill `awcms-micro-production-preflight` dan `deploy/backup/README.md`)                                                                  |
 | PostgreSQL version sesuai target              | **Manual** — versi di-pin di `docker-compose.yml` (Issue 12.2, `postgres:18.4`), tidak diverifikasi ulang dari kode aplikasi                                                                                                                                                                                                                                        |
-| Build pass / migration pass / API spec valid  | **Otomatis** — via `production:preflight` (bukan `security:readiness`), tahap `build`/`db:migrate`/`api:spec:check`                                                                                                                                                                                                                                                 |
+| Build pass / migration pass / API spec valid  | **Otomatis** — via `production:preflight` (bukan `security:readiness`), tahap `build`/`migration:plan`/`api:spec:check`. Sejak Issue #684, `migration:plan` hanya menghitung diff pending-vs-applied (read-only); benar-benar menjalankan migration adalah tahap `apply` terpisah yang eksplisit di-gate (lihat §3 di bawah)                                        |
 | Setup wizard locked                           | Sudah diverifikasi live sejak Issue 12.1 (`awcms_micro_setup_state` singleton); tidak diulang sebagai check readiness terpisah di issue ini — di luar cakupan penambahan baru                                                                                                                                                                                       |
 | Role default tersedia                         | Sudah diverifikasi live sejak Issue 12.1; tidak diulang sebagai check readiness terpisah                                                                                                                                                                                                                                                                            |
 | Logging aktif                                 | Sudah ada sejak Issue 10.1 (`src/lib/logging/logger.ts`); tidak diulang sebagai check terpisah. Diperkuat Issue #687: `bun run logging:lint:check` (bagian dari `bun run check`) menggagalkan build kalau ada pola `console.error`/`console.warn` dengan raw error/`.message`/`.stack` tidak tersanitasi di `src/pages/admin`, `src/pages/api/v1`, atau `scripts/`. |
@@ -121,53 +134,86 @@ check palsu:
 
 ## 3. `production:preflight`
 
-Mengorkestrasi tahap berikut sebagai child process (`Bun.spawn`), berurutan,
-mencatat pass/fail per tahap, lalu mencetak verdict akhir:
+**Direwrite oleh Issue #684** (epic #679, platform-hardening) supaya
+non-destructive by default. Perilaku LAMA yang diperbaiki: `db:migrate`
+berjalan unconditional sebagai tahap awal, sebelum `api:spec:check`/
+`test`/`build` — sehingga satu tahap belakangan yang gagal tetap
+meninggalkan database target termutasi walau verdict akhirnya "GO-LIVE
+DIBLOKIR". Sejak Issue #684, seluruh tahap di bawah **read-only**; migration
+benar-benar diterapkan hanya lewat tahap `apply` terpisah yang eksplisit
+di-gate (lihat di bawah).
 
-1. `bun run config:validate` — **paling pertama** (Issue 12.2): config
-   harus valid sebelum tahap manapun mencoba konek database atau
-   menjalankan migration.
-2. `bun run db:migrate`
-3. `bun run api:spec:check`
-4. `bun test`
-5. `bun run build`
-6. `bun run db:pool:health` — **hanya bila** probe `GET /api/v1/health`
-   menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
-   `skipped` (bukan `failed`) dengan alasan eksplisit di laporan. Ini
-   keputusan desain yang disengaja: `production:preflight` bisa dijalankan
-   di CI/lingkungan tanpa server berjalan tanpa memblokir seluruh preflight
-   pada satu tahap yang memang butuh server hidup.
-7. `bun run security:readiness`
+Mengorkestrasi tahap berikut sebagai child process (`Bun.spawn`), berurutan,
+mencatat pass/fail per tahap, lalu mencetak verdict akhir. **Daftar tahap
+otoritatif dan selalu-terkini ada di
+`docs/awcms-micro/production-preflight-runbook.md`** — ringkasan di bawah
+ini bisa basi seiring skrip berkembang (mis. Issue #743 menambah tahap
+`database:capacity`):
+
+1. `config:validate` — **paling pertama** (Issue 12.2): config harus valid
+   sebelum tahap manapun mencoba konek database.
+2. `security:readiness`
+3. `database:capacity` (Issue #743) — budget kapasitas koneksi, murni
+   aritmetika config, tidak pernah konek database.
+4. `db:connectivity` — konfirmasi `DATABASE_URL` reachable + ledger
+   migration bisa di-query; hanya satu `SELECT`, tidak pernah menulis.
+5. `api:spec:check`
+6. `modules:compose:check` (Issue #740, epic #738) — validasi komposisi
+   modul build-time repo turunan.
+7. `extension:check` (Issue #741, epic #738) — validasi manifest
+   kompatibilitas ekstensi repo turunan, alasan sama seperti
+   `modules:compose:check`.
+8. `test`
+9. `build`
+10. `db:pool:health` — **hanya bila** probe `GET /api/v1/health`
+    menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
+    `skipped` (bukan `failed`) dengan alasan eksplisit di laporan **kecuali**
+    `APP_ENV=production`, yang membuat skip tersebut memblokir go-live
+    (preflight produksi yang tidak bisa menjangkau metrik pool server hidup
+    belum benar-benar memverifikasi kesiapan produksi).
+11. `migration:plan` — diff pending-vs-applied read-only, sengaja diletakkan
+    sebagai tahap read-only TERAKHIR, tepat sebelum keputusan apply.
 
 `bun install` **sengaja tidak** dijalankan oleh skrip ini — itu langkah
 setup environment (mengambil dependency), bukan readiness check, dan di luar
 tanggung jawab skrip ini (skill `awcms-micro-production-preflight` mencantumkannya
 sebagai langkah terpisah sebelum command list preflight).
 
-Semua tahap tetap dijalankan meskipun tahap sebelumnya gagal (bukan
-fail-fast) — laporan akhir mendaftar **seluruh** tahap yang gagal, bukan
-hanya yang pertama, supaya satu kegagalan tidak menyembunyikan masalah lain.
+Semua tahap read-only tetap dijalankan meskipun tahap sebelumnya gagal
+(bukan fail-fast) — laporan akhir mendaftar **seluruh** tahap yang gagal,
+bukan hanya yang pertama, supaya satu kegagalan tidak menyembunyikan masalah
+lain.
 
-Verdict akhir: `GO-LIVE DIIZINKAN` (exit 0) jika tidak ada tahap `fail`,
-`GO-LIVE DIBLOKIR` (exit non-zero) jika ada.
+Verdict tahap read-only: `GO-LIVE DIIZINKAN` (exit 0) jika tidak ada tahap
+`fail`, `GO-LIVE DIBLOKIR` (exit non-zero) jika ada.
+
+**Menerapkan migration** adalah langkah terpisah yang eksplisit di-gate —
+bukan bagian daftar tahap di atas: hanya bisa dicoba bila verdict read-only
+`true`, membutuhkan flag `--apply-migrations` (niat operator untuk
+memutasi), `--backup-verified` (atestasi backup baru yang bisa direstore
+sudah ada), dan `--acknowledge-target=<nilai APP_ENV>` (mis. `production` —
+harus sama persis dengan `APP_ENV` yang sedang berjalan; typo-catcher
+eksplisit terhadap environment yang salah, BUKAN nama database). Lihat
+`docs/awcms-micro/production-preflight-runbook.md` untuk detail flag dan
+alasan tiap gate.
 
 ## Cara menjalankan sebelum go-live
 
 ```bash
 bun install
-bun run config:validate
-bun run db:migrate
-bun run api:spec:check
-bun test
-bun run build
-bun run preview &            # atau `bun run dev` — perlu server hidup untuk db:pool:health
-bun run db:pool:health
-bun run security:readiness
 bun run production:preflight
 ```
 
-Atau cukup `bun run production:preflight` setelah server (opsional) sudah
-hidup — skrip ini menjalankan seluruh tahap di atas kecuali `bun install`.
+`production:preflight` menjalankan seluruh tahap read-only di atas (§3)
+sendiri (kecuali `bun install`, yang tetap langkah setup terpisah); jalankan
+`bun run preview &` (atau `bun run dev`) sebelumnya bila ingin tahap
+`db:pool:health` benar-benar mengukur pool server hidup alih-alih dicatat
+`skipped`. Untuk benar-benar menerapkan migration setelah verdict read-only
+lulus, lihat flag `--apply-migrations`/`--backup-verified`/
+`--acknowledge-target` di
+`docs/awcms-micro/production-preflight-runbook.md` — **jangan** jalankan
+`bun run db:migrate` secara manual sebagai bagian rehearsal preflight; itu
+persis bug yang diperbaiki Issue #684.
 
 ## Test
 

@@ -291,6 +291,10 @@ Modul domain pertama yang didaftarkan langsung di repo base ini (ADR-0009), buka
 | GET/POST/PATCH/DELETE     | `/blog/widgets(/{id})`                            | Widget posisi tetap (Issue #542)                                        |
 | GET/POST/PATCH/DELETE     | `/blog/ads(/{id})`                                | Iklan + placement/jadwal (Issue #542)                                   |
 | GET/PATCH                 | `/blog/theme`                                     | Override mode tema blog per tenant (Issue #542)                         |
+| GET                       | `/blog/posts/{id}/quality-checklist`              | Preview checklist kualitas konten post (Issue #641)                     |
+| GET                       | `/blog/pages/{id}/quality-checklist`              | Preview checklist kualitas konten halaman (Issue #641)                  |
+| GET/PATCH                 | `/blog/internal-tag-links/settings`               | Pengaturan automatic internal tag linking per tenant (Issue #641)       |
+| GET                       | `/blog/posts/{id}/internal-links/preview`         | Preview term yang akan otomatis di-link di konten post (Issue #641)     |
 
 Rute publik anonim (ADR-0009, resolusi tenant lewat path `tenantCode`, bukan subdomain/header), semua `APIRoute` `.ts` (bukan `.astro`, supaya testable lewat `tests/integration/harness.ts`):
 
@@ -306,7 +310,7 @@ Rute publik anonim (ADR-0009, resolusi tenant lewat path `tenantCode`, bukan sub
 
 Admin UI (Issue #543): `/admin/blog/*` — Astro + vanilla JS, tidak menambah endpoint API baru (semua mutasi lewat endpoint di atas). Lihat README modul §Admin UI.
 
-26 domain event AsyncAPI (`awcms-micro.blog-content.*`, §Event utama tidak mendaftarkan semuanya karena volumenya — lihat `asyncapi/awcms-micro-domain-events.asyncapi.yaml` dan README modul §Domain events untuk daftar lengkap + tabel produser). Sejak Issue #543 seluruh 26 channel punya produser nyata (celah terakhir, `settings.updated`, ditutup oleh `PATCH /api/v1/blog/settings`).
+27 domain event AsyncAPI (`awcms-micro.blog-content.*`, §Event utama tidak mendaftarkan semuanya karena volumenya — lihat `asyncapi/awcms-micro-domain-events.asyncapi.yaml` dan README modul §Domain events untuk daftar lengkap + tabel produser). Sejak Issue #543 seluruh channel punya produser nyata (celah terakhir saat itu, `settings.updated`, ditutup oleh `PATCH /api/v1/blog/settings`); Issue #641 menambah channel ke-27, `internal-tag-linking-policy.updated`.
 
 ### AI, Reports, Logs, Workflow, Security
 
