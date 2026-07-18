@@ -24,6 +24,7 @@ import {
 } from "../../../modules/blog-content/domain/seo-rendering";
 import { renderPublicPageShell } from "../../../modules/blog-content/domain/public-page-rendering";
 import { renderSocialShareButtonsHtml } from "../../../modules/blog-content/domain/social-share-links";
+import { buildNewsMediaResponsiveImageTransform } from "../../../modules/media-library/application/media-responsive-image";
 
 const NEWS_SHARE_CLIENT_SCRIPT_SRC = "/js/news-share.js";
 
@@ -89,7 +90,8 @@ export const GET: APIRoute = async ({ params, url }) => {
 
       const renderedContentHtml = renderContentJsonToHtml(
         post.contentJson,
-        seoMetadata.resolvedGalleryUrls
+        seoMetadata.resolvedGalleryUrls,
+        buildNewsMediaResponsiveImageTransform()
       );
 
       // Issue #641 — see `/news/[slug].ts`'s identical comment: pure

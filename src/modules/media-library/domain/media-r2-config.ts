@@ -130,7 +130,8 @@ export const NEWS_MEDIA_R2_DEFAULTS = {
   maxUploadBytes: 10_485_760,
   allowedMimeTypes: [...NEWS_MEDIA_R2_DEFAULT_ALLOWED_MIME_TYPES] as string[],
   pendingTtlMinutes: 60,
-  orphanGraceDays: NEWS_MEDIA_R2_MIN_ORPHAN_GRACE_DAYS
+  orphanGraceDays: NEWS_MEDIA_R2_MIN_ORPHAN_GRACE_DAYS,
+  imageResizingEnabled: false
 } as const;
 
 /**
@@ -162,6 +163,24 @@ export type NewsMediaR2Config = {
   pendingTtlMinutes: number;
   /** Grace period (days) between a media object becoming `orphaned` and `scripts/news-media-r2-reconcile.ts` (Issue #690) physically deleting its R2 object + soft-deleting its metadata row (`r2-backup-lifecycle.md` §3). Also reused as the age threshold (against the R2-reported `lastModified`) before that same job will physically delete an "orphan-in-R2" object (a bucket object with no matching metadata row at all — see that script's own header for why one config knob covers both cases). */
   orphanGraceDays: number;
+  /**
+   * Whether public image rendering may emit responsive `srcset` URLs that go
+   * through Cloudflare's on-the-fly image resizing (`/cdn-cgi/image/...`),
+   * ADR-0026 step 5b. Default `false`.
+   *
+   * Opt-in, and the flag alone is not enough — `/cdn-cgi/image/` is served by
+   * the Cloudflare ZONE that fronts the bucket, so it only works when
+   * `NEWS_MEDIA_R2_PUBLIC_BASE_URL` is a real custom domain on that zone (never
+   * the `r2.dev` default) AND the zone has Image Resizing turned on (a paid
+   * Cloudflare feature this repo cannot enable for the operator). Turning this
+   * on without both would emit `srcset` URLs that 404. `security:readiness`'s
+   * `checkNewsMediaR2ImageResizingSafe` flags exactly that combination so it is
+   * caught before go-live rather than in a browser.
+   *
+   * When `false` (or ineligible), public images render with their original URL
+   * and no `srcset` — the pre-5b behavior, byte-for-byte.
+   */
+  imageResizingEnabled: boolean;
 };
 
 function isSet(value: string | undefined): boolean {
@@ -228,7 +247,11 @@ export function resolveNewsMediaR2Config(
       NEWS_MEDIA_R2_DEFAULTS.pendingTtlMinutes,
     orphanGraceDays:
       parsePositiveInt(env.NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS) ??
-      NEWS_MEDIA_R2_DEFAULTS.orphanGraceDays
+      NEWS_MEDIA_R2_DEFAULTS.orphanGraceDays,
+    imageResizingEnabled: parseBoolean(
+      env.NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED,
+      NEWS_MEDIA_R2_DEFAULTS.imageResizingEnabled
+    )
   };
 }
 

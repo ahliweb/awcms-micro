@@ -1550,6 +1550,17 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     description:
       "Grace period (days) before bun run news-media:reconcile (Issue #690) physically deletes a grace-period-expired orphaned media object's R2 object + soft-deletes its metadata row. Minimum 30 days (r2-backup-lifecycle.md §3), enforced by config:validate."
   },
+  {
+    name: "NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED",
+    type: "boolean",
+    required: "optional",
+    ownerModule: "news-portal",
+    sensitivity: "non-secret",
+    profiles: ONLINE_PROFILES,
+    default: "false",
+    description:
+      "Opt-in: emit responsive srcset URLs via Cloudflare on-the-fly image resizing (/cdn-cgi/image/...), ADR-0026 step 5b. Only works when NEWS_MEDIA_R2_PUBLIC_BASE_URL is a real custom domain on the Cloudflare zone with Image Resizing enabled; security:readiness (checkNewsMediaR2ImageResizingSafe) warns when the base URL cannot serve it."
+  },
 
   // ---------------------------------------------------------------------
   // News portal — public social share buttons (Issue #642)

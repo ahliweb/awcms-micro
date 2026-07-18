@@ -86,7 +86,8 @@ const MEDIA_CONFIG: NewsMediaR2Config = {
   maxUploadBytes: 10_485_760,
   allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
   pendingTtlMinutes: 60,
-  orphanGraceDays: 30
+  orphanGraceDays: 30,
+  imageResizingEnabled: false
 };
 
 type Bootstrap = { tenantId: string; token: string; tenantUserId: string };

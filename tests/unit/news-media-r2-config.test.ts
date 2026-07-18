@@ -51,7 +51,8 @@ describe("resolveNewsMediaR2Config", () => {
       NEWS_MEDIA_R2_MAX_UPLOAD_BYTES: "2048",
       NEWS_MEDIA_R2_ALLOWED_MIME_TYPES: "image/jpeg, image/png",
       NEWS_MEDIA_R2_PENDING_TTL_MINUTES: "15",
-      NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS: "45"
+      NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS: "45",
+      NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED: "true"
     } as NodeJS.ProcessEnv);
 
     expect(config).toEqual({
@@ -65,8 +66,16 @@ describe("resolveNewsMediaR2Config", () => {
       maxUploadBytes: 2048,
       allowedMimeTypes: ["image/jpeg", "image/png"],
       pendingTtlMinutes: 15,
-      orphanGraceDays: 45
+      orphanGraceDays: 45,
+      imageResizingEnabled: true
     });
+  });
+
+  test("imageResizingEnabled defaults off (ADR-0026 step 5b) — an existing deployment never opts in on upgrade", () => {
+    const config = resolveNewsMediaR2Config({
+      NEWS_MEDIA_R2_ENABLED: "true"
+    } as NodeJS.ProcessEnv);
+    expect(config.imageResizingEnabled).toBe(false);
   });
 
   test("falls back to defaults for malformed numeric values", () => {

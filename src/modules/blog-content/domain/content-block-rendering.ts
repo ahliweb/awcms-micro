@@ -12,6 +12,10 @@ import {
   renderVideoNewsBlockHtml,
   type VideoNewsBlockItem
 } from "../../_shared/rendering/video-news-block-renderer";
+import {
+  NO_RESPONSIVE_IMAGE_TRANSFORM,
+  type ResponsiveImageTransform
+} from "../../_shared/rendering/responsive-image";
 
 /**
  * Safe, whitelist-based renderer for `content_json` (Issue #540 §Content
@@ -116,7 +120,8 @@ function renderQuote(text: unknown): string | null {
 
 function renderBlock(
   block: unknown,
-  resolvedMediaUrls: ResolvedGalleryMediaUrls
+  resolvedMediaUrls: ResolvedGalleryMediaUrls,
+  imageTransform: ResponsiveImageTransform
 ): string | null {
   if (!isRecord(block)) {
     return null;
@@ -132,8 +137,15 @@ function renderBlock(
     case "quote":
       return renderQuote(block.text);
     case "gallery":
-      return renderGalleryBlockHtml(block.items, resolvedMediaUrls);
+      return renderGalleryBlockHtml(
+        block.items,
+        resolvedMediaUrls,
+        imageTransform
+      );
     case "video_news":
+      // No `srcset` for a video's poster/thumbnail — the responsive story is for
+      // the LCP-critical content images, and a video block leads with a
+      // `<video>` element, not an `<img>` in the render path resizing targets.
       return renderVideoNewsBlockHtml(block, resolvedMediaUrls);
     default:
       return null;
@@ -156,7 +168,8 @@ const EMPTY_RESOLVED_MEDIA_URLS: ResolvedGalleryMediaUrls = new Map();
  */
 export function renderContentJsonToHtml(
   contentJson: Record<string, unknown>,
-  resolvedMediaUrls: ResolvedGalleryMediaUrls = EMPTY_RESOLVED_MEDIA_URLS
+  resolvedMediaUrls: ResolvedGalleryMediaUrls = EMPTY_RESOLVED_MEDIA_URLS,
+  imageTransform: ResponsiveImageTransform = NO_RESPONSIVE_IMAGE_TRANSFORM
 ): string {
   const blocks = contentJson.blocks;
 
@@ -165,7 +178,7 @@ export function renderContentJsonToHtml(
   }
 
   return blocks
-    .map((block) => renderBlock(block, resolvedMediaUrls))
+    .map((block) => renderBlock(block, resolvedMediaUrls, imageTransform))
     .filter((html): html is string => html !== null)
     .join("\n");
 }
