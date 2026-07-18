@@ -3,7 +3,7 @@
 - **Status:** Accepted
 - **Tanggal:** 2026-07-07
 - **Pengambil keputusan:** <maintainer>
-- **Terkait:** `docs/awcms-micro/15_frontend_architecture_integration.md`, `docs/awcms-micro/16_backend_data_access_integration.md`, `docs/awcms-micro/18_configuration_env_reference.md` §Topologi deployment LAN-first, Issue #540 (epic #536, `blog_content`), ADR-0003
+- **Terkait:** `docs/awcms-micro/15_frontend_architecture_integration.md`, `docs/awcms-micro/16_backend_data_access_integration.md`, `docs/awcms-micro/18_configuration_env_reference.md` §Topologi deployment full-online single-host, Issue #540 (epic #536, `blog_content`), ADR-0003
 
 ## Konteks
 

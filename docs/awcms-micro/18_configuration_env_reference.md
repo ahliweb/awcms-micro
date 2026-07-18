@@ -8,6 +8,17 @@ Dokumen ini melengkapi referensi konfigurasi lengkap AWCMS-Micro: seluruh enviro
 
 Terkait: `11_implementation_blueprint.md` (skeleton), `15/16` (FE/BE), `07_sprint_testing_production_readiness.md` (deployment).
 
+> **Catatan scope (ADR-0027 vs frasa warisan).** Model deployment/storage
+> kanonik AWCMS-Micro adalah **full-online** — profil/terminologi resmi ada
+> di kode `src/lib/deployment/storage-profile.ts`
+> (`FullOnlineDeploymentProfile`) dan ADR-0027. Beberapa subbagian fitur di
+> dokumen ini masih memakai frasa warisan **"offline/LAN"** sebagai singkatan
+> "deployment/rute/job yang tidak butuh internet untuk operasi ITU" (mis.
+> default routing publik legacy, purge lokal), **bukan** klaim mode operasi
+> offline-first untuk website base. Pembersihan tuntas frasa warisan ini
+> masuk scope #263 (cleanup dokumentasi); baca frasa demikian sampai itu
+> selesai.
+
 ## Prinsip konfigurasi
 
 1. Semua secret hanya dari **environment**, tidak pernah di kode/commit.
@@ -435,7 +446,7 @@ menangkap body chunked/tanpa `Content-Length`, hanya yang
 dideklarasikan). `deploy/nginx/awcms-micro.conf.example`'s
 `client_max_body_size 10m` diselaraskan dengan plafon keras yang sama
 — defense-in-depth di lapisan proxy, bukan satu-satunya perlindungan
-(doc 18 §Topologi deployment LAN-first: banyak deployment jalan tanpa
+(doc 18 §Topologi deployment full-online single-host: banyak deployment jalan tanpa
 nginx sama sekali).
 
 ### Sync & node

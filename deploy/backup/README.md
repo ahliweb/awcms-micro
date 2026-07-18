@@ -1,7 +1,7 @@
 # deploy/backup — PostgreSQL backup & restore
 
 Issue 12.2 (doc 07 §"Backup SOP ringkas" / "Restore SOP ringkas", doc 18
-§Topologi deployment LAN-first, skill `awcms-micro-production-preflight`
+§Topologi deployment full-online single-host, skill `awcms-micro-production-preflight`
 §"Backup & restore"), hardened by Issue #691 (epic #679
 platform-hardening): encrypted backups, a signed manifest, checksum
 verification before any restore mutation, credential-safe invocation,
