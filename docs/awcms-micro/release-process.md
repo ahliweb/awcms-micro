@@ -87,6 +87,18 @@ Two entry points, both converging on the same job graph:
    `scripts/release-verify.ts`) — confirms the pushed tag's version
    matches `package.json`, that `CHANGELOG.md` has a `## [X.Y.Z]` section
    for it, and that no changeset files remain unconsumed in `.changeset/`.
+   The bracketed heading is written automatically: `bun run
+changeset:version` chains `scripts/changelog-heading-brackets.ts` after
+   `changeset version`, because `@changesets/cli` itself always emits a
+   bare `## X.Y.Z` heading (the `changelog` entry in
+   `.changeset/config.json` only shapes each entry's bullet body, not the
+   heading) — running `changeset version` directly, bypassing the `bun
+run` script, skips this and will fail this check at tag-push time. This
+   is exactly what happened to `v0.3.0`, the first real tag-push release
+   ever attempted for this repo (2026-07-18): nothing in the pipeline had
+   ever exercised this path before, so the mismatch went undetected until
+   the checked commit reached a real tag push. See §Rollback below for
+   what recovering from that looked like in practice.
 3. **`bun run check`** (against a real, migrated Postgres service) — the
    full quality gate, re-verified at release time rather than trusted from
    a possibly-stale CI run. This is **stricter** than `ci.yml`'s own
@@ -300,6 +312,23 @@ bad release:
    version's **digest** (`ghcr.io/ahliweb/awcms-micro@sha256:...`, from
    `CHECKSUMS.txt` or `docker buildx imagetools inspect`), not a floating
    tag, to guarantee the exact fixed bytes are what actually runs.
+
+**Exception: a `validate`-job failure never published anything.** The
+guidance above (steps 1-4) is for a release that reached the `build`/
+`sign-attest-publish` jobs — i.e. an image, SBOM, or GitHub Release
+actually exists somewhere. If the tag failed at the `validate` job
+(ancestor guard, `release:verify`, or `bun run check`), `gh release view
+vX.Y.Z` will report "release not found" and no `ghcr.io` tag was pushed —
+there is nothing for a consumer to have pulled. The git tag object itself
+still exists (a tag, unlike a release/image, cannot be scoped to "only
+after validate passes"), but is otherwise inert. Rule 1 ("do not delete
+the git tag") still applies — leave it in place rather than force-pushing
+a corrected tag over it — but there is no step 2 (nothing to mark
+pre-release) or step 4 (nothing deployed) to do; only step 3 applies: cut
+`vX.Y.Z+1` with the fix. This is what happened with `v0.3.0` (2026-07-18,
+the CHANGELOG-heading-format bug described in §2 above): it failed at
+`release:verify`, before the `build` job ran, so `v0.3.1` shipped the fix
+with `v0.3.0`'s tag simply left as an inert marker in tag history.
 
 ## Lihat juga
 
