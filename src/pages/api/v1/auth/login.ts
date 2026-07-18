@@ -3,7 +3,7 @@ import { fail, ok } from "../../../../modules/_shared/api-response";
 import { evaluateLoginAttempt } from "../../../../modules/identity-access/domain/login-policy";
 import { getDatabaseClient } from "../../../../lib/database/client";
 import { withTenant } from "../../../../lib/database/tenant-context";
-import { verifyPassword } from "../../../../lib/auth/password";
+import { verifyPasswordOrDummy } from "../../../../lib/auth/password";
 import {
   generateSessionToken,
   hashSessionToken
@@ -159,9 +159,15 @@ export const POST: APIRoute = async ({
         }
       | undefined;
 
-    const passwordMatches = identityRow
-      ? await verifyPassword(password, identityRow.password_hash)
-      : false;
+    // Always pays the argon2id verify, even when no identity resolved (ported
+    // from the awcms-mini base standard, Issue #840). Skipping it for an
+    // unknown identifier answered in ~4 ms vs ~80 ms for a known one, a ~19x
+    // timing oracle that enumerated accounts in a single request regardless of
+    // how uniform the response bodies below are. See `verifyPasswordOrDummy`.
+    const passwordMatches = await verifyPasswordOrDummy(
+      password,
+      identityRow?.password_hash ?? null
+    );
 
     let tenantUserStatus: "active" | "inactive" | null = null;
 
