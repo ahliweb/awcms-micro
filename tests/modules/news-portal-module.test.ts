@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import { getModuleByKey, listModules } from "../../src/modules";
 import { newsPortalModule } from "../../src/modules/news-portal/module";
-import { MEDIA_PERMISSIONS } from "../../src/modules/media-library/domain/media-permissions";
 
 describe("news_portal module descriptor (Issue #632, extended #634)", () => {
   test("listModules() includes news_portal", () => {
