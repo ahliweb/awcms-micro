@@ -74,13 +74,15 @@ Two entry points, both converging on the same job graph:
 ### `validate` job (read-only)
 
 1. **Ancestor-of-main guard** (real release only) — `git merge-base
---is-ancestor HEAD origin/main`. This repo has **no branch protection
-   rule** on `main` today (`gh api repos/ahliweb/awcms-micro/branches/main/protection`
-   → 404, see [`branch-protection.md`](branch-protection.md)) — configuring
-   one is a repo-admin, shared-state action out of this issue's scope to
-   apply itself. This guard is the workflow-level substitute for "publish
-   only from a protected branch": a tag whose commit isn't part of
-   `origin/main`'s history is refused before anything is built.
+--is-ancestor HEAD origin/main`. `main` **is now branch-protected** (as of
+   2026-07-17, see [`branch-protection.md`](branch-protection.md) §Status:
+   APPLIED — six required status checks, `strict: true`,
+   `enforce_admins: true`), so a tag's underlying commit already had to
+   pass through a protected-branch PR merge. This guard stays as
+   defense-in-depth against tagging a stray unmerged commit (e.g. a local
+   branch never pushed through a PR): a tag whose commit isn't part of
+   `origin/main`'s history is refused before anything is built, regardless
+   of branch-protection state.
 2. **`bun run release:verify`** (real release only,
    `scripts/release-verify.ts`) — confirms the pushed tag's version
    matches `package.json`, that `CHANGELOG.md` has a `## [X.Y.Z]` section
@@ -89,7 +91,7 @@ Two entry points, both converging on the same job graph:
    full quality gate, re-verified at release time rather than trusted from
    a possibly-stale CI run. This is **stricter** than `ci.yml`'s own
    `quality` job, not identical to it: `ci.yml`'s `quality` job does not
-   currently run five of the thirteen steps `bun run check` runs —
+   currently run five of the twenty steps `bun run check` runs —
    `i18n:pot:check`, `config:docs:check`, and `logging:lint:check`
    (reviewer finding on PR #715), plus `api:docs:check` and
    `repo:inventory:check` (same category of gap, confirmed directly
@@ -304,10 +306,10 @@ bad release:
 - [`09_roadmap_repository_commit.md`](09_roadmap_repository_commit.md) —
   SemVer policy and the Changesets flow this pipeline automates.
 - [`branch-protection.md`](branch-protection.md) — required status
-  checks and why `main` has no branch protection rule today; this
-  document's ancestor-of-main guard and environment-approval step follow
-  the same "document the manual admin step, don't apply it ourselves"
-  pattern.
+  checks now enforced on `main` (applied 2026-07-17); this document's
+  ancestor-of-main guard and environment-approval step follow the same
+  "document the manual admin step, don't apply it ourselves" pattern that
+  applied before that.
 - [`production-preflight-runbook.md`](production-preflight-runbook.md) —
   the equivalent gated-apply pattern (`--apply-migrations`/
   `--backup-verified`/`--acknowledge-target`) this pipeline's

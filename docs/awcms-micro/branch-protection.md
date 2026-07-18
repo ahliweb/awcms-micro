@@ -91,25 +91,40 @@ check requirement this doc is about.)
 
 ## Why `bun run check` and CI must stay the same source of truth
 
-`package.json`'s `check` script runs **13** steps in order: `lint`,
+`package.json`'s `check` script runs **20** steps in order: `lint`,
 `check:docs`, `api:spec:check`, `api:docs:check`, `repo:inventory:check`,
-`modules:dag:check`, `i18n:pot:check`, `i18n:parity:check`,
-`config:docs:check`, `logging:lint:check`, `typecheck`, `test`, `build`.
+`modules:dag:check`, `modules:compose:check`,
+`modules:composition:inventory:check`, `extension:check`,
+`data-lifecycle:registry:check`, `reporting:projections:registry:check`,
+`identity-access:sod-registry:check`, `i18n:pot:check`,
+`i18n:parity:check`, `config:docs:check`, `logging:lint:check`,
+`db:work-class:check`, `typecheck`, `test`, `build`.
 
 `.github/workflows/ci.yml`'s `quality` job (verified directly against the
-workflow file) currently runs only **8** of those 13, as named steps in
-this order: `lint` ("Prettier check"), `check:docs` ("Docs checks"),
+workflow file) currently runs **15** of those 20, as named steps in this
+order: `lint` ("Prettier check"), `check:docs` ("Docs checks"),
 `api:spec:check` ("API spec + route + AsyncAPI contract check"),
-`modules:dag:check` ("Module dependency graph check"), `i18n:parity:check`
-("i18n EN/ID/POT key parity check"), `typecheck`, `test` (as `bun test`,
-after a separate `db:migrate` setup step), and `build` ("Build Astro
-foundation") — plus a DR/resilience-drill step that isn't part of `bun run
-check` at all. Before Issue #685, CI silently ran a subset of `check`
+`modules:dag:check` ("Module dependency graph check"),
+`modules:compose:check` ("Module composition validation check"),
+`modules:composition:inventory:check` ("Module composition inventory
+freshness check"), `extension:check` ("Extension compatibility manifest
+check"), `i18n:parity:check` ("i18n EN/ID/POT key parity check"),
+`db:work-class:check` ("Database work-class registry drift check"),
+`data-lifecycle:registry:check` ("Data lifecycle high-volume table
+registry validation check"), `identity-access:sod-registry:check`
+("Business-scope SoD rule registry validation check"),
+`reporting:projections:registry:check` ("Reporting projection registry
+validation check"), `typecheck`, `test` (as `bun test`, after a separate
+`db:migrate` setup step), and `build` ("Build Astro foundation") — plus a
+DR/resilience-drill and a performance-suite step that aren't part of `bun
+run check` at all. Before Issue #685, CI silently ran a subset of `check`
 missing `api:spec:check` and `modules:dag:check` entirely; Issue #685
-closed that gap for those two, but **5 steps still only run in
-`release.yml`**, not in `ci.yml`'s `quality` job: `api:docs:check`,
+closed that gap for those two, and later issues added the module-
+composition/extension/registry gates to both `check` and `ci.yml` in
+lockstep, but **5 steps still only run in `release.yml`**, not in
+`ci.yml`'s `quality` job: `api:docs:check`,
 `repo:inventory:check`, `i18n:pot:check`, `config:docs:check`, and
-`logging:lint:check` — all 13 run there via one "Full quality gate (`bun
+`logging:lint:check` — all 20 run there via one "Full quality gate (`bun
 run check`)" step against a real, migrated Postgres service (reviewer
 finding on PR #715 originally flagged the last three of these five; see
 [`release-process.md`](release-process.md) §3 for the full context).

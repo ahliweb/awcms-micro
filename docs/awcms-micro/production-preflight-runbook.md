@@ -21,14 +21,17 @@ mutates its target even when it blocks go-live is not safe to run
 repeatedly, which defeats the point of a preflight.
 
 `bun run production:preflight` is now **read-only by default**. It runs
-nine stages (`config:validate`, `security:readiness`, `database:capacity`
+eleven stages (`config:validate`, `security:readiness`, `database:capacity`
 — Issue #743, epic #738 platform-evolution, deployment-aware connection-
 capacity budget check, see
 [`database-capacity-runbook.md`](database-capacity-runbook.md) —
-`db:connectivity`, `api:spec:check`, `test`, `build`, `db:pool:health`,
-`migration:plan`) and reports a go/no-go verdict — none of them write to
-the database. Applying pending migrations is a separate, explicit, gated
-action.
+`db:connectivity`, `api:spec:check`, `modules:compose:check` — Issue #740,
+epic #738, a derived repository's build-time module composition validated
+before its own production deploy — `extension:check` — Issue #741, epic
+#738, same reasoning as `modules:compose:check` — `test`, `build`,
+`db:pool:health`, `migration:plan`) and reports a go/no-go verdict — none of
+them write to the database. Applying pending migrations is a separate,
+explicit, gated action.
 
 ## Stage 1 — Rehearsal (staging, always first)
 
@@ -143,7 +146,7 @@ APP_ENV=production DATABASE_URL=<production-url> bun run production:preflight \
 
 All three flags are required together (`authorizeApply` in
 `scripts/production-preflight.ts` refuses otherwise, and refuses
-unconditionally if any of the eight read-only stages failed or was
+unconditionally if any of the eleven read-only stages failed or was
 blocked — no flag combination overrides a failed quality gate).
 `--acknowledge-target` must match `APP_ENV` **exactly** — this is a
 deliberate typo-catcher: running this command in the wrong shell (wrong

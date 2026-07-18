@@ -33,11 +33,11 @@ and the standalone `bun run database:capacity:check`.
 
 ## Process class inventory
 
-| Class    | What it is                                                        | Role                 | Connection string     |
-| -------- | ----------------------------------------------------------------- | -------------------- | --------------------- |
-| `app`    | Every web/SSR instance (`bun run start`/`preview`/`dev`)          | `awcms_micro_app`    | `DATABASE_URL`        |
-| `worker` | The 9 unattended background scripts (`getWorkerDatabaseClient()`) | `awcms_micro_worker` | `WORKER_DATABASE_URL` |
-| `setup`  | `POST /api/v1/setup/initialize` only (one-time wizard)            | `awcms_micro_setup`  | `SETUP_DATABASE_URL`  |
+| Class    | What it is                                                                                                                                                                  | Role                 | Connection string     |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------- |
+| `app`    | Every web/SSR instance (`bun run start`/`preview`/`dev`)                                                                                                                    | `awcms_micro_app`    | `DATABASE_URL`        |
+| `worker` | The unattended background scripts (`getWorkerDatabaseClient()`) — count grows with new modules, see `docs/awcms-micro/work-class-registry.generated.json` for the live list | `awcms_micro_worker` | `WORKER_DATABASE_URL` |
+| `setup`  | `POST /api/v1/setup/initialize` only (one-time wizard)                                                                                                                      | `awcms_micro_setup`  | `SETUP_DATABASE_URL`  |
 
 **`DATABASE_CAPACITY_WORKER_INSTANCES_MAX`'s default (1) is narrower than
 it looks.** It only accounts for one instance of the SAME job NAME running
@@ -237,7 +237,7 @@ bounded by a different, already-existing mechanism —
 `src/lib/jobs/job-runner.ts`'s Postgres advisory lock ensures at most ONE
 instance of a given job NAME runs cluster-wide at a time, which is the
 dominant connection-storm risk for scheduled jobs (an overlapping re-run of
-the SAME job). Retrofitting all 9 worker scripts onto the work-class gate
+the SAME job). Retrofitting all worker scripts onto the work-class gate
 itself is a reasonable follow-up, out of this issue's atomic scope.
 
 ## CI drift gate — work-class registry

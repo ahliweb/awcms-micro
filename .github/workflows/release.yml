@@ -80,15 +80,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # "Publish only from protected tags/branches" (issue scope): this repo
-      # has no branch-protection rule configured today (confirmed via
-      # `gh api repos/ahliweb/awcms-micro/branches/main/protection` → 404,
-      # see docs/awcms-micro/branch-protection.md) — a repo-admin action out
-      # of scope for this issue to apply itself. This is the workflow-level
-      # substitute: a tag whose commit is not (yet) part of `origin/main`'s
-      # history is refused outright, so a release can never be cut from a
-      # stray/unmerged branch even without an admin-configured protection
-      # rule. Only meaningful for a real tag push, not the rehearsal path.
+      # "Publish only from protected tags/branches" (issue scope): `main` IS
+      # branch-protected now (as of 2026-07-17, 6 required checks +
+      # enforce_admins, see docs/awcms-micro/branch-protection.md §Status),
+      # so this guard is a second, independent layer rather than the sole
+      # substitute it originally was — protection governs what may LAND on
+      # main, while this guard governs what a TAG may point at. A tag can be
+      # pushed to any commit, protected branch or not, so this stays
+      # load-bearing regardless: a tag whose commit is not part of
+      # `origin/main`'s history is refused outright, so a release can never
+      # be cut from a stray/unmerged branch. Only meaningful for a real tag
+      # push, not the rehearsal path.
       - name: "Guard: release tag must be an ancestor of origin/main"
         if: github.event_name == 'push'
         run: |
