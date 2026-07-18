@@ -2034,6 +2034,70 @@ export function checkNewsMediaR2DocumentTypesOptIn(
 }
 
 /**
+ * Warning (not critical): flags `NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED=true` on a
+ * deployment whose public base URL cannot serve `/cdn-cgi/image/...` (ADR-0026
+ * step 5b).
+ *
+ * Cloudflare on-the-fly resizing is served by the ZONE that fronts the bucket,
+ * so it only works when `NEWS_MEDIA_R2_PUBLIC_BASE_URL` is a real custom domain
+ * on that zone with Image Resizing enabled — never the `r2.dev` default (not on
+ * a zone the operator controls) or a loopback host. With the flag on but the
+ * base URL unable to support it, public pages would emit `srcset` URLs that 404,
+ * degrading the exact images the feature exists to speed up.
+ *
+ * This checks what it CAN prove from config (the base URL is unsuitable). It
+ * cannot prove the zone actually has Image Resizing turned on — that is a
+ * Cloudflare dashboard fact outside this repo — so a passing check still asks
+ * the operator to confirm the feature is enabled. Not gated on `APP_ENV`: a
+ * broken `srcset` in staging is still worth surfacing, and the whole feature is
+ * opt-in, so any deployment that turned it on meant to.
+ */
+export function checkNewsMediaR2ImageResizingSafe(
+  env: NodeJS.ProcessEnv = process.env
+): SecurityCheckResult {
+  const name = "News media R2 image resizing base URL can serve /cdn-cgi/image";
+  const severity: CheckSeverity = "warning";
+
+  const config = resolveNewsMediaR2Config(env);
+
+  if (!config.enabled || !config.imageResizingEnabled) {
+    return {
+      name,
+      severity,
+      status: "pass",
+      evidence:
+        "NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED is not in effect (resizing off or R2 disabled) — no /cdn-cgi/image URLs are emitted."
+    };
+  }
+
+  const reason = findNewsMediaR2PublicBaseUrlProductionUnsafeReason(
+    config.publicBaseUrl
+  );
+
+  if (reason !== null) {
+    return {
+      name,
+      severity,
+      status: "fail",
+      evidence: `NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED=true but NEWS_MEDIA_R2_PUBLIC_BASE_URL cannot serve /cdn-cgi/image (${reason}) — public pages will emit srcset URLs that 404. Use a custom domain on the Cloudflare zone, or turn resizing off.`
+    };
+  }
+
+  // A deliberate `fail`-as-reminder (warning severity), the same shape
+  // `checkNewsMediaR2DocumentTypesOptIn` uses: an opt-in that only works with an
+  // out-of-band step (here, the zone's Image Resizing toggle, which this check
+  // cannot read) should stay visible on the go-live board until a human confirms
+  // that step, not pass silently on config alone.
+  return {
+    name,
+    severity,
+    status: "fail",
+    evidence:
+      "NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED=true with a custom-domain base URL. Confirm the Cloudflare zone actually has Image Resizing turned on (a dashboard setting this check cannot verify) — otherwise the emitted /cdn-cgi/image srcset URLs will 404."
+  };
+}
+
+/**
  * Issue #635, architecture doc §11: production must use a real custom
  * domain for `NEWS_MEDIA_R2_PUBLIC_BASE_URL`, never the `r2.dev` default
  * (unstable for production, no caching/branding control) or a loopback
@@ -2766,6 +2830,7 @@ export async function runSecurityReadinessChecks(): Promise<
     checkNewsPortalFullOnlineR2PresetReady(),
     checkNewsMediaR2SvgNotAllowed(),
     checkNewsMediaR2DocumentTypesOptIn(),
+    checkNewsMediaR2ImageResizingSafe(),
     checkNewsMediaR2PublicBaseUrlProductionSafe(),
     await checkNewsMediaR2NoStalePendingObjects(),
     await checkSocialPublishingProviderReadiness(),

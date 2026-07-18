@@ -82,7 +82,7 @@ Diverifikasi belum ada di kode hari ini:
    → **3–4 dikerjakan sebagai SATU langkah (selesai)** — lihat koreksi di bawah.
 5. Tambah preset/endpoint penyalaan, varian gambar, tipe non-gambar, dan admin media browser (§4).
    - **5a. Endpoint penyalaan enforcement (selesai)** — `GET`/`POST /api/v1/media/enforcement`, `sql/079`. Melunasi utang yang dicatat langkah 3–4: situs brosur kini punya tombolnya, bukan hanya kapabilitasnya.
-   - 5b. Varian gambar/`srcset` — belum.
+   - **5b. Varian gambar/`srcset` (selesai)** — `srcset` responsif dihitung murni saat render lewat Cloudflare on-the-fly image resizing (`/cdn-cgi/image/...`), bukan job transcode/objek varian tersimpan. Opt-in `NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED`; `security:readiness` memperingatkan bila menyala tapi base URL tak bisa melayaninya. Lihat koreksi di bawah.
    - **5c. Tipe media non-gambar (selesai)** — `application/pdf`, dikenali sniffer, opt-in operator.
    - **5d. Admin media browser (selesai)** — `/admin/media`. Permukaan UI pertama modul ini; entry `navigation` pertamanya juga.
 
@@ -168,7 +168,7 @@ Ini **bukan** penghalang yang dirobohkan ADR-0026. Yang itu menuntut menyalakan 
 
 Dicatat juga: `checkNewsMediaR2SvgNotAllowed` tidak pernah punya unit test sejak Issue #635. Sekarang punya, berdampingan dengan yang baru — keduanya mirip bentuk tapi berlawanan makna (yang satu memperingatkan konfigurasi yang tidak bekerja, yang lain memperingatkan konfigurasi yang bekerja).
 
-**Utang yang benar-benar tersisa:** 5b (varian gambar/`srcset`). Satu fitur tersendiri, bukan pelunasan utang.
+**Utang setelah 5a/5c/5d:** tidak ada. Yang tersisa saat itu hanya 5b (varian gambar/`srcset`) — satu fitur tersendiri, bukan pelunasan utang, dan kini **selesai** lewat jalur Cloudflare image resizing (lihat langkah 5b di atas).
 
 ## Alternatif yang ditolak
 

@@ -27,6 +27,10 @@
  * coupling problem instead of removing it.
  */
 import { escapeHtml } from "../../../lib/html/escape";
+import {
+  NO_RESPONSIVE_IMAGE_TRANSFORM,
+  type ResponsiveImageTransform
+} from "./responsive-image";
 
 function isAbsoluteHttpUrl(value: string): boolean {
   try {
@@ -51,7 +55,8 @@ export type ResolvedGalleryMediaUrls = ReadonlyMap<string, string>;
 
 function renderGalleryBlockItem(
   item: unknown,
-  resolvedMediaUrls: ResolvedGalleryMediaUrls
+  resolvedMediaUrls: ResolvedGalleryMediaUrls,
+  imageTransform: ResponsiveImageTransform
 ): string | null {
   if (typeof item !== "object" || item === null || Array.isArray(item)) {
     return null;
@@ -80,25 +85,51 @@ function renderGalleryBlockItem(
     typeof record.caption === "string" && record.caption.trim().length > 0
       ? `<figcaption>${escapeHtml(record.caption)}</figcaption>`
       : "";
-  const media =
-    record.mediaType === "image"
-      ? `<img src="${url}" alt="${caption ? escapeHtml(record.caption as string) : ""}">`
-      : `<video src="${url}" controls></video>`;
+
+  let media: string;
+  if (record.mediaType === "image") {
+    const alt = caption ? escapeHtml(record.caption as string) : "";
+    // ADR-0026 step 5b — `srcset` is additive: `src` stays the original URL so
+    // the image still loads with resizing disabled at the edge or on a browser
+    // ignoring `srcset`. The transform returns null (no `srcset`) for every
+    // ineligible URL — external `url`-based items, non-raster/`.gif`, or a
+    // deployment with resizing off — so this line is identical to pre-5b output
+    // in all of those cases.
+    const responsive = imageTransform(resolvedUrl);
+    const responsiveAttrs = responsive
+      ? ` srcset="${escapeHtml(responsive.srcset)}" sizes="${escapeHtml(responsive.sizes)}"`
+      : "";
+    media = `<img src="${url}" alt="${alt}"${responsiveAttrs}>`;
+  } else {
+    media = `<video src="${url}" controls></video>`;
+  }
 
   return `<figure>${media}${caption}</figure>`;
 }
 
-/** Renders a `<div class="gallery">` from a list of gallery items, or `null` if every item was malformed/unresolved (caller decides the empty-state fallback). */
+/**
+ * Renders a `<div class="gallery">` from a list of gallery items, or `null` if
+ * every item was malformed/unresolved (caller decides the empty-state fallback).
+ *
+ * `imageTransform` (ADR-0026 step 5b) is optional and defaults to
+ * `NO_RESPONSIVE_IMAGE_TRANSFORM` — every pre-5b caller omits it and gets
+ * byte-for-byte the same HTML. A public renderer that has resolved the media
+ * config passes `buildResponsiveImageTransform(config)` to opt eligible R2 image
+ * URLs into a Cloudflare `srcset`.
+ */
 export function renderGalleryBlockHtml(
   items: unknown,
-  resolvedMediaUrls: ResolvedGalleryMediaUrls
+  resolvedMediaUrls: ResolvedGalleryMediaUrls,
+  imageTransform: ResponsiveImageTransform = NO_RESPONSIVE_IMAGE_TRANSFORM
 ): string | null {
   if (!Array.isArray(items) || items.length === 0) {
     return null;
   }
 
   const rendered = items
-    .map((item) => renderGalleryBlockItem(item, resolvedMediaUrls))
+    .map((item) =>
+      renderGalleryBlockItem(item, resolvedMediaUrls, imageTransform)
+    )
     .filter((html): html is string => html !== null);
 
   if (rendered.length === 0) {

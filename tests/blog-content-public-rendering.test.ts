@@ -20,6 +20,7 @@ import {
   renderPublicPageShell
 } from "../src/modules/blog-content/domain/public-page-rendering";
 import { escapeHtml } from "../src/lib/html/escape";
+import { buildResponsiveImageTransform } from "../src/modules/_shared/rendering/responsive-image";
 
 describe("escapeHtml", () => {
   test("escapes all five special characters", () => {
@@ -231,6 +232,71 @@ describe("renderContentJsonToHtml", () => {
     const html = renderContentJsonToHtml(contentJson, resolvedMediaUrls);
     expect(html).toContain('src="https://media.example.test/trusted.jpg"');
     expect(html).not.toContain("untrusted.example.com");
+  });
+
+  test("ADR-0026 step 5b: a supplied transform adds srcset/sizes to an eligible R2 gallery <img>, src unchanged", () => {
+    const base = "https://media.example.test";
+    const contentJson = {
+      blocks: [
+        {
+          type: "gallery",
+          items: [
+            {
+              mediaType: "image",
+              mediaObjectId: "11111111-1111-1111-1111-111111111111",
+              caption: "R2 image"
+            }
+          ]
+        }
+      ]
+    };
+    const resolvedMediaUrls = new Map([
+      [
+        "11111111-1111-1111-1111-111111111111",
+        `${base}/news-media/tenant/2026/07/a.jpg`
+      ]
+    ]);
+
+    const html = renderContentJsonToHtml(
+      contentJson,
+      resolvedMediaUrls,
+      buildResponsiveImageTransform({ enabled: true, publicBaseUrl: base })
+    );
+
+    // src stays the original URL — srcset is purely additive.
+    expect(html).toContain(
+      `<img src="${base}/news-media/tenant/2026/07/a.jpg"`
+    );
+    expect(html).toContain(
+      "/cdn-cgi/image/width=320,format=auto,fit=scale-down/"
+    );
+    expect(html).toContain("srcset=");
+    expect(html).toContain('sizes="(max-width: 768px) 100vw, 768px"');
+  });
+
+  test("ADR-0026 step 5b: default (no transform) renders byte-for-byte the pre-5b gallery HTML — no srcset", () => {
+    const base = "https://media.example.test";
+    const contentJson = {
+      blocks: [
+        {
+          type: "gallery",
+          items: [
+            {
+              mediaType: "image",
+              mediaObjectId: "11111111-1111-1111-1111-111111111111"
+            }
+          ]
+        }
+      ]
+    };
+    const resolvedMediaUrls = new Map([
+      ["11111111-1111-1111-1111-111111111111", `${base}/news-media/t/a.jpg`]
+    ]);
+
+    const html = renderContentJsonToHtml(contentJson, resolvedMediaUrls);
+    expect(html).toContain(`<img src="${base}/news-media/t/a.jpg"`);
+    expect(html).not.toContain("srcset");
+    expect(html).not.toContain("/cdn-cgi/image/");
   });
 
   test("Issue #639: renders a video_news block as a safe youtube-nocookie.com iframe embed, never the raw stored fields", () => {

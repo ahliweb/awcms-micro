@@ -7,6 +7,7 @@ import {
   checkLoginLockoutImplemented,
   checkLoginRateLimitImplemented,
   checkNewsMediaR2DocumentTypesOptIn,
+  checkNewsMediaR2ImageResizingSafe,
   checkNewsMediaR2PublicBaseUrlProductionSafe,
   checkNewsMediaR2SvgNotAllowed,
   checkOnlineAuthSecurityReady,
@@ -675,5 +676,66 @@ describe("news media R2 MIME allow-list readiness checks (ADR-0026 step 5c)", ()
     };
     expect(checkNewsMediaR2SvgNotAllowed(env).status).toBe("pass");
     expect(checkNewsMediaR2DocumentTypesOptIn(env).status).toBe("fail");
+  });
+});
+
+/**
+ * ADR-0026 step 5b. A warning check with three outcomes, and — like the SVG/PDF
+ * pair above — a deliberate `fail`-as-reminder for the case config alone cannot
+ * clear: the flag can be on with a perfectly good base URL and the feature still
+ * dead, because the Cloudflare zone's Image Resizing toggle is a dashboard fact
+ * this check cannot read. So a custom-domain base URL does NOT pass silently; it
+ * stays on the go-live board until a human confirms the zone setting.
+ */
+describe("checkNewsMediaR2ImageResizingSafe (ADR-0026 step 5b)", () => {
+  const resizing = {
+    NEWS_MEDIA_R2_ENABLED: "true",
+    NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED: "true"
+  };
+
+  test("passes when resizing is off — the default, no /cdn-cgi/image URLs emitted", () => {
+    const result = checkNewsMediaR2ImageResizingSafe({
+      NEWS_MEDIA_R2_ENABLED: "true",
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "https://media.example.com"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("pass");
+    expect(result.severity).toBe("warning");
+  });
+
+  test("passes when R2 is disabled even if the resizing flag is set — the flag stays inert", () => {
+    const result = checkNewsMediaR2ImageResizingSafe({
+      NEWS_MEDIA_R2_ENABLED: "false",
+      NEWS_MEDIA_R2_IMAGE_RESIZING_ENABLED: "true",
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "https://media.example.com"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("pass");
+  });
+
+  test("fails when on with an r2.dev base URL — those srcset URLs would 404", () => {
+    const result = checkNewsMediaR2ImageResizingSafe({
+      ...resizing,
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "https://pub-abc123.r2.dev"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("fail");
+    expect(result.severity).toBe("warning");
+    expect(result.evidence).toContain("404");
+  });
+
+  test("fails when on with a loopback base URL — not a zone that can resize", () => {
+    const result = checkNewsMediaR2ImageResizingSafe({
+      ...resizing,
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "http://localhost:3000"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("fail");
+  });
+
+  test("still fails as a reminder with a custom domain — config cannot prove the zone toggle is on", () => {
+    const result = checkNewsMediaR2ImageResizingSafe({
+      ...resizing,
+      NEWS_MEDIA_R2_PUBLIC_BASE_URL: "https://media.example.com"
+    } as NodeJS.ProcessEnv);
+    expect(result.status).toBe("fail");
+    expect(result.severity).toBe("warning");
+    expect(result.evidence).toContain("Image Resizing");
   });
 });
