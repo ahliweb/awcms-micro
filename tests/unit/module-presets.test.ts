@@ -106,13 +106,14 @@ describe("MODULE_PRESETS / findModulePreset", () => {
     expect(findModulePreset("minimal")?.enabledModuleKeys).toEqual([]);
   });
 
-  test("news_portal_full_online_r2 (Issue #632) is a distinct preset from news_portal, listing blog_content/tenant_domain/visitor_analytics/module_management/identity_access/news_portal", () => {
+  test("news_portal_full_online_r2 (Issue #632) is a distinct preset from news_portal, listing blog_content/tenant_domain/media_library/visitor_analytics/module_management/identity_access/news_portal", () => {
     const preset = findModulePreset("news_portal_full_online_r2");
 
     expect(preset).not.toBeNull();
     expect(preset?.enabledModuleKeys).toEqual([
       "blog_content",
       "tenant_domain",
+      "media_library",
       "visitor_analytics",
       "module_management",
       "identity_access",
@@ -123,6 +124,23 @@ describe("MODULE_PRESETS / findModulePreset", () => {
     expect(findModulePreset("news_portal")?.enabledModuleKeys).not.toEqual(
       preset?.enabledModuleKeys
     );
+  });
+
+  test("every preset that enables blog_content or news_portal also enables media_library (ADR-0026 / Issue #264: managed media available without requiring news_portal)", () => {
+    // media_library is a non-protected System Foundation module, so a preset
+    // that lists a media CONSUMER (blog_content/news_portal) but omits
+    // media_library would DISABLE the registry for that tenant — the exact
+    // "website without media management" gap ADR-0026 closed. This mirrors the
+    // authoritative invariant enforced by
+    // `scripts/media-library-consistency-check.ts`.
+    for (const p of MODULE_PRESETS) {
+      const enablesConsumer =
+        p.enabledModuleKeys.includes("blog_content") ||
+        p.enabledModuleKeys.includes("news_portal");
+      if (enablesConsumer) {
+        expect(p.enabledModuleKeys).toContain("media_library");
+      }
+    }
   });
 });
 

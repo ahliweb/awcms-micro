@@ -105,9 +105,14 @@ dan tiga migrasi, jadi **bukan satu commit raksasa**.
 | 2   | Pindahkan registry/directory/upload-session ke sini + kepemilikan permission (`sql/077`)     | **selesai** |
 | 3+4 | Pecah kontrak port, rewire konsumen, pensiunkan `news_media`, lepas gate R2-only (`sql/078`) | **selesai** |
 | 5a  | Endpoint penyalaan enforcement (`/api/v1/media/enforcement`, `sql/079`) — satu arah          | **selesai** |
-| 5b  | Varian gambar/`srcset`                                                                       | belum       |
-| 5c  | Tipe media non-gambar                                                                        | belum       |
-| 5d  | Admin media browser                                                                          | belum       |
+| 5b  | Varian gambar/`srcset` (Cloudflare on-the-fly resizing, opt-in)                              | **selesai** |
+| 5c  | Tipe media non-gambar (`application/pdf`, opt-in)                                            | **selesai** |
+| 5d  | Admin media browser (`/admin/media`)                                                         | **selesai** |
+
+> **Semua langkah ADR-0026 selesai.** Langkah 1 mendaftarkan modul ini sebagai
+> `experimental` tanpa kode — itu **sejarah langkah 1 saja**, bukan status modul
+> sekarang. Statusnya kini `active` dan ia memiliki registry media penuh (lihat
+> banner status di atas dan `module.ts`).
 
 Langkah 3 dan 4 direncanakan terpisah tapi **dikerjakan sebagai satu** — koplingnya
 ada di kontrak port, sehingga langkah 3 sendirian hanya akan mengganti nama tanpa

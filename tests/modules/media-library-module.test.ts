@@ -48,6 +48,27 @@ describe("media_library module descriptor (ADR-0026 step 2)", () => {
     });
   });
 
+  test("owns the media-registry reconciliation job that moved off news_portal (ADR-0026 / Issue #264)", () => {
+    // The `news-media:reconcile` job reconciles `awcms_micro_news_media_objects`
+    // — this module's own registry — via this module's own code
+    // (`scripts/news-media-r2-reconcile.ts` imports only `media_library`). Issue
+    // #690 first declared it on `news_portal` (where the registry was born);
+    // ADR-0026 inverted ownership, so the declaration follows the table. The
+    // mirror-image assertion ("news_portal declares NO job") lives in
+    // `news-portal-module.test.ts`. The command name is kept (ADR-0026 §3).
+    expect(mediaLibraryModule.jobs).toEqual([
+      {
+        command: "bun run news-media:reconcile",
+        purpose:
+          "Reconcile awcms_micro_news_media_objects metadata against the real object-storage bucket contents; clean up expired pending uploads and grace-period-expired orphans in bounded, race-safe batches (dry-run supported).",
+        recommendedSchedule: "Daily via cron/systemd timer.",
+        environmentNotes:
+          'No-op when NEWS_MEDIA_R2_ENABLED is not "true". Requires real network egress to the object-storage (Cloudflare R2) API in addition to PostgreSQL — not a pure database operation.',
+        safeInOfflineLan: false
+      }
+    ]);
+  });
+
   test("every declared `media` permission reproduces exactly one MEDIA_PERMISSIONS constant — no invented, duplicated, or orphaned key", () => {
     const permissions = (mediaLibraryModule.permissions ?? []).filter(
       (p) => p.activityCode === MEDIA_PERMISSION_ACTIVITY_CODE

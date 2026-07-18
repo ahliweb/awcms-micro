@@ -510,7 +510,7 @@ capability relationship is also declared in `module.ts`'s
 `capabilities.consumes` (`organization_hierarchy_resolution`,
 `providedBy: "organization_structure"`, `optional: true`) for the
 module-composition validator (Issue #740), the same shape `blog_content`
-already declares for its own optional `news_media`/`social_publishing`
+already declares for its own optional `media_library`/`social_publishing`
 consumption — this is a documentation/build-time-validation entry, not the
 runtime wiring itself. **Scope note**: this wiring makes scope EXISTENCE/
 VALIDITY resolution real for `legal_entity`/`organization_unit`.

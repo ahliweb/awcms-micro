@@ -201,10 +201,12 @@ memblokir.
 
 ## 8. Gambar — R2-only, defense-in-depth di setiap adapter
 
-`social_publishing` mengonsumsi kapabilitas `news_media` milik
-`news_portal` (via `NewsMediaPort`, parameter opsional pada
+`social_publishing` mengonsumsi kapabilitas `media_library` milik
+`media_library` (via `MediaLibraryPort`, parameter opsional pada
 `createSocialPublishingPortAdapter`, **bukan** import langsung modul
-lain — pola port Issue #681) untuk resolusi gambar terverifikasi.
+lain — pola port Issue #681) untuk resolusi gambar terverifikasi. ADR-0026
+langkah 3–4 memindahkan ini dari kapabilitas `news_media` milik `news_portal`
+yang kini dipensiunkan.
 `content.imageUrl` pada snapshot job **sudah dijamin** berasal dari
 objek R2 `verified`/`attached` milik tenant yang sama oleh
 `create-social-publish-jobs.ts` — setiap adapter yang benar-benar

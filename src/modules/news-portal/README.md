@@ -18,13 +18,14 @@ module, sudah `active`) dan online public routing (`tenant_domain`).
 Modul ini **baru berisi**:
 
 - Module descriptor (`module.ts`) — key `news_portal`, tanpa
-  `settings`/`health` (belum ada fitur nyata yang membutuhkannya).
-  `permissions`/`navigation`/`api`/`jobs` sudah dideklarasikan sejak issue
-  lanjutan (media upload, homepage sections, ad placements, reconciliation
-  job) — lihat catatan drift di atas.
+  `settings`/`jobs`/`health` (belum ada fitur nyata yang membutuhkannya).
+  `permissions`/`navigation`/`api` sudah dideklarasikan sejak issue
+  lanjutan (homepage sections, ad placements). Media upload + `news-media:reconcile`
+  **tidak lagi milik modul ini**: ADR-0026 (Issue #264) memindahkan registry
+  media dan job rekonsiliasinya ke `media_library` — lihat catatan drift di atas.
 - Preset tenant module `news_portal_full_online_r2`
   (`../module-management/domain/module-presets.ts`) yang membundel
-  `blog_content` + `tenant_domain` + `visitor_analytics` +
+  `blog_content` + `tenant_domain` + `media_library` + `visitor_analytics` +
   `module_management` + `identity_access` + `news_portal`.
 - Config gate R2-only (`domain/news-media-r2-config.ts`) dan readiness
   gate aktivasi preset (`domain/news-portal-preset-readiness.ts`).

@@ -139,10 +139,13 @@ credential-bearing) — lihat `identity-access/README.md` §Vocabulary
   publish artikel seperti biasa, panggilan port-nya jadi no-op terdokumentasi
   `{ jobsCreated: 0 }`). Lihat `_shared/README.md` §Capability Ports dan
   `_shared/ports/social-publishing-port.ts`.
-- **`capabilities.consumes`** — kapabilitas `news_media` milik
-  `news_portal` (`optional: true`, dipakai adapter port ini sendiri untuk
-  resolve URL gambar R2 terverifikasi buat snapshot job; lihat
-  `_shared/ports/news-media-port.ts`).
+- **`capabilities.consumes`** — kapabilitas `media_library` milik
+  `media_library` (`optional: true`, dipakai adapter port ini sendiri untuk
+  resolve URL gambar terverifikasi buat snapshot job; lihat
+  `_shared/ports/media-library-port.ts`). ADR-0026 langkah 3–4 memindahkan
+  konsumsi ini dari kapabilitas `news_media` milik `news_portal` yang kini
+  dipensiunkan — modul ini hanya pernah butuh resolve URL gambar, yang bukan
+  pertanyaan portal berita.
 - **`navigation`** — 3 entri: `/admin/social-publishing/accounts` (order
   90), `/admin/social-publishing/rules` (order 91),
   `/admin/social-publishing/jobs` (order 92) — masing-masing digerbangi
@@ -325,5 +328,6 @@ seperti event modul lain (bukan message broker sungguhan).
   rasional `capabilities.provides`/`consumes`.
 - `src/modules/_shared/README.md` §Capability Ports.
 - `src/modules/blog-content/README.md` — sisi konsumen `SocialPublishingPort`.
-- `src/modules/news-portal/README.md` — sisi penyedia kapabilitas `news_media`
-  yang dikonsumsi modul ini.
+- `src/modules/media-library/README.md` — sisi penyedia kapabilitas
+  `media_library` yang dikonsumsi modul ini (ADR-0026; sebelumnya `news_media`
+  milik `news_portal`).
