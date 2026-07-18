@@ -227,6 +227,39 @@ boolean context — ini SEHAT (bukan alasan untuk menghapus fitur
 ekstensibilitasnya), dismiss dengan menjelaskan desain seam-nya, jangan
 coba "memperbaiki" trivialitasnya.
 
+### 7. `js/regex/missing-regexp-anchor` — regex redaction yang mencocokkan URL secret di dalam log
+
+Ditemukan 2026-07-18 (alert #286, #287), `src/modules/_shared/redaction.ts`
+baris 278 (`SECRET_VALUE_PATTERNS`) dan 477 (pattern replacement) — keduanya
+pattern deteksi Slack incoming-webhook URL
+(`hooks\.slack\.com\/services\/<T>\/<B>\/<secret>`) untuk MASKING. CodeQL
+`js/regex/missing-regexp-anchor` mengeluh regex ini bisa "match anywhere,
+arbitrary hosts before or after". Rule itu didesain untuk kode PRODUKSI yang
+memutuskan APAKAH SEBUAH URL DIPERCAYA (SSRF/open-redirect) — di sini
+justru terbalik: pattern hanya memberi makan keputusan REDAKSI (mask lebih
+banyak teks), tidak pernah trust/access, sehingga over-match adalah
+overinclusion yang AMAN, bukan kerentanan. Kode sudah menambah lookbehind
+host-label boundary `(?<![A-Za-z0-9.-])` (memblokir spoof
+`evil-hooks.slack.com`) dan didahului komentar inline yang menyebut rule ini
+persis — tapi alert TETAP muncul karena rule tidak bisa dipuaskan tanpa
+anchor `^...$` penuh, yang MUSTAHIL di sini: pattern ini by design harus
+menemukan URL secret yang tertanam di tengah string log arbitrer, jadi tidak
+ada awalan/akhiran tetap untuk di-anchor.
+
+**Fix**: dismiss resmi (false positive) — bukan reformulasi. Anchoring penuh
+akan menghancurkan tujuannya (menemukan secret di mana pun dalam teks log);
+lookbehind sudah menutup satu-satunya vektor spoofing nyata (host-label
+prefix). Sisa "arbitrary host after" sudah di-anchor oleh literal
+`/services/` yang wajib mengikuti `.com`.
+
+**Pencegahan**: `js/regex/missing-regexp-anchor` pada pattern REDAKSI
+(bukan trust/access) yang harus mencocokkan URL di dalam blob teks arbitrer
+adalah false positive struktural — anchor penuh mustahil dan over-match aman
+di konteks masking. Pastikan (a) hasil regex hanya memicu redaksi, tidak
+pernah keputusan trust; (b) sudah ada host-label lookbehind untuk vektor
+spoof yang nyata; lalu dismiss. Jangan coba menambah `^`/`$` — itu mematahkan
+deteksi secret di tengah string.
+
 ### Pola tambahan: `js/unused-local-variable` di test kadang menandai coverage gap, bukan sekadar dead code
 
 Dari 11 alert `js/unused-local-variable` di Issue #788 (semua di file
