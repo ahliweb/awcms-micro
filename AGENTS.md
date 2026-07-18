@@ -48,7 +48,8 @@ flowchart TD
   C --> D{Scope jelas & atomic?}
   D -- Tidak --> E[Klarifikasi / pecah issue]
   E --> C
-  D -- Ya --> F[Implementasi minimal & atomic]
+  D -- Ya --> BR[Buat branch dari main: prefix/issue-slug]
+  BR --> F[Implementasi minimal & atomic]
   F --> G{Schema berubah?}
   G -- Ya --> H[Tambah migration SQL berurutan]
   G -- Tidak --> I{API berubah?}
@@ -422,7 +423,7 @@ Alasan urutan: aplikasi turunan tidak aman tanpa tenant/auth/profile/access; obs
 Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `security`, `perf`, `ci`, `build`.
 Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`, `ui`, `logging`, `pooling`, `workflow`, `reporting`, `security`, `docs`. Aplikasi turunan menambah scope domainnya sendiri (mis. `pos`, `inventory`, `warehouse`, `tax`, `crm`).
 
-Branch: `feature/<issue>-<name>`, `fix/<issue>-<name>`, `release/vX.Y.Z`, `hotfix/vX.Y.Z-<name>`.
+Branch: `feature/<issue>-<name>`, `fix/<issue>-<name>`, `docs/<topik>`, `release/vX.Y.Z`, `hotfix/vX.Y.Z-<name>`. **Buat branch dari `main` yang up-to-date SEBELUM mengedit file apa pun** (`git switch main && git pull --ff-only && git switch -c <prefix>/<issue>-<slug>`) — `main` dilindungi dan setiap perubahan wajib lewat PR (`Closes #NNN`). Satu issue = satu branch = satu PR.
 
 ## Definition of Done
 

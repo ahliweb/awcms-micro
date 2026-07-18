@@ -14,11 +14,29 @@ Skill orkestrator untuk mengeksekusi satu unit kerja AWCMS-Micro end-to-end sesu
 3. `docs/awcms-micro/11_implementation_blueprint.md` — folder/file target sprint.
 4. Modul, SQL, OpenAPI, AsyncAPI, dan docs yang terkait scope.
 
+## Langkah 0 — Buat branch (WAJIB sebelum edit apa pun)
+
+Jangan pernah mengerjakan issue langsung di `main` — `main` dilindungi (lihat `docs/awcms-micro/branch-protection.md`) dan semua perubahan masuk lewat PR. Sebelum menyentuh file mana pun untuk sebuah issue, buat branch baru dari `main` yang up-to-date:
+
+```bash
+git switch main && git pull --ff-only
+git switch -c <prefix>/<issue>-<slug-singkat>
+```
+
+Konvensi prefix (sama dengan `CONTRIBUTING.md`):
+
+- `feature/<issue>-<nama>` — fitur/modul baru.
+- `fix/<issue>-<nama>` — perbaikan bug/konsistensi.
+- `docs/<topik>` — perubahan dokumentasi saja.
+
+Contoh: `git switch -c feature/262-full-online-storage-truth`. Satu issue = satu branch = satu PR (`Closes #NNN`). Jika kamu menemukan branch sudah ada untuk issue itu, lanjutkan di branch tersebut alih-alih membuat yang baru.
+
 ## Prosedur
 
 ```mermaid
 flowchart TD
-  A[Baca docs + kode terkait] --> B{Scope jelas & atomic?}
+  A0[Buat branch dari main<br/>prefix/issue-slug] --> A[Baca docs + kode terkait]
+  A --> B{Scope jelas & atomic?}
   B -- Tidak --> C[Pecah / klarifikasi]
   B -- Ya --> D[Implementasi minimal]
   D --> E{Schema berubah?} -->|Ya| M[awcms-micro-new-migration]
