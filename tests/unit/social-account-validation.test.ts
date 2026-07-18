@@ -58,12 +58,16 @@ describe("looksLikeRawSecretToken (Issue #643)", () => {
     // entropy rejection, which incidentally whitelisted this exact shape —
     // Telegram is the very next provider adapter this epic ships (#646).
     // The secret half is a self-documenting synthetic placeholder, NOT a real
-    // credential: the canonical public Telegram-docs example value that used
-    // to live here tripped GitHub secret scanning (secret-scanning alert #1,
-    // a false positive — this is a test fixture). Any same-shape value drives
-    // the same code path, so no realism is lost by using an inert one.
+    // credential — but two prior placeholders here still tripped GitHub
+    // secret scanning (alert #1, then #2): AWCMS-Micro's own shape check
+    // and Telegram's real token format are both `\d{6,10}:[A-Za-z0-9_-]
+    // {30,45}`, so ANY sufficiently high-entropy mixed-case value in that
+    // charset satisfies both regexes at once, real credential or not.
+    // Low-entropy repeated-character padding (matching the sibling fixture
+    // two lines below, which has never been flagged) avoids the scanner's
+    // entropy heuristic while still driving the identical code path.
     expect(
-      looksLikeRawSecretToken("110201543:AATestFixtureNotARealBotTokenValue")
+      looksLikeRawSecretToken("110201543:AATESTFIXTUREXXXXXXXXXXXXXXXXXXXXXXX")
     ).toBe(true);
     expect(
       looksLikeRawSecretToken("5012345678:AAFxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
