@@ -24,7 +24,6 @@ Prompt di dokumen ini kini tersedia sebagai **skill proyek** di `.claude/skills/
 | Testing                       | `awcms-micro-testing`                                                                                                                         |
 | UI/UX (Sprint 11)             | `awcms-micro-ui-screen`                                                                                                                       |
 | Release/versioning            | `awcms-micro-release`                                                                                                                         |
-| Legacy migration (Epic 1)     | `awcms-micro-legacy-migration`                                                                                                                |
 
 Selain skill, prompt utama juga tersedia sebagai **subagent** siap-delegasi di `.claude/agents/`:
 

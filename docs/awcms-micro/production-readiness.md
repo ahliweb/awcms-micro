@@ -14,7 +14,9 @@ flowchart LR
   Sec --> Cap[database:capacity]
   Cap --> Conn[db:connectivity]
   Conn --> Spec[api:spec:check]
-  Spec --> Test[bun test]
+  Spec --> Compose[modules:compose:check]
+  Compose --> Ext[extension:check]
+  Ext --> Test[bun test]
   Test --> Build[build]
   Build --> Probe{Server reachable?}
   Probe -->|ya| Pool[db:pool:health]
@@ -22,7 +24,7 @@ flowchart LR
   Probe -->|tidak, APP_ENV == production| PoolFail[gagal - blokir go-live]
   Pool --> Plan[migration:plan]
   Skip --> Plan
-  Plan --> Gate{Semua 9 tahap read-only lulus?}
+  Plan --> Gate{Semua tahap read-only lulus?}
   Gate -->|tidak| Block[GO-LIVE DIBLOKIR]
   Gate -->|ya| Ready[GO-LIVE DIIZINKAN]
   Ready -.->|opsional, --apply-migrations + --backup-verified + --acknowledge-target| Apply[migration APPLY - satu-satunya tahap yang menulis]
@@ -31,8 +33,10 @@ flowchart LR
 `config:validate` (Issue 12.2) jalan **paling pertama** — config harus
 valid sebelum tahap manapun mencoba konek database
 (`scripts/production-preflight.ts`'s `READ_ONLY_STAGES`). **Reworked oleh
-Issue #684** (epic #679, platform-hardening) supaya seluruh 9 tahap ini
-read-only secara default — lihat
+Issue #684** (epic #679, platform-hardening) supaya seluruh tahap ini
+read-only secara default (lihat daftar tahap di §3 di bawah — jangan
+hardcode jumlahnya di sini, karena bertambah seiring skrip berkembang) —
+lihat
 `docs/awcms-micro/production-preflight-runbook.md` untuk urutan tahap yang
 otoritatif dan selalu-terkini (dokumen ini memberi ringkasan konseptual,
 bukan daftar tahap definitif).
@@ -154,16 +158,21 @@ ini bisa basi seiring skrip berkembang (mis. Issue #743 menambah tahap
 4. `db:connectivity` — konfirmasi `DATABASE_URL` reachable + ledger
    migration bisa di-query; hanya satu `SELECT`, tidak pernah menulis.
 5. `api:spec:check`
-6. `test`
-7. `build`
-8. `db:pool:health` — **hanya bila** probe `GET /api/v1/health`
-   menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
-   `skipped` (bukan `failed`) dengan alasan eksplisit di laporan **kecuali**
-   `APP_ENV=production`, yang membuat skip tersebut memblokir go-live
-   (preflight produksi yang tidak bisa menjangkau metrik pool server hidup
-   belum benar-benar memverifikasi kesiapan produksi).
-9. `migration:plan` — diff pending-vs-applied read-only, sengaja diletakkan
-   sebagai tahap read-only TERAKHIR, tepat sebelum keputusan apply.
+6. `modules:compose:check` (Issue #740, epic #738) — validasi komposisi
+   modul build-time repo turunan.
+7. `extension:check` (Issue #741, epic #738) — validasi manifest
+   kompatibilitas ekstensi repo turunan, alasan sama seperti
+   `modules:compose:check`.
+8. `test`
+9. `build`
+10. `db:pool:health` — **hanya bila** probe `GET /api/v1/health`
+    menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
+    `skipped` (bukan `failed`) dengan alasan eksplisit di laporan **kecuali**
+    `APP_ENV=production`, yang membuat skip tersebut memblokir go-live
+    (preflight produksi yang tidak bisa menjangkau metrik pool server hidup
+    belum benar-benar memverifikasi kesiapan produksi).
+11. `migration:plan` — diff pending-vs-applied read-only, sengaja diletakkan
+    sebagai tahap read-only TERAKHIR, tepat sebelum keputusan apply.
 
 `bun install` **sengaja tidak** dijalankan oleh skrip ini — itu langkah
 setup environment (mengambil dependency), bukan readiness check, dan di luar
@@ -182,8 +191,9 @@ Verdict tahap read-only: `GO-LIVE DIIZINKAN` (exit 0) jika tidak ada tahap
 bukan bagian daftar tahap di atas: hanya bisa dicoba bila verdict read-only
 `true`, membutuhkan flag `--apply-migrations` (niat operator untuk
 memutasi), `--backup-verified` (atestasi backup baru yang bisa direstore
-sudah ada), dan `--acknowledge-target=<database-name>` (konfirmasi eksplisit
-target agar tidak salah database). Lihat
+sudah ada), dan `--acknowledge-target=<nilai APP_ENV>` (mis. `production` —
+harus sama persis dengan `APP_ENV` yang sedang berjalan; typo-catcher
+eksplisit terhadap environment yang salah, BUKAN nama database). Lihat
 `docs/awcms-micro/production-preflight-runbook.md` untuk detail flag dan
 alasan tiap gate.
 
@@ -194,7 +204,7 @@ bun install
 bun run production:preflight
 ```
 
-`production:preflight` menjalankan seluruh 9 tahap read-only di atas
+`production:preflight` menjalankan seluruh tahap read-only di atas (§3)
 sendiri (kecuali `bun install`, yang tetap langkah setup terpisah); jalankan
 `bun run preview &` (atau `bun run dev`) sebelumnya bila ingin tahap
 `db:pool:health` benar-benar mengukur pool server hidup alih-alih dicatat
