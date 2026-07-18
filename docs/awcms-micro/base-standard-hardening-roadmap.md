@@ -30,9 +30,12 @@ idempotency-key race handling, TOTP replay guard (`last_used_step`), RS256 JWT
 verification with no algorithm-confusion path, security response headers, and
 CSPRNG bearer tokens hashed at rest.
 
-The real distance between the two repos is **not** base-layer hardening — it is
-**whole modules**: awcms-mini has completed the platform-evolution epic (#738,
-Waves 1–3) that awcms-micro has not (see §Module-parity program).
+The remaining difference between the two repos is **not** base-layer hardening
+and is **not a gap to close** — it is **whole ERP-scope modules that awcms-micro
+deliberately does not carry**. Per **ADR-0025**, awcms-micro is the awcms-mini
+base standard **narrowed to WEBSITE scope**; the seven upstream ERP modules were
+intentionally pruned, not left unfinished (see §Track C). The migration-number
+gaps (048/054/060/063–076) are the honest trace of that prune.
 
 ## Track A — Confirmed base-layer deltas (micro lags the standard)
 
@@ -105,37 +108,55 @@ decision (and ideally lands in the base standard first).
   shape. Binding tenant/node into the signed material and defaulting nodes to
   `pending` would be a hardening beyond the standard.
 
-## Track C — Module-parity program (the real distance)
+## Track C — ERP-scope modules: deliberately OUT of scope (not a backlog)
 
-awcms-mini has 11 skills/modules that awcms-micro does not, almost all from the
-platform-evolution epic (#738). Porting these is a **multi-PR program per
-module**, not base-layer hardening. Listed for planning only; none is in scope
-until explicitly chosen.
+**These are not gaps and are not a porting backlog.** Per **ADR-0025**,
+awcms-micro is the awcms-mini base standard narrowed to **website scope**. The
+seven modules below are **ERP scope** and were intentionally pruned; no module
+micro keeps declares a dependency or a required capability on any of them, which
+is why the prune was a clean cut. ADR-0025 §3 is explicit: **a derived
+application that needs one adds it through `application-registry.ts`, never by
+editing the base registry** — i.e. they belong in a downstream ERP app (e.g. an
+AWPOS built on top of micro), not in micro itself. ADR-0016–ADR-0021 (their
+upstream admission ADRs) are retained only as historical upstream references and
+**do not apply in this repo**.
 
-| Module (mini)             | Wave / origin | Note                                                                        |
-| ------------------------- | ------------- | --------------------------------------------------------------------------- |
-| `domain-event-runtime`    | #738 W1       | event dispatcher/ordering/retry/dead-letter                                 |
-| `organization-structure`  | #738 W2       | effective-dated unit hierarchy                                              |
-| `workflow-approval`       | #738 W2       | graph-based managed approval engine                                         |
-| `integration-hub`         | #738 W3       | inbound webhooks, outbound subscriptions, **SSRF guard**, replay protection |
-| `document-infrastructure` | #738 W3       | document management + resource relations                                    |
-| `data-exchange`           | #738 W3       | import/export adapters via capability port                                  |
-| `reference-data`          | #738 W3       | contributed value sets                                                      |
-| `reporting`               | 9.1 + #753    | projections/exports                                                         |
-| `idn-admin-regions`       | #654          | Indonesia administrative-region master data                                 |
-| `erp-extension-readiness` | —             | ERP extension contracts (read/consume)                                      |
-| `legacy-migration`        | —             | **read-only**; deliberately descoped from the base — do not implement here  |
+Also verified against micro's actual tree during this study: the domains one
+might expect to be "missing" are already present and at parity —
+`domain_event_runtime`, `reporting`, `media_library` (micro is ahead here),
+`identity_access` (auth/RBAC/ABAC), `profile_identity`, `module_management`, and
+the whole template/UI layer. See §Headline finding.
 
-The most security-relevant of these is `integration-hub`: it is where the base
-standard's SSRF guard lives (literal + DNS-resolved IP classification, IPv6
-embedded-IPv4 forms, redirect re-validation). awcms-micro has no user/operator
--supplied outbound-URL surface today, so the absence of an SSRF guard is not a
-live gap — it becomes one only if/when an inbound-webhook or outbound
--subscription surface is added.
+| Module (mini)             | Scope | Why excluded from micro                                   |
+| ------------------------- | ----- | --------------------------------------------------------- |
+| `reference_data`          | ERP   | value-set/code master data; ADR-0021 (upstream-only)      |
+| `organization_structure`  | ERP   | legal entities / unit hierarchy; ADR-0016 (upstream-only) |
+| `document_infrastructure` | ERP   | document registry / numbering; ADR-0017 (upstream-only)   |
+| `data_exchange`           | ERP   | bulk import/export framework; ADR-0018 (upstream-only)    |
+| `workflow_approval`       | ERP   | graph approval engine; upstream #747                      |
+| `integration_hub`         | ERP   | webhooks + **SSRF guard**; ADR-0019 (upstream-only)       |
+| `idn_admin_regions`       | ERP   | Indonesia region master data; upstream #654               |
+| `erp_extension_readiness` | ERP   | ERP extension contracts; ADR-0020 (upstream-only)         |
+
+Note on the SSRF guard: it lives in mini's `integration_hub`. Because micro has
+**no user/operator-supplied outbound-URL surface**, the absence of an SSRF guard
+is not a live gap — it would become relevant only if a website-scope feature
+that fetches attacker-influenced URLs is ever added, at which point a scoped
+guard (not the whole ERP module) is the right response.
+
+**A reference-data foundation port was attempted during this study and
+deliberately discarded** once ADR-0025 was surfaced: porting an ERP module into
+the website-scope base contradicts the repo's own governance (ADR-0025, doc 21
+module admission). If ERP capabilities are genuinely wanted, the correct vehicle
+is a derived application, or a superseding ADR that redefines micro's scope —
+not editing the base registry.
 
 ## Suggested order
 
-1. **A2** (finish the #840 port) — once the contract tradeoff is signed off.
-2. Then, if desired, pick from **Track C** one module at a time (each a
-   sequenced sub-program), or pursue **Track B** items as base-standard-first
-   hardening.
+1. **A2** (finish the #840 login response-body collapse) — once the
+   contract tradeoff is signed off. This is the one remaining in-scope base-layer
+   hardening item.
+2. **Track B** items are hardening that would advance both repos; they should
+   land in the base standard (awcms-mini) first, then be ported down.
+3. **Track C** is out of scope for this repo by ADR-0025 — pursue only in a
+   derived ERP application, or via a superseding ADR.
