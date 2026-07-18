@@ -1,5 +1,5 @@
 # awcms-micro.service.example — systemd unit template (Issue 12.2, doc 18
-# §Topologi deployment LAN-first, doc 11 §Sprint 12 deploy files).
+# §Topologi deployment full-online single-host, doc 11 §Sprint 12 deploy files).
 #
 # This is a `.example` TEMPLATE, not a ready-to-run unit file. Copy it into
 # place and adapt the placeholders before enabling it:

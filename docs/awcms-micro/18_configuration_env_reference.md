@@ -4,9 +4,20 @@
 
 ## Tujuan
 
-Dokumen ini melengkapi referensi konfigurasi lengkap AWCMS-Micro: seluruh environment variable, feature flag opsional, presedensi konfigurasi, profil per-environment, penanganan secret, dan topologi deployment offline/LAN-first. Melengkapi `.env.example` minimal di doc 11.
+Dokumen ini melengkapi referensi konfigurasi lengkap AWCMS-Micro: seluruh environment variable, feature flag opsional, presedensi konfigurasi, profil per-environment, penanganan secret, dan topologi deployment full-online single-host/production (ADR-0027). Melengkapi `.env.example` minimal di doc 11.
 
 Terkait: `11_implementation_blueprint.md` (skeleton), `15/16` (FE/BE), `07_sprint_testing_production_readiness.md` (deployment).
+
+> **Catatan scope (ADR-0027 vs frasa warisan).** Model deployment/storage
+> kanonik AWCMS-Micro adalah **full-online** — profil/terminologi resmi ada
+> di kode `src/lib/deployment/storage-profile.ts`
+> (`FullOnlineDeploymentProfile`) dan ADR-0027. Beberapa subbagian fitur di
+> dokumen ini masih memakai frasa warisan **"offline/LAN"** sebagai singkatan
+> "deployment/rute/job yang tidak butuh internet untuk operasi ITU" (mis.
+> default routing publik legacy, purge lokal), **bukan** klaim mode operasi
+> offline-first untuk website base. Pembersihan tuntas frasa warisan ini
+> masuk scope #263 (cleanup dokumentasi); baca frasa demikian sampai itu
+> selesai.
 
 ## Prinsip konfigurasi
 
@@ -435,7 +446,7 @@ menangkap body chunked/tanpa `Content-Length`, hanya yang
 dideklarasikan). `deploy/nginx/awcms-micro.conf.example`'s
 `client_max_body_size 10m` diselaraskan dengan plafon keras yang sama
 — defense-in-depth di lapisan proxy, bukan satu-satunya perlindungan
-(doc 18 §Topologi deployment LAN-first: banyak deployment jalan tanpa
+(doc 18 §Topologi deployment full-online single-host: banyak deployment jalan tanpa
 nginx sama sekali).
 
 ### Sync & node
@@ -1158,35 +1169,36 @@ AI_ANALYST_ENABLED=false
 
 ## Profil per-environment
 
-| Environment         | Karakteristik                                                                     |
-| ------------------- | --------------------------------------------------------------------------------- |
-| development         | Semua provider off, DB lokal, cookie tidak secure                                 |
-| staging             | Meniru prod, data uji, backup aktif                                               |
-| production (online) | HTTPS, secret manager, backup+restore teruji, sync opsional                       |
-| **offline/LAN**     | Tanpa internet; sync/R2/WA/email off atau tertunda; POS penuh jalan; backup lokal |
+Profil kanonik full-online ([ADR-0027](../adr/0027-full-online-deployment-and-durable-storage-profiles.md), kode `src/lib/deployment/storage-profile.ts`). `staging` adalah mirror produksi, diklasifikasikan `full_online_single_host`.
 
-## Topologi deployment LAN-first
+| Profil                    | `APP_ENV`     | Karakteristik                                                 | Storage media terkelola                                                 |
+| ------------------------- | ------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `development`             | `development` | Semua provider off, DB lokal, cookie tidak secure             | Lokal/ephemeral boleh — bukan untuk produksi                            |
+| `full_online_single_host` | `staging`     | Satu host, mirror produksi, backup aktif                      | Volume ter-mount durable _atau_ object storage (volume → backup wajib)  |
+| `full_online_production`  | `production`  | HTTPS, secret manager, backup+restore teruji, terpapar publik | **Object storage provider-neutral wajib** (R2 rekomendasi, bukan wajib) |
+
+Aturan durable storage (ADR-0027 §3): produksi tidak boleh mengandalkan filesystem container ephemeral untuk media terkelola. `security:readiness` `checkDurableMediaStorageReady` memblokir go-live bila `APP_ENV=production` tanpa object storage.
+
+## Topologi deployment full-online single-host
 
 ```mermaid
 flowchart TB
-  subgraph LAN["Toko / LAN"]
-    P1[Aplikasi Operasional 1]
-    P2[Aplikasi Operasional 2]
+  subgraph Host["Satu host (full_online_single_host)"]
     A1[Admin]
-    Srv[AWCMS-Micro - Bun/Astro]
-    DB[(PostgreSQL)]
+    Srv[AWCMS-Micro - Bun/Astro SSR]
+    DB[(PostgreSQL RLS)]
     Bak[Backup lokal]
     Srv --- DB
     Srv --- Bak
-    P1 --- Srv
-    P2 --- Srv
     A1 --- Srv
   end
-  Srv -. saat online .-> Cloud[(Server pusat / R2 / provider)]
+  Vis[Pengunjung publik] -->|HTTPS| Srv
+  Srv -. object queue/outbox .-> Cloud[(Object storage / provider)]
 ```
 
-- Satu server LAN menjalankan aplikasi + PostgreSQL; klien via jaringan lokal.
-- Provider eksternal & sync hanya saat online; POS tidak bergantung padanya.
+- Satu host menjalankan aplikasi + PostgreSQL; pengunjung publik via internet (HTTPS).
+- Provider eksternal & object queue di luar transaksi DB (outbox); alur transaksional tidak bergantung padanya.
+- Media terkelola pada produksi di object storage durable, bukan FS ephemeral.
 - Deployment: `deploy/systemd`, `deploy/nginx`, `deploy/pgbouncer`, `deploy/backup` (doc 11).
 
 ## Validasi konfigurasi saat boot
@@ -1210,7 +1222,7 @@ flowchart TB
 ## Acceptance criteria
 
 - Boot memvalidasi env; var wajib hilang menghentikan start dengan pesan aman.
-- Provider off tidak menghentikan POS; pesan/objek masuk queue.
+- Provider off tidak menghentikan alur transaksional; pesan/objek masuk queue/outbox.
 - Secret hanya dari env; tidak ada di kode/commit/log/response.
 - Preferensi tenant (locale/theme) dari `awcms_micro_tenants`, bukan hardcode.
-- Profil offline/LAN berjalan penuh tanpa internet.
+- Produksi (`full_online_production`) tidak mengandalkan FS container ephemeral untuk media terkelola (ADR-0027; gate `checkDurableMediaStorageReady`).

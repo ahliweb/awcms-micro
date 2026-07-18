@@ -3,9 +3,9 @@
 Issue #462. Panduan operasional untuk deploy AWCMS-Micro ke [Coolify](https://coolify.io)
 memakai `Dockerfile.production` (Issue #454) sebagai jalur registry/CI-push,
 berdampingan dengan `docker-compose.yml` yang tetap menjadi jalur
-LAN-first/offline yang direkomendasikan (lihat
-[`deployment-profiles.md`](deployment-profiles.md) §production (online) —
-image registry). Dokumen ini **tidak menggantikan** dokumen itu — dokumen
+single-host (`full_online_single_host`) yang direkomendasikan (lihat
+[`deployment-profiles.md`](deployment-profiles.md) §full_online_production —
+image registry, dan [ADR-0027](../adr/0027-full-online-deployment-and-durable-storage-profiles.md)). Dokumen ini **tidak menggantikan** dokumen itu — dokumen
 ini menambahkan detail khusus Coolify: topologi satu VPS, topologi multi
 aplikasi dalam satu VPS, opsi PostgreSQL, kapasitas praktis, dan checklist
 keamanan.

@@ -60,7 +60,20 @@ export type ConfigVarRequirement = "required" | "optional" | "conditional";
 
 export type ConfigVarSensitivity = "secret" | "non-secret";
 
-/** Matches `docs/awcms-micro/deployment-profiles.md`'s four profiles. */
+/**
+ * Config-var *applicability* labels — which deployment scenarios a variable
+ * is relevant to. NOT the same axis as the base's canonical OPERATING
+ * profiles (`development`/`full_online_single_host`/`full_online_production`,
+ * ADR-0027 + `src/lib/deployment/storage-profile.ts`), which are derived from
+ * `APP_ENV` at runtime, not encoded here.
+ *
+ * `offline-lan` is retained as an applicability label for vars a DERIVED
+ * application running LAN-first (e.g. a POS that adds its own offline
+ * modules) would still need — mirroring the `offline-lan` capability label
+ * in `ModuleDeploymentProfile`/`ExtensionManifestDeploymentProfile`. It is
+ * NOT a supported operating mode of this full-online website base (ADR-0025
+ * §2, ADR-0027 §Hubungan dengan label `offline-lan`).
+ */
 export type DeploymentProfile =
   "development" | "staging" | "production" | "offline-lan";
 

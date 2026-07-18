@@ -1,38 +1,58 @@
 # Deployment Profiles
 
 Dokumen ini mencatat implementasi profil deployment untuk Issue 12.2 (doc 18
-§Profil per-environment, §Topologi deployment LAN-first, §Runtime & tooling
-Bun-only). Melengkapi `docs/awcms-micro/18_configuration_env_reference.md`
+§Profil per-environment, §Runtime & tooling Bun-only), direkonsiliasi ke
+model **full online** oleh **[ADR-0027](../adr/0027-full-online-deployment-and-durable-storage-profiles.md)**
+(Issue #262). Melengkapi `docs/awcms-micro/18_configuration_env_reference.md`
 dengan pemetaan konkret: berkas mana di `deploy/` dan `docker-compose.yml`
 dipakai pada profil environment yang mana.
+
+> **AWCMS-Micro adalah platform website online penuh.** Tidak ada mode
+> operasi offline/LAN-first untuk website base. `sync_storage` di sini =
+> **object queue/outbox untuk unggah media** (ADR-0025 §2), bukan
+> sinkronisasi data bisnis offline node-to-node. Profil/terminologi kanonik
+> ada di kode: `src/lib/deployment/storage-profile.ts`
+> (`FullOnlineDeploymentProfile`).
+>
+> Sebagian subbagian fitur di bawah masih memakai frasa warisan
+> "offline/LAN" sebagai singkatan "deployment/job yang tidak butuh internet
+> untuk operasi ITU" (mis. purge lokal, backup lokal). Baca demikian — itu
+> **bukan** klaim mode operasi offline-first untuk website base. Pembersihan
+> tuntas frasa warisan ini masuk scope #263 (cleanup dokumentasi).
 
 ## Ringkasan
 
 ```mermaid
 flowchart LR
   Dev[development] -->|bun run dev| Local[Lokal, tanpa provider]
-  Stg[staging] -->|docker compose / systemd| Mirror[Mirror produksi]
-  Prod[production online] -->|systemd + nginx TLS| Public[Terpapar internet]
-  Lan[offline/LAN] -->|systemd atau compose, tanpa nginx| Lan1[Satu server LAN]
+  SH[full_online_single_host] -->|systemd atau compose, satu host| Durable[Volume durable atau object storage]
+  Prod[full_online_production] -->|systemd/nginx TLS atau registry image| Public[Terpapar internet + object storage]
 ```
 
-Empat profil (doc 18 §Profil per-environment) dan berkas `deploy/*` yang
-relevan untuk masing-masing:
+Tiga profil kanonik (ADR-0027 §1) dan berkas `deploy/*` yang relevan.
+`staging` adalah **mirror produksi**, bukan profil keempat.
 
-| Profil                  | Karakteristik (doc 18)                                                                                       | Berkas `deploy/`/root yang relevan                                                                                                                                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **development**         | Semua provider off, DB lokal, cookie tidak secure                                                            | `bun run dev` langsung (tidak perlu `deploy/*` atau `docker-compose.yml`); `.env` disalin dari `.env.example` apa adanya                                                                                                      |
-| **staging**             | Meniru produksi, data uji, backup aktif                                                                      | Sama seperti production (di bawah), plus data/tenant uji                                                                                                                                                                      |
-| **production (online)** | HTTPS, secret manager, backup+restore teruji, sync opsional                                                  | `deploy/systemd/awcms-micro.service.example`, `deploy/nginx/awcms-micro.conf.example` (TLS termination), `deploy/backup/*`, opsional `deploy/pgbouncer/*` bila banyak koneksi pendek                                          |
-| **offline/LAN**         | Tanpa internet; sync/R2/WA/email off atau tertunda; POS/aplikasi operasional tetap jalan penuh; backup lokal | `deploy/systemd/awcms-micro.service.example` (atau `docker-compose.yml`) menjalankan app langsung di port 4321 — **nginx dapat dilewati sepenuhnya**, tidak ada eksposur publik; `deploy/backup/*` tetap wajib (backup lokal) |
+| Profil                        | Karakteristik                                                                                                            | Storage media terkelola                                                                      | Berkas `deploy/`/root yang relevan                                                                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`development`**             | Semua provider off, DB lokal, cookie tidak secure, `APP_ENV=development`                                                 | Lokal/ephemeral **boleh** — eksplisit bukan untuk produksi                                   | `bun run dev` langsung (tidak perlu `deploy/*`); `.env` disalin dari `.env.example` apa adanya                                                                                 |
+| **`full_online_single_host`** | Satu host, HTTPS via nginx atau di belakang proxy tepercaya, `APP_ENV=staging` (mirror produksi) atau produksi satu host | **Volume ter-mount durable** _atau_ object storage. Bila volume: wajib backup + rekonsiliasi | `deploy/systemd/awcms-micro.service.example` atau `docker-compose.yml`, `deploy/nginx/*` (TLS), `deploy/backup/*`, opsional `deploy/pgbouncer/*`                               |
+| **`full_online_production`**  | Terpapar publik, secret manager, backup+restore teruji, `APP_ENV=production`                                             | **Object storage provider-neutral wajib** (R2 rekomendasi pertama, bukan wajib)              | `deploy/systemd/*` + `deploy/nginx/*` (bare-metal) atau `Dockerfile.production` + `docker-compose.prod.yml` (registry image), `deploy/backup/*`, opsional `deploy/pgbouncer/*` |
 
-Prinsip pemilihan: nginx (`deploy/nginx/`) hanya dibutuhkan saat butuh
-terminasi TLS untuk klien di luar mesin/jaringan tepercaya atau saat
-memfasadkan beberapa instance upstream — topologi LAN-first satu server
-(doc 18) bisa langsung menyajikan aplikasi di port 4321 tanpa reverse
-proxy sama sekali. PgBouncer (`deploy/pgbouncer/`) hanya untuk skenario
-koneksi pendek bervolume tinggi (lihat
-[`database-pooling.md`](database-pooling.md) §7) — bukan kebutuhan default.
+**Aturan durable storage (ADR-0027 §3):** produksi **tidak boleh**
+mengandalkan filesystem container ephemeral sebagai penyimpanan durable
+media terkelola. `full_online_production` wajib object storage;
+`full_online_single_host` boleh volume ter-mount durable **asalkan**
+survive penggantian container/host dan tercakup kebijakan backup +
+rekonsiliasi. `security:readiness` `checkDurableMediaStorageReady`
+menegakkan invarian ini (matriks severity di ADR-0027 §5): `APP_ENV=production`
+tanpa object storage = **critical (blok go-live)**; `APP_ENV=staging` tanpa
+object storage = warning (atestasi volume operasional).
+
+Prinsip pemilihan: nginx (`deploy/nginx/`) untuk terminasi TLS klien
+internet atau memfasadkan beberapa instance upstream. PgBouncer
+(`deploy/pgbouncer/`) hanya untuk skenario koneksi pendek bervolume tinggi
+(lihat [`database-pooling.md`](database-pooling.md) §7) — bukan kebutuhan
+default.
 
 ## Profil online (public tenant routing) — config-only, Issue #556
 
@@ -294,8 +314,9 @@ konvensi penamaan lengkap dan
   `config:validate`/`security:readiness` begitu Issue #635 selesai
   (lihat `docs/awcms-micro/news-portal/r2-security-checklist.md` §7).
   Alasan pemisahan bucket: `sync-storage`'s R2 usage adalah object
-  queue **privat** untuk sinkronisasi offline/LAN, sedangkan media
-  berita **publik** by design (custom domain, CORS) — menyatukan
+  queue **privat** untuk unggah/sinkronisasi objek (jalur upload media,
+  bukan sync data bisnis offline node-to-node — ADR-0025 §2/ADR-0027 §2),
+  sedangkan media berita **publik** by design (custom domain, CORS) — menyatukan
   keduanya berisiko membocorkan objek sync privat lewat konfigurasi
   publik yang ditujukan untuk media berita.
 - **Tidak ada fallback lokal**: mode R2-only news media secara eksplisit
@@ -314,7 +335,7 @@ bun run db:migrate
 bun run dev
 ```
 
-### staging / production (online) — bare-metal (systemd)
+### full_online_single_host / full_online_production — bare-metal (systemd + nginx)
 
 ```bash
 bun install && bun run build
@@ -325,14 +346,23 @@ sudo systemctl enable --now awcms-micro
 sudo systemctl reload nginx
 ```
 
-### offline/LAN — bare-metal (systemd, tanpa nginx)
+Untuk `full_online_production` pastikan object storage aktif
+(`R2_ENABLED=true` dan/atau `NEWS_MEDIA_R2_ENABLED=true` dengan kredensial
+lengkap) — `security:readiness` `checkDurableMediaStorageReady` memblokir
+go-live bila `APP_ENV=production` tanpa object storage (media terkelola
+tidak boleh di FS ephemeral, ADR-0027 §3).
 
-Sama seperti di atas, minus langkah nginx — klien LAN mengakses aplikasi
-langsung di `http://<ip-server-lan>:4321`.
+> **Single-host di jaringan tepercaya tanpa nginx.** `full_online_single_host`
+> boleh menyajikan app langsung di port 4321 bila berada di balik proxy
+> tepercaya atau jaringan internal tepercaya (tanpa terminasi TLS di
+> nginx). Ini varian topologi, **bukan** mode operasi offline — app tetap
+> butuh PostgreSQL dan sajian SSR online. Jangan set `PUBLIC_TRUST_PROXY=true`
+> kecuali benar-benar di belakang proxy tepercaya (lihat §Rute publik di
+> atas).
 
-### staging / production / offline-LAN — container (docker-compose.yml)
+### full_online_single_host / full_online_production — container (docker-compose.yml)
 
-`docker-compose.yml` di root repo menjalankan stack LAN-first default:
+`docker-compose.yml` di root repo menjalankan stack single-host default:
 `app` (image `oven/bun:1.3.14` — pinned, Issue #682, bukan `node`, sesuai
 doc 18 §Runtime & tooling) dan `db` (`postgres:18.4`). PgBouncer tersedia
 sebagai service opsional `pgbouncer`, digerbangi Compose `profiles`
@@ -664,7 +694,7 @@ efek samping.
 | Profil                                       | Cara menjadwalkan                                                                                                                                                                                             |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **development**                              | Jalankan manual sesuai kebutuhan: `bun run email:dispatch`. `EMAIL_ENABLED` biasanya `false` di `.env` dev (lihat `.env.example`) — tidak perlu dijadwalkan sama sekali.                                      |
-| **offline/LAN**                              | Email biasanya off atau tertunda (doc 18 §Profil per-environment "sync/R2/WA/email off atau tertunda"). Bila diaktifkan (mis. mail relay lokal), jadwalkan seperti profil systemd di bawah.                   |
+| **offline/LAN**                              | Email biasanya off atau tertunda. Bila diaktifkan (mis. mail relay lokal), jadwalkan seperti profil systemd di bawah.                                                                                         |
 | **staging/production (bare-metal, systemd)** | `cron` atau systemd timer terpisah dari service utama (`awcms-micro.service`) — lihat contoh crontab di bawah.                                                                                                |
 | **container (`docker-compose.yml`)**         | Jalankan sebagai `docker compose exec app bun run email:dispatch` lewat cron host, atau tambahkan service terjadwal terpisah (lihat contoh compose exec di bawah).                                            |
 | **Coolify/VPS**                              | Scheduled Task Coolify (bila tersedia) atau cron di VPS yang menjalankan `docker exec <container-app> bun run email:dispatch` — lihat [`deploy-coolify.md`](deploy-coolify.md) §Dispatcher terjadwal (email). |
