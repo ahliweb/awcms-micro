@@ -218,26 +218,29 @@ export const POST: APIRoute = async ({
         `;
       }
 
+      // `tenant_inactive` is decided from the tenant header alone, before any
+      // identity is looked at, and is returned identically for every
+      // identifier — known, unknown, or absent. It discloses a fact the caller
+      // already supplied (that this tenant id is not active) and never anything
+      // about which identifiers exist, so it stays distinct.
       if (result.reason === "tenant_inactive") {
         return fail(403, "ACCESS_DENIED", "Tenant is not active.");
       }
 
-      if (result.reason === "locked") {
-        return fail(
-          401,
-          "AUTH_INVALID_CREDENTIALS",
-          "Account is temporarily locked."
-        );
-      }
-
-      if (result.reason === "password_login_disabled") {
-        return fail(
-          403,
-          "PASSWORD_LOGIN_DISABLED",
-          "Password login is disabled for this account. Use single sign-on instead."
-        );
-      }
-
+      // Every remaining deny reason answers with ONE response (ported from the
+      // awcms-mini base standard, Issue #840). `locked` and
+      // `password_login_disabled` are reachable only once an identity resolves,
+      // so any response that distinguishes them from the `invalid_credentials`
+      // an unknown identifier gets is an account-enumeration oracle for an
+      // unauthenticated caller (OWASP ASVS V2.2.1 / WSTG-IDNT-04). `locked`
+      // leaked via its message ("Account is temporarily locked."); the
+      // `403 PASSWORD_LOGIN_DISABLED` additionally fingerprinted the tenant's
+      // break-glass identities (`403` = "exists and not break-glass", `401` =
+      // "unknown or break-glass"). Collapsing closes both. Accepted tradeoff: a
+      // locked user, and a user at an SSO-required tenant, get the generic
+      // message with no hint why — those hints belong on channels that cannot
+      // be probed anonymously (a verified-email notification; SSO discovery on
+      // the login page), neither of which exists yet.
       return fail(
         401,
         "AUTH_INVALID_CREDENTIALS",

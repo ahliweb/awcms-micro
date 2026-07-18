@@ -4531,7 +4531,7 @@ msgid "error.access_denied"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:95
+#: src/lib/i18n/error-messages.ts:103
 msgid "error.ad_placement_reference_invalid"
 msgstr ""
 
@@ -4551,7 +4551,7 @@ msgid "error.break_glass_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:107
+#: src/lib/i18n/error-messages.ts:115
 msgid "error.checksum_mismatch"
 msgstr ""
 
@@ -4561,7 +4561,7 @@ msgid "error.concurrent_update"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:96
+#: src/lib/i18n/error-messages.ts:104
 msgid "error.content_quality_checklist_blocked"
 msgstr ""
 
@@ -4611,12 +4611,12 @@ msgid "error.google_token_exchange_failed"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:94
+#: src/lib/i18n/error-messages.ts:102
 msgid "error.homepage_section_key_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:92
+#: src/lib/i18n/error-messages.ts:100
 msgid "error.homepage_section_reference_invalid"
 msgstr ""
 
@@ -4641,12 +4641,12 @@ msgid "error.internal_error"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:132
+#: src/lib/i18n/error-messages.ts:140
 msgid "error.invalid_media_status"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:106
+#: src/lib/i18n/error-messages.ts:114
 msgid "error.invalid_state"
 msgstr ""
 
@@ -4696,22 +4696,22 @@ msgid "error.mfa_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:91
+#: src/lib/i18n/error-messages.ts:99
 msgid "error.news_media_reference_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:124
+#: src/lib/i18n/error-messages.ts:132
 msgid "error.not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:90
+#: src/lib/i18n/error-messages.ts:98
 msgid "error.password_login_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:105
+#: src/lib/i18n/error-messages.ts:113
 msgid "error.payload_too_large"
 msgstr ""
 
@@ -4746,7 +4746,7 @@ msgid "error.resource_not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:97
+#: src/lib/i18n/error-messages.ts:105
 msgid "error.social_account_unsupported_type"
 msgstr ""
 
@@ -4846,7 +4846,7 @@ msgid "error.turnstile_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:111
+#: src/lib/i18n/error-messages.ts:119
 msgid "error.unsupported_media_type"
 msgstr ""
 
