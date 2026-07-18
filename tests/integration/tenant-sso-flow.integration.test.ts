@@ -1041,7 +1041,11 @@ suite("Generic tenant OIDC SSO flow (Issue #591)", () => {
     expect(otherLoginGateOff.status).toBe(200);
 
     await withEnvOverride(FULL_ONLINE_SSO_ENV, async () => {
-      // Gate ACTIVE: the non-break-glass identity is now blocked...
+      // Gate ACTIVE: the non-break-glass identity is now blocked, but the
+      // denial is COLLAPSED (Issue #840, ported from awcms-mini) — it must be
+      // byte-identical to what an unknown identifier gets, or a `403
+      // PASSWORD_LOGIN_DISABLED` would fingerprint exactly the tenant's
+      // break-glass vs non-break-glass identities to an unauthenticated caller.
       const otherLogin = await invoke<{ error: { code: string } }>(authLogin, {
         method: "POST",
         path: "/api/v1/auth/login",
@@ -1055,10 +1059,33 @@ suite("Generic tenant OIDC SSO flow (Issue #591)", () => {
         },
         cookies: createCookieJar()
       });
-      expect(otherLogin.status).toBe(403);
-      expect(otherLogin.body.error.code).toBe("PASSWORD_LOGIN_DISABLED");
+      expect(otherLogin.status).toBe(401);
+      expect(otherLogin.body.error.code).toBe("AUTH_INVALID_CREDENTIALS");
 
-      // ...but the break-glass owner identity can still log in with password.
+      // An unknown identifier at the same tenant answers identically — the
+      // property that makes the collapse a real anti-enumeration control, not
+      // just a message change.
+      const unknownLogin = await invoke<{ error: { code: string } }>(
+        authLogin,
+        {
+          method: "POST",
+          path: "/api/v1/auth/login",
+          headers: {
+            "content-type": "application/json",
+            "x-awcms-micro-tenant-id": owner.tenantId
+          },
+          body: {
+            loginIdentifier: "ghost-nonexistent@example.com",
+            password: otherPassword
+          },
+          cookies: createCookieJar()
+        }
+      );
+      expect(unknownLogin.status).toBe(otherLogin.status);
+      expect(unknownLogin.body.error.code).toBe(otherLogin.body.error.code);
+
+      // ...but the break-glass owner identity can still log in with password —
+      // the collapse hid the reason without disabling the escape hatch.
       const ownerLogin = await invoke<{ data: { token: string } }>(authLogin, {
         method: "POST",
         path: "/api/v1/auth/login",
