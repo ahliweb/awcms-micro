@@ -42,10 +42,10 @@ gaps (048/054/060/063–076) are the honest trace of that prune.
 These are places where awcms-mini is genuinely more hardened. Each is an atomic
 PR.
 
-| #   | Item                                                                                        | Axis     | Status                                        |
-| --- | ------------------------------------------------------------------------------------------- | -------- | --------------------------------------------- |
-| A1  | Login account-enumeration **timing** oracle — `verifyPasswordOrDummy`                       | security | ✅ Done (#248)                                |
-| A2  | Login account-enumeration **response-body** collapse (`locked` / `password_login_disabled`) | security | Proposed — contract-affecting, needs sign-off |
+| #   | Item                                                                                        | Axis     | Status         |
+| --- | ------------------------------------------------------------------------------------------- | -------- | -------------- |
+| A1  | Login account-enumeration **timing** oracle — `verifyPasswordOrDummy`                       | security | ✅ Done (#248) |
+| A2  | Login account-enumeration **response-body** collapse (`locked` / `password_login_disabled`) | security | ✅ Done (#251) |
 
 ### A1 — Login timing oracle ✅ (merged #248)
 
@@ -55,10 +55,10 @@ base standard's `verifyPasswordOrDummy` (Issue #840): always pay an equivalent
 argon2id verify against a process-memoized dummy hash. No API change. Pinned by
 a mutation-verified unit test + an end-to-end integration timing test.
 
-### A2 — Login response-body collapse (proposed)
+### A2 — Login response-body collapse ✅ (merged #251)
 
-The other half of the base standard's Issue #840. Today awcms-micro's login
-still distinguishes deny reasons **after** an identity resolves, which is an
+The other half of the base standard's Issue #840. awcms-micro's login used to
+distinguish deny reasons **after** an identity resolves, which was an
 account-enumeration oracle for an unauthenticated caller (OWASP ASVS V2.2.1 /
 WSTG-IDNT-04):
 
@@ -75,15 +75,16 @@ The base standard collapses both into the same `401 AUTH_INVALID_CREDENTIALS
 `tenant_inactive` stays a distinct `403` because it is decided from the tenant
 header alone, before any identity lookup, so it cannot enumerate.
 
-**Why this needs sign-off (unlike A1):** it changes the **API contract** — the
-`403 PASSWORD_LOGIN_DISABLED` response goes away, and an
-`tests/integration/tenant-sso-flow.integration.test.ts` assertion + the
-`src/lib/i18n/error-messages.ts` catalog entry change with it. The base standard
-accepted the tradeoff deliberately: a genuinely locked user, and a user at an
-SSO-required tenant, now get the generic message with no hint about _why_. Those
-hints belong on channels that cannot be probed anonymously (a verified-email
-notification; tenant-wide SSO discovery on the login page) — neither exists in
-micro yet. Confirm this tradeoff is acceptable before implementing.
+This changed the **API contract** — the `403 PASSWORD_LOGIN_DISABLED` response
+went away (it was never in OpenAPI and has no client consumer;
+`error-messages.ts` retains the code as dead vocabulary so the i18n key set
+stays stable), and the `tests/integration/tenant-sso-flow.integration.test.ts`
+assertion was updated to require the disabled-identity denial to be
+byte-identical to an unknown identifier's. Accepted tradeoff (as in the base
+standard): a genuinely locked user, and a user at an SSO-required tenant, now get
+the generic message with no hint about _why_. Those hints belong on channels
+that cannot be probed anonymously (a verified-email notification; tenant-wide SSO
+discovery on the login page) — neither exists in micro yet.
 
 ## Track B — Shared characteristics (NOT alignment deltas)
 
@@ -151,12 +152,15 @@ module admission). If ERP capabilities are genuinely wanted, the correct vehicle
 is a derived application, or a superseding ADR that redefines micro's scope —
 not editing the base registry.
 
-## Suggested order
+## Status / what's next
 
-1. **A2** (finish the #840 login response-body collapse) — once the
-   contract tradeoff is signed off. This is the one remaining in-scope base-layer
-   hardening item.
-2. **Track B** items are hardening that would advance both repos; they should
-   land in the base standard (awcms-mini) first, then be ported down.
-3. **Track C** is out of scope for this repo by ADR-0025 — pursue only in a
+**Track A is complete** — both halves of the base standard's Issue #840 have
+landed (A1 timing #248, A2 response-body collapse #251). There is **no known
+remaining in-scope base-layer hardening delta** between micro and the standard;
+micro is at parity on the website-scope reusable layer.
+
+1. **Track B** items are hardening that would advance both repos; they should
+   land in the base standard (awcms-mini) first, then be ported down — they are
+   not micro-specific gaps.
+2. **Track C** is out of scope for this repo by ADR-0025 — pursue only in a
    derived ERP application, or via a superseding ADR.
