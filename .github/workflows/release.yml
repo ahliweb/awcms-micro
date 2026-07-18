@@ -401,7 +401,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "${{ github.ref_name }}" \
-            --title "awcms-micro ${{ github.ref_name }}" \
+            --title "${{ github.ref_name }}" \
             --notes-file RELEASE_NOTES.md \
             "CHECKSUMS.txt" \
             "sbom-source.cdx.json" \
