@@ -58,14 +58,18 @@ Tiga port nyata saat ini:
   compliant — publish sungguhan ke provider terjadi belakangan, di luar
   transaksi, lewat dispatcher `social_publishing`).
 
-Port yang **didefinisikan mendahului wiring** (type ada, belum ada
-adapter/consumer ter-wire, dan belum ada entri di
-`capability-contract-versions.ts` — entri versi dipasangkan dengan `provides`
-sebuah modul, jadi menyusul saat modul penyedianya mendarat):
+Port yang **didefinisikan mendahului wiring** (bedakan dua kasus — jangan
+disamakan):
 
-- **`ports/legal-hold-guard-port.ts`** dan **`ports/party-directory-port.ts`**
-  — port yang dideklarasikan lebih dulu dari consumer-nya (`party_directory`
-  sudah `provides`-d `profile_identity`, sisanya menunggu wiring).
+- **Type-only, provider DAN consumer sama-sama belum di-wire, belum ada entri
+  di `capability-contract-versions.ts`** — `ports/legal-hold-guard-port.ts`.
+  Entri versi dipasangkan dengan `provides` sebuah modul, jadi menyusul saat
+  modul penyedianya mendarat. Ini preseden yang tepat untuk `seo-facts-port.ts`.
+- **Provider SUDAH di-wire, versi SUDAH ada, hanya consumer yang pending** —
+  `ports/party-directory-port.ts`: `profile_identity` sudah
+  `provides: ["party_directory"]` dengan adapter nyata, dan `party_directory:
+"1.0.0"` sudah ada di `capability-contract-versions.ts`. Ini **bukan** kasus
+  yang sama dengan dua port di atas.
 - **`ports/seo-facts-port.ts` — `SeoFactsSource`** (ADR-0028, admission
   `seo_distribution`) — kapabilitas `seo_facts` yang modul konten
   (`blog_content`, `news_portal`, tipe konten aplikasi turunan) **sediakan**

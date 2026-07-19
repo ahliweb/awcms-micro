@@ -9,6 +9,7 @@ import {
   isPubliclyIndexable,
   isPubliclyResolvable,
   JSON_LD_ALLOWED_TYPES,
+  renderControlledJsonLd,
   type JsonLdNode,
   type SeoFactsSource,
   type SeoResourceFacts,
@@ -290,6 +291,16 @@ describe("publication-state visibility invariants (ADR-0028 §6)", () => {
       }
     }
   });
+
+  test("LOW-2: an out-of-union state fails closed (not resolvable, not indexable)", () => {
+    const rogue = {
+      state: "totally_unknown_state",
+      noindex: false,
+      scheduledPublishAt: null
+    } as unknown as SeoVisibility;
+    expect(isPubliclyResolvable(rogue, NOW)).toBe(false);
+    expect(isPubliclyIndexable(rogue, NOW)).toBe(false);
+  });
 });
 
 describe("cache key isolation invariants (ADR-0028 §7)", () => {
@@ -330,6 +341,23 @@ describe("cache key isolation invariants (ADR-0028 §7)", () => {
       expect(() => buildSeoCacheKey({ ...base, [field]: "   " })).toThrow();
     });
   }
+
+  test("LOW-1: contractVersion is encoded so a `:` cannot shift components", () => {
+    // "1:0" must not collide with a version "1" pushing "0" into the next slot.
+    const withColonVersion = buildSeoCacheKey({
+      ...base,
+      contractVersion: "1:0"
+    });
+    const collidingAttempt = buildSeoCacheKey({
+      ...base,
+      contractVersion: "1",
+      tenantId: `0${base.tenantId}` // naive concat if ":" were raw
+    });
+    expect(withColonVersion).not.toBe(collidingAttempt);
+    expect(withColonVersion).toContain(encodeURIComponent("1:0"));
+    // The raw separator must not appear inside the encoded version component.
+    expect(withColonVersion.split(":")).toHaveLength(7);
+  });
 });
 
 describe("redirect target safety (ADR-0028 §8, open-redirect defense)", () => {
@@ -367,6 +395,9 @@ describe("redirect target safety (ADR-0028 §8, open-redirect defense)", () => {
       "//evil.com",
       "/\\evil.com",
       "\\/evil.com",
+      // Credential (userinfo) trick — the real host is evil.com, so it must
+      // classify cross_host_external, never same_tenant_internal (NIT-2).
+      "https://www.example.com@evil.com",
       "javascript:alert(1)",
       "data:text/html,<script>",
       "mailto:a@b.com",
@@ -377,6 +408,32 @@ describe("redirect target safety (ADR-0028 §8, open-redirect defense)", () => {
         "same_tenant_internal"
       );
     }
+    // The credential trick specifically resolves to the external host.
+    expect(
+      classifyRedirectTarget("https://www.example.com@evil.com", allowed)
+    ).toBe("cross_host_external");
+  });
+
+  test("HIGH-1: control-character (TAB/LF/CR) bypass vectors are rejected, not internal", () => {
+    // The WHATWG URL parser and browsers STRIP tab/newline/CR, so a naive
+    // startsWith("/") check would resolve these to //evil.com and wrongly call
+    // them same_tenant_internal. They MUST classify as invalid (verified
+    // open-redirect bypass, security-auditor HIGH-1).
+    const vectors = [
+      "/\t/evil.com",
+      "/\n/evil.com",
+      "/\r/evil.com",
+      "/\t\\evil.com",
+      "/ev\til.com",
+      "\thttps://evil.com"
+    ];
+    for (const bad of vectors) {
+      expect(classifyRedirectTarget(bad, allowed)).toBe("invalid");
+      expect(classifyRedirectTarget(bad, allowed)).not.toBe(
+        "same_tenant_internal"
+      );
+      expect(() => assertSafeRedirectTarget(bad, allowed)).toThrow();
+    }
   });
 
   test("assertSafeRedirectTarget throws for anything not same-tenant-internal", () => {
@@ -385,6 +442,9 @@ describe("redirect target safety (ADR-0028 §8, open-redirect defense)", () => {
       assertSafeRedirectTarget("https://evil.com", allowed)
     ).toThrow();
     expect(() => assertSafeRedirectTarget("//evil.com", allowed)).toThrow();
+    expect(() =>
+      assertSafeRedirectTarget("https://www.example.com@evil.com", allowed)
+    ).toThrow();
   });
 });
 
@@ -428,5 +488,53 @@ describe("JSON-LD injection defense (ADR-0028 threat model)", () => {
     expect(escaped).not.toContain(">");
     expect(escaped).not.toContain("&");
     expect(escaped).toContain("\\u003c");
+  });
+
+  test("MEDIUM-1: a malicious object KEY is rejected (keys break out like values)", () => {
+    const bad = {
+      "@type": "WebPage",
+      "</script><script>alert(1)</script>": "x"
+    } as unknown as JsonLdNode;
+    expect(() => assertControlledJsonLd(bad)).toThrow();
+    expect(() => renderControlledJsonLd(bad)).toThrow();
+
+    // Nested malicious key too.
+    const badNested = {
+      "@type": "WebPage",
+      author: {
+        "@type": "Person",
+        "<img src=x onerror=alert(1)>": "y"
+      }
+    } as unknown as JsonLdNode;
+    expect(() => assertControlledJsonLd(badNested)).toThrow();
+  });
+
+  test("MEDIUM-1: renderControlledJsonLd output never contains raw < > &, covering keys and values", () => {
+    // A benign node whose VALUE contains HTML-sensitive characters (not a
+    // </script> breakout, so it renders rather than throwing) — the render must
+    // escape them across the whole serialized string.
+    const node: JsonLdNode = {
+      "@type": "Article",
+      headline: "A < B & C > D",
+      author: { "@type": "Person", name: "Ann & Bob" }
+    };
+    const rendered = renderControlledJsonLd(node);
+    expect(rendered).not.toContain("<");
+    expect(rendered).not.toContain(">");
+    expect(rendered).not.toContain("&");
+    expect(rendered).toContain("\\u003c");
+    expect(rendered).toContain("\\u0026");
+    // Still valid JSON that round-trips to the original content.
+    const parsed = JSON.parse(rendered) as Record<string, unknown>;
+    expect(parsed["@type"]).toBe("Article");
+    expect(parsed.headline).toBe("A < B & C > D");
+  });
+
+  test("MEDIUM-1: renderControlledJsonLd validates @type before serializing", () => {
+    const bad = {
+      "@type": "EvilType",
+      name: "x"
+    } as unknown as JsonLdNode;
+    expect(() => renderControlledJsonLd(bad)).toThrow();
   });
 });

@@ -244,11 +244,13 @@ export function buildSeoCacheKey(parts: SeoCacheKeyParts): string {
       );
     }
   }
-  // Order is fixed and tenant-first; every component is encoded so a value
-  // containing the separator cannot forge a different key.
+  // Order is fixed and tenant-first; EVERY component (including
+  // `contractVersion`) is percent-encoded so a value containing the `:`
+  // separator cannot shift a component and forge a different key (uniform
+  // injectivity).
   return [
     "seo",
-    parts.contractVersion,
+    encodeURIComponent(parts.contractVersion),
     encodeURIComponent(parts.tenantId),
     encodeURIComponent(parts.host.toLowerCase()),
     encodeURIComponent(parts.locale),
@@ -280,6 +282,10 @@ export function isPubliclyResolvable(
       );
     case "published":
       return true;
+    default:
+      // Fail-closed: any state outside the union (e.g. a value cast past the
+      // type system) is treated as not public.
+      return false;
   }
 }
 
@@ -311,8 +317,16 @@ export type RedirectTargetClass =
  *   hosts → `same_tenant_internal`;
  * - an absolute `http(s)` URL to any other host → `cross_host_external`;
  * - anything else — protocol-relative `//evil.com`, backslash tricks
- *   (`/\evil.com`), non-http(s) schemes (`javascript:`, `data:`, `mailto:`),
- *   or unparseable input → `invalid`.
+ *   (`/\evil.com`), embedded control characters (`/\t/evil.com`), non-http(s)
+ *   schemes (`javascript:`, `data:`, `mailto:`), or unparseable input →
+ *   `invalid`.
+ *
+ * The relative branch NEVER trusts the leading `/` alone: it re-parses the
+ * target against a synthetic unresolvable base and confirms the resolved origin
+ * did not escape it. Combined with the C0/DEL rejection below, this closes the
+ * `"/\t/evil.com"` class of bypass (the WHATWG URL parser and browsers strip
+ * TAB/LF/CR, so such a target would otherwise resolve to `//evil.com` →
+ * `https://evil.com/` while looking like a same-origin path).
  */
 export function classifyRedirectTarget(
   target: string,
@@ -320,17 +334,44 @@ export function classifyRedirectTarget(
 ): RedirectTargetClass {
   if (typeof target !== "string" || target.trim() === "") return "invalid";
 
+  // Reject C0 control characters (U+0000–U+001F) and DEL (U+007F). Browsers and
+  // the WHATWG URL parser STRIP tab (U+0009), newline (U+000A), and carriage
+  // return (U+000D) from a URL before parsing, so "/\t/evil.com" collapses to
+  // "//evil.com" and would slip past a naive `startsWith("/")` relative-path
+  // check as `same_tenant_internal` (a verified open-redirect bypass). Rejecting
+  // the whole C0+DEL range is stricter than strictly necessary — a bare space or
+  // NUL would otherwise be percent-encoded and stay same-origin — but never
+  // unsafe (ADR-0028 §8).
+  if (/[\u0000-\u001f\u007f]/.test(target)) return "invalid";
+
   // Protocol-relative (`//host`) and backslash-normalized variants (`/\host`,
   // `\/host`) are browser-interpreted as absolute cross-origin — reject before
-  // the relative-path fast path.
+  // the relative branch.
   const firstTwo = target.slice(0, 2);
   if (firstTwo === "//" || firstTwo === "/\\" || firstTwo === "\\/") {
     return "invalid";
   }
 
-  // A genuine same-origin relative path.
-  if (target.startsWith("/")) return "same_tenant_internal";
+  // Synthetic base on an RFC-6761 `.invalid` host that can never resolve: a
+  // genuine same-origin relative path resolves back to THIS origin; anything
+  // that escaped to another origin does not.
+  const syntheticBase = "https://seo-distribution.invalid";
 
+  if (target.startsWith("/")) {
+    // Path-absolute relative reference — normalize and confirm it did not
+    // escape the synthetic origin. Never trust the `/` prefix on its own.
+    let resolved: URL;
+    try {
+      resolved = new URL(target, syntheticBase);
+    } catch {
+      return "invalid";
+    }
+    return resolved.origin === syntheticBase
+      ? "same_tenant_internal"
+      : "invalid";
+  }
+
+  // Absolute reference (or unparseable).
   let url: URL;
   try {
     url = new URL(target);
@@ -391,11 +432,24 @@ export function escapeJsonLdText(value: string): string {
 }
 
 /**
+ * Object keys allowed in a controlled JSON-LD node. Deliberately narrow: a
+ * key like `</script><script>` can break out of a `<script>` block exactly as a
+ * value can, so keys must be plain schema.org term names / `@`-keywords. If a
+ * future `@context` compact-IRI style key is ever needed, extend this pattern
+ * consciously rather than loosening it silently.
+ */
+const JSON_LD_KEY_PATTERN = /^[A-Za-z@][A-Za-z0-9_@]*$/;
+
+/**
  * Assert a JSON-LD node is built from the controlled schema only: every
- * `@type` (recursively) is in `JSON_LD_ALLOWED_TYPES`, and no string value
- * contains a raw `</script` sequence (defense in depth beneath
- * `escapeJsonLdText`). Throws on the first violation. This is a CONTRACT guard,
- * not a serializer — #266 renders the escaped JSON.
+ * `@type` (recursively) is in `JSON_LD_ALLOWED_TYPES`, every object KEY matches
+ * `JSON_LD_KEY_PATTERN`, and no string value contains a raw `</script`
+ * sequence. Throws on the first violation.
+ *
+ * This validates STRUCTURE (types + keys). It is NOT sufficient on its own to
+ * emit safe markup — use `renderControlledJsonLd` for that, which validates
+ * here AND escapes the serialized output so both keys and values are neutralized
+ * by construction (a caller cannot forget to escape).
  */
 export function assertControlledJsonLd(node: JsonLdNode): void {
   const visit = (value: JsonLdValue, path: string): void => {
@@ -423,8 +477,35 @@ export function assertControlledJsonLd(node: JsonLdNode): void {
       );
     }
     for (const [key, child] of Object.entries(objectNode)) {
+      if (!JSON_LD_KEY_PATTERN.test(key)) {
+        throw new Error(
+          `assertControlledJsonLd: object key ${JSON.stringify(
+            key
+          )} at ${path} is not a controlled JSON-LD key — a key can break out of a <script> block just like a value can (ADR-0028 threat model, JSON-LD injection).`
+        );
+      }
       visit(child, `${path}.${key}`);
     }
   };
   visit(node, "$");
+}
+
+/**
+ * Render a JSON-LD node to the exact string safe to place inside a
+ * `<script type="application/ld+json">` block — the SINGLE guard #266 should
+ * use, so escaping can never be forgotten:
+ *
+ * 1. `assertControlledJsonLd` validates every `@type` and every object key
+ *    against the closed schema;
+ * 2. `JSON.stringify` serializes;
+ * 3. `escapeJsonLdText` neutralizes `<`, `>`, `&`, U+2028, U+2029 across the
+ *    WHOLE serialized string — so KEYS and VALUES are both covered (a `\uXXXX`
+ *    escape inside a JSON string round-trips to the original character for a
+ *    JSON-LD parser, but can never terminate the script element).
+ *
+ * The output is guaranteed to contain no raw `<`, `>`, or `&`.
+ */
+export function renderControlledJsonLd(node: JsonLdNode): string {
+  assertControlledJsonLd(node);
+  return escapeJsonLdText(JSON.stringify(node));
 }
