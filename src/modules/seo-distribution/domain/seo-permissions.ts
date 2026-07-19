@@ -14,3 +14,14 @@ export const SEO_MODULE_KEY = "seo_distribution";
 export const SEO_CONFIG_ACTIVITY_CODE = "config";
 
 export type SeoConfigAction = "read" | "update";
+
+/**
+ * Redirect-governance permissions (Issue #268, ADR-0028 §9). Mirrors the seeded
+ * rows in `sql/084` exactly. `redirect` gates the rules + per-tenant redirect
+ * policy; `not_found` gates the privacy-minimized 404 governance dashboard.
+ */
+export const SEO_REDIRECT_ACTIVITY_CODE = "redirect";
+export type SeoRedirectAction = "read" | "create" | "update" | "delete";
+
+export const SEO_NOT_FOUND_ACTIVITY_CODE = "not_found";
+export type SeoNotFoundAction = "read" | "update";

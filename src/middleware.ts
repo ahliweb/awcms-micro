@@ -33,6 +33,10 @@ import {
   collectVisitorTelemetry,
   shouldCollectRequest
 } from "./modules/visitor-analytics/application/collector";
+import {
+  recordPublicNotFound,
+  resolvePublicRedirectForRequest
+} from "./lib/seo/redirect-middleware";
 
 const PROTECTED_PREFIX = "/admin";
 const API_PREFIX = "/api/";
@@ -376,6 +380,38 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   if (!context.url.pathname.startsWith(PROTECTED_PREFIX)) {
+    // Issue #268 (seo_distribution redirect governance) — resolve tenant redirects
+    // AFTER the tenant/domain + locale are known but BEFORE public content route
+    // resolution (`next()`). `resolvePublicRedirectForRequest` first applies the
+    // `isRedirectEligiblePath` gate, so admin/API/auth/static/system paths are
+    // NEVER intercepted by a tenant rule (the admin-route-hijack criterion), and it
+    // never throws (a redirect-subsystem fault degrades to normal serving).
+    const redirectResult = await resolvePublicRedirectForRequest(
+      context.request,
+      context.url,
+      context.locals.locale
+    );
+
+    if (redirectResult && "redirect" in redirectResult) {
+      recordHttpRequestMetrics(
+        context,
+        redirectResult.redirect.status,
+        requestStartedAt
+      );
+
+      return applyResponseHeaders(
+        redirectResult.redirect,
+        context.locals.correlationId
+      );
+    }
+
+    // Tenant resolved but no redirect fired — remember the context so a subsequent
+    // 404 can be observed (privacy-minimized broken-link governance).
+    const notFoundCapture =
+      redirectResult && "capture" in redirectResult
+        ? redirectResult.capture
+        : null;
+
     const response = await applyCorrelationIdToApiBody(
       await next(),
       context.url.pathname,
@@ -383,6 +419,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     );
 
     await collectRequestAnalytics(context, response, null, false);
+
+    // Issue #268 — record the 404 observation only when a tenant resolved AND the
+    // response actually 404'd. Best-effort (never throws, never blocks).
+    if (notFoundCapture && response.status === 404) {
+      await recordPublicNotFound(context.request, notFoundCapture);
+    }
+
     recordHttpRequestMetrics(context, response.status, requestStartedAt);
 
     return applyResponseHeaders(response, context.locals.correlationId);

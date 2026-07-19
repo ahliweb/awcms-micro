@@ -172,3 +172,45 @@ that type exists. Only one module may declare `provides: ["seo_facts"]` at a tim
   Existing tenants' `owner` role is not retroactively granted them — a functional
   (not security) release step. `sql/082` adds NO new permission (feed config is
   part of the existing `config` activity; the public routes are unauthenticated).
+
+## Redirect governance, URL-change capture & 404 governance (Issue #268)
+
+The third Wave-1 runtime slice. Controlled, tenant-contained EXACT-PATH redirects,
+resolved in `src/middleware.ts` after tenant/domain + locale normalization and
+before public content routing, EXCLUDING admin/API/auth/static/system paths. Full
+spec + operator guide + privacy/retention matrix + threat model:
+[`docs/awcms-micro/seo-distribution-redirects.md`](../../../docs/awcms-micro/seo-distribution-redirects.md).
+
+Key files: `domain/redirect-{path,eligibility,target,rule,chain,query-policy,settings}.ts`,
+`domain/{url-change-plan,legacy-blog-redirect}.ts`,
+`application/{redirect-directory,redirect-resolution-service,redirect-safety,redirect-settings-directory,not-found-directory,url-change-capture,tenant-allowed-hosts}.ts`,
+composition root `src/lib/seo/redirect-middleware.ts`, routes under
+`src/pages/api/v1/seo/{redirects,not-found}/*`, migrations `sql/083` (schema +
+worker GRANT) / `sql/084` (permissions).
+
+Security invariants: every target flows through the frozen
+`assertSafeRedirectTarget` guard (on write AND every resolve); normalization
+rejects CRLF/traversal/Unicode-confusion/protocol-relative; chains are bounded +
+non-recursive (no pattern engine → no ReDoS); the eligibility deny-list is the
+admin-route-hijack defense; server-derived tenant/host only; RLS FORCE on all three
+new tables.
+
+**Documented follow-ups (NOT in #268):**
+
+- **Prefix / pattern (regex) rules** are deferred to a future ADR — they need a
+  pattern engine (ReDoS surface) and a bounded, non-backtracking design. #268 is
+  exact-path only. See the spec doc §9.
+- **Admin UI screen** (redirect list/editor + 404 dashboard) is a follow-up; #268
+  ships the API + governance, not a rendered screen (same posture as the #266
+  config API). `navigation` stays undeclared.
+- **True domain event** for URL-change capture (through `domain-event-runtime`) is
+  a follow-up; today capture is an audited synchronous hook (like blog_content's
+  slug-change log line), so `events` stays undeclared.
+- **blog_content slug-change auto-wiring**: `POST /seo/redirects/capture-url-change`
+  is the seam a content module / operator / automation drives; wiring blog_content's
+  post PATCH to call it automatically is a follow-up (kept out to keep this PR
+  atomic — not editing blog_content's heavily-tested route).
+- **Hit-count under CDN**: a CDN-cached 301 makes `hit_count` a lower bound (spec
+  doc §11).
+- **Permission backfill** for existing tenants (migration 084 seeds the catalog for
+  new tenants only — a functional, not security, release step).

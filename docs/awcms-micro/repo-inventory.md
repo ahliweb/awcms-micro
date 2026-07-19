@@ -22,7 +22,7 @@
 | `news_portal`          | `0.4.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
 | `profile_identity`     | `1.1.0` | `active` | `-`      | `tenant_admin`                                                                     |
 | `reporting`            | `1.2.0` | `active` | `-`      | `tenant_admin`, `identity_access`, `sync_storage`, `email`, `domain_event_runtime` |
-| `seo_distribution`     | `0.2.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `seo_distribution`     | `0.3.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
 | `social_publishing`    | `0.1.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
 | `sync_storage`         | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
 | `tenant_admin`         | `1.0.0` | `active` | `-`      | -                                                                                  |
@@ -31,7 +31,7 @@
 
 ## Migrations
 
-67 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `082_awcms_micro_seo_distribution_feed_config_schema.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+69 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `084_awcms_micro_seo_distribution_redirect_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -102,10 +102,12 @@
 | 080 | `080_awcms_micro_seo_distribution_config_schema.sql`               |
 | 081 | `081_awcms_micro_seo_distribution_config_permissions.sql`          |
 | 082 | `082_awcms_micro_seo_distribution_feed_config_schema.sql`          |
+| 083 | `083_awcms_micro_seo_distribution_redirect_schema.sql`             |
+| 084 | `084_awcms_micro_seo_distribution_redirect_permissions.sql`        |
 
 ## Tables & Row-Level Security
 
-106 tables created across all migrations; 98 carry a `tenant_id` column; 97 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
+109 tables created across all migrations; 101 carry a `tenant_id` column; 100 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
 
 No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` statement, or is on the reviewed exempt allow-list below.
 
@@ -125,19 +127,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-318 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+327 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
-| `e2e`         | 10         |
-| `integration` | 98         |
+| `e2e`         | 11         |
+| `integration` | 101        |
 | `modules`     | 5          |
-| `unit`        | 160        |
+| `unit`        | 165        |
 
 ## Routes / Operations (summary)
 
-200 OpenAPI paths, 267 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+209 OpenAPI paths, 281 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 
