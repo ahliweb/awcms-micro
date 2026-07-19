@@ -58,3 +58,23 @@ export function serverErrorXmlResponse(): Response {
     }
   );
 }
+
+/**
+ * Plain-text public error responses (Issue #267) — for text/JSON discovery
+ * surfaces (`robots.txt`, JSON Feed) where an XML error body would be
+ * content-type-mismatched. Same "never leak an error message/stack" rule: only
+ * these fixed generic strings are ever emitted.
+ */
+export function notFoundTextResponse(): Response {
+  return new Response("Not Found\n", {
+    status: 404,
+    headers: { "content-type": "text/plain; charset=utf-8" }
+  });
+}
+
+export function serverErrorTextResponse(): Response {
+  return new Response("Internal Server Error\n", {
+    status: 500,
+    headers: { "content-type": "text/plain; charset=utf-8" }
+  });
+}

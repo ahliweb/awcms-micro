@@ -8,9 +8,10 @@ two Core modules (`tenant_admin`, `identity_access`), so the module DAG is
 untouched.
 
 Issue #266 (epic #261 Wave 1) landed the **first runtime code**: the central
-metadata renderer plus its tenant-config surface. Sitemap/robots.txt/feeds
-(#267) and redirects/URL-change/404 (#268) are separate runtime PRs in this same
-module and are **not** implemented yet.
+metadata renderer plus its tenant-config surface. Issue #267 added the public
+**discovery/syndication surfaces** — robots.txt, sitemap index + bounded child
+sitemaps, and RSS/Atom/JSON feeds. Redirects/URL-change/404 (#268) remain a
+separate runtime PR in this same module and are **not** implemented yet.
 
 ## What #266 ships
 
@@ -65,15 +66,59 @@ tenant-wide `noindex` switch. `GET`/`PUT /api/v1/seo/config`
 - tenant-scoped (`withTenant` + RLS) — tenant A can never read or change tenant
   B's config.
 
+## What #267 ships — public discovery / syndication
+
+Public Astro XML/text routes (NOT OpenAPI — like `/news`), unauthenticated by
+design, aggregating the SAME `seo_facts` contract:
+
+| Route              | Content       | Notes                                                                                                                                |
+| ------------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `/robots.txt`      | `text/plain`  | Disallows `/admin/` + `/api/`; advertises the absolute sitemap; `Disallow: /` when the tenant-wide `noindex` is on.                  |
+| `/sitemap.xml`     | sitemap index | Sizes itself from a bounded `summarize` roll-up; lists `/sitemap-{n}.xml` children (always ≥1, capped at the amplification ceiling). |
+| `/sitemap-{n}.xml` | `<urlset>`    | One bounded page (`[(n-1)·perPage, n·perPage)` of the stable order) with reciprocal `hreflang` + published image refs.               |
+| `/feed.xml`        | RSS 2.0       | Latest `feed_item_limit` (≤200) items, newest-first, stable permalink GUIDs, enclosure images. `?locale=` narrows.                   |
+| `/atom.xml`        | Atom 1.0      | Same item set; Atom `<id>`/`<published>`/`<updated>`.                                                                                |
+| `/feed.json`       | JSON Feed 1.1 | Same item set; `content_text` only (never tenant HTML).                                                                              |
+
+- **Tenant/host** resolved by `withSeoPublicTenant` (server-controlled host, gate
+  on `seo_distribution` enabled); every non-serving outcome is one generic,
+  latency-normalized 404.
+- **Host is server-derived** from the tenant's verified **primary** domain — the
+  arriving request host is NEVER used for URL generation (host-poisoning defense).
+- **Bounded**: the sitemap index sizes from a single `summarize` aggregate; each
+  child page is one bounded window; feeds are capped by `feed_item_limit`. No
+  request enumerates all tenant content. Hard ceilings in `domain/discovery-limits.ts`.
+- **Caching** (`domain/discovery-cache.ts`): a deterministic signature over
+  `kind + host + locale + contractVersion + configFingerprint + contentRoll-up`
+  yields a strong `ETag` + `Last-Modified`; `If-None-Match`/`If-Modified-Since` →
+  304; `Cache-Control: public, max-age, s-maxage, stale-while-revalidate`. Because
+  the validators derive from content/domain/config state, any
+  publish/update/archive/delete/domain/locale/config change invalidates the
+  affected output (event-driven invalidation via content-derived validators — no
+  server-side content store; the CDN/edge integration ADR-0028 §7 calls opt-in /
+  full-online-only is out of scope here).
+- **Feed config** (`awcms_micro_seo_tenant_settings`, extended by **sql/082**):
+  `feed_title`/`feed_description`/`feed_logo_media_id`/`feed_item_limit`
+  (1–200)/`included_resource_types` (allow-list, null=all)/`sitemap_enabled`/
+  `feeds_enabled`, all within safe bounds (CHECK constraints + app validation).
+  Managed through the same `GET`/`PUT /api/v1/seo/config` (existing `config`
+  activity — no new permission; the public routes are unauthenticated).
+- **Composition root**: `src/lib/seo/discovery-providers.ts` wires the enabled
+  `seo_facts` providers + media port; `src/lib/seo/discovery-route.ts` runs the
+  pipeline. The module's own `application`/`domain` import no content module.
+
 ## Security posture (ADR-0028 threat model)
 
-| Threat                         | Control                                                                                                                                                         |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Host-header poisoning          | Canonical/OG/hreflang host is server-derived from `tenant_domain` (`resolve-canonical-host.ts`); the renderer never reads `Host`/`X-Forwarded-Host`.            |
-| JSON-LD injection              | Only `renderControlledJsonLd` emits JSON-LD (validates the controlled `@type`/key schema AND escapes `<>&`/U+2028/U+2029). No hand-serialized JSON-LD anywhere. |
-| Unpublished-content leakage    | `isPubliclyResolvable`/`isPubliclyIndexable` gate every emission; structured data only for indexable resources.                                                 |
-| Cache poisoning / cross-tenant | Cache key is tenant-first via `buildSeoCacheKey` (throws without tenant+host+locale). Config table is RLS FORCE'd.                                              |
-| Metadata bounds                | Config lengths bounded in `domain/seo-config.ts` and by CHECK constraints in sql/080.                                                                           |
+| Threat                         | Control                                                                                                                                                                          |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host-header poisoning          | Canonical/OG/hreflang host is server-derived from `tenant_domain` (`resolve-canonical-host.ts`); the renderer never reads `Host`/`X-Forwarded-Host`.                             |
+| JSON-LD injection              | Only `renderControlledJsonLd` emits JSON-LD (validates the controlled `@type`/key schema AND escapes `<>&`/U+2028/U+2029). No hand-serialized JSON-LD anywhere.                  |
+| Unpublished-content leakage    | `isPubliclyResolvable`/`isPubliclyIndexable` gate every emission; structured data only for indexable resources.                                                                  |
+| Cache poisoning / cross-tenant | Cache key is tenant-first via `buildSeoCacheKey` (throws without tenant+host+locale). Config table is RLS FORCE'd.                                                               |
+| Metadata bounds                | Config lengths bounded in `domain/seo-config.ts` and by CHECK constraints in sql/080 + sql/082 (feed limit 1–200, include-list ≤50).                                             |
+| Sitemap amplification (#267)   | Hard ceilings (`discovery-limits.ts`): `SITEMAP_URLS_PER_PAGE` + `SITEMAP_MAX_CHILD_PAGES`; feed items capped by `feed_item_limit` (≤200). No unbounded per-request scan.        |
+| XML injection (#267)           | All sitemap/feed text/URL values XML-escaped (escape-never-reject, inherited from the frozen guards); JSON feed uses `content_text` (never tenant HTML).                         |
+| Cache poisoning (#267)         | The discovery cache signature is tenant/host/locale-first; a cache hit can never cross tenants or reflect a stale draft/deleted resource (validators re-derive from live state). |
 
 ## Contribution contract (`seo_facts`)
 
@@ -85,17 +130,27 @@ through the identical contract by shipping its own
 that type exists. Only one module may declare `provides: ["seo_facts"]` at a time
 (`module-composition.ts`'s `capability_provider_conflict`).
 
-## Documented follow-ups (out of #266 scope)
+## Documented follow-ups (out of #266/#267 scope)
 
-- **Resource-type coverage.** #266's `blog_content` adapter maps the
-  `blog_post` resource type only. The homepage/website identity, a generic
-  `blog_page`, and `BreadcrumbList` facts are NOT yet produced by a provider —
-  the renderer supports them (the contract and JSON-LD union already cover
-  `WebSite`/`WebPage`/`BreadcrumbList`/`Organization`), but no adapter emits them
-  yet. A minimal, valid slice for #266; the additional resource types are a
-  follow-up (tracked against ADR-0028's consequences).
+- **Resource-type coverage.** The `blog_content` adapter maps the `blog_post`
+  resource type only. The homepage/website identity, a generic `blog_page`, and
+  `BreadcrumbList` facts are NOT yet produced by a provider — the renderer +
+  discovery aggregator support them (the contract is generic), but no adapter
+  emits them yet. A follow-up (tracked against ADR-0028's consequences).
+- **Per-item feed author + full content.** Feed items carry the resource
+  title/description/dates/canonical/image; per-item AUTHOR and full-body
+  `content_html` are not in `SeoResourceFacts` yet (feeds use the summary as
+  `content_text`). Enriching them needs a facts-contract extension — a follow-up.
+- **Deep-page sitemap keyset.** Child sitemap pages use `OFFSET` over the tenant's
+  bounded published set (index-backed; query-plan proven). Very deep pages on
+  huge tenants would benefit from a keyset cursor / precomputed projection — a
+  scale follow-up, only if a query-plan test proves it needed (ADR-0028 §7).
+- **CDN/edge cache.** #267 ships HTTP-level validators only. The opt-in,
+  full-online-only CDN/edge integration ADR-0028 §7 describes (locking on the
+  same tenant/host/locale key) is out of scope and must not degrade the
+  offline-lan profile when off.
 - **Permission backfill.** `sql/081` seeds `seo_distribution.config.{read,update}`
-  into the global catalog, so only tenants created AFTER this migration get them
-  via `POST /api/v1/setup/initialize`. Existing tenants' `owner` role is not
-  retroactively granted them — a functional (not security) release step, same as
-  every prior permission-seed migration here.
+  into the global catalog, so only tenants created AFTER that migration get them.
+  Existing tenants' `owner` role is not retroactively granted them — a functional
+  (not security) release step. `sql/082` adds NO new permission (feed config is
+  part of the existing `config` activity; the public routes are unauthenticated).

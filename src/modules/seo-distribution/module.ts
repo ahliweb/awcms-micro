@@ -42,24 +42,37 @@ import {
  * without it ever knowing that type exists — the aggregator stays ignorant of
  * any specific content module (ADR-0028 §3).
  *
+ * ## Landed in #267 (this module's second runtime slice)
+ *
+ * The public discovery/syndication surfaces — `/robots.txt`, the sitemap index +
+ * bounded child sitemaps (`/sitemap.xml`, `/sitemap-{n}.xml`), and RSS/Atom/JSON
+ * feeds (`/feed.xml`, `/atom.xml`, `/feed.json`) — served as public Astro
+ * XML/text routes (NOT OpenAPI, like `/news`), aggregating the SAME frozen
+ * `seo_facts` contract, host server-derived from `tenant_domain`, with HTTP cache
+ * validators (ETag/Last-Modified/304) and per-tenant feed config on
+ * `awcms_micro_seo_tenant_settings` (sql/082). No new permission is seeded:
+ * these routes are unauthenticated by design (nothing to gate — the ADR-0028 §9
+ * `sitemap.read` note assumed an authenticated surface that does not exist), and
+ * the feed config is part of the existing `config` activity.
+ *
  * ## Deliberately NOT here yet
  *
- * Sitemap/robots.txt/feeds (#267) and redirect/URL-change/404 (#268) are
- * separate runtime PRs in this same module — so `jobs`, `events`, the
- * `redirects.*`/`sitemap.read` permissions, and the redirect
+ * Redirect/URL-change/404 (#268) is a separate runtime PR in this same module —
+ * so `events`, the `redirects.*` permissions, and the redirect
  * `dataLifecycle`/`HighVolumeTableDescriptor` are not declared until their code
- * lands (the same "declare a descriptor field when the code exists, not before"
- * convention every module here follows). `navigation` is likewise undeclared:
- * #266 ships the config ADMIN API (`/api/v1/seo/config`), not an admin screen —
- * the preview UI is a follow-up.
+ * lands (the "declare a descriptor field when the code exists, not before"
+ * convention). `navigation` is likewise undeclared: the config ADMIN API
+ * (`/api/v1/seo/config`) exists, not an admin screen — the preview UI is a
+ * follow-up. `jobs` remains undeclared: discovery is computed live per request
+ * (bounded), not precomputed by a job.
  */
 export const seoDistributionModule = defineModule({
   key: SEO_MODULE_KEY,
   name: "SEO & Distribution",
-  version: "0.1.0",
+  version: "0.2.0",
   status: "active",
   description:
-    "Central tenant/domain/locale-aware SEO metadata renderer for public pages (ADR-0028, Official Optional Module). Owns `awcms_micro_seo_tenant_settings` (sql/080 — per-tenant SEO defaults: site identity, default social image, Twitter handle, Organization identity, and a tenant-wide noindex switch, RLS FORCE'd) and the central document builder/renderer (`domain/seo-document.ts` + `domain/seo-head-rendering.ts`) that emits canonical URL, reciprocal hreflang alternates + x-default, title/description/robots meta, Open Graph + Twitter card, and controlled schema.org JSON-LD. It is the CONSUMER/aggregator of the frozen `seo_facts` contribution contract (`_shared/ports/seo-facts-port.ts`): content modules (`blog_content`, and any derived content type) PROVIDE `SeoResourceFacts`; this module discovers their adapters at the route composition root and never imports a content module's internals. The canonical host is server-derived from the tenant's verified primary domain (`tenant_domain`), NEVER a request header (host-header-poisoning defense); OG/Organization images resolve through `media_library` (same-tenant, verified); JSON-LD is emitted only through the port's `renderControlledJsonLd` guard (injection blocked by a controlled `@type`/key schema, not ad-hoc sanitization); publication state is honored via the port's `isPubliclyResolvable`/`isPubliclyIndexable` (draft/scheduled/archived/deleted/private/unpublished/noindex never reach public output); and the render cache key is tenant-first (`buildSeoCacheKey`). Sitemap/feeds (#267) and redirects/URL-change/404 (#268) are separate runtime PRs in this same module and are deliberately not implemented here.",
+    "Central tenant/domain/locale-aware SEO metadata renderer for public pages (ADR-0028, Official Optional Module). Owns `awcms_micro_seo_tenant_settings` (sql/080 — per-tenant SEO defaults: site identity, default social image, Twitter handle, Organization identity, and a tenant-wide noindex switch, RLS FORCE'd) and the central document builder/renderer (`domain/seo-document.ts` + `domain/seo-head-rendering.ts`) that emits canonical URL, reciprocal hreflang alternates + x-default, title/description/robots meta, Open Graph + Twitter card, and controlled schema.org JSON-LD. It is the CONSUMER/aggregator of the frozen `seo_facts` contribution contract (`_shared/ports/seo-facts-port.ts`): content modules (`blog_content`, and any derived content type) PROVIDE `SeoResourceFacts`; this module discovers their adapters at the route composition root and never imports a content module's internals. The canonical host is server-derived from the tenant's verified primary domain (`tenant_domain`), NEVER a request header (host-header-poisoning defense); OG/Organization images resolve through `media_library` (same-tenant, verified); JSON-LD is emitted only through the port's `renderControlledJsonLd` guard (injection blocked by a controlled `@type`/key schema, not ad-hoc sanitization); publication state is honored via the port's `isPubliclyResolvable`/`isPubliclyIndexable` (draft/scheduled/archived/deleted/private/unpublished/noindex never reach public output); and the render cache key is tenant-first (`buildSeoCacheKey`). Issue #267 adds the public discovery/syndication surfaces — robots.txt, the sitemap index + bounded child sitemaps, and RSS/Atom/JSON feeds — as public Astro XML/text routes aggregating the same `seo_facts` contract, with tenant/domain/locale-specific ETag/Last-Modified caching and per-tenant feed config (sql/082). Redirects/URL-change/404 (#268) remain a separate runtime PR in this same module and are deliberately not implemented here.",
   dependencies: ["tenant_admin", "identity_access"],
   type: "domain",
   capabilities: {

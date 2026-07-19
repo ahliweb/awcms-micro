@@ -41,7 +41,7 @@ import type { SeoTenantSettings } from "./seo-config";
  * contract shape change that bumps the capability version also invalidates every
  * cached rendered head.
  */
-export const SEO_RENDER_CONTRACT_VERSION = "1.0.0";
+export const SEO_RENDER_CONTRACT_VERSION = "1.1.0";
 
 /** An OG/Twitter image already resolved through `MediaLibraryPort` (same-tenant, verified) by the application layer — never a raw tenant URL. */
 export type ResolvedSeoImage = {
