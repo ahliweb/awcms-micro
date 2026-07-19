@@ -99,7 +99,6 @@ flowchart LR
 | UI admin/operator        | UI Experience         | Admin shell, POS screen            |
 | Audit/troubleshooting    | Observability         | Logs, audit, security events       |
 | DB reliability           | DB Connectivity       | Pool, queue, circuit breaker       |
-| Approval high-risk       | Workflow              | Workflow instance/task/decision    |
 | Go-live aman             | Production Security   | Readiness, findings, gates         |
 
 ## Traceability — PRD → SRS → ERD → API → Issue → Sprint → Test
@@ -129,15 +128,16 @@ flowchart LR
 | AI                 | AI                    | `awcms_micro_ai_tool_calls`                          | `/ai/business-analyst/chat`        | 9.2              |     11 | no PII/SQL           |
 | Logs               | Observability         | `awcms_micro_log_events`                             | `/logs/recent`                     | 10.1             |      6 | redaction            |
 | Pooling            | DB                    | `awcms_micro_db_pool_*`                              | `/database/pool/health`            | 10.2             |      6 | health/load          |
-| Workflow           | Workflow              | `awcms_micro_workflow_*`                             | `/workflow/tasks/{id}/decision`    | 11.1             |     12 | approval             |
 | Security           | Security              | `awcms_micro_security_*`                             | `/security/go-live-gates/evaluate` | 10.3             |     12 | go-live gate         |
 
 ## Matrix Modul vs Migration
 
 Sumber: `docs/awcms-micro/repo-inventory.md` §Migrations (GENERATED via
 `bun run repo:inventory:generate`) dan `src/modules/index.ts`, keduanya
-dibaca ulang saat menulis tabel ini. **76 file migration nyata** di
-`sql/` (`001`..`076`), dipetakan ke **23 modul terdaftar**. Tabel ini
+dibaca ulang saat menulis tabel ini. **64 file migration nyata** di
+`sql/` (`001`..`079`, dengan celah nomor yang disengaja — jejak tujuh modul
+scope ERP yang tidak diport, ADR-0025 §3), dipetakan ke **17 modul
+terdaftar**. Tabel ini
 menggantikan versi sebelumnya yang mengutip nama file fiktif (mis.
 `003_awcms_micro_catalog_inventory_schema.sql`,
 `004_awcms_micro_sales_pos_schema.sql`) dari sebuah sistem POS/retail yang
@@ -148,30 +148,35 @@ struktur repo NYATA, sehingga mengikuti data real, bukan ilustrasi.
 
 | Modul (`key`)                | Migration                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _(Foundation, lintas-modul)_ | `001_awcms_micro_foundation_schema.sql`, `013_awcms_micro_enforce_rls_least_privilege.sql`, `045_awcms_micro_db_role_separation.sql`                                                                                                                                                                                                                                                                                                                                                    |
+| _(Foundation, lintas-modul)_ | `001_awcms_micro_foundation_schema.sql`, `012_awcms_micro_idempotency_store_schema.sql`, `013_awcms_micro_enforce_rls_least_privilege.sql`, `045_awcms_micro_db_role_separation.sql`                                                                                                                                                                                                                                                                                                    |
 | `tenant_admin`               | `002_awcms_micro_tenant_office_schema.sql`, `006_awcms_micro_setup_wizard_schema.sql`, `015_awcms_micro_tenant_settings_management_permission_schema.sql`, `016_awcms_micro_tenant_default_locale_english_schema.sql`                                                                                                                                                                                                                                                                   |
-| `profile_identity`           | `003_awcms_micro_central_profile_management_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `identity_access`            | `004_awcms_micro_identity_login_schema.sql`, `005_awcms_micro_abac_access_control_schema.sql`, `022_awcms_micro_password_reset_schema.sql`, `034_awcms_micro_mfa_totp_schema.sql`, `035_awcms_micro_google_oidc_schema.sql`, `036_awcms_micro_tenant_oidc_sso_schema.sql`, `037_awcms_micro_tenant_oidc_sso_permissions.sql`                                                                                                                                                            |
+| `profile_identity`           | `003_awcms_micro_central_profile_management_schema.sql`, `059_awcms_micro_profile_identity_party_lifecycle_schema.sql`                                                                                                                                                                                                                                                                                                                                                                  |
+| `identity_access`            | `004_awcms_micro_identity_login_schema.sql`, `005_awcms_micro_abac_access_control_schema.sql`, `022_awcms_micro_password_reset_schema.sql`, `034_awcms_micro_mfa_totp_schema.sql`, `035_awcms_micro_google_oidc_schema.sql`, `036_awcms_micro_tenant_oidc_sso_schema.sql`, `037_awcms_micro_tenant_oidc_sso_permissions.sql`, `061_awcms_micro_business_scope_assignments_schema.sql`, `062_awcms_micro_business_scope_permissions.sql`                                                 |
 | `sync_storage`               | `007_awcms_micro_sync_storage_outbox_inbox_schema.sql`, `008_awcms_micro_sync_storage_conflict_schema.sql`, `009_awcms_micro_object_sync_queue_schema.sql`, `014_awcms_micro_sync_node_management_permission_schema.sql`, `017_awcms_micro_sync_queue_conflict_performance_indexes.sql`, `018_awcms_micro_object_sync_queue_dispatcher_schema.sql`                                                                                                                                      |
-| `reporting`                  | `010_awcms_micro_management_reporting_permission_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `reporting`                  | `010_awcms_micro_management_reporting_permission_schema.sql`, `069_awcms_micro_reporting_projections_schema.sql`, `070_awcms_micro_reporting_projections_permissions.sql`                                                                                                                                                                                                                                                                                                               |
 | `logging`                    | `011_awcms_micro_audit_logging_schema.sql`, `047_awcms_micro_observability_metrics_permission.sql`                                                                                                                                                                                                                                                                                                                                                                                      |
-| `workflow`                   | `012_awcms_micro_workflow_approval_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `form_drafts`                | `019_awcms_micro_form_drafts_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `email`                      | `020_awcms_micro_email_schema.sql`, `021_awcms_micro_email_template_i18n_schema.sql`, `023_awcms_micro_email_announcement_permission_schema.sql`, `024_awcms_micro_email_message_cancel_permission_schema.sql`                                                                                                                                                                                                                                                                          |
 | `module_management`          | `025_awcms_micro_module_management_schema.sql` (epic #510, Issue #511-#521)                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `blog_content`               | `026_awcms_micro_blog_content_schema.sql`, `027_awcms_micro_blog_content_permissions.sql`, `028_awcms_micro_blog_content_search_vector.sql`, `029_awcms_micro_blog_content_presentation_schema.sql`, `030_awcms_micro_blog_content_presentation_permissions.sql`, `050_awcms_micro_blog_posts_seo_image.sql`, `051_awcms_micro_blog_content_internal_tag_links_schema.sql`, `052_awcms_micro_blog_content_internal_tag_links_permissions.sql` (epic #536, Issue #537-#543 + follow-ups) |
 | `tenant_domain`              | `031_awcms_micro_tenant_domain_schema.sql`, `032_awcms_micro_tenant_domain_permissions.sql`, `033_awcms_micro_tenant_domain_lookup_function.sql`                                                                                                                                                                                                                                                                                                                                        |
 | `visitor_analytics`          | `038_awcms_micro_visitor_analytics_permissions.sql`, `039_awcms_micro_visitor_analytics_schema.sql`, `040_awcms_micro_visitor_analytics_session_lookup_index.sql`                                                                                                                                                                                                                                                                                                                       |
-| `news_portal`                | `041_awcms_micro_news_media_object_registry_schema.sql`, `042_awcms_micro_news_media_permissions.sql`, `043_awcms_micro_news_portal_tenant_state_schema.sql`, `044_awcms_micro_news_portal_homepage_sections_schema.sql`, `046_awcms_micro_news_media_orphan_lifecycle.sql`, `049_awcms_micro_news_portal_ad_placements_schema.sql`                                                                                                                                                     |
-| `idn_admin_regions`          | `048_awcms_micro_idn_admin_regions_permissions.sql`, `054_awcms_micro_idn_admin_regions_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                     |
+| `media_library`              | `041_awcms_micro_news_media_object_registry_schema.sql`, `042_awcms_micro_news_media_permissions.sql`, `046_awcms_micro_news_media_orphan_lifecycle.sql`, `077_awcms_micro_media_library_permission_ownership.sql`, `078_awcms_micro_media_library_tenant_state_schema.sql`, `079_awcms_micro_media_library_enforcement_permissions.sql` (owns the tenant media registry — ADR-0026)                                                                                                    |
+| `news_portal`                | `043_awcms_micro_news_portal_tenant_state_schema.sql`, `044_awcms_micro_news_portal_homepage_sections_schema.sql`, `049_awcms_micro_news_portal_ad_placements_schema.sql`                                                                                                                                                                                                                                                                                                               |
 | `social_publishing`          | `053_awcms_micro_social_publishing_schema.sql`, `055_awcms_micro_social_publishing_verify_permission.sql`                                                                                                                                                                                                                                                                                                                                                                               |
+| `domain_event_runtime`       | `056_awcms_micro_domain_event_runtime_schema.sql`                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `data_lifecycle`             | `057_awcms_micro_data_lifecycle_schema.sql`, `058_awcms_micro_data_lifecycle_permissions.sql`                                                                                                                                                                                                                                                                                                                                                                                           |
 
-Tiga migration di baris "Foundation, lintas-modul" tidak dipetakan ke
+Empat migration di baris "Foundation, lintas-modul" tidak dipetakan ke
 satu modul karena sifatnya benar-benar lintas-modul: `001` adalah
 bootstrap murni (ledger migrasi + extension Postgres, sebelum modul
-apa pun terdaftar); `013` dan `045` adalah hardening keamanan
-lintas-tabel (RLS enforcement, pemisahan role DB least-privilege) yang
-menyentuh tabel banyak modul sekaligus, bukan schema satu modul — lihat
+apa pun terdaftar); `012` adalah idempotency store generik
+(`awcms_micro_idempotency_keys`) yang dipakai bersama oleh endpoint
+mutation high-risk mana pun (slot ini semula direncanakan untuk workflow
+approval, yang tidak diport — ADR-0025 §3); `013` dan `045` adalah
+hardening keamanan lintas-tabel (RLS enforcement, pemisahan role DB
+least-privilege) yang menyentuh tabel banyak modul sekaligus, bukan
+schema satu modul — lihat
 `docs/awcms-micro/20_threat_model_security_architecture.md`.
 
 ## Matrix Modul vs Security Control
@@ -184,7 +189,7 @@ menyentuh tabel banyak modul sekaligus, bukan schema satu modul — lihat
 | RBAC/ABAC             | Identity Access                                                |
 | RLS                   | Semua tenant-scoped                                            |
 | Audit log             | Observability + semua high-risk                                |
-| Idempotency           | POS, Warehouse, Tax, CRM, Sync, Workflow                       |
+| Idempotency           | POS, Warehouse, Tax, CRM, Sync                                 |
 | Soft delete           | Master/config/draft tenant-scoped; restore/purge by permission |
 | Input validation      | Semua API                                                      |
 | Sensitive masking     | Profile, CRM, Tax, Logs, AI                                    |
@@ -194,7 +199,7 @@ menyentuh tabel banyak modul sekaligus, bukan schema satu modul — lihat
 | File checksum         | Sync/R2, Tax export                                            |
 | Consent               | CRM                                                            |
 | AI read-only          | AI Analyst                                                     |
-| Tax export approval   | Tax + Workflow                                                 |
+| Tax export approval   | Tax                                                            |
 | Go-live gate          | Production Security                                            |
 | Backup/restore        | Deployment/Ops                                                 |
 
@@ -228,29 +233,29 @@ menyentuh tabel banyak modul sekaligus, bukan schema satu modul — lihat
 
 ## Matrix Modul vs SOP
 
-| SOP                   | Modul utama                    |
-| --------------------- | ------------------------------ |
-| Instalasi awal        | Deployment/Foundation          |
-| Setup tenant          | Tenant Admin                   |
-| Tambah user/role      | Identity + Profile             |
-| Input produk          | Inventory                      |
-| Input stok awal       | Inventory/Warehouse            |
-| Transaksi operasional | Sales POS                      |
-| Cancel/retur          | Sales POS + Workflow           |
-| Warehouse transfer    | Warehouse                      |
-| Cycle count           | Warehouse                      |
-| Stock adjustment      | Inventory/Warehouse + Workflow |
-| Receipt WA/email      | CRM                            |
-| Customer portal       | CRM/UI                         |
-| Offline sync          | Sync                           |
-| Pajak/Coretax         | Accounting Tax                 |
-| Reporting             | Reporting                      |
-| AI Analyst            | AI                             |
-| Backup/restore        | Deployment/Database            |
-| Troubleshooting       | Observability/DB               |
-| Manajemen modul       | Module Management (epic #510)  |
-| Blog/konten           | Blog Content (epic #536)       |
-| Handover              | Semua                          |
+| SOP                   | Modul utama                   |
+| --------------------- | ----------------------------- |
+| Instalasi awal        | Deployment/Foundation         |
+| Setup tenant          | Tenant Admin                  |
+| Tambah user/role      | Identity + Profile            |
+| Input produk          | Inventory                     |
+| Input stok awal       | Inventory/Warehouse           |
+| Transaksi operasional | Sales POS                     |
+| Cancel/retur          | Sales POS                     |
+| Warehouse transfer    | Warehouse                     |
+| Cycle count           | Warehouse                     |
+| Stock adjustment      | Inventory/Warehouse           |
+| Receipt WA/email      | CRM                           |
+| Customer portal       | CRM/UI                        |
+| Offline sync          | Sync                          |
+| Pajak/Coretax         | Accounting Tax                |
+| Reporting             | Reporting                     |
+| AI Analyst            | AI                            |
+| Backup/restore        | Deployment/Database           |
+| Troubleshooting       | Observability/DB              |
+| Manajemen modul       | Module Management (epic #510) |
+| Blog/konten           | Blog Content (epic #536)      |
+| Handover              | Semua                         |
 
 ## Matrix kesiapan implementasi
 
@@ -364,38 +369,32 @@ Tiap folder standar menyertakan `README.md` sebagai kontrak isi/aturan folder:
 
 ### Source modules
 
-23 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
-dikonfirmasi `bun run modules:dag:check` — "23 registered modules"),
-menggantikan daftar fiktif sebelumnya (`catalog-inventory`, `sales-pos`,
-`warehouse-management`, `accounting-tax`, `crm-communication`,
-`ai-analyst`, `observability-logging`, `database-connectivity`,
-`ui-experience`, `production-security-readiness` — tidak satu pun folder
-ini pernah ada di repo base):
+17 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
+dikonfirmasi `bun run modules:dag:check` — "17 registered modules"). Tujuh
+modul scope ERP upstream (`workflow`, `organization_structure`,
+`document_infrastructure`, `data_exchange`, `integration_hub`,
+`reference_data`, `idn_admin_regions`) **tidak diport** ke AWCMS-Micro —
+website scope (ADR-0025 §3) — sehingga tidak punya folder di
+`src/modules/`:
 
 - `_shared` (bukan modul terdaftar — kontrak/helper lintas-modul)
 - blog-content
-- data-exchange
 - data-lifecycle
-- document-infrastructure
 - domain-event-runtime
 - email
 - form-drafts
 - identity-access
-- idn-admin-regions
-- integration-hub
 - logging
+- media-library
 - module-management
 - news-portal
-- organization-structure
 - profile-identity
-- reference-data
 - reporting
 - social-publishing
 - sync-storage
 - tenant-admin
 - tenant-domain
 - visitor-analytics
-- workflow-approval
 
 ### Docs
 

@@ -10,7 +10,7 @@ Dokumen ini menjelaskan kebutuhan produk AWCMS-Micro dari sisi bisnis, pengguna,
 
 ```mermaid
 flowchart LR
-  Owner --> Reporting & Workflow
+  Owner --> Reporting
   Admin --> Tenant & Identity & Inventory
   Kasir --> POS
   Gudang[Petugas Gudang] --> Warehouse
@@ -319,7 +319,7 @@ Owner membutuhkan insight bisnis cepat tanpa membuka data mentah sensitif.
 - Customer portal mobile-friendly.
 - UI punya loading/empty/error state.
 
-## Modul 13 — Observability, Pooling, Workflow, Security
+## Modul 13 — Observability, Pooling, Security
 
 ### Scope
 
@@ -327,7 +327,6 @@ Owner membutuhkan insight bisnis cepat tanpa membuka data mentah sensitif.
 - Audit log.
 - DB pool.
 - Backpressure.
-- Workflow approval.
 - Production security readiness.
 - Go-live gates.
 

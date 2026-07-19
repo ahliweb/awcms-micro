@@ -75,9 +75,9 @@ CREATE INDEX IF NOT EXISTS awcms_micro_<name>_active_idx
   ON awcms_micro_<name> (tenant_id, created_at DESC)
   WHERE deleted_at IS NULL;
 -- Konvensi nama index: SUFFIX `_idx` (unique: `_uidx` atau `_key`), bukan
--- prefix `idx_` — lihat 15 migration terakhir/83 index nyata
--- (mis. sql/071, sql/075: `awcms_micro_data_exchange_import_batches_tenant_status_idx`,
--- `awcms_micro_reference_tenant_codes_tenant_active_idx`).
+-- prefix `idx_` — lihat index nyata di migration yang ada
+-- (mis. sql/017 `..._sync_queue_conflict_performance_indexes.sql`,
+-- sql/040 `awcms_micro_visitor_sessions_..._idx`).
 
 ALTER TABLE awcms_micro_<name> ENABLE ROW LEVEL SECURITY;
 ALTER TABLE awcms_micro_<name> FORCE ROW LEVEL SECURITY;

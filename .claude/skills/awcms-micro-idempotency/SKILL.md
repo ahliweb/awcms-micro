@@ -34,7 +34,7 @@ flowchart TD
 
 `computeRequestHash(payload: unknown)` (`src/modules/_shared/idempotency.ts:36`) **tidak menegakkan apa pun sendiri** — ia cuma SHA-256 dari JSON body yang key-nya sudah diurutkan. Ia TIDAK tahu resource mana yang sedang dimutasi. Store key di `awcms_micro_idempotency_keys` adalah `(tenant_id, request_scope, idempotency_key)`, dan `request_scope` itu **dibagi rata di seluruh resource bertipe sama dalam satu tenant** (bukan per-resource) — jadi kalau `computeRequestHash` hanya di-hash dari `body` mentah (atau body kosong `{}` untuk endpoint `restore`/`cancel`/`commit` yang tidak punya field lain), maka `Idempotency-Key` yang sama dipakai ulang klien untuk DUA resource berbeda dengan tipe endpoint sama akan mereplay respons resource pertama untuk request yang seharusnya memutasi resource kedua — **silent no-op yang terlihat seperti sukses (200 dengan body resource A), padahal resource B tidak pernah termutasi.**
 
-Bug class ini muncul 4 kali di repo ini: Issue #750 (reference-data, PR #783, 3 ronde perbaikan), lalu Issue #795 menemukan pola yang sama BELUM diperbaiki di modul lain (document-infrastructure PR #798, business-scope/organization-structure PR #801, identity-access/data-lifecycle/reports PR lain) lewat `grep -rn "computeRequestHash(" src/pages/api/` menyeluruh — audit pertama yang hanya menyasar endpoint yang "kelihatan jelas" (body kosong) melewatkan endpoint `PATCH`/action lain yang body-nya ADA tapi tidak menyertakan `id` dari path param.
+Bug class ini pernah muncul berulang di repo ini: sebuah audit menyeluruh lewat `grep -rn "computeRequestHash(" src/pages/api/` menemukan pola yang sama di beberapa modul (mis. identity-access/business-scope, data-lifecycle, reports) — audit pertama yang hanya menyasar endpoint yang "kelihatan jelas" (body kosong) melewatkan endpoint `PATCH`/action lain yang body-nya ADA tapi tidak menyertakan `id` dari path param.
 
 ### Pola BENAR
 
@@ -60,9 +60,9 @@ Aturan praktis: kalau endpoint punya path param `[id]`/`[key]`/`[relationId]`, p
 - Grep **seluruh tree yang di-assign**, bukan cuma daftar endpoint yang "kelihatan mencurigakan": `grep -rn "computeRequestHash(" src/pages/api/v1/<module>/`. Jangan percaya daftar endpoint bernama sebagai lengkap — Issue #795 sendiri butuh re-grep independen karena pass pertama hanya menyasar 7 dari 11 endpoint yang rentan.
 - Untuk tiap hit: apakah payload yang di-hash sudah menyertakan resource id dari path DAN literal `action`? Endpoint create murni (tidak ada resource pra-eksisting untuk diikat, mis. `POST /documents`) TIDAK rentan — tidak perlu `id`.
 - Endpoint index-level yang mengidentifikasi resource lewat kombinasi field yang SUDAH ada di body mentah (mis. `scopeType`+`scopeId`+`sequenceKey` pada `sequences/revise`) tidak perlu perubahan — tapi verifikasi ini secara eksplisit per endpoint, jangan asumsikan.
-- Test adversarial: dua resource berbeda, `Idempotency-Key` yang SAMA dipakai ulang pada keduanya secara berurutan → request kedua harus benar-benar memutasi resource kedua (bukan replay respons resource pertama). Contoh nyata: `tests/integration/document-infrastructure.integration.test.ts`.
+- Test adversarial: dua resource berbeda, `Idempotency-Key` yang SAMA dipakai ulang pada keduanya secara berurutan → request kedua harus benar-benar memutasi resource kedua (bukan replay respons resource pertama). Contoh: test adversarial idempotency integration pada modul yang memakai `_shared/idempotency.ts`.
 
-Lihat `src/modules/document-infrastructure/README.md` §"Catatan idempotency-key resource binding" untuk worked example lengkap lintas 11 endpoint satu modul.
+Lihat header `src/modules/_shared/idempotency.ts` untuk kontrak resource-binding `request_scope`/`computeRequestHash` lengkap.
 
 ## Endpoint wajib idempotency
 

@@ -26,7 +26,7 @@ type AuditEventInput = {
 
 ## Aksi yang WAJIB diaudit
 
-Login failed/success · access assignment · profile merge · product price change · soft delete/restore/purge · transaction posted/cancel/return · stock adjustment · warehouse transfer · Coretax export · sync conflict resolution · AI tool call · security readiness decision · workflow task decision/reassign/retire/revoke (`src/pages/api/v1/workflows/tasks/[id]/decisions.ts:197`) · document void/reclassify (`document-infrastructure/application/document-directory.ts:354,672`) · data-exchange export/import commit — bukan cuma Coretax, semua export/import job (`export-execute-job.ts:197`, `import-commit-job.ts:220`) · legal hold create/release (`data-lifecycle/application/legal-hold-service.ts:130,200`).
+Login failed/success · access assignment · profile merge · soft delete/restore/purge · sync conflict resolution · AI tool call · security readiness decision · business-scope/SoD-exception grant/revoke · legal hold create/release (`data-lifecycle/application/legal-hold-service.ts:130,200`). Aksi domain aplikasi turunan (ilustratif, bukan di base): product price change · transaction posted/cancel/return · stock adjustment · warehouse transfer · Coretax export. Modul ERP upstream (workflow task decision, document void/reclassify, data-exchange export/import commit) **tidak diport** ke AWCMS-Micro (ADR-0025) — audit rule-nya milik aplikasi turunan ERP, bukan base ini.
 
 ## Aturan
 

@@ -55,7 +55,7 @@ gantt
 |      9 | Warehouse                 | Warehouse, bin, lot, transfer, cycle count           |
 |     10 | Tax/Coretax               | Tax profile, VAT invoice, Coretax batch              |
 |     11 | UI/UX, Reporting, AI      | Admin UI, POS UI, reports, AI analyst                |
-|     12 | Production Readiness      | Workflow, security readiness, deployment, handover   |
+|     12 | Production Readiness      | Security readiness, deployment, handover             |
 
 ## Sprint acceptance criteria ringkas
 
@@ -147,7 +147,6 @@ gantt
 
 ### Sprint 12
 
-- Workflow approve/reject.
 - Security readiness pass.
 - Go-live gate blocking critical fail.
 - Backup/restore SOP dan deployment profile tersedia.

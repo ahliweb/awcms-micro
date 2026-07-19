@@ -425,10 +425,9 @@ pernah menulis ulang `status`.
 Sengaja pasangan `(text, uuid)` longgar tanpa foreign key, mengikuti POLA
 yang sama (BUKAN tipe kolom identik — koreksi post-review PR #652) dengan
 idiom yang SUDAH ADA di `awcms_micro_audit_events.resource_type`/
-`resource_id` (migration 011, `resource_id text`) dan
-`awcms_micro_workflow_instances.resource_type`/`resource_id` (migration
-012, `resource_id text` juga) — BUKAN FK ke `awcms_micro_blog_posts` atau
-tabel spesifik lain. Tabel ini memakai `owner_resource_id uuid` (bukan
+`resource_id` (migration 011, `resource_id text`) — BUKAN FK ke
+`awcms_micro_blog_posts` atau tabel spesifik lain. Tabel ini memakai
+`owner_resource_id uuid` (bukan
 `text`) plus `CHECK` enum untuk `owner_resource_type` — varian yang lebih
 ketat dari idiom yang sama, bukan replika persis. Ini memungkinkan satu
 registry melayani semua konsumen di objective (blog post/page, homepage

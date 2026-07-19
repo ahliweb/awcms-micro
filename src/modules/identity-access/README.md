@@ -462,8 +462,9 @@ Four tenant-scoped tables (`ENABLE`+`FORCE ROW LEVEL SECURITY`,
 
 ### `BusinessScopeHierarchyPort` (`_shared/ports/business-scope-hierarchy-port.ts`)
 
-Capability port so an optional organization module (`organization_structure`,
-Issue #749, ADR-0016) can resolve a scope's validity/ancestors/descendants
+Capability port so an optional organization module (`organization_structure`
+— an upstream Mini ERP module **not ported to this website-scope repo**,
+ADR-0025) can resolve a scope's validity/ancestors/descendants
 **without identity-access ever importing its tables** — the acceptance
 criterion "Identity-access has no direct import/table write to an optional
 organization module". `resolveScope(tx, tenantId, scopeType, scopeId)`
@@ -478,42 +479,37 @@ the original #746 shape, `{ ancestorScopeIds, descendantScopeIds }: string[]`
 from "resolved but flat" and callers must default-deny high-risk actions
 on it.
 
-TWO adapters implement this port today. Identity-access itself supplies a
+ONE adapter implements this port in AWCMS-Micro. Identity-access supplies a
 FLAT default: `application/business-scope-hierarchy-port-adapter.ts`'s
 `defaultBusinessScopeHierarchyPortAdapter` — validates exactly
 `scopeType: "office"` against `awcms_micro_offices` (a direct, precedented
 read of a `tenant_admin`-owned table — see that adapter's own header for
-why this specific read does not need a new port, unlike hierarchy
-resolution for a module identity-access has no lifecycle dependency on
-at all) and returns `resolved: false` for every other scope type. Since
-Issue #749, `organization_structure`'s own adapter
-(`organization-structure/application/organization-structure-hierarchy-port-
-adapter.ts`) supersedes this one for `scopeType: "legal_entity"`/
-`"organization_unit"`, walking the real effective-dated hierarchy it owns.
-Neither adapter supersedes the other outright.
+why this specific read does not need a new port) and returns
+`resolved: false` for every other scope type. **AWCMS-Micro registers NO
+hierarchy provider**: `organization_structure` (the upstream Mini module
+that would supply a real effective-dated `legal_entity`/`organization_unit`
+hierarchy) is an ERP-scope module this website-scope repo deliberately does
+not port (ADR-0025). So every business scope resolves as a leaf — the
+correct model for a website tenant, whose scopes are sites/sections rather
+than a legal-entity tree.
 
-**Wired end-to-end since Issue #786** (a follow-up to #749's own
-"zero production callers" disclosure). The sole real composition root today,
-`POST /api/v1/identity/business-scope/assignments`'s `buildHierarchyPort`
-(`src/pages/api/v1/identity/business-scope/assignments/index.ts`), resolves
-`organization_structure`'s per-tenant enablement (`resolveModuleEnabled`,
-the same Issue #515 signal every guarded endpoint already enforces) and, when
-enabled, tries `organizationStructureHierarchyPortAdapter` FIRST — falling
-back to `defaultBusinessScopeHierarchyPortAdapter` when that adapter doesn't
-resolve the scope (every other scope type, or ANY scope type at all when
-`organization_structure` is disabled for that tenant). This wiring lives in
-the route file, never inside `identity_access`'s own `application`/`domain`
-tree — importing `organization_structure` there would be a real Core-
-depends-on-Optional violation (ADR-0013 §1) that
-`tests/unit/module-boundary-cycles.test.ts` structurally forbids. The
-capability relationship is also declared in `module.ts`'s
-`capabilities.consumes` (`organization_hierarchy_resolution`,
-`providedBy: "organization_structure"`, `optional: true`) for the
-module-composition validator (Issue #740), the same shape `blog_content`
-already declares for its own optional `media_library`/`social_publishing`
-consumption — this is a documentation/build-time-validation entry, not the
-runtime wiring itself. **Scope note**: this wiring makes scope EXISTENCE/
-VALIDITY resolution real for `legal_entity`/`organization_unit`.
+The real composition root, `buildBusinessScopeHierarchyPort()`
+(`src/pages/api/v1/identity/business-scope/hierarchy-port-composition.ts`,
+factored out by Issue #802 and shared by `assignments/index.ts` +
+`assignments/[id]/revoke.ts`), wires ONLY the flat adapter. It is kept as
+the sanctioned **seam**: a derived application that registers a real
+hierarchy module through `application-registry.ts` adds its adapter HERE
+(tried first, falling through to the flat adapter for any scope type it does
+not own — safe because a non-owning adapter returns `resolved: false`) and
+touches nothing else. `identity_access`'s own `application`/`domain` tree
+never imports a hierarchy-providing module — that would be a
+Core-depends-on-Optional violation (ADR-0013 §1) that
+`tests/unit/module-boundary-cycles.test.ts` structurally forbids. `module.ts`
+declares **NO `capabilities.consumes`** in this repo (upstream Mini's optional
+`organization_hierarchy_resolution` consumption, provided by its ERP
+`organization_structure`, is not ported — see the `module.ts` comment).
+**Scope note**: scope EXISTENCE/VALIDITY resolution is real for `office`;
+`legal_entity`/`organization_unit` always resolve flat here.
 **Hierarchy-aware SoD matching (Issue #794, fixing a gap #786 deliberately
 left open and #790 made practically reachable)**: `createBusinessScopeAssignment`
 (`application/business-scope-assignment-service.ts`) now passes the
@@ -550,9 +546,8 @@ when both a `requestedScope` is supplied and a `hierarchyPort` is passed —
 every other caller today passes neither, so behavior for them is
 byte-for-byte unchanged (zero new queries, zero regression risk across the
 other ~123 route files). Only `revoke.ts` now composes the real
-`BusinessScopeHierarchyPort` (the same `organization_structure` adapter
-composition `assignments/index.ts` already uses for the create path,
-factored into a shared
+`BusinessScopeHierarchyPort` (the same flat composition `assignments/index.ts`
+already uses for the create path, factored into a shared
 `src/pages/api/v1/identity/business-scope/hierarchy-port-composition.ts`
 so both routes share one composition root) and passes it in. Because the
 detection gap itself is closed, the near-miss that previously generated
@@ -560,12 +555,13 @@ ZERO telemetry (`sod_conflicts_detected_total` never fired since
 `detectSoDConflicts` found no match) now correctly fires through the
 SAME, already-existing `recordSoDConflictEvaluation`/counter call —
 satisfying #794's own "if not fixed directly, at minimum add monitoring"
-fallback without needing a separate metric. Proven end-to-end by the
-"Issue #802 adversarial" test in `tests/integration/business-scope-
-organization-structure-wiring.integration.test.ts` (create at a parent
-`organization_unit` + ordinary-RBAC `.revoke`, attempting to revoke a
-different subject's assignment at a child unit through THIS chokepoint —
-now `403 SOD_CONFLICT`, recorded with `trigger_context: "high_risk_decision"`).
+fallback without needing a separate metric. The hierarchy-aware ancestor/
+descendant matching is only meaningful when a derived application registers
+a real hierarchy provider; in AWCMS-Micro every scope resolves flat
+(`organization_structure` is not ported, ADR-0025), so this path degrades to
+exact-scope matching. Chokepoint enforcement is proven end-to-end by
+`tests/integration/business-scope-sod-chokepoint.integration.test.ts` against
+a real, unrelated guarded endpoint.
 
 ### ABAC extension (`domain/access-control.ts`)
 
@@ -638,10 +634,8 @@ byte-for-byte unchanged behavior when omitted.
 **Scope of "chokepoint" — accurate claim, not "every endpoint in this
 codebase".** `authorizeInTransaction` is used by 124 route files, but 13
 pre-existing route files call `evaluateAccess()`/`isHighRiskAction()`
-directly instead (not introduced by this issue) — including 3 high-risk
-ones this issue does not touch (`profiles/[id]` delete/restore/purge) and
-`workflows/tasks/[id]/decisions.ts` (approve, its own hand-rolled
-self-approval guard outside `access-guard.ts`). No current
+directly instead (not introduced by this issue) — including high-risk
+ones this issue does not touch (`profiles/[id]` delete/restore/purge). No current
 `SoDRuleDescriptor` fixture references those endpoints' permission keys,
 so there is no active gap today, but a future SoD rule targeting one of
 them would silently not be enforced — see `high-risk-sod-guard.ts`'s own

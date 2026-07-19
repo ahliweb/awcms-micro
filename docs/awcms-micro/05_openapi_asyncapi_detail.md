@@ -93,7 +93,6 @@ Default response list/detail tidak menampilkan soft-deleted record. Detail soft-
 - `POST /tax/coretax/batches`
 - `POST /crm/receipts/{id}/send`
 - `POST /sync/push`
-- `POST /workflow/tasks/{id}/decision`
 
 ## Error code standard
 
@@ -312,7 +311,7 @@ Admin UI (Issue #543): `/admin/blog/*` — Astro + vanilla JS, tidak menambah en
 
 27 domain event AsyncAPI (`awcms-micro.blog-content.*`, §Event utama tidak mendaftarkan semuanya karena volumenya — lihat `asyncapi/awcms-micro-domain-events.asyncapi.yaml` dan README modul §Domain events untuk daftar lengkap + tabel produser). Sejak Issue #543 seluruh channel punya produser nyata (celah terakhir saat itu, `settings.updated`, ditutup oleh `PATCH /api/v1/blog/settings`); Issue #641 menambah channel ke-27, `internal-tag-linking-policy.updated`.
 
-### AI, Reports, Logs, Workflow, Security
+### AI, Reports, Logs, Security
 
 | Modul    | Endpoint utama                                                 |
 | -------- | -------------------------------------------------------------- |
@@ -320,7 +319,6 @@ Admin UI (Issue #543): `/admin/blog/*` — Astro + vanilla JS, tidak menambah en
 | Reports  | `GET /reports/sales/daily`, `GET /reports/warehouse/dashboard` |
 | Logs     | `GET /logs/recent`, `GET /logs/audit`, `GET /logs/security`    |
 | DB Pool  | `GET /database/pool/health`                                    |
-| Workflow | `GET /workflow/tasks`, `POST /workflow/tasks/{id}/decision`    |
 | Security | `POST /security/go-live-gates/evaluate`                        |
 
 ## Siklus request API
@@ -398,8 +396,7 @@ flowchart LR
 | `tax.vat_invoice.generated`      | Tax             | Reporting, audit                     |
 | `tax.coretax.batch_exported`     | Tax             | Sync, audit                          |
 | `crm.message.sent`               | CRM             | Reporting, audit                     |
-| `sync.conflict.detected`         | Sync            | Workflow, audit                      |
-| `workflow.task.approved`         | Workflow        | Requesting module                    |
+| `sync.conflict.detected`         | Sync            | audit                                |
 | `database.pool.saturated`        | DB Connectivity | Observability, security              |
 | `database.pool.rejected`         | DB Connectivity | Observability, security              |
 | `security.golive.blocked`        | Security        | Owner/admin                          |

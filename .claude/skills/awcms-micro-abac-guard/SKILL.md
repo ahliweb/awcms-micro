@@ -80,6 +80,15 @@ type AccessDecision = {
 };
 ```
 
+> **Catatan scope (ADR-0025).** Sebagian literal `AccessAction` di atas
+> (`retire`/`reassign`/`force_decide` → `workflow_approval`; `commit`/
+> `rollback` → `reference_data`; `void`/`reclassify`/`reserve` →
+> `document_infrastructure`) adalah **seam generik yang dipertahankan** dari
+> kontrak upstream Mini — modul ERP pemiliknya **tidak diport** ke AWCMS-Micro
+> (website scope). Union-nya tetap utuh sebagai kontrak generik, tapi jangan
+> asumsikan modul-modul itu ada di `src/modules/`: konsumennya adalah aplikasi
+> turunan ERP, bukan base ini.
+
 ## Prosedur
 
 ```mermaid

@@ -151,11 +151,11 @@ never instead of it.
 
 ### Scheduled exports
 
-Minimal, self-contained (not built on Issue #752 `data_exchange`, which
-was still in parallel development when this issue shipped — its
-staged-import/large-dataset machinery is the right fit for arbitrary
-business-record export, not this projection's small metric-snapshot
-export). `application/export-generation.ts` writes a CSV/JSON snapshot
+Minimal, self-contained (deliberately NOT a generic staged-import/export
+framework — the upstream Mini `data_exchange` module that would own arbitrary
+business-record export is an ERP-scope module **not ported** to AWCMS-Micro,
+ADR-0025; this projection needs only a small metric-snapshot export).
+`application/export-generation.ts` writes a CSV/JSON snapshot
 (one row per metric) to `REPORTING_EXPORT_ROOT_PATH` (doc 18,
 `infrastructure/local-export-adapter.ts`, SHA-256 checksummed, CSV
 formula-injection neutralized) OUTSIDE any DB transaction, then records

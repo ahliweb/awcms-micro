@@ -144,24 +144,23 @@ taruhan keamanan fitur, bukan template tunggal.** Varian #1
 (`blog_content` konsumsi `NewsMediaPort` dari `news_portal`, Issue #681):
 route handler SELALU inject adapter konkret, TANPA cek enable/disable
 tenant di call site — port itu sendiri yang didesain fail-closed/no-op
-aman untuk setiap kasus "tidak berlaku". Varian #2 (`identity_access`
-konsumsi `BusinessScopeHierarchyPort` dari `organization_structure`,
-Issue #746/#749/#786): composition root (`POST /api/v1/identity/
-business-scope/assignments`'s `buildHierarchyPort`) SECARA EKSPLISIT
-memanggil `resolveModuleEnabled(tx, tenantId, "organization_structure")`
-lebih dulu — hanya mencoba adapter nyata modul itu saat aktif untuk
-tenant tsb, jatuh ke adapter default modul pengonsumsi kalau tidak. Pilih
-varian #2 (gate eksplisit) ketika kapabilitas yang dikonsumsi menentukan
-keputusan otorisasi/keamanan (di sini: apakah sebuah scope reference
-valid sebelum SoD dievaluasi) — men-degradasi "aman" secara implisit
-lewat port semata (varian #1) berisiko diam-diam mengonsultasikan data
-milik modul yang justru sudah dinonaktifkan tenant. Kedua varian tetap
-sama-sama TIDAK PERNAH meng-import `application`/`domain` modul lain
-langsung dari modul pengonsumsi — hanya lewat port + composition root,
-lihat `identity-access/README.md` dan `organization-structure/README.md`
-§`BusinessScopeHierarchyPort` untuk detail varian #2, dan
-`tests/integration/business-scope-organization-structure-wiring.
-integration.test.ts` untuk buktinya end-to-end.
+aman untuk setiap kasus "tidak berlaku". Varian #2 (gate enable eksplisit
+di composition root): dipakai ketika kapabilitas yang dikonsumsi menentukan
+keputusan otorisasi/keamanan dan penyedianya opsional per tenant — men-
+degradasi "aman" secara implisit lewat port semata (varian #1) berisiko
+diam-diam mengonsultasikan data milik modul yang sudah dinonaktifkan tenant.
+**Catatan scope**: contoh kanonik upstream — `identity_access` mengonsumsi
+`BusinessScopeHierarchyPort` dari `organization_structure` — adalah pola
+DERIVED-APP: `organization_structure` adalah modul ERP yang **tidak diport**
+ke AWCMS-Micro (ADR-0025), sehingga composition root base
+(`buildBusinessScopeHierarchyPort()`, `src/pages/api/v1/identity/business-
+scope/hierarchy-port-composition.ts`) hanya mewire adapter FLAT default.
+Sebuah aplikasi turunan yang mendaftarkan modul hierarki lewat
+`application-registry.ts` menambah adapternya di composition root itu
+(dicoba lebih dulu, jatuh ke flat untuk scope yang tidak dimilikinya). Kedua
+varian tetap TIDAK PERNAH meng-import `application`/`domain` modul lain
+langsung dari modul pengonsumsi — hanya lewat port + composition root; lihat
+`identity-access/README.md` §`BusinessScopeHierarchyPort`.
 
 ## Baca status tenant-enabled: plural vs singular
 
@@ -220,14 +219,12 @@ masing-masing.
 
 `GET /api/v1/modules/{moduleKey}/permissions` (Issue #517) melaporkan
 `synced`/`missing`/`orphaned`/`mismatched_description` — **read-only**,
-tidak pernah menulis ke `awcms_micro_permissions`. **17 modul** (dari 23)
+tidak pernah menulis ke `awcms_micro_permissions`. **11 modul** (dari 17)
 sudah mendeklarasikan `permissions` di descriptornya — `module_management`,
-`blog_content` (sejak Issue #543, 39-entry array), `idn_admin_regions`,
+`blog_content` (sejak Issue #543, 39-entry array),
 `news_portal`, `social_publishing`, `tenant_domain`, `visitor_analytics`,
-`profile_identity`, `reporting`, `workflow_approval`, plus 7 modul
-platform-evolution epic #738: `data_exchange`, `data_lifecycle`,
-`document_infrastructure`, `domain_event_runtime`, `integration_hub`,
-`organization_structure`, `reference_data`. **6 modul** lain (email,
+`profile_identity`, `reporting`, `media_library`, `data_lifecycle`, dan
+`domain_event_runtime`. **6 modul** lain (email,
 form-drafts, identity-access, logging, sync-storage, tenant-admin) punya
 permission seed nyata (dari migration masing-masing) tapi belum
 ditambahkan ke descriptor — jadi permission mereka **legitimately** muncul
@@ -278,10 +275,9 @@ ini), `awcms-micro-abac-guard` (guard bersama yang juga menegakkan
 kategori modul (Core/System/Official Optional Module/Derived Application/
 External Integration), kriteria admission, aturan dependency required vs
 optional (§5, melengkapi `capabilities` di atas), ekspektasi kompatibilitas
-offline/LAN vs full-online-only, dan pemetaan 23 modul terdaftar saat ini
-(`src/modules/index.ts`'s `baseModules`, termasuk 7 modul platform-evolution
-epic #738: data_lifecycle, domain_event_runtime, organization_structure,
-document_infrastructure, data_exchange, integration_hub, reference_data)
+offline/LAN vs full-online-only, dan pemetaan 17 modul terdaftar saat ini
+(`src/modules/index.ts`'s `baseModules`, WEBSITE scope — tujuh modul ERP
+upstream tidak diport, ADR-0025)
 ke kategori tersebut (termasuk catatan remediasi field `type`/`isCore`/
 `maintainers` yang belum konsisten diisi — lihat doc 21 §8). Baca dokumen
 itu sebelum mengusulkan modul baru atau mengubah kategori/status lifecycle
@@ -308,7 +304,7 @@ di atas, sengaja dipakai ulang bukan diduplikasi).
   utuh.
 - **`listModules()` sekarang compose-aware** — mengembalikan hasil merge
   base + `applicationModuleRegistry`. Di repo base ini nilainya SELALU
-  sama seperti sebelum Issue #740 (registry base 23 modul, byte-identical)
+  sama seperti sebelum Issue #740 (registry base 17 modul, byte-identical)
   karena `applicationModuleRegistry` selalu `undefined` di sini. Konsumen
   yang sudah ada (`modules:sync`, `modules:dag:check`,
   `repo:inventory:generate`, semua service module-management) TIDAK perlu

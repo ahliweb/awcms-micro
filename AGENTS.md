@@ -272,7 +272,7 @@ berjalan, bukan target/rencana:
 
 ```bash
 bun install
-bun run check                    # gate lengkap: lint + check:docs + api:spec:check + api:docs:check + repo:inventory:check + modules:dag:check + modules:compose:check + modules:composition:inventory:check + extension:check + data-lifecycle:registry:check + reporting:projections:registry:check + identity-access:sod-registry:check + reference-data:contributions:check + i18n:pot:check + i18n:parity:check + config:docs:check + logging:lint:check + db:work-class:check + typecheck + test + build
+bun run check                    # gate lengkap: lint + check:docs + api:spec:check + api:docs:check + repo:inventory:check + modules:dag:check + modules:compose:check + modules:composition:inventory:check + media-library:consistency:check + scope:consistency:check + extension:check + data-lifecycle:registry:check + reporting:projections:registry:check + identity-access:sod-registry:check + i18n:pot:check + i18n:parity:check + config:docs:check + logging:lint:check + db:work-class:check + typecheck + test + build
 bun run dev                      # bun --bun astro dev
 bun run build                    # bun --bun astro build
 bun run preview                  # bun --bun astro preview
@@ -421,7 +421,7 @@ Alasan urutan: aplikasi turunan tidak aman tanpa tenant/auth/profile/access; obs
 ```
 
 Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `security`, `perf`, `ci`, `build`.
-Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`, `ui`, `logging`, `pooling`, `workflow`, `reporting`, `security`, `docs`. Aplikasi turunan menambah scope domainnya sendiri (mis. `pos`, `inventory`, `warehouse`, `tax`, `crm`).
+Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`, `ui`, `logging`, `pooling`, `reporting`, `security`, `docs`. Aplikasi turunan menambah scope domainnya sendiri (mis. `pos`, `inventory`, `warehouse`, `tax`, `crm`).
 
 Branch: `feature/<issue>-<name>`, `fix/<issue>-<name>`, `docs/<topik>`, `release/vX.Y.Z`, `hotfix/vX.Y.Z-<name>`. **Buat branch dari `main` yang up-to-date SEBELUM mengedit file apa pun** (`git switch main && git pull --ff-only && git switch -c <prefix>/<issue>-<slug>`) — `main` dilindungi dan setiap perubahan wajib lewat PR (`Closes #NNN`). Satu issue = satu branch = satu PR.
 
