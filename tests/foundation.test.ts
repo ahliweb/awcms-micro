@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 17 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(17);
+  test("the 18 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(18);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -141,6 +141,15 @@ describe("module registry", () => {
     });
     expect(getModuleByKey("social_publishing")).toMatchObject({
       key: "social_publishing",
+      status: "active",
+      type: "domain",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Issue #266 (ADR-0028) — `seo_distribution` registered with its first
+    // runtime code, bumping the base registry 17 → 18. Consumer/aggregator: it
+    // provides nothing and depends only on the two Core modules.
+    expect(getModuleByKey("seo_distribution")).toMatchObject({
+      key: "seo_distribution",
       status: "active",
       type: "domain",
       dependencies: ["tenant_admin", "identity_access"]
@@ -579,7 +588,9 @@ describe("database migration runner helpers", () => {
       "070_awcms_micro_reporting_projections_permissions.sql",
       "077_awcms_micro_media_library_permission_ownership.sql",
       "078_awcms_micro_media_library_tenant_state_schema.sql",
-      "079_awcms_micro_media_library_enforcement_permissions.sql"
+      "079_awcms_micro_media_library_enforcement_permissions.sql",
+      "080_awcms_micro_seo_distribution_config_schema.sql",
+      "081_awcms_micro_seo_distribution_config_permissions.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

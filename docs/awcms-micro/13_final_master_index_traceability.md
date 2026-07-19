@@ -369,8 +369,8 @@ Tiap folder standar menyertakan `README.md` sebagai kontrak isi/aturan folder:
 
 ### Source modules
 
-17 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
-dikonfirmasi `bun run modules:dag:check` — "17 registered modules"). Tujuh
+18 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
+dikonfirmasi `bun run modules:dag:check` — "18 registered modules"). Tujuh
 modul scope ERP upstream (`workflow`, `organization_structure`,
 `document_infrastructure`, `data_exchange`, `integration_hub`,
 `reference_data`, `idn_admin_regions`) **tidak diport** ke AWCMS-Micro —

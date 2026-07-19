@@ -2209,7 +2209,7 @@ msgid "admin.layout.nav_aria_label"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/blog-content/module.ts:55
+#: src/modules/blog-content/module.ts:66
 msgid "admin.layout.nav_blog"
 msgstr ""
 

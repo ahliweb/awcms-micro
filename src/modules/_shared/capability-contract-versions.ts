@@ -65,6 +65,17 @@ export const CAPABILITY_CONTRACT_VERSIONS: Readonly<Record<string, string>> =
     // blog_content provides — consumed by news_portal (ADR-0011) and
     // social_publishing.
     public_content: "1.0.0",
+    // blog_content provides (Issue #266, ADR-0028 §3) — the `seo_facts`
+    // contribution contract (`_shared/ports/seo-facts-port.ts`) consumed by
+    // `seo_distribution` (optional). Registered in the SAME PR that added
+    // `provides: ["seo_facts"]` to `blog_content`'s module.ts (ADR-0015 rule).
+    // Single provider by design: `blog_content` owns the public content
+    // resources SEO renders — a second provider would be a
+    // `capability_provider_conflict` (module-composition.ts). The port existed
+    // as a type since #265 (ADR-0028 admission) with no version entry — the
+    // `legal-hold-guard-port.ts` "type ahead of wiring" precedent — and gets its
+    // version here now that a real provider declares it.
+    seo_facts: "1.0.0",
     // social_publishing provides — consumed by blog_content (optional).
     social_publishing: "1.0.0",
     // profile_identity provides (Issue #748, epic #738 platform-evolution

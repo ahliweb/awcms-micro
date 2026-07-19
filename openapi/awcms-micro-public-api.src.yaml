@@ -88,6 +88,9 @@ tags:
 
   - name: Reporting Projections
     description: "Module-contributed read-model projection extension to Management Reporting (epic `platform-evolution` #738 Wave 3, Issue #753) — list registered projection descriptors with live snapshot/freshness status, trigger/resume/cancel an idempotent full rebuild, trigger an on-demand reconciliation against a source control total, and manage/trigger/download scheduled exports of a projection's current snapshot (manifest/checksum/expiry, secure tenant-scoped download). A projection is a DERIVED read model, never an authorization source of truth — every operation here independently re-checks RBAC/ABAC. Real incremental updates (`bun run reporting:projections:refresh`, `bun run reporting:exports:dispatch`) are internal scheduled jobs, not exposed over HTTP."
+
+  - name: SEO & Distribution
+    description: "Tenant-scoped SEO defaults admin API for the `seo_distribution` module (epic #261 Wave 1, Issue #266, ADR-0028) — read/update the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, and a tenant-wide `noindex` switch) that the central metadata renderer applies UNDERNEATH resource-level facts. `PUT` is high-risk (rewrites the public metadata/indexability surface) — it requires an `Idempotency-Key` and is audited. The public HTML metadata itself (canonical/hreflang/OG/JSON-LD) is rendered inline by the Astro public routes, not exposed as a JSON endpoint; sitemap/robots/feeds (#267) and redirects (#268) are separate issues in the same module."
 components:
   securitySchemes:
     bearerAuth:

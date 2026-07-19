@@ -7131,6 +7131,63 @@ Module-contributed read-model projection extension to Management Reporting (epic
 | 404    | Resource not found or hidden by soft-delete policy.                                                                                                     | [`ApiError`](#standard-error-envelope)                   |
 | 500    | Internal server error without stack trace.                                                                                                              | [`ApiError`](#standard-error-envelope)                   |
 
+## SEO & Distribution
+
+Tenant-scoped SEO defaults admin API for the `seo_distribution` module (epic #261 Wave 1, Issue #266, ADR-0028) — read/update the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, and a tenant-wide `noindex` switch) that the central metadata renderer applies UNDERNEATH resource-level facts. `PUT` is high-risk (rewrites the public metadata/indexability surface) — it requires an `Idempotency-Key` and is audited. The public HTML metadata itself (canonical/hreflang/OG/JSON-LD) is rendered inline by the Astro public routes, not exposed as a JSON endpoint; sitemap/robots/feeds (#267) and redirects (#268) are separate issues in the same module.
+
+### `GET /api/v1/seo/config` — Read this tenant's SEO defaults
+
+- **operationId**: `seoConfigRead`
+- **Security**: bearerAuth + tenantHeader
+
+Returns the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, tenant-wide `noindex` switch). A tenant with no configuration yet returns the neutral defaults (every field null, `defaultRobotsNoindex` false). Gated by `seo_distribution.config.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                             |
+| ------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 200    | This tenant's SEO defaults.                    | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoTenantSettings`](#schema-seotenantsettings)&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                                                             |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                             |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                             |
+
+### `PUT /api/v1/seo/config` — Update this tenant's SEO defaults
+
+- **operationId**: `seoConfigUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+Full replace of the tenant's SEO defaults. High-risk (rewrites the public metadata/indexability surface, including the tenant-wide `noindex` switch), so it requires an `Idempotency-Key` header and records an audit event. Gated by `seo_distribution.config.update`. Media ids (`defaultSocialMediaId`, `organizationLogoMediaId`) are validated as UUIDs here and resolved same-tenant/verified through `media_library` at render time — an id that does not resolve is simply not emitted.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SeoTenantSettingsUpdateRequest`](#schema-seotenantsettingsupdaterequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                             |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 200    | SEO defaults updated (or an idempotent replay of an identical prior request).                                                                                                                                    | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoTenantSettings`](#schema-seotenantsettings)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                             |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                             |
+| 409    | The `Idempotency-Key` was already used with a different request payload.                                                                                                                                         | [`ApiError`](#standard-error-envelope)                                                             |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                             |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                             |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -11382,6 +11439,62 @@ At least one field must be provided.
 ```json
 {
   "scheduledAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: SeoTenantSettings
+
+Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullable except the boolean switch; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins).
+
+| Field                     | Type          | Required | Nullable | Description                                                                                                                                              |
+| ------------------------- | ------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `siteName`                | string        | yes      | yes      | Overrides the tenant display name for og:site_name / JSON-LD WebSite; null falls back to the tenant name.                                                |
+| `defaultMetaDescription`  | string        | yes      | yes      | Default meta description / og:description when a resource has none.                                                                                      |
+| `defaultSocialMediaId`    | string (uuid) | yes      | yes      | Default social preview image (media object id, resolved same-tenant/verified at render time).                                                            |
+| `twitterSiteHandle`       | string        | yes      | yes      | Rendered as twitter:site, e.g. "@example".                                                                                                               |
+| `organizationName`        | string        | yes      | yes      | schema.org Organization identity for the site-level JSON-LD node.                                                                                        |
+| `organizationLogoMediaId` | string (uuid) | yes      | yes      | Organization logo (media object id, resolved same-tenant/verified at render time).                                                                       |
+| `defaultRobotsNoindex`    | boolean       | yes      | no       | Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex regardless of its own indexability. |
+
+**Example**
+
+```json
+{
+  "siteName": "string",
+  "defaultMetaDescription": "string",
+  "defaultSocialMediaId": "00000000-0000-0000-0000-000000000000",
+  "twitterSiteHandle": "string",
+  "organizationName": "string",
+  "organizationLogoMediaId": "00000000-0000-0000-0000-000000000000",
+  "defaultRobotsNoindex": false
+}
+```
+
+### Schema: SeoTenantSettingsUpdateRequest
+
+Update body — same shape as SeoTenantSettings; omitted string fields are treated as null, an omitted defaultRobotsNoindex defaults to false. Unknown keys are ignored.
+
+| Field                     | Type          | Required | Nullable | Description |
+| ------------------------- | ------------- | -------- | -------- | ----------- |
+| `siteName`                | string        | no       | yes      |             |
+| `defaultMetaDescription`  | string        | no       | yes      |             |
+| `defaultSocialMediaId`    | string (uuid) | no       | yes      |             |
+| `twitterSiteHandle`       | string        | no       | yes      |             |
+| `organizationName`        | string        | no       | yes      |             |
+| `organizationLogoMediaId` | string (uuid) | no       | yes      |             |
+| `defaultRobotsNoindex`    | boolean       | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "siteName": "string",
+  "defaultMetaDescription": "string",
+  "defaultSocialMediaId": "00000000-0000-0000-0000-000000000000",
+  "twitterSiteHandle": "string",
+  "organizationName": "string",
+  "organizationLogoMediaId": "00000000-0000-0000-0000-000000000000",
+  "defaultRobotsNoindex": false
 }
 ```
 

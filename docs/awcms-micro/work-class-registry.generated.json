@@ -791,6 +791,11 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/seo/config.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/settings/index.ts",
       "workClass": "interactive",
       "source": "default"

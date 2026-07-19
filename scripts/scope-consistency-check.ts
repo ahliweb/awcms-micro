@@ -73,11 +73,16 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * The size of the real WEBSITE-scoped base registry. A hard anchor: a derived
  * ERP app composes extra modules through `application-registry.ts` at build
  * time (which this gate does not run against), so in THIS base repository the
- * count is exactly 17. Adding a genuinely new base module is a conscious event
+ * count is exactly 18. Adding a genuinely new base module is a conscious event
  * that must bump this constant in the same PR — that is the "module-count
  * drift" guard, not an accident waiting to happen.
+ *
+ * 18 since Issue #266 (ADR-0028) registered `seo_distribution` with its first
+ * runtime code — the admission PR (#265) deliberately kept the count at 17 (a
+ * code-less descriptor is the placeholder the media-library gate forbids), so
+ * the anchor rose when CODE landed, not when the ADR was Accepted.
  */
-export const EXPECTED_BASE_MODULE_COUNT = 17;
+export const EXPECTED_BASE_MODULE_COUNT = 18;
 
 /**
  * Generated inventories that must never name an excluded module. These are
@@ -350,7 +355,7 @@ if (import.meta.main) {
     process.exitCode = 1;
   } else {
     console.log(
-      "scope:consistency:check OK — registry, contracts, and inventories describe only the 17-module WEBSITE registry; no excluded ERP module reintroduced."
+      `scope:consistency:check OK — registry, contracts, and inventories describe only the ${EXPECTED_BASE_MODULE_COUNT}-module WEBSITE registry; no excluded ERP module reintroduced.`
     );
   }
 }

@@ -1,0 +1,175 @@
+# Source fragment for the "SEO & Distribution" module/tag (Issue #266, epic
+# #261 Wave 1, ADR-0028).
+#
+# Owns the `/api/v1/seo/config` paths and the schemas referenced ONLY by this
+# tag's operations. Shared components (securitySchemes/parameters/responses,
+# ApiSuccess/ApiError/ApiMeta) live in the root file
+# (openapi/awcms-micro-public-api.src.yaml).
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared components
+# only resolve after `bun run openapi:bundle` merges this file with the root and
+# every sibling module fragment into openapi/awcms-micro-public-api.openapi.yaml.
+# Edit this file (or the root for shared components), never the generated bundle.
+paths:
+  /api/v1/seo/config:
+    get:
+      tags:
+        - SEO & Distribution
+      summary: Read this tenant's SEO defaults
+      description: "Returns the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, tenant-wide `noindex` switch). A tenant with no configuration yet returns the neutral defaults (every field null, `defaultRobotsNoindex` false). Gated by `seo_distribution.config.read`."
+      operationId: seoConfigRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's SEO defaults.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SeoTenantSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    put:
+      tags:
+        - SEO & Distribution
+      summary: Update this tenant's SEO defaults
+      description: "Full replace of the tenant's SEO defaults. High-risk (rewrites the public metadata/indexability surface, including the tenant-wide `noindex` switch), so it requires an `Idempotency-Key` header and records an audit event. Gated by `seo_distribution.config.update`. Media ids (`defaultSocialMediaId`, `organizationLogoMediaId`) are validated as UUIDs here and resolved same-tenant/verified through `media_library` at render time — an id that does not resolve is simply not emitted."
+      operationId: seoConfigUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeoTenantSettingsUpdateRequest"
+      responses:
+        "200":
+          description: SEO defaults updated (or an idempotent replay of an identical prior request).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SeoTenantSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: "The `Idempotency-Key` was already used with a different request payload."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    SeoTenantSettings:
+      type: object
+      description: "Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullable except the boolean switch; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins)."
+      required:
+        - siteName
+        - defaultMetaDescription
+        - defaultSocialMediaId
+        - twitterSiteHandle
+        - organizationName
+        - organizationLogoMediaId
+        - defaultRobotsNoindex
+      properties:
+        siteName:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: "Overrides the tenant display name for og:site_name / JSON-LD WebSite; null falls back to the tenant name."
+        defaultMetaDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+          description: "Default meta description / og:description when a resource has none."
+        defaultSocialMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: "Default social preview image (media object id, resolved same-tenant/verified at render time)."
+        twitterSiteHandle:
+          type: string
+          nullable: true
+          maxLength: 80
+          description: 'Rendered as twitter:site, e.g. "@example".'
+        organizationName:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: "schema.org Organization identity for the site-level JSON-LD node."
+        organizationLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: "Organization logo (media object id, resolved same-tenant/verified at render time)."
+        defaultRobotsNoindex:
+          type: boolean
+          description: "Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex regardless of its own indexability."
+    SeoTenantSettingsUpdateRequest:
+      type: object
+      description: "Update body — same shape as SeoTenantSettings; omitted string fields are treated as null, an omitted defaultRobotsNoindex defaults to false. Unknown keys are ignored."
+      properties:
+        siteName:
+          type: string
+          nullable: true
+          maxLength: 200
+        defaultMetaDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+        defaultSocialMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        twitterSiteHandle:
+          type: string
+          nullable: true
+          maxLength: 80
+        organizationName:
+          type: string
+          nullable: true
+          maxLength: 200
+        organizationLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        defaultRobotsNoindex:
+          type: boolean
+          default: false

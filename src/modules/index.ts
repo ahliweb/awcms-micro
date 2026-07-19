@@ -13,6 +13,7 @@ import { moduleManagementModule } from "./module-management/module";
 import { newsPortalModule } from "./news-portal/module";
 import { profileIdentityModule } from "./profile-identity/module";
 import { reportingModule } from "./reporting/module";
+import { seoDistributionModule } from "./seo-distribution/module";
 import { socialPublishingModule } from "./social-publishing/module";
 import { syncStorageModule } from "./sync-storage/module";
 import { tenantAdminModule } from "./tenant-admin/module";
@@ -64,7 +65,16 @@ const baseModules: ModuleDescriptor[] = [
   blogContentModule,
   newsPortalModule,
   socialPublishingModule,
-  visitorAnalyticsModule
+  visitorAnalyticsModule,
+  // `active` Official Optional Module (ADR-0028, admitted #265, first runtime
+  // code #266). CONSUMER/aggregator of the `seo_facts` contribution contract —
+  // the central canonical/hreflang/OG/Twitter/JSON-LD renderer for public
+  // pages. Its `capabilities.consumes` point INWARD (it depends on no domain
+  // module; nothing depends on it), so the DAG is unchanged. This is the entry
+  // ADR-0028 deferred out of the admission PR: it lands with real code, which is
+  // why registering it here bumps the base count 17 → 18 (and
+  // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
+  seoDistributionModule
 ];
 
 /** Base-only registry, regardless of any application registry — Issue #740's composition API. */
