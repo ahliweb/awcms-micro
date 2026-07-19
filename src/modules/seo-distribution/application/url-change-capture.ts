@@ -57,7 +57,9 @@ export async function captureUrlChangeRedirect(
     return { outcome: "invalid", errors: plan.errors };
   }
 
-  const safety = await checkRedirectSafety(tx, tenantId, plan.rule, now);
+  const safety = await checkRedirectSafety(tx, tenantId, plan.rule, now, {
+    allowedHosts
+  });
   if (!safety.ok) {
     return { outcome: "rejected", code: safety.code, message: safety.message };
   }

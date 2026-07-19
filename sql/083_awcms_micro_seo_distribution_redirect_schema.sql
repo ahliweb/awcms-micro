@@ -179,9 +179,10 @@ CREATE POLICY awcms_micro_seo_redirects_tenant_isolation
 -- — NOT one row per hit. Upsert-increments `hit_count`/`last_seen_at`, so a bot
 -- probing the same 404 a million times is one row, not a million. Only a
 -- sanitized path (query DROPPED entirely) and a bare referrer DOMAIN (never the
--- full referrer URL) are stored — reusing `visitor-analytics`'s
--- `sanitizePath`/`extractReferrerDomain` privacy helpers. A full sensitive query
--- string or secret can never land here (ADR-0028 threat model, #268 privacy req).
+-- full referrer URL) are stored — the path via seo-distribution's own
+-- `normalizeRedirectPath` (query dropped by normalization) and the referrer via
+-- `visitor-analytics`'s `extractReferrerDomain` privacy helper. A full sensitive
+-- query string or secret can never land here (ADR-0028 threat model, #268 privacy req).
 -- Bounded retention is enforced by the data_lifecycle registry (this table is
 -- declared high-volume in `seo-distribution/module.ts`, analytics_telemetry class).
 CREATE TABLE IF NOT EXISTS awcms_micro_seo_not_found_observations (

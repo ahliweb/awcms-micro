@@ -6,6 +6,7 @@
  * pure guards: the source path to `normalizeRedirectPath` (CRLF/traversal/Unicode)
  * and the target to `validateRedirectTarget` (the frozen open-redirect guards).
  */
+import { isRedirectEligiblePath } from "./redirect-eligibility";
 import { normalizeRedirectPath, redirectPathKey } from "./redirect-path";
 import {
   validateRedirectTarget,
@@ -237,14 +238,30 @@ function validateOrigin(
   return value as RedirectOrigin;
 }
 
+const SELF_REDIRECT_ERROR: RedirectValidationError = {
+  field: "target",
+  message: "A rule may not redirect a path to itself (self-redirect)."
+};
+
 /**
  * Cross-field checks shared by create + update: effective window ordering and
  * self-redirect. `normalizedSourcePath` is the rule's source (for update, the
- * immutable existing source). A relative target whose path equals the source (same
- * scope) is a self-redirect and rejected — it would bounce the client forever.
+ * immutable existing source); `domainScopeHost` is the rule's optional host scope.
+ *
+ * A target whose (host, path) re-matches the rule's OWN source scope is a
+ * self-redirect and rejected — it would bounce the client forever:
+ *  - `relative_same_tenant`: the target path equals the source path (A relative
+ *    target implicitly stays on whatever host the request came in on, which is
+ *    always within the source's scope).
+ *  - `verified_external` (A-M1): the absolute target's `pathname` equals the source
+ *    path AND its host is within the rule's scope (an unscoped rule matches any of
+ *    the tenant's hosts, so any own-host target with the same path self-loops; a
+ *    host-scoped rule self-loops only when the target host equals that scope host).
+ *    This mirrors the resolve-time same-host fold-back in `redirect-chain.ts`.
  */
 function validateCrossFields(
   normalizedSourcePath: string,
+  domainScopeHost: string | null,
   targetType: RedirectTargetType,
   target: string,
   effectiveFrom: Date | null,
@@ -262,14 +279,30 @@ function validateCrossFields(
     });
   }
 
-  if (
-    targetType === "relative_same_tenant" &&
-    redirectPathKey(target) === normalizedSourcePath
-  ) {
-    errors.push({
-      field: "target",
-      message: "A rule may not redirect a path to itself (self-redirect)."
-    });
+  if (targetType === "relative_same_tenant") {
+    if (redirectPathKey(target) === normalizedSourcePath) {
+      errors.push(SELF_REDIRECT_ERROR);
+    }
+    return;
+  }
+
+  // targetType === "verified_external": the target is an absolute URL on one of
+  // the tenant's own verified hosts (already asserted by `validateRedirectTarget`).
+  let url: URL | null = null;
+  try {
+    url = new URL(target);
+  } catch {
+    url = null;
+  }
+  if (url === null) return;
+
+  const targetPathKey = redirectPathKey(url.pathname);
+  const scopeMatchesTargetHost =
+    domainScopeHost === null ||
+    domainScopeHost.toLowerCase() === url.hostname.toLowerCase();
+
+  if (targetPathKey === normalizedSourcePath && scopeMatchesTargetHost) {
+    errors.push(SELF_REDIRECT_ERROR);
   }
 }
 
@@ -297,6 +330,16 @@ export function validateRedirectInput(
 
   if (!sourceResult.ok) {
     errors.push({ field: "sourcePath", message: sourceResult.reason });
+  } else if (!isRedirectEligiblePath(sourceResult.path)) {
+    // A-L1 (closes A-L2 for stored rules): a redirect must never be able to
+    // intercept an admin/API/auth/framework/static/system path — enforce the SAME
+    // eligibility gate the resolver applies, now at WRITE time so an ineligible
+    // source can never be stored (via create, bulk import, or URL-change capture).
+    errors.push({
+      field: "sourcePath",
+      message:
+        "Source path is not eligible for a redirect (admin/API/auth/static/system paths can never be redirected)."
+    });
   }
 
   const targetResult = validateRedirectTarget(
@@ -341,6 +384,7 @@ export function validateRedirectInput(
   if (sourceResult.ok && targetResult.ok) {
     validateCrossFields(
       sourceResult.path,
+      domainScopeHost,
       targetResult.targetType,
       targetResult.target,
       effectiveFrom,
@@ -423,6 +467,7 @@ export function validateRedirectUpdate(
   if (targetResult.ok) {
     validateCrossFields(
       normalizedSourcePath,
+      domainScopeHost,
       targetResult.targetType,
       targetResult.target,
       effectiveFrom,

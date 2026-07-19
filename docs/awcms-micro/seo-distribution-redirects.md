@@ -78,7 +78,12 @@ resolution (`next()`):
    `/api/*`, `/admin*`, auth (`/login`, `/logout`, `/setup`, `/auth*`),
    framework-internal (`/_*`), static assets, or system routes (`/health`,
    `/robots.txt`, `/sitemap*`, `/feed*`, `/atom.xml`, `/.well-known/*`). Deny-list,
-   fail-safe.
+   fail-safe. The gate **percent-decodes** the path before matching (A-L2), so an
+   encoded reserved path (`/%61pi/…` → `/api/…`, `/api%2fv1/…` → `/api/v1/…`) cannot
+   slip past. The SAME gate is ALSO enforced at **write time** on the rule's
+   normalized source (A-L1) — an ineligible source can never be stored via create,
+   bulk import, or URL-change capture — so a reserved path is excluded twice (write
+   and resolve), by design.
 2. **Legacy `/blog/{tenantCode}` → `/news`** — resolves the tenant by the PATH code
    and, only if `legacy_blog_redirect_enabled` and a verified primary host exist,
    301-redirects to the canonical `/news…` on that host.
@@ -112,6 +117,14 @@ temporary hop).
   CTE.
 - **Self-redirect** and **loops** → fail closed (no redirect), logged for operator
   remediation, never bounced.
+- **`verified_external` same-host loops** (A-M1): a `verified_external` target is an
+  absolute URL on one of the tenant's OWN verified hosts, so it is NOT a clean
+  terminal — its `pathname` is folded back into the identical self-redirect /
+  visited-set detection used for relative hops. `/a → https://<own-host>/a` (single
+  rule) and `/a → …/b`, `/b → …/a` (two rules) are therefore rejected at WRITE time
+  and terminate (passthrough) at resolve, exactly like their relative equivalents. A
+  target to a host NOT currently among the tenant's verified hosts stays terminal and
+  the resolve-time frozen-guard re-validation fails it closed.
 - **Chains beyond the cap** → fail closed.
 - **Source conflict**: at most one live (non-deleted, non-archived) rule per
   `(tenant, normalized source, locale scope, domain scope)` — enforced by a partial
@@ -119,6 +132,31 @@ temporary hop).
 - Create / update / import / URL-change capture all run the SAME pre-write safety
   gate (`application/redirect-safety.ts`): conflict + loop + chain preview
   **overlaid** on the tenant's existing rules.
+- **Intra-batch loops** (bulk import, R-M1): the chain preview overlays the
+  already-accepted sibling items of the SAME import (not just persisted rules), so
+  `[{/a→/b},{/b→/a}]` is reported as a loop in dry-run and rejected all-or-nothing on
+  real import — neither item is ever created.
+- **Write-time preview scope** (R-M2, defense-in-depth): the pre-write chain preview
+  resolves every hop under the PROPOSED rule's own `(locale, host)` scope — the only
+  scope under which the proposed rule can itself participate in a chain. A loop that
+  closes solely under a DIFFERENT scope (which the proposed rule can never match) is
+  not previewed at write time; it is caught at RESOLVE time, where every emitted
+  target is re-validated and any loop fails CLOSED. A chain resolves under one fixed
+  request scope, so resolving each hop under a distinct scope is not meaningful — this
+  is an intentional design point, not a gap.
+
+### Performance follow-up (R-M3, tracked)
+
+`resolvePublicRedirectForRequest` (`src/lib/seo/redirect-middleware.ts`) runs a full
+`withTenant` transaction (module-enabled + verified-hosts + primary-host + a chain
+point lookup) on **every** eligible public request, even for tenants with zero active
+rules. A "does this tenant have any live rule?" short-circuit is **deliberately
+deferred** (see the `// TODO(perf #268-followup)` note): it is not correctness-safe in
+this PR because the legacy `/blog/{tenantCode}` → `/news` auto-redirect fires from
+`awcms_micro_seo_redirect_settings` (not from a redirect-rule row), and the passthrough
+branch still needs the server-derived host to attribute a 404 observation. Correctness
+(never miss a live rule, never serve a deleted one) takes priority over the
+optimization; a safe, invalidation-aware short-circuit is left as a follow-up.
 
 ## 7. Query-string policy
 

@@ -197,7 +197,10 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       tx,
       tenantId,
       validation.value,
-      now
+      now,
+      {
+        allowedHosts
+      }
     );
     if (!safety.ok) {
       return fail(

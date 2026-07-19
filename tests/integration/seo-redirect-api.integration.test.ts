@@ -43,6 +43,7 @@ import {
   PUT as redirectSettingsPut
 } from "../../src/pages/api/v1/seo/redirects/settings";
 import { POST as redirectCapture } from "../../src/pages/api/v1/seo/redirects/capture-url-change";
+import { POST as redirectsImport } from "../../src/pages/api/v1/seo/redirects/import";
 import { GET as notFoundList } from "../../src/pages/api/v1/seo/not-found/index";
 
 const OWNER_LOGIN = "owner@example.com";
@@ -118,6 +119,22 @@ async function createRule(
     headers: headers(owner, { "idempotency-key": idemKey() }),
     body
   });
+}
+
+/** Seed a verified, active primary domain so `verified_external` targets validate. */
+async function seedDomain(tenantId: string, host: string): Promise<void> {
+  await getAdminSql()`
+    INSERT INTO awcms_micro_tenant_domains
+      (tenant_id, hostname, normalized_hostname, domain_type, status, is_primary)
+    VALUES (${tenantId}, ${host}, ${host.toLowerCase()}, 'custom_domain', 'active', true)
+  `;
+}
+
+async function ruleCount(tenantId: string): Promise<number> {
+  const rows = (await getAdminSql()`
+    SELECT count(*)::int AS n FROM awcms_micro_seo_redirects WHERE tenant_id = ${tenantId}
+  `) as { n: number }[];
+  return rows[0]!.n;
 }
 
 const suite = integrationEnabled ? describe : describe.skip;
@@ -417,5 +434,152 @@ suite("Redirect governance API (Issue #268)", () => {
       }
     });
     expect(noAuth.status).toBe(401);
+  });
+
+  test("A-L1: an ineligible source path (admin/API hijack) is rejected at create", async () => {
+    const owner = await bootstrap();
+    const admin = await createRule(owner, {
+      sourcePath: "/admin/settings",
+      target: "/b"
+    });
+    expect(admin.status).toBe(400);
+    expect(admin.body.error!.code).toBe("VALIDATION_ERROR");
+
+    const api = await createRule(owner, {
+      sourcePath: "/api/v1/auth/login",
+      target: "/b"
+    });
+    expect(api.status).toBe(400);
+    expect(api.body.error!.code).toBe("VALIDATION_ERROR");
+
+    expect(await ruleCount(owner.tenantId)).toBe(0);
+  });
+
+  test("A-M1: a verified_external same-host self-loop is rejected at create", async () => {
+    const owner = await bootstrap();
+    await seedDomain(owner.tenantId, "acme.example.com");
+
+    // /a -> https://acme.example.com/a re-requests /a on our own host — a self-loop.
+    const selfLoop = await createRule(owner, {
+      sourcePath: "/a",
+      target: "https://acme.example.com/a"
+    });
+    expect(selfLoop.status).toBe(400);
+    expect(selfLoop.body.error!.code).toBe("VALIDATION_ERROR");
+
+    // A verified_external to a DIFFERENT own-host path is fine.
+    const ok = await createRule(owner, {
+      sourcePath: "/a",
+      target: "https://acme.example.com/b"
+    });
+    expect(ok.status).toBe(200);
+  });
+
+  test("A-M1: a two-rule cross-loop via verified_external is rejected at create", async () => {
+    const owner = await bootstrap();
+    await seedDomain(owner.tenantId, "acme.example.com");
+
+    // /a -> https://own/b (fine, no loop yet).
+    expect(
+      (
+        await createRule(owner, {
+          sourcePath: "/a",
+          target: "https://acme.example.com/b"
+        })
+      ).status
+    ).toBe(200);
+
+    // /b -> https://own/a closes the loop (a -> b -> a) — must be rejected.
+    const loop = await createRule(owner, {
+      sourcePath: "/b",
+      target: "https://acme.example.com/a"
+    });
+    expect(loop.status).toBe(409);
+    expect(loop.body.error!.code).toBe("REDIRECT_LOOP");
+  });
+
+  test("REDIRECT_CHAIN_TOO_LONG is returned on create when the chain exceeds the hop cap", async () => {
+    const owner = await bootstrap();
+    // Build a chain bottom-up so each intermediate create stays within the cap.
+    expect(
+      (await createRule(owner, { sourcePath: "/p5", target: "/x" })).status
+    ).toBe(200);
+    expect(
+      (await createRule(owner, { sourcePath: "/p4", target: "/p5" })).status
+    ).toBe(200);
+    expect(
+      (await createRule(owner, { sourcePath: "/p3", target: "/p4" })).status
+    ).toBe(200);
+    expect(
+      (await createRule(owner, { sourcePath: "/p2", target: "/p3" })).status
+    ).toBe(200);
+    expect(
+      (await createRule(owner, { sourcePath: "/p1", target: "/p2" })).status
+    ).toBe(200);
+
+    // /p0 now heads a 6-hop chain (/p0→…→/p5→/x) beyond MAX_REDIRECT_HOPS (5).
+    const tooLong = await createRule(owner, {
+      sourcePath: "/p0",
+      target: "/p1"
+    });
+    expect(tooLong.status).toBe(409);
+    expect(tooLong.body.error!.code).toBe("REDIRECT_CHAIN_TOO_LONG");
+  });
+
+  test("R-M1: bulk import rejects an INTRA-batch loop (and dry-run reports it)", async () => {
+    const owner = await bootstrap();
+    const batch = {
+      redirects: [
+        { sourcePath: "/a", target: "/b" },
+        { sourcePath: "/b", target: "/a" }
+      ]
+    };
+
+    // Dry run MUST report the intra-batch loop as ok:false (REDIRECT_LOOP).
+    const dry = await invoke<{
+      data: {
+        valid: number;
+        results: { index: number; ok: boolean; code?: string }[];
+      };
+    }>(redirectsImport, {
+      method: "POST",
+      path: "/api/v1/seo/redirects/import",
+      headers: headers(owner, { "idempotency-key": idemKey() }),
+      body: { dryRun: true, ...batch }
+    });
+    expect(dry.status).toBe(200);
+    expect(dry.body.data.valid).toBe(1);
+    const loopItem = dry.body.data.results.find((r) => r.ok === false);
+    expect(loopItem).toBeDefined();
+    expect(loopItem!.code).toBe("REDIRECT_LOOP");
+
+    // Real import is all-or-nothing: nothing is created.
+    const real = await invoke<{ error: { code: string } }>(redirectsImport, {
+      method: "POST",
+      path: "/api/v1/seo/redirects/import",
+      headers: headers(owner, { "idempotency-key": idemKey() }),
+      body: batch
+    });
+    expect(real.status).toBe(400);
+    expect(real.body.error.code).toBe("IMPORT_VALIDATION_FAILED");
+    expect(await ruleCount(owner.tenantId)).toBe(0);
+  });
+
+  test("R-M1: bulk import creates a valid batch all-or-nothing", async () => {
+    const owner = await bootstrap();
+    const real = await invoke<{ data: { created: number } }>(redirectsImport, {
+      method: "POST",
+      path: "/api/v1/seo/redirects/import",
+      headers: headers(owner, { "idempotency-key": idemKey() }),
+      body: {
+        redirects: [
+          { sourcePath: "/one", target: "/1" },
+          { sourcePath: "/two", target: "/2" }
+        ]
+      }
+    });
+    expect(real.status).toBe(200);
+    expect(real.body.data.created).toBe(2);
+    expect(await ruleCount(owner.tenantId)).toBe(2);
   });
 });

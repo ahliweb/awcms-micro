@@ -91,6 +91,71 @@ describe("validateRedirectInput", () => {
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.value.targetType).toBe("verified_external");
   });
+
+  test("rejects a verified_external self-redirect to the same own-host path (A-M1)", () => {
+    // /a -> https://<own-host>/a re-requests /a on our own host -> infinite loop.
+    const r = validateRedirectInput(
+      { sourcePath: "/a", target: "https://tenant.example.com/a" },
+      CTX
+    );
+    expect(r.ok).toBe(false);
+  });
+
+  test("rejects a verified_external self-redirect even when the source has a trailing-slash form", () => {
+    const r = validateRedirectInput(
+      { sourcePath: "/a/", target: "https://tenant.example.com/a" },
+      CTX
+    );
+    expect(r.ok).toBe(false);
+  });
+
+  test("a host-scoped verified_external self-redirect to that scope host is rejected", () => {
+    const r = validateRedirectInput(
+      {
+        sourcePath: "/a",
+        target: "https://tenant.example.com/a",
+        domainScopeHost: "tenant.example.com"
+      },
+      CTX
+    );
+    expect(r.ok).toBe(false);
+  });
+
+  test("a verified_external to a DIFFERENT own-host path is NOT a self-redirect", () => {
+    const r = validateRedirectInput(
+      { sourcePath: "/a", target: "https://tenant.example.com/b" },
+      CTX
+    );
+    expect(r.ok).toBe(true);
+  });
+
+  test("rejects an ineligible source path (admin/API hijack) at write time (A-L1)", () => {
+    expect(
+      validateRedirectInput(
+        { sourcePath: "/admin/settings", target: "/b" },
+        CTX
+      ).ok
+    ).toBe(false);
+    expect(
+      validateRedirectInput(
+        { sourcePath: "/api/v1/auth/login", target: "/b" },
+        CTX
+      ).ok
+    ).toBe(false);
+    // A static asset / system path is likewise ineligible as a source.
+    expect(
+      validateRedirectInput({ sourcePath: "/robots.txt", target: "/b" }, CTX).ok
+    ).toBe(false);
+  });
+
+  test("an ordinary content source path stays eligible", () => {
+    expect(
+      validateRedirectInput(
+        { sourcePath: "/old-article", target: "/news/new-article" },
+        CTX
+      ).ok
+    ).toBe(true);
+  });
 });
 
 describe("validateRedirectUpdate", () => {

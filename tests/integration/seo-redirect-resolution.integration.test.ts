@@ -286,6 +286,40 @@ suite("Redirect resolution + RLS + 404 governance (Issue #268)", () => {
     expect(gone.kind).toBe("passthrough");
   });
 
+  test("A-M1: a verified_external self-loop on the tenant's own host fails closed (passthrough)", async () => {
+    // /self -> https://acme.example/self re-requests /self on our own host.
+    await seedRule(TENANT_A, {
+      source: "/self",
+      target: `https://${HOST_A}/self`,
+      targetType: "verified_external"
+    });
+    const out = await resolvePublicRedirect(
+      getTestSql(),
+      req(HOST_A, "/self"),
+      OPTS("/self")
+    );
+    expect(out.kind).toBe("passthrough");
+  });
+
+  test("A-M1: a two-rule cross-loop via verified_external own-host targets fails closed", async () => {
+    await seedRule(TENANT_A, {
+      source: "/va",
+      target: `https://${HOST_A}/vb`,
+      targetType: "verified_external"
+    });
+    await seedRule(TENANT_A, {
+      source: "/vb",
+      target: `https://${HOST_A}/va`,
+      targetType: "verified_external"
+    });
+    const out = await resolvePublicRedirect(
+      getTestSql(),
+      req(HOST_A, "/va"),
+      OPTS("/va")
+    );
+    expect(out.kind).toBe("passthrough");
+  });
+
   test("admin-route hijack: /api and /admin paths are NEVER redirected, even with a matching rule", async () => {
     // Seed rules whose source is an admin/API path (allowed by the DB shape check).
     await seedRule(TENANT_A, { source: "/api/secret", target: "/evil" });

@@ -152,7 +152,7 @@ export const PUT: APIRoute = async ({ request, cookies, params, locals }) => {
         ...validation.value
       },
       now,
-      id
+      { allowedHosts, excludeId: id }
     );
     if (!safety.ok) {
       return fail(

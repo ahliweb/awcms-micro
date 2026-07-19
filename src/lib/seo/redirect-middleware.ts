@@ -65,6 +65,17 @@ export async function resolvePublicRedirectForRequest(
     return null;
   }
 
+  // TODO(perf #268-followup): `resolvePublicRedirect` runs a full `withTenant`
+  // transaction (module-enabled + allowedHosts + primaryHost + a chain point
+  // lookup) on EVERY eligible public request, even for tenants with zero active
+  // rules (R-M3). A cheap "does this tenant have any live rule?" short-circuit is
+  // NOT applied here because it is not correctness-safe in this PR: the legacy
+  // `/blog/{tenantCode}` → `/news` auto-redirect (Strategy 1) fires from
+  // `awcms_micro_seo_redirect_settings`, NOT from a redirect-rule row, so skipping
+  // on "no rule" would silently disable it; and the passthrough branch still needs
+  // the server-derived host to attribute a 404 observation. Deferred as a tracked
+  // perf follow-up rather than risk missing a live rule / serving a deleted one —
+  // correctness beats the optimization. See `docs/awcms-micro/seo-distribution-redirects.md`.
   try {
     const sql = getDatabaseClient();
     const resolution = await resolvePublicRedirect(sql, request, {

@@ -180,7 +180,11 @@ async function resolveHostBasedRedirect(
           locale: options.locale,
           host: scopeHost,
           now
-        })
+        }),
+      // A-M1: fold a `verified_external` hop to one of THIS tenant's own verified
+      // hosts back into the chain so a same-host redirect loop is detected and
+      // fails closed (passthrough), instead of being emitted as a terminal 301.
+      { allowedHosts }
     );
 
     if (outcome.outcome === "loop" || outcome.outcome === "chain_too_long") {

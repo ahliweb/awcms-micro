@@ -6,9 +6,10 @@
  * ## Privacy is enforced at the WRITE boundary, here
  *
  * `recordNotFoundObservation` accepts an ALREADY-sanitized path (query dropped) and
- * an ALREADY-extracted bare referrer domain — the middleware capture composes those
- * with `visitor-analytics`'s `sanitizePath` / `extractReferrerDomain` before calling
- * in. A full URL, query string, or secret can never reach this table. Writes are
+ * an ALREADY-extracted bare referrer domain — the middleware capture composes the
+ * path with seo-distribution's own `normalizeRedirectPath` (query dropped by
+ * normalization) and the referrer with `visitor-analytics`'s `extractReferrerDomain`
+ * before calling in. A full URL, query string, or secret can never reach this table. Writes are
  * AGGREGATE upserts (one row per distinct tenant+path+referrer+locale+host,
  * `hit_count` incremented), so probing a 404 a million times is one row, not a
  * million — bounded cardinality + bounded retention (data_lifecycle registry).

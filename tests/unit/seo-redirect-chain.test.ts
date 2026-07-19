@@ -85,7 +85,7 @@ describe("resolveRedirectChain", () => {
     expect(out.outcome).toBe("chain_too_long");
   });
 
-  test("an absolute (verified_external) target is terminal, not followed", async () => {
+  test("an absolute (verified_external) target is terminal when no allowedHosts are given", async () => {
     const out = await resolveRedirectChain(
       "/a",
       lookupFrom({
@@ -97,6 +97,69 @@ describe("resolveRedirectChain", () => {
     if (out.outcome === "redirect") {
       expect(out.finalTarget).toBe("https://tenant.example.com/x");
       expect(out.finalTargetType).toBe("verified_external");
+    }
+  });
+});
+
+describe("resolveRedirectChain — verified_external same-host loop (A-M1)", () => {
+  const OWN = ["own.example.com"];
+
+  test("single-rule self-loop via an own-host absolute target -> loop (fail closed)", async () => {
+    const out = await resolveRedirectChain(
+      "/a",
+      lookupFrom({ "/a": hop("https://own.example.com/a") }),
+      { allowedHosts: OWN }
+    );
+    expect(out.outcome).toBe("loop");
+  });
+
+  test("two-rule cross-loop via own-host absolute targets -> loop (fail closed)", async () => {
+    const out = await resolveRedirectChain(
+      "/a",
+      lookupFrom({
+        "/a": hop("https://own.example.com/b"),
+        "/b": hop("https://own.example.com/a")
+      }),
+      { allowedHosts: OWN }
+    );
+    expect(out.outcome).toBe("loop");
+  });
+
+  test("own-host absolute target with no further rule stays a terminal redirect", async () => {
+    const out = await resolveRedirectChain(
+      "/a",
+      lookupFrom({ "/a": hop("https://own.example.com/x") }),
+      { allowedHosts: OWN }
+    );
+    expect(out.outcome).toBe("redirect");
+    if (out.outcome === "redirect") {
+      expect(out.finalTarget).toBe("https://own.example.com/x");
+      expect(out.finalTargetType).toBe("verified_external");
+    }
+  });
+
+  test("an own-host absolute target folds and collapses onward relative hops", async () => {
+    const out = await resolveRedirectChain(
+      "/a",
+      lookupFrom({
+        "/a": hop("https://own.example.com/b"),
+        "/b": hop("/c")
+      }),
+      { allowedHosts: OWN }
+    );
+    expect(out.outcome).toBe("redirect");
+    if (out.outcome === "redirect") expect(out.finalTarget).toBe("/c");
+  });
+
+  test("an absolute target to a host NOT in allowedHosts is not folded (stays terminal)", async () => {
+    const out = await resolveRedirectChain(
+      "/a",
+      lookupFrom({ "/a": hop("https://other.example.com/a") }),
+      { allowedHosts: OWN }
+    );
+    expect(out.outcome).toBe("redirect");
+    if (out.outcome === "redirect") {
+      expect(out.finalTarget).toBe("https://other.example.com/a");
     }
   });
 });

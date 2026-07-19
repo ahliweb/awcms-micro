@@ -81,16 +81,63 @@ function buildRedirect(hops: RedirectHopRule[]): RedirectChainOutcome {
 }
 
 /**
+ * When a `verified_external` hop's absolute target points at one of the tenant's
+ * OWN currently-verified hosts, it is not really a terminal external destination —
+ * it denotes the same-tenant path `url.pathname`, which a browser will re-request
+ * and which can re-enter the SAME redirect rules (an intra-tenant loop). Return
+ * that same-tenant path key so the caller can fold it back into the identical
+ * self-redirect / visited-set logic used for relative hops (A-M1). Returns `null`
+ * when the target is unparseable OR its host is NOT among `allowedHosts` — in that
+ * case the hop stays terminal (and the resolve-time frozen-guard re-validation
+ * fails it closed anyway if the host was since removed).
+ */
+function verifiedExternalSameHostPathKey(
+  target: string,
+  allowedHosts: readonly string[]
+): string | null {
+  let url: URL;
+  try {
+    url = new URL(target);
+  } catch {
+    return null;
+  }
+  const allowed = new Set(allowedHosts.map((h) => h.toLowerCase()));
+  if (!allowed.has(url.hostname.toLowerCase())) {
+    return null;
+  }
+  // Strip any query with `redirectPathKey`, exactly as the relative branch does,
+  // so `/a` and `/a?x=1` collapse to the same loop key.
+  return redirectPathKey(url.pathname);
+}
+
+export type ResolveRedirectChainOptions = {
+  maxHops?: number;
+  /**
+   * The tenant's currently-verified hosts. When provided, a `verified_external`
+   * hop whose host is one of these is folded back into the chain (its `pathname`
+   * re-enters the loop/visited-set + self-redirect detection) instead of being a
+   * clean terminal — closing the `verified_external` same-host loop (A-M1). When
+   * omitted/empty, every `verified_external` hop is terminal (legacy behavior).
+   */
+  allowedHosts?: readonly string[];
+};
+
+/**
  * Resolve the redirect chain starting at `startPathKey` (a normalized path, no
  * query). Follows `relative_same_tenant` hops; a `verified_external` (absolute)
- * hop is terminal (never followed cross-host). Detects self-redirect + loops via a
- * visited-set and caps the chain length.
+ * hop is terminal UNLESS its host is one of the tenant's own `allowedHosts`, in
+ * which case its `pathname` is folded back into the chain so a same-host redirect
+ * loop is detected (A-M1). Detects self-redirect + loops via a visited-set and
+ * caps the chain length.
  */
 export async function resolveRedirectChain(
   startPathKey: string,
   lookup: RedirectChainLookup,
-  maxHops: number = MAX_REDIRECT_HOPS
+  options: ResolveRedirectChainOptions = {}
 ): Promise<RedirectChainOutcome> {
+  const maxHops = options.maxHops ?? MAX_REDIRECT_HOPS;
+  const allowedHosts = options.allowedHosts ?? [];
+
   let current = startPathKey;
   const visited = new Set<string>([current]);
   const hops: RedirectHopRule[] = [];
@@ -104,12 +151,21 @@ export async function resolveRedirectChain(
 
     hops.push(rule);
 
-    // Absolute same-tenant target — terminal, do not follow further.
+    let nextKey: string;
     if (rule.targetType === "verified_external") {
-      return buildRedirect(hops);
+      const sameHostKey = verifiedExternalSameHostPathKey(
+        rule.target,
+        allowedHosts
+      );
+      // Cross-host / unknown-host absolute target — genuinely terminal.
+      if (sameHostKey === null) {
+        return buildRedirect(hops);
+      }
+      // Same-host absolute target — fold its path back into the chain.
+      nextKey = sameHostKey;
+    } else {
+      nextKey = redirectPathKey(rule.target);
     }
-
-    const nextKey = redirectPathKey(rule.target);
 
     // Self-redirect (target path equals the path we just matched) or revisiting a
     // path already in the chain — both are loops. Fail closed (no redirect emitted).

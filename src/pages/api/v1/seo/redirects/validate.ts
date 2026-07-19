@@ -93,7 +93,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       tx,
       tenantId,
       validation.value,
-      now
+      now,
+      { allowedHosts }
     );
 
     return ok({

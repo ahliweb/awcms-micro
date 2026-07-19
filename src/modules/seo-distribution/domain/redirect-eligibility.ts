@@ -73,6 +73,22 @@ const EXCLUDED_EXACT = new Set([
   "/feed.json"
 ]);
 
+/**
+ * `true` when the string contains any C0 control char (U+0000–U+001F) or DEL
+ * (U+007F). Implemented with char codes (not a control-char regex literal) so the
+ * source file stays free of embedded control bytes. Used on the DECODED path so an
+ * encoded control (e.g. `%0A`) can't slip the eligibility gate (A-L2).
+ */
+function hasControlCharacter(value: string): boolean {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x1f || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function fileExtension(pathname: string): string | null {
   const lastSegment = pathname.slice(pathname.lastIndexOf("/") + 1);
   const dot = lastSegment.lastIndexOf(".");
@@ -98,7 +114,24 @@ export function isRedirectEligiblePath(pathname: string): boolean {
     return false;
   }
 
-  const lower = pathname.toLowerCase();
+  // A-L2: percent-DECODE before the family/extension checks so an encoded reserved
+  // path can't slip the gate — `/%61pi/...` (→ `/api/...`) or `/api%2fv1/...`
+  // (→ `/api/v1/...`) must be recognized as the API family, not treated as opaque.
+  // A malformed percent-sequence is not a real page request — fail safe.
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return false;
+  }
+
+  // A control character revealed only after decoding (e.g. `%0A`) is likewise
+  // never a real page — fail safe (belt-and-braces with the raw check above).
+  if (hasControlCharacter(decoded)) {
+    return false;
+  }
+
+  const lower = decoded.toLowerCase();
 
   if (EXCLUDED_EXACT.has(lower)) {
     return false;

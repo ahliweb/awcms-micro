@@ -16,8 +16,9 @@
 --
 -- A redirect rule rewrites what a public URL resolves to — its blast radius is the
 -- tenant's inbound-link/search surface. The four actions have distinct risk:
---   - `read`   — list/search rules, preview chains, explain conflicts, and read the
---                privacy-minimized 404 governance data (low risk, auditor-friendly).
+--   - `read`   — list/search rules, preview chains, and explain conflicts (low risk,
+--                auditor-friendly). The privacy-minimized 404 governance data is a
+--                SEPARATE `not_found.read` activity below, not part of `redirect.read`.
 --   - `create` — add a rule / import in bulk / capture a URL change into a rule
 --                (starts redirecting live traffic; idempotency-keyed + audited).
 --   - `update` — edit / activate / deactivate / archive a rule, and change the
@@ -31,7 +32,7 @@
 --   - `update` — mark an observation resolved / attach a suggested redirect / dismiss.
 INSERT INTO awcms_micro_permissions (module_key, activity_code, action, description)
 VALUES
-  ('seo_distribution', 'redirect', 'read', 'List/search redirect rules, preview redirect chains, explain conflicts, and read 404 governance data'),
+  ('seo_distribution', 'redirect', 'read', 'List/search redirect rules, preview redirect chains, and explain conflicts (404 governance data requires not_found.read)'),
   ('seo_distribution', 'redirect', 'create', 'Create redirect rules, bulk-import, and capture URL changes into rules (high-risk, idempotency-keyed, audited)'),
   ('seo_distribution', 'redirect', 'update', 'Edit/activate/deactivate/archive redirect rules and change per-tenant redirect policy (high-risk, audited)'),
   ('seo_distribution', 'redirect', 'delete', 'Soft-delete, restore, or purge redirect rules (audited)'),
