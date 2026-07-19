@@ -39,9 +39,17 @@ const XML_ILLEGAL_C0 = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/;
  */
 function assertWellFormedXml(xml: string): void {
   expect(XML_ILLEGAL_C0.test(xml)).toBe(false);
-  const body = xml
-    .replace(/<\?xml[^?]*\?>/g, "")
-    .replace(/<!--[\s\S]*?-->/g, "");
+  let body = xml.replace(/<\?xml[^?]*\?>/g, "");
+  // Strip XML comments to a FIXED POINT, not in a single pass: one non-overlapping
+  // replace can leave a residual `<!--` on nested input (`<!--<!---->` → `<!--`),
+  // which `js/incomplete-multi-character-sanitization` flags. This module never
+  // emits comments, so the loop always settles on the first iteration for real
+  // inputs — but iterating makes the guard sound (and alert-free) regardless.
+  let previous: string;
+  do {
+    previous = body;
+    body = body.replace(/<!--[\s\S]*?-->/g, "");
+  } while (body !== previous);
   const stack: string[] = [];
   const tagRe = /<(\/?)([A-Za-z][\w:-]*)([^>]*?)(\/?)>/g;
   let match: RegExpExecArray | null;
