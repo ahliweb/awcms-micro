@@ -19050,7 +19050,7 @@ components:
           description: Must be in the future.
     SeoTenantSettings:
       type: object
-      description: Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullable except the boolean switch; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins).
+      description: "Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every string field is nullable; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins). The feed/sitemap fields (Issue #267) configure the public discovery surfaces (robots.txt, sitemap index/child, RSS/Atom/JSON feeds)."
       required:
         - siteName
         - defaultMetaDescription
@@ -19059,6 +19059,13 @@ components:
         - organizationName
         - organizationLogoMediaId
         - defaultRobotsNoindex
+        - feedTitle
+        - feedDescription
+        - feedLogoMediaId
+        - feedItemLimit
+        - includedResourceTypes
+        - sitemapEnabled
+        - feedsEnabled
       properties:
         siteName:
           type: string
@@ -19092,7 +19099,41 @@ components:
           description: Organization logo (media object id, resolved same-tenant/verified at render time).
         defaultRobotsNoindex:
           type: boolean
-          description: "Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex regardless of its own indexability."
+          description: "Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex, robots.txt disallows all crawling, and every discovery surface degrades to noindex regardless of a resource's own indexability."
+        feedTitle:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: Feed channel/title override for RSS/Atom/JSON feeds; null falls back to siteName/tenant name.
+        feedDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+          description: Feed channel description; null falls back to a generic default.
+        feedLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Feed logo/icon (media object id, resolved same-tenant/verified at render time).
+        feedItemLimit:
+          type: integer
+          minimum: 1
+          maximum: 200
+          description: Max items per feed (RSS/Atom/JSON). Bounded 1..200, default 50 — only ever makes a feed smaller than the hard code ceiling.
+        includedResourceTypes:
+          type: array
+          nullable: true
+          maxItems: 50
+          items:
+            type: string
+            maxLength: 64
+          description: Optional allow-list of content-type slugs to include in sitemap/feeds; null (default) means all eligible types. An empty array collapses to null.
+        sitemapEnabled:
+          type: boolean
+          description: Whether this tenant's sitemap index/child sitemaps are served and advertised in robots.txt.
+        feedsEnabled:
+          type: boolean
+          description: Whether this tenant's RSS/Atom/JSON feeds are served.
     SeoTenantSettingsUpdateRequest:
       type: object
       description: Update body — same shape as SeoTenantSettings; omitted string fields are treated as null, an omitted defaultRobotsNoindex defaults to false. Unknown keys are ignored.
@@ -19124,6 +19165,36 @@ components:
         defaultRobotsNoindex:
           type: boolean
           default: false
+        feedTitle:
+          type: string
+          nullable: true
+          maxLength: 200
+        feedDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+        feedLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        feedItemLimit:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 50
+        includedResourceTypes:
+          type: array
+          nullable: true
+          maxItems: 50
+          items:
+            type: string
+            maxLength: 64
+        sitemapEnabled:
+          type: boolean
+          default: true
+        feedsEnabled:
+          type: boolean
+          default: true
     SetupInitializeRequest:
       type: object
       required:

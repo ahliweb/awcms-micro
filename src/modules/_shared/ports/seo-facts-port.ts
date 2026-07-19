@@ -164,17 +164,57 @@ export type SeoResourceFacts = {
   feed: SeoFeedEntry | null;
 };
 
+/**
+ * Ordering for `listPublicResourceFacts` (`seo_facts` 1.1.0). `"id_asc"` — the
+ * historical default — is the STABLE keyset order used for deterministic sitemap
+ * pagination (`cursor`/`offset` walk it identically every request). `"published_desc"`
+ * is newest-first, used to build feeds (RSS/Atom/JSON) bounded to the latest N
+ * items; it is a single-page order (take the first `pageSize`, no cursor walk).
+ */
+export type SeoFactsListOrder = "id_asc" | "published_desc";
+
 export type ListPublicResourceFactsOptions = {
-  /** Keyset pagination cursor from a previous page; `undefined`/`null` for the first page. */
+  /** Keyset pagination cursor from a previous page; `undefined`/`null` for the first page. Applies to `"id_asc"` order only. */
   cursor?: string | null;
   pageSize?: number;
   /** When set, the provider returns only facts for this locale's public resources. */
   locale?: string;
+  /**
+   * Positional page start for deterministic sitemap paging (`seo_facts` 1.1.0).
+   * When set, the provider returns the window `[offset, offset+pageSize)` of the
+   * stable `"id_asc"` order — the sitemap generator maps child-sitemap page N to
+   * `offset = (N-1)*perPage` so page N is fetched without walking pages 1..N-1.
+   * `cursor` takes precedence when both are given. Ignored for `"published_desc"`.
+   */
+  offset?: number;
+  /** Result ordering (`seo_facts` 1.1.0); defaults to `"id_asc"` (unchanged historical behavior). */
+  order?: SeoFactsListOrder;
 };
 
 export type SeoResourceFactsPage = {
   items: readonly SeoResourceFacts[];
   nextCursor: string | null;
+};
+
+/**
+ * A cheap, bounded roll-up of a tenant's public sitemap/feed-eligible resource
+ * set (`seo_facts` 1.1.0) — `count` plus the latest change/publish timestamps —
+ * WITHOUT materializing every resource's full `SeoResourceFacts`.
+ * `seo_distribution` (#267) uses it to (a) size the sitemap index deterministically
+ * (`pageCount = ceil(count / urlsPerPage)`) and (b) derive HTTP cache validators
+ * (ETag / `Last-Modified`) so a conditional request is answered without rendering
+ * the whole surface. Because the count/max are re-derived from the provider's own
+ * tables at call time (never a cached curation list), any publish/update/archive/
+ * delete/restore that changes the eligible set also changes them — exactly the
+ * event-driven invalidation signal the validators need (ADR-0028 §7).
+ */
+export type SeoResourceFactsSummary = {
+  /** Number of public, sitemap/feed-eligible resources for this tenant (and `locale`, when given). */
+  count: number;
+  /** Latest resource `updated_at` across the eligible set, ISO-8601 — the `<lastmod>` / `Last-Modified` source; `null` when the set is empty. */
+  latestLastmod: string | null;
+  /** Latest resource `published_at` across the eligible set, ISO-8601; `null` when the set is empty. */
+  latestPublishedAt: string | null;
 };
 
 /**
@@ -199,6 +239,22 @@ export type SeoFactsSource = {
     resourceType: string,
     resourceId: string
   ): Promise<SeoResourceFacts | null>;
+
+  /**
+   * Cheap, bounded roll-up (`count` + latest `updated_at`/`published_at`) of the
+   * SAME public, sitemap/feed-eligible set `listPublicResourceFacts` enumerates —
+   * a single aggregate query, never a full listing. OPTIONAL (backward-compatible
+   * `seo_facts` 1.1.0 addition): a provider written against 1.0.0 is still a valid
+   * `SeoFactsSource`, and `seo_distribution` falls back to a bounded listing when
+   * this is absent. When implemented it MUST use the IDENTICAL visibility
+   * predicate as `listPublicResourceFacts` so the count/max exactly describe the
+   * set the listing would return (ADR-0028 §6/§7).
+   */
+  summarizePublicResourceFacts?(
+    tx: Bun.SQL,
+    tenantId: string,
+    options?: Pick<ListPublicResourceFactsOptions, "locale">
+  ): Promise<SeoResourceFactsSummary>;
 };
 
 // ---------------------------------------------------------------------------

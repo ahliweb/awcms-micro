@@ -38,6 +38,7 @@ import type {
   SeoFactsSource,
   SeoResourceFacts,
   SeoResourceFactsPage,
+  SeoResourceFactsSummary,
   SeoRobotsDirective,
   SeoVisibility
 } from "../../_shared/ports/seo-facts-port";
@@ -72,6 +73,21 @@ const SEO_ROW_COLUMNS =
   "id, title, slug, excerpt, seo_title, meta_description, locale, status, " +
   "visibility, featured_media_id, seo_image_media_id, published_at, " +
   "scheduled_at, updated_at, deleted_at";
+
+/**
+ * The single "genuinely public + indexable" predicate — the sitemap/feed
+ * eligibility set (published + public visibility + not soft-deleted + a
+ * reached `published_at`). Static SQL text (no interpolated input), shared
+ * VERBATIM by `listPublicResourceFacts` and `summarizePublicResourceFacts`
+ * (`seo_facts` 1.1.0) so the summary's `count`/`max` always describe EXACTLY the
+ * set the listing returns — a drift between the two would let the sitemap index
+ * page count disagree with the child pages, or the cache validators miss a
+ * change. `tenant_id` stays a bound parameter alongside this fragment; RLS FORCE
+ * on `awcms_micro_blog_posts` is the structural second layer under it.
+ */
+const PUBLIC_ELIGIBLE_PREDICATE_SQL =
+  "status = 'published' AND visibility = 'public' AND deleted_at IS NULL " +
+  "AND published_at IS NOT NULL AND published_at <= now()";
 
 /**
  * Map a post row to the port's `SeoVisibility`. Deliberately fail-safe: any
@@ -259,25 +275,48 @@ export function createBlogContentSeoFactsAdapter(
         Math.max(1, options?.pageSize ?? DEFAULT_LIST_PAGE_SIZE),
         MAX_LIST_PAGE_SIZE
       );
-      const cursorId = options?.cursor ?? null;
       const localeFilter = options?.locale ?? null;
+      const order = options?.order ?? "id_asc";
 
-      // Only genuinely public, indexable posts (published + public visibility +
-      // not soft-deleted + published_at reached) — the sitemap/feed eligibility
-      // set. Keyset by id for stable pagination.
+      // Feeds (RSS/Atom/JSON) want the latest N items, newest-first (seo_facts
+      // 1.1.0). Single bounded page — no cursor/offset walk — ordered by
+      // published_at DESC (id DESC as the deterministic tie-break). Uses the same
+      // (tenant_id, status, published_at DESC) index the public listing uses.
+      if (order === "published_desc") {
+        const rows = (await tx`
+          SELECT ${tx.unsafe(SEO_ROW_COLUMNS)}
+          FROM awcms_micro_blog_posts
+          WHERE tenant_id = ${tenantId}
+            AND ${tx.unsafe(PUBLIC_ELIGIBLE_PREDICATE_SQL)}
+            AND (${localeFilter}::text IS NULL OR locale = ${localeFilter})
+          ORDER BY published_at DESC, id DESC
+          LIMIT ${pageSize}
+        `) as BlogPostSeoRow[];
+
+        return {
+          items: rows.map((row) => toFacts(row, basePath)),
+          nextCursor: null
+        };
+      }
+
+      // Default "id_asc" — the STABLE keyset order for deterministic sitemap
+      // paging. `cursor` (keyset) takes precedence; otherwise `offset` positions
+      // the window so the sitemap generator can fetch child page N as
+      // `offset = (N-1)*perPage` without walking earlier pages.
+      const cursorId = options?.cursor ?? null;
+      const offset =
+        cursorId === null ? Math.max(0, Math.trunc(options?.offset ?? 0)) : 0;
+
       const rows = (await tx`
         SELECT ${tx.unsafe(SEO_ROW_COLUMNS)}
         FROM awcms_micro_blog_posts
         WHERE tenant_id = ${tenantId}
-          AND status = 'published'
-          AND visibility = 'public'
-          AND deleted_at IS NULL
-          AND published_at IS NOT NULL
-          AND published_at <= now()
+          AND ${tx.unsafe(PUBLIC_ELIGIBLE_PREDICATE_SQL)}
           AND (${localeFilter}::text IS NULL OR locale = ${localeFilter})
           AND (${cursorId}::uuid IS NULL OR id > ${cursorId})
         ORDER BY id ASC
         LIMIT ${pageSize + 1}
+        OFFSET ${offset}
       `) as BlogPostSeoRow[];
 
       const hasMore = rows.length > pageSize;
@@ -286,6 +325,44 @@ export function createBlogContentSeoFactsAdapter(
       return {
         items: pageRows.map((row) => toFacts(row, basePath)),
         nextCursor: hasMore ? (pageRows[pageRows.length - 1]!.id ?? null) : null
+      };
+    },
+
+    async summarizePublicResourceFacts(
+      tx: Bun.SQL,
+      tenantId: string,
+      options?: { locale?: string }
+    ): Promise<SeoResourceFactsSummary> {
+      const localeFilter = options?.locale ?? null;
+
+      // Single aggregate over the SAME eligibility predicate the listing uses —
+      // count + latest updated_at/published_at, index-backed, never a full
+      // listing. This is what the sitemap index sizes itself from and what the
+      // routes hash into ETag/Last-Modified so a conditional request short-
+      // circuits to 304 without rendering the whole surface (seo_facts 1.1.0).
+      const rows = (await tx`
+        SELECT count(*)::int AS count,
+          max(updated_at) AS latest_lastmod,
+          max(published_at) AS latest_published_at
+        FROM awcms_micro_blog_posts
+        WHERE tenant_id = ${tenantId}
+          AND ${tx.unsafe(PUBLIC_ELIGIBLE_PREDICATE_SQL)}
+          AND (${localeFilter}::text IS NULL OR locale = ${localeFilter})
+      `) as {
+        count: number;
+        latest_lastmod: Date | null;
+        latest_published_at: Date | null;
+      }[];
+
+      const row = rows[0]!;
+      return {
+        count: row.count,
+        latestLastmod: row.latest_lastmod
+          ? row.latest_lastmod.toISOString()
+          : null,
+        latestPublishedAt: row.latest_published_at
+          ? row.latest_published_at.toISOString()
+          : null
       };
     }
   };

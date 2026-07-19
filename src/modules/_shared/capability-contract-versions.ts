@@ -75,7 +75,17 @@ export const CAPABILITY_CONTRACT_VERSIONS: Readonly<Record<string, string>> =
     // as a type since #265 (ADR-0028 admission) with no version entry — the
     // `legal-hold-guard-port.ts` "type ahead of wiring" precedent — and gets its
     // version here now that a real provider declares it.
-    seo_facts: "1.0.0",
+    //
+    // 1.1.0 (Issue #267, sitemap/robots/feeds) — MINOR: three backward-compatible
+    // additions to `SeoFactsSource` for bounded public discovery/syndication (the
+    // documented "new optional method/field = MINOR" rule above). A 1.0.0 provider
+    // stays valid: (1) an OPTIONAL `summarizePublicResourceFacts` method (cheap
+    // count/max roll-up for the sitemap index size + ETag/Last-Modified cache
+    // validators); (2) an OPTIONAL `order: "id_asc" | "published_desc"` on
+    // `listPublicResourceFacts` (feeds need newest-first); (3) an OPTIONAL
+    // `offset` for deterministic child-sitemap paging. No existing method
+    // signature changed, so consumers pinned to 1.0.0 keep working.
+    seo_facts: "1.1.0",
     // social_publishing provides — consumed by blog_content (optional).
     social_publishing: "1.0.0",
     // profile_identity provides (Issue #748, epic #738 platform-evolution

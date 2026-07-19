@@ -36,7 +36,9 @@ describe("seo_facts capability ownership (ADR-0028)", () => {
   });
 
   test("seo_facts is registered in CAPABILITY_CONTRACT_VERSIONS", () => {
-    expect(CAPABILITY_CONTRACT_VERSIONS.seo_facts).toBe("1.0.0");
+    // 1.1.0 since Issue #267 (MINOR: optional summarize method + list order/offset
+    // for bounded sitemap/feed generation — see capability-contract-versions.ts).
+    expect(CAPABILITY_CONTRACT_VERSIONS.seo_facts).toBe("1.1.0");
     // Every capability blog_content/seo_distribution provides has a version.
     for (const module of [blogContentModule, seoDistributionModule]) {
       for (const provided of module.capabilities?.provides ?? []) {
@@ -74,7 +76,17 @@ describe("seo_facts capability ownership (ADR-0028)", () => {
       "src/modules/seo-distribution/domain/seo-head-rendering.ts",
       "src/modules/seo-distribution/application/seo-metadata-service.ts",
       "src/modules/seo-distribution/application/seo-config-directory.ts",
-      "src/modules/seo-distribution/application/resolve-canonical-host.ts"
+      "src/modules/seo-distribution/application/resolve-canonical-host.ts",
+      // Issue #267 discovery surfaces — the aggregator/service/serializers stay
+      // ignorant of any specific content module; providers are injected at the
+      // route composition root (`src/lib/seo/discovery-providers.ts`).
+      "src/modules/seo-distribution/application/seo-discovery-service.ts",
+      "src/modules/seo-distribution/application/public-seo-tenant-resolution.ts",
+      "src/modules/seo-distribution/domain/sitemap-serialization.ts",
+      "src/modules/seo-distribution/domain/feed-serialization.ts",
+      "src/modules/seo-distribution/domain/robots-serialization.ts",
+      "src/modules/seo-distribution/domain/discovery-cache.ts",
+      "src/modules/seo-distribution/domain/discovery-limits.ts"
     ]) {
       const source = readFileSync(file, "utf8");
       const imports = [...source.matchAll(/from "([^"]+)";$/gm)].map(

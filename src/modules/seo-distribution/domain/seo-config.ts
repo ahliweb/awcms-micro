@@ -17,11 +17,38 @@ export type SeoTenantSettings = {
   twitterSiteHandle: string | null;
   organizationName: string | null;
   organizationLogoMediaId: string | null;
-  /** Tenant-wide "this whole site is noindex" switch. */
+  /** Tenant-wide "this whole site is noindex" switch. When true, robots.txt disallows all crawling and every surface degrades to noindex. */
   defaultRobotsNoindex: boolean;
+  // --- Issue #267: feed/sitemap/robots discovery config (sql/082) ---
+  /** Overrides the feed channel/title; `null` → fall back to `siteName`/tenant name. */
+  feedTitle: string | null;
+  /** Feed channel description; `null` → a generic "Latest from {site}" default. */
+  feedDescription: string | null;
+  /** Feed logo/icon media object id (resolved via `MediaLibraryPort`), or `null`. */
+  feedLogoMediaId: string | null;
+  /** Max items per feed (RSS/Atom/JSON); bounded 1..200, default 50. Only ever makes a feed SMALLER than the code ceiling. */
+  feedItemLimit: number;
+  /** Optional allow-list of `resourceType`s to include in sitemap/feeds; `null` → all eligible types. */
+  includedResourceTypes: string[] | null;
+  /** Whether this tenant's sitemap index/child sitemaps are served (and advertised in robots.txt). */
+  sitemapEnabled: boolean;
+  /** Whether this tenant's RSS/Atom/JSON feeds are served. */
+  feedsEnabled: boolean;
 };
 
-/** The neutral default when a tenant has no config row yet — everything absent, site indexable. */
+/** The default per-item feed limit — mirrors the legacy `/news/feed.xml` `FEED_ITEM_LIMIT` and the sql/082 column default. */
+export const FEED_ITEM_LIMIT_DEFAULT = 50;
+export const FEED_ITEM_LIMIT_MIN = 1;
+/** Hard ceiling on the configurable feed size (sql/082 CHECK) — keeps every feed bounded regardless of tenant input. */
+export const FEED_ITEM_LIMIT_MAX = 200;
+/** Max entries in the optional content-type allow-list (sql/082 CHECK). */
+export const INCLUDED_RESOURCE_TYPES_MAX = 50;
+/** Per-entry cap for an included resource-type slug. */
+export const RESOURCE_TYPE_MAX_LEN = 64;
+/** A resource-type discriminator is a lowercase slug (matches `blog_post`, a derived `product`, …). */
+const RESOURCE_TYPE_PATTERN = /^[a-z][a-z0-9_]*$/;
+
+/** The neutral default when a tenant has no config row yet — everything absent, site indexable, discovery on. */
 export const EMPTY_SEO_TENANT_SETTINGS: SeoTenantSettings = {
   siteName: null,
   defaultMetaDescription: null,
@@ -29,15 +56,24 @@ export const EMPTY_SEO_TENANT_SETTINGS: SeoTenantSettings = {
   twitterSiteHandle: null,
   organizationName: null,
   organizationLogoMediaId: null,
-  defaultRobotsNoindex: false
+  defaultRobotsNoindex: false,
+  feedTitle: null,
+  feedDescription: null,
+  feedLogoMediaId: null,
+  feedItemLimit: FEED_ITEM_LIMIT_DEFAULT,
+  includedResourceTypes: null,
+  sitemapEnabled: true,
+  feedsEnabled: true
 };
 
-/** Field length caps — mirror the CHECK constraints in sql/080 (defense in depth: validate here first with a clean error, the DB is the floor). */
+/** Field length caps — mirror the CHECK constraints in sql/080 + sql/082 (defense in depth: validate here first with a clean error, the DB is the floor). */
 export const SEO_SETTINGS_LIMITS = {
   siteName: 200,
   defaultMetaDescription: 500,
   twitterSiteHandle: 80,
-  organizationName: 200
+  organizationName: 200,
+  feedTitle: 200,
+  feedDescription: 500
 } as const;
 
 const UUID_PATTERN =
@@ -106,22 +142,91 @@ export function validateSeoTenantSettings(
     return normalized;
   };
 
+  const boolField = (field: string, fallback: boolean): boolean => {
+    if (input[field] === undefined) return fallback;
+    if (typeof input[field] !== "boolean") {
+      errors.push({ field, message: "Must be a boolean." });
+      return fallback;
+    }
+    return input[field] as boolean;
+  };
+
   const siteName = boundedText("siteName");
   const defaultMetaDescription = boundedText("defaultMetaDescription");
   const twitterSiteHandle = boundedText("twitterSiteHandle");
   const organizationName = boundedText("organizationName");
   const defaultSocialMediaId = mediaId("defaultSocialMediaId");
   const organizationLogoMediaId = mediaId("organizationLogoMediaId");
+  const defaultRobotsNoindex = boolField("defaultRobotsNoindex", false);
 
-  let defaultRobotsNoindex = false;
-  if (input.defaultRobotsNoindex !== undefined) {
-    if (typeof input.defaultRobotsNoindex !== "boolean") {
+  // Issue #267 — feed/sitemap/robots discovery config.
+  const feedTitle = boundedText("feedTitle");
+  const feedDescription = boundedText("feedDescription");
+  const feedLogoMediaId = mediaId("feedLogoMediaId");
+  const sitemapEnabled = boolField("sitemapEnabled", true);
+  const feedsEnabled = boolField("feedsEnabled", true);
+
+  // Item limit: an integer within the bounded range, default 50. A float,
+  // non-number, or out-of-range value is rejected (never silently clamped —
+  // the caller should see their config was invalid).
+  let feedItemLimit = FEED_ITEM_LIMIT_DEFAULT;
+  if (input.feedItemLimit !== undefined && input.feedItemLimit !== null) {
+    const raw = input.feedItemLimit;
+    if (
+      typeof raw !== "number" ||
+      !Number.isInteger(raw) ||
+      raw < FEED_ITEM_LIMIT_MIN ||
+      raw > FEED_ITEM_LIMIT_MAX
+    ) {
       errors.push({
-        field: "defaultRobotsNoindex",
-        message: "Must be a boolean."
+        field: "feedItemLimit",
+        message: `Must be an integer between ${FEED_ITEM_LIMIT_MIN} and ${FEED_ITEM_LIMIT_MAX}.`
       });
     } else {
-      defaultRobotsNoindex = input.defaultRobotsNoindex;
+      feedItemLimit = raw;
+    }
+  }
+
+  // Included content types: null/absent/empty → null (all eligible types). A
+  // non-empty array must hold ≤ INCLUDED_RESOURCE_TYPES_MAX lowercase slugs.
+  let includedResourceTypes: string[] | null = null;
+  const rawTypes = input.includedResourceTypes;
+  if (rawTypes !== undefined && rawTypes !== null) {
+    if (!Array.isArray(rawTypes)) {
+      errors.push({
+        field: "includedResourceTypes",
+        message: "Must be an array of resource-type slugs or null."
+      });
+    } else if (rawTypes.length > INCLUDED_RESOURCE_TYPES_MAX) {
+      errors.push({
+        field: "includedResourceTypes",
+        message: `Must contain at most ${INCLUDED_RESOURCE_TYPES_MAX} entries.`
+      });
+    } else {
+      const cleaned: string[] = [];
+      let entryError = false;
+      for (const entry of rawTypes) {
+        if (
+          typeof entry !== "string" ||
+          entry.length > RESOURCE_TYPE_MAX_LEN ||
+          !RESOURCE_TYPE_PATTERN.test(entry)
+        ) {
+          entryError = true;
+          break;
+        }
+        if (!cleaned.includes(entry)) cleaned.push(entry);
+      }
+      if (entryError) {
+        errors.push({
+          field: "includedResourceTypes",
+          message: `Each entry must be a lowercase slug (letters, digits, underscore) of at most ${RESOURCE_TYPE_MAX_LEN} characters.`
+        });
+      } else {
+        // An explicit empty allow-list collapses to null (all) — turning off
+        // discovery entirely is done via sitemapEnabled/feedsEnabled, not by an
+        // empty include list that would silently produce an empty sitemap.
+        includedResourceTypes = cleaned.length === 0 ? null : cleaned;
+      }
     }
   }
 
@@ -138,7 +243,14 @@ export function validateSeoTenantSettings(
       twitterSiteHandle,
       organizationName,
       organizationLogoMediaId,
-      defaultRobotsNoindex
+      defaultRobotsNoindex,
+      feedTitle,
+      feedDescription,
+      feedLogoMediaId,
+      feedItemLimit,
+      includedResourceTypes,
+      sitemapEnabled,
+      feedsEnabled
     }
   };
 }

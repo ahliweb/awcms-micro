@@ -24,6 +24,13 @@ type SeoSettingsRow = {
   organization_name: string | null;
   organization_logo_media_id: string | null;
   default_robots_noindex: boolean;
+  feed_title: string | null;
+  feed_description: string | null;
+  feed_logo_media_id: string | null;
+  feed_item_limit: number;
+  included_resource_types: string[] | null;
+  sitemap_enabled: boolean;
+  feeds_enabled: boolean;
 };
 
 function toSettings(row: SeoSettingsRow): SeoTenantSettings {
@@ -34,9 +41,23 @@ function toSettings(row: SeoSettingsRow): SeoTenantSettings {
     twitterSiteHandle: row.twitter_site_handle,
     organizationName: row.organization_name,
     organizationLogoMediaId: row.organization_logo_media_id,
-    defaultRobotsNoindex: row.default_robots_noindex
+    defaultRobotsNoindex: row.default_robots_noindex,
+    feedTitle: row.feed_title,
+    feedDescription: row.feed_description,
+    feedLogoMediaId: row.feed_logo_media_id,
+    feedItemLimit: row.feed_item_limit,
+    includedResourceTypes: row.included_resource_types,
+    sitemapEnabled: row.sitemap_enabled,
+    feedsEnabled: row.feeds_enabled
   };
 }
+
+/** Columns selected by every read — kept in one place so a new field is added once. */
+const SEO_SETTINGS_COLUMNS =
+  "site_name, default_meta_description, default_social_media_id, " +
+  "twitter_site_handle, organization_name, organization_logo_media_id, " +
+  "default_robots_noindex, feed_title, feed_description, feed_logo_media_id, " +
+  "feed_item_limit, included_resource_types, sitemap_enabled, feeds_enabled";
 
 /**
  * Read this tenant's SEO defaults. Returns `EMPTY_SEO_TENANT_SETTINGS` (not
@@ -49,14 +70,32 @@ export async function fetchSeoTenantSettings(
   tenantId: string
 ): Promise<SeoTenantSettings> {
   const rows = (await tx`
-    SELECT site_name, default_meta_description, default_social_media_id,
-      twitter_site_handle, organization_name, organization_logo_media_id,
-      default_robots_noindex
+    SELECT ${tx.unsafe(SEO_SETTINGS_COLUMNS)}
     FROM awcms_micro_seo_tenant_settings
     WHERE tenant_id = ${tenantId}
   `) as SeoSettingsRow[];
 
   return rows[0] ? toSettings(rows[0]) : { ...EMPTY_SEO_TENANT_SETTINGS };
+}
+
+/**
+ * The tenant SEO settings row's `updated_at`, or `null` when no row exists yet
+ * (Issue #267). The discovery routes fold this into the `Last-Modified` validator
+ * so a config change (feed title, item limit, noindex, …) advances it even when
+ * the underlying content did not change — a robots.txt/feed served purely from
+ * config still revalidates after a config edit.
+ */
+export async function fetchSeoSettingsUpdatedAt(
+  tx: Bun.SQL,
+  tenantId: string
+): Promise<Date | null> {
+  const rows = (await tx`
+    SELECT updated_at
+    FROM awcms_micro_seo_tenant_settings
+    WHERE tenant_id = ${tenantId}
+  `) as { updated_at: Date }[];
+
+  return rows[0] ? rows[0].updated_at : null;
 }
 
 /** Injected audit hook — the route wires `recordAuditEvent` here; tests pass a spy. */
@@ -80,16 +119,28 @@ export async function updateSeoTenantSettings(
 ): Promise<SeoTenantSettings> {
   const previous = await fetchSeoTenantSettings(tx, tenantId);
 
+  // Nullable text[] bind: an explicit NULL means "all types"; a non-null value
+  // is a typed array so Postgres receives a real text[] not an untyped literal.
+  const includedTypesParam =
+    next.includedResourceTypes === null
+      ? null
+      : tx.array(next.includedResourceTypes, "text");
+
   const rows = (await tx`
     INSERT INTO awcms_micro_seo_tenant_settings
       (tenant_id, site_name, default_meta_description, default_social_media_id,
        twitter_site_handle, organization_name, organization_logo_media_id,
-       default_robots_noindex, created_by, updated_by)
+       default_robots_noindex, feed_title, feed_description, feed_logo_media_id,
+       feed_item_limit, included_resource_types, sitemap_enabled, feeds_enabled,
+       created_by, updated_by)
     VALUES (
       ${tenantId}, ${next.siteName}, ${next.defaultMetaDescription},
       ${next.defaultSocialMediaId}, ${next.twitterSiteHandle},
       ${next.organizationName}, ${next.organizationLogoMediaId},
-      ${next.defaultRobotsNoindex}, ${actorTenantUserId}, ${actorTenantUserId}
+      ${next.defaultRobotsNoindex}, ${next.feedTitle}, ${next.feedDescription},
+      ${next.feedLogoMediaId}, ${next.feedItemLimit}, ${includedTypesParam},
+      ${next.sitemapEnabled}, ${next.feedsEnabled},
+      ${actorTenantUserId}, ${actorTenantUserId}
     )
     ON CONFLICT (tenant_id) DO UPDATE SET
       site_name = EXCLUDED.site_name,
@@ -99,11 +150,16 @@ export async function updateSeoTenantSettings(
       organization_name = EXCLUDED.organization_name,
       organization_logo_media_id = EXCLUDED.organization_logo_media_id,
       default_robots_noindex = EXCLUDED.default_robots_noindex,
+      feed_title = EXCLUDED.feed_title,
+      feed_description = EXCLUDED.feed_description,
+      feed_logo_media_id = EXCLUDED.feed_logo_media_id,
+      feed_item_limit = EXCLUDED.feed_item_limit,
+      included_resource_types = EXCLUDED.included_resource_types,
+      sitemap_enabled = EXCLUDED.sitemap_enabled,
+      feeds_enabled = EXCLUDED.feeds_enabled,
       updated_by = EXCLUDED.updated_by,
       updated_at = now()
-    RETURNING site_name, default_meta_description, default_social_media_id,
-      twitter_site_handle, organization_name, organization_logo_media_id,
-      default_robots_noindex
+    RETURNING ${tx.unsafe(SEO_SETTINGS_COLUMNS)}
   `) as SeoSettingsRow[];
 
   const saved = toSettings(rows[0]!);

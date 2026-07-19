@@ -11444,17 +11444,24 @@ At least one field must be provided.
 
 ### Schema: SeoTenantSettings
 
-Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullable except the boolean switch; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins).
+Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every string field is nullable; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins). The feed/sitemap fields (Issue #267) configure the public discovery surfaces (robots.txt, sitemap index/child, RSS/Atom/JSON feeds).
 
-| Field                     | Type          | Required | Nullable | Description                                                                                                                                              |
-| ------------------------- | ------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `siteName`                | string        | yes      | yes      | Overrides the tenant display name for og:site_name / JSON-LD WebSite; null falls back to the tenant name.                                                |
-| `defaultMetaDescription`  | string        | yes      | yes      | Default meta description / og:description when a resource has none.                                                                                      |
-| `defaultSocialMediaId`    | string (uuid) | yes      | yes      | Default social preview image (media object id, resolved same-tenant/verified at render time).                                                            |
-| `twitterSiteHandle`       | string        | yes      | yes      | Rendered as twitter:site, e.g. "@example".                                                                                                               |
-| `organizationName`        | string        | yes      | yes      | schema.org Organization identity for the site-level JSON-LD node.                                                                                        |
-| `organizationLogoMediaId` | string (uuid) | yes      | yes      | Organization logo (media object id, resolved same-tenant/verified at render time).                                                                       |
-| `defaultRobotsNoindex`    | boolean       | yes      | no       | Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex regardless of its own indexability. |
+| Field                     | Type            | Required | Nullable | Description                                                                                                                                                                                                                                           |
+| ------------------------- | --------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `siteName`                | string          | yes      | yes      | Overrides the tenant display name for og:site_name / JSON-LD WebSite; null falls back to the tenant name.                                                                                                                                             |
+| `defaultMetaDescription`  | string          | yes      | yes      | Default meta description / og:description when a resource has none.                                                                                                                                                                                   |
+| `defaultSocialMediaId`    | string (uuid)   | yes      | yes      | Default social preview image (media object id, resolved same-tenant/verified at render time).                                                                                                                                                         |
+| `twitterSiteHandle`       | string          | yes      | yes      | Rendered as twitter:site, e.g. "@example".                                                                                                                                                                                                            |
+| `organizationName`        | string          | yes      | yes      | schema.org Organization identity for the site-level JSON-LD node.                                                                                                                                                                                     |
+| `organizationLogoMediaId` | string (uuid)   | yes      | yes      | Organization logo (media object id, resolved same-tenant/verified at render time).                                                                                                                                                                    |
+| `defaultRobotsNoindex`    | boolean         | yes      | no       | Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex, robots.txt disallows all crawling, and every discovery surface degrades to noindex regardless of a resource's own indexability. |
+| `feedTitle`               | string          | yes      | yes      | Feed channel/title override for RSS/Atom/JSON feeds; null falls back to siteName/tenant name.                                                                                                                                                         |
+| `feedDescription`         | string          | yes      | yes      | Feed channel description; null falls back to a generic default.                                                                                                                                                                                       |
+| `feedLogoMediaId`         | string (uuid)   | yes      | yes      | Feed logo/icon (media object id, resolved same-tenant/verified at render time).                                                                                                                                                                       |
+| `feedItemLimit`           | integer         | yes      | no       | Max items per feed (RSS/Atom/JSON). Bounded 1..200, default 50 — only ever makes a feed smaller than the hard code ceiling.                                                                                                                           |
+| `includedResourceTypes`   | array of string | yes      | yes      | Optional allow-list of content-type slugs to include in sitemap/feeds; null (default) means all eligible types. An empty array collapses to null.                                                                                                     |
+| `sitemapEnabled`          | boolean         | yes      | no       | Whether this tenant's sitemap index/child sitemaps are served and advertised in robots.txt.                                                                                                                                                           |
+| `feedsEnabled`            | boolean         | yes      | no       | Whether this tenant's RSS/Atom/JSON feeds are served.                                                                                                                                                                                                 |
 
 **Example**
 
@@ -11466,7 +11473,14 @@ Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullab
   "twitterSiteHandle": "string",
   "organizationName": "string",
   "organizationLogoMediaId": "00000000-0000-0000-0000-000000000000",
-  "defaultRobotsNoindex": false
+  "defaultRobotsNoindex": false,
+  "feedTitle": "string",
+  "feedDescription": "string",
+  "feedLogoMediaId": "00000000-0000-0000-0000-000000000000",
+  "feedItemLimit": 1,
+  "includedResourceTypes": ["string"],
+  "sitemapEnabled": false,
+  "feedsEnabled": false
 }
 ```
 
@@ -11474,15 +11488,22 @@ Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullab
 
 Update body — same shape as SeoTenantSettings; omitted string fields are treated as null, an omitted defaultRobotsNoindex defaults to false. Unknown keys are ignored.
 
-| Field                     | Type          | Required | Nullable | Description |
-| ------------------------- | ------------- | -------- | -------- | ----------- |
-| `siteName`                | string        | no       | yes      |             |
-| `defaultMetaDescription`  | string        | no       | yes      |             |
-| `defaultSocialMediaId`    | string (uuid) | no       | yes      |             |
-| `twitterSiteHandle`       | string        | no       | yes      |             |
-| `organizationName`        | string        | no       | yes      |             |
-| `organizationLogoMediaId` | string (uuid) | no       | yes      |             |
-| `defaultRobotsNoindex`    | boolean       | no       | no       |             |
+| Field                     | Type            | Required | Nullable | Description |
+| ------------------------- | --------------- | -------- | -------- | ----------- |
+| `siteName`                | string          | no       | yes      |             |
+| `defaultMetaDescription`  | string          | no       | yes      |             |
+| `defaultSocialMediaId`    | string (uuid)   | no       | yes      |             |
+| `twitterSiteHandle`       | string          | no       | yes      |             |
+| `organizationName`        | string          | no       | yes      |             |
+| `organizationLogoMediaId` | string (uuid)   | no       | yes      |             |
+| `defaultRobotsNoindex`    | boolean         | no       | no       |             |
+| `feedTitle`               | string          | no       | yes      |             |
+| `feedDescription`         | string          | no       | yes      |             |
+| `feedLogoMediaId`         | string (uuid)   | no       | yes      |             |
+| `feedItemLimit`           | integer         | no       | no       |             |
+| `includedResourceTypes`   | array of string | no       | yes      |             |
+| `sitemapEnabled`          | boolean         | no       | no       |             |
+| `feedsEnabled`            | boolean         | no       | no       |             |
 
 **Example**
 
@@ -11494,7 +11515,14 @@ Update body — same shape as SeoTenantSettings; omitted string fields are treat
   "twitterSiteHandle": "string",
   "organizationName": "string",
   "organizationLogoMediaId": "00000000-0000-0000-0000-000000000000",
-  "defaultRobotsNoindex": false
+  "defaultRobotsNoindex": false,
+  "feedTitle": "string",
+  "feedDescription": "string",
+  "feedLogoMediaId": "00000000-0000-0000-0000-000000000000",
+  "feedItemLimit": 1,
+  "includedResourceTypes": ["string"],
+  "sitemapEnabled": false,
+  "feedsEnabled": false
 }
 ```
 
