@@ -1,8 +1,8 @@
 {
-  "baseModuleCount": 18,
+  "baseModuleCount": 19,
   "applicationModuleCount": 0,
   "applicationRegistryId": null,
-  "totalModuleCount": 18,
+  "totalModuleCount": 19,
   "valid": true,
   "issueCount": 0,
   "migrationNamespaces": [
@@ -343,6 +343,29 @@
       "capabilitiesConsumed": [],
       "permissionCount": 6,
       "navigationCount": 1,
+      "jobCount": 0,
+      "hasHealthCheck": false,
+      "hasReadinessCheck": false,
+      "deploymentProfiles": null
+    },
+    {
+      "key": "theming",
+      "name": "Theming",
+      "version": "1.0.0",
+      "status": "active",
+      "type": "domain",
+      "source": "base",
+      "dependencies": ["tenant_admin", "identity_access"],
+      "capabilitiesProvided": [],
+      "capabilitiesConsumed": [
+        {
+          "capability": "media_library",
+          "providedBy": "media_library",
+          "optional": true
+        }
+      ],
+      "permissionCount": 6,
+      "navigationCount": 0,
       "jobCount": 0,
       "hasHealthCheck": false,
       "hasReadinessCheck": false,

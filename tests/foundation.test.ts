@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 18 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(18);
+  test("the 19 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(19);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -150,6 +150,15 @@ describe("module registry", () => {
     // provides nothing and depends only on the two Core modules.
     expect(getModuleByKey("seo_distribution")).toMatchObject({
       key: "seo_distribution",
+      status: "active",
+      type: "domain",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Issue #269 (ADR-0029) — `theming` registered with its runtime code, bumping
+    // the base registry 18 → 19. Consumer/leaf: it consumes media_library only
+    // (optional), provides nothing, and depends only on the two Core modules.
+    expect(getModuleByKey("theming")).toMatchObject({
+      key: "theming",
       status: "active",
       type: "domain",
       dependencies: ["tenant_admin", "identity_access"]
@@ -593,7 +602,9 @@ describe("database migration runner helpers", () => {
       "081_awcms_micro_seo_distribution_config_permissions.sql",
       "082_awcms_micro_seo_distribution_feed_config_schema.sql",
       "083_awcms_micro_seo_distribution_redirect_schema.sql",
-      "084_awcms_micro_seo_distribution_redirect_permissions.sql"
+      "084_awcms_micro_seo_distribution_redirect_permissions.sql",
+      "085_awcms_micro_theming_config_schema.sql",
+      "086_awcms_micro_theming_permissions.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

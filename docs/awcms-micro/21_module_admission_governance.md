@@ -9,9 +9,9 @@
 ## 1. Konteks dan tujuan
 
 Repo ini awalnya dideskripsikan sebagai base generik dengan sedikit modul
-domain. Registry sekarang berisi **18 modul terdaftar** (`src/modules/
-index.ts`), termasuk lima modul WEBSITE nyata (`blog_content`,
-`news_portal`, `social_publishing`, `seo_distribution`, plus `media_library`
+domain. Registry sekarang berisi **19 modul terdaftar** (`src/modules/
+index.ts`), termasuk enam modul WEBSITE nyata (`blog_content`,
+`news_portal`, `social_publishing`, `seo_distribution`, `theming`, plus `media_library`
 sebagai System Foundation yang menopangnya) yang didaftarkan langsung di base (pengecualian
 yang sudah didokumentasikan di `AGENTS.md` §Peta modul). AWCMS-Micro adalah
 standar AWCMS-Mini yang dipersempit ke **WEBSITE scope** (ADR-0025): tujuh
@@ -34,7 +34,7 @@ Dokumen ini mendefinisikan:
    runtime code upload/install/marketplace.
 5. Proposal template ringan + architecture decision checklist
    (`docs/awcms-micro/templates/`).
-6. Pemetaan 18 modul saat ini ke kategori + remediasi yang terdeteksi.
+6. Pemetaan 19 modul saat ini ke kategori + remediasi yang terdeteksi.
 
 **Yang TIDAK berubah oleh dokumen ini** (guardrail keras epic #679, tidak
 dilonggarkan): registry tetap **statis, tepercaya, hanya lewat kode yang
@@ -275,9 +275,9 @@ eksplisit sesuai permintaan Issue #696):
    semacam ini **ditolak di tahap pohon keputusan §3** (node Q5), tanpa
    pengecualian implementasi apa pun.
 
-## 8. Peta 18 modul saat ini → kategori
+## 8. Peta 19 modul saat ini → kategori
 
-Sumber kebenaran: `src/modules/index.ts` (18 entri) dan setiap `module.ts`-
+Sumber kebenaran: `src/modules/index.ts` (19 entri) dan setiap `module.ts`-
 nya, tercermin di `docs/awcms-micro/repo-inventory.md` (GENERATED) dan
 `docs/awcms-micro/module-composition-inventory.json`. Kolom **Owner**
 mengikuti `.github/CODEOWNERS` (satu maintainer, `@ahliweb`, untuk seluruh
@@ -304,8 +304,9 @@ diisi di modul manapun — lihat remediasi R3 di bawah.
 | `news_portal`          | Official Optional Module | `domain`                | _(tidak diset)_  | `active`         | @ahliweb |
 | `social_publishing`    | Official Optional Module | `domain`                | _(tidak diset)_  | `active`         | @ahliweb |
 | `seo_distribution`     | Official Optional Module | `domain`                | _(tidak diset)_  | `active`         | @ahliweb |
+| `theming`              | Official Optional Module | `domain`                | _(tidak diset)_  | `active`         | @ahliweb |
 
-Total: 3 Core + 11 System + 4 Official Optional Module = **18 modul
+Total: 3 Core + 11 System + 5 Official Optional Module = **19 modul
 terdaftar**, cocok dengan `src/modules/index.ts` dan inventori generated
 (`repo-inventory.md`, `module-composition-inventory.json`). `media_library`
 adalah System Foundation yang menopang `blog_content`/`news_portal`/
@@ -343,11 +344,11 @@ External Integration menurut §2, bukan entri registry terpisah):
 
 ### Remediasi yang terdeteksi (bukan blocker rilis dokumen ini — tercatat sebagai follow-up)
 
-1. **R1 — `type` tidak konsisten diisi.** Hanya 10 dari 18 modul
+1. **R1 — `type` tidak konsisten diisi.** Hanya 11 dari 19 modul
    (`module_management`, `tenant_domain`, `visitor_analytics`,
    `data_lifecycle`, `domain_event_runtime`, `media_library` = `system`;
-   `blog_content`, `news_portal`, `social_publishing`, `seo_distribution` =
-   `domain`) men-set field `type` di `module.ts`. 8
+   `blog_content`, `news_portal`, `social_publishing`, `seo_distribution`,
+   `theming` = `domain`) men-set field `type` di `module.ts`. 8
    modul lain (`tenant_admin`, `identity_access`, `profile_identity`,
    `logging`, `sync_storage`, `email`, `form_drafts`, `reporting`)
    meninggalkannya `undefined`, walau kategori efektifnya

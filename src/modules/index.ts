@@ -18,6 +18,7 @@ import { socialPublishingModule } from "./social-publishing/module";
 import { syncStorageModule } from "./sync-storage/module";
 import { tenantAdminModule } from "./tenant-admin/module";
 import { tenantDomainModule } from "./tenant-domain/module";
+import { themingModule } from "./theming/module";
 import { visitorAnalyticsModule } from "./visitor-analytics/module";
 
 /**
@@ -74,7 +75,16 @@ const baseModules: ModuleDescriptor[] = [
   // ADR-0028 deferred out of the admission PR: it lands with real code, which is
   // why registering it here bumps the base count 17 → 18 (and
   // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
-  seoDistributionModule
+  seoDistributionModule,
+  // `active` Official Optional Module (ADR-0029, admitted AND implemented #269).
+  // Tenant-selectable presentation via trusted BUILD-TIME theme descriptors +
+  // DATA-only tenant config (validated design tokens/slots/media). A CONSUMER
+  // leaf: it consumes `media_library` (optional) and provides nothing, so the
+  // DAG is unchanged and nothing depends on it. Unlike seo_distribution, admission
+  // + runtime land together (no latent cross-module behavior to consolidate), so
+  // registering it here bumps the base count 18 → 19 (and
+  // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
+  themingModule
 ];
 
 /** Base-only registry, regardless of any application registry — Issue #740's composition API. */

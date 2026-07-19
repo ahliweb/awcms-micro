@@ -7577,6 +7577,199 @@ Read-only: normalize + validate a proposed rule (frozen open-redirect guard), pr
 | 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)     |
 | 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)     |
 
+## Theming
+
+Tenant theme admin API for the `theming` module (epic #261 Wave 2, Issue #269, ADR-0029) — select a trusted build-time theme, edit its bounded design-token/slot/asset/section config (draft), validate it (dry run), mint a short-lived non-indexable preview, publish an immutable version, and roll back or retire. A theme is reviewed build-time source code, never uploaded; only DATA configuration is stored. Token values are validated by rejection (never sanitized) and served as an external same-origin stylesheet (`/theming/tokens.css`, an Astro text/css route — NOT a JSON endpoint). High-risk mutations (draft/publish/rollback/retire) require an `Idempotency-Key` and are audited.
+
+### `GET /api/v1/theming` — Read this tenant's theme selection, available themes, draft, and version history
+
+- **operationId**: `themingRead`
+- **Security**: bearerAuth + tenantHeader
+
+Everything the theming admin surface needs: the available (reviewed, build-time) theme descriptors, this tenant's active theme pointer, its current draft config (if any), and its published version history. Gated by `theming.config.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                   |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 200    | This tenant's theming state.                   | [`ApiSuccess`](#standard-success-envelope)&lt;[`ThemingState`](#schema-themingstate)&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                                                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                   |
+
+### `PUT /api/v1/theming/draft` — Save/replace this tenant's draft theme config
+
+- **operationId**: `themingDraftUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+Save the single draft config for a chosen theme (bounded, validated design tokens, slot variants, media asset ids, section order, nav placement). The body is validated against the theme descriptor (the CSS-injection spine + declared-surface bounding) before any DB work. High-risk (the draft is what publish promotes): requires an `Idempotency-Key`, audited. Gated by `theming.config.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`ThemeConfigRequest`](#schema-themeconfigrequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                               |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 200    | Draft saved (or an idempotent replay).                                                                                                                                                                           | [`ApiSuccess`](#standard-success-envelope)&lt;[`ThemeDraft`](#schema-themedraft)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                               |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                               |
+| 409    | The `Idempotency-Key` was already used with a different request payload.                                                                                                                                         | [`ApiError`](#standard-error-envelope)                                               |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                               |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                               |
+
+### `POST /api/v1/theming/preview` — Create a short-lived, non-indexable preview session for the draft
+
+- **operationId**: `themingPreviewCreate`
+- **Security**: bearerAuth + tenantHeader
+
+Mint an authorized, short-lived, non-indexable preview of the current draft and return its URL (`/theming/preview/{token}`) + expiry. The raw token is returned once; only its hash is stored. Audited. Gated by `theming.preview.create`. Not idempotency-keyed (each preview is a distinct disposable token).
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (optional): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                   |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200    | The preview session URL + expiry.                                                                                                                                                                                | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                   |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/theming/publish` — Publish the draft as an immutable version (and make it live)
+
+- **operationId**: `themingPublish`
+- **Security**: bearerAuth + tenantHeader
+
+Publish the current draft as a new IMMUTABLE version and make it the live look (INSERT-only; published versions are immutable). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.publish`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                              | Schema                                                                                   |
+| ------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| 200    | Published (or an idempotent replay).                                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`ThemeVersion`](#schema-themeversion)&gt; |
+| 400    | Validation or request error.                                             | [`ApiError`](#standard-error-envelope)                                                   |
+| 401    | Authentication required or expired.                                      | [`ApiError`](#standard-error-envelope)                                                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                           | [`ApiError`](#standard-error-envelope)                                                   |
+| 409    | The `Idempotency-Key` was already used with a different request payload. | [`ApiError`](#standard-error-envelope)                                                   |
+| 500    | Internal server error without stack trace.                               | [`ApiError`](#standard-error-envelope)                                                   |
+
+### `POST /api/v1/theming/retire` — Retire the active theme (fall back to the default)
+
+- **operationId**: `themingRetire`
+- **Security**: bearerAuth + tenantHeader
+
+Clear the active theme pointer so the site falls back to the default theme; published versions stay intact (history/rollback). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.archive`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                              | Schema                                                   |
+| ------ | ------------------------------------------------------------------------ | -------------------------------------------------------- |
+| 200    | Retired (or an idempotent replay).                                       | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                                             | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.                                      | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                           | [`ApiError`](#standard-error-envelope)                   |
+| 409    | The `Idempotency-Key` was already used with a different request payload. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.                               | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/theming/rollback` — Roll the active theme back to an earlier published version
+
+- **operationId**: `themingRollback`
+- **Security**: bearerAuth + tenantHeader
+
+Move the active pointer to an earlier published version of this tenant (never mutates a version row). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.restore`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                   |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 200    | Rolled back (or an idempotent replay).                                                                                                                                                                           | [`ApiSuccess`](#standard-success-envelope)&lt;[`ThemeVersion`](#schema-themeversion)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                   |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                   |
+| 404    | Resource not found or hidden by soft-delete policy.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                   |
+| 409    | The `Idempotency-Key` was already used with a different request payload.                                                                                                                                         | [`ApiError`](#standard-error-envelope)                                                   |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                   |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                   |
+
+### `POST /api/v1/theming/validate` — Validate a theme config (dry run) + preview its token CSS
+
+- **operationId**: `themingValidate`
+- **Security**: bearerAuth + tenantHeader
+
+Read-only: validate a proposed theme config against its theme descriptor and, when valid, return the exact `text/css` custom-property block it would produce — writing nothing. Gated by `theming.config.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`ThemeConfigRequest`](#schema-themeconfigrequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 200    | The validation result (+ token CSS when valid).                                                                                                                                                                  | [`ApiSuccess`](#standard-success-envelope)&lt;[`ThemeValidationResult`](#schema-themevalidationresult)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                                     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                                     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                                     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                                     |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -13248,6 +13441,129 @@ Never includes verification_token_hash (an internal bearer-token hash) or any DN
       "roleId": "00000000-0000-0000-0000-000000000000",
       "roleCode": "string",
       "roleName": "string"
+    }
+  ]
+}
+```
+
+### Schema: ThemeConfigRequest
+
+A tenant's DATA-only theme configuration. Every key/value is validated against the chosen theme descriptor; unknown tokens/slots/assets/sections are rejected, and token values are validated by rejection against strict CSS grammars (no url()/expression()/@import/javascript:/comment-breakout).
+
+| Field            | Type            | Required | Nullable | Description                                                                                                                   |
+| ---------------- | --------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `themeKey`       | string          | yes      | no       | A registered (build-time) theme key.                                                                                          |
+| `tokenOverrides` | object          | no       | no       | tokenKey -> validated token value (color/dimension/number, or a font-family allow-list key). Unknown token keys are rejected. |
+| `slotSelections` | object          | no       | no       | slotKey -> chosen variant key (from the slot's allow-list).                                                                   |
+| `assetRefs`      | object          | no       | no       | assetSlotKey -> media object UUID (never a URL); null clears the slot.                                                        |
+| `sectionOrder`   | array of string | no       | no       | An ordering of the theme's declared content-section keys.                                                                     |
+| `navPlacement`   | string          | no       | no       | One of the theme's declared nav placements.                                                                                   |
+
+**Example**
+
+```json
+{
+  "themeKey": "string",
+  "tokenOverrides": "(operation-specific payload)",
+  "slotSelections": "(operation-specific payload)",
+  "assetRefs": "(operation-specific payload)",
+  "sectionOrder": ["string"],
+  "navPlacement": "string"
+}
+```
+
+### Schema: ThemeDraft
+
+| Field        | Type          | Required | Nullable | Description                                 |
+| ------------ | ------------- | -------- | -------- | ------------------------------------------- |
+| `versionId`  | string (uuid) | yes      | no       |                                             |
+| `themeKey`   | string        | yes      | no       |                                             |
+| `config`     | object        | yes      | no       | The validated, normalized config as stored. |
+| `configHash` | string        | yes      | no       |                                             |
+
+**Example**
+
+```json
+{
+  "versionId": "00000000-0000-0000-0000-000000000000",
+  "themeKey": "string",
+  "config": "(operation-specific payload)",
+  "configHash": "string"
+}
+```
+
+### Schema: ThemeValidationResult
+
+| Field        | Type            | Required | Nullable | Description                                                                                  |
+| ------------ | --------------- | -------- | -------- | -------------------------------------------------------------------------------------------- |
+| `valid`      | boolean         | yes      | no       |                                                                                              |
+| `errors`     | array of object | yes      | no       |                                                                                              |
+| `previewCss` | string          | yes      | yes      | The `:root { … }` custom-property block that would be served, when valid; null when invalid. |
+
+**Example**
+
+```json
+{
+  "valid": false,
+  "errors": [
+    {
+      "field": "string",
+      "message": "string"
+    }
+  ],
+  "previewCss": "string"
+}
+```
+
+### Schema: ThemeVersion
+
+| Field           | Type               | Required | Nullable | Description |
+| --------------- | ------------------ | -------- | -------- | ----------- |
+| `versionId`     | string (uuid)      | yes      | no       |             |
+| `themeKey`      | string             | yes      | no       |             |
+| `versionNumber` | integer            | yes      | yes      |             |
+| `configHash`    | string             | no       | no       |             |
+| `publishedAt`   | string (date-time) | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "versionId": "00000000-0000-0000-0000-000000000000",
+  "themeKey": "string",
+  "versionNumber": 0,
+  "configHash": "string",
+  "publishedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: ThemingState
+
+| Field      | Type                                            | Required | Nullable | Description                                       |
+| ---------- | ----------------------------------------------- | -------- | -------- | ------------------------------------------------- |
+| `themes`   | array of object                                 | yes      | no       | Available reviewed, build-time theme descriptors. |
+| `state`    | object                                          | yes      | no       |                                                   |
+| `draft`    | object                                          | yes      | yes      |                                                   |
+| `versions` | array of [`ThemeVersion`](#schema-themeversion) | yes      | no       |                                                   |
+
+**Example**
+
+```json
+{
+  "themes": ["(operation-specific payload)"],
+  "state": {
+    "activeThemeKey": "string",
+    "activeVersionId": "00000000-0000-0000-0000-000000000000",
+    "draftThemeKey": "string"
+  },
+  "draft": "(operation-specific payload)",
+  "versions": [
+    {
+      "versionId": "00000000-0000-0000-0000-000000000000",
+      "themeKey": "string",
+      "versionNumber": 0,
+      "configHash": "string",
+      "publishedAt": "2026-01-01T00:00:00.000Z"
     }
   ]
 }
