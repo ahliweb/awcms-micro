@@ -188,14 +188,17 @@ suite("tenant module preset application service", () => {
     // not list it (unlike media_library, it is not a dependency other modules
     // need to function — its per-tenant enablement gates only its own admin
     // config surface). So the preset safely disables it, exactly like the other
-    // non-listed leaves.
+    // non-listed leaves. theming (Issue #269, ADR-0029) is the same shape — a
+    // pure Optional leaf that provides nothing and is not listed by
+    // online_website — so it joins the disabled-leaves set too.
     for (const key of [
       "form_drafts",
       "visitor_analytics",
       "news_portal",
       "social_publishing",
       "data_lifecycle",
-      "seo_distribution"
+      "seo_distribution",
+      "theming"
     ]) {
       expect(changeByKey.get(key)?.outcome).toBe("applied");
       expect(changeByKey.get(key)?.action).toBe("disabled");
@@ -237,6 +240,7 @@ suite("tenant module preset application service", () => {
     expect(state.get("social_publishing")).toBe(false);
     expect(state.get("data_lifecycle")).toBe(false);
     expect(state.get("seo_distribution")).toBe(false);
+    expect(state.get("theming")).toBe(false);
 
     const auditRows = await fetchAuditActions(owner.tenantId);
     const disabledResourceIds = auditRows
@@ -250,7 +254,8 @@ suite("tenant module preset application service", () => {
         "news_portal",
         "social_publishing",
         "data_lifecycle",
-        "seo_distribution"
+        "seo_distribution",
+        "theming"
       ].sort()
     );
     // No audit event for modules that were already in the target state.
@@ -341,7 +346,8 @@ suite("tenant module preset application service", () => {
       "media_library",
       "social_publishing",
       "data_lifecycle",
-      "domain_event_runtime"
+      "domain_event_runtime",
+      "theming"
     ]) {
       expect(state.get(key)).toBe(false);
     }
