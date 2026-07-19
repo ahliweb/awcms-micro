@@ -73,7 +73,7 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * The size of the real WEBSITE-scoped base registry. A hard anchor: a derived
  * ERP app composes extra modules through `application-registry.ts` at build
  * time (which this gate does not run against), so in THIS base repository the
- * count is exactly 18. Adding a genuinely new base module is a conscious event
+ * count is exactly 19. Adding a genuinely new base module is a conscious event
  * that must bump this constant in the same PR — that is the "module-count
  * drift" guard, not an accident waiting to happen.
  *
@@ -81,8 +81,12 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * runtime code — the admission PR (#265) deliberately kept the count at 17 (a
  * code-less descriptor is the placeholder the media-library gate forbids), so
  * the anchor rose when CODE landed, not when the ADR was Accepted.
+ *
+ * 19 since Issue #269 (ADR-0029) registered `theming` with its runtime code —
+ * admission + runtime landed together (no latent cross-module behavior to
+ * consolidate first), the ADR-0026 posture, so the anchor rose with the code.
  */
-export const EXPECTED_BASE_MODULE_COUNT = 18;
+export const EXPECTED_BASE_MODULE_COUNT = 19;
 
 /**
  * Generated inventories that must never name an excluded module. These are

@@ -81,6 +81,8 @@ tags:
     description: "Module-contributed read-model projection extension to Management Reporting (epic `platform-evolution` #738 Wave 3, Issue #753) — list registered projection descriptors with live snapshot/freshness status, trigger/resume/cancel an idempotent full rebuild, trigger an on-demand reconciliation against a source control total, and manage/trigger/download scheduled exports of a projection's current snapshot (manifest/checksum/expiry, secure tenant-scoped download). A projection is a DERIVED read model, never an authorization source of truth — every operation here independently re-checks RBAC/ABAC. Real incremental updates (`bun run reporting:projections:refresh`, `bun run reporting:exports:dispatch`) are internal scheduled jobs, not exposed over HTTP."
   - name: SEO & Distribution
     description: "Tenant-scoped SEO defaults admin API for the `seo_distribution` module (epic #261 Wave 1, Issue #266, ADR-0028) — read/update the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, and a tenant-wide `noindex` switch) that the central metadata renderer applies UNDERNEATH resource-level facts. `PUT` is high-risk (rewrites the public metadata/indexability surface) — it requires an `Idempotency-Key` and is audited. The public HTML metadata itself (canonical/hreflang/OG/JSON-LD) is rendered inline by the Astro public routes, not exposed as a JSON endpoint; sitemap/robots/feeds (#267) and redirects (#268) are separate issues in the same module."
+  - name: Theming
+    description: "Tenant theme admin API for the `theming` module (epic #261 Wave 2, Issue #269, ADR-0029) — select a trusted build-time theme, edit its bounded design-token/slot/asset/section config (draft), validate it (dry run), mint a short-lived non-indexable preview, publish an immutable version, and roll back or retire. A theme is reviewed build-time source code, never uploaded; only DATA configuration is stored. Token values are validated by rejection (never sanitized) and served as an external same-origin stylesheet (`/theming/tokens.css`, an Astro text/css route — NOT a JSON endpoint). High-risk mutations (draft/publish/rollback/retire) require an `Idempotency-Key` and are audited."
 paths:
   /api/v1/access/assignments:
     post:
@@ -13845,6 +13847,340 @@ paths:
           $ref: "#/components/responses/PayloadTooLarge"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/theming:
+    get:
+      tags:
+        - Theming
+      summary: Read this tenant's theme selection, available themes, draft, and version history
+      description: "Everything the theming admin surface needs: the available (reviewed, build-time) theme descriptors, this tenant's active theme pointer, its current draft config (if any), and its published version history. Gated by `theming.config.read`."
+      operationId: themingRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's theming state.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ThemingState"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/draft:
+    put:
+      tags:
+        - Theming
+      summary: Save/replace this tenant's draft theme config
+      description: "Save the single draft config for a chosen theme (bounded, validated design tokens, slot variants, media asset ids, section order, nav placement). The body is validated against the theme descriptor (the CSS-injection spine + declared-surface bounding) before any DB work. High-risk (the draft is what publish promotes): requires an `Idempotency-Key`, audited. Gated by `theming.config.update`."
+      operationId: themingDraftUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ThemeConfigRequest"
+      responses:
+        "200":
+          description: Draft saved (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ThemeDraft"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/preview:
+    post:
+      tags:
+        - Theming
+      summary: Create a short-lived, non-indexable preview session for the draft
+      description: Mint an authorized, short-lived, non-indexable preview of the current draft and return its URL (`/theming/preview/{token}`) + expiry. The raw token is returned once; only its hash is stored. Audited. Gated by `theming.preview.create`. Not idempotency-keyed (each preview is a distinct disposable token).
+      operationId: themingPreviewCreate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ttlMinutes:
+                  type: integer
+                  minimum: 1
+                  maximum: 120
+                  description: Preview lifetime in minutes (default 30, hard cap 120).
+      responses:
+        "200":
+          description: The preview session URL + expiry.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - previewUrl
+                          - expiresAt
+                        properties:
+                          previewUrl:
+                            type: string
+                          expiresAt:
+                            type: string
+                            format: date-time
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/publish:
+    post:
+      tags:
+        - Theming
+      summary: Publish the draft as an immutable version (and make it live)
+      description: "Publish the current draft as a new IMMUTABLE version and make it the live look (INSERT-only; published versions are immutable). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.publish`."
+      operationId: themingPublish
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Published (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ThemeVersion"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/retire:
+    post:
+      tags:
+        - Theming
+      summary: Retire the active theme (fall back to the default)
+      description: "Clear the active theme pointer so the site falls back to the default theme; published versions stay intact (history/rollback). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.archive`."
+      operationId: themingRetire
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Retired (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - previousThemeKey
+                        properties:
+                          previousThemeKey:
+                            type: string
+                            nullable: true
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/rollback:
+    post:
+      tags:
+        - Theming
+      summary: Roll the active theme back to an earlier published version
+      description: "Move the active pointer to an earlier published version of this tenant (never mutates a version row). High-risk: requires an `Idempotency-Key`, audited. Gated by `theming.version.restore`."
+      operationId: themingRollback
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - versionId
+              properties:
+                versionId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Rolled back (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ThemeVersion"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/theming/validate:
+    post:
+      tags:
+        - Theming
+      summary: Validate a theme config (dry run) + preview its token CSS
+      description: "Read-only: validate a proposed theme config against its theme descriptor and, when valid, return the exact `text/css` custom-property block it would produce — writing nothing. Gated by `theming.config.read`."
+      operationId: themingValidate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ThemeConfigRequest"
+      responses:
+        "200":
+          description: The validation result (+ token CSS when valid).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ThemeValidationResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/users:
     get:
       tags:
@@ -21619,6 +21955,142 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/RoleSummary"
+    ThemeConfigRequest:
+      type: object
+      description: A tenant's DATA-only theme configuration. Every key/value is validated against the chosen theme descriptor; unknown tokens/slots/assets/sections are rejected, and token values are validated by rejection against strict CSS grammars (no url()/expression()/@import/javascript:/comment-breakout).
+      required:
+        - themeKey
+      properties:
+        themeKey:
+          type: string
+          maxLength: 64
+          description: A registered (build-time) theme key.
+        tokenOverrides:
+          type: object
+          additionalProperties:
+            type: string
+          description: tokenKey -> validated token value (color/dimension/number, or a font-family allow-list key). Unknown token keys are rejected.
+        slotSelections:
+          type: object
+          additionalProperties:
+            type: string
+          description: slotKey -> chosen variant key (from the slot's allow-list).
+        assetRefs:
+          type: object
+          additionalProperties:
+            type: string
+            format: uuid
+            nullable: true
+          description: assetSlotKey -> media object UUID (never a URL); null clears the slot.
+        sectionOrder:
+          type: array
+          items:
+            type: string
+          description: An ordering of the theme's declared content-section keys.
+        navPlacement:
+          type: string
+          description: One of the theme's declared nav placements.
+    ThemeDraft:
+      type: object
+      required:
+        - versionId
+        - themeKey
+        - config
+        - configHash
+      properties:
+        versionId:
+          type: string
+          format: uuid
+        themeKey:
+          type: string
+        config:
+          type: object
+          description: The validated, normalized config as stored.
+        configHash:
+          type: string
+    ThemeValidationResult:
+      type: object
+      required:
+        - valid
+        - errors
+        - previewCss
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+        previewCss:
+          type: string
+          nullable: true
+          description: The `:root { … }` custom-property block that would be served, when valid; null when invalid.
+    ThemeVersion:
+      type: object
+      required:
+        - versionId
+        - themeKey
+        - versionNumber
+      properties:
+        versionId:
+          type: string
+          format: uuid
+        themeKey:
+          type: string
+        versionNumber:
+          type: integer
+          nullable: true
+        configHash:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+    ThemingState:
+      type: object
+      required:
+        - themes
+        - state
+        - draft
+        - versions
+      properties:
+        themes:
+          type: array
+          description: Available reviewed, build-time theme descriptors.
+          items:
+            type: object
+        state:
+          type: object
+          required:
+            - activeThemeKey
+            - activeVersionId
+            - draftThemeKey
+          properties:
+            activeThemeKey:
+              type: string
+              nullable: true
+            activeVersionId:
+              type: string
+              format: uuid
+              nullable: true
+            draftThemeKey:
+              type: string
+              nullable: true
+        draft:
+          type: object
+          nullable: true
+        versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThemeVersion"
     UpdateAuthProviderRequest:
       type: object
       additionalProperties: false

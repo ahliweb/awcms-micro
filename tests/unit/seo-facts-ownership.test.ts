@@ -47,11 +47,12 @@ describe("seo_facts capability ownership (ADR-0028)", () => {
     }
   });
 
-  test("the base registry now has 18 modules (seo_distribution registered with its first runtime code)", () => {
-    expect(listBaseModules().length).toBe(18);
+  test("the base registry now has 19 modules (theming registered by Issue #269 alongside seo_distribution)", () => {
+    expect(listBaseModules().length).toBe(19);
     expect(listBaseModules().some((m) => m.key === "seo_distribution")).toBe(
       true
     );
+    expect(listBaseModules().some((m) => m.key === "theming")).toBe(true);
   });
 
   test("blog_content's seo_facts adapter never imports seo_distribution", () => {

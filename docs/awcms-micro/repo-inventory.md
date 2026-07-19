@@ -6,7 +6,7 @@
 
 ## Modules
 
-18 modules registered in `src/modules/index.ts` `listModules()`.
+19 modules registered in `src/modules/index.ts` `listModules()`.
 
 | Key                    | Version | Status   | Type     | Dependencies                                                                       |
 | ---------------------- | ------- | -------- | -------- | ---------------------------------------------------------------------------------- |
@@ -27,11 +27,12 @@
 | `sync_storage`         | `1.0.0` | `active` | `-`      | `tenant_admin`                                                                     |
 | `tenant_admin`         | `1.0.0` | `active` | `-`      | -                                                                                  |
 | `tenant_domain`        | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`                                                  |
+| `theming`              | `1.0.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
 | `visitor_analytics`    | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`, `reporting`                          |
 
 ## Migrations
 
-69 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `084_awcms_micro_seo_distribution_redirect_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+71 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `086_awcms_micro_theming_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -104,10 +105,12 @@
 | 082 | `082_awcms_micro_seo_distribution_feed_config_schema.sql`          |
 | 083 | `083_awcms_micro_seo_distribution_redirect_schema.sql`             |
 | 084 | `084_awcms_micro_seo_distribution_redirect_permissions.sql`        |
+| 085 | `085_awcms_micro_theming_config_schema.sql`                        |
+| 086 | `086_awcms_micro_theming_permissions.sql`                          |
 
 ## Tables & Row-Level Security
 
-109 tables created across all migrations; 101 carry a `tenant_id` column; 100 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
+112 tables created across all migrations; 104 carry a `tenant_id` column; 103 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
 
 No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` statement, or is on the reviewed exempt allow-list below.
 
@@ -127,19 +130,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-327 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+334 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
-| `e2e`         | 11         |
-| `integration` | 101        |
+| `e2e`         | 12         |
+| `integration` | 102        |
 | `modules`     | 5          |
-| `unit`        | 165        |
+| `unit`        | 170        |
 
 ## Routes / Operations (summary)
 
-209 OpenAPI paths, 281 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+216 OpenAPI paths, 288 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 
