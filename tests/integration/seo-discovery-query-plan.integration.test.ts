@@ -105,17 +105,19 @@ suite("SEO discovery — query-plan evidence (Issue #267)", () => {
     expect(nodes).not.toContain("Seq Scan");
   });
 
-  test("sitemap listing (ORDER BY id ASC LIMIT/OFFSET) is index-backed and tenant-bounded — no cross-tenant Seq Scan", async () => {
+  test("sitemap listing (ORDER BY id ASC LIMIT, shallow page) is index-backed — no cross-tenant Seq Scan", async () => {
     const nodes = await explainNodeTypes(
       `SELECT id FROM awcms_micro_blog_posts
        WHERE tenant_id = '${TENANT}' AND ${PREDICATE}
        ORDER BY id ASC LIMIT 100 OFFSET 0`
     );
-    // Index-backed access to the tenant's published set (Bitmap/Index Scan);
-    // any Sort is over that BOUNDED tenant subset, never a full-table Seq Scan
-    // across all tenants (the "no unbounded scan per request" requirement). A
-    // keyset-cursor optimization to avoid the bounded sort on very deep pages is
-    // a documented scale follow-up.
+    // This asserts only what OFFSET 0 can prove: the FIRST page is reached by an
+    // index on the tenant's published set (Bitmap/Index Scan), not a full-table
+    // Seq Scan across all tenants. It does NOT prove deep-page behavior — a large
+    // OFFSET still walks and discards the skipped rows, so "bounded work per
+    // request" holds for shallow pages here; deep OFFSET paging (and the keyset
+    // cursor that would bound it) is a documented scale follow-up
+    // (`src/modules/seo-distribution/README.md`), not something this plan asserts.
     expect(nodes.some((n) => n.includes("Index"))).toBe(true);
     expect(nodes).not.toContain("Seq Scan");
   });

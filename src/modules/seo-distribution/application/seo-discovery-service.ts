@@ -331,12 +331,14 @@ function finalize(
   body: string,
   settings: SeoTenantSettings,
   summary: SeoResourceFactsSummary,
+  tenantId: string,
   host: string | null,
   locale: string,
   settingsUpdatedAt: Date | null
 ): DiscoveryPayload {
   const signature = buildDiscoverySignature({
     kind,
+    tenantId,
     host: host ?? NO_HOST_SENTINEL,
     locale,
     contractVersion: SEO_RENDER_CONTRACT_VERSION,
@@ -374,6 +376,7 @@ export async function buildRobotsPayload(
     body,
     settings,
     emptySummary,
+    ctx.tenantId,
     primaryHost,
     ctx.defaultLocale,
     settingsUpdatedAt
@@ -386,6 +389,13 @@ export async function buildSitemapIndexPayload(
 ): Promise<DiscoveryPayload | null> {
   const { settings, primaryHost, settingsUpdatedAt } = await loadBase(ctx);
   if (!settings.sitemapEnabled) return null;
+  // A sitemap `<loc>` MUST be an absolute URL (sitemaps.org protocol). With no
+  // verified primary host we would emit relative paths — an invalid document —
+  // so we 404 instead (robots.txt already drops its `Sitemap:` line the same
+  // way). Offline-lan / not-yet-configured tenants legitimately have no public
+  // sitemap; this refines ADR-0028 §5.4's "degrade to relative" — which is safe
+  // for an in-page canonical but not for a machine-consumed sitemap/feed.
+  if (primaryHost === null) return null;
 
   const summary = await summarizeAll(ctx, null);
   const pageCount = sitemapPageCount(summary.count);
@@ -406,6 +416,7 @@ export async function buildSitemapIndexPayload(
     body,
     settings,
     summary,
+    ctx.tenantId,
     primaryHost,
     ctx.defaultLocale,
     settingsUpdatedAt
@@ -419,6 +430,9 @@ export async function buildSitemapPagePayload(
 ): Promise<DiscoveryPayload | null> {
   const { settings, primaryHost, settingsUpdatedAt } = await loadBase(ctx);
   if (!settings.sitemapEnabled) return null;
+  // No absolute host → no valid `<loc>` (see the index builder). 404, not a
+  // relative-URL 200.
+  if (primaryHost === null) return null;
   if (!Number.isInteger(page) || page < 1) return null;
 
   const summary = await summarizeAll(ctx, null);
@@ -481,6 +495,7 @@ export async function buildSitemapPagePayload(
     body,
     settings,
     summary,
+    ctx.tenantId,
     primaryHost,
     ctx.defaultLocale,
     settingsUpdatedAt
@@ -507,6 +522,10 @@ export async function buildFeedPayload(
 ): Promise<DiscoveryPayload | null> {
   const { settings, primaryHost, settingsUpdatedAt } = await loadBase(ctx);
   if (!settings.feedsEnabled) return null;
+  // A feed's `<id>`/`<guid isPermaLink="true">`/`<link>` MUST be absolute
+  // (RFC 4287 / RSS). No verified primary host → no valid feed; 404, not a
+  // relative-URL 200 (same refinement of ADR-0028 §5.4 as the sitemap builders).
+  if (primaryHost === null) return null;
 
   const nowIso = (ctx.now ?? new Date()).toISOString();
   const [summary, latest] = await Promise.all([
@@ -549,7 +568,14 @@ export async function buildFeedPayload(
     siteUrl: absoluteUrl(primaryHost, "/"),
     feedUrl: absoluteUrl(primaryHost, FEED_SELF_PATH[format]),
     language,
-    updated: summary.latestLastmod ?? nowIso,
+    // Empty feed → a STABLE timestamp, not `now()`: it must match the (stable,
+    // content-derived) Last-Modified/ETag this same build emits, or an empty
+    // feed's `<updated>`/`<lastBuildDate>` would churn on every request while its
+    // validators stayed constant. `computeLastModified(null, …)` is exactly the
+    // Last-Modified value for the no-content case (settings updated_at, else epoch).
+    updated:
+      summary.latestLastmod ??
+      computeLastModified(null, settingsUpdatedAt).toISOString(),
     logoUrl: feedLogoUrl
   };
 
@@ -587,6 +613,7 @@ export async function buildFeedPayload(
     body,
     settings,
     summary,
+    ctx.tenantId,
     primaryHost,
     language,
     settingsUpdatedAt

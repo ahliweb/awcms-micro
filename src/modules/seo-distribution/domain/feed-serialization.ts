@@ -7,15 +7,18 @@
  *
  * Every item's GUID/`<id>`/`id` is its ABSOLUTE canonical URL — stable across
  * renders and unique per resource (the acceptance-criterion "stable entry
- * identifiers"). XML feeds escape every text value with `escapeHtml` (the frozen
- * escape-not-reject discipline: tenant text is neutralized, never rejected). The
- * JSON feed is produced with `JSON.stringify`, which escapes control characters
- * and quotes; because the response is served as `application/feed+json` (not
- * HTML), a `<`/`>` in a value is inert JSON string content and needs no HTML
- * escaping. Item `content_text` (never `content_html`) is used so no tenant HTML
- * is ever emitted into the JSON feed.
+ * identifiers"). XML feeds escape every text value with `escapeXmlText` (the
+ * frozen escape-not-reject discipline: tenant text is neutralized, never
+ * rejected) — which strips the XML-1.0-illegal C0 control chars a stray title
+ * could carry (they cannot be represented even as entities and would break
+ * well-formedness) before entity-escaping. The JSON feed is produced with
+ * `JSON.stringify`, which escapes control characters and quotes; because the
+ * response is served as `application/feed+json` (not HTML), a `<`/`>` in a value
+ * is inert JSON string content and needs no HTML escaping. Item `content_text`
+ * (never `content_html`) is used so no tenant HTML is ever emitted into the JSON
+ * feed.
  */
-import { escapeHtml } from "../../../lib/html/escape";
+import { escapeXmlText } from "../../../lib/html/escape";
 
 /** Feed-level (channel) metadata — every URL absolute and server-derived. */
 export type FeedChannel = {
@@ -68,19 +71,19 @@ export function renderRss(
 ): string {
   const itemXml = items.map((item) => {
     const parts: string[] = [
-      `<title>${escapeHtml(item.title)}</title>`,
-      `<link>${escapeHtml(item.url)}</link>`,
-      `<guid isPermaLink="true">${escapeHtml(item.id)}</guid>`,
+      `<title>${escapeXmlText(item.title)}</title>`,
+      `<link>${escapeXmlText(item.url)}</link>`,
+      `<guid isPermaLink="true">${escapeXmlText(item.id)}</guid>`,
       `<pubDate>${toRfc822(item.publishedAt)}</pubDate>`
     ];
     if (item.summary !== null) {
-      parts.push(`<description>${escapeHtml(item.summary)}</description>`);
+      parts.push(`<description>${escapeXmlText(item.summary)}</description>`);
     }
     if (item.imageUrl !== null) {
       parts.push(
-        `<enclosure url="${escapeHtml(item.imageUrl)}" length="${
+        `<enclosure url="${escapeXmlText(item.imageUrl)}" length="${
           item.imageLength ?? 0
-        }" type="${escapeHtml(item.imageMimeType ?? "application/octet-stream")}" />`
+        }" type="${escapeXmlText(item.imageMimeType ?? "application/octet-stream")}" />`
       );
     }
     return `<item>\n${parts.map((p) => `  ${p}`).join("\n")}\n</item>`;
@@ -89,11 +92,11 @@ export function renderRss(
   return `${XML_DECLARATION}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-<title>${escapeHtml(channel.title)}</title>
-<link>${escapeHtml(channel.siteUrl)}</link>
-<atom:link href="${escapeHtml(channel.feedUrl)}" rel="self" type="application/rss+xml" />
-<description>${escapeHtml(channel.description)}</description>
-<language>${escapeHtml(channel.language)}</language>
+<title>${escapeXmlText(channel.title)}</title>
+<link>${escapeXmlText(channel.siteUrl)}</link>
+<atom:link href="${escapeXmlText(channel.feedUrl)}" rel="self" type="application/rss+xml" />
+<description>${escapeXmlText(channel.description)}</description>
+<language>${escapeXmlText(channel.language)}</language>
 <lastBuildDate>${toRfc822(channel.updated)}</lastBuildDate>
 ${itemXml.join("\n")}
 </channel>
@@ -108,31 +111,38 @@ export function renderAtom(
 ): string {
   const entryXml = items.map((item) => {
     const parts: string[] = [
-      `<title>${escapeHtml(item.title)}</title>`,
-      `<link href="${escapeHtml(item.url)}" />`,
-      `<id>${escapeHtml(item.id)}</id>`,
-      `<published>${escapeHtml(item.publishedAt)}</published>`,
-      `<updated>${escapeHtml(item.updatedAt ?? item.publishedAt)}</updated>`
+      `<title>${escapeXmlText(item.title)}</title>`,
+      `<link href="${escapeXmlText(item.url)}" />`,
+      `<id>${escapeXmlText(item.id)}</id>`,
+      `<published>${escapeXmlText(item.publishedAt)}</published>`,
+      `<updated>${escapeXmlText(item.updatedAt ?? item.publishedAt)}</updated>`
     ];
     if (item.summary !== null) {
-      parts.push(`<summary>${escapeHtml(item.summary)}</summary>`);
+      parts.push(`<summary>${escapeXmlText(item.summary)}</summary>`);
     }
     return `<entry>\n${parts.map((p) => `  ${p}`).join("\n")}\n</entry>`;
   });
 
   const icon =
     channel.logoUrl !== null
-      ? `\n<icon>${escapeHtml(channel.logoUrl)}</icon>`
+      ? `\n<icon>${escapeXmlText(channel.logoUrl)}</icon>`
       : "";
 
+  // RFC 4287 §4.1.1: an `atom:feed` MUST contain an `atom:author` unless EVERY
+  // `atom:entry` carries its own — and entries here do not (per-item author is a
+  // documented facts-contract follow-up). Emit one feed-level author, named for
+  // the publication, so the document is conformant (and validators/readers that
+  // reject authorless feeds accept it).
+  const feedAuthor = `\n<author><name>${escapeXmlText(channel.title)}</name></author>`;
+
   return `${XML_DECLARATION}
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${escapeHtml(channel.language)}">
-<title>${escapeHtml(channel.title)}</title>
-<subtitle>${escapeHtml(channel.description)}</subtitle>
-<link href="${escapeHtml(channel.siteUrl)}" />
-<link href="${escapeHtml(channel.feedUrl)}" rel="self" type="application/atom+xml" />
-<id>${escapeHtml(channel.feedUrl)}</id>
-<updated>${escapeHtml(channel.updated)}</updated>${icon}
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${escapeXmlText(channel.language)}">
+<title>${escapeXmlText(channel.title)}</title>
+<subtitle>${escapeXmlText(channel.description)}</subtitle>
+<link href="${escapeXmlText(channel.siteUrl)}" />
+<link href="${escapeXmlText(channel.feedUrl)}" rel="self" type="application/atom+xml" />
+<id>${escapeXmlText(channel.feedUrl)}</id>
+<updated>${escapeXmlText(channel.updated)}</updated>${feedAuthor}${icon}
 ${entryXml.join("\n")}
 </feed>
 `;

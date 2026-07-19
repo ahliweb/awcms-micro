@@ -19,6 +19,7 @@ import { parseDiscoveryLocaleParam } from "../../src/lib/seo/discovery-route";
 
 const BASE: DiscoverySignatureParts = {
   kind: "sitemap-index",
+  tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
   host: "acme.example",
   locale: "en",
   contractVersion: "1.1.0",
@@ -79,6 +80,36 @@ describe("discovery signature + ETag (#267)", () => {
       buildDiscoverySignature({ ...BASE, host: "tenant-b.example" })
     );
     expect(a).not.toBe(b);
+  });
+
+  test("tenantId is part of the signature (same host+config+content, different tenant → different ETag)", () => {
+    // Two tenants that resolve to the SAME null-host sentinel (neither has a
+    // verified primary domain) and have identical config/content would otherwise
+    // share a cache key; tenantId keeps them isolated.
+    const a = buildEtag(
+      buildDiscoverySignature({ ...BASE, tenantId: "tenant-a-id" })
+    );
+    const b = buildEtag(
+      buildDiscoverySignature({ ...BASE, tenantId: "tenant-b-id" })
+    );
+    expect(a).not.toBe(b);
+  });
+
+  test("the NUL join is injective — free-text parts with spaces cannot merge across the boundary", () => {
+    // `configFingerprint` embeds spaces (site name, feed title, ...). A space
+    // separator would make ("a b","c") and ("a","b c") collide; NUL cannot.
+    const left = buildDiscoverySignature({
+      ...BASE,
+      configFingerprint: "a b",
+      contentFingerprint: "c"
+    });
+    const right = buildDiscoverySignature({
+      ...BASE,
+      configFingerprint: "a",
+      contentFingerprint: "b c"
+    });
+    expect(left).not.toBe(right);
+    expect(buildEtag(left)).not.toBe(buildEtag(right));
   });
 
   test("contentHash is stable sha256 hex", () => {

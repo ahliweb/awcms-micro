@@ -85,11 +85,18 @@ design, aggregating the SAME `seo_facts` contract:
   latency-normalized 404.
 - **Host is server-derived** from the tenant's verified **primary** domain — the
   arriving request host is NEVER used for URL generation (host-poisoning defense).
+  When a tenant has **no** active primary domain, sitemap index/child + all feeds
+  **404** (their `<loc>`/`<id>`/`<guid>` MUST be absolute — a relative-URL document
+  is invalid), while `/robots.txt` still serves 200 and simply omits its `Sitemap:`
+  line. This refines ADR-0028 §5.4's "degrade to a relative canonical" — safe for
+  an in-page canonical, but not for a machine-consumed sitemap/feed.
 - **Bounded**: the sitemap index sizes from a single `summarize` aggregate; each
   child page is one bounded window; feeds are capped by `feed_item_limit`. No
   request enumerates all tenant content. Hard ceilings in `domain/discovery-limits.ts`.
 - **Caching** (`domain/discovery-cache.ts`): a deterministic signature over
-  `kind + host + locale + contractVersion + configFingerprint + contentRoll-up`
+  `kind + tenantId + host + locale + contractVersion + configFingerprint +
+contentRoll-up` (NUL-joined so the free-text parts cannot merge across their
+  boundary; `tenantId` isolates tenants that share the null-host sentinel)
   yields a strong `ETag` + `Last-Modified`; `If-None-Match`/`If-Modified-Since` →
   304; `Cache-Control: public, max-age, s-maxage, stale-while-revalidate`. Because
   the validators derive from content/domain/config state, any
@@ -137,14 +144,25 @@ that type exists. Only one module may declare `provides: ["seo_facts"]` at a tim
   `BreadcrumbList` facts are NOT yet produced by a provider — the renderer +
   discovery aggregator support them (the contract is generic), but no adapter
   emits them yet. A follow-up (tracked against ADR-0028's consequences).
-- **Per-item feed author + full content.** Feed items carry the resource
-  title/description/dates/canonical/image; per-item AUTHOR and full-body
-  `content_html` are not in `SeoResourceFacts` yet (feeds use the summary as
-  `content_text`). Enriching them needs a facts-contract extension — a follow-up.
+- **Per-item feed author + full content.** The Atom feed carries a MANDATORY
+  feed-level `<author>` (named for the publication — RFC 4287 §4.1.1), but per-ENTRY
+  author and full-body `content_html` are not in `SeoResourceFacts` yet (feeds use
+  the summary as `content_text`). Enriching them to a per-item author needs a
+  facts-contract extension — a follow-up.
 - **Deep-page sitemap keyset.** Child sitemap pages use `OFFSET` over the tenant's
-  bounded published set (index-backed; query-plan proven). Very deep pages on
-  huge tenants would benefit from a keyset cursor / precomputed projection — a
-  scale follow-up, only if a query-plan test proves it needed (ADR-0028 §7).
+  bounded published set (index-backed; query-plan proven for the FIRST page —
+  `OFFSET 0` — only). A large `OFFSET` still walks and discards the skipped rows,
+  so deep pages on huge tenants would benefit from a keyset cursor / precomputed
+  projection — a scale follow-up, only if a query-plan test proves it needed
+  (ADR-0028 §7).
+- **Sitemap index page-count vs. child filter.** The index sizes its child-page
+  count from the cheap `summarize` roll-up (total published facts), but each child
+  page additionally filters by `isPubliclyIndexable` + `included_resource_types` +
+  "has a `sitemap` block". So the advertised page count can slightly OVER-count
+  (a trailing child page may render fewer/zero `<url>`s). This is protocol-valid
+  (an empty `<urlset>` is well-formed and crawlers tolerate a listed-but-empty
+  child) and stays within the amplification ceiling; tightening the count to the
+  post-filter total is a follow-up (needs a filtered `summarize`).
 - **CDN/edge cache.** #267 ships HTTP-level validators only. The opt-in,
   full-online-only CDN/edge integration ADR-0028 §7 describes (locking on the
   same tenant/host/locale key) is out of scope and must not degrade the

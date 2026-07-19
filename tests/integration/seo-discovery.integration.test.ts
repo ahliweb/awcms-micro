@@ -37,10 +37,12 @@ import { GET as getJsonFeed } from "../../src/pages/feed.json";
 
 const TENANT_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 const TENANT_B = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+const TENANT_C = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 const AUTHOR = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 const HOST_A = "acme.example";
 const HOST_A2 = "acme-secondary.example";
 const HOST_B = "beta.example";
+const HOST_C = "gamma.example";
 
 const PUB = new Date("2026-06-01T00:00:00.000Z");
 
@@ -257,6 +259,51 @@ suite("SEO discovery routes (Issue #267)", () => {
       await upsertSeoSettings(TENANT_A, { sitemap_enabled: false });
       const index = await fetchRoute(getSitemapIndex, "/sitemap.xml", HOST_A);
       expect(index.status).toBe(404);
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // No verified PRIMARY domain → sitemap/feed/atom 404 (never a relative-URL 200)
+  // -----------------------------------------------------------------------
+  describe("no active primary domain (absolute-URL requirement)", () => {
+    // A tenant reachable at a verified (active) host that is NOT marked primary:
+    // host resolution still finds it, but `resolveTenantPrimaryHost` returns null,
+    // so there is no absolute base for `<loc>`/`<id>`/`<guid>`. Those surfaces MUST
+    // 404 rather than serve an invalid document with relative URLs; robots.txt
+    // stays 200 (a robots without a Sitemap line is still valid).
+    async function seedHostlessTenant(): Promise<void> {
+      await seedTenant(TENANT_C, "gamma");
+      await seedDomain(TENANT_C, HOST_C, false); // active, but not primary
+      await insertPost(TENANT_C, { slug: "orphan" });
+    }
+
+    test("sitemap index, child, RSS, Atom, and JSON feed all 404", async () => {
+      await seedHostlessTenant();
+
+      const index = await fetchRoute(getSitemapIndex, "/sitemap.xml", HOST_C);
+      expect(index.status).toBe(404);
+      const child = await fetchRoute(
+        getSitemapPage,
+        "/sitemap-1.xml",
+        HOST_C,
+        {},
+        { page: "1" }
+      );
+      expect(child.status).toBe(404);
+      expect((await fetchRoute(getRss, "/feed.xml", HOST_C)).status).toBe(404);
+      expect((await fetchRoute(getAtom, "/atom.xml", HOST_C)).status).toBe(404);
+      expect((await fetchRoute(getJsonFeed, "/feed.json", HOST_C)).status).toBe(
+        404
+      );
+    });
+
+    test("robots.txt still serves (200) but omits the Sitemap line", async () => {
+      await seedHostlessTenant();
+      const robots = await fetchRoute(getRobots, "/robots.txt", HOST_C);
+      expect(robots.status).toBe(200);
+      expect(robots.text).toContain("User-agent: *");
+      expect(robots.text).toContain("Disallow: /admin/");
+      expect(robots.text).not.toContain("Sitemap:");
     });
   });
 

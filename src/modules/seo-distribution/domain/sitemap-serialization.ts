@@ -6,14 +6,14 @@
  *
  * ## Escape, never reject (inherited contract)
  *
- * Every text/URL value is XML-escaped via `escapeHtml` (the five XML predefined
- * entities). Per the frozen `seo_facts` guard behavior (#266 review round), tenant
+ * Every text/URL value is XML-escaped via `escapeXmlText` (strip the XML-1.0-illegal
+ * C0 control chars, then the five XML predefined entities). Per the frozen `seo_facts` guard behavior (#266 review round), tenant
  * content is NEUTRALIZED by escaping, never rejected — a `<loc>` whose slug
  * contains `<`/`&` renders escaped, it never terminates an element. The values
  * here are already server-derived (host from `tenant_domain`, paths from the
  * provider), so this escaping is defense-in-depth against stored-markup injection.
  */
-import { escapeHtml } from "../../../lib/html/escape";
+import { escapeXmlText } from "../../../lib/html/escape";
 import {
   SITEMAP_MAX_CHILD_PAGES,
   SITEMAP_URLS_PER_PAGE
@@ -70,9 +70,9 @@ export function renderSitemapIndex(
   const entries = children.map((child) => {
     const lastmod =
       child.lastmod !== null
-        ? `\n    <lastmod>${escapeHtml(child.lastmod)}</lastmod>`
+        ? `\n    <lastmod>${escapeXmlText(child.lastmod)}</lastmod>`
         : "";
-    return `  <sitemap>\n    <loc>${escapeHtml(
+    return `  <sitemap>\n    <loc>${escapeXmlText(
       child.loc
     )}</loc>${lastmod}\n  </sitemap>`;
   });
@@ -85,27 +85,29 @@ ${entries.join("\n")}
 }
 
 function renderUrlEntry(entry: SitemapUrlEntry): string {
-  const parts: string[] = [`    <loc>${escapeHtml(entry.loc)}</loc>`];
+  const parts: string[] = [`    <loc>${escapeXmlText(entry.loc)}</loc>`];
 
   if (entry.lastmod !== null) {
-    parts.push(`    <lastmod>${escapeHtml(entry.lastmod)}</lastmod>`);
+    parts.push(`    <lastmod>${escapeXmlText(entry.lastmod)}</lastmod>`);
   }
   if (entry.changefreq !== undefined) {
-    parts.push(`    <changefreq>${escapeHtml(entry.changefreq)}</changefreq>`);
+    parts.push(
+      `    <changefreq>${escapeXmlText(entry.changefreq)}</changefreq>`
+    );
   }
   if (entry.priority !== undefined) {
     parts.push(`    <priority>${entry.priority.toFixed(1)}</priority>`);
   }
   for (const alt of entry.alternates) {
     parts.push(
-      `    <xhtml:link rel="alternate" hreflang="${escapeHtml(
+      `    <xhtml:link rel="alternate" hreflang="${escapeXmlText(
         alt.hreflang
-      )}" href="${escapeHtml(alt.href)}" />`
+      )}" href="${escapeXmlText(alt.href)}" />`
     );
   }
   for (const image of entry.images) {
     parts.push(
-      `    <image:image><image:loc>${escapeHtml(
+      `    <image:image><image:loc>${escapeXmlText(
         image
       )}</image:loc></image:image>`
     );

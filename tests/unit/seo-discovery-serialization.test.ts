@@ -26,6 +26,39 @@ import {
  * neutralized (escaped), never rejected, and never terminates an element.
  */
 
+/** XML-1.0-illegal C0 control chars (everything U+0000–U+001F except TAB/LF/CR). */
+const XML_ILLEGAL_C0 = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/;
+
+/**
+ * Dependency-free well-formedness guard for the (simple, fully-escaped) XML this
+ * module emits — Bun ships no XML parser and the repo adds none. Asserts: (a) no
+ * XML-illegal control char survived escaping, and (b) start/end tags balance via
+ * a stack (so an unescaped `</title>` breaking out of its element, or a dropped
+ * closing tag, is caught). Attribute values here are always entity-escaped, so no
+ * raw `>` ever appears inside a tag — the `[^>]*` scan is safe for this output.
+ */
+function assertWellFormedXml(xml: string): void {
+  expect(XML_ILLEGAL_C0.test(xml)).toBe(false);
+  const body = xml
+    .replace(/<\?xml[^?]*\?>/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+  const stack: string[] = [];
+  const tagRe = /<(\/?)([A-Za-z][\w:-]*)([^>]*?)(\/?)>/g;
+  let match: RegExpExecArray | null;
+  while ((match = tagRe.exec(body)) !== null) {
+    const closing = match[1] === "/";
+    const name = match[2]!;
+    const selfClosing = match[4] === "/";
+    if (selfClosing) continue;
+    if (closing) {
+      expect(stack.pop()).toBe(name);
+    } else {
+      stack.push(name);
+    }
+  }
+  expect(stack).toEqual([]);
+}
+
 const CHANNEL: FeedChannel = {
   title: "Acme News",
   description: "Latest from Acme",
@@ -156,6 +189,17 @@ describe("RSS 2.0 serialization (#267)", () => {
     expect(xml).toContain("Bad &lt;/title&gt;&lt;script&gt;x&lt;/script&gt;");
     expect(xml).not.toContain("<title>Bad </title><script>");
   });
+
+  test("RSS output is well-formed XML (tags balance even with markup in a value)", () => {
+    const xml = renderRss(CHANNEL, [
+      item({ title: "Bad </title><script>x</script>" }),
+      item({
+        id: "https://acme.example/news/two",
+        url: "https://acme.example/news/two"
+      })
+    ]);
+    assertWellFormedXml(xml);
+  });
 });
 
 describe("Atom serialization (#267)", () => {
@@ -176,6 +220,34 @@ describe("Atom serialization (#267)", () => {
   test("entry updated falls back to published when null", () => {
     const xml = renderAtom(CHANNEL, [item({ updatedAt: null })]);
     expect(xml).toContain("<updated>2026-07-19T09:00:00.000Z</updated>");
+  });
+
+  test("feed carries a MANDATORY feed-level author (RFC 4287 §4.1.1) named for the publication", () => {
+    // Entries have no per-item author, so RFC 4287 §4.1.1 requires the feed to
+    // carry one; without it the document is non-conformant and strict readers
+    // reject it.
+    const xml = renderAtom(CHANNEL, [item()]);
+    expect(xml).toContain("<author><name>Acme News</name></author>");
+  });
+
+  test("author name with markup is escaped (still well-formed)", () => {
+    const xml = renderAtom({ ...CHANNEL, title: "A & B </name>" }, [item()]);
+    expect(xml).toContain(
+      "<author><name>A &amp; B &lt;/name&gt;</name></author>"
+    );
+    assertWellFormedXml(xml);
+  });
+
+  test("Atom output is well-formed XML (tags balance, author present)", () => {
+    const xml = renderAtom(CHANNEL, [
+      item(),
+      item({
+        id: "https://acme.example/news/two",
+        url: "https://acme.example/news/two"
+      })
+    ]);
+    assertWellFormedXml(xml);
+    expect(xml).toContain("<author>");
   });
 });
 
@@ -256,5 +328,46 @@ describe("robots.txt serialization (#267)", () => {
       sitemapEnabled: false
     });
     expect(body).not.toContain("Sitemap:");
+  });
+});
+
+describe("XML-illegal control chars are stripped, not emitted (well-formedness, L1)", () => {
+  // XML 1.0 forbids C0 controls (except TAB/LF/CR) even as `&#xN;`; a stray one
+  // in a tenant title would make the whole document non-well-formed. Built via
+  // String.fromCharCode so no literal control byte lives in this source file.
+  const SOH = String.fromCharCode(0x01);
+  const US = String.fromCharCode(0x1f);
+
+  test("RSS strips control chars from a title and stays well-formed", () => {
+    const xml = renderRss(CHANNEL, [item({ title: `Clean${SOH}Title` })]);
+    expect(XML_ILLEGAL_C0.test(xml)).toBe(false);
+    expect(xml).toContain("<title>CleanTitle</title>");
+    assertWellFormedXml(xml);
+  });
+
+  test("Atom strips control chars from a title and stays well-formed", () => {
+    const xml = renderAtom(CHANNEL, [item({ title: `Clean${US}Title` })]);
+    expect(XML_ILLEGAL_C0.test(xml)).toBe(false);
+    expect(xml).toContain("<title>CleanTitle</title>");
+    assertWellFormedXml(xml);
+  });
+
+  test("sitemap strips control chars from a loc and stays well-formed", () => {
+    const xml = renderUrlset([
+      {
+        loc: `https://acme.example/news/a${SOH}b`,
+        lastmod: null,
+        alternates: [],
+        images: []
+      }
+    ]);
+    expect(XML_ILLEGAL_C0.test(xml)).toBe(false);
+    expect(xml).toContain("<loc>https://acme.example/news/ab</loc>");
+    assertWellFormedXml(xml);
+  });
+
+  test("TAB / LF / CR are PRESERVED (they are legal XML chars)", () => {
+    const xml = renderRss(CHANNEL, [item({ summary: "a\tb\nc" })]);
+    expect(xml).toContain("a\tb\nc");
   });
 });
