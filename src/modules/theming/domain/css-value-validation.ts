@@ -285,3 +285,74 @@ export function validateNumberValue(
   }
   return value;
 }
+
+// --- Font family stack ---------------------------------------------------
+
+/** A font-family stack is a short list of family names, never a stylesheet. */
+export const MAX_FONT_STACK_LENGTH = 256;
+
+/**
+ * The characters a descriptor-owned font-family STACK may contain. Broader than
+ * a primitive token value (a stack quotes multi-word family names and separates
+ * families with commas — e.g. `"Segoe UI", system-ui, sans-serif`) but STILL
+ * narrow enough that a CSS-injection payload is structurally impossible: it
+ * allows ONLY letters, digits, space, comma, single/double quote and hyphen.
+ * Notably ABSENT: `;` `{` `}` `<` `>` `\` `/` `@` `:` `(` `)` `#` `%` `.` `!`
+ * `&` `=` — every character a declaration-breakout / at-rule / `url()` /
+ * comment / `expression()` payload needs. So a stack can never escape its
+ * `--awcms-theme-<key>: <stack>;` declaration.
+ */
+const SAFE_FONT_STACK_CHARSET = /^[A-Za-z0-9 ,"'-]+$/;
+
+/** True if `"` and `'` each occur an even number of times (every quoted name is closed). */
+function hasBalancedQuotes(value: string): boolean {
+  let doubles = 0;
+  let singles = 0;
+  for (const char of value) {
+    if (char === '"') doubles += 1;
+    else if (char === "'") singles += 1;
+  }
+  return doubles % 2 === 0 && singles % 2 === 0;
+}
+
+/**
+ * Validate a font-family STACK string (the reviewed, descriptor-owned CSS the
+ * serializer emits when a tenant picks a font-family key — never tenant-
+ * authored, but validated as defense in depth so a mistaken/hostile DERIVED
+ * theme's stack fails compose/tests rather than reaching the stylesheet). Same
+ * reject-not-sanitize posture as the primitives: an unmatched value throws
+ * `CssValueError`, it is never "cleaned". Returns the value unchanged if safe.
+ */
+export function validateFontStack(value: string): string {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new CssValueError(
+      "Font stack must be a non-empty string.",
+      String(value)
+    );
+  }
+  if (value.length > MAX_FONT_STACK_LENGTH) {
+    throw new CssValueError(
+      `Font stack exceeds ${MAX_FONT_STACK_LENGTH} characters.`,
+      value
+    );
+  }
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code < 0x20 || code === 0x7f) {
+      throw new CssValueError(
+        "Font stack contains a control character.",
+        value
+      );
+    }
+  }
+  if (!SAFE_FONT_STACK_CHARSET.test(value)) {
+    throw new CssValueError(
+      "Font stack contains a character outside the safe font-family charset.",
+      value
+    );
+  }
+  if (!hasBalancedQuotes(value)) {
+    throw new CssValueError("Font stack has unbalanced quotes.", value);
+  }
+  return value;
+}

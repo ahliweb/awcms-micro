@@ -17,6 +17,7 @@ import {
   CssValueError,
   validateColorValue,
   validateDimensionValue,
+  validateFontStack,
   validateNumberValue
 } from "./css-value-validation";
 import type { ThemeDescriptor, ThemeTokenSpec } from "./theme-descriptor";
@@ -340,6 +341,9 @@ export function resolveThemeTokens(
       if (stack === undefined) {
         throw new CssValueError(`Font family key "${raw}" has no stack.`, raw);
       }
+      // Re-validate the descriptor-owned stack before emit (defense in depth —
+      // it was validated at load, but the serializer trusts nothing it emits).
+      validateFontStack(stack);
       resolved[spec.key] = stack;
     } else {
       resolved[spec.key] = raw;

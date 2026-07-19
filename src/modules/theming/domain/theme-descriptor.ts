@@ -12,10 +12,17 @@
  * derived repository fills is `../application-theme-registry.ts` (mirrors
  * `src/modules/application-registry.ts`).
  */
-import type {
-  DimensionConstraint,
-  NumberConstraint
+import {
+  CssValueError,
+  validateColorValue,
+  validateDimensionValue,
+  validateFontStack,
+  validateNumberValue,
+  type DimensionConstraint,
+  type NumberConstraint
 } from "./css-value-validation";
+import { MODULE_CONTRACT_VERSION } from "../../_shared/module-contract";
+import { compareSemver, parseSemver } from "../../../lib/semver/compare";
 
 export type ThemeOrigin = "base" | "derived";
 
@@ -30,7 +37,7 @@ type ThemeTokenBase = {
 
 export type ThemeColorTokenSpec = ThemeTokenBase & {
   kind: "color";
-  /** Default value — itself validated by the registry at load time. */
+  /** Default color value — validated against the color grammar by `assertValidThemeDescriptor` at registry compose time. */
   default: string;
 };
 
@@ -122,7 +129,19 @@ export type ThemeCspDeclaration = {
 };
 
 export type ThemeCompatibility = {
+  /**
+   * The MINIMUM base module-contract (`MODULE_CONTRACT_VERSION`) this theme was
+   * built against. ENFORCED by `assertValidThemeDescriptor`: a theme requiring a
+   * newer contract than the running build ships is rejected at registry compose
+   * time (not inert metadata) — so a derived theme cannot silently target a base
+   * it is incompatible with. Plain `MAJOR.MINOR.PATCH`.
+   */
   minModuleContractVersion: string;
+  /**
+   * The page/resource types this theme's layouts render. Declarative surface a
+   * render/routing layer may consult; validated here only for shape (non-empty
+   * list of non-empty keys) so it can never be silently empty/malformed.
+   */
   supportedResourceTypes: readonly string[];
 };
 
@@ -246,7 +265,53 @@ export function assertValidThemeDescriptor(descriptor: ThemeDescriptor): void {
     );
   }
 
-  // Token keys unique + valid; font_family defaults reference a real allow-list key.
+  // Compatibility: the theme's declared minimum module-contract version must be
+  // satisfiable by THIS build's actual `MODULE_CONTRACT_VERSION`. A theme built
+  // against a newer contract than the running base is rejected at load rather
+  // than shipping as inert metadata (R-M3).
+  const declaredMin = descriptor.compatibility.minModuleContractVersion;
+  const parsedMin = parseSemver(declaredMin);
+  if (!parsedMin) {
+    throw new InvalidThemeDescriptorError(
+      `Theme "${themeKey}" declares an invalid compatibility.minModuleContractVersion "${declaredMin}" (must be MAJOR.MINOR.PATCH).`
+    );
+  }
+  const actualContract = parseSemver(MODULE_CONTRACT_VERSION);
+  if (actualContract && compareSemver(actualContract, parsedMin) < 0) {
+    throw new InvalidThemeDescriptorError(
+      `Theme "${themeKey}" requires module contract >= ${declaredMin}, but this build ships ${MODULE_CONTRACT_VERSION} — incompatible theme.`
+    );
+  }
+  if (
+    descriptor.compatibility.supportedResourceTypes.length === 0 ||
+    descriptor.compatibility.supportedResourceTypes.some(
+      (rt) => typeof rt !== "string" || rt.length === 0
+    )
+  ) {
+    throw new InvalidThemeDescriptorError(
+      `Theme "${themeKey}" must declare a non-empty compatibility.supportedResourceTypes list of non-empty keys.`
+    );
+  }
+
+  // Font-family stacks are emitted verbatim by the serializer — validate every
+  // reviewed stack against the font-stack grammar at load, so a mistaken/hostile
+  // DERIVED theme's stack fails compose rather than reaching the stylesheet (R-L4).
+  for (const family of descriptor.fontFamilies) {
+    try {
+      validateFontStack(family.stack);
+    } catch (error) {
+      if (error instanceof CssValueError) {
+        throw new InvalidThemeDescriptorError(
+          `Theme "${themeKey}" font family "${family.key}" has an unsafe stack "${family.stack}": ${error.message}`
+        );
+      }
+      throw error;
+    }
+  }
+
+  // Token keys unique + valid; font_family defaults reference a real allow-list
+  // key; every color/dimension/number DEFAULT value passes its typed validator
+  // at load (R-L4 — a bad default fails compose/tests, not lazily at first render).
   const fontKeys = new Set(descriptor.fontFamilies.map((f) => f.key));
   const seenTokens = new Set<string>();
   for (const token of descriptor.tokens) {
@@ -261,10 +326,33 @@ export function assertValidThemeDescriptor(descriptor: ThemeDescriptor): void {
       );
     }
     seenTokens.add(token.key);
-    if (token.kind === "font_family" && !fontKeys.has(token.default)) {
-      throw new InvalidThemeDescriptorError(
-        `Theme "${themeKey}" font_family token "${token.key}" default "${token.default}" is not a declared fontFamilies key.`
-      );
+    if (token.kind === "font_family") {
+      if (!fontKeys.has(token.default)) {
+        throw new InvalidThemeDescriptorError(
+          `Theme "${themeKey}" font_family token "${token.key}" default "${token.default}" is not a declared fontFamilies key.`
+        );
+      }
+      continue;
+    }
+    try {
+      switch (token.kind) {
+        case "color":
+          validateColorValue(token.default);
+          break;
+        case "dimension":
+          validateDimensionValue(token.default, token.constraint);
+          break;
+        case "number":
+          validateNumberValue(token.default, token.constraint);
+          break;
+      }
+    } catch (error) {
+      if (error instanceof CssValueError) {
+        throw new InvalidThemeDescriptorError(
+          `Theme "${themeKey}" token "${token.key}" default "${token.default}" is unsafe or out of range: ${error.message}`
+        );
+      }
+      throw error;
     }
   }
 

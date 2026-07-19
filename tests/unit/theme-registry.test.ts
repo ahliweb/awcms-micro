@@ -99,6 +99,81 @@ describe("assertValidThemeDescriptor", () => {
       })
     ).toThrow(InvalidThemeDescriptorError);
   });
+
+  test("rejects a theme requiring a newer module contract than this build ships (R-M3)", () => {
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        compatibility: {
+          ...defaultTheme.compatibility,
+          minModuleContractVersion: "99.0.0"
+        }
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+  });
+
+  test("rejects a theme with a malformed minModuleContractVersion", () => {
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        compatibility: {
+          ...defaultTheme.compatibility,
+          minModuleContractVersion: "not-a-version"
+        }
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+  });
+
+  test("rejects an empty or malformed supportedResourceTypes list", () => {
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        compatibility: {
+          ...defaultTheme.compatibility,
+          supportedResourceTypes: []
+        }
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        compatibility: {
+          ...defaultTheme.compatibility,
+          supportedResourceTypes: ["home", ""]
+        }
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+  });
+
+  test("rejects a theme whose font-family stack is CSS-injection-shaped (R-L4)", () => {
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        fontFamilies: [
+          {
+            key: "system",
+            label: "System",
+            stack: "sans-serif; background: url(javascript:alert(1))"
+          }
+        ]
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+  });
+
+  test("rejects a theme with an unsafe/out-of-range non-font default token value (R-L4)", () => {
+    const colorToken = defaultTheme.tokens.find((t) => t.kind === "color");
+    expect(colorToken).toBeDefined();
+    expect(() =>
+      assertValidThemeDescriptor({
+        ...defaultTheme,
+        tokens: defaultTheme.tokens.map((t) =>
+          t.key === colorToken!.key
+            ? { ...t, default: "red; background: url(x)" }
+            : t
+        )
+      })
+    ).toThrow(InvalidThemeDescriptorError);
+  });
 });
 
 describe("composeThemeDescriptors", () => {

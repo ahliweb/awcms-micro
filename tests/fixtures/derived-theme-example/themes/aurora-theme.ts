@@ -2,9 +2,9 @@
  * In-repo fixture theme "Aurora" (Issue #269, ADR-0029 §3) — illustrates a
  * reviewed theme a DERIVED repository contributes through its own theme
  * registry, WITHOUT editing the base default theme or `src/modules/theming/
- * theme-registry.ts`. Consumed only by
- * `tests/unit/theme-registry-composition.test.ts` and the theming E2E — never
- * imported by the base seam (`application-theme-registry.ts` stays `undefined`).
+ * theme-registry.ts`. Consumed only by `tests/unit/theme-registry.test.ts`
+ * (through the derived-fixture registry) — never imported by the base seam
+ * (`application-theme-registry.ts` stays `undefined`).
  *
  * Note it flows through the SAME `defineTheme`/`ThemeDescriptor` contract and
  * the SAME `assertValidThemeDescriptor` gate as the base theme — a derived

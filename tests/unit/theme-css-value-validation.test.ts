@@ -10,9 +10,11 @@ import {
   CssValueError,
   DIMENSION_UNIT_ALLOW_LIST,
   MAX_CSS_TOKEN_VALUE_LENGTH,
+  MAX_FONT_STACK_LENGTH,
   assertSafeCssPrimitive,
   validateColorValue,
   validateDimensionValue,
+  validateFontStack,
   validateNumberValue
 } from "../../src/modules/theming/domain/css-value-validation";
 
@@ -150,6 +152,59 @@ describe("validateNumberValue", () => {
     );
     expect(() =>
       validateNumberValue("1.5", { min: 0, max: 10, integer: true })
+    ).toThrow(CssValueError);
+  });
+});
+
+describe("validateFontStack — descriptor-owned font-family stacks", () => {
+  test.each([
+    "sans-serif",
+    "system-ui, sans-serif",
+    '"Segoe UI", system-ui, sans-serif',
+    "'Helvetica Neue', Arial, sans-serif",
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif'
+  ])("accepts the safe stack %p unchanged", (stack) => {
+    expect(validateFontStack(stack)).toBe(stack);
+  });
+
+  test.each([
+    "sans-serif; background: url(javascript:alert(1))", // declaration breakout
+    '"Segoe UI"} body { display: none', // rule breakout
+    "url('data:text/html,<script>')", // url() + angle brackets
+    "@import 'evil.css'", // at-rule
+    "expression(alert(1))", // legacy expression
+    "Segoe/**/UI", // comment
+    "family: value", // colon
+    "100%", // percent
+    "a#b" // hash
+  ])("rejects the injection-shaped stack %p", (stack) => {
+    expect(() => validateFontStack(stack)).toThrow(CssValueError);
+  });
+
+  test("rejects a control character (checked by char code)", () => {
+    expect(() => validateFontStack(`Arial${String.fromCharCode(10)}`)).toThrow(
+      CssValueError
+    );
+    expect(() => validateFontStack(`Arial${String.fromCharCode(127)}`)).toThrow(
+      CssValueError
+    );
+  });
+
+  test("rejects unbalanced quotes (an unclosed family name)", () => {
+    expect(() => validateFontStack('"Segoe UI, sans-serif')).toThrow(
+      CssValueError
+    );
+    expect(() => validateFontStack("'Helvetica, sans-serif")).toThrow(
+      CssValueError
+    );
+  });
+
+  test("rejects the empty string / non-string / an over-long stack", () => {
+    expect(() => validateFontStack("")).toThrow(CssValueError);
+    // @ts-expect-error deliberately wrong type
+    expect(() => validateFontStack(null)).toThrow(CssValueError);
+    expect(() =>
+      validateFontStack("a".repeat(MAX_FONT_STACK_LENGTH + 1))
     ).toThrow(CssValueError);
   });
 });

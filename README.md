@@ -21,7 +21,7 @@ Seluruh konvensi mini berlaku utuh di sini: Bun-only (ADR-0002), PostgreSQL + RL
 
 > **Status.** Registry base berisi **19 modul**: fondasi (`tenant_admin`, `profile_identity`, `identity_access`, `logging`, `module_management`), layanan platform (`sync_storage`, `media_library`, `domain_event_runtime`, `data_lifecycle`, `reporting`, `email`, `form_drafts`), dan scope website (`tenant_domain`, `blog_content`, `news_portal`, `social_publishing`, `visitor_analytics`, `seo_distribution`, `theming`). `bun run check` — 20 gate berurutan, termasuk typecheck, test, dan build — hijau penuh.
 >
-> **Belum ada:** modul website yang menuntut scope ini dan belum ada di upstream — SEO/distribusi (sitemap, RSS, canonical/OG, JSON-LD, redirect), theming/template, site search, comments, newsletter. (Media library sudah diadmisi dan aktif sejak ADR-0026, 2026-07-17 — bukan lagi bagian daftar ini.) Masing-masing akan diadmisi lewat ADR sebelum baris kode pertamanya (ADR-0025 §6).
+> **Belum ada:** modul website yang menuntut scope ini dan belum ada di upstream — site search, comments, newsletter. (Media library sudah diadmisi & aktif sejak ADR-0026; SEO/distribusi sejak ADR-0028; theming sejak ADR-0029 — ketiganya bukan lagi bagian daftar ini.) Masing-masing akan diadmisi lewat ADR sebelum baris kode pertamanya (ADR-0025 §6).
 >
 > **Utang dokumentasi yang diakui:** paket dokumen `docs/awcms-micro/` masih memuat bagian yang menjelaskan modul ERP yang tidak diport (terutama doc 04 ERD, 08 SOP, 20 threat model, 21 module admission governance). Sampai dirapikan, **`src/`, `sql/`, dan gate CI adalah sumber kebenaran** (ADR-0025 §Konsekuensi).
 

@@ -75,10 +75,13 @@ export const GET: APIRoute = async ({ request, cookies }) => {
             configHash: draft.configHash
           }
         : null,
+      // Shape MUST match the shared OpenAPI `ThemeVersion` schema
+      // (openapi/modules/theming.openapi.yaml) that publish/rollback also
+      // return — `versionId` (not `id`), and no `themeVersion` field. The
+      // deferred rollback UI keys off `versions[].versionId`.
       versions: versions.map((v) => ({
-        id: v.id,
+        versionId: v.id,
         themeKey: v.themeKey,
-        themeVersion: v.themeVersion,
         versionNumber: v.versionNumber,
         configHash: v.configHash,
         publishedAt: v.publishedAt
