@@ -2,8 +2,7 @@ import type { APIRoute } from "astro";
 
 import {
   fail,
-  jsonResponse,
-  ok
+  jsonResponse
 } from "../../../../../modules/_shared/api-response";
 import { getDatabaseClient } from "../../../../../lib/database/client";
 import { withTenant } from "../../../../../lib/database/tenant-context";

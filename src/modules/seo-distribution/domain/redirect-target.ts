@@ -77,16 +77,18 @@ export function validateRedirectTarget(
   if (classification === "same_tenant_internal") {
     // Canonicalize via the URL parser so the stored form is stable (host
     // lowercased, no fragment). Safe: already classified same_tenant_internal.
-    let canonical = value;
     try {
       const url = new URL(value);
       url.hash = "";
-      canonical = url.toString();
+      return {
+        ok: true,
+        targetType: "verified_external",
+        target: url.toString()
+      };
     } catch {
       // Unreachable — the guard already parsed it — but fail safe.
       return { ok: false, reason: "Target is not a valid absolute URL." };
     }
-    return { ok: true, targetType: "verified_external", target: canonical };
   }
 
   if (classification === "cross_host_external") {
