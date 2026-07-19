@@ -54,6 +54,19 @@ Bukti "bukan Derived Application" (doc 21 §3 node Q3): SEO/discoverability adal
 | modul konten turunan | **penyedia** (lewat adapter port yang sama)                 | tidak berubah                                             |
 | `seo_distribution`   | **konsumen/agregator**                                      | `["tenant_admin", "identity_access"]`                     |
 
+Diagram arsitektur — panah kapabilitas (`provides` → `consumes`) menunjuk ke DALAM ke `seo_distribution`; tidak ada satu pun panah balik, jadi tidak ada modul yang bergantung padanya:
+
+```mermaid
+flowchart LR
+  BC[blog_content] -- provides seo_facts --> SEO[seo_distribution\nkonsumen/agregator]
+  NP[news_portal] -- provides seo_facts --> SEO
+  ML[media_library] -- resolve OG image id --> SEO
+  TD[tenant_domain] -- domain kanonik / resolusi host+locale --> SEO
+  DER[modul konten turunan] -- provides seo_facts --> SEO
+  SEO --> OUT[Output publik:\ncanonical / metadata /\nsitemap / feed / redirect]
+  SEO -. lifecycle depends .-> CORE[tenant_admin + identity_access\nCore saja]
+```
+
 Yang membuat ini aman dan **bukan** pelanggaran aturan "System/Optional tidak boleh bergantung pada Optional lain" (doc 21 §4.2/§4.3): `capabilities.consumes` **bukan** lifecycle `dependencies`. `module-contract.ts` menegaskannya — "a module can consume another's capability while still declaring `[]` `dependencies`" — dan validator DAG (`module-management/domain/module-dependency-graph.ts`, `bun run modules:dag:check`) hanya membaca `dependencies`, bukan `capabilities`. Preseden hidup: `blog_content` mengonsumsi kapabilitas `news_portal`/`social_publishing` **tanpa** edge `dependencies` (keputusan Issue #632, masih berlaku). `seo_distribution` mengikuti pola itu persis: ia mengonsumsi `seo_facts` secara **optional** dari tiap penyedia, terdegradasi anggun (kontributor yang tenant-nya tidak aktifkan hanya tidak menyumbang URL/fakta apa pun) — tanpa memaksa satu pun modul konten menyala.
 
 **Invariant yang dikunci (AC #265):** tidak ada modul yang sudah ada yang `dependencies`- atau `consumes`-nya menyebut `seo_distribution`. Arah kontribusi dibalik dari desain naif "SEO mengimpor tiap modul konten": kalau `seo_distribution` yang mengonsumsi port milik `blog_content` (gaya `news_portal` → `public_content`), agregator akan menyeret dependency ke **setiap** modul konten dan pecah begitu satu di antaranya tidak ada di deployment turunan. Dengan membalik arah — konten **menyediakan** `seo_facts`, SEO menemukannya lewat composition root — `seo_distribution` tetap ignorant terhadap modul konten mana pun secara spesifik, dan modul konten tetap ignorant terhadap internal SEO.
@@ -63,6 +76,20 @@ Yang membuat ini aman dan **bukan** pelanggaran aturan "System/Optional tidak bo
 Seam-nya adalah satu port netral, **`SeoFactsSource`** (`src/modules/_shared/ports/seo-facts-port.ts`, didefinisikan oleh ADR ini). Aturan port `_shared` yang sama berlaku: file port tidak meng-import apa pun dari modul mana pun; modul konten menaruh **adapter** konkretnya sendiri (`<module>/application/seo-facts-port-adapter.ts`, mendarat di #266) di modulnya sendiri; **composition root** (route handler renderer #266, generator sitemap/feed #267) yang meng-import adapter dan menyuntikkannya sebagai parameter fungsi biasa.
 
 Kontrak membawa, untuk setiap **resource publik** milik tenant, satu `SeoResourceFacts`: identitas resource (`resourceType`+`resourceId`, generik — sama pola `owner_resource_type` media_library), status publikasi, canonical + locale alternates, metadata (title/description/robots), Open Graph/Twitter, JSON-LD (schema terkontrol), sitemap entry, dan (opsional) feed entry. Modul konten **tidak pernah** menulis ke tabel milik `seo_distribution`, dan `seo_distribution` **tidak pernah** menulis ke tabel modul konten — kolaborasi hanya lewat port ini plus (untuk invalidasi, #267/#268) domain event.
+
+Data-flow — dari data konten sampai output publik, tanpa impor lintas-modul di `application`/`domain`:
+
+```mermaid
+flowchart TD
+  D[(Data konten tenant\ntervalidasi)] --> AD[Adapter penyedia\n&lt;module&gt;/application/seo-facts-port-adapter.ts]
+  AD -- SeoResourceFacts\n(path saja, media id saja) --> CR[Composition root seo_distribution\nroute #266 / generator #267]
+  TD2[tenant_domain] -- domain primary + locale --> CR
+  CR --> H{isPubliclyIndexable /\nisPubliclyResolvable?}
+  H -->|tidak| DROP[Tidak diemit ke output publik]
+  H -->|ya| R[Render: canonical+alternates,\nmetadata/robots, OG via MediaLibraryPort,\nJSON-LD terkontrol, sitemap/feed]
+  R --> C[Cache key = tenant+host+locale+resource+versi]
+  C --> RESP[Response publik]
+```
 
 Poin desain yang mengikat #266–#268:
 
@@ -115,6 +142,20 @@ Ini pertahanan **unpublished-content leakage**: sumber kebenaran visibilitas ada
 - **ETag** = hash konten kontrak ter-render; **Last-Modified** dari `max(updated_at)` fakta yang berkontribusi.
 - **Invalidasi** dipicu event URL-change + content-publication (§4). **Stale-while-revalidate** dibatasi waktu.
 - **CDN/edge**: integrasi opt-in (full-online-only) yang HARUS mengunci pada tuple key yang sama; saat off, perilaku offline-lan tidak berubah.
+
+Diagram cache/invalidasi — key selalu tenant-first; event konten yang mengubah URL/publikasi meng-invalidasi entri, bukan sebaliknya:
+
+```mermaid
+flowchart TD
+  REQ[Request publik] --> K[buildSeoCacheKey\ntenant+host+locale+resource+versi]
+  K --> HIT{Entri cache segar?}
+  HIT -->|ya| SERVE[Sajikan + ETag/Last-Modified]
+  HIT -->|stale, dalam window| SWR[Sajikan stale + revalidate async]
+  HIT -->|tidak| RENDER[Render kontrak → simpan di key ini]
+  RENDER --> SERVE
+  EV[Event: seo.url_changed /\ncontent-publication] --> INV[Invalidasi entri\nuntuk tenant+resource itu]
+  INV -.-> HIT
+```
 
 ### 8. Precedence redirect
 
