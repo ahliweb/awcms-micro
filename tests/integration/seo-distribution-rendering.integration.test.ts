@@ -24,7 +24,6 @@ import {
 
 import {
   applyMigrations,
-  createCookieJar,
   getAdminSql,
   getTestSql,
   integrationEnabled,
