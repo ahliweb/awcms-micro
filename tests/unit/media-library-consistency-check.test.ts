@@ -7,6 +7,7 @@ import {
   checkPresetMediaInvariant,
   checkReconcileJobOwnership,
   checkSourceCommentsNoPlaceholder,
+  deriveMediaConsumerKeys,
   runMediaLibraryConsistencyCheck
 } from "../../scripts/media-library-consistency-check";
 import type { ModuleDescriptor } from "../../src/modules/_shared/module-contract";
@@ -118,28 +119,71 @@ describe("checkNoConsumerConsumesRetiredCapability", () => {
   });
 });
 
+describe("deriveMediaConsumerKeys", () => {
+  test("derives every module declaring it consumes media_library (incl. social_publishing)", () => {
+    const consumer = (key: string): ModuleDescriptor =>
+      descriptor({
+        key,
+        capabilities: {
+          consumes: [
+            { capability: "media_library", providedBy: "media_library" }
+          ]
+        }
+      });
+    const keys = deriveMediaConsumerKeys([
+      descriptor({ key: "media_library" }),
+      consumer("blog_content"),
+      consumer("news_portal"),
+      consumer("social_publishing"),
+      descriptor({ key: "tenant_domain", capabilities: { provides: [] } })
+    ]);
+    expect(keys.sort()).toEqual(
+      ["blog_content", "news_portal", "social_publishing"].sort()
+    );
+  });
+});
+
 describe("checkPresetMediaInvariant", () => {
+  const CONSUMERS = ["blog_content", "news_portal", "social_publishing"];
+
   test("passes when a blog_content preset also enables media_library", () => {
     expect(
-      checkPresetMediaInvariant([
-        preset({ enabledModuleKeys: ["blog_content", "media_library"] })
-      ])
+      checkPresetMediaInvariant(
+        [preset({ enabledModuleKeys: ["blog_content", "media_library"] })],
+        CONSUMERS
+      )
     ).toEqual([]);
   });
 
   test("flags a preset that enables a media consumer but not media_library", () => {
-    const problems = checkPresetMediaInvariant([
-      preset({ name: "online_website", enabledModuleKeys: ["blog_content"] })
-    ]);
+    const problems = checkPresetMediaInvariant(
+      [preset({ name: "online_website", enabledModuleKeys: ["blog_content"] })],
+      CONSUMERS
+    );
     expect(problems.length).toBe(1);
     expect(problems[0]).toContain("online_website");
   });
 
+  test("flags a preset enabling social_publishing without media_library (previously a hardcoded-list blind spot)", () => {
+    const problems = checkPresetMediaInvariant(
+      [
+        preset({
+          name: "saas_online",
+          enabledModuleKeys: ["social_publishing"]
+        })
+      ],
+      CONSUMERS
+    );
+    expect(problems.length).toBe(1);
+    expect(problems[0]).toContain("social_publishing");
+  });
+
   test("does not require media_library for a preset with no media consumer", () => {
     expect(
-      checkPresetMediaInvariant([
-        preset({ name: "saas_online", enabledModuleKeys: ["tenant_domain"] })
-      ])
+      checkPresetMediaInvariant(
+        [preset({ name: "saas_online", enabledModuleKeys: ["tenant_domain"] })],
+        CONSUMERS
+      )
     ).toEqual([]);
   });
 });
@@ -193,13 +237,30 @@ describe("checkSourceCommentsNoPlaceholder", () => {
     ).toEqual([]);
   });
 
-  test("flags a stale 'owns no code yet' comment", () => {
+  test("flags a stale 'owns no code yet' comment on a media_library line", () => {
     const problems = checkSourceCommentsNoPlaceholder([
-      { path: "x.ts", content: "registered experimental, owns no code yet" }
+      {
+        path: "x.ts",
+        content: "media_library registered experimental, owns no code yet"
+      }
     ]);
     expect(problems.length).toBeGreaterThan(0);
     expect(problems.some((p) => p.includes("experimental"))).toBe(true);
     expect(problems.some((p) => p.includes("owns no code"))).toBe(true);
+  });
+
+  test("does NOT flag a placeholder phrase on a line unrelated to media_library", () => {
+    // The registry file describes every module; another module legitimately
+    // called `experimental` must not break this media gate (PR #276 fix).
+    expect(
+      checkSourceCommentsNoPlaceholder([
+        {
+          path: "src/modules/index.ts",
+          content:
+            "// some_other_module — experimental placeholder, owns no code yet\n// media_library — active, owns the media registry"
+        }
+      ])
+    ).toEqual([]);
   });
 });
 

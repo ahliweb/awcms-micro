@@ -19,9 +19,11 @@
  *      lists the superseded `news_media` key.
  *   3. No active module still declares consuming the retired `news_media`
  *      capability.
- *   4. Every website preset that enables a media CONSUMER (`blog_content` /
- *      `news_portal`) also enables `media_library` — managed media must be
- *      available without requiring a news portal (ADR-0026's product goal).
+ *   4. Every website preset that enables a media CONSUMER (any module that
+ *      declares consuming the `media_library` capability — derived live from
+ *      the descriptors, e.g. `blog_content` / `news_portal` /
+ *      `social_publishing`) also enables `media_library` — managed media must
+ *      be available without requiring a news portal (ADR-0026's product goal).
  *      `media_library` is a non-protected System Foundation module, so a
  *      preset omitting it would DISABLE the registry for that tenant.
  *   5. The media-registry reconciliation job (`news-media:reconcile`) is
@@ -45,8 +47,6 @@ import type { ModulePresetDefinition } from "../src/modules/module-management/do
 const MEDIA_CAPABILITY = "media_library";
 /** The superseded capability key `news_portal` used to provide (ADR-0026). */
 const RETIRED_CAPABILITY = "news_media";
-/** Media consumers whose presence in a preset requires `media_library` too. */
-const MEDIA_CONSUMER_KEYS = ["blog_content", "news_portal"] as const;
 /** The reconciliation job command — kept named `news-media:*` (ADR-0026 §3). */
 const RECONCILE_JOB_COMMAND = "bun run news-media:reconcile";
 
@@ -134,23 +134,41 @@ export function checkNoConsumerConsumesRetiredCapability(
   return problems;
 }
 
+/**
+ * Every module that DECLARES consuming the `media_library` capability, derived
+ * live from the descriptors rather than a hardcoded list — so a new consumer
+ * (e.g. `social_publishing`, or a future module) is covered automatically and
+ * cannot silently open a preset blind spot the gate was written to catch.
+ */
+export function deriveMediaConsumerKeys(
+  descriptors: readonly ModuleDescriptor[]
+): string[] {
+  return descriptors
+    .filter((descriptor) =>
+      (descriptor.capabilities?.consumes ?? []).some(
+        (consumed) => consumed.capability === MEDIA_CAPABILITY
+      )
+    )
+    .map((descriptor) => descriptor.key);
+}
+
 export function checkPresetMediaInvariant(
-  presets: readonly ModulePresetDefinition[]
+  presets: readonly ModulePresetDefinition[],
+  mediaConsumerKeys: readonly string[]
 ): string[] {
   const problems: string[] = [];
   for (const preset of presets) {
-    const enablesConsumer = MEDIA_CONSUMER_KEYS.some((key) =>
+    const enabledConsumers = mediaConsumerKeys.filter((key) =>
       preset.enabledModuleKeys.includes(key)
     );
     if (
-      enablesConsumer &&
+      enabledConsumers.length > 0 &&
       !preset.enabledModuleKeys.includes(MEDIA_CAPABILITY)
     ) {
-      const consumer = MEDIA_CONSUMER_KEYS.filter((key) =>
-        preset.enabledModuleKeys.includes(key)
-      ).join("/");
       problems.push(
-        `preset "${preset.name}" enables ${consumer} but not media_library — applying it would DISABLE managed media for the tenant (media_library is a non-protected System Foundation module). ADR-0026 / Issue #264: managed media must be available without requiring news_portal.`
+        `preset "${preset.name}" enables ${enabledConsumers.join(
+          "/"
+        )} but not media_library — applying it would DISABLE managed media for the tenant (media_library is a non-protected System Foundation module). ADR-0026 / Issue #264: managed media must be available without requiring news_portal.`
       );
     }
   }
@@ -184,14 +202,27 @@ export function checkSourceCommentsNoPlaceholder(
 ): string[] {
   const problems: string[] = [];
   for (const file of files) {
-    const lower = file.content.toLowerCase();
-    for (const phrase of FORBIDDEN_PLACEHOLDER_PHRASES) {
-      if (lower.includes(phrase)) {
-        problems.push(
-          `${file.path} contains the phrase "${phrase}" — a descriptor source file must not describe media_library as experimental / code-less (ADR-0026 completed; Issue #264).`
-        );
+    // Only flag a placeholder phrase on a line that also references
+    // media_library. The shared registry file (index.ts) describes every
+    // module, so a whole-file substring scan would break THIS media gate the
+    // day another module is legitimately described as `experimental` — scope
+    // the match to media_library's own line(s) (reviewer + auditor, PR #276).
+    file.content.split("\n").forEach((line, index) => {
+      const lower = line.toLowerCase();
+      if (
+        !lower.includes("media_library") &&
+        !lower.includes("media-library")
+      ) {
+        return;
       }
-    }
+      for (const phrase of FORBIDDEN_PLACEHOLDER_PHRASES) {
+        if (lower.includes(phrase)) {
+          problems.push(
+            `${file.path}:${index + 1} describes media_library with the placeholder phrase "${phrase}" — ADR-0026 completed the extraction; media_library is active and owns the registry (Issue #264).`
+          );
+        }
+      }
+    });
   }
   return problems;
 }
@@ -214,11 +245,13 @@ export async function runMediaLibraryConsistencyCheck(
     }))
   );
 
+  const mediaConsumerKeys = deriveMediaConsumerKeys(descriptors);
+
   return [
     ...checkMediaLibraryStatusFacts(descriptors),
     ...checkCapabilityRegistry(CAPABILITY_CONTRACT_VERSIONS),
     ...checkNoConsumerConsumesRetiredCapability(descriptors),
-    ...checkPresetMediaInvariant(MODULE_PRESETS),
+    ...checkPresetMediaInvariant(MODULE_PRESETS, mediaConsumerKeys),
     ...checkReconcileJobOwnership(descriptors),
     ...checkSourceCommentsNoPlaceholder(sourceFiles)
   ];
