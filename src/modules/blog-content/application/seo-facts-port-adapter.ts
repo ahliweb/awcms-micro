@@ -75,11 +75,16 @@ const SEO_ROW_COLUMNS =
 
 /**
  * Map a post row to the port's `SeoVisibility`. Deliberately fail-safe: any
- * ambiguity resolves toward LESS public. A `published` row whose `published_at`
- * is null or in the future is reported as `scheduled` so the port's time-gated
- * `isPubliclyResolvable` keeps it private until it is genuinely live.
+ * ambiguity — an unrecognized `status` OR an unrecognized `visibility` —
+ * resolves toward LESS public (never accidentally exposes/indexes a resource).
+ * A `published` row whose `published_at` is null or in the future is reported as
+ * `scheduled` so the port's time-gated `isPubliclyResolvable` keeps it private
+ * until it is genuinely live. Exported for direct unit testing of the mapping:
+ * the DB `CHECK` constraints make an unknown status/visibility unreachable
+ * through a normal insert, so the fail-closed `default` branches are only
+ * assertable here.
  */
-function deriveVisibility(row: BlogPostSeoRow): SeoVisibility {
+export function deriveVisibility(row: BlogPostSeoRow): SeoVisibility {
   if (row.deleted_at !== null) {
     return { state: "deleted", noindex: true, scheduledPublishAt: null };
   }
@@ -108,15 +113,28 @@ function deriveVisibility(row: BlogPostSeoRow): SeoVisibility {
           scheduledPublishAt: row.published_at?.toISOString() ?? null
         };
       }
-      if (row.visibility === "private") {
-        return { state: "private", noindex: true, scheduledPublishAt: null };
+      // Exhaustive on visibility — the `default` is FAIL-CLOSED: an
+      // unrecognized visibility (past the DB CHECK constraint, e.g. a value cast
+      // around the type system) is treated as `private`, never public/indexable.
+      switch (row.visibility) {
+        case "public":
+          return {
+            state: "published",
+            noindex: false,
+            scheduledPublishAt: null
+          };
+        case "unlisted":
+          // Reachable by direct link, but excluded from index/sitemap/feed.
+          return {
+            state: "published",
+            noindex: true,
+            scheduledPublishAt: null
+          };
+        case "private":
+          return { state: "private", noindex: true, scheduledPublishAt: null };
+        default:
+          return { state: "private", noindex: true, scheduledPublishAt: null };
       }
-      // `public` → indexable; `unlisted` → reachable by link but noindex.
-      return {
-        state: "published",
-        noindex: row.visibility === "unlisted",
-        scheduledPublishAt: null
-      };
     }
     default:
       // Unknown status — fail closed.

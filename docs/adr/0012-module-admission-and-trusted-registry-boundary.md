@@ -10,7 +10,7 @@
 > #696) dan **sengaja tidak diperbarui di sini** — kebijakan
 > `docs/adr/README.md`: ADR yang sudah Accepted tidak ditulis ulang diam-diam
 > saat fakta bergeser, hanya lewat ADR baru/superseding. Sejak itu
-> **ADR-0025** mempersempit repo ke WEBSITE scope: registry kini **17 modul**
+> **ADR-0025** mempersempit repo ke WEBSITE scope: registry kini **18 modul**
 > (dikonfirmasi `bun run modules:dag:check`), dan tujuh modul ERP upstream —
 > termasuk `idn_admin_regions` — **tidak diport**. Figur terkini + pemetaan
 > kategori ada di `docs/awcms-micro/21_module_admission_governance.md` §8 dan

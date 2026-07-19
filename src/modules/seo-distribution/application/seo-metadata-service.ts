@@ -62,7 +62,16 @@ export type SeoResourceRenderResult =
       primaryHost: string | null;
     };
 
-async function resolveImages(
+/**
+ * Resolve the effective social image + Organization logo through
+ * `MediaLibraryPort` (same-tenant, verified). An id that does not resolve —
+ * cross-tenant, unverified, or nonexistent — is simply absent from the port's
+ * result Map and therefore dropped (`null`), so the page still renders
+ * text-only rather than pointing at an unsafe/foreign image. Exported for
+ * direct unit testing with a mock port (the port method ignores `tx`, so a
+ * dummy `tx` is fine in tests).
+ */
+export async function resolveImages(
   tx: Bun.SQL,
   tenantId: string,
   mediaLibrary: MediaLibraryPort | null,

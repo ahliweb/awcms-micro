@@ -84,3 +84,18 @@ through the identical contract by shipping its own
 `<module>/application/seo-facts-port-adapter.ts`; `seo_distribution` never learns
 that type exists. Only one module may declare `provides: ["seo_facts"]` at a time
 (`module-composition.ts`'s `capability_provider_conflict`).
+
+## Documented follow-ups (out of #266 scope)
+
+- **Resource-type coverage.** #266's `blog_content` adapter maps the
+  `blog_post` resource type only. The homepage/website identity, a generic
+  `blog_page`, and `BreadcrumbList` facts are NOT yet produced by a provider —
+  the renderer supports them (the contract and JSON-LD union already cover
+  `WebSite`/`WebPage`/`BreadcrumbList`/`Organization`), but no adapter emits them
+  yet. A minimal, valid slice for #266; the additional resource types are a
+  follow-up (tracked against ADR-0028's consequences).
+- **Permission backfill.** `sql/081` seeds `seo_distribution.config.{read,update}`
+  into the global catalog, so only tenants created AFTER this migration get them
+  via `POST /api/v1/setup/initialize`. Existing tenants' `owner` role is not
+  retroactively granted them — a functional (not security) release step, same as
+  every prior permission-seed migration here.

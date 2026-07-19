@@ -13,9 +13,15 @@ import {
 import { renderSeoHeadTags } from "../../src/modules/seo-distribution/domain/seo-head-rendering";
 import {
   EMPTY_SEO_TENANT_SETTINGS,
+  SEO_SETTINGS_LIMITS,
   validateSeoTenantSettings,
   type SeoTenantSettings
 } from "../../src/modules/seo-distribution/domain/seo-config";
+import { resolveImages } from "../../src/modules/seo-distribution/application/seo-metadata-service";
+import type {
+  MediaLibraryPort,
+  ResolvedMediaReferenceDTO
+} from "../../src/modules/_shared/ports/media-library-port";
 
 const NOW = "2026-07-19T12:00:00.000Z";
 
@@ -302,10 +308,11 @@ describe("renderSeoHeadTags — escaping and JSON-LD safety", () => {
     expect(scriptBodies).toContain("\\u0026 Co");
   });
 
-  test("a value containing a literal </script sequence fails closed (throws) rather than rendering", () => {
-    // The frozen guard rejects a raw </script in a JSON-LD value; the renderer
-    // inherits that fail-closed behavior (the route turns it into a 500, never a
-    // poisoned page).
+  test("a value containing a literal </script sequence renders escaped (no self-DoS, no breakout)", () => {
+    // Legitimate tenant content may contain `</script>`; the renderer must
+    // ESCAPE it (never reject/500). The frozen guard neutralizes value content
+    // by escaping the whole serialized string, so the output carries the escaped
+    // form and can never terminate the <script> element.
     const facts = makeFacts({
       jsonLd: [
         {
@@ -317,7 +324,14 @@ describe("renderSeoHeadTags — escaping and JSON-LD safety", () => {
     });
     const result = buildSeoDocument(facts, makeContext());
     if (!result.renderable) throw new Error("expected renderable");
-    expect(() => renderSeoHeadTags(result.document)).toThrow();
+    const html = renderSeoHeadTags(result.document);
+    const scriptBodies = html
+      .split('<script type="application/ld+json">')
+      .slice(1)
+      .map((chunk) => chunk.split("</script>")[0]!)
+      .join("\n");
+    expect(scriptBodies.toLowerCase()).not.toContain("</script");
+    expect(scriptBodies).toContain("\\u003c/script\\u003e");
   });
 });
 
@@ -359,8 +373,145 @@ describe("validateSeoTenantSettings", () => {
     expect(result.ok).toBe(false);
   });
 
-  test("rejects a non-object body", () => {
-    expect(validateSeoTenantSettings(null).ok).toBe(false);
-    expect(validateSeoTenantSettings([]).ok).toBe(false);
+  test.each([
+    ["siteName", SEO_SETTINGS_LIMITS.siteName],
+    ["defaultMetaDescription", SEO_SETTINGS_LIMITS.defaultMetaDescription],
+    ["twitterSiteHandle", SEO_SETTINGS_LIMITS.twitterSiteHandle],
+    ["organizationName", SEO_SETTINGS_LIMITS.organizationName]
+  ])("rejects %s at limit+1 characters", (field, limit) => {
+    const atLimit = validateSeoTenantSettings({ [field]: "x".repeat(limit) });
+    expect(atLimit.ok).toBe(true);
+
+    const over = validateSeoTenantSettings({ [field]: "x".repeat(limit + 1) });
+    expect(over.ok).toBe(false);
+    if (over.ok) return;
+    expect(over.errors[0]?.field).toBe(field);
+  });
+
+  test("accumulates every field error (multi-error body), not just the first", () => {
+    const result = validateSeoTenantSettings({
+      siteName: "x".repeat(SEO_SETTINGS_LIMITS.siteName + 1),
+      defaultSocialMediaId: "not-a-uuid",
+      defaultRobotsNoindex: "nope"
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.errors.length).toBe(3);
+    const fields = result.errors.map((e) => e.field).sort();
+    expect(fields).toEqual(
+      ["defaultRobotsNoindex", "defaultSocialMediaId", "siteName"].sort()
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// OG/Twitter image resolution through MediaLibraryPort (Issue #266, ADR-0028).
+// ---------------------------------------------------------------------------
+
+function makeMediaPort(
+  resolved: Record<string, ResolvedMediaReferenceDTO>
+): MediaLibraryPort {
+  const map = new Map(Object.entries(resolved));
+  return {
+    isManagedMediaEnforcementActiveForTenant: async () => false,
+    isMediaReferenceSafe: async (_tx, _tenantId, id) => map.has(id),
+    resolveMediaReferences: async (_tx, _tenantId, ids) => {
+      const out = new Map<string, ResolvedMediaReferenceDTO>();
+      for (const id of ids) {
+        const dto = map.get(id);
+        if (dto) out.set(id, dto);
+      }
+      return out;
+    }
+  };
+}
+
+// The port method ignores tx (the mock never touches it), so a dummy is safe.
+const DUMMY_TX = {} as unknown as Bun.SQL;
+
+const SAFE_IMAGE: ResolvedMediaReferenceDTO = {
+  publicUrl: "https://cdn.example/social.jpg",
+  altText: "Cover",
+  mimeType: "image/jpeg",
+  width: 1200,
+  height: 630,
+  sizeBytes: 12345
+};
+
+describe("resolveImages — MediaLibraryPort resolution + safe fallback", () => {
+  test("null port disables resolution (text-only)", async () => {
+    const out = await resolveImages(DUMMY_TX, "t1", null, "media-1", "logo-1");
+    expect(out.social).toBeNull();
+    expect(out.organizationLogoUrl).toBeNull();
+  });
+
+  test("a same-tenant/verified id resolves to an image and logo url", async () => {
+    const port = makeMediaPort({
+      "media-1": SAFE_IMAGE,
+      "logo-1": { ...SAFE_IMAGE, publicUrl: "https://cdn.example/logo.png" }
+    });
+    const out = await resolveImages(DUMMY_TX, "t1", port, "media-1", "logo-1");
+    expect(out.social).toEqual({
+      url: "https://cdn.example/social.jpg",
+      alt: "Cover",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 630
+    });
+    expect(out.organizationLogoUrl).toBe("https://cdn.example/logo.png");
+  });
+
+  test("an id that does not resolve (cross-tenant/unverified/nonexistent) is dropped, not emitted", async () => {
+    // The port returns an empty Map for an unsafe/foreign id — resolveImages
+    // must yield null (page renders text-only) rather than pointing at it.
+    const port = makeMediaPort({});
+    const out = await resolveImages(
+      DUMMY_TX,
+      "t1",
+      port,
+      "cross-tenant-id",
+      "missing-logo"
+    );
+    expect(out.social).toBeNull();
+    expect(out.organizationLogoUrl).toBeNull();
+  });
+});
+
+describe("renderSeoHeadTags — OG/Twitter image tags", () => {
+  test("a resolved image upgrades the twitter card and emits og:image tags", () => {
+    const result = buildSeoDocument(makeFacts(), {
+      ...makeContext(),
+      resolvedImage: {
+        url: "https://cdn.example/social.jpg",
+        alt: "Cover",
+        mimeType: "image/jpeg",
+        width: 1200,
+        height: 630
+      }
+    });
+    if (!result.renderable) throw new Error("expected renderable");
+    const html = renderSeoHeadTags(result.document);
+    expect(html).toContain(
+      '<meta name="twitter:card" content="summary_large_image" />'
+    );
+    expect(html).toContain(
+      '<meta property="og:image" content="https://cdn.example/social.jpg" />'
+    );
+    expect(html).toContain(
+      '<meta property="og:image:type" content="image/jpeg" />'
+    );
+    expect(html).toContain('<meta property="og:image:width" content="1200" />');
+    expect(html).toContain('<meta property="og:image:alt" content="Cover" />');
+    expect(html).toContain(
+      '<meta name="twitter:image" content="https://cdn.example/social.jpg" />'
+    );
+  });
+
+  test("no resolved image → text-only summary card, no og:image", () => {
+    const result = buildSeoDocument(makeFacts(), makeContext());
+    if (!result.renderable) throw new Error("expected renderable");
+    const html = renderSeoHeadTags(result.document);
+    expect(html).toContain('<meta name="twitter:card" content="summary" />');
+    expect(html).not.toContain("og:image");
   });
 });

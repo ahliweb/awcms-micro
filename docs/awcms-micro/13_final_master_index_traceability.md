@@ -134,9 +134,9 @@ flowchart LR
 
 Sumber: `docs/awcms-micro/repo-inventory.md` §Migrations (GENERATED via
 `bun run repo:inventory:generate`) dan `src/modules/index.ts`, keduanya
-dibaca ulang saat menulis tabel ini. **64 file migration nyata** di
-`sql/` (`001`..`079`, dengan celah nomor yang disengaja — jejak tujuh modul
-scope ERP yang tidak diport, ADR-0025 §3), dipetakan ke **17 modul
+dibaca ulang saat menulis tabel ini. **66 file migration nyata** di
+`sql/` (`001`..`081`, dengan celah nomor yang disengaja — jejak tujuh modul
+scope ERP yang tidak diport, ADR-0025 §3), dipetakan ke **18 modul
 terdaftar**. Tabel ini
 menggantikan versi sebelumnya yang mengutip nama file fiktif (mis.
 `003_awcms_micro_catalog_inventory_schema.sql`,

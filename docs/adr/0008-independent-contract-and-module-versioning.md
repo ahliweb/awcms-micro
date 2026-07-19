@@ -8,7 +8,7 @@
 > **Catatan currency (ADR-0025).** Contoh "7 modul base" (termasuk
 > `workflow_approval`) di Konteks/Keputusan di bawah adalah snapshot
 > 2026-07-06, **sebelum ADR-0025** mempersempit repo ke WEBSITE scope.
-> Registry kini **17 modul**; tujuh modul ERP upstream (termasuk `workflow`)
+> Registry kini **18 modul**; tujuh modul ERP upstream (termasuk `workflow`)
 > **tidak diport**. Kebijakan versioning ADR ini tetap berlaku — hanya
 > daftar/hitungan modul contohnya yang basi (rujuk
 > `docs/awcms-micro/21_module_admission_governance.md` §8 /

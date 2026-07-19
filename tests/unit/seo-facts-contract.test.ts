@@ -474,12 +474,27 @@ describe("JSON-LD injection defense (ADR-0028 threat model)", () => {
     expect(() => assertControlledJsonLd(bad)).toThrow();
   });
 
-  test("a raw </script> in a string value is rejected", () => {
-    const bad: JsonLdNode = {
+  test("a </script> in a string VALUE is escaped, not rejected (no self-DoS on legitimate content)", () => {
+    // A value can carry any text — even a literal `</script>` (e.g. a real post
+    // title). Structural validation must NOT throw on value content; escaping
+    // (renderControlledJsonLd) neutralizes it. Rejecting here would fail the
+    // whole head render on legitimate tenant text.
+    const node: JsonLdNode = {
       "@type": "Article",
       headline: "</script><script>alert(1)</script>"
     };
-    expect(() => assertControlledJsonLd(bad)).toThrow();
+    expect(() => assertControlledJsonLd(node)).not.toThrow();
+
+    const rendered = renderControlledJsonLd(node);
+    // Output is safe: no raw `<`/`>`, no raw `</script`, and the escaped form is
+    // present instead — yet it round-trips back to the original content.
+    expect(rendered).not.toContain("<");
+    expect(rendered).not.toContain(">");
+    expect(rendered.toLowerCase()).not.toContain("</script");
+    expect(rendered).toContain("\\u003c/script\\u003e");
+    expect((JSON.parse(rendered) as { headline: string }).headline).toBe(
+      "</script><script>alert(1)</script>"
+    );
   });
 
   test("escapeJsonLdText neutralizes the script-break characters", () => {

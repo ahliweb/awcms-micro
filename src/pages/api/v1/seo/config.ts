@@ -114,6 +114,15 @@ export const PUT: APIRoute = async ({ request, cookies, locals }) => {
     );
   }
 
+  // Order note: the presence gates above (tenant/token/idempotency-key) run
+  // first; then the cheap, in-memory body read + validation; the ABAC check
+  // (`authorizeInTransaction`) runs INSIDE `withTenant` below. This matches the
+  // established repo pattern (`api/v1/tenant/domains/index.ts` POST validates
+  // before opening `withTenant`) and is deliberate: body validation touches no
+  // database, so it runs before we open a tenant transaction / hold a pooled
+  // connection for the ABAC lookup. A 403 for an authenticated-but-unauthorized
+  // caller therefore only costs an in-memory parse, never a DB round trip, and
+  // no state is ever written before authorization.
   const bodyRead = await readJsonBody(request);
 
   if (bodyRead.tooLarge) {
