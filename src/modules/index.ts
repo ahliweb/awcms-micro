@@ -44,9 +44,15 @@ const baseModules: ModuleDescriptor[] = [
   moduleManagementModule,
   // Platform services shared by the website modules.
   syncStorageModule,
-  // ADR-0026 step 1 — registered `experimental`, owns no code yet: it is the
-  // declared owner the media registry moves INTO at step 2, not a second media
-  // implementation beside `news_portal`'s. See its README for the staged plan.
+  // `active` System Foundation module (ADR-0026, all stages complete). It OWNS
+  // the tenant media registry (`awcms_micro_news_media_objects`) and the
+  // `media_library` capability every website module consumes — the presigned
+  // upload/finalize/cancel flow, MIME sniffing, R2 config/client, verification,
+  // orphan lifecycle, reconciliation job, managed-media enforcement, and the
+  // `/admin/media` browser. It is a fully implemented registry, not a stub and
+  // not a second media system beside `news_portal`'s: the extraction inverted
+  // ownership so a brochure site gets managed media without switching on a news
+  // portal. See its module.ts/README and ADR-0026 for the full staged history.
   mediaLibraryModule,
   domainEventRuntimeModule,
   dataLifecycleModule,

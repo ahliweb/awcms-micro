@@ -139,7 +139,18 @@ suite("tenant module preset application service", () => {
     // (nothing to attempt, nothing to report), so they simply don't
     // appear in `changes` at all.
     const changeByKey = new Map(result.changes.map((c) => [c.moduleKey, c]));
-    for (const key of ["tenant_domain", "blog_content", "email", "reporting"]) {
+    // media_library is now LISTED by online_website (Issue #264 — managed media
+    // must be available without news_portal, ADR-0026 complete). Like the other
+    // listed modules it is already default-enabled for a fresh tenant, so it
+    // stays enabled and never appears in `changes` — it joins this "no change"
+    // group instead of the disabled-leaves list below.
+    for (const key of [
+      "tenant_domain",
+      "blog_content",
+      "email",
+      "reporting",
+      "media_library"
+    ]) {
       expect(changeByKey.has(key)).toBe(false);
     }
     // workflow/form_drafts/visitor_analytics/news_portal/idn_admin_regions
@@ -172,17 +183,10 @@ suite("tenant module preset application service", () => {
     // same module — domain_event_runtime only needs ONE active enabled
     // dependent to stay enabled, and `reporting` alone is now that
     // dependent.
-    // media_library (ADR-0026 step 1) is a pure leaf here: it is registered but
-    // owns no code yet, nothing depends on it, and online_website does not list
-    // it — so it disables cleanly like the other unlisted leaves. It joins this
-    // list rather than getting an exception; when ADR-0026 step 4 makes media
-    // work without news_portal, online_website should LIST it, and this test is
-    // where that change has to be stated.
     for (const key of [
       "form_drafts",
       "visitor_analytics",
       "news_portal",
-      "media_library",
       "social_publishing",
       "data_lifecycle"
     ]) {
@@ -219,10 +223,10 @@ suite("tenant module preset application service", () => {
     expect(state.get("sync_storage")).not.toBe(false);
     expect(state.get("domain_event_runtime")).not.toBe(false);
     expect(state.get("logging")).not.toBe(false);
+    expect(state.get("media_library")).not.toBe(false);
     expect(state.get("form_drafts")).toBe(false);
     expect(state.get("visitor_analytics")).toBe(false);
     expect(state.get("news_portal")).toBe(false);
-    expect(state.get("media_library")).toBe(false);
     expect(state.get("social_publishing")).toBe(false);
     expect(state.get("data_lifecycle")).toBe(false);
 
@@ -236,7 +240,6 @@ suite("tenant module preset application service", () => {
         "form_drafts",
         "visitor_analytics",
         "news_portal",
-        "media_library",
         "social_publishing",
         "data_lifecycle"
       ].sort()

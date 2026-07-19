@@ -82,6 +82,8 @@ Pelajaran dari drift di repo `awcms` (lihat §Konteks) diangkat jadi aturan meng
 
 Scope website menuntut modul yang belum ada di upstream: **media library**, **SEO/distribusi** (sitemap, RSS, canonical/OG, JSON-LD, redirect), **theming/template**, **site search**, **comments**, dan **newsletter**. Semuanya akan diadmisi lewat jalur normal ADR-0012/§21 module admission governance — satu ADR admission per modul, sebelum baris kode pertamanya ditulis. Modul-modul itu **belum ada** pada ADR ini.
 
+> **Pembaruan (pasca ADR ini):** premis "media library belum ada" ternyata keliru — registry media generik sudah hidup di dalam `news_portal`. **ADR-0026** (2026-07-17) mengoreksinya dan mengadmisi **`media_library`** lewat EKSTRAKSI (bukan implementasi baru); modul itu kini `active` dan memiliki registry media. SEO/distribusi, theming/template, site search, comments, dan newsletter masih menunggu ADR admission masing-masing.
+
 ## Konsekuensi
 
 **Positif.** Seluruh disiplin yang membuat standar mini nyata — chokepoint `withTenant`+ABAC, RLS 129 policy, migration runner ber-checksum + advisory lock, tiga gate boundary modul, kontrak OpenAPI/AsyncAPI, release engineering ber-SBOM/cosign — berlaku sejak commit pertama, bukan sesuatu yang harus dibangun ulang. Registry lebih kecil (16 vs 23) berarti permukaan serang dan beban rawat lebih kecil.

@@ -25,26 +25,18 @@ describe("news_portal module descriptor (Issue #632, extended #634)", () => {
     ]);
   });
 
-  test("Issue #634 declares permissions + api now that a real HTTP surface exists; Issue #637 adds navigation (one admin page); Issue #690 (epic #679) adds the first background job; settings/health remain undeclared", () => {
-    // settings/health still have no real feature backing them (no
-    // per-tenant setting, no health check) — same "only claim a capability
-    // once it genuinely exists" convention visitor_analytics established
-    // (Issue #617). `jobs` is now declared (Issue #690,
-    // `news-media:reconcile`) — the first background job this module ships.
+  test("Issue #634 declares permissions + api now that a real HTTP surface exists; Issue #637 adds navigation (one admin page); settings/jobs/health remain undeclared (the news-media:reconcile job moved to media_library, ADR-0026/Issue #264)", () => {
+    // settings/jobs/health have no real feature backing them for this module
+    // specifically (no per-tenant setting, no health check) — same "only claim
+    // a capability once it genuinely exists" convention visitor_analytics
+    // established (Issue #617). The `news-media:reconcile` job Issue #690 first
+    // declared here was MOVED to `media_library` (ADR-0026 / Issue #264): it
+    // reconciles the media registry `media_library` now owns, through that
+    // module's own code. The mirror-image assertion ("media_library declares the
+    // reconcile job") lives in `media-library-module.test.ts`.
     expect(newsPortalModule.settings).toBeUndefined();
     expect(newsPortalModule.health).toBeUndefined();
-
-    expect(newsPortalModule.jobs).toEqual([
-      {
-        command: "bun run news-media:reconcile",
-        purpose:
-          "Reconcile awcms_micro_news_media_objects metadata against the real R2 bucket contents; clean up expired pending uploads and grace-period-expired orphans in bounded, race-safe batches (dry-run supported).",
-        recommendedSchedule: "Daily via cron/systemd timer.",
-        environmentNotes:
-          'No-op when NEWS_MEDIA_R2_ENABLED is not "true". Requires real network egress to the Cloudflare R2 API in addition to PostgreSQL — not a pure database operation.',
-        safeInOfflineLan: false
-      }
-    ]);
+    expect(newsPortalModule.jobs).toBeUndefined();
 
     // ADR-0026 step 2: the media basePath moved to `media_library` with the
     // registry. What remains is genuinely this module's own surface.

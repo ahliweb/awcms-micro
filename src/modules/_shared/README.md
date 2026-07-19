@@ -28,7 +28,7 @@ murni parameter fungsi biasa:
 - **Port** — interface TypeScript murni di `src/modules/_shared/ports/*.ts`,
   tidak meng-import apa pun dari modul manapun (netral).
 - **Adapter** — implementasi konkret satu port, hidup di modul PEMILIK
-  kapabilitas itu sendiri (mis. `news-portal/application/news-media-port-adapter.ts`).
+  kapabilitas itu sendiri (mis. `media-library/application/media-library-port-adapter.ts`).
   Modul lain tidak pernah meng-import file adapter modul lain secara langsung.
 - **Composition root** — route handler (`src/pages/api/v1/**`, dst.) yang
   meng-import adapter konkret dan menyuntikkannya sebagai parameter fungsi
@@ -36,10 +36,15 @@ murni parameter fungsi biasa:
 
 Tiga port nyata saat ini:
 
-- **`ports/news-media-port.ts` — `NewsMediaPort`** — kapabilitas milik
-  `news_portal`, dikonsumsi `blog_content`: cek apakah mode full-online
-  R2-only aktif untuk tenant, validasi sebuah referensi media aman
-  (same-tenant, verified), dan resolve id media ke URL publik/alt text.
+- **`ports/media-library-port.ts` — `MediaLibraryPort`** — kapabilitas milik
+  `media_library`, dikonsumsi `blog_content`, `news_portal`, dan
+  `social_publishing`: apakah penegakan managed-media aktif untuk tenant
+  (dijawab dari readiness + flag per-tenant milik `media_library` sendiri, tanpa
+  portal berita), validasi sebuah referensi media aman (same-tenant, verified),
+  dan resolve id media ke URL publik/alt text. Men-supersede `NewsMediaPort`
+  yang dipensiunkan (ADR-0026 langkah 3–4) — port lama membawa
+  `isFullOnlineR2ModeActiveForTenant`, pertanyaan editorial `news_portal` yang
+  tak semestinya ada di kontrak media.
 - **`ports/public-content-port.ts` — `PublicContentPort`** — kapabilitas
   milik `blog_content`, dikonsumsi `news_portal`: query post/kategori
   publik read-only (existence check, ringkasan post by id, kategori by

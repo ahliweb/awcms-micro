@@ -147,5 +147,29 @@ export const mediaLibraryModule = defineModule({
       description:
         "Turn managed-media enforcement ON for this tenant (one-way — there is deliberately no disable)"
     }
+  ],
+  // ADR-0026 (Issue #264) — the media-registry reconciliation job belongs to
+  // this module, which OWNS `awcms_micro_news_media_objects`, its orphan
+  // lifecycle, and the reconciliation code (`application/media-reconciliation.ts`,
+  // `infrastructure/media-r2-client.ts`, `domain/media-r2-config.ts` — the only
+  // modules `scripts/news-media-r2-reconcile.ts` imports). Issue #690 first
+  // declared it on `news_portal` because that is where the registry was born;
+  // ADR-0026 inverted ownership, so the job declaration follows the table.
+  //
+  // The `news-media:reconcile` command name is KEPT deliberately (not renamed to
+  // `media:reconcile`): the script path, package.json script, `security:readiness`
+  // staleness check, and operator SOP docs all reference it, and ADR-0026 §3
+  // keeps the `news_media` naming for the same reason it keeps the table name — a
+  // cosmetic rename would trade a naming annoyance for real churn and risk.
+  jobs: [
+    {
+      command: "bun run news-media:reconcile",
+      purpose:
+        "Reconcile awcms_micro_news_media_objects metadata against the real object-storage bucket contents; clean up expired pending uploads and grace-period-expired orphans in bounded, race-safe batches (dry-run supported).",
+      recommendedSchedule: "Daily via cron/systemd timer.",
+      environmentNotes:
+        'No-op when NEWS_MEDIA_R2_ENABLED is not "true". Requires real network egress to the object-storage (Cloudflare R2) API in addition to PostgreSQL — not a pure database operation.',
+      safeInOfflineLan: false
+    }
   ]
 });

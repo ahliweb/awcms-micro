@@ -94,8 +94,22 @@ export const MODULE_PRESETS: readonly ModulePresetDefinition[] = [
     name: "online_website",
     label: "Online website",
     description:
-      "Public website with custom domain, content, transactional email, and reporting.",
-    enabledModuleKeys: ["tenant_domain", "blog_content", "email", "reporting"]
+      "Public website with custom domain, content, managed media, transactional email, and reporting.",
+    // `media_library` is listed alongside `blog_content` on purpose (ADR-0026):
+    // a brochure/corporate site must get managed media WITHOUT switching on
+    // `news_portal`. It is a non-protected System Foundation module, so a preset
+    // that omitted it would DISABLE it for the tenant (presets disable every
+    // enabled, non-protected, non-listed module) — the exact "website without
+    // media management" gap ADR-0026 closed. The invariant "any preset enabling
+    // blog_content or news_portal also enables media_library" is gated by
+    // `scripts/media-library-consistency-check.ts`.
+    enabledModuleKeys: [
+      "tenant_domain",
+      "blog_content",
+      "media_library",
+      "email",
+      "reporting"
+    ]
   },
   {
     name: "news_portal",
@@ -112,6 +126,7 @@ export const MODULE_PRESETS: readonly ModulePresetDefinition[] = [
     enabledModuleKeys: [
       "tenant_domain",
       "blog_content",
+      "media_library",
       "news_portal",
       "email",
       "reporting",
@@ -137,6 +152,7 @@ export const MODULE_PRESETS: readonly ModulePresetDefinition[] = [
     enabledModuleKeys: [
       "blog_content",
       "tenant_domain",
+      "media_library",
       "visitor_analytics",
       "module_management",
       "identity_access",

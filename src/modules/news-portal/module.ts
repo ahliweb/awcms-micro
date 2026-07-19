@@ -76,20 +76,14 @@ export const newsPortalModule = defineModule({
       description:
         "Create, update, enable/disable, or delete news portal advertisement placements"
     }
-  ],
-
-  // Issue #690 (epic #679, platform-hardening): the first background job
-  // this module declares (`settings`/`health` remain undeclared — still no
-  // per-tenant setting or health check for this module specifically).
-  jobs: [
-    {
-      command: "bun run news-media:reconcile",
-      purpose:
-        "Reconcile awcms_micro_news_media_objects metadata against the real R2 bucket contents; clean up expired pending uploads and grace-period-expired orphans in bounded, race-safe batches (dry-run supported).",
-      recommendedSchedule: "Daily via cron/systemd timer.",
-      environmentNotes:
-        'No-op when NEWS_MEDIA_R2_ENABLED is not "true". Requires real network egress to the Cloudflare R2 API in addition to PostgreSQL — not a pure database operation.',
-      safeInOfflineLan: false
-    }
   ]
+
+  // `jobs`/`settings`/`health` are deliberately undeclared: this module has no
+  // per-tenant setting, background job, or health check of its own. The
+  // `news-media:reconcile` job that Issue #690 first declared here was MOVED to
+  // `media_library` by ADR-0026 (Issue #264): it reconciles
+  // `awcms_micro_news_media_objects` — the media registry ADR-0026 extracted
+  // into `media_library` — through that module's own code
+  // (`scripts/news-media-r2-reconcile.ts` imports only `media_library`). The
+  // job belongs to whoever owns the table it reconciles, not to a former owner.
 });
