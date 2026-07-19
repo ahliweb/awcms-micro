@@ -7188,6 +7188,395 @@ Full replace of the tenant's SEO defaults. High-risk (rewrites the public metada
 | 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                             |
 | 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                             |
 
+### `GET /api/v1/seo/not-found` — List the privacy-minimized 404 governance dashboard
+
+- **operationId**: `seoNotFoundList`
+- **Security**: bearerAuth + tenantHeader
+
+Top 404 observations by hit count (sanitized path + bare referrer domain only — never full URLs/queries/secrets). `?unresolvedOnly=true` filters to open items. Gated by `seo_distribution.not_found.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type    | Description                                 |
+| ------------------ | ------ | -------- | ------- | ------------------------------------------- |
+| `unresolvedOnly`   | query  | no       | boolean |                                             |
+| `X-Correlation-ID` | header | no       | string  | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string  | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | This tenant's 404 observations.                | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/seo/not-found/{id}` — Resolve a 404 observation
+
+- **operationId**: `seoNotFoundResolve`
+- **Security**: bearerAuth + tenantHeader
+
+Mark an observation resolved, optionally attaching a same-tenant suggested redirect id. Audited. Gated by `seo_distribution.not_found.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Request body** (optional): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                                       |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 200    | The resolved observation.                                                                                                                                                                                        | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoNotFoundObservation`](#schema-seonotfoundobservation)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                                       |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                                       |
+| 404    | Resource not found or hidden by soft-delete policy.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                       |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                                       |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                                       |
+
+### `DELETE /api/v1/seo/not-found/{id}` — Dismiss a 404 observation
+
+- **operationId**: `seoNotFoundDismiss`
+- **Security**: bearerAuth + tenantHeader
+
+Hard-delete an observation the operator does not want to track. Audited. Gated by `seo_distribution.not_found.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                         | Schema                                     |
+| ------ | --------------------------------------------------- | ------------------------------------------ |
+| 200    | The observation was dismissed.                      | [`ApiSuccess`](#standard-success-envelope) |
+| 400    | Validation or request error.                        | [`ApiError`](#standard-error-envelope)     |
+| 401    | Authentication required or expired.                 | [`ApiError`](#standard-error-envelope)     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.      | [`ApiError`](#standard-error-envelope)     |
+| 404    | Resource not found or hidden by soft-delete policy. | [`ApiError`](#standard-error-envelope)     |
+| 500    | Internal server error without stack trace.          | [`ApiError`](#standard-error-envelope)     |
+
+### `GET /api/v1/seo/redirects` — List/search/filter redirect rules
+
+- **operationId**: `seoRedirectsList`
+- **Security**: bearerAuth + tenantHeader
+
+Tenant-scoped exact-path redirect rules, keyset-paginated newest first (limit 100). Filter by `state`, `targetType`, or a source-path substring `q`. Gated by `seo_distribution.redirect.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type                                              | Description                                    |
+| ------------------ | ------ | -------- | ------------------------------------------------- | ---------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string                                            | Optional server-side trace correlation ID.     |
+| `X-Request-ID`     | header | no       | string                                            | Optional client-generated request trace ID.    |
+| `cursor`           | query  | no       | string                                            | Opaque keyset cursor from a previous page.     |
+| `state`            | query  | no       | enum(`active`, `inactive`, `archived`)            |                                                |
+| `targetType`       | query  | no       | enum(`relative_same_tenant`, `verified_external`) |                                                |
+| `q`                | query  | no       | string                                            | Substring match on the normalized source path. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | This tenant's redirect rules.                  | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/seo/redirects` — Create a redirect rule
+
+- **operationId**: `seoRedirectsCreate`
+- **Security**: bearerAuth + tenantHeader
+
+Create a tenant-scoped exact-path redirect. High-risk: requires an `Idempotency-Key`, audited. The target is validated through the frozen open-redirect guard and the rule is rejected if it conflicts with an existing source/scope, self-redirects, or would create a loop / over-long chain. Gated by `seo_distribution.redirect.create`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SeoRedirectCreateRequest`](#schema-seoredirectcreaterequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 200    | Redirect rule created (or an idempotent replay).                                                                                                                                                                 | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirect`](#schema-seoredirect)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                 |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                 |
+| 409    | Source/scope conflict, redirect loop, over-long chain, or idempotency-key reuse with a different payload.                                                                                                        | [`ApiError`](#standard-error-envelope)                                                 |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                 |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                 |
+
+### `GET /api/v1/seo/redirects/{id}` — Read one redirect rule
+
+- **operationId**: `seoRedirectsGet`
+- **Security**: bearerAuth + tenantHeader
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                         | Schema                                                                                 |
+| ------ | --------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 200    | The redirect rule.                                  | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirect`](#schema-seoredirect)&gt; |
+| 400    | Validation or request error.                        | [`ApiError`](#standard-error-envelope)                                                 |
+| 401    | Authentication required or expired.                 | [`ApiError`](#standard-error-envelope)                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.      | [`ApiError`](#standard-error-envelope)                                                 |
+| 404    | Resource not found or hidden by soft-delete policy. | [`ApiError`](#standard-error-envelope)                                                 |
+| 500    | Internal server error without stack trace.          | [`ApiError`](#standard-error-envelope)                                                 |
+
+### `PUT /api/v1/seo/redirects/{id}` — Update a redirect rule
+
+- **operationId**: `seoRedirectsUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+Replace the mutable fields (source path is immutable). Re-validates the target through the frozen open-redirect guard + the conflict/loop/chain safety gate. Audited. Gated by `seo_distribution.redirect.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SeoRedirectUpdateRequest`](#schema-seoredirectupdaterequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 200    | Redirect rule updated.                                                                                                                                                                                           | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirect`](#schema-seoredirect)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                 |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                 |
+| 404    | Resource not found or hidden by soft-delete policy.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 409    | Source conflict, redirect loop, or over-long chain.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                 |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                 |
+
+### `DELETE /api/v1/seo/redirects/{id}` — Soft-delete a redirect rule
+
+- **operationId**: `seoRedirectsDelete`
+- **Security**: bearerAuth + tenantHeader
+
+Soft delete (a non-empty `reason` is required). Restore/purge via the lifecycle endpoint. Audited. Gated by `seo_distribution.redirect.delete`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 200    | Redirect rule soft-deleted.                                                                                                                                                                                      | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirect`](#schema-seoredirect)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                 |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                 |
+| 404    | Resource not found or hidden by soft-delete policy.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                 |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                 |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                 |
+
+### `POST /api/v1/seo/redirects/{id}/lifecycle` — Transition a redirect rule's state / delete lifecycle
+
+- **operationId**: `seoRedirectsLifecycle`
+- **Security**: bearerAuth + tenantHeader
+
+`activate` | `deactivate` | `archive` | `restore` | `purge`. Idempotency-keyed, audited. `purge` needs `seo_distribution.redirect.delete`; every other action needs `seo_distribution.redirect.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `id`               | path   | yes      | string (uuid) |                                             |
+| `Idempotency-Key`  | header | yes      | string        | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 200    | The lifecycle transition result.                                                                                                                                                                                 | [`ApiSuccess`](#standard-success-envelope) |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)     |
+| 404    | Resource not found or hidden by soft-delete policy.                                                                                                                                                              | [`ApiError`](#standard-error-envelope)     |
+| 409    | Idempotency-key reuse with a different payload.                                                                                                                                                                  | [`ApiError`](#standard-error-envelope)     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)     |
+
+### `POST /api/v1/seo/redirects/capture-url-change` — Capture a URL change into a redirect proposal/rule
+
+- **operationId**: `seoRedirectsCaptureUrlChange`
+- **Security**: bearerAuth + tenantHeader
+
+Turn an old→new public path change into an audited redirect PROPOSAL (inactive) or active rule per the tenant's `url_change_auto_policy` (overridable). Idempotency-keyed. Gated by `seo_distribution.redirect.create`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 200    | The capture outcome (skipped/proposed/created).                                                                                                                                                                  | [`ApiSuccess`](#standard-success-envelope) |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)     |
+| 409    | Conflict/loop/chain rejection, or idempotency-key reuse with a different payload.                                                                                                                                | [`ApiError`](#standard-error-envelope)     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)     |
+
+### `POST /api/v1/seo/redirects/import` — Bulk-import redirect rules (with dry run)
+
+- **operationId**: `seoRedirectsImport`
+- **Security**: bearerAuth + tenantHeader
+
+Validate + safety-check up to 200 rules. `dryRun: true` returns a per-item report writing nothing; a real import is all-or-nothing (idempotency-keyed, audited). Gated by `seo_distribution.redirect.create`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 200    | The import report.                                                                                                                                                                                               | [`ApiSuccess`](#standard-success-envelope) |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)     |
+| 409    | Idempotency-key reuse with a different payload.                                                                                                                                                                  | [`ApiError`](#standard-error-envelope)     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)     |
+
+### `GET /api/v1/seo/redirects/settings` — Read this tenant's redirect governance policy
+
+- **operationId**: `seoRedirectSettingsRead`
+- **Security**: bearerAuth + tenantHeader
+
+The legacy `/blog/{tenantCode}` → `/news` auto-redirect toggle and the default URL-change auto-capture policy. Gated by `seo_distribution.redirect.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                 |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 200    | This tenant's redirect policy.                 | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirectSettings`](#schema-seoredirectsettings)&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                                                                 |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                 |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                 |
+
+### `PUT /api/v1/seo/redirects/settings` — Update this tenant's redirect governance policy
+
+- **operationId**: `seoRedirectSettingsUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+High-risk (the legacy-blog toggle changes public routing): requires an `Idempotency-Key`, audited. Gated by `seo_distribution.redirect.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SeoRedirectSettings`](#schema-seoredirectsettings)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                                 |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 200    | Redirect policy updated (or an idempotent replay).                                                                                                                                                               | [`ApiSuccess`](#standard-success-envelope)&lt;[`SeoRedirectSettings`](#schema-seoredirectsettings)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                                 |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                                 |
+| 409    | Idempotency-key reuse with a different payload.                                                                                                                                                                  | [`ApiError`](#standard-error-envelope)                                                                 |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                                 |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                                 |
+
+### `POST /api/v1/seo/redirects/validate` — Validate a redirect rule (dry run) + preview its chain
+
+- **operationId**: `seoRedirectsValidate`
+- **Security**: bearerAuth + tenantHeader
+
+Read-only: normalize + validate a proposed rule (frozen open-redirect guard), preview the redirect chain it would produce, and explain any conflict/loop/over-long chain — writing nothing. Gated by `seo_distribution.redirect.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SeoRedirectCreateRequest`](#schema-seoredirectcreaterequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 200    | The validation + chain-preview result.                                                                                                                                                                           | [`ApiSuccess`](#standard-success-envelope) |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)     |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -11439,6 +11828,176 @@ At least one field must be provided.
 ```json
 {
   "scheduledAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: SeoNotFoundObservation
+
+A privacy-minimized aggregate 404 observation (sanitized path + bare referrer domain only).
+
+| Field                 | Type               | Required | Nullable | Description                                                |
+| --------------------- | ------------------ | -------- | -------- | ---------------------------------------------------------- |
+| `id`                  | string (uuid)      | yes      | no       |                                                            |
+| `normalizedPath`      | string             | yes      | no       | Sanitized, normalized request path (query dropped).        |
+| `referrerDomain`      | string             | yes      | yes      | Bare referrer hostname only (never the full referrer URL). |
+| `locale`              | string             | yes      | yes      |                                                            |
+| `domainHost`          | string             | yes      | yes      |                                                            |
+| `hitCount`            | integer            | yes      | no       |                                                            |
+| `firstSeenAt`         | string (date-time) | yes      | no       |                                                            |
+| `lastSeenAt`          | string (date-time) | yes      | no       |                                                            |
+| `suggestedRedirectId` | string (uuid)      | yes      | yes      |                                                            |
+| `resolvedAt`          | string (date-time) | yes      | yes      |                                                            |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "normalizedPath": "string",
+  "referrerDomain": "tenant.example.com",
+  "locale": "string",
+  "domainHost": "tenant.example.com",
+  "hitCount": 0,
+  "firstSeenAt": "2026-01-01T00:00:00.000Z",
+  "lastSeenAt": "2026-01-01T00:00:00.000Z",
+  "suggestedRedirectId": "00000000-0000-0000-0000-000000000000",
+  "resolvedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: SeoRedirect
+
+A tenant-scoped exact-path redirect rule (awcms_micro_seo_redirects).
+
+| Field                  | Type                                                                                     | Required | Nullable | Description                                                                                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                   | string (uuid)                                                                            | yes      | no       |                                                                                                                                                                             |
+| `sourcePath`           | string                                                                                   | yes      | no       | The source path as entered (display form).                                                                                                                                  |
+| `normalizedSourcePath` | string                                                                                   | yes      | no       | The canonical, match-safe source path (dot-segments resolved, duplicate slashes collapsed, CRLF/traversal/Unicode-confusion rejected).                                      |
+| `localeScope`          | string                                                                                   | yes      | yes      | Optional locale narrowing; null = all locales.                                                                                                                              |
+| `domainScopeHost`      | string                                                                                   | yes      | yes      | Optional server-derived host narrowing (a verified normalized_hostname); null = all of this tenant's hosts.                                                                 |
+| `targetType`           | enum(`relative_same_tenant`, `verified_external`)                                        | yes      | no       |                                                                                                                                                                             |
+| `target`               | string                                                                                   | yes      | no       | The (normalized) redirect target — a relative same-origin path or an absolute URL to one of this tenant's verified hosts. Validated through the frozen open-redirect guard. |
+| `statusCode`           | enum(`301`, `302`, `307`, `308`)                                                         | yes      | no       |                                                                                                                                                                             |
+| `state`                | enum(`active`, `inactive`, `archived`)                                                   | yes      | no       |                                                                                                                                                                             |
+| `effectiveFrom`        | string (date-time)                                                                       | yes      | yes      |                                                                                                                                                                             |
+| `effectiveUntil`       | string (date-time)                                                                       | yes      | yes      |                                                                                                                                                                             |
+| `preserveQuery`        | boolean                                                                                  | yes      | no       |                                                                                                                                                                             |
+| `reason`               | string                                                                                   | yes      | yes      |                                                                                                                                                                             |
+| `origin`               | enum(`manual`, `slug_change`, `domain_change`, `locale_change`, `import`, `legacy_blog`) | yes      | no       |                                                                                                                                                                             |
+| `hitCount`             | integer                                                                                  | yes      | no       |                                                                                                                                                                             |
+| `lastHitAt`            | string (date-time)                                                                       | yes      | yes      |                                                                                                                                                                             |
+| `createdAt`            | string (date-time)                                                                       | yes      | no       |                                                                                                                                                                             |
+| `updatedAt`            | string (date-time)                                                                       | yes      | no       |                                                                                                                                                                             |
+| `deletedAt`            | string (date-time)                                                                       | yes      | yes      |                                                                                                                                                                             |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "sourcePath": "string",
+  "normalizedSourcePath": "string",
+  "localeScope": "string",
+  "domainScopeHost": "tenant.example.com",
+  "targetType": "relative_same_tenant",
+  "target": "string",
+  "statusCode": 301,
+  "state": "active",
+  "effectiveFrom": "2026-01-01T00:00:00.000Z",
+  "effectiveUntil": "2026-01-01T00:00:00.000Z",
+  "preserveQuery": false,
+  "reason": "string",
+  "origin": "manual",
+  "hitCount": 0,
+  "lastHitAt": "2026-01-01T00:00:00.000Z",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "deletedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: SeoRedirectCreateRequest
+
+| Field             | Type                                                                                     | Required | Nullable | Description                                                                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sourcePath`      | string                                                                                   | yes      | no       | The source path (path-absolute; normalized before matching/uniqueness).                                                                                                                                 |
+| `target`          | string                                                                                   | yes      | no       | A relative same-origin path or an absolute URL to one of this tenant's verified hosts. The target TYPE is derived; any unsafe/cross-host/protocol-relative/CRLF target is rejected by the frozen guard. |
+| `localeScope`     | string                                                                                   | no       | yes      |                                                                                                                                                                                                         |
+| `domainScopeHost` | string                                                                                   | no       | yes      | Must be one of this tenant's verified domains, or null.                                                                                                                                                 |
+| `statusCode`      | enum(`301`, `302`, `307`, `308`)                                                         | no       | no       |                                                                                                                                                                                                         |
+| `state`           | enum(`active`, `inactive`, `archived`)                                                   | no       | no       |                                                                                                                                                                                                         |
+| `effectiveFrom`   | string (date-time)                                                                       | no       | yes      |                                                                                                                                                                                                         |
+| `effectiveUntil`  | string (date-time)                                                                       | no       | yes      |                                                                                                                                                                                                         |
+| `preserveQuery`   | boolean                                                                                  | no       | no       |                                                                                                                                                                                                         |
+| `reason`          | string                                                                                   | no       | yes      |                                                                                                                                                                                                         |
+| `origin`          | enum(`manual`, `slug_change`, `domain_change`, `locale_change`, `import`, `legacy_blog`) | no       | no       |                                                                                                                                                                                                         |
+
+**Example**
+
+```json
+{
+  "sourcePath": "string",
+  "target": "string",
+  "localeScope": "string",
+  "domainScopeHost": "tenant.example.com",
+  "statusCode": 301,
+  "state": "active",
+  "effectiveFrom": "2026-01-01T00:00:00.000Z",
+  "effectiveUntil": "2026-01-01T00:00:00.000Z",
+  "preserveQuery": false,
+  "reason": "string",
+  "origin": "manual"
+}
+```
+
+### Schema: SeoRedirectSettings
+
+Per-tenant redirect governance policy (awcms_micro_seo_redirect_settings).
+
+| Field                       | Type                              | Required | Nullable | Description                                                                                                                                                                                       |
+| --------------------------- | --------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `legacyBlogRedirectEnabled` | boolean                           | yes      | no       | When true (and the tenant has a verified primary host), /blog/{tenantCode}... 301-redirects to the canonical /news... equivalent (ADR-0010 deferral). Default false = today's behavior unchanged. |
+| `urlChangeAutoPolicy`       | enum(`skip`, `propose`, `create`) | yes      | no       | Default action when a URL change is captured. 'propose' (default) creates an INACTIVE rule for operator review; 'create' activates immediately; 'skip' does nothing.                              |
+
+**Example**
+
+```json
+{
+  "legacyBlogRedirectEnabled": false,
+  "urlChangeAutoPolicy": "skip"
+}
+```
+
+### Schema: SeoRedirectUpdateRequest
+
+Update the mutable fields (source path is immutable — supplied only at create).
+
+| Field             | Type                                   | Required | Nullable | Description |
+| ----------------- | -------------------------------------- | -------- | -------- | ----------- |
+| `target`          | string                                 | yes      | no       |             |
+| `localeScope`     | string                                 | no       | yes      |             |
+| `domainScopeHost` | string                                 | no       | yes      |             |
+| `statusCode`      | enum(`301`, `302`, `307`, `308`)       | no       | no       |             |
+| `state`           | enum(`active`, `inactive`, `archived`) | no       | no       |             |
+| `effectiveFrom`   | string (date-time)                     | no       | yes      |             |
+| `effectiveUntil`  | string (date-time)                     | no       | yes      |             |
+| `preserveQuery`   | boolean                                | no       | no       |             |
+| `reason`          | string                                 | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "target": "string",
+  "localeScope": "string",
+  "domainScopeHost": "tenant.example.com",
+  "statusCode": 301,
+  "state": "active",
+  "effectiveFrom": "2026-01-01T00:00:00.000Z",
+  "effectiveUntil": "2026-01-01T00:00:00.000Z",
+  "preserveQuery": false,
+  "reason": "string"
 }
 ```
 

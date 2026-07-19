@@ -260,6 +260,39 @@ pernah keputusan trust; (b) sudah ada host-label lookbehind untuk vektor
 spoof yang nyata; lalu dismiss. Jangan coba menambah `^`/`$` — itu mematahkan
 deteksi secret di tengah string.
 
+### 8. `js/incomplete-multi-character-sanitization` — strip `<!--...-->`/tag satu-pass (fix kode, BUKAN dismiss)
+
+Ditemukan 2026-07-19 (#280, epic #261) di helper test `assertWellFormedXml`
+(`tests/unit/seo-discovery-serialization.test.ts`) yang membersihkan comment/tag
+XML dengan `.replace(/<!--.*?-->/g, "")` (atau strip tag serupa) SATU PASS.
+CodeQL `js/incomplete-multi-character-sanitization` benar di sini (bukan false
+positive): sebuah single-pass `.replace` bisa meninggalkan residu multi-karakter
+— mis. `<!--<!---->` menjadi `<!--` setelah satu lintasan, karena pola yang
+dihapus di tengah _menciptakan_ delimiter baru yang tidak ikut terhapus. Sama
+kelasnya untuk strip tag bersarang.
+
+**Fix**: perbaikan kode yang mempertahankan perilaku — **bukan** dismiss.
+Iterasikan `.replace(...)` sampai FIXED POINT sehingga tidak ada residu tersisa:
+
+```ts
+let prev;
+do {
+  prev = s;
+  s = s.replace(re, "");
+} while (s !== prev);
+```
+
+atau gunakan parser XML/HTML sungguhan. Di #280 diperbaiki dengan loop
+fixed-point ini (commit `02ea8d0b`) — clear alert-nya tanpa mengubah hasil untuk
+input yang valid.
+
+**Pencegahan**: `js/incomplete-multi-character-sanitization` pada strip
+comment/tag satu-pass adalah temuan NYATA (kelas yang sama meski di kode test):
+jangan dismiss. Loop replace ke fixed point (`do { prev=s; s=s.replace(re,"") }
+while (s!==prev)`) atau pakai parser. Waspadai pola ini di helper test /
+sanitizer mana pun yang menghapus substring yang bisa membentuk-ulang
+delimiter-nya sendiri (`<!--`, `<script`, `../`, tag bersarang).
+
 ### Pola tambahan: `js/unused-local-variable` di test kadang menandai coverage gap, bukan sekadar dead code
 
 Dari 11 alert `js/unused-local-variable` di Issue #788 (semua di file

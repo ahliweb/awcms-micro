@@ -249,7 +249,7 @@
     {
       "key": "seo_distribution",
       "name": "SEO & Distribution",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "status": "active",
       "type": "domain",
       "source": "base",
@@ -267,7 +267,7 @@
           "optional": true
         }
       ],
-      "permissionCount": 2,
+      "permissionCount": 8,
       "navigationCount": 0,
       "jobCount": 0,
       "hasHealthCheck": false,
