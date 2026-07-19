@@ -153,6 +153,14 @@ module-dependency-graph.ts`, Issue #680/#681).
   (brosur korporat, portal berita, blog, situs komunitas), opt-in per
   tenant, dan bernilai produk langsung — bukan sekadar infrastruktur. Tetap
   wajib lolos proposal template + ADR checklist (§9) sebelum scaffold.
+  **SEO/metadata & sitemap sudah diadmisi** lewat
+  `docs/adr/0028-seo-distribution-module-admission.md` (`seo_distribution`,
+  Accepted) — contoh nyata pertama kategori ini pasca-ADR-0025, dengan pola
+  **admission-only**: ADR + contribution contract diterima lebih dulu, dan
+  descriptor modul (registry 17 → 18) mendarat bersama baris kode runtime
+  pertamanya (#266), bukan di PR admission-nya. Empat contoh sisanya
+  (theming/appearance, site search, comments/moderation,
+  newsletter/subscription) masih menunggu ADR admission masing-masing.
 - Wajib bisa dinonaktifkan per tenant tanpa merusak Core/System manapun
   (`awcms_micro_tenant_modules`, dicek oleh `hasDependencyCycle` +
   lifecycle validator yang sama).
@@ -420,7 +428,15 @@ ekstensi ERP tanpa modul baru — **tidak berlaku di AWCMS-Micro / tidak
 diport** (ADR-0025 §3, lihat banner ADR-0020), dipertahankan hanya sebagai
 rujukan historis. Pola "kontrak murni tetap butuh ADR penuh" itu sendiri
 tetap berlaku untuk keputusan struktural WEBSITE-scope di masa depan
-(bukan preseden khusus ERP).
+(bukan preseden khusus ERP). **Contoh WEBSITE-scope nyata:**
+`docs/adr/0028-seo-distribution-module-admission.md` (`seo_distribution`,
+Accepted) mengadmisi sebuah modul **tetapi PR admission-nya tidak
+mendaftarkan descriptor apa pun** di `src/modules/index.ts` — ia menetapkan
+arah kepemilikan/dependensi + contribution contract lebih dulu, dan
+descriptor (registry 17 → 18) sengaja ditunda ke baris kode runtime pertama
+(#266). Ini menjaga anchor `EXPECTED_BASE_MODULE_COUNT`
+(`scripts/scope-consistency-check.ts`) tetap bermakna: hitungan modul naik
+saat kode modul benar-benar masuk, bukan saat ADR-nya Accepted.
 
 ## 10. Referensi
 

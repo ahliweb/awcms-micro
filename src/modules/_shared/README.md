@@ -58,6 +58,31 @@ Tiga port nyata saat ini:
   compliant — publish sungguhan ke provider terjadi belakangan, di luar
   transaksi, lewat dispatcher `social_publishing`).
 
+Port yang **didefinisikan mendahului wiring** (type ada, belum ada
+adapter/consumer ter-wire, dan belum ada entri di
+`capability-contract-versions.ts` — entri versi dipasangkan dengan `provides`
+sebuah modul, jadi menyusul saat modul penyedianya mendarat):
+
+- **`ports/legal-hold-guard-port.ts`** dan **`ports/party-directory-port.ts`**
+  — port yang dideklarasikan lebih dulu dari consumer-nya (`party_directory`
+  sudah `provides`-d `profile_identity`, sisanya menunggu wiring).
+- **`ports/seo-facts-port.ts` — `SeoFactsSource`** (ADR-0028, admission
+  `seo_distribution`) — kapabilitas `seo_facts` yang modul konten
+  (`blog_content`, `news_portal`, tipe konten aplikasi turunan) **sediakan**
+  dan `seo_distribution` **konsumsi**: fakta SEO per-resource yang diturunkan
+  server (canonical path + locale alternates, metadata/robots, Open
+  Graph/Twitter via id media, JSON-LD schema terkontrol, entri sitemap/feed)
+  untuk render metadata (#266), sitemap/feed (#267), dan redirect (#268).
+  Arah panah ke DALAM (konten menyediakan, SEO mengonsumsi optional) menjaga
+  agregator SEO ignorant terhadap modul konten mana pun dan tidak menyeret
+  dependency ke mereka — sama semangatnya dengan `blog_content`↔`news_portal`.
+  File ini juga membawa invariant kontrak murni (helper `buildSeoCacheKey`
+  yang menuntut tenant/host/locale, prediket visibilitas publik, klasifikasi
+  target redirect same-tenant, dan guard JSON-LD terkontrol) yang dikunci
+  `tests/unit/seo-facts-contract.test.ts`. Descriptor `seo_distribution`,
+  adapter `seo_facts`, dan entri `CAPABILITY_CONTRACT_VERSIONS["seo_facts"]`
+  belum ada — mendarat di #266 (ADR-0028 admission-only).
+
 `ModuleDescriptor` (`module-contract.ts`) punya field opsional
 `capabilities?: ModuleCapabilityContract` (`{ provides?: string[],
 consumes?: ModuleCapabilityDependency[] }`) untuk mendokumentasikan

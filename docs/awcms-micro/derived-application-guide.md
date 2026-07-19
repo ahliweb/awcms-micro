@@ -51,6 +51,46 @@ Orkestrasi satu unit kerja penuh (baca docs → implementasi → migration/OpenA
 
 Modul naik dari `experimental` ke `active` ketika: endpoint/domain logic-nya nyata dipakai (bukan scaffold kosong), RLS+ABAC terpasang dan diuji, test berlapis lulus, dan sudah melalui `awcms-micro-security-review`. Jangan tandai `active` sebelum itu — status ini metadata deskriptif yang dibaca kontributor lain untuk menilai kematangan modul, bukan gerbang runtime.
 
+### Menyumbang ke kapabilitas base lewat contribution contract (contoh: SEO facts)
+
+Ketika modul domain Anda ingin dilayani oleh kapabilitas base yang meng-agregasi
+kontribusi banyak modul, Anda **mengimplementasikan port base**, bukan mengedit
+modul base atau menulis ke tabelnya. Contoh kanonik: membuat tipe konten turunan
+Anda (mis. `product`, `course`, `listing`) muncul di sitemap/feed/metadata yang
+dikelola `seo_distribution` (ADR-0028).
+
+Pola contribution (identik untuk kapabilitas base lain yang berbasis port —
+lihat `src/modules/_shared/ports/`):
+
+1. **Jangan** impor internal `seo_distribution`, dan **jangan** tulis ke tabelnya.
+   Anda hanya bergantung pada **type** port netral
+   `src/modules/_shared/ports/seo-facts-port.ts` (`SeoFactsSource`,
+   `SeoResourceFacts`).
+2. Buat adapter di modul Anda sendiri — `<domain>/application/seo-facts-port-adapter.ts`
+   — yang menurunkan `SeoResourceFacts` dari data tenant Anda yang **sudah
+   tervalidasi** (server-derived, bukan string mentah yang di-authored tenant).
+   `resourceType` adalah string opaque tipe konten Anda; `canonicalPath` dan
+   `localeAlternates[].path` adalah **path saja** (host diturunkan
+   `seo_distribution` dari `tenant_domain` — jangan pernah membawa host sendiri);
+   gambar Open Graph memakai **id media** (`MediaLibraryPort`), bukan URL mentah;
+   JSON-LD memakai union tipe schema terkontrol port itu.
+3. Deklarasikan `capabilities.provides: ["seo_facts"]` di `module.ts` modul Anda,
+   dan tambahkan entri versi ke manifest kompatibilitas repo Anda sendiri
+   (ADR-0015). Arahnya **ke dalam**: Anda **menyediakan**, `seo_distribution`
+   **mengonsumsi** (optional). Jangan tambahkan `dependencies` ke
+   `seo_distribution` — itu bukan lifecycle dependency, hanya hubungan
+   source-level lewat port (preseden `blog_content`↔`news_portal`, doc 21 §5).
+4. Composition root milik `seo_distribution` (route render #266, generator
+   sitemap/feed #267) yang meng-import adapter Anda dan menyuntikkannya — Anda
+   tidak memanggil `seo_distribution` sama sekali.
+
+Publikasi-state (`draft`/`scheduled`/`private`/`deleted`/`noindex`/…) yang Anda
+laporkan di `SeoResourceFacts.visibility` menentukan apa yang bocor ke output
+publik — patuhi semantiknya (hanya resource benar-benar publik yang indexable),
+karena itulah pertahanan unpublished-content-leakage kontrak ini. Fixture nyata
+yang membuktikan tipe konten base **dan** turunan menyumbang lewat kontrak yang
+sama: `tests/unit/seo-facts-contract.test.ts`.
+
 ## Contoh aplikasi turunan (ilustratif — bukan bagian base)
 
 Lima contoh berikut menunjukkan bagaimana base yang sama melayani domain yang sangat berbeda. **Tidak satu pun** dari modul/entitas di bawah ada di `src/modules/` base ini — ini murni ilustrasi untuk membantu Anda memetakan domain Anda sendiri ke pola di atas.
