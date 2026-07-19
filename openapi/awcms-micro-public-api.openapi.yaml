@@ -79,6 +79,8 @@ tags:
     description: "Transactional, versioned domain-event outbox and dispatcher admin API (epic `platform-evolution` #738 Wave 1, Issue #742) — read-only inspection of outbox events and per-consumer deliveries (redacted payload projections only, including dead-letter/DLQ status), permission-gated/reason-required/idempotent/audited replay of a dead-lettered delivery, and per-tenant pause/resume of a registered consumer. The actual claim/execute/finalize dispatch happens entirely outside any HTTP request, via a separate internal worker (`bun run domain-events:dispatch`, built on the shared worker runner), not exposed over HTTP. Consumers themselves are a static, reviewed-source-code registry — not configurable via this API."
   - name: Reporting Projections
     description: "Module-contributed read-model projection extension to Management Reporting (epic `platform-evolution` #738 Wave 3, Issue #753) — list registered projection descriptors with live snapshot/freshness status, trigger/resume/cancel an idempotent full rebuild, trigger an on-demand reconciliation against a source control total, and manage/trigger/download scheduled exports of a projection's current snapshot (manifest/checksum/expiry, secure tenant-scoped download). A projection is a DERIVED read model, never an authorization source of truth — every operation here independently re-checks RBAC/ABAC. Real incremental updates (`bun run reporting:projections:refresh`, `bun run reporting:exports:dispatch`) are internal scheduled jobs, not exposed over HTTP."
+  - name: SEO & Distribution
+    description: "Tenant-scoped SEO defaults admin API for the `seo_distribution` module (epic #261 Wave 1, Issue #266, ADR-0028) — read/update the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, and a tenant-wide `noindex` switch) that the central metadata renderer applies UNDERNEATH resource-level facts. `PUT` is high-risk (rewrites the public metadata/indexability surface) — it requires an `Idempotency-Key` and is audited. The public HTML metadata itself (canonical/hreflang/OG/JSON-LD) is rendered inline by the Astro public routes, not exposed as a JSON endpoint; sitemap/robots/feeds (#267) and redirects (#268) are separate issues in the same module."
 paths:
   /api/v1/access/assignments:
     post:
@@ -10774,6 +10776,90 @@ paths:
           $ref: "#/components/responses/PayloadTooLarge"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/seo/config:
+    get:
+      tags:
+        - SEO & Distribution
+      summary: Read this tenant's SEO defaults
+      description: Returns the per-tenant SEO defaults (site identity, default social image, Twitter/X handle, Organization identity, tenant-wide `noindex` switch). A tenant with no configuration yet returns the neutral defaults (every field null, `defaultRobotsNoindex` false). Gated by `seo_distribution.config.read`.
+      operationId: seoConfigRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's SEO defaults.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SeoTenantSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    put:
+      tags:
+        - SEO & Distribution
+      summary: Update this tenant's SEO defaults
+      description: Full replace of the tenant's SEO defaults. High-risk (rewrites the public metadata/indexability surface, including the tenant-wide `noindex` switch), so it requires an `Idempotency-Key` header and records an audit event. Gated by `seo_distribution.config.update`. Media ids (`defaultSocialMediaId`, `organizationLogoMediaId`) are validated as UUIDs here and resolved same-tenant/verified through `media_library` at render time — an id that does not resolve is simply not emitted.
+      operationId: seoConfigUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeoTenantSettingsUpdateRequest"
+      responses:
+        "200":
+          description: SEO defaults updated (or an idempotent replay of an identical prior request).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SeoTenantSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/settings:
     get:
       tags:
@@ -18962,6 +19048,82 @@ components:
           type: string
           format: date-time
           description: Must be in the future.
+    SeoTenantSettings:
+      type: object
+      description: Per-tenant SEO defaults (awcms_micro_seo_tenant_settings). Every field is nullable except the boolean switch; the renderer applies these UNDERNEATH resource-level facts (a resource's own value always wins).
+      required:
+        - siteName
+        - defaultMetaDescription
+        - defaultSocialMediaId
+        - twitterSiteHandle
+        - organizationName
+        - organizationLogoMediaId
+        - defaultRobotsNoindex
+      properties:
+        siteName:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: Overrides the tenant display name for og:site_name / JSON-LD WebSite; null falls back to the tenant name.
+        defaultMetaDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+          description: Default meta description / og:description when a resource has none.
+        defaultSocialMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Default social preview image (media object id, resolved same-tenant/verified at render time).
+        twitterSiteHandle:
+          type: string
+          nullable: true
+          maxLength: 80
+          description: Rendered as twitter:site, e.g. "@example".
+        organizationName:
+          type: string
+          nullable: true
+          maxLength: 200
+          description: schema.org Organization identity for the site-level JSON-LD node.
+        organizationLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Organization logo (media object id, resolved same-tenant/verified at render time).
+        defaultRobotsNoindex:
+          type: boolean
+          description: "Tenant-wide 'this whole site is noindex' switch (staging/preview). When true, EVERY resource renders robots: noindex regardless of its own indexability."
+    SeoTenantSettingsUpdateRequest:
+      type: object
+      description: Update body — same shape as SeoTenantSettings; omitted string fields are treated as null, an omitted defaultRobotsNoindex defaults to false. Unknown keys are ignored.
+      properties:
+        siteName:
+          type: string
+          nullable: true
+          maxLength: 200
+        defaultMetaDescription:
+          type: string
+          nullable: true
+          maxLength: 500
+        defaultSocialMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        twitterSiteHandle:
+          type: string
+          nullable: true
+          maxLength: 80
+        organizationName:
+          type: string
+          nullable: true
+          maxLength: 200
+        organizationLogoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        defaultRobotsNoindex:
+          type: boolean
+          default: false
     SetupInitializeRequest:
       type: object
       required:

@@ -30,8 +30,19 @@ export const blogContentModule = defineModule({
   // outbox-row writes, no external call — ADR-0006 compliant). `optional:
   // true` because a deployment that never enables `social_publishing`
   // (the default) must publish articles exactly as before.
+  // Issue #266 (ADR-0028 §2/§3) additionally PROVIDES `seo_facts`
+  // (`_shared/ports/seo-facts-port.ts`, implemented by
+  // `application/seo-facts-port-adapter.ts`) — the contribution contract
+  // `seo_distribution` aggregates. `blog_content` is the base's single declared
+  // `seo_facts` provider because it OWNS the public post/page resources SEO
+  // renders (the `/news` and `/blog/{tenantCode}` routes are both this module's
+  // code); `news_portal` composes these posts but owns no standalone public
+  // resource of its own, so a second `provides: ["seo_facts"]` there would be a
+  // `capability_provider_conflict` (module-composition.ts). The arrow points
+  // INWARD to `seo_distribution` (it consumes; nothing here depends on it), so
+  // the DAG is untouched — same shape as `public_content` above.
   capabilities: {
-    provides: ["public_content"],
+    provides: ["public_content", "seo_facts"],
     consumes: [
       // ADR-0026 steps 3-4: was `news_media` providedBy `news_portal` — the
       // capability is retired and `media_library` provides its successor. Still

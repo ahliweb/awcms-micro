@@ -10,7 +10,7 @@
 > `organization_structure`/`reference_data`/`data_exchange`/
 > `document_infrastructure`/`idn_admin_regions`) adalah snapshot **sebelum
 > ADR-0025** mempersempit repo ke WEBSITE scope. Ketujuh modul ERP itu
-> **tidak diport**; registry kini **17 modul** (rujuk
+> **tidak diport**; registry kini **18 modul** (rujuk
 > `docs/awcms-micro/21_module_admission_governance.md` §8 dan
 > `docs/awcms-micro/repo-inventory.md`). Model lapisan ekstensi & kriteria
 > ekstraksi ADR ini tetap berlaku — hanya contoh modulnya yang historis.
@@ -25,7 +25,7 @@ Issue ini **docs-only, tanpa mengubah perilaku runtime** — tujuannya murni mem
 
 - `src/modules/_shared/module-contract.ts` — `ModuleType` union hari ini hanya `"base" | "system" | "domain" | "integration" | "derived"`, **tidak diubah** oleh ADR ini.
 - `src/modules/module-management/domain/module-dependency-graph.ts` — validator DAG registry-wide (self-dependency, duplicate, missing dependency, cycle via algoritma Kahn) yang sudah berjalan sebagai bagian `bun run check` (`modules:dag:check`).
-- `docs/awcms-micro/21_module_admission_governance.md` — lima kategori admission, pohon keputusan §3, dan kebijakan trusted static registry (§7); §8-nya memetakan modul ke kategori sesuai kondisi saat Issue #696 ditulis — registry hari ini adalah **17 modul terdaftar** (WEBSITE scope, ADR-0025; dikonfirmasi lewat `bun run modules:dag:check`). Catatan: `idn_admin_regions` tidak diport (ADR-0025), lihat catatan currency di atas.
+- `docs/awcms-micro/21_module_admission_governance.md` — lima kategori admission, pohon keputusan §3, dan kebijakan trusted static registry (§7); §8-nya memetakan modul ke kategori sesuai kondisi saat Issue #696 ditulis — registry hari ini adalah **18 modul terdaftar** (WEBSITE scope, ADR-0025; dikonfirmasi lewat `bun run modules:dag:check`). Catatan: `idn_admin_regions` tidak diport (ADR-0025), lihat catatan currency di atas.
 - ADR-0011 — pemisahan capability port/adapter dan test struktural `tests/unit/module-boundary.test.ts` yang mencegah import lintas-modul langsung.
 - `docs/awcms-micro/derived-application-guide.md` — lima contoh aplikasi turunan ilustratif yang sudah ada (AWPOS, Satu Sehat Kobar, Sistem Manajemen Mutu Faskes, Smart School Portal, Sistem Pengaduan Publik) dan checklist keamanan yang sudah wajib untuk setiap modul domain turunan.
 

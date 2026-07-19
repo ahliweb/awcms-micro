@@ -183,12 +183,19 @@ suite("tenant module preset application service", () => {
     // same module — domain_event_runtime only needs ONE active enabled
     // dependent to stay enabled, and `reporting` alone is now that
     // dependent.
+    // seo_distribution (Issue #266, ADR-0028) is an Optional/opt-in leaf: it
+    // provides no capability and nothing depends on it, and online_website does
+    // not list it (unlike media_library, it is not a dependency other modules
+    // need to function — its per-tenant enablement gates only its own admin
+    // config surface). So the preset safely disables it, exactly like the other
+    // non-listed leaves.
     for (const key of [
       "form_drafts",
       "visitor_analytics",
       "news_portal",
       "social_publishing",
-      "data_lifecycle"
+      "data_lifecycle",
+      "seo_distribution"
     ]) {
       expect(changeByKey.get(key)?.outcome).toBe("applied");
       expect(changeByKey.get(key)?.action).toBe("disabled");
@@ -229,6 +236,7 @@ suite("tenant module preset application service", () => {
     expect(state.get("news_portal")).toBe(false);
     expect(state.get("social_publishing")).toBe(false);
     expect(state.get("data_lifecycle")).toBe(false);
+    expect(state.get("seo_distribution")).toBe(false);
 
     const auditRows = await fetchAuditActions(owner.tenantId);
     const disabledResourceIds = auditRows
@@ -241,7 +249,8 @@ suite("tenant module preset application service", () => {
         "visitor_analytics",
         "news_portal",
         "social_publishing",
-        "data_lifecycle"
+        "data_lifecycle",
+        "seo_distribution"
       ].sort()
     );
     // No audit event for modules that were already in the target state.

@@ -1,8 +1,8 @@
 {
-  "baseModuleCount": 17,
+  "baseModuleCount": 18,
   "applicationModuleCount": 0,
   "applicationRegistryId": null,
-  "totalModuleCount": 17,
+  "totalModuleCount": 18,
   "valid": true,
   "issueCount": 0,
   "migrationNamespaces": [
@@ -22,7 +22,7 @@
       "type": "domain",
       "source": "base",
       "dependencies": ["tenant_admin", "identity_access"],
-      "capabilitiesProvided": ["public_content"],
+      "capabilitiesProvided": ["public_content", "seo_facts"],
       "capabilitiesConsumed": [
         {
           "capability": "media_library",
@@ -242,6 +242,34 @@
       "permissionCount": 7,
       "navigationCount": 1,
       "jobCount": 2,
+      "hasHealthCheck": false,
+      "hasReadinessCheck": false,
+      "deploymentProfiles": null
+    },
+    {
+      "key": "seo_distribution",
+      "name": "SEO & Distribution",
+      "version": "0.1.0",
+      "status": "active",
+      "type": "domain",
+      "source": "base",
+      "dependencies": ["tenant_admin", "identity_access"],
+      "capabilitiesProvided": [],
+      "capabilitiesConsumed": [
+        {
+          "capability": "seo_facts",
+          "providedBy": "blog_content",
+          "optional": true
+        },
+        {
+          "capability": "media_library",
+          "providedBy": "media_library",
+          "optional": true
+        }
+      ],
+      "permissionCount": 2,
+      "navigationCount": 0,
+      "jobCount": 0,
       "hasHealthCheck": false,
       "hasReadinessCheck": false,
       "deploymentProfiles": null

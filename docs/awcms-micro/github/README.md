@@ -117,7 +117,7 @@ peringatkan). Dari epic itu, AWCMS-Micro (WEBSITE scope) hanya mengadopsi:
 `document_infrastructure`, `data_exchange`, `integration_hub`) dan
 **`workflow_approval`**, serta kontrak kesiapan ekstensi ERP (ADR-0020),
 **TIDAK diport** ke awcms-micro — tidak ada modul, migration, route, atau skill
-untuk semuanya di repo ini (ADR-0025 §3). Registry base tetap **17 modul**,
+untuk semuanya di repo ini (ADR-0025 §3). Registry base tetap **18 modul**,
 bukan 23. Klaim narasi upstream yang menyebut "16 → 23 modul terdaftar" dan
 merujuk `src/modules/workflow-approval/README.md` atau skill
 `awcms-micro-workflow-approval`/`-organization-structure`/`-reference-data`/

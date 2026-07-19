@@ -179,8 +179,10 @@ metadata, `ModuleDescriptor.permissions`) and the actual
 - **`module_management`, `blog_content`, `news_portal`,
   `social_publishing`, `tenant_domain`, `visitor_analytics`,
   `data_lifecycle`, `domain_event_runtime`, `media_library`,
-  `profile_identity`, and `reporting`'s descriptors currently declare
-  `permissions`** (11 of the 17 registered modules — `blog_content` added
+  `profile_identity`, `reporting`, and `seo_distribution`'s descriptors
+  currently declare `permissions`** (12 of the 18 registered modules —
+  `seo_distribution` added its `config.{read,update}` pair in Issue #266
+  (epic #261, ADR-0028); `blog_content` added
   its original 36-entry array in Issue #543, closing epic #536, then grew
   to a 39-entry array via Issue #641 (epic `news_portal`), which added the
   `internal_links.{read,configure,preview}` trio through migration

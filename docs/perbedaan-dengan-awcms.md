@@ -66,14 +66,14 @@ merintis fitur dari nol.
   idempotency, dan test unit/domain. Migrasi `001`–`016` diverifikasi apply
   bersih di PostgreSQL 18.4.
 
-**Modul awcms-micro (WEBSITE scope, 17 modul) yang belum di-port ke awcms:**
+**Modul awcms-micro (WEBSITE scope, 18 modul) yang belum di-port ke awcms:**
 
-| Kategori            | Modul                                                                   |
-| ------------------- | ----------------------------------------------------------------------- |
-| Lifecycle & draft   | `data-lifecycle`, `form-drafts`                                         |
-| Media               | `media-library`                                                         |
-| Konten/portal (CMS) | `blog-content`, `news-portal`, `social-publishing`, `visitor-analytics` |
-| Tenant online       | `tenant-domain`                                                         |
+| Kategori            | Modul                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| Lifecycle & draft   | `data-lifecycle`, `form-drafts`                                                             |
+| Media               | `media-library`                                                                             |
+| Konten/portal (CMS) | `blog-content`, `news-portal`, `social-publishing`, `visitor-analytics`, `seo-distribution` |
+| Tenant online       | `tenant-domain`                                                                             |
 
 Sebagian modul CMS (blog/news/social/visitor-analytics/media-library) mungkin
 **tidak** di-port apa adanya ke awcms karena skopnya CMS/website, bukan fondasi

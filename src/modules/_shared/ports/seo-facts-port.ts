@@ -442,23 +442,33 @@ const JSON_LD_KEY_PATTERN = /^[A-Za-z@][A-Za-z0-9_@]*$/;
 
 /**
  * Assert a JSON-LD node is built from the controlled schema only: every
- * `@type` (recursively) is in `JSON_LD_ALLOWED_TYPES`, every object KEY matches
- * `JSON_LD_KEY_PATTERN`, and no string value contains a raw `</script`
- * sequence. Throws on the first violation.
+ * `@type` (recursively) is in `JSON_LD_ALLOWED_TYPES` and every object KEY
+ * matches `JSON_LD_KEY_PATTERN`. Throws on the first violation.
  *
- * This validates STRUCTURE (types + keys). It is NOT sufficient on its own to
- * emit safe markup — use `renderControlledJsonLd` for that, which validates
- * here AND escapes the serialized output so both keys and values are neutralized
- * by construction (a caller cannot forget to escape).
+ * This validates STRUCTURE (types + keys) ONLY — it deliberately does NOT throw
+ * on the CONTENT of a string value (e.g. a value that contains a `</script`
+ * substring). Value content is neutralized by ESCAPING, not by rejection:
+ * `renderControlledJsonLd` runs `escapeJsonLdText` over the whole serialized
+ * string, turning `<`/`>`/`&` (and U+2028/U+2029) into `\uXXXX`, so a value can
+ * never terminate the `<script>` element by construction. Rejecting a
+ * `</script` value here would instead let legitimate tenant content (a post
+ * title that literally contains `</script`) fail the ENTIRE head render — a
+ * self-DoS — for no added safety, since escaping already covers it (the
+ * escaping's sufficiency for values was audited in #265, the
+ * `escapeJsonLdText`/`renderControlledJsonLd` MEDIUM-1 round). Structural
+ * controls (the closed `@type` union and the key pattern) still throw, because
+ * those are NOT neutralized by escaping the serialized string.
+ *
+ * This alone is NOT sufficient to emit safe markup — use `renderControlledJsonLd`,
+ * which validates here AND escapes the serialized output so both keys and values
+ * are neutralized (a caller cannot forget to escape).
  */
 export function assertControlledJsonLd(node: JsonLdNode): void {
   const visit = (value: JsonLdValue, path: string): void => {
     if (typeof value === "string") {
-      if (/<\/script/i.test(value)) {
-        throw new Error(
-          `assertControlledJsonLd: string at ${path} contains a raw "</script" sequence — JSON-LD values must be escaped/controlled (ADR-0028 threat model).`
-        );
-      }
+      // No throw on value CONTENT — see the header: escaping (not rejection)
+      // neutralizes a `</script` in a string value, and rejecting it would be a
+      // self-DoS on legitimate tenant text.
       return;
     }
     if (typeof value === "number" || typeof value === "boolean") return;
