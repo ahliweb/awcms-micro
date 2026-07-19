@@ -8,7 +8,7 @@ governance. **Security is the primary design constraint** — redirects are the 
 abuse-prone SEO surface (open-redirect / CRLF / ReDoS / admin-route hijack /
 cross-tenant confusion).
 
-Related: [SEO metadata rendering (#266)](seo-distribution.md) ·
+Related: [SEO metadata rendering (#266)](../../src/modules/seo-distribution/README.md) ·
 [SEO discovery/feeds (#267)](seo-distribution-discovery.md) · module code
 `src/modules/seo-distribution/`.
 
