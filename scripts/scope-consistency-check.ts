@@ -79,7 +79,20 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  */
 export const EXPECTED_BASE_MODULE_COUNT = 17;
 
-/** Generated inventories that must never name an excluded module. */
+/**
+ * Generated inventories that must never name an excluded module. These are
+ * derived deterministically from the live registry (`repo:inventory:check` /
+ * `modules:composition:inventory:check` prove they match), so any excluded
+ * key here means the registry drifted.
+ *
+ * `docs/awcms-micro/github/` is DELIBERATELY NOT scanned: it is a GitHub
+ * snapshot (`bun run github:snapshot:refresh`, outside `bun run check`) whose
+ * hand-written "### … completed" narrative legitimately records upstream
+ * awcms-mini history — including, correctly, that the excluded modules were
+ * NOT ported. Banning excluded-module tokens there would false-positive on that
+ * legitimate "not ported" prose; keeping those files honest is a manual review
+ * concern, not an automatable exclusion invariant.
+ */
 export const INVENTORY_FILES = [
   "docs/awcms-micro/repo-inventory.md",
   "docs/awcms-micro/module-composition-inventory.json"
