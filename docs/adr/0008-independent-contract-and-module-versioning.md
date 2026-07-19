@@ -5,6 +5,15 @@
 - **Pengambil keputusan:** maintainer
 - **Terkait:** `docs/awcms-micro/09_roadmap_repository_commit.md`, `docs/awcms-micro/05_openapi_asyncapi_detail.md`, ADR-0007 (kontrak OpenAPI/AsyncAPI wajib), Issue #451
 
+> **Catatan currency (ADR-0025).** Contoh "7 modul base" (termasuk
+> `workflow_approval`) di Konteks/Keputusan di bawah adalah snapshot
+> 2026-07-06, **sebelum ADR-0025** mempersempit repo ke WEBSITE scope.
+> Registry kini **17 modul**; tujuh modul ERP upstream (termasuk `workflow`)
+> **tidak diport**. Kebijakan versioning ADR ini tetap berlaku — hanya
+> daftar/hitungan modul contohnya yang basi (rujuk
+> `docs/awcms-micro/21_module_admission_governance.md` §8 /
+> `docs/awcms-micro/repo-inventory.md`).
+
 ## Konteks
 
 `package.json` sudah di `0.23.5` (SemVer, Changesets-driven, bump setiap PR yang mengubah perilaku), sementara `openapi/awcms-micro-public-api.openapi.yaml` dan `asyncapi/awcms-micro-domain-events.asyncapi.yaml` masih di `info.version: 0.1.0`, dan seluruh 7 `src/modules/*/module.ts` masih `version: "0.1.0"` dengan `status: "experimental"` — walau modul-modul itu sudah diimplementasikan penuh, ditest, dan diperkuat security hardening (Issue #437). Tanpa kebijakan tertulis, angka-angka ini terlihat basi/konflik tanpa penjelasan.

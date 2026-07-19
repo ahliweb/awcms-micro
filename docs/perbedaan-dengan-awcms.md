@@ -32,22 +32,22 @@ merintis fitur dari nol.
 
 ## 2. Ringkasan perbedaan (angka konkret)
 
-| Dimensi                         | **awcms-micro** (fondasi)              | **awcms** (turunan ERP-scope)                                                                |
-| ------------------------------- | -------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Versi                           | 0.24.0                                 | 5.1.1 (melanjutkan legacy major, ADR-0024)                                                   |
-| Deskripsi                       | "Modular Monolith Standard"            | "basis/fondasi untuk pengembangan ERP"                                                       |
-| Modul di `src/modules/`         | ~23                                    | **10** (naik dari 4 — 6 modul fondasi diport)                                                |
-| Migrasi `sql/`                  | 76 (`awcms_micro_…`)                   | **16** (`awcms_…`, `001`–`016`)                                                              |
-| Route `src/pages/api`           | ~290                                   | **86**                                                                                       |
-| Path OpenAPI                    | ~289                                   | **86**                                                                                       |
-| AsyncAPI channels               | ~96                                    | **~28** (sudah publish domain event sejak port domain-event-runtime)                         |
-| Script `package.json`           | ~73                                    | **26**                                                                                       |
-| Gate `bun run check`            | ~22 gate (+ e2e Playwright)            | ~10 gate                                                                                     |
-| UI (`components/layouts/pages`) | 15 komponen, 56 halaman admin + portal | tidak ada (backend/kontrak-only)                                                             |
-| Test (`*.test.ts`)              | ~317 (+ Playwright e2e)                | **~50** (tanpa e2e/UI)                                                                       |
-| `.env.example`                  | ~540 baris                             | ~31 baris                                                                                    |
-| Docs paket teknis               | `docs/awcms-micro/` (49 file)          | `docs/awcms/` (~49 file, sebagian warisan mini sebagai "target")                             |
-| ADR                             | 22 (`0000`–`0021`)                     | 25 (`0000`–`0024`; +0022 ERP-di-repo-terpisah, +0023 docs bilingual, +0024 penomoran legacy) |
+| Dimensi                         | **awcms-micro** (fondasi)                          | **awcms** (turunan ERP-scope)                                                                |
+| ------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Versi                           | 0.24.0                                             | 5.1.1 (melanjutkan legacy major, ADR-0024)                                                   |
+| Deskripsi                       | "Modular Monolith Standard"                        | "basis/fondasi untuk pengembangan ERP"                                                       |
+| Modul di `src/modules/`         | 17 (WEBSITE scope, ADR-0025)                       | **10** (naik dari 4 — 6 modul fondasi diport)                                                |
+| Migrasi `sql/`                  | 64 (`awcms_micro_…`, `001`–`079` dengan celah ERP) | **16** (`awcms_…`, `001`–`016`)                                                              |
+| Route `src/pages/api`           | ~290                                               | **86**                                                                                       |
+| Path OpenAPI                    | ~289                                               | **86**                                                                                       |
+| AsyncAPI channels               | ~96                                                | **~28** (sudah publish domain event sejak port domain-event-runtime)                         |
+| Script `package.json`           | ~73                                                | **26**                                                                                       |
+| Gate `bun run check`            | ~22 gate (+ e2e Playwright)                        | ~10 gate                                                                                     |
+| UI (`components/layouts/pages`) | 15 komponen, 56 halaman admin + portal             | tidak ada (backend/kontrak-only)                                                             |
+| Test (`*.test.ts`)              | ~317 (+ Playwright e2e)                            | **~50** (tanpa e2e/UI)                                                                       |
+| `.env.example`                  | ~540 baris                                         | ~31 baris                                                                                    |
+| Docs paket teknis               | `docs/awcms-micro/` (49 file)                      | `docs/awcms/` (~49 file, sebagian warisan mini sebagai "target")                             |
+| ADR                             | 22 (`0000`–`0021`)                                 | 25 (`0000`–`0024`; +0022 ERP-di-repo-terpisah, +0023 docs bilingual, +0024 penomoran legacy) |
 
 > Catatan: versi awcms **5.1.1 bukan tanda lebih matang** dari mini —
 > penomorannya melanjutkan garis major legacy (ADR-0024 di awcms), bukan hasil
@@ -66,19 +66,24 @@ merintis fitur dari nol.
   idempotency, dan test unit/domain. Migrasi `001`–`016` diverifikasi apply
   bersih di PostgreSQL 18.4.
 
-**13 modul awcms-micro yang belum di-port ke awcms:**
+**Modul awcms-micro (WEBSITE scope, 17 modul) yang belum di-port ke awcms:**
 
-| Kategori                 | Modul                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Governance & alur bisnis | `organization-structure`, `data-lifecycle`                                                           |
-| Data & integrasi         | `reference-data`, `data-exchange`, `integration-hub`, `document-infrastructure`, `idn-admin-regions` |
-| Komunikasi/notifikasi    | `form-drafts`                                                                                        |
-| Konten/portal (CMS)      | `blog-content`, `news-portal`, `social-publishing`, `visitor-analytics`                              |
-| Tenant online            | `tenant-domain`                                                                                      |
+| Kategori            | Modul                                                                   |
+| ------------------- | ----------------------------------------------------------------------- |
+| Lifecycle & draft   | `data-lifecycle`, `form-drafts`                                         |
+| Media               | `media-library`                                                         |
+| Konten/portal (CMS) | `blog-content`, `news-portal`, `social-publishing`, `visitor-analytics` |
+| Tenant online       | `tenant-domain`                                                         |
 
-Sebagian modul CMS (blog/news/social/visitor-analytics) mungkin **tidak** di-port
-apa adanya ke awcms karena skopnya CMS, bukan fondasi ERP — di awcms ia menjadi
-pola/referensi, bukan fitur wajib.
+Sebagian modul CMS (blog/news/social/visitor-analytics/media-library) mungkin
+**tidak** di-port apa adanya ke awcms karena skopnya CMS/website, bukan fondasi
+ERP — di awcms ia menjadi pola/referensi, bukan fitur wajib.
+
+> **Tujuh modul scope ERP** (`workflow`, `organization_structure`,
+> `document_infrastructure`, `data_exchange`, `integration_hub`,
+> `reference_data`, `idn_admin_regions`) **bukan modul awcms-micro** — mereka
+> tidak diport ke WEBSITE scope (ADR-0025 §3). awcms memportnya langsung dari
+> **awcms-mini** (standar penuh upstream), bukan dari awcms-micro.
 
 ## 4. Perbedaan toolchain yang menonjol
 
@@ -97,8 +102,7 @@ masih khusus mini.
   `repo:inventory:generate/check`, `modules:compose:check`,
   `modules:composition:inventory:check`, `extension:check`,
   `db:work-class:generate/check`.
-- **Dispatcher outbox:** `social-publishing:dispatch`,
-  `integration-hub:outbound:dispatch`, `data-exchange:worker`.
+- **Dispatcher outbox:** `social-publishing:dispatch`.
 - **Lifecycle & analytics:** `data-lifecycle:archive-purge`,
   `analytics:rollup/purge`, `logs:audit:purge`, `form-drafts:purge`.
 - **i18n & kualitas:** `i18n:extract`, `i18n:pot:check`, `i18n:parity:check`,

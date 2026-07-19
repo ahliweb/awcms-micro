@@ -619,10 +619,9 @@ logic-nya, itu sudah 100% reuse `evaluateModuleEnable`/
 `evaluateModuleDisable`/`enableTenantModule`/`disableTenantModule` yang
 ada sejak Issue #515.
 
-**Koreksi kunci key modul** yang wajib diikuti issue lanjutan manapun yang
-menyebut modul workflow: key registry sungguhan adalah `workflow`
-(`src/modules/workflow-approval/module.ts`), **bukan**
-`workflow_approval` — issue #565 sendiri salah menyebutnya di contoh
+**Koreksi kunci key modul**: key registry ≠ nama direktori (mis. direktori
+`media-library` → key `media_library`; direktori `tenant-domain` → key
+`tenant_domain`) — issue #565 sendiri salah mengasumsikannya di contoh
 JSON-nya. Grep `key: "` di `src/modules/*/module.ts` sebelum menulis key
 modul apa pun secara manual, jangan asumsikan nama direktori = key.
 

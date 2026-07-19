@@ -213,8 +213,8 @@ diproses dispatcher pada run berikutnya.
   mengirim ke user tertentu yang sudah diketahuinya, tapi tidak bisa
   membanjiri satu role/tenant penuh.
 - **Idempotency wajib** — `Idempotency-Key` selalu diminta (bukan hanya
-  saat bulk), reuse `_shared/idempotency.ts` (pola sama
-  `workflows/tasks/{id}/decisions.ts`).
+  saat bulk), reuse `_shared/idempotency.ts` (pola sama seperti endpoint
+  mutation high-risk lain, mis. `sync/push`).
 - **Preview aman** — resolve target yang SAMA seperti kirim nyata tapi
   hanya mengembalikan **jumlah** (`matchedCount`) + rendering sampel data
   sintetis (`buildSyntheticSampleVariables`, Issue #498) — tidak pernah

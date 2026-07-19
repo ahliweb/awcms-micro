@@ -15572,7 +15572,7 @@ components:
           nullable: true
         scopeType:
           type: string
-          description: '"office" always resolves via identity-access''s default hierarchy port adapter. "legal_entity"/"organization_unit" resolve against the real organization-structure tables when the organization_structure module is enabled for the tenant; otherwise (or for any other scope type) resolution falls back to `SCOPE_UNRESOLVED`. Ancestor/descendant scope relationships are not consulted by segregation-of-duties conflict matching, which compares scope identity only.'
+          description: '"office" always resolves via identity-access''s default (flat) hierarchy port adapter. In AWCMS-Micro (WEBSITE scope, ADR-0025) there is no hierarchy provider — the upstream `organization_structure` module that would resolve "legal_entity"/"organization_unit" against a real hierarchy is an ERP-scope module deliberately not ported — so those scope types (and any other) fall back to `SCOPE_UNRESOLVED`; a derived ERP app that registers a hierarchy module supplies its adapter at the composition root. Ancestor/descendant scope relationships are not consulted by segregation-of-duties conflict matching here (every scope resolves flat), which compares scope identity only.'
         scopeId:
           type: string
           format: uuid

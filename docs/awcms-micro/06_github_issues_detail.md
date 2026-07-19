@@ -1,6 +1,6 @@
 # Bagian 6 — GitHub Issues Detail (Base Generik)
 
-AWCMS-Micro adalah **contoh repo pengembangan umum** — base modular monolith reusable, bukan aplikasi domain. Backlog di dokumen ini **hanya berisi modul generik** yang menjadi bagian AWCMS-Micro sendiri (Foundation, Tenant/Identity/Profile, Sync Storage, UI Experience, Management Reporting, Observability/Pooling/Security Readiness, Workflow Approval, Setup/Deployment). Modul domain (katalog produk, POS, gudang, pajak/Coretax, CRM receipt, AI business analyst, dan sejenisnya) **bukan bagian repo ini** — itu dibangun di aplikasi turunan contoh (mis. AWPOS) di atas base AWCMS-Micro. Lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
+AWCMS-Micro adalah **contoh repo pengembangan umum** — base modular monolith reusable, bukan aplikasi domain. Backlog di dokumen ini **hanya berisi modul generik** yang menjadi bagian AWCMS-Micro sendiri (Foundation, Tenant/Identity/Profile, Sync Storage, UI Experience, Management Reporting, Observability/Pooling/Security Readiness, Setup/Deployment). Modul domain (katalog produk, POS, gudang, pajak/Coretax, CRM receipt, AI business analyst, dan sejenisnya) **bukan bagian repo ini** — itu dibangun di aplikasi turunan contoh (mis. AWPOS) di atas base AWCMS-Micro. Lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
 
 Nomor epic mengikuti riwayat backlog asli (epic domain sudah dihapus, sehingga ada celah nomor — ini disengaja, bukan kesalahan, agar traceability terhadap issue GitHub yang sudah dibuat tetap valid).
 
@@ -47,13 +47,13 @@ flowchart LR
 
 ## Milestone rekomendasi
 
-| Milestone                              | Fokus                                                               |
-| -------------------------------------- | ------------------------------------------------------------------- |
-| M0 — Repository Foundation             | Skeleton, migration runner, OpenAPI/AsyncAPI, setup wizard          |
-| M2 — Identity, Tenant, Profile         | Tenant, profile, auth, access                                       |
-| M5 — Sync Storage                      | Offline sync outbox/inbox, conflict, R2 object queue                |
-| M7 — UI/UX & Reporting                 | Admin shell, management reporting views                             |
-| M8 — Security, Performance, Production | Logging, pooling, workflow approval, security readiness, deployment |
+| Milestone                              | Fokus                                                      |
+| -------------------------------------- | ---------------------------------------------------------- |
+| M0 — Repository Foundation             | Skeleton, migration runner, OpenAPI/AsyncAPI, setup wizard |
+| M2 — Identity, Tenant, Profile         | Tenant, profile, auth, access                              |
+| M5 — Sync Storage                      | Offline sync outbox/inbox, conflict, R2 object queue       |
+| M7 — UI/UX & Reporting                 | Admin shell, management reporting views                    |
+| M8 — Security, Performance, Production | Logging, pooling, security readiness, deployment           |
 
 ## Dokumen acuan per epic
 
@@ -67,7 +67,6 @@ Selain doc 01–05, setiap epic wajib membaca dokumen desain teknis terkait. Sem
 | 8 UI Experience             | **14 (design system/layar)**, **15 (frontend/offline)**                  |
 | 9 Management Reporting      | 03, 05, 14 (dashboard UI)                                                |
 | 10 Logging/Pooling/Security | **16 (pool/backpressure)**, 07, 03, **20 (threat model)**; ADR 0003–0005 |
-| 11 Workflow Approval        | 03, 17 (self-approval policy); ADR 0004                                  |
 | 12 Setup & Deployment       | **17 (seed wizard)**, **18 (env/topologi)**, 07                          |
 
 ---
@@ -192,11 +191,9 @@ Selain doc 01–05, setiap epic wajib membaca dokumen desain teknis terkait. Sem
 
 ---
 
-# EPIC 11 — Workflow Approval
+# EPIC 11 — Workflow Approval (tidak diport)
 
-## Issue 11.1 — Add Workflow Approval Engine
-
-**Scope:** Definitions, steps, instances, tasks, decisions, decision API, self-approval guard.
+> Modul `workflow` (workflow approval engine) **tidak diport ke AWCMS-Micro** — website scope (ADR-0025 §3). Nomor epic dipertahankan agar traceability terhadap backlog GitHub asli tetap valid; tidak ada issue aktif di epic ini. Referensi upstream: `docs/adr/0016`–`0021` (historis).
 
 ---
 

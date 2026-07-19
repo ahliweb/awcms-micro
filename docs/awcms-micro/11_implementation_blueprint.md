@@ -28,7 +28,7 @@ flowchart LR
   S8 --> S9[S9 Warehouse]
   S9 --> S10[S10 Tax/Coretax]
   S10 --> S11[S11 UI/Reporting/AI]
-  S11 --> S12[S12 Workflow/Security/Deploy]
+  S11 --> S12[S12 Security/Deploy]
 ```
 
 Setiap sprint menjaga repository tetap **buildable**; skeleton diberi TODO jelas dan tidak diklaim production-ready.
@@ -505,11 +505,10 @@ src/components/customer
 - Report API.
 - AI read-only/no SQL/no PII.
 
-## Sprint 12 — Workflow, Security, Deployment, Handover
+## Sprint 12 — Security, Deployment, Handover
 
 ### Modules
 
-- `workflow-approval`
 - `production-security-readiness`
 
 ### Deploy files
@@ -524,8 +523,6 @@ deploy/backup/restore-postgres.sh
 
 ### Validation
 
-- Workflow approve/reject.
-- Self approval denied.
 - Security readiness pass/fail.
 - Go-live blocked on critical fail.
 - Backup/restore scripts.

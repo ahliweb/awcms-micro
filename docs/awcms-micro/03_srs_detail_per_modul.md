@@ -342,7 +342,7 @@ Audit wajib untuk:
 - UI hiding bukan kontrol utama.
 - Backend tetap validasi permission.
 
-## 13. Observability, Pooling, Workflow, Security
+## 13. Observability, Pooling, Security
 
 ### Functional requirement
 
@@ -350,7 +350,6 @@ Audit wajib untuk:
 - Audit log.
 - Pool health.
 - Backpressure.
-- Workflow approval.
 - Security readiness.
 - Go-live gates.
 

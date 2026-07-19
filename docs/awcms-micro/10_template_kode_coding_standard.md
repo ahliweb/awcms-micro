@@ -125,7 +125,6 @@ export const warehouseManagementModule: ModuleDescriptor = {
     "tenant_admin",
     "identity_access",
     "catalog_inventory",
-    "workflow_approval",
     "observability_logging"
   ],
   api: {
@@ -497,7 +496,6 @@ Endpoint wajib idempotency:
 - Coretax batch.
 - Receipt send.
 - Sync push.
-- Workflow decision.
 
 ## Transaction wrapper rules
 

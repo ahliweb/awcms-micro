@@ -5,6 +5,16 @@
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** Issue #739 (epic #738 `platform-evolution`), Issue #680/#681/#696 (epic #679 `platform-hardening`), ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0011, ADR-0012, `docs/awcms-micro/21_module_admission_governance.md`, `docs/awcms-micro/derived-application-guide.md`, `docs/awcms-micro/19_glossary_terminology.md`, `src/modules/module-management/domain/module-dependency-graph.ts`
 
+> **Catatan currency (ADR-0025).** Daftar & hitungan modul contoh di dokumen
+> ini (mis. "16 modul", dan modul `workflow`/`integration_hub`/
+> `organization_structure`/`reference_data`/`data_exchange`/
+> `document_infrastructure`/`idn_admin_regions`) adalah snapshot **sebelum
+> ADR-0025** mempersempit repo ke WEBSITE scope. Ketujuh modul ERP itu
+> **tidak diport**; registry kini **17 modul** (rujuk
+> `docs/awcms-micro/21_module_admission_governance.md` §8 dan
+> `docs/awcms-micro/repo-inventory.md`). Model lapisan ekstensi & kriteria
+> ekstraksi ADR ini tetap berlaku — hanya contoh modulnya yang historis.
+
 ## Konteks
 
 AWCMS-Micro sudah punya modular monolith tepercaya (ADR-0001), registry statis (ADR-0012), validasi seluruh registry sebagai DAG (`validateModuleDependencyGraph`, Issue #680), pemisahan capability port/adapter untuk kolaborasi lintas-modul (ADR-0011, Issue #681), dan lima kategori admission modul (Core/System/Official Optional Module/Derived Application/External Integration, `docs/awcms-micro/21_module_admission_governance.md`, Issue #696). Semua mekanisme itu menjawab satu pertanyaan: **modul baru apa boleh masuk registry base ini, dan kategori apa yang berlaku** — sepenuhnya di dalam satu repo.
@@ -15,7 +25,7 @@ Issue ini **docs-only, tanpa mengubah perilaku runtime** — tujuannya murni mem
 
 - `src/modules/_shared/module-contract.ts` — `ModuleType` union hari ini hanya `"base" | "system" | "domain" | "integration" | "derived"`, **tidak diubah** oleh ADR ini.
 - `src/modules/module-management/domain/module-dependency-graph.ts` — validator DAG registry-wide (self-dependency, duplicate, missing dependency, cycle via algoritma Kahn) yang sudah berjalan sebagai bagian `bun run check` (`modules:dag:check`).
-- `docs/awcms-micro/21_module_admission_governance.md` — lima kategori admission, pohon keputusan §3, dan kebijakan trusted static registry (§7); §8-nya memetakan 14 modul ke kategori sesuai kondisi saat Issue #696 ditulis — registry hari ini sudah tumbuh ke **16 modul terdaftar** (dikonfirmasi lewat `bun run modules:dag:check`), termasuk dua modul yang belum direkonsiliasi ke tabel §8 (`idn_admin_regions`, `social_publishing`) — lihat §1 di bawah.
+- `docs/awcms-micro/21_module_admission_governance.md` — lima kategori admission, pohon keputusan §3, dan kebijakan trusted static registry (§7); §8-nya memetakan modul ke kategori sesuai kondisi saat Issue #696 ditulis — registry hari ini adalah **17 modul terdaftar** (WEBSITE scope, ADR-0025; dikonfirmasi lewat `bun run modules:dag:check`). Catatan: `idn_admin_regions` tidak diport (ADR-0025), lihat catatan currency di atas.
 - ADR-0011 — pemisahan capability port/adapter dan test struktural `tests/unit/module-boundary.test.ts` yang mencegah import lintas-modul langsung.
 - `docs/awcms-micro/derived-application-guide.md` — lima contoh aplikasi turunan ilustratif yang sudah ada (AWPOS, Satu Sehat Kobar, Sistem Manajemen Mutu Faskes, Smart School Portal, Sistem Pengaduan Publik) dan checklist keamanan yang sudah wajib untuk setiap modul domain turunan.
 

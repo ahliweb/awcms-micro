@@ -1,5 +1,15 @@
 # Audit Standar Pengembangan Software AWCMS-Micro — 2026-07-04
 
+> **Snapshot historis (point-in-time, 2026-07-04/05).** Dokumen ini adalah
+> jurnal audit bertanggal, bukan deskripsi scope repo terkini. Beberapa
+> catatannya (mis. "Issue 11.1 Workflow Approval Engine diimplementasikan",
+> migration `012_..._workflow_approval_schema.sql`, `moduleCount:7`) **sudah
+> disupersede oleh ADR-0025**: AWCMS-Micro adalah WEBSITE scope — modul
+> `workflow` dan enam modul ERP lain **tidak diport**, migration `012` adalah
+> idempotency store, dan registry berisi **17 modul**. Baca isi di bawah
+> sebagai riwayat, bukan sumber kebenaran scope saat ini (lihat
+> `docs/awcms-micro/13_final_master_index_traceability.md` dan ADR-0025).
+
 ## Ringkasan verdict
 
 Status repository terbaru: **PASS untuk baseline perencanaan dan foundation skeleton Issue 0.1**. Runtime aplikasi penuh belum selesai karena tenant/auth/RBAC/sync/deployment masih berada di backlog, tetapi scaffold Astro/Bun, health endpoint, module contract, response helper, soft-delete convention, dan folder standar sudah tersedia.

@@ -67,7 +67,7 @@ yang sudah `completed` di base ini):
 | #21-#23 Issue 6.1-6.3                    | Sync outbox/inbox, conflict tracking, R2 object sync queue — `src/modules/sync-storage`                                       |
 | #28 Issue 8.1, #31 Issue 9.1             | Admin layout shell, management reporting views — `src/modules/reporting` + admin shell                                        |
 | #33-#35 Issue 10.1-10.3                  | Structured logging/audit, connection pooling, security readiness — `src/modules/logging` + `scripts/`                         |
-| #36 Issue 11.1                           | Workflow approval engine — `src/modules/workflow-approval`                                                                    |
+| #36 Issue 11.1                           | Workflow approval engine — **tidak diport ke base** (website scope, ADR-0025 §3); modul domain turunan menambahkannya sendiri |
 | #37-#38 Issue 12.1-12.2                  | Setup wizard, offline/LAN deployment profile — `tenant-admin` + `deployment-profiles.md`                                      |
 
 **Sisa 20 issue AWPOS yang benar-benar domain-specific** (belum ada
@@ -126,7 +126,7 @@ hanya meringkas untuk konteks keputusan pilot:
 | Identity/tenant/RBAC/ABAC/RLS (`identity-access`, `profile-identity`, `tenant-admin`) | `catalog` — produk, kategori, harga                                                  |
 | Sync outbox/inbox/conflict/object queue (`sync-storage`)                              | `inventory` — stok, lot/batch/serial, warehouse, transfer, cycle count               |
 | Audit/logging/pooling/security readiness (`logging`, `scripts/`)                      | `pos-checkout` — cart, checkout session, idempotent transaction posting              |
-| Workflow approval engine (`workflow-approval`)                                        | `crm-receipt` — PDF receipt, WhatsApp (StarSender), email (Mailketing) delivery      |
+| Media library (`media-library`) — registry media tenant + R2                          | `crm-receipt` — PDF receipt, WhatsApp (StarSender), email (Mailketing) delivery      |
 | Reporting base + admin shell (`reporting`)                                            | `tax-coretax` — tax profile, VAT invoice staging, Coretax XML batch export           |
 | Setup wizard, deployment profiles                                                     | `reporting-ai` — view tambahan spesifik retail, AI business analyst safe views/tools |
 | —                                                                                     | UI: Cashier POS fullscreen, Customer receipt portal (di atas admin shell base)       |

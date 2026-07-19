@@ -59,7 +59,6 @@ flowchart TB
 flowchart LR
   TA[Tenant Admin] --> IA[Identity & Access]
   CP[Central Profile] --> IA
-  IA --> WF[Workflow Approval]
   IA --> UI[UI Experience]
   IA --> SYNC[Sync Storage]
   RPT[Management Reporting] --> UI
@@ -98,7 +97,6 @@ flowchart LR
 | UI Experience         | Admin shell, navigation registry, theme, i18n      |
 | Observability Logging | Log, audit, security event, troubleshooting        |
 | Database Connectivity | Pooling, queue, PgBouncer profile, health          |
-| Workflow Approval     | Approval high-risk action                          |
 | Management Reporting  | Dashboard dan laporan generik                      |
 | Production Security   | Readiness, finding, go-live gates                  |
 
@@ -112,7 +110,7 @@ flowchart LR
   F1 --> F2[Fase 2<br/>Reliability and Ops]
   F2 --> F3[Fase 3<br/>Sync Storage]
   F3 --> F4[Fase 4<br/>UI/UX and Reporting]
-  F4 --> F5[Fase 5<br/>Workflow and Deployment]
+  F4 --> F5[Fase 5<br/>Deployment and Go-Live]
   F1 -.->|base-ready boundary| MVP([Base Ready])
   F5 -.->|go-live gates| PROD([Production Ready])
 ```
@@ -155,9 +153,8 @@ flowchart LR
 - Navigation registry.
 - Management reporting views generik.
 
-### Fase 5 — Workflow, Security, Deployment
+### Fase 5 — Security, Deployment
 
-- Workflow approval.
 - Security readiness.
 - Go-live gates.
 - Deployment profile.

@@ -13,9 +13,9 @@ ini dengan pilot plan konkret.
 Satu tabel generik, domain-agnostic: `awcms_micro_form_drafts`
 (`sql/019_awcms_micro_form_drafts_schema.sql`) — `tenant_id`, `module_key`,
 `wizard_key`, `resource_type`, `resource_id` (nullable, `text` — bukan
-`uuid`, disamakan dengan `awcms_micro_workflow_instances`/
-`awcms_micro_audit_events.resource_id` supaya draft bisa menunjuk resource
-yang belum ada atau identifier non-UUID), `current_step`, `payload` (jsonb),
+`uuid`, disamakan dengan `awcms_micro_audit_events.resource_id` supaya draft
+bisa menunjuk resource yang belum ada atau identifier non-UUID),
+`current_step`, `payload` (jsonb),
 `status` (`draft → submitted | abandoned | expired`), `expires_at`, kolom
 soft-delete standar (`deleted_at`/`deleted_by`/`delete_reason` — tanpa
 `restored_at`/`restored_by`, draft adalah scratch state, bukan resource
@@ -57,10 +57,9 @@ modul X").
   Idempotent-safe: memanggil ulang pada draft yang sudah dihapus
   mengembalikan `404`, bukan menulis ulang `deleted_at`.
 - **`POST /api/v1/form-drafts/{id}/submit`** — transisi `draft →
-submitted`. Memakai ulang action ABAC `update` (bukan action baru — sama
-  seperti `workflow.approval.approve` dipakai untuk approve **dan**
-  reject). **High-risk**: wajib `Idempotency-Key`, pola replay/conflict
-  identik `workflows/tasks/{id}/decisions.ts`.
+submitted`. Memakai ulang action ABAC `update` (bukan action baru).
+  **High-risk**: wajib `Idempotency-Key`, pola replay/conflict identik
+  endpoint mutation high-risk lain (mis. `sync/push`).
 
 ## Kenapa create/update/delete tidak butuh Idempotency-Key, tapi submit butuh
 
