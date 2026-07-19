@@ -105,6 +105,38 @@ dari "registry saya valid hari ini" yang sudah dijawab
 §Manifest kompatibilitas aplikasi turunan,
 `docs/adr/0015-derived-application-compatibility-manifest.md`.
 
+## Contoh admission-only + contribution contract (ADR-0028)
+
+Tidak setiap ADR admission mendaftarkan descriptor di PR yang sama. Bila sebuah
+modul base baru diadmisi **sebelum** ada baris kode runtime-nya (keystone
+sebelum issue-issue runtime turunannya), pola yang benar adalah **admission-only**:
+
+- Terbitkan ADR admission (Accepted) yang menetapkan key/kategori/arah
+  dependency/kontrak — TAPI **jangan** daftarkan descriptor di
+  `src/modules/index.ts` dan **jangan** naikkan `EXPECTED_BASE_MODULE_COUNT`
+  (`scripts/scope-consistency-check.ts`) di PR admission itu. Registry tetap di
+  angka lamanya; descriptor + bump hitungan + regenerasi inventori
+  (`repo:inventory:generate`, `modules:composition:inventory:generate`) mendarat
+  **bersama** issue runtime pertama. Ini menjaga anchor drift-guard bermakna:
+  hitungan modul naik saat KODE modul masuk, bukan saat ADR-nya Accepted.
+- Yang boleh mendarat di PR admission: **file type port netral** di
+  `src/modules/_shared/ports/*.ts` (belum di-wire, belum di
+  `capability-contract-versions.ts` — preseden `legal-hold-guard-port.ts`) plus
+  fixture kontraknya. `CAPABILITY_CONTRACT_VERSIONS[<cap>]` dipasangkan dengan
+  `provides` sebuah modul, jadi menyusul saat descriptor-nya mendarat.
+
+**Contribution contract (arah panah).** Bila modul baru meng-agregasi kontribusi
+banyak modul lain (mis. SEO meng-agregasi fakta dari konten/berita/media/domain),
+balik arahnya: modul kontributor **menyediakan** kapabilitas (`provides`), modul
+agregator **mengonsumsi** (`consumes`, `optional: true`) — bukan sebaliknya.
+Agregator jangan mengimpor internal kontributor dan jangan menulis ke tabelnya;
+kolaborasi lewat port + event (ADR-0011/0013 §6). Ini menjaga graf DAG-safe
+(agregator tidak menyeret lifecycle dependency ke setiap kontributor) dan
+menjaga "tidak ada modul base yang bergantung pada modul turunan". Contoh nyata:
+`docs/adr/0028-seo-distribution-module-admission.md` (`seo_distribution`),
+port `src/modules/_shared/ports/seo-facts-port.ts`, fixture
+`tests/unit/seo-facts-contract.test.ts`.
+
 ## Verifikasi
 
 - `bun run build` pass.
