@@ -121,10 +121,12 @@ its own module):
 
 ## Deferred work
 
-The following #273 criteria require the **external derived-site pilot** or **real
+The following #273 criteria require a **deployed template instance** or **real
 infrastructure** and cannot be honestly proven inside this base repository in an
 automated pass. Each is tracked as a separate atomic issue so #273's remaining
-surface is explicit rather than silently claimed:
+surface is explicit rather than silently claimed. **Operator procedure to execute
+and close each of these — with exact commands and evidence to capture — is in the
+[website-platform completion runbook](website-platform-completion-runbook.md).**
 
 - **Website / online-store pilot execution & base-upgrade rehearsal** — stand up a
   generic bilingual **website (up to an online store)** directly from this template
