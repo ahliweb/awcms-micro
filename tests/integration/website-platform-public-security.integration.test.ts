@@ -273,7 +273,11 @@ suite("website-platform public-surface security (Issue #273)", () => {
   // only verifiable via a headless browser), so it is not asserted here.
   // -------------------------------------------------------------------------
 
-  test("the baseline security headers apply cleanly onto a real public route response", async () => {
+  // NOTE: this is a COEXISTENCE / shape check, not a middleware-wiring proof —
+  // it applies buildSecurityHeaders() onto the response itself, so it cannot
+  // catch a regression where the middleware stops emitting them (middleware is
+  // not in-process invokable). Real edge emission is browser/E2E-deferred (#296).
+  test("the baseline security headers coexist cleanly on a real public route response (no content-type clobber; CSP delegated to Astro)", async () => {
     const response = await invokeRaw(newsIndex, {
       method: "GET",
       path: "/news"
@@ -443,6 +447,12 @@ suite("website-platform public-surface security (Issue #273)", () => {
   test("newsletter subscribe returns a byte-identical generic body for an existing vs a never-seen address", async () => {
     await bootstrap();
 
+    // Premise: newsletter is ENABLED for the freshly-bootstrapped tenant
+    // (fetchTenantModuleEntry returns `tenantEnabled: row?.enabled ?? true`, so a
+    // tenant with no module row defaults ON). If a future change made newsletter
+    // default-OFF, both arms would collapse to the same constant generic body and
+    // this test would pass while proving nothing — the byte-identity below is
+    // only meaningful because the first call genuinely registers the address.
     // First call registers the address (now genuinely exists / pending).
     const first = await invokeRaw(newsletterSubscribe, {
       method: "POST",

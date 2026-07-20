@@ -50,6 +50,7 @@ import {
 } from "./harness";
 
 import { withTenant } from "../../src/lib/database/tenant-context";
+import { resetRateLimitStoreForTests } from "../../src/lib/security/rate-limit";
 
 // --- site_search ----------------------------------------------------------
 import { getRegisteredSearchSources } from "../../src/lib/search/search-sources";
@@ -287,6 +288,13 @@ suite("website-platform cross-tenant + locale isolation (Issue #273)", () => {
 
   beforeEach(async () => {
     await resetDatabase();
+    // Test 5 hits the real POST /newsletter/subscribe, which rate-limits on
+    // `newsletter:subscribe:${clientIp}` — and the harness `resolveClientIp`
+    // returns the fixed "unknown" placeholder, so that bucket is SHARED across
+    // every in-process subscribe call in the whole `bun test` run (1-hour fixed
+    // window). Reset it here (mirrors the public-security suite) so the asserted
+    // 200 can't flake to 429 behind an earlier suite that drove the route.
+    resetRateLimitStoreForTests();
     process.env = { ...previousEnv };
     // Host-based public tenant resolution (seo redirect/sitemap/news) only runs
     // in host_default mode; the fixed-tenant service surfaces don't need it.
