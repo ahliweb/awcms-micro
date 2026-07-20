@@ -96,7 +96,7 @@
 | 061 | `061_awcms_micro_business_scope_assignments_schema.sql`            |
 | 062 | `062_awcms_micro_business_scope_permissions.sql`                   |
 | 069 | `069_awcms_micro_reporting_projections_schema.sql`                 |
-| 070 | `070_awcms_micro_reporting_projections_permissions.sql`           |
+| 070 | `070_awcms_micro_reporting_projections_permissions.sql`            |
 | 077 | `077_awcms_micro_media_library_permission_ownership.sql`           |
 | 078 | `078_awcms_micro_media_library_tenant_state_schema.sql`            |
 | 079 | `079_awcms_micro_media_library_enforcement_permissions.sql`        |
@@ -142,7 +142,7 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Routes / Operations (summary)
 
-216 OpenAPI paths, 288 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->OpenAPI parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+216 OpenAPI paths, 288 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 
