@@ -37,9 +37,9 @@ jobs:
             src/lib/redis/config.ts \
             tests/unit/redis-foundation.test.ts
 
-      - name: Package formatted files
+      - name: Package changed formatted files
         run: |
-          tar -czf redis-readiness-formatted.tar.gz \
+          git diff --name-only -- \
             .changeset/redis-readiness-284.md \
             docker-compose.redis.yml \
             docs/adr/0030-optional-redis-readiness-foundation.md \
@@ -50,12 +50,17 @@ jobs:
             src/lib/redis/cache.ts \
             src/lib/redis/client.ts \
             src/lib/redis/config.ts \
-            tests/unit/redis-foundation.test.ts
+            tests/unit/redis-foundation.test.ts \
+            > redis-readiness-formatted-files.txt
+          tar -czf redis-readiness-formatted.tar.gz \
+            --files-from redis-readiness-formatted-files.txt
 
       - name: Upload formatted files
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: redis-readiness-formatted
-          path: redis-readiness-formatted.tar.gz
+          path: |
+            redis-readiness-formatted.tar.gz
+            redis-readiness-formatted-files.txt
           if-no-files-found: error
           retention-days: 1
