@@ -76,6 +76,31 @@ export const DOMAIN_EVENT_TYPE_REGISTRY: readonly RegisteredDomainEventType[] =
       eventVersion: "1.0",
       description:
         "Published when a profile merge request is executed: the loser profile is soft-deleted (merged_into_profile_id set) and its awcms_micro_profile_entity_links rows are repointed to the survivor. Lets domain modules react to the merge mapping without importing profile-identity tables directly (see _shared/ports/party-directory-port.ts for the pull-based equivalent)."
+    },
+    // Issue #271 (comments, ADR-0032) — real (non-reference) producer. Literal
+    // strings match `comments/domain/comment-events.ts`'s
+    // `COMMENT_SUBMITTED_EVENT_TYPE`/`COMMENT_APPROVED_EVENT_TYPE`/
+    // `REPLY_CREATED_EVENT_TYPE` + `COMMENTS_EVENT_VERSION` constants (kept in sync
+    // by convention, not cross-module import). Payloads are ADDRESS-FREE (opaque
+    // comment/thread ids + resource url + status only); the email dispatcher
+    // resolves the encrypted recipient from minimized storage at send time.
+    {
+      eventType: "awcms-micro.comments.comment.submitted",
+      eventVersion: "1.0",
+      description:
+        "Published when a comment (or reply) is submitted to a thread, whether it starts pending moderation or auto-approves. Lets a reply-notification/email consumer react without reading comments' tables directly. Carries no recipient address."
+    },
+    {
+      eventType: "awcms-micro.comments.comment.approved",
+      eventVersion: "1.0",
+      description:
+        "Published when a comment becomes publicly visible (auto-approved on submit, or approved by a moderator). Drives reply-notification dispatch and read-model updates. Carries no recipient address."
+    },
+    {
+      eventType: "awcms-micro.comments.reply.created",
+      eventVersion: "1.0",
+      description:
+        "Published when a bounded-depth reply to an existing comment is created. Lets a consumer notify subscribers of the parent comment/thread. Carries no recipient address."
     }
   ];
 

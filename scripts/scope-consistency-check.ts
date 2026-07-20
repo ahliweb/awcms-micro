@@ -90,8 +90,13 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * code — the tenant-scoped, cross-content PostgreSQL full-text search module.
  * Admission + runtime landed together (ADR-0031 chose not to defer the
  * descriptor, unlike ADR-0028), so the anchor rose in the same PR as the code.
+ *
+ * 21 since Issue #271 (ADR-0032) registered `comments` with its first runtime
+ * code — the tenant-scoped, moderation-first commenting module. Admission +
+ * runtime landed together (same posture as ADR-0031), so the anchor rose in the
+ * same PR as the code.
  */
-export const EXPECTED_BASE_MODULE_COUNT = 20;
+export const EXPECTED_BASE_MODULE_COUNT = 21;
 
 /**
  * Generated inventories that must never name an excluded module. These are

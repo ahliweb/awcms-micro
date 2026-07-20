@@ -496,6 +496,48 @@ export const METRIC_DEFINITIONS = {
       "Bounded by the fixed error-class enum (extract_error, upsert_error, url_error).",
     privacyNote:
       "Only a fixed code-defined error-class enum — never a resource id, tenant id, or error message."
+  },
+  // comments (Issue #271, ADR-0032) — submission/moderation outcomes. NEVER a
+  // comment body, author id/email, tenant id, or resource id in a label.
+  comments_submissions_total: {
+    name: "comments_submissions_total",
+    type: "counter",
+    description:
+      "Count of public comment submissions, by outcome (accepted|rejected) and policy mode.",
+    allowedLabelKeys: ["outcome", "policyMode"],
+    approxCardinality: "~2 outcomes x 4 policy modes = ~8 series bound.",
+    privacyNote:
+      "Only fixed code-defined outcome/policy-mode enums — never the comment body, author, tenant, or resource id."
+  },
+  comments_moderation_total: {
+    name: "comments_moderation_total",
+    type: "counter",
+    description:
+      "Count of moderation actions, by action (approve|reject|spam|archive|restore|delete) and result (applied|skipped).",
+    allowedLabelKeys: ["action", "result"],
+    approxCardinality: "6 actions x 2 results = 12 series bound.",
+    privacyNote:
+      "Only fixed code-defined action/result enums — never a comment id, tenant id, or actor id."
+  },
+  comments_abuse_blocks_total: {
+    name: "comments_abuse_blocks_total",
+    type: "counter",
+    description:
+      "Count of anti-abuse blocks on submission, by reason (honeypot|too_fast|blocked_term|duplicate|rate_limited).",
+    allowedLabelKeys: ["reason"],
+    approxCardinality: "Bounded by the fixed reason enum (~5 values).",
+    privacyNote:
+      "Only a fixed code-defined reason enum — never an ip, fingerprint, tenant id, or comment content."
+  },
+  comments_reports_total: {
+    name: "comments_reports_total",
+    type: "counter",
+    description:
+      "Count of abuse reports filed against comments, by reason (spam|abuse|offensive|other).",
+    allowedLabelKeys: ["reason"],
+    approxCardinality: "Exactly 4 — the fixed report-reason enum.",
+    privacyNote:
+      "Only a fixed code-defined reason enum — never a reporter id, tenant id, or comment id."
   }
 } as const satisfies Record<string, MetricDefinition>;
 

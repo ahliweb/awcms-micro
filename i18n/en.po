@@ -3611,3 +3611,125 @@ msgstr "Next"
 
 msgid "site_search.page.suggestions_label"
 msgstr "Search suggestions"
+
+#. comments (Issue #271, ADR-0032)
+msgid "comments.public.heading"
+msgstr "Comments"
+
+msgid "comments.public.form_heading"
+msgstr "Leave a comment"
+
+msgid "comments.public.name_label"
+msgstr "Name"
+
+msgid "comments.public.email_label"
+msgstr "Email (optional)"
+
+msgid "comments.public.email_hint"
+msgstr "Never shown publicly; used only for reply notifications if you opt in."
+
+msgid "comments.public.body_label"
+msgstr "Comment"
+
+msgid "comments.public.subscribe_label"
+msgstr "Notify me of replies by email"
+
+msgid "comments.public.submit"
+msgstr "Post comment"
+
+msgid "comments.public.submitting"
+msgstr "Submitting…"
+
+msgid "comments.public.submit_error"
+msgstr "Sorry, your comment could not be submitted. Please try again."
+
+msgid "comments.public.load_error"
+msgstr "Comments could not be loaded."
+
+msgid "comments.public.load_more"
+msgstr "Load more comments"
+
+msgid "comments.public.awaiting_moderation"
+msgstr "Thanks! Your comment is awaiting moderation."
+
+msgid "comments.public.empty"
+msgstr "No comments yet. Be the first to comment."
+
+msgid "comments.public.reply"
+msgstr "Reply"
+
+msgid "comments.public.report"
+msgstr "Report"
+
+msgid "comments.public.report_prompt"
+msgstr "Report this comment to the moderators?"
+
+msgid "comments.public.reported"
+msgstr "Thanks — the comment has been reported."
+
+msgid "comments.public.missing_resource"
+msgstr "No resource specified."
+
+msgid "admin.comments.nav_label"
+msgstr "Comments"
+
+msgid "admin.comments.page_title"
+msgstr "Comment moderation"
+
+msgid "admin.comments.page_description"
+msgstr "Review, approve, reject, or remove visitor comments."
+
+msgid "admin.comments.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.comments.access_denied_body"
+msgstr "You do not have permission to moderate comments."
+
+msgid "admin.comments.filter_label"
+msgstr "Status"
+
+msgid "admin.comments.status_pending"
+msgstr "Pending"
+
+msgid "admin.comments.status_approved"
+msgstr "Approved"
+
+msgid "admin.comments.status_rejected"
+msgstr "Rejected"
+
+msgid "admin.comments.status_spam"
+msgstr "Spam"
+
+msgid "admin.comments.status_deleted"
+msgstr "Deleted"
+
+msgid "admin.comments.status_label"
+msgstr "Status"
+
+msgid "admin.comments.empty"
+msgstr "No comments match this filter."
+
+msgid "admin.comments.approve"
+msgstr "Approve"
+
+msgid "admin.comments.reject"
+msgstr "Reject"
+
+msgid "admin.comments.spam"
+msgstr "Spam"
+
+msgid "admin.comments.archive"
+msgstr "Archive"
+
+msgid "admin.comments.restore"
+msgstr "Restore"
+
+msgid "admin.comments.reports"
+msgstr "Reports"
+
+msgid "admin.comments.reason_prompt"
+msgstr "Enter a reason code for this action:"
+
+msgid "admin.comments.action_error"
+msgstr "The moderation action could not be completed."
+

@@ -604,6 +604,44 @@ channels:
       pull-based equivalent). Producer:
       `profile-identity/application/merge-workflow.ts`'s
       `executeMergeRequest`.
+  awcms-micro.comments.comment.submitted:
+    address: awcms-micro.comments.comment.submitted
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a comment (or reply) is submitted to a thread (Issue #271,
+      ADR-0032), whether it starts pending moderation or auto-approves. Payload
+      (ADDRESS-FREE): `commentId`, `threadId`, `parentCommentId`, `resourceType`,
+      `resourceUrl`, `status`. Lets a reply-notification/email consumer react
+      through the outbox without reading `comments`' tables directly; the email
+      dispatcher resolves the encrypted recipient from minimized storage at send
+      time, OUTSIDE any DB transaction. Producer:
+      `comments/application/comment-service.ts`'s `submitComment`.
+  awcms-micro.comments.comment.approved:
+    address: awcms-micro.comments.comment.approved
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a comment becomes publicly visible (Issue #271, ADR-0032) —
+      auto-approved on submit, or approved by a moderator. Payload (ADDRESS-FREE):
+      `commentId`, `threadId`, `parentCommentId`, `resourceType`, `resourceUrl`,
+      `status`. Drives reply-notification dispatch and read-model updates.
+      Producers: `comments/application/comment-service.ts`'s `submitComment`
+      (auto-approve) and `comments/application/comment-moderation.ts`'s
+      `moderateComment` (moderator approve).
+  awcms-micro.comments.reply.created:
+    address: awcms-micro.comments.reply.created
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a bounded-depth reply to an existing comment is created
+      (Issue #271, ADR-0032). Payload (ADDRESS-FREE): `commentId`, `threadId`,
+      `parentCommentId`, `resourceType`, `resourceUrl`, `status`. Lets a consumer
+      notify subscribers of the parent comment/thread. Producer:
+      `comments/application/comment-service.ts`'s `submitComment` (reply path).
   awcms-micro.site-search.index.reconciled:
     address: awcms-micro.site-search.index.reconciled
     messages:
@@ -960,6 +998,24 @@ operations:
       $ref: "#/channels/awcms-micro.profile-identity.profile.merged"
     messages:
       - $ref: "#/channels/awcms-micro.profile-identity.profile.merged/messages/DomainEvent"
+  publishCommentsCommentSubmitted:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.comments.comment.submitted"
+    messages:
+      - $ref: "#/channels/awcms-micro.comments.comment.submitted/messages/DomainEvent"
+  publishCommentsCommentApproved:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.comments.comment.approved"
+    messages:
+      - $ref: "#/channels/awcms-micro.comments.comment.approved/messages/DomainEvent"
+  publishCommentsReplyCreated:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.comments.reply.created"
+    messages:
+      - $ref: "#/channels/awcms-micro.comments.reply.created/messages/DomainEvent"
   publishSiteSearchIndexReconciled:
     action: send
     channel:

@@ -7973,6 +7973,324 @@ PUBLIC, anonymous. Trigram-backed title suggestions, tenant + locale scoped, cap
 | 429    | Too many suggestion requests from this source. | [`ApiError`](#standard-error-envelope)                                                                             |
 | 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                             |
 
+## Comments
+
+Tenant-scoped, MODERATION-FIRST commenting over PUBLISHED, PUBLIC commentable resources for the `comments` module (epic #261 Wave 2, Issue #271, ADR-0032). PUBLIC, host-resolved surfaces — submit/list/reply/edit-within-window/report/delete-request — are anti-abuse-gated (honeypot, submit-timing token, blocked terms, duplicate fingerprint, per-IP rate limits) and policy-gated; a comment is only accepted or shown against a resource that satisfies its owning module's declarative publicationFilter, bodies are stored as raw plain text and returned as pre-escaped safe HTML (no stored XSS), and the public list never exposes moderation metadata. The ABAC-guarded admin API (queue, approve/reject/spam, archive/restore, bulk, settings) is audited with reason codes and `Idempotency-Key`'d on high-risk mutations. Reply notifications flow through the domain-event outbox with address-free payloads. The commenting surface is never an authorization source for the underlying resource; the public comment UI itself is an Astro island, not a JSON endpoint.
+
+### `GET /api/v1/comments` — List approved comments for a published resource
+
+- **operationId**: `commentsList`
+- **Security**: none (public endpoint)
+
+PUBLIC, anonymous. Tenant is resolved from the request host (never a session). Returns ONLY approved, non-deleted comments for a PUBLISHED, PUBLIC resource, keyset-paginated. Bodies are pre-escaped safe HTML. NO moderation metadata is ever returned. A missing/disabled/unpublished target returns a neutral empty list.
+
+**Parameters**
+
+| Name           | In    | Required | Type   | Description                                                               |
+| -------------- | ----- | -------- | ------ | ------------------------------------------------------------------------- |
+| `resourceType` | query | yes      | string | Opaque commentable resource type (e.g. `blog_post`).                      |
+| `resourceId`   | query | yes      | string |                                                                           |
+| `locale`       | query | no       | string |                                                                           |
+| `cursor`       | query | no       | string | Opaque keyset cursor (a `created_at` timestamp) from a previous response. |
+
+**Responses**
+
+| Status | Description                                | Schema                                                                                                 |
+| ------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| 200    | Approved comments (possibly empty).        | [`ApiSuccess`](#standard-success-envelope)&lt;[`CommentListResponse`](#schema-commentlistresponse)&gt; |
+| 429    | Too many requests from this source.        | [`ApiError`](#standard-error-envelope)                                                                 |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                                                                 |
+
+### `POST /api/v1/comments` — Submit a comment on a published resource
+
+- **operationId**: `commentsSubmit`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved. Anti-abuse-gated (honeypot, submit-timing token, blocked terms, duplicate fingerprint, per-IP rate limit) and policy-gated (a `moderated-*` thread starts the comment pending). `Idempotency-Key` REQUIRED. Anonymous is allowed only per the tenant/thread policy. A rejected or held-for-moderation submission returns the SAME neutral `received` acknowledgement so existence/anti-abuse state is never leaked.
+
+**Parameters**
+
+| Name              | In     | Required | Type   | Description                       |
+| ----------------- | ------ | -------- | ------ | --------------------------------- |
+| `Idempotency-Key` | header | yes      | string | Required for high-risk mutations. |
+
+**Request body** (required): [`CommentSubmitRequest`](#schema-commentsubmitrequest)
+
+**Responses**
+
+| Status | Description                                                                                                    | Schema                                                   |
+| ------ | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200    | Acknowledgement (accepted-visible or neutral received; held-for-moderation returns the neutral received form). | [`CommentSubmitResponse`](#schema-commentsubmitresponse) |
+| 400    | Missing Idempotency-Key or malformed body.                                                                     | [`ApiError`](#standard-error-envelope)                   |
+| 409    | Idempotency-Key reused with a different request.                                                               | [`ApiError`](#standard-error-envelope)                   |
+| 429    | Too many comments from this source.                                                                            | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.                                                                     | [`ApiError`](#standard-error-envelope)                   |
+
+### `PATCH /api/v1/comments/{id}` — Edit a comment within its edit window
+
+- **operationId**: `commentsEdit`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved, author-bound (registered → session; anonymous → IP hash). Succeeds only within the tenant's edit window; the body is re-normalized and re-escaped. A caller can never edit another author's comment.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                       | Schema                                                   |
+| ------ | ------------------------------------------------- | -------------------------------------------------------- |
+| 200    | The edited comment's safe HTML.                   | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 404    | Comment not found or not editable by this caller. | [`ApiError`](#standard-error-envelope)                   |
+| 409    | The edit window has expired.                      | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.        | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/comments/{id}/delete-request` — Request removal of your own comment
+
+- **operationId**: `commentsDeleteRequest`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved, author-bound. Within the edit window it soft-deletes immediately (row retained); past the window it files a report for a moderator. Neutral acknowledgement.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                | Schema                                             |
+| ------ | ------------------------------------------ | -------------------------------------------------- |
+| 200    | Neutral acknowledgement.                   | [`CommentAckResponse`](#schema-commentackresponse) |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)             |
+
+### `POST /api/v1/comments/{id}/replies` — Reply to an existing comment (bounded depth)
+
+- **operationId**: `commentsReply`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved. Same anti-abuse + policy gate as a top-level submission; the parent is `{id}` and depth is capped at the tenant's max depth (hard cap 4). Neutral acknowledgement for every outcome.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Request body** (required): [`CommentReplyRequest`](#schema-commentreplyrequest)
+
+**Responses**
+
+| Status | Description                                | Schema                                                   |
+| ------ | ------------------------------------------ | -------------------------------------------------------- |
+| 200    | Acknowledgement (neutral or accepted).     | [`CommentSubmitResponse`](#schema-commentsubmitresponse) |
+| 429    | Too many comments from this source.        | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/comments/{id}/report` — Report/flag a comment for moderator review
+
+- **operationId**: `commentsReport`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved. Rate-bounded per IP and dedup-bounded (one open flag per comment + reporter IP + reason). Always returns a neutral acknowledgement — never reveals whether the comment exists.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Request body** (optional): object
+
+**Responses**
+
+| Status | Description                                | Schema                                             |
+| ------ | ------------------------------------------ | -------------------------------------------------- |
+| 200    | Neutral acknowledgement.                   | [`CommentAckResponse`](#schema-commentackresponse) |
+| 429    | Too many reports from this source.         | [`ApiError`](#standard-error-envelope)             |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)             |
+
+### `POST /api/v1/comments/admin/{id}/archive` — Archive an approved comment
+
+- **operationId**: `commentsArchive`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `comments.moderation.archive`. Removes an approved comment from public view, retaining it for history. `Idempotency-Key` required; audited.
+
+**Parameters**
+
+| Name              | In     | Required | Type          | Description                       |
+| ----------------- | ------ | -------- | ------------- | --------------------------------- |
+| `id`              | path   | yes      | string (uuid) |                                   |
+| `Idempotency-Key` | header | yes      | string        | Required for high-risk mutations. |
+
+**Responses**
+
+| Status | Description                                                        | Schema                                                                                       |
+| ------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| 200    | The comment's new status.                                          | [`ApiSuccess`](#standard-success-envelope)&lt;[`ModerateResult`](#schema-moderateresult)&gt; |
+| 401    | Authentication required or expired.                                | [`ApiError`](#standard-error-envelope)                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                     | [`ApiError`](#standard-error-envelope)                                                       |
+| 409    | Only an approved comment can be archived, or idempotency conflict. | [`ApiError`](#standard-error-envelope)                                                       |
+| 500    | Internal server error without stack trace.                         | [`ApiError`](#standard-error-envelope)                                                       |
+
+### `POST /api/v1/comments/admin/{id}/moderate` — Approve, reject, or mark a comment as spam
+
+- **operationId**: `commentsModerate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded (`comments.moderation.approve` for approve; `comments.moderation.reject` for reject/spam). Reason code required for reject/spam. `Idempotency-Key` required; audited with the reason code.
+
+**Parameters**
+
+| Name              | In     | Required | Type          | Description                       |
+| ----------------- | ------ | -------- | ------------- | --------------------------------- |
+| `id`              | path   | yes      | string (uuid) |                                   |
+| `Idempotency-Key` | header | yes      | string        | Required for high-risk mutations. |
+
+**Request body** (required): [`ModerateRequest`](#schema-moderaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                       |
+| ------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 200    | The comment's new status.                      | [`ApiSuccess`](#standard-success-envelope)&lt;[`ModerateResult`](#schema-moderateresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                       |
+| 404    | Comment not found.                             | [`ApiError`](#standard-error-envelope)                                                       |
+| 409    | Illegal transition or idempotency conflict.    | [`ApiError`](#standard-error-envelope)                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                       |
+
+### `POST /api/v1/comments/admin/{id}/restore` — Restore a comment to pending review
+
+- **operationId**: `commentsRestore`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `comments.moderation.restore` (high-risk). Moves a rejected/spam/archived comment back to pending. `Idempotency-Key` required; audited.
+
+**Parameters**
+
+| Name              | In     | Required | Type          | Description                       |
+| ----------------- | ------ | -------- | ------------- | --------------------------------- |
+| `id`              | path   | yes      | string (uuid) |                                   |
+| `Idempotency-Key` | header | yes      | string        | Required for high-risk mutations. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                       |
+| ------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 200    | The comment's new status.                      | [`ApiSuccess`](#standard-success-envelope)&lt;[`ModerateResult`](#schema-moderateresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                       |
+| 409    | Illegal transition or idempotency conflict.    | [`ApiError`](#standard-error-envelope)                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                       |
+
+### `POST /api/v1/comments/admin/bulk-moderate` — Apply one moderation decision to many comments
+
+- **operationId**: `commentsBulkModerate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded per action (approve → `comments.moderation.approve`; reject/spam → `comments.moderation.reject`). Tenant-bounded, bounded to 100 ids per call, `Idempotency-Key` required, audited per applied item.
+
+**Parameters**
+
+| Name              | In     | Required | Type   | Description                       |
+| ----------------- | ------ | -------- | ------ | --------------------------------- |
+| `Idempotency-Key` | header | yes      | string | Required for high-risk mutations. |
+
+**Request body** (required): [`BulkModerateRequest`](#schema-bulkmoderaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                               |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200    | Which ids were applied vs skipped.             | [`ApiSuccess`](#standard-success-envelope)&lt;[`BulkModerateResult`](#schema-bulkmoderateresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                               |
+| 409    | Idempotency conflict.                          | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `GET /api/v1/comments/admin/queue` — Read the moderation queue
+
+- **operationId**: `commentsModerationQueue`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `comments.moderation.read`. Status-filtered, keyset-paginated. The ONLY surface that exposes moderation metadata (reason codes, masked author email, open-report counts). Tenant-bounded.
+
+**Parameters**
+
+| Name               | In     | Required | Type                                                       | Description                                 |
+| ------------------ | ------ | -------- | ---------------------------------------------------------- | ------------------------------------------- |
+| `status`           | query  | no       | enum(`pending`, `approved`, `rejected`, `spam`, `deleted`) |                                             |
+| `cursor`           | query  | no       | string                                                     |                                             |
+| `limit`            | query  | no       | integer                                                    |                                             |
+| `X-Correlation-ID` | header | no       | string                                                     | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string                                                     | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                         |
+| ------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 200    | The moderation queue page.                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`ModerationQueueResponse`](#schema-moderationqueueresponse)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                         |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                         |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                         |
+
+### `GET /api/v1/comments/admin/settings` — Read this tenant's comment configuration
+
+- **operationId**: `commentsSettingsRead`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `comments.settings.read`. Returns the per-tenant comment config (policy mode, moderation flags, anti-abuse thresholds, blocked terms). No row yet returns the neutral defaults.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                         |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 200    | This tenant's comment configuration.           | [`ApiSuccess`](#standard-success-envelope)&lt;[`CommentSettings`](#schema-commentsettings)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                         |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                         |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                         |
+
+### `PUT /api/v1/comments/admin/settings` — Update this tenant's comment configuration
+
+- **operationId**: `commentsSettingsUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `comments.settings.update` (changes the public comment surface). `Idempotency-Key` required; audited.
+
+**Parameters**
+
+| Name              | In     | Required | Type   | Description                       |
+| ----------------- | ------ | -------- | ------ | --------------------------------- |
+| `Idempotency-Key` | header | yes      | string | Required for high-risk mutations. |
+
+**Request body** (required): [`CommentSettings`](#schema-commentsettings)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                         |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 200    | The saved configuration.                       | [`ApiSuccess`](#standard-success-envelope)&lt;[`CommentSettings`](#schema-commentsettings)&gt; |
+| 400    | Validation error.                              | [`ApiError`](#standard-error-envelope)                                                         |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                         |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                         |
+| 409    | Idempotency conflict.                          | [`ApiError`](#standard-error-envelope)                                                         |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                         |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -9398,6 +9716,47 @@ Whitelisted layout shape (Issue
 }
 ```
 
+### Schema: BulkModerateRequest
+
+| Field        | Type                              | Required | Nullable | Description |
+| ------------ | --------------------------------- | -------- | -------- | ----------- |
+| `decision`   | enum(`approve`, `reject`, `spam`) | yes      | no       |             |
+| `commentIds` | array of string (uuid)            | yes      | no       |             |
+| `reasonCode` | string                            | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "decision": "approve",
+  "commentIds": ["00000000-0000-0000-0000-000000000000"],
+  "reasonCode": "string"
+}
+```
+
+### Schema: BulkModerateResult
+
+| Field          | Type                   | Required | Nullable | Description |
+| -------------- | ---------------------- | -------- | -------- | ----------- |
+| `applied`      | array of string (uuid) | no       | no       |             |
+| `appliedCount` | integer                | no       | no       |             |
+| `skipped`      | array of object        | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "applied": ["00000000-0000-0000-0000-000000000000"],
+  "appliedCount": 0,
+  "skipped": [
+    {
+      "id": "string",
+      "reason": "not_found"
+    }
+  ]
+}
+```
+
 ### Schema: ChannelCreateRequest
 
 | Field                 | Type                                        | Required | Nullable | Description |
@@ -9453,6 +9812,193 @@ Whitelisted layout shape (Issue
   "validUntil": "2026-01-01T00:00:00.000Z",
   "createdAt": "2026-01-01T00:00:00.000Z",
   "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: CommentAckResponse
+
+| Field     | Type    | Required | Nullable | Description |
+| --------- | ------- | -------- | -------- | ----------- |
+| `success` | boolean | no       | no       |             |
+| `data`    | object  | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "success": false,
+  "data": {
+    "status": "received",
+    "softDeleted": false
+  }
+}
+```
+
+### Schema: CommentListResponse
+
+| Field        | Type                                                      | Required | Nullable | Description |
+| ------------ | --------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`      | array of [`CommentPublicView`](#schema-commentpublicview) | no       | no       |             |
+| `nextCursor` | string                                                    | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "parentId": "00000000-0000-0000-0000-000000000000",
+      "depth": 0,
+      "bodyHtml": "string",
+      "authorDisplayName": "string",
+      "authorKind": "anonymous",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "editedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextCursor": "string"
+}
+```
+
+### Schema: CommentPublicView
+
+A single public-facing comment. NO moderation metadata.
+
+| Field               | Type                            | Required | Nullable | Description                                                         |
+| ------------------- | ------------------------------- | -------- | -------- | ------------------------------------------------------------------- |
+| `id`                | string (uuid)                   | no       | no       |                                                                     |
+| `parentId`          | string (uuid)                   | no       | yes      |                                                                     |
+| `depth`             | integer                         | no       | no       |                                                                     |
+| `bodyHtml`          | string                          | no       | no       | Pre-escaped safe HTML (only fixed <a>/<br> tags this server emits). |
+| `authorDisplayName` | string                          | no       | yes      |                                                                     |
+| `authorKind`        | enum(`anonymous`, `registered`) | no       | no       |                                                                     |
+| `createdAt`         | string (date-time)              | no       | no       |                                                                     |
+| `editedAt`          | string (date-time)              | no       | yes      |                                                                     |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "parentId": "00000000-0000-0000-0000-000000000000",
+  "depth": 0,
+  "bodyHtml": "string",
+  "authorDisplayName": "string",
+  "authorKind": "anonymous",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "editedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: CommentReplyRequest
+
+_No properties declared._
+
+**Example**
+
+```json
+{
+  "resourceType": "string",
+  "resourceId": "string",
+  "locale": "string",
+  "body": "string",
+  "parentId": "00000000-0000-0000-0000-000000000000",
+  "authorDisplayName": "string",
+  "authorEmail": "user@example.com",
+  "subscribeToReplies": false,
+  "timingToken": "string",
+  "website": "string"
+}
+```
+
+### Schema: CommentSettings
+
+| Field                | Type                                                                                  | Required | Nullable | Description |
+| -------------------- | ------------------------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `defaultPolicyMode`  | enum(`disabled`, `authenticated-only`, `moderated-anonymous`, `moderated-registered`) | no       | no       |             |
+| `requireModeration`  | boolean                                                                               | no       | no       |             |
+| `allowAnonymous`     | boolean                                                                               | no       | no       |             |
+| `editWindowSeconds`  | integer                                                                               | no       | no       |             |
+| `maxDepth`           | integer                                                                               | no       | no       |             |
+| `maxLength`          | integer                                                                               | no       | no       |             |
+| `maxLinksPerComment` | integer                                                                               | no       | no       |             |
+| `minSubmitSeconds`   | integer                                                                               | no       | no       |             |
+| `rateLimitPerHour`   | integer                                                                               | no       | no       |             |
+| `blockedTerms`       | array of string                                                                       | no       | no       |             |
+| `turnstileEnabled`   | boolean                                                                               | no       | no       |             |
+| `notifyOnReply`      | boolean                                                                               | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "defaultPolicyMode": "disabled",
+  "requireModeration": false,
+  "allowAnonymous": false,
+  "editWindowSeconds": 0,
+  "maxDepth": 0,
+  "maxLength": 100,
+  "maxLinksPerComment": 0,
+  "minSubmitSeconds": 0,
+  "rateLimitPerHour": 1,
+  "blockedTerms": ["string"],
+  "turnstileEnabled": false,
+  "notifyOnReply": false
+}
+```
+
+### Schema: CommentSubmitRequest
+
+| Field                | Type           | Required | Nullable | Description                                                                      |
+| -------------------- | -------------- | -------- | -------- | -------------------------------------------------------------------------------- |
+| `resourceType`       | string         | yes      | no       |                                                                                  |
+| `resourceId`         | string         | yes      | no       |                                                                                  |
+| `locale`             | string         | no       | no       |                                                                                  |
+| `body`               | string         | yes      | no       |                                                                                  |
+| `parentId`           | string (uuid)  | no       | yes      |                                                                                  |
+| `authorDisplayName`  | string         | no       | yes      |                                                                                  |
+| `authorEmail`        | string (email) | no       | yes      | Optional. Normalized, hashed, and masked server-side; never stored raw.          |
+| `subscribeToReplies` | boolean        | no       | no       | Opt-in reply notification (double-opt-in; recipient stored minimized/encrypted). |
+| `timingToken`        | string         | no       | no       | The signed submit-timing token embedded in the form at render time.              |
+| `website`            | string         | no       | no       | Honeypot field — must be empty (a hidden field a human never fills).             |
+
+**Example**
+
+```json
+{
+  "resourceType": "string",
+  "resourceId": "string",
+  "locale": "string",
+  "body": "string",
+  "parentId": "00000000-0000-0000-0000-000000000000",
+  "authorDisplayName": "string",
+  "authorEmail": "user@example.com",
+  "subscribeToReplies": false,
+  "timingToken": "string",
+  "website": "string"
+}
+```
+
+### Schema: CommentSubmitResponse
+
+Acknowledgement. A neutral `received` (no `commentId`) is returned for rejected/held-for-moderation/unresolved cases so an accepted-but-pending submission is indistinguishable from a blocked one (no anti-abuse/existence oracle). `publiclyVisible: true`, `status: approved`, and `commentId` are returned ONLY when the comment is immediately publicly visible.
+
+| Field     | Type    | Required | Nullable | Description |
+| --------- | ------- | -------- | -------- | ----------- |
+| `success` | boolean | no       | no       |             |
+| `data`    | object  | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "success": false,
+  "data": {
+    "status": "received",
+    "publiclyVisible": false,
+    "commentId": "00000000-0000-0000-0000-000000000000"
+  }
 }
 ```
 
@@ -11285,6 +11831,113 @@ Enum values: `blog_post`, `blog_page`, `homepage_section`, `gallery_item`, `ad`,
   "enabled": false,
   "factorType": "totp",
   "activatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: ModerateRequest
+
+| Field        | Type                              | Required | Nullable | Description               |
+| ------------ | --------------------------------- | -------- | -------- | ------------------------- |
+| `decision`   | enum(`approve`, `reject`, `spam`) | yes      | no       |                           |
+| `reasonCode` | string                            | no       | no       | Required for reject/spam. |
+| `note`       | string                            | no       | no       |                           |
+
+**Example**
+
+```json
+{
+  "decision": "approve",
+  "reasonCode": "string",
+  "note": "string"
+}
+```
+
+### Schema: ModerateResult
+
+| Field       | Type                                                       | Required | Nullable | Description |
+| ----------- | ---------------------------------------------------------- | -------- | -------- | ----------- |
+| `commentId` | string (uuid)                                              | no       | no       |             |
+| `status`    | enum(`pending`, `approved`, `rejected`, `spam`, `deleted`) | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "commentId": "00000000-0000-0000-0000-000000000000",
+  "status": "pending"
+}
+```
+
+### Schema: ModerationQueueItem
+
+| Field                  | Type                                                       | Required | Nullable | Description                                              |
+| ---------------------- | ---------------------------------------------------------- | -------- | -------- | -------------------------------------------------------- |
+| `id`                   | string (uuid)                                              | no       | no       |                                                          |
+| `threadId`             | string (uuid)                                              | no       | no       |                                                          |
+| `resourceType`         | string                                                     | no       | no       |                                                          |
+| `resourceUrl`          | string                                                     | no       | no       |                                                          |
+| `parentId`             | string (uuid)                                              | no       | yes      |                                                          |
+| `depth`                | integer                                                    | no       | no       |                                                          |
+| `bodyText`             | string                                                     | no       | no       |                                                          |
+| `status`               | enum(`pending`, `approved`, `rejected`, `spam`, `deleted`) | no       | no       |                                                          |
+| `authorKind`           | string                                                     | no       | no       |                                                          |
+| `authorDisplayName`    | string                                                     | no       | yes      |                                                          |
+| `authorEmailMasked`    | string                                                     | no       | yes      | Masked email (e.g. `j***@e***`) — never the raw address. |
+| `moderationReasonCode` | string                                                     | no       | yes      |                                                          |
+| `reportCount`          | integer                                                    | no       | no       |                                                          |
+| `createdAt`            | string (date-time)                                         | no       | no       |                                                          |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "threadId": "00000000-0000-0000-0000-000000000000",
+  "resourceType": "string",
+  "resourceUrl": "https://example.com/resource",
+  "parentId": "00000000-0000-0000-0000-000000000000",
+  "depth": 0,
+  "bodyText": "string",
+  "status": "pending",
+  "authorKind": "string",
+  "authorDisplayName": "string",
+  "authorEmailMasked": "user@example.com",
+  "moderationReasonCode": "string",
+  "reportCount": 0,
+  "createdAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: ModerationQueueResponse
+
+| Field        | Type                                                          | Required | Nullable | Description |
+| ------------ | ------------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`      | array of [`ModerationQueueItem`](#schema-moderationqueueitem) | no       | no       |             |
+| `nextCursor` | string                                                        | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "threadId": "00000000-0000-0000-0000-000000000000",
+      "resourceType": "string",
+      "resourceUrl": "https://example.com/resource",
+      "parentId": "00000000-0000-0000-0000-000000000000",
+      "depth": 0,
+      "bodyText": "string",
+      "status": "pending",
+      "authorKind": "string",
+      "authorDisplayName": "string",
+      "authorEmailMasked": "user@example.com",
+      "moderationReasonCode": "string",
+      "reportCount": 0,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextCursor": "string"
 }
 ```
 
@@ -14612,7 +15265,7 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 }
 ```
 
-### Channels (56)
+### Channels (59)
 
 - `awcms-micro.blog-content.ad.created` — An advertisement was created (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/index.ts`'s `POST` handler (`blog-content.ad.created` log line).
 - `awcms-micro.blog-content.ad.deleted` — An advertisement was soft-deleted (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/[id].ts`'s `DELETE` handler (`blog-content.ad.deleted` log line).
@@ -14641,6 +15294,9 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 - `awcms-micro.blog-content.widget.created` — A widget was created (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/widgets/index.ts`'s `POST` handler (`blog-content.widget.created` log line).
 - `awcms-micro.blog-content.widget.deleted` — A widget was soft-deleted (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/widgets/[id].ts`'s `DELETE` handler (`blog-content.widget.deleted` log line).
 - `awcms-micro.blog-content.widget.updated` — A widget was updated (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/widgets/[id].ts`'s `PATCH` handler (`blog-content.widget.updated` log line).
+- `awcms-micro.comments.comment.approved` — Published when a comment becomes publicly visible (Issue #271, ADR-0032) — auto-approved on submit, or approved by a moderator. Payload (ADDRESS-FREE): `commentId`, `threadId`, `parentCommentId`, `resourceType`, `resourceUrl`, `status`. Drives reply-notification dispatch and read-model updates. Producers: `comments/application/comment-service.ts`'s `submitComment` (auto-approve) and `comments/application/comment-moderation.ts`'s `moderateComment` (moderator approve).
+- `awcms-micro.comments.comment.submitted` — Published when a comment (or reply) is submitted to a thread (Issue #271, ADR-0032), whether it starts pending moderation or auto-approves. Payload (ADDRESS-FREE): `commentId`, `threadId`, `parentCommentId`, `resourceType`, `resourceUrl`, `status`. Lets a reply-notification/email consumer react through the outbox without reading `comments`' tables directly; the email dispatcher resolves the encrypted recipient from minimized storage at send time, OUTSIDE any DB transaction. Producer: `comments/application/comment-service.ts`'s `submitComment`.
+- `awcms-micro.comments.reply.created` — Published when a bounded-depth reply to an existing comment is created (Issue #271, ADR-0032). Payload (ADDRESS-FREE): `commentId`, `threadId`, `parentCommentId`, `resourceType`, `resourceUrl`, `status`. Lets a consumer notify subscribers of the parent comment/thread. Producer: `comments/application/comment-service.ts`'s `submitComment` (reply path).
 - `awcms-micro.database.pool.rejected` — Emitted when a work-class concurrency gate's bounded FIFO queue is already full and a caller is rejected IMMEDIATELY, without ever waiting (Issue #743, epic #738 platform-evolution — distinct from `database.pool.saturated` above, which is a caller that waited and THEN timed out; doc 16 §Connection pooling dan backpressure, doc 05 "DB Connectivity" category). Documented contract only, same convention as `database.pool.saturated` — the concrete producer is the structured JSON logger (`src/lib/logging/logger.ts`) invoked from `withTenant` (`src/lib/database/tenant-context.ts`) on a `WorkClassQueueFullError`.
 - `awcms-micro.database.pool.saturated` — Emitted when a work-class concurrency gate times out a queued caller (Issue 10.2, doc 16 §Connection pooling dan backpressure, doc 05 "DB Connectivity" category). Documented contract only — this repo has no live pub/sub dispatcher for any domain event yet; the concrete producer is the structured JSON logger (`src/lib/logging/logger.ts`) invoked from `withTenant` (`src/lib/database/tenant-context.ts`), consistent with how AsyncAPI events have been documented since Issue 0.3 without requiring a live producer.
 - `awcms-micro.domain-event-runtime.sample.recorded` — Reference/example event (Issue #742, epic `platform-evolution` #738) used to exercise the domain-event-runtime outbox, dispatcher, ordering, retry/backoff, dead-letter, and replay mechanism end-to-end. Real producer modules publish their OWN event types the same way, via `appendDomainEvent` — this one is intentionally self-contained rather than tied to another module's business logic in this foundation issue (see `src/modules/domain-event-runtime/domain/event-type- registry.ts`'s own doc comment). Producer: any caller of `application/append-domain-event.ts`'s `appendDomainEvent` for this event type (test fixtures in this issue); consumers: `infrastructure/consumer-registry.ts`'s reference consumers, including `reporting`'s `eventActivityProjectorConsumer` (Issue #753) — demonstrating a real module-contributed incremental projection updater consuming this event type end-to-end, not just the foundation-issue test fixtures.

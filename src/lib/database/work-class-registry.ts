@@ -109,6 +109,11 @@ export const JOB_WORK_CLASS_REGISTRY: Readonly<
     rationale:
       "Deterministic search-index reconciliation/rebuild sweep (site-search:reconcile) — tolerant of delay, keeps the search projection consistent with published content."
   },
+  "scripts/comment-retention.ts": {
+    workClass: "maintenance",
+    rationale:
+      "Scheduled bounded retention/anonymization sweep (comments:retention, Issue #271) — NULLs author identity on aged comments and purges unconfirmed reply subscriptions; tolerant of delay, never latency-sensitive, honors legal hold."
+  },
   "scripts/data-lifecycle-archive-purge.ts": {
     workClass: "maintenance",
     rationale:

@@ -201,7 +201,8 @@ suite("tenant module preset application service", () => {
       "data_lifecycle",
       "seo_distribution",
       "theming",
-      "site_search"
+      "site_search",
+      "comments"
     ]) {
       expect(changeByKey.get(key)?.outcome).toBe("applied");
       expect(changeByKey.get(key)?.action).toBe("disabled");
@@ -245,6 +246,7 @@ suite("tenant module preset application service", () => {
     expect(state.get("seo_distribution")).toBe(false);
     expect(state.get("theming")).toBe(false);
     expect(state.get("site_search")).toBe(false);
+    expect(state.get("comments")).toBe(false);
 
     const auditRows = await fetchAuditActions(owner.tenantId);
     const disabledResourceIds = auditRows
@@ -260,7 +262,8 @@ suite("tenant module preset application service", () => {
         "data_lifecycle",
         "seo_distribution",
         "theming",
-        "site_search"
+        "site_search",
+        "comments"
       ].sort()
     );
     // No audit event for modules that were already in the target state.
@@ -352,7 +355,8 @@ suite("tenant module preset application service", () => {
       "social_publishing",
       "data_lifecycle",
       "domain_event_runtime",
-      "theming"
+      "theming",
+      "comments"
     ]) {
       expect(state.get(key)).toBe(false);
     }

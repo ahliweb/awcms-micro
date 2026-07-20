@@ -2,6 +2,7 @@ import type { ModuleDescriptor } from "./_shared/module-contract";
 import { applicationModuleRegistry } from "./application-registry";
 import { mergeModuleRegistries } from "./module-management/domain/module-composition";
 import { blogContentModule } from "./blog-content/module";
+import { commentsModule } from "./comments/module";
 import { dataLifecycleModule } from "./data-lifecycle/module";
 import { domainEventRuntimeModule } from "./domain-event-runtime/module";
 import { emailModule } from "./email/module";
@@ -97,7 +98,20 @@ const baseModules: ModuleDescriptor[] = [
   // together (contrast seo_distribution's deferred descriptor), which is why
   // registering it here bumps the base count 19 -> 20 (and
   // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
-  siteSearchModule
+  siteSearchModule,
+  // `active` Official Optional Module (ADR-0032, admitted + first runtime code
+  // in #271, epic #261 Wave 2). CONSUMER/aggregator of the `commentableResources`
+  // descriptor-list contribution seam — the tenant-scoped, MODERATION-FIRST
+  // commenting system over PUBLISHED, PUBLIC resources, with public submit/list/
+  // reply/report surfaces and an ABAC-guarded admin moderation API. Content
+  // modules declare pure-data `CommentableResourceDescriptor`s (no capability
+  // `provides`, no executable extractor); this module reads them via
+  // `listModules()`, so nothing depends on it and the DAG is unchanged. It may
+  // CONSUME the `email` capability for reply notifications via domain events/
+  // outbox (not a hard dependency edge). Admission + runtime land together, which
+  // is why registering it here bumps the base count 20 -> 21 (and
+  // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
+  commentsModule
 ];
 
 /** Base-only registry, regardless of any application registry — Issue #740's composition API. */

@@ -19,7 +19,7 @@ import {
  * drift) so the gate's detection logic is proven independent of the live repo.
  */
 
-const ACTIVE_20 = [
+const ACTIVE_21 = [
   "tenant_admin",
   "profile_identity",
   "identity_access",
@@ -39,17 +39,18 @@ const ACTIVE_20 = [
   "visitor_analytics",
   "seo_distribution",
   "theming",
-  "site_search"
+  "site_search",
+  "comments"
 ] as const;
 
 describe("checkRegistryExcludesErpModules — stale module names", () => {
-  test("clean 20-module WEBSITE registry passes", () => {
-    expect(checkRegistryExcludesErpModules([...ACTIVE_20])).toEqual([]);
+  test("clean 21-module WEBSITE registry passes", () => {
+    expect(checkRegistryExcludesErpModules([...ACTIVE_21])).toEqual([]);
   });
 
   test("flags a reintroduced excluded ERP module", () => {
     const problems = checkRegistryExcludesErpModules([
-      ...ACTIVE_20,
+      ...ACTIVE_21,
       "workflow"
     ]);
     expect(problems.length).toBe(1);
@@ -60,7 +61,7 @@ describe("checkRegistryExcludesErpModules — stale module names", () => {
   test("every excluded key is detected", () => {
     for (const excluded of EXCLUDED_MODULE_KEYS) {
       const problems = checkRegistryExcludesErpModules([
-        ...ACTIVE_20,
+        ...ACTIVE_21,
         excluded
       ]);
       expect(problems.length).toBe(1);
@@ -71,14 +72,14 @@ describe("checkRegistryExcludesErpModules — stale module names", () => {
   test("does not false-positive on lookalike active keys", () => {
     // `data_lifecycle` must never trip `data_exchange`, `domain_event_runtime`
     // must never trip anything, etc.
-    expect(checkRegistryExcludesErpModules([...ACTIVE_20])).toEqual([]);
+    expect(checkRegistryExcludesErpModules([...ACTIVE_21])).toEqual([]);
   });
 });
 
 describe("checkBaseModuleCount — module-count drift", () => {
   test("exactly EXPECTED_BASE_MODULE_COUNT passes", () => {
     expect(checkBaseModuleCount(EXPECTED_BASE_MODULE_COUNT)).toEqual([]);
-    expect(checkBaseModuleCount(ACTIVE_20.length)).toEqual([]);
+    expect(checkBaseModuleCount(ACTIVE_21.length)).toEqual([]);
   });
 
   test("flags an inflated count (excluded module re-added)", () => {

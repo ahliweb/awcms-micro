@@ -1,0 +1,251 @@
+---
+/**
+ * Public comments island (Issue #271, ADR-0032). Reusable section that renders
+ * the approved comment list + a submit form for a given commentable resource,
+ * driven entirely by the PUBLIC `/api/v1/comments` JSON API (tenant is resolved
+ * server-side from the request host — this component never trusts a client id).
+ *
+ * Security/UX:
+ * - Bodies come back as PRE-ESCAPED safe HTML from the server (`renderCommentHtml`)
+ *   — the client only ever assigns them to `innerHTML` of a comment body node; it
+ *   never builds markup from raw user text itself.
+ * - A visually-hidden honeypot field (`website`) + a server-signed timing token
+ *   gate automated submissions (the timing token is minted here at render time).
+ * - No moderation metadata is ever fetched or shown.
+ * - a11y: labelled fields, `aria-live` status region, keyboard-friendly controls.
+ */
+import { createTranslator } from "../../lib/i18n/translate";
+import { mintTimingToken } from "../../modules/comments/domain/timing-token";
+
+interface Props {
+  resourceType: string;
+  resourceId: string;
+  locale?: string;
+}
+
+const { resourceType, resourceId, locale } = Astro.props;
+const t = await createTranslator(Astro.locals.locale);
+const timingToken = mintTimingToken();
+
+const strings = {
+  submitting: t("comments.public.submitting"),
+  submitError: t("comments.public.submit_error"),
+  loadError: t("comments.public.load_error"),
+  awaitingModeration: t("comments.public.awaiting_moderation"),
+  empty: t("comments.public.empty"),
+  reply: t("comments.public.reply"),
+  report: t("comments.public.report"),
+  reportPrompt: t("comments.public.report_prompt"),
+  reported: t("comments.public.reported")
+};
+---
+
+<section
+  class="comments-section"
+  data-comments
+  data-resource-type={resourceType}
+  data-resource-id={resourceId}
+  data-locale={locale ?? ""}
+  data-timing-token={timingToken}
+  data-strings={JSON.stringify(strings)}
+>
+  <h2 class="comments-section__title">{t("comments.public.heading")}</h2>
+
+  <ol class="comments-section__list" data-comments-list aria-live="polite">
+    <li class="comments-section__empty" data-comments-empty hidden>
+      {t("comments.public.empty")}
+    </li>
+  </ol>
+
+  <button
+    type="button"
+    class="comments-section__more"
+    data-comments-more
+    hidden
+  >
+    {t("comments.public.load_more")}
+  </button>
+
+  <form class="comments-form" data-comments-form novalidate>
+    <h3 class="comments-form__title">{t("comments.public.form_heading")}</h3>
+
+    <p
+      class="comments-form__status"
+      data-comments-status
+      role="status"
+      aria-live="polite"
+    >
+    </p>
+
+    <div class="comments-form__field">
+      <label for="comments-author-name">{t("comments.public.name_label")}</label
+      >
+      <input
+        id="comments-author-name"
+        name="authorDisplayName"
+        type="text"
+        maxlength="120"
+        autocomplete="name"
+      />
+    </div>
+
+    <div class="comments-form__field">
+      <label for="comments-author-email"
+        >{t("comments.public.email_label")}</label
+      >
+      <input
+        id="comments-author-email"
+        name="authorEmail"
+        type="email"
+        autocomplete="email"
+      />
+      <small>{t("comments.public.email_hint")}</small>
+    </div>
+
+    <div class="comments-form__field">
+      <label for="comments-body">{t("comments.public.body_label")}</label>
+      <textarea
+        id="comments-body"
+        name="body"
+        rows="4"
+        maxlength="4000"
+        required></textarea>
+    </div>
+
+    <div class="comments-form__field comments-form__field--subscribe">
+      <label>
+        <input type="checkbox" name="subscribeToReplies" value="1" />
+        {t("comments.public.subscribe_label")}
+      </label>
+    </div>
+
+    {
+      /* Honeypot: visually hidden, off the a11y tree, never filled by a human. */
+    }
+    <div class="comments-form__hp" aria-hidden="true">
+      <label for="comments-website">Website</label>
+      <input
+        id="comments-website"
+        name="website"
+        type="text"
+        tabindex="-1"
+        autocomplete="off"
+      />
+    </div>
+
+    <input type="hidden" name="parentId" value="" data-comments-parent />
+
+    <button type="submit" class="comments-form__submit">
+      {t("comments.public.submit")}
+    </button>
+  </form>
+</section>
+
+<style>
+  .comments-section {
+    margin-block-start: 2rem;
+  }
+  .comments-section__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .comments-comment {
+    border-inline-start: 3px solid var(--color-border, #d0d5dd);
+    padding-inline-start: 0.75rem;
+  }
+  .comments-comment[data-pending] {
+    opacity: 0.7;
+  }
+  .comments-comment__meta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted, #667085);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .comments-comment__body {
+    margin-block: 0.25rem;
+    overflow-wrap: anywhere;
+  }
+  .comments-comment__replies {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding-inline-start: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .comments-comment__actions {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+  }
+  .comments-form {
+    margin-block-start: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 42rem;
+  }
+  .comments-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .comments-form__field input,
+  .comments-form__field textarea {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 0.375rem;
+    font: inherit;
+  }
+  .comments-form__field--subscribe label {
+    flex-direction: row;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .comments-form__hp {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .comments-form__submit,
+  .comments-section__more {
+    align-self: flex-start;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--color-primary, #175cd3);
+    background: var(--color-primary, #175cd3);
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+  }
+  .comments-form__submit:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .comments-form__status:empty {
+    display: none;
+  }
+  .comments-form__status[data-tone="error"] {
+    color: var(--color-danger, #b42318);
+  }
+  .comments-form__status[data-tone="success"] {
+    color: var(--color-success, #067647);
+  }
+</style>
+
+<script>
+  import { initCommentsSection } from "../../lib/comments/comments-client";
+  document.querySelectorAll<HTMLElement>("[data-comments]").forEach((el) => {
+    initCommentsSection(el);
+  });
+</script>

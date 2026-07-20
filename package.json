@@ -62,6 +62,7 @@
     "identity-access:sod-registry:check": "bun scripts/identity-access-sod-registry-check.ts",
     "blog:publish:scheduled": "bun scripts/blog-scheduled-publish.ts",
     "site-search:reconcile": "bun scripts/site-search-reconcile.ts",
+    "comments:retention": "bun scripts/comment-retention.ts",
     "email:dispatch": "bun scripts/email-dispatch.ts",
     "email:provider:health": "bun scripts/email-provider-health.ts",
     "email:templates:seed-defaults": "bun scripts/email-templates-seed-defaults.ts",

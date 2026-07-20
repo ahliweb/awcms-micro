@@ -23,14 +23,18 @@ import {
 
 describe("checkPublicOperationAllowlist", () => {
   test("passes when the spec's public operations exactly match the allow-list", () => {
-    const spec = {
-      paths: Object.fromEntries(
-        ALLOWED_PUBLIC_OPERATIONS.map((entry) => {
-          const [method, apiPath] = entry.split(" ") as [string, string];
-          return [apiPath, { [method.toLowerCase()]: { security: [] } }];
-        })
-      )
-    };
+    // Merge methods per path so a path carrying MULTIPLE public methods (e.g.
+    // GET + POST /api/v1/comments, Issue #271) is represented with both, not just
+    // the last one Object.fromEntries would keep.
+    const paths: Record<string, Record<string, unknown>> = {};
+    for (const entry of ALLOWED_PUBLIC_OPERATIONS) {
+      const [method, apiPath] = entry.split(" ") as [string, string];
+      paths[apiPath] = {
+        ...(paths[apiPath] ?? {}),
+        [method.toLowerCase()]: { security: [] }
+      };
+    }
+    const spec = { paths };
 
     expect(checkPublicOperationAllowlist(spec, "spec.yaml")).toEqual([]);
   });
