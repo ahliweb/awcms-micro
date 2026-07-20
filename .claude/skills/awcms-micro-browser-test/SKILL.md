@@ -143,6 +143,16 @@ test:e2e` (atau `bunx playwright test`) diam-diam menjalankan proses
    spec menguji jalur error, assert isi pesan TIDAK mengandung kata kunci
    seperti "stack"/"postgres"/nama fungsi internal, bukan cuma assert
    "ada pesan error" (lihat contoh di `login.e2e.ts`'s kedua test).
+6. **Seed idempoten yang BENAR-BENAR tahan retry** (Playwright retry =
+   worker baru → `beforeAll` jalan lagi). Seed token single-use dengan
+   `ON CONFLICT (...) DO NOTHING` itu BUG halus: retry menabrak token yang
+   sudah dikonsumsi attempt sebelumnya → gagal walau docstring bilang
+   "survives retry". Pakai `ON CONFLICT (...) DO UPDATE SET consumed_at =
+NULL, expires_at = now() + interval '…'` agar seed benar-benar re-arm
+   (dari fix `newsletter-smoke.e2e.ts`, #272). Untuk anti-enumeration:
+   bandingkan body byte-identik SETELAH menormalkan `meta.correlationId`
+   per-request (`.replace(/"correlationId":"[^"]*"/, …)`) — membandingkan
+   seluruh body mentah MUSTAHIL lolos karena correlationId selalu unik.
 
 ## File referensi
 

@@ -293,6 +293,25 @@ while (s!==prev)`) atau pakai parser. Waspadai pola ini di helper test /
 sanitizer mana pun yang menghapus substring yang bisa membentuk-ulang
 delimiter-nya sendiri (`<!--`, `<script`, `../`, tag bersarang).
 
+**Kambuh 2026-07-20 (#273, PR #291)** di helper `assertWellFormedXml` versi
+INTEGRATION test (`tests/integration/website-platform-seo-discovery-validation.integration.test.ts`)
+— pola yang sama muncul lagi via `.replace(/<!--[\s\S]*?-->/g,"")` +
+strip decl/CDATA. Alternatif fix yang lebih bersih dari loop fixed-point:
+**JANGAN strip lalu re-scan — tokenizer SATU PASS** yang mengenali DAN melewati
+PI/comment/CDATA lewat satu regex ber-alternasi, dan hanya men-stack tag elemen:
+
+```ts
+const tokenRe =
+  /<\?[\s\S]*?\?>|<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(\/?)([A-Za-z][\w:.-]*)(?:\s[^>]*?)?(\/?)>/g;
+let m; while ((m = tokenRe.exec(xml))) { const name = m[2]; if (name === undefined) continue; /* PI/comment/CDATA */ … }
+```
+
+Tidak ada `.replace` "sanitisasi" → alert hilang, dan lebih benar untuk konstruk
+bersarang. Catatan gate: check standalone **"CodeQL"** (gate alert baru) bisa
+FAILURE meski `Analyze (javascript-typescript)` sendiri SUCCESS — HIGH ini
+memblokir merge; 0 alert di `state=open` belum tentu berarti lolos, cek
+`code-scanning/alerts?pr=<n>`.
+
 ### Pola tambahan: `js/unused-local-variable` di test kadang menandai coverage gap, bukan sekadar dead code
 
 Dari 11 alert `js/unused-local-variable` di Issue #788 (semua di file
