@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 19 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(19);
+  test("the 20 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(20);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -159,6 +159,16 @@ describe("module registry", () => {
     // (optional), provides nothing, and depends only on the two Core modules.
     expect(getModuleByKey("theming")).toMatchObject({
       key: "theming",
+      status: "active",
+      type: "domain",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Issue #270 (ADR-0031) — `site_search` registered with its first runtime
+    // code, bumping the base registry 19 -> 20. Consumer/aggregator of the
+    // `searchSources` descriptor-list seam: it depends only on the two Core
+    // modules and nothing depends on it.
+    expect(getModuleByKey("site_search")).toMatchObject({
+      key: "site_search",
       status: "active",
       type: "domain",
       dependencies: ["tenant_admin", "identity_access"]
@@ -604,7 +614,9 @@ describe("database migration runner helpers", () => {
       "083_awcms_micro_seo_distribution_redirect_schema.sql",
       "084_awcms_micro_seo_distribution_redirect_permissions.sql",
       "085_awcms_micro_theming_config_schema.sql",
-      "086_awcms_micro_theming_permissions.sql"
+      "086_awcms_micro_theming_permissions.sql",
+      "087_awcms_micro_site_search_schema.sql",
+      "088_awcms_micro_site_search_permissions.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

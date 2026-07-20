@@ -201,7 +201,20 @@ export type AccessAction =
   // reference_data addition; reporting's own commit-shaped action, if it
   // ever needs one, reuses that same literal, same convention `cancel`
   // already established for document_infrastructure just above.)
-  | "rebuild";
+  | "rebuild"
+  // Issue #270 (site_search): `site_search.index.reconcile` — the
+  // deterministic index-reconciliation sweep (upsert current public
+  // documents + remove stale ones so the index matches source
+  // counts/checksums). Distinct from `rebuild` (a full DELETE + re-extract)
+  // so a role that may reconcile is not implicitly allowed to force a full
+  // rebuild, and from `read` (status/freshness). Deliberately NOT added to
+  // `HIGH_RISK_ACTIONS`: a reconcile only rewrites a regenerable search
+  // PROJECTION (never source-of-truth content), so it is not an
+  // irreversible business action — but the reconcile route still requires
+  // `Idempotency-Key` and is explicitly audited regardless (same
+  // "classification is metadata, not a gate on idempotency/audit" precedent
+  // as `verify`/`set_primary`).
+  | "reconcile";
 
 export type AccessRequest = {
   moduleKey: string;

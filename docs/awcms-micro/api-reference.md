@@ -7770,6 +7770,209 @@ Read-only: validate a proposed theme config against its theme descriptor and, wh
 | 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                                     |
 | 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                                     |
 
+## Site Search
+
+Tenant-scoped, cross-content PostgreSQL full-text search for the `site_search` module (epic #261 Wave 2, Issue #270, ADR-0031). Two PUBLIC, anonymous, host-resolved surfaces — `GET /query` (bounded, tenant/locale-scoped FTS over PUBLISHED content, escaped snippets) and `GET /suggest` (trigram title typeahead) — both per-IP rate-limited and query-length-bounded. The admin API reads/updates the per-tenant search config, reports index status/freshness/failed-item diagnostics, and triggers an idempotent reconcile or a full rebuild (`index.rebuild`/`index.reconcile` are `Idempotency-Key`'d + audited). The search index is a PROJECTION of public content only and is never an authorization source; the `/search` HTML page itself is an Astro route, not a JSON endpoint.
+
+### `GET /api/v1/site-search/index/failures` — Read the search index failed-item diagnostics
+
+- **operationId**: `siteSearchIndexFailures`
+- **Security**: bearerAuth + tenantHeader
+
+Returns the unresolved per-item extraction/upsert failures (sanitized error class + detail only). Gated by `site_search.diagnostics.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | Failed-item diagnostics.                       | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/site-search/index/rebuild` — Force a full, idempotent rebuild of this tenant's search index
+
+- **operationId**: `siteSearchIndexRebuild`
+- **Security**: bearerAuth + tenantHeader
+
+Deletes and re-extracts every index document from the registered search sources. High-risk, requires an `Idempotency-Key`, audited, bounded, observable (returns the run summary). Gated by `site_search.index.rebuild`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                      | Schema                                                                                                             |
+| ------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | Rebuild completed (or an idempotent replay).                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchIndexRunSummary`](#schema-sitesearchindexrunsummary)&gt; |
+| 400    | Validation or request error.                                     | [`ApiError`](#standard-error-envelope)                                                                             |
+| 401    | Authentication required or expired.                              | [`ApiError`](#standard-error-envelope)                                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                   | [`ApiError`](#standard-error-envelope)                                                                             |
+| 409    | The `Idempotency-Key` was already used with a different request. | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.                       | [`ApiError`](#standard-error-envelope)                                                                             |
+
+### `POST /api/v1/site-search/index/reconcile` — Run an idempotent index reconciliation
+
+- **operationId**: `siteSearchIndexReconcile`
+- **Security**: bearerAuth + tenantHeader
+
+Upserts current public documents (checksum-gated skip) and removes stale ones so archive/delete/unpublish never leaks; matches source counts/checksums. Requires an `Idempotency-Key`, audited, bounded, observable. Gated by `site_search.index.reconcile`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                      | Schema                                                                                                             |
+| ------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | Reconciliation completed (or an idempotent replay).              | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchIndexRunSummary`](#schema-sitesearchindexrunsummary)&gt; |
+| 400    | Validation or request error.                                     | [`ApiError`](#standard-error-envelope)                                                                             |
+| 401    | Authentication required or expired.                              | [`ApiError`](#standard-error-envelope)                                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                   | [`ApiError`](#standard-error-envelope)                                                                             |
+| 409    | The `Idempotency-Key` was already used with a different request. | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.                       | [`ApiError`](#standard-error-envelope)                                                                             |
+
+### `GET /api/v1/site-search/index/status` — Read this tenant's search index status, freshness, and recent runs
+
+- **operationId**: `siteSearchIndexStatus`
+- **Security**: bearerAuth + tenantHeader
+
+Returns the index document count, per-resource-type breakdown, latest indexed timestamp, the last run summary, open failure count, and the most recent index runs. Gated by `site_search.index.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | Index status + recent runs.                    | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `GET /api/v1/site-search/query` — Public full-text search over this tenant's published content
+
+- **operationId**: `siteSearchQuery`
+- **Security**: none (public endpoint)
+
+PUBLIC, anonymous. Tenant is resolved from the request host (not a session). Searches only PUBLISHED content, tenant + locale scoped. The query is normalized and bounded; results include an escaped snippet. Per-IP rate-limited; a too-short/empty/unresolved outcome returns a neutral empty payload.
+
+**Parameters**
+
+| Name     | In    | Required | Type   | Description                                                                                                                                         |
+| -------- | ----- | -------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `q`      | query | no       | string | The search query. Normalized (whitespace-collapsed, control-stripped) and bounded to 128 chars; shorter than the tenant's min length returns empty. |
+| `type`   | query | no       | string | Restrict to one admitted resource type (only honored when the tenant admits it).                                                                    |
+| `locale` | query | no       | string | BCP-47 locale to search (defaults to the tenant default).                                                                                           |
+| `cursor` | query | no       | string | Opaque keyset pagination cursor from a previous response.                                                                                           |
+
+**Responses**
+
+| Status | Description                                | Schema                                                                                                         |
+| ------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| 200    | Search results (possibly empty).           | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchQueryResponse`](#schema-sitesearchqueryresponse)&gt; |
+| 429    | Too many search requests from this source. | [`ApiError`](#standard-error-envelope)                                                                         |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                                                                         |
+
+### `GET /api/v1/site-search/settings` — Read this tenant's search configuration
+
+- **operationId**: `siteSearchSettingsRead`
+- **Security**: bearerAuth + tenantHeader
+
+Returns the per-tenant search config (enabled, admitted types, result/suggestion limits, min query length, analytics opt-in). No row yet returns the neutral defaults. Gated by `site_search.settings.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                               |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200    | This tenant's search configuration.            | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchSettings`](#schema-sitesearchsettings)&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                                                               |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `PUT /api/v1/site-search/settings` — Update this tenant's search configuration
+
+- **operationId**: `siteSearchSettingsUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+Merge-update of the tenant's search config. High-risk (changes the public search surface), so it requires an `Idempotency-Key` header and records an audit event. Gated by `site_search.settings.update`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SiteSearchSettingsUpdateRequest`](#schema-sitesearchsettingsupdaterequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                               |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200    | Configuration updated (or an idempotent replay of an identical prior request).                                                                                                                                   | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchSettings`](#schema-sitesearchsettings)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                               |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                               |
+| 409    | The `Idempotency-Key` was already used with a different request body.                                                                                                                                            | [`ApiError`](#standard-error-envelope)                                                               |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `GET /api/v1/site-search/suggest` — Public bounded typeahead suggestions over this tenant's published titles
+
+- **operationId**: `siteSearchSuggest`
+- **Security**: none (public endpoint)
+
+PUBLIC, anonymous. Trigram-backed title suggestions, tenant + locale scoped, capped at the tenant's suggestion limit. Same host-based resolution, rate limits, and neutral empty payload as `/query`. Returns empty when the tenant disables suggestions.
+
+**Parameters**
+
+| Name     | In    | Required | Type   | Description                       |
+| -------- | ----- | -------- | ------ | --------------------------------- |
+| `q`      | query | no       | string | The partial query to suggest for. |
+| `locale` | query | no       | string |                                   |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                             |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | Suggestions (possibly empty).                  | [`ApiSuccess`](#standard-success-envelope)&lt;[`SiteSearchSuggestResponse`](#schema-sitesearchsuggestresponse)&gt; |
+| 429    | Too many suggestion requests from this source. | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                             |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -12348,6 +12551,203 @@ Update body — same shape as SeoTenantSettings; omitted string fields are treat
 }
 ```
 
+### Schema: SiteSearchIndexRunSummary
+
+| Field          | Type                         | Required | Nullable | Description |
+| -------------- | ---------------------------- | -------- | -------- | ----------- |
+| `runId`        | string (uuid)                | yes      | no       |             |
+| `runType`      | enum(`rebuild`, `reconcile`) | yes      | no       |             |
+| `status`       | enum(`succeeded`, `failed`)  | yes      | no       |             |
+| `totalIndexed` | integer                      | yes      | no       |             |
+| `totalRemoved` | integer                      | yes      | no       |             |
+| `failureCount` | integer                      | yes      | no       |             |
+| `results`      | array of object              | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "runId": "00000000-0000-0000-0000-000000000000",
+  "runType": "rebuild",
+  "status": "succeeded",
+  "totalIndexed": 0,
+  "totalRemoved": 0,
+  "failureCount": 0,
+  "results": [
+    {
+      "sourceKey": "string",
+      "resourceType": "string",
+      "sourceCount": 0,
+      "added": 0,
+      "updated": 0,
+      "unchanged": 0,
+      "removed": 0,
+      "failures": 0
+    }
+  ]
+}
+```
+
+### Schema: SiteSearchQueryResponse
+
+| Field        | Type                                                            | Required | Nullable | Description                                            |
+| ------------ | --------------------------------------------------------------- | -------- | -------- | ------------------------------------------------------ |
+| `items`      | array of [`SiteSearchResultItem`](#schema-sitesearchresultitem) | yes      | no       |                                                        |
+| `nextCursor` | string                                                          | yes      | yes      |                                                        |
+| `query`      | string                                                          | yes      | no       | The normalized query (empty when rejected/unresolved). |
+| `locale`     | string                                                          | yes      | no       |                                                        |
+| `reason`     | enum(`empty`, `too_short`, `too_long`)                          | no       | yes      | Present when the query was rejected without searching. |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "resourceType": "blog_post",
+      "resourceId": "string",
+      "url": "https://example.com/resource",
+      "title": "string",
+      "snippet": "string",
+      "locale": "string",
+      "rank": 0
+    }
+  ],
+  "nextCursor": "string",
+  "query": "string",
+  "locale": "string",
+  "reason": "empty"
+}
+```
+
+### Schema: SiteSearchResultItem
+
+| Field          | Type           | Required | Nullable | Description                                                                                        |
+| -------------- | -------------- | -------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `resourceType` | string         | yes      | no       |                                                                                                    |
+| `resourceId`   | string         | yes      | no       |                                                                                                    |
+| `url`          | string         | yes      | no       | Public path for the resource.                                                                      |
+| `title`        | string         | yes      | no       |                                                                                                    |
+| `snippet`      | string         | yes      | no       | HTML-escaped snippet; matched terms wrapped in `<mark>`. Never contains content-originated markup. |
+| `locale`       | string         | yes      | no       |                                                                                                    |
+| `rank`         | number (float) | yes      | no       |                                                                                                    |
+
+**Example**
+
+```json
+{
+  "resourceType": "blog_post",
+  "resourceId": "string",
+  "url": "https://example.com/resource",
+  "title": "string",
+  "snippet": "string",
+  "locale": "string",
+  "rank": 0
+}
+```
+
+### Schema: SiteSearchSettings
+
+| Field                  | Type            | Required | Nullable | Description                                                  |
+| ---------------------- | --------------- | -------- | -------- | ------------------------------------------------------------ |
+| `enabled`              | boolean         | yes      | no       |                                                              |
+| `enabledResourceTypes` | array of string | yes      | yes      | Admitted resource types, or `null` for all admitted.         |
+| `resultLimit`          | integer         | yes      | no       |                                                              |
+| `minQueryLength`       | integer         | yes      | no       |                                                              |
+| `suggestionsEnabled`   | boolean         | yes      | no       |                                                              |
+| `suggestionLimit`      | integer         | yes      | no       |                                                              |
+| `analyticsEnabled`     | boolean         | yes      | no       | Opt-in minimized query analytics (query hash + counts only). |
+
+**Example**
+
+```json
+{
+  "enabled": false,
+  "enabledResourceTypes": ["string"],
+  "resultLimit": 1,
+  "minQueryLength": 1,
+  "suggestionsEnabled": false,
+  "suggestionLimit": 1,
+  "analyticsEnabled": false
+}
+```
+
+### Schema: SiteSearchSettingsUpdateRequest
+
+Every field optional; omitted fields keep their current value.
+
+| Field                  | Type            | Required | Nullable | Description |
+| ---------------------- | --------------- | -------- | -------- | ----------- |
+| `enabled`              | boolean         | no       | no       |             |
+| `enabledResourceTypes` | array of string | no       | yes      |             |
+| `resultLimit`          | integer         | no       | no       |             |
+| `minQueryLength`       | integer         | no       | no       |             |
+| `suggestionsEnabled`   | boolean         | no       | no       |             |
+| `suggestionLimit`      | integer         | no       | no       |             |
+| `analyticsEnabled`     | boolean         | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "enabled": false,
+  "enabledResourceTypes": ["string"],
+  "resultLimit": 1,
+  "minQueryLength": 1,
+  "suggestionsEnabled": false,
+  "suggestionLimit": 1,
+  "analyticsEnabled": false
+}
+```
+
+### Schema: SiteSearchSuggestionItem
+
+| Field          | Type   | Required | Nullable | Description |
+| -------------- | ------ | -------- | -------- | ----------- |
+| `resourceType` | string | yes      | no       |             |
+| `resourceId`   | string | yes      | no       |             |
+| `url`          | string | yes      | no       |             |
+| `title`        | string | yes      | no       |             |
+| `locale`       | string | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "resourceType": "string",
+  "resourceId": "string",
+  "url": "https://example.com/resource",
+  "title": "string",
+  "locale": "string"
+}
+```
+
+### Schema: SiteSearchSuggestResponse
+
+| Field    | Type                                                                    | Required | Nullable | Description |
+| -------- | ----------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`  | array of [`SiteSearchSuggestionItem`](#schema-sitesearchsuggestionitem) | yes      | no       |             |
+| `query`  | string                                                                  | yes      | no       |             |
+| `locale` | string                                                                  | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "resourceType": "string",
+      "resourceId": "string",
+      "url": "https://example.com/resource",
+      "title": "string",
+      "locale": "string"
+    }
+  ],
+  "query": "string",
+  "locale": "string"
+}
+```
+
 ### Schema: SocialAccountConnectRequest
 
 | Field                 | Type                                                        | Required | Nullable | Description                                                                                                                                      |
@@ -14212,7 +14612,7 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 }
 ```
 
-### Channels (54)
+### Channels (56)
 
 - `awcms-micro.blog-content.ad.created` — An advertisement was created (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/index.ts`'s `POST` handler (`blog-content.ad.created` log line).
 - `awcms-micro.blog-content.ad.deleted` — An advertisement was soft-deleted (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/[id].ts`'s `DELETE` handler (`blog-content.ad.deleted` log line).
@@ -14250,6 +14650,8 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 - `awcms-micro.email.message.sent` — The email dispatcher (Issue #495, `bun run email:dispatch`) successfully delivered a message through the configured provider. Documented contract only; producer is the structured JSON logger (`email/application/email-dispatch.ts`'s `email.dispatch.sent` log line).
 - `awcms-micro.email.message.suppressed` — The email dispatcher (Issue #499) found a claimed message's recipient newly present on `awcms_micro_email_suppression_list` (added after enqueue, before dispatch) and skipped the provider call entirely. Documented contract only; producer is the structured JSON logger (`email/application/email-dispatch.ts`'s `email.dispatch.suppressed` log line).
 - `awcms-micro.profile-identity.profile.merged` — Published when a profile merge request is executed (Issue #748, epic `platform-evolution` #738 Wave 2): the loser profile is soft-deleted (`merged_into_profile_id` set) and its `awcms_micro_profile_entity_links` rows are repointed to the survivor. Payload: `mergeRequestId`, `survivorProfileId`, `loserProfileId`, `entityLinksRepointedCount`. Lets domain modules react to the merge mapping through the outbox instead of importing `profile_identity` tables directly (see `src/modules/_shared/ports/party-directory-port.ts` for the pull-based equivalent). Producer: `profile-identity/application/merge-workflow.ts`'s `executeMergeRequest`.
+- `awcms-micro.site-search.index.rebuilt` — A tenant's search index was fully rebuilt (Issue #270, ADR-0031) — every document deleted and re-extracted. Documented contract only; producer is the structured JSON logger, invoked from `site-search/application/search-index-engine.ts`'s `runReconcile` (`site-search.index.rebuilt` log line) — not published through `domain_event_runtime`.
+- `awcms-micro.site-search.index.reconciled` — A tenant's search index was reconciled (Issue #270, ADR-0031) — current public documents upserted, stale ones removed. Documented contract only; producer is the structured JSON logger, invoked from `site-search/application/search-index-engine.ts`'s `runReconcile` (`site-search.index.reconciled` log line; `documentsIndexed`/ `documentsRemoved`/`failureCount` attributes) — not published through `domain_event_runtime`.
 - `awcms-micro.social-publishing.account.connected` — A social account was connected or reconnected/reauthorized (Issue #643). Documented contract only, same producer convention as every other event in this file — the structured JSON logger, invoked from `social-publishing/application/social-account-directory.ts`'s `connectSocialAccount` (`social_publishing.account.connected` audit event + log line).
 - `awcms-micro.social-publishing.account.disconnected` — A social account was disconnected (Issue #643) — a status transition, not a delete. Producer: `social-account-directory.ts`'s `disconnectSocialAccount`.
 - `awcms-micro.social-publishing.account.needs-reauth` — A connected social account's token expired/was rejected by its provider and now requires reauthorization (Issue #643). Producer: `social-account-directory.ts`'s `markSocialAccountNeedsReauth`, called by the outbox dispatcher on a `needs_reauth` publish outcome.

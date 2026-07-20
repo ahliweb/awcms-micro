@@ -1,0 +1,703 @@
+# Source fragment for the "Site Search" module/tag (Issue #270, epic #261
+# Wave 2, ADR-0031).
+#
+# Owns the `/api/v1/site-search/*` paths and the schemas referenced ONLY by
+# this tag's operations. Shared components (securitySchemes/parameters/
+# responses, ApiSuccess/ApiError/ApiMeta) live in the root file
+# (openapi/awcms-micro-public-api.src.yaml).
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared components
+# only resolve after `bun run openapi:bundle` merges this file with the root and
+# every sibling module fragment into openapi/awcms-micro-public-api.openapi.yaml.
+# Edit this file (or the root for shared components), never the generated bundle.
+paths:
+  /api/v1/site-search/query:
+    get:
+      tags:
+        - Site Search
+      summary: Public full-text search over this tenant's published content
+      description: "PUBLIC, anonymous. Tenant is resolved from the request host (not a session). Searches only PUBLISHED content, tenant + locale scoped. The query is normalized and bounded; results include an escaped snippet. Per-IP rate-limited; a too-short/empty/unresolved outcome returns a neutral empty payload."
+      operationId: siteSearchQuery
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: The search query. Normalized (whitespace-collapsed, control-stripped) and bounded to 128 chars; shorter than the tenant's min length returns empty.
+          schema:
+            type: string
+            maxLength: 200
+        - name: type
+          in: query
+          required: false
+          description: Restrict to one admitted resource type (only honored when the tenant admits it).
+          schema:
+            type: string
+        - name: locale
+          in: query
+          required: false
+          description: BCP-47 locale to search (defaults to the tenant default).
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          required: false
+          description: Opaque keyset pagination cursor from a previous response.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results (possibly empty).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchQueryResponse"
+        "429":
+          description: Too many search requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/suggest:
+    get:
+      tags:
+        - Site Search
+      summary: Public bounded typeahead suggestions over this tenant's published titles
+      description: "PUBLIC, anonymous. Trigram-backed title suggestions, tenant + locale scoped, capped at the tenant's suggestion limit. Same host-based resolution, rate limits, and neutral empty payload as `/query`. Returns empty when the tenant disables suggestions."
+      operationId: siteSearchSuggest
+      security: []
+      parameters:
+        - name: q
+          in: query
+          required: false
+          description: The partial query to suggest for.
+          schema:
+            type: string
+            maxLength: 200
+        - name: locale
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Suggestions (possibly empty).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchSuggestResponse"
+        "429":
+          description: Too many suggestion requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/settings:
+    get:
+      tags:
+        - Site Search
+      summary: Read this tenant's search configuration
+      description: "Returns the per-tenant search config (enabled, admitted types, result/suggestion limits, min query length, analytics opt-in). No row yet returns the neutral defaults. Gated by `site_search.settings.read`."
+      operationId: siteSearchSettingsRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's search configuration.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    put:
+      tags:
+        - Site Search
+      summary: Update this tenant's search configuration
+      description: "Merge-update of the tenant's search config. High-risk (changes the public search surface), so it requires an `Idempotency-Key` header and records an audit event. Gated by `site_search.settings.update`."
+      operationId: siteSearchSettingsUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSearchSettingsUpdateRequest"
+      responses:
+        "200":
+          description: Configuration updated (or an idempotent replay of an identical prior request).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchSettings"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/index/status:
+    get:
+      tags:
+        - Site Search
+      summary: Read this tenant's search index status, freshness, and recent runs
+      description: "Returns the index document count, per-resource-type breakdown, latest indexed timestamp, the last run summary, open failure count, and the most recent index runs. Gated by `site_search.index.read`."
+      operationId: siteSearchIndexStatus
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Index status + recent runs.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - status
+                          - recentRuns
+                        properties:
+                          status:
+                            $ref: "#/components/schemas/SiteSearchIndexStatus"
+                          recentRuns:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/SiteSearchIndexRun"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/index/rebuild:
+    post:
+      tags:
+        - Site Search
+      summary: Force a full, idempotent rebuild of this tenant's search index
+      description: "Deletes and re-extracts every index document from the registered search sources. High-risk, requires an `Idempotency-Key`, audited, bounded, observable (returns the run summary). Gated by `site_search.index.rebuild`."
+      operationId: siteSearchIndexRebuild
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Rebuild completed (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchIndexRunSummary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/index/reconcile:
+    post:
+      tags:
+        - Site Search
+      summary: Run an idempotent index reconciliation
+      description: "Upserts current public documents (checksum-gated skip) and removes stale ones so archive/delete/unpublish never leaks; matches source counts/checksums. Requires an `Idempotency-Key`, audited, bounded, observable. Gated by `site_search.index.reconcile`."
+      operationId: siteSearchIndexReconcile
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Reconciliation completed (or an idempotent replay).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SiteSearchIndexRunSummary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/site-search/index/failures:
+    get:
+      tags:
+        - Site Search
+      summary: Read the search index failed-item diagnostics
+      description: "Returns the unresolved per-item extraction/upsert failures (sanitized error class + detail only). Gated by `site_search.diagnostics.read`."
+      operationId: siteSearchIndexFailures
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Failed-item diagnostics.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - items
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/SiteSearchIndexFailure"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    SiteSearchResultItem:
+      type: object
+      required:
+        - resourceType
+        - resourceId
+        - url
+        - title
+        - snippet
+        - locale
+        - rank
+      properties:
+        resourceType:
+          type: string
+          example: blog_post
+        resourceId:
+          type: string
+        url:
+          type: string
+          description: Public path for the resource.
+        title:
+          type: string
+        snippet:
+          type: string
+          description: HTML-escaped snippet; matched terms wrapped in `<mark>`. Never contains content-originated markup.
+        locale:
+          type: string
+        rank:
+          type: number
+          format: float
+    SiteSearchQueryResponse:
+      type: object
+      required:
+        - items
+        - nextCursor
+        - query
+        - locale
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SiteSearchResultItem"
+        nextCursor:
+          type: string
+          nullable: true
+        query:
+          type: string
+          description: The normalized query (empty when rejected/unresolved).
+        locale:
+          type: string
+        reason:
+          type: string
+          nullable: true
+          enum:
+            - empty
+            - too_short
+            - too_long
+          description: Present when the query was rejected without searching.
+    SiteSearchSuggestionItem:
+      type: object
+      required:
+        - resourceType
+        - resourceId
+        - url
+        - title
+        - locale
+      properties:
+        resourceType:
+          type: string
+        resourceId:
+          type: string
+        url:
+          type: string
+        title:
+          type: string
+        locale:
+          type: string
+    SiteSearchSuggestResponse:
+      type: object
+      required:
+        - items
+        - query
+        - locale
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SiteSearchSuggestionItem"
+        query:
+          type: string
+        locale:
+          type: string
+    SiteSearchSettings:
+      type: object
+      required:
+        - enabled
+        - enabledResourceTypes
+        - resultLimit
+        - minQueryLength
+        - suggestionsEnabled
+        - suggestionLimit
+        - analyticsEnabled
+      properties:
+        enabled:
+          type: boolean
+        enabledResourceTypes:
+          type: array
+          nullable: true
+          description: Admitted resource types, or `null` for all admitted.
+          items:
+            type: string
+        resultLimit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        minQueryLength:
+          type: integer
+          minimum: 1
+          maximum: 20
+        suggestionsEnabled:
+          type: boolean
+        suggestionLimit:
+          type: integer
+          minimum: 1
+          maximum: 20
+        analyticsEnabled:
+          type: boolean
+          description: Opt-in minimized query analytics (query hash + counts only).
+    SiteSearchSettingsUpdateRequest:
+      type: object
+      description: Every field optional; omitted fields keep their current value.
+      properties:
+        enabled:
+          type: boolean
+        enabledResourceTypes:
+          type: array
+          nullable: true
+          items:
+            type: string
+        resultLimit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        minQueryLength:
+          type: integer
+          minimum: 1
+          maximum: 20
+        suggestionsEnabled:
+          type: boolean
+        suggestionLimit:
+          type: integer
+          minimum: 1
+          maximum: 20
+        analyticsEnabled:
+          type: boolean
+    SiteSearchIndexStatus:
+      type: object
+      required:
+        - documentCount
+        - byResourceType
+        - latestIndexedAt
+        - lastRun
+        - openFailureCount
+      properties:
+        documentCount:
+          type: integer
+        byResourceType:
+          type: array
+          items:
+            type: object
+            required:
+              - resourceType
+              - count
+            properties:
+              resourceType:
+                type: string
+              count:
+                type: integer
+        latestIndexedAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastRun:
+          allOf:
+            - $ref: "#/components/schemas/SiteSearchIndexRun"
+          nullable: true
+        openFailureCount:
+          type: integer
+    SiteSearchIndexRun:
+      type: object
+      required:
+        - id
+        - runType
+        - status
+        - trigger
+        - documentsIndexed
+        - documentsUpdated
+        - documentsRemoved
+        - documentsUnchanged
+        - sourcesProcessed
+        - failureCount
+        - startedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        runType:
+          type: string
+          enum:
+            - rebuild
+            - reconcile
+            - reindex
+        status:
+          type: string
+          enum:
+            - running
+            - succeeded
+            - failed
+        trigger:
+          type: string
+          enum:
+            - manual
+            - scheduled
+        documentsIndexed:
+          type: integer
+        documentsUpdated:
+          type: integer
+        documentsRemoved:
+          type: integer
+        documentsUnchanged:
+          type: integer
+        sourcesProcessed:
+          type: integer
+        failureCount:
+          type: integer
+        lastError:
+          type: string
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        finishedAt:
+          type: string
+          format: date-time
+          nullable: true
+    SiteSearchIndexRunSummary:
+      type: object
+      required:
+        - runId
+        - runType
+        - status
+        - totalIndexed
+        - totalRemoved
+        - failureCount
+        - results
+      properties:
+        runId:
+          type: string
+          format: uuid
+        runType:
+          type: string
+          enum:
+            - rebuild
+            - reconcile
+        status:
+          type: string
+          enum:
+            - succeeded
+            - failed
+        totalIndexed:
+          type: integer
+        totalRemoved:
+          type: integer
+        failureCount:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            required:
+              - sourceKey
+              - resourceType
+              - sourceCount
+              - added
+              - updated
+              - unchanged
+              - removed
+              - failures
+            properties:
+              sourceKey:
+                type: string
+              resourceType:
+                type: string
+              sourceCount:
+                type: integer
+              added:
+                type: integer
+              updated:
+                type: integer
+              unchanged:
+                type: integer
+              removed:
+                type: integer
+              failures:
+                type: integer
+    SiteSearchIndexFailure:
+      type: object
+      required:
+        - sourceKey
+        - resourceId
+        - locale
+        - errorClass
+        - occurrenceCount
+        - firstSeenAt
+        - lastSeenAt
+      properties:
+        sourceKey:
+          type: string
+        resourceId:
+          type: string
+        locale:
+          type: string
+        errorClass:
+          type: string
+        errorDetail:
+          type: string
+          nullable: true
+        occurrenceCount:
+          type: integer
+        firstSeenAt:
+          type: string
+          format: date-time
+        lastSeenAt:
+          type: string
+          format: date-time
