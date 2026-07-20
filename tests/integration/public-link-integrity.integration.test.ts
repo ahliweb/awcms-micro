@@ -204,12 +204,14 @@ async function createAndPublishPost(
 // ---------------------------------------------------------------------------
 
 function decodeXmlEntities(value: string): string {
+  // `&amp;` MUST be decoded LAST: decoding it first would let a literal
+  // `&amp;lt;` collapse to `<` (double-unescaping, CodeQL js/double-escaping).
   return value
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
 }
 
 /** Every `<loc>...</loc>` URL in a sitemap document, entity-decoded + trimmed. */
