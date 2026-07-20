@@ -153,6 +153,20 @@ NULL, expires_at = now() + interval '…'` agar seed benar-benar re-arm
    bandingkan body byte-identik SETELAH menormalkan `meta.correlationId`
    per-request (`.replace(/"correlationId":"[^"]*"/, …)`) — membandingkan
    seluruh body mentah MUSTAHIL lolos karena correlationId selalu unik.
+7. **Locale publik/anonim = COOKIE `awcms_micro_locale` saja** (`en`/`id`) untuk
+   rute non-`/admin/*` (`middleware.ts` → `resolveRequestLocale(cookies)`) —
+   TIDAK ada jalur `?lang`/`Accept-Language`. Untuk menguji dua locale di E2E,
+   set cookie via `page.context().addCookies({ url: baseURL })` lalu assert
+   `html[lang]` (agar regresi wiring locale gagal keras, bukan diam-diam
+   scan locale yang sama). `/` (`index.astro`) STATIS, hardcode `lang="id"`,
+   abaikan cookie — scan sekali saja. `/newsletter/demo` + `/comments/demo`
+   render HERMETIS (tanpa seed DB/tenant/host) → target axe paling rendah-flake
+   (dari `public-a11y-smoke.e2e.ts`, #296). Catatan CSP untuk fix a11y: `<style>`
+   inline di halaman `.astro` AMAN — Astro `security.csp` meng-HASH inline
+   style/script build-time; yang diblokir CSP adalah atribut `style=""`, bukan
+   elemen `<style>`. (axe `target-size` WCAG 2.2 AA 2.5.8 nyata menangkap link
+   `<24px` di homepage foundation — perbaiki dengan padding/min-height, bukan
+   melonggarkan threshold.)
 
 ## File referensi
 
