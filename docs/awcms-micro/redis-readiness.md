@@ -34,33 +34,33 @@ flowchart LR
 
 ## 3. Komponen implementasi
 
-| Komponen | Fungsi |
-| --- | --- |
-| `src/lib/redis/config.ts` | Parsing config, validasi shape/range, redaksi URL, tenant-aware key builder |
-| `src/lib/redis/client.ts` | Singleton `RedisClient` native Bun, timeout, reconnect terbatas, lifecycle, health |
-| `src/lib/redis/cache.ts` | Helper JSON cache read/write/delete dan pola cache-aside fail-open |
-| `scripts/redis-health.ts` | Validasi + PING operasional tanpa membocorkan credential |
-| `config/redis.env.example` | Contoh env opt-in terpisah dari profil default |
-| `docker-compose.redis.yml` | Overlay Redis hardened, ACL, persistence, dan no public port |
-| `tests/unit/redis-foundation.test.ts` | Test tanpa koneksi Redis/network hidup |
-| `docs/adr/0030-optional-redis-readiness-foundation.md` | Keputusan dan invariant arsitektur |
+| Komponen                                               | Fungsi                                                                             |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `src/lib/redis/config.ts`                              | Parsing config, validasi shape/range, redaksi URL, tenant-aware key builder        |
+| `src/lib/redis/client.ts`                              | Singleton `RedisClient` native Bun, timeout, reconnect terbatas, lifecycle, health |
+| `src/lib/redis/cache.ts`                               | Helper JSON cache read/write/delete dan pola cache-aside fail-open                 |
+| `scripts/redis-health.ts`                              | Validasi + PING operasional tanpa membocorkan credential                           |
+| `config/redis.env.example`                             | Contoh env opt-in terpisah dari profil default                                     |
+| `docker-compose.redis.yml`                             | Overlay Redis hardened, ACL, persistence, dan no public port                       |
+| `tests/unit/redis-foundation.test.ts`                  | Test tanpa koneksi Redis/network hidup                                             |
+| `docs/adr/0030-optional-redis-readiness-foundation.md` | Keputusan dan invariant arsitektur                                                 |
 
 Tidak ada migration database, endpoint REST, atau event baru.
 
 ## 4. Konfigurasi
 
-| Variable | Default | Ketentuan |
-| --- | ---: | --- |
-| `REDIS_ENABLED` | `false` | Hanya literal `true`/`false`; URL wajib ketika `true` |
-| `REDIS_URL` | kosong | `redis://`, `rediss://`, atau skema native Bun yang didukung |
-| `REDIS_KEY_PREFIX` | `awcms-micro` | 2–64 karakter: huruf, angka, `.`, `_`, `-` |
-| `REDIS_CONNECTION_TIMEOUT_MS` | `2000` | 100–30.000 ms |
-| `REDIS_COMMAND_TIMEOUT_MS` | `1000` | 50–30.000 ms |
-| `REDIS_MAX_RETRIES` | `3` | 0–20 |
-| `REDIS_CACHE_DEFAULT_TTL_SEC` | `300` | 1–86.400 detik |
-| `REDIS_PASSWORD` | tidak ada | Secret overlay; URL-safe dan disimpan di secret manager |
-| `REDIS_MAXMEMORY` | `256mb` | Batas awal; sesuaikan berdasarkan observasi |
-| `REDIS_MAXMEMORY_POLICY` | `noeviction` | Memory penuh menjadi write failure yang terlihat/fail-open |
+| Variable                      |       Default | Ketentuan                                                    |
+| ----------------------------- | ------------: | ------------------------------------------------------------ |
+| `REDIS_ENABLED`               |       `false` | Hanya literal `true`/`false`; URL wajib ketika `true`        |
+| `REDIS_URL`                   |        kosong | `redis://`, `rediss://`, atau skema native Bun yang didukung |
+| `REDIS_KEY_PREFIX`            | `awcms-micro` | 2–64 karakter: huruf, angka, `.`, `_`, `-`                   |
+| `REDIS_CONNECTION_TIMEOUT_MS` |        `2000` | 100–30.000 ms                                                |
+| `REDIS_COMMAND_TIMEOUT_MS`    |        `1000` | 50–30.000 ms                                                 |
+| `REDIS_MAX_RETRIES`           |           `3` | 0–20                                                         |
+| `REDIS_CACHE_DEFAULT_TTL_SEC` |         `300` | 1–86.400 detik                                               |
+| `REDIS_PASSWORD`              |     tidak ada | Secret overlay; URL-safe dan disimpan di secret manager      |
+| `REDIS_MAXMEMORY`             |       `256mb` | Batas awal; sesuaikan berdasarkan observasi                  |
+| `REDIS_MAXMEMORY_POLICY`      |  `noeviction` | Memory penuh menjadi write failure yang terlihat/fail-open   |
 
 `REDIS_URL` adalah secret karena dapat memuat username/password. Jangan memasukkannya ke issue, log, screenshot, atau telemetry.
 
@@ -229,17 +229,17 @@ Rollback cukup dengan `REDIS_ENABLED=false` atau menjalankan Compose tanpa overl
 
 ## 14. Pemetaan standar dan regulasi
 
-| Kerangka | Implementasi praktis |
-| --- | --- |
-| ISO/IEC 27001 & 27002 | Least privilege ACL, secure configuration, network segregation, secret management, logging, monitoring, backup/recovery ownership |
-| ISO/IEC 27005 | Risiko outage, leakage, cache poisoning, cross-tenant collision, memory exhaustion, dan credential compromise dianalisis sebelum adopsi |
-| ISO/IEC 27017 | Private cloud network, pemisahan environment, shared responsibility managed Redis |
-| ISO/IEC 27018 & 27701 | Data minimization, TTL, larangan cache data pribadi tanpa kebutuhan dan kontrol penghapusan |
-| ISO/IEC 20000-1 | Health check, incident/change/rollback, capacity monitoring, dan service ownership |
-| ISO 22301 | Redis bukan single point of failure; operasi berlanjut lewat PostgreSQL |
-| ISO/IEC 15408 | Redis bukan authorization boundary; ACL adalah defense-in-depth infrastruktur |
-| OWASP ASVS/API Security | Secure defaults, no secret leakage, validation, resource limits, dependency isolation |
-| UU PDP & PP PSTE | Pembatasan data pribadi di cache, keamanan pemrosesan, pemulihan layanan, audit authoritative di PostgreSQL |
+| Kerangka                | Implementasi praktis                                                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| ISO/IEC 27001 & 27002   | Least privilege ACL, secure configuration, network segregation, secret management, logging, monitoring, backup/recovery ownership       |
+| ISO/IEC 27005           | Risiko outage, leakage, cache poisoning, cross-tenant collision, memory exhaustion, dan credential compromise dianalisis sebelum adopsi |
+| ISO/IEC 27017           | Private cloud network, pemisahan environment, shared responsibility managed Redis                                                       |
+| ISO/IEC 27018 & 27701   | Data minimization, TTL, larangan cache data pribadi tanpa kebutuhan dan kontrol penghapusan                                             |
+| ISO/IEC 20000-1         | Health check, incident/change/rollback, capacity monitoring, dan service ownership                                                      |
+| ISO 22301               | Redis bukan single point of failure; operasi berlanjut lewat PostgreSQL                                                                 |
+| ISO/IEC 15408           | Redis bukan authorization boundary; ACL adalah defense-in-depth infrastruktur                                                           |
+| OWASP ASVS/API Security | Secure defaults, no secret leakage, validation, resource limits, dependency isolation                                                   |
+| UU PDP & PP PSTE        | Pembatasan data pribadi di cache, keamanan pemrosesan, pemulihan layanan, audit authoritative di PostgreSQL                             |
 
 Pemetaan ini adalah panduan engineering, bukan sertifikasi otomatis atau opini hukum final.
 
