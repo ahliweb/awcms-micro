@@ -3733,3 +3733,54 @@ msgstr "Enter a reason code for this action:"
 msgid "admin.comments.action_error"
 msgstr "The moderation action could not be completed."
 
+
+msgid "admin.newsletter.nav_label"
+msgstr "Newsletter"
+
+msgid "admin.newsletter.page_title"
+msgstr "Newsletter"
+
+msgid "admin.newsletter.page_description"
+msgstr "Manage subscription lists, subscribers, suppressions, and campaigns/digests."
+
+msgid "admin.newsletter.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.newsletter.access_denied_body"
+msgstr "You do not have permission to manage the newsletter."
+
+msgid "admin.newsletter.campaigns_heading"
+msgstr "Campaigns & digests"
+
+msgid "admin.newsletter.topics_heading"
+msgstr "Topics"
+
+msgid "admin.newsletter.subscribers_heading"
+msgstr "Subscribers"
+
+msgid "admin.newsletter.suppression_heading"
+msgstr "Suppression list"
+
+msgid "admin.newsletter.empty"
+msgstr "Nothing here yet."
+
+msgid "admin.newsletter.status_label"
+msgstr "Status"
+
+msgid "admin.newsletter.subscribers_note"
+msgstr "Subscriber email addresses are shown masked and are never displayed in full."
+
+msgid "newsletter.public.heading"
+msgstr "Subscribe to our newsletter"
+
+msgid "newsletter.public.description"
+msgstr "Enter your email to receive updates. We will send a confirmation link to complete your subscription."
+
+msgid "newsletter.public.email_label"
+msgstr "Email address"
+
+msgid "newsletter.public.subscribe_button"
+msgstr "Subscribe"
+
+msgid "newsletter.public.subscribed_note"
+msgstr "Thanks! If your address is eligible, a confirmation link is on its way."

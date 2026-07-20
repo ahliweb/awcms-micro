@@ -1,8 +1,8 @@
 {
-  "baseModuleCount": 21,
+  "baseModuleCount": 22,
   "applicationModuleCount": 0,
   "applicationRegistryId": null,
-  "totalModuleCount": 21,
+  "totalModuleCount": 22,
   "valid": true,
   "issueCount": 0,
   "migrationNamespaces": [
@@ -219,6 +219,23 @@
       "permissionCount": 4,
       "navigationCount": 2,
       "jobCount": 0,
+      "hasHealthCheck": false,
+      "hasReadinessCheck": false,
+      "deploymentProfiles": null
+    },
+    {
+      "key": "newsletter",
+      "name": "Newsletter",
+      "version": "0.1.0",
+      "status": "active",
+      "type": "domain",
+      "source": "base",
+      "dependencies": ["tenant_admin", "identity_access"],
+      "capabilitiesProvided": [],
+      "capabilitiesConsumed": [],
+      "permissionCount": 12,
+      "navigationCount": 1,
+      "jobCount": 2,
       "hasHealthCheck": false,
       "hasReadinessCheck": false,
       "deploymentProfiles": null

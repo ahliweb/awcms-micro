@@ -102,6 +102,8 @@ describe("fetchModuleJobs", () => {
         "bun run identity-access:business-scope:expiry",
         "bun run logs:audit:purge",
         "bun run news-media:reconcile",
+        "bun run newsletter:dispatch",
+        "bun run newsletter:retention",
         "bun run production:preflight",
         "bun run reporting:exports:dispatch",
         "bun run reporting:projections:refresh",

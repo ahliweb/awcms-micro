@@ -11,6 +11,7 @@ import { identityAccessModule } from "./identity-access/module";
 import { loggingModule } from "./logging/module";
 import { mediaLibraryModule } from "./media-library/module";
 import { moduleManagementModule } from "./module-management/module";
+import { newsletterModule } from "./newsletter/module";
 import { newsPortalModule } from "./news-portal/module";
 import { profileIdentityModule } from "./profile-identity/module";
 import { reportingModule } from "./reporting/module";
@@ -111,7 +112,21 @@ const baseModules: ModuleDescriptor[] = [
   // outbox (not a hard dependency edge). Admission + runtime land together, which
   // is why registering it here bumps the base count 20 -> 21 (and
   // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
-  commentsModule
+  commentsModule,
+  // `active` Official Optional Module (ADR-0033, admitted + first runtime code in
+  // #272, epic #261 Wave 2). CONSUMER/aggregator of the `newsletterContentSources`
+  // descriptor-list contribution seam — the tenant-scoped, CONSENT-FIRST,
+  // ANTI-ENUMERATION newsletter / subscription-list system with double-opt-in
+  // subscribers, per-topic subscriptions, suppression deny-list, and the campaign/
+  // digest lifecycle. Content modules declare pure-data
+  // `NewsletterContentSourceDescriptor`s (no capability `provides`, no executable
+  // extractor); this module reads them via `listModules()`, so nothing depends on
+  // it and the DAG is unchanged. It may CONSUME the `email` capability for
+  // campaign delivery via domain events/outbox (not a hard dependency edge).
+  // Admission + runtime land together, which is why registering it here bumps the
+  // base count 21 -> 22 (and `EXPECTED_BASE_MODULE_COUNT` in
+  // scripts/scope-consistency-check.ts).
+  newsletterModule
 ];
 
 /** Base-only registry, regardless of any application registry — Issue #740's composition API. */

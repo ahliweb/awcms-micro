@@ -47,8 +47,8 @@ describe("seo_facts capability ownership (ADR-0028)", () => {
     }
   });
 
-  test("the base registry now has 21 modules (comments registered by Issue #271, after site_search #270 and theming #269)", () => {
-    expect(listBaseModules().length).toBe(21);
+  test("the base registry now has 22 modules (newsletter registered by Issue #272, after comments #271, site_search #270, theming #269)", () => {
+    expect(listBaseModules().length).toBe(22);
     expect(listBaseModules().some((m) => m.key === "seo_distribution")).toBe(
       true
     );

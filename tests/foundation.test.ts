@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 21 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(21);
+  test("the 22 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(22);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -179,6 +179,16 @@ describe("module registry", () => {
     // modules and nothing depends on it (DAG-inward leaf).
     expect(getModuleByKey("comments")).toMatchObject({
       key: "comments",
+      status: "active",
+      type: "domain",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Issue #272 (ADR-0033) — `newsletter` registered with its first runtime code,
+    // bumping the base registry 21 -> 22. Consumer/aggregator of the
+    // `newsletterContentSources` descriptor-list seam: it depends only on the two
+    // Core modules and nothing depends on it (DAG-inward leaf).
+    expect(getModuleByKey("newsletter")).toMatchObject({
+      key: "newsletter",
       status: "active",
       type: "domain",
       dependencies: ["tenant_admin", "identity_access"]
@@ -628,7 +638,9 @@ describe("database migration runner helpers", () => {
       "087_awcms_micro_site_search_schema.sql",
       "088_awcms_micro_site_search_permissions.sql",
       "089_awcms_micro_comments_schema.sql",
-      "090_awcms_micro_comments_permissions.sql"
+      "090_awcms_micro_comments_permissions.sql",
+      "091_awcms_micro_newsletter_schema.sql",
+      "092_awcms_micro_newsletter_permissions.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

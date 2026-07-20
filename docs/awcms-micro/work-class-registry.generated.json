@@ -636,6 +636,66 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/cancel.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/dispatch.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/preview.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/reconcile.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/[id]/schedule.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/campaigns/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/subscribers/[id]/consent.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/subscribers/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/suppression.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/topics/[id].ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/newsletter/admin/topics/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/permissions/index.ts",
       "workClass": "interactive",
       "source": "default"
@@ -1165,6 +1225,18 @@
       "workClass": "maintenance",
       "source": "registry",
       "rationale": "Infrequent reconciliation sweep (news-media:reconcile) — tolerant of delay, run far less often than the dispatchers above."
+    },
+    {
+      "path": "scripts/newsletter-dispatch.ts",
+      "workClass": "background_sync",
+      "source": "registry",
+      "rationale": "Scheduled bounded, resumable per-recipient dispatch + reconciliation sweep (newsletter:dispatch, Issue #272) — processes queued delivery_attempts and enqueues to the email outbox; a background delivery pipeline (same profile as social-publishing:dispatch/email:dispatch), re-entrant and idempotent, never latency-sensitive."
+    },
+    {
+      "path": "scripts/newsletter-retention.ts",
+      "workClass": "maintenance",
+      "source": "registry",
+      "rationale": "Scheduled bounded retention/anonymization sweep (newsletter:retention, Issue #272) — anonymizes the recoverable address of aged unsubscribed/suppressed subscribers and purges expired/consumed tokens; tolerant of delay, never latency-sensitive, honors legal hold."
     },
     {
       "path": "scripts/object-sync-dispatch.ts",

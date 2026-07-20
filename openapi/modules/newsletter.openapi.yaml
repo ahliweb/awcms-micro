@@ -1,0 +1,1340 @@
+# Source fragment for the "Newsletter" module/tag (Issue #272, epic #261 Wave 2,
+# ADR-0033).
+#
+# Owns the `/api/v1/newsletter/*` paths and the schemas referenced ONLY by this
+# tag's operations. Shared components (securitySchemes/parameters/responses,
+# ApiSuccess/ApiError/ApiMeta) live in the root file
+# (openapi/awcms-micro-public-api.src.yaml).
+#
+# NOT independently valid OpenAPI -- $ref targets pointing at shared components
+# only resolve after `bun run openapi:bundle` merges this file with the root and
+# every sibling module fragment into openapi/awcms-micro-public-api.openapi.yaml.
+# Edit this file (or the root for shared components), never the generated bundle.
+paths:
+  /api/v1/newsletter/subscribe:
+    post:
+      tags:
+        - Newsletter
+      summary: Subscribe to the newsletter (double-opt-in)
+      description: "PUBLIC, host-resolved. ANTI-ENUMERATION: returns the SAME generic acknowledgement whether the address is new, pending, subscribed, suppressed, or belongs to another tenant (and whether the host resolves at all). A confirm token is minted + stored (hash) but NEVER returned here — it is delivered via the email path. Per-IP rate-limited."
+      operationId: newsletterSubscribe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterSubscribeRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement (never reveals existence/suppression).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterAcceptedResponse"
+        "400":
+          description: Missing/malformed email.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/confirm:
+    post:
+      tags:
+        - Newsletter
+      summary: Confirm a subscription by token
+      description: "PUBLIC. Verifies a single-use, sha256-hashed, constant-time confirm token, consumes it atomically, and transitions the subscriber pending->subscribed exactly once (publishes `newsletter.subscriber.confirmed`). ANY invalid/expired/consumed/forged token returns the SAME generic body — no reason is distinguished."
+      operationId: newsletterConfirm
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterTokenRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterAcceptedResponse"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/preferences:
+    get:
+      tags:
+        - Newsletter
+      summary: View topic preferences by token
+      description: "PUBLIC, token-scoped (the reusable `preferences` token is a bearer capability keyed on the token, never an address). A valid token returns its own topic subscriptions + locale; a bad token returns a generic empty payload."
+      operationId: newsletterPreferencesRead
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The subscriber's preferences, or a generic empty payload.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterPreferencesView"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags:
+        - Newsletter
+      summary: Update topic preferences by token
+      description: "PUBLIC, token-scoped. Updates topic subscriptions + locale for a valid `preferences` token; a bad token is a generic no-op."
+      operationId: newsletterPreferencesUpdate
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterPreferencesUpdateRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterAcceptedResponse"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/unsubscribe:
+    post:
+      tags:
+        - Newsletter
+      summary: One-step unsubscribe by token
+      description: "PUBLIC, one-step (no login), RFC 8058 one-click semantics. Marks the subscriber unsubscribed and records an `unsubscribe` suppression (publishes `newsletter.subscriber.unsubscribed`). Idempotent + generic for any valid/invalid/expired token."
+      operationId: newsletterUnsubscribe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterTokenRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterAcceptedResponse"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/resubscribe:
+    post:
+      tags:
+        - Newsletter
+      summary: Re-opt-in by address
+      description: "PUBLIC. Only lifts an `unsubscribe`-reason suppression (a bounce/complaint stays suppressed) and re-opens a fresh double-opt-in confirm. ANTI-ENUMERATION: returns the SAME generic body regardless of address existence/suppression/tenant."
+      operationId: newsletterResubscribe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterSubscribeRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterAcceptedResponse"
+        "400":
+          description: Missing/malformed email.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/provider-callback:
+    post:
+      tags:
+        - Newsletter
+      summary: Provider delivery/bounce/complaint webhook
+      description: "PUBLIC, provider-neutral. The HMAC signature over the RAW body (header `x-newsletter-signature`) is verified (constant-time) and the callback is recorded ONCE per dedupe key (replay-safe) BEFORE anything is trusted; a bounce/complaint applies a suppression. Browser redirects are never trusted. The provider-supplied email is hashed here (never stored raw). Generic 200 on accept/replay; 400 on a bad/forged signature."
+      operationId: newsletterProviderCallback
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterProviderCallbackRequest"
+      responses:
+        "200":
+          description: Generic acknowledgement (recorded or replayed).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterCallbackOkResponse"
+        "400":
+          description: Bad/forged signature or malformed callback.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Callback body too large.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many requests from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/topics:
+    get:
+      tags:
+        - Newsletter
+      summary: List newsletter topics
+      description: "ABAC-guarded by `newsletter.topics.read`. Tenant-bounded."
+      operationId: newsletterAdminTopicsList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's topics.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterTopicList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags:
+        - Newsletter
+      summary: Create a newsletter topic
+      description: "ABAC-guarded by `newsletter.topics.create`. Audited."
+      operationId: newsletterAdminTopicCreate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterTopicCreateRequest"
+      responses:
+        "200":
+          description: The created topic.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterTopic"
+        "400":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/topics/{id}:
+    put:
+      tags:
+        - Newsletter
+      summary: Update/deactivate a newsletter topic
+      description: "ABAC-guarded by `newsletter.topics.update`. Audited. A topic is never hard-deleted — deactivate via isActive."
+      operationId: newsletterAdminTopicUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterTopicUpdateRequest"
+      responses:
+        "200":
+          description: The saved topic.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterTopic"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Topic not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/subscribers:
+    get:
+      tags:
+        - Newsletter
+      summary: List subscribers (MASKED email only)
+      description: "ABAC-guarded by `newsletter.subscribers.read`. Returns MASKED email ONLY — never the raw/decrypted address. Status-filterable, keyset-paginated, tenant-bounded."
+      operationId: newsletterAdminSubscribersList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, subscribed, unsubscribed, suppressed]
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The masked subscriber page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterSubscriberList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/subscribers/{id}/consent:
+    get:
+      tags:
+        - Newsletter
+      summary: Read a subscriber's consent evidence
+      description: "ABAC-guarded by `newsletter.subscribers.read`. Append-only consent evidence (no raw PII — hashed evidence stays server-side)."
+      operationId: newsletterAdminSubscriberConsent
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The subscriber's consent events.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterConsentList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/suppression:
+    get:
+      tags:
+        - Newsletter
+      summary: List the suppression deny-list
+      description: "ABAC-guarded by `newsletter.suppression.read`. Keyset-paginated, tenant-bounded, masked."
+      operationId: newsletterAdminSuppressionList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The suppression page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterSuppressionList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags:
+        - Newsletter
+      summary: Add a manual suppression
+      description: "ABAC-guarded by `newsletter.suppression.create` (high-risk). Audited. The admin-supplied email is hashed — never stored raw."
+      operationId: newsletterAdminSuppressionCreate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterSuppressionCreateRequest"
+      responses:
+        "200":
+          description: The recorded suppression (masked).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          status:
+                            type: string
+                          emailMasked:
+                            type: string
+        "400":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns:
+    get:
+      tags:
+        - Newsletter
+      summary: List campaigns/digests
+      description: "ABAC-guarded by `newsletter.campaigns.read`. Keyset-paginated, tenant-bounded."
+      operationId: newsletterAdminCampaignsList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The campaign page.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaignList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags:
+        - Newsletter
+      summary: Compose a campaign/digest draft
+      description: "ABAC-guarded by `newsletter.campaigns.create`. Audited."
+      operationId: newsletterAdminCampaignCreate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterCampaignCreateRequest"
+      responses:
+        "200":
+          description: The created campaign draft.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaign"
+        "400":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}:
+    get:
+      tags:
+        - Newsletter
+      summary: Read a campaign/digest (+ delivery stats)
+      description: "ABAC-guarded by `newsletter.campaigns.read`."
+      operationId: newsletterAdminCampaignGet
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The campaign detail.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaignDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    patch:
+      tags:
+        - Newsletter
+      summary: Update a draft campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.update`. Only a draft is editable. Audited."
+      operationId: newsletterAdminCampaignUpdate
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterCampaignUpdateRequest"
+      responses:
+        "200":
+          description: The updated draft.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaign"
+        "400":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Only a draft can be edited.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}/preview:
+    get:
+      tags:
+        - Newsletter
+      summary: Safe HTML preview of a campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.read`. The stored source is rendered through an escape-then-allow-only-safe-constructs renderer — never emitted as stored HTML (no stored XSS)."
+      operationId: newsletterAdminCampaignPreview
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The safe preview HTML.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          subject:
+                            type: string
+                          html:
+                            type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}/schedule:
+    post:
+      tags:
+        - Newsletter
+      summary: Schedule a campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.schedule`. Idempotency-Key required; audited; publishes `newsletter.campaign.scheduled`."
+      operationId: newsletterAdminCampaignSchedule
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduledAt:
+                  type: string
+                  format: date-time
+                  nullable: true
+      responses:
+        "200":
+          description: The campaign's new status.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaignStatusResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Illegal transition or idempotency conflict.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}/dispatch:
+    post:
+      tags:
+        - Newsletter
+      summary: Dispatch a campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.send` (highest-risk). Freezes the audience snapshot and enqueues per-recipient sends. Idempotency-Key required; audited; publishes `newsletter.campaign.dispatched`. The actual provider send is a follow-up outbox consumer OUTSIDE any DB transaction."
+      operationId: newsletterAdminCampaignDispatch
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: The campaign's new status + frozen audience count.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterDispatchResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Illegal transition or idempotency conflict.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}/cancel:
+    post:
+      tags:
+        - Newsletter
+      summary: Cancel a campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.cancel`. Audited."
+      operationId: newsletterAdminCampaignCancel
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The campaign's new status.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterCampaignStatusResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: Illegal transition.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/newsletter/admin/campaigns/{id}/reconcile:
+    post:
+      tags:
+        - Newsletter
+      summary: Run reconciliation for a campaign/digest
+      description: "ABAC-guarded by `newsletter.campaigns.send` (can complete a fully-delivered campaign). Compares the frozen audience against delivery outcomes and records an evidence run. Audited."
+      operationId: newsletterAdminCampaignReconcile
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The reconciliation result.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/NewsletterReconcileResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: Campaign not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  schemas:
+    NewsletterAcceptedResponse:
+      type: object
+      description: "The single ANTI-ENUMERATION generic acknowledgement — identical for every outcome (new/pending/subscribed/suppressed/cross-tenant/unresolved). Never reveals existence or suppression state."
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [accepted]
+    NewsletterCallbackOkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [ok]
+    NewsletterSubscribeRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Normalized, hashed, masked, and encrypted server-side; never stored raw.
+        locale:
+          type: string
+        topicIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 50
+        policyVersion:
+          type: string
+    NewsletterTokenRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: The raw single-use token from the dispatched confirm/unsubscribe link.
+    NewsletterPreferencesView:
+      type: object
+      properties:
+        locale:
+          type: string
+          nullable: true
+        topics:
+          type: array
+          items:
+            type: object
+            properties:
+              topicId:
+                type: string
+                format: uuid
+              subscribed:
+                type: boolean
+    NewsletterPreferencesUpdateRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+        locale:
+          type: string
+          nullable: true
+        topics:
+          type: array
+          items:
+            type: object
+            required:
+              - topicId
+              - subscribed
+            properties:
+              topicId:
+                type: string
+                format: uuid
+              subscribed:
+                type: boolean
+          maxItems: 100
+    NewsletterProviderCallbackRequest:
+      type: object
+      required:
+        - provider
+        - eventType
+      properties:
+        provider:
+          type: string
+          maxLength: 64
+        eventType:
+          type: string
+          enum: [delivered, bounce, complaint, failed]
+        eventId:
+          type: string
+          description: A stable provider event id used for replay-safe deduplication.
+        email:
+          type: string
+          format: email
+          description: Hashed server-side into the suppression key; never stored raw.
+    NewsletterTopic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        topicKey:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        locale:
+          type: string
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    NewsletterTopicList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsletterTopic"
+    NewsletterTopicCreateRequest:
+      type: object
+      required:
+        - topicKey
+        - name
+      properties:
+        topicKey:
+          type: string
+          maxLength: 120
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        locale:
+          type: string
+        isDefault:
+          type: boolean
+    NewsletterTopicUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+          nullable: true
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+    NewsletterSubscriber:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        emailMasked:
+          type: string
+          description: Masked email (e.g. `j***@e***`) — never the raw address.
+        locale:
+          type: string
+        state:
+          type: string
+          enum: [pending, subscribed, unsubscribed, suppressed]
+        confirmedAt:
+          type: string
+          format: date-time
+          nullable: true
+        unsubscribedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    NewsletterSubscriberList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsletterSubscriber"
+        nextCursor:
+          type: string
+          nullable: true
+    NewsletterConsentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              source:
+                type: string
+              purpose:
+                type: string
+              locale:
+                type: string
+                nullable: true
+              policyVersion:
+                type: string
+                nullable: true
+              occurredAt:
+                type: string
+                format: date-time
+    NewsletterSuppression:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        emailMasked:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          enum: [bounce, complaint, manual, unsubscribe]
+        source:
+          type: string
+          nullable: true
+        occurredAt:
+          type: string
+          format: date-time
+    NewsletterSuppressionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsletterSuppression"
+        nextCursor:
+          type: string
+          nullable: true
+    NewsletterSuppressionCreateRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+        reason:
+          type: string
+          enum: [bounce, complaint, manual, unsubscribe]
+        evidence:
+          type: string
+          maxLength: 2000
+    NewsletterCampaign:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [campaign, digest]
+        status:
+          type: string
+          enum: [draft, scheduled, dispatching, completed, cancelled, failed]
+        subject:
+          type: string
+        locale:
+          type: string
+        topicId:
+          type: string
+          format: uuid
+          nullable: true
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+        audienceSnapshotId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    NewsletterCampaignDetail:
+      allOf:
+        - $ref: "#/components/schemas/NewsletterCampaign"
+        - type: object
+          properties:
+            bodyHtmlSource:
+              type: string
+              nullable: true
+            deliveryStats:
+              type: object
+              additionalProperties:
+                type: integer
+    NewsletterCampaignList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NewsletterCampaign"
+        nextCursor:
+          type: string
+          nullable: true
+    NewsletterCampaignCreateRequest:
+      type: object
+      required:
+        - subject
+        - bodyText
+      properties:
+        kind:
+          type: string
+          enum: [campaign, digest]
+        subject:
+          type: string
+          maxLength: 300
+        bodyText:
+          type: string
+          maxLength: 100000
+        bodyHtmlSource:
+          type: string
+          maxLength: 200000
+        locale:
+          type: string
+        topicId:
+          type: string
+          format: uuid
+          nullable: true
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+    NewsletterCampaignUpdateRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          maxLength: 300
+        bodyText:
+          type: string
+          maxLength: 100000
+        bodyHtmlSource:
+          type: string
+          maxLength: 200000
+        topicId:
+          type: string
+          format: uuid
+          nullable: true
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+    NewsletterCampaignStatusResult:
+      type: object
+      properties:
+        campaignId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [draft, scheduled, dispatching, completed, cancelled, failed]
+    NewsletterDispatchResult:
+      type: object
+      properties:
+        campaignId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [dispatching]
+        audienceCount:
+          type: integer
+    NewsletterReconcileResult:
+      type: object
+      properties:
+        campaignId:
+          type: string
+          format: uuid
+        runId:
+          type: string
+          format: uuid
+        discrepancyCount:
+          type: integer

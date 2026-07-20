@@ -1,0 +1,141 @@
+---
+/**
+ * Newsletter admin screen (Issue #272, ADR-0033). Surfaces the ABAC-guarded
+ * `/api/v1/newsletter/admin/*` API (topics, MASKED subscribers, suppression,
+ * campaigns/digests). This page adds no new endpoint and never queries
+ * `awcms_micro_newsletter_*` directly. Every action goes through the real HTTP
+ * API, which re-checks RBAC/ABAC on the server — the SSR permission check here is
+ * a UI convenience layer only (doc 10: "the UI must not be the only enforcement
+ * point"). Subscriber emails are shown MASKED only.
+ */
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import StateNotice from "../../../components/ui/StateNotice.astro";
+import { permissionKey } from "../../../modules/identity-access/domain/access-control";
+import { createTranslator } from "../../../lib/i18n/translate";
+
+const context = Astro.locals.ssrContext;
+if (!context) {
+  throw new Error(
+    "admin/newsletter/index.astro rendered without Astro.locals.ssrContext — src/middleware.ts should have redirected to /login."
+  );
+}
+
+const t = await createTranslator(Astro.locals.locale);
+
+const CAN_READ = context.permissions.has(
+  permissionKey("newsletter", "campaigns", "read")
+);
+
+const clientStrings = {
+  loadError: t("common.network_error"),
+  empty: t("admin.newsletter.empty"),
+  campaignsHeading: t("admin.newsletter.campaigns_heading"),
+  topicsHeading: t("admin.newsletter.topics_heading"),
+  subscribersHeading: t("admin.newsletter.subscribers_heading"),
+  suppressionHeading: t("admin.newsletter.suppression_heading"),
+  statusLabel: t("admin.newsletter.status_label")
+};
+---
+
+<AdminLayout title={t("admin.newsletter.page_title")}>
+  <h1>{t("admin.newsletter.page_title")}</h1>
+  <p>{t("admin.newsletter.page_description")}</p>
+
+  {
+    !CAN_READ && (
+      <StateNotice
+        kind="denied"
+        title={t("admin.newsletter.access_denied_title")}
+        body={t("admin.newsletter.access_denied_body")}
+      />
+    )
+  }
+
+  {
+    CAN_READ && (
+      <section
+        class="newsletter-admin"
+        data-newsletter-admin
+        data-tenant-id={context.tenantId}
+        data-strings={JSON.stringify(clientStrings)}
+      >
+        <p
+          class="newsletter-admin__banner"
+          data-newsletter-banner
+          role="status"
+          aria-live="polite"
+        />
+
+        <section aria-labelledby="newsletter-campaigns-heading">
+          <h2 id="newsletter-campaigns-heading">
+            {t("admin.newsletter.campaigns_heading")}
+          </h2>
+          <ul class="newsletter-admin__list" data-campaigns-list />
+        </section>
+
+        <section aria-labelledby="newsletter-topics-heading">
+          <h2 id="newsletter-topics-heading">
+            {t("admin.newsletter.topics_heading")}
+          </h2>
+          <ul class="newsletter-admin__list" data-topics-list />
+        </section>
+
+        <section aria-labelledby="newsletter-subscribers-heading">
+          <h2 id="newsletter-subscribers-heading">
+            {t("admin.newsletter.subscribers_heading")}
+          </h2>
+          <p class="newsletter-admin__note">
+            {t("admin.newsletter.subscribers_note")}
+          </p>
+          <ul class="newsletter-admin__list" data-subscribers-list />
+        </section>
+
+        <section aria-labelledby="newsletter-suppression-heading">
+          <h2 id="newsletter-suppression-heading">
+            {t("admin.newsletter.suppression_heading")}
+          </h2>
+          <ul class="newsletter-admin__list" data-suppression-list />
+        </section>
+      </section>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .newsletter-admin__list {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .newsletter-admin__item {
+    border: 1px solid var(--color-border, #d0d5dd);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.9rem;
+  }
+  .newsletter-admin__meta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted, #667085);
+  }
+  .newsletter-admin__note {
+    font-size: 0.9rem;
+    color: var(--color-text-muted, #667085);
+  }
+  .newsletter-admin__banner:empty {
+    display: none;
+  }
+  .newsletter-admin__banner[data-tone="error"] {
+    color: var(--color-danger, #b42318);
+  }
+</style>
+
+<script>
+  import { initNewsletterAdmin } from "../../../lib/newsletter/newsletter-admin-client";
+  document
+    .querySelectorAll<HTMLElement>("[data-newsletter-admin]")
+    .forEach((el) => {
+      initNewsletterAdmin(el);
+    });
+</script>
