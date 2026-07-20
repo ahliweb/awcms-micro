@@ -1,6 +1,6 @@
 # Bagian 2 — PRD Detail Per Modul
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan PRD
 
@@ -11,29 +11,29 @@ Dokumen ini menjelaskan kebutuhan produk AWCMS-Micro dari sisi bisnis, pengguna,
 ```mermaid
 flowchart LR
   Owner --> Reporting
-  Admin --> Tenant & Identity & Inventory
-  Kasir --> POS
-  Gudang[Petugas Gudang] --> Warehouse
-  Tax[Tax Officer] --> AccountingTax[Accounting Tax]
-  CRMs[CRM Staff] --> CRM
+  Admin --> Tenant & Identity & Katalog[Katalog & Konten]
+  Editor[Editor/Content] --> Konten[Halaman & Blog & Berita & Media]
+  Operator[Store Operator] --> Pesanan[Pesanan Online]
+  Engagement[Engagement Staff] --> Interaksi[Komentar & Newsletter]
   Analyst[Business Analyst] --> AI & Reporting
-  Customer --> Portal[Customer Portal]
+  Customer --> Storefront[Storefront & Checkout]
   Teknis[Admin Teknis] --> Observability & Deployment
 ```
 
 ## Persona utama
 
-| Persona          | Kebutuhan                                                |
-| ---------------- | -------------------------------------------------------- |
-| Owner            | Monitoring omzet, stok, approval, laporan, risiko bisnis |
-| Admin            | Setup tenant, user, produk, stok, laporan, konfigurasi   |
-| Kasir            | Transaksi cepat, search/scan produk, payment, receipt    |
-| Petugas Gudang   | Transfer, receiving, cycle count, stok bin/lot           |
-| Tax Officer      | Tax profile, VAT invoice, Coretax batch export           |
-| CRM Staff        | Contact, consent, receipt WhatsApp/email                 |
-| Business Analyst | Laporan agregat dan AI insight aman                      |
-| Customer         | Buka receipt, download PDF, consent                      |
-| Admin Teknis     | Deployment, backup, restore, troubleshooting             |
+| Persona             | Kebutuhan (website / toko online)                                             |
+| ------------------- | ----------------------------------------------------------------------------- |
+| Owner               | Monitoring trafik, pesanan/penjualan online, konten, approval, risiko          |
+| Admin               | Setup tenant, user, **katalog & konten**, konfigurasi                          |
+| Editor/Content      | Kelola halaman, blog, berita, media, jadwal publikasi                          |
+| Store Operator      | Proses & pemenuhan **pesanan online**, status pesanan, refund/retur online     |
+| Engagement Staff    | Moderasi komentar, newsletter, notifikasi (menggantikan "CRM Staff")           |
+| Business Analyst    | Laporan agregat + visitor analytics + AI insight aman                          |
+| Customer/Pengunjung | Telusuri katalog, **checkout online**, lacak pesanan, kelola langganan/consent |
+| Admin Teknis        | Deployment, backup, restore, troubleshooting                                   |
+
+> Persona **Kasir** dilipat ke **Customer** (self-checkout online) + **Store Operator** (pemenuhan pesanan). Persona **Petugas Gudang** dan **Tax Officer** adalah lineage ERP `awcms` — dikecualikan ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).
 
 ## Modul 1 — Tenant Admin
 
@@ -78,36 +78,38 @@ Setiap user harus memiliki login dan hak akses sesuai tugas.
 - Owner/admin/operator dapat login.
 - ABAC default deny.
 - Deny overrides allow.
-- Kasir tidak bisa akses pajak/export.
+- Store Operator tidak bisa akses konfigurasi tenant/ekspor data sensitif.
 - Access denied tercatat.
 
 ## Modul 3 — Central Profile
 
 ### Problem
 
-Data user, customer, supplier, CRM contact, dan tax party tidak boleh terduplikasi.
+Data user, customer, kontak komentar, dan subscriber newsletter tidak boleh terduplikasi.
 
 ### Scope
 
 - Profile person/organization.
-- Identifier email, phone, WhatsApp, NPWP, NIK.
+- Identifier email, phone, WhatsApp (identifier bergaya NPWP/NIK bersifat opsional/ilustratif).
 - Masked value.
 - Entity link.
 - Dedup/merge request.
 
 ### Acceptance criteria
 
-- Customer bisa di-resolve dari WhatsApp/email.
+- Customer bisa di-resolve dari email/WhatsApp.
 - Identifier duplicate tidak membuat profile baru.
-- Profile bisa di-link ke user/customer/tax/CRM.
+- Profile bisa di-link ke user/customer/subscriber.
 - Merge high-risk membutuhkan approval.
 - Profile/contact yang tidak aktif dapat diarsipkan; identifier sensitif tetap masked dan tidak dihapus fisik sebelum retention.
 
-## Modul 4 — Catalog & Inventory
+## Modul 4 — Katalog Produk (Toko Online)
+
+> Contoh ILUSTRATIF permukaan website toko online (bukan modul base yang diadmit). Menunjukkan bagaimana pola reusable dipakai untuk katalog storefront.
 
 ### Problem
 
-POS membutuhkan master produk, harga, satuan, stok, dan movement.
+Storefront toko online membutuhkan master produk, harga, satuan, dan ketersediaan (availability).
 
 ### Scope
 
@@ -116,50 +118,52 @@ POS membutuhkan master produk, harga, satuan, stok, dan movement.
 - Unit.
 - Product.
 - Product price.
-- Stock balance.
+- Stock balance (ketersediaan/availability — light).
 - Stock movement.
 
 ### Acceptance criteria
 
-- Produk bisa dibuat.
+- Produk bisa dibuat dan tampil di storefront.
 - SKU unik per tenant.
-- Barcode unik jika diisi.
-- Produk inactive tidak bisa dijual.
+- Barcode/slug unik jika diisi.
+- Produk inactive tidak bisa dipesan.
 - Movement stok append-only.
-- Produk/kategori/brand/unit dapat diarsipkan via soft delete jika tidak sedang dipakai transaksi aktif.
+- Produk/kategori/brand/unit dapat diarsipkan via soft delete jika tidak sedang dipakai pesanan aktif.
 
-## Modul 5 — Sales POS
+## Modul 5 — Storefront & Checkout Online
+
+> Contoh ILUSTRATIF permukaan website toko online (bukan modul base yang diadmit). **POS in-store** (terminal kasir fisik, struk hardware, cash-drawer/shift) adalah lineage ERP `awcms` — dikecualikan ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).
 
 ### Problem
 
-Kasir membutuhkan transaksi cepat, aman, dan tidak dobel.
+Customer membutuhkan checkout online yang aman dan tidak dobel; Store Operator memproses & memenuhi pesanan online.
 
 ### Scope
 
-- Checkout session.
+- Checkout session (keranjang/cart online).
 - Cart/line item.
-- Payment.
-- Posting transaksi.
+- Payment (pembayaran online / payment gateway).
+- Posting pesanan (online order).
 - Idempotency.
-- Stock lock.
-- Sales document.
-- Receipt request.
+- Stock lock (kunci ketersediaan saat posting).
+- Sales document (pesanan online).
+- Konfirmasi pesanan / invoice PDF (via email).
 
 ### Acceptance criteria
 
-- Kasir bisa checkout.
+- Customer bisa checkout online.
 - Total dihitung server-side.
-- Posting mengurangi stok.
-- Double click tidak membuat transaksi ganda.
-- Stok kurang menghasilkan error aman.
-- Transaksi posted immutable.
-- Cart/checkout draft dapat dibatalkan/diarsipkan; sales document posted tidak boleh di-soft-delete.
+- Posting mengurangi ketersediaan.
+- Double click/submit tidak membuat pesanan ganda.
+- Ketersediaan kurang menghasilkan error aman.
+- Pesanan posted immutable.
+- Cart/checkout draft dapat dibatalkan/diarsipkan; pesanan (sales document) posted tidak boleh di-soft-delete.
 
 ## Modul 6 — Shared Stock Routing
 
 ### Problem
 
-Beberapa tenant bisa berbagi stok di lokasi fisik yang sama, dengan transaksi diarahkan ke tenant tertentu.
+Beberapa tenant toko online bisa berbagi ketersediaan produk dari pool yang sama, dengan pesanan online diarahkan ke tenant tertentu.
 
 ### Scope
 
@@ -173,89 +177,45 @@ Beberapa tenant bisa berbagi stok di lokasi fisik yang sama, dengan transaksi di
 ### Acceptance criteria
 
 - Stock pool memiliki member tenant.
-- Routing rule memilih tenant berdasarkan kondisi.
+- Routing rule memilih tenant penerima pesanan berdasarkan kondisi.
 - Legal basis dicatat.
 - Routing decision diaudit.
 - Rule lama diarsipkan via soft delete agar histori routing tetap dapat diaudit.
 
-## Modul 7 — Warehouse Management
+## Modul 7 — Warehouse Management (lineage ERP `awcms` — dikecualikan)
+
+> Operasi gudang fisik — warehouse/zone/bin/lot/serial, bin balance, transfer antar gudang, cycle count, stock adjustment — adalah **lineage ERP `awcms`** dan **dikecualikan** dari scope template AWCMS-Micro ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md), ADR-0025). Toko online cukup memakai **ketersediaan produk (availability)** dari Modul 4; manajemen gudang fisik bukan permukaan website publik dan tidak dibangun di repo ini.
+
+## Modul 8 — Accounting Tax/Coretax (lineage ERP `awcms` — dikecualikan)
+
+> Faktur pajak / VAT posting, tax profile, NITKU, dan **Coretax batch export** adalah **lineage ERP `awcms`** dan **dikecualikan** dari scope template ini ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md), ADR-0025). Masking identifier sensitif (mis. NPWP/NIK) tetap tersedia sebagai kapabilitas base generik (doc 04), tetapi posting pajak resmi bukan scope website.
+
+## Modul 9 — Engagement (Komentar, Newsletter, Notifikasi)
+
+> Menggantikan contoh "CRM Communication" bergaya POS. Dibangun di atas modul base nyata **comments**, **newsletter**, dan **email** — bukan struk WhatsApp/StarSender in-store. Notifikasi pesanan (konfirmasi/invoice) dikirim via **email outbox** base, bukan antrean struk WhatsApp.
 
 ### Problem
 
-Multi gudang memerlukan warehouse, zone, bin, lot, serial, transfer, in-transit, dan cycle count.
+Pengunjung berinteraksi lewat komentar, berlangganan newsletter, dan menerima notifikasi (mis. konfirmasi pesanan) melalui email.
 
 ### Scope
 
-- Warehouse.
-- Zone.
-- Bin.
-- Bin balance.
-- Lot/batch/expired.
-- Serial.
-- Transfer order.
-- Shipment/receipt.
-- Cycle count.
-- Stock adjustment request.
-
-### Acceptance criteria
-
-- Warehouse dibuat dari office.
-- Bin code unik per warehouse.
-- Transfer antar gudang dapat shipped/received.
-- Partial receipt didukung.
-- Damaged/expired masuk quarantine.
-- Cycle count menghasilkan variance dan adjustment request.
-- Zone/bin master dapat diarsipkan via soft delete jika tidak memiliki stok aktif; movement tetap append-only.
-
-## Modul 8 — Accounting Tax/Coretax
-
-### Problem
-
-AWCMS-Micro perlu siap pajak Indonesia dan Coretax tanpa mengasumsikan upload API resmi.
-
-### Scope
-
-- Tax profile.
-- NITKU/ID TKU.
-- Party tax profile.
-- Product tax profile.
-- VAT invoice staging.
-- Coretax batch XML-ready.
-- Checksum dan approval.
-
-### Acceptance criteria
-
-- NPWP/NIK/NITKU dimasking.
-- VAT invoice dapat digenerate dari sales posted.
-- Missing tax data terdeteksi.
-- Coretax batch membutuhkan approval jika policy aktif.
-- Tax profile lama diarsipkan via soft delete; faktur dan batch exported tetap immutable.
-
-## Modul 9 — CRM Communication
-
-### Problem
-
-Customer membutuhkan bukti transaksi digital melalui PDF, WhatsApp, dan email.
-
-### Scope
-
-- Receipt PDF.
-- CRM contact.
-- Contact channel.
+- Moderasi komentar (comments).
+- Langganan newsletter + consent.
+- Contact/subscriber channel.
 - Consent.
-- Message outbox.
-- StarSender adapter.
-- Mailketing adapter.
-- Customer portal.
+- Email outbox (notifikasi/newsletter — base).
+- Mailketing adapter (email).
+- Portal langganan/consent customer.
 
 ### Acceptance criteria
 
-- Receipt PDF dibuat.
+- Komentar tunduk moderasi sebelum tampil.
 - Consent dicek sebelum mengirim.
-- Offline masuk queue.
-- Token receipt aman.
-- Customer hanya melihat receipt miliknya.
-- Contact/channel dapat diarsipkan via soft delete; delivery log dan receipt tetap mengikuti retention.
+- Kegagalan kirim masuk queue/retry (email outbox).
+- Token portal/consent aman dan tidak sequential.
+- Customer hanya melihat langganan/consent miliknya.
+- Contact/channel dapat diarsipkan via soft delete; delivery log tetap mengikuti retention.
 
 ## Modul 10 — Sync Storage
 
@@ -306,8 +266,8 @@ Owner membutuhkan insight bisnis cepat tanpa membuka data mentah sensitif.
 ### Scope
 
 - Admin shell.
-- POS fullscreen.
-- Customer receipt portal.
+- Storefront publik (katalog + checkout online).
+- Customer order/subscription portal.
 - Theme light/dark/system.
 - Locale ID/EN awal.
 - Navigation role-aware.
@@ -315,8 +275,8 @@ Owner membutuhkan insight bisnis cepat tanpa membuka data mentah sensitif.
 ### Acceptance criteria
 
 - Admin melihat dashboard.
-- Kasir transaksi keyboard-first.
-- Customer portal mobile-friendly.
+- Customer checkout online mobile-friendly.
+- Customer portal (pesanan/langganan) mobile-friendly.
 - UI punya loading/empty/error state.
 
 ## Modul 13 — Observability, Pooling, Security
@@ -344,8 +304,8 @@ Owner membutuhkan insight bisnis cepat tanpa membuka data mentah sensitif.
 flowchart TB
   P1[1. Foundation] --> P2[2. Tenant/Profile/Auth/Access]
   P2 --> P3[3. Product/Stock]
-  P3 --> P4[4. POS checkout/posting]
-  P4 --> P5[5. Receipt PDF local]
+  P3 --> P4[4. Checkout online/pesanan]
+  P4 --> P5[5. Konfirmasi pesanan/invoice PDF]
   P5 --> P6[6. Audit log]
   P6 --> P7[7. Backup/restore]
   P7 --> Ready([MVP Ready])
@@ -353,17 +313,18 @@ flowchart TB
 
 1. Foundation.
 2. Tenant/profile/auth/access.
-3. Product/stock.
-4. POS checkout/posting.
-5. Receipt PDF local.
+3. Katalog/ketersediaan produk.
+4. Checkout online/posting pesanan.
+5. Konfirmasi pesanan/invoice PDF.
 6. Audit log.
 7. Backup/restore.
 
 ## Out of scope MVP
 
-- Payment gateway.
+- Integrasi payment gateway penuh.
 - Native mobile app.
 - Advanced BI.
-- Upload langsung Coretax.
+- Posting pajak/Coretax (lineage ERP `awcms` — dikecualikan).
+- Operasi gudang fisik (lineage ERP `awcms` — dikecualikan).
 - AI mutation.
 - Microservice split.
