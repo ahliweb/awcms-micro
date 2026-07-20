@@ -123,20 +123,20 @@ surface is explicit rather than silently claimed:
 - **Derived-site pilot execution & base-upgrade rehearsal** — provision the
   `ahliweb/awpos` pilot tenant/domain, compose a derived content-type + trusted
   theme, run the full public+admin journey, and rehearse one AWCMS-Micro base
-  upgrade with no data loss or contract drift. (split issue: _to be created_)
+  upgrade with no data loss or contract drift. (split issue: **#292**)
 - **Deployment rehearsal** — Docker dev + `Dockerfile.production` + Coolify,
   internal PostgreSQL network, durable object-storage config, secrets handling,
-  and Cloudflare/CDN/WAF guidance, executed end-to-end. (split issue: _to be created_)
+  and Cloudflare/CDN/WAF guidance, executed end-to-end. (split issue: **#293**)
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
   plus live provider-outage/worker-restart/DB-saturation/stale-projection/
-  object-storage-failure/cache-invalidation drills. (split issue: _to be created_)
+  object-storage-failure/cache-invalidation drills. (split issue: **#294**)
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
-  content/media volume. (split issue: _to be created_)
+  content/media volume. (split issue: **#295**)
 - **Full-journey accessibility & link checking** — axe-core across public EN/ID
   desktop/mobile keyboard/screen-reader journeys and automated link checking on
-  the rendered pilot site. (split issue: _to be created_)
+  the rendered pilot site. (split issue: **#296**)
 
 ## Residual risks and limitations
 
