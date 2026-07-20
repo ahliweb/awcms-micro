@@ -59,6 +59,14 @@ menaikkan registry base **21 → 22** dan `MODULE_CONTRACT_VERSION` **1.4.0 →
    (sql/092). Retensi legal-hold-aware (`application/subscriber-retention.ts`,
    descriptor `newsletter.subscribers` delegated `anonymize`) + generic purge
    (delivery_attempts/provider_events/tokens).
+   **Anonimisasi retensi (audit M2) menimpa `email_hash` → sentinel
+   `'anonymized-' || id`** (sha256 email low-entropy itu dictionary-reversible =
+   existence oracle bila dipertahankan). Konsekuensi yang mudah lupa: SETELAH
+   anonimisasi, TIDAK ADA baris yang resolve lewat `email_hash` asli — kode/test
+   yang lookup by hash lama akan dapat 0 baris (bukan bug produk; test harus
+   tangkap `id` sebelum anonimisasi lalu lookup by id). Padding timing (audit M1)
+   di cabang suppressed `subscribe`/`resubscribe` menyamakan jumlah round-trip
+   dengan jalur tulis agar bukan timing oracle.
 
 ## Jangan
 

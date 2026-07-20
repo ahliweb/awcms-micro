@@ -67,6 +67,18 @@ bun test
 bun run build
 ```
 
+## Merge & cleanup (gotcha berulang)
+
+- **`gh pr merge <n> --squash --delete-branch` GAGAL** kalau kamu sedang berada di branch PR itu, atau `main` sudah di-checkout di working tree utama (langkah delete-branch coba `git checkout main` → `fatal: 'main' is already used by worktree`). **`git checkout main` DULU**, baru merge. Merge server-side tetap jalan; kalau langkah lokalnya yang gagal, verifikasi `gh pr view <n> --json state`.
+- **PR bisa AUTO-CLOSE issue meski pakai "Refs #N" (bukan "Closes")** — judul/body yang memuat `(#N)` pada squash-merge tetap menutupnya. Kalau issue harus TETAP terbuka (mis. epic/proof yang baru sebagian selesai), cek `gh issue view <n> --json state` sesudah merge dan `gh issue reopen <n>` + komentar progres bila perlu.
+- Sesudah merge: `git fetch origin --prune`, `git pull --ff-only origin main`, hapus branch remote basi (`git push origin --delete <br>`), dan **hapus semua worktree agen** (`git worktree remove <path> --force`) + branch `worktree-agent-*`/`feat/*` lokal.
+
+## Orkestrasi agen paralel (bila fan-out)
+
+- Agen paralel WAJIB `isolation: worktree` (share SATU working tree = korupsi). Tiap agen HANYA file disjoint (biasanya satu file baru), commit ke branch sendiri, JANGAN buat changeset/regen inventory/edit doc bersama — orkestrator yang urus itu SEKALI di akhir agar tak bentrok.
+- Integrasi: object store git dibagikan lintas worktree, jadi commit tiap agen reachable via SHA — tarik file disjoint dengan `git checkout <sha> -- <path>` ke branch integrasi (tak perlu merge branch).
+- Konsolidasikan tulisan memory di orkestrator (hindari race pada indeks `MEMORY.md`); minta tiap agen melaporkan "MEMORY NOTES", bukan menulis file memory sendiri.
+
 ## Definition of Done
 
 Ikuti checklist DoD di `AGENTS.md`. Tutup dengan **laporan implementasi**:

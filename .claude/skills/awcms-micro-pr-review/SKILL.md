@@ -45,3 +45,17 @@ Suggested patch:
 ```
 
 Untuk modul sensitif, jalankan juga `awcms-micro-security-review`.
+
+## Membaca hasil CI (jangan salah simpul)
+
+- **Quality FAILURE dengan kaskade ~20 suite timeout serempak `5000–5001ms`** = kontensi/saturasi pool DB, BUKAN diff. Ambil data point kedua (`gh run rerun <id> --failed`) sebelum meminta perubahan; sering hijau di rerun.
+- **Check standalone "CodeQL"** (gate alert baru PR) bisa FAILURE meski `Analyze (actions)`/`Analyze (javascript-typescript)` SUCCESS. `code-scanning/alerts?ref=…&state=open` bisa mengembalikan 0 walau gate merah — pakai `code-scanning/alerts?pr=<n>` untuk melihat alert PR-scoped. HIGH memblokir merge.
+- **Test-only ≠ tanpa risiko**: 3 suite integration baru pertama kali dieksekusi terhadap Postgres nyata di CI meski `tsc` lokal hijau — drift nama field/route/kolom baru muncul di sini. Perlakukan CI hijau (bukan `bun run check` lokal yang skip integration) sebagai bukti.
+
+## Kejujuran dokumen evidence
+
+Dokumen yang memetakan kriteria→test (mis. evidence matrix) TIDAK boleh over-claim: jika sebuah test membuktikan properti X _absent_/didelegasikan (mis. CSP didelegasikan ke Astro, bukan diuji di integration), sel matriks tidak boleh menuliskannya sebagai "diuji". Cross-check tiap klaim ke assertion nyata + komentar in-file.
+
+## Setelah subagent review/coder
+
+Cek `git branch --show-current` + `git worktree list` sesudah subagent selesai (agen worktree-isolated commit ke branch/worktree sendiri; commit reachable via object store bersama, ambil file disjoint dengan `git checkout <sha> -- <path>`). Grep SELURUH repo untuk semua kemunculan fakta basi sebelum menyebut satu fix selesai.

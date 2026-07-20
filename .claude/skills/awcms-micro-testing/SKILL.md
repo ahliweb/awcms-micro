@@ -46,3 +46,15 @@ Konvensi nyata repo ini (bukan sub-folder per domain): file **flat** langsung di
 
 - Setiap fitur baru minimal punya unit test logic + satu integration/contract test.
 - Test tenant-scoped memakai tenant context; jangan bergantung data global.
+
+## Gotcha integration test (real-handler, `tests/integration/*.integration.test.ts`)
+
+Dari #271/#272/#273 (harness `tests/integration/harness.ts`) — hemat re-investigasi:
+
+- **Dua client, jangan tertukar**: `getAdminSql()` = privileged (BYPASS RLS) — HANYA untuk seeding/truncation. `getTestSql()` = least-priv `awcms_micro_app` setelah `provisionAppRole()` (FORCE RLS aktif) — dipakai handler & SEMUA assertion. **Negatif cross-tenant WAJIB lewat `getTestSql()`**; `count==0` di query yang TIDAK punya predikat `tenant_id` sendiri itulah yang membuktikan RLS (bentuk kuat). Selalu pasangkan tiap negatif dengan positif di role yang sama (RLS misconfigured pun bisa lolos negatif "kosong").
+- **`src/middleware.ts` TIDAK bisa di-import di `bun test`** (import virtual module `astro:middleware`). Test security-header harus assert `buildSecurityHeaders(...)` di atas Response handler nyata, bukan menjalankan middleware. `Content-Security-Policy` = fitur Astro `security.csp` (build+browser saja), TIDAK pernah di `buildSecurityHeaders` — jangan klaim CSP diuji di integration.
+- **`invoke`/`invokeRaw` BYPASS middleware** → `meta.correlationId` tidak di-inject in-process (prod middleware yang inject). Body anti-enumeration sudah bebas correlationId lewat harness; tetap normalisasi (`.replace(/"correlationId":"[^"]*"/,…)`) sebelum bandingkan byte — jangan bandingkan seluruh body mentah (kalau ada correlationId, mustahil identik).
+- **Rate-limit bucket bersama**: `resolveClientIp` kembali `"unknown"` tanpa `X-Forwarded-For`/`clientAddress` → SEMUA call in-process berbagi SATU bucket (fixed window 1 jam). Suite apa pun yang memukul route ber-rate-limit (mis. `POST /newsletter/subscribe`, cap 30) WAJIB `resetRateLimitStoreForTests()` (dari `src/lib/security/rate-limit`) di `beforeEach`, atau flake 429 di belakang suite lain yang menembak route sama.
+- **Tenant bare vs setup-wizard**: tenant yang di-seed langsung (tanpa wizard) TIDAK lolos gate route publik blog/news (`isLegacyTenantRouteEnabled`, `checkBlogContentAndRouteGate`). Render publik POSITIF harus bootstrap via wizard; tenant bare hanya untuk assertion NEGATIF (404/absen) + surface service-level (site_search/comments/newsletter/seo redirect+sitemap) yang lewati gate. Lock singleton = tabel `awcms_micro_setup_state` saja, bukan keberadaan tenant.
+- **Flaky Quality**: kaskade ~20 suite tak-terkait yang timeout serempak `5000–5001ms` = kontensi/saturasi pool, BUKAN bug logika. Perubahan test-only string tak mungkin menyebabkannya. Ambil data point kedua (`gh run rerun <id> --failed`) sebelum menyalahkan diff.
+- `DATABASE_URL` di sandbox lokal sering tak reachable (host→container diblokir) → integration/E2E hanya jalan di CI; verifikasi lokal: `bunx tsc --noEmit` + prettier, lalu andalkan CI. Reproduksi SQL cepat via `docker exec <pg-container> psql`.
