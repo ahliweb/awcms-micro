@@ -1,6 +1,6 @@
 # Bagian 13 — Final Master Index dan Traceability Matrix
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -42,7 +42,7 @@ Dokumen ini menjadi master index final untuk seluruh paket dokumen AWCMS-Micro, 
 AWCMS-Micro adalah standar modular monolith berbasis AWCMS-Micro dengan stack final:
 
 ```text
-Bun-only backend + Astro 7 + PostgreSQL + Modular Monolith + Offline-first/LAN-first
+Bun-only backend + Astro 7 + PostgreSQL + Modular Monolith + Full-online website
 ```
 
 Keputusan teknis:
@@ -51,13 +51,13 @@ Keputusan teknis:
 2. Bun sebagai runtime dan backend platform; Node.js hanya boleh lewat pengecualian tertulis bila Bun belum mendukung capability yang diperlukan.
 3. Astro 7 sebagai web framework.
 4. Modular monolith, microservice-ready.
-5. Offline-first/LAN-first.
+5. Full-online (online-first, ADR-0034); outbox/queue sebagai pola ketahanan base.
 6. Optional online sync.
 7. Optional Cloudflare R2.
-8. Optional StarSender/Mailketing.
+8. Optional email (Mailketing) + newsletter.
 9. Optional AI analyst via safe views.
 10. RBAC + ABAC + RLS + Audit Log.
-11. Coretax-ready via staging/XML/checksum/approval/audit.
+11. _(lineage ERP `awcms` — dikecualikan, ADR-0034 §3):_ Coretax-ready via staging/XML/checksum/approval/audit.
 12. Soft delete tenant-safe untuk master/config/draft; posted/append-only entity tetap immutable.
 
 ## Rantai traceability
@@ -79,24 +79,24 @@ flowchart LR
 
 | Business Need            | Modul                 | Output                             |
 | ------------------------ | --------------------- | ---------------------------------- |
-| Multi tenant toko/cabang | Tenant Admin          | Tenant, office, physical location  |
+| Multi tenant situs/toko  | Tenant Admin          | Tenant, office, physical location  |
 | User login dan role      | Identity & Access     | Identity, tenant user, role        |
 | Hak akses fleksibel      | Identity & Access     | RBAC, ABAC, decision log           |
 | Profil terpusat          | Central Profile       | Profile, identifier, entity link   |
-| Master produk            | Catalog Inventory     | Product, category, unit, price     |
+| Katalog produk toko online | Catalog Inventory   | Product, category, unit, price     |
 | Arsip master data aman   | Semua modul master    | Soft delete, restore, purge policy |
-| Stok toko/gudang         | Catalog Inventory     | Balance, movement                  |
-| Transaksi operasional    | Sales POS             | Checkout, payment, sales document  |
-| Posting aman             | Sales POS + Inventory | Idempotency, stock lock, audit     |
-| Shared stock             | Shared Stock Routing  | Pool, routing rule, decision       |
-| Multi gudang             | Warehouse             | Warehouse, bin, lot, transfer      |
-| Receipt digital          | CRM                   | PDF, WA/email outbox, portal       |
+| Ketersediaan produk      | Catalog Inventory     | Availability, movement             |
+| Pesanan online           | Online Store          | Checkout, payment, pesanan online  |
+| Posting aman             | Online Store + Inventory | Idempotency, availability lock, audit |
+| Ketersediaan lintas lokasi | Availability Routing | Pool, routing rule, decision      |
+| Multi gudang _(ERP `awcms` — dikecualikan, ADR-0034 §3)_ | Warehouse | Warehouse, bin, lot, transfer |
+| Konfirmasi pesanan online | Engagement (email/newsletter) | PDF, email outbox, portal   |
 | Offline sync             | Sync Storage          | Outbox, inbox, conflict            |
-| Data pajak               | Accounting Tax        | Tax profile, NITKU, VAT invoice    |
-| Coretax-ready            | Accounting Tax        | XML batch, checksum, approval      |
-| Dashboard                | Reporting             | Sales/stock/tax/sync reports       |
+| Data pajak _(ERP `awcms` — dikecualikan, ADR-0034 §3)_ | Accounting Tax | Tax profile, NITKU, VAT invoice |
+| Coretax-ready _(ERP `awcms` — dikecualikan, ADR-0034 §3)_ | Accounting Tax | XML batch, checksum, approval |
+| Dashboard                | Reporting             | Sales/stock/sync reports           |
 | AI insight               | AI Analyst            | Safe read-only tools               |
-| UI admin/operator        | UI Experience         | Admin shell, POS screen            |
+| UI admin/operator        | UI Experience         | Admin shell, storefront screen     |
 | Audit/troubleshooting    | Observability         | Logs, audit, security events       |
 | DB reliability           | DB Connectivity       | Pool, queue, circuit breaker       |
 | Go-live aman             | Production Security   | Readiness, findings, gates         |
@@ -109,20 +109,20 @@ flowchart LR
 | Login              | Identity              | `awcms_micro_identities`, `awcms_micro_tenant_users` | `/auth/login`                      | 2.3              |      2 | login test           |
 | Access control     | ABAC                  | `awcms_micro_roles`, `awcms_micro_abac_policies`     | `/access/evaluate`                 | 2.4              |      3 | default deny         |
 | Customer profile   | Profile               | `awcms_micro_profiles`, identifiers                  | `/profiles/resolve`                | 2.2              |      2 | resolver             |
-| Product            | Inventory             | `awcms_micro_products`                               | `/inventory/products`              | 3.1              |      4 | CRUD/search          |
+| Produk katalog     | Katalog toko online   | `awcms_micro_products`                               | `/inventory/products`              | 3.1              |      4 | CRUD/search          |
 | Soft delete master | Shared + modul domain | `deleted_at`, `deleted_by`                           | `DELETE/restore/includeDeleted`    | 0.1/0.3 + domain |    1–4 | archive/restore      |
-| Stock              | Inventory             | `awcms_micro_stock_balances`, movements              | `/inventory/stock-balances`        | 3.2              |      4 | movement             |
-| Checkout           | Sales                 | `awcms_micro_checkout_sessions`                      | `/sales/checkout-sessions`         | 3.3              |      5 | checkout             |
-| Posting            | Sales                 | `awcms_micro_sales_documents`, idempotency           | `/sales/.../post`                  | 3.4              |      5 | idempotency/rollback |
-| Receipt            | CRM                   | `awcms_micro_receipt_pdfs`                           | `/crm/receipts/{id}/send`          | 5.1              |      7 | PDF                  |
-| WA/email           | CRM                   | `awcms_micro_message_outbox`                         | `/crm/receipts/{id}/send`          | 5.2/5.3          |      7 | provider mock        |
+| Ketersediaan       | Katalog toko online   | `awcms_micro_stock_balances`, movements              | `/inventory/stock-balances`        | 3.2              |      4 | movement             |
+| Checkout online    | Toko Online           | `awcms_micro_checkout_sessions`                      | `/sales/checkout-sessions`         | 3.3              |      5 | checkout             |
+| Posting pesanan online | Toko Online       | `awcms_micro_sales_documents`, idempotency           | `/sales/.../post`                  | 3.4              |      5 | idempotency/rollback |
+| Konfirmasi pesanan | Engagement            | `awcms_micro_receipt_pdfs`                           | `/store/orders/{id}/confirmation/send` | 5.1          |      7 | PDF                  |
+| Email/newsletter   | Engagement            | `awcms_micro_message_outbox`                         | `/store/orders/{id}/confirmation/send` | 5.2/5.3      |      7 | provider mock        |
 | Sync               | Sync                  | `awcms_micro_sync_outbox`, inbox                     | `/sync/push`                       | 6.1              |      8 | HMAC                 |
 | Conflict           | Sync                  | `awcms_micro_sync_conflicts`                         | `/sync/conflicts/{id}/resolve`     | 6.2              |      8 | conflict             |
-| Warehouse          | WMS                   | `awcms_micro_warehouses`, bins                       | `/warehouses`                      | 4.1              |      9 | location             |
-| Transfer           | WMS                   | transfer tables                                      | `/warehouse-transfers`             | 4.3              |      9 | transfer             |
-| Cycle count        | WMS                   | cycle count tables                                   | `/cycle-counts`                    | 4.4              |      9 | variance             |
-| VAT invoice        | Tax                   | `awcms_micro_vat_invoices`                           | `/tax/vat-invoices/generate`       | 7.3              |     10 | validation           |
-| Coretax            | Tax                   | `awcms_micro_coretax_batches`                        | `/tax/coretax/batches`             | 7.4              |     10 | XML/checksum         |
+| Warehouse _(ERP `awcms`, dikecualikan)_ | WMS    | `awcms_micro_warehouses`, bins                       | `/warehouses`                      | 4.1              |      9 | location             |
+| Transfer _(ERP `awcms`, dikecualikan)_ | WMS     | transfer tables                                      | `/warehouse-transfers`             | 4.3              |      9 | transfer             |
+| Cycle count _(ERP `awcms`, dikecualikan)_ | WMS  | cycle count tables                                   | `/cycle-counts`                    | 4.4              |      9 | variance             |
+| VAT invoice _(ERP `awcms`, dikecualikan)_ | Tax  | `awcms_micro_vat_invoices`                           | `/tax/vat-invoices/generate`       | 7.3              |     10 | validation           |
+| Coretax _(ERP `awcms`, dikecualikan)_ | Tax     | `awcms_micro_coretax_batches`                        | `/tax/coretax/batches`             | 7.4              |     10 | XML/checksum         |
 | UI                 | UI                    | UI registry                                          | `/ui/navigation`                   | 8.1/8.2          |     11 | render               |
 | Reports            | Reporting             | report views                                         | `/reports/sales/daily`             | 9.1              |     11 | tenant-aware         |
 | AI                 | AI                    | `awcms_micro_ai_tool_calls`                          | `/ai/business-analyst/chat`        | 9.2              |     11 | no PII/SQL           |
@@ -142,8 +142,8 @@ menggantikan versi sebelumnya yang mengutip nama file fiktif (mis.
 `003_awcms_micro_catalog_inventory_schema.sql`,
 `004_awcms_micro_sales_pos_schema.sql`) dari sebuah sistem POS/retail yang
 tidak pernah dibangun di repo base ini — berbeda dari tabel-tabel lain di
-dokumen ini yang sengaja memakai domain retail/POS **ilustratif** (lihat
-banner di puncak dokumen), tabel ini secara spesifik mendokumentasikan
+dokumen ini yang sengaja memakai domain website/toko online **ilustratif**
+(lihat banner di puncak dokumen), tabel ini secara spesifik mendokumentasikan
 struktur repo NYATA, sehingga mengikuti data real, bukan ilustrasi.
 
 | Modul (`key`)                | Migration                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -189,17 +189,17 @@ schema satu modul — lihat
 | RBAC/ABAC             | Identity Access                                                |
 | RLS                   | Semua tenant-scoped                                            |
 | Audit log             | Observability + semua high-risk                                |
-| Idempotency           | POS, Warehouse, Tax, CRM, Sync                                 |
+| Idempotency           | Online Store, Engagement, Sync (+ ERP `awcms`: Warehouse, Tax) |
 | Soft delete           | Master/config/draft tenant-scoped; restore/purge by permission |
 | Input validation      | Semua API                                                      |
-| Sensitive masking     | Profile, CRM, Tax, Logs, AI                                    |
-| Stock lock            | Inventory, POS, Warehouse                                      |
-| Immutable transaction | Sales POS                                                      |
+| Sensitive masking     | Profile, Engagement, Logs, AI (+ ERP `awcms`: Tax)            |
+| Stock lock            | Inventory, Online Store (+ ERP `awcms`: Warehouse)            |
+| Immutable transaction | Online Store (pesanan online)                                  |
 | Sync HMAC             | Sync                                                           |
-| File checksum         | Sync/R2, Tax export                                            |
-| Consent               | CRM                                                            |
+| File checksum         | Sync/R2 (+ ERP `awcms`: Tax export)                           |
+| Consent               | Engagement (newsletter)                                        |
 | AI read-only          | AI Analyst                                                     |
-| Tax export approval   | Tax                                                            |
+| Tax export approval _(ERP `awcms`, dikecualikan)_ | Tax                               |
 | Go-live gate          | Production Security                                            |
 | Backup/restore        | Deployment/Ops                                                 |
 
@@ -238,17 +238,15 @@ schema satu modul — lihat
 | Instalasi awal        | Deployment/Foundation         |
 | Setup tenant          | Tenant Admin                  |
 | Tambah user/role      | Identity + Profile            |
-| Input produk          | Inventory                     |
-| Input stok awal       | Inventory/Warehouse           |
-| Transaksi operasional | Sales POS                     |
-| Cancel/retur          | Sales POS                     |
-| Warehouse transfer    | Warehouse                     |
-| Cycle count           | Warehouse                     |
-| Stock adjustment      | Inventory/Warehouse           |
-| Receipt WA/email      | CRM                           |
-| Customer portal       | CRM/UI                        |
+| Input katalog produk  | Inventory                     |
+| Input ketersediaan awal | Inventory                   |
+| Pesanan online        | Online Store                  |
+| Cancel/retur pesanan  | Online Store                  |
+| Penyesuaian ketersediaan | Inventory                  |
+| Konfirmasi pesanan (email) | Engagement               |
+| Portal pelacakan pesanan | Engagement/UI              |
 | Offline sync          | Sync                          |
-| Pajak/Coretax         | Accounting Tax                |
+| Warehouse/Pajak/Coretax _(ERP `awcms`, dikecualikan)_ | Warehouse, Accounting Tax |
 | Reporting             | Reporting                     |
 | AI Analyst            | AI                            |
 | Backup/restore        | Deployment/Database           |
@@ -291,18 +289,18 @@ Urutan coding paling aman:
 6. Issue 2.2 — Central profile schema.
 7. Issue 2.3 — Identity login.
 8. Issue 2.4 — RBAC/ABAC.
-9. Issue 3.1 — Product catalog.
-10. Issue 3.2 — Stock balance/movement.
-11. Issue 3.3 — Checkout/cart.
-12. Issue 3.4 — Atomic transaction posting.
+9. Issue 3.1 — Katalog produk toko online.
+10. Issue 3.2 — Ketersediaan (stock balance/movement).
+11. Issue 3.3 — Keranjang/checkout online.
+12. Issue 3.4 — Posting pesanan online (atomic).
 
 Alasan:
 
 - Aplikasi domain tidak aman tanpa tenant/auth/profile/access.
-- Transaksi tidak boleh sebelum idempotency dan stock lock.
+- Pesanan online tidak boleh sebelum idempotency dan availability lock.
 - Provider eksternal tidak boleh didahulukan.
 - AI menunggu reporting safe views.
-- Coretax menunggu sales posted dan tax profile.
+- _(ERP `awcms`, dikecualikan):_ Coretax menunggu sales posted dan tax profile.
 
 ## Minimal MVP Boundary
 
@@ -312,11 +310,11 @@ Alasan:
 | Auth               | owner/admin/operator login                     |
 | Access             | role dasar, ABAC default deny                  |
 | Profile            | customer profile resolver                      |
-| Product            | create/list/search product                     |
-| Stock              | balance, movement                              |
-| POS                | checkout, cart, payment, post                  |
-| Transaction safety | idempotency, stock lock, rollback              |
-| Receipt            | PDF local                                      |
+| Product            | create/list/search produk katalog              |
+| Stock              | ketersediaan, movement                         |
+| Checkout online    | keranjang, payment online, post pesanan        |
+| Transaction safety | idempotency, availability lock, rollback       |
+| Konfirmasi pesanan | PDF local                                      |
 | Audit              | transaction audit                              |
 | Backup             | pg_dump + restore tested                       |
 | Docs               | admin/operator SOP basic                       |
@@ -332,12 +330,12 @@ Alasan:
 - No critical security finding.
 - Backup restore tested.
 - Pool health OK.
-- POS concurrent test OK.
-- Receipt token aman.
+- Checkout online concurrent test OK.
+- Token pelacakan pesanan aman.
 - Sync conflict policy tested jika hybrid.
-- Tax masking aktif jika modul tax aktif.
-- CRM opt-out respected jika CRM aktif.
+- Newsletter opt-out respected jika engagement aktif.
 - AI read-only jika AI aktif.
+- _(ERP `awcms`, dikecualikan):_ Tax masking aktif jika modul tax aktif.
 - SOP dan handover selesai.
 
 ## Repository artifact checklist
@@ -406,8 +404,8 @@ Semua file `docs/awcms-micro/01` sampai `19` harus menjadi acuan sebelum coding.
 
 ```text
 Mulai dari Issue 0.1.
-Jangan lompat ke POS sebelum foundation, tenant, profile, auth, dan ABAC selesai.
-Jangan integrasi provider eksternal sebelum core POS aman.
+Jangan lompat ke toko online (katalog/checkout) sebelum foundation, tenant, profile, auth, dan ABAC selesai.
+Jangan integrasi provider eksternal sebelum core checkout online aman.
 Jangan integrasi AI sebelum reporting safe views siap.
 Jangan mengaktifkan production sebelum security readiness pass.
 Jangan commit secret, dump database, data customer asli, atau .env.

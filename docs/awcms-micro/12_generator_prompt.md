@@ -1,6 +1,6 @@
 # Bagian 12 — Generator Prompt dan Instruksi Eksekusi Repository AWCMS-Micro
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -65,7 +65,7 @@ Stack final:
 - Web framework: Astro 7.
 - Database: PostgreSQL.
 - Arsitektur: modular monolith, microservice-ready.
-- Mode operasi: offline-first/LAN-first, optional online sync/R2.
+- Mode operasi: full-online (online-first, ADR-0034); outbox/queue sebagai pola ketahanan base, optional sync/R2.
 - Security baseline: RBAC + ABAC + PostgreSQL RLS + audit log.
 - API docs: OpenAPI.
 - Event docs: AsyncAPI.
@@ -115,7 +115,7 @@ Scope:
 9. Buat docs awal.
 
 Out of scope:
-- POS business logic.
+- Business logic toko online (katalog/checkout).
 - Login penuh.
 - Provider eksternal.
 - Data dummy customer asli.
@@ -197,20 +197,20 @@ Rules:
 Tests:
 - default deny.
 - deny overrides allow.
-- cashier limit.
-- tax officer access.
+- store operator limit.
+- engagement staff access.
 - cross-tenant blocked.
 ```
 
-## Prompt Sprint 4 — Catalog & Inventory
+## Prompt Sprint 4 — Katalog Toko Online
 
 ```text
 Objective:
-Implementasikan product catalog, category, brand, unit, product price, stock balance, dan stock movement.
+Implementasikan katalog produk toko online: category, brand, unit, product price, ketersediaan (stock balance), dan stock movement.
 
 Scope:
-- Product CRUD/search.
-- Stock balance.
+- Product CRUD/search (storefront).
+- Ketersediaan produk (stock balance).
 - Stock movement append-only.
 - Opening balance.
 
@@ -222,21 +222,21 @@ Security:
 - Product/category soft delete/restore membutuhkan ABAC, audit, dan default list menyembunyikan arsip.
 ```
 
-## Prompt Sprint 5 — POS MVP
+## Prompt Sprint 5 — Storefront & Checkout online (MVP)
 
 ```text
 Objective:
-Implementasikan checkout session, cart, payment, idempotency, dan atomic transaction posting.
+Implementasikan checkout session (keranjang online), payment online, idempotency, dan atomic posting pesanan online.
 
-Transaction posting harus:
+Posting pesanan online harus:
 1. Validate access.
 2. Validate idempotency.
 3. Validate checkout status.
-4. Validate payment.
-5. Validate stock.
-6. Lock stock with FOR UPDATE.
-7. Create sales document.
-8. Create sales lines.
+4. Validate payment (pembayaran online terkonfirmasi).
+5. Validate availability produk.
+6. Lock availability with FOR UPDATE.
+7. Create pesanan online (sales document).
+8. Create order lines.
 9. Create payments.
 10. Create stock movements.
 11. Create audit event.
@@ -244,7 +244,7 @@ Transaction posting harus:
 13. Enqueue sync outbox if available.
 
 Out of scope:
-- Payment gateway.
+- Integrasi penuh payment gateway.
 - Full refund/return.
 - Provider delivery.
 
@@ -272,18 +272,21 @@ Pool work class:
 - maintenance.
 ```
 
-## Prompt Sprint 7 — Receipt PDF, CRM, WhatsApp, Email
+## Prompt Sprint 7 — Engagement & Notifikasi (email, newsletter, komentar)
 
 ```text
 Objective:
-Implementasikan receipt PDF, CRM contact, consent, message outbox, StarSender, Mailketing, dan customer portal.
+Implementasikan konfirmasi/invoice pesanan online (PDF), notifikasi via email outbox base (Mailketing),
+langganan newsletter + consent, notifikasi moderasi komentar, dan portal pelacakan pesanan customer.
+(Recast dari contoh "CRM receipt kasir/WhatsApp" — jalur WhatsApp/StarSender adalah lineage ERP `awcms`,
+dikecualikan, ADR-0034 §3.)
 
 Rules:
-- API key provider dari env.
+- API key provider email dari env.
 - Consent wajib dicek.
-- Offline masuk queue.
-- Receipt token non-sequential.
-- Customer hanya akses receipt miliknya.
+- Kegagalan provider masuk queue (outbox).
+- Token pelacakan pesanan non-sequential.
+- Customer hanya akses pesanan miliknya.
 ```
 
 ## Prompt Sprint 8 — Offline Sync dan R2
@@ -304,6 +307,9 @@ Rules:
 
 ## Prompt Sprint 9 — Warehouse
 
+> **Lineage ERP `awcms` — dikecualikan (ADR-0034 §3 / ADR-0025).** Gudang/bin/lot/serial/transfer/cycle
+> count **bukan** scope template website ini; prompt di bawah dipertahankan hanya sebagai ilustrasi lineage.
+
 ```text
 Objective:
 Implementasikan warehouse, zone, bin, bin balance, lot, serial, transfer, shipment, receipt, in-transit, cycle count, dan adjustment request.
@@ -322,6 +328,9 @@ Rules:
 
 ## Prompt Sprint 10 — Accounting/Coretax
 
+> **Lineage ERP `awcms` — dikecualikan (ADR-0034 §3 / ADR-0025).** Faktur pajak/VAT/Coretax **bukan**
+> scope template website ini; prompt di bawah dipertahankan hanya sebagai ilustrasi lineage.
+
 ```text
 Objective:
 Implementasikan tax profile, NITKU, party/product tax profile, VAT invoice staging, validation, dan Coretax XML batch.
@@ -339,7 +348,7 @@ Rules:
 
 ```text
 Objective:
-Implementasikan admin UI, POS UI, customer portal, reporting views/API, dan AI business analyst read-only.
+Implementasikan admin UI, storefront & checkout UI, customer portal (pelacakan pesanan), reporting views/API, dan AI business analyst read-only.
 
 AI rules:
 - Read-only.
@@ -513,10 +522,10 @@ Wajib laporkan:
 - Status partial/blocked.
 - Next step.
 
-## Instruksi offline-first
+## Instruksi ketahanan (outbox) & optional sync
 
-- POS tidak bergantung internet.
-- Provider eksternal masuk queue.
+- Provider eksternal opsional (email/payment/AI) tidak memblokir alur utama request.
+- Kegagalan provider eksternal masuk queue (outbox).
 - File lokal disimpan dulu.
 - R2 optional.
 - Retry aman.
@@ -547,7 +556,7 @@ Scope:
 Out of scope:
 - Database migration runner
 - Login
-- POS
+- Toko online (katalog/checkout)
 - Inventory
 - Provider eksternal
 - UI lengkap
