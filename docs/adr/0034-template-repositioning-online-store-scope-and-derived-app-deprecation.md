@@ -40,7 +40,7 @@ Lapisan **Derived Application** (ADR-0013), komposisi `application-registry.ts` 
 
 ### 4. Contoh domain: retail/POS → website/toko online
 
-Contoh berjalan di paket dokumen 02–19 harus berorientasi **website/toko online**, bukan retail/POS in-store. Banner penanda tiap dokumen diperbarui untuk menyatakan (a) base ini template website, (b) contoh POS/kasir adalah **legacy warisan sumber-standar AWPOS** yang sedang diganti, dan (c) POS in-store berada di luar scope (lineage ERP `awcms`). Penulisan-ulang konten POS mendalam (langkah SOP kasir, layar POS fullscreen, skema `sales_pos`) adalah pekerjaan bertahap lanjutan; hingga tuntas, **`src/`, `sql/`, dan gate CI tetap sumber kebenaran** (mewarisi ADR-0025 §Konsekuensi).
+Contoh berjalan di paket dokumen 02–19 berorientasi **website/toko online**, bukan retail/POS in-store. Banner penanda tiap dokumen menyatakan (a) base ini template website, (b) contoh domain diisi langsung di repo ini sebagai ilustrasi, dan (c) POS in-store/gudang/Coretax berada di luar scope (lineage ERP `awcms`). **Round 2 (landed):** penulisan-ulang konten contoh mendalam di 02–19 (SOP kasir → SOP checkout online & pemrosesan pesanan, layar POS fullscreen → layar storefront/admin website, skema `sales_pos` → katalog/pesanan online, glosarium POS/gudang/pajak → istilah website/toko-online) sudah diterapkan dengan aturan tiga-ember: **A** pertahankan konten base nyata (Issue#/`sql/###`/ADR), **B** reframe permukaan toko-online in-scope (katalog/checkout/pesanan) tetap ILUSTRATIF, **C** kecualikan gudang/Coretax/kasir-terminal sebagai lineage ERP `awcms`. Registry 22-modul base tidak berubah; **`src/`, `sql/`, dan gate CI tetap sumber kebenaran** (mewarisi ADR-0025 §Konsekuensi).
 
 ### 5. AWPOS
 
@@ -50,5 +50,5 @@ Contoh berjalan di paket dokumen 02–19 harus berorientasi **website/toko onlin
 
 - **Positif:** framing jelas — template website langsung, hingga toko online, tanpa POS; pengguna tidak dipaksa lewat lapisan aplikasi-turunan; docs tidak lagi menyiratkan base membangun POS.
 - **`AGENTS.md` (kontrak first-read) + README + paket dokumen** direframe (positioning template, katalog/etalase/checkout = ekstensi website in-scope yang dipisahkan dari POS/gudang/pajak yang dikecualikan, `derived-application-guide.md` + `derived-app-pilot-plan.md` ditandai deprecated menunjuk ADR ini). Sapuan banner 02–19 = putaran lanjutan (§4).
-- **Utang lanjutan (diakui, bertahap):** (a) penulisan-ulang konten contoh POS mendalam di 02–19 menjadi website/toko-online; (b) opsional & evidence-gated: pelepasan gerbang/kode jalur turunan (`extension:check` dll.). Keduanya putaran terpisah.
+- **Utang lanjutan:** (a) penulisan-ulang konten contoh POS mendalam di 02–19 menjadi website/toko-online — **SELESAI (Round 2)**; (b) opsional & evidence-gated: pelepasan gerbang/kode jalur turunan (`extension:check` dll.) — masih putaran terpisah, belum dikerjakan.
 - **Tidak berubah:** seluruh konvensi teknis base (Bun-only, RLS/FORCE, RBAC/ABAC default-deny, kontrak OpenAPI/AsyncAPI, registry modul saat ini, gate CI). ADR ini me-reposisi **narasi & jalur pemakaian**, bukan arsitektur runtime.

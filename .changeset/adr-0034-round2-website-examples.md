@@ -1,0 +1,5 @@
+---
+"awcms-micro": patch
+---
+
+ADR-0034 Round 2 (docs-only): reframe the illustrative running examples across the numbered document package `docs/awcms-micro/02–19` from the legacy retail/POS (AWPOS) domain to the **website / online-store** domain that matches AWCMS-Micro's positioning as a directly-used full-online-website template. Applied a three-bucket rule: (A) real base modules/tables and their `Issue#`/`sql/###`/ADR references are preserved verbatim; (B) online-store surfaces (catalog, cart/checkout, online orders/payments) are reframed in-place but remain **illustrative** — the 22-module base registry is unchanged; (C) in-store POS, warehouse (bins/lots/serials/cycle-count), and tax/Coretax examples are excluded and labelled as ERP `awcms` lineage rather than routed to the deprecated derived-app pathway. Personas Kasir/Petugas Gudang/Tax Officer are folded into Customer self-checkout + Store Operator / Engagement Staff, and the per-document banners (02–19) now point to ADR-0034. Also updates ADR-0034 §4/Konsekuensi (Round 2 landed) and the doc-package README note. No code, migrations, OpenAPI/AsyncAPI, or registry changes.
