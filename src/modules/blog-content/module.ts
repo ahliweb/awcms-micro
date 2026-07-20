@@ -409,5 +409,32 @@ export const blogContentModule = defineModule({
       weight: 1.0,
       privacyClassification: "public"
     }
+  ],
+  // Public commentable-resource contribution to `comments` (Issue #271, ADR-0032
+  // §3). Pure DATA — no executable extractor, no SQL: `comments`'s engine reads
+  // `awcms_micro_blog_posts` through this declarative mapping + publication filter
+  // to confirm a post is PUBLISHED & PUBLIC before a comment on it is accepted or
+  // shown. Same source table + publicationFilter as the searchSources entry above
+  // (the exact public-visibility predicate blog_content's own public routes use),
+  // so a draft/private/deleted/scheduled post never receives or exposes comments.
+  // `blog_post` opens threads moderation-first (moderated-anonymous) until the
+  // tenant tightens the policy. Blog PAGES are not contributed (no public route).
+  commentableResources: [
+    {
+      key: "blog_content.post",
+      ownerModuleKey: "blog_content",
+      resourceType: "blog_post",
+      tableName: "awcms_micro_blog_posts",
+      localeColumn: "locale",
+      slugColumn: "slug",
+      urlTemplate: "/news/:slug",
+      publicationFilter: {
+        equals: { status: "published", visibility: "public" },
+        nullColumns: ["deleted_at"],
+        notNullColumns: ["published_at"],
+        timeReachedColumns: ["published_at"]
+      },
+      defaultPolicy: "moderated-anonymous"
+    }
   ]
 });

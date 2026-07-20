@@ -1,0 +1,51 @@
+---
+/**
+ * `GET /comments/demo?resourceType=&resourceId=&locale=` (Issue #271, ADR-0032) —
+ * a public, host-resolved reference page that mounts the reusable
+ * `CommentsSection` island for a given commentable resource. Production sites
+ * embed `<CommentsSection>` directly on their content pages (e.g. a news article);
+ * this route exists as a working, embeddable reference and the E2E target. Tenant
+ * is resolved server-side from the request host by the API the island calls — this
+ * page trusts no client-supplied tenant.
+ */
+import CommentsSection from "../../components/comments/CommentsSection.astro";
+import { createTranslator } from "../../lib/i18n/translate";
+
+const url = Astro.url;
+const resourceType = url.searchParams.get("resourceType") ?? "blog_post";
+const resourceId = url.searchParams.get("resourceId") ?? "";
+const locale = url.searchParams.get("locale") ?? "";
+const t = await createTranslator(Astro.locals.locale);
+
+// Public UGC surface — keep it out of search indexes (it is a reference/demo).
+Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+---
+
+<!doctype html>
+<html lang={Astro.locals.locale ?? "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{t("comments.public.heading")}</title>
+  </head>
+  <body>
+    <main
+      class="comments-demo"
+      style="max-width: 46rem; margin: 2rem auto; padding: 0 1rem;"
+    >
+      <h1>{t("comments.public.heading")}</h1>
+      {
+        resourceId ? (
+          <CommentsSection
+            resourceType={resourceType}
+            resourceId={resourceId}
+            locale={locale}
+          />
+        ) : (
+          <p>{t("comments.public.missing_resource")}</p>
+        )
+      }
+    </main>
+  </body>
+</html>

@@ -316,6 +316,36 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/comments/admin/[id]/archive.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/comments/admin/[id]/moderate.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/comments/admin/[id]/restore.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/comments/admin/bulk-moderate.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/comments/admin/queue.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/comments/admin/settings.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/data-lifecycle/dry-run.ts",
       "workClass": "interactive",
       "source": "default"
@@ -1093,6 +1123,12 @@
       "workClass": "background_sync",
       "source": "registry",
       "rationale": "Scheduled-publish dispatcher (blog:publish:scheduled) — recurring, not latency-sensitive, but more time-relevant than a maintenance purge."
+    },
+    {
+      "path": "scripts/comment-retention.ts",
+      "workClass": "maintenance",
+      "source": "registry",
+      "rationale": "Scheduled bounded retention/anonymization sweep (comments:retention, Issue #271) — NULLs author identity on aged comments and purges unconfirmed reply subscriptions; tolerant of delay, never latency-sensitive, honors legal hold."
     },
     {
       "path": "scripts/data-lifecycle-archive-purge.ts",

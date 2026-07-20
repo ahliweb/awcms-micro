@@ -42,7 +42,21 @@ export const ALLOWED_PUBLIC_OPERATIONS: readonly `${string} ${string}`[] = [
   // query-length-bounded. Public by design, like `/news` — declared here so the
   // change is visible in the diff.
   "GET /api/v1/site-search/query",
-  "GET /api/v1/site-search/suggest"
+  "GET /api/v1/site-search/suggest",
+  // Issue #271 (ADR-0032) — the public, host-resolved comment surfaces. Tenant is
+  // resolved from the request host (not a session); a comment is only ever
+  // accepted/shown against a PUBLISHED, PUBLIC resource; every surface is
+  // anti-abuse-gated (honeypot, timing token, blocked terms, per-IP rate limit)
+  // and returns a neutral response so existence/moderation state never leaks.
+  // Public by design, like `/news` — declared here so the change is visible in
+  // the diff. Admin/moderation routes under `/api/v1/comments/admin/*` are NOT
+  // here: they carry the standard bearer+tenant security requirement.
+  "GET /api/v1/comments",
+  "POST /api/v1/comments",
+  "POST /api/v1/comments/{id}/replies",
+  "PATCH /api/v1/comments/{id}",
+  "POST /api/v1/comments/{id}/report",
+  "POST /api/v1/comments/{id}/delete-request"
   // Upstream AWCMS-Mini lists a fifth entry here — `integration_hub`'s inbound
   // webhook receiver (Issue #754), public because an external provider calls it
   // with no tenant session. AWCMS-Micro does not port `integration_hub`

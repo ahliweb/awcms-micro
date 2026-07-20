@@ -3610,3 +3610,125 @@ msgstr "Berikutnya"
 
 msgid "site_search.page.suggestions_label"
 msgstr "Saran pencarian"
+
+#. comments (Issue #271, ADR-0032)
+msgid "comments.public.heading"
+msgstr "Komentar"
+
+msgid "comments.public.form_heading"
+msgstr "Tinggalkan komentar"
+
+msgid "comments.public.name_label"
+msgstr "Nama"
+
+msgid "comments.public.email_label"
+msgstr "Email (opsional)"
+
+msgid "comments.public.email_hint"
+msgstr "Tidak pernah ditampilkan publik; hanya dipakai untuk notifikasi balasan bila Anda memilihnya."
+
+msgid "comments.public.body_label"
+msgstr "Komentar"
+
+msgid "comments.public.subscribe_label"
+msgstr "Beri tahu saya balasan lewat email"
+
+msgid "comments.public.submit"
+msgstr "Kirim komentar"
+
+msgid "comments.public.submitting"
+msgstr "Mengirim…"
+
+msgid "comments.public.submit_error"
+msgstr "Maaf, komentar Anda tidak dapat dikirim. Silakan coba lagi."
+
+msgid "comments.public.load_error"
+msgstr "Komentar tidak dapat dimuat."
+
+msgid "comments.public.load_more"
+msgstr "Muat komentar lainnya"
+
+msgid "comments.public.awaiting_moderation"
+msgstr "Terima kasih! Komentar Anda menunggu moderasi."
+
+msgid "comments.public.empty"
+msgstr "Belum ada komentar. Jadilah yang pertama berkomentar."
+
+msgid "comments.public.reply"
+msgstr "Balas"
+
+msgid "comments.public.report"
+msgstr "Laporkan"
+
+msgid "comments.public.report_prompt"
+msgstr "Laporkan komentar ini ke moderator?"
+
+msgid "comments.public.reported"
+msgstr "Terima kasih — komentar telah dilaporkan."
+
+msgid "comments.public.missing_resource"
+msgstr "Tidak ada sumber daya yang ditentukan."
+
+msgid "admin.comments.nav_label"
+msgstr "Komentar"
+
+msgid "admin.comments.page_title"
+msgstr "Moderasi komentar"
+
+msgid "admin.comments.page_description"
+msgstr "Tinjau, setujui, tolak, atau hapus komentar pengunjung."
+
+msgid "admin.comments.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.comments.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk memoderasi komentar."
+
+msgid "admin.comments.filter_label"
+msgstr "Status"
+
+msgid "admin.comments.status_pending"
+msgstr "Menunggu"
+
+msgid "admin.comments.status_approved"
+msgstr "Disetujui"
+
+msgid "admin.comments.status_rejected"
+msgstr "Ditolak"
+
+msgid "admin.comments.status_spam"
+msgstr "Spam"
+
+msgid "admin.comments.status_deleted"
+msgstr "Dihapus"
+
+msgid "admin.comments.status_label"
+msgstr "Status"
+
+msgid "admin.comments.empty"
+msgstr "Tidak ada komentar yang cocok dengan filter ini."
+
+msgid "admin.comments.approve"
+msgstr "Setujui"
+
+msgid "admin.comments.reject"
+msgstr "Tolak"
+
+msgid "admin.comments.spam"
+msgstr "Spam"
+
+msgid "admin.comments.archive"
+msgstr "Arsipkan"
+
+msgid "admin.comments.restore"
+msgstr "Pulihkan"
+
+msgid "admin.comments.reports"
+msgstr "Laporan"
+
+msgid "admin.comments.reason_prompt"
+msgstr "Masukkan kode alasan untuk tindakan ini:"
+
+msgid "admin.comments.action_error"
+msgstr "Tindakan moderasi tidak dapat diselesaikan."
+

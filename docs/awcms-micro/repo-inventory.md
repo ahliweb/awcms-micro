@@ -6,11 +6,12 @@
 
 ## Modules
 
-20 modules registered in `src/modules/index.ts` `listModules()`.
+21 modules registered in `src/modules/index.ts` `listModules()`.
 
 | Key                    | Version | Status   | Type     | Dependencies                                                                       |
 | ---------------------- | ------- | -------- | -------- | ---------------------------------------------------------------------------------- |
 | `blog_content`         | `0.9.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
+| `comments`             | `0.1.0` | `active` | `domain` | `tenant_admin`, `identity_access`                                                  |
 | `data_lifecycle`       | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
 | `domain_event_runtime` | `0.1.0` | `active` | `system` | `tenant_admin`, `identity_access`, `logging`                                       |
 | `email`                | `0.5.0` | `active` | `-`      | `tenant_admin`, `profile_identity`, `identity_access`                              |
@@ -33,7 +34,7 @@
 
 ## Migrations
 
-73 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `088_awcms_micro_site_search_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+75 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `090_awcms_micro_comments_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -110,10 +111,12 @@
 | 086 | `086_awcms_micro_theming_permissions.sql`                          |
 | 087 | `087_awcms_micro_site_search_schema.sql`                           |
 | 088 | `088_awcms_micro_site_search_permissions.sql`                      |
+| 089 | `089_awcms_micro_comments_schema.sql`                              |
+| 090 | `090_awcms_micro_comments_permissions.sql`                         |
 
 ## Tables & Row-Level Security
 
-117 tables created across all migrations; 109 carry a `tenant_id` column; 108 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
+124 tables created across all migrations; 116 carry a `tenant_id` column; 115 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
 
 No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` statement, or is on the reviewed exempt allow-list below.
 
@@ -133,19 +136,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-340 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+344 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 45         |
-| `e2e`         | 13         |
-| `integration` | 104        |
+| `e2e`         | 14         |
+| `integration` | 105        |
 | `modules`     | 5          |
-| `unit`        | 173        |
+| `unit`        | 175        |
 
 ## Routes / Operations (summary)
 
-223 OpenAPI paths, 296 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+234 OpenAPI paths, 309 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 

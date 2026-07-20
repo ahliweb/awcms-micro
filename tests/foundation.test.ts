@@ -60,8 +60,8 @@ describe("soft delete helper", () => {
 });
 
 describe("module registry", () => {
-  test("the 20 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
-    expect(listModules()).toHaveLength(20);
+  test("the 21 website-scope modules are registered, and none of upstream AWCMS-Mini's ERP-scope modules are (ADR-0025)", () => {
+    expect(listModules()).toHaveLength(21);
     expect(getModuleByKey("tenant_admin")).toMatchObject({
       key: "tenant_admin",
       status: "active"
@@ -169,6 +169,16 @@ describe("module registry", () => {
     // modules and nothing depends on it.
     expect(getModuleByKey("site_search")).toMatchObject({
       key: "site_search",
+      status: "active",
+      type: "domain",
+      dependencies: ["tenant_admin", "identity_access"]
+    });
+    // Issue #271 (ADR-0032) — `comments` registered with its first runtime code,
+    // bumping the base registry 20 -> 21. Consumer/aggregator of the
+    // `commentableResources` descriptor-list seam: it depends only on the two Core
+    // modules and nothing depends on it (DAG-inward leaf).
+    expect(getModuleByKey("comments")).toMatchObject({
+      key: "comments",
       status: "active",
       type: "domain",
       dependencies: ["tenant_admin", "identity_access"]
@@ -616,7 +626,9 @@ describe("database migration runner helpers", () => {
       "085_awcms_micro_theming_config_schema.sql",
       "086_awcms_micro_theming_permissions.sql",
       "087_awcms_micro_site_search_schema.sql",
-      "088_awcms_micro_site_search_permissions.sql"
+      "088_awcms_micro_site_search_permissions.sql",
+      "089_awcms_micro_comments_schema.sql",
+      "090_awcms_micro_comments_permissions.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

@@ -1988,6 +1988,91 @@ msgstr ""
 msgid "admin.business_scope.revoke_reason_prompt"
 msgstr ""
 
+#: src/pages/admin/comments/index.astro:53
+msgid "admin.comments.access_denied_body"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:52
+msgid "admin.comments.access_denied_title"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:32
+msgid "admin.comments.action_error"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:34
+msgid "admin.comments.approve"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:37
+msgid "admin.comments.archive"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:33
+msgid "admin.comments.empty"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:75
+msgid "admin.comments.filter_label"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/comments/module.ts:91
+msgid "admin.comments.nav_label"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:46
+msgid "admin.comments.page_description"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:44
+msgid "admin.comments.page_title"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:31
+msgid "admin.comments.reason_prompt"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:35
+msgid "admin.comments.reject"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:39
+msgid "admin.comments.reports"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:38
+msgid "admin.comments.restore"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:36
+msgid "admin.comments.spam"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:82
+msgid "admin.comments.status_approved"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:89
+msgid "admin.comments.status_deleted"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:40
+msgid "admin.comments.status_label"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:79
+msgid "admin.comments.status_pending"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:85
+msgid "admin.comments.status_rejected"
+msgstr ""
+
+#: src/pages/admin/comments/index.astro:87
+msgid "admin.comments.status_spam"
+msgstr ""
+
 #: src/pages/admin/index.astro:121
 msgid "admin.dashboard.access_audit_title"
 msgstr ""
@@ -4451,6 +4536,82 @@ msgstr ""
 
 #: src/pages/login.astro:67
 msgid "auth.login.tenant_id_label"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:34
+msgid "comments.public.awaiting_moderation"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:106
+msgid "comments.public.body_label"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:102
+msgid "comments.public.email_hint"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:94
+msgid "comments.public.email_label"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:35
+msgid "comments.public.empty"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:70
+msgid "comments.public.form_heading"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:52
+msgid "comments.public.heading"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:33
+msgid "comments.public.load_error"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:66
+msgid "comments.public.load_more"
+msgstr ""
+
+#: src/pages/comments/demo.astro:46
+msgid "comments.public.missing_resource"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:81
+msgid "comments.public.name_label"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:36
+msgid "comments.public.reply"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:37
+msgid "comments.public.report"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:38
+msgid "comments.public.report_prompt"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:39
+msgid "comments.public.reported"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:139
+msgid "comments.public.submit"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:32
+msgid "comments.public.submit_error"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:31
+msgid "comments.public.submitting"
+msgstr ""
+
+#: src/components/comments/CommentsSection.astro:118
+msgid "comments.public.subscribe_label"
 msgstr ""
 
 #: src/pages/admin/examples/wizard.astro:149

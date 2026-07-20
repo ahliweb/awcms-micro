@@ -317,6 +317,89 @@ export type ModuleDescriptor = {
   reportingProjections?: ProjectionDescriptor[];
   /** Public search-source descriptors this module contributes to `site_search` (Issue #270, ADR-0031) — see `SearchSourceDescriptor`'s own doc comment below. */
   searchSources?: SearchSourceDescriptor[];
+  /** Public commentable-resource descriptors this module contributes to `comments` (Issue #271, ADR-0032) — see `CommentableResourceDescriptor`'s own doc comment below. */
+  commentableResources?: CommentableResourceDescriptor[];
+};
+
+/**
+ * A declarative, pure-data public commentable-resource descriptor a content
+ * module contributes to `comments` (Issue #271, epic #261, ADR-0032). Exactly the
+ * same "module declares its own descriptor array, a central engine reads
+ * `listModules()`" shape `searchSources`/`dataLifecycle`/`reportingProjections`
+ * above already use — `comments`'s `domain/commentable-resource-registry.ts` is
+ * the aggregator/validator, mirroring `site-search/domain/search-source-registry.ts`
+ * exactly.
+ *
+ * ## Why a descriptor-list, not a capability `provides` (ADR-0032 §3)
+ *
+ * Many content modules may want to accept comments. Modeling `commentable_resource`
+ * as a capability `provides` would immediately trip `module-composition.ts`'s
+ * `capability_provider_conflict` (>1 declared provider of the same capability
+ * string). A descriptor-list riding `listModules()` lets a DERIVED module admit a
+ * reviewed commentable type through its own `application-registry.ts` WITHOUT
+ * editing the base registry and WITHOUT writing to `comments`'s tables (same
+ * derived-safe seam as `searchSources`).
+ *
+ * ## Pure DATA, not an executable extractor (issue #271 security requirement)
+ *
+ * This descriptor carries NO function reference — only reviewed, code-only
+ * column/table NAMES and a declarative `publicationFilter`. `comments`'s engine
+ * builds a PARAMETERIZED existence/publication query from it: literal filter
+ * VALUES are always bound parameters; only the IDENTIFIERS (table/column names)
+ * are interpolated, and they are re-validated with the sanctioned
+ * `assertSafeIdentifier` pattern before interpolation — the same discipline
+ * `site_search` and `data_lifecycle`'s `generic` executionMode use. A resource
+ * must be PUBLISHED & PUBLIC (per `publicationFilter`) before a comment on it is
+ * ever accepted or shown; there is no place for a tenant to inject SQL.
+ *
+ * TRUSTED CODE-ONLY METADATA (same rule as every descriptor type above) —
+ * declared by the owning module's source, never tenant/request-controlled.
+ */
+export type CommentableResourcePublicationFilter = {
+  /** Column = literal-value equality checks, e.g. `{ status: "published", visibility: "public" }`. VALUES are bound parameters, KEYS are validated identifiers. All must hold (AND). */
+  equals?: Readonly<Record<string, string>>;
+  /** Columns that must be `IS NOT NULL` for a row to be public (e.g. `published_at`). */
+  notNullColumns?: readonly string[];
+  /** Columns that must be `IS NULL` for a row to be public — the soft-delete gate (e.g. `deleted_at`). */
+  nullColumns?: readonly string[];
+  /** Columns whose value must be `<= now()` for a row to be public — the schedule gate (e.g. `published_at`). */
+  timeReachedColumns?: readonly string[];
+};
+
+/**
+ * The default comment policy a resource type opens its thread with, until the
+ * tenant overrides it. Same four modes as `awcms_micro_comments_settings.
+ * default_policy_mode` / the `comment-policy.ts` state machine.
+ */
+export type CommentableResourceDefaultPolicy =
+  | "disabled"
+  | "authenticated-only"
+  | "moderated-anonymous"
+  | "moderated-registered";
+
+export type CommentableResourceDescriptor = {
+  /** Stable, unique across the whole registry, `"<module_key>.<short>"` (e.g. `"blog_content.post"`). */
+  key: string;
+  /** Must equal the declaring module's own `key` — validated by the registry gate (`comments/domain/commentable-resource-registry.ts`), not the type system. */
+  ownerModuleKey: string;
+  /** Opaque content-type discriminator, e.g. `"blog_post"`. Stored on each thread; never interpreted structurally by `comments`. */
+  resourceType: string;
+  /** Source table the engine reads to confirm a resource is published/public (must start with `awcms_micro_`). */
+  tableName: string;
+  /** Defaults to `"tenant_id"`. */
+  tenantColumn?: string;
+  /** Defaults to `"id"` — the resource primary key. */
+  idColumn?: string;
+  /** Column carrying the BCP-47 locale of each row — every thread is locale-scoped. */
+  localeColumn: string;
+  /** Column supplying `:slug` in `urlTemplate`; `null`/omit when the template uses only `:id`. */
+  slugColumn?: string | null;
+  /** Public URL template with `:slug` / `:id` placeholders resolved from `slugColumn` / `idColumn` (e.g. `"/news/:slug"`). */
+  urlTemplate: string;
+  /** Declarative publication predicate enforced at the resource->thread boundary — the draft/private/deleted-leakage defense (ADR-0032 §5). */
+  publicationFilter: CommentableResourcePublicationFilter;
+  /** Default policy mode a fresh thread for this resource type opens with (the tenant's settings may override per-tenant). */
+  defaultPolicy: CommentableResourceDefaultPolicy;
 };
 
 /**
@@ -746,8 +829,15 @@ export type ModuleMigrationNamespace = {
  * `SearchSourcePublicationFilter` exported types, the declarative public
  * search-source contribution seam for `site_search` (MINOR: purely additive,
  * same rule as `1.2.0`'s `reportingProjections` addition).
+ *
+ * `1.4.0` (Issue #271, ADR-0032) — added the optional `ModuleDescriptor.
+ * commentableResources` field plus the new `CommentableResourceDescriptor` /
+ * `CommentableResourcePublicationFilter` / `CommentableResourceDefaultPolicy`
+ * exported types, the declarative public commentable-resource contribution seam
+ * for `comments` (MINOR: purely additive, same rule as `1.3.0`'s `searchSources`
+ * addition).
  */
-export const MODULE_CONTRACT_VERSION = "1.3.0";
+export const MODULE_CONTRACT_VERSION = "1.4.0";
 
 /**
  * One derived/downstream repository's contribution to the final composed
