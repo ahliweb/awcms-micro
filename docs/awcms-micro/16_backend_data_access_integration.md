@@ -1,6 +1,6 @@
 # Bagian 16 — Backend Data Access dan Integrasi Database
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -17,7 +17,7 @@ Terkait: `10_template_kode_coding_standard.md` (aturan), `04_erd_data_dictionary
 | Pola akses       | Repository per modul (`infrastructure/repository.ts`)                   |
 | RLS context      | `SET LOCAL app.current_tenant_id` di dalam transaction                  |
 | Transaction      | Wrapper eksplisit; `FOR UPDATE` untuk stok; timeout                     |
-| Event/provider   | **Transactional outbox** (event, pesan CRM, sync)                       |
+| Event/provider   | **Transactional outbox** (event, pesan email/newsletter, sync)          |
 | Soft delete      | Repository default filter `deleted_at IS NULL`; restore/purge berizin   |
 | Migration        | Runner berurutan + checksum (`awcms_micro_schema_migrations`)           |
 | Pool             | Work-class + antrean + circuit breaker; PgBouncer opsional              |
@@ -92,13 +92,13 @@ async function withTenant<T>(
 
 1. Transaction untuk semua mutation multi-table.
 2. Set RLS context di awal transaction.
-3. `SELECT ... FOR UPDATE` untuk baris stok/bin balance yang berubah.
+3. `SELECT ... FOR UPDATE` untuk baris stok/ketersediaan produk yang berubah.
 4. **Urutkan lock berdasarkan `product_id`** untuk mengurangi deadlock.
 5. **Jangan** memanggil provider eksternal di dalam transaction (WA/email/R2/AI).
 6. Statement timeout untuk mencegah transaksi menggantung.
 7. Deadlock retry aman karena idempotency (doc 10).
 
-### Posting POS (integrasi end-to-end)
+### Posting pesanan online (integrasi end-to-end)
 
 ```mermaid
 sequenceDiagram
@@ -114,7 +114,7 @@ sequenceDiagram
   Svc->>DB: INSERT sales_document + lines + payments
   Svc->>DB: INSERT stock_movements (append-only) + update balance
   Svc->>DB: INSERT audit_event
-  Svc->>OB: INSERT outbox: sales.transaction.posted (+sync, +receipt)
+  Svc->>OB: INSERT outbox: sales.transaction.posted (+sync, +notifikasi)
   Svc->>DB: simpan idempotency response
   Svc->>DB: COMMIT
   Note over Svc,OB: Setelah commit, dispatcher kirim outbox (provider di luar tx)
@@ -122,14 +122,14 @@ sequenceDiagram
 
 ## Transactional outbox
 
-Event domain, pesan CRM, dan sync **ditulis dalam transaction yang sama** dengan perubahan data, lalu dikirim oleh worker terpisah. Ini menjamin konsistensi tanpa memanggil provider di dalam transaction.
+Event domain, pesan (email/newsletter/notifikasi), dan sync **ditulis dalam transaction yang sama** dengan perubahan data, lalu dikirim oleh worker terpisah. Ini menjamin konsistensi tanpa memanggil provider di dalam transaction.
 
 ```mermaid
 flowchart LR
   Tx[Transaction bisnis] --> OB[(awcms_micro_*_outbox)]
   OB --> Disp[Dispatcher worker]
   Disp -->|event| Bus[Konsumer internal]
-  Disp -->|CRM| Prov[StarSender/Mailketing]
+  Disp -->|email/newsletter| Prov[Mailketing]
   Disp -->|sync| Node[Sync push]
   Disp -->|gagal| Retry[Backoff + retry]
 ```
@@ -199,7 +199,7 @@ Work class membatasi konkurensi per jenis beban agar transaksi operasional tetap
 
 | Work class             | Contoh                        | Prioritas |
 | ---------------------- | ----------------------------- | --------- |
-| `critical_transaction` | Posting POS, transfer receive | Tertinggi |
+| `critical_transaction` | Posting pesanan online        | Tertinggi |
 | `interactive`          | CRUD admin, search            | Tinggi    |
 | `reporting`            | Laporan, dashboard            | Sedang    |
 | `background_sync`      | Sync push/pull, outbox        | Rendah    |
@@ -302,7 +302,7 @@ Nama tabel/kolom `snake_case`, prefiks `awcms_micro_` (doc 04/10).
 ## Acceptance criteria
 
 - Semua akses tenant-scoped memakai `withTenant`/`SET LOCAL` + filter `tenant_id`; RLS aktif.
-- Posting POS atomic, mengunci stok, dan menulis outbox dalam satu transaction.
+- Posting pesanan online atomic, mengunci stok, dan menulis outbox dalam satu transaction.
 - Provider eksternal tidak dipanggil di dalam transaction.
 - Pool work-class + backpressure aktif; health endpoint melaporkan saturasi; `503` saat penuh.
 - Migration berjalan berurutan, tidak double-run, checksum tercatat, error menghentikan proses.

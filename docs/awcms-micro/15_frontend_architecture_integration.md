@@ -1,6 +1,6 @@
 # Bagian 15 — Arsitektur Frontend dan Integrasi Frontend–Backend
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -13,12 +13,12 @@ Terkait: `14_ui_ux_design_system.md` (desain), `16_backend_data_access_integrati
 | Aspek          | Keputusan                                                                                                         |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Framework      | Astro 7, output **server (SSR)** dijalankan di runtime Bun                                                        |
-| Interaktivitas | **Astro islands** + TypeScript; framework island opsional (mis. Preact) hanya untuk pulau kompleks (POS, chat AI) |
+| Interaktivitas | **Astro islands** + TypeScript; framework island opsional (mis. Preact) hanya untuk pulau kompleks (checkout, chat AI) |
 | Styling        | CSS variables (design token doc 14), scoped styles                                                                |
 | Rendering      | Halaman authed = SSR; customer portal = SSR; aset statis di-cache SW                                              |
 | Data fetching  | SSR initial load + client mutation via API client                                                                 |
-| Offline        | PWA: service worker + IndexedDB outbox untuk POS/receipt                                                          |
-| State          | Lokal per-island + store ringan untuk keranjang POS; hindari SPA global besar                                     |
+| Offline        | PWA: service worker + IndexedDB outbox untuk checkout/konten (kapabilitas opsional)                               |
+| State          | Lokal per-island + store ringan untuk keranjang storefront; hindari SPA global besar                             |
 
 Alasan: SSR menjaga waktu muat cepat di LAN, aman untuk cookie httpOnly, dan tetap ringan; islands membatasi JS hanya di area interaktif. Backend/SSR dijalankan dengan **Bun** sebagai platform runtime; Node.js bukan target platform server utama.
 
@@ -41,11 +41,11 @@ Opsi B memakai paket ber-nama "node" tetapi **binary `node` tidak dipakai** — 
 flowchart TB
   subgraph Astro["Astro (SSR + islands)"]
     Pages[Pages/layout]
-    Islands[Islands interaktif: POS, forms, chat]
+    Islands[Islands interaktif: checkout, forms, chat]
   end
   subgraph FE["Client runtime"]
     Client[API client typed]
-    Store[POS cart store]
+    Store[Storefront cart store]
     SW[Service worker]
     IDB[(IndexedDB outbox/cache)]
   end
@@ -129,7 +129,7 @@ API client generik lintas-modul dengan tanggung jawab lebih luas — base
 URL `/api/v1` terpusat, injeksi header Authorization/tenant/correlation
 otomatis, retry aman untuk GET, timeout + deteksi offline dengan fallback
 outbox — tetap **target masa depan yang legitimate** bila kompleksitas
-client-side bertambah (mis. island POS yang butuh retry/offline
+client-side bertambah (mis. island checkout yang butuh retry/offline
 sungguhan), tapi TIDAK ADA di repo ini hari ini. Jangan berasumsi
 `src/lib/api-client.ts` ada saat membaca kode atau menulis panduan baru —
 rujuk `admin-form-client.ts` di atas untuk pola nyata yang sudah dipakai.
@@ -174,25 +174,25 @@ bertentangan dengan topologi LAN-first default (doc 18). `tenantCode`
 tidak ditemukan/tenant tidak aktif → `404`, bukan bocor keberadaan
 tenant.
 
-## Offline-first (inti sistem)
+## Ketahanan offline (pola opsional)
 
-POS **wajib** berjalan tanpa internet. Mekanisme:
+Base menyediakan pola **service worker + IndexedDB outbox** sebagai **kapabilitas opsional** untuk pengalaman tahan-gangguan jaringan (mis. keranjang storefront tetap responsif saat koneksi terputus sesaat). Ini **bukan** mode operasi inti template full-online; POS in-store offline-first (terminal kasir di belakang meja) adalah lineage ERP `awcms` (dikecualikan, ADR-0034 §3). Mekanisme:
 
-1. **App shell + aset** di-cache service worker (cache-first) agar UI POS terbuka offline.
-2. **Data master** (produk, harga, stok terakhir, customer yang relevan) di-cache ke IndexedDB saat online (stale-while-revalidate) untuk pencarian/scan offline.
-3. **Transaksi** yang di-post saat offline ditulis ke **IndexedDB outbox** dengan `Idempotency-Key` yang digenerate klien + status `pending`.
+1. **App shell + aset** di-cache service worker (cache-first) agar UI storefront tetap terbuka saat koneksi terputus.
+2. **Data master** (katalog produk, harga, ketersediaan terakhir) di-cache ke IndexedDB saat online (stale-while-revalidate) untuk pencarian katalog saat koneksi terputus.
+3. **Aksi keranjang/checkout** yang dilakukan saat koneksi terputus ditulis ke **IndexedDB outbox** dengan `Idempotency-Key` yang digenerate klien + status `pending`.
 4. **Background sync** (atau retry saat online) mengirim outbox ke backend; server idempotent (doc 10) mencegah duplikasi.
 5. **SyncIndicator** menampilkan jumlah antrean & status; konflik high-risk ditandai untuk resolusi manual (doc 08).
 
 ```mermaid
 sequenceDiagram
-  participant K as Kasir (POS)
+  participant K as Customer (storefront)
   participant IDB as IndexedDB outbox
   participant SW as Service worker
   participant API as Backend
   Note over K,API: OFFLINE
-  K->>IDB: Simpan transaksi + Idempotency-Key (pending)
-  K-->>K: Receipt lokal + total (optimistic)
+  K->>IDB: Simpan aksi checkout + Idempotency-Key (pending)
+  K-->>K: Konfirmasi lokal + total (optimistic)
   Note over K,API: ONLINE kembali
   SW->>IDB: Ambil item pending
   SW->>API: POST /sales/.../post (Idempotency-Key sama)
@@ -203,14 +203,14 @@ sequenceDiagram
 
 Aturan offline:
 
-- Hanya operasi yang aman offline yang didukung (checkout & posting POS, receipt lokal). Operasi yang butuh server otoritatif (approval, export pajak) **tidak** dijalankan offline.
-- Stok yang ditampilkan offline adalah snapshot; server tetap otoritatif dan dapat menolak (`STOCK_NOT_AVAILABLE`) saat sync.
-- Provider eksternal (WA/email/R2) selalu lewat outbox server, bukan dari klien.
+- Hanya operasi yang aman offline yang didukung (aksi keranjang & checkout online, konfirmasi lokal). Operasi yang butuh server otoritatif (approval, pembayaran final) **tidak** dijalankan offline.
+- Ketersediaan produk yang ditampilkan offline adalah snapshot; server tetap otoritatif dan dapat menolak (`STOCK_NOT_AVAILABLE`) saat sync.
+- Provider eksternal (email/newsletter/R2) selalu lewat outbox server, bukan dari klien.
 - Soft delete yang terjadi offline disimpan sebagai mutation/tombstone dengan `Idempotency-Key`; UI lokal menyembunyikan resource sampai server menerima atau menolak saat sync.
 
 ## State management
 
-- **POS cart store**: store ringan (signals/nanostores) per sesi checkout; sumber kebenaran total tetap server saat posting.
+- **Storefront cart store**: store ringan (signals/nanostores) per sesi checkout; sumber kebenaran total tetap server saat posting.
 - **Server state**: di-fetch per halaman (SSR) + refetch pada mutation; hindari cache global yang basi.
 - **Form state**: lokal di island; submit → API client.
 
@@ -226,13 +226,11 @@ Aturan offline:
 | -------------- | ------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
 | Setup wizard   | Inisialisasi        | `POST /setup/initialize`                                                   | `tenant.created`                          |
 | Login          | Masuk               | `POST /auth/login`                                                         | `identity.login.succeeded`                |
-| Produk         | CRUD                | `/inventory/products`                                                      | `inventory.product.created`               |
-| Produk         | Soft delete/restore | `DELETE /inventory/products/{id}`, `POST /inventory/products/{id}/restore` | `inventory.product.soft_deleted/restored` |
+| Katalog produk | CRUD                | `/inventory/products`                                                      | `inventory.product.created`               |
+| Katalog produk | Soft delete/restore | `DELETE /inventory/products/{id}`, `POST /inventory/products/{id}/restore` | `inventory.product.soft_deleted/restored` |
 | Stok awal      | Opening balance     | `/inventory/stock-adjustment-requests`                                     | `inventory.stock.adjustment.posted`       |
-| POS            | Posting             | `POST /sales/checkout-sessions/{id}/post`                                  | `sales.transaction.posted`                |
-| Receipt portal | Kirim/consent       | `POST /crm/receipts/{id}/send`                                             | `crm.message.sent`                        |
-| Warehouse      | Transfer            | `/warehouse-transfers/*`                                                   | `warehouse.transfer.shipped/received`     |
-| Pajak          | VAT/Coretax         | `/tax/*`                                                                   | `tax.vat_invoice.generated`               |
+| Checkout online| Posting pesanan     | `POST /sales/checkout-sessions/{id}/post`                                  | `sales.transaction.posted`                |
+| Konfirmasi pesanan | Kirim/consent   | `POST /crm/receipts/{id}/send`                                             | `crm.message.sent`                        |
 | Sync           | Push/pull           | `/sync/push`, `/sync/pull`                                                 | `sync.conflict.detected`                  |
 
 ## Keamanan frontend
@@ -249,7 +247,7 @@ Aturan offline:
 - Astro SSR render halaman authed; islands hanya di area interaktif.
 - API client menyuntik header wajib & idempotency; error termetakan ke UI.
 - Login berbasis cookie httpOnly; 401 redirect; navigasi terfilter permission.
-- POS terbuka & memposting transaksi **offline**, lalu tersinkron tanpa duplikasi.
+- Kapabilitas offline opsional: checkout menyimpan aksi saat koneksi terputus, lalu tersinkron tanpa duplikasi.
 - SyncIndicator menampilkan antrean & status; konflik ditandai.
 - Validasi klien mengikuti skema bersama; server tetap otoritatif.
 - Tidak ada secret di klien; PII mentah tidak di-cache.

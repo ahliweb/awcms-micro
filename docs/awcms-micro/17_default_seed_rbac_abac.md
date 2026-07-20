@@ -1,6 +1,6 @@
 # Bagian 17 — Default Seed, RBAC, dan ABAC Policy
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -28,7 +28,7 @@ flowchart LR
 
 ## Registry module & activity
 
-`module_key.activity_code` mengidentifikasi kemampuan. Contoh utama:
+`module_key.activity_code` mengidentifikasi kemampuan. Contoh utama (baris `catalog_inventory`/`sales_pos`/`crm_communication` mengilustrasikan permukaan **toko online** in-scope — katalog, checkout/pesanan online, engagement; baris `warehouse_management`/`accounting_tax` adalah **lineage ERP `awcms`**, dikecualikan (ADR-0034 §3), ditampilkan hanya sebagai ilustrasi model permission):
 
 | Module key                      | Activity code                | Action tersedia                                    |
 | ------------------------------- | ---------------------------- | -------------------------------------------------- |
@@ -77,16 +77,16 @@ flowchart LR
 
 | Role             | Ringkasan akses                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------- |
-| Owner            | Semua module, termasuk approval & go-live                                          |
-| Admin            | Setup, user, produk, stok, laporan, konfigurasi (bukan approval keuangan tertentu) |
-| Kasir            | Checkout & posting POS; **tanpa** pajak/export/assign/approval                     |
-| Manager          | Approval transaksi/stok/operasional                                                |
-| Petugas Gudang   | Transfer, receiving, cycle count                                                   |
-| Inventory Staff  | Produk, stok, adjustment terbatas                                                  |
-| Tax Officer      | Pajak & Coretax                                                                    |
-| CRM Staff        | Kontak & receipt delivery                                                          |
-| Business Analyst | Laporan & AI analyst (read-only)                                                   |
-| Auditor          | Audit trail & logs read-only                                                       |
+| Owner                      | Semua module, termasuk approval & go-live                                          |
+| Admin                      | Setup, user, katalog, konten, laporan, konfigurasi (bukan approval tertentu)       |
+| Store Operator             | Proses & pemenuhan **pesanan online**; **tanpa** Coretax/export/assign/approval    |
+| Manager                    | Approval pesanan/stok/operasional                                                  |
+| Inventory Staff            | Katalog produk, ketersediaan, adjustment terbatas                                  |
+| Engagement Staff           | Moderasi komentar, newsletter, notifikasi                                          |
+| Business Analyst           | Laporan & AI analyst (read-only)                                                   |
+| Auditor                    | Audit trail & logs read-only                                                       |
+| Petugas Gudang *(lineage)* | Transfer, receiving, cycle count — lineage ERP `awcms`, dikecualikan (ADR-0034 §3) |
+| Tax Officer *(lineage)*    | Pajak & Coretax — lineage ERP `awcms`, dikecualikan (ADR-0034 §3)                  |
 
 ## Matriks role → permission (ringkas)
 
@@ -94,7 +94,7 @@ Legenda action: R=read, C=create, U=update, P=post, X=cancel, A=approve, E=expor
 
 Permission `delete`, `restore`, dan `purge` untuk soft delete tidak tersirat dari `U`; seed harus memberikannya eksplisit per resource dan ABAC tetap default deny untuk archive/restore/purge.
 
-| Module.activity                | Owner | Admin | Kasir | Manager | Gudang | Inv. Staff | Tax | CRM | Analyst | Auditor |
+| Module.activity                | Owner | Admin | Store Op | Manager | Gudang† | Inv. Staff | Tax† | Engmt | Analyst | Auditor |
 | ------------------------------ | ----- | ----- | ----- | ------- | ------ | ---------- | --- | --- | ------- | ------- |
 | tenant_admin.office            | RCU   | RCU   | –     | R       | –      | –          | –   | –   | –       | R       |
 | identity_access.user           | RCUG  | RCUG  | –     | –       | –      | –          | –   | –   | –       | R       |
@@ -131,6 +131,8 @@ Permission `delete`, `restore`, dan `purge` untuk soft delete tidak tersirat dar
 
 `*` Diskon operator dibatasi ABAC (batas nominal/persentase sesuai kebijakan).
 
+`†` Kolom **Gudang** dan **Tax** (beserta baris `warehouse.*`/`accounting_tax.*`) adalah **lineage ERP `awcms` — dikecualikan** dari scope website base ini (ADR-0034 §3); ditampilkan hanya sebagai ilustrasi model permission, bukan modul yang diport ke base.
+
 > **Catatan (ADR-0025 §3).** Baris `workflow.approval`, `workflow.definition`, `workflow.recovery`, dan `workflow.delegation` dihapus dari matriks ini bersama legenda action khususnya (B/T/J/Z/V) — modul `workflow` tidak diport, dan tidak ada satu pun permission `workflow.*` yang di-seed di `sql/`. Approval yang tetap ada di scope website dipegang modul lain: `profile_identity.profile_merge.approve` dan `identity_access.business_scope_exceptions.approve`/`.reject`.
 
 ## ABAC default policy
@@ -143,7 +145,7 @@ Prinsip: **default deny**, **deny overrides allow**, RLS tetap wajib.
 | 2   | Role allow          | Allow sesuai matriks role → permission                                                                                                                                                                                           |
 | 3   | Tenant isolation    | Deny bila `resource.tenant_id != context.tenant_id`                                                                                                                                                                              |
 | 4   | Office scope        | Deny bila resource office di luar office user (kecuali role lintas-office)                                                                                                                                                       |
-| 5   | Cashier restriction | Deny `accounting_tax.*`, `coretax_export`, `identity_access.*` untuk Kasir                                                                                                                                                       |
+| 5   | Store-operator restriction | Deny `accounting_tax.*` (lineage), `coretax_export` (lineage), `identity_access.*` untuk Store Operator                                                                                                                    |
 | 6   | Discount limit      | Deny diskon operator melebihi batas kebijakan                                                                                                                                                                                    |
 | 7   | Self-approval       | Deny bila `approver == requester` pada aksi approval mana pun — mis. `profile_identity.profile_merge.approve`, `identity_access.business_scope_exceptions.approve` (rujukan modul `workflow` dihapus: tidak diport, ADR-0025 §3) |
 | 8   | Tax masking         | Deny tampilkan tax identity penuh untuk non-tax role                                                                                                                                                                             |
@@ -193,8 +195,8 @@ flowchart LR
 
 - Setup wizard menghasilkan tenant, owner, office, role default, permission, dan ABAC default; lalu terkunci.
 - Evaluator menegakkan default deny & deny overrides allow sesuai matriks & policy.
-- Kasir ditolak akses pajak/export/assign; cross-tenant & cross-office ditolak.
-- Self-approval ditolak; export Coretax butuh approval bila policy aktif.
-- Soft delete/restore hanya untuk role berizin; archive view default deny untuk Kasir.
+- Store Operator ditolak akses Coretax/export/assign (lineage); cross-tenant & cross-office ditolak.
+- Self-approval ditolak; export Coretax (lineage) butuh approval bila policy aktif.
+- Soft delete/restore hanya untuk role berizin; archive view default deny untuk Store Operator.
 - Deny high-risk tercatat di decision log.
 - Seed idempotent; tidak dapat dijalankan ulang setelah locked.

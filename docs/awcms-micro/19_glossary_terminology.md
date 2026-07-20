@@ -1,10 +1,10 @@
 # Bagian 19 — Glossary dan Terminologi
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
-Dokumen ini menjadi rujukan istilah AWCMS-Micro agar seluruh paket dokumen (01–18) dan implementasi memakai definisi yang sama. Istilah dikelompokkan: arsitektur, keamanan/akses, POS & inventory, warehouse, pajak/Coretax, CRM, sync/offline, database, dan frontend/UI.
+Dokumen ini menjadi rujukan istilah AWCMS-Micro agar seluruh paket dokumen (01–18) dan implementasi memakai definisi yang sama. Istilah dikelompokkan: arsitektur, keamanan/akses, toko online & inventory, konten & engagement, sync/offline, database, dan frontend/UI. Istilah warehouse dan pajak/Coretax dipertahankan sebagai rujukan **lineage ERP `awcms` (dikecualikan, ADR-0034 §3)**.
 
 ## Peta konsep inti
 
@@ -13,11 +13,12 @@ flowchart LR
   Tenant[Tenant] --> Office[Office]
   Tenant --> User[Tenant User] --> Role --> Perm[Permission]
   User --> ABAC
-  Office --> Stock[Stock Balance] --> Movement[Stock Movement]
-  Checkout --> SalesDoc[Sales Document] --> Receipt
+  Tenant --> Content[Konten: Blog / News / Media]
+  Content --> Comments[Komentar]
+  Content --> Newsletter
+  Office --> Stock[Ketersediaan] --> Movement[Stock Movement]
+  Checkout[Checkout online] --> SalesDoc[Pesanan Online] --> Confirm[Konfirmasi Pesanan]
   SalesDoc --> Outbox --> Sync
-  SalesDoc --> VAT[VAT Invoice] --> Coretax
-  Movement --> Warehouse --> Bin
 ```
 
 ## Arsitektur
@@ -76,13 +77,13 @@ flowchart LR
 | **Idempotency**          | Sifat mutation yang menghasilkan efek sama walau diulang dengan `Idempotency-Key` sama.                                   |
 | **Soft delete**          | Penghapusan logis dengan `deleted_at`/actor/reason; list default menyembunyikan data, restore/purge butuh izin dan audit. |
 
-## POS dan inventory
+## Toko online dan inventory
 
 | Istilah                            | Definisi                                                                                                                 |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| **Checkout session**               | Draft transaksi operasional sebelum diposting (status draft/held).                                                       |
-| **Posting**                        | Mengubah checkout menjadi transaksi final (sales document) secara atomic.                                                |
-| **Sales document**                 | Transaksi POS yang sudah posted, **immutable** (append-only).                                                            |
+| **Checkout session**               | Draft keranjang/checkout online sebelum diposting (status draft/held).                                                   |
+| **Posting**                        | Mengubah checkout menjadi transaksi final (sales document / pesanan online) secara atomic.                               |
+| **Sales document**                 | Pesanan online yang sudah posted, **immutable** (append-only).                                                           |
 | **Immutable**                      | Tidak dapat diubah/dihapus; koreksi lewat cancel/return/reversal/adjustment.                                             |
 | **Tombstone**                      | Event/penanda bahwa resource di-soft-delete agar node sync lain ikut menyembunyikan data tanpa physical delete langsung. |
 | **Stock balance**                  | Saldo stok per produk per office (on hand, reserved, available).                                                         |
@@ -92,7 +93,9 @@ flowchart LR
 | **Tracking type**                  | Cara pelacakan produk: none / lot / serial / lot_serial.                                                                 |
 | **Reversal / Return / Adjustment** | Mekanisme koreksi resmi tanpa mengubah transaksi posted.                                                                 |
 
-## Warehouse
+## Warehouse (lineage ERP `awcms` — dikecualikan, ADR-0034 §3)
+
+> Istilah gudang berikut **bukan** scope website base ini; dipertahankan hanya sebagai rujukan terminologi lineage ERP `awcms`.
 
 | Istilah                    | Definisi                                                                           |
 | -------------------------- | ---------------------------------------------------------------------------------- |
@@ -108,7 +111,9 @@ flowchart LR
 | **Variance**               | Selisih antara stok sistem dan hasil hitung fisik.                                 |
 | **FEFO**                   | First Expired First Out — prioritas keluar untuk stok yang lebih dulu kedaluwarsa. |
 
-## Pajak / Coretax
+## Pajak / Coretax (lineage ERP `awcms` — dikecualikan, ADR-0034 §3)
+
+> Istilah pajak/Coretax berikut **bukan** scope website base ini; dipertahankan hanya sebagai rujukan terminologi lineage ERP `awcms`. (Catatan: pajak sebagai baris nominal pada checkout toko online tetap in-scope; yang dikecualikan adalah faktur pajak/VAT posting/Coretax export.)
 
 | Istilah                         | Definisi                                                                                                                     |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -122,16 +127,16 @@ flowchart LR
 | **Party / Product tax profile** | Konfigurasi pajak untuk pihak (customer/supplier) / produk.                                                                  |
 | **Checksum**                    | Nilai verifikasi integritas file ekspor.                                                                                     |
 
-## CRM dan receipt
+## Engagement dan notifikasi pesanan
 
-| Istilah                     | Definisi                                                    |
-| --------------------------- | ----------------------------------------------------------- |
-| **Receipt PDF**             | Bukti transaksi digital yang dibuat lokal.                  |
-| **Consent**                 | Persetujuan customer untuk dihubungi via WhatsApp/email.    |
-| **Message outbox**          | Antrean pesan (WA/email) yang dikirim provider saat online. |
-| **StarSender / Mailketing** | Provider opsional WhatsApp / email.                         |
-| **Customer portal**         | Halaman customer untuk membuka receipt via token.           |
-| **Receipt token**           | Token non-sequential untuk akses receipt tanpa login.       |
+| Istilah                     | Definisi                                                                                                    |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Invoice/konfirmasi PDF**  | Bukti/konfirmasi pesanan digital (PDF) yang dibuat lokal.                                                    |
+| **Consent**                 | Persetujuan pelanggan untuk dihubungi via email/newsletter/notifikasi.                                       |
+| **Message outbox**          | Antrean pesan (email/newsletter/notifikasi) yang dikirim provider saat online.                               |
+| **Mailketing**              | Provider email opsional (base). *(StarSender/WhatsApp adalah contoh provider lineage ERP `awcms`, dikecualikan.)* |
+| **Customer portal**         | Halaman pelanggan untuk membuka konfirmasi/status pesanan via token.                                         |
+| **Order token**             | Token non-sequential untuk akses konfirmasi pesanan tanpa login.                                             |
 
 ## Sync dan offline
 
@@ -180,18 +185,20 @@ flowchart LR
 
 ## Peran (persona)
 
-| Peran                | Ringkas                                    |
-| -------------------- | ------------------------------------------ |
-| **Owner**            | Akses penuh & approval utama.              |
-| **Admin**            | Kelola sistem, user, produk, laporan.      |
-| **Kasir**            | Transaksi POS (tanpa pajak/export/assign). |
-| **Manager**          | Approval transaksi/stok/operasional.       |
-| **Petugas Gudang**   | Transfer, receiving, cycle count.          |
-| **Inventory Staff**  | Produk, stok, adjustment terbatas.         |
-| **Tax Officer**      | Pajak & Coretax.                           |
-| **CRM Staff**        | Kontak & receipt delivery.                 |
-| **Business Analyst** | Laporan agregat & AI analyst.              |
-| **Auditor**          | Audit trail read-only.                     |
+| Peran                          | Ringkas                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| **Owner**                      | Akses penuh & approval utama.                                                 |
+| **Admin**                      | Kelola sistem, user, katalog & konten, laporan.                              |
+| **Editor/Content**             | Kelola halaman, blog, berita, media, jadwal publikasi.                        |
+| **Store Operator**             | Proses & pemenuhan pesanan online (tanpa Coretax/export/assign).              |
+| **Engagement Staff**           | Moderasi komentar, newsletter, notifikasi.                                    |
+| **Manager**                    | Approval pesanan/stok/operasional.                                            |
+| **Inventory Staff**            | Katalog produk, ketersediaan, adjustment terbatas.                            |
+| **Business Analyst**           | Laporan agregat & AI analyst.                                                 |
+| **Customer/Pengunjung**        | Telusuri katalog, checkout online, lacak pesanan, kelola langganan/consent.   |
+| **Auditor**                    | Audit trail read-only.                                                        |
+| **Petugas Gudang** *(lineage)* | Transfer, receiving, cycle count — lineage ERP `awcms`, dikecualikan.         |
+| **Tax Officer** *(lineage)*    | Pajak & Coretax — lineage ERP `awcms`, dikecualikan.                          |
 
 ## Singkatan cepat
 
