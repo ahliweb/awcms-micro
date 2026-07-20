@@ -1,10 +1,10 @@
 # Bagian 8 — SOP Operasional dan User Guide
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
-Dokumen ini menjadi panduan operasional AWCMS-Micro untuk admin, owner, operator, petugas gudang, tax officer, CRM staff, customer, dan admin teknis.
+Dokumen ini menjadi panduan operasional AWCMS-Micro untuk owner, admin, editor/content, store operator, engagement staff, business analyst, customer/pengunjung, dan admin teknis.
 
 ## Prinsip operasional
 
@@ -17,7 +17,7 @@ Dokumen ini menjadi panduan operasional AWCMS-Micro untuk admin, owner, operator
 7. Data customer/tax sensitif dimasking sesuai role.
 8. Hapus master data memakai arsip/soft delete; restore/purge hanya untuk role berizin.
 9. Backup harus diuji restore.
-10. POS dapat berjalan offline.
+10. Pengiriman ke provider eksternal (email, notifikasi, sync) lewat outbox di luar transaksi DB, tahan gangguan jaringan sementara.
 11. Sync berjalan saat koneksi tersedia.
 
 ## SOP Instalasi awal
@@ -107,18 +107,18 @@ Checklist:
 
 ### Role standar
 
-| Role             | Fungsi                               |
-| ---------------- | ------------------------------------ |
-| Owner            | Akses penuh dan approval utama       |
-| Admin            | Kelola sistem, produk, user, laporan |
-| Kasir            | Transaksi POS                        |
-| Manager          | Approval transaksi/stok/operasional  |
-| Petugas Gudang   | Transfer, receiving, cycle count     |
-| Inventory Staff  | Produk, stok, adjustment terbatas    |
-| Tax Officer      | Pajak dan Coretax                    |
-| CRM Staff        | Kontak dan receipt delivery          |
-| Business Analyst | Laporan agregat dan AI analyst       |
-| Auditor          | Audit trail read-only                |
+| Role             | Fungsi                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Owner            | Akses penuh dan approval utama                          |
+| Admin            | Kelola sistem, katalog & konten, user, laporan          |
+| Editor/Content   | Kelola halaman, blog, berita, media, jadwal publikasi   |
+| Store Operator   | Proses & pemenuhan pesanan online, status, refund/retur |
+| Engagement Staff | Moderasi komentar, newsletter, notifikasi               |
+| Manager          | Approval pesanan/konten/operasional                     |
+| Business Analyst | Laporan agregat dan AI analyst                          |
+| Auditor          | Audit trail read-only                                   |
+
+> Persona **Kasir** dilebur ke **Customer** (self-checkout online) + **Store Operator** (pemrosesan pesanan). Persona **Petugas Gudang** dan **Tax Officer** adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3)**, tidak ada di scope base ini.
 
 ### Tambah user
 
@@ -141,7 +141,7 @@ Checklist:
 
 ### Arsipkan dan pulihkan master data
 
-Gunakan arsip/soft delete untuk produk, office/lokasi, profile/contact, channel, atau bin yang tidak dipakai. Jangan menghapus fisik data operasional harian.
+Gunakan arsip/soft delete untuk produk, office/lokasi, profile/contact, channel, atau kategori konten yang tidak dipakai. Jangan menghapus fisik data operasional harian.
 
 1. Buka detail resource.
 2. Pilih arsipkan/hapus.
@@ -151,33 +151,33 @@ Gunakan arsip/soft delete untuk produk, office/lokasi, profile/contact, channel,
 6. Untuk pulihkan, buka tampilan arsip, pilih restore, lalu sistem memvalidasi konflik kode/SKU/barcode dan permission.
 7. Purge/anonymize hanya dilakukan untuk retention/legal oleh role berizin, biasanya melalui approval.
 
-Larangan: jangan arsipkan transaksi posted, stock movement posted, audit log, security event, atau batch pajak exported; gunakan cancel/return/reversal/adjustment/status lifecycle.
+Larangan: jangan arsipkan pesanan posted, movement posted, audit log, security event, atau catatan append-only lain; gunakan cancel/return/reversal/adjustment/status lifecycle.
 
 ## SOP Central Profile
 
-### Resolve customer dari POS
+### Resolve customer dari storefront/checkout
 
-1. Kasir memilih customer.
-2. Masukkan WhatsApp/email.
+1. Customer login/checkout, atau Store Operator memilih customer.
+2. Masukkan email.
 3. Sistem normalisasi identifier.
 4. Jika profile ada, gunakan existing.
 5. Jika tidak ada, buat profile baru.
-6. Transaksi memakai `customer_profile_id`.
+6. Pesanan memakai `customer_profile_id`.
 
 ### Merge profile duplikat
 
 1. Admin buka Profile Governance.
 2. Pilih source dan target profile.
-3. Review identifier/transaksi/tax/CRM.
+3. Review identifier/pesanan/konten/langganan.
 4. Buat merge request.
 5. Supervisor approve.
 6. Entity links dipindahkan ke profile canonical.
 7. Source menjadi `merged`.
 8. Audit tercatat.
 
-Larangan: jangan merge hanya karena nama mirip; jangan merge tax-sensitive tanpa review.
+Larangan: jangan merge hanya karena nama mirip; jangan merge profil sensitif tanpa review.
 
-## SOP Input Produk
+## SOP Input Produk (Katalog Toko Online)
 
 Data yang disiapkan:
 
@@ -188,181 +188,122 @@ Data yang disiapkan:
 - Brand.
 - Satuan dasar.
 - Harga jual.
-- Tracking type: none/lot/serial/lot_serial.
 - Status.
-- Profil pajak.
 
 Langkah:
 
-1. Login admin/inventory.
-2. Buka Inventory → Produk.
+1. Login admin/editor katalog.
+2. Buka Katalog → Produk.
 3. Tambah produk.
 4. Isi data.
-5. Pilih tracking type.
-6. Isi profil pajak jika perlu.
-7. Simpan.
-8. Audit tercatat.
+5. Simpan.
+6. Audit tercatat.
 
 ### Arsipkan produk
 
-- Produk yang diarsipkan tidak muncul di search/list default dan tidak bisa dijual.
-- Produk yang pernah dipakai transaksi tetap ada untuk histori receipt/report.
-- Restore produk wajib dicek konflik SKU/barcode dan profil pajak.
+- Produk yang diarsipkan tidak muncul di search/list default dan tidak bisa dipesan.
+- Produk yang pernah dipakai pesanan tetap ada untuk histori pesanan/report.
+- Restore produk wajib dicek konflik SKU/barcode dan kategori.
 
-## SOP Input Stok Awal
+## SOP Input Ketersediaan Awal
 
-### Tanpa WMS
-
-1. Buka Inventory → Stok Awal.
+1. Buka Katalog → Ketersediaan Awal.
 2. Pilih office.
 3. Pilih produk.
 4. Isi quantity.
 5. Alasan: saldo awal implementasi.
 6. Sistem membuat stock balance dan movement `opening_balance`.
 
-### Dengan WMS/bin
+> Operasi gudang bertingkat (warehouse/zone/bin, lot/serial, bin balance) adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3, [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md))** — toko online cukup menyimpan ketersediaan (availability) per produk.
 
-1. Buka Warehouse → Bin Balance.
-2. Pilih warehouse, zone, bin.
-3. Pilih produk.
-4. Pilih lot/serial jika perlu.
-5. Isi quantity.
-6. Sistem memperbarui bin balance dan stock summary.
+## SOP Checkout Online & Pemrosesan Pesanan
 
-## SOP Transaksi Kasir
-
-### Shortcut
-
-| Shortcut | Fungsi               |
-| -------- | -------------------- |
-| F2       | Fokus search/barcode |
-| F4       | Ubah quantity        |
-| F6       | Diskon sesuai izin   |
-| F8       | Hold transaksi       |
-| F9       | Pembayaran           |
-| F10      | Posting transaksi    |
-| Esc      | Tutup dialog         |
-
-### Alur transaksi operasional
+### Alur checkout online (operasional)
 
 ```mermaid
 sequenceDiagram
-  participant K as Kasir
-  participant POS as POS UI
-  participant SVC as Sales service
+  participant C as Customer
+  participant WEB as Storefront
+  participant SVC as Order service
   participant DB as PostgreSQL
-  participant CRM as CRM outbox
-  K->>POS: Scan/cari produk (F2)
-  POS->>SVC: Tambah item (total server-side)
-  K->>POS: Pilih pembayaran (F9) + posting (F10)
-  SVC->>SVC: Cek akses · idempotency · stok · pajak
-  SVC->>DB: Transaction: sales doc + lines + payment + stock movement + audit
+  participant OUT as Email/notification outbox
+  C->>WEB: Cari produk / tambah ke keranjang
+  WEB->>SVC: Tambah item (total server-side)
+  C->>WEB: Checkout + bayar (payment gateway)
+  SVC->>SVC: Cek akses · idempotency · ketersediaan
+  SVC->>DB: Transaction: order doc + lines + payment + availability movement + audit
   DB-->>SVC: Commit (atomic)
-  SVC->>CRM: Enqueue receipt (jika consent)
-  SVC-->>POS: Receipt PDF + sukses
+  SVC->>OUT: Enqueue konfirmasi pesanan (jika consent)
+  SVC-->>WEB: Konfirmasi pesanan + invoice PDF
 ```
 
-### Transaksi normal
+### Checkout normal (Customer)
 
-1. Login operator.
-2. Buka POS.
-3. Pastikan tenant/office/operator benar.
-4. Scan/cari produk.
-5. Ubah qty jika perlu.
-6. Pilih customer jika perlu.
-7. Pilih pembayaran.
-8. Input nominal.
-9. Posting.
-10. Sistem validasi akses, stok, total, idempotency, pajak.
-11. Sistem membuat transaksi, mengurangi stok, membuat receipt PDF.
-12. Kirim receipt jika consent aktif.
+1. Customer membuka storefront (login opsional untuk guest checkout bila diizinkan).
+2. Telusuri katalog.
+3. Cari produk / tambah ke keranjang.
+4. Ubah qty jika perlu.
+5. Isi data pengiriman/kontak.
+6. Pilih metode pembayaran online.
+7. Checkout / konfirmasi bayar.
+8. Sistem validasi akses, ketersediaan, total, idempotency.
+9. Sistem membuat pesanan, mengurangi ketersediaan, membuat invoice/konfirmasi PDF.
+10. Kirim konfirmasi pesanan (email) jika consent aktif.
 
-### Jika stok tidak cukup
+### Pemrosesan pesanan (Store Operator)
+
+1. Login store operator.
+2. Buka antrean pesanan online.
+3. Verifikasi pembayaran (status dari payment gateway).
+4. Proses/pemenuhan pesanan.
+5. Ubah status pesanan (paid → diproses → dipenuhi/selesai).
+6. Sistem mengirim notifikasi status ke customer (email/newsletter base) dan mencatat audit.
+
+### Jika ketersediaan tidak cukup
 
 - Kurangi quantity.
 - Hapus item.
-- Hubungi admin/gudang.
-- Jangan paksa stok minus tanpa policy/approval.
+- Hubungi admin/store operator.
+- Jangan paksa ketersediaan minus tanpa policy/approval.
 
 ## SOP Hold, Cancel, Retur
 
 ### Hold
 
-- Tekan F8.
+- Simpan keranjang.
 - Isi catatan jika perlu.
 - Checkout status `held`.
-- Stok belum dikurangi.
+- Ketersediaan belum dikurangi.
 
-### Cancel transaksi posted
+### Cancel pesanan posted
 
-1. Buka detail transaksi.
+1. Buka detail pesanan.
 2. Request cancel.
 3. Isi alasan.
 4. Workflow dibuat.
 5. Manager/owner approve/reject.
-6. Jika approve, reversal/cancel record dibuat dan stok dikoreksi.
+6. Jika approve, reversal/cancel record dibuat dan ketersediaan dikoreksi.
 
 ### Retur
 
-1. Cari transaksi asal.
+1. Cari pesanan asal.
 2. Pilih item retur.
 3. Isi quantity.
 4. Pilih kondisi: good/damaged/expired/wrong item.
-5. Pilih lokasi/bin tujuan.
+5. Pilih alasan/tindakan refund.
 6. Sistem membuat return document dan movement `return_in`.
 
-## SOP Warehouse Transfer
+## SOP Warehouse Transfer & Cycle Count — dikecualikan (lineage ERP `awcms`)
 
-Status:
+Warehouse transfer (draft → submitted → approved → picked → shipped → in_transit → received), operasi bin/lot/serial, receiving, dan cycle count/adjustment adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3, [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md))** — bukan scope base template ini. Toko online cukup melacak ketersediaan (availability) per produk dan koreksinya lewat movement/adjustment sederhana; koreksi pesanan lewat cancel/retur/refund (lihat §SOP Hold, Cancel, Retur).
 
-```text
-draft → submitted → approved → picked → shipped → in_transit → received_partial/received_full
-```
-
-```mermaid
-stateDiagram-v2
-  [*] --> draft
-  draft --> submitted: submit
-  submitted --> approved: approve
-  approved --> picked: pick
-  picked --> shipped: ship (kurangi source, buat in-transit)
-  shipped --> in_transit
-  in_transit --> received_partial: receive sebagian
-  in_transit --> received_full: receive penuh
-  received_partial --> received_full: receive sisa
-  received_full --> [*]
-```
-
-Langkah:
-
-1. Buat transfer dari source ke destination warehouse.
-2. Tambah produk, lot/bin, quantity.
-3. Submit.
-4. Approver review dan approve.
-5. Petugas source ship.
-6. Sistem mengurangi source dan membuat in-transit.
-7. Destination receive.
-8. Good masuk bin normal; damaged/expired masuk quarantine.
-9. Sistem menambah stock destination dan audit.
-
-## SOP Cycle Count dan Adjustment
-
-1. Buat cycle count plan.
-2. Pilih warehouse/zone/bin/product.
-3. Assign petugas.
-4. Petugas input counted qty.
-5. Sistem hitung variance.
-6. Variance menghasilkan adjustment request.
-7. Manager approve/reject.
-8. Jika approve, movement `adjustment` dibuat.
-
-## SOP Receipt WhatsApp/Email
+## SOP Konfirmasi Pesanan (Email)
 
 Prasyarat:
 
-- Receipt PDF ada.
+- Invoice/konfirmasi PDF pesanan ada.
 - Customer profile ada.
-- Channel WhatsApp/email valid.
+- Channel email valid.
 - Consent aktif.
 - Provider configured.
 - Jika provider butuh URL, PDF sudah online/R2.
@@ -373,16 +314,16 @@ Jika gagal:
 - Cek consent.
 - Cek file PDF/URL.
 - Cek API key provider.
-- Retry dari message outbox jika layak.
+- Retry dari email outbox jika layak.
 
 ## SOP Customer Portal
 
 Customer dapat:
 
-- Buka receipt link.
-- Lihat ringkasan transaksi.
+- Buka link pesanan/invoice.
+- Lihat ringkasan pesanan.
 - Download PDF.
-- Update consent WhatsApp/email.
+- Update consent email/newsletter.
 
 Jika link invalid, tampilkan pesan sederhana tanpa detail teknis.
 
@@ -417,26 +358,16 @@ Conflict high-risk diselesaikan manual dengan reason dan audit.
 
 Soft delete disinkronkan sebagai tombstone event. Node offline harus menyembunyikan resource yang sudah menerima tombstone, tetapi tidak melakukan physical delete sebelum retention terpenuhi.
 
-## SOP Pajak/Coretax
+## SOP Pajak/Coretax — dikecualikan (lineage ERP `awcms`)
 
-1. Setup tax profile tenant.
-2. Setup NITKU/ID TKU office.
-3. Setup party tax profile.
-4. Setup product tax profile.
-5. Generate VAT invoice dari sales posted.
-6. Validate invoice.
-7. Buat Coretax batch.
-8. Approval jika policy aktif.
-9. Generate XML dan checksum.
-10. Audit export.
-
-Catatan: AWCMS-Micro bersifat Coretax-ready/XML-ready, tidak mengasumsikan API upload resmi.
+Tax profile (NPWP/NITKU/ID TKU), party/product tax profile, VAT invoice/faktur pajak, dan Coretax batch export (XML + checksum) adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3, [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md))** — bukan scope base template full-online website ini. Untuk kebutuhan pajak toko online, integrasikan sistem pajak eksternal di luar scope base; base ini tidak membangun VAT posting maupun Coretax.
 
 ## SOP Modul Email (base, epic #492)
 
-Berbeda dari §SOP Receipt WhatsApp/Email di atas (contoh domain retail/POS
-"kirim struk", historical issue #390) — bagian ini adalah modul base
-generik (`src/modules/email/README.md`) untuk password reset, system
+Berbeda dari §SOP Konfirmasi Pesanan (Email) di atas (contoh domain toko
+online "kirim konfirmasi pesanan", historical issue #390) — bagian ini
+adalah modul base generik (`src/modules/email/README.md`) untuk password
+reset, system
 announcement, dan workflow notification. Belum ada UI admin khusus;
 seluruh alur ini API-only (`/api/v1/email/*`, `/api/v1/auth/password/*`,
 `/api/v1/reports/email-health`).
@@ -649,9 +580,9 @@ pg_restore --dbname=awcms_micro_restore_test --clean --if-exists /backup/awcms_m
 
 Validasi restore:
 
-- Tenant/user/produk/stok/transaksi terbaca.
+- Tenant/user/produk/katalog/pesanan terbaca.
 - Login test.
-- POS smoke test.
+- Storefront/checkout smoke test.
 - Report smoke test.
 
 ## Troubleshooting ringkas
@@ -692,10 +623,9 @@ Validasi restore:
 - Migration guide.
 - Backup restore SOP.
 - Admin guide.
-- Cashier guide.
-- Warehouse guide.
-- Tax guide.
-- CRM guide.
+- Store operator guide.
+- Editor/content guide.
+- Engagement guide.
 - Security guide.
 - Troubleshooting guide.
 - API docs.

@@ -1,6 +1,6 @@
 # Bagian 11 — Implementation Blueprint per Sprint
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -20,13 +20,13 @@ Dokumen ini menjadi blueprint praktis untuk membuat skeleton repository AWCMS-Mi
 flowchart LR
   S1[S1 Foundation<br/>skeleton · migrate · spec · health] --> S2[S2 Tenant/Identity/Profile]
   S2 --> S3[S3 RBAC/ABAC/RLS]
-  S3 --> S4[S4 Catalog & Inventory]
-  S4 --> S5[S5 POS MVP]
+  S3 --> S4[S4 Katalog Toko Online]
+  S4 --> S5[S5 Storefront & Checkout online]
   S5 --> S6[S6 Logging & Pooling]
-  S6 --> S7[S7 CRM Receipt]
+  S6 --> S7[S7 Engagement & Notifikasi]
   S7 --> S8[S8 Sync & R2]
-  S8 --> S9[S9 Warehouse]
-  S9 --> S10[S10 Tax/Coretax]
+  S8 --> S9[S9 Warehouse — ERP awcms dikecualikan]
+  S9 --> S10[S10 Tax/Coretax — ERP awcms dikecualikan]
   S10 --> S11[S11 UI/Reporting/AI]
   S11 --> S12[S12 Security/Deploy]
 ```
@@ -108,7 +108,7 @@ LOCAL_STORAGE_PATH=./storage
 R2_ENABLED=false
 ```
 
-Base tidak menetapkan provider eksternal tertentu (mis. WA/email/AI). Aplikasi turunan menambah flag provider-nya sendiri (default off) — lihat contoh domain retail/POS di doc 18 §Provider CRM/AI analyst.
+Base tidak menetapkan provider eksternal tertentu (mis. email/payment gateway/AI). Modul website/toko online menambah flag provider-nya sendiri langsung di repo ini (default off, ADR-0034) — lihat contoh di doc 18 §Provider.
 
 ## Sprint 1 — Foundation
 
@@ -257,7 +257,7 @@ tests/access/default-deny.test.ts
 - Decision log.
 - Tenant context.
 
-## Sprint 4 — Catalog & Inventory
+## Sprint 4 — Katalog Toko Online
 
 ### Module
 
@@ -277,26 +277,26 @@ src/modules/catalog-inventory
 
 ### Tables
 
-- Product category, brand, unit.
+- Product category, brand, unit (katalog produk toko online).
 - Products.
 - Product prices.
-- Stock balances.
+- Stock balances (ketersediaan produk / availability — ringan).
 - Stock movements.
 
 ### Validation
 
 - SKU unique.
-- Product search.
+- Pencarian produk di storefront.
 - Product soft delete/restore.
 - Opening balance.
 - Stock movement append-only.
 
-## Sprint 5 — POS MVP
+## Sprint 5 — Storefront & Checkout online (MVP)
 
 ### Module
 
 ```text
-src/modules/sales-pos
+src/modules/online-store
 ```
 
 ### Routes
@@ -311,10 +311,10 @@ src/modules/sales-pos
 
 ### Tables
 
-- Checkout sessions.
+- Checkout sessions (keranjang/checkout online).
 - Checkout lines.
-- Checkout payments.
-- Sales documents.
+- Checkout payments (pembayaran online / payment gateway).
+- Sales documents (pesanan online).
 - Sales document lines.
 - Sales payments.
 - Idempotency keys.
@@ -322,9 +322,9 @@ src/modules/sales-pos
 ### Posting validation
 
 - Checkout status valid.
-- Payment sufficient.
-- Stock available.
-- Stock lock.
+- Payment sufficient (pembayaran online terkonfirmasi).
+- Availability produk tersedia.
+- Availability lock.
 - Idempotency.
 - Atomic transaction.
 - Audit event.
@@ -356,31 +356,36 @@ src/modules/database-connectivity
 - Pool health.
 - Pool saturation incident.
 
-## Sprint 7 — CRM Receipt
+## Sprint 7 — Engagement & Notifikasi
+
+Recast dari contoh "CRM receipt kasir" ke jalur base nyata: **email + newsletter + comments**.
+Notifikasi pesanan online (konfirmasi/invoice) memakai outbox **email** base, bukan queue
+WhatsApp struk kasir.
 
 ### Module
 
 ```text
-src/modules/crm-communication
+src/modules/email
+src/modules/newsletter
+src/modules/comments
 ```
 
 ### Routes
 
 ```text
-/api/v1/crm/contacts
-/api/v1/crm/contacts/{id}/consent
-/api/v1/crm/receipts/{receiptPdfId}/send
-/api/v1/crm/messages
-/customer/receipts/{token}
+/api/v1/store/orders/{id}/confirmation/send
+/api/v1/newsletter/subscriptions
+/api/v1/newsletter/subscriptions/{id}/consent
+/customer/orders/{token}
 ```
 
 ### Validation
 
-- PDF receipt local.
-- Contact linked to profile.
-- Consent respected.
-- Provider adapter mocked.
-- Token receipt aman.
+- Konfirmasi/invoice pesanan online (PDF) tersimpan lokal.
+- Kontak tertaut ke profile.
+- Consent langganan dihormati.
+- Provider email adapter mocked.
+- Token pelacakan pesanan online aman.
 
 ## Sprint 8 — Sync & R2
 
@@ -411,6 +416,10 @@ src/modules/sync-storage
 
 ## Sprint 9 — Warehouse Management
 
+> **Lineage ERP `awcms` — dikecualikan (ADR-0034 §3 / ADR-0025).** Gudang, bin/lot/serial,
+> transfer, dan cycle count adalah concern back-office ERP, **bukan** scope template website ini.
+> Blok di bawah dipertahankan hanya sebagai ilustrasi lineage, bukan pekerjaan yang dibangun di sini.
+
 ### Module
 
 ```text
@@ -440,6 +449,10 @@ src/modules/warehouse-management
 - Cycle count variance.
 
 ## Sprint 10 — Accounting & Coretax
+
+> **Lineage ERP `awcms` — dikecualikan (ADR-0034 §3 / ADR-0025).** Faktur pajak, VAT posting,
+> dan batch Coretax adalah concern tax-posting ERP, **bukan** scope template website ini.
+> Blok di bawah dipertahankan hanya sebagai ilustrasi lineage, bukan pekerjaan yang dibangun di sini.
 
 ### Module
 
@@ -474,7 +487,7 @@ src/modules/accounting-tax
 ```text
 src/components/ui
 src/components/admin
-src/components/pos
+src/components/storefront
 src/components/customer
 ```
 
@@ -484,12 +497,13 @@ src/components/customer
 /admin
 /admin/products
 /admin/stock
-/admin/warehouse
-/admin/tax
 /admin/reports
-/pos
-/customer/receipts/{token}
+/            (storefront katalog)
+/checkout    (keranjang/checkout online)
+/customer/orders/{token}
 ```
+
+`/admin/warehouse` dan `/admin/tax` **tidak** termasuk template ini (lineage ERP `awcms` — dikecualikan, ADR-0034 §3).
 
 ### Modules
 
@@ -500,8 +514,8 @@ src/components/customer
 ### Validation
 
 - Admin shell render.
-- POS screen render.
-- Customer receipt mobile.
+- Storefront & checkout screen render.
+- Pelacakan pesanan online (customer) mobile.
 - Report API.
 - AI read-only/no SQL/no PII.
 
@@ -535,13 +549,13 @@ tests/access
 tests/auth
 tests/profile
 tests/inventory
-tests/pos
+tests/store
 tests/sync
-tests/warehouse
-tests/tax
-tests/crm
+tests/engagement
 tests/security
 ```
+
+(`tests/warehouse` dan `tests/tax` = lineage ERP `awcms`, dikecualikan — ADR-0034 §3.)
 
 ## Definition of Skeleton Done
 

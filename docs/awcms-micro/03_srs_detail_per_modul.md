@@ -1,6 +1,6 @@
 # Bagian 3 — SRS Detail Per Modul
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan SRS
 
@@ -52,9 +52,9 @@ sequenceDiagram
 ### Transaction safety
 
 - Mutation high-risk wajib `Idempotency-Key`.
-- Transaksi POS wajib atomic.
-- Stock row/bin balance yang berubah wajib dikunci.
-- Posted sales document immutable.
+- Transaksi checkout online wajib atomic.
+- Stock/availability row yang berubah wajib dikunci.
+- Posted sales document (pesanan online) immutable.
 - Movement stok append-only.
 
 ### Soft delete
@@ -62,7 +62,7 @@ sequenceDiagram
 - Resource master/config/draft yang deletable wajib memakai soft delete: isi `deleted_at`, `deleted_by`, dan `delete_reason`; jangan `DELETE` fisik pada jalur operasional normal.
 - Query list/detail default wajib `deleted_at IS NULL`; include archived/deleted hanya lewat permission eksplisit dan parameter API terdokumentasi.
 - Restore dan purge adalah aksi high-risk: butuh ABAC, audit, dan idempotency bila endpoint mutation dapat diulang.
-- Posted sales document, posted stock movement, audit log, security event, sync conflict, VAT invoice exported/accepted, dan Coretax batch exported tidak boleh di-soft-delete; koreksi lewat reversal/cancel/return/adjustment atau status lifecycle.
+- Posted sales document (pesanan online), posted stock movement, audit log, security event, dan sync conflict tidak boleh di-soft-delete; koreksi lewat reversal/cancel/return/adjustment atau status lifecycle. (Entitas ERP seperti faktur pajak/Coretax batch juga immutable, tetapi dikecualikan dari scope base ini — [ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md).)
 - Soft-deleted record tetap tenant-scoped, tetap terkena RLS, dan tetap masuk retention/legal hold.
 
 ### Audit
@@ -74,10 +74,8 @@ Audit wajib untuk:
 - Profile merge.
 - Product price change.
 - Soft delete, restore, dan purge resource tenant-scoped.
-- Transaction posted/cancel/return.
-- Stock adjustment.
-- Warehouse transfer.
-- Coretax export.
+- Pesanan online posted/cancel/return.
+- Stock/availability adjustment.
 - Sync conflict resolution.
 - AI tool call.
 - Security readiness decision.
@@ -147,52 +145,56 @@ Audit wajib untuk:
 - Raw value tidak tampil ke response umum.
 - Merge high-risk diaudit dan membutuhkan approval.
 
-## 4. Catalog & Inventory
+## 4. Katalog Produk (Toko Online)
+
+> Contoh ILUSTRATIF permukaan storefront (bukan modul base yang diadmit).
 
 ### Functional requirement
 
 - CRUD produk.
-- Product search by SKU, barcode, nama.
+- Product search di storefront by SKU, slug/barcode, nama.
 - Harga aktif berdasarkan periode.
-- Stok per office.
+- Ketersediaan (availability) per office/pool.
 - Stock movement append-only.
 
 ### Validation
 
 - SKU unik per tenant.
-- Barcode unik jika ada.
+- Barcode/slug unik jika ada.
 - Quantity tidak boleh negatif kecuali movement delta yang valid.
-- Product inactive tidak boleh dijual.
+- Product inactive tidak boleh dipesan.
 
 ### Security
 
 - Price update butuh permission.
-- Adjustment stok butuh reason dan audit.
+- Adjustment ketersediaan butuh reason dan audit.
 
-## 5. Sales POS
+## 5. Storefront & Checkout Online
+
+> Contoh ILUSTRATIF permukaan website toko online (bukan modul base yang diadmit). **POS in-store** (terminal kasir fisik, struk hardware) adalah lineage ERP `awcms` — dikecualikan ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).
 
 ### Functional requirement
 
-- Membuat checkout.
+- Membuat checkout (keranjang online).
 - Menambahkan/mengubah/menghapus item.
 - Menghitung total server-side.
-- Menambahkan payment.
-- Posting transaksi.
-- Membuat sales document, lines, payments, stock movements, audit, domain event.
+- Menambahkan payment (pembayaran online / payment gateway).
+- Posting pesanan (online order).
+- Membuat sales document (pesanan), lines, payments, stock movements, audit, domain event.
 
 ### Validation
 
 - Checkout status harus `draft` atau `held` sebelum posting.
 - Payment cukup.
-- Stock tersedia.
+- Ketersediaan tersedia.
 - Idempotency key wajib.
 
 ### Security
 
-- Kasir hanya akses office sesuai ABAC.
+- Store Operator/Customer hanya akses scope sesuai ABAC.
 - Discount mengikuti permission.
-- Error stok user-friendly.
-- Provider eksternal tidak dipanggil dalam DB transaction.
+- Error ketersediaan user-friendly.
+- Provider eksternal (payment/email) tidak dipanggil dalam DB transaction.
 
 ## 6. Shared Stock Routing
 
@@ -201,7 +203,7 @@ Audit wajib untuk:
 - Membuat stock pool.
 - Menambahkan member tenant.
 - Mapping product antar tenant.
-- Routing transaksi berdasarkan rule.
+- Routing pesanan online berdasarkan rule.
 - Mencatat routing decision.
 
 ### Validation
@@ -215,77 +217,38 @@ Audit wajib untuk:
 - Routing rule create/approve butuh permission.
 - Routing decision diaudit.
 
-## 7. Warehouse Management
+## 7. Warehouse Management (lineage ERP `awcms` — dikecualikan)
+
+> Warehouse/zone/bin/lot/serial, bin balance, transfer order/shipment/receipt, in-transit balance, cycle count, dan stock adjustment request adalah **lineage ERP `awcms`** dan **dikecualikan** dari scope template AWCMS-Micro ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md), ADR-0025). Storefront cukup memakai **ketersediaan produk (availability)** dari §4; operasi gudang fisik bukan permukaan website publik dan tidak diimplementasikan di repo ini.
+
+## 8. Accounting Tax/Coretax (lineage ERP `awcms` — dikecualikan)
+
+> Tax profile, NITKU, VAT invoice generate/validate, dan **Coretax XML batch export** adalah **lineage ERP `awcms`** dan **dikecualikan** dari scope template ini ([ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md), ADR-0025). Masking identifier sensitif (mis. NPWP/NIK, doc 04) tetap kapabilitas base generik, tetapi posting pajak resmi bukan scope website.
+
+## 9. Engagement (Komentar, Newsletter, Notifikasi)
+
+> Menggantikan contoh "CRM Communication" bergaya POS. Dibangun di atas modul base nyata **comments**, **newsletter**, dan **email** — bukan struk WhatsApp/StarSender in-store.
 
 ### Functional requirement
 
-- Warehouse dari office.
-- Zone dan bin.
-- Bin balance.
-- Lot/batch/serial/expired.
-- Transfer order, shipment, receipt.
-- In-transit balance.
-- Cycle count.
-- Stock adjustment request.
-
-### Validation
-
-- Source dan destination warehouse tidak boleh sama.
-- Ship tidak boleh melebihi approved quantity.
-- Receive tidak boleh melebihi shipped quantity.
-- Expired/damaged masuk quarantine.
-
-### Security
-
-- Warehouse scope via ABAC.
-- Adjustment membutuhkan reason.
-- High-risk adjustment membutuhkan approval.
-
-## 8. Accounting Tax/Coretax
-
-### Functional requirement
-
-- Tax profile tenant.
-- Tax business unit/NITKU.
-- Party tax profile.
-- Product tax profile.
-- Generate VAT invoice dari sales posted.
-- Validate VAT invoice.
-- Coretax XML batch export.
-
-### Validation
-
-- Missing NPWP/NITKU/product tax profile menghasilkan error validasi.
-- VAT invoice exported/accepted locked.
-- Batch export menyimpan checksum.
-
-### Security
-
-- Tax data dimasking untuk non-tax role.
-- Export membutuhkan audit dan approval jika policy aktif.
-
-## 9. CRM Communication
-
-### Functional requirement
-
-- Generate receipt PDF.
-- Simpan file lokal.
-- Queue WhatsApp/email message.
+- Moderasi komentar (comments).
+- Kelola langganan newsletter.
+- Queue email message (newsletter/notifikasi via email outbox base).
 - Dispatch via provider saat online.
 - Retry failed message.
-- Customer portal tokenized.
+- Portal langganan/consent tokenized.
 
 ### Validation
 
 - Consent wajib aktif.
 - Channel valid.
-- Receipt PDF harus tersedia.
+- Konten komentar tunduk moderasi sebelum tampil.
 
 ### Security
 
 - Provider API key dari env.
 - Phone/email dimasking.
-- Token receipt tidak sequential.
+- Token portal/consent tidak sequential.
 
 ## 10. Sync Storage
 
@@ -331,8 +294,8 @@ Audit wajib untuk:
 ### Functional requirement
 
 - Admin dashboard.
-- POS fullscreen.
-- Customer receipt portal.
+- Storefront publik (katalog + checkout online).
+- Customer order/subscription portal.
 - Navigation role-aware.
 - Dark/light/system theme.
 - i18n minimal EN/ID (default **EN**), string UI via katalog `.po` gettext (doc 14 §i18n).
@@ -391,8 +354,8 @@ flowchart TD
 ## Testing requirement minimum
 
 - Unit test untuk business logic.
-- Integration test untuk migration, RLS, POS posting, warehouse transfer.
+- Integration test untuk migration, RLS, posting pesanan online (checkout).
 - API contract test untuk OpenAPI.
 - AsyncAPI event validation.
 - Security test untuk cross-tenant dan access denied.
-- Performance test untuk POS concurrent dan DB pool.
+- Performance test untuk checkout online concurrent dan DB pool.

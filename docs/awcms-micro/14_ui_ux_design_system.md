@@ -1,6 +1,6 @@
 # Bagian 14 — UI/UX Design System dan Spesifikasi Layar
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -11,12 +11,12 @@ Terkait: `15_frontend_architecture_integration.md` (arsitektur & wiring), `08_so
 ## Prinsip desain UI/UX
 
 1. **Offline-first terlihat** — status koneksi & sync selalu jelas; aksi tetap bisa saat offline.
-2. **Keyboard-first untuk operator** — semua aksi POS dapat tanpa mouse.
+2. **Keyboard-first untuk operator** — aksi admin & checkout online dapat dioperasikan penuh tanpa mouse.
 3. **Role-aware** — navigasi & aksi menyesuaikan permission (bukan kontrol utama; backend tetap validasi).
 4. **State eksplisit** — setiap layar punya loading, empty, error, dan success state.
 5. **Aman** — tidak menampilkan data sensitif penuh; mengikuti masking (doc 04).
 6. **Aksesibel** — target WCAG 2.1 AA, kontras cukup, fokus terlihat, navigasi keyboard.
-7. **Responsif** — admin desktop-first, operator fullscreen, customer portal mobile-first.
+7. **Responsif** — admin desktop-first, storefront & customer portal mobile-first.
 8. **Konsisten** — semua layar memakai token & komponen yang sama.
 
 ## Design tokens
@@ -95,7 +95,7 @@ Komponen dasar di `src/components/ui`, dipakai lintas persona.
 | `ActionBanner` (Issue #693)               | banner feedback sukses/error pasca-mutation (`role="alert"`) — ekstraksi dari `<div id="action-banner">` yang sebelumnya diduplikasi manual di setiap layar admin; tetap kompatibel dengan `showBanner()` di `admin-form-client.ts` tanpa perubahan pemanggil                                                                                                                                                                                                                                                                                                                                                                 |
 | SearchBar                                 | debounce, hasil <300ms (doc 07)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | EmptyState / ErrorState / LoadingSkeleton | wajib untuk tiap list/detail                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| KeyboardHint                              | menampilkan shortcut aktif di POS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| KeyboardHint                              | menampilkan shortcut aktif di checkout/admin                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | SyncIndicator / OfflineBanner             | status koneksi & antrean sync                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | MoneyText / MaskedText                    | format IDR & masking data sensitif                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `StateNotice` (Issue #434)                | denied/error banner bersama; `kind="error"` menutup cabang Error state pattern di layar SSR (lihat §State pattern wajib)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -119,15 +119,15 @@ flowchart TD
   Auth --> Setup[Setup Wizard - sebelum locked]
   Auth --> Shell{Persona}
   Shell -->|Admin/Owner| Admin[Admin Shell]
-  Shell -->|Kasir| POS[POS Fullscreen]
-  Shell -->|Customer| Portal[Customer Portal]
+  Shell -->|Store Operator| Ops[Pesanan Online]
+  Shell -->|Customer/Pengunjung| Portal[Storefront & Akun]
 
   Admin --> Dash[Dashboard]
-  Admin --> Prod[Produk & Stok]
-  Admin --> Wh[Warehouse]
-  Admin --> Tax[Pajak/Coretax]
-  Admin --> Crm[CRM & Receipt]
-  Admin --> Rep[Laporan]
+  Admin --> Cat[Katalog Produk]
+  Admin --> Ord[Pesanan Online]
+  Admin --> Content[Konten: Halaman, Blog, Media]
+  Admin --> Eng[Engagement: Komentar & Newsletter]
+  Admin --> Rep[Laporan & Analytics]
   Admin --> Ai[AI Analyst]
   Admin --> Usr[User & Akses]
   Admin --> Logs[Logs & Security]
@@ -146,9 +146,9 @@ Item menu difilter oleh permission efektif user (lihat doc 17). Menu tanpa akses
 ├───────────┬───────────────────────────────────────────────┤
 │ Sidebar   │  Breadcrumb                                    │
 │  Dashboard│  ┌─────────────────────────────────────────┐  │
-│  Produk   │  │  Konten (list/detail/form)              │  │
-│  Warehouse│  │  - LoadingSkeleton / EmptyState / Error │  │
-│  Pajak    │  │                                         │  │
+│  Katalog  │  │  Konten (list/detail/form)              │  │
+│  Pesanan  │  │  - LoadingSkeleton / EmptyState / Error │  │
+│  Konten   │  │                                         │  │
 │  Laporan  │  └─────────────────────────────────────────┘  │
 │  User     │                                               │
 └───────────┴───────────────────────────────────────────────┘
@@ -158,22 +158,22 @@ Item menu difilter oleh permission efektif user (lihat doc 17). Menu tanpa akses
 
 **Tenant badge, bukan tenant switcher (Issue #693)**: topbar menampilkan `TenantBadge.astro` — badge non-interaktif (`<div role="status">`) pada deployment single-tenant, BUKAN kontrol dropdown `disabled` (stub lama `TenantSwitcher.astro`, Issue 8.1). Alasan: `awcms_micro_identities.tenant_id` masih 1:1 per tenant (tidak ada cross-tenant identity linking) sehingga tidak ada kapabilitas switch tenant sungguhan untuk role/permission manapun hari ini — kontrol interaktif yang tampil (walau disabled) akan menyiratkan kapabilitas keamanan yang sebenarnya tidak ada dan tidak diperiksa di manapun, persis pelanggaran acceptance criterion "No authorization decision relies on hidden/disabled UI alone". Kontrol switcher SUNGGUHAN hanya boleh dirender bila `availableTenants` (prop komponen) berisi daftar yang dihitung SERVER-side dari data otorisasi nyata — lihat docblock `TenantBadge.astro` dan `src/modules/identity-access/README.md` §Tenant badge.
 
-### POS fullscreen (keyboard-first)
+### Storefront & checkout online (customer-facing)
 
 ```text
 ┌───────────────────────────────────────────────────────────┐
-│ Kasir: <nama> · Office: <office> · Sync● · [F1 Bantuan]    │
+│ Toko: <nama tenant> · Akun: <pelanggan> · Keranjang (2)    │
 ├──────────────────────────────┬────────────────────────────┤
-│ [F2] Cari/scan produk........ │  Keranjang                 │
+│ [F2] Cari produk di katalog.. │  Keranjang                 │
 │ ┌──────────────────────────┐ │  1. Produk A  x2   20.000  │
-│ │ Hasil pencarian          │ │  2. Produk B  x1   15.000  │
+│ │ Hasil pencarian katalog  │ │  2. Produk B  x1   15.000  │
 │ └──────────────────────────┘ │  ------------------------- │
 │                              │  Subtotal        35.000    │
-│                              │  Diskon [F6]      0        │
+│                              │  Voucher [F6]     0        │
 │                              │  Pajak            3.850     │
 │                              │  TOTAL           38.850    │
 ├──────────────────────────────┴────────────────────────────┤
-│ [F4] Qty  [F6] Diskon  [F8] Hold  [F9] Bayar  [F10] Posting│
+│ [F4] Qty  [F6] Voucher  [F8] Simpan  [F9] Checkout online  │
 └───────────────────────────────────────────────────────────┘
 ```
 
@@ -181,38 +181,38 @@ Item menu difilter oleh permission efektif user (lihat doc 17). Menu tanpa akses
 
 ```text
 ┌─────────────────────┐
-│  Receipt #INV-000123 │
+│  Pesanan #ORD-000123 │
 │  Toko · 2026-07-04   │
 ├─────────────────────┤
 │  Item ............   │
 │  Total   38.850     │
-│  [⬇ Download PDF]    │
-│  Consent WA  [switch]│
-│  Consent Email[switch]│
+│  [⬇ Invoice PDF]     │
+│  Langganan Email[switch]│
+│  Notifikasi   [switch]│
 └─────────────────────┘
 ```
 
 ## Screen inventory
 
-| Route                        | Persona         | Tujuan                                                                         | Komponen utama                      | API utama                                                                                                  |
-| ---------------------------- | --------------- | ------------------------------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `/login`                     | Semua           | Autentikasi                                                                    | FormField, Button                   | `POST /auth/login`                                                                                         |
-| `/setup`                     | Owner awal      | Setup wizard                                                                   | Stepper, FormField                  | `GET/POST /setup/*`                                                                                        |
-| `/admin`                     | Admin/Owner     | Dashboard                                                                      | Card, Chart, Table                  | `GET /reports/*`                                                                                           |
-| `/admin/products`            | Admin/Inventory | List/CRUD produk                                                               | DataGrid, SearchBar, Dialog         | `/inventory/products`                                                                                      |
-| `/admin/stock`               | Admin/Inventory | Stok & opening balance                                                         | DataGrid, NumberInput               | `/inventory/stock-balances`                                                                                |
-| `/admin/warehouse`           | Gudang          | Transfer, bin, cycle count                                                     | Tabs, StatusPill                    | `/warehouses`, `/warehouse-transfers`                                                                      |
-| `/admin/tax`                 | Tax Officer     | VAT invoice, Coretax                                                           | DataGrid, MaskedText                | `/tax/*`                                                                                                   |
-| `/admin/crm`                 | CRM Staff       | Kontak, receipt, outbox                                                        | Table, Switch                       | `/crm/*`                                                                                                   |
-| `/admin/reports`             | Analyst/Owner   | Laporan                                                                        | Chart, Table                        | `/reports/*`                                                                                               |
-| `/admin/ai`                  | Analyst/Owner   | AI analyst chat                                                                | Chat, Card                          | `/ai/business-analyst/chat`                                                                                |
-| `/admin/access-users`        | Admin/Owner     | User & akses                                                                   | Table, FormField                    | `/users/*`, `/roles/*`, `/permissions`, `/access/assignments`                                              |
-| `/admin/sync`                | Admin/Owner     | Node, konflik, antrean sync                                                    | Table, StatusPill, FormField        | `/sync/nodes`, `/sync/conflicts/*`, `/sync/object-queue/*`                                                 |
-| `/admin/logs`                | Auditor/Admin   | Logs & security                                                                | DataGrid, Badge                     | `/logs/*`, `/security/*`                                                                                   |
-| `/admin/modules`             | Admin/Owner     | List, filter modul + health                                                    | DataGrid, StatusPill                | `/modules`, `/modules/{moduleKey}/health`                                                                  |
-| `/admin/modules/{moduleKey}` | Admin/Owner     | Detail, dependency, settings, permission sync, navigation, jobs, health, audit | Tabs/Section, FormField, StatusPill | `/modules/{moduleKey}`, `/tenant/modules/{moduleKey}/*`, `/modules/{moduleKey}/{permissions,jobs,health*}` |
-| `/pos`                       | Kasir           | Transaksi POS                                                                  | POS shell, Combobox                 | `/sales/*`                                                                                                 |
-| `/customer/receipts/{token}` | Customer        | Receipt & consent                                                              | Card, Switch                        | `/crm/receipts/*`                                                                                          |
+| Route                        | Persona          | Tujuan                                                                         | Komponen utama                      | API utama                                                                                                  |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/login`                     | Semua            | Autentikasi                                                                    | FormField, Button                   | `POST /auth/login`                                                                                         |
+| `/setup`                     | Owner awal       | Setup wizard                                                                   | Stepper, FormField                  | `GET/POST /setup/*`                                                                                        |
+| `/admin`                     | Admin/Owner      | Dashboard                                                                      | Card, Chart, Table                  | `GET /reports/*`                                                                                           |
+| `/admin/products`            | Admin/Store Op.  | List/CRUD katalog produk toko online                                           | DataGrid, SearchBar, Dialog         | `/inventory/products`                                                                                      |
+| `/admin/stock`               | Admin/Store Op.  | Ketersediaan produk & stok awal                                                | DataGrid, NumberInput               | `/inventory/stock-balances`                                                                                |
+| `/admin/orders`              | Store Operator   | Pesanan online: status, pemenuhan, refund/retur                                | DataGrid, StatusPill                | `/sales/*`                                                                                                 |
+| `/admin/content`             | Editor/Content   | Halaman, blog, berita, media                                                   | DataGrid, Editor                    | `/blog/*`, `/news/*`, `/media/*`                                                                           |
+| `/admin/engagement`          | Engagement Staff | Moderasi komentar, newsletter, notifikasi                                      | Table, Switch                       | `/comments/*`, `/newsletter/*`                                                                             |
+| `/admin/reports`             | Analyst/Owner    | Laporan                                                                        | Chart, Table                        | `/reports/*`                                                                                               |
+| `/admin/ai`                  | Analyst/Owner    | AI analyst chat                                                                | Chat, Card                          | `/ai/business-analyst/chat`                                                                                |
+| `/admin/access-users`        | Admin/Owner      | User & akses                                                                   | Table, FormField                    | `/users/*`, `/roles/*`, `/permissions`, `/access/assignments`                                              |
+| `/admin/sync`                | Admin/Owner      | Node, konflik, antrean sync                                                    | Table, StatusPill, FormField        | `/sync/nodes`, `/sync/conflicts/*`, `/sync/object-queue/*`                                                 |
+| `/admin/logs`                | Auditor/Admin    | Logs & security                                                                | DataGrid, Badge                     | `/logs/*`, `/security/*`                                                                                   |
+| `/admin/modules`             | Admin/Owner      | List, filter modul + health                                                    | DataGrid, StatusPill                | `/modules`, `/modules/{moduleKey}/health`                                                                  |
+| `/admin/modules/{moduleKey}` | Admin/Owner      | Detail, dependency, settings, permission sync, navigation, jobs, health, audit | Tabs/Section, FormField, StatusPill | `/modules/{moduleKey}`, `/tenant/modules/{moduleKey}/*`, `/modules/{moduleKey}/{permissions,jobs,health*}` |
+| `/checkout`                  | Customer         | Storefront & checkout online                                                   | Cart shell, Combobox                | `/sales/*`                                                                                                 |
+| `/customer/orders/{token}`   | Customer         | Konfirmasi pesanan & consent                                                   | Card, Switch                        | `/crm/receipts/*`                                                                                          |
 
 ## State pattern wajib
 
@@ -231,7 +231,7 @@ stateDiagram-v2
 - **Loading**: skeleton, bukan spinner kosong untuk list.
 - **Empty**: pesan + call-to-action (mis. "Belum ada produk. Tambah produk").
 - **Error**: pesan user-friendly (petakan error code doc 05), tanpa detail teknis.
-- **Optimistic**: keranjang POS update instan; rollback bila server menolak.
+- **Optimistic**: keranjang storefront update instan; rollback bila server menolak.
 - **Offline**: banner + antrean; aksi tetap tersimpan lokal (doc 15).
 - **Archived/deleted**: list default menyembunyikan item; role berizin dapat membuka filter arsip, melihat badge `Diarsipkan`, dan menjalankan restore.
 
@@ -299,29 +299,28 @@ flowchart LR
   Render --> Fmt[Formatter angka/tanggal/mata uang]
 ```
 
-## Peta keyboard POS
+## Peta keyboard (storefront checkout & admin)
 
-| Shortcut | Fungsi                      |
-| -------- | --------------------------- |
-| F1       | Bantuan/shortcut            |
-| F2       | Fokus search/barcode        |
-| F4       | Ubah quantity item terpilih |
-| F6       | Diskon (sesuai izin)        |
-| F8       | Hold transaksi              |
-| F9       | Pembayaran                  |
-| F10      | Posting transaksi           |
-| Enter    | Tambah item terpilih        |
-| ↑/↓      | Navigasi hasil/keranjang    |
-| Esc      | Tutup dialog                |
+| Shortcut | Fungsi                            |
+| -------- | --------------------------------- |
+| F1       | Bantuan/shortcut                  |
+| F2       | Fokus pencarian katalog           |
+| F4       | Ubah quantity item di keranjang   |
+| F6       | Kode voucher/diskon (sesuai izin) |
+| F8       | Simpan keranjang                  |
+| F9       | Lanjut ke pembayaran online       |
+| Enter    | Tambah item ke keranjang          |
+| ↑/↓      | Navigasi hasil/keranjang          |
+| Esc      | Tutup dialog                      |
 
 ## Acceptance criteria UI/UX
 
 - Design token terpasang & theming light/dark/system tanpa flash.
 - Komponen dasar tersedia dengan state loading/disabled/error.
-- Admin shell, POS fullscreen, dan customer portal render sesuai layout.
+- Admin shell, storefront/checkout, dan customer portal render sesuai layout.
 - Setiap list/detail memiliki loading/empty/error state.
 - Navigasi difilter permission; endpoint tetap dilindungi ABAC.
-- POS dapat dioperasikan penuh via keyboard.
+- Storefront checkout dapat dioperasikan penuh via keyboard.
 - Kontras & fokus memenuhi AA.
 - Semua string melalui i18n; angka/mata uang/tanggal terformat lokal.
 - Data sensitif tampil ter-mask sesuai role.

@@ -4,7 +4,7 @@ Folder ini berisi paket dokumen master untuk **AWCMS-Micro** — **template full
 
 > Sebelum coding, baca [`../../AGENTS.md`](../../AGENTS.md) untuk aturan wajib dan alur kerja agent, serta gunakan **skill proyek** di [`../../.claude/skills/`](../../.claude/skills/README.md).
 
-> **Penting — konten domain vs base.** Dokumen **01, 06, 09** dan `AGENTS.md` sudah **generik (base)**. Dokumen **02–19** masih memuat contoh berjalan bergaya **retail/POS AWPOS** — **warisan sumber-standar** (ADR-0034 §4) yang sedang diganti menjadi contoh **website / toko-online**. **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain POS/kasir/gudang/pajak adalah ilustrasi legacy, BUKAN scope base ini** — base = template full-online website (hingga toko online), **POS in-store dikecualikan** (lineage ERP `awcms`). Tiap dokumen 02–19 memuat banner penanda di atasnya. Keputusan arsitektural base dicatat di [`../adr/`](../adr/README.md).
+> **Penting — konten domain vs base.** Dokumen **01, 06, 09** dan `AGENTS.md` sudah **generik (base)**. Dokumen **02–19** kini memakai contoh berjalan **website / toko-online** (katalog, checkout/pesanan online, konten) — reframe ADR-0034 Round 2 dari contoh legacy retail/POS AWPOS. **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain tetap ILUSTRATIF** (bukan modul base yang diadmit — registry 22-modul tidak berubah). Base = template full-online website (hingga toko online), sementara **POS in-store, gudang, dan pajak/Coretax dikecualikan** (lineage ERP `awcms`) dan di dokumen ditandai demikian. Tiap dokumen 02–19 memuat banner penanda di atasnya. Keputusan arsitektural base dicatat di [`../adr/`](../adr/README.md).
 
 ## Peta dokumen
 

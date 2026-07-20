@@ -1,6 +1,6 @@
 # Bagian 18 — Configuration dan Environment Reference
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -24,7 +24,7 @@ Terkait: `11_implementation_blueprint.md` (skeleton), `15/16` (FE/BE), `07_sprin
 1. Semua secret hanya dari **environment**, tidak pernah di kode/commit.
 2. `.env` di-ignore; `.env.example` hanya placeholder.
 3. Provider eksternal **opsional** via feature flag; default off.
-4. POS tidak boleh gagal karena provider off.
+4. Storefront/checkout online tidak boleh gagal karena provider opsional off.
 5. Konfigurasi tervalidasi saat boot; nilai wajib yang hilang menghentikan start dengan pesan jelas.
 6. Soft delete adalah perilaku platform wajib, bukan feature flag; retention/purge dikontrol policy dan workflow.
 7. Runtime, build, dan seluruh tooling wajib **Bun** (Bun-only); tidak ada binary `node` di jalur dev/build/deploy (lihat doc 10 §Standar platform backend & AGENTS.md aturan 14).
@@ -1070,7 +1070,7 @@ flowchart LR
   Flags -->|PUBLIC_TENANT_RESOLUTION_MODE unset| LegacyBlog[Legacy blog per-tenantCode route]
 ```
 
-Aturan: fitur off tidak menghentikan POS; pesan/objek tetap masuk queue dan menunggu fitur diaktifkan. `EMAIL_ENABLED off` (base, Issue #493) dan `Mailketing off` (contoh domain retail/POS §Provider CRM) sama-sama "queue menunggu", tapi keduanya jalur terpisah — base tidak mengasumsikan use case "email receipt".
+Aturan: fitur off tidak menghentikan storefront/checkout online; pesan/objek tetap masuk queue dan menunggu fitur diaktifkan. `EMAIL_ENABLED off` (base, Issue #493) dan `Mailketing off` (contoh domain retail/POS §Provider CRM) sama-sama "queue menunggu", tapi keduanya jalur terpisah — base tidak mengasumsikan use case "email receipt".
 
 ## `.env.example` lengkap (rekomendasi)
 

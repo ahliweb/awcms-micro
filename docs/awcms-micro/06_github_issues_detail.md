@@ -1,6 +1,6 @@
 # Bagian 6 — GitHub Issues Detail (Base Generik)
 
-AWCMS-Micro adalah **contoh repo pengembangan umum** — base modular monolith reusable, bukan aplikasi domain. Backlog di dokumen ini **hanya berisi modul generik** yang menjadi bagian AWCMS-Micro sendiri (Foundation, Tenant/Identity/Profile, Sync Storage, UI Experience, Management Reporting, Observability/Pooling/Security Readiness, Setup/Deployment). Modul domain (katalog produk, POS, gudang, pajak/Coretax, CRM receipt, AI business analyst, dan sejenisnya) **bukan bagian repo ini** — itu dibangun di aplikasi turunan contoh (mis. AWPOS) di atas base AWCMS-Micro. Lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
+AWCMS-Micro adalah **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)) — base modular monolith reusable. Backlog di dokumen ini **hanya berisi modul generik** yang menjadi bagian AWCMS-Micro sendiri (Foundation, Tenant/Identity/Profile, Sync Storage, UI Experience, Management Reporting, Observability/Pooling/Security Readiness, Setup/Deployment). Permukaan domain **toko online** (katalog produk, checkout/pesanan online, konten) diisi **langsung di repo ini** sebagai contoh ILUSTRATIF di atas pola base — **bukan** modul base yang diadmit ke registry, dan registry 22-modul base tidak berubah karenanya. Contoh yang menyentuh **POS in-store, gudang, atau pajak/Coretax** adalah **lineage ERP `awcms` (dikecualikan** — [ADR-0034 §3](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md), ADR-0025), bukan scope repo ini. Lihat `docs/awcms-micro/README.md` §"AWCMS-Micro sebagai standar pengembangan".
 
 Nomor epic mengikuti riwayat backlog asli (epic domain sudah dihapus, sehingga ada celah nomor — ini disengaja, bukan kesalahan, agar traceability terhadap issue GitHub yang sudah dibuat tetap valid).
 
@@ -79,7 +79,7 @@ Selain doc 01–05, setiap epic wajib membaca dokumen desain teknis terkait. Sem
 
 **Scope:** Buat struktur `src/modules`, `_shared`, `src/lib`, `sql`, `scripts`, `openapi`, `asyncapi`, `docs`, `deploy`, `tests`, `fixtures`; buat `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore`, `.env.example`, `README.md`; buat module contract, module registry, API response helper, dan health endpoint.
 
-**Out of scope:** Migration runner detail, login, dan modul domain aplikasi turunan (katalog, transaksi, dsb.).
+**Out of scope:** Migration runner detail, login, dan permukaan domain toko online ilustratif (katalog, checkout/pesanan) yang diisi terpisah di atas base; operasi ERP `awcms` (POS in-store, gudang, Coretax) dikecualikan.
 
 **Acceptance criteria:** Struktur tersedia, build pass, health endpoint ada, README menjelaskan stack, shared convention untuk soft-delete DTO/query helper terdokumentasi, tidak ada secret.
 
@@ -169,7 +169,7 @@ Selain doc 01–05, setiap epic wajib membaca dokumen desain teknis terkait. Sem
 
 ## Issue 9.1 — Add Management Reporting Views
 
-**Scope:** Tenant activity summary, access/audit summary, sync health, module usage dashboard (generic reporting views — aplikasi turunan menambah view domainnya sendiri).
+**Scope:** Tenant activity summary, access/audit summary, sync health, module usage dashboard (generic reporting views — view domain toko online ilustratif ditambah langsung di repo ini di atas view base ini).
 
 ---
 
@@ -217,7 +217,7 @@ Nomor `Issue X.Y` pada dokumen ini adalah **kode traceability internal**, bukan 
 
 ## Riwayat perubahan backlog (2026-07-04)
 
-Backlog awal berisi 38 issue, termasuk epic domain POS/retail (Legacy Migration, POS MVP, Warehouse Management, CRM Receipt Delivery, Accounting & Coretax, sebagian UI/Reporting/AI) yang **tidak sesuai konteks AWCMS-Micro sebagai contoh repo pengembangan umum**. 20 issue domain tersebut ditutup (`not planned`) di GitHub dengan catatan bahwa kontennya dipindahkan ke aplikasi turunan contoh (mis. AWPOS), bukan dihapus historisnya. 2 issue (Admin shell, Management Reporting) digeneralisasi wording-nya agar tidak lagi memuat istilah domain (mis. "Petugas", "Sales daily/stock/tax/warehouse dashboard"). Milestone dan label domain yang menjadi tidak terpakai turut dibersihkan (lihat `github/README.md` §Genericization).
+Backlog awal berisi 38 issue, termasuk epic domain POS/retail (Legacy Migration, POS MVP, Warehouse Management, CRM Receipt Delivery, Accounting & Coretax, sebagian UI/Reporting/AI) yang **tidak sesuai konteks AWCMS-Micro sebagai template full-online website** (scope hingga **toko online**, **bukan** POS in-store/gudang/Coretax — [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). 20 issue domain tersebut ditutup (`not planned`) di GitHub, riwayat historisnya tidak dihapus. Di bawah ADR-0034: permukaan **toko online** yang masih relevan (katalog, checkout/pesanan online, konten) kini diperlakukan sebagai contoh **ilustratif yang diisi langsung di repo ini**, sedangkan operasi **ERP `awcms`** (POS in-store, gudang, Coretax) tetap **dikecualikan**. 2 issue (Admin shell, Management Reporting) digeneralisasi wording-nya agar tidak lagi memuat istilah domain (mis. "Petugas", "Sales daily/stock/tax/warehouse dashboard"). Milestone dan label domain yang menjadi tidak terpakai turut dibersihkan (lihat `github/README.md` §Genericization).
 
 Status awal issue yang tersisa:
 
@@ -234,7 +234,7 @@ Sprint awal semula menempatkan **Issue 12.1 (Setup Wizard API)** di Sprint 1, se
 
 Sprint awal (setelah koreksi #1) menempatkan **10.1–10.3 (M8 — Security/Performance/Production) di Sprint 4**, sebelum **6.1–6.3 (M5 — Sync Storage) dan 8.1/9.1 (M7 — UI/UX & Reporting) di Sprint 5** — bertentangan dengan §Ketergantungan milestone di atas, yang menetapkan `M5 → M8` dan `M7 → M8` (M8 butuh M5 **dan** M7 selesai lebih dulu, bukan sebaliknya). Sprint 5 versi awal juga keliru mencampur `11.1`/`12.2` (keduanya milestone M8) bersama issue M5/M7. Ditemukan saat menutup Issue 12.1 dan hendak merekomendasikan langkah berikutnya — label GitHub `10.1`/`10.2`/`10.3`/`11.1`/`12.2` tetap `status:blocked` (tidak keliru diubah jadi `status:ready`). Diperbaiki: **Sprint 4 = 6.1, 6.2, 6.3, 8.1, 9.1** (M5+M7, keduanya cuma butuh M2 yang sudah tuntas, boleh paralel); **Sprint 5 = 10.1, 10.2, 10.3, 11.1, 12.2** (M8, semuanya).
 
-Jika repo ini dipakai sebagai template untuk membangun aplikasi domain baru: **jangan** menambah epic domain ke backlog ini. Buat paket dokumen 01–20 dan backlog issue terpisah milik aplikasi turunan tersebut (pola: paket dokumen AWPOS), dan tambahkan modul domainnya di `src/modules/` di atas base ini.
+AWCMS-Micro dipakai **langsung** sebagai template ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). Untuk permukaan **toko online** (katalog, checkout/pesanan online, konten), tambahkan modul di `src/modules/` **langsung di repo ini** sebagai ilustrasi di atas pola base — **jangan** menambah epic **ERP `awcms`** (POS in-store, gudang, Coretax) yang dikecualikan (ADR-0034 §3, ADR-0025). Pathway "aplikasi turunan terpisah" (paket dokumen + backlog sendiri, mis. gaya AWPOS) kini **opsional-legacy** — kode seam-nya dipertahankan, tetapi bukan jalur yang direkomendasikan.
 
 Snapshot isi GitHub aktual dicatat di [`github/README.md`](github/README.md). Snapshot dipisah menjadi file `issues-open-NNN.md` dan `issues-closed-NNN.md`, dengan batas maksimal 100 issue per file. Dokumen ini tetap menjadi template/rencana issue atomic; folder `github/` menjadi arsip state GitHub yang direfresh dari `gh`.
 

@@ -1,6 +1,6 @@
 # Bagian 10 — Template Implementasi Kode dan Coding Standard
 
-> **Standar base + contoh domain.** Dokumen ini adalah **standar/pola reusable** base AWCMS-Micro. Contoh yang dipakai memakai domain retail/POS bergaya AWPOS sebagai ilustrasi — ganti detail domainnya dengan kebutuhan aplikasi turunan Anda. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -114,13 +114,15 @@ src/modules/<module>/
 ```ts
 import type { ModuleDescriptor } from "../_shared/module-contract";
 
-export const warehouseManagementModule: ModuleDescriptor = {
-  key: "warehouse_management",
-  name: "Warehouse Management",
+// Contoh ilustratif domain toko online (bukan modul base terdaftar) — memperlihatkan
+// bentuk descriptor. Modul katalog/checkout diisi langsung di repo ini (ADR-0034).
+export const onlineStoreModule: ModuleDescriptor = {
+  key: "online_store",
+  name: "Online Store",
   version: "0.1.0",
   status: "active",
   description:
-    "Multi warehouse, zone, bin, lot, transfer, in-transit, cycle count, and warehouse stock operations.",
+    "Storefront katalog, keranjang/checkout online, pesanan online, pembayaran gateway, dan status pemenuhan pesanan.",
   dependencies: [
     "tenant_admin",
     "identity_access",
@@ -128,21 +130,18 @@ export const warehouseManagementModule: ModuleDescriptor = {
     "observability_logging"
   ],
   api: {
-    openApiPath: "openapi/modules/warehouse-management.openapi.yaml",
+    openApiPath: "openapi/modules/online-store.openapi.yaml",
     basePath: "/api/v1"
   },
   events: {
-    asyncApiPath: "asyncapi/modules/warehouse-events.asyncapi.yaml",
+    asyncApiPath: "asyncapi/modules/online-store-events.asyncapi.yaml",
     publishes: [
-      "warehouse.transfer.created",
-      "warehouse.transfer.shipped",
-      "warehouse.transfer.received",
-      "warehouse.cycle_count.variance_detected"
+      "store.order.placed",
+      "store.order.paid",
+      "store.order.fulfilled",
+      "store.order.cancelled"
     ],
-    subscribes: [
-      "inventory.stock.adjustment.posted",
-      "sales.transaction.posted"
-    ]
+    subscribes: ["catalog.product.updated", "inventory.availability.changed"]
   }
 };
 ```
@@ -486,16 +485,13 @@ Mutation high-risk harus:
 
 Endpoint wajib idempotency:
 
-- POS posting.
-- Cancel/return.
+- Checkout/posting pesanan online.
+- Cancel/retur pesanan online.
 - Profile resolve/link/merge.
-- Warehouse transfer approve/ship/receive.
-- Cycle count submit.
-- Stock adjustment.
-- VAT invoice generate.
-- Coretax batch.
-- Receipt send.
+- Penyesuaian ketersediaan produk (stock adjustment).
+- Kirim konfirmasi/invoice pesanan online (email).
 - Sync push.
+- _(lineage ERP `awcms` — dikecualikan, ADR-0034 §3):_ warehouse transfer approve/ship/receive, cycle count submit, VAT invoice generate, Coretax batch.
 
 ## Transaction wrapper rules
 

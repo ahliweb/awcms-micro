@@ -2,7 +2,7 @@
 
 ## Objective
 
-Membangun **AWCMS-Micro Modular Monolith Standard** sebagai **base reusable** yang aman, offline-first, dan siap dikembangkan bertahap untuk menjadi fondasi aplikasi apa pun (multi-tenant, RBAC/ABAC, audit, sync). AWCMS-Micro adalah **contoh repo pengembangan umum** — bukan aplikasi domain tertentu. Aplikasi turunan contoh (mis. AWPOS untuk retail/POS) dibangun di atas base ini dengan menambah modul domainnya sendiri; lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
+Membangun **AWCMS-Micro Modular Monolith Standard** sebagai **template full-online website yang dipakai langsung** — aman, multi-tenant, RBAC/ABAC, audit, sync — dengan pola reusable yang siap dikembangkan bertahap hingga **toko online** (katalog, checkout/pesanan online, konten). AWCMS-Micro dipakai **langsung dari repo ini** dengan menambah/menyesuaikan modul website di dalamnya ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)); jalur membangun aplikasi turunan terpisah kini opsional-lawas, dan POS in-store/gudang/Coretax berada di luar scope (lineage ERP `awcms`). Lihat `docs/awcms-micro/README.md` §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Stack final
 
@@ -100,7 +100,7 @@ flowchart LR
 | Management Reporting  | Dashboard dan laporan generik                      |
 | Production Security   | Readiness, finding, go-live gates                  |
 
-Modul domain (katalog produk, POS, gudang, pajak/Coretax, CRM receipt, AI business analyst, dsb.) **bukan bagian base ini** — ditambahkan aplikasi turunan contoh (mis. AWPOS) di atas base.
+Permukaan **toko online** (katalog produk, etalase, keranjang, checkout/pesanan online) adalah **arah ekstensi website in-scope** yang diisi **langsung di repo ini** sebagai contoh ilustratif di atas pola base (registry 22-modul tidak berubah). Sebaliknya **POS in-store, gudang, pajak/Coretax** **bukan bagian base ini** dan berada di luar scope (lineage ERP `awcms`, ADR-0034 §3).
 
 ## Fase pengembangan (base)
 
