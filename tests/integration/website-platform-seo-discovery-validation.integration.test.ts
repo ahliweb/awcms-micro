@@ -181,19 +181,23 @@ function fetchRoute(
 function assertWellFormedXml(xml: string, expectedRoot: string): void {
   expect(xml.startsWith("<?xml")).toBe(true);
 
-  const stripped = xml
-    .replace(/<\?[\s\S]*?\?>/g, "")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  // Single-pass tokenizer that RECOGNIZES (and skips) processing instructions,
+  // comments, and CDATA, and treats only real element tags as stack ops — done
+  // in one scan rather than by removing those constructs with regex replaces.
+  // That avoids both the nesting mistakes of strip-then-rescan and the
+  // static-analysis "incomplete multi-character sanitization" heuristic: this
+  // is a test-fixture well-formedness gate, not an HTML/output sanitizer, so a
+  // leftover `<!--` would only be a skipped token, never injected anywhere.
+  const tokenRe =
+    /<\?[\s\S]*?\?>|<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(\/?)([A-Za-z][\w:.-]*)(?:\s[^>]*?)?(\/?)>/g;
 
   const stack: string[] = [];
   let firstOpen: string | null = null;
-  const tagRe = /<(\/?)([A-Za-z][\w:.-]*)(?:\s[^>]*?)?(\/?)>/g;
-
   let match: RegExpExecArray | null;
-  while ((match = tagRe.exec(stripped)) !== null) {
+  while ((match = tokenRe.exec(xml)) !== null) {
+    const name = match[2];
+    if (name === undefined) continue; // PI / comment / CDATA — not an element
     const isClose = match[1] === "/";
-    const name = match[2]!;
     const selfClose = match[3] === "/";
     if (isClose) {
       expect(stack.pop()).toBe(name);
