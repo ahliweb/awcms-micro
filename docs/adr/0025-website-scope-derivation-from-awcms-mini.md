@@ -1,6 +1,7 @@
 # ADR-0025 — AWCMS-Micro sebagai turunan scope WEBSITE dari standar AWCMS-Mini
 
 - **Status:** Accepted
+- **Catatan (2026-07-21):** framing "**turunan** scope website dari awcms-mini" di-**supersede sebagian** oleh [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) — repo diposisikan ulang sebagai **TEMPLATE full-online website dipakai LANGSUNG** (asal-usul dari mini = warisan historis), scope membentang hingga **toko online / e-commerce**, **POS in-store tetap dikecualikan**. Scope teknis, daftar modul, dan aturan "pemangkasan tuntas sampai gate CI" di ADR ini TETAP berlaku.
 - **Tanggal:** 2026-07-17
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** ADR-0001 (modular monolith), ADR-0011 (capability ports), ADR-0012 (module admission & trusted registry boundary), ADR-0013 (extension layers & boundary model), ADR-0014 (deterministic build-time module composition), ADR-0016–ADR-0021 (admission modul ERP di upstream — **tidak diport**, lihat §3), repositori upstream `ahliweb/awcms-mini`, repositori sibling `ahliweb/awcms`

@@ -1,5 +1,7 @@
 # Rencana Pilot Aplikasi Turunan Pertama
 
+> ⚠️ **DEPRECATED / pilot AWPOS DIPENSIUNKAN — [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md).** Dokumen ini memilih **AWPOS (retail/POS)** sebagai pilot aplikasi-turunan. Itu **tidak lagi berlaku**: (1) jalur aplikasi-turunan di-deprecate — AWCMS-Micro dipakai **langsung sebagai template website**; (2) AWCMS-Micro adalah **template full-online website hingga toko online**, **bukan POS in-store** — AWPOS (POS) termasuk lineage ERP `awcms`, bukan target base ini; perannya terhadap repo ini murni **historis** (sumber-standar paket dokumen). Pilot bukti platform (Issue #273/#292) adalah **website generik / toko online**, bukan AWPOS. Isi di bawah dipertahankan sebagai arsip.
+
 Issue #465. Base AWCMS-Micro sudah stabil (v0.23.5, 18 issue backlog doc06 +
 epic M9 pasca-backlog tuntas) dan `derived-application-guide.md` sudah
 menjelaskan cara membangun aplikasi turunan di atasnya. Dokumen ini

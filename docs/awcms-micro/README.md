@@ -1,10 +1,10 @@
 # AWCMS-Micro Documentation Package
 
-Folder ini berisi paket dokumen master untuk pengembangan **AWCMS-Micro Modular Monolith Standard**. Struktur dan urutan dokumen mengikuti repo referensi AWPOS, dengan penyesuaian konteks menjadi base AWCMS-Micro untuk aplikasi domain berikutnya.
+Folder ini berisi paket dokumen master untuk **AWCMS-Micro** — **template full-online website yang dipakai langsung** (spektrum hingga **toko online / e-commerce**, **bukan POS in-store**; lihat [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). Struktur & urutan dokumen mengikuti repo **sumber-standar AWPOS** (asal-usul historis paket dokumen ini — bukan target aplikasi), disesuaikan menjadi standar base AWCMS-Micro.
 
 > Sebelum coding, baca [`../../AGENTS.md`](../../AGENTS.md) untuk aturan wajib dan alur kerja agent, serta gunakan **skill proyek** di [`../../.claude/skills/`](../../.claude/skills/README.md).
 
-> **Penting — konten domain vs base.** Dokumen **01, 06, 09** dan `AGENTS.md` sudah **generik (base)**. Dokumen **02–19** memakai domain retail/POS bergaya **AWPOS** sebagai **contoh ilustratif**: **pola & standar**-nya reusable, tetapi **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** aplikasi turunan. Tiap dokumen 02–19 memuat banner penanda di bagian atasnya. Keputusan arsitektural base dicatat di [`../adr/`](../adr/README.md).
+> **Penting — konten domain vs base.** Dokumen **01, 06, 09** dan `AGENTS.md` sudah **generik (base)**. Dokumen **02–19** masih memuat contoh berjalan bergaya **retail/POS AWPOS** — **warisan sumber-standar** (ADR-0034 §4) yang sedang diganti menjadi contoh **website / toko-online**. **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain POS/kasir/gudang/pajak adalah ilustrasi legacy, BUKAN scope base ini** — base = template full-online website (hingga toko online), **POS in-store dikecualikan** (lineage ERP `awcms`). Tiap dokumen 02–19 memuat banner penanda di atasnya. Keputusan arsitektural base dicatat di [`../adr/`](../adr/README.md).
 
 ## Peta dokumen
 
@@ -191,7 +191,7 @@ Dokumen dikelompokkan mengikuti alur pengembangan agar mudah diimplementasi.
 
 ## AWCMS-Micro sebagai standar pengembangan
 
-AWCMS-Micro sengaja disusun agar bisa dipakai sebagai **template/contoh** untuk mengembangkan aplikasi lain di atas base yang sama. Bagian yang **generik & reusable** (pola AWCMS-Micro) vs **spesifik domain turunan**:
+AWCMS-Micro adalah **template full-online website yang dipakai LANGSUNG** — Anda mulai dari repo ini dan menambah/menyesuaikan modul website (hingga toko online) di dalamnya. (Jalur "membangun aplikasi turunan terpisah di atas base" kini **opsional-lawas**, ADR-0034 §3.) Bagian yang **generik & reusable** vs **spesifik domain website/toko-online yang Anda isi**:
 
 | Reusable (pola AWCMS-Micro)                                        | Spesifik domain turunan                       |
 | ------------------------------------------------------------------ | --------------------------------------------- |
@@ -236,9 +236,9 @@ SemVer + [Changesets](../../.changeset/README.md); riwayat di [`../../CHANGELOG.
 
 Kontribusi baru masuk salah satu dari dua jalur:
 
-**A. Membangun aplikasi turunan / modul domain** (mis. AWPOS retail/POS, portal sekolah, sistem pengaduan, sistem manajemen mutu) di atas base ini:
+**A. Menambah modul website ke template ini** (mis. katalog produk & etalase toko online, halaman landing, direktori, portal) — dikerjakan **langsung di dalam repo ini**, bukan sebagai aplikasi-turunan terpisah (ADR-0034):
 
-1. Definisikan PRD/SRS domain (pola doc 02/03, ganti entitas retail/POS ilustratif dengan domain Anda).
+1. Definisikan PRD/SRS domain website Anda (pola doc 02/03, ganti entitas retail/POS ilustratif legacy dengan domain website/toko-online Anda).
 2. Scaffold modul domain di `src/modules/` — skill `awcms-micro-new-module`.
 3. Migration PostgreSQL + RLS tenant-scoped — skill `awcms-micro-new-migration`.
 4. Seed RBAC/ABAC domain (doc 17) — permission/role/policy khusus domain.

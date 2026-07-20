@@ -1,6 +1,7 @@
 # ADR-0015 — Derived-application compatibility manifest, test kit, dan semantic-version gates
 
 - **Status:** Accepted
+- **Catatan (2026-07-21):** di-**supersede sebagian** oleh [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) — jalur aplikasi-turunan (manifest + `extension:check`) turun status jadi **opsional-lawas** karena repo dipakai LANGSUNG sebagai template. Gerbang/kode TETAP utuh & hijau; pelepasannya opsional + evidence-gated di ADR terpisah.
 - **Tanggal:** 2026-07-13
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** Issue #741 (epic #738 `platform-evolution`, Wave 1), Issue #739/ADR-0013, Issue #740/ADR-0014, ADR-0008, ADR-0011, ADR-0012, `docs/awcms-micro/derived-application-guide.md`, `src/modules/_shared/module-contract.ts`, `src/modules/_shared/extension-manifest-contract.ts`, `src/modules/module-management/domain/extension-compatibility.ts`, `scripts/extension-check.ts`

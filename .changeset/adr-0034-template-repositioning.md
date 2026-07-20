@@ -1,0 +1,5 @@
+---
+"awcms-micro": patch
+---
+
+Reposition AWCMS-Micro as a directly-used full-online-website **template** (ADR-0034): scope spectrum reaches an **online store / e-commerce** (catalog, storefront, online checkout as public website surfaces) but explicitly excludes **in-store POS** (physical cashier, offline-first retail, receipt/hardware, Coretax, warehouse ops — that stays the ERP `awcms` lineage). The **derived-application pathway** (separate downstream app via `application-registry.ts` + compatibility manifest + `extension:check`, ADR-0013/0014/0015) is **deprecated to optional-legacy** — code and CI gates are kept intact (no behavior change; removal would be a separate evidence-gated step). Docs-only: new ADR-0034 + supersede notes on ADR-0013/0014/0025 + ADR index, root/doc-package README reframed, `derived-application-guide.md` + `derived-app-pilot-plan.md` marked deprecated (AWPOS/POS pilot retired), and the #273 evidence matrix reconciled. Deep rewrite of the retail/POS running examples in docs 02–19 is a follow-up round.

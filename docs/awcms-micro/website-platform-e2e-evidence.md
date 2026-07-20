@@ -13,16 +13,16 @@ recovery controls.
 This document is the **evidence report**: it maps every epic (#261) and #273
 acceptance criterion to the concrete in-repo test/command/artifact that proves
 it, and it states **honestly** which criteria are proven in this base repository
-versus which are deferred to the **external derived-site pilot** (`ahliweb/awpos`,
-see [`derived-app-pilot-plan.md`](derived-app-pilot-plan.md)) or to **real
+versus which are deferred to a **website / online-store pilot** or to **real
 infrastructure drills** (deployment, measured RTO/RPO, Core Web Vitals on
 representative volume, base-upgrade rehearsal). Those deferred parts are tracked
 as separate atomic issues (see [§Deferred work](#deferred-work)); #273 remains
 open until they land.
 
-> **Scope boundary.** No ERP/POS/vertical business logic is added to the base by
-> this evidence work. The derived pilot composes through the existing
-> `src/modules/application-registry.ts` + compatibility-manifest contracts only.
+> **Positioning ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).** AWCMS-Micro is a **template full-online website used directly** (spectrum reaches an **online store / e-commerce**; **not in-store POS** — that is the ERP `awcms` lineage). The pilot is a generic **website / online store**, NOT `ahliweb/awpos` (a POS app, whose relation here is only historical: it was the standards source). The derived-application pathway (separate downstream app via `application-registry.ts` + compatibility manifest + `extension:check`) is **deprecated to optional-legacy** — kept intact for backward compat, no longer the default.
+
+> **Scope boundary.** No ERP/POS/vertical back-office logic is added to the base by
+> this evidence work.
 
 ## How to reproduce
 
@@ -126,10 +126,12 @@ infrastructure** and cannot be honestly proven inside this base repository in an
 automated pass. Each is tracked as a separate atomic issue so #273's remaining
 surface is explicit rather than silently claimed:
 
-- **Derived-site pilot execution & base-upgrade rehearsal** — provision the
-  `ahliweb/awpos` pilot tenant/domain, compose a derived content-type + trusted
-  theme, run the full public+admin journey, and rehearse one AWCMS-Micro base
-  upgrade with no data loss or contract drift. (split issue: **#292**)
+- **Website / online-store pilot execution & base-upgrade rehearsal** — stand up a
+  generic bilingual **website (up to an online store)** directly from this template
+  (per [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md);
+  NOT `ahliweb/awpos`/POS, NOT a separate derived app), provision tenant/domain +
+  content + theme, run the full public+admin journey, and rehearse one base upgrade
+  with no data loss or contract drift. (split issue: **#292**)
 - **Deployment rehearsal** — Docker dev + `Dockerfile.production` + Coolify,
   internal PostgreSQL network, durable object-storage config, secrets handling,
   and Cloudflare/CDN/WAF guidance, executed end-to-end. (split issue: **#293**)
@@ -158,11 +160,12 @@ surface is explicit rather than silently claimed:
   `bun run check` — as the proof for the integration rows above.
 - **CWV/RTO/RPO are unmeasured in-repo.** Query/plan budgets and DR _shape_ are
   covered; the _measured_ numbers on production-like infrastructure are deferred.
-- **Pilot lives in a separate repository.** Per the epic's non-negotiable
-  boundaries, derived business logic must not move into this base; the pilot and
-  its upgrade rehearsal are proven in `ahliweb/awpos`, referenced here only.
-- **Generic foundation gaps found during the pilot must become their own atomic
-  base issues** — they must not be silently backported as derived logic.
+- **Pilot is a website / online store, used directly from this template** (ADR-0034)
+  — NOT `ahliweb/awpos` (POS, ERP lineage) and NOT a separate derived app. No ERP/POS
+  back-office logic (cashier, warehouse, tax posting) is added to this base.
+- **Foundation gaps found during the pilot must become their own atomic base issues**
+  — website/online-store features are admitted into this template via ADR (ADR-0025 §6),
+  not bolted on ad hoc.
 - **Security-test scope is deliberately narrow.** (a) The security-header check
   applies `buildSecurityHeaders` onto a real route response and asserts
   coexistence — it does not run the middleware pipeline (not in-process
