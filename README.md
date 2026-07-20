@@ -5,17 +5,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
 [![Runtime: Bun](https://img.shields.io/badge/runtime-Bun-black.svg)](https://bun.sh)
 
-AWCMS-Micro adalah platform **website online penuh** multi-tenant AhliWeb berbasis **Bun + Astro 7 + PostgreSQL**: konten & blog, portal berita, media, domain kustom per tenant, publikasi sosial, dan analitik pengunjung — di atas fondasi multi-tenant ber-RLS dengan RBAC/ABAC default-deny, audit trail, dan kontrak OpenAPI/AsyncAPI.
+AWCMS-Micro adalah **template full-online website** multi-tenant AhliWeb berbasis **Bun + Astro 7 + PostgreSQL** yang **dipakai langsung**: konten & blog, portal berita, media, domain kustom per tenant, publikasi sosial, dan analitik pengunjung — di atas fondasi multi-tenant ber-RLS dengan RBAC/ABAC default-deny, audit trail, dan kontrak OpenAPI/AsyncAPI. Spektrum scope membentang dari situs konten **hingga toko online (e-commerce)**: katalog produk, etalase, keranjang & **checkout online** sebagai permukaan website publik. **Bukan POS in-store** (kasir fisik/offline-first/cetak struk/Coretax) — itu lineage ERP `awcms`. Lihat **[ADR-0034](docs/adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)**.
 
 ## Posisi dalam keluarga AWCMS
 
-Repositori ini **bukan** basis standar tersendiri. Ia **turunan scope website** dari standar [`ahliweb/awcms-mini`](https://github.com/ahliweb/awcms-mini), sejajar dengan [`ahliweb/awcms`](https://github.com/ahliweb/awcms) yang merupakan turunan scope ERP:
+Repo ini adalah **template full-online website yang dipakai LANGSUNG** — bukan basis-turunan-wajib yang di atasnya harus dibangun aplikasi terpisah. Konvensinya **diwarisi** dari standar [`ahliweb/awcms-mini`](https://github.com/ahliweb/awcms-mini) (asal-usul historis), sejajar dengan [`ahliweb/awcms`](https://github.com/ahliweb/awcms) di lineage ERP:
 
-| Repositori        | Peran                                                                  | Scope                    |
-| ----------------- | ---------------------------------------------------------------------- | ------------------------ |
-| `awcms-mini`      | **Basis standar** — modular monolith, RLS, RBAC/ABAC, kontrak, gate CI | Fondasi reusable         |
-| `awcms`           | Turunan                                                                | ERP / solusi bisnis      |
-| **`awcms-micro`** | **Turunan (repo ini)**                                                 | **Website online penuh** |
+| Repositori        | Peran                                                                  | Scope                                 |
+| ----------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| `awcms-mini`      | **Basis standar** — modular monolith, RLS, RBAC/ABAC, kontrak, gate CI | Fondasi reusable                      |
+| `awcms`           | Lineage ERP                                                            | ERP / POS / solusi bisnis back-office |
+| **`awcms-micro`** | **Template dipakai langsung (repo ini)**                               | **Full-online website → toko online** |
+
+> **Scope & jalur pemakaian ([ADR-0034](docs/adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).** Spektrum membentang hingga **toko online / e-commerce** (katalog, etalase, checkout online sebagai halaman publik), tetapi **bukan POS in-store** (kasir fisik/offline-first/struk/Coretax/ops gudang) — itu lineage ERP `awcms`. Jalur **aplikasi-turunan** (manifest kompatibilitas + `extension:check`, ADR-0013/0014/0015) **di-deprecate** jadi opsional-lawas; pakai repo ini langsung. Kode/gate turunan tetap utuh (pelepasan = langkah evidence-gated terpisah).
 
 Seluruh konvensi mini berlaku utuh di sini: Bun-only (ADR-0002), PostgreSQL + RLS wajib (ADR-0003), RBAC/ABAC default-deny (ADR-0004), capability ports (ADR-0011), registry statis tepercaya (ADR-0012), komposisi build-time (ADR-0014). Yang berbeda hanya **scope**: tujuh modul ERP milik upstream (`workflow`, `organization_structure`, `document_infrastructure`, `data_exchange`, `integration_hub`, `reference_data`, `idn_admin_regions`) **tidak diport**. Alasan, konsekuensi, dan aturan turunannya dicatat di **[ADR-0025](docs/adr/0025-website-scope-derivation-from-awcms-mini.md)** — baca itu lebih dulu sebelum menambah/menghapus modul.
 
@@ -23,7 +25,7 @@ Seluruh konvensi mini berlaku utuh di sini: Bun-only (ADR-0002), PostgreSQL + RL
 >
 > **Belum ada:** modul website yang menuntut scope ini dan belum ada di upstream — newsletter. (Media library sudah diadmisi & aktif sejak ADR-0026; SEO/distribusi sejak ADR-0028; theming sejak ADR-0029; site search sejak ADR-0031; comments sejak ADR-0032 — semuanya bukan lagi bagian daftar ini.) Masing-masing akan diadmisi lewat ADR sebelum baris kode pertamanya (ADR-0025 §6).
 >
-> **Utang dokumentasi yang diakui:** paket dokumen `docs/awcms-micro/` masih memuat bagian yang menjelaskan modul ERP yang tidak diport (terutama doc 04 ERD, 08 SOP, 20 threat model, 21 module admission governance). Sampai dirapikan, **`src/`, `sql/`, dan gate CI adalah sumber kebenaran** (ADR-0025 §Konsekuensi).
+> **Utang dokumentasi yang diakui:** paket dokumen `docs/awcms-micro/` masih memuat (a) bagian yang menjelaskan modul ERP yang tidak diport (terutama doc 04 ERD, 08 SOP, 20 threat model, 21 module admission governance), dan (b) contoh berjalan bergaya **retail/POS AWPOS** (SOP kasir, layar POS, skema `sales_pos`) — warisan sumber-standar yang sedang diganti menjadi contoh **website/toko-online** (ADR-0034 §4). Sampai dirapikan, **`src/`, `sql/`, dan gate CI adalah sumber kebenaran** (ADR-0025 §Konsekuensi).
 
 Kontributor & coding agent **wajib membaca [`AGENTS.md`](AGENTS.md) lebih dulu**.
 
