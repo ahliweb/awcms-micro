@@ -436,5 +436,38 @@ export const blogContentModule = defineModule({
       },
       defaultPolicy: "moderated-anonymous"
     }
+  ],
+  // Public newsletter content-source contribution to `newsletter` (Issue #272,
+  // ADR-0033 §3). Pure DATA — no executable extractor, no SQL: `newsletter`'s
+  // engine reads `awcms_micro_blog_posts` through this declarative mapping +
+  // publication filter to confirm a post is PUBLISHED & PUBLIC before it seeds a
+  // digest candidate. Same source table + publicationFilter as the searchSources/
+  // commentableResources entries above (the exact public-visibility predicate
+  // blog_content's own public routes use), so a draft/private/deleted/scheduled
+  // post never seeds a notification. `publishEventType` is the SAME event this
+  // module already publishes on publish (`events.publishes` above) — a declarative
+  // label the newsletter consumer subscribes to out-of-band, never an executable.
+  // Blog PAGES are not contributed (no public route).
+  newsletterContentSources: [
+    {
+      key: "blog_content.post",
+      ownerModuleKey: "blog_content",
+      resourceType: "blog_post",
+      tableName: "awcms_micro_blog_posts",
+      localeColumn: "locale",
+      slugColumn: "slug",
+      titleColumn: "title",
+      publishedAtColumn: "published_at",
+      urlTemplate: "/news/:slug",
+      publicationFilter: {
+        equals: { status: "published", visibility: "public" },
+        nullColumns: ["deleted_at"],
+        notNullColumns: ["published_at"],
+        timeReachedColumns: ["published_at"]
+      },
+      publishEventType: "awcms-micro.blog-content.post.published",
+      digestEligible: true,
+      defaultTopicKey: "general"
+    }
   ]
 });

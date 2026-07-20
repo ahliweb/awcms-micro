@@ -56,7 +56,21 @@ export const ALLOWED_PUBLIC_OPERATIONS: readonly `${string} ${string}`[] = [
   "POST /api/v1/comments/{id}/replies",
   "PATCH /api/v1/comments/{id}",
   "POST /api/v1/comments/{id}/report",
-  "POST /api/v1/comments/{id}/delete-request"
+  "POST /api/v1/comments/{id}/delete-request",
+  // Issue #272 (ADR-0033) — the public, host-resolved newsletter surfaces. Tenant
+  // is resolved from the request host (not a session); every flow returns an
+  // IDENTICAL generic response so address existence/suppression/tenant membership
+  // never leaks, and the provider-callback verifies signature + replay before
+  // trusting. Public by design — declared here so the change is visible in the
+  // diff. Admin routes under `/api/v1/newsletter/admin/*` are NOT here: they carry
+  // the standard bearer+tenant security requirement.
+  "POST /api/v1/newsletter/subscribe",
+  "POST /api/v1/newsletter/confirm",
+  "GET /api/v1/newsletter/preferences",
+  "POST /api/v1/newsletter/preferences",
+  "POST /api/v1/newsletter/unsubscribe",
+  "POST /api/v1/newsletter/resubscribe",
+  "POST /api/v1/newsletter/provider-callback"
   // Upstream AWCMS-Mini lists a fifth entry here — `integration_hub`'s inbound
   // webhook receiver (Issue #754), public because an external provider calls it
   // with no tenant session. AWCMS-Micro does not port `integration_hub`

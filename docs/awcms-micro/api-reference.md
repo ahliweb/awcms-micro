@@ -8291,6 +8291,503 @@ ABAC-guarded by `comments.settings.update` (changes the public comment surface).
 | 409    | Idempotency conflict.                          | [`ApiError`](#standard-error-envelope)                                                         |
 | 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                         |
 
+## Newsletter
+
+Tenant-scoped, CONSENT-FIRST, ANTI-ENUMERATION newsletter / subscription-list system for the `newsletter` module (epic #261 Wave 2, Issue #272, ADR-0033). PUBLIC, host-resolved surfaces — subscribe/confirm/preferences/unsubscribe/resubscribe/provider-callback — return an IDENTICAL generic response regardless of whether an address exists / is pending / is subscribed / is suppressed / belongs to another tenant (no existence/suppression/tenant/timing oracle), never carry raw email (hash + mask only), use single-use sha256-hashed constant-time-verified tokens for confirm/unsubscribe, and verify provider callback signature + replay BEFORE trusting (browser redirects never trusted). The ABAC-guarded admin API (topics CRUD, masked subscriber list, consent evidence, suppression list + manual add, campaign/digest compose + safe preview + schedule + dispatch + cancel + delivery status + reconciliation) is audited with reason codes and `Idempotency-Key`'d on high-risk mutations (schedule/dispatch). Campaign delivery freezes an explainable audience snapshot and enqueues per-recipient sends as address-free domain events through the outbox; the email dispatcher resolves the encrypted recipient at send time OUTSIDE any DB transaction. The newsletter surface is never an authorization source for the underlying content.
+
+### `GET /api/v1/newsletter/admin/campaigns` — List campaigns/digests
+
+- **operationId**: `newsletterAdminCampaignsList`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.read`. Keyset-paginated, tenant-bounded.
+
+**Parameters**
+
+| Name     | In    | Required | Type   | Description |
+| -------- | ----- | -------- | ------ | ----------- |
+| `cursor` | query | no       | string |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                       |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 200    | The campaign page.                             | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaignList`](#schema-newslettercampaignlist)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                       |
+
+### `POST /api/v1/newsletter/admin/campaigns` — Compose a campaign/digest draft
+
+- **operationId**: `newsletterAdminCampaignCreate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.create`. Audited.
+
+**Request body** (required): [`NewsletterCampaignCreateRequest`](#schema-newslettercampaigncreaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                               |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200    | The created campaign draft.                    | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaign`](#schema-newslettercampaign)&gt; |
+| 400    | Validation error.                              | [`ApiError`](#standard-error-envelope)                                                               |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `GET /api/v1/newsletter/admin/campaigns/{id}` — Read a campaign/digest (+ delivery stats)
+
+- **operationId**: `newsletterAdminCampaignGet`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.read`.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                           |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 200    | The campaign detail.                           | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaignDetail`](#schema-newslettercampaigndetail)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                           |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                           |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                                                                           |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                           |
+
+### `PATCH /api/v1/newsletter/admin/campaigns/{id}` — Update a draft campaign/digest
+
+- **operationId**: `newsletterAdminCampaignUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.update`. Only a draft is editable. Audited.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Request body** (required): [`NewsletterCampaignUpdateRequest`](#schema-newslettercampaignupdaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                               |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 200    | The updated draft.                             | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaign`](#schema-newslettercampaign)&gt; |
+| 400    | Validation error.                              | [`ApiError`](#standard-error-envelope)                                                               |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                               |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                                                               |
+| 409    | Only a draft can be edited.                    | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                               |
+
+### `POST /api/v1/newsletter/admin/campaigns/{id}/cancel` — Cancel a campaign/digest
+
+- **operationId**: `newsletterAdminCampaignCancel`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.cancel`. Audited.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                                       |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 200    | The campaign's new status.                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaignStatusResult`](#schema-newslettercampaignstatusresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 409    | Illegal transition.                            | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                                       |
+
+### `POST /api/v1/newsletter/admin/campaigns/{id}/dispatch` — Dispatch a campaign/digest
+
+- **operationId**: `newsletterAdminCampaignDispatch`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.send` (highest-risk). Freezes the audience snapshot and enqueues per-recipient sends. Idempotency-Key required; audited; publishes `newsletter.campaign.dispatched`. The actual provider send is a follow-up outbox consumer OUTSIDE any DB transaction.
+
+**Parameters**
+
+| Name              | In     | Required | Type          | Description                       |
+| ----------------- | ------ | -------- | ------------- | --------------------------------- |
+| `id`              | path   | yes      | string (uuid) |                                   |
+| `Idempotency-Key` | header | yes      | string        | Required for high-risk mutations. |
+
+**Responses**
+
+| Status | Description                                        | Schema                                                                                                           |
+| ------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 200    | The campaign's new status + frozen audience count. | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterDispatchResult`](#schema-newsletterdispatchresult)&gt; |
+| 401    | Authentication required or expired.                | [`ApiError`](#standard-error-envelope)                                                                           |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.     | [`ApiError`](#standard-error-envelope)                                                                           |
+| 404    | Campaign not found.                                | [`ApiError`](#standard-error-envelope)                                                                           |
+| 409    | Illegal transition or idempotency conflict.        | [`ApiError`](#standard-error-envelope)                                                                           |
+| 500    | Internal server error without stack trace.         | [`ApiError`](#standard-error-envelope)                                                                           |
+
+### `GET /api/v1/newsletter/admin/campaigns/{id}/preview` — Safe HTML preview of a campaign/digest
+
+- **operationId**: `newsletterAdminCampaignPreview`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.read`. The stored source is rendered through an escape-then-allow-only-safe-constructs renderer — never emitted as stored HTML (no stored XSS).
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | The safe preview HTML.                         | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/newsletter/admin/campaigns/{id}/reconcile` — Run reconciliation for a campaign/digest
+
+- **operationId**: `newsletterAdminCampaignReconcile`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.send` (can complete a fully-delivered campaign). Compares the frozen audience against delivery outcomes and records an evidence run. Audited.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                             |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | The reconciliation result.                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterReconcileResult`](#schema-newsletterreconcileresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                             |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                             |
+
+### `POST /api/v1/newsletter/admin/campaigns/{id}/schedule` — Schedule a campaign/digest
+
+- **operationId**: `newsletterAdminCampaignSchedule`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.campaigns.schedule`. Idempotency-Key required; audited; publishes `newsletter.campaign.scheduled`.
+
+**Parameters**
+
+| Name              | In     | Required | Type          | Description                       |
+| ----------------- | ------ | -------- | ------------- | --------------------------------- |
+| `id`              | path   | yes      | string (uuid) |                                   |
+| `Idempotency-Key` | header | yes      | string        | Required for high-risk mutations. |
+
+**Request body** (optional): object
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                                       |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 200    | The campaign's new status.                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterCampaignStatusResult`](#schema-newslettercampaignstatusresult)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 404    | Campaign not found.                            | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 409    | Illegal transition or idempotency conflict.    | [`ApiError`](#standard-error-envelope)                                                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                                       |
+
+### `GET /api/v1/newsletter/admin/subscribers` — List subscribers (MASKED email only)
+
+- **operationId**: `newsletterAdminSubscribersList`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.subscribers.read`. Returns MASKED email ONLY — never the raw/decrypted address. Status-filterable, keyset-paginated, tenant-bounded.
+
+**Parameters**
+
+| Name     | In    | Required | Type                                                        | Description |
+| -------- | ----- | -------- | ----------------------------------------------------------- | ----------- |
+| `state`  | query | no       | enum(`pending`, `subscribed`, `unsubscribed`, `suppressed`) |             |
+| `cursor` | query | no       | string                                                      |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                           |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 200    | The masked subscriber page.                    | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterSubscriberList`](#schema-newslettersubscriberlist)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                           |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                           |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                           |
+
+### `GET /api/v1/newsletter/admin/subscribers/{id}/consent` — Read a subscriber's consent evidence
+
+- **operationId**: `newsletterAdminSubscriberConsent`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.subscribers.read`. Append-only consent evidence (no raw PII — hashed evidence stays server-side).
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                     |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 200    | The subscriber's consent events.               | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterConsentList`](#schema-newsletterconsentlist)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                     |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                     |
+
+### `GET /api/v1/newsletter/admin/suppression` — List the suppression deny-list
+
+- **operationId**: `newsletterAdminSuppressionList`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.suppression.read`. Keyset-paginated, tenant-bounded, masked.
+
+**Parameters**
+
+| Name     | In    | Required | Type   | Description |
+| -------- | ----- | -------- | ------ | ----------- |
+| `cursor` | query | no       | string |             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                             |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | The suppression page.                          | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterSuppressionList`](#schema-newslettersuppressionlist)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                             |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                             |
+
+### `POST /api/v1/newsletter/admin/suppression` — Add a manual suppression
+
+- **operationId**: `newsletterAdminSuppressionCreate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.suppression.create` (high-risk). Audited. The admin-supplied email is hashed — never stored raw.
+
+**Request body** (required): [`NewsletterSuppressionCreateRequest`](#schema-newslettersuppressioncreaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | The recorded suppression (masked).             | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation error.                              | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
+
+### `GET /api/v1/newsletter/admin/topics` — List newsletter topics
+
+- **operationId**: `newsletterAdminTopicsList`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.topics.read`. Tenant-bounded.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                 |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 200    | This tenant's topics.                          | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterTopicList`](#schema-newslettertopiclist)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                 |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                 |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                 |
+
+### `POST /api/v1/newsletter/admin/topics` — Create a newsletter topic
+
+- **operationId**: `newsletterAdminTopicCreate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.topics.create`. Audited.
+
+**Request body** (required): [`NewsletterTopicCreateRequest`](#schema-newslettertopiccreaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                         |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 200    | The created topic.                             | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterTopic`](#schema-newslettertopic)&gt; |
+| 400    | Validation error.                              | [`ApiError`](#standard-error-envelope)                                                         |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                         |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                         |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                         |
+
+### `PUT /api/v1/newsletter/admin/topics/{id}` — Update/deactivate a newsletter topic
+
+- **operationId**: `newsletterAdminTopicUpdate`
+- **Security**: bearerAuth + tenantHeader
+
+ABAC-guarded by `newsletter.topics.update`. Audited. A topic is never hard-deleted — deactivate via isActive.
+
+**Parameters**
+
+| Name | In   | Required | Type          | Description |
+| ---- | ---- | -------- | ------------- | ----------- |
+| `id` | path | yes      | string (uuid) |             |
+
+**Request body** (required): [`NewsletterTopicUpdateRequest`](#schema-newslettertopicupdaterequest)
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                         |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 200    | The saved topic.                               | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterTopic`](#schema-newslettertopic)&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                         |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                         |
+| 404    | Topic not found.                               | [`ApiError`](#standard-error-envelope)                                                         |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                         |
+
+### `POST /api/v1/newsletter/confirm` — Confirm a subscription by token
+
+- **operationId**: `newsletterConfirm`
+- **Security**: none (public endpoint)
+
+PUBLIC. Verifies a single-use, sha256-hashed, constant-time confirm token, consumes it atomically, and transitions the subscriber pending->subscribed exactly once (publishes `newsletter.subscriber.confirmed`). ANY invalid/expired/consumed/forged token returns the SAME generic body — no reason is distinguished.
+
+**Request body** (required): [`NewsletterTokenRequest`](#schema-newslettertokenrequest)
+
+**Responses**
+
+| Status | Description                                | Schema                                                             |
+| ------ | ------------------------------------------ | ------------------------------------------------------------------ |
+| 200    | Generic acknowledgement.                   | [`NewsletterAcceptedResponse`](#schema-newsletteracceptedresponse) |
+| 429    | Too many requests from this source.        | [`ApiError`](#standard-error-envelope)                             |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                             |
+
+### `GET /api/v1/newsletter/preferences` — View topic preferences by token
+
+- **operationId**: `newsletterPreferencesRead`
+- **Security**: none (public endpoint)
+
+PUBLIC, token-scoped (the reusable `preferences` token is a bearer capability keyed on the token, never an address). A valid token returns its own topic subscriptions + locale; a bad token returns a generic empty payload.
+
+**Parameters**
+
+| Name    | In    | Required | Type   | Description |
+| ------- | ----- | -------- | ------ | ----------- |
+| `token` | query | no       | string |             |
+
+**Responses**
+
+| Status | Description                                               | Schema                                                                                                             |
+| ------ | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | The subscriber's preferences, or a generic empty payload. | [`ApiSuccess`](#standard-success-envelope)&lt;[`NewsletterPreferencesView`](#schema-newsletterpreferencesview)&gt; |
+| 429    | Too many requests from this source.                       | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.                | [`ApiError`](#standard-error-envelope)                                                                             |
+
+### `POST /api/v1/newsletter/preferences` — Update topic preferences by token
+
+- **operationId**: `newsletterPreferencesUpdate`
+- **Security**: none (public endpoint)
+
+PUBLIC, token-scoped. Updates topic subscriptions + locale for a valid `preferences` token; a bad token is a generic no-op.
+
+**Request body** (required): [`NewsletterPreferencesUpdateRequest`](#schema-newsletterpreferencesupdaterequest)
+
+**Responses**
+
+| Status | Description                                | Schema                                                             |
+| ------ | ------------------------------------------ | ------------------------------------------------------------------ |
+| 200    | Generic acknowledgement.                   | [`NewsletterAcceptedResponse`](#schema-newsletteracceptedresponse) |
+| 429    | Too many requests from this source.        | [`ApiError`](#standard-error-envelope)                             |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                             |
+
+### `POST /api/v1/newsletter/provider-callback` — Provider delivery/bounce/complaint webhook
+
+- **operationId**: `newsletterProviderCallback`
+- **Security**: none (public endpoint)
+
+PUBLIC, provider-neutral. The HMAC signature over the RAW body (header `x-newsletter-signature`) is verified (constant-time) and the callback is recorded ONCE per dedupe key (replay-safe) BEFORE anything is trusted; a bounce/complaint applies a suppression. Browser redirects are never trusted. The provider-supplied email is hashed here (never stored raw). Generic 200 on accept/replay; 400 on a bad/forged signature.
+
+**Request body** (required): [`NewsletterProviderCallbackRequest`](#schema-newsletterprovidercallbackrequest)
+
+**Responses**
+
+| Status | Description                                     | Schema                                                                 |
+| ------ | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| 200    | Generic acknowledgement (recorded or replayed). | [`NewsletterCallbackOkResponse`](#schema-newslettercallbackokresponse) |
+| 400    | Bad/forged signature or malformed callback.     | [`ApiError`](#standard-error-envelope)                                 |
+| 413    | Callback body too large.                        | [`ApiError`](#standard-error-envelope)                                 |
+| 429    | Too many requests from this source.             | [`ApiError`](#standard-error-envelope)                                 |
+| 500    | Internal server error without stack trace.      | [`ApiError`](#standard-error-envelope)                                 |
+
+### `POST /api/v1/newsletter/resubscribe` — Re-opt-in by address
+
+- **operationId**: `newsletterResubscribe`
+- **Security**: none (public endpoint)
+
+PUBLIC. Only lifts an `unsubscribe`-reason suppression (a bounce/complaint stays suppressed) and re-opens a fresh double-opt-in confirm. ANTI-ENUMERATION: returns the SAME generic body regardless of address existence/suppression/tenant.
+
+**Request body** (required): [`NewsletterSubscribeRequest`](#schema-newslettersubscriberequest)
+
+**Responses**
+
+| Status | Description                                | Schema                                                             |
+| ------ | ------------------------------------------ | ------------------------------------------------------------------ |
+| 200    | Generic acknowledgement.                   | [`NewsletterAcceptedResponse`](#schema-newsletteracceptedresponse) |
+| 400    | Missing/malformed email.                   | [`ApiError`](#standard-error-envelope)                             |
+| 429    | Too many requests from this source.        | [`ApiError`](#standard-error-envelope)                             |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                             |
+
+### `POST /api/v1/newsletter/subscribe` — Subscribe to the newsletter (double-opt-in)
+
+- **operationId**: `newsletterSubscribe`
+- **Security**: none (public endpoint)
+
+PUBLIC, host-resolved. ANTI-ENUMERATION: returns the SAME generic acknowledgement whether the address is new, pending, subscribed, suppressed, or belongs to another tenant (and whether the host resolves at all). A confirm token is minted + stored (hash) but NEVER returned here — it is delivered via the email path. Per-IP rate-limited.
+
+**Request body** (required): [`NewsletterSubscribeRequest`](#schema-newslettersubscriberequest)
+
+**Responses**
+
+| Status | Description                                                    | Schema                                                             |
+| ------ | -------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 200    | Generic acknowledgement (never reveals existence/suppression). | [`NewsletterAcceptedResponse`](#schema-newsletteracceptedresponse) |
+| 400    | Missing/malformed email.                                       | [`ApiError`](#standard-error-envelope)                             |
+| 429    | Too many requests from this source.                            | [`ApiError`](#standard-error-envelope)                             |
+| 500    | Internal server error without stack trace.                     | [`ApiError`](#standard-error-envelope)                             |
+
+### `POST /api/v1/newsletter/unsubscribe` — One-step unsubscribe by token
+
+- **operationId**: `newsletterUnsubscribe`
+- **Security**: none (public endpoint)
+
+PUBLIC, one-step (no login), RFC 8058 one-click semantics. Marks the subscriber unsubscribed and records an `unsubscribe` suppression (publishes `newsletter.subscriber.unsubscribed`). Idempotent + generic for any valid/invalid/expired token.
+
+**Request body** (required): [`NewsletterTokenRequest`](#schema-newslettertokenrequest)
+
+**Responses**
+
+| Status | Description                                | Schema                                                             |
+| ------ | ------------------------------------------ | ------------------------------------------------------------------ |
+| 200    | Generic acknowledgement.                   | [`NewsletterAcceptedResponse`](#schema-newsletteracceptedresponse) |
+| 429    | Too many requests from this source.        | [`ApiError`](#standard-error-envelope)                             |
+| 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                             |
+
 ## Schema appendix
 
 Every schema referenced by at least one operation above (excluding the standard envelope schemas, covered in §Standard success/error envelope).
@@ -12253,6 +12750,563 @@ Enum values: `blog_post`, `blog_page`, `homepage_section`, `gallery_item`, `ad`,
 }
 ```
 
+### Schema: NewsletterAcceptedResponse
+
+The single ANTI-ENUMERATION generic acknowledgement — identical for every outcome (new/pending/subscribed/suppressed/cross-tenant/unresolved). Never reveals existence or suppression state.
+
+| Field     | Type    | Required | Nullable | Description |
+| --------- | ------- | -------- | -------- | ----------- |
+| `success` | boolean | no       | no       |             |
+| `data`    | object  | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "success": false,
+  "data": {
+    "status": "accepted"
+  }
+}
+```
+
+### Schema: NewsletterCallbackOkResponse
+
+| Field     | Type    | Required | Nullable | Description |
+| --------- | ------- | -------- | -------- | ----------- |
+| `success` | boolean | no       | no       |             |
+| `data`    | object  | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "success": false,
+  "data": {
+    "status": "ok"
+  }
+}
+```
+
+### Schema: NewsletterCampaign
+
+| Field                | Type                                                                          | Required | Nullable | Description |
+| -------------------- | ----------------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `id`                 | string (uuid)                                                                 | no       | no       |             |
+| `kind`               | enum(`campaign`, `digest`)                                                    | no       | no       |             |
+| `status`             | enum(`draft`, `scheduled`, `dispatching`, `completed`, `cancelled`, `failed`) | no       | no       |             |
+| `subject`            | string                                                                        | no       | no       |             |
+| `locale`             | string                                                                        | no       | no       |             |
+| `topicId`            | string (uuid)                                                                 | no       | yes      |             |
+| `scheduledAt`        | string (date-time)                                                            | no       | yes      |             |
+| `audienceSnapshotId` | string (uuid)                                                                 | no       | yes      |             |
+| `createdAt`          | string (date-time)                                                            | no       | no       |             |
+| `updatedAt`          | string (date-time)                                                            | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "kind": "campaign",
+  "status": "draft",
+  "subject": "string",
+  "locale": "string",
+  "topicId": "00000000-0000-0000-0000-000000000000",
+  "scheduledAt": "2026-01-01T00:00:00.000Z",
+  "audienceSnapshotId": "00000000-0000-0000-0000-000000000000",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterCampaignCreateRequest
+
+| Field            | Type                       | Required | Nullable | Description |
+| ---------------- | -------------------------- | -------- | -------- | ----------- |
+| `kind`           | enum(`campaign`, `digest`) | no       | no       |             |
+| `subject`        | string                     | yes      | no       |             |
+| `bodyText`       | string                     | yes      | no       |             |
+| `bodyHtmlSource` | string                     | no       | no       |             |
+| `locale`         | string                     | no       | no       |             |
+| `topicId`        | string (uuid)              | no       | yes      |             |
+| `scheduledAt`    | string (date-time)         | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "kind": "campaign",
+  "subject": "string",
+  "bodyText": "string",
+  "bodyHtmlSource": "string",
+  "locale": "string",
+  "topicId": "00000000-0000-0000-0000-000000000000",
+  "scheduledAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterCampaignDetail
+
+_No properties declared._
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "kind": "campaign",
+  "status": "draft",
+  "subject": "string",
+  "locale": "string",
+  "topicId": "00000000-0000-0000-0000-000000000000",
+  "scheduledAt": "2026-01-01T00:00:00.000Z",
+  "audienceSnapshotId": "00000000-0000-0000-0000-000000000000",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "bodyHtmlSource": "string",
+  "deliveryStats": "(operation-specific payload)"
+}
+```
+
+### Schema: NewsletterCampaignList
+
+| Field        | Type                                                        | Required | Nullable | Description |
+| ------------ | ----------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`      | array of [`NewsletterCampaign`](#schema-newslettercampaign) | no       | no       |             |
+| `nextCursor` | string                                                      | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "kind": "campaign",
+      "status": "draft",
+      "subject": "string",
+      "locale": "string",
+      "topicId": "00000000-0000-0000-0000-000000000000",
+      "scheduledAt": "2026-01-01T00:00:00.000Z",
+      "audienceSnapshotId": "00000000-0000-0000-0000-000000000000",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextCursor": "string"
+}
+```
+
+### Schema: NewsletterCampaignStatusResult
+
+| Field        | Type                                                                          | Required | Nullable | Description |
+| ------------ | ----------------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `campaignId` | string (uuid)                                                                 | no       | no       |             |
+| `status`     | enum(`draft`, `scheduled`, `dispatching`, `completed`, `cancelled`, `failed`) | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "campaignId": "00000000-0000-0000-0000-000000000000",
+  "status": "draft"
+}
+```
+
+### Schema: NewsletterCampaignUpdateRequest
+
+| Field            | Type               | Required | Nullable | Description |
+| ---------------- | ------------------ | -------- | -------- | ----------- |
+| `subject`        | string             | no       | no       |             |
+| `bodyText`       | string             | no       | no       |             |
+| `bodyHtmlSource` | string             | no       | no       |             |
+| `topicId`        | string (uuid)      | no       | yes      |             |
+| `scheduledAt`    | string (date-time) | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "subject": "string",
+  "bodyText": "string",
+  "bodyHtmlSource": "string",
+  "topicId": "00000000-0000-0000-0000-000000000000",
+  "scheduledAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterConsentList
+
+| Field   | Type            | Required | Nullable | Description |
+| ------- | --------------- | -------- | -------- | ----------- |
+| `items` | array of object | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "source": "string",
+      "purpose": "string",
+      "locale": "string",
+      "policyVersion": "string",
+      "occurredAt": "2026-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+### Schema: NewsletterDispatchResult
+
+| Field           | Type                | Required | Nullable | Description |
+| --------------- | ------------------- | -------- | -------- | ----------- |
+| `campaignId`    | string (uuid)       | no       | no       |             |
+| `status`        | enum(`dispatching`) | no       | no       |             |
+| `audienceCount` | integer             | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "campaignId": "00000000-0000-0000-0000-000000000000",
+  "status": "dispatching",
+  "audienceCount": 0
+}
+```
+
+### Schema: NewsletterPreferencesUpdateRequest
+
+| Field    | Type            | Required | Nullable | Description |
+| -------- | --------------- | -------- | -------- | ----------- |
+| `token`  | string          | yes      | no       |             |
+| `locale` | string          | no       | yes      |             |
+| `topics` | array of object | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "token": "string",
+  "locale": "string",
+  "topics": [
+    {
+      "topicId": "00000000-0000-0000-0000-000000000000",
+      "subscribed": false
+    }
+  ]
+}
+```
+
+### Schema: NewsletterPreferencesView
+
+| Field    | Type            | Required | Nullable | Description |
+| -------- | --------------- | -------- | -------- | ----------- |
+| `locale` | string          | no       | yes      |             |
+| `topics` | array of object | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "locale": "string",
+  "topics": [
+    {
+      "topicId": "00000000-0000-0000-0000-000000000000",
+      "subscribed": false
+    }
+  ]
+}
+```
+
+### Schema: NewsletterProviderCallbackRequest
+
+| Field       | Type                                               | Required | Nullable | Description                                                    |
+| ----------- | -------------------------------------------------- | -------- | -------- | -------------------------------------------------------------- |
+| `provider`  | string                                             | yes      | no       |                                                                |
+| `eventType` | enum(`delivered`, `bounce`, `complaint`, `failed`) | yes      | no       |                                                                |
+| `eventId`   | string                                             | no       | no       | A stable provider event id used for replay-safe deduplication. |
+| `email`     | string (email)                                     | no       | no       | Hashed server-side into the suppression key; never stored raw. |
+
+**Example**
+
+```json
+{
+  "provider": "string",
+  "eventType": "delivered",
+  "eventId": "string",
+  "email": "user@example.com"
+}
+```
+
+### Schema: NewsletterReconcileResult
+
+| Field              | Type          | Required | Nullable | Description |
+| ------------------ | ------------- | -------- | -------- | ----------- |
+| `campaignId`       | string (uuid) | no       | no       |             |
+| `runId`            | string (uuid) | no       | no       |             |
+| `discrepancyCount` | integer       | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "campaignId": "00000000-0000-0000-0000-000000000000",
+  "runId": "00000000-0000-0000-0000-000000000000",
+  "discrepancyCount": 0
+}
+```
+
+### Schema: NewsletterSubscriber
+
+| Field            | Type                                                        | Required | Nullable | Description                                              |
+| ---------------- | ----------------------------------------------------------- | -------- | -------- | -------------------------------------------------------- |
+| `id`             | string (uuid)                                               | no       | no       |                                                          |
+| `emailMasked`    | string                                                      | no       | no       | Masked email (e.g. `j***@e***`) — never the raw address. |
+| `locale`         | string                                                      | no       | no       |                                                          |
+| `state`          | enum(`pending`, `subscribed`, `unsubscribed`, `suppressed`) | no       | no       |                                                          |
+| `confirmedAt`    | string (date-time)                                          | no       | yes      |                                                          |
+| `unsubscribedAt` | string (date-time)                                          | no       | yes      |                                                          |
+| `createdAt`      | string (date-time)                                          | no       | no       |                                                          |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "emailMasked": "user@example.com",
+  "locale": "string",
+  "state": "pending",
+  "confirmedAt": "2026-01-01T00:00:00.000Z",
+  "unsubscribedAt": "2026-01-01T00:00:00.000Z",
+  "createdAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterSubscribeRequest
+
+| Field           | Type                   | Required | Nullable | Description                                                              |
+| --------------- | ---------------------- | -------- | -------- | ------------------------------------------------------------------------ |
+| `email`         | string (email)         | yes      | no       | Normalized, hashed, masked, and encrypted server-side; never stored raw. |
+| `locale`        | string                 | no       | no       |                                                                          |
+| `topicIds`      | array of string (uuid) | no       | no       |                                                                          |
+| `policyVersion` | string                 | no       | no       |                                                                          |
+
+**Example**
+
+```json
+{
+  "email": "user@example.com",
+  "locale": "string",
+  "topicIds": ["00000000-0000-0000-0000-000000000000"],
+  "policyVersion": "string"
+}
+```
+
+### Schema: NewsletterSubscriberList
+
+| Field        | Type                                                            | Required | Nullable | Description |
+| ------------ | --------------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`      | array of [`NewsletterSubscriber`](#schema-newslettersubscriber) | no       | no       |             |
+| `nextCursor` | string                                                          | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "emailMasked": "user@example.com",
+      "locale": "string",
+      "state": "pending",
+      "confirmedAt": "2026-01-01T00:00:00.000Z",
+      "unsubscribedAt": "2026-01-01T00:00:00.000Z",
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextCursor": "string"
+}
+```
+
+### Schema: NewsletterSuppression
+
+| Field         | Type                                                 | Required | Nullable | Description |
+| ------------- | ---------------------------------------------------- | -------- | -------- | ----------- |
+| `id`          | string (uuid)                                        | no       | no       |             |
+| `emailMasked` | string                                               | no       | yes      |             |
+| `reason`      | enum(`bounce`, `complaint`, `manual`, `unsubscribe`) | no       | no       |             |
+| `source`      | string                                               | no       | yes      |             |
+| `occurredAt`  | string (date-time)                                   | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "emailMasked": "user@example.com",
+  "reason": "bounce",
+  "source": "string",
+  "occurredAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterSuppressionCreateRequest
+
+| Field      | Type                                                 | Required | Nullable | Description |
+| ---------- | ---------------------------------------------------- | -------- | -------- | ----------- |
+| `email`    | string (email)                                       | yes      | no       |             |
+| `reason`   | enum(`bounce`, `complaint`, `manual`, `unsubscribe`) | no       | no       |             |
+| `evidence` | string                                               | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "email": "user@example.com",
+  "reason": "bounce",
+  "evidence": "string"
+}
+```
+
+### Schema: NewsletterSuppressionList
+
+| Field        | Type                                                              | Required | Nullable | Description |
+| ------------ | ----------------------------------------------------------------- | -------- | -------- | ----------- |
+| `items`      | array of [`NewsletterSuppression`](#schema-newslettersuppression) | no       | no       |             |
+| `nextCursor` | string                                                            | no       | yes      |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "emailMasked": "user@example.com",
+      "reason": "bounce",
+      "source": "string",
+      "occurredAt": "2026-01-01T00:00:00.000Z"
+    }
+  ],
+  "nextCursor": "string"
+}
+```
+
+### Schema: NewsletterTokenRequest
+
+| Field   | Type   | Required | Nullable | Description                                                            |
+| ------- | ------ | -------- | -------- | ---------------------------------------------------------------------- |
+| `token` | string | yes      | no       | The raw single-use token from the dispatched confirm/unsubscribe link. |
+
+**Example**
+
+```json
+{
+  "token": "string"
+}
+```
+
+### Schema: NewsletterTopic
+
+| Field         | Type               | Required | Nullable | Description |
+| ------------- | ------------------ | -------- | -------- | ----------- |
+| `id`          | string (uuid)      | no       | no       |             |
+| `topicKey`    | string             | no       | no       |             |
+| `name`        | string             | no       | no       |             |
+| `description` | string             | no       | yes      |             |
+| `locale`      | string             | no       | no       |             |
+| `isDefault`   | boolean            | no       | no       |             |
+| `isActive`    | boolean            | no       | no       |             |
+| `createdAt`   | string (date-time) | no       | no       |             |
+| `updatedAt`   | string (date-time) | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "topicKey": "string",
+  "name": "string",
+  "description": "string",
+  "locale": "string",
+  "isDefault": false,
+  "isActive": false,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: NewsletterTopicCreateRequest
+
+| Field         | Type    | Required | Nullable | Description |
+| ------------- | ------- | -------- | -------- | ----------- |
+| `topicKey`    | string  | yes      | no       |             |
+| `name`        | string  | yes      | no       |             |
+| `description` | string  | no       | yes      |             |
+| `locale`      | string  | no       | no       |             |
+| `isDefault`   | boolean | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "topicKey": "string",
+  "name": "string",
+  "description": "string",
+  "locale": "string",
+  "isDefault": false
+}
+```
+
+### Schema: NewsletterTopicList
+
+| Field   | Type                                                  | Required | Nullable | Description |
+| ------- | ----------------------------------------------------- | -------- | -------- | ----------- |
+| `items` | array of [`NewsletterTopic`](#schema-newslettertopic) | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "items": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "topicKey": "string",
+      "name": "string",
+      "description": "string",
+      "locale": "string",
+      "isDefault": false,
+      "isActive": false,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+### Schema: NewsletterTopicUpdateRequest
+
+| Field         | Type    | Required | Nullable | Description |
+| ------------- | ------- | -------- | -------- | ----------- |
+| `name`        | string  | no       | no       |             |
+| `description` | string  | no       | yes      |             |
+| `isDefault`   | boolean | no       | no       |             |
+| `isActive`    | boolean | no       | no       |             |
+
+**Example**
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "isDefault": false,
+  "isActive": false
+}
+```
+
 ### Schema: NewsMediaObjectItem
 
 | Field               | Type                                                                                                             | Required | Nullable | Description |
@@ -15265,7 +16319,7 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 }
 ```
 
-### Channels (59)
+### Channels (64)
 
 - `awcms-micro.blog-content.ad.created` — An advertisement was created (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/index.ts`'s `POST` handler (`blog-content.ad.created` log line).
 - `awcms-micro.blog-content.ad.deleted` — An advertisement was soft-deleted (Issue #542). Documented contract only; producer is the structured JSON logger, invoked from `pages/api/v1/blog/ads/[id].ts`'s `DELETE` handler (`blog-content.ad.deleted` log line).
@@ -15305,6 +16359,11 @@ HMAC signature paired with X-AWCMS-Micro-Node-ID and X-AWCMS-Micro-Timestamp.):
 - `awcms-micro.email.message.queued` — An email message was enqueued into `awcms_micro_email_messages` (Issue #494/#497). Documented contract only, same convention as `database.pool.saturated` above — the concrete producer is the structured JSON logger, invoked from `email/application/announcement-directory.ts`'s `enqueueAnnouncement` (`email.message.queued` log line).
 - `awcms-micro.email.message.sent` — The email dispatcher (Issue #495, `bun run email:dispatch`) successfully delivered a message through the configured provider. Documented contract only; producer is the structured JSON logger (`email/application/email-dispatch.ts`'s `email.dispatch.sent` log line).
 - `awcms-micro.email.message.suppressed` — The email dispatcher (Issue #499) found a claimed message's recipient newly present on `awcms_micro_email_suppression_list` (added after enqueue, before dispatch) and skipped the provider call entirely. Documented contract only; producer is the structured JSON logger (`email/application/email-dispatch.ts`'s `email.dispatch.suppressed` log line).
+- `awcms-micro.newsletter.campaign.dispatched` — Published when a scheduled campaign/digest is dispatched (Issue #272, ADR-0033): its audience snapshot is frozen and per-recipient sends are enqueued. Payload: `campaignId`, `kind`, `audienceCount`. Drives the email outbox consumer that performs the actual sends OUTSIDE any DB transaction (ADR-0006). Producer: `newsletter/application/campaign-service.ts`'s `dispatchCampaign`.
+- `awcms-micro.newsletter.campaign.scheduled` — Published when a campaign/digest draft is moved into the scheduled state (Issue #272, ADR-0033). Payload: `campaignId`, `kind`, `audienceCount`. Lets a scheduling/observability consumer react. Producer: `newsletter/application/campaign-service.ts`'s `scheduleCampaign`.
+- `awcms-micro.newsletter.subscriber.confirmed` — Published when a subscriber completes double-opt-in confirmation (Issue #272, ADR-0033), pending -> subscribed. Payload (ADDRESS-FREE): `subscriberId`, `emailHash`, `reason`. Lets a welcome-email/CRM consumer react through the outbox without reading `newsletter`' tables directly; the email dispatcher resolves the encrypted recipient from minimized storage at send time, OUTSIDE any DB transaction. Producer: `newsletter/application/subscriber-service.ts`'s `confirmSubscription`.
+- `awcms-micro.newsletter.subscriber.unsubscribed` — Published when a subscriber unsubscribes (Issue #272, ADR-0033) via one-click/ token. Payload (ADDRESS-FREE): `subscriberId`, `emailHash`, `reason`. Lets a consumer stop future sends and reconcile downstream lists. Producer: `newsletter/application/subscriber-service.ts`'s `unsubscribeByToken`.
+- `awcms-micro.newsletter.suppression.recorded` — Published when a verified provider bounce/complaint records a suppression against a subscriber (Issue #272, ADR-0033). Payload (ADDRESS-FREE): `subscriberId`, `emailHash`, `reason`. Lets a deliverability consumer react. Producer: `newsletter/application/subscriber-service.ts`'s `applyProviderSuppression`.
 - `awcms-micro.profile-identity.profile.merged` — Published when a profile merge request is executed (Issue #748, epic `platform-evolution` #738 Wave 2): the loser profile is soft-deleted (`merged_into_profile_id` set) and its `awcms_micro_profile_entity_links` rows are repointed to the survivor. Payload: `mergeRequestId`, `survivorProfileId`, `loserProfileId`, `entityLinksRepointedCount`. Lets domain modules react to the merge mapping through the outbox instead of importing `profile_identity` tables directly (see `src/modules/_shared/ports/party-directory-port.ts` for the pull-based equivalent). Producer: `profile-identity/application/merge-workflow.ts`'s `executeMergeRequest`.
 - `awcms-micro.site-search.index.rebuilt` — A tenant's search index was fully rebuilt (Issue #270, ADR-0031) — every document deleted and re-extracted. Documented contract only; producer is the structured JSON logger, invoked from `site-search/application/search-index-engine.ts`'s `runReconcile` (`site-search.index.rebuilt` log line) — not published through `domain_event_runtime`.
 - `awcms-micro.site-search.index.reconciled` — A tenant's search index was reconciled (Issue #270, ADR-0031) — current public documents upserted, stale ones removed. Documented contract only; producer is the structured JSON logger, invoked from `site-search/application/search-index-engine.ts`'s `runReconcile` (`site-search.index.reconciled` log line; `documentsIndexed`/ `documentsRemoved`/`failureCount` attributes) — not published through `domain_event_runtime`.

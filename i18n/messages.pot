@@ -3021,6 +3021,55 @@ msgstr ""
 msgid "admin.news_portal.homepage_sections.update_success"
 msgstr ""
 
+#: src/pages/admin/newsletter/index.astro:49
+msgid "admin.newsletter.access_denied_body"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:48
+msgid "admin.newsletter.access_denied_title"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:32
+msgid "admin.newsletter.campaigns_heading"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:31
+msgid "admin.newsletter.empty"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/newsletter/module.ts:98
+msgid "admin.newsletter.nav_label"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:42
+msgid "admin.newsletter.page_description"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:40
+msgid "admin.newsletter.page_title"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:36
+msgid "admin.newsletter.status_label"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:34
+msgid "admin.newsletter.subscribers_heading"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:88
+msgid "admin.newsletter.subscribers_note"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:35
+msgid "admin.newsletter.suppression_heading"
+msgstr ""
+
+#: src/pages/admin/newsletter/index.astro:33
+msgid "admin.newsletter.topics_heading"
+msgstr ""
+
 #: src/pages/admin/profile-identity/[id].astro:151
 msgid "admin.profile_identity.access_denied_body"
 msgstr ""
@@ -5019,6 +5068,26 @@ msgstr ""
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
 #: src/lib/i18n/error-messages.ts:47
 msgid "error.workflow_approval_required"
+msgstr ""
+
+#: src/pages/newsletter/demo.astro:31
+msgid "newsletter.public.description"
+msgstr ""
+
+#: src/pages/newsletter/demo.astro:35
+msgid "newsletter.public.email_label"
+msgstr ""
+
+#: src/pages/newsletter/demo.astro:23
+msgid "newsletter.public.heading"
+msgstr ""
+
+#: src/pages/newsletter/demo.astro:45
+msgid "newsletter.public.subscribe_button"
+msgstr ""
+
+#: src/pages/newsletter/demo.astro:55
+msgid "newsletter.public.subscribed_note"
 msgstr ""
 
 #: src/pages/search.ts:65

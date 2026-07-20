@@ -114,6 +114,16 @@ export const JOB_WORK_CLASS_REGISTRY: Readonly<
     rationale:
       "Scheduled bounded retention/anonymization sweep (comments:retention, Issue #271) — NULLs author identity on aged comments and purges unconfirmed reply subscriptions; tolerant of delay, never latency-sensitive, honors legal hold."
   },
+  "scripts/newsletter-retention.ts": {
+    workClass: "maintenance",
+    rationale:
+      "Scheduled bounded retention/anonymization sweep (newsletter:retention, Issue #272) — anonymizes the recoverable address of aged unsubscribed/suppressed subscribers and purges expired/consumed tokens; tolerant of delay, never latency-sensitive, honors legal hold."
+  },
+  "scripts/newsletter-dispatch.ts": {
+    workClass: "background_sync",
+    rationale:
+      "Scheduled bounded, resumable per-recipient dispatch + reconciliation sweep (newsletter:dispatch, Issue #272) — processes queued delivery_attempts and enqueues to the email outbox; a background delivery pipeline (same profile as social-publishing:dispatch/email:dispatch), re-entrant and idempotent, never latency-sensitive."
+  },
   "scripts/data-lifecycle-archive-purge.ts": {
     workClass: "maintenance",
     rationale:

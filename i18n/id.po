@@ -3732,3 +3732,54 @@ msgstr "Masukkan kode alasan untuk tindakan ini:"
 msgid "admin.comments.action_error"
 msgstr "Tindakan moderasi tidak dapat diselesaikan."
 
+
+msgid "admin.newsletter.nav_label"
+msgstr "Buletin"
+
+msgid "admin.newsletter.page_title"
+msgstr "Buletin"
+
+msgid "admin.newsletter.page_description"
+msgstr "Kelola daftar langganan, pelanggan, daftar penekanan, dan kampanye/digest."
+
+msgid "admin.newsletter.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.newsletter.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk mengelola buletin."
+
+msgid "admin.newsletter.campaigns_heading"
+msgstr "Kampanye & digest"
+
+msgid "admin.newsletter.topics_heading"
+msgstr "Topik"
+
+msgid "admin.newsletter.subscribers_heading"
+msgstr "Pelanggan"
+
+msgid "admin.newsletter.suppression_heading"
+msgstr "Daftar penekanan"
+
+msgid "admin.newsletter.empty"
+msgstr "Belum ada apa pun di sini."
+
+msgid "admin.newsletter.status_label"
+msgstr "Status"
+
+msgid "admin.newsletter.subscribers_note"
+msgstr "Alamat email pelanggan ditampilkan tersamar dan tidak pernah ditampilkan lengkap."
+
+msgid "newsletter.public.heading"
+msgstr "Berlangganan buletin kami"
+
+msgid "newsletter.public.description"
+msgstr "Masukkan email Anda untuk menerima pembaruan. Kami akan mengirim tautan konfirmasi untuk menyelesaikan langganan Anda."
+
+msgid "newsletter.public.email_label"
+msgstr "Alamat email"
+
+msgid "newsletter.public.subscribe_button"
+msgstr "Berlangganan"
+
+msgid "newsletter.public.subscribed_note"
+msgstr "Terima kasih! Jika alamat Anda memenuhi syarat, tautan konfirmasi sedang dikirim."

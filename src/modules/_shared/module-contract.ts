@@ -319,6 +319,86 @@ export type ModuleDescriptor = {
   searchSources?: SearchSourceDescriptor[];
   /** Public commentable-resource descriptors this module contributes to `comments` (Issue #271, ADR-0032) — see `CommentableResourceDescriptor`'s own doc comment below. */
   commentableResources?: CommentableResourceDescriptor[];
+  /** Public newsletter content-source descriptors this module contributes to `newsletter` (Issue #272, ADR-0033) — see `NewsletterContentSourceDescriptor`'s own doc comment below. */
+  newsletterContentSources?: NewsletterContentSourceDescriptor[];
+};
+
+/**
+ * A declarative, pure-data public newsletter content-source descriptor a content
+ * module contributes to `newsletter` (Issue #272, epic #261, ADR-0033). Exactly
+ * the same "module declares its own descriptor array, a central engine reads
+ * `listModules()`" shape `searchSources`/`commentableResources`/`dataLifecycle`
+ * above already use — `newsletter`'s `domain/content-source-registry.ts` is the
+ * aggregator/validator, mirroring `comments/domain/commentable-resource-registry.ts`
+ * exactly.
+ *
+ * ## Why a descriptor-list, not a capability `provides` (ADR-0033 §3)
+ *
+ * Many content modules may want to seed newsletter notifications/digests.
+ * Modeling `newsletter_content_source` as a capability `provides` would immediately
+ * trip `module-composition.ts`'s `capability_provider_conflict` (>1 declared
+ * provider of the same capability string). A descriptor-list riding `listModules()`
+ * lets a DERIVED module admit a reviewed content source through its own
+ * `application-registry.ts` WITHOUT editing the base registry and WITHOUT writing
+ * to `newsletter`'s tables (same derived-safe seam as `searchSources`).
+ *
+ * ## Pure DATA, not an executable extractor (issue #272 security requirement)
+ *
+ * This descriptor carries NO function reference — only reviewed, code-only
+ * column/table NAMES, a declarative `publicationFilter`, and a declarative
+ * `publishEventType` STRING (never an executable). `newsletter`'s engine builds a
+ * PARAMETERIZED publication/candidate query from it: literal filter VALUES are
+ * always bound parameters; only the IDENTIFIERS (table/column names) are
+ * interpolated, and they are re-validated with the sanctioned `assertSafeIdentifier`
+ * pattern before interpolation — the same discipline `comments`/`site_search` use.
+ * A content row must be PUBLISHED & PUBLIC (per `publicationFilter`) before it is
+ * ever selected as a digest candidate; there is no place for a tenant to inject SQL.
+ *
+ * TRUSTED CODE-ONLY METADATA (same rule as every descriptor type above) —
+ * declared by the owning module's source, never tenant/request-controlled.
+ */
+export type NewsletterContentSourcePublicationFilter = {
+  /** Column = literal-value equality checks, e.g. `{ status: "published", visibility: "public" }`. VALUES are bound parameters, KEYS are validated identifiers. All must hold (AND). */
+  equals?: Readonly<Record<string, string>>;
+  /** Columns that must be `IS NOT NULL` for a row to be public (e.g. `published_at`). */
+  notNullColumns?: readonly string[];
+  /** Columns that must be `IS NULL` for a row to be public — the soft-delete gate (e.g. `deleted_at`). */
+  nullColumns?: readonly string[];
+  /** Columns whose value must be `<= now()` for a row to be public — the schedule gate (e.g. `published_at`). */
+  timeReachedColumns?: readonly string[];
+};
+
+export type NewsletterContentSourceDescriptor = {
+  /** Stable, unique across the whole registry, `"<module_key>.<short>"` (e.g. `"blog_content.post"`). */
+  key: string;
+  /** Must equal the declaring module's own `key` — validated by the registry gate (`newsletter/domain/content-source-registry.ts`), not the type system. */
+  ownerModuleKey: string;
+  /** Opaque content-type discriminator, e.g. `"blog_post"`. Never interpreted structurally by `newsletter`. */
+  resourceType: string;
+  /** Source table the engine reads to confirm a row is published/public (must start with `awcms_micro_`). */
+  tableName: string;
+  /** Defaults to `"tenant_id"`. */
+  tenantColumn?: string;
+  /** Defaults to `"id"` — the resource primary key. */
+  idColumn?: string;
+  /** Column carrying the BCP-47 locale of each row. */
+  localeColumn: string;
+  /** Column supplying `:slug` in `urlTemplate`; `null`/omit when the template uses only `:id`. */
+  slugColumn?: string | null;
+  /** Column mapped to a notification/digest subject candidate. */
+  titleColumn: string;
+  /** Column carrying the publish `timestamptz` — the cursor column for digest candidate selection. */
+  publishedAtColumn: string;
+  /** Public URL template with `:slug` / `:id` placeholders resolved from `slugColumn` / `idColumn` (e.g. `"/news/:slug"`). */
+  urlTemplate: string;
+  /** Declarative publication predicate enforced at the content-source boundary — the draft/private/deleted-leakage defense (ADR-0033 §5). */
+  publicationFilter: NewsletterContentSourcePublicationFilter;
+  /** Declarative domain-event TYPE string the owning module emits on publish that seeds a notification/digest candidate (e.g. `"awcms-micro.blog-content.post.published"`). NO executable — a label the newsletter consumer subscribes to out-of-band. */
+  publishEventType: string;
+  /** Whether rows from this source are eligible to appear in an automated digest. */
+  digestEligible: boolean;
+  /** Suggested default topic slug a fresh digest for this source type uses (the tenant's topics may override). */
+  defaultTopicKey?: string;
 };
 
 /**
@@ -836,8 +916,14 @@ export type ModuleMigrationNamespace = {
  * exported types, the declarative public commentable-resource contribution seam
  * for `comments` (MINOR: purely additive, same rule as `1.3.0`'s `searchSources`
  * addition).
+ *
+ * `1.5.0` (Issue #272, ADR-0033) — added the optional `ModuleDescriptor.
+ * newsletterContentSources` field plus the new `NewsletterContentSourceDescriptor`
+ * / `NewsletterContentSourcePublicationFilter` exported types, the declarative
+ * public newsletter content-source contribution seam for `newsletter` (MINOR:
+ * purely additive, same rule as `1.4.0`'s `commentableResources` addition).
  */
-export const MODULE_CONTRACT_VERSION = "1.4.0";
+export const MODULE_CONTRACT_VERSION = "1.5.0";
 
 /**
  * One derived/downstream repository's contribution to the final composed

@@ -642,6 +642,62 @@ channels:
       `parentCommentId`, `resourceType`, `resourceUrl`, `status`. Lets a consumer
       notify subscribers of the parent comment/thread. Producer:
       `comments/application/comment-service.ts`'s `submitComment` (reply path).
+  awcms-micro.newsletter.subscriber.confirmed:
+    address: awcms-micro.newsletter.subscriber.confirmed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a subscriber completes double-opt-in confirmation (Issue #272,
+      ADR-0033), pending -> subscribed. Payload (ADDRESS-FREE): `subscriberId`,
+      `emailHash`, `reason`. Lets a welcome-email/CRM consumer react through the
+      outbox without reading `newsletter`' tables directly; the email dispatcher
+      resolves the encrypted recipient from minimized storage at send time, OUTSIDE
+      any DB transaction. Producer:
+      `newsletter/application/subscriber-service.ts`'s `confirmSubscription`.
+  awcms-micro.newsletter.subscriber.unsubscribed:
+    address: awcms-micro.newsletter.subscriber.unsubscribed
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a subscriber unsubscribes (Issue #272, ADR-0033) via one-click/
+      token. Payload (ADDRESS-FREE): `subscriberId`, `emailHash`, `reason`. Lets a
+      consumer stop future sends and reconcile downstream lists. Producer:
+      `newsletter/application/subscriber-service.ts`'s `unsubscribeByToken`.
+  awcms-micro.newsletter.campaign.scheduled:
+    address: awcms-micro.newsletter.campaign.scheduled
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a campaign/digest draft is moved into the scheduled state
+      (Issue #272, ADR-0033). Payload: `campaignId`, `kind`, `audienceCount`. Lets a
+      scheduling/observability consumer react. Producer:
+      `newsletter/application/campaign-service.ts`'s `scheduleCampaign`.
+  awcms-micro.newsletter.campaign.dispatched:
+    address: awcms-micro.newsletter.campaign.dispatched
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a scheduled campaign/digest is dispatched (Issue #272,
+      ADR-0033): its audience snapshot is frozen and per-recipient sends are
+      enqueued. Payload: `campaignId`, `kind`, `audienceCount`. Drives the email
+      outbox consumer that performs the actual sends OUTSIDE any DB transaction
+      (ADR-0006). Producer: `newsletter/application/campaign-service.ts`'s
+      `dispatchCampaign`.
+  awcms-micro.newsletter.suppression.recorded:
+    address: awcms-micro.newsletter.suppression.recorded
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      Published when a verified provider bounce/complaint records a suppression
+      against a subscriber (Issue #272, ADR-0033). Payload (ADDRESS-FREE):
+      `subscriberId`, `emailHash`, `reason`. Lets a deliverability consumer react.
+      Producer: `newsletter/application/subscriber-service.ts`'s
+      `applyProviderSuppression`.
   awcms-micro.site-search.index.reconciled:
     address: awcms-micro.site-search.index.reconciled
     messages:
@@ -1016,6 +1072,36 @@ operations:
       $ref: "#/channels/awcms-micro.comments.reply.created"
     messages:
       - $ref: "#/channels/awcms-micro.comments.reply.created/messages/DomainEvent"
+  publishNewsletterSubscriberConfirmed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.newsletter.subscriber.confirmed"
+    messages:
+      - $ref: "#/channels/awcms-micro.newsletter.subscriber.confirmed/messages/DomainEvent"
+  publishNewsletterSubscriberUnsubscribed:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.newsletter.subscriber.unsubscribed"
+    messages:
+      - $ref: "#/channels/awcms-micro.newsletter.subscriber.unsubscribed/messages/DomainEvent"
+  publishNewsletterCampaignScheduled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.newsletter.campaign.scheduled"
+    messages:
+      - $ref: "#/channels/awcms-micro.newsletter.campaign.scheduled/messages/DomainEvent"
+  publishNewsletterCampaignDispatched:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.newsletter.campaign.dispatched"
+    messages:
+      - $ref: "#/channels/awcms-micro.newsletter.campaign.dispatched/messages/DomainEvent"
+  publishNewsletterSuppressionRecorded:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.newsletter.suppression.recorded"
+    messages:
+      - $ref: "#/channels/awcms-micro.newsletter.suppression.recorded/messages/DomainEvent"
   publishSiteSearchIndexReconciled:
     action: send
     channel:

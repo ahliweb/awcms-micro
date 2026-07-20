@@ -95,8 +95,13 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * code — the tenant-scoped, moderation-first commenting module. Admission +
  * runtime landed together (same posture as ADR-0031), so the anchor rose in the
  * same PR as the code.
+ *
+ * 22 since Issue #272 (ADR-0033) registered `newsletter` with its first runtime
+ * code — the tenant-scoped, consent-first, anti-enumeration newsletter /
+ * subscription-list module. Admission + runtime landed together (same posture as
+ * ADR-0031/0032), so the anchor rose in the same PR as the code.
  */
-export const EXPECTED_BASE_MODULE_COUNT = 21;
+export const EXPECTED_BASE_MODULE_COUNT = 22;
 
 /**
  * Generated inventories that must never name an excluded module. These are

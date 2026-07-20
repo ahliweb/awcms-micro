@@ -101,6 +101,45 @@ export const DOMAIN_EVENT_TYPE_REGISTRY: readonly RegisteredDomainEventType[] =
       eventVersion: "1.0",
       description:
         "Published when a bounded-depth reply to an existing comment is created. Lets a consumer notify subscribers of the parent comment/thread. Carries no recipient address."
+    },
+    // Issue #272 (newsletter, ADR-0033) — real (non-reference) producer. Literal
+    // strings match `newsletter/domain/newsletter-events.ts`'s
+    // `SUBSCRIBER_CONFIRMED_EVENT_TYPE`/`SUBSCRIBER_UNSUBSCRIBED_EVENT_TYPE`/
+    // `CAMPAIGN_SCHEDULED_EVENT_TYPE`/`CAMPAIGN_DISPATCHED_EVENT_TYPE`/
+    // `SUPPRESSION_RECORDED_EVENT_TYPE` + `NEWSLETTER_EVENT_VERSION` constants (kept
+    // in sync by convention, not cross-module import). Payloads are ADDRESS-FREE
+    // (opaque subscriber/campaign ids + email HASH + counts only); the email
+    // dispatcher resolves the encrypted recipient from minimized storage at send
+    // time.
+    {
+      eventType: "awcms-micro.newsletter.subscriber.confirmed",
+      eventVersion: "1.0",
+      description:
+        "Published when a subscriber completes double-opt-in confirmation (pending -> subscribed). Lets a welcome-email/CRM consumer react without reading newsletter's tables directly. Carries no recipient address (subscriber id + email hash only)."
+    },
+    {
+      eventType: "awcms-micro.newsletter.subscriber.unsubscribed",
+      eventVersion: "1.0",
+      description:
+        "Published when a subscriber unsubscribes (one-click/token). Lets a consumer stop future sends and reconcile downstream lists. Carries no recipient address (subscriber id + email hash only)."
+    },
+    {
+      eventType: "awcms-micro.newsletter.campaign.scheduled",
+      eventVersion: "1.0",
+      description:
+        "Published when a campaign/digest draft is moved into the scheduled state. Lets a scheduling/observability consumer react. Carries the campaign id + kind only."
+    },
+    {
+      eventType: "awcms-micro.newsletter.campaign.dispatched",
+      eventVersion: "1.0",
+      description:
+        "Published when a scheduled campaign/digest is dispatched: its audience snapshot is frozen and per-recipient sends are enqueued. Drives the email outbox consumer that performs the actual sends OUTSIDE any DB transaction. Carries the campaign id + kind + audience count (no addresses)."
+    },
+    {
+      eventType: "awcms-micro.newsletter.suppression.recorded",
+      eventVersion: "1.0",
+      description:
+        "Published when a verified provider bounce/complaint records a suppression against a subscriber. Lets a deliverability/consumer react. Carries subscriber id + email hash + reason only (no recipient address)."
     }
   ];
 
