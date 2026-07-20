@@ -192,18 +192,22 @@ describe("Redis cache-aside helpers", () => {
       args: ["awcms-micro:v1:test:global:item", '{"value":42}', "EX", "60"]
     });
     expect(
-      await getRedisJson<{ value: number }>(
-        "awcms-micro:v1:test:global:item",
-        { client: fake.asClient(), config }
-      )
+      await getRedisJson<{ value: number }>("awcms-micro:v1:test:global:item", {
+        client: fake.asClient(),
+        config
+      })
     ).toEqual({ value: 42 });
 
     await expect(
-      setRedisJson("invalid-ttl", { value: 1 }, {
-        client: fake.asClient(),
-        config,
-        ttlSec: 0
-      })
+      setRedisJson(
+        "invalid-ttl",
+        { value: 1 },
+        {
+          client: fake.asClient(),
+          config,
+          ttlSec: 0
+        }
+      )
     ).rejects.toThrow();
   });
 
@@ -252,11 +256,11 @@ describe("Redis cache-aside helpers", () => {
 
     fake.values.clear();
     expect(
-      await redisCacheAside(
-        key,
-        async () => ({ source: "database" }),
-        { client: fake.asClient(), config: enabledConfig(), ttlSec: 30 }
-      )
+      await redisCacheAside(key, async () => ({ source: "database" }), {
+        client: fake.asClient(),
+        config: enabledConfig(),
+        ttlSec: 30
+      })
     ).toEqual({ source: "database" });
     expect(JSON.parse(fake.values.get(key)!)).toEqual({ source: "database" });
   });
