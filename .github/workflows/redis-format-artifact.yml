@@ -1,8 +1,8 @@
 name: Redis format artifact
 
 on:
-  push:
-    branches: [agent/redis-readiness-foundation]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
