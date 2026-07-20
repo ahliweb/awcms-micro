@@ -312,6 +312,27 @@ FAILURE meski `Analyze (javascript-typescript)` sendiri SUCCESS — HIGH ini
 memblokir merge; 0 alert di `state=open` belum tentu berarti lolos, cek
 `code-scanning/alerts?pr=<n>`.
 
+### 9. `js/double-escaping` — urutan decode entity HTML/XML (fix kode, BUKAN dismiss)
+
+Ditemukan 2026-07-20 (#296, PR #298) di helper `decodeXmlEntities`
+(`tests/integration/public-link-integrity.integration.test.ts`) yang men-decode
+`&amp;` DULUAN lalu `&lt;`/`&gt;`. Temuan NYATA: meng-decode `&amp;` lebih dulu
+membuat `&amp;lt;` runtuh jadi `<` (double-unescape). **Fix**: decode `&amp;`
+PALING AKHIR, setelah semua entity lain:
+
+```ts
+return value
+  .replace(/&lt;/g, "<")
+  .replace(/&gt;/g, ">")
+  .replace(/&quot;/g, '"')
+  .replace(/&#39;/g, "'")
+  .replace(/&amp;/g, "&"); // WAJIB terakhir
+```
+
+Kelas yang sama dengan #8 (residu multi-karakter) tapi lewat urutan replace, bukan
+single-pass — muncul di helper test XML/HTML apa pun yang meng-unescape entity.
+Jangan dismiss; cukup urutkan ulang.
+
 ### Pola tambahan: `js/unused-local-variable` di test kadang menandai coverage gap, bukan sekadar dead code
 
 Dari 11 alert `js/unused-local-variable` di Issue #788 (semua di file
