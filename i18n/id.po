@@ -3577,3 +3577,36 @@ msgid "error.not_found"
 msgstr "Sumber daya yang diminta tidak ditemukan."
 msgid "error.invalid_media_status"
 msgstr "Aksi ini tidak valid untuk status objek media saat ini."
+
+msgid "site_search.page.title"
+msgstr "Pencarian"
+
+msgid "site_search.page.heading"
+msgstr "Pencarian"
+
+msgid "site_search.page.input_label"
+msgstr "Kata kunci pencarian"
+
+msgid "site_search.page.placeholder"
+msgstr "Cari di situs ini…"
+
+msgid "site_search.page.button"
+msgstr "Cari"
+
+msgid "site_search.page.enter_term"
+msgstr "Masukkan kata kunci pencarian di atas."
+
+msgid "site_search.page.too_short"
+msgstr "Masukkan kata kunci yang lebih panjang."
+
+msgid "site_search.page.no_results"
+msgstr "Tidak ada hasil ditemukan."
+
+msgid "site_search.page.results_heading"
+msgstr "Hasil pencarian"
+
+msgid "site_search.page.next"
+msgstr "Berikutnya"
+
+msgid "site_search.page.suggestions_label"
+msgstr "Saran pencarian"

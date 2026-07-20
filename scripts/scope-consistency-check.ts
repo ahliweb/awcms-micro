@@ -85,8 +85,13 @@ export const EXCLUDED_MODULE_NAMESPACES = [
  * 19 since Issue #269 (ADR-0029) registered `theming` with its runtime code —
  * admission + runtime landed together (no latent cross-module behavior to
  * consolidate first), the ADR-0026 posture, so the anchor rose with the code.
+ *
+ * 20 since Issue #270 (ADR-0031) registered `site_search` with its first runtime
+ * code — the tenant-scoped, cross-content PostgreSQL full-text search module.
+ * Admission + runtime landed together (ADR-0031 chose not to defer the
+ * descriptor, unlike ADR-0028), so the anchor rose in the same PR as the code.
  */
-export const EXPECTED_BASE_MODULE_COUNT = 19;
+export const EXPECTED_BASE_MODULE_COUNT = 20;
 
 /**
  * Generated inventories that must never name an excluded module. These are

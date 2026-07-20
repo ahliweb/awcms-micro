@@ -35,7 +35,14 @@ export const ALLOWED_PUBLIC_OPERATIONS: readonly `${string} ${string}`[] = [
   "GET /api/v1/health",
   "GET /api/v1/database/pool/health",
   "GET /api/v1/setup/status",
-  "POST /api/v1/setup/initialize"
+  "POST /api/v1/setup/initialize",
+  // Issue #270 (ADR-0031) — the public, anonymous site-search JSON surfaces.
+  // Tenant is resolved from the request host (not a session), results are the
+  // tenant's PUBLIC content only, and both are per-IP rate-limited and
+  // query-length-bounded. Public by design, like `/news` — declared here so the
+  // change is visible in the diff.
+  "GET /api/v1/site-search/query",
+  "GET /api/v1/site-search/suggest"
   // Upstream AWCMS-Mini lists a fifth entry here — `integration_hub`'s inbound
   // webhook receiver (Issue #754), public because an external provider calls it
   // with no tenant session. AWCMS-Micro does not port `integration_hub`

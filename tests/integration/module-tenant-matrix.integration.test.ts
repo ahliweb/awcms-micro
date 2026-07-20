@@ -199,7 +199,13 @@ suite(
       expect(
         withHealth.every((row) => typeof row.healthStatus === "string")
       ).toBe(true);
-    });
+      // This is a real-API + real-DB test whose cost scales with the registered
+      // module count: `includeHealth: true` computes a health row for every
+      // module. With the registry now at 20 modules the two round-trips plus
+      // bootstrap sit close to Bun's default 5000ms per-test ceiling and trip it
+      // under CI load, so give it explicit headroom rather than let a growing
+      // (correct) registry make this test flaky.
+    }, 20000);
 
     test("default tenant state: every module enabled, core/protected flags match resolveProtectedModuleKeys", async () => {
       const owner = await bootstrap();

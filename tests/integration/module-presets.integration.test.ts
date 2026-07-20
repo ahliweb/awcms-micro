@@ -190,7 +190,9 @@ suite("tenant module preset application service", () => {
     // config surface). So the preset safely disables it, exactly like the other
     // non-listed leaves. theming (Issue #269, ADR-0029) is the same shape — a
     // pure Optional leaf that provides nothing and is not listed by
-    // online_website — so it joins the disabled-leaves set too.
+    // online_website — so it joins the disabled-leaves set too. site_search
+    // (Issue #270, ADR-0031) is the same kind of Optional/opt-in leaf — nothing
+    // depends on it, online_website does not list it — so it joins identically.
     for (const key of [
       "form_drafts",
       "visitor_analytics",
@@ -198,7 +200,8 @@ suite("tenant module preset application service", () => {
       "social_publishing",
       "data_lifecycle",
       "seo_distribution",
-      "theming"
+      "theming",
+      "site_search"
     ]) {
       expect(changeByKey.get(key)?.outcome).toBe("applied");
       expect(changeByKey.get(key)?.action).toBe("disabled");
@@ -241,6 +244,7 @@ suite("tenant module preset application service", () => {
     expect(state.get("data_lifecycle")).toBe(false);
     expect(state.get("seo_distribution")).toBe(false);
     expect(state.get("theming")).toBe(false);
+    expect(state.get("site_search")).toBe(false);
 
     const auditRows = await fetchAuditActions(owner.tenantId);
     const disabledResourceIds = auditRows
@@ -255,7 +259,8 @@ suite("tenant module preset application service", () => {
         "social_publishing",
         "data_lifecycle",
         "seo_distribution",
-        "theming"
+        "theming",
+        "site_search"
       ].sort()
     );
     // No audit event for modules that were already in the target state.

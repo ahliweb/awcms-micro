@@ -315,6 +315,94 @@ export type ModuleDescriptor = {
   referenceData?: ReferenceDataModuleContract;
   /** Read-model projection descriptors this module owns (Issue #753) — see `ProjectionDescriptor`'s own doc comment below (declared after this type since it's mutually referenced only by name, TypeScript type declarations are not order-sensitive). */
   reportingProjections?: ProjectionDescriptor[];
+  /** Public search-source descriptors this module contributes to `site_search` (Issue #270, ADR-0031) — see `SearchSourceDescriptor`'s own doc comment below. */
+  searchSources?: SearchSourceDescriptor[];
+};
+
+/**
+ * A declarative, pure-data public search-source descriptor a content module
+ * contributes to `site_search` (Issue #270, epic #261, ADR-0031). Same "module
+ * declares its own descriptor array, a central engine reads `listModules()`"
+ * shape `dataLifecycle`/`sodRules`/`reportingProjections` above already use —
+ * `site_search`'s `domain/search-source-registry.ts` is the aggregator/validator,
+ * mirroring `reporting/domain/projection-registry.ts` exactly.
+ *
+ * ## Why a descriptor-list, not a capability `provides` (ADR-0031 §3)
+ *
+ * Search wants MANY content modules to contribute sources. Modeling `search_source`
+ * as a capability `provides` would immediately trip `module-composition.ts`'s
+ * `capability_provider_conflict` (>1 declared provider of the same capability
+ * string). A descriptor-list riding `listModules()` lets a DERIVED module
+ * contribute a reviewed source through its own `application-registry.ts` WITHOUT
+ * editing the base registry and WITHOUT writing to `site_search`'s index tables
+ * (issue #270 acceptance criterion).
+ *
+ * ## Pure DATA, not an executable extractor (issue #270 security requirement)
+ *
+ * "Search source descriptors are reviewed build-time code; tenants cannot define
+ * arbitrary SQL or executable extractors." So this descriptor carries NO function
+ * reference — only reviewed, code-only column/table NAMES and a declarative
+ * `publicationFilter`. `site_search`'s generic engine builds a PARAMETERIZED
+ * extraction query from it: literal filter VALUES are always bound parameters;
+ * only the IDENTIFIERS (table/column names) are interpolated, and they are
+ * re-validated with a strict identifier pattern before interpolation — the exact
+ * same sanctioned pattern `data_lifecycle`'s `generic` executionMode uses
+ * (`assertSafeIdentifier` + `tableName`/`cursorColumn` interpolation). There is
+ * no place for a tenant to inject SQL.
+ *
+ * TRUSTED CODE-ONLY METADATA (same rule as every descriptor type above) —
+ * declared by the owning module's source, never tenant/request-controlled.
+ */
+export type SearchSourcePublicationFilter = {
+  /**
+   * Column = literal-value equality checks, e.g. `{ status: "published",
+   * visibility: "public" }`. The VALUES are bound parameters (never
+   * interpolated), the KEYS are validated identifiers. All must hold (AND).
+   */
+  equals?: Readonly<Record<string, string>>;
+  /** Columns that must be `IS NOT NULL` for a row to be public (e.g. `published_at`). */
+  notNullColumns?: readonly string[];
+  /** Columns that must be `IS NULL` for a row to be public — the soft-delete gate (e.g. `deleted_at`). */
+  nullColumns?: readonly string[];
+  /** Columns whose value must be `<= now()` for a row to be public — the schedule gate (e.g. `published_at`). */
+  timeReachedColumns?: readonly string[];
+};
+
+export type SearchSourceDescriptor = {
+  /** Stable, unique across the whole registry, `"<module_key>.<short>"` (e.g. `"blog_content.post"`). */
+  key: string;
+  /** Must equal the declaring module's own `key` — validated by the registry gate (`site-search/domain/search-source-registry.ts`), not the type system. */
+  ownerModuleKey: string;
+  /** Opaque content-type discriminator, e.g. `"blog_post"` / `"blog_page"` / a derived app's `"product"`. Stored on each index document and used for admitted-type filtering; never interpreted structurally by `site_search`. */
+  resourceType: string;
+  /** Source table the generic engine reads (must start with `awcms_micro_`). */
+  tableName: string;
+  /** Defaults to `"tenant_id"`. */
+  tenantColumn?: string;
+  /** Defaults to `"id"` — the resource primary key stored as the index document's `resource_id`. */
+  idColumn?: string;
+  /** Column carrying the BCP-47 locale of each row — every index document is locale-scoped. */
+  localeColumn: string;
+  /** Column carrying the row's last-modified `timestamptz` — the reconciliation staleness/`source_updated_at` signal. */
+  updatedAtColumn: string;
+  /** Column mapped to the index document's weighted `title` (tsvector weight A). */
+  titleColumn: string;
+  /** Column mapped to the index document's `summary` (tsvector weight B); `null`/omit when the source has none. */
+  summaryColumn?: string | null;
+  /** Columns concatenated into the index document's `body_text` (tsvector weight D + snippet source). */
+  bodyColumns: readonly string[];
+  /** `text[]` column mapped to the index document's `tags` (tsvector weight C); `null`/omit when the source has none. */
+  tagsColumn?: string | null;
+  /** Public URL template with `:slug` / `:id` placeholders resolved from `slugColumn` / `idColumn` at index time (e.g. `"/news/:slug"`). */
+  urlTemplate: string;
+  /** Column supplying `:slug` in `urlTemplate`; `null`/omit when the template uses only `:id`. */
+  slugColumn?: string | null;
+  /** Declarative publication predicate enforced at the source→index boundary — the draft/private/deleted-leakage defense (ADR-0031 §5). */
+  publicationFilter: SearchSourcePublicationFilter;
+  /** Relevance multiplier applied to `ts_rank` at query time — lets a source rank above/below another (`0 < weight <= 10`). */
+  weight: number;
+  /** Privacy classification — ONLY `"public"` content is admitted to the index (issue #270 out-of-scope: never index private/admin business data). */
+  privacyClassification: "public";
 };
 
 /**
@@ -652,8 +740,14 @@ export type ModuleMigrationNamespace = {
  * reportingProjections` field plus the new `ProjectionDescriptor` family
  * of exported types (MINOR: purely additive, same rule as `1.1.0`'s own
  * `dataLifecycle`/`sodRules` additions).
+ *
+ * `1.3.0` (Issue #270, ADR-0031) — added the optional `ModuleDescriptor.
+ * searchSources` field plus the new `SearchSourceDescriptor` /
+ * `SearchSourcePublicationFilter` exported types, the declarative public
+ * search-source contribution seam for `site_search` (MINOR: purely additive,
+ * same rule as `1.2.0`'s `reportingProjections` addition).
  */
-export const MODULE_CONTRACT_VERSION = "1.2.0";
+export const MODULE_CONTRACT_VERSION = "1.3.0";
 
 /**
  * One derived/downstream repository's contribution to the final composed

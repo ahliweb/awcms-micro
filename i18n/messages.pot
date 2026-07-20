@@ -4860,3 +4860,47 @@ msgstr ""
 msgid "error.workflow_approval_required"
 msgstr ""
 
+#: src/pages/search.ts:65
+msgid "site_search.page.button"
+msgstr ""
+
+#: src/pages/search.ts:66
+msgid "site_search.page.enter_term"
+msgstr ""
+
+#: src/pages/search.ts:62
+msgid "site_search.page.heading"
+msgstr ""
+
+#: src/pages/search.ts:63
+msgid "site_search.page.input_label"
+msgstr ""
+
+#: src/pages/search.ts:70
+msgid "site_search.page.next"
+msgstr ""
+
+#: src/pages/search.ts:68
+msgid "site_search.page.no_results"
+msgstr ""
+
+#: src/pages/search.ts:64
+msgid "site_search.page.placeholder"
+msgstr ""
+
+#: src/pages/search.ts:69
+msgid "site_search.page.results_heading"
+msgstr ""
+
+#: src/pages/search.ts:71
+msgid "site_search.page.suggestions_label"
+msgstr ""
+
+#: src/pages/search.ts:61
+msgid "site_search.page.title"
+msgstr ""
+
+#: src/pages/search.ts:67
+msgid "site_search.page.too_short"
+msgstr ""
+

@@ -104,6 +104,11 @@ export const JOB_WORK_CLASS_REGISTRY: Readonly<
     rationale:
       "Infrequent reconciliation sweep (news-media:reconcile) — tolerant of delay, run far less often than the dispatchers above."
   },
+  "scripts/site-search-reconcile.ts": {
+    workClass: "maintenance",
+    rationale:
+      "Deterministic search-index reconciliation/rebuild sweep (site-search:reconcile) — tolerant of delay, keeps the search projection consistent with published content."
+  },
   "scripts/data-lifecycle-archive-purge.ts": {
     workClass: "maintenance",
     rationale:

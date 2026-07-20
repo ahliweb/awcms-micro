@@ -3578,3 +3578,36 @@ msgid "error.not_found"
 msgstr "The requested resource was not found."
 msgid "error.invalid_media_status"
 msgstr "This action is not valid for the media object's current status."
+
+msgid "site_search.page.title"
+msgstr "Search"
+
+msgid "site_search.page.heading"
+msgstr "Search"
+
+msgid "site_search.page.input_label"
+msgstr "Search query"
+
+msgid "site_search.page.placeholder"
+msgstr "Search this site…"
+
+msgid "site_search.page.button"
+msgstr "Search"
+
+msgid "site_search.page.enter_term"
+msgstr "Enter a search term above."
+
+msgid "site_search.page.too_short"
+msgstr "Please enter a longer search term."
+
+msgid "site_search.page.no_results"
+msgstr "No results found."
+
+msgid "site_search.page.results_heading"
+msgstr "Search results"
+
+msgid "site_search.page.next"
+msgstr "Next"
+
+msgid "site_search.page.suggestions_label"
+msgstr "Search suggestions"

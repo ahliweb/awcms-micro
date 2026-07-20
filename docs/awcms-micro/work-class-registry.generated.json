@@ -846,6 +846,31 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/site-search/index/failures.ts",
+      "workClass": "reporting",
+      "source": "explicit"
+    },
+    {
+      "path": "src/pages/api/v1/site-search/index/rebuild.ts",
+      "workClass": "reporting",
+      "source": "explicit"
+    },
+    {
+      "path": "src/pages/api/v1/site-search/index/reconcile.ts",
+      "workClass": "reporting",
+      "source": "explicit"
+    },
+    {
+      "path": "src/pages/api/v1/site-search/index/status.ts",
+      "workClass": "reporting",
+      "source": "explicit"
+    },
+    {
+      "path": "src/pages/api/v1/site-search/settings.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/social-publishing/accounts/[id].ts",
       "workClass": "interactive",
       "source": "default"
@@ -1122,6 +1147,12 @@
       "workClass": "maintenance",
       "source": "registry",
       "rationale": "Incremental cursor_table projection updates + rebuild-continuation sweep (reporting:projections:refresh, Issue #753), recommended every 2 minutes — same tolerant-of-delay, never-latency-sensitive profile as audit-log-purge/data-lifecycle-archive-purge; every withTenant call inside projection-incremental-worker.ts/projection-rebuild.ts already passes workClass: \"maintenance\" explicitly."
+    },
+    {
+      "path": "scripts/site-search-reconcile.ts",
+      "workClass": "maintenance",
+      "source": "registry",
+      "rationale": "Deterministic search-index reconciliation/rebuild sweep (site-search:reconcile) — tolerant of delay, keeps the search projection consistent with published content."
     },
     {
       "path": "scripts/social-publish-dispatch.ts",

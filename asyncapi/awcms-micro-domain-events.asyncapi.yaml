@@ -604,6 +604,31 @@ channels:
       pull-based equivalent). Producer:
       `profile-identity/application/merge-workflow.ts`'s
       `executeMergeRequest`.
+  awcms-micro.site-search.index.reconciled:
+    address: awcms-micro.site-search.index.reconciled
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A tenant's search index was reconciled (Issue #270, ADR-0031) — current
+      public documents upserted, stale ones removed. Documented contract only;
+      producer is the structured JSON logger, invoked from
+      `site-search/application/search-index-engine.ts`'s `runReconcile`
+      (`site-search.index.reconciled` log line; `documentsIndexed`/
+      `documentsRemoved`/`failureCount` attributes) — not published through
+      `domain_event_runtime`.
+  awcms-micro.site-search.index.rebuilt:
+    address: awcms-micro.site-search.index.rebuilt
+    messages:
+      DomainEvent:
+        $ref: "#/components/messages/DomainEvent"
+    description: >-
+      A tenant's search index was fully rebuilt (Issue #270, ADR-0031) — every
+      document deleted and re-extracted. Documented contract only; producer is
+      the structured JSON logger, invoked from
+      `site-search/application/search-index-engine.ts`'s `runReconcile`
+      (`site-search.index.rebuilt` log line) — not published through
+      `domain_event_runtime`.
 operations:
   publishSyncPushRequested:
     action: send
@@ -935,6 +960,18 @@ operations:
       $ref: "#/channels/awcms-micro.profile-identity.profile.merged"
     messages:
       - $ref: "#/channels/awcms-micro.profile-identity.profile.merged/messages/DomainEvent"
+  publishSiteSearchIndexReconciled:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.site-search.index.reconciled"
+    messages:
+      - $ref: "#/channels/awcms-micro.site-search.index.reconciled/messages/DomainEvent"
+  publishSiteSearchIndexRebuilt:
+    action: send
+    channel:
+      $ref: "#/channels/awcms-micro.site-search.index.rebuilt"
+    messages:
+      - $ref: "#/channels/awcms-micro.site-search.index.rebuilt/messages/DomainEvent"
 components:
   securitySchemes:
     syncHmac:

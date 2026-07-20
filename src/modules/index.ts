@@ -14,6 +14,7 @@ import { newsPortalModule } from "./news-portal/module";
 import { profileIdentityModule } from "./profile-identity/module";
 import { reportingModule } from "./reporting/module";
 import { seoDistributionModule } from "./seo-distribution/module";
+import { siteSearchModule } from "./site-search/module";
 import { socialPublishingModule } from "./social-publishing/module";
 import { syncStorageModule } from "./sync-storage/module";
 import { tenantAdminModule } from "./tenant-admin/module";
@@ -84,7 +85,19 @@ const baseModules: ModuleDescriptor[] = [
   // + runtime land together (no latent cross-module behavior to consolidate), so
   // registering it here bumps the base count 18 → 19 (and
   // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
-  themingModule
+  themingModule,
+  // `active` Official Optional Module (ADR-0031, admitted + first runtime code
+  // in #270, epic #261 Wave 2). CONSUMER/aggregator of the `searchSources`
+  // descriptor-list contribution seam — the tenant-scoped, cross-content
+  // PostgreSQL full-text search index over PUBLISHED content, with public
+  // search/suggestion surfaces and admin index management. Content modules
+  // declare pure-data `SearchSourceDescriptor`s (no capability `provides`, no
+  // executable extractor); this module reads them via `listModules()`, so
+  // nothing depends on it and the DAG is unchanged. Admission + runtime land
+  // together (contrast seo_distribution's deferred descriptor), which is why
+  // registering it here bumps the base count 19 -> 20 (and
+  // `EXPECTED_BASE_MODULE_COUNT` in scripts/scope-consistency-check.ts).
+  siteSearchModule
 ];
 
 /** Base-only registry, regardless of any application registry — Issue #740's composition API. */

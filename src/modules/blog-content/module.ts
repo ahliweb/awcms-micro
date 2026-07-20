@@ -369,5 +369,45 @@ export const blogContentModule = defineModule({
         "No external provider call — pure database transition, safe to run in any deployment profile.",
       safeInOfflineLan: true
     }
+  ],
+  // Public search-source contribution to `site_search` (Issue #270, ADR-0031 §3).
+  // Pure DATA — no executable extractor, no SQL: `site_search`'s generic engine
+  // reads `awcms_micro_blog_posts` through this declarative mapping + publication
+  // filter. `blog_content` owns the public post/news resources (`/news/{slug}`),
+  // so it is the natural provider of the `blog_post` source. Blog PAGES
+  // (`awcms_micro_blog_pages`) are deliberately NOT contributed: they have no
+  // public standalone route today (admin CRUD only — see this module's README),
+  // so an index entry would point at a 404 (documented follow-up). Post tags live
+  // in a junction table (`awcms_micro_blog_content_internal_tag_links`), which a
+  // single-table generic source cannot join, so `tagsColumn` is omitted.
+  searchSources: [
+    {
+      key: "blog_content.post",
+      ownerModuleKey: "blog_content",
+      resourceType: "blog_post",
+      tableName: "awcms_micro_blog_posts",
+      tenantColumn: "tenant_id",
+      idColumn: "id",
+      localeColumn: "locale",
+      updatedAtColumn: "updated_at",
+      titleColumn: "title",
+      summaryColumn: "excerpt",
+      bodyColumns: ["content_text"],
+      tagsColumn: null,
+      urlTemplate: "/news/:slug",
+      slugColumn: "slug",
+      // The SAME public-visibility predicate blog_content's own public routes +
+      // seo-facts adapter use: published + public + not soft-deleted + a reached
+      // published_at. Enforced at the source->index boundary so a draft/private/
+      // deleted/scheduled post is never even read into the index.
+      publicationFilter: {
+        equals: { status: "published", visibility: "public" },
+        nullColumns: ["deleted_at"],
+        notNullColumns: ["published_at"],
+        timeReachedColumns: ["published_at"]
+      },
+      weight: 1.0,
+      privacyClassification: "public"
+    }
   ]
 });

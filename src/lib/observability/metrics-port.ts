@@ -451,6 +451,51 @@ export const METRIC_DEFINITIONS = {
     allowedLabelKeys: [],
     approxCardinality: "Exactly 1 — unlabeled.",
     privacyNote: PRIVACY_NOTE_CODE_DEFINED_ENUM
+  },
+
+  // site_search (Issue #270, ADR-0031) — search query/suggestion outcomes and
+  // index state. NEVER a query string, tenant id, or result id in a label.
+  site_search_queries_total: {
+    name: "site_search_queries_total",
+    type: "counter",
+    description:
+      "Count of public search queries, by surface (search|suggest) and outcome.",
+    allowedLabelKeys: ["surface", "outcome"],
+    approxCardinality:
+      "2 surfaces x ~5 outcomes (ok, empty, too_short, too_long, rate_limited, disabled) = ~12 series bound.",
+    privacyNote:
+      "Only a fixed code-defined surface/outcome enum — never the query text, tenant id, or result ids."
+  },
+  site_search_query_duration_ms: {
+    name: "site_search_query_duration_ms",
+    type: "histogram",
+    description:
+      "Duration of a public search/suggest query in milliseconds, by surface.",
+    allowedLabelKeys: ["surface"],
+    approxCardinality: "Exactly 2 — the fixed surface enum.",
+    privacyNote:
+      "Only a fixed code-defined surface enum — never the query text or tenant id."
+  },
+  site_search_index_operations_total: {
+    name: "site_search_index_operations_total",
+    type: "counter",
+    description:
+      "Count of search index operations, by run type (rebuild|reconcile|reindex) and status (succeeded|failed).",
+    allowedLabelKeys: ["runType", "status"],
+    approxCardinality: "3 run types x 2 statuses = 6 series bound.",
+    privacyNote:
+      "Only fixed code-defined run-type/status enums — never a tenant id or document contents."
+  },
+  site_search_index_failures_total: {
+    name: "site_search_index_failures_total",
+    type: "counter",
+    description:
+      "Count of per-item index extraction failures recorded during a run, by error class.",
+    allowedLabelKeys: ["errorClass"],
+    approxCardinality:
+      "Bounded by the fixed error-class enum (extract_error, upsert_error, url_error).",
+    privacyNote:
+      "Only a fixed code-defined error-class enum — never a resource id, tenant id, or error message."
   }
 } as const satisfies Record<string, MetricDefinition>;
 
