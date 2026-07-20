@@ -25,7 +25,7 @@ Seluruh konvensi mini berlaku utuh di sini: Bun-only (ADR-0002), PostgreSQL + RL
 >
 > **Belum ada:** modul website yang menuntut scope ini dan belum ada di upstream — newsletter. (Media library sudah diadmisi & aktif sejak ADR-0026; SEO/distribusi sejak ADR-0028; theming sejak ADR-0029; site search sejak ADR-0031; comments sejak ADR-0032 — semuanya bukan lagi bagian daftar ini.) Masing-masing akan diadmisi lewat ADR sebelum baris kode pertamanya (ADR-0025 §6).
 >
-> **Utang dokumentasi yang diakui:** paket dokumen `docs/awcms-micro/` masih memuat (a) bagian yang menjelaskan modul ERP yang tidak diport (terutama doc 04 ERD, 08 SOP, 20 threat model, 21 module admission governance), dan (b) contoh berjalan bergaya **retail/POS AWPOS** (SOP kasir, layar POS, skema `sales_pos`) — warisan sumber-standar yang sedang diganti menjadi contoh **website/toko-online** (ADR-0034 §4). Sampai dirapikan, **`src/`, `sql/`, dan gate CI adalah sumber kebenaran** (ADR-0025 §Konsekuensi).
+> **Utang dokumentasi yang diakui:** paket dokumen `docs/awcms-micro/` masih memuat bagian yang menjelaskan modul ERP yang tidak diport (terutama doc 04 ERD, 08 SOP, 20 threat model, 21 module admission governance) — ini **batas scope yang sengaja dipertahankan** dan ditandai sebagai lineage ERP `awcms`. Contoh berjalan retail/POS AWPOS di doc 02–19 (SOP kasir, layar POS, skema `sales_pos`) sudah **diganti menjadi contoh website/toko-online** (ADR-0034 §4, Round 2). Untuk hal teknis, **`src/`, `sql/`, dan gate CI tetap sumber kebenaran** (ADR-0025 §Konsekuensi).
 
 Kontributor & coding agent **wajib membaca [`AGENTS.md`](AGENTS.md) lebih dulu**.
 
@@ -132,7 +132,7 @@ flowchart LR
 ```
 
 - **01–13** perencanaan → kontrak → eksekusi; **14–18** desain teknis; **19** glossary; **20** threat model & arsitektur keamanan.
-- **Catatan penting:** dokumen **02–19** memakai domain retail/POS (gaya AWPOS) sebagai **contoh ilustratif** — polanya reusable, entitas/endpoint/layarnya adalah ilustrasi domain yang diganti aplikasi turunan. Lihat [`docs/awcms-micro/README.md`](docs/awcms-micro/README.md) §Reusable vs domain turunan.
+- **Catatan penting:** dokumen **02–19** memakai domain **website / toko online** (katalog, checkout/pesanan online, konten) sebagai **contoh ilustratif** ([ADR-0034](docs/adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)) — polanya reusable, entitas/endpoint/layarnya tetap ilustrasi (registry 22-modul tidak berubah), diisi **langsung di repo ini**. Contoh POS in-store/gudang/Coretax adalah lineage ERP `awcms` (dikecualikan). Lihat [`docs/awcms-micro/README.md`](docs/awcms-micro/README.md) §"AWCMS-Micro sebagai standar pengembangan".
 - **Keputusan arsitektural** dicatat di [`docs/adr/`](docs/adr/README.md).
 - **Snapshot GitHub issue** aktual di [`docs/awcms-micro/github/`](docs/awcms-micro/github/README.md).
 - **Tata kelola pemakaian agent lintas keluarga produk** (AWCMS, AWCMS-Micro, AWCMS-Micro, dan software turunannya) ada di [`docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`](docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf) — AWCMS-Micro (AGENTS.md, README.md, CONTRIBUTING.md, `derived-application-guide.md`, skill proyek) adalah sumber utama pedoman ini.
