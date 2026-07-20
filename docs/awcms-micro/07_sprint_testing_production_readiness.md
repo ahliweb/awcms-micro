@@ -1,6 +1,6 @@
 # Bagian 7 — Sprint Plan, Testing Checklist, dan Production Readiness
 
-> **Contoh domain (ilustratif).** Dokumen ini memakai domain retail/POS bergaya AWPOS sebagai contoh berjalan. **Pola & standar**-nya reusable untuk base AWCMS-Micro; **entitas, endpoint, layar, dan istilah domain** (produk, POS, gudang, pajak, CRM, AI, dsb.) adalah ilustrasi yang **diganti** oleh aplikasi turunan. Lihat [README paket dokumen](README.md) §Reusable vs domain turunan.
+> **Contoh domain (ilustratif).** Dokumen ini memakai domain **website / toko online** sebagai contoh berjalan — sesuai posisi AWCMS-Micro sebagai **template full-online website yang dipakai langsung** ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)). **Pola & standar**-nya reusable; **entitas, endpoint, layar, dan istilah domain** (katalog, pesanan online, checkout, konten) diisi/disesuaikan **langsung di repo ini**. Contoh yang menyentuh **POS in-store, gudang, atau Coretax** adalah **lineage ERP `awcms` (dikecualikan)**, bukan scope base ini. Lihat [README paket dokumen](README.md) §"AWCMS-Micro sebagai standar pengembangan".
 
 ## Tujuan
 
@@ -29,15 +29,15 @@ gantt
   section Core
   S2 Tenant/Identity/Profile :s2, after s1, 1
   S3 RBAC/ABAC/RLS         :s3, after s2, 1
-  S4 Catalog & Stock       :s4, after s3, 1
-  S5 POS MVP               :s5, after s4, 1
+  S4 Catalog & Availability :s4, after s3, 1
+  S5 Storefront & Checkout :s5, after s4, 1
   section Reliability
   S6 Logging & Pooling     :s6, after s5, 1
-  S7 Receipt & CRM         :s7, after s6, 1
+  S7 Order Confirm & Engagement :s7, after s6, 1
   S8 Offline Sync & R2     :s8, after s7, 1
-  section Ext modules
-  S9 Warehouse             :s9, after s8, 1
-  S10 Tax/Coretax          :s10, after s9, 1
+  section Website surfaces
+  S9 Order Management      :s9, after s8, 1
+  S10 Content & SEO        :s10, after s9, 1
   S11 UI/Reporting/AI      :s11, after s10, 1
   S12 Production Readiness  :s12, after s11, 1
 ```
@@ -47,15 +47,17 @@ gantt
 |      1 | Repository Foundation     | Skeleton, migration runner, OpenAPI/AsyncAPI, health |
 |      2 | Tenant, Identity, Profile | Tenant, office, setup, login, profile resolver       |
 |      3 | RBAC, ABAC, RLS           | Role, policy, evaluator, decision log                |
-|      4 | Product Catalog & Stock   | Produk, harga, stock balance, movement               |
-|      5 | POS MVP                   | Checkout, cart, payment, atomic posting              |
+|      4 | Katalog & Ketersediaan    | Produk, harga, katalog, ketersediaan (availability)  |
+|      5 | Storefront & Checkout     | Storefront, keranjang, checkout, pembayaran online, posting pesanan atomic |
 |      6 | Logging & Pooling         | Structured log, audit, DB pool, backpressure         |
-|      7 | Receipt & CRM             | PDF receipt, contact, consent, WA/email outbox       |
+|      7 | Konfirmasi Pesanan & Engagement | Invoice/konfirmasi PDF pesanan, kontak, consent, newsletter/notifikasi/email outbox |
 |      8 | Offline Sync & R2         | Sync push/pull, conflict, object queue               |
-|      9 | Warehouse                 | Warehouse, bin, lot, transfer, cycle count           |
-|     10 | Tax/Coretax               | Tax profile, VAT invoice, Coretax batch              |
-|     11 | UI/UX, Reporting, AI      | Admin UI, POS UI, reports, AI analyst                |
+|      9 | Manajemen Pesanan         | Antrean pesanan online, status, pemenuhan, refund/retur online |
+|     10 | Konten & SEO              | Halaman, blog/berita, site search, SEO/sitemap        |
+|     11 | UI/UX, Reporting, AI      | Admin UI, storefront UI, reports, AI analyst         |
 |     12 | Production Readiness      | Security readiness, deployment, handover             |
+
+> **Catatan scope.** Contoh sprint gudang/pajak/Coretax (warehouse bin/lot, VAT invoice, Coretax batch) **bukan** bagian roadmap ini — itu **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3, [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md))**. Katalog/checkout/pesanan online di atas tetap **ilustratif** (contoh cara membangun toko online di atas base) — bukan modul yang sudah masuk registry base.
 
 ## Sprint acceptance criteria ringkas
 
@@ -86,19 +88,19 @@ gantt
 
 ### Sprint 4
 
-- Product CRUD/search berjalan.
+- Katalog produk CRUD/search berjalan.
 - SKU unique.
-- Stock balance dan movement berjalan.
-- Product inactive tidak bisa dijual.
-- Product soft-deleted tidak muncul di list/search default dan tidak bisa dijual.
+- Ketersediaan (availability) dan movement berjalan.
+- Produk inactive tidak bisa dipesan.
+- Produk soft-deleted tidak muncul di list/search default dan tidak bisa dipesan.
 
 ### Sprint 5
 
-- Checkout/cart/payment berjalan.
-- Posting transaksi atomic.
+- Storefront/keranjang/checkout berjalan.
+- Posting pesanan online atomic.
 - Idempotency same key aman.
 - Idempotency conflict 409.
-- Stock lock dan rollback diuji.
+- Ketersediaan lock dan rollback diuji.
 
 ### Sprint 6
 
@@ -111,10 +113,10 @@ gantt
 
 ### Sprint 7
 
-- Receipt PDF local dibuat.
-- CRM contact dan consent berjalan.
-- WA/email outbox berjalan.
-- Customer receipt token aman.
+- Invoice/konfirmasi PDF pesanan dibuat.
+- Kontak dan consent berjalan.
+- Newsletter/notifikasi/email outbox berjalan.
+- Customer order/invoice token aman.
 
 ### Sprint 8
 
@@ -126,22 +128,26 @@ gantt
 
 ### Sprint 9
 
-- Warehouse/zone/bin dibuat.
-- Lot/expired dibuat.
-- Transfer shipped/received partial/full.
-- Cycle count variance dan adjustment request.
+- Pesanan online diterima dan tampil di antrean Store Operator.
+- Status pesanan bergerak (paid → diproses → dipenuhi/selesai).
+- Refund/retur online di-request dan di-approve.
+- Notifikasi status pesanan terkirim (email/newsletter base).
+
+> Contoh gudang/transfer/cycle-count adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3)** — bukan bagian sprint ini.
 
 ### Sprint 10
 
-- Tax profile dan NITKU dibuat.
-- VAT invoice generated/validated.
-- Coretax batch XML-ready dan checksum.
-- Tax data masked.
+- Halaman/blog/berita dibuat dan dipublikasikan.
+- SEO facts dan sitemap tersedia.
+- Site search mengindeks konten.
+- Data sensitif dimasking sesuai role.
+
+> Contoh tax profile/VAT invoice/Coretax batch adalah **lineage ERP `awcms` (dikecualikan, ADR-0034 §3)** — bukan bagian sprint ini.
 
 ### Sprint 11
 
 - Admin shell tampil.
-- POS fullscreen keyboard-first.
+- Storefront responsif dan mobile-first.
 - Reports tenant-aware.
 - AI read-only safe views.
 
@@ -155,8 +161,8 @@ gantt
 
 ```mermaid
 flowchart TB
-  E[Security & Performance test<br/>cross-tenant · ABAC · load POS] --> D[API contract test<br/>OpenAPI · AsyncAPI]
-  D --> C[Integration test<br/>migration · setup · posting · transfer]
+  E[Security & Performance test<br/>cross-tenant · ABAC · load checkout] --> D[API contract test<br/>OpenAPI · AsyncAPI]
+  D --> C[Integration test<br/>migration · setup · posting · order]
   C --> B[Unit test<br/>evaluator · resolver · total · idempotency]
   style B fill:#1f6f3f,stroke:#0d3,color:#fff
   style C fill:#2a7d4f,color:#fff
@@ -170,20 +176,18 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 
 > **Base sudah punya test.** Runner = **`bun test`** (`bun:test`), berkas di `tests/`. Tooling repositori saat ini (`scripts/`) sudah mengikuti pola ini: logika murni `scripts/lib/docs-checks.mjs` diuji unit (`tests/docs-checks.test.mjs`), dan pemeriksa penuh diuji integration (`tests/check-docs-integration.test.mjs`). Daftar target di bawah bersifat **contoh domain** — aplikasi turunan menggantinya dengan target domainnya sendiri.
 
-> **`blog_content` (epic #536) sebagai contoh nyata, bukan lagi ilustratif.** Berbeda dari target POS/warehouse di bawah (yang murni contoh untuk aplikasi turunan), `blog_content` adalah modul domain yang benar-benar berjalan di repo base ini (ADR-0009) dan sudah punya test lengkap di `tests/integration/blog-content-*.integration.test.ts` (schema/RLS, admin API posts/pages/taxonomies/search, public routes, revisions, presentation extensions, dan admin-UI list/lookup functions — Issue #543). Jalankan `bun test tests/integration/blog-content-*.integration.test.ts` (butuh `DATABASE_URL`, lihat §Migration checklist) untuk suite khusus modul ini, atau `bun test` untuk seluruh suite termasuk yang lain.
+> **`blog_content` (epic #536) sebagai contoh nyata, bukan lagi ilustratif.** Berbeda dari target katalog/pesanan online di bawah (yang murni contoh ilustratif di repo ini), `blog_content` adalah modul domain yang benar-benar berjalan di repo base ini (ADR-0009) dan sudah punya test lengkap di `tests/integration/blog-content-*.integration.test.ts` (schema/RLS, admin API posts/pages/taxonomies/search, public routes, revisions, presentation extensions, dan admin-UI list/lookup functions — Issue #543). Jalankan `bun test tests/integration/blog-content-*.integration.test.ts` (butuh `DATABASE_URL`, lihat §Migration checklist) untuk suite khusus modul ini, atau `bun test` untuk seluruh suite termasuk yang lain.
 
 ### Unit test target
 
 - ABAC evaluator.
 - Profile resolver.
 - Product price selection.
-- Stock movement calculation.
+- Availability calculation.
 - Checkout total calculation.
 - Idempotency service.
-- Transaction posting guard.
-- VAT calculation.
-- Warehouse transfer status machine.
-- Cycle count variance.
+- Order posting guard.
+- Order status machine.
 - HMAC signature.
 - AI tool policy.
 
@@ -193,13 +197,13 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 - Setup wizard.
 - Login owner/operator.
 - Product create.
-- Opening stock.
-- Checkout/posting.
-- Stock berkurang.
-- Receipt PDF.
+- Ketersediaan produk awal.
+- Checkout/posting pesanan.
+- Ketersediaan berkurang.
+- Invoice/konfirmasi PDF pesanan.
 - Sync outbox event.
-- VAT invoice draft.
-- Warehouse transfer.
+- Update status pesanan.
+- Retur/refund pesanan online.
 - ABAC dan RLS.
 
 ### API contract test
@@ -215,9 +219,9 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 ### Security test
 
 - Tenant A tidak bisa baca Tenant B.
-- Kasir tidak bisa export Coretax.
-- Kasir tidak bisa assign role.
-- Customer hanya bisa lihat receipt miliknya.
+- Store Operator tidak bisa mengubah konfigurasi tenant.
+- Store Operator tidak bisa assign role.
+- Customer hanya bisa lihat pesanan/invoice miliknya.
 - Soft-deleted record tenant lain tetap tidak terlihat; archive view butuh permission.
 - Password/token/API key tidak masuk response/log.
 - NPWP/NIK/phone/email dimasking.
@@ -230,13 +234,13 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 | ----------------------- | ------------------------: |
 | Product search          |                  < 300 ms |
 | Add item cart           |                  < 300 ms |
-| Post transaction normal |                   < 1.5 s |
-| Receipt PDF             |                     < 3 s |
-| Sales daily report      | < 2 s data kecil-menengah |
+| Post pesanan online     |                   < 1.5 s |
+| Invoice/konfirmasi PDF  |                     < 3 s |
+| Laporan pesanan harian  | < 2 s data kecil-menengah |
 | Pool acquire critical   |           < 500 ms normal |
 | Sync push small batch   |                     < 2 s |
 
-> **Suite performa representatif berbasis base generik (Issue #744, epic #738 `platform-evolution`).** Tabel di atas adalah target ilustratif domain POS/aplikasi turunan — repo base ini sendiri sekarang punya suite performa nyata dan berjalan: `bun run performance:suite`/`bun run performance:query-plan:check` (`src/lib/performance/`, lihat [`performance-suite.md`](performance-suite.md)) — fixture multi-tenant sintetik deterministik (skala `safe`/`standard`/`large`, satu tenant noisy-neighbor), skenario load/soak/mixed-workload/saturasi-dan-recovery per kelas kerja (`interactive`/`critical_transaction`/`reporting`/`background_sync`/`maintenance`, doc 16), dan budget regresi query-plan versioned (RLS/pagination, search, outbox-claim, retention-purge, reporting) yang gagal pada fixture regresi yang sengaja dibuat rusak. Subset aman (`safe`) berjalan di setiap PR (`.github/workflows/ci.yml`); lane penuh (`--full`, skala `large` + skenario soak) berjalan terjadwal/manual — lihat dokumen tersebut §Safe subset vs. full lane.
+> **Suite performa representatif berbasis base generik (Issue #744, epic #738 `platform-evolution`).** Tabel di atas adalah target ilustratif domain toko online — repo base ini sendiri sekarang punya suite performa nyata dan berjalan: `bun run performance:suite`/`bun run performance:query-plan:check` (`src/lib/performance/`, lihat [`performance-suite.md`](performance-suite.md)) — fixture multi-tenant sintetik deterministik (skala `safe`/`standard`/`large`, satu tenant noisy-neighbor), skenario load/soak/mixed-workload/saturasi-dan-recovery per kelas kerja (`interactive`/`critical_transaction`/`reporting`/`background_sync`/`maintenance`, doc 16), dan budget regresi query-plan versioned (RLS/pagination, search, outbox-claim, retention-purge, reporting) yang gagal pada fixture regresi yang sengaja dibuat rusak. Subset aman (`safe`) berjalan di setiap PR (`.github/workflows/ci.yml`); lane penuh (`--full`, skala `large` + skenario soak) berjalan terjadwal/manual — lihat dokumen tersebut §Safe subset vs. full lane.
 
 ## Migration checklist
 
@@ -265,7 +269,7 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 - RLS aktif.
 - API smoke test.
 - Login test.
-- POS transaction test.
+- Checkout/pesanan test.
 - Backup baru dibuat.
 
 Sejak Issue #684 (epic #679): `bun run production:preflight` sendiri
@@ -327,8 +331,8 @@ rollback lengkap: `docs/awcms-micro/production-preflight-runbook.md`.
 - ABAC aktif.
 - Audit log aktif.
 - Soft delete/restore/purge audit aktif; purge dibatasi retention/legal.
-- Tax data masking.
-- CRM opt-out.
+- Data sensitif masking.
+- Newsletter/comment consent opt-out.
 - AI read-only.
 - Sync HMAC jika hybrid.
 - Error tidak expose stack trace.
@@ -371,9 +375,9 @@ Validasi:
 
 - Tenant terbaca.
 - User terbaca.
-- Produk/stok/transaksi terbaca.
+- Produk/ketersediaan/pesanan terbaca.
 - Login test.
-- POS smoke test.
+- Storefront/checkout smoke test.
 - Report smoke test.
 
 `deploy/backup/restore-drill.sh` (Issue #691) mengotomasi restore drill
@@ -394,17 +398,17 @@ tanpa kemungkinan override untuk `APP_ENV=production`.
 ```mermaid
 flowchart LR
   H7[H-7<br/>master data · training · uji backup] --> H3[H-3<br/>freeze · preflight · security · load test]
-  H3 --> H1[H-1<br/>backup final · cek operator/LAN/printer]
-  H1 --> H0[Hari H<br/>start · health · transaksi test · monitor]
-  H0 --> HP[H+1<br/>review transaksi · stok minus · backup]
+  H3 --> H1[H-1<br/>backup final · cek operator/domain/email]
+  H1 --> H0[Hari H<br/>start · health · pesanan test · monitor]
+  H0 --> HP[H+1<br/>review pesanan · ketersediaan minus · backup]
 ```
 
 ### H-7
 
-- Finalisasi master produk/stok/user.
-- Training admin/operator/gudang.
+- Finalisasi master produk/katalog/user.
+- Training admin/operator/editor.
 - Uji backup restore.
-- Uji POS, receipt.
+- Uji storefront/checkout, konfirmasi pesanan.
 
 ### H-3
 
@@ -418,9 +422,9 @@ flowchart LR
 ### H-1
 
 - Backup final.
-- Stok awal final.
+- Katalog & ketersediaan awal final.
 - Cek user operator.
-- Cek LAN/printer/PDF.
+- Cek domain/email/PDF.
 - Cek SOP darurat.
 
 ### Hari H
@@ -428,15 +432,15 @@ flowchart LR
 - Start aplikasi.
 - Health check.
 - Login admin/operator.
-- Transaksi kecil test.
-- Receipt test.
+- Pesanan kecil test.
+- Konfirmasi pesanan test.
 - Monitor log/error/pool.
 
 ### H+1
 
-- Review transaksi hari pertama.
-- Review stok minus.
-- Review failed receipt.
+- Review pesanan hari pertama.
+- Review ketersediaan minus.
+- Review konfirmasi/email gagal.
 - Review sync conflict.
 - Backup setelah hari pertama.
 
@@ -444,11 +448,11 @@ flowchart LR
 
 - Tenant setup.
 - Owner/operator login.
-- Produk dan stok awal.
-- Checkout dan posting transaksi.
-- Stok berkurang.
+- Produk dan ketersediaan awal.
+- Checkout dan posting pesanan online.
+- Ketersediaan berkurang.
 - Idempotency berjalan.
-- Receipt PDF local.
+- Invoice/konfirmasi PDF pesanan.
 - Audit log.
 - Backup/restore tested.
 
@@ -459,5 +463,5 @@ flowchart LR
 - No critical finding.
 - Pool health pass.
 - RLS dan ABAC tested.
-- Receipt/sync/warehouse/tax tested sesuai modul aktif.
+- Konfirmasi pesanan/sync/engagement tested sesuai modul aktif.
 - SOP dan handover selesai.

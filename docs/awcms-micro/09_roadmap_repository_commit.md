@@ -72,7 +72,7 @@ src/
     └── admin/
 ```
 
-Modul domain aplikasi turunan (mis. `catalog-inventory`, `sales-pos`, `warehouse-management`, `accounting-tax`, `crm-communication`, `ai-analyst` pada contoh AWPOS) ditambahkan di repo aplikasi tersebut, bukan bagian struktur base AWCMS-Micro.
+Modul domain toko online (mis. `catalog`, `storefront-checkout`, `order-management`) diisi **langsung di repo ini** sebagai contoh — tetap **ILUSTRATIF**, bukan bagian 22-modul registry base. Contoh yang menyentuh gudang/pajak/Coretax (mis. `warehouse-management`, `accounting-tax`) adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3, [ADR-0025](../adr/0025-website-scope-derivation-from-awcms-mini.md))** — bukan sesuatu yang dibangun di sini.
 
 ## Struktur modul standard
 
@@ -147,7 +147,7 @@ test(access): add ABAC default deny tests
 
 Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `security`, `perf`, `ci`, `build`.
 
-Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`, `ui`, `logging`, `pooling`, `reporting`, `security`, `docs`. Aplikasi turunan menambah scope domainnya sendiri (mis. `pos`, `inventory`, `warehouse`, `tax`, `crm`).
+Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`, `ui`, `logging`, `pooling`, `reporting`, `security`, `docs`. Contoh domain toko online menambah scope-nya sendiri (mis. `catalog`, `storefront`, `checkout`, `order`, `content`). Scope gudang/pajak (`warehouse`, `tax`) adalah lineage ERP `awcms` (dikecualikan, ADR-0034 §3).
 
 ## Urutan commit atomic utama
 
@@ -196,7 +196,7 @@ Scopes: `foundation`, `db`, `api`, `auth`, `access`, `profile`, `tenant`, `sync`
 1. `chore(deploy): add offline LAN and production deployment profiles`
 2. `docs(handover): add operational SOP and handover manual`
 
-Aplikasi turunan menambah sprint/commit domainnya sendiri setelah base ini siap (lihat pola sprint domain di paket dokumen AWPOS sebagai contoh).
+Contoh domain website (katalog, storefront/checkout, manajemen pesanan online) ditambahkan **langsung di repo ini** setelah base siap — tetap ilustratif. Contoh gudang/pajak/Coretax adalah lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3).
 
 ## Migration order final rekomendasi
 
@@ -247,7 +247,7 @@ Catatan: setelah production, migration tidak boleh di-rename sembarangan. Koreks
 15. `/reports/*` (view generik: tenant activity, access/audit summary, sync health).
 16. `/security/go-live-gates/evaluate`.
 
-Aplikasi turunan menambah endpoint domainnya sendiri (mis. katalog, transaksi, gudang, pajak) setelah urutan base ini.
+Contoh domain website di repo ini menambah endpoint domainnya (mis. katalog, checkout, pesanan online) setelah urutan base ini — tetap ilustratif. Endpoint gudang/pajak adalah lineage ERP `awcms` (dikecualikan, ADR-0034 §3).
 
 ## Urutan UI implementation
 
@@ -262,7 +262,7 @@ Aplikasi turunan menambah endpoint domainnya sendiri (mis. katalog, transaksi, g
 9. Reports generik (tenant activity, sync health, audit).
 10. Logs/security readiness.
 
-Aplikasi turunan menambah layar domainnya sendiri (mis. layar operasional, portal) setelah urutan base ini.
+Contoh domain website menambah layar domainnya (storefront, keranjang/checkout, halaman pesanan, portal customer) setelah urutan base ini — tetap ilustratif.
 
 ## Versioning
 
@@ -288,7 +288,7 @@ flowchart LR
 | `v0.7.0` | Deployment profile                                                                  |
 | `v1.0.0` | Base production-ready (gates doc 07)                                                |
 
-Aplikasi turunan (mis. AWPOS) memakai baseline versinya sendiri di atas base ini (lihat versioning doc 09 milik aplikasi tersebut).
+Contoh domain website/toko online yang dibangun di atas base ini melanjutkan baseline versinya sendiri di atas versi base.
 
 Nomor versi naik progresif per rilis Changesets, bukan hanya saat satu slot di atas selesai penuh — satu issue yang merge bisa langsung memicu rilis minor/patch walau issue lain dalam slot yang sama belum selesai. `CHANGELOG.md` mencatat isi riil tiap rilis; tabel ini hanya peta target.
 
