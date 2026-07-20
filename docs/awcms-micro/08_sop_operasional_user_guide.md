@@ -107,16 +107,16 @@ Checklist:
 
 ### Role standar
 
-| Role             | Fungsi                                       |
-| ---------------- | -------------------------------------------- |
-| Owner            | Akses penuh dan approval utama               |
-| Admin            | Kelola sistem, katalog & konten, user, laporan |
-| Editor/Content   | Kelola halaman, blog, berita, media, jadwal publikasi |
+| Role             | Fungsi                                                  |
+| ---------------- | ------------------------------------------------------- |
+| Owner            | Akses penuh dan approval utama                          |
+| Admin            | Kelola sistem, katalog & konten, user, laporan          |
+| Editor/Content   | Kelola halaman, blog, berita, media, jadwal publikasi   |
 | Store Operator   | Proses & pemenuhan pesanan online, status, refund/retur |
-| Engagement Staff | Moderasi komentar, newsletter, notifikasi    |
-| Manager          | Approval pesanan/konten/operasional          |
-| Business Analyst | Laporan agregat dan AI analyst               |
-| Auditor          | Audit trail read-only                        |
+| Engagement Staff | Moderasi komentar, newsletter, notifikasi               |
+| Manager          | Approval pesanan/konten/operasional                     |
+| Business Analyst | Laporan agregat dan AI analyst                          |
+| Auditor          | Audit trail read-only                                   |
 
 > Persona **Kasir** dilebur ke **Customer** (self-checkout online) + **Store Operator** (pemrosesan pesanan). Persona **Petugas Gudang** dan **Tax Officer** adalah **lineage ERP `awcms` (dikecualikan, [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3)**, tidak ada di scope base ini.
 

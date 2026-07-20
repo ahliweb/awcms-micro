@@ -129,14 +129,14 @@ flowchart LR
 
 ## Engagement dan notifikasi pesanan
 
-| Istilah                     | Definisi                                                                                                    |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Invoice/konfirmasi PDF**  | Bukti/konfirmasi pesanan digital (PDF) yang dibuat lokal.                                                    |
-| **Consent**                 | Persetujuan pelanggan untuk dihubungi via email/newsletter/notifikasi.                                       |
-| **Message outbox**          | Antrean pesan (email/newsletter/notifikasi) yang dikirim provider saat online.                               |
-| **Mailketing**              | Provider email opsional (base). *(StarSender/WhatsApp adalah contoh provider lineage ERP `awcms`, dikecualikan.)* |
-| **Customer portal**         | Halaman pelanggan untuk membuka konfirmasi/status pesanan via token.                                         |
-| **Order token**             | Token non-sequential untuk akses konfirmasi pesanan tanpa login.                                             |
+| Istilah                    | Definisi                                                                                                          |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Invoice/konfirmasi PDF** | Bukti/konfirmasi pesanan digital (PDF) yang dibuat lokal.                                                         |
+| **Consent**                | Persetujuan pelanggan untuk dihubungi via email/newsletter/notifikasi.                                            |
+| **Message outbox**         | Antrean pesan (email/newsletter/notifikasi) yang dikirim provider saat online.                                    |
+| **Mailketing**             | Provider email opsional (base). _(StarSender/WhatsApp adalah contoh provider lineage ERP `awcms`, dikecualikan.)_ |
+| **Customer portal**        | Halaman pelanggan untuk membuka konfirmasi/status pesanan via token.                                              |
+| **Order token**            | Token non-sequential untuk akses konfirmasi pesanan tanpa login.                                                  |
 
 ## Sync dan offline
 
@@ -185,20 +185,20 @@ flowchart LR
 
 ## Peran (persona)
 
-| Peran                          | Ringkas                                                                       |
-| ------------------------------ | ----------------------------------------------------------------------------- |
-| **Owner**                      | Akses penuh & approval utama.                                                 |
-| **Admin**                      | Kelola sistem, user, katalog & konten, laporan.                              |
-| **Editor/Content**             | Kelola halaman, blog, berita, media, jadwal publikasi.                        |
-| **Store Operator**             | Proses & pemenuhan pesanan online (tanpa Coretax/export/assign).              |
-| **Engagement Staff**           | Moderasi komentar, newsletter, notifikasi.                                    |
-| **Manager**                    | Approval pesanan/stok/operasional.                                            |
-| **Inventory Staff**            | Katalog produk, ketersediaan, adjustment terbatas.                            |
-| **Business Analyst**           | Laporan agregat & AI analyst.                                                 |
-| **Customer/Pengunjung**        | Telusuri katalog, checkout online, lacak pesanan, kelola langganan/consent.   |
-| **Auditor**                    | Audit trail read-only.                                                        |
-| **Petugas Gudang** *(lineage)* | Transfer, receiving, cycle count — lineage ERP `awcms`, dikecualikan.         |
-| **Tax Officer** *(lineage)*    | Pajak & Coretax — lineage ERP `awcms`, dikecualikan.                          |
+| Peran                          | Ringkas                                                                     |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| **Owner**                      | Akses penuh & approval utama.                                               |
+| **Admin**                      | Kelola sistem, user, katalog & konten, laporan.                             |
+| **Editor/Content**             | Kelola halaman, blog, berita, media, jadwal publikasi.                      |
+| **Store Operator**             | Proses & pemenuhan pesanan online (tanpa Coretax/export/assign).            |
+| **Engagement Staff**           | Moderasi komentar, newsletter, notifikasi.                                  |
+| **Manager**                    | Approval pesanan/stok/operasional.                                          |
+| **Inventory Staff**            | Katalog produk, ketersediaan, adjustment terbatas.                          |
+| **Business Analyst**           | Laporan agregat & AI analyst.                                               |
+| **Customer/Pengunjung**        | Telusuri katalog, checkout online, lacak pesanan, kelola langganan/consent. |
+| **Auditor**                    | Audit trail read-only.                                                      |
+| **Petugas Gudang** _(lineage)_ | Transfer, receiving, cycle count — lineage ERP `awcms`, dikecualikan.       |
+| **Tax Officer** _(lineage)_    | Pajak & Coretax — lineage ERP `awcms`, dikecualikan.                        |
 
 ## Singkatan cepat
 

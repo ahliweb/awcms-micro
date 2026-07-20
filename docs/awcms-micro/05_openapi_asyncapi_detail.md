@@ -156,30 +156,30 @@ Endpoint mutation high-risk gudang/pajak (mis. `POST /warehouse-transfers*`, `PO
 
 ### Katalog Toko Online (ilustratif)
 
-| Method    | Endpoint                                  | Fungsi                            |
-| --------- | ----------------------------------------- | --------------------------------- |
-| GET/POST  | `/inventory/products`                     | List/create produk katalog        |
-| GET/PATCH | `/inventory/products/{productId}`         | Detail/update produk              |
-| DELETE    | `/inventory/products/{productId}`         | Soft delete produk                |
-| POST      | `/inventory/products/{productId}/restore` | Restore produk                    |
+| Method    | Endpoint                                  | Fungsi                             |
+| --------- | ----------------------------------------- | ---------------------------------- |
+| GET/POST  | `/inventory/products`                     | List/create produk katalog         |
+| GET/PATCH | `/inventory/products/{productId}`         | Detail/update produk               |
+| DELETE    | `/inventory/products/{productId}`         | Soft delete produk                 |
+| POST      | `/inventory/products/{productId}/restore` | Restore produk                     |
 | GET       | `/inventory/stock-balances`               | Ketersediaan produk (availability) |
-| GET       | `/inventory/stock-movements`              | Mutasi stok                       |
-| POST      | `/inventory/stock-adjustment-requests`    | Request adjustment                |
+| GET       | `/inventory/stock-movements`              | Mutasi stok                        |
+| POST      | `/inventory/stock-adjustment-requests`    | Request adjustment                 |
 
 ### Storefront & Checkout Online (ilustratif)
 
-| Method | Endpoint                                       | Fungsi                        |
-| ------ | ---------------------------------------------- | ----------------------------- |
+| Method | Endpoint                                       | Fungsi                         |
+| ------ | ---------------------------------------------- | ------------------------------ |
 | POST   | `/sales/checkout-sessions`                     | Buat keranjang/checkout online |
-| GET    | `/sales/checkout-sessions/{id}`                | Detail keranjang              |
-| POST   | `/sales/checkout-sessions/{id}/items`          | Tambah item ke keranjang      |
-| PATCH  | `/sales/checkout-sessions/{id}/items/{lineId}` | Update item                   |
-| DELETE | `/sales/checkout-sessions/{id}/items/{lineId}` | Hapus item                    |
-| POST   | `/sales/checkout-sessions/{id}/payments`       | Tambah pembayaran online      |
-| POST   | `/sales/checkout-sessions/{id}/post`           | Posting pesanan online        |
-| POST   | `/sales/checkout-sessions/{id}/hold`           | Simpan keranjang (save cart)  |
-| GET    | `/sales/documents/{id}`                        | Detail pesanan online         |
-| POST   | `/sales/documents/{id}/cancel-request`         | Request cancel pesanan        |
+| GET    | `/sales/checkout-sessions/{id}`                | Detail keranjang               |
+| POST   | `/sales/checkout-sessions/{id}/items`          | Tambah item ke keranjang       |
+| PATCH  | `/sales/checkout-sessions/{id}/items/{lineId}` | Update item                    |
+| DELETE | `/sales/checkout-sessions/{id}/items/{lineId}` | Hapus item                     |
+| POST   | `/sales/checkout-sessions/{id}/payments`       | Tambah pembayaran online       |
+| POST   | `/sales/checkout-sessions/{id}/post`           | Posting pesanan online         |
+| POST   | `/sales/checkout-sessions/{id}/hold`           | Simpan keranjang (save cart)   |
+| GET    | `/sales/documents/{id}`                        | Detail pesanan online          |
+| POST   | `/sales/documents/{id}/cancel-request`         | Request cancel pesanan         |
 
 ### Warehouse / Accounting Tax / Coretax — dikecualikan (lineage ERP `awcms`, ADR-0034 §3)
 
@@ -189,16 +189,16 @@ Operasi gudang (warehouse/bin/lot/serial/transfer/cycle-count) dan posting pajak
 
 Notifikasi pesanan online, langganan, dan komunikasi pelanggan memakai **email outbox base** (§Email/`awcms_micro_email_messages`) plus modul base `comments`/`newsletter` — **bukan** queue WhatsApp/receipt kasir (lineage ERP `awcms`, dikecualikan). Webhook provider WhatsApp (StarSender) dan endpoint kirim receipt kasir tidak ada di template ini.
 
-| Method   | Endpoint                              | Fungsi                                          |
-| -------- | ------------------------------------- | ----------------------------------------------- |
-| GET/POST | `/crm/contacts`                       | Kontak/langganan pelanggan                      |
-| PATCH    | `/crm/contacts/{id}/consent`          | Consent langganan/notifikasi                    |
-| POST     | `/crm/order-confirmations/{id}/send`  | Kirim konfirmasi pesanan online (email)         |
-| GET      | `/crm/messages`                       | Notification/email outbox                       |
-| POST     | `/crm/messages/{id}/retry`            | Retry pengiriman                                |
-| DELETE   | `/crm/contacts/{id}`                  | Soft delete kontak/channel                      |
-| POST     | `/crm/contacts/{id}/restore`          | Restore kontak                                  |
-| POST     | `/webhooks/crm/mailketing`            | Webhook provider email (Mailketing)             |
+| Method   | Endpoint                             | Fungsi                                  |
+| -------- | ------------------------------------ | --------------------------------------- |
+| GET/POST | `/crm/contacts`                      | Kontak/langganan pelanggan              |
+| PATCH    | `/crm/contacts/{id}/consent`         | Consent langganan/notifikasi            |
+| POST     | `/crm/order-confirmations/{id}/send` | Kirim konfirmasi pesanan online (email) |
+| GET      | `/crm/messages`                      | Notification/email outbox               |
+| POST     | `/crm/messages/{id}/retry`           | Retry pengiriman                        |
+| DELETE   | `/crm/contacts/{id}`                 | Soft delete kontak/channel              |
+| POST     | `/crm/contacts/{id}/restore`         | Restore kontak                          |
+| POST     | `/webhooks/crm/mailketing`           | Webhook provider email (Mailketing)     |
 
 ### Sync Storage
 
@@ -284,13 +284,13 @@ Admin UI (Issue #543): `/admin/blog/*` — Astro + vanilla JS, tidak menambah en
 
 ### AI, Reports, Logs, Security
 
-| Modul    | Endpoint utama                                                 |
-| -------- | -------------------------------------------------------------- |
-| AI       | `POST /ai/business-analyst/chat`                               |
+| Modul    | Endpoint utama                                                  |
+| -------- | --------------------------------------------------------------- |
+| AI       | `POST /ai/business-analyst/chat`                                |
 | Reports  | `GET /reports/sales/daily`, `GET /reports/storefront/dashboard` |
-| Logs     | `GET /logs/recent`, `GET /logs/audit`, `GET /logs/security`    |
-| DB Pool  | `GET /database/pool/health`                                    |
-| Security | `POST /security/go-live-gates/evaluate`                        |
+| Logs     | `GET /logs/recent`, `GET /logs/audit`, `GET /logs/security`     |
+| DB Pool  | `GET /database/pool/health`                                     |
+| Security | `POST /security/go-live-gates/evaluate`                         |
 
 ## Siklus request API
 
@@ -353,21 +353,21 @@ flowchart LR
 
 ## Event utama
 
-| Event                            | Producer        | Consumer                             |
-| -------------------------------- | --------------- | ------------------------------------ |
-| `tenant.created`                    | Tenant Admin    | Audit, reporting                       |
-| `identity.login.succeeded`          | Identity        | Audit/security                         |
-| `profile.created`                   | Profile         | Reporting, notifikasi                  |
-| `inventory.product.created`         | Inventory       | Reporting, sync                        |
-| `inventory.product.soft_deleted`    | Inventory       | Storefront cache, reporting, sync      |
-| `inventory.product.restored`        | Inventory       | Storefront cache, reporting, sync      |
-| `sales.transaction.posted`          | Storefront      | Inventory, Notifikasi, Sync, Reporting |
-| `sales.order_confirmation.generated`| Notifikasi      | Email outbox, sync                     |
-| `email.message.sent`                | Email           | Reporting, audit                       |
-| `sync.conflict.detected`            | Sync            | audit                                  |
-| `database.pool.saturated`           | DB Connectivity | Observability, security                |
-| `database.pool.rejected`            | DB Connectivity | Observability, security                |
-| `security.golive.blocked`           | Security        | Owner/admin                            |
+| Event                                | Producer        | Consumer                               |
+| ------------------------------------ | --------------- | -------------------------------------- |
+| `tenant.created`                     | Tenant Admin    | Audit, reporting                       |
+| `identity.login.succeeded`           | Identity        | Audit/security                         |
+| `profile.created`                    | Profile         | Reporting, notifikasi                  |
+| `inventory.product.created`          | Inventory       | Reporting, sync                        |
+| `inventory.product.soft_deleted`     | Inventory       | Storefront cache, reporting, sync      |
+| `inventory.product.restored`         | Inventory       | Storefront cache, reporting, sync      |
+| `sales.transaction.posted`           | Storefront      | Inventory, Notifikasi, Sync, Reporting |
+| `sales.order_confirmation.generated` | Notifikasi      | Email outbox, sync                     |
+| `email.message.sent`                 | Email           | Reporting, audit                       |
+| `sync.conflict.detected`             | Sync            | audit                                  |
+| `database.pool.saturated`            | DB Connectivity | Observability, security                |
+| `database.pool.rejected`             | DB Connectivity | Observability, security                |
+| `security.golive.blocked`            | Security        | Owner/admin                            |
 
 > Event gudang (`warehouse.transfer.*`) dan pajak (`tax.vat_invoice.generated`, `tax.coretax.batch_exported`) adalah lineage ERP `awcms` (dikecualikan, ADR-0034 §3) — tidak dipublikasikan template website ini.
 

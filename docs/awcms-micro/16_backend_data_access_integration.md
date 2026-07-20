@@ -197,13 +197,13 @@ adapter-port.ts`, belum diimplementasikan di issue ini).
 
 Work class membatasi konkurensi per jenis beban agar transaksi operasional tetap prioritas.
 
-| Work class             | Contoh                        | Prioritas |
-| ---------------------- | ----------------------------- | --------- |
-| `critical_transaction` | Posting pesanan online        | Tertinggi |
-| `interactive`          | CRUD admin, search            | Tinggi    |
-| `reporting`            | Laporan, dashboard            | Sedang    |
-| `background_sync`      | Sync push/pull, outbox        | Rendah    |
-| `maintenance`          | Migration, backup             | Terjadwal |
+| Work class             | Contoh                 | Prioritas |
+| ---------------------- | ---------------------- | --------- |
+| `critical_transaction` | Posting pesanan online | Tertinggi |
+| `interactive`          | CRUD admin, search     | Tinggi    |
+| `reporting`            | Laporan, dashboard     | Sedang    |
+| `background_sync`      | Sync push/pull, outbox | Rendah    |
+| `maintenance`          | Migration, backup      | Terjadwal |
 
 ```mermaid
 flowchart LR

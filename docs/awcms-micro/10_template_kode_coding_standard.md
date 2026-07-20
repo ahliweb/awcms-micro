@@ -141,10 +141,7 @@ export const onlineStoreModule: ModuleDescriptor = {
       "store.order.fulfilled",
       "store.order.cancelled"
     ],
-    subscribes: [
-      "catalog.product.updated",
-      "inventory.availability.changed"
-    ]
+    subscribes: ["catalog.product.updated", "inventory.availability.changed"]
   }
 };
 ```

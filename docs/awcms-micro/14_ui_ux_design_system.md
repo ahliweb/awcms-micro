@@ -194,25 +194,25 @@ Item menu difilter oleh permission efektif user (lihat doc 17). Menu tanpa akses
 
 ## Screen inventory
 
-| Route                        | Persona         | Tujuan                                                                         | Komponen utama                      | API utama                                                                                                  |
-| ---------------------------- | --------------- | ------------------------------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `/login`                     | Semua           | Autentikasi                                                                    | FormField, Button                   | `POST /auth/login`                                                                                         |
-| `/setup`                     | Owner awal      | Setup wizard                                                                   | Stepper, FormField                  | `GET/POST /setup/*`                                                                                        |
-| `/admin`                     | Admin/Owner     | Dashboard                                                                      | Card, Chart, Table                  | `GET /reports/*`                                                                                           |
-| `/admin/products`            | Admin/Store Op. | List/CRUD katalog produk toko online                                          | DataGrid, SearchBar, Dialog         | `/inventory/products`                                                                                      |
-| `/admin/stock`               | Admin/Store Op. | Ketersediaan produk & stok awal                                               | DataGrid, NumberInput               | `/inventory/stock-balances`                                                                                |
-| `/admin/orders`              | Store Operator  | Pesanan online: status, pemenuhan, refund/retur                              | DataGrid, StatusPill                | `/sales/*`                                                                                                 |
-| `/admin/content`             | Editor/Content  | Halaman, blog, berita, media                                                  | DataGrid, Editor                    | `/blog/*`, `/news/*`, `/media/*`                                                                           |
-| `/admin/engagement`          | Engagement Staff| Moderasi komentar, newsletter, notifikasi                                     | Table, Switch                       | `/comments/*`, `/newsletter/*`                                                                             |
-| `/admin/reports`             | Analyst/Owner   | Laporan                                                                        | Chart, Table                        | `/reports/*`                                                                                               |
-| `/admin/ai`                  | Analyst/Owner   | AI analyst chat                                                                | Chat, Card                          | `/ai/business-analyst/chat`                                                                                |
-| `/admin/access-users`        | Admin/Owner     | User & akses                                                                   | Table, FormField                    | `/users/*`, `/roles/*`, `/permissions`, `/access/assignments`                                              |
-| `/admin/sync`                | Admin/Owner     | Node, konflik, antrean sync                                                    | Table, StatusPill, FormField        | `/sync/nodes`, `/sync/conflicts/*`, `/sync/object-queue/*`                                                 |
-| `/admin/logs`                | Auditor/Admin   | Logs & security                                                                | DataGrid, Badge                     | `/logs/*`, `/security/*`                                                                                   |
-| `/admin/modules`             | Admin/Owner     | List, filter modul + health                                                    | DataGrid, StatusPill                | `/modules`, `/modules/{moduleKey}/health`                                                                  |
-| `/admin/modules/{moduleKey}` | Admin/Owner     | Detail, dependency, settings, permission sync, navigation, jobs, health, audit | Tabs/Section, FormField, StatusPill | `/modules/{moduleKey}`, `/tenant/modules/{moduleKey}/*`, `/modules/{moduleKey}/{permissions,jobs,health*}` |
-| `/checkout`                  | Customer        | Storefront & checkout online                                                   | Cart shell, Combobox                | `/sales/*`                                                                                                 |
-| `/customer/orders/{token}`   | Customer        | Konfirmasi pesanan & consent                                                   | Card, Switch                        | `/crm/receipts/*`                                                                                          |
+| Route                        | Persona          | Tujuan                                                                         | Komponen utama                      | API utama                                                                                                  |
+| ---------------------------- | ---------------- | ------------------------------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `/login`                     | Semua            | Autentikasi                                                                    | FormField, Button                   | `POST /auth/login`                                                                                         |
+| `/setup`                     | Owner awal       | Setup wizard                                                                   | Stepper, FormField                  | `GET/POST /setup/*`                                                                                        |
+| `/admin`                     | Admin/Owner      | Dashboard                                                                      | Card, Chart, Table                  | `GET /reports/*`                                                                                           |
+| `/admin/products`            | Admin/Store Op.  | List/CRUD katalog produk toko online                                           | DataGrid, SearchBar, Dialog         | `/inventory/products`                                                                                      |
+| `/admin/stock`               | Admin/Store Op.  | Ketersediaan produk & stok awal                                                | DataGrid, NumberInput               | `/inventory/stock-balances`                                                                                |
+| `/admin/orders`              | Store Operator   | Pesanan online: status, pemenuhan, refund/retur                                | DataGrid, StatusPill                | `/sales/*`                                                                                                 |
+| `/admin/content`             | Editor/Content   | Halaman, blog, berita, media                                                   | DataGrid, Editor                    | `/blog/*`, `/news/*`, `/media/*`                                                                           |
+| `/admin/engagement`          | Engagement Staff | Moderasi komentar, newsletter, notifikasi                                      | Table, Switch                       | `/comments/*`, `/newsletter/*`                                                                             |
+| `/admin/reports`             | Analyst/Owner    | Laporan                                                                        | Chart, Table                        | `/reports/*`                                                                                               |
+| `/admin/ai`                  | Analyst/Owner    | AI analyst chat                                                                | Chat, Card                          | `/ai/business-analyst/chat`                                                                                |
+| `/admin/access-users`        | Admin/Owner      | User & akses                                                                   | Table, FormField                    | `/users/*`, `/roles/*`, `/permissions`, `/access/assignments`                                              |
+| `/admin/sync`                | Admin/Owner      | Node, konflik, antrean sync                                                    | Table, StatusPill, FormField        | `/sync/nodes`, `/sync/conflicts/*`, `/sync/object-queue/*`                                                 |
+| `/admin/logs`                | Auditor/Admin    | Logs & security                                                                | DataGrid, Badge                     | `/logs/*`, `/security/*`                                                                                   |
+| `/admin/modules`             | Admin/Owner      | List, filter modul + health                                                    | DataGrid, StatusPill                | `/modules`, `/modules/{moduleKey}/health`                                                                  |
+| `/admin/modules/{moduleKey}` | Admin/Owner      | Detail, dependency, settings, permission sync, navigation, jobs, health, audit | Tabs/Section, FormField, StatusPill | `/modules/{moduleKey}`, `/tenant/modules/{moduleKey}/*`, `/modules/{moduleKey}/{permissions,jobs,health*}` |
+| `/checkout`                  | Customer         | Storefront & checkout online                                                   | Cart shell, Combobox                | `/sales/*`                                                                                                 |
+| `/customer/orders/{token}`   | Customer         | Konfirmasi pesanan & consent                                                   | Card, Switch                        | `/crm/receipts/*`                                                                                          |
 
 ## State pattern wajib
 
@@ -301,17 +301,17 @@ flowchart LR
 
 ## Peta keyboard (storefront checkout & admin)
 
-| Shortcut | Fungsi                        |
-| -------- | ----------------------------- |
-| F1       | Bantuan/shortcut              |
-| F2       | Fokus pencarian katalog       |
-| F4       | Ubah quantity item di keranjang |
+| Shortcut | Fungsi                            |
+| -------- | --------------------------------- |
+| F1       | Bantuan/shortcut                  |
+| F2       | Fokus pencarian katalog           |
+| F4       | Ubah quantity item di keranjang   |
 | F6       | Kode voucher/diskon (sesuai izin) |
-| F8       | Simpan keranjang              |
-| F9       | Lanjut ke pembayaran online   |
-| Enter    | Tambah item ke keranjang      |
-| ↑/↓      | Navigasi hasil/keranjang      |
-| Esc      | Tutup dialog                  |
+| F8       | Simpan keranjang                  |
+| F9       | Lanjut ke pembayaran online       |
+| Enter    | Tambah item ke keranjang          |
+| ↑/↓      | Navigasi hasil/keranjang          |
+| Esc      | Tutup dialog                      |
 
 ## Acceptance criteria UI/UX
 

@@ -10,15 +10,15 @@ Terkait: `14_ui_ux_design_system.md` (desain), `16_backend_data_access_integrati
 
 ## Keputusan arsitektur frontend
 
-| Aspek          | Keputusan                                                                                                         |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Framework      | Astro 7, output **server (SSR)** dijalankan di runtime Bun                                                        |
+| Aspek          | Keputusan                                                                                                              |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Framework      | Astro 7, output **server (SSR)** dijalankan di runtime Bun                                                             |
 | Interaktivitas | **Astro islands** + TypeScript; framework island opsional (mis. Preact) hanya untuk pulau kompleks (checkout, chat AI) |
-| Styling        | CSS variables (design token doc 14), scoped styles                                                                |
-| Rendering      | Halaman authed = SSR; customer portal = SSR; aset statis di-cache SW                                              |
-| Data fetching  | SSR initial load + client mutation via API client                                                                 |
-| Offline        | PWA: service worker + IndexedDB outbox untuk checkout/konten (kapabilitas opsional)                               |
-| State          | Lokal per-island + store ringan untuk keranjang storefront; hindari SPA global besar                             |
+| Styling        | CSS variables (design token doc 14), scoped styles                                                                     |
+| Rendering      | Halaman authed = SSR; customer portal = SSR; aset statis di-cache SW                                                   |
+| Data fetching  | SSR initial load + client mutation via API client                                                                      |
+| Offline        | PWA: service worker + IndexedDB outbox untuk checkout/konten (kapabilitas opsional)                                    |
+| State          | Lokal per-island + store ringan untuk keranjang storefront; hindari SPA global besar                                   |
 
 Alasan: SSR menjaga waktu muat cepat di LAN, aman untuk cookie httpOnly, dan tetap ringan; islands membatasi JS hanya di area interaktif. Backend/SSR dijalankan dengan **Bun** sebagai platform runtime; Node.js bukan target platform server utama.
 
@@ -222,16 +222,16 @@ Aturan offline:
 
 ## Kontrak integrasi layar → endpoint → event
 
-| Layar          | Aksi                | Endpoint                                                                   | Event dihasilkan                          |
-| -------------- | ------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| Setup wizard   | Inisialisasi        | `POST /setup/initialize`                                                   | `tenant.created`                          |
-| Login          | Masuk               | `POST /auth/login`                                                         | `identity.login.succeeded`                |
-| Katalog produk | CRUD                | `/inventory/products`                                                      | `inventory.product.created`               |
-| Katalog produk | Soft delete/restore | `DELETE /inventory/products/{id}`, `POST /inventory/products/{id}/restore` | `inventory.product.soft_deleted/restored` |
-| Stok awal      | Opening balance     | `/inventory/stock-adjustment-requests`                                     | `inventory.stock.adjustment.posted`       |
-| Checkout online| Posting pesanan     | `POST /sales/checkout-sessions/{id}/post`                                  | `sales.transaction.posted`                |
-| Konfirmasi pesanan | Kirim/consent   | `POST /crm/receipts/{id}/send`                                             | `crm.message.sent`                        |
-| Sync           | Push/pull           | `/sync/push`, `/sync/pull`                                                 | `sync.conflict.detected`                  |
+| Layar              | Aksi                | Endpoint                                                                   | Event dihasilkan                          |
+| ------------------ | ------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| Setup wizard       | Inisialisasi        | `POST /setup/initialize`                                                   | `tenant.created`                          |
+| Login              | Masuk               | `POST /auth/login`                                                         | `identity.login.succeeded`                |
+| Katalog produk     | CRUD                | `/inventory/products`                                                      | `inventory.product.created`               |
+| Katalog produk     | Soft delete/restore | `DELETE /inventory/products/{id}`, `POST /inventory/products/{id}/restore` | `inventory.product.soft_deleted/restored` |
+| Stok awal          | Opening balance     | `/inventory/stock-adjustment-requests`                                     | `inventory.stock.adjustment.posted`       |
+| Checkout online    | Posting pesanan     | `POST /sales/checkout-sessions/{id}/post`                                  | `sales.transaction.posted`                |
+| Konfirmasi pesanan | Kirim/consent       | `POST /crm/receipts/{id}/send`                                             | `crm.message.sent`                        |
+| Sync               | Push/pull           | `/sync/push`, `/sync/pull`                                                 | `sync.conflict.detected`                  |
 
 ## Keamanan frontend
 

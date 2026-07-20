@@ -22,8 +22,8 @@ flowchart LR
 
 ## Persona utama
 
-| Persona             | Kebutuhan (website / toko online)                                             |
-| ------------------- | ----------------------------------------------------------------------------- |
+| Persona             | Kebutuhan (website / toko online)                                              |
+| ------------------- | ------------------------------------------------------------------------------ |
 | Owner               | Monitoring trafik, pesanan/penjualan online, konten, approval, risiko          |
 | Admin               | Setup tenant, user, **katalog & konten**, konfigurasi                          |
 | Editor/Content      | Kelola halaman, blog, berita, media, jadwal publikasi                          |
