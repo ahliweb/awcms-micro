@@ -62,17 +62,21 @@ test.beforeAll(async () => {
       RETURNING id
     `;
     const subscriberId = subRows[0]!.id as string;
+    // Reset consumed_at + refresh expiry on conflict so a Playwright retry
+    // re-arms a token this worker may already have consumed (the confirm/unsub
+    // consume is single-use); DO NOTHING would leave it spent and the retry
+    // would fail even though the seed claims to survive one.
     await sql`
       INSERT INTO awcms_micro_newsletter_tokens
         (tenant_id, subscriber_id, token_hash, purpose, expires_at)
       VALUES (${seededTenantId}, ${subscriberId}, ${hashToken(CONFIRM_TOKEN)}, 'confirm', now() + interval '1 day')
-      ON CONFLICT (token_hash) DO NOTHING
+      ON CONFLICT (token_hash) DO UPDATE SET consumed_at = NULL, expires_at = now() + interval '1 day'
     `;
     await sql`
       INSERT INTO awcms_micro_newsletter_tokens
         (tenant_id, subscriber_id, token_hash, purpose, expires_at)
       VALUES (${seededTenantId}, ${subscriberId}, ${hashToken(UNSUB_TOKEN)}, 'unsubscribe', now() + interval '30 days')
-      ON CONFLICT (token_hash) DO NOTHING
+      ON CONFLICT (token_hash) DO UPDATE SET consumed_at = NULL, expires_at = now() + interval '30 days'
     `;
 
     await sql`
@@ -190,7 +194,12 @@ test.describe("newsletter public smoke (#272)", () => {
   test("a suppressed resend returns the IDENTICAL generic body (anti-enumeration)", async ({
     baseURL
   }) => {
-    // A never-seen address and the now-suppressed address must be byte-identical.
+    // A never-seen address and the now-suppressed address must be byte-identical
+    // EXCEPT for the per-request `meta.correlationId` that every API response
+    // carries by design — normalize it out so this asserts the anti-enumeration
+    // property, not correlation-id uniqueness.
+    const stripCorrelationId = (body: string): string =>
+      body.replace(/"correlationId":"[^"]*"/, '"correlationId":"<normalized>"');
     const suppressed = await subscribeBody(baseURL);
     const fresh = await fetch(url("/api/v1/newsletter/subscribe", baseURL), {
       method: "POST",
@@ -199,7 +208,7 @@ test.describe("newsletter public smoke (#272)", () => {
         email: `fresh-${crypto.randomUUID()}@example.com`
       })
     }).then((r) => r.text());
-    expect(suppressed).toBe(fresh);
+    expect(stripCorrelationId(suppressed)).toBe(stripCorrelationId(fresh));
   });
 
   test("the /newsletter/demo reference page renders", async ({ baseURL }) => {

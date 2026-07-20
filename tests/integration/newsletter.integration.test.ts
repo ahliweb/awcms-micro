@@ -294,11 +294,15 @@ suite("newsletter integration", () => {
       await getOrCreateDefaultTopic(tx, TENANT_A, "en");
     });
     // Force the row old + unsubscribed, and add an already-expired token.
-    await getAdminSql()`
+    // Capture the id NOW: anonymization overwrites email_hash with a per-row
+    // sentinel (audit M2), so the original hash no longer resolves the row.
+    const forced = (await getAdminSql()`
         UPDATE awcms_micro_newsletter_subscribers
         SET state = 'unsubscribed', updated_at = now() - interval '400 days'
         WHERE tenant_id = ${TENANT_A} AND email_hash = ${parts.hash}
-      `;
+        RETURNING id
+      `) as { id: string }[];
+    const subscriberId = forced[0]!.id;
     await getAdminSql()`
         INSERT INTO awcms_micro_newsletter_tokens (tenant_id, subscriber_id, token_hash, purpose, expires_at)
         SELECT ${TENANT_A}, id, 'sha256:expired', 'confirm', now() - interval '1 day'
@@ -323,12 +327,19 @@ suite("newsletter integration", () => {
       expect(purge.purgedCount).toBeGreaterThanOrEqual(1);
       const row = (
         (await tx`
-            SELECT email_encrypted, email_masked FROM awcms_micro_newsletter_subscribers
-            WHERE tenant_id = ${TENANT_A} AND email_hash = ${parts.hash}
-          `) as { email_encrypted: string; email_masked: string }[]
+            SELECT email_encrypted, email_masked, email_hash FROM awcms_micro_newsletter_subscribers
+            WHERE tenant_id = ${TENANT_A} AND id = ${subscriberId}
+          `) as {
+          email_encrypted: string;
+          email_masked: string;
+          email_hash: string;
+        }[]
       )[0]!;
       expect(row.email_encrypted).toBe("anonymized");
       expect(row.email_masked).toBe("***@***");
+      // M2: the sha256 lookup hash is replaced by a non-reversible per-row
+      // sentinel, so the aged row no longer resolves to any real address.
+      expect(row.email_hash).toBe(`anonymized-${subscriberId}`);
     });
   }, 20000);
 
