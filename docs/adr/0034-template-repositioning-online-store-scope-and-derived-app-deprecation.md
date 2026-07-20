@@ -49,6 +49,6 @@ Contoh berjalan di paket dokumen 02–19 harus berorientasi **website/toko onlin
 ## Konsekuensi
 
 - **Positif:** framing jelas — template website langsung, hingga toko online, tanpa POS; pengguna tidak dipaksa lewat lapisan aplikasi-turunan; docs tidak lagi menyiratkan base membangun POS.
-- **README + paket dokumen** direframe (positioning template, banner 02–19, `derived-application-guide.md` + `derived-app-pilot-plan.md` ditandai deprecated menunjuk ADR ini).
+- **`AGENTS.md` (kontrak first-read) + README + paket dokumen** direframe (positioning template, katalog/etalase/checkout = ekstensi website in-scope yang dipisahkan dari POS/gudang/pajak yang dikecualikan, `derived-application-guide.md` + `derived-app-pilot-plan.md` ditandai deprecated menunjuk ADR ini). Sapuan banner 02–19 = putaran lanjutan (§4).
 - **Utang lanjutan (diakui, bertahap):** (a) penulisan-ulang konten contoh POS mendalam di 02–19 menjadi website/toko-online; (b) opsional & evidence-gated: pelepasan gerbang/kode jalur turunan (`extension:check` dll.). Keduanya putaran terpisah.
 - **Tidak berubah:** seluruh konvensi teknis base (Bun-only, RLS/FORCE, RBAC/ABAC default-deny, kontrak OpenAPI/AsyncAPI, registry modul saat ini, gate CI). ADR ini me-reposisi **narasi & jalur pemakaian**, bukan arsitektur runtime.
