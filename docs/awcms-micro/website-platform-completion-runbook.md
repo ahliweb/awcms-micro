@@ -55,8 +55,12 @@ Reference: [`deploy-coolify.md`](deploy-coolify.md), [`deployment-profiles.md`](
 3. **Configure durable object storage** (R2/S3) and upload one managed media asset through the app;
    confirm it is served from object storage, **not** the container FS (restart the container and
    re-fetch the asset — it must survive).
-4. **Preflight on the target** (read-only): `APP_ENV=production DATABASE_URL=<url> bun run production:preflight`
-   → capture the preflight report JSON.
+4. **Preflight on the target** (read-only) — write the machine-readable report with `--json-output`
+   (stdout is human-readable progress, not the report):
+   ```bash
+   APP_ENV=production DATABASE_URL=<url> bun run production:preflight -- \
+     --json-output=evidence/preflight.json
+   ```
 5. **Edge/TLS/CDN**: put Cloudflare/CDN/WAF in front per `deploy-coolify.md`; verify TLS + security
    headers/CSP with `curl -I https://<site>` and confirm no secrets in headers/logs.
 
@@ -77,10 +81,12 @@ Reference: [`resilience-dr-verification.md`](resilience-dr-verification.md),
    `deploy/backup/restore-drill.sh`):
    ```bash
    bun run resilience:dr-drill -- --confirm-non-production=staging --full \
-     > evidence/dr-drill-staging.json
+     --json-output=evidence/dr-drill-staging.json
    ```
-   The `full` tier requires a version-matched `pg_dump`/`pg_restore` (else `backup-restore-drill`
-   is skipped, not failed). Capture the machine-readable JSON (it records RTO/RPO + retry/idempotency evidence).
+   Use `--json-output=<path>` (NOT a `>` stdout redirect — stdout is human-readable progress; the
+   machine-readable report is written by the flag). The `full` tier requires a version-matched
+   `pg_dump`/`pg_restore` (else `backup-restore-drill` is skipped, not failed). The JSON records
+   RTO/RPO + retry/idempotency evidence.
 2. **Production backup evidence + restore rehearsal** per preflight Stage 2: take a real backup,
    verify it with `pg_restore --list`, and restore it into a disposable database to **measure**
    restore wall-clock (RTO) and the backup age/lag (RPO). Record both numbers.
@@ -89,7 +95,8 @@ Reference: [`resilience-dr-verification.md`](resilience-dr-verification.md),
    stale projection/index reconcile, object-storage outage (outbox + circuit breaker), cache
    invalidation. The `safe`-tier scenarios run in-process; run them and capture output:
    ```bash
-   bun run resilience:dr-drill -- --confirm-non-production=staging > evidence/dr-drill-safe.json
+   bun run resilience:dr-drill -- --confirm-non-production=staging \
+     --json-output=evidence/dr-drill-safe.json
    ```
    For the object-storage and stale-index drills against real infra, follow the scenario catalog
    in `resilience-dr-verification.md` §Scenario catalog and record alerts + recovery.
@@ -108,12 +115,15 @@ Reference: [`performance-suite.md`](performance-suite.md).
 1. **Seed representative volume** and run the full server-side suite + query-plan gate:
    ```bash
    bun run performance:suite -- --confirm-non-production=staging --full \
-     > evidence/perf-suite-staging.json
-   bun run performance:query-plan:check -- --confirm-non-production=staging
+     --json-output=evidence/perf-suite-staging.json
+   bun run performance:query-plan:check -- --confirm-non-production=staging \
+     | tee evidence/query-plan-check.log
    ```
-   `--full` enables the `soak-stability` scenario (long-run memory stability). Capture the report
-   (SSR/DB/search/sitemap/feed budgets + soak result). Note the report's own `disclaimer` (numbers
-   are hardware-relative — never presented as a universal guarantee).
+   Use `--json-output=<path>` for the suite report (stdout is human-readable). `--full` enables the
+   `soak-stability` scenario (long-run memory stability). The report (SSR/DB/search/sitemap/feed
+   budgets + soak result) carries its own `disclaimer` (numbers are hardware-relative — never a
+   universal guarantee). `performance:query-plan:check` reports to console and exits non-zero on a
+   budget breach — `tee` its output for the evidence trail.
 2. **HTTP load + soak at the edge** with `k6`/`autocannon` against the deployed site (public pages,
    search, sitemap/feed, cached vs uncached). Record throughput, p95/p99 latency, error rate, and a
    soak run (≥30 min) showing no leak/regression + cache hit behavior.
