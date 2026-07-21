@@ -91,24 +91,23 @@ check requirement this doc is about.)
 
 ## Why `bun run check` and CI must stay the same source of truth
 
-`package.json`'s `check` script runs **20** steps in order: `lint`,
+`package.json`'s `check` script runs **19** steps in order: `lint`,
 `check:docs`, `api:spec:check`, `api:docs:check`, `repo:inventory:check`,
 `modules:dag:check`, `modules:compose:check`,
-`modules:composition:inventory:check`, `extension:check`,
+`modules:composition:inventory:check`,
 `data-lifecycle:registry:check`, `reporting:projections:registry:check`,
 `identity-access:sod-registry:check`, `i18n:pot:check`,
 `i18n:parity:check`, `config:docs:check`, `logging:lint:check`,
 `db:work-class:check`, `typecheck`, `test`, `build`.
 
 `.github/workflows/ci.yml`'s `quality` job (verified directly against the
-workflow file) currently runs **15** of those 20, as named steps in this
+workflow file) currently runs **14** of those 19, as named steps in this
 order: `lint` ("Prettier check"), `check:docs` ("Docs checks"),
 `api:spec:check` ("API spec + route + AsyncAPI contract check"),
 `modules:dag:check` ("Module dependency graph check"),
 `modules:compose:check` ("Module composition validation check"),
 `modules:composition:inventory:check` ("Module composition inventory
-freshness check"), `extension:check` ("Extension compatibility manifest
-check"), `i18n:parity:check` ("i18n EN/ID/POT key parity check"),
+freshness check"), `i18n:parity:check` ("i18n EN/ID/POT key parity check"),
 `db:work-class:check` ("Database work-class registry drift check"),
 `data-lifecycle:registry:check` ("Data lifecycle high-volume table
 registry validation check"), `identity-access:sod-registry:check`

@@ -1,9 +1,9 @@
 # Contoh Modul Domain Minimal
 
 Issue #463. Contoh konkret satu modul domain minimal — dari struktur
-folder sampai test checklist — sebagai referensi praktis untuk aplikasi
-turunan yang mengikuti [`derived-application-guide.md`](../derived-application-guide.md)
-§Alur membangun aplikasi turunan (9 langkah).
+folder sampai test checklist — sebagai referensi praktis untuk menambah
+modul website langsung di repo ini (jalur aplikasi-turunan terpisah DIHAPUS
+oleh ADR-0036).
 
 > **Ini adalah template, bukan modul base.** Domain contoh di sini
 > (`asset-register` — pencatatan aset sederhana) sengaja netral, tidak

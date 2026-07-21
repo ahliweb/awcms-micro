@@ -115,10 +115,11 @@ decision (and ideally lands in the base standard first).
 awcms-micro is the awcms-mini base standard narrowed to **website scope**. The
 seven modules below are **ERP scope** and were intentionally pruned; no module
 micro keeps declares a dependency or a required capability on any of them, which
-is why the prune was a clean cut. ADR-0025 §3 is explicit: **a derived
-application that needs one adds it through `application-registry.ts`, never by
-editing the base registry** — i.e. they belong in a downstream ERP app (e.g. an
-AWPOS built on top of micro), not in micro itself. ADR-0016–ADR-0021 (their
+is why the prune was a clean cut. Bringing any of them in would require a
+**superseding ADR that widens this template's scope** (module added directly in
+this repo) — not a separate derived application (the derived-application pathway
+was removed by ADR-0036). ERP/POS capability belongs to the `awcms` lineage.
+ADR-0016–ADR-0021 (their
 upstream admission ADRs) are retained only as historical upstream references and
 **do not apply in this repo**.
 
@@ -149,8 +150,9 @@ guard (not the whole ERP module) is the right response.
 deliberately discarded** once ADR-0025 was surfaced: porting an ERP module into
 the website-scope base contradicts the repo's own governance (ADR-0025, doc 21
 module admission). If ERP capabilities are genuinely wanted, the correct vehicle
-is a derived application, or a superseding ADR that redefines micro's scope —
-not editing the base registry.
+is a superseding ADR that widens this template's scope (module added directly in
+this repo), not a separate derived application (that pathway was removed by
+ADR-0036) — and such capability is really the `awcms` lineage's remit.
 
 ## Status / what's next
 

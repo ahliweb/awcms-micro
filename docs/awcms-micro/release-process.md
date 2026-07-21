@@ -117,17 +117,10 @@ run` script, skips this and will fail this check at tag-push time. This
    CI must stay the same source of truth for the full step-by-step
    comparison.
 
-   `extension:check` (Issue #741, epic #738 `platform-evolution`,
-   ADR-0015 — derived-application compatibility manifest) is deliberately
-   **not** part of the gap above: it was added to both `package.json`'s
-   `check` composite AND as an explicit named step in `ci.yml`'s
-   `quality` job in the same PR, precisely to avoid reproducing this
-   exact class of drift for a brand-new check (see ADR-0015 §6). A tagged
-   release of a derived repository that has published its own
-   `extension.manifest.json` is therefore verified against this
-   repository's actual current SemVer, module-contract version,
-   capability versions, and migration checksums as part of this same
-   step, with no separate release-time gate to configure.
+   `extension:check` / `extension.manifest.json` (derived-application
+   compatibility manifest, ADR-0013/0014/0015) **was removed by ADR-0036**
+   — the derived-application pathway no longer exists, so there is no such
+   release-verification gate. This repo is used directly as a template.
 
 ### `build` job (unprivileged: `contents: read`, `packages: write` only)
 

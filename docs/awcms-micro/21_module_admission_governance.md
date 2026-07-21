@@ -4,7 +4,7 @@
 > **Terkait:** Issue #696 (epic #679 platform-hardening), Issue #510 (epic Module Management), ADR-0001, ADR-0002, ADR-0008, ADR-0011.
 > **Lihat juga:** `docs/adr/0013-extension-layers-and-boundary-model.md` (Issue #739, epic #738 `platform-evolution`) — memperluas lima kategori admission dokumen ini dengan kosakata **lapisan ekstensi** lintas-repo (Core/System Foundation/Official Optional Business Foundation/SaaS Control Plane/ERP Extension/Derived Application), batas tenant vs legal entity vs organization unit, data-ownership matrix, dan kriteria evidence-based ekstraksi layanan. ADR-0013 **tidak mengubah** lima kategori admission atau pohon keputusan §3 di dokumen ini — murni lapisan tambahan di atasnya untuk pertanyaan "repo mana + boundary data apa" ketika banyak repo turunan independen terlibat.
 >
-> `docs/adr/0014-deterministic-build-time-module-composition.md` (Issue #740) — mekanisme KONKRET yang ADR-0013 §5 sengaja belum desain: bagaimana repo turunan mendaftarkan modul aplikasinya sendiri (`src/modules/application-registry.ts`) lalu digabung dengan registry base ini (`composeModuleRegistry()`) TANPA pernah mengedit `src/modules/index.ts`. ADR-0014 juga tidak mengubah lima kategori admission atau §7 di bawah — ia menegakkan ulang §7 (registry statis, tanpa runtime loading) di level mekanisme baru, bukan melonggarkannya.
+> `docs/adr/0014-deterministic-build-time-module-composition.md` (Issue #740) — semula mendesain bagaimana repo turunan mendaftarkan modulnya sendiri (`application-registry.ts` + `composeModuleRegistry()` merge). **Jalur aplikasi-turunan itu DIHAPUS oleh [ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md)**: template dipakai LANGSUNG, modul website ditambah di dalam repo ini (`src/modules/index.ts`), dan `composeModuleRegistry()` kini hanya memvalidasi SATU registry base. Aturan §7 (registry statis, tanpa runtime loading) tetap berlaku.
 
 ## 1. Konteks dan tujuan
 
@@ -20,8 +20,10 @@ modul scope ERP upstream (`workflow`, `organization_structure`,
 `document_infrastructure`, `data_exchange`, `integration_hub`,
 `reference_data`, `idn_admin_regions`) **tidak diport** — bukan backlog,
 melainkan keputusan scope (ADR-0025 §Konsekuensi). Jangan menghidupkannya
-kembali di registry base ini; aplikasi turunan ERP menambahkannya lewat
-`src/modules/application-registry.ts` (ADR-0014). Sebelum modul produk baru
+kembali di registry base ini; kapabilitas ERP menuntut **ADR yang memperluas
+scope template ini** (modul ditambah langsung di repo ini), bukan
+`application-registry.ts` (jalur turunan DIHAPUS oleh ADR-0036) — itu ranah
+lineage `awcms`. Sebelum modul produk baru
 masuk ke base, admission dan ownership rules harus eksplisit — itulah tujuan
 dokumen ini.
 
@@ -76,7 +78,7 @@ flowchart TD
   Q1 -- Tidak --> Q2{Apakah ini kapabilitas\ninfrastruktur/reusable lintas-modul\n(bukan fitur produk berdiri sendiri)?}
   Q2 -- Ya --> Sys[Kategori: System\nOff-by-default via *_ENABLED bila\nmelibatkan provider eksternal]
   Q2 -- Tidak --> Q3{Apakah ini fitur produk\nyang generik untuk SEMUA\naplikasi turunan\n(bukan spesifik satu domain bisnis)?}
-  Q3 -- Tidak --> Derived[BUKAN untuk repo base ini.\nBuat di repo aplikasi turunan.\nLihat derived-application-guide.md]
+  Q3 -- Tidak --> Derived[Di luar scope template ini.\nRanah lineage awcms / butuh\nADR yang memperluas scope\n-- ADR-0036, tak ada repo turunan]
   Q3 -- Ya --> Q4{Apakah ini adapter untuk\nsatu provider eksternal spesifik\n(bukan modul mandiri)?}
   Q4 -- Ya --> Ext[Kategori: External Integration\nHidup DI DALAM modul pemilik\nkapabilitas — lihat §6]
   Q4 -- Tidak --> Q6{Sudah lolos proposal template\n+ ADR checklist (§9),\ndisetujui maintainer?}
@@ -329,10 +331,11 @@ sub-komponen, lihat kolom "provider eksternal" di bawah).
 > (`docs/adr/0016`–`0019`, `0021`) dan kontrak kesiapan ekstensi
 > (`docs/adr/0020`) dipertahankan HANYA sebagai rujukan historis/upstream —
 > masing-masing membawa banner "tidak berlaku di repositori ini"; ADR-0025
-> mensupersede penerapannya. Sebuah aplikasi turunan ERP yang benar-benar
-> membutuhkan salah satunya menambahkannya lewat
-> `src/modules/application-registry.ts` (ADR-0014), tidak pernah dengan
-> mengedit registry base ini. Celah nomor migration di `sql/` (mis. `048`,
+> mensupersede penerapannya. Bila salah satunya benar-benar dibutuhkan, itu
+> menuntut ADR yang memperluas scope template ini (modul ditambah langsung di
+> repo ini), bukan `application-registry.ts` (jalur turunan DIHAPUS oleh
+> ADR-0036) — dan kapabilitas ERP demikian sejatinya ranah lineage `awcms`.
+> Celah nomor migration di `sql/` (mis. `048`,
 > `054`, `060`, `063`–`076`) adalah jejak prune yang disengaja.
 
 **Provider eksternal yang dibungkus tiap modul System/Optional** (kategori

@@ -80,30 +80,20 @@ security review) dan isi
 terkait. Modul spesifik satu domain bisnis (POS, gudang, pajak, CRM, dll.)
 **tidak masuk repo ini** — lihat pohon keputusan di doc 21 §3.
 
-**Modul di REPO BASE ini** (langkah 1 di atas) vs **modul di REPO TURUNAN**
-(Issue #740, ADR-0014) adalah dua alur berbeda: bila modulmu memang
-spesifik satu domain bisnis dan pohon keputusan doc 21 §3 mengarahkan ke
-"bukan untuk repo base ini", **jangan** daftarkan di `src/modules/index.ts`
-repo ini — buat repo turunan sendiri lalu daftarkan modulnya di
-`src/modules/application-registry.ts` MILIK REPO TURUNAN itu (satu-satunya
-file yang perlu diedit; struktur `module.ts` + `domain/application/
-infrastructure/api` di atas tetap sama persis). `composeModuleRegistry()`
-(`module-management/domain/module-composition.ts`) yang menggabungkan
-registry base + registry turunan saat build. Detail: skill
-`awcms-micro-module-management` §Komposisi modul build-time,
-`docs/awcms-micro/derived-application-guide.md`, dan
-`docs/adr/0014-deterministic-build-time-module-composition.md`.
+Modul spesifik satu domain bisnis di luar scope website (POS, gudang, pajak,
+CRM ERP) **tidak masuk repo ini** dan tidak lagi punya "jalur turunan":
+[ADR-0036](../../../docs/adr/0036-remove-derived-application-pathway-align-family.md)
+(2026-07-21) menghapus penuh seam `application-registry.ts`, `extension:check`,
+dan mesin manifest kompatibilitas. Keluarga (awcms/awcms-mini/awcms-micro) =
+tiga template dipakai LANGSUNG; kapabilitas ERP adalah lineage `awcms`, dan
+memperluas scope repo ini butuh ADR baru yang menaikkan scope (modul ditambah
+langsung di `src/modules/index.ts`), bukan repo turunan terpisah.
 
-Setelah modul terdaftar dan `bun run modules:compose:check` hijau,
-publikasikan/perbarui `extension.manifest.json` repo turunan Anda
-(`compatibleAwcmsMicroRange`, `moduleContractVersion`,
-`contributedModules` termasuk modul baru ini, dst.) dan jalankan `bun run
-extension:check` (Issue #741/ADR-0015) — memverifikasi aplikasi turunan
-Anda TETAP kompatibel dengan rilis base saat ini, pertanyaan yang berbeda
-dari "registry saya valid hari ini" yang sudah dijawab
-`modules:compose:check`. Detail: skill `awcms-micro-module-management`
-§Manifest kompatibilitas aplikasi turunan,
-`docs/adr/0015-derived-application-compatibility-manifest.md`.
+Setelah modul terdaftar di `src/modules/index.ts`, pastikan `bun run
+modules:compose:check` + `bun run modules:composition:inventory:check` hijau
+(memvalidasi registry base tunggal: DAG, duplicate key, capability binding,
+deployment-profile, navigation, job). Detail: skill
+`awcms-micro-module-management` §Komposisi modul build-time atas satu registry base.
 
 ## Contoh admission-only + contribution contract (ADR-0028)
 
@@ -140,7 +130,6 @@ port `src/modules/_shared/ports/seo-facts-port.ts`, fixture
 ## Verifikasi
 
 - `bun run build` pass.
-- Modul terdaftar di registry (base: `src/modules/index.ts`; turunan:
-  `src/modules/application-registry.ts` milik repo turunan sendiri, lalu
-  `bun run modules:compose:check` hijau).
+- Modul terdaftar di registry base (`src/modules/index.ts`), lalu
+  `bun run modules:compose:check` hijau.
 - README modul terisi.
