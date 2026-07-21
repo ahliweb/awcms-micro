@@ -1,6 +1,6 @@
 {
   "name": "awcms-micro",
-  "version": "0.3.1",
+  "version": "1.0.0",
   "private": true,
   "description": "AWCMS-Micro — full-online multi-tenant website platform (Bun + Astro 7 SSR + PostgreSQL/RLS), turunan scope website dari standar AWCMS-Mini",
   "license": "MIT",
