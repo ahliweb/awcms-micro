@@ -135,7 +135,7 @@ flowchart LR
 - **Catatan penting:** dokumen **02–19** memakai domain **website / toko online** (katalog, checkout/pesanan online, konten) sebagai **contoh ilustratif** ([ADR-0034](docs/adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)) — polanya reusable, entitas/endpoint/layarnya tetap ilustrasi (registry 22-modul tidak berubah), diisi **langsung di repo ini**. Contoh POS in-store/gudang/Coretax adalah lineage ERP `awcms` (dikecualikan). Lihat [`docs/awcms-micro/README.md`](docs/awcms-micro/README.md) §"AWCMS-Micro sebagai standar pengembangan".
 - **Keputusan arsitektural** dicatat di [`docs/adr/`](docs/adr/README.md).
 - **Snapshot GitHub issue** aktual di [`docs/awcms-micro/github/`](docs/awcms-micro/github/README.md).
-- **Tata kelola pemakaian agent lintas keluarga produk** (AWCMS, AWCMS-Micro, AWCMS-Micro, dan software turunannya) ada di [`docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`](docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf) — AWCMS-Micro (AGENTS.md, README.md, CONTRIBUTING.md, `derived-application-guide.md`, skill proyek) adalah sumber utama pedoman ini.
+- **Tata kelola pemakaian agent lintas keluarga produk** (AWCMS, AWCMS-Mini, AWCMS-Micro, dan software turunannya) ada di [`docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`](docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf) — AWCMS-Micro (AGENTS.md, README.md, CONTRIBUTING.md, `derived-application-guide.md`, skill proyek) adalah sumber utama pedoman ini.
 
 ## Untuk kontributor
 
@@ -147,7 +147,7 @@ flowchart LR
 
 ### Mulai dari
 
-Backlog base generik ada di [`docs/awcms-micro/06_github_issues_detail.md`](docs/awcms-micro/06_github_issues_detail.md) — **seluruh 18 issue-nya kini tuntas**: foundation (**0.1-0.3**), epic M2 Tenant/Identity/Profile (**2.1-2.4**), **12.1** (setup wizard), epic M5 Sync Storage (**6.1-6.3**), epic M7 UI/UX & Reporting (**8.1**, **9.1**), dan epic M8 Security/Performance/Production (**10.1-10.3**, **11.1**, **12.2**). Base ini siap dipakai sebagai fondasi aplikasi turunan — panduan langkah-demi-langkah (9 langkah berbasis skill nyata, 5 contoh aplikasi ilustratif, checklist keamanan): [`docs/awcms-micro/derived-application-guide.md`](docs/awcms-micro/derived-application-guide.md).
+Backlog base generik ada di [`docs/awcms-micro/06_github_issues_detail.md`](docs/awcms-micro/06_github_issues_detail.md) — **seluruh 18 issue-nya kini tuntas**: foundation (**0.1-0.3**), epic M2 Tenant/Identity/Profile (**2.1-2.4**), **12.1** (setup wizard), epic M5 Sync Storage (**6.1-6.3**), epic M7 UI/UX & Reporting (**8.1**, **9.1**), dan epic M8 Security/Performance/Production (**10.1-10.3**, **11.1**, **12.2**). Template ini dipakai **langsung**: tambahkan modul website/toko-online di registry base ([ADR-0034](docs/adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §2). Jalur aplikasi-turunan terpisah kini **opsional-lawas / deprecated** (ADR-0034 §3); panduan lawasnya — bila masih diperlukan — di [`docs/awcms-micro/derived-application-guide.md`](docs/awcms-micro/derived-application-guide.md) (DEPRECATED).
 
 ## Keamanan
 
