@@ -318,7 +318,7 @@ Aturan:
 
 - **Setiap PR** yang mengubah perilaku (fitur, fix, schema/API/event) **wajib menyertakan satu changeset** dengan tingkat bump SemVer + ringkasan.
 - Perubahan **docs-only/chore** boleh tanpa changeset — ditegakkan otomatis oleh `bun run changesets:policy:check` (`scripts/changeset-policy-check.ts`, bagian gate `Changesets policy` di CI, lihat [`release-process.md`](release-process.md)).
-- Baseline saat ini `0.0.0` (belum ada kode dirilis); rilis bertag pertama = `0.1.0` (Foundation).
+- Versi rilis saat ini `1.0.0` (dirilis 2026-07-21 lewat tag `v1.0.0` → `release.yml`: image GHCR + SBOM + cosign + provenance). Rilis bertag pertama repo = `v0.3.0`/`v0.3.1` (2026-07-18); lompatan ke `1.0.0` dipicu changeset `major` ADR-0036 (breaking), bukan penyelesaian milestone `v1.0.0` di peta di atas.
 - `CHANGELOG.md` mengikuti format Keep a Changelog; entri versi digenerate dari changeset.
 - Proses rilis ter-otomasi lewat skill `awcms-micro-release` (status → version → tag → GitHub release), yang membungkus empat perintah CLI Changesets: `bun run changeset` (tambah changeset baru), `bun run changeset:status` (lihat changeset pending + bump level tergabung tanpa menulis apa pun — cek cepat sebelum rilis), `bun run changeset:version` (konsumsi changeset pending → bump `package.json` + tulis `CHANGELOG.md`), dan `bun run changeset:tag` (buat git tag `vX.Y.Z` dari versi `package.json` saat ini, langkah terakhir sebelum `git push --tags` memicu `release.yml`).
 

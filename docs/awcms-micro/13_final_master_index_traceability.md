@@ -134,9 +134,9 @@ flowchart LR
 
 Sumber: `docs/awcms-micro/repo-inventory.md` §Migrations (GENERATED via
 `bun run repo:inventory:generate`) dan `src/modules/index.ts`, keduanya
-dibaca ulang saat menulis tabel ini. **66 file migration nyata** di
-`sql/` (`001`..`081`, dengan celah nomor yang disengaja — jejak tujuh modul
-scope ERP yang tidak diport, ADR-0025 §3), dipetakan ke **18 modul
+dibaca ulang saat menulis tabel ini. **77 file migration nyata** di
+`sql/` (`001`..`092`, dengan celah nomor yang disengaja — jejak tujuh modul
+scope ERP yang tidak diport, ADR-0025 §3), dipetakan ke **22 modul
 terdaftar**. Tabel ini
 menggantikan versi sebelumnya yang mengutip nama file fiktif (mis.
 `003_awcms_micro_catalog_inventory_schema.sql`,
@@ -367,8 +367,8 @@ Tiap folder standar menyertakan `README.md` sebagai kontrak isi/aturan folder:
 
 ### Source modules
 
-18 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
-dikonfirmasi `bun run modules:dag:check` — "18 registered modules"). Tujuh
+22 modul terdaftar nyata di `src/modules/index.ts` (`ls -d src/modules/*/`,
+dikonfirmasi `bun run modules:dag:check` — "22 registered modules"). Tujuh
 modul scope ERP upstream (`workflow`, `organization_structure`,
 `document_infrastructure`, `data_exchange`, `integration_hub`,
 `reference_data`, `idn_admin_regions`) **tidak diport** ke AWCMS-Micro —
