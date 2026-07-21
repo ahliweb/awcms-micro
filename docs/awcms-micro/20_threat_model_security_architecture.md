@@ -1138,9 +1138,10 @@ default-deny, audit) yang sudah berlaku sama di sini.
   `RequestedScope.relatedScopes` opsional, dan `checkHighRiskSoDConflicts`/
   `authorizeInTransaction` (`application/high-risk-sod-guard.ts`) menerima
   `hierarchyPort` opsional yang di-resolve LAZY (hanya ketika
-  `requestedScope` benar-benar ada) — aplikasi turunan yang memasang modul
-  hierarki nyata lewat `application-registry.ts` cukup menambah adapternya
-  di composition root itu, tidak menyentuh apa pun yang lain.
+  `requestedScope` benar-benar ada) — modul penyedia hierarki (bila dibawa
+  masuk scope) cukup memasang adapter `hierarchyPort`-nya langsung di
+  composition root registry base repo ini (tanpa `application-registry.ts`,
+  yang DIHAPUS oleh ADR-0036), tidak menyentuh apa pun yang lain.
 - **Tiga rule fixture SoD** (bukan katalog domain lengkap) — dua dimiliki
   `identity_access` sendiri (maker/checker atas mekanisme exception itu
   sendiri, dan atas assignment create/revoke pada scope yang sama), satu

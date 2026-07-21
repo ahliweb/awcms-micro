@@ -4,7 +4,7 @@ Dokumen ini menjelaskan bagaimana keputusan diambil dan bagaimana AWCMS-Micro di
 
 ## Ringkasan
 
-AWCMS-Micro adalah **base modular monolith standar** milik AhliWeb, dikelola sebagai proyek open-source (lisensi [MIT](LICENSE)) yang juga menjadi fondasi aplikasi turunan internal. Tata kelola bersifat ringan namun eksplisit agar standar tetap konsisten.
+AWCMS-Micro adalah **base modular monolith standar** milik AhliWeb, dikelola sebagai proyek open-source (lisensi [MIT](LICENSE)) yang dipakai langsung sebagai salah satu dari tiga template paralel keluarga AWCMS (awcms / awcms-mini / awcms-micro). Tata kelola bersifat ringan namun eksplisit agar standar tetap konsisten.
 
 ## Peran
 

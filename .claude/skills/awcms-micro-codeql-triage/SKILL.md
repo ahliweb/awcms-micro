@@ -196,6 +196,14 @@ dismiss.
 
 ### 6. `js/trivial-conditional` — nilai build-time extension seam yang sengaja selalu satu cabang di base repo
 
+> **OBSOLETE (ADR-0036 / PR #304, 2026-07-21).** Seam `applicationModuleRegistry`,
+> file `src/modules/application-registry.ts`, dan `scripts/extension-check.ts`
+> SUDAH DIHAPUS penuh; `scripts/validate-module-composition.ts` kini memvalidasi
+> satu registry base tanpa ternary seam. Alert #44 tidak lagi relevan (kodenya
+> tidak ada). Entri ini disimpan sebagai rekaman historis triase — JANGAN pakai
+> polanya sebagai desain saat ini; keluarga = template dipakai langsung tanpa
+> jalur turunan.
+
 Ditemukan 2026-07-14 (alert #44), Issue #788:
 `scripts/validate-module-composition.ts:41`,
 `applicationModuleRegistry ? ... : ...` — CodeQL benar bahwa

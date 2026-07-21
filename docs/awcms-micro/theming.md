@@ -29,10 +29,9 @@ A theme is a `ThemeDescriptor` (see `defineTheme` in
    `requiresInlineStyle: false`, empty external sources) — `assertValidThemeDescriptor`
    REJECTS any theme that would weaken CSP or drop a11y.
 
-Register a **base** theme in `src/modules/theming/theme-registry.ts`
-(`BASE_THEME_DESCRIPTORS`). A **derived repository** registers its own theme by
-replacing `src/modules/theming/application-theme-registry.ts` — it never edits the
-base registry (see `tests/fixtures/derived-theme-example/`).
+Base themes are declared directly in `src/modules/theming/theme-registry.ts`
+(`BASE_THEME_DESCRIPTORS`); add a new theme there (jalur turunan +
+`application-theme-registry.ts` DIHAPUS oleh ADR-0036).
 
 ## 3. Token-schema reference (the `aria` default theme)
 

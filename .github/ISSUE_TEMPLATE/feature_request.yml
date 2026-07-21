@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Untuk fitur **domain aplikasi turunan** (mis. katalog, POS, gudang), buat issue di repo aplikasi tersebut — AWCMS-Micro hanya berisi kemampuan **base generik**. Lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
+        Kemampuan **ERP/POS in-store** (mis. kasir fisik, gudang) di luar scope template ini — itu lineage `awcms`. Fitur **website / toko online** ditambah langsung ke registry base repo ini (ADR-0025 §6, ADR-0034 §2, ADR-0036). Lihat `docs/awcms-micro/README.md` §Reusable vs domain turunan.
 
         Bila usulan ini adalah **modul baru** (bukan perubahan modul yang sudah ada), baca dulu kebijakan admission modul: `docs/awcms-micro/21_module_admission_governance.md` (kategori, pohon keputusan, kriteria) dan isi `docs/awcms-micro/templates/module-proposal-template.md` sebagai lampiran/komentar issue ini sebelum scaffold dimulai.
   - type: textarea
@@ -34,7 +34,7 @@ body:
     attributes:
       label: Apakah ini kemampuan base generik?
       options:
-        - "Ya — reusable untuk semua aplikasi turunan"
+        - "Ya — reusable untuk semua tenant/pemakaian template"
         - "Tidak yakin"
         - "Tidak — spesifik domain (mungkin salah repo)"
     validations:

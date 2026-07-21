@@ -15,8 +15,7 @@ flowchart LR
   Cap --> Conn[db:connectivity]
   Conn --> Spec[api:spec:check]
   Spec --> Compose[modules:compose:check]
-  Compose --> Ext[extension:check]
-  Ext --> Test[bun test]
+  Compose --> Test[bun test]
   Test --> Build[build]
   Build --> Probe{Server reachable?}
   Probe -->|ya| Pool[db:pool:health]
@@ -159,19 +158,16 @@ ini bisa basi seiring skrip berkembang (mis. Issue #743 menambah tahap
    migration bisa di-query; hanya satu `SELECT`, tidak pernah menulis.
 5. `api:spec:check`
 6. `modules:compose:check` (Issue #740, epic #738) — validasi komposisi
-   modul build-time repo turunan.
-7. `extension:check` (Issue #741, epic #738) — validasi manifest
-   kompatibilitas ekstensi repo turunan, alasan sama seperti
-   `modules:compose:check`.
-8. `test`
-9. `build`
-10. `db:pool:health` — **hanya bila** probe `GET /api/v1/health`
-    menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
-    `skipped` (bukan `failed`) dengan alasan eksplisit di laporan **kecuali**
-    `APP_ENV=production`, yang membuat skip tersebut memblokir go-live
-    (preflight produksi yang tidak bisa menjangkau metrik pool server hidup
-    belum benar-benar memverifikasi kesiapan produksi).
-11. `migration:plan` — diff pending-vs-applied read-only, sengaja diletakkan
+   registry base tunggal.
+7. `test`
+8. `build`
+9. `db:pool:health` — **hanya bila** probe `GET /api/v1/health`
+   menunjukkan ada server yang menjawab; bila tidak, tahap ini dicatat
+   `skipped` (bukan `failed`) dengan alasan eksplisit di laporan **kecuali**
+   `APP_ENV=production`, yang membuat skip tersebut memblokir go-live
+   (preflight produksi yang tidak bisa menjangkau metrik pool server hidup
+   belum benar-benar memverifikasi kesiapan produksi).
+10. `migration:plan` — diff pending-vs-applied read-only, sengaja diletakkan
     sebagai tahap read-only TERAKHIR, tepat sebelum keputusan apply.
 
 `bun install` **sengaja tidak** dijalankan oleh skrip ini — itu langkah

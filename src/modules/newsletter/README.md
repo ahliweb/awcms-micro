@@ -1,6 +1,6 @@
 # newsletter
 
-Tenant-scoped, **CONSENT-FIRST**, **ANTI-ENUMERATION** newsletter / subscription-list system (Issue #272, epic #261 Wave 2, [ADR-0033](../../../docs/adr/0033-newsletter-module-admission.md)). Official Optional Module, `type: "domain"`, `status: "active"`, default-OFF, depends only on Core (`tenant_admin`, `identity_access`). Admission + first runtime landed together, bumping the base registry 21 → 22 and `MODULE_CONTRACT_VERSION` 1.4.0 → 1.5.0.
+Tenant-scoped, **CONSENT-FIRST**, **ANTI-ENUMERATION** newsletter / subscription-list system (Issue #272, epic #261 Wave 2, [ADR-0033](../../../docs/adr/0033-newsletter-module-admission.md)). Official Optional Module, `type: "domain"`, `status: "active"`, default-OFF, depends only on Core (`tenant_admin`, `identity_access`). Admission + first runtime landed together, bumping the base registry 21 → 22 and `MODULE_CONTRACT_VERSION` 1.4.0 → 1.5.0 (kini 2.0.0 setelah ADR-0036).
 
 ## What this module owns
 
