@@ -630,66 +630,40 @@ StateNotice empty/error branches) has no browser/SSR render harness in this
 repo (see `blog-content-admin-ui.integration.test.ts`'s own docblock) —
 smoke-tested manually against a real dev server instead.
 
-## Deterministic build-time module composition — `domain/module-composition.ts` (Issue #740, epic #738 `platform-evolution`)
+## Module-registry composition — `domain/module-composition.ts` (Issue #740; ADR-0036)
 
-Extends the registry beyond this single repo: a derived/downstream
-repository can now contribute its own application modules to the final,
-effective registry WITHOUT ever editing `src/modules/index.ts` or any base
-`module.ts`. See `docs/adr/0014-deterministic-build-time-module-
-composition.md` for the full design decision — this section is the
-implementation summary.
+Validates the reviewed **base** registry as a whole. ADR-0036 removed the
+derived-application pathway (the `application-registry.ts` seam, migration
+namespace 900-999, `mergeModuleRegistries`, and `extension:check`) — AWCMS-Micro
+is a template used directly, so a new website/domain module is added straight to
+`src/modules/index.ts`. The composition engine now validates the single reviewed
+registry the same way it would validate that registry with a new module in it.
 
-- **`src/modules/application-registry.ts`** is the ONLY file a derived
-  repository edits — it replaces this base repository's own always-
-  `undefined` export with its own `ApplicationModuleRegistry`
-  (`{ id, modules, migrationNamespace? }`, `_shared/module-contract.ts`).
-  Still 100% compile-time TypeScript, resolved by `bun run build`/
-  `bun run typecheck` like any other import — no runtime discovery, file
-  upload, package scanning, `eval`, or untrusted code loading (doc 21 §7
-  unchanged, not relaxed).
-- **`mergeModuleRegistries(base, application)`** is a pure, unconditional
-  concatenation — the ONLY thing `src/modules/index.ts` itself calls, kept
-  deliberately unvalidated (same "index.ts is pure data" architecture this
-  README's own "Descriptor sync" section documents for `listModules()`
-  historically being `return modules`, zero validation, ever). Because this
-  base repository's `applicationModuleRegistry` is always `undefined`,
-  `listModules()`'s effective value is a byte-identical pass-through of the
-  base modules (17 as of `media_library`'s admission, ADR-0026) — the
-  composition mechanism changes nothing about this repo's own shipped
-  behavior.
-- **`validateComposedModuleRegistry()` / `composeModuleRegistry()`** — the
-  actual rule engine, called explicitly by `bun run modules:compose:check`
-  (`scripts/validate-module-composition.ts`, wired into `bun run check`),
-  never embedded in module load. Reuses `domain/module-dependency-graph.ts`'s
-  whole-registry DAG validator (Issue #680) and `domain/job-registry.ts`'s
-  `validateJobDescriptor` rather than duplicating either. Full issue
-  taxonomy (duplicate module key, prohibited base-module override, invalid
-  application module category, conflicting/missing capability provider,
-  overlapping migration namespace, incompatible deployment-profile claim,
-  navigation path conflict, invalid job descriptor, plus the four reused
-  DAG issues) is documented in `module-composition.ts`'s own file header
-  and ADR-0014 §3.
-- **Because every existing consumer of the registry already calls
-  `listModules()`** (`bun run modules:sync`, `bun run modules:dag:check`,
-  `bun run repo:inventory:generate`, and every `module-management`
-  application service above) — confirmed by source audit before this
-  issue was implemented, no second/duplicate module-enumeration path was
-  found — all of them automatically become composition-aware the moment a
-  derived repository fills in `application-registry.ts`, with zero code
-  changes required in any of them. This is what satisfies the acceptance
-  criterion "module-management sync consumes the composed registry, not an
-  unrelated duplicate source."
+- **`validateComposedModuleRegistry(registry)` / `composeModuleRegistry(registry)`**
+  — the rule engine, called explicitly by `bun run modules:compose:check`
+  (`scripts/validate-module-composition.ts`, wired into `bun run check`), never
+  embedded in module load. Each takes a `readonly ModuleDescriptor[]`. Reuses
+  `domain/module-dependency-graph.ts`'s whole-registry DAG validator (Issue #680)
+  and `domain/job-registry.ts`'s `validateJobDescriptor` rather than duplicating
+  either. Full issue taxonomy (duplicate module key, conflicting/missing
+  capability provider, incompatible deployment-profile claim, navigation path
+  conflict, invalid job descriptor, plus the four reused DAG issues) is
+  documented in `module-composition.ts`'s own file header. It is a strict
+  superset of `bun run modules:dag:check`.
+- **Every consumer of the registry calls `listModules()`** (`bun run
+modules:sync`, `bun run modules:dag:check`, `bun run repo:inventory:generate`,
+  and every `module-management` application service above), which returns the
+  reviewed base registry — so a new module added to `src/modules/` automatically
+  flows through all of them with zero code changes.
 - **`bun run modules:composition:inventory:generate`/`:check`**
   (`docs/awcms-micro/module-composition-inventory.json`) — a deterministic,
-  machine-readable snapshot of the composed registry (module keys,
-  versions, capabilities, permission/navigation/job/health counts,
-  migration namespaces) for CI/release evidence, same freshness-gate
-  pattern as `docs/awcms-micro/repo-inventory.md`.
-- **`tests/fixtures/derived-application-example/`** is a minimal, in-repo
-  fixture illustrating exactly what a real derived repository's own
-  `application-registry.ts` + module set looks like — consumed only by
-  `tests/unit/module-composition-fixture.test.ts`, never wired into this
-  base repository's real `application-registry.ts`.
+  machine-readable snapshot of the base registry (module keys, versions,
+  capabilities, permission/navigation/job/health counts) for CI/release
+  evidence, same freshness-gate pattern as `docs/awcms-micro/repo-inventory.md`.
+- **`tests/fixtures/example-domain-modules/`** is a minimal, in-repo test-support
+  fixture of example domain modules — consumed only by
+  `tests/unit/module-composition-fixture.test.ts` to prove the composition engine
+  validates domain modules; never registered in the base registry.
 
 ## Out of scope (epic #510)
 

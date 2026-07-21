@@ -1,6 +1,4 @@
 import type { ModuleDescriptor } from "./_shared/module-contract";
-import { applicationModuleRegistry } from "./application-registry";
-import { mergeModuleRegistries } from "./module-management/domain/module-composition";
 import { blogContentModule } from "./blog-content/module";
 import { commentsModule } from "./comments/module";
 import { dataLifecycleModule } from "./data-lifecycle/module";
@@ -25,8 +23,7 @@ import { themingModule } from "./theming/module";
 import { visitorAnalyticsModule } from "./visitor-analytics/module";
 
 /**
- * The reviewed BASE registry. Every module below is reviewed, in-repo code;
- * nothing here is conditional on a derived repository's own contribution.
+ * The reviewed BASE registry. Every module below is reviewed, in-repo code.
  *
  * AWCMS-Micro's registry is the upstream AWCMS-Mini standard narrowed to
  * WEBSITE scope (ADR-0025). Mini's ERP-scope modules — `workflow`,
@@ -34,8 +31,8 @@ import { visitorAnalyticsModule } from "./visitor-analytics/module";
  * `integration_hub`, `reference_data`, `idn_admin_regions` — are
  * deliberately NOT ported: no module kept here declares a dependency or a
  * REQUIRED capability on any of them, which is why the prune was a clean
- * cut rather than a rewrite. A derived application that needs one adds it
- * through `application-registry.ts`, never by editing this file.
+ * cut rather than a rewrite. AWCMS-Micro is a template used directly
+ * (ADR-0036): a new website/domain module is added straight to this array.
  *
  * Order is dependency-friendly but NOT dependency-significant: the DAG is
  * validated by `bun run modules:dag:check`, not by array position.
@@ -129,27 +126,27 @@ const baseModules: ModuleDescriptor[] = [
   newsletterModule
 ];
 
-/** Base-only registry, regardless of any application registry — Issue #740's composition API. */
+/**
+ * Base registry accessor. Retained as a distinct name from `listModules()`
+ * for the composition/SoD/reporting/scope-consistency gates that validate the
+ * reviewed base registry explicitly.
+ */
 export function listBaseModules(): readonly ModuleDescriptor[] {
   return baseModules;
 }
 
 /**
- * Final, effective registry — `baseModules` merged with an optional
- * build-time application registry (`./application-registry.ts`, Issue
- * #740). Merge only, never validated here: `index.ts` stays pure data,
- * exactly like before this issue (`listModules()` used to be `return
- * modules` with zero validation) — the composed registry's VALIDITY is a
- * separate, explicit check (`bun run modules:compose:check`,
- * `bun run modules:dag:check`, tests), never something module load itself
- * throws on. In this base repository, `applicationModuleRegistry` is
- * always `undefined`, so `modules` below is a byte-identical pass-through
- * of `baseModules` — the exact same effective registry as before this
- * change.
+ * The effective module registry. `index.ts` stays pure data — module load
+ * never validates or throws; the registry's VALIDITY is a separate, explicit
+ * check (`bun run modules:compose:check`, `bun run modules:dag:check`, tests).
+ * Each entry keeps its own object identity from `baseModules`.
+ *
+ * NOTE: `modules` is a single stable module-level array reference (returned
+ * as-is by `listModules()`, never rebuilt per call) — `descriptor-sync.ts`
+ * relies on `descriptors === listModules()` identity to distinguish "syncing
+ * the real global registry" from "syncing a synthetic/test array".
  */
-export const modules: ModuleDescriptor[] = [
-  ...mergeModuleRegistries(baseModules, applicationModuleRegistry)
-];
+export const modules: ModuleDescriptor[] = [...baseModules];
 
 export function getModuleByKey(
   moduleKey: string

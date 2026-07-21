@@ -1,5 +1,7 @@
 # Derived-Application Compatibility, Deprecation, and Support-Window Policy
 
+> ⛔ **DIHAPUS — [ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md).** Jalur aplikasi-turunan (manifest `extension.manifest.json`, `extension:check`, `extension-compatibility.ts`, `extension-manifest-contract.ts`) **sudah dihapus dari kode** untuk menyeragamkan keluarga dengan `awcms` — AWCMS-Micro dipakai LANGSUNG sebagai template. Seluruh dokumen ini adalah **rujukan HISTORIS**; tidak ada `extension.manifest.json` maupun `bun run extension:check` di repo ini lagi.
+
 Issue #741 (epic #738 `platform-evolution`, Wave 1, ADR-0015). This
 document is the authoritative policy reference for every SemVer scheme a
 derived application's `extension.manifest.json` declares itself against,
@@ -129,6 +131,6 @@ checked requirement rather than an assumption):
   — the original three-scheme policy this document extends to six.
 - [`derived-application-guide.md`](derived-application-guide.md) — the
   practical, step-by-step guide for a derived application author.
-- [`tests/fixtures/extension-contract-incompatible/README.md`](../../tests/fixtures/extension-contract-incompatible/README.md)
-  — eight concrete examples of exactly what each incompatibility class
-  looks like in a real manifest.
+- `tests/fixtures/extension-contract-incompatible/` — DIHAPUS bersama jalur
+  turunan ([ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md));
+  dulu berisi delapan contoh tiap kelas ketidakcocokan manifest (rujukan historis).

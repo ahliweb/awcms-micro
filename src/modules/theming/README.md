@@ -6,10 +6,10 @@ order) — with **no uploaded code, no arbitrary templates, no raw CSS/HTML/JS**
 
 ## The two things this module keeps strictly apart
 
-| Trusted, build-time (code)                                                                                                                                                   | Tenant-authored (data)                                                                                                                                                                                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A **theme** = a `ThemeDescriptor` composed by `theme-registry.ts` (base + a derived-repo seam, mirroring `application-registry.ts`). Reviewed source, bundled at build time. | A **`ThemeConfig`** = token overrides, slot selections, media ids, section order, nav placement. Stored in the DB (`awcms_micro_theming_config_versions` + `_tenant_state`, sql/085, RLS FORCE'd), schema-validated and bounded. |
-| `PublicThemeLayout.astro` — the ONLY thing that renders.                                                                                                                     | —                                                                                                                                                                                                                                |
+| Trusted, build-time (code)                                                                                                                                                        | Tenant-authored (data)                                                                                                                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A **theme** = a `ThemeDescriptor` composed by `theme-registry.ts` from the reviewed in-repo base themes (ADR-0036: no derived-repo seam). Reviewed source, bundled at build time. | A **`ThemeConfig`** = token overrides, slot selections, media ids, section order, nav placement. Stored in the DB (`awcms_micro_theming_config_versions` + `_tenant_state`, sql/085, RLS FORCE'd), schema-validated and bounded. |
+| `PublicThemeLayout.astro` — the ONLY thing that renders.                                                                                                                          | —                                                                                                                                                                                                                                |
 
 There is no database-stored executable template anywhere.
 
@@ -53,8 +53,8 @@ audited.
 - `domain/` — `css-value-validation.ts` (spine), `theme-descriptor.ts` (contract +
   `assertValidThemeDescriptor` CSP/a11y gate), `theme-config.ts` (validate +
   serialize), `theme-lifecycle.ts`, `preview-token.ts`, `theme-permissions.ts`.
-- `themes/default-theme.ts` — the base `aria` theme. `theme-registry.ts` +
-  `application-theme-registry.ts` — the build-time composition seam.
+- `themes/default-theme.ts` — the base `aria` theme. `theme-registry.ts` —
+  the build-time composition of the reviewed base themes (ADR-0036: no seam).
 - `application/` — `theme-config-directory.ts`, `theme-preview-directory.ts`,
   `theme-service.ts` (orchestration + injected audit), `theme-render-resolver.ts`,
   `theme-preview-render.ts`.
@@ -64,11 +64,12 @@ audited.
   (public), `src/pages/theming/preview/[token].astro` + `preview-tokens/[token].css.ts`.
 - `src/layouts/PublicThemeLayout.astro` — the trusted render layout.
 
-## Derived-repo contribution
+## Adding a theme
 
-A derived repository contributes its OWN reviewed theme by replacing
-`application-theme-registry.ts` — never editing the base default theme or the base
-registry. See `tests/fixtures/derived-theme-example/` for a working illustration.
+AWCMS-Micro is a template used directly (ADR-0036), so an additional reviewed
+theme is added straight to `BASE_THEME_DESCRIPTORS` in `theme-registry.ts`. Every
+theme — base or newly added — flows through the same `assertValidThemeDescriptor`
+CSP/a11y gate at compose time, and a theme may not shadow another theme's key.
 
 ## Documented follow-ups (deferred, API-first)
 

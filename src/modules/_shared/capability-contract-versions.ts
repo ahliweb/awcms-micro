@@ -39,14 +39,11 @@
  * `scripts/api-spec-check.ts`: one reviewed list everyone sees in the
  * diff, not an implicit convention).
  *
- * A derived repository's OWN capabilities (things it `provides` from its
- * own contributed modules, e.g. the fixture's `example_crm_directory`)
- * are NOT expected to appear here — this registry only versions
- * capabilities the BASE repository provides. A derived repository's
- * compatibility manifest declares versions for its OWN capabilities
- * directly (self-consistency, checked against the manifest's own
- * `capabilities.provides` list) — see
- * `src/modules/module-management/domain/extension-compatibility.ts`.
+ * A test-support example module's OWN capabilities (things it `provides`, e.g.
+ * the fixture's `example_crm_directory`) are NOT expected to appear here — this
+ * registry only versions capabilities the reviewed base modules provide. When a
+ * new website/domain module is added directly to `src/modules/` (ADR-0036) and
+ * provides a capability, add its entry here in the same PR.
  */
 export const CAPABILITY_CONTRACT_VERSIONS: Readonly<Record<string, string>> =
   Object.freeze({

@@ -1,7 +1,7 @@
 # ADR-0014 — Komposisi modul deterministik saat build-time untuk registry base dan aplikasi turunan
 
-- **Status:** Accepted
-- **Catatan (2026-07-21):** komposisi `application-registry.ts` untuk **aplikasi turunan terpisah** di-**supersede sebagian** oleh [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) — jalur turunan jadi **opsional-lawas**; kode/gerbang tetap utuh (pelepasan = langkah evidence-gated terpisah).
+- **Status:** Superseded (sebagian) by [ADR-0036](0036-remove-derived-application-pathway-align-family.md)
+- **Catatan (2026-07-21):** komposisi `application-registry.ts` untuk **aplikasi turunan terpisah** DIHAPUS oleh [ADR-0036](0036-remove-derived-application-pathway-align-family.md) (seragamkan keluarga; pelepasan evidence-gated yang ADR-0034 tunda). Mekanisme komposisi **registry base** (`composeModuleRegistry`/`modules:compose:check`/`modules:composition:inventory:*`) tetap sebagai infrastruktur base load-bearing, kini memvalidasi satu registry base.
 - **Tanggal:** 2026-07-13
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** Issue #740 (epic #738 `platform-evolution`, Wave 1), Issue #739/ADR-0013, ADR-0011, ADR-0012, `docs/awcms-micro/21_module_admission_governance.md`, `docs/awcms-micro/derived-application-guide.md`, `src/modules/module-management/domain/module-dependency-graph.ts`, `src/modules/module-management/domain/module-composition.ts`

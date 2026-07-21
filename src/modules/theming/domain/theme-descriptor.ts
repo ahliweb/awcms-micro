@@ -8,9 +8,9 @@
  * the typography allow-list, plus the theme's accessibility and CSP declarations.
  *
  * Pure types + pure validation here (no I/O). The build-time registry that
- * composes base + derived themes lives in `../theme-registry.ts`; the seam a
- * derived repository fills is `../application-theme-registry.ts` (mirrors
- * `src/modules/application-registry.ts`).
+ * composes the reviewed base themes lives in `../theme-registry.ts`. AWCMS-Micro
+ * removed the derived-repo seam (ADR-0036): themes live directly in this
+ * template, so there is no `application-theme-registry.ts`.
  */
 import {
   CssValueError,

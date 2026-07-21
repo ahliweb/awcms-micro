@@ -18,11 +18,12 @@ import type { BusinessScopeHierarchyPort } from "../../../../../modules/_shared/
  * legal-entity tree.
  *
  * This function is kept — rather than inlining the flat adapter at both call
- * sites — precisely BECAUSE it is the sanctioned seam. A derived application
- * that registers a real hierarchy module through `application-registry.ts` adds
- * its adapter HERE (tried first, falling through to the flat adapter for any
- * scope type it does not own, which is safe because a non-owning adapter
- * returns `resolved: false`) and touches nothing else.
+ * sites — precisely BECAUSE it is the sanctioned seam. A real hierarchy module
+ * added directly to `src/modules/` (ADR-0036) that provides the
+ * `business_scope_hierarchy` capability adds its adapter HERE (tried first,
+ * falling through to the flat adapter for any scope type it does not own, which
+ * is safe because a non-owning adapter returns `resolved: false`) and touches
+ * nothing else.
  */
 export function buildBusinessScopeHierarchyPort(): BusinessScopeHierarchyPort {
   return {

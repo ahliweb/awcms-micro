@@ -106,31 +106,16 @@ type StageDefinition = {
 
 const REMAINING_CHILD_PROCESS_STAGES: StageDefinition[] = [
   { name: "api:spec:check", command: ["bun", "run", "api:spec:check"] },
-  // Issue #740 (epic #738) security follow-up (PR #769 security-auditor
-  // review): a derived repository's own production deployment is exactly
-  // the scenario where build-time module composition could be invalid
-  // (e.g. an application module colliding with a base module's key) — a
-  // production preflight that never checks this would go live without
-  // ever having verified it. Read-only, no I/O beyond the in-memory
-  // registry (same as `modules:dag:check`, which this is a superset of),
-  // fits this stage list's "every stage is read-only" requirement exactly.
+  // Production deployment is exactly the scenario where the module registry
+  // could be invalid (e.g. two modules sharing a key) — a production preflight
+  // that never checks this would go live without ever having verified it.
+  // Read-only, no I/O beyond the in-memory registry (same as
+  // `modules:dag:check`, which this is a superset of), fits this stage list's
+  // "every stage is read-only" requirement exactly. (ADR-0036 removed the
+  // derived-application `extension:check` gate.)
   {
     name: "modules:compose:check",
     command: ["bun", "run", "modules:compose:check"]
-  },
-  // Issue #741 (epic #738), same reasoning as `modules:compose:check`
-  // immediately above (and the exact same PR #769 security-auditor
-  // finding this repeats the fix for): a derived repository's own
-  // production preflight is precisely where an incompatible declared
-  // AWCMS-Micro range, module-contract version, capability version, or an
-  // edited historical migration checksum must be caught — read-only
-  // (manifest/migration-file/contract-file reads only, no writes), no
-  // database required (a base-repo run with no committed manifest passes
-  // trivially, same as `modules:compose:check` does with no application
-  // registry).
-  {
-    name: "extension:check",
-    command: ["bun", "run", "extension:check"]
   },
   { name: "test", command: ["bun", "test"] },
   { name: "build", command: ["bun", "run", "build"] }

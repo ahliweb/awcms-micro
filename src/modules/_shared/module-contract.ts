@@ -223,8 +223,7 @@ export type HighVolumeTableDescriptor = {
  * Same four values as `src/lib/config/registry.ts`'s own `DeploymentProfile`
  * — redeclared here rather than imported, to keep this contract file
  * dependency-free (it has always had zero imports; every module.ts across
- * every module, and now every derived repository's own
- * `application-registry.ts`, transitively depends on this file). Keep both
+ * every module transitively depends on this file). Keep both
  * lists in sync if `docs/awcms-micro/deployment-profiles.md` ever adds a
  * profile — `src/modules/module-management/domain/module-composition.ts`
  * cross-checks values structurally (plain string comparison), not by
@@ -338,9 +337,9 @@ export type ModuleDescriptor = {
  * Modeling `newsletter_content_source` as a capability `provides` would immediately
  * trip `module-composition.ts`'s `capability_provider_conflict` (>1 declared
  * provider of the same capability string). A descriptor-list riding `listModules()`
- * lets a DERIVED module admit a reviewed content source through its own
- * `application-registry.ts` WITHOUT editing the base registry and WITHOUT writing
- * to `newsletter`'s tables (same derived-safe seam as `searchSources`).
+ * lets a module admit a reviewed content source by declaring it in its own
+ * `module.ts` WITHOUT writing to `newsletter`'s tables (same data-only seam as
+ * `searchSources`).
  *
  * ## Pure DATA, not an executable extractor (issue #272 security requirement)
  *
@@ -415,10 +414,9 @@ export type NewsletterContentSourceDescriptor = {
  * Many content modules may want to accept comments. Modeling `commentable_resource`
  * as a capability `provides` would immediately trip `module-composition.ts`'s
  * `capability_provider_conflict` (>1 declared provider of the same capability
- * string). A descriptor-list riding `listModules()` lets a DERIVED module admit a
- * reviewed commentable type through its own `application-registry.ts` WITHOUT
- * editing the base registry and WITHOUT writing to `comments`'s tables (same
- * derived-safe seam as `searchSources`).
+ * string). A descriptor-list riding `listModules()` lets a module admit a
+ * reviewed commentable type by declaring it in its own `module.ts` WITHOUT
+ * writing to `comments`'s tables (same data-only seam as `searchSources`).
  *
  * ## Pure DATA, not an executable extractor (issue #271 security requirement)
  *
@@ -495,10 +493,9 @@ export type CommentableResourceDescriptor = {
  * Search wants MANY content modules to contribute sources. Modeling `search_source`
  * as a capability `provides` would immediately trip `module-composition.ts`'s
  * `capability_provider_conflict` (>1 declared provider of the same capability
- * string). A descriptor-list riding `listModules()` lets a DERIVED module
- * contribute a reviewed source through its own `application-registry.ts` WITHOUT
- * editing the base registry and WITHOUT writing to `site_search`'s index tables
- * (issue #270 acceptance criterion).
+ * string). A descriptor-list riding `listModules()` lets a module contribute a
+ * reviewed source by declaring it in its own `module.ts` WITHOUT writing to
+ * `site_search`'s index tables (issue #270 acceptance criterion).
  *
  * ## Pure DATA, not an executable extractor (issue #270 security requirement)
  *
@@ -852,102 +849,45 @@ export function defineModule(descriptor: ModuleDescriptor): ModuleDescriptor {
 }
 
 /**
- * One derived/downstream repository's declared reservation of the numeric
- * `NNN_` migration-filename prefix range its own `sql/` directory owns
- * (Issue #740). Purely declarative composition metadata — this contract
- * does not read real `sql/*.sql` filenames (see
- * `module-management/domain/module-composition.ts`'s file header for why
- * that check stays a pure, filesystem-free, declared-data comparison).
- */
-export type ModuleMigrationNamespace = {
-  /** Human label for diagnostics, e.g. "awpos" or "smart-school-portal". */
-  label: string;
-  /** Inclusive lower bound of the numeric `NNN_` migration filename prefix this registry owns. */
-  rangeStart: number;
-  /** Inclusive upper bound. */
-  rangeEnd: number;
-};
-
-/**
- * SemVer of the `ModuleDescriptor`/`ApplicationModuleRegistry` TYPE SHAPE
- * itself — independent of `package.json` (release version) and the
- * OpenAPI/AsyncAPI `info.version` (REST/event contract version), same
- * "three independent versioning schemes" precedent ADR-0008 already
- * establishes for those two. This is the fourth: the module descriptor
- * *contract* (this file's own exported types), added by Issue #741 (epic
- * #738 `platform-evolution`, Wave 1) so a derived repository's
- * compatibility manifest (`docs/adr/0015-derived-application-
- * compatibility-manifest.md`) can declare which shape of this file it was
- * written against and fail with an actionable diagnostic
- * (`bun run extension:check`) instead of a raw TypeScript compile error
- * when a future breaking change lands.
+ * SemVer of the `ModuleDescriptor` TYPE SHAPE itself — independent of
+ * `package.json` (release version) and the OpenAPI/AsyncAPI `info.version`
+ * (REST/event contract version), same "three independent versioning schemes"
+ * precedent ADR-0008 already establishes for those two. This is the fourth:
+ * the module descriptor *contract* (this file's own exported types), so a
+ * consumer can declare which shape of this file it was written against.
  *
  * Bump policy (mirrors ADR-0008 §2's contract bump rules exactly):
- * - **MAJOR** — a field is removed, renamed, or an existing optional
- *   field becomes required (a derived repository's existing `module.ts`
- *   could stop compiling or change meaning).
- * - **MINOR** — a new optional field is added (every addition to this
- *   file so far, including Issue #740's own `capabilities`/
- *   `compatibility.deploymentProfiles`/`ApplicationModuleRegistry`, has
- *   been exactly this kind of change).
+ * - **MAJOR** — a field/type is removed or renamed, or an existing optional
+ *   field becomes required (an existing `module.ts` could stop compiling or
+ *   change meaning).
+ * - **MINOR** — a new optional field is added.
  * - **PATCH** — documentation-only clarification, no shape change.
- *
- * `1.0.0` here is a first declaration, not a "declared stable" milestone
- * the way ADR-0008 §2 uses `1.0.0` for the REST/event contract — this
- * file's shape was never versioned before Issue #741; every prior
- * addition (Issue #511, #681, #740) was already additive/non-breaking by
- * convention, just never assigned a number a derived repository could
- * check against.
  *
  * `1.2.0` (Issue #753) — added the optional `ModuleDescriptor.
  * reportingProjections` field plus the new `ProjectionDescriptor` family
- * of exported types (MINOR: purely additive, same rule as `1.1.0`'s own
- * `dataLifecycle`/`sodRules` additions).
+ * of exported types (MINOR: purely additive).
  *
  * `1.3.0` (Issue #270, ADR-0031) — added the optional `ModuleDescriptor.
  * searchSources` field plus the new `SearchSourceDescriptor` /
- * `SearchSourcePublicationFilter` exported types, the declarative public
- * search-source contribution seam for `site_search` (MINOR: purely additive,
- * same rule as `1.2.0`'s `reportingProjections` addition).
+ * `SearchSourcePublicationFilter` exported types (MINOR: purely additive).
  *
  * `1.4.0` (Issue #271, ADR-0032) — added the optional `ModuleDescriptor.
  * commentableResources` field plus the new `CommentableResourceDescriptor` /
  * `CommentableResourcePublicationFilter` / `CommentableResourceDefaultPolicy`
- * exported types, the declarative public commentable-resource contribution seam
- * for `comments` (MINOR: purely additive, same rule as `1.3.0`'s `searchSources`
- * addition).
+ * exported types (MINOR: purely additive).
  *
  * `1.5.0` (Issue #272, ADR-0033) — added the optional `ModuleDescriptor.
  * newsletterContentSources` field plus the new `NewsletterContentSourceDescriptor`
- * / `NewsletterContentSourcePublicationFilter` exported types, the declarative
- * public newsletter content-source contribution seam for `newsletter` (MINOR:
- * purely additive, same rule as `1.4.0`'s `commentableResources` addition).
+ * / `NewsletterContentSourcePublicationFilter` exported types (MINOR: purely
+ * additive).
+ *
+ * `2.0.0` (ADR-0036 — derived-application pathway removal) — REMOVED the
+ * `ApplicationModuleRegistry` and `ModuleMigrationNamespace` composition types
+ * (MAJOR: exported types removed). The derived-application seam
+ * (`src/modules/application-registry.ts` + `theming/application-theme-registry.ts`,
+ * migration namespace 900-999, `extension:check` + the compatibility manifest
+ * mechanism) is deleted; awcms-micro is a template used directly. No
+ * `ModuleDescriptor` field changed — every base `module.ts` stays valid
+ * unchanged.
  */
-export const MODULE_CONTRACT_VERSION = "1.5.0";
-
-/**
- * One derived/downstream repository's contribution to the final composed
- * module registry (Issue #740, epic #738 `platform-evolution`, Wave 1).
- * Supplied ONLY through the designated build-time extension point
- * (`src/modules/application-registry.ts`) — never by editing
- * `src/modules/index.ts` itself. Still 100% static, compile-time
- * TypeScript — no runtime discovery/upload/package scanning/`eval`, per
- * `docs/awcms-micro/21_module_admission_governance.md` §7 and
- * `docs/adr/0013-extension-layers-and-boundary-model.md` §9. See
- * `src/modules/module-management/domain/module-composition.ts` for the
- * validation engine that composes this against the base registry.
- */
-export type ApplicationModuleRegistry = {
-  /** Stable, human-readable identifier for the contributing repository/application — used in diagnostics and the composed inventory only, never persisted to a database or used for authorization. */
-  id: string;
-  modules: readonly ModuleDescriptor[];
-  /**
-   * This application registry's own reserved migration-number range,
-   * validated against the base's reserved range
-   * (`module-composition.ts`'s `BASE_MODULE_MIGRATION_NAMESPACE`) to catch
-   * a numbering collision before any migration file is even written.
-   * Optional: composition skips the overlap check when omitted (a
-   * documented caveat, not a silent pass).
-   */
-  migrationNamespace?: ModuleMigrationNamespace;
-};
+export const MODULE_CONTRACT_VERSION = "2.0.0";
