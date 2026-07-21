@@ -451,33 +451,33 @@ Next recommended step:
 
 ## Peta dokumen (baca sesuai kebutuhan task)
 
-| Butuh memahami…                                                                               | Baca                                                         |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Arsitektur & fase                                                                             | `docs/awcms-micro/01_canvas_induk.md`                        |
-| Kebutuhan produk                                                                              | `docs/awcms-micro/02_prd_detail_per_modul.md`                |
-| Spesifikasi teknis                                                                            | `docs/awcms-micro/03_srs_detail_per_modul.md`                |
-| Database/ERD/RLS                                                                              | `docs/awcms-micro/04_erd_data_dictionary.md`                 |
-| Kontrak API/event                                                                             | `docs/awcms-micro/05_openapi_asyncapi_detail.md`             |
-| Issue atomic                                                                                  | `docs/awcms-micro/06_github_issues_detail.md`                |
-| Sprint/testing/go-live                                                                        | `docs/awcms-micro/07_sprint_testing_production_readiness.md` |
-| SOP operasional                                                                               | `docs/awcms-micro/08_sop_operasional_user_guide.md`          |
-| Roadmap repo/commit                                                                           | `docs/awcms-micro/09_roadmap_repository_commit.md`           |
-| Coding standard                                                                               | `docs/awcms-micro/10_template_kode_coding_standard.md`       |
-| Blueprint skeleton                                                                            | `docs/awcms-micro/11_implementation_blueprint.md`            |
-| Prompt eksekusi                                                                               | `docs/awcms-micro/12_generator_prompt.md`                    |
-| Master index/traceability                                                                     | `docs/awcms-micro/13_final_master_index_traceability.md`     |
-| UI/UX, design token, layar                                                                    | `docs/awcms-micro/14_ui_ux_design_system.md`                 |
-| Frontend & integrasi, offline-first                                                           | `docs/awcms-micro/15_frontend_architecture_integration.md`   |
-| Data access, pooling, RLS, outbox                                                             | `docs/awcms-micro/16_backend_data_access_integration.md`     |
-| Role default, permission, ABAC seed                                                           | `docs/awcms-micro/17_default_seed_rbac_abac.md`              |
-| Env, feature flag, deployment                                                                 | `docs/awcms-micro/18_configuration_env_reference.md`         |
-| Glossary & terminologi                                                                        | `docs/awcms-micro/19_glossary_terminology.md`                |
-| Threat model & arsitektur keamanan                                                            | `docs/awcms-micro/20_threat_model_security_architecture.md`  |
-| Keputusan arsitektural (ADR)                                                                  | `docs/adr/README.md`                                         |
-| Tata kelola, kontribusi, keamanan repo                                                        | `GOVERNANCE.md`, `CONTRIBUTING.md`, `SECURITY.md`            |
-| Snapshot GitHub issue aktual, label, milestone, dan proses refresh                            | `docs/awcms-micro/github/README.md`                          |
-| Inventori GENERATED modul/migration/tabel-RLS/test/route                                      | `docs/awcms-micro/repo-inventory.md`                         |
-| Tata kelola pemakaian AI agent lintas keluarga produk (AWCMS/AWCMS-Micro/AWCMS-Micro/turunan) | `docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`      |
+| Butuh memahami…                                                                              | Baca                                                         |
+| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Arsitektur & fase                                                                            | `docs/awcms-micro/01_canvas_induk.md`                        |
+| Kebutuhan produk                                                                             | `docs/awcms-micro/02_prd_detail_per_modul.md`                |
+| Spesifikasi teknis                                                                           | `docs/awcms-micro/03_srs_detail_per_modul.md`                |
+| Database/ERD/RLS                                                                             | `docs/awcms-micro/04_erd_data_dictionary.md`                 |
+| Kontrak API/event                                                                            | `docs/awcms-micro/05_openapi_asyncapi_detail.md`             |
+| Issue atomic                                                                                 | `docs/awcms-micro/06_github_issues_detail.md`                |
+| Sprint/testing/go-live                                                                       | `docs/awcms-micro/07_sprint_testing_production_readiness.md` |
+| SOP operasional                                                                              | `docs/awcms-micro/08_sop_operasional_user_guide.md`          |
+| Roadmap repo/commit                                                                          | `docs/awcms-micro/09_roadmap_repository_commit.md`           |
+| Coding standard                                                                              | `docs/awcms-micro/10_template_kode_coding_standard.md`       |
+| Blueprint skeleton                                                                           | `docs/awcms-micro/11_implementation_blueprint.md`            |
+| Prompt eksekusi                                                                              | `docs/awcms-micro/12_generator_prompt.md`                    |
+| Master index/traceability                                                                    | `docs/awcms-micro/13_final_master_index_traceability.md`     |
+| UI/UX, design token, layar                                                                   | `docs/awcms-micro/14_ui_ux_design_system.md`                 |
+| Frontend & integrasi, offline-first                                                          | `docs/awcms-micro/15_frontend_architecture_integration.md`   |
+| Data access, pooling, RLS, outbox                                                            | `docs/awcms-micro/16_backend_data_access_integration.md`     |
+| Role default, permission, ABAC seed                                                          | `docs/awcms-micro/17_default_seed_rbac_abac.md`              |
+| Env, feature flag, deployment                                                                | `docs/awcms-micro/18_configuration_env_reference.md`         |
+| Glossary & terminologi                                                                       | `docs/awcms-micro/19_glossary_terminology.md`                |
+| Threat model & arsitektur keamanan                                                           | `docs/awcms-micro/20_threat_model_security_architecture.md`  |
+| Keputusan arsitektural (ADR)                                                                 | `docs/adr/README.md`                                         |
+| Tata kelola, kontribusi, keamanan repo                                                       | `GOVERNANCE.md`, `CONTRIBUTING.md`, `SECURITY.md`            |
+| Snapshot GitHub issue aktual, label, milestone, dan proses refresh                           | `docs/awcms-micro/github/README.md`                          |
+| Inventori GENERATED modul/migration/tabel-RLS/test/route                                     | `docs/awcms-micro/repo-inventory.md`                         |
+| Tata kelola pemakaian AI agent lintas keluarga produk (AWCMS/AWCMS-Mini/AWCMS-Micro/turunan) | `docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`      |
 
 ## Mulai dari sini
 
