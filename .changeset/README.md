@@ -28,7 +28,7 @@ Folder ini dikelola oleh [Changesets](https://github.com/changesets/changesets) 
 
 - **Setiap PR** yang mengubah perilaku (fitur, fix, perubahan schema/API/event) **wajib menyertakan changeset**.
 - Perubahan **docs-only/chore** boleh tanpa changeset.
-- Tingkat bump mengikuti SemVer (lihat `docs/awcms-micro/09_roadmap_repository_commit.md`).
+- Tingkat bump mengikuti SemVer ketat ala keluarga `awcms` (lihat `docs/awcms-micro/09_roadmap_repository_commit.md`): **breaking → `major`, fitur → `minor`, fix → `patch`**. Perubahan breaking selalu `major` — tidak dilipat jadi `minor` meski versi masih pra-1.0 (preseden: changeset `major` ADR-0036 → `0.3.1 → 1.0.0`).
 - Format changeset:
 
   ```md

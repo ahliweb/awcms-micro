@@ -386,7 +386,7 @@ External Integration menurut §2, bukan entri registry terpisah):
    sepihak dokumen governance.
 3. **R3 — `maintainers` tidak pernah diisi.** Field opsional
    `ModuleDescriptor.maintainers?: string[]` ada di kontrak sejak awal
-   tapi 0 dari 18 modul mengisinya — ownership hari ini murni berasal dari
+   tapi 0 dari 22 modul mengisinya — ownership hari ini murni berasal dari
    `.github/CODEOWNERS` (satu maintainer untuk seluruh repo). Tidak masalah
    selama tim tetap satu maintainer, tapi tabel §8 akan butuh diperbarui
    dari `maintainers` per modul, bukan CODEOWNERS repo-wide, begitu tim
@@ -397,7 +397,7 @@ External Integration menurut §2, bukan entri registry terpisah):
    fiktif (`localization-ui`, `management-reporting`, `database-
 connectivity`, `production-security-readiness`, dst.) yang tidak cocok
    dengan folder/`key` nyata di `src/modules/`. `AGENTS.md` §Peta modul saat
-   ini sudah memakai nama modul nyata dan mendaftar seluruh 18 modul
+   ini sudah memakai nama modul nyata dan mendaftar seluruh 22 modul
    (base generik + pengecualian domain/system) — gap ini sudah tertutup,
    dicatat di sini hanya sebagai riwayat. **Tabel §8 dokumen ini tetap
    sumber kebenaran terkini** untuk kategori admission; jika keduanya

@@ -290,14 +290,15 @@ flowchart LR
 
 Contoh domain website/toko online yang dibangun di atas base ini melanjutkan baseline versinya sendiri di atas versi base.
 
-Nomor versi naik progresif per rilis Changesets, bukan hanya saat satu slot di atas selesai penuh — satu issue yang merge bisa langsung memicu rilis minor/patch walau issue lain dalam slot yang sama belum selesai. `CHANGELOG.md` mencatat isi riil tiap rilis; tabel ini hanya peta target.
+Nomor versi naik progresif per rilis Changesets, bukan hanya saat satu slot di atas selesai penuh — satu issue yang merge bisa langsung memicu rilis minor/patch walau issue lain dalam slot yang sama belum selesai. Nomor juga bisa **melompat** karena tingkat bump ditentukan dampak SemVer, bukan urutan slot: rilis `1.0.0` (2026-07-21) datang dari changeset `major` ADR-0036 (breaking, `MODULE_CONTRACT_VERSION` `2.0.0`) langsung dari `0.3.1`, jadi label "base production-ready (gates doc 07)" pada baris `v1.0.0` di atas **tidak** lagi menggambarkan isi rilis `1.0.0` yang sebenarnya. `CHANGELOG.md` mencatat isi riil tiap rilis; tabel ini hanya peta target historis.
 
 ### SemVer
 
 - **MAJOR** — perubahan tidak-kompatibel (breaking) pada API/kontrak/schema publik.
 - **MINOR** — fitur baru yang kompatibel ke belakang.
 - **PATCH** — bug fix kompatibel.
-- Pra-1.0.0: perubahan minor boleh membawa penyesuaian yang belum stabil.
+- SemVer ketat ala keluarga `awcms` (jalur `3.x`): perubahan breaking selalu **MAJOR**, tidak dilipat jadi minor meski pra-1.0. Rilis `1.0.0` (2026-07-21) memang dipicu breaking ADR-0036 (`MODULE_CONTRACT_VERSION` `1.5.0 → 2.0.0`), bukan penanda "production-ready" — peta milestone di atas adalah rencana historis, bukan pagar versi.
+- Pra-1.0.0: minor boleh membawa penyesuaian API yang belum stabil (bukan breaking penuh — itu tetap major).
 
 ### Versioning dengan Changesets
 
@@ -317,7 +318,7 @@ Aturan:
 
 - **Setiap PR** yang mengubah perilaku (fitur, fix, schema/API/event) **wajib menyertakan satu changeset** dengan tingkat bump SemVer + ringkasan.
 - Perubahan **docs-only/chore** boleh tanpa changeset — ditegakkan otomatis oleh `bun run changesets:policy:check` (`scripts/changeset-policy-check.ts`, bagian gate `Changesets policy` di CI, lihat [`release-process.md`](release-process.md)).
-- Baseline saat ini `0.0.0` (belum ada kode dirilis); rilis bertag pertama = `0.1.0` (Foundation).
+- Versi rilis saat ini `1.0.0` (dirilis 2026-07-21 lewat tag `v1.0.0` → `release.yml`: image GHCR + SBOM + cosign + provenance). Rilis bertag pertama repo = `v0.3.0`/`v0.3.1` (2026-07-18); lompatan ke `1.0.0` dipicu changeset `major` ADR-0036 (breaking), bukan penyelesaian milestone `v1.0.0` di peta di atas.
 - `CHANGELOG.md` mengikuti format Keep a Changelog; entri versi digenerate dari changeset.
 - Proses rilis ter-otomasi lewat skill `awcms-micro-release` (status → version → tag → GitHub release), yang membungkus empat perintah CLI Changesets: `bun run changeset` (tambah changeset baru), `bun run changeset:status` (lihat changeset pending + bump level tergabung tanpa menulis apa pun — cek cepat sebelum rilis), `bun run changeset:version` (konsumsi changeset pending → bump `package.json` + tulis `CHANGELOG.md`), dan `bun run changeset:tag` (buat git tag `vX.Y.Z` dari versi `package.json` saat ini, langkah terakhir sebelum `git push --tags` memicu `release.yml`).
 

@@ -275,7 +275,7 @@ ini), `awcms-micro-abac-guard` (guard bersama yang juga menegakkan
 kategori modul (Core/System/Official Optional Module/Derived Application/
 External Integration), kriteria admission, aturan dependency required vs
 optional (§5, melengkapi `capabilities` di atas), ekspektasi kompatibilitas
-offline/LAN vs full-online-only, dan pemetaan 17 modul terdaftar saat ini
+offline/LAN vs full-online-only, dan pemetaan 22 modul terdaftar saat ini
 (`src/modules/index.ts`'s `baseModules`, WEBSITE scope — tujuh modul ERP
 upstream tidak diport, ADR-0025)
 ke kategori tersebut (termasuk catatan remediasi field `type`/`isCore`/
