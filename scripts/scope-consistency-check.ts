@@ -11,11 +11,11 @@
  *
  * AWCMS-Micro is the awcms-mini standard narrowed to WEBSITE scope (ADR-0025).
  * The 17-module registry is the source of truth; the seven modules below are
- * excluded BY DECISION (ADR-0025 §Konsekuensi), not backlog. A derived ERP app
- * adds one via `src/modules/application-registry.ts` (ADR-0014), never by
- * editing the base registry — so an excluded module reappearing in the base
- * registry, the base API/event contracts, or the generated base inventories is
- * always a regression this gate catches.
+ * excluded BY DECISION (ADR-0025 §Konsekuensi), not backlog. An ERP module is
+ * out of scope for this website template (ADR-0025); AWCMS-Micro is used
+ * directly (ADR-0036), so an excluded module reappearing in the registry, the
+ * API/event contracts, or the generated inventories is always a regression this
+ * gate catches.
  *
  * This is the finer-grained complement to the existing structural gates
  * (`repo:inventory:check`, `modules:composition:inventory:check`,
@@ -70,12 +70,11 @@ export const EXCLUDED_MODULE_NAMESPACES = [
 ] as const;
 
 /**
- * The size of the real WEBSITE-scoped base registry. A hard anchor: a derived
- * ERP app composes extra modules through `application-registry.ts` at build
- * time (which this gate does not run against), so in THIS base repository the
- * count is exactly 19. Adding a genuinely new base module is a conscious event
- * that must bump this constant in the same PR — that is the "module-count
- * drift" guard, not an accident waiting to happen.
+ * The size of the real WEBSITE-scoped base registry. A hard anchor: the count
+ * is exactly 22 in this template. Adding a genuinely new website/domain module
+ * directly to `src/modules/` (ADR-0036) is a conscious event that must bump this
+ * constant in the same PR — that is the "module-count drift" guard, not an
+ * accident waiting to happen.
  *
  * 18 since Issue #266 (ADR-0028) registered `seo_distribution` with its first
  * runtime code — the admission PR (#265) deliberately kept the count at 17 (a
@@ -149,7 +148,7 @@ export function checkRegistryExcludesErpModules(
   for (const excluded of EXCLUDED_MODULE_KEYS) {
     if (present.has(excluded)) {
       problems.push(
-        `Module registry contains excluded ERP module "${excluded}" — AWCMS-Micro is WEBSITE scope (ADR-0025); a derived ERP app adds it via src/modules/application-registry.ts, never the base registry.`
+        `Module registry contains excluded ERP module "${excluded}" — AWCMS-Micro is WEBSITE scope (ADR-0025); ERP modules belong to the awcms lineage, not this website template.`
       );
     }
   }
@@ -331,12 +330,10 @@ export async function runScopeConsistencyCheck(
   if (composition) {
     try {
       const parsed = JSON.parse(composition.content) as {
-        totalModuleCount?: number;
+        moduleCount?: number;
       };
       compositionCount =
-        typeof parsed.totalModuleCount === "number"
-          ? parsed.totalModuleCount
-          : null;
+        typeof parsed.moduleCount === "number" ? parsed.moduleCount : null;
     } catch {
       compositionCount = null;
     }
@@ -354,7 +351,7 @@ export async function runScopeConsistencyCheck(
       moduleKeys.length
     ),
     ...checkModuleCountClaim(
-      "docs/awcms-micro/module-composition-inventory.json (totalModuleCount)",
+      "docs/awcms-micro/module-composition-inventory.json (moduleCount)",
       compositionCount,
       moduleKeys.length
     )

@@ -1,6 +1,7 @@
 # ADR-0035 — Pertahankan mekanisme komposisi modul; tolak pelepasan kode jalur aplikasi-turunan
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR-0036](0036-remove-derived-application-pathway-align-family.md)
+- **Catatan (2026-07-21):** keputusan "tolak pelepasan (won't-do)" **DIBALIK** oleh [ADR-0036](0036-remove-derived-application-pathway-align-family.md). Pemilik (@ahliweb) menyeragamkan keluarga dengan `awcms` (yang sudah menghapus penuh jalur turunan, PR #205), dan bukti membuktikan removal dapat dilakukan **tanpa menurunkan cakupan test** (fixtures direlokasi jadi test-support non-derived, check base-load-bearing dipertahankan). ADR-0036 §3 merekonsiliasi kelima temuan bukti di bawah item-per-item.
 - **Tanggal:** 2026-07-21
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) §3/§Konsekuensi (menutup butir "utang lanjutan (b)"), [ADR-0013](0013-extension-layers-and-boundary-model.md), [ADR-0014](0014-deterministic-build-time-module-composition.md), [ADR-0015](0015-derived-application-compatibility-manifest.md).

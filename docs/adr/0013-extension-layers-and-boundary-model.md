@@ -1,7 +1,7 @@
 # ADR-0013 — Lapisan ekstensi platform, batas tenant/bisnis, dan kriteria evidence-based ekstraksi layanan
 
-- **Status:** Accepted
-- **Catatan (2026-07-21):** lapisan **Derived Application** di-**supersede sebagian** oleh [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) — jalur aplikasi-turunan turun status jadi **opsional-lawas** (repo dipakai langsung sebagai template website). Lapisan lain tetap berlaku.
+- **Status:** Superseded (sebagian) by [ADR-0036](0036-remove-derived-application-pathway-align-family.md)
+- **Catatan (2026-07-21):** lapisan **Derived Application** awalnya di-deprecate oleh [ADR-0034](0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md) (opsional-lawas), lalu **jalur turunan-nya DIHAPUS penuh** oleh [ADR-0036](0036-remove-derived-application-pathway-align-family.md) (seragamkan keluarga; repo dipakai langsung sebagai template). Lapisan/konsep boundary lain (batas tenant/bisnis, kriteria ekstraksi layanan) tetap berlaku.
 - **Tanggal:** 2026-07-13
 - **Pengambil keputusan:** @ahliweb
 - **Terkait:** Issue #739 (epic #738 `platform-evolution`), Issue #680/#681/#696 (epic #679 `platform-hardening`), ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0011, ADR-0012, `docs/awcms-micro/21_module_admission_governance.md`, `docs/awcms-micro/derived-application-guide.md`, `docs/awcms-micro/19_glossary_terminology.md`, `src/modules/module-management/domain/module-dependency-graph.ts`

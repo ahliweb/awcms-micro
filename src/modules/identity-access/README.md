@@ -497,8 +497,8 @@ The real composition root, `buildBusinessScopeHierarchyPort()`
 (`src/pages/api/v1/identity/business-scope/hierarchy-port-composition.ts`,
 factored out by Issue #802 and shared by `assignments/index.ts` +
 `assignments/[id]/revoke.ts`), wires ONLY the flat adapter. It is kept as
-the sanctioned **seam**: a derived application that registers a real
-hierarchy module through `application-registry.ts` adds its adapter HERE
+the sanctioned **seam**: a real hierarchy module added directly to
+`src/modules/` (ADR-0036) providing `business_scope_hierarchy` adds its adapter HERE
 (tried first, falling through to the flat adapter for any scope type it does
 not own — safe because a non-owning adapter returns `resolved: false`) and
 touches nothing else. `identity_access`'s own `application`/`domain` tree

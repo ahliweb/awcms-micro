@@ -35,7 +35,7 @@
 
 ## Migrations
 
-77 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `092_awcms_micro_newsletter_permissions.sql`). Reserved base migration namespace (Issue #740, ADR-0014): `1-899` — a derived repository's own migrations start numbering at `900` or above.
+77 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `092_awcms_micro_newsletter_permissions.sql`).
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -139,7 +139,7 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-354 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+352 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
@@ -147,7 +147,7 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 | `e2e`         | 16         |
 | `integration` | 110        |
 | `modules`     | 5          |
-| `unit`        | 178        |
+| `unit`        | 176        |
 
 ## Routes / Operations (summary)
 

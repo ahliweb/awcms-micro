@@ -1,9 +1,16 @@
 /**
  * Unit tests for theme descriptor validation + the build-time registry
  * composition (Issue #269, ADR-0029 §3). Proves: a theme cannot weaken CSP or
- * drop a11y; the base + a DERIVED-repo fixture theme compose through the SAME
- * gate; a derived theme cannot shadow a base theme; and every default theme
- * token value is itself safe.
+ * drop a11y; every theme composes through the SAME validation gate; a theme
+ * cannot shadow another theme's key; and every default theme token value is
+ * itself safe.
+ *
+ * ADR-0036 removed the derived-application pathway, so there is no
+ * `application-theme-registry.ts` seam and no `tests/fixtures/
+ * derived-theme-example`. `composeThemeDescriptors` now takes an optional
+ * `extraThemes` array; the "a second theme composes through the same gate / may
+ * not shadow a key" coverage is exercised with an inline synthetic theme instead
+ * of a fixture file.
  */
 import { describe, expect, test } from "bun:test";
 
@@ -23,7 +30,6 @@ import {
   defaultThemeConfig,
   resolveThemeTokens
 } from "../../src/modules/theming/domain/theme-config";
-import { exampleApplicationThemeRegistry } from "../fixtures/derived-theme-example/theme-registry";
 
 describe("assertValidThemeDescriptor", () => {
   test("the base default theme is valid", () => {
@@ -177,32 +183,42 @@ describe("assertValidThemeDescriptor", () => {
 });
 
 describe("composeThemeDescriptors", () => {
-  test("base-only registry (undefined app registry) is exactly the base themes", () => {
-    const composed = composeThemeDescriptors(undefined);
+  test("base-only registry (no extra themes) is exactly the base themes", () => {
+    const composed = composeThemeDescriptors();
     expect(composed.map((t) => t.themeKey)).toEqual(
       BASE_THEME_DESCRIPTORS.map((t) => t.themeKey)
     );
     expect(composed.some((t) => t.themeKey === "aria")).toBe(true);
   });
 
-  test("a DERIVED repository contributes a reviewed theme WITHOUT editing the base registry", () => {
-    const composed = composeThemeDescriptors(exampleApplicationThemeRegistry);
+  test("an extra reviewed theme composes through the SAME validation gate", () => {
+    const aurora: ThemeDescriptor = {
+      ...defaultTheme,
+      themeKey: "aurora",
+      name: "Aurora",
+      origin: "base"
+    };
+    const composed = composeThemeDescriptors([aurora]);
     const keys = composed.map((t) => t.themeKey);
     expect(keys).toContain("aria"); // base, untouched
-    expect(keys).toContain("aurora"); // derived, added via the seam
-    // The derived theme flowed through the SAME validation gate.
-    expect(composed.find((t) => t.themeKey === "aurora")?.origin).toBe(
-      "derived"
+    expect(keys).toContain("aurora"); // the extra, added + validated
+  });
+
+  test("a theme may NOT shadow another theme's key", () => {
+    const shadow: ThemeDescriptor = { ...defaultTheme };
+    expect(() => composeThemeDescriptors([shadow])).toThrow(
+      /Duplicate theme key/
     );
   });
 
-  test("a derived theme may NOT shadow a base theme key", () => {
-    const shadow = {
-      id: "x",
-      themes: [{ ...defaultTheme, origin: "derived" as const }]
+  test("an extra theme that would weaken CSP fails the compose gate", () => {
+    const unsafe: ThemeDescriptor = {
+      ...defaultTheme,
+      themeKey: "unsafe",
+      csp: { ...defaultTheme.csp, requiresInlineScript: true }
     };
-    expect(() => composeThemeDescriptors(shadow)).toThrow(
-      /Duplicate theme key/
+    expect(() => composeThemeDescriptors([unsafe])).toThrow(
+      InvalidThemeDescriptorError
     );
   });
 });

@@ -1,9 +1,8 @@
 /**
  * The base "Aria" default theme (Issue #269, ADR-0029). A trusted, reviewed,
  * build-time `ThemeDescriptor` — the reference theme every AWCMS-Micro tenant
- * can select and configure, and the shape a derived repository's own theme
- * (see `tests/fixtures/derived-theme-example/`) mirrors WITHOUT editing this
- * file or the base registry.
+ * can select and configure, and the shape any additional reviewed theme added
+ * directly to the base theme registry (`theme-registry.ts`, ADR-0036) mirrors.
  *
  * Every default value here is itself validated by the registry
  * (`assertValidThemeDescriptor` + `resolveThemeTokens` in a unit test), so a

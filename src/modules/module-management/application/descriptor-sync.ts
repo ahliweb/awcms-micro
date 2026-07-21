@@ -29,15 +29,13 @@
  * (`bun run modules:compose:check`,
  * `module-management/domain/module-composition.ts`) originally existed
  * ONLY as a standalone CI script — nothing on the actual write path ever
- * called it, so an invalid composed registry (e.g. an application module
- * whose `key` collides with a base module, `prohibited_base_override`)
- * could still reach `upsertModule`'s `INSERT ... ON CONFLICT (module_key)
- * DO UPDATE SET ...` and silently overwrite the base module's row with the
- * application module's data — the exact scenario `prohibited_base_override`
- * exists to prevent, reachable from six real call sites, not caught by any
- * of the ~120 tests that existed before this fix (all of them exercised
- * composition validation in isolation, or `syncModuleDescriptors` against
- * an already-valid registry, never the adversarial combination of both).
+ * called it, so an invalid registry (e.g. two modules sharing a `key`,
+ * `duplicate_module_key`) could still reach `upsertModule`'s
+ * `INSERT ... ON CONFLICT (module_key) DO UPDATE SET ...` and silently
+ * clobber a module's row — reachable from six real call sites, not caught by
+ * any of the ~120 tests that existed before this fix (all of them exercised
+ * composition validation in isolation, or `syncModuleDescriptors` against an
+ * already-valid registry, never the adversarial combination of both).
  *
  * The fix lives HERE, not only in the two most obvious callers
  * (`scripts/modules-sync.ts`/the API endpoint already gate on this too,
@@ -48,7 +46,6 @@
  * below.
  */
 import { listBaseModules, listModules } from "../..";
-import { applicationModuleRegistry } from "../../application-registry";
 import type { ModuleDescriptor } from "../../_shared/module-contract";
 import {
   planModuleSync,
@@ -253,21 +250,16 @@ export async function syncModuleDescriptors(
   // `listModules()` always returns the same stable, module-level array
   // reference (computed once at import time, `src/modules/index.ts`) — so
   // this reference check reliably identifies "the caller is syncing the
-  // real, global effective registry" (every real call site: the CLI
-  // script, the API endpoint, and all four internal "sync first" callers)
-  // vs. "the caller passed an explicit/synthetic array" (this repo's own
-  // diff/orphan-detection tests). Only the former can be resolved back to
-  // known base-vs-application provenance, so only it gets the FULL
-  // composition rule set (capability bindings, migration namespace,
-  // deployment profiles, prohibited base override, etc.) with rich
-  // diagnostics; the latter still gets the cheaper, provenance-agnostic
-  // duplicate-key check, which is the one structural invariant that must
-  // hold unconditionally for ANY descriptor list about to be upserted.
+  // real, global registry" (every real call site: the CLI script, the API
+  // endpoint, and all four internal "sync first" callers) vs. "the caller
+  // passed an explicit/synthetic array" (this repo's own diff/orphan-
+  // detection tests). Only the former gets the FULL composition rule set
+  // (capability bindings, deployment profiles, navigation conflicts, etc.)
+  // with rich diagnostics; the latter still gets the cheaper duplicate-key
+  // check, the one structural invariant that must hold unconditionally for
+  // ANY descriptor list about to be upserted.
   if (descriptors === listModules()) {
-    const compositionResult = composeModuleRegistry({
-      base: listBaseModules(),
-      application: applicationModuleRegistry
-    });
+    const compositionResult = composeModuleRegistry(listBaseModules());
 
     if (!compositionResult.valid) {
       throw new ModuleCompositionInvalidError(
