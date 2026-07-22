@@ -56,6 +56,9 @@ const { label } = Astro.props;
     border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
+    /* Ease hover/focus border + fill; the global :focus-visible outline
+       (tokens.css) stays instant since it is not a transitioned property. */
+    transition: var(--transition-colors);
   }
 
   @media (max-width: 640px) {

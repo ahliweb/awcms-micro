@@ -120,28 +120,34 @@ function toDateTimeLocal(date: Date | null): string {
           <summary>
             {t("admin.news_portal.ad_placements.preset_guide_summary")}
           </summary>
-          <table class="preset-table">
-            <thead>
-              <tr>
-                <th>
-                  {t("admin.news_portal.ad_placements.field_placement_key")}
-                </th>
-                <th>
-                  {t("admin.news_portal.ad_placements.preset_recommended_size")}
-                </th>
-                <th>{t("admin.news_portal.ad_placements.preset_max_items")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {AD_PLACEMENT_KEYS.map((key) => (
+          <div class="table-scroll">
+            <table class="preset-table">
+              <thead>
                 <tr>
-                  <td>{key}</td>
-                  <td>{AD_PLACEMENT_PRESETS[key].recommendedSize}</td>
-                  <td>{AD_PLACEMENT_PRESETS[key].maxItems}</td>
+                  <th>
+                    {t("admin.news_portal.ad_placements.field_placement_key")}
+                  </th>
+                  <th>
+                    {t(
+                      "admin.news_portal.ad_placements.preset_recommended_size"
+                    )}
+                  </th>
+                  <th>
+                    {t("admin.news_portal.ad_placements.preset_max_items")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {AD_PLACEMENT_KEYS.map((key) => (
+                  <tr>
+                    <td>{key}</td>
+                    <td>{AD_PLACEMENT_PRESETS[key].recommendedSize}</td>
+                    <td>{AD_PLACEMENT_PRESETS[key].maxItems}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </details>
 
         {placements.length === 0 ? (
@@ -376,6 +382,10 @@ function toDateTimeLocal(date: Date | null): string {
   .preset-guide summary {
     cursor: pointer;
     font-weight: 600;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
   }
 
   .preset-table {

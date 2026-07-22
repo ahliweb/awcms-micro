@@ -91,7 +91,14 @@ const clientStrings = {
           </select>
         </div>
 
-        <ul class="comments-admin__list" data-queue-list />
+        <ul class="comments-admin__list" data-queue-list>
+          {[0, 1, 2].map(() => (
+            <li class="comments-admin__item" data-skeleton aria-hidden="true">
+              <div class="awcms-skeleton comments-admin__skeleton comments-admin__skeleton--meta" />
+              <div class="awcms-skeleton comments-admin__skeleton comments-admin__skeleton--body" />
+            </li>
+          ))}
+        </ul>
         <p class="comments-admin__empty" data-queue-empty hidden>
           {t("admin.comments.empty")}
         </p>
@@ -107,49 +114,80 @@ const clientStrings = {
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--sp-4);
   }
   .comments-admin__item {
-    border: 1px solid var(--color-border, #d0d5dd);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--sp-3) var(--sp-4);
   }
   .comments-admin__meta {
-    font-size: 0.85rem;
-    color: var(--color-text-muted, #667085);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
   }
   .comments-admin__body {
-    margin-block: 0.5rem;
+    margin-block: var(--sp-2);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
   }
   .comments-admin__actions {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--sp-2);
     flex-wrap: wrap;
   }
   .comments-admin__action {
-    padding: 0.35rem 0.75rem;
-    border: 1px solid var(--color-border, #d0d5dd);
-    border-radius: 0.375rem;
-    background: var(--color-surface, #fff);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
     cursor: pointer;
     font: inherit;
+    transition: var(--transition-colors);
+  }
+  .comments-admin__action:hover {
+    background: var(--color-surface-2);
+  }
+  .comments-admin__action:active {
+    transform: scale(0.97);
   }
   .comments-admin__filter {
-    margin-block: 1rem;
+    margin-block: var(--sp-4);
     display: flex;
-    gap: 0.5rem;
+    gap: var(--sp-2);
     align-items: center;
+  }
+  .comments-admin__filter select {
+    min-height: 44px;
+    padding: var(--sp-1) var(--sp-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+  .comments-admin__skeleton {
+    height: var(--sp-3);
+  }
+  .comments-admin__skeleton--meta {
+    width: 40%;
+    margin-bottom: var(--sp-2);
+  }
+  .comments-admin__skeleton--body {
+    width: 80%;
+    height: var(--sp-4);
   }
   .comments-admin__banner:empty {
     display: none;
   }
   .comments-admin__banner[data-tone="error"] {
-    color: var(--color-danger, #b42318);
+    color: var(--color-danger);
   }
   .comments-admin__banner[data-tone="success"] {
-    color: var(--color-success, #067647);
+    color: var(--color-success);
   }
 </style>
 

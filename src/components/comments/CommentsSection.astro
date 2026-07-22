@@ -57,6 +57,25 @@ const strings = {
     </li>
   </ol>
 
+  {
+    /*
+      Loading skeleton (doc 14 §State pattern: skeletons, not empty spinners).
+      Shown until the client's first fetch resolves, then hidden by
+      comments-client.ts. `.awcms-skeleton` supplies the shimmer when tokens.css
+      is present; the local `.comments-skeleton-row` fallback keeps a sized,
+      tinted placeholder when this island is embedded on a page without it.
+    */
+  }
+  <div
+    class="comments-section__skeleton"
+    data-comments-skeleton
+    aria-hidden="true"
+  >
+    <div class="comments-skeleton-row awcms-skeleton"></div>
+    <div class="comments-skeleton-row awcms-skeleton"></div>
+    <div class="comments-skeleton-row awcms-skeleton"></div>
+  </div>
+
   <button
     type="button"
     class="comments-section__more"
@@ -203,6 +222,17 @@ const strings = {
     border-radius: 0.375rem;
     font: inherit;
   }
+  /* Comfortable tap targets (WCAG 2.5.8) on the text fields — the checkbox is
+     excluded so it keeps its native size. */
+  .comments-form__field input:not([type="checkbox"]),
+  .comments-form__field textarea {
+    min-height: 44px;
+    transition: border-color var(--dur-fast, 120ms) var(--ease-standard, ease);
+  }
+  .comments-form__field input:not([type="checkbox"]):focus-visible,
+  .comments-form__field textarea:focus-visible {
+    border-color: var(--color-primary-strong, #1d4ed8);
+  }
   .comments-form__field--subscribe label {
     flex-direction: row;
     display: flex;
@@ -220,17 +250,50 @@ const strings = {
   .comments-form__submit,
   .comments-section__more {
     align-self: flex-start;
+    /* Comfortable tap target (WCAG 2.5.8). */
+    min-height: 44px;
     padding: 0.5rem 1rem;
     border-radius: 0.375rem;
-    border: 1px solid var(--color-primary, #175cd3);
-    background: var(--color-primary, #175cd3);
-    color: #fff;
+    /* AA fix: `--color-primary` is tuned as TEXT color; as a solid fill under
+       white text it fails 4.5:1 in the dark theme (3.68:1). `--color-primary-
+       strong` is the fill-safe variant (>=4.5:1 with `--color-primary-
+       contrast`). Fallbacks keep this legible when embedded without tokens.css. */
+    border: 1px solid var(--color-primary-strong, #1d4ed8);
+    background: var(--color-primary-strong, #1d4ed8);
+    color: var(--color-primary-contrast, #fff);
     cursor: pointer;
     font: inherit;
+    transition:
+      background-color var(--dur-fast, 120ms) var(--ease-standard, ease),
+      border-color var(--dur-fast, 120ms) var(--ease-standard, ease);
+  }
+  .comments-form__submit:hover:not(:disabled),
+  .comments-section__more:hover:not(:disabled) {
+    background: color-mix(
+      in srgb,
+      var(--color-primary-strong, #1d4ed8) 90%,
+      #000
+    );
   }
   .comments-form__submit:disabled {
     opacity: 0.6;
     cursor: progress;
+  }
+
+  .comments-section__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-block-start: 1rem;
+  }
+  .comments-section__skeleton[hidden] {
+    display: none;
+  }
+  .comments-skeleton-row {
+    height: 3.5rem;
+    border-radius: 0.375rem;
+    /* Fallback tint for the shimmer-less (no tokens.css) embed case. */
+    background: var(--color-surface-2, #eef1f5);
   }
   .comments-form__status:empty {
     display: none;

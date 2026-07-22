@@ -24,6 +24,13 @@
  * `role="alert"` is an implicit live region — assistive tech announces the
  * text the moment `showBanner` sets it, matching doc 14 §Aksesibilitas
  * ("error diumumkan aria-live").
+ *
+ * Entrance motion: the banner is revealed by flipping its `hidden` attribute,
+ * and CSS cannot transition the `display` change that implies. So the visual
+ * entrance is applied in JS — `admin-form-client.ts`'s `showBanner` adds the
+ * token-driven `.awcms-animate-slide-up` class each time it clears `hidden`
+ * (re-triggered on every reveal). That keyframe is reduced-motion-safe via
+ * the global guard in `tokens.css`; no per-component motion is hardcoded here.
  */
 interface Props {
   id?: string;

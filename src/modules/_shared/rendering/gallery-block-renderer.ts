@@ -29,6 +29,7 @@
 import { escapeHtml } from "../../../lib/html/escape";
 import {
   NO_RESPONSIVE_IMAGE_TRANSFORM,
+  PUBLIC_CONTENT_IMG_LOADING_ATTRS,
   type ResponsiveImageTransform
 } from "./responsive-image";
 
@@ -99,7 +100,10 @@ function renderGalleryBlockItem(
     const responsiveAttrs = responsive
       ? ` srcset="${escapeHtml(responsive.srcset)}" sizes="${escapeHtml(responsive.sizes)}"`
       : "";
-    media = `<img src="${url}" alt="${alt}"${responsiveAttrs}>`;
+    // `loading`/`decoding` are appended AFTER `src` (the `.gif`/external URL
+    // still loads exactly as before) — Issue: public-surface CLS/perf pass. The
+    // stylesheet's `.gallery img` reserves space via aspect-ratio + fades in.
+    media = `<img src="${url}" alt="${alt}" ${PUBLIC_CONTENT_IMG_LOADING_ATTRS}${responsiveAttrs}>`;
   } else {
     media = `<video src="${url}" controls></video>`;
   }

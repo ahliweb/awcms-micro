@@ -115,6 +115,27 @@ const {
         --_line: var(--awcms-theme-line_height_base, 1.5);
       }
 
+      /* Dark-mode FALLBACK path. When the tenant token stylesheet does not
+         supply a color, the fallback now follows the viewer's OS preference
+         instead of always resolving light. A tenant that DOES ship
+         `--awcms-theme-color_*` values still wins in both schemes (its `var()`
+         value beats this fallback), so this never overrides a deliberate tenant
+         palette — it only gives the default (token-less) render a legible dark
+         appearance. The layout's own `prefers-reduced-motion` guard (is:global,
+         below) keeps every transition added here accessibility-safe. */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --_bg: var(--awcms-theme-color_background, #0e1116);
+          --_surface: var(--awcms-theme-color_surface, #161b22);
+          --_text: var(--awcms-theme-color_text, #e6edf3);
+          --_muted: var(--awcms-theme-color_muted, #9aa7b2);
+          --_primary: var(--awcms-theme-color_primary, #3b82f6);
+          --_on-primary: var(--awcms-theme-color_on_primary, #ffffff);
+          --_border: var(--awcms-theme-color_border, #2b333c);
+          --_accent: var(--awcms-theme-color_accent, #38bdf8);
+        }
+      }
+
       body {
         margin: 0;
         background: var(--_bg);
@@ -187,9 +208,13 @@ const {
         text-decoration: none;
         padding: 0.25rem 0.5rem;
         border-radius: var(--_radius);
+        transition:
+          color var(--dur-fast) var(--ease-standard),
+          background-color var(--dur-fast) var(--ease-standard);
       }
       .theme-nav a:hover {
         color: var(--_primary);
+        background: var(--_surface);
       }
 
       .theme-main {
@@ -220,6 +245,12 @@ const {
         padding: 0.5rem 1rem;
         border-radius: var(--_radius);
         text-decoration: none;
+        transition:
+          transform var(--dur-base) var(--ease-standard),
+          background-color var(--dur-fast) var(--ease-standard);
+      }
+      .theme-cta:hover {
+        transform: translateY(-1px);
       }
 
       .theme-footer {

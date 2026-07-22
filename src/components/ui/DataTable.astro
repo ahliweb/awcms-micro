@@ -27,6 +27,22 @@
  * standardizes the "no rows yet" branch (doc 14 §State pattern wajib
  * "Empty: pesan + call-to-action") instead of every page hand-rolling its
  * own `<tr><td colspan={n}>...</td></tr>`.
+ *
+ * Loading affordance (opt-in, default off — backward compatible): a
+ * client-fetched table (one whose rows arrive from a `GET` after first paint,
+ * like `admin/analytics.astro`'s dashboard) can render `loading` shimmer
+ * placeholder rows instead of an empty/spinner state — doc 14 §State pattern
+ * mandates skeletons for lists. Pass `loading={true}` (and optionally
+ * `skeletonRows`, default 3) on the initial SSR render with no rows in the
+ * default slot; the body then shows `columnCount`-wide `.awcms-skeleton`
+ * bars and the table is marked `aria-busy`. The client script, once its
+ * fetch resolves, removes the placeholder rows (each tagged
+ * `data-data-table-skeleton`) and clears `aria-busy` before injecting the
+ * real `<tr>`s — e.g.
+ * `table.querySelectorAll("[data-data-table-skeleton]").forEach((r) =>
+ * r.remove()); table.removeAttribute("aria-busy");`. The placeholder rows are
+ * `aria-hidden` so assistive tech announces only the `aria-busy` state, never
+ * the decorative bars.
  */
 interface Props {
   id?: string;
@@ -34,20 +50,48 @@ interface Props {
   columnCount: number;
   isEmpty?: boolean;
   emptyMessage?: string;
+  /** Render shimmer placeholder rows instead of body content while a
+   *  client-fetched table's data loads. Default off (backward compatible). */
+  loading?: boolean;
+  /** Number of `.awcms-skeleton` placeholder rows to show while `loading`.
+   *  Default 3. */
+  skeletonRows?: number;
 }
 
-const { id, caption, columnCount, isEmpty = false, emptyMessage } = Astro.props;
+const {
+  id,
+  caption,
+  columnCount,
+  isEmpty = false,
+  emptyMessage,
+  loading = false,
+  skeletonRows = 3
+} = Astro.props;
 ---
 
 <div class="data-table-scroll">
-  <table id={id} class="data-table">
+  <table id={id} class="data-table" aria-busy={loading ? "true" : undefined}>
     <caption class="sr-only">{caption}</caption>
     <thead>
       <slot name="head" />
     </thead>
     <tbody>
       {
-        isEmpty ? (
+        loading ? (
+          Array.from({ length: skeletonRows }).map(() => (
+            <tr
+              class="data-table-skeleton-row"
+              data-data-table-skeleton
+              aria-hidden="true"
+            >
+              {Array.from({ length: columnCount }).map(() => (
+                <td>
+                  <span class="awcms-skeleton data-table-skeleton-bar" />
+                </td>
+              ))}
+            </tr>
+          ))
+        ) : isEmpty ? (
           <tr>
             <td colspan={columnCount} class="data-table-empty">
               {emptyMessage}
@@ -101,5 +145,14 @@ const { id, caption, columnCount, isEmpty = false, emptyMessage } = Astro.props;
     color: var(--color-text-muted);
     text-align: center !important;
     padding: var(--sp-4) !important;
+  }
+
+  /* Loading skeleton: the shimmer, radius and reduced-motion safety all come
+     from the shared `.awcms-skeleton` primitive in tokens.css — this only
+     gives each placeholder a row-height-ish box to shimmer inside. */
+  .data-table-skeleton-bar {
+    display: block;
+    width: 100%;
+    height: 0.9em;
   }
 </style>
