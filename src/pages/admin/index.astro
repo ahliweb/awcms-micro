@@ -73,6 +73,22 @@ if (hasDashboardAccess) {
     loadError = true;
   }
 }
+
+// Decorative line icons (aria-hidden) rendered via `set:html`. Static SVG
+// markup only — no inline style/script — so they carry no CSP cost and
+// inherit color from `currentColor` (theme-aware). Stroke-based to stay
+// crisp in light/dark. No new i18n strings: this redesign reuses the
+// existing `admin.dashboard.*` labels verbatim.
+const ICON_USERS =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+const ICON_OFFICE =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg>';
+const ICON_SHIELD =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>';
+const ICON_SYNC =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9 9 0 0 0-6.7 3L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9 9 0 0 0 6.7-3L21 16"/><path d="M21 21v-5h-5"/></svg>';
+const ICON_MODULES =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>';
 ---
 
 <AdminLayout title={t("admin.layout.nav_dashboard")}>
@@ -100,123 +116,396 @@ if (hasDashboardAccess) {
   }
   {
     dashboard && (
-      <div class="dashboard-grid">
-        <section class="dashboard-card">
-          <h2>{t("admin.dashboard.tenant_activity_title")}</h2>
-          <dl>
-            <dt>{t("admin.dashboard.tenant_label")}</dt>
-            <dd>
-              {dashboard.tenantActivity.tenantName} (
-              {dashboard.tenantActivity.tenantStatus})
-            </dd>
-            <dt>{t("admin.dashboard.active_users_label")}</dt>
-            <dd>{dashboard.tenantActivity.activeUserCount}</dd>
-            <dt>{t("admin.dashboard.active_offices_label")}</dt>
-            <dd>{dashboard.tenantActivity.activeOfficeCount}</dd>
-            <dt>{t("admin.dashboard.last_login_label")}</dt>
-            <dd>{dashboard.tenantActivity.mostRecentLoginAt ?? "-"}</dd>
-          </dl>
-        </section>
-        <section class="dashboard-card">
-          <h2>{t("admin.dashboard.access_audit_title")}</h2>
-          <dl>
-            <dt>
+      <div class="dashboard">
+        <div class="kpi-grid">
+          <article class="kpi kpi--primary dash-rise">
+            <span class="kpi-icon" set:html={ICON_USERS} />
+            <span class="kpi-value">
+              {dashboard.tenantActivity.activeUserCount}
+            </span>
+            <span class="kpi-label">
+              {t("admin.dashboard.active_users_label")}
+            </span>
+          </article>
+          <article class="kpi kpi--info dash-rise">
+            <span class="kpi-icon" set:html={ICON_OFFICE} />
+            <span class="kpi-value">
+              {dashboard.tenantActivity.activeOfficeCount}
+            </span>
+            <span class="kpi-label">
+              {t("admin.dashboard.active_offices_label")}
+            </span>
+          </article>
+          <article class="kpi kpi--success dash-rise">
+            <span class="kpi-icon" set:html={ICON_SHIELD} />
+            <span class="kpi-value">{dashboard.accessAudit.allowCount}</span>
+            <span class="kpi-label">
               {t("admin.dashboard.allow_count_label", {
                 days: dashboard.accessAudit.decisionWindowDays
               })}
-            </dt>
-            <dd>{dashboard.accessAudit.allowCount}</dd>
-            <dt>
-              {t("admin.dashboard.deny_count_label", {
-                days: dashboard.accessAudit.decisionWindowDays
-              })}
-            </dt>
-            <dd>{dashboard.accessAudit.denyCount}</dd>
-            <dt>{t("admin.dashboard.total_decision_log_label")}</dt>
-            <dd>{dashboard.accessAudit.totalDecisionCount}</dd>
-            <dt>{t("admin.dashboard.profile_audit_log_label")}</dt>
-            <dd>{dashboard.accessAudit.profileAuditLogCount}</dd>
-          </dl>
-        </section>
-        <section class="dashboard-card">
-          <h2>{t("admin.dashboard.sync_health_title")}</h2>
-          <dl>
-            <dt>{t("admin.dashboard.active_nodes_label")}</dt>
-            <dd>
-              {dashboard.syncHealth.activeNodeCount} /{" "}
+            </span>
+          </article>
+          <article
+            class={`kpi dash-rise ${dashboard.syncHealth.isHealthy ? "kpi--success" : "kpi--warning"}`}
+          >
+            <span class="kpi-icon" set:html={ICON_SYNC} />
+            <span class="kpi-value">
+              {dashboard.syncHealth.activeNodeCount}/
               {dashboard.syncHealth.totalNodeCount}
-            </dd>
-            <dt>{t("admin.dashboard.open_conflicts_label")}</dt>
-            <dd>{dashboard.syncHealth.openConflictCount}</dd>
-            <dt>{t("admin.dashboard.pending_objects_label")}</dt>
-            <dd>{dashboard.syncHealth.pendingObjectCount}</dd>
-            <dt>{t("admin.dashboard.failed_objects_label")}</dt>
-            <dd>{dashboard.syncHealth.failedObjectCount}</dd>
-            <dt>{t("admin.dashboard.status_label")}</dt>
-            <dd>
+            </span>
+            <span class="kpi-label">
+              {t("admin.dashboard.active_nodes_label")}
+            </span>
+            <span
+              class={`badge kpi-status ${dashboard.syncHealth.isHealthy ? "badge--success" : "badge--warning"}`}
+            >
               {dashboard.syncHealth.isHealthy
                 ? t("admin.dashboard.status_healthy")
                 : t("admin.dashboard.status_needs_attention")}
-            </dd>
-          </dl>
-        </section>
-        <section class="dashboard-card">
-          <h2>{t("admin.dashboard.module_usage_title")}</h2>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("admin.dashboard.module_column")}</th>
-                  <th>{t("admin.dashboard.metric_column")}</th>
-                  <th>{t("admin.dashboard.count_column")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dashboard.moduleUsage.length === 0 && (
+            </span>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="dashboard-card dash-rise">
+            <header class="card-header">
+              <span class="card-icon" set:html={ICON_USERS} />
+              <h2>{t("admin.dashboard.tenant_activity_title")}</h2>
+            </header>
+            <dl>
+              <div class="row">
+                <dt>{t("admin.dashboard.tenant_label")}</dt>
+                <dd>
+                  {dashboard.tenantActivity.tenantName}{" "}
+                  <span class="badge badge--muted">
+                    {dashboard.tenantActivity.tenantStatus}
+                  </span>
+                </dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.active_users_label")}</dt>
+                <dd>{dashboard.tenantActivity.activeUserCount}</dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.active_offices_label")}</dt>
+                <dd>{dashboard.tenantActivity.activeOfficeCount}</dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.last_login_label")}</dt>
+                <dd>{dashboard.tenantActivity.mostRecentLoginAt ?? "-"}</dd>
+              </div>
+            </dl>
+          </section>
+          <section class="dashboard-card dash-rise">
+            <header class="card-header">
+              <span class="card-icon" set:html={ICON_SHIELD} />
+              <h2>{t("admin.dashboard.access_audit_title")}</h2>
+            </header>
+            <dl>
+              <div class="row">
+                <dt>
+                  {t("admin.dashboard.allow_count_label", {
+                    days: dashboard.accessAudit.decisionWindowDays
+                  })}
+                </dt>
+                <dd>{dashboard.accessAudit.allowCount}</dd>
+              </div>
+              <div class="row">
+                <dt>
+                  {t("admin.dashboard.deny_count_label", {
+                    days: dashboard.accessAudit.decisionWindowDays
+                  })}
+                </dt>
+                <dd
+                  class={dashboard.accessAudit.denyCount > 0 ? "dd-alert" : ""}
+                >
+                  {dashboard.accessAudit.denyCount}
+                </dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.total_decision_log_label")}</dt>
+                <dd>{dashboard.accessAudit.totalDecisionCount}</dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.profile_audit_log_label")}</dt>
+                <dd>{dashboard.accessAudit.profileAuditLogCount}</dd>
+              </div>
+            </dl>
+          </section>
+          <section class="dashboard-card dash-rise">
+            <header class="card-header">
+              <span class="card-icon" set:html={ICON_SYNC} />
+              <h2>{t("admin.dashboard.sync_health_title")}</h2>
+              <span
+                class={`badge card-header-badge ${dashboard.syncHealth.isHealthy ? "badge--success" : "badge--warning"}`}
+              >
+                {dashboard.syncHealth.isHealthy
+                  ? t("admin.dashboard.status_healthy")
+                  : t("admin.dashboard.status_needs_attention")}
+              </span>
+            </header>
+            <dl>
+              <div class="row">
+                <dt>{t("admin.dashboard.active_nodes_label")}</dt>
+                <dd>
+                  {dashboard.syncHealth.activeNodeCount} /{" "}
+                  {dashboard.syncHealth.totalNodeCount}
+                </dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.open_conflicts_label")}</dt>
+                <dd
+                  class={
+                    dashboard.syncHealth.openConflictCount > 0 ? "dd-alert" : ""
+                  }
+                >
+                  {dashboard.syncHealth.openConflictCount}
+                </dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.pending_objects_label")}</dt>
+                <dd>{dashboard.syncHealth.pendingObjectCount}</dd>
+              </div>
+              <div class="row">
+                <dt>{t("admin.dashboard.failed_objects_label")}</dt>
+                <dd
+                  class={
+                    dashboard.syncHealth.failedObjectCount > 0 ? "dd-alert" : ""
+                  }
+                >
+                  {dashboard.syncHealth.failedObjectCount}
+                </dd>
+              </div>
+            </dl>
+          </section>
+          <section class="dashboard-card dashboard-card--wide dash-rise">
+            <header class="card-header">
+              <span class="card-icon" set:html={ICON_MODULES} />
+              <h2>{t("admin.dashboard.module_usage_title")}</h2>
+            </header>
+            <div class="table-scroll">
+              <table>
+                <thead>
                   <tr>
-                    <td colspan={3}>{t("admin.dashboard.no_module_usage")}</td>
+                    <th>{t("admin.dashboard.module_column")}</th>
+                    <th>{t("admin.dashboard.metric_column")}</th>
+                    <th>{t("admin.dashboard.count_column")}</th>
                   </tr>
-                )}
-                {dashboard.moduleUsage.map((entry) => (
-                  <tr>
-                    <td>{entry.moduleName}</td>
-                    <td>{entry.metricLabel}</td>
-                    <td>{entry.recordCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody>
+                  {dashboard.moduleUsage.length === 0 && (
+                    <tr>
+                      <td colspan={3}>
+                        {t("admin.dashboard.no_module_usage")}
+                      </td>
+                    </tr>
+                  )}
+                  {dashboard.moduleUsage.map((entry) => (
+                    <tr>
+                      <td>{entry.moduleName}</td>
+                      <td>{entry.metricLabel}</td>
+                      <td class="num">{entry.recordCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
       </div>
     )
   }
 </AdminLayout>
 
 <style>
+  .dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
+  }
+
+  /* ── KPI hero row ─────────────────────────────────────────────────────
+     Executive-summary tiles: one headline metric per domain, icon +
+     accent edge for at-a-glance scanning. Mobile-first: 2-up at 360px,
+     flowing to 4-up on wider viewports. */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--sp-3);
+  }
+
+  .kpi {
+    --kpi-accent: var(--color-primary);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: 0 var(--sp-3);
+    padding: var(--sp-4);
+    padding-left: calc(var(--sp-4) + 3px);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition:
+      var(--transition-transform),
+      box-shadow var(--dur-base) var(--ease-standard);
+  }
+
+  /* Accent left edge — the tile's semantic color as a thin rail. */
+  .kpi::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--kpi-accent);
+  }
+
+  .kpi:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .kpi--primary {
+    --kpi-accent: var(--color-primary);
+  }
+  .kpi--info {
+    --kpi-accent: var(--color-info);
+  }
+  .kpi--success {
+    --kpi-accent: var(--color-success);
+  }
+  .kpi--warning {
+    --kpi-accent: var(--color-warning);
+  }
+
+  .kpi-icon {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--kpi-accent) 15%, transparent);
+    color: var(--kpi-accent);
+  }
+
+  /* set:html-injected SVG isn't reached by Astro's scoped selector, so size
+     it via :global(). */
+  .kpi-icon :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+
+  .kpi-value {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .kpi-label {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  /* Status chip pinned to the tile corner so tiles keep a uniform height
+     whether or not they carry a badge. */
+  .kpi-status {
+    position: absolute;
+    top: var(--sp-3);
+    right: var(--sp-3);
+  }
+
+  /* ── Detail cards ─────────────────────────────────────────────────────*/
   .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: var(--sp-4);
   }
 
   .dashboard-card {
-    background: var(--color-surface-2);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--sp-4) var(--sp-5);
+    transition: box-shadow var(--dur-base) var(--ease-standard);
+  }
+
+  .dashboard-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .dashboard-card--wide {
+    grid-column: 1 / -1;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-3);
+    padding-bottom: var(--sp-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
     border-radius: var(--radius-md);
-    padding: var(--sp-4);
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    color: var(--color-primary);
+  }
+
+  .card-icon :global(svg) {
+    width: 18px;
+    height: 18px;
   }
 
   .dashboard-card h2 {
-    margin-top: 0;
+    margin: 0;
     font-size: var(--fs-md);
+    font-weight: 600;
+  }
+
+  .card-header-badge {
+    margin-left: auto;
   }
 
   .dashboard-card dl {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--sp-1) var(--sp-3);
     margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-card .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 55%, transparent);
+  }
+
+  .dashboard-card .row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
   }
 
   .dashboard-card dt {
@@ -228,10 +517,48 @@ if (hasDashboardAccess) {
     margin: 0;
     font-weight: 600;
     text-align: right;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
   }
 
-  /* Responsive (doc 14 §Responsif) — wide tables scroll in their own
-     container instead of forcing the whole page to scroll horizontally. */
+  /* Non-zero deny/conflict/failure counts read as an attention signal, not
+     just a neutral number (colour is paired with the descriptive label, so
+     meaning is never conveyed by colour alone — WCAG 1.4.1). */
+  .dashboard-card dd.dd-alert {
+    color: var(--color-warning-strong);
+  }
+
+  /* ── Badges ───────────────────────────────────────────────────────────*/
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--sp-2);
+    border-radius: var(--radius-full);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .badge--success {
+    background: color-mix(in srgb, var(--color-success) 16%, transparent);
+    color: var(--color-success-strong);
+  }
+
+  .badge--warning {
+    background: color-mix(in srgb, var(--color-warning) 20%, transparent);
+    color: var(--color-warning-strong);
+  }
+
+  .badge--muted {
+    background: var(--color-surface-2);
+    color: var(--color-text-muted);
+  }
+
+  /* ── Module usage table ───────────────────────────────────────────────
+     Wide table scrolls in its own container instead of forcing the whole
+     page to scroll horizontally (doc 14 §Responsif). */
   .table-scroll {
     overflow-x: auto;
   }
@@ -244,8 +571,83 @@ if (hasDashboardAccess) {
   .dashboard-card th,
   .dashboard-card td {
     text-align: left;
-    padding: var(--sp-1) var(--sp-2);
-    border-bottom: 1px solid var(--color-border);
+    padding: var(--sp-2);
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--color-border) 55%, transparent);
     font-size: var(--fs-sm);
+  }
+
+  .dashboard-card thead th {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .dashboard-card tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .dashboard-card td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  /* ── Entrance rise ────────────────────────────────────────────────────
+     Deliberately TRANSFORM-ONLY (no opacity fade): text stays fully opaque
+     the entire time, so an automated axe/contrast pass (or a real user)
+     never catches it mid-fade at a reduced contrast ratio — a plain
+     opacity entrance made every dashboard text node transiently fail
+     color-contrast. The global `prefers-reduced-motion` guard (tokens.css)
+     collapses the duration; the stagger delays below are additionally
+     zeroed for reduced motion. */
+  @keyframes dash-rise {
+    from {
+      transform: translateY(10px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .dash-rise {
+    animation: dash-rise var(--dur-slow) var(--ease-decelerate) both;
+  }
+
+  /* ── Entrance stagger ─────────────────────────────────────────────────
+     Each surface eases up in sequence. Delays are small; transform-only so
+     nothing is ever hidden, and reduced motion zeroes them below. */
+  .kpi-grid .kpi:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .kpi-grid .kpi:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .kpi-grid .kpi:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .kpi-grid .kpi:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .dashboard-grid .dashboard-card:nth-child(1) {
+    animation-delay: 160ms;
+  }
+  .dashboard-grid .dashboard-card:nth-child(2) {
+    animation-delay: 220ms;
+  }
+  .dashboard-grid .dashboard-card:nth-child(3) {
+    animation-delay: 280ms;
+  }
+  .dashboard-grid .dashboard-card:nth-child(4) {
+    animation-delay: 340ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kpi,
+    .dashboard-card {
+      animation-delay: 0ms !important;
+    }
   }
 </style>
