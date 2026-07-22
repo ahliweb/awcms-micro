@@ -43,6 +43,15 @@
   --color-primary-strong: #2563eb;
   --color-success-strong: #12873d;
   --color-danger-strong: #dc2626;
+  /* Warning is deliberately ABSENT from the "white text on a solid fill"
+     job above — amber cannot meet 4.5:1 against white text at any usable
+     lightness. This variant is the other direction: an amber tuned to be
+     legible as *coloured text/icon* on a light surface or a light-amber
+     tint (attention counts, `warning` status chips). Measured >=4.5:1 on
+     both `--color-surface` (7.1:1) and a `color-mix(--color-warning 20%)`
+     tint (5.9:1). Per-theme like every other `-strong` token: the dark
+     value flips brighter because there the same chips sit on a DARK tint. */
+  --color-warning-strong: #92400e;
   /* Reviewer Medium finding on PR #720: StatusBadge's `info` variant used
      the plain --color-info token as a solid fill with white text, only
      3.68:1 (light) / 2.43:1 (dark) — below the 4.5:1 this same doc-comment
@@ -158,6 +167,10 @@
   --color-primary-strong: #3472d8;
   --color-success-strong: #178841;
   --color-danger-strong: #d73d3d;
+  /* See :root's --color-warning-strong. Brighter here because the amber
+     status chips/counts sit on a dark surface/tint in this theme; measured
+     >=8:1 on both `--color-surface` and the dark amber tint. */
+  --color-warning-strong: #fbbf24;
   /* Reviewer Medium finding on PR #720 — see :root's --color-info-strong
      comment. Same value works in both themes since the contrast math is
      against the constant white fill-text, not the page background. */

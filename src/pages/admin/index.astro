@@ -118,7 +118,7 @@ const ICON_MODULES =
     dashboard && (
       <div class="dashboard">
         <div class="kpi-grid">
-          <article class="kpi kpi--primary awcms-animate-slide-up">
+          <article class="kpi kpi--primary dash-rise">
             <span class="kpi-icon" set:html={ICON_USERS} />
             <span class="kpi-value">
               {dashboard.tenantActivity.activeUserCount}
@@ -127,7 +127,7 @@ const ICON_MODULES =
               {t("admin.dashboard.active_users_label")}
             </span>
           </article>
-          <article class="kpi kpi--info awcms-animate-slide-up">
+          <article class="kpi kpi--info dash-rise">
             <span class="kpi-icon" set:html={ICON_OFFICE} />
             <span class="kpi-value">
               {dashboard.tenantActivity.activeOfficeCount}
@@ -136,7 +136,7 @@ const ICON_MODULES =
               {t("admin.dashboard.active_offices_label")}
             </span>
           </article>
-          <article class="kpi kpi--success awcms-animate-slide-up">
+          <article class="kpi kpi--success dash-rise">
             <span class="kpi-icon" set:html={ICON_SHIELD} />
             <span class="kpi-value">{dashboard.accessAudit.allowCount}</span>
             <span class="kpi-label">
@@ -146,7 +146,7 @@ const ICON_MODULES =
             </span>
           </article>
           <article
-            class={`kpi awcms-animate-slide-up ${dashboard.syncHealth.isHealthy ? "kpi--success" : "kpi--warning"}`}
+            class={`kpi dash-rise ${dashboard.syncHealth.isHealthy ? "kpi--success" : "kpi--warning"}`}
           >
             <span class="kpi-icon" set:html={ICON_SYNC} />
             <span class="kpi-value">
@@ -167,7 +167,7 @@ const ICON_MODULES =
         </div>
 
         <div class="dashboard-grid">
-          <section class="dashboard-card awcms-animate-slide-up">
+          <section class="dashboard-card dash-rise">
             <header class="card-header">
               <span class="card-icon" set:html={ICON_USERS} />
               <h2>{t("admin.dashboard.tenant_activity_title")}</h2>
@@ -196,7 +196,7 @@ const ICON_MODULES =
               </div>
             </dl>
           </section>
-          <section class="dashboard-card awcms-animate-slide-up">
+          <section class="dashboard-card dash-rise">
             <header class="card-header">
               <span class="card-icon" set:html={ICON_SHIELD} />
               <h2>{t("admin.dashboard.access_audit_title")}</h2>
@@ -232,7 +232,7 @@ const ICON_MODULES =
               </div>
             </dl>
           </section>
-          <section class="dashboard-card awcms-animate-slide-up">
+          <section class="dashboard-card dash-rise">
             <header class="card-header">
               <span class="card-icon" set:html={ICON_SYNC} />
               <h2>{t("admin.dashboard.sync_health_title")}</h2>
@@ -278,7 +278,7 @@ const ICON_MODULES =
               </div>
             </dl>
           </section>
-          <section class="dashboard-card dashboard-card--wide awcms-animate-slide-up">
+          <section class="dashboard-card dashboard-card--wide dash-rise">
             <header class="card-header">
               <span class="card-icon" set:html={ICON_MODULES} />
               <h2>{t("admin.dashboard.module_usage_title")}</h2>
@@ -295,7 +295,9 @@ const ICON_MODULES =
                 <tbody>
                   {dashboard.moduleUsage.length === 0 && (
                     <tr>
-                      <td colspan={3}>{t("admin.dashboard.no_module_usage")}</td>
+                      <td colspan={3}>
+                        {t("admin.dashboard.no_module_usage")}
+                      </td>
                     </tr>
                   )}
                   {dashboard.moduleUsage.map((entry) => (
@@ -524,7 +526,7 @@ const ICON_MODULES =
      just a neutral number (colour is paired with the descriptive label, so
      meaning is never conveyed by colour alone — WCAG 1.4.1). */
   .dashboard-card dd.dd-alert {
-    color: var(--color-warning);
+    color: var(--color-warning-strong);
   }
 
   /* ── Badges ───────────────────────────────────────────────────────────*/
@@ -546,7 +548,7 @@ const ICON_MODULES =
 
   .badge--warning {
     background: color-mix(in srgb, var(--color-warning) 20%, transparent);
-    color: var(--color-warning);
+    color: var(--color-warning-strong);
   }
 
   .badge--muted {
@@ -593,11 +595,30 @@ const ICON_MODULES =
     font-weight: 600;
   }
 
+  /* ── Entrance rise ────────────────────────────────────────────────────
+     Deliberately TRANSFORM-ONLY (no opacity fade): text stays fully opaque
+     the entire time, so an automated axe/contrast pass (or a real user)
+     never catches it mid-fade at a reduced contrast ratio — a plain
+     opacity entrance made every dashboard text node transiently fail
+     color-contrast. The global `prefers-reduced-motion` guard (tokens.css)
+     collapses the duration; the stagger delays below are additionally
+     zeroed for reduced motion. */
+  @keyframes dash-rise {
+    from {
+      transform: translateY(10px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .dash-rise {
+    animation: dash-rise var(--dur-slow) var(--ease-decelerate) both;
+  }
+
   /* ── Entrance stagger ─────────────────────────────────────────────────
-     Each surface eases up in sequence. Delays are small and the global
-     reduced-motion guard (tokens.css) collapses the animation duration; we
-     also zero the delay here so reduced-motion users never wait on a hidden
-     (opacity:0 fill) element. */
+     Each surface eases up in sequence. Delays are small; transform-only so
+     nothing is ever hidden, and reduced motion zeroes them below. */
   .kpi-grid .kpi:nth-child(1) {
     animation-delay: 0ms;
   }
