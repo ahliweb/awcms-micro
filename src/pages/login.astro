@@ -33,6 +33,7 @@ import { createTranslator } from "../lib/i18n/translate";
 import { buildClientErrorMessages } from "../lib/i18n/error-messages";
 import { isTurnstileRequired } from "../lib/security/turnstile";
 import { isGoogleLoginRequired } from "../lib/auth/google-oidc-config";
+import { THEME_INIT_SCRIPT_BODY } from "../lib/security/theme-init-script";
 import {
   isLoginTenantPickerEnabled,
   listActiveTenantsForLogin,
@@ -71,6 +72,18 @@ const clientStrings = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{t("auth.login.page_title")}</title>
+    {
+      /*
+        Theme resolution before paint (doc 14 §Theming) — same shared,
+        CSP-hash-registered script AdminLayout uses. Login is pre-auth (no
+        tenant), so with no `data-tenant-default-theme` attribute the body
+        defaults to "system" and follows `prefers-color-scheme`, giving the
+        login page dark-mode parity with the rest of the app instead of
+        being light-only. `is:inline` + `set:html` keep the bytes identical
+        to the hash registered in astro.config.mjs.
+      */
+    }
+    <script is:inline set:html={THEME_INIT_SCRIPT_BODY} />
   </head>
   <body>
     <main class="login-page">
