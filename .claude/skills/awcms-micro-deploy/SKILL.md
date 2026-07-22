@@ -88,6 +88,18 @@ least-privilege, `FORCE ROW LEVEL SECURITY` ditegakkan untuknya. Jangan
 pernah menjalankan aplikasi sebagai superuser/owner — `bun run
 security:readiness` memblokir go-live bila terdeteksi.
 
+## Gotcha Coolify nyata (bukan hipotetis — sudah kejadian)
+
+Bila target deploy adalah Coolify: baca `docs/awcms-micro/deploy-coolify.md` §Health check,
+§Publikasi port tanpa Traefik, dan §Migration one-shot dari image `Dockerfile.production` **sebelum**
+konfigurasi application/health-check/port pertama kali — tiga hal ini bukan teori, semuanya
+ditemukan sambil deploy nyata (2026-07-22): health check Coolify sendiri butuh curl/wget di dalam
+image (image ini tidak punya, pakai `HEALTHCHECK` native Docker sendiri — matikan
+`health_check_enabled` Coolify, jangan andalkan itu); `ports_mappings`/`custom_docker_run_options`
+Coolify tidak bisa publish port ke `127.0.0.1` atau pakai `-p` sama sekali (pakai `--ip <alamat>`
+untuk pin IP statis + reverse proxy langsung ke IP itu); dan image `Dockerfile.production` tidak
+menyertakan `scripts/` sehingga migration one-shot butuh container terpisah dengan source lengkap.
+
 ## Rollback
 
 Image immutable (Pola registry) → redeploy tag sebelumnya. **Migration
