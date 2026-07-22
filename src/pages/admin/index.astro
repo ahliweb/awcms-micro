@@ -283,7 +283,12 @@ const ICON_MODULES =
               <span class="card-icon" set:html={ICON_MODULES} />
               <h2>{t("admin.dashboard.module_usage_title")}</h2>
             </header>
-            <div class="table-scroll">
+            <div
+              class="table-scroll"
+              role="region"
+              aria-label={t("admin.dashboard.module_usage_title")}
+              tabindex="0"
+            >
               <table>
                 <thead>
                   <tr>
