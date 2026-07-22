@@ -136,34 +136,36 @@ if (CAN_READ) {
             {t("admin.profile_identity.parties.no_parties")}
           </p>
         ) : (
-          <table class="party-table">
-            <thead>
-              <tr>
-                <th>{t("admin.profile_identity.parties.field_name")}</th>
-                <th>{t("admin.profile_identity.parties.field_type")}</th>
-                <th>{t("admin.profile_identity.parties.field_status")}</th>
-                <th>
-                  {t("admin.profile_identity.parties.field_verification")}
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {parties.map((party) => (
+          <div class="table-scroll">
+            <table class="party-table">
+              <thead>
                 <tr>
-                  <td>{party.displayName}</td>
-                  <td>{party.profileType}</td>
-                  <td>{party.status}</td>
-                  <td>{party.verificationStatus}</td>
-                  <td>
-                    <a href={`/admin/profile-identity/${party.id}`}>
-                      {t("admin.profile_identity.parties.manage_link")}
-                    </a>
-                  </td>
+                  <th>{t("admin.profile_identity.parties.field_name")}</th>
+                  <th>{t("admin.profile_identity.parties.field_type")}</th>
+                  <th>{t("admin.profile_identity.parties.field_status")}</th>
+                  <th>
+                    {t("admin.profile_identity.parties.field_verification")}
+                  </th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {parties.map((party) => (
+                  <tr>
+                    <td>{party.displayName}</td>
+                    <td>{party.profileType}</td>
+                    <td>{party.status}</td>
+                    <td>{party.verificationStatus}</td>
+                    <td>
+                      <a href={`/admin/profile-identity/${party.id}`}>
+                        {t("admin.profile_identity.parties.manage_link")}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {CAN_CREATE && (
@@ -268,6 +270,10 @@ if (CAN_READ) {
     border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
   }
 
   .party-table {

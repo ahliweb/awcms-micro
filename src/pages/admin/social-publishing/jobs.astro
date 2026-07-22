@@ -181,30 +181,34 @@ if (CAN_READ) {
                   <summary>
                     {t("admin.social_publishing.jobs.attempts_summary")}
                   </summary>
-                  <table class="attempts-table">
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>
-                          {t("admin.social_publishing.jobs.field_outcome")}
-                        </th>
-                        <th>{t("admin.social_publishing.jobs.field_error")}</th>
-                        <th>
-                          {t("admin.social_publishing.jobs.field_started_at")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(attemptsByJobId.get(job.id) ?? []).map((attempt) => (
+                  <div class="table-scroll">
+                    <table class="attempts-table">
+                      <thead>
                         <tr>
-                          <td>{attempt.attemptNumber}</td>
-                          <td>{attempt.outcome}</td>
-                          <td>{attempt.errorMessage ?? ""}</td>
-                          <td>{attempt.startedAt.toISOString()}</td>
+                          <th>#</th>
+                          <th>
+                            {t("admin.social_publishing.jobs.field_outcome")}
+                          </th>
+                          <th>
+                            {t("admin.social_publishing.jobs.field_error")}
+                          </th>
+                          <th>
+                            {t("admin.social_publishing.jobs.field_started_at")}
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {(attemptsByJobId.get(job.id) ?? []).map((attempt) => (
+                          <tr>
+                            <td>{attempt.attemptNumber}</td>
+                            <td>{attempt.outcome}</td>
+                            <td>{attempt.errorMessage ?? ""}</td>
+                            <td>{attempt.startedAt.toISOString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </details>
               )}
             </section>
@@ -319,6 +323,10 @@ if (CAN_READ) {
   .attempts-details summary {
     cursor: pointer;
     font-size: var(--fs-sm);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
   }
 
   .attempts-table {
