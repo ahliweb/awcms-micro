@@ -291,7 +291,7 @@ API Coolify yang perlu diketahui sebelum mencoba publish port container ke host:
   di-drop diam-diam tanpa error, tidak pernah sampai ke compose yang dihasilkan.
 
 **Solusi yang terbukti jalan**: pin container ke IP statis di jaringan bridge Coolify dengan
-`--ip <alamat>` (flag ini *dikenali*), lalu arahkan nginx (atau reverse proxy operator lain)
+`--ip <alamat>` (flag ini _dikenali_), lalu arahkan nginx (atau reverse proxy operator lain)
 langsung ke `<ip-pin>:<port-container>` — host bisa reach IP mana pun di jaringan bridge Docker
 secara langsung (bridge interface itu host-routable), jadi pendekatan ini malah **tidak perlu
 publish port host sama sekali** (lebih ketat daripada tujuan awal `127.0.0.1:<port>`):
