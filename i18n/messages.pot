@@ -2073,103 +2073,103 @@ msgstr ""
 msgid "admin.comments.status_spam"
 msgstr ""
 
-#: src/pages/admin/index.astro:121
+#: src/pages/admin/index.astro:202
 msgid "admin.dashboard.access_audit_title"
 msgstr ""
 
-#: src/pages/admin/index.astro:84
+#: src/pages/admin/index.astro:100
 msgid "admin.dashboard.access_denied_body"
 msgstr ""
 
-#: src/pages/admin/index.astro:83
+#: src/pages/admin/index.astro:99
 msgid "admin.dashboard.access_denied_title"
 msgstr ""
 
-#: src/pages/admin/index.astro:144
+#: src/pages/admin/index.astro:157
 msgid "admin.dashboard.active_nodes_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:114
+#: src/pages/admin/index.astro:136
 msgid "admin.dashboard.active_offices_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:112
+#: src/pages/admin/index.astro:127
 msgid "admin.dashboard.active_users_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:124
+#: src/pages/admin/index.astro:143
 msgid "admin.dashboard.allow_count_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:171
+#: src/pages/admin/index.astro:297
 msgid "admin.dashboard.count_column"
 msgstr ""
 
-#: src/pages/admin/index.astro:130
+#: src/pages/admin/index.astro:215
 msgid "admin.dashboard.deny_count_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:153
+#: src/pages/admin/index.astro:270
 msgid "admin.dashboard.failed_objects_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:116
+#: src/pages/admin/index.astro:194
 msgid "admin.dashboard.last_login_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:170
+#: src/pages/admin/index.astro:296
 msgid "admin.dashboard.metric_column"
 msgstr ""
 
-#: src/pages/admin/index.astro:169
+#: src/pages/admin/index.astro:295
 msgid "admin.dashboard.module_column"
 msgstr ""
 
-#: src/pages/admin/index.astro:164
+#: src/pages/admin/index.astro:284
 msgid "admin.dashboard.module_usage_title"
 msgstr ""
 
-#: src/pages/admin/index.astro:177
+#: src/pages/admin/index.astro:304
 msgid "admin.dashboard.no_module_usage"
 msgstr ""
 
-#: src/pages/admin/index.astro:149
+#: src/pages/admin/index.astro:256
 msgid "admin.dashboard.open_conflicts_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:151
+#: src/pages/admin/index.astro:266
 msgid "admin.dashboard.pending_objects_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:137
+#: src/pages/admin/index.astro:230
 msgid "admin.dashboard.profile_audit_log_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:158
+#: src/pages/admin/index.astro:163
 msgid "admin.dashboard.status_healthy"
 msgstr ""
 
-#: src/pages/admin/index.astro:155
+#: src/pages/admin/sync.astro:190
 msgid "admin.dashboard.status_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:159
+#: src/pages/admin/index.astro:164
 msgid "admin.dashboard.status_needs_attention"
 msgstr ""
 
-#: src/pages/admin/index.astro:142
+#: src/pages/admin/index.astro:238
 msgid "admin.dashboard.sync_health_title"
 msgstr ""
 
-#: src/pages/admin/index.astro:105
+#: src/pages/admin/index.astro:173
 msgid "admin.dashboard.tenant_activity_title"
 msgstr ""
 
-#: src/pages/admin/index.astro:107
+#: src/pages/admin/index.astro:177
 msgid "admin.dashboard.tenant_label"
 msgstr ""
 
-#: src/pages/admin/index.astro:135
+#: src/pages/admin/index.astro:226
 msgid "admin.dashboard.total_decision_log_label"
 msgstr ""
 
@@ -2633,7 +2633,7 @@ msgstr ""
 msgid "admin.modules.filter_all"
 msgstr ""
 
-#: src/pages/admin/modules.astro:143
+#: src/pages/admin/modules.astro:146
 msgid "admin.modules.filter_health_label"
 msgstr ""
 
@@ -4559,35 +4559,35 @@ msgstr ""
 msgid "admin.tenant_domain.verify_success"
 msgstr ""
 
-#: src/pages/login.astro:60
+#: src/pages/login.astro:61
 msgid "auth.login.generic_error"
 msgstr ""
 
-#: src/pages/login.astro:157
+#: src/pages/login.astro:170
 msgid "auth.login.google_button"
 msgstr ""
 
-#: src/pages/login.astro:126
+#: src/pages/login.astro:139
 msgid "auth.login.identifier_label"
 msgstr ""
 
-#: src/pages/login.astro:73
+#: src/pages/login.astro:74
 msgid "auth.login.page_title"
 msgstr ""
 
-#: src/pages/login.astro:135
+#: src/pages/login.astro:148
 msgid "auth.login.password_label"
 msgstr ""
 
-#: src/pages/login.astro:63
+#: src/pages/login.astro:64
 msgid "auth.login.submit"
 msgstr ""
 
-#: src/pages/login.astro:105
+#: src/pages/login.astro:118
 msgid "auth.login.tenant_id_label"
 msgstr ""
 
-#: src/pages/login.astro:88
+#: src/pages/login.astro:101
 msgid "auth.login.tenant_label"
 msgstr ""
 

@@ -3,7 +3,13 @@
  * cheap and bounded (a handful of lightweight queries + a couple of small
  * file reads, all already cached-friendly at this scale) — this is meant
  * to be safe to call from an admin request, never a long-running or
- * business-transaction-blocking operation. The one exception —
+ * business-transaction-blocking operation. For lists of modules use
+ * `fetchModuleHealthReports` (or `buildModuleHealthBatchContext` directly):
+ * it fetches the instance-global facts (`migrations_applied`, the module
+ * registry scan, the permission catalog) plus this tenant's settings rows
+ * ONCE for the whole registry instead of once per module, so the cost no
+ * longer scales with the (now 22-module) registry — see
+ * `ModuleHealthBatchContext`. The one exception —
  * `checkEmailProviderHealth`'s real network call — is only ever invoked
  * from the explicit `POST .../health/check` action (Issue #520's own
  * "provider checks are explicit" requirement), never from the passive
@@ -21,8 +27,16 @@ import { parseDocument } from "yaml";
 import { log } from "../../../lib/logging/logger";
 import { listModules } from "../..";
 import type { ModuleDescriptor } from "../../_shared/module-contract";
-import { fetchModulePermissionSyncReport } from "./permission-sync";
-import { fetchModuleSettingsView } from "./module-settings";
+import {
+  buildModulePermissionSyncReport,
+  fetchAllCatalogPermissions
+} from "./permission-sync";
+import {
+  buildModuleSettingsView,
+  fetchModuleSettingsRows,
+  type ModuleSettingsRow
+} from "./module-settings";
+import type { CatalogPermission } from "../domain/permission-sync";
 import { fetchModuleJobs } from "./job-registry";
 import { syncModuleDescriptors } from "./descriptor-sync";
 import { validateJobDescriptor } from "../domain/job-registry";
@@ -95,95 +109,108 @@ async function migrationsAppliedSignal(
   }
 }
 
-async function dbRegistrySyncedSignal(
-  tx: Bun.SQL,
+/**
+ * Pure `db_registry_synced` builder — takes the module's already-fetched
+ * `lifecycle_status` (or `undefined` if it has no `awcms_micro_modules` row
+ * yet) instead of running its own `WHERE module_key = …` query. The DB read
+ * moved up to `buildModuleHealthBatchContext`, which fetches every module's
+ * lifecycle in one scan; the pass/fail/detail decision here is byte-identical
+ * to the previous per-module version.
+ */
+function dbRegistrySyncedSignal(
   descriptor: ModuleDescriptor,
-  correlationId?: string
-): Promise<ReadinessSignal> {
-  try {
-    const rows = (await tx`
-      SELECT lifecycle_status FROM awcms_micro_modules WHERE module_key = ${descriptor.key}
-    `) as { lifecycle_status: string }[];
-    const row = rows[0];
-
-    if (!row) {
-      return {
-        name: "db_registry_synced",
-        status: "fail",
-        detail: "No database registry row yet — run the descriptor sync."
-      };
-    }
-
-    return {
-      name: "db_registry_synced",
-      status: row.lifecycle_status === descriptor.status ? "pass" : "fail",
-      detail:
-        row.lifecycle_status === descriptor.status
-          ? undefined
-          : "Database registry status is stale — run the descriptor sync."
-    };
-  } catch (error) {
-    log("error", "health-registry: db_registry_synced check failed", {
-      moduleKey: descriptor.key,
-      correlationId,
-      error: error instanceof Error ? error.message : String(error)
-    });
-
+  lifecycleStatus: string | undefined,
+  queryFailed: boolean
+): ReadinessSignal {
+  if (queryFailed) {
     return {
       name: "db_registry_synced",
       status: "fail",
       detail: "Could not query the module registry."
     };
   }
+
+  if (lifecycleStatus === undefined) {
+    return {
+      name: "db_registry_synced",
+      status: "fail",
+      detail: "No database registry row yet — run the descriptor sync."
+    };
+  }
+
+  return {
+    name: "db_registry_synced",
+    status: lifecycleStatus === descriptor.status ? "pass" : "fail",
+    detail:
+      lifecycleStatus === descriptor.status
+        ? undefined
+        : "Database registry status is stale — run the descriptor sync."
+  };
 }
 
-async function permissionCatalogSyncedSignal(
-  tx: Bun.SQL,
+/**
+ * Pure `permission_catalog_synced` builder — takes this module's
+ * already-fetched catalog rows (from `fetchAllCatalogPermissions`, one scan
+ * for every module) instead of running its own `WHERE module_key = …` query.
+ * Delegates to the same `buildModulePermissionSyncReport` the per-module read
+ * uses, so the missing/mismatched count and detail string are identical.
+ */
+function permissionCatalogSyncedSignal(
   moduleKey: string,
-  correlationId?: string
-): Promise<ReadinessSignal> {
-  try {
-    const report = await fetchModulePermissionSyncReport(tx, moduleKey);
-    const unsynced = (report?.entries ?? []).filter(
-      (entry) =>
-        entry.status === "missing" || entry.status === "mismatched_description"
-    );
-
-    return {
-      name: "permission_catalog_synced",
-      status: unsynced.length === 0 ? "pass" : "fail",
-      detail:
-        unsynced.length > 0
-          ? `${unsynced.length} declared permission(s) missing or mismatched in the catalog.`
-          : undefined
-    };
-  } catch (error) {
-    log("error", "health-registry: permission_catalog_synced check failed", {
-      moduleKey,
-      correlationId,
-      error: error instanceof Error ? error.message : String(error)
-    });
-
+  catalogPermissions: CatalogPermission[],
+  queryFailed: boolean
+): ReadinessSignal {
+  if (queryFailed) {
     return {
       name: "permission_catalog_synced",
       status: "fail",
       detail: "Could not check the permission catalog."
     };
   }
+
+  const report = buildModulePermissionSyncReport(moduleKey, catalogPermissions);
+  const unsynced = (report?.entries ?? []).filter(
+    (entry) =>
+      entry.status === "missing" || entry.status === "mismatched_description"
+  );
+
+  return {
+    name: "permission_catalog_synced",
+    status: unsynced.length === 0 ? "pass" : "fail",
+    detail:
+      unsynced.length > 0
+        ? `${unsynced.length} declared permission(s) missing or mismatched in the catalog.`
+        : undefined
+  };
 }
 
-async function settingsValidSignal(
-  tx: Bun.SQL,
-  tenantId: string,
-  moduleKey: string,
+/**
+ * Pure `settings_valid` builder — takes this module's already-fetched
+ * settings row (from `fetchModuleSettingsRows`, one query for the whole
+ * tenant) and rebuilds the view via `buildModuleSettingsView` in a try/catch,
+ * exactly as before: the signal only cares whether building the effective
+ * view throws (a malformed override), never its contents.
+ */
+function settingsValidSignal(
+  descriptor: ModuleDescriptor,
+  row: ModuleSettingsRow | null,
+  queryFailed: boolean,
   correlationId?: string
-): Promise<ReadinessSignal> {
+): ReadinessSignal {
+  if (queryFailed) {
+    return {
+      name: "settings_valid",
+      status: "fail",
+      detail: "Could not resolve effective module settings."
+    };
+  }
+
   try {
-    await fetchModuleSettingsView(tx, tenantId, moduleKey);
+    buildModuleSettingsView(descriptor, row);
     return { name: "settings_valid", status: "pass" };
   } catch (error) {
     log("error", "health-registry: settings_valid check failed", {
-      moduleKey,
+      moduleKey: descriptor.key,
       correlationId,
       error: error instanceof Error ? error.message : String(error)
     });
@@ -286,22 +313,158 @@ async function asyncApiDocumentedSignal(
   };
 }
 
+/**
+ * Instance-wide, tenant-scoped data that every per-module health signal
+ * needs, fetched ONCE instead of once per module. The three instance-global
+ * facts — `migrations_applied` (identical for every module), the module
+ * registry lifecycle scan, and the permission catalog — plus this tenant's
+ * settings rows are all read here in a fixed, small number of queries (four
+ * queries + one `sql/` readdir total, regardless of how many modules the
+ * registry holds), then handed to the pure per-module signal builders. Every
+ * query stays on the caller's own tenant-scoped `withTenant` connection, so
+ * RLS applies exactly as it did per-module; this only reduces the NUMBER of
+ * queries, never widens their scope.
+ */
+export type ModuleHealthBatchContext = {
+  migrationsSignal: ReadinessSignal;
+  registryLifecycleByKey: Map<string, string>;
+  catalogPermissionsByKey: Map<string, CatalogPermission[]>;
+  settingsRowByKey: Map<string, ModuleSettingsRow>;
+  /**
+   * Per-source failure flags. Each batched read is wrapped in its own
+   * try/catch so one transient DB hiccup degrades ONLY the signal it feeds
+   * (to the same generic `fail` string the old per-module path produced) —
+   * never the whole batch. A page whose whole purpose is to diagnose module
+   * health must still render when one query blips. When a flag is `true` its
+   * corresponding map is left empty and the pure signal builder emits the
+   * fixed generic `fail` detail. `migrations_applied` needs no flag — its
+   * own `migrationsAppliedSignal` already catches internally.
+   */
+  registryQueryFailed: boolean;
+  permissionCatalogQueryFailed: boolean;
+  settingsQueryFailed: boolean;
+};
+
+export async function buildModuleHealthBatchContext(
+  tx: Bun.SQL,
+  tenantId: string,
+  correlationId?: string
+): Promise<ModuleHealthBatchContext> {
+  // Sequential (not `Promise.all`) on purpose: `tx` is a single reserved
+  // `withTenant` connection, so these serialize regardless — issuing them
+  // concurrently on one connection buys nothing and risks a
+  // connection-busy error. Four small queries + one readdir for the WHOLE
+  // registry replaces the previous ~4 queries + readdir PER module. Each
+  // read is independently try/caught so a failure degrades exactly one
+  // signal (identical generic string to the old per-module catch), never
+  // the whole page.
+  const migrationsSignal = await migrationsAppliedSignal(tx, correlationId);
+
+  let registryLifecycleByKey = new Map<string, string>();
+  let registryQueryFailed = false;
+  try {
+    const registryRows = (await tx`
+      SELECT module_key, lifecycle_status FROM awcms_micro_modules
+    `) as { module_key: string; lifecycle_status: string }[];
+    registryLifecycleByKey = new Map(
+      registryRows.map((row) => [row.module_key, row.lifecycle_status])
+    );
+  } catch (error) {
+    registryQueryFailed = true;
+    log("error", "health-registry: db_registry_synced check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+
+  let catalogPermissionsByKey = new Map<string, CatalogPermission[]>();
+  let permissionCatalogQueryFailed = false;
+  try {
+    catalogPermissionsByKey = await fetchAllCatalogPermissions(tx);
+  } catch (error) {
+    permissionCatalogQueryFailed = true;
+    log("error", "health-registry: permission_catalog_synced check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+
+  let settingsRowByKey = new Map<string, ModuleSettingsRow>();
+  let settingsQueryFailed = false;
+  try {
+    settingsRowByKey = await fetchModuleSettingsRows(tx, tenantId);
+  } catch (error) {
+    settingsQueryFailed = true;
+    log("error", "health-registry: settings_valid check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+
+  return {
+    migrationsSignal,
+    registryLifecycleByKey,
+    catalogPermissionsByKey,
+    settingsRowByKey,
+    registryQueryFailed,
+    permissionCatalogQueryFailed,
+    settingsQueryFailed
+  };
+}
+
+/**
+ * Single source of truth for the generic signal list — used by BOTH the
+ * batched `fetchModuleHealthReports` and the single-module
+ * `computeGenericSignals`, so the signal set/order/logic can never drift
+ * between the two paths. Signal order is identical to the previous
+ * `computeGenericSignals`.
+ */
+async function buildGenericSignalsFromContext(
+  context: ModuleHealthBatchContext,
+  descriptor: ModuleDescriptor,
+  correlationId?: string
+): Promise<ReadinessSignal[]> {
+  return [
+    { name: "descriptor_registered", status: "pass" },
+    dbRegistrySyncedSignal(
+      descriptor,
+      context.registryLifecycleByKey.get(descriptor.key),
+      context.registryQueryFailed
+    ),
+    context.migrationsSignal,
+    permissionCatalogSyncedSignal(
+      descriptor.key,
+      context.catalogPermissionsByKey.get(descriptor.key) ?? [],
+      context.permissionCatalogQueryFailed
+    ),
+    settingsValidSignal(
+      descriptor,
+      context.settingsRowByKey.get(descriptor.key) ?? null,
+      context.settingsQueryFailed,
+      correlationId
+    ),
+    jobsDocumentedSignal(descriptor.key),
+    await openApiDocumentedSignal(descriptor),
+    await asyncApiDocumentedSignal(descriptor)
+  ];
+}
+
 async function computeGenericSignals(
   tx: Bun.SQL,
   tenantId: string,
   descriptor: ModuleDescriptor,
   correlationId?: string
 ): Promise<ReadinessSignal[]> {
-  return [
-    { name: "descriptor_registered", status: "pass" },
-    await dbRegistrySyncedSignal(tx, descriptor, correlationId),
-    await migrationsAppliedSignal(tx, correlationId),
-    await permissionCatalogSyncedSignal(tx, descriptor.key, correlationId),
-    await settingsValidSignal(tx, tenantId, descriptor.key, correlationId),
-    jobsDocumentedSignal(descriptor.key),
-    await openApiDocumentedSignal(descriptor),
-    await asyncApiDocumentedSignal(descriptor)
-  ];
+  const context = await buildModuleHealthBatchContext(
+    tx,
+    tenantId,
+    correlationId
+  );
+
+  return buildGenericSignalsFromContext(context, descriptor, correlationId);
 }
 
 /** `null` means `moduleKey` isn't a registered descriptor — `404`. */
@@ -330,6 +493,53 @@ export async function fetchModuleHealthReport(
     signals,
     generatedAt: new Date().toISOString()
   };
+}
+
+/**
+ * Batched variant of `fetchModuleHealthReport` for callers that need the
+ * health report of MANY modules at once (the `/admin/modules` list and the
+ * `/admin/modules/tenants` matrix). Builds the shared
+ * `ModuleHealthBatchContext` ONCE, then assembles each module's report from
+ * pre-fetched data with no additional per-module query. Output per module is
+ * byte-identical to calling `fetchModuleHealthReport` for that key. Unknown
+ * keys (no registered descriptor) are omitted from the result map, mirroring
+ * the single variant's `null` for a `404`.
+ */
+export async function fetchModuleHealthReports(
+  tx: Bun.SQL,
+  tenantId: string,
+  moduleKeys: string[],
+  correlationId?: string
+): Promise<Map<string, ModuleHealthReport>> {
+  const context = await buildModuleHealthBatchContext(
+    tx,
+    tenantId,
+    correlationId
+  );
+
+  const reports = new Map<string, ModuleHealthReport>();
+
+  for (const moduleKey of moduleKeys) {
+    const descriptor = findDescriptor(moduleKey);
+    if (!descriptor) {
+      continue;
+    }
+
+    const signals = await buildGenericSignalsFromContext(
+      context,
+      descriptor,
+      correlationId
+    );
+
+    reports.set(moduleKey, {
+      moduleKey,
+      status: classifyHealthStatus(signals),
+      signals,
+      generatedAt: new Date().toISOString()
+    });
+  }
+
+  return reports;
 }
 
 /**

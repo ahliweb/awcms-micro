@@ -46,6 +46,33 @@ async function fetchCatalogPermissions(
   }));
 }
 
+/**
+ * Batched catalog read: ONE no-WHERE query over `awcms_micro_permissions`
+ * (the same no-`moduleKey` branch of `fetchCatalogPermissions`), grouped by
+ * `module_key`. Callers that need the permission-sync signal for every
+ * module at once (the health-registry batch path) use this to avoid a
+ * per-module `WHERE module_key = …` round-trip. A module with no catalog
+ * rows simply has no map entry — `buildModulePermissionSyncReport` treats a
+ * missing entry the same as an empty list.
+ */
+export async function fetchAllCatalogPermissions(
+  tx: Bun.SQL
+): Promise<Map<string, CatalogPermission[]>> {
+  const all = await fetchCatalogPermissions(tx);
+  const byModuleKey = new Map<string, CatalogPermission[]>();
+
+  for (const permission of all) {
+    const bucket = byModuleKey.get(permission.moduleKey);
+    if (bucket) {
+      bucket.push(permission);
+    } else {
+      byModuleKey.set(permission.moduleKey, [permission]);
+    }
+  }
+
+  return byModuleKey;
+}
+
 function descriptorPermissionsForModule(
   moduleKey: string
 ): DescriptorPermission[] {
@@ -78,6 +105,26 @@ export async function fetchModulePermissionSyncReport(
   moduleKey: string
 ): Promise<ModulePermissionSyncReport | null> {
   const catalogPermissions = await fetchCatalogPermissions(tx, moduleKey);
+
+  return buildModulePermissionSyncReport(moduleKey, catalogPermissions);
+}
+
+/**
+ * Pure (no I/O) core of `fetchModulePermissionSyncReport`: given a module
+ * key and that module's already-fetched catalog rows, classify each
+ * permission. Shared single source of truth between the per-module read
+ * (`fetchModulePermissionSyncReport`, which fetches its own rows first) and
+ * the batched health path (which pre-fetches every module's rows once via
+ * `fetchAllCatalogPermissions`). `catalogPermissions` MUST already be
+ * scoped to `moduleKey` — the same shape the `WHERE module_key = …` query
+ * and the per-key map bucket both produce. Null/empty behavior is identical
+ * to the original: `null` only when the key is neither a registered
+ * descriptor nor present anywhere in the catalog.
+ */
+export function buildModulePermissionSyncReport(
+  moduleKey: string,
+  catalogPermissions: CatalogPermission[]
+): ModulePermissionSyncReport | null {
   const descriptorExists = listModules().some((d) => d.key === moduleKey);
 
   if (!descriptorExists && catalogPermissions.length === 0) {
