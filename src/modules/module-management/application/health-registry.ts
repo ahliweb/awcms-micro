@@ -119,8 +119,17 @@ async function migrationsAppliedSignal(
  */
 function dbRegistrySyncedSignal(
   descriptor: ModuleDescriptor,
-  lifecycleStatus: string | undefined
+  lifecycleStatus: string | undefined,
+  queryFailed: boolean
 ): ReadinessSignal {
+  if (queryFailed) {
+    return {
+      name: "db_registry_synced",
+      status: "fail",
+      detail: "Could not query the module registry."
+    };
+  }
+
   if (lifecycleStatus === undefined) {
     return {
       name: "db_registry_synced",
@@ -148,8 +157,17 @@ function dbRegistrySyncedSignal(
  */
 function permissionCatalogSyncedSignal(
   moduleKey: string,
-  catalogPermissions: CatalogPermission[]
+  catalogPermissions: CatalogPermission[],
+  queryFailed: boolean
 ): ReadinessSignal {
+  if (queryFailed) {
+    return {
+      name: "permission_catalog_synced",
+      status: "fail",
+      detail: "Could not check the permission catalog."
+    };
+  }
+
   const report = buildModulePermissionSyncReport(moduleKey, catalogPermissions);
   const unsynced = (report?.entries ?? []).filter(
     (entry) =>
@@ -176,8 +194,17 @@ function permissionCatalogSyncedSignal(
 function settingsValidSignal(
   descriptor: ModuleDescriptor,
   row: ModuleSettingsRow | null,
+  queryFailed: boolean,
   correlationId?: string
 ): ReadinessSignal {
+  if (queryFailed) {
+    return {
+      name: "settings_valid",
+      status: "fail",
+      detail: "Could not resolve effective module settings."
+    };
+  }
+
   try {
     buildModuleSettingsView(descriptor, row);
     return { name: "settings_valid", status: "pass" };
@@ -303,6 +330,19 @@ export type ModuleHealthBatchContext = {
   registryLifecycleByKey: Map<string, string>;
   catalogPermissionsByKey: Map<string, CatalogPermission[]>;
   settingsRowByKey: Map<string, ModuleSettingsRow>;
+  /**
+   * Per-source failure flags. Each batched read is wrapped in its own
+   * try/catch so one transient DB hiccup degrades ONLY the signal it feeds
+   * (to the same generic `fail` string the old per-module path produced) —
+   * never the whole batch. A page whose whole purpose is to diagnose module
+   * health must still render when one query blips. When a flag is `true` its
+   * corresponding map is left empty and the pure signal builder emits the
+   * fixed generic `fail` detail. `migrations_applied` needs no flag — its
+   * own `migrationsAppliedSignal` already catches internally.
+   */
+  registryQueryFailed: boolean;
+  permissionCatalogQueryFailed: boolean;
+  settingsQueryFailed: boolean;
 };
 
 export async function buildModuleHealthBatchContext(
@@ -314,24 +354,64 @@ export async function buildModuleHealthBatchContext(
   // `withTenant` connection, so these serialize regardless — issuing them
   // concurrently on one connection buys nothing and risks a
   // connection-busy error. Four small queries + one readdir for the WHOLE
-  // registry replaces the previous ~4 queries + readdir PER module.
+  // registry replaces the previous ~4 queries + readdir PER module. Each
+  // read is independently try/caught so a failure degrades exactly one
+  // signal (identical generic string to the old per-module catch), never
+  // the whole page.
   const migrationsSignal = await migrationsAppliedSignal(tx, correlationId);
 
-  const registryRows = (await tx`
-    SELECT module_key, lifecycle_status FROM awcms_micro_modules
-  `) as { module_key: string; lifecycle_status: string }[];
-  const registryLifecycleByKey = new Map(
-    registryRows.map((row) => [row.module_key, row.lifecycle_status])
-  );
+  let registryLifecycleByKey = new Map<string, string>();
+  let registryQueryFailed = false;
+  try {
+    const registryRows = (await tx`
+      SELECT module_key, lifecycle_status FROM awcms_micro_modules
+    `) as { module_key: string; lifecycle_status: string }[];
+    registryLifecycleByKey = new Map(
+      registryRows.map((row) => [row.module_key, row.lifecycle_status])
+    );
+  } catch (error) {
+    registryQueryFailed = true;
+    log("error", "health-registry: db_registry_synced check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
 
-  const catalogPermissionsByKey = await fetchAllCatalogPermissions(tx);
-  const settingsRowByKey = await fetchModuleSettingsRows(tx, tenantId);
+  let catalogPermissionsByKey = new Map<string, CatalogPermission[]>();
+  let permissionCatalogQueryFailed = false;
+  try {
+    catalogPermissionsByKey = await fetchAllCatalogPermissions(tx);
+  } catch (error) {
+    permissionCatalogQueryFailed = true;
+    log("error", "health-registry: permission_catalog_synced check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+
+  let settingsRowByKey = new Map<string, ModuleSettingsRow>();
+  let settingsQueryFailed = false;
+  try {
+    settingsRowByKey = await fetchModuleSettingsRows(tx, tenantId);
+  } catch (error) {
+    settingsQueryFailed = true;
+    log("error", "health-registry: settings_valid check failed", {
+      moduleKey: "module_management",
+      correlationId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
 
   return {
     migrationsSignal,
     registryLifecycleByKey,
     catalogPermissionsByKey,
-    settingsRowByKey
+    settingsRowByKey,
+    registryQueryFailed,
+    permissionCatalogQueryFailed,
+    settingsQueryFailed
   };
 }
 
@@ -351,16 +431,19 @@ async function buildGenericSignalsFromContext(
     { name: "descriptor_registered", status: "pass" },
     dbRegistrySyncedSignal(
       descriptor,
-      context.registryLifecycleByKey.get(descriptor.key)
+      context.registryLifecycleByKey.get(descriptor.key),
+      context.registryQueryFailed
     ),
     context.migrationsSignal,
     permissionCatalogSyncedSignal(
       descriptor.key,
-      context.catalogPermissionsByKey.get(descriptor.key) ?? []
+      context.catalogPermissionsByKey.get(descriptor.key) ?? [],
+      context.permissionCatalogQueryFailed
     ),
     settingsValidSignal(
       descriptor,
       context.settingsRowByKey.get(descriptor.key) ?? null,
+      context.settingsQueryFailed,
       correlationId
     ),
     jobsDocumentedSignal(descriptor.key),
