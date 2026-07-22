@@ -245,7 +245,6 @@ const isSettingsActive = pathname === "/admin/settings";
           class="admin-sidebar-scrim"
           data-open="false"
           aria-hidden="true"
-          hidden
         >
         </div>
         <nav
@@ -375,8 +374,9 @@ const isSettingsActive = pathname === "/admin/settings";
         sidebar.dataset.open = "true";
         navToggle?.setAttribute("aria-expanded", "true");
         if (scrim) {
+          // Fade handled purely in CSS via [data-open] + pointer-events; no
+          // `hidden` toggle so the opacity transition plays in both directions.
           scrim.dataset.open = "true";
-          scrim.hidden = false;
         }
         if (isMobileDrawer()) {
           setInertSafely(topbar, true);
@@ -395,7 +395,6 @@ const isSettingsActive = pathname === "/admin/settings";
         navToggle?.setAttribute("aria-expanded", "false");
         if (scrim) {
           scrim.dataset.open = "false";
-          scrim.hidden = true;
         }
         setInertSafely(topbar, false);
         setInertSafely(main, false);
@@ -601,7 +600,7 @@ const isSettingsActive = pathname === "/admin/settings";
       box-shadow: var(--shadow-lg);
       overflow-y: auto;
       transform: translateX(-100%);
-      transition: transform 0.2s ease;
+      transition: transform var(--dur-slow) var(--ease-standard);
     }
 
     .admin-sidebar[data-open="true"] {
@@ -612,14 +611,27 @@ const isSettingsActive = pathname === "/admin/settings";
       position: fixed;
       inset: 0;
       z-index: calc(var(--z-drawer) - 1);
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--color-scrim);
+      /* Fade in/out with the drawer slide instead of a hard pop. The scrim
+         stays in the DOM (no `hidden` toggle) and is made click-through +
+         transparent when closed, so the opacity transition plays in BOTH
+         directions and it never intercepts taps while closed. */
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--dur-base) var(--ease-standard);
+    }
+
+    .admin-sidebar-scrim[data-open="true"] {
+      opacity: 1;
+      pointer-events: auto;
     }
   }
 
   /* Desktop/tablet: the scrim never renders regardless of its `data-open`
      state (there is no drawer to dim behind on a statically-visible
-     sidebar) — belt-and-suspenders alongside the `hidden` attribute the
-     script also sets/clears. */
+     sidebar). `display:none` here also guarantees the (now `hidden`-less,
+     always-in-DOM) scrim can never intercept clicks above the drawer
+     breakpoint. */
   @media (min-width: 769px) {
     .admin-sidebar-scrim {
       display: none;
