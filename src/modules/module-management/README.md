@@ -368,6 +368,20 @@ and `POST` run these):
   the descriptor declares `api`/`events`; otherwise checks the referenced
   YAML file actually documents the module's `basePath`/published events.
 
+**Batched for lists** — `fetchModuleHealthReports(tx, tenantId, keys)`
+computes all of the above for many modules from ONE shared
+`ModuleHealthBatchContext`: `migrations_applied` (instance-global, identical
+for every module), the `awcms_micro_modules` lifecycle scan, and the
+permission catalog (`fetchAllCatalogPermissions`) are each read once, plus
+this tenant's settings rows (`fetchModuleSettingsRows`, `WHERE tenant_id`)
+once — four queries + one `sql/` readdir for the WHOLE registry instead of
+per module. `fetchModuleHealthReport` (single) and the batched path share
+the same pure per-module signal builders, so their output can never drift
+(proven by `module-health-batch-equivalence.integration.test.ts`). Both stay
+on the caller's tenant-scoped `withTenant` connection — RLS is unchanged;
+only the query COUNT drops. `/admin/modules` and `/admin/modules/tenants`
+both use the batched call.
+
 **`provider_health_check` — the one deliberately module-specific
 signal**, `POST` only: `not_applicable` for every module except `email`,
 where it calls the real `resolveEmailProvider().healthCheck()` (Issue
@@ -405,9 +419,12 @@ also syncs the registry first (same reasoning as
   `data-*` attribute show/hide — the base registry is small (see
   `src/modules/index.ts`'s `modules` array for the current count), a server
   round-trip per filter change would be pure overhead) + a health
-  status column (every module's `fetchModuleHealthReport`, #520, computed
-  in parallel — each check is individually cheap/bounded by design, and
-  this only runs on an explicit admin page load).
+  status column (the whole list's health computed in ONE batched call,
+  `fetchModuleHealthReports`, #520 — it reads the instance-global facts
+  (migrations/registry/permission catalog) and this tenant's settings rows
+  once for the entire registry instead of re-querying them per module, so
+  the cost no longer scales with the module count; this only runs on an
+  explicit admin page load).
 - **Detail**: dependency panel, tenant enable/disable action, settings
   panel, permission sync/status panel, navigation panel, jobs panel,
   health/readiness panel (+ explicit `POST .../health/check` trigger

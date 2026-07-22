@@ -9,8 +9,9 @@
  * 100% reuse, zero re-derivation of dependency-graph logic:
  *   - `fetchModuleCatalog` (#514) for static/registry fields.
  *   - `fetchTenantModuleEntries` (#515) for this tenant's enabled state.
- *   - `fetchModuleHealthReport` (#520) for the health pill, same as
- *     `admin/modules.astro`.
+ *   - `fetchModuleHealthReports` (#520) for the health pill, same batched
+ *     call `admin/modules.astro` uses — one shared health-batch context for
+ *     the whole registry, not a per-module query.
  *   - `resolveProtectedModuleKeys` (#565) for the core/protected flag.
  *   - `evaluateModuleEnable`/`evaluateModuleDisable` (#515's own pure domain
  *     functions) for the two per-row warnings below — called with each
@@ -52,7 +53,7 @@ import {
   fetchTenantModuleEntries,
   type TenantModuleListEntry
 } from "./tenant-module-lifecycle";
-import { fetchModuleHealthReport } from "./health-registry";
+import { fetchModuleHealthReports } from "./health-registry";
 import { resolveProtectedModuleKeys } from "../domain/module-presets";
 import {
   evaluateModuleDisable,
@@ -127,6 +128,19 @@ export async function fetchModuleMatrix(
   );
   const protectedKeys = resolveProtectedModuleKeys(allDescriptors);
 
+  // Health, when requested, is computed for every catalog module in ONE
+  // batched call sharing a single `ModuleHealthBatchContext` — not a
+  // per-row `fetchModuleHealthReport` query. Same source of truth (and thus
+  // same per-module `status`) as the single-module path.
+  const healthReports = options.includeHealth
+    ? await fetchModuleHealthReports(
+        tx,
+        tenantId,
+        catalog.map((entry) => entry.moduleKey),
+        options.correlationId ?? undefined
+      )
+    : null;
+
   function resolveTenantState(moduleKey: string): ModuleTenantState {
     return (
       tenantStateByKey.get(moduleKey) ?? { moduleKey, tenantEnabled: true }
@@ -134,7 +148,7 @@ export async function fetchModuleMatrix(
   }
 
   return Promise.all(
-    catalog.map(async (entry) => {
+    catalog.map((entry) => {
       const descriptor = descriptorByKey.get(entry.moduleKey) ?? null;
       const tenantState = resolveTenantState(entry.moduleKey);
       const tenantEntry = tenantEntryByKey.get(entry.moduleKey) ?? null;
@@ -201,16 +215,7 @@ export async function fetchModuleMatrix(
         }
       }
 
-      const healthStatus = options.includeHealth
-        ? ((
-            await fetchModuleHealthReport(
-              tx,
-              tenantId,
-              entry.moduleKey,
-              options.correlationId ?? undefined
-            )
-          )?.status ?? null)
-        : null;
+      const healthStatus = healthReports?.get(entry.moduleKey)?.status ?? null;
 
       return {
         moduleKey: entry.moduleKey,

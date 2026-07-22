@@ -23,11 +23,13 @@ export type ModuleSettingsView = {
   updatedAt: string | null;
 };
 
-type ModuleSettingsRow = {
+export type ModuleSettingsRow = {
   schema_version: number;
   settings: Record<string, unknown>;
   updated_at: Date;
 };
+
+type ModuleSettingsRowWithKey = ModuleSettingsRow & { module_key: string };
 
 function findDescriptor(moduleKey: string): ModuleDescriptor | null {
   return listModules().find((d) => d.key === moduleKey) ?? null;
@@ -47,7 +49,38 @@ async function fetchSettingsRow(
   return rows[0] ?? null;
 }
 
-function toView(
+/**
+ * Batched settings read: ONE query for this tenant's every module-settings
+ * row (`WHERE tenant_id = $1` — the exact same RLS-matching predicate
+ * `fetchSettingsRow` uses, minus the per-module `AND module_key`), mapped by
+ * `module_key`. The health-registry batch path uses this to build the
+ * `settings_valid` signal for every module without a per-module round-trip.
+ * A module with no tenant override simply has no map entry — callers pass
+ * `null` for it, exactly as `fetchSettingsRow` would have returned.
+ */
+export async function fetchModuleSettingsRows(
+  tx: Bun.SQL,
+  tenantId: string
+): Promise<Map<string, ModuleSettingsRow>> {
+  const rows = (await tx`
+    SELECT module_key, schema_version, settings, updated_at
+    FROM awcms_micro_module_settings
+    WHERE tenant_id = ${tenantId}
+  `) as ModuleSettingsRowWithKey[];
+
+  const byModuleKey = new Map<string, ModuleSettingsRow>();
+  for (const row of rows) {
+    byModuleKey.set(row.module_key, {
+      schema_version: row.schema_version,
+      settings: row.settings,
+      updated_at: row.updated_at
+    });
+  }
+
+  return byModuleKey;
+}
+
+export function buildModuleSettingsView(
   descriptor: ModuleDescriptor,
   row: ModuleSettingsRow | null
 ): ModuleSettingsView {
@@ -79,7 +112,7 @@ export async function fetchModuleSettingsView(
 
   const row = await fetchSettingsRow(tx, tenantId, moduleKey);
 
-  return toView(descriptor, row);
+  return buildModuleSettingsView(descriptor, row);
 }
 
 export type UpdateModuleSettingsResult =
@@ -132,7 +165,7 @@ export async function updateModuleSettings(
 
   return {
     outcome: "applied",
-    view: toView(descriptor, {
+    view: buildModuleSettingsView(descriptor, {
       schema_version: schemaVersion,
       settings: after,
       updated_at: new Date()
