@@ -74,7 +74,11 @@ const clientStrings = {
   </head>
   <body>
     <main class="login-page">
-      <form id="login-form" class="login-form" novalidate>
+      <form
+        id="login-form"
+        class="login-form awcms-animate-slide-up"
+        novalidate
+      >
         <h1>AWCMS-Micro</h1>
         <p id="login-error" class="login-error" role="alert" hidden></p>
 
@@ -90,7 +94,7 @@ const clientStrings = {
                 value is still the tenant UUID; only the visible label is
                 the friendly tenant name.
               */}
-              <select id="tenant-id" name="tenantId" required>
+              <select id="tenant-id" name="tenantId" required autofocus>
                 {tenantOptions.map((tenant) => (
                   <option value={tenant.id}>{tenant.name}</option>
                 ))}
@@ -113,6 +117,7 @@ const clientStrings = {
                 type="text"
                 required
                 autocomplete="off"
+                autofocus
               />
             </>
           )
@@ -198,6 +203,18 @@ const clientStrings = {
         if (!errorBox) return;
         errorBox.textContent = message;
         errorBox.hidden = false;
+        // Animate the reveal (fade + slide-up) instead of an instant unhide.
+        // Remove → reflow → re-add so a second error replays the entrance; the
+        // animation itself is token-driven and reduced-motion-safe (tokens.css).
+        errorBox.classList.remove("login-error--enter");
+        void errorBox.offsetWidth;
+        errorBox.classList.add("login-error--enter");
+      }
+
+      function hideError(): void {
+        if (!errorBox) return;
+        errorBox.hidden = true;
+        errorBox.classList.remove("login-error--enter");
       }
 
       form?.addEventListener("submit", async (event) => {
@@ -212,9 +229,7 @@ const clientStrings = {
         }
         const unlock = lockElement(submitButton, strings.pleaseWait);
 
-        if (errorBox) {
-          errorBox.hidden = true;
-        }
+        hideError();
 
         const formData = new FormData(form);
         const tenantId = String(formData.get("tenantId") ?? "").trim();
@@ -291,10 +306,12 @@ const clientStrings = {
 <style>
   .login-page {
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--color-bg);
+    padding: var(--sp-4);
   }
 
   .login-form {
@@ -338,6 +355,11 @@ const clientStrings = {
     border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 600;
+    transition: var(--transition-colors);
+  }
+
+  .login-form button:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary-strong) 90%, #000);
   }
 
   .login-form button:disabled {
@@ -352,8 +374,17 @@ const clientStrings = {
     border: 1px solid var(--color-border);
   }
 
+  #google-login-button:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
+
   .login-form input {
     min-height: 44px;
+    transition: var(--transition-colors);
+  }
+
+  .login-form input:focus-visible {
+    border-color: var(--color-primary);
   }
 
   .login-error {
@@ -362,5 +393,12 @@ const clientStrings = {
     border-radius: var(--radius-sm);
     padding: var(--sp-2) var(--sp-3);
     font-size: var(--fs-sm);
+  }
+
+  /* Entrance for the error banner — added by the client script on reveal
+     (see showError). Token-driven; neutralized by the tokens.css
+     prefers-reduced-motion guard. */
+  .login-error--enter {
+    animation: awcms-slide-up var(--dur-base) var(--ease-decelerate) both;
   }
 </style>

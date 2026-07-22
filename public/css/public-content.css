@@ -1,0 +1,382 @@
+/*
+ * public-content.css — the ONE external stylesheet for the CSS-less public
+ * news/blog surfaces (Issue: UI public-surface pass).
+ *
+ * WHY A STANDALONE FILE. The public blog/news pages are rendered by
+ * `blog-content/domain/public-page-rendering.ts`'s `renderPublicPageShell()`
+ * as a RAW HTML string from a `.ts` route — NOT an `.astro` component. Astro's
+ * CSP style-hasher never sees it, and the app's CSP (`astro.config.mjs`) is
+ * `default-src 'self'` (so `style-src` falls back to `'self'`: inline `<style>`
+ * and inline `style=` attributes are BLOCKED). The only CSP-legal way to style
+ * these pages is an external, same-origin stylesheet served from `public/` —
+ * mirrored on how `PublicThemeLayout.astro` consumes an external token CSS, and
+ * on the existing `public/js/news-share.js` precedent for same-origin assets.
+ *
+ * SELF-CONTAINED. tokens.css is NOT loaded on these pages, so this file ships
+ * its OWN color + motion tokens and its OWN `prefers-reduced-motion` guard
+ * (the required companion to any motion — WCAG 2.3.3). Everything is namespaced
+ * under `--pc-*` (public-content) except the shared `--dur-*`/`--ease-*` motion
+ * token NAMES, kept identical to `src/styles/tokens.css` so the motion layer
+ * stays consistent across the app.
+ *
+ * MOBILE-FIRST. Base rules target the small screen; wider viewports only add.
+ * Motion is subtle-professional: opacity/transform only, <=320ms, no bounce.
+ */
+
+/* ── Design tokens (light) ─────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --pc-bg: #ffffff;
+  --pc-surface: #f7f8fa;
+  --pc-surface-2: #eef1f5;
+  --pc-text: #1a1f26;
+  --pc-muted: #5b6672;
+  --pc-border: #d8dee6;
+  /* Link/brand color — >=4.5:1 on --pc-bg (AA). */
+  --pc-link: #1d4ed8;
+  --pc-link-hover: #1e40af;
+  --pc-focus: #2563eb;
+  --pc-shadow: rgba(15, 23, 42, 0.1);
+  --pc-shadow-lift: rgba(15, 23, 42, 0.16);
+
+  /* Motion — identical names/values to src/styles/tokens.css so the whole
+     app shares one motion vocabulary. Neutralized by the reduced-motion
+     guard at the foot of this file. Never hardcode a raw duration/easing. */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+}
+
+/* ── Design tokens (dark, system preference) ───────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --pc-bg: #0e1116;
+    --pc-surface: #161b22;
+    --pc-surface-2: #1f262e;
+    --pc-text: #e6edf3;
+    --pc-muted: #9aa7b2;
+    --pc-border: #2b333c;
+    /* Lightened so the link stays >=4.5:1 on the dark background. */
+    --pc-link: #7ca9ff;
+    --pc-link-hover: #a9c7ff;
+    --pc-focus: #60a5fa;
+    --pc-shadow: rgba(0, 0, 0, 0.5);
+    --pc-shadow-lift: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ── Minimal reset ─────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* CLS/overflow guard: media never forces horizontal scroll on mobile. */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--pc-bg);
+  color: var(--pc-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  font-size: 1rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Readable, mobile-first content container ──────────────────────────── */
+/* The shell wraps every route's body in a single <main>. Cap the measure for
+   comfortable line length; fluid inline padding (rem-bounded) breathes on
+   larger phones/tablets without a media query. */
+main {
+  max-width: 46rem;
+  margin-inline: auto;
+  padding-block: 2rem 3rem;
+  padding-inline: clamp(1rem, 5vw, 2rem);
+}
+
+/* ── Typographic scale ─────────────────────────────────────────────────── */
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.2;
+  text-wrap: balance;
+  color: var(--pc-text);
+}
+h1 {
+  font-size: clamp(1.75rem, 1.2rem + 2.6vw, 2.5rem);
+  margin-block: 0 1rem;
+  letter-spacing: -0.01em;
+}
+h2 {
+  font-size: clamp(1.35rem, 1.05rem + 1.5vw, 1.75rem);
+  margin-block: 2rem 0.75rem;
+}
+h3 {
+  font-size: 1.2rem;
+  margin-block: 1.5rem 0.5rem;
+}
+p {
+  margin-block: 0 1rem;
+}
+time {
+  color: var(--pc-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Links + branded focus ─────────────────────────────────────────────── */
+a {
+  color: var(--pc-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+a:hover {
+  color: var(--pc-link-hover);
+  text-decoration-thickness: 2px;
+}
+:focus-visible {
+  outline: 2px solid var(--pc-focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ── Article listings + homepage cards ─────────────────────────────────── */
+/* News index wraps the summary list in `.posts`; other listing routes emit
+   the `.pc-article` cards directly under <main>. The card style is therefore
+   self-sufficient, and `.posts`/`.homepage-section-posts` add a grid when
+   present. */
+.posts {
+  display: grid;
+  gap: 1.25rem;
+}
+.homepage-section-posts,
+.homepage-section-category-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.pc-article,
+.homepage-section-post {
+  margin: 0;
+  padding: 1.1rem 1.25rem;
+  background: var(--pc-surface);
+  border: 1px solid var(--pc-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px var(--pc-shadow);
+  /* Hover lift eases; property is `transform` (see reveal note below, which
+     animates `translate` instead so the two never fight). */
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.pc-article {
+  /* When a route emits cards straight into <main> (no `.posts` grid). */
+  margin-block-end: 1.25rem;
+}
+.posts .pc-article,
+.homepage-section-posts .pc-article {
+  margin-block-end: 0;
+}
+.pc-article > h2,
+.homepage-section-post > h3 {
+  margin-block: 0 0.5rem;
+}
+.pc-article a,
+.homepage-section-post a {
+  text-decoration: none;
+}
+.pc-article a:hover,
+.homepage-section-post a:hover {
+  text-decoration: underline;
+}
+.pc-article p,
+.homepage-section-post p {
+  color: var(--pc-muted);
+  margin-block: 0;
+}
+
+@media (hover: hover) {
+  .pc-article:hover,
+  .homepage-section-post:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--pc-shadow-lift);
+    border-color: color-mix(in srgb, var(--pc-border) 60%, var(--pc-link) 40%);
+  }
+}
+
+/* Subtle scroll-in reveal. Pure CSS scroll-driven animation — no inline
+   script (CSP-blocked here). Gated twice so it is purely additive:
+   `no-preference` keeps reduced-motion users at the static end state, and
+   `@supports` means browsers without scroll timelines simply show the cards
+   (default opacity 1). The reveal animates `opacity` + the standalone
+   `translate` property, leaving `transform` free for the hover lift above. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .pc-article,
+    .homepage-section-post {
+      animation: pc-reveal var(--dur-slow) var(--ease-decelerate) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 12%;
+    }
+  }
+}
+
+@keyframes pc-reveal {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* ── Media: galleries, video embeds (aspect-ratio reserves space = no CLS) ─ */
+.gallery {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  margin-block: 1.5rem;
+}
+.gallery figure,
+.video-news {
+  margin: 0;
+}
+.gallery img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--pc-surface-2);
+}
+.homepage-section-post img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-block-end: 0.75rem;
+  background: var(--pc-surface-2);
+}
+figcaption {
+  margin-block-start: 0.4rem;
+  color: var(--pc-muted);
+  font-size: 0.9rem;
+}
+
+.video-news {
+  margin-block: 1.5rem;
+}
+/* Aspect-ratio box keeps the iframe responsive and reserves its height. */
+.video-news-embed {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--pc-surface-2);
+}
+.video-news-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.video-news-thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--pc-surface-2);
+}
+.video-news-source {
+  color: var(--pc-muted);
+  font-size: 0.9rem;
+  margin-block: 0.5rem 0;
+}
+
+/* Subtle fade-in for content media (the 3 _shared renderers' output). Runs on
+   render; opacity-only so it never conflicts with the layout properties above,
+   and the reduced-motion guard neutralizes it. */
+@media (prefers-reduced-motion: no-preference) {
+  .gallery img,
+  .video-news-thumbnail {
+    animation: pc-fade var(--dur-slow) var(--ease-decelerate) both;
+  }
+}
+
+@keyframes pc-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Pagination ────────────────────────────────────────────────────────── */
+.pc-pagination {
+  display: flex;
+  gap: 0.75rem;
+  margin-block: 2.5rem 0;
+}
+.pc-pagination a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--pc-border);
+  border-radius: 8px;
+  background: var(--pc-surface);
+  color: var(--pc-link);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.pc-pagination a:hover {
+  background: var(--pc-surface-2);
+  border-color: var(--pc-link);
+}
+
+/* ── Reduced-motion neutralizer (WCAG 2.3.3) ───────────────────────────────
+   Required companion to every animation/transition above. This file is loaded
+   by pages that do NOT import tokens.css, so it carries its own copy of the
+   guard. 0.01ms (not 0) keeps transitionend/animationend firing. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

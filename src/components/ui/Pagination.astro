@@ -72,6 +72,13 @@ const { id, hasPrevious, hasNext, previousLabel, nextLabel, navLabel } =
     color: var(--color-text);
     font-size: var(--fs-sm);
     cursor: pointer;
+    /* Colors only — the focus `outline` below stays instant (never fades). */
+    transition: var(--transition-colors);
+  }
+
+  /* Subtle tactile press; a disabled prev/next never reaches `:active`. */
+  .pagination-button:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   .pagination-button:focus-visible {

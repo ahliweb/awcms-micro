@@ -70,14 +70,34 @@ const clientStrings = {
           <h2 id="newsletter-campaigns-heading">
             {t("admin.newsletter.campaigns_heading")}
           </h2>
-          <ul class="newsletter-admin__list" data-campaigns-list />
+          <ul class="newsletter-admin__list" data-campaigns-list>
+            {[0, 1].map(() => (
+              <li
+                class="newsletter-admin__item"
+                data-skeleton
+                aria-hidden="true"
+              >
+                <div class="awcms-skeleton newsletter-admin__skeleton" />
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="newsletter-topics-heading">
           <h2 id="newsletter-topics-heading">
             {t("admin.newsletter.topics_heading")}
           </h2>
-          <ul class="newsletter-admin__list" data-topics-list />
+          <ul class="newsletter-admin__list" data-topics-list>
+            {[0, 1].map(() => (
+              <li
+                class="newsletter-admin__item"
+                data-skeleton
+                aria-hidden="true"
+              >
+                <div class="awcms-skeleton newsletter-admin__skeleton" />
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="newsletter-subscribers-heading">
@@ -87,14 +107,34 @@ const clientStrings = {
           <p class="newsletter-admin__note">
             {t("admin.newsletter.subscribers_note")}
           </p>
-          <ul class="newsletter-admin__list" data-subscribers-list />
+          <ul class="newsletter-admin__list" data-subscribers-list>
+            {[0, 1].map(() => (
+              <li
+                class="newsletter-admin__item"
+                data-skeleton
+                aria-hidden="true"
+              >
+                <div class="awcms-skeleton newsletter-admin__skeleton" />
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="newsletter-suppression-heading">
           <h2 id="newsletter-suppression-heading">
             {t("admin.newsletter.suppression_heading")}
           </h2>
-          <ul class="newsletter-admin__list" data-suppression-list />
+          <ul class="newsletter-admin__list" data-suppression-list>
+            {[0, 1].map(() => (
+              <li
+                class="newsletter-admin__item"
+                data-skeleton
+                aria-hidden="true"
+              >
+                <div class="awcms-skeleton newsletter-admin__skeleton" />
+              </li>
+            ))}
+          </ul>
         </section>
       </section>
     )
@@ -104,30 +144,34 @@ const clientStrings = {
 <style>
   .newsletter-admin__list {
     list-style: none;
-    margin: 0 0 1.5rem;
+    margin: 0 0 var(--sp-5);
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--sp-2);
   }
   .newsletter-admin__item {
-    border: 1px solid var(--color-border, #d0d5dd);
-    border-radius: 0.5rem;
-    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--sp-2) var(--sp-3);
   }
   .newsletter-admin__meta {
-    font-size: 0.85rem;
-    color: var(--color-text-muted, #667085);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
   }
   .newsletter-admin__note {
-    font-size: 0.9rem;
-    color: var(--color-text-muted, #667085);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+  .newsletter-admin__skeleton {
+    height: var(--sp-3);
+    width: 70%;
   }
   .newsletter-admin__banner:empty {
     display: none;
   }
   .newsletter-admin__banner[data-tone="error"] {
-    color: var(--color-danger, #b42318);
+    color: var(--color-danger);
   }
 </style>
 

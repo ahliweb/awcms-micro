@@ -50,6 +50,9 @@ export function initCommentsSection(root: HTMLElement): void {
   const parentInput = root.querySelector<HTMLInputElement>(
     "[data-comments-parent]"
   );
+  const skeletonEl = root.querySelector<HTMLElement>(
+    "[data-comments-skeleton]"
+  );
   if (!listEl || !form || !statusEl) return;
 
   let cursor: string | null = null;
@@ -133,6 +136,9 @@ export function initCommentsSection(root: HTMLElement): void {
       if (moreBtn) moreBtn.hidden = cursor === null;
     } catch {
       setStatus(strings.loadError, "error");
+    } finally {
+      // First load resolved (success or error) — retire the loading skeleton.
+      if (!append && skeletonEl) skeletonEl.hidden = true;
     }
   };
 

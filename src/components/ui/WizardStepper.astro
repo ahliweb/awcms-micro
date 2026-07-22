@@ -101,6 +101,9 @@ const {
     border: 1px solid var(--color-border);
     font-size: var(--fs-sm);
     font-weight: 700;
+    /* Ease the pending -> active -> completed recolor as a client script
+       advances the wizard, instead of snapping between fills. */
+    transition: var(--transition-colors);
   }
 
   .wizard-stepper-item[data-active="true"] .wizard-stepper-marker {
@@ -113,6 +116,20 @@ const {
     background: var(--color-success-strong);
     color: var(--color-primary-contrast);
     border-color: var(--color-success-strong);
+    /* Subtle scale "pop" the moment a step is marked done (the selector
+       starts matching when a client script flips data-completed). Token
+       timing keeps it reduced-motion-safe via the global guard in
+       tokens.css; --ease-spring adds a small overshoot. */
+    animation: wizard-marker-pop var(--dur-base) var(--ease-spring);
+  }
+
+  @keyframes wizard-marker-pop {
+    from {
+      transform: scale(0.85);
+    }
+    to {
+      transform: scale(1);
+    }
   }
 
   .wizard-stepper-copy {

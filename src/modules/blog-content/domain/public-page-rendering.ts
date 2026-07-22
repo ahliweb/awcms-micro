@@ -152,6 +152,15 @@ function renderOpenGraphMetaTags(options: PublicPageShellOptions): string {
   return tags.filter((tag) => tag.length > 0).join("\n");
 }
 
+/**
+ * The single external stylesheet these raw-HTML pages are styled by. It MUST
+ * be an external same-origin file (served from `public/`), never an inline
+ * `<style>`: this shell is a `.ts` route string Astro's CSP style-hasher never
+ * sees, and the app CSP (`astro.config.mjs`) is `default-src 'self'` — inline
+ * styles are blocked. Mirrors `PublicThemeLayout.astro`'s external token CSS.
+ */
+const PUBLIC_CONTENT_STYLESHEET_HREF = "/css/public-content.css";
+
 export function renderPublicPageShell(options: PublicPageShellOptions): string {
   const canonicalTag = options.canonicalUrl
     ? `<link rel="canonical" href="${escapeHtml(options.canonicalUrl)}" />`
@@ -178,9 +187,12 @@ ${canonicalTag}
 ${robotsTag}
 ${ogTags}
 ${jsonLdTag}
+<link rel="stylesheet" href="${PUBLIC_CONTENT_STYLESHEET_HREF}" />
 </head>
 <body>
+<main>
 ${options.bodyHtml}
+</main>
 </body>
 </html>`;
 }
@@ -209,7 +221,7 @@ export function renderPostSummaryListHtmlAtBasePath(
 
   return posts
     .map(
-      (post) => `<article>
+      (post) => `<article class="pc-article">
   <h2><a href="${escapeHtml(basePath)}/${escapeHtml(post.slug)}">${escapeHtml(post.title)}</a></h2>
   ${post.excerpt ? `<p>${escapeHtml(post.excerpt)}</p>` : ""}
 </article>`
@@ -243,5 +255,5 @@ export function renderPaginationNavHtml(
     ? `<a href="${escapeHtml(basePath)}?page=${currentPage + 1}">Next</a>`
     : "";
 
-  return `<nav>${prevLink} ${nextLink}</nav>`;
+  return `<nav class="pc-pagination" aria-label="Pagination">${prevLink} ${nextLink}</nav>`;
 }

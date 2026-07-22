@@ -103,68 +103,70 @@ if (CAN_READ) {
             {t("admin.profile_identity.merge_requests.no_requests")}
           </p>
         ) : (
-          <table class="merge-table">
-            <thead>
-              <tr>
-                <th>
-                  {t("admin.profile_identity.merge_requests.field_source")}
-                </th>
-                <th>
-                  {t("admin.profile_identity.merge_requests.field_target")}
-                </th>
-                <th>
-                  {t("admin.profile_identity.merge_requests.field_status")}
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {mergeRequests.map((request) => (
+          <div class="table-scroll">
+            <table class="merge-table">
+              <thead>
                 <tr>
-                  <td>{request.sourceProfileId}</td>
-                  <td>{request.targetProfileId}</td>
-                  <td>{request.status}</td>
-                  <td class="actions-cell">
-                    {CAN_APPROVE && request.status === "pending" && (
-                      <>
-                        <button
-                          type="button"
-                          class="decide-button"
-                          data-id={request.id}
-                          data-decision="approved"
-                        >
-                          {t(
-                            "admin.profile_identity.merge_requests.approve_button"
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          class="decide-button"
-                          data-id={request.id}
-                          data-decision="rejected"
-                        >
-                          {t(
-                            "admin.profile_identity.merge_requests.reject_button"
-                          )}
-                        </button>
-                      </>
-                    )}
-                    {CAN_EXECUTE && request.status === "approved" && (
-                      <button
-                        type="button"
-                        class="execute-button"
-                        data-id={request.id}
-                      >
-                        {t(
-                          "admin.profile_identity.merge_requests.execute_button"
-                        )}
-                      </button>
-                    )}
-                  </td>
+                  <th>
+                    {t("admin.profile_identity.merge_requests.field_source")}
+                  </th>
+                  <th>
+                    {t("admin.profile_identity.merge_requests.field_target")}
+                  </th>
+                  <th>
+                    {t("admin.profile_identity.merge_requests.field_status")}
+                  </th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {mergeRequests.map((request) => (
+                  <tr>
+                    <td>{request.sourceProfileId}</td>
+                    <td>{request.targetProfileId}</td>
+                    <td>{request.status}</td>
+                    <td class="actions-cell">
+                      {CAN_APPROVE && request.status === "pending" && (
+                        <>
+                          <button
+                            type="button"
+                            class="decide-button"
+                            data-id={request.id}
+                            data-decision="approved"
+                          >
+                            {t(
+                              "admin.profile_identity.merge_requests.approve_button"
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            class="decide-button"
+                            data-id={request.id}
+                            data-decision="rejected"
+                          >
+                            {t(
+                              "admin.profile_identity.merge_requests.reject_button"
+                            )}
+                          </button>
+                        </>
+                      )}
+                      {CAN_EXECUTE && request.status === "approved" && (
+                        <button
+                          type="button"
+                          class="execute-button"
+                          data-id={request.id}
+                        >
+                          {t(
+                            "admin.profile_identity.merge_requests.execute_button"
+                          )}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     )
@@ -200,6 +202,10 @@ if (CAN_READ) {
       var(--color-surface)
     );
     border: 1px solid var(--color-danger);
+  }
+
+  .table-scroll {
+    overflow-x: auto;
   }
 
   .merge-table {

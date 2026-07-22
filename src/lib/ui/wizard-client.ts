@@ -266,6 +266,49 @@ export function createWizardIdempotencyKey(prefix = "wizard-submit"): string {
   return `${keyPrefix}:${crypto.randomUUID()}`;
 }
 
+/**
+ * DOM helper (opt-in) — toggle a wizard's `WizardPanel.astro` sections so only
+ * `activePanelId` is visible, and play the token-driven slide-up entrance on
+ * the newly-activated panel.
+ *
+ * `WizardPanel.astro` hides inactive steps with the `hidden` attribute (a real
+ * `display:none`), a change CSS cannot transition — so this clears `hidden` on
+ * the active panel and (re-)adds the `.awcms-animate-slide-up` keyframe class
+ * on each activation (removing it and forcing a reflow first, so it replays on
+ * every step swap, not just the first). Reduced-motion-safe via the global
+ * guard in `tokens.css`.
+ *
+ * Purely presentational: it mirrors `data-active` for CSS selectors but
+ * deliberately does NOT touch `aria-current`, focus, or step validation —
+ * those stay owned by the page's own stepper sync, preserving this module's
+ * separation between wizard *state* (the pure functions above) and a page's
+ * DOM wiring. `doc` defaults to the ambient `document` (injectable for tests).
+ *
+ * Unlike the pure state helpers above, this touches the DOM — call it only
+ * from a browser `<script>`, never from server/render code.
+ */
+export function activateWizardPanel(
+  panelIds: readonly string[],
+  activePanelId: string,
+  doc: Document = document
+): void {
+  for (const panelId of panelIds) {
+    const panel = doc.getElementById(panelId);
+    if (!panel) continue;
+
+    const isActive = panelId === activePanelId;
+    panel.hidden = !isActive;
+    panel.setAttribute("data-active", isActive ? "true" : "false");
+    panel.classList.remove("awcms-animate-slide-up");
+
+    if (isActive) {
+      // Force reflow so re-adding the class restarts the entrance animation.
+      void panel.offsetWidth;
+      panel.classList.add("awcms-animate-slide-up");
+    }
+  }
+}
+
 function uniqueStrings(values: readonly string[]): readonly string[] {
   return Array.from(new Set(values));
 }

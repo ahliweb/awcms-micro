@@ -49,6 +49,10 @@ export function initCommentsAdmin(root: HTMLElement): void {
   const bannerEl = root.querySelector<HTMLElement>("[data-queue-banner]");
   if (!listEl) return;
 
+  const clearSkeletons = (): void => {
+    listEl.querySelectorAll("[data-skeleton]").forEach((node) => node.remove());
+  };
+
   const authHeaders = (): Record<string, string> => ({
     "content-type": "application/json",
     "x-awcms-micro-tenant-id": tenantId
@@ -191,6 +195,7 @@ export function initCommentsAdmin(root: HTMLElement): void {
         }
       );
       if (!res.ok) {
+        clearSkeletons();
         setBanner(strings.loadError, "error");
         return;
       }
@@ -200,6 +205,7 @@ export function initCommentsAdmin(root: HTMLElement): void {
       for (const item of items) listEl.append(renderItem(item));
       if (emptyEl) emptyEl.hidden = items.length > 0;
     } catch {
+      clearSkeletons();
       setBanner(strings.loadError, "error");
     }
   };

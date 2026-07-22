@@ -8,6 +8,7 @@
  * The response is always a generic acknowledgement (never reveals existence), so
  * the UI shows the SAME confirmation regardless of the address's state.
  */
+import "../../styles/tokens.css";
 import { createTranslator } from "../../lib/i18n/translate";
 
 const t = await createTranslator(Astro.locals.locale);
@@ -23,30 +24,29 @@ Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
     <title>{t("newsletter.public.heading")}</title>
   </head>
   <body>
-    <main
-      class="newsletter-demo"
-      style="max-width: 34rem; margin: 2rem auto; padding: 0 1rem;"
-    >
+    <main class="newsletter-demo">
       <h1>{t("newsletter.public.heading")}</h1>
       <p>{t("newsletter.public.description")}</p>
 
-      <form data-newsletter-subscribe novalidate>
+      <form class="newsletter-demo__form" data-newsletter-subscribe novalidate>
         <label for="newsletter-email"
           >{t("newsletter.public.email_label")}</label
         >
         <input
           id="newsletter-email"
+          class="newsletter-demo__input"
           name="email"
           type="email"
           required
           autocomplete="email"
-          style="display:block; width:100%; padding:0.5rem; margin:0.5rem 0 1rem;"
         />
-        <button type="submit">{t("newsletter.public.subscribe_button")}</button>
+        <button type="submit" class="newsletter-demo__submit"
+          >{t("newsletter.public.subscribe_button")}</button
+        >
       </form>
 
       <p
-        class="newsletter-demo__note"
+        class="newsletter-demo__note awcms-animate-fade"
         data-newsletter-note
         role="status"
         aria-live="polite"
@@ -80,5 +80,65 @@ Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
         form.reset();
       });
     </script>
+
+    <style>
+      /* Scoped (Astro-hashed → CSP-safe) token styling — replaces the former
+         inline `style=` attributes, which `style-src 'self'` would block in the
+         built app. Colors/spacing come from the imported tokens.css. */
+      .newsletter-demo {
+        max-width: 34rem;
+        margin: 2rem auto;
+        padding: 0 var(--sp-4);
+      }
+      .newsletter-demo h1 {
+        font-size: var(--fs-2xl);
+        margin-block: 0 var(--sp-3);
+      }
+      .newsletter-demo__form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-2);
+        margin-block: var(--sp-4);
+      }
+      .newsletter-demo__form label {
+        font-size: var(--fs-sm);
+        color: var(--color-text-muted);
+      }
+      .newsletter-demo__input {
+        min-height: 44px;
+        padding: var(--sp-2) var(--sp-3);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        background: var(--color-surface);
+        color: var(--color-text);
+        transition: var(--transition-colors);
+      }
+      .newsletter-demo__input:focus-visible {
+        border-color: var(--color-primary);
+      }
+      .newsletter-demo__submit {
+        align-self: flex-start;
+        min-height: 44px;
+        padding: var(--sp-2) var(--sp-4);
+        border: none;
+        border-radius: var(--radius-sm);
+        background: var(--color-primary-strong);
+        color: var(--color-primary-contrast);
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-colors);
+      }
+      .newsletter-demo__submit:hover {
+        background: color-mix(in srgb, var(--color-primary-strong) 90%, #000);
+      }
+      .newsletter-demo__note {
+        margin-block-start: var(--sp-4);
+        padding: var(--sp-3);
+        border: 1px solid var(--color-success-strong);
+        border-radius: var(--radius-sm);
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+    </style>
   </body>
 </html>

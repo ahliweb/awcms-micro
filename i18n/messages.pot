@@ -2273,7 +2273,7 @@ msgstr ""
 msgid "admin.layout.active_tenant_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:315
+#: src/layouts/AdminLayout.astro:314
 msgid "admin.layout.breadcrumb_aria_label"
 msgstr ""
 
@@ -2285,11 +2285,11 @@ msgstr ""
 msgid "admin.layout.logout"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:273
+#: src/layouts/AdminLayout.astro:272
 msgid "admin.layout.nav_access_users"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:255
+#: src/layouts/AdminLayout.astro:254
 msgid "admin.layout.nav_aria_label"
 msgstr ""
 
@@ -2303,7 +2303,7 @@ msgstr ""
 msgid "admin.layout.nav_business_scope"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:263
+#: src/layouts/AdminLayout.astro:262
 msgid "admin.layout.nav_dashboard"
 msgstr ""
 
@@ -2352,7 +2352,7 @@ msgstr ""
 msgid "admin.layout.nav_security"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:295
+#: src/layouts/AdminLayout.astro:294
 msgid "admin.layout.nav_settings"
 msgstr ""
 
@@ -2371,7 +2371,7 @@ msgstr ""
 msgid "admin.layout.nav_social_publishing_rules"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:285
+#: src/layouts/AdminLayout.astro:284
 msgid "admin.layout.nav_sync"
 msgstr ""
 
@@ -2841,7 +2841,7 @@ msgstr ""
 msgid "admin.news_portal.access_denied_title"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:325
+#: src/pages/admin/news-portal/ad-placements.astro:331
 msgid "admin.news_portal.ad_placements.create_submit"
 msgstr ""
 
@@ -2849,11 +2849,11 @@ msgstr ""
 msgid "admin.news_portal.ad_placements.create_success"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:266
+#: src/pages/admin/news-portal/ad-placements.astro:272
 msgid "admin.news_portal.ad_placements.create_summary"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:256
+#: src/pages/admin/news-portal/ad-placements.astro:262
 msgid "admin.news_portal.ad_placements.delete_button"
 msgstr ""
 
@@ -2869,47 +2869,47 @@ msgstr ""
 msgid "admin.news_portal.ad_placements.delete_success"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:243
+#: src/pages/admin/news-portal/ad-placements.astro:249
 msgid "admin.news_portal.ad_placements.field_active"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:230
+#: src/pages/admin/news-portal/ad-placements.astro:236
 msgid "admin.news_portal.ad_placements.field_ends_at"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:191
+#: src/pages/admin/news-portal/ad-placements.astro:197
 msgid "admin.news_portal.ad_placements.field_link_url"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:178
+#: src/pages/admin/news-portal/ad-placements.astro:184
 msgid "admin.news_portal.ad_placements.field_media_object_id"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:161
+#: src/pages/admin/news-portal/ad-placements.astro:167
 msgid "admin.news_portal.ad_placements.field_name"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:127
+#: src/pages/admin/news-portal/ad-placements.astro:128
 msgid "admin.news_portal.ad_placements.field_placement_key"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:212
+#: src/pages/admin/news-portal/ad-placements.astro:218
 msgid "admin.news_portal.ad_placements.field_priority"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:199
+#: src/pages/admin/news-portal/ad-placements.astro:205
 msgid "admin.news_portal.ad_placements.field_rotation_mode"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:222
+#: src/pages/admin/news-portal/ad-placements.astro:228
 msgid "admin.news_portal.ad_placements.field_starts_at"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:185
+#: src/pages/admin/news-portal/ad-placements.astro:191
 msgid "admin.news_portal.ad_placements.media_object_id_hint"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:149
+#: src/pages/admin/news-portal/ad-placements.astro:155
 msgid "admin.news_portal.ad_placements.no_placements"
 msgstr ""
 
@@ -2917,15 +2917,15 @@ msgstr ""
 msgid "admin.news_portal.ad_placements.preset_guide_summary"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:132
+#: src/pages/admin/news-portal/ad-placements.astro:136
 msgid "admin.news_portal.ad_placements.preset_max_items"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:130
+#: src/pages/admin/news-portal/ad-placements.astro:131
 msgid "admin.news_portal.ad_placements.preset_recommended_size"
 msgstr ""
 
-#: src/pages/admin/news-portal/ad-placements.astro:246
+#: src/pages/admin/news-portal/ad-placements.astro:252
 msgid "admin.news_portal.ad_placements.save_button"
 msgstr ""
 
@@ -3058,7 +3058,7 @@ msgstr ""
 msgid "admin.newsletter.subscribers_heading"
 msgstr ""
 
-#: src/pages/admin/newsletter/index.astro:88
+#: src/pages/admin/newsletter/index.astro:108
 msgid "admin.newsletter.subscribers_note"
 msgstr ""
 
@@ -3246,7 +3246,7 @@ msgstr ""
 msgid "admin.profile_identity.detail.view_merge_requests_link"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:136
+#: src/pages/admin/profile-identity/merge-requests.astro:137
 msgid "admin.profile_identity.merge_requests.approve_button"
 msgstr ""
 
@@ -3254,7 +3254,7 @@ msgstr ""
 msgid "admin.profile_identity.merge_requests.decision_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:158
+#: src/pages/admin/profile-identity/merge-requests.astro:159
 msgid "admin.profile_identity.merge_requests.execute_button"
 msgstr ""
 
@@ -3266,15 +3266,15 @@ msgstr ""
 msgid "admin.profile_identity.merge_requests.execute_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:110
+#: src/pages/admin/profile-identity/merge-requests.astro:111
 msgid "admin.profile_identity.merge_requests.field_source"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:116
+#: src/pages/admin/profile-identity/merge-requests.astro:117
 msgid "admin.profile_identity.merge_requests.field_status"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:113
+#: src/pages/admin/profile-identity/merge-requests.astro:114
 msgid "admin.profile_identity.merge_requests.field_target"
 msgstr ""
 
@@ -3282,7 +3282,7 @@ msgstr ""
 msgid "admin.profile_identity.merge_requests.no_requests"
 msgstr ""
 
-#: src/pages/admin/profile-identity/merge-requests.astro:146
+#: src/pages/admin/profile-identity/merge-requests.astro:147
 msgid "admin.profile_identity.merge_requests.reject_button"
 msgstr ""
 
@@ -3294,7 +3294,7 @@ msgstr ""
 msgid "admin.profile_identity.merge_requests.title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:206
+#: src/pages/admin/profile-identity/index.astro:208
 msgid "admin.profile_identity.parties.create_submit"
 msgstr ""
 
@@ -3302,31 +3302,31 @@ msgstr ""
 msgid "admin.profile_identity.parties.create_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:172
+#: src/pages/admin/profile-identity/index.astro:174
 msgid "admin.profile_identity.parties.create_summary"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:192
+#: src/pages/admin/profile-identity/index.astro:194
 msgid "admin.profile_identity.parties.field_legal_name"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:142
+#: src/pages/admin/profile-identity/index.astro:143
 msgid "admin.profile_identity.parties.field_name"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:196
+#: src/pages/admin/profile-identity/index.astro:198
 msgid "admin.profile_identity.parties.field_risk_level"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:144
+#: src/pages/admin/profile-identity/index.astro:145
 msgid "admin.profile_identity.parties.field_status"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:143
+#: src/pages/admin/profile-identity/index.astro:144
 msgid "admin.profile_identity.parties.field_type"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:146
+#: src/pages/admin/profile-identity/index.astro:147
 msgid "admin.profile_identity.parties.field_verification"
 msgstr ""
 
@@ -3346,7 +3346,7 @@ msgstr ""
 msgid "admin.profile_identity.parties.filter_type"
 msgstr ""
 
-#: src/pages/admin/profile-identity/index.astro:160
+#: src/pages/admin/profile-identity/index.astro:161
 msgid "admin.profile_identity.parties.manage_link"
 msgstr ""
 
@@ -4031,7 +4031,7 @@ msgstr ""
 msgid "admin.social_publishing.jobs.field_attempts"
 msgstr ""
 
-#: src/pages/admin/social-publishing/jobs.astro:191
+#: src/pages/admin/social-publishing/jobs.astro:193
 msgid "admin.social_publishing.jobs.field_error"
 msgstr ""
 
@@ -4039,11 +4039,11 @@ msgstr ""
 msgid "admin.social_publishing.jobs.field_external_url"
 msgstr ""
 
-#: src/pages/admin/social-publishing/jobs.astro:189
+#: src/pages/admin/social-publishing/jobs.astro:190
 msgid "admin.social_publishing.jobs.field_outcome"
 msgstr ""
 
-#: src/pages/admin/social-publishing/jobs.astro:193
+#: src/pages/admin/social-publishing/jobs.astro:196
 msgid "admin.social_publishing.jobs.field_started_at"
 msgstr ""
 
@@ -4563,11 +4563,11 @@ msgstr ""
 msgid "auth.login.generic_error"
 msgstr ""
 
-#: src/pages/login.astro:152
+#: src/pages/login.astro:157
 msgid "auth.login.google_button"
 msgstr ""
 
-#: src/pages/login.astro:121
+#: src/pages/login.astro:126
 msgid "auth.login.identifier_label"
 msgstr ""
 
@@ -4575,7 +4575,7 @@ msgstr ""
 msgid "auth.login.page_title"
 msgstr ""
 
-#: src/pages/login.astro:130
+#: src/pages/login.astro:135
 msgid "auth.login.password_label"
 msgstr ""
 
@@ -4583,11 +4583,11 @@ msgstr ""
 msgid "auth.login.submit"
 msgstr ""
 
-#: src/pages/login.astro:101
+#: src/pages/login.astro:105
 msgid "auth.login.tenant_id_label"
 msgstr ""
 
-#: src/pages/login.astro:84
+#: src/pages/login.astro:88
 msgid "auth.login.tenant_label"
 msgstr ""
 
@@ -4595,15 +4595,15 @@ msgstr ""
 msgid "comments.public.awaiting_moderation"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:106
+#: src/components/comments/CommentsSection.astro:125
 msgid "comments.public.body_label"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:102
+#: src/components/comments/CommentsSection.astro:121
 msgid "comments.public.email_hint"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:94
+#: src/components/comments/CommentsSection.astro:113
 msgid "comments.public.email_label"
 msgstr ""
 
@@ -4611,7 +4611,7 @@ msgstr ""
 msgid "comments.public.empty"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:70
+#: src/components/comments/CommentsSection.astro:89
 msgid "comments.public.form_heading"
 msgstr ""
 
@@ -4623,15 +4623,15 @@ msgstr ""
 msgid "comments.public.load_error"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:66
+#: src/components/comments/CommentsSection.astro:85
 msgid "comments.public.load_more"
 msgstr ""
 
-#: src/pages/comments/demo.astro:46
+#: src/pages/comments/demo.astro:44
 msgid "comments.public.missing_resource"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:81
+#: src/components/comments/CommentsSection.astro:100
 msgid "comments.public.name_label"
 msgstr ""
 
@@ -4651,7 +4651,7 @@ msgstr ""
 msgid "comments.public.reported"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:139
+#: src/components/comments/CommentsSection.astro:158
 msgid "comments.public.submit"
 msgstr ""
 
@@ -4663,7 +4663,7 @@ msgstr ""
 msgid "comments.public.submitting"
 msgstr ""
 
-#: src/components/comments/CommentsSection.astro:118
+#: src/components/comments/CommentsSection.astro:137
 msgid "comments.public.subscribe_label"
 msgstr ""
 
@@ -5074,19 +5074,19 @@ msgstr ""
 msgid "error.workflow_approval_required"
 msgstr ""
 
-#: src/pages/newsletter/demo.astro:31
+#: src/pages/newsletter/demo.astro:29
 msgid "newsletter.public.description"
 msgstr ""
 
-#: src/pages/newsletter/demo.astro:35
+#: src/pages/newsletter/demo.astro:33
 msgid "newsletter.public.email_label"
 msgstr ""
 
-#: src/pages/newsletter/demo.astro:23
+#: src/pages/newsletter/demo.astro:24
 msgid "newsletter.public.heading"
 msgstr ""
 
-#: src/pages/newsletter/demo.astro:45
+#: src/pages/newsletter/demo.astro:44
 msgid "newsletter.public.subscribe_button"
 msgstr ""
 

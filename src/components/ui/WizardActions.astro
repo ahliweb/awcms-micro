@@ -104,6 +104,13 @@ const {
     font-size: var(--fs-sm);
     font-weight: 700;
     cursor: pointer;
+    /* Colors only — the focus `outline` below stays instant (never fades). */
+    transition: var(--transition-colors);
+  }
+
+  /* Subtle tactile press; disabled buttons never reach `:active`. */
+  .wizard-action:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   .wizard-action-primary {

@@ -30,6 +30,10 @@ export function initNewsletterAdmin(root: HTMLElement): void {
   const strings: AdminStrings = JSON.parse(root.dataset.strings ?? "{}");
   const bannerEl = root.querySelector<HTMLElement>("[data-newsletter-banner]");
 
+  const clearSkeletons = (): void => {
+    root.querySelectorAll("[data-skeleton]").forEach((node) => node.remove());
+  };
+
   const authHeaders = (): Record<string, string> => ({
     "content-type": "application/json",
     "x-awcms-micro-tenant-id": tenantId
@@ -90,6 +94,7 @@ export function initNewsletterAdmin(root: HTMLElement): void {
     );
 
     if (!campaigns && !topics && !subscribers && !suppression) {
+      clearSkeletons();
       setError(strings.loadError);
       return;
     }

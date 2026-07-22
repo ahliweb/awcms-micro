@@ -44,6 +44,19 @@
  * the real width, so this is the correct default rather than a guess.
  */
 
+/**
+ * Shared, verbatim attribute string for public content `<img>` tags emitted by
+ * the neutral `_shared` renderers (gallery + video-news thumbnail). `lazy`
+ * defers off-screen fetches (perf) and `async` decode keeps the main thread
+ * free — both are pure performance/CLS hints with no security surface. One
+ * source of truth so the two renderers can never drift on it. The public
+ * stylesheet (`public/css/public-content.css`) pairs this with an
+ * `aspect-ratio` box + a subtle fade-in per media class, so the bytes never
+ * cause layout shift as they arrive.
+ */
+export const PUBLIC_CONTENT_IMG_LOADING_ATTRS =
+  'loading="lazy" decoding="async"';
+
 const RESIZABLE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
 
 /**

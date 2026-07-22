@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../lib/html/escape";
+import { PUBLIC_CONTENT_IMG_LOADING_ATTRS } from "./responsive-image";
 
 /**
  * Shared, pure `video_news` embed renderer (Issue #639, epic `news_portal`)
@@ -95,7 +96,10 @@ export function renderVideoNewsBlockHtml(
         ? record.sourceLabel.trim()
         : "Video";
 
-  const iframe = `<iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(title)}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  // The iframe is wrapped in a `.video-news-embed` aspect-ratio box (the
+  // stylesheet gives it `aspect-ratio: 16/9`) so the embed reserves its height
+  // and stays responsive on mobile instead of overflowing — no CLS as it loads.
+  const iframe = `<div class="video-news-embed"><iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(title)}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
 
   const thumbnailUrl =
     typeof record.thumbnailMediaObjectId === "string"
@@ -104,7 +108,7 @@ export function renderVideoNewsBlockHtml(
 
   const thumbnail =
     thumbnailUrl !== null
-      ? `<img class="video-news-thumbnail" src="${escapeHtml(thumbnailUrl)}" alt="${escapeHtml(title)}" loading="lazy">`
+      ? `<img class="video-news-thumbnail" src="${escapeHtml(thumbnailUrl)}" alt="${escapeHtml(title)}" ${PUBLIC_CONTENT_IMG_LOADING_ATTRS}>`
       : "";
 
   const caption =
