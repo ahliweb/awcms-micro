@@ -93,6 +93,9 @@ const { id, label, hint, error, required = false } = Astro.props;
     color: var(--color-text);
     font-size: var(--fs-sm);
     font-family: var(--font-sans);
+    /* Ease hover/focus and the valid<->invalid border recolor below; the
+       focus-visible outline stays instant (not a transitioned property). */
+    transition: var(--transition-colors);
   }
 
   .form-field-control :global(textarea) {

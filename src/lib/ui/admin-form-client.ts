@@ -162,7 +162,14 @@ export async function fetchJson<TData = unknown>(
 }
 
 /** Shows the page's `role="alert"` action banner (announced to assistive
- * tech automatically since `role="alert"` is an implicit live region). */
+ * tech automatically since `role="alert"` is an implicit live region).
+ *
+ * The banner is revealed by clearing `hidden`, a `display` change CSS cannot
+ * transition — so the entrance is applied here as the token-driven
+ * `.awcms-animate-slide-up` keyframe (see `ActionBanner.astro`). Removing the
+ * class, forcing a reflow, then re-adding it restarts the animation on every
+ * reveal (e.g. an error banner followed by a success banner), not just the
+ * first. Reduced-motion-safe via the global guard in `tokens.css`. */
 export function showBanner(
   bannerId: string,
   message: string,
@@ -173,6 +180,10 @@ export function showBanner(
   banner.textContent = message;
   banner.setAttribute("data-variant", variant);
   banner.hidden = false;
+  banner.classList.remove("awcms-animate-slide-up");
+  // Force reflow so re-adding the class replays the entrance animation.
+  void banner.offsetWidth;
+  banner.classList.add("awcms-animate-slide-up");
 }
 
 export function reloadAfterDelay(delayMs = 400): void {

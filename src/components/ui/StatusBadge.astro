@@ -41,6 +41,9 @@ const { label, variant } = Astro.props;
     border: 1px solid var(--color-border);
     background: var(--color-surface-2);
     color: var(--color-text);
+    /* Ease the fill/border/text recolor when a row's status flips variant
+       (e.g. pending -> active) instead of snapping. */
+    transition: var(--transition-colors);
   }
 
   .status-badge[data-variant="success"] {

@@ -89,10 +89,52 @@ const reasonErrorId = `${id}-reason-error`;
     box-shadow: var(--shadow-lg);
     padding: var(--sp-4);
     width: min(420px, calc(100vw - var(--sp-6)));
+
+    /* Entrance/exit: fade + subtle scale-in on `showModal()` (the native
+       `<dialog>` toggles `[open]`). `@starting-style` provides the pre-open
+       values so the very first paint animates in; `overlay`/`display` with
+       `allow-discrete` keep the element painted through the exit so closing
+       animates out too instead of snapping to `display:none`. Token-driven,
+       so the global `prefers-reduced-motion` guard in tokens.css collapses
+       it automatically. */
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity var(--dur-slow) var(--ease-standard),
+      transform var(--dur-slow) var(--ease-spring),
+      overlay var(--dur-slow) var(--ease-standard) allow-discrete,
+      display var(--dur-slow) var(--ease-standard) allow-discrete;
+  }
+
+  .confirm-dialog[open] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  @starting-style {
+    .confirm-dialog[open] {
+      opacity: 0;
+      transform: scale(0.96);
+    }
   }
 
   .confirm-dialog::backdrop {
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--color-scrim);
+    opacity: 0;
+    transition:
+      opacity var(--dur-slow) var(--ease-standard),
+      overlay var(--dur-slow) var(--ease-standard) allow-discrete,
+      display var(--dur-slow) var(--ease-standard) allow-discrete;
+  }
+
+  .confirm-dialog[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .confirm-dialog[open]::backdrop {
+      opacity: 0;
+    }
   }
 
   .confirm-dialog-title {
@@ -151,6 +193,14 @@ const reasonErrorId = `${id}-reason-error`;
     font-size: var(--fs-sm);
     font-weight: 600;
     cursor: pointer;
+    /* Colors only — the focus `outline` below is intentionally left out so
+       the focus ring appears/disappears instantly (never fades). */
+    transition: var(--transition-colors);
+  }
+
+  .confirm-dialog-cancel:active,
+  .confirm-dialog-accept:active {
+    transform: scale(0.97);
   }
 
   .confirm-dialog-cancel {

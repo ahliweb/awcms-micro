@@ -1,4 +1,18 @@
 ---
+/**
+ * WizardPanel — one step's panel in the reusable wizard pattern. Only the
+ * active step renders visible; inactive panels use the `hidden` attribute (a
+ * real `display:none`, so their fields leave the tab order and the
+ * accessibility tree).
+ *
+ * Activation motion: because `hidden` toggles `display`, CSS cannot transition
+ * a step swap. The entrance is applied by the shared client helper
+ * `activateWizardPanel` in `src/lib/ui/wizard-client.ts` — it clears `hidden`
+ * on the newly-active panel and (re-)adds the token-driven
+ * `.awcms-animate-slide-up` class per activation, reduced-motion-safe via the
+ * global guard in `tokens.css`. aria/step semantics are unchanged: the page's
+ * own stepper sync still owns `aria-current` and focus.
+ */
 interface Props {
   id: string;
   title: string;
