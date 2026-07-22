@@ -267,6 +267,69 @@ curl https://<domain-aplikasi>/api/v1/health
 Setiap aplikasi pada topologi multi-app dicek lewat endpoint health-nya
 masing-masing — tidak ada health check bersama lintas aplikasi.
 
+**Gotcha nyata (deployment 2026-07-22)**: `Dockerfile.production` mendefinisikan Docker-native
+`HEALTHCHECK` sendiri (pakai `bun`'s `fetch`, bukan curl/wget — image ini memang tidak punya
+curl/wget). Coolify's **own** HTTP health check (field `health_check_enabled`/`health_check_path`)
+menjalankan `docker exec <container> curl ...`/`wget ...` — yang gagal dengan `curl: not found` di
+image ini, dan Coolify men-rollback deploy yang sebenarnya sehat karena mengira unhealthy. **Fix**:
+set `health_check_enabled: false` di Coolify application ini dan andalkan `HEALTHCHECK` bawaan
+image (`docker inspect --format '{{.State.Health.Status}}'` tetap akurat — Coolify cuma berhenti
+menumpuk pengecekan sendiri yang salah di atasnya).
+
+## Publikasi port tanpa Traefik (gotcha nyata)
+
+Bila Traefik Coolify belum jadi reverse proxy (mis. masih transisi dari nginx existing, seperti
+kasus deployment 2026-07-22 — lihat catatan operator terkait di repo ops server), ada dua jebakan
+API Coolify yang perlu diketahui sebelum mencoba publish port container ke host:
+
+- **`ports_mappings`** hanya menerima regex `^(\d+:\d+)(,\d+:\d+)*$` — **tidak mendukung prefix
+  IP**. Tidak bisa bind ke `127.0.0.1:<port>` lewat field ini.
+- **`custom_docker_run_options`** terlihat seperti jalan pintas, tapi Coolify's
+  `convertDockerRunToCompose()` hanya mengenali daftar flag tetap: `--cap-add`, `--cap-drop`,
+  `--security-opt`, `--sysctl`, `--ulimit`, `--device`, `--init`, `--privileged`, `--ip`, `--ip6`,
+  `--shm-size`, `--dns`, `--gpus`, `--hostname`, `--entrypoint`. **`-p` tidak ada di daftar ini** —
+  di-drop diam-diam tanpa error, tidak pernah sampai ke compose yang dihasilkan.
+
+**Solusi yang terbukti jalan**: pin container ke IP statis di jaringan bridge Coolify dengan
+`--ip <alamat>` (flag ini _dikenali_), lalu arahkan nginx (atau reverse proxy operator lain)
+langsung ke `<ip-pin>:<port-container>` — host bisa reach IP mana pun di jaringan bridge Docker
+secara langsung (bridge interface itu host-routable), jadi pendekatan ini malah **tidak perlu
+publish port host sama sekali** (lebih ketat daripada tujuan awal `127.0.0.1:<port>`):
+
+```bash
+# Coolify API: PATCH .../applications/<uuid>
+# { "custom_docker_run_options": "--ip 10.0.1.50" }
+# lalu trigger redeploy supaya container di-recreate dengan flag itu.
+```
+
+Pilih IP di luar range yang sudah dipakai container lain di subnet bridge yang sama
+(`docker network inspect <nama-network>` untuk lihat subnet; cek `docker ps` + `docker inspect`
+untuk IP yang sedang dipakai) supaya tidak bentrok dengan alokasi dinamis Docker berikutnya.
+
+## Migration one-shot dari image `Dockerfile.production` (gotcha nyata)
+
+Image runtime `Dockerfile.production` (multi-stage) **tidak** menyertakan folder `scripts/` —
+hanya `dist/` + `package.json` + `node_modules` production yang di-copy ke stage akhir. Menjalankan
+`docker run <image-hasil-build> bun run db:migrate` gagal dengan `Module not found
+"scripts/db-migrate.ts"`.
+
+Migration one-shot yang benar-benar berjalan perlu container terpisah dengan source lengkap,
+attached ke network yang sama dengan database:
+
+```bash
+docker run --rm --network <network-coolify> \
+  -e DATABASE_URL='postgres://<role-privileged>:<password>@<host-db>:5432/<nama-db>' \
+  oven/bun:1.3.14 bash -c '
+    apt-get update -qq && apt-get install -y -qq git &&
+    git clone --depth 1 https://github.com/ahliweb/awcms-micro /app &&
+    cd /app && bun install --frozen-lockfile && bun run db:migrate
+  '
+```
+
+`oven/bun:1.3.14` tidak menyertakan `git` — install dulu lewat `apt-get`. Lebih lambat daripada
+image migrasi khusus (full `bun install` tiap kali) tapi tidak butuh langkah build image tambahan;
+cukup untuk kebutuhan one-shot.
+
 ## Backup
 
 `deploy/backup/backup-postgres.sh` dan `restore-postgres.sh` (lihat
