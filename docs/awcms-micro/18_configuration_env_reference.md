@@ -236,6 +236,7 @@ benar-benar scale-out horizontal; lihat runbook untuk contoh perhitungan.
 | `AUTH_SESSION_TTL_MIN`                      | –              | `120`                                    | –        | Umur sesi                                                                                                                             |
 | `AUTH_COOKIE_SECURE`                        | –              | `true`                                   | –        | Cookie hanya HTTPS di prod                                                                                                            |
 | `AUTH_LOGIN_MAX_ATTEMPTS`                   | –              | `5`                                      | –        | Lockout login (per identitas)                                                                                                         |
+| `AUTH_LOGIN_TENANT_PICKER`                  | –              | `false`                                  | –        | Dropdown nama tenant di `/login` (ganti input tenant-id manual); `true` mengekspos daftar tenant pra-login — lihat catatan di bawah   |
 | `AUTH_LOGIN_RATE_LIMIT_MAX`                 | –              | `20`                                     | –        | Rate limit login per sumber+tenant (Issue #437)                                                                                       |
 | `AUTH_LOGIN_RATE_LIMIT_WINDOW_SEC`          | –              | `60`                                     | –        | Jendela waktu rate limit login (detik)                                                                                                |
 | `AUTH_PASSWORD_RESET_TOKEN_TTL_MIN`         | –              | `30`                                     | –        | Umur token reset password (Issue #496)                                                                                                |
@@ -264,6 +265,15 @@ benar-benar scale-out horizontal; lihat runbook untuk contoh perhitungan.
 | `AUTH_SSO_CREDENTIAL_ENCRYPTION_KEY`        | bila SSO       | –                                        | Ya       | Key AES-256-GCM (base64, 32 byte) untuk enkripsi-at-rest client secret provider — beda dari key MFA                                   |
 | `AUTH_SSO_DISCOVERY_TIMEOUT_MS`             | –              | `5000`                                   | –        | Timeout discovery/JWKS/token-exchange OIDC provider tenant (ms)                                                                       |
 | `AUTH_SSO_MAX_PROVIDERS_PER_TENANT`         | –              | `20`                                     | –        | Batas jumlah baris provider aktif per tenant (Issue #612) — membatasi total budget probing tenant                                     |
+
+**`AUTH_LOGIN_TENANT_PICKER`** — bila `true`, halaman `/login` menampilkan
+field tenant sebagai dropdown nama tenant aktif (bukan input tenant-id
+manual yang default). Off secara default karena mengaktifkannya membuat
+daftar seluruh nama tenant aktif terlihat pra-login (tenant enumeration) —
+wajar untuk deployment satu/sedikit tenant (bentuk umum repo base ini),
+tetapi info-disclosure untuk deployment multi-tenant, jadi operator harus
+opt-in per deployment. Nilai `<option>` tetap UUID tenant; hanya label yang
+ditampilkan berupa nama. Lihat `src/lib/auth/login-tenant-picker.ts`.
 
 ### Full-online auth security hardening (opsional, Issue #587-#593)
 
