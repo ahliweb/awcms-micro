@@ -3,6 +3,7 @@ import {
   renderGalleryBlockHtml,
   type ResolvedGalleryMediaUrls
 } from "../../_shared/rendering/gallery-block-renderer";
+import { PUBLIC_CONTENT_IMG_LOADING_ATTRS } from "../../_shared/rendering/responsive-image";
 
 /**
  * Whitelist-based HTML renderer for editorial homepage sections (Issue
@@ -39,7 +40,7 @@ function renderPostCard(
   card: HomepageSectionPostCard
 ): string {
   const image = card.imageUrl
-    ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.imageAlt ?? "")}" loading="lazy">`
+    ? `<img src="${escapeHtml(card.imageUrl)}" alt="${escapeHtml(card.imageAlt ?? "")}" ${PUBLIC_CONTENT_IMG_LOADING_ATTRS}>`
     : "";
   const excerpt = card.excerpt ? `<p>${escapeHtml(card.excerpt)}</p>` : "";
 
