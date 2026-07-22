@@ -579,6 +579,27 @@ const isSettingsActive = pathname === "/admin/settings";
       display: inline-flex;
     }
 
+    /* Topbar carries a lot of chrome (brand, tenant badge, sync, theme,
+       language, roles, logout); at phone widths it previously ran off the
+       right edge and forced a whole-page horizontal scroll. Let the row
+       wrap and drop the desktop flex spacer so the controls flow onto a
+       second line instead of overflowing — no single control is wider than
+       a phone viewport, so wrapping guarantees no horizontal scroll. */
+    .admin-topbar {
+      flex-wrap: wrap;
+      gap: var(--sp-2) var(--sp-3);
+    }
+
+    .admin-topbar-spacer {
+      display: none;
+    }
+
+    /* Role list is secondary chrome; hide the text on mobile to keep the
+       control row compact (the logout button remains). */
+    .admin-user-menu-roles {
+      display: none;
+    }
+
     .admin-logout-button {
       min-height: 44px;
     }
