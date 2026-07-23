@@ -221,6 +221,21 @@ labels only, no tenant ids, no DSNs:
      larger per-instance pool without a corresponding increase in the
      approved budget is exactly the connection-storm risk this issue
      closes.
+   - **If saturation is PERSISTENT and instance count is normal, suspect a
+     transaction LEAK, not capacity** (breaker `closed`, `active` pinned at
+     `max`, low request rate). Confirm on the DB:
+     `SELECT usename, state, count(*), max(now()-state_change) FROM pg_stat_activity GROUP BY 1,2;`
+     — many rows `state = 'idle in transaction'` with a large age (minutes)
+     for `awcms_micro_app` is the signature. Root cause is code running
+     concurrent queries on one `withTenant` `tx` (`Promise.all([qA(tx),qB(tx)])`) —
+     see `database-pooling.md` §9 (prod incident 2026-07-24, PR #324). Immediate
+     mitigation: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename='awcms_micro_app' AND state='idle in transaction' AND now()-state_change > interval '60 seconds';`
+     (terminating an abandoned empty txn is safe and also frees the in-app
+     work-class slot, since the hung query then errors → `withTenant` finally-release).
+     `DATABASE_IDLE_IN_TXN_TIMEOUT_MS` (default 30000ms) now reaps these
+     automatically — a persistent leak despite that means the timeout was
+     disabled/raised, or the leak re-accrues faster than the reap; still fix
+     the code.
 4. **Record the incident** the same way as any other production event —
    timestamp, which class saturated, instance count at the time, resolution
    (self-recovered vs. manual pool/instance-count change).

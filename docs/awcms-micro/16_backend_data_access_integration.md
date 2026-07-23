@@ -88,6 +88,24 @@ async function withTenant<T>(
 }
 ```
 
+Dua aturan wajib saat memakai `withTenant` (keduanya sumber insiden produksi
+2026-07-24 — lihat `database-pooling.md`):
+
+- **`tx` = SATU koneksi transaksi — JANGAN jalankan query konkuren padanya.**
+  `Promise.all([qA(tx), qB(tx)])` men-desync koneksi → transaksi tersangkut
+  `idle in transaction` (COMMIT tak pernah dikirim) → koneksi + slot work-class
+  bocor selamanya → pool jenuh (`503 DATABASE_BUSY`). Selalu `await` query pada
+  `tx` **berurutan**; `Promise.all(items.map(x => q(tx, x)))` → loop `for`.
+  `Promise.all` hanya aman untuk operand non-`tx` (query pool terpisah, kerja
+  async non-DB). Lihat `database-pooling.md` §9.
+- **Pemanggil NON-`Response` wajib `unavailableBehavior: "throw"`.** Fallback
+  saturasi/breaker `withTenant` mengembalikan `Response` 503 yang di-cast ke
+  `T` — benar untuk route API (`T = Response`), tetapi untuk render SSR /
+  `resolveSsrContext` (`T` = objek data) `Response` itu akan menyamar sebagai
+  data dan meng-crash pemanggil. Set `{ unavailableBehavior: "throw" }` agar
+  `withTenant` melempar `DatabaseUnavailableError` (ditangkap `try/catch`
+  pemanggil untuk degrade anggun) alih-alih membocorkan `Response`.
+
 ## Transaction wrapper dan locking
 
 1. Transaction untuk semua mutation multi-table.
@@ -218,6 +236,7 @@ flowchart LR
 - Health endpoint `GET /database/pool/health` melaporkan saturasi (doc 05).
 - Saturasi memicu event `database.pool.saturated` (doc 05) dan `503 DATABASE_BUSY`.
 - PgBouncer opsional (transaction mode): hindari prepared statement bermasalah; gunakan `SET LOCAL`.
+- `idle_in_transaction_session_timeout` (`DATABASE_IDLE_IN_TXN_TIMEOUT_MS`, default 30000ms) adalah jaring pengaman: Postgres membunuh sesi yang tersangkut `idle in transaction` sehingga kebocoran transaksi (mis. query konkuren pada satu `tx`, lihat aturan di atas) sembuh sendiri, bukan menjenuhkan pool permanen. `statement_timeout` tidak bisa mereap sesi idle-in-transaction.
 
 ## Migration runner
 

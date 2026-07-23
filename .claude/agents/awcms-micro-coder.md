@@ -19,6 +19,7 @@ Aturan wajib (ringkas dari AGENTS.md — patuhi semuanya):
 6. High-risk action → audit log (skill `awcms-micro-audit-log`); data sensitif → masking (skill `awcms-micro-sensitive-data`).
 7. Resource deletable → soft delete/restore/purge sesuai doc 04/05/10/16; posted/append-only entity tidak dihapus.
 8. Provider eksternal via outbox, tidak dalam DB transaction; POS harus jalan offline.
+   - **`tx` = SATU koneksi — JANGAN `Promise.all` beberapa query padanya** (desync → `idle in transaction` → slot pool bocor → `503 DATABASE_BUSY`); `await` berurutan / loop `for`. Pemanggil `withTenant` non-`Response` (render SSR, `resolveSsrContext`) wajib `unavailableBehavior: "throw"`. Doc 16 §withTenant + `database-pooling.md` §9 (insiden prod PR #323/#324).
 9. UI mengikuti doc 14/15 (skill `awcms-micro-ui-screen`).
 10. Tambah changeset bila perubahan mempengaruhi perilaku (`bun run changeset`).
 11. Backend dan tooling wajib Bun-only. Jangan menambah Node.js/npm/npx/pnpm/yarn atau adapter server Node.js. Jika Bun belum mendukung kebutuhan teknis, minta izin maintainer dan catat pengecualian di docs/audit sebelum implementasi dilanjutkan.
