@@ -259,6 +259,17 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
       "Per-connection statement_timeout GUC — src/lib/database/client.ts."
   },
   {
+    name: "DATABASE_IDLE_IN_TXN_TIMEOUT_MS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "database-connectivity",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "30000",
+    description:
+      "Per-connection idle_in_transaction_session_timeout GUC — Postgres reaps sessions stuck 'idle in transaction' this long; defense-in-depth against a transaction leak permanently saturating the pool (statement_timeout can't reap idle-in-txn). 0 disables. src/lib/database/client.ts."
+  },
+  {
     name: "DATABASE_PGBOUNCER",
     type: "boolean",
     required: "optional",
