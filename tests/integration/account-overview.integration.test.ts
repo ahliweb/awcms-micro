@@ -110,20 +110,24 @@ suite("fetchAccountOverview", () => {
   });
 
   test("never returns another tenant's identity across the RLS boundary", async () => {
+    // The setup wizard is a single-tenant singleton (a second
+    // /setup/initialize returns 403 SETUP_LOCKED), so we can't bootstrap two
+    // tenants that way. We don't need to: a real identity from tenant A,
+    // queried under a DIFFERENT tenant's context, must return null — that is
+    // exactly the cross-tenant threat (a session for tenant B holding a valid
+    // identity id that belongs to tenant A). `withTenant` sets
+    // `app.current_tenant_id` to the other tenant, so RLS on
+    // identities/profiles hides tenant A's row, and the query's own
+    // `WHERE i.tenant_id = ${tenantId}` filter never matches either.
     const tenantA = await provisionTenant({
       tenantCode: "acme",
-      ownerLogin: "owner-a@example.com",
+      ownerLogin: "owner@example.com",
       ownerDisplayName: "Acme Owner"
     });
-    const tenantB = await provisionTenant({
-      tenantCode: "globex",
-      ownerLogin: "owner-b@example.com",
-      ownerDisplayName: "Globex Owner"
-    });
 
-    // Tenant A's identity id, queried under tenant B's RLS context → null.
-    const leaked = await withTenant(getTestSql(), tenantB.tenantId, (tx) =>
-      fetchAccountOverview(tx, tenantB.tenantId, tenantA.identityId)
+    const otherTenantId = "99999999-9999-9999-9999-999999999999";
+    const leaked = await withTenant(getTestSql(), otherTenantId, (tx) =>
+      fetchAccountOverview(tx, otherTenantId, tenantA.identityId)
     );
 
     expect(leaked).toBeNull();
