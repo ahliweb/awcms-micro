@@ -169,18 +169,19 @@ if (CAN_READ_POSTS) {
           return null;
         }
 
-        const [termIds, terms, revisions, authorNames] = await Promise.all([
-          fetchPostTermIds(tx, context.tenantId, postId),
-          CAN_READ_TAXONOMIES
-            ? listBlogTerms(tx, context.tenantId)
-            : Promise.resolve([]),
-          CAN_READ_REVISIONS
-            ? listBlogRevisions(tx, context.tenantId, "post", postId)
-            : Promise.resolve([]),
-          fetchAuthorDisplayNames(tx, context.tenantId, [
-            post.authorTenantUserId
-          ])
-        ]);
+        // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+        const termIds = await fetchPostTermIds(tx, context.tenantId, postId);
+        const terms = CAN_READ_TAXONOMIES
+          ? await listBlogTerms(tx, context.tenantId)
+          : [];
+        const revisions = CAN_READ_REVISIONS
+          ? await listBlogRevisions(tx, context.tenantId, "post", postId)
+          : [];
+        const authorNames = await fetchAuthorDisplayNames(
+          tx,
+          context.tenantId,
+          [post.authorTenantUserId]
+        );
 
         return {
           post,

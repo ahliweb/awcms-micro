@@ -100,12 +100,20 @@ export async function fetchSidebarArrangement(
   tenantId: string,
   grantedPermissionKeys: ReadonlySet<string>
 ): Promise<ComposedSidebar> {
-  const [typeOverrides, itemOverrides, tenantDisabledModuleKeys] =
-    await Promise.all([
-      fetchTypeOverrides(tx, tenantId),
-      fetchItemOverrides(tx, tenantId),
-      fetchTenantDisabledModuleKeys(tx, tenantId)
-    ]);
+  // Sequential, NOT `Promise.all`: `tx` is a single reserved transaction
+  // connection — firing these three queries concurrently on it desyncs the
+  // connection, leaving it stuck `idle in transaction` (never COMMITs). That
+  // leaked the `interactive` work-class slot on every admin render (AdminLayout
+  // calls this per request) and saturated the pool. The reads are tiny indexed
+  // per-tenant scans, so serializing them costs a couple of round-trips, not
+  // real latency. See docs/awcms-micro/database-pooling.md §No concurrent
+  // queries on one transaction.
+  const typeOverrides = await fetchTypeOverrides(tx, tenantId);
+  const itemOverrides = await fetchItemOverrides(tx, tenantId);
+  const tenantDisabledModuleKeys = await fetchTenantDisabledModuleKeys(
+    tx,
+    tenantId
+  );
 
   return composeSidebarArrangement(
     buildDefaultSidebarModel(listModules()),
@@ -176,10 +184,11 @@ export async function fetchSidebarConfigForAdmin(
   tenantId: string
 ): Promise<AdminSidebarConfig> {
   const defaults = buildDefaultSidebarModel(listModules());
-  const [typeOverrides, itemOverrides] = await Promise.all([
-    fetchTypeOverrides(tx, tenantId),
-    fetchItemOverrides(tx, tenantId)
-  ]);
+  // Sequential, NOT `Promise.all` — see `fetchSidebarArrangement` above: two
+  // queries on one `tx` connection must not run concurrently or the
+  // transaction leaks (idle in transaction).
+  const typeOverrides = await fetchTypeOverrides(tx, tenantId);
+  const itemOverrides = await fetchItemOverrides(tx, tenantId);
 
   const typeOverrideMap = new Map(typeOverrides.map((t) => [t.typeKey, t]));
   const itemOverrideMap = new Map(itemOverrides.map((i) => [i.entryKey, i]));

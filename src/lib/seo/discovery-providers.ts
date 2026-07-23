@@ -38,10 +38,17 @@ export async function resolveEnabledSeoProviders(
   tx: Bun.TransactionSQL,
   tenantId: string
 ): Promise<EnabledSeoProviders> {
-  const [blogEntry, mediaEntry] = await Promise.all([
-    fetchTenantModuleEntry(tx, tenantId, BLOG_CONTENT_MODULE_KEY),
-    fetchTenantModuleEntry(tx, tenantId, MEDIA_LIBRARY_MODULE_KEY)
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const blogEntry = await fetchTenantModuleEntry(
+    tx,
+    tenantId,
+    BLOG_CONTENT_MODULE_KEY
+  );
+  const mediaEntry = await fetchTenantModuleEntry(
+    tx,
+    tenantId,
+    MEDIA_LIBRARY_MODULE_KEY
+  );
 
   const providers: SeoFactsSource[] = [];
   if (blogEntry?.tenantEnabled ?? false) {

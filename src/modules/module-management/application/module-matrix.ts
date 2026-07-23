@@ -113,10 +113,9 @@ export async function fetchModuleMatrix(
   tenantId: string,
   options: ModuleMatrixOptions
 ): Promise<ModuleMatrixRow[]> {
-  const [catalog, tenantEntries] = await Promise.all([
-    fetchModuleCatalog(tx),
-    fetchTenantModuleEntries(tx, tenantId)
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const catalog = await fetchModuleCatalog(tx);
+  const tenantEntries = await fetchTenantModuleEntries(tx, tenantId);
 
   const allDescriptors = listModules();
   const descriptorByKey = new Map(allDescriptors.map((d) => [d.key, d]));

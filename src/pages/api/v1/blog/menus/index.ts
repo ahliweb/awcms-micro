@@ -65,12 +65,14 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     const menus = await listMenus(tx, tenantId);
-    const withItems = await Promise.all(
-      menus.map(async (menu) => ({
+    // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+    const withItems = [];
+    for (const menu of menus) {
+      withItems.push({
         ...menu,
         items: await fetchMenuItems(tx, tenantId, menu.id)
-      }))
-    );
+      });
+    }
 
     return ok({ menus: withItems });
   });

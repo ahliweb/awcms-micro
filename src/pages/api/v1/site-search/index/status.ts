@@ -47,10 +47,9 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       );
       if (!auth.allowed) return auth.denied;
 
-      const [status, recentRuns] = await Promise.all([
-        fetchIndexStatus(tx, tenantId),
-        fetchRecentRuns(tx, tenantId, 10)
-      ]);
+      // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+      const status = await fetchIndexStatus(tx, tenantId);
+      const recentRuns = await fetchRecentRuns(tx, tenantId, 10);
       return ok({ status, recentRuns });
     },
     { workClass: "reporting" }

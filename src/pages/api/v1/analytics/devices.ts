@@ -65,10 +65,9 @@ export const GET: APIRoute = async ({ request, cookies, url }) => {
     }
 
     const start = resolveRangeStart(range, now);
-    const [browsers, devices] = await Promise.all([
-      fetchTopBrowsers(tx, tenantId, start),
-      fetchTopDevices(tx, tenantId, start)
-    ]);
+    // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+    const browsers = await fetchTopBrowsers(tx, tenantId, start);
+    const devices = await fetchTopDevices(tx, tenantId, start);
 
     return ok({ range, browsers, devices });
   });

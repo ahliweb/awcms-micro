@@ -137,10 +137,9 @@ export async function renderResourceSeoHead(
     return { renderable: false };
   }
 
-  const [primaryHost, settings] = await Promise.all([
-    resolveTenantPrimaryHost(tx, input.tenantId),
-    fetchSeoTenantSettings(tx, input.tenantId)
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const primaryHost = await resolveTenantPrimaryHost(tx, input.tenantId);
+  const settings = await fetchSeoTenantSettings(tx, input.tenantId);
 
   const effectiveSocialId =
     facts.openGraph.imageMediaId ?? settings.defaultSocialMediaId;

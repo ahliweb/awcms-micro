@@ -58,11 +58,10 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       return auth.denied;
     }
 
-    const [state, draft, versions] = await Promise.all([
-      fetchThemeTenantState(tx, tenantId),
-      fetchDraftVersion(tx, tenantId),
-      listPublishedVersions(tx, tenantId, 50)
-    ]);
+    // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+    const state = await fetchThemeTenantState(tx, tenantId);
+    const draft = await fetchDraftVersion(tx, tenantId);
+    const versions = await listPublishedVersions(tx, tenantId, 50);
 
     return ok({
       themes: listThemeDescriptors(),

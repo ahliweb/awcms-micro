@@ -6,6 +6,21 @@ const sharedClients = new Map<ClientKind, Bun.SQL>();
 
 const DEFAULT_POOL_MAX = 20;
 const DEFAULT_STATEMENT_TIMEOUT_MS = 15000;
+/**
+ * Defense-in-depth against a transaction leak: Postgres auto-terminates any
+ * session left `idle in transaction` longer than this. `statement_timeout`
+ * only kills an ACTIVE query — it can NOT reap a connection that opened a
+ * transaction, ran a statement, and then stopped driving it (e.g. a bug that
+ * fires concurrent queries on one `tx` connection and desyncs it). Without
+ * this, such a leak holds its `work-class` slot forever and permanently
+ * saturates the pool (observed in prod 2026-07-24: 8 sessions stuck
+ * `idle in transaction` for 22min = all 8 `interactive` slots). Legitimate
+ * transactions here are short read/write units — the idle gap between their
+ * statements is milliseconds — so 30s is far above any real transaction and
+ * far below "permanent". 0 disables (Postgres default), for parity with an
+ * operator who deliberately wants no cap.
+ */
+const DEFAULT_IDLE_IN_TXN_TIMEOUT_MS = 30000;
 
 /** Per-kind override env var name — `null` for `"app"`, which keeps using the original, unprefixed `DATABASE_POOL_MAX` for backward compatibility (Issue #683 named the app role's connection string `DATABASE_URL`, not `APP_DATABASE_URL`, for the same reason). */
 const POOL_MAX_OVERRIDE_ENV_VAR: Record<ClientKind, string | null> = {
@@ -88,6 +103,10 @@ function buildClient(databaseUrl: string, kind: ClientKind): Bun.SQL {
   const statementTimeoutMs = Number(
     process.env.DATABASE_STATEMENT_TIMEOUT_MS ?? DEFAULT_STATEMENT_TIMEOUT_MS
   );
+  const idleInTxnTimeoutMs = Number(
+    process.env.DATABASE_IDLE_IN_TXN_TIMEOUT_MS ??
+      DEFAULT_IDLE_IN_TXN_TIMEOUT_MS
+  );
   const usePgBouncer = process.env.DATABASE_PGBOUNCER === "true";
 
   return new Bun.SQL(databaseUrl, {
@@ -97,7 +116,14 @@ function buildClient(databaseUrl: string, kind: ClientKind): Bun.SQL {
       statement_timeout:
         Number.isFinite(statementTimeoutMs) && statementTimeoutMs > 0
           ? statementTimeoutMs
-          : DEFAULT_STATEMENT_TIMEOUT_MS
+          : DEFAULT_STATEMENT_TIMEOUT_MS,
+      // A non-negative integer (0 = disabled). Guards against a malformed env
+      // value forcing the Postgres default silently — falls back to our own
+      // default instead, matching how `statement_timeout` above is validated.
+      idle_in_transaction_session_timeout:
+        Number.isFinite(idleInTxnTimeoutMs) && idleInTxnTimeoutMs >= 0
+          ? idleInTxnTimeoutMs
+          : DEFAULT_IDLE_IN_TXN_TIMEOUT_MS
     },
     onconnect: (err) => {
       if (err) {
