@@ -41,7 +41,11 @@
 -- endpoints require an `Idempotency-Key` and record an audit event, exactly
 -- like every other high-risk configure/update surface (mirrors sql/081's
 -- `seo_distribution.config.update`). No new action literal is invented.
+-- Description MUST match `module.ts`'s declared permission description byte-for-
+-- byte — `permission-sync` reports `mismatched_description` (degrading module
+-- health) otherwise (see domain/permission-sync.ts). The high-risk/idempotency/
+-- audit posture is documented above, not encoded in this catalog text.
 INSERT INTO awcms_micro_permissions (module_key, activity_code, action, description)
 VALUES
-  ('module_management', 'navigation', 'configure', 'Configure the per-tenant sidebar menu layout (grouping, order, visibility, labels) — high-risk, Idempotency-Key''d, audited')
+  ('module_management', 'navigation', 'configure', 'Configure the per-tenant sidebar menu layout (grouping, order, visibility, labels)')
 ON CONFLICT (module_key, activity_code, action) DO NOTHING;
