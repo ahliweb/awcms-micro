@@ -3787,3 +3787,192 @@ msgstr "Subscribe"
 
 msgid "newsletter.public.subscribed_note"
 msgstr "Thanks! If your address is eligible, a confirmation link is on its way."
+
+msgid "auth.nav_label"
+msgstr "Authentication"
+
+msgid "auth.back_to_login"
+msgstr "Back to sign in"
+
+msgid "auth.password_show"
+msgstr "Show"
+
+msgid "auth.password_hide"
+msgstr "Hide"
+
+msgid "auth.password_show_aria"
+msgstr "Show password"
+
+msgid "auth.password_hide_aria"
+msgstr "Hide password"
+
+msgid "auth.login.heading"
+msgstr "Sign in"
+
+msgid "auth.login.subtitle"
+msgstr "Sign in to your AWCMS-Micro workspace."
+
+msgid "auth.login.tenant_context_label"
+msgstr "Signing in to"
+
+msgid "auth.login.footer"
+msgstr "Protected area. Unauthorized access is prohibited."
+
+msgid "auth.login.forgot_link"
+msgstr "Forgot password?"
+
+msgid "auth.login.register_link"
+msgstr "Create account"
+
+msgid "auth.forgot.page_title"
+msgstr "Forgot password"
+
+msgid "auth.forgot.heading"
+msgstr "Forgot password"
+
+msgid "auth.forgot.subtitle"
+msgstr "Enter your account identifier and we'll send reset instructions."
+
+msgid "auth.forgot.submit"
+msgstr "Send reset link"
+
+msgid "auth.forgot.notice"
+msgstr "If an account exists for that identifier, password reset instructions have been sent."
+
+msgid "auth.reset.page_title"
+msgstr "Reset password"
+
+msgid "auth.reset.heading"
+msgstr "Set a new password"
+
+msgid "auth.reset.subtitle"
+msgstr "Choose a new password for your account."
+
+msgid "auth.reset.generic_error"
+msgstr "This password reset link is invalid or has expired."
+
+msgid "auth.reset.mismatch"
+msgstr "The passwords do not match."
+
+msgid "auth.reset.too_short"
+msgstr "Password must be at least 8 characters."
+
+msgid "auth.reset.success"
+msgstr "Your password has been reset. You can now sign in."
+
+msgid "auth.reset.password_label"
+msgstr "New password"
+
+msgid "auth.reset.confirm_label"
+msgstr "Confirm new password"
+
+msgid "auth.reset.password_hint"
+msgstr "At least 8 characters."
+
+msgid "auth.reset.submit"
+msgstr "Reset password"
+
+msgid "auth.reset.invalid_link"
+msgstr "This password reset link is invalid or has expired."
+
+msgid "auth.reset.request_new"
+msgstr "Request a new link"
+
+msgid "auth.reset.success_login_link"
+msgstr "Go to sign in"
+
+msgid "auth.register.page_title"
+msgstr "Create account"
+
+msgid "auth.register.heading"
+msgstr "Create your account"
+
+msgid "auth.register.subtitle"
+msgstr "Register for access. An administrator will review your request."
+
+msgid "auth.register.generic_error"
+msgstr "We couldn't process your registration. Please try again."
+
+msgid "auth.register.notice"
+msgstr "Your registration request has been submitted and is awaiting administrator approval."
+
+msgid "auth.register.mismatch"
+msgstr "The passwords do not match."
+
+msgid "auth.register.name_label"
+msgstr "Full name"
+
+msgid "auth.register.identifier_label"
+msgstr "Email"
+
+msgid "auth.register.password_label"
+msgstr "Password"
+
+msgid "auth.register.confirm_label"
+msgstr "Confirm password"
+
+msgid "auth.register.submit"
+msgstr "Submit registration"
+
+msgid "admin.layout.nav_registrations"
+msgstr "Registrations"
+
+msgid "admin.registrations.nav"
+msgstr "Registrations"
+
+msgid "admin.registrations.heading"
+msgstr "Pending registrations"
+
+msgid "admin.registrations.intro"
+msgstr "Review and approve or reject public self-registration requests."
+
+msgid "admin.registrations.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.registrations.access_denied_body"
+msgstr "You don't have permission to view registration requests."
+
+msgid "admin.registrations.empty"
+msgstr "No pending registration requests."
+
+msgid "admin.registrations.col_identifier"
+msgstr "Identifier"
+
+msgid "admin.registrations.col_name"
+msgstr "Name"
+
+msgid "admin.registrations.col_requested"
+msgstr "Requested"
+
+msgid "admin.registrations.col_role"
+msgstr "Role on approval"
+
+msgid "admin.registrations.col_actions"
+msgstr "Actions"
+
+msgid "admin.registrations.role_none"
+msgstr "No role"
+
+msgid "admin.registrations.approve_button"
+msgstr "Approve"
+
+msgid "admin.registrations.reject_button"
+msgstr "Reject"
+
+msgid "admin.registrations.approve_success"
+msgstr "Registration approved; the user can now sign in."
+
+msgid "admin.registrations.reject_success"
+msgstr "Registration request rejected."
+
+msgid "admin.registrations.approve_confirm_title"
+msgstr "Approve registration?"
+
+msgid "admin.registrations.approve_confirm_body"
+msgstr "This creates an active user account that can sign in immediately."
+
+msgid "admin.registrations.reject_confirm_title"
+msgstr "Reject registration?"
+
+msgid "admin.registrations.reject_confirm_body"
+msgstr "This permanently rejects the request. No account will be created."

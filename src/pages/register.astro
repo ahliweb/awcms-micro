@@ -1,56 +1,22 @@
 ---
 /**
- * Login page (Issue 8.1; redesigned into a modern, mobile-first auth screen
- * on the shared `src/styles/auth.css` surface — same look as the forgot /
- * reset / register screens). Posts to `POST /api/v1/auth/login`, which sets
- * the two httpOnly SSR session cookies (`src/pages/api/v1/auth/login.ts`)
- * consumed by `src/lib/auth/ssr-session.ts` / `src/layouts/AdminLayout.astro`.
+ * Public self-registration page (Issue: self-registration). Submits an
+ * admin-approval-gated request via `POST /api/v1/auth/register`
+ * ({ displayName, loginIdentifier, password } + tenant header).
  *
- * ## Stable DOM contract (do not rename — client script + E2E depend on
- * these): `#login-form`, `#tenant-id`, `#login-identifier`, `#password`,
- * `#login-submit`, `#login-error`. The tenant field ALWAYS carries
- * `name="tenantId"` and id `#tenant-id` regardless of which of the three
- * shapes it takes (single readout / select / manual), so both
- * `FormData.get("tenantId")` and the Google-login button (reads `#tenant-id`'s
- * `.value`) keep working and the submit still sends the tenant header.
+ * Gated by `AUTH_SELF_REGISTRATION_ENABLED`: when off, the route redirects to
+ * /login so the feature is genuinely absent (the endpoint 404s too).
  *
- * Theme (doc 14 §Theming): imports tokens.css, so it MUST also run
- * `THEME_INIT_SCRIPT_BODY` before paint — otherwise the `[data-theme="dark"]`
- * overrides never apply and the page is light-only under OS dark (fix #313).
- *
- * i18n (Issue #433): `Astro.locals.locale` is cookie-only resolved (no tenant
- * known yet pre-login — see `src/middleware.ts`). The client-side `<script>`
- * cannot read the `.po` catalog itself (server-side only via `Bun.file`), so
- * the strings/error-code map it needs are injected as a
- * `<script type="application/json">` blob — the same pattern the admin pages'
- * action banners use.
- *
- * Cloudflare Turnstile (Issue #588) — the widget only renders when
- * `isTurnstileRequired()` is true; every local/offline/LAN deployment renders
- * this page without it. `TURNSTILE_SITE_KEY` is public.
- *
- * Google OIDC login (Issue #590) — the "Continue with Google" button only
- * renders when `isGoogleLoginRequired()` is true; the destination URL needs
- * the Tenant ID field's CURRENT value at click time.
- *
- * ## Auto tenant picker (AUTH_LOGIN_TENANT_PICKER)
- * When opted in, `listActiveTenantsForLogin()` reads the active tenant registry
- * (id + name only) and the shape adapts to the count: exactly 1 → a read-only
- * "Signing in to <name>" readout with a HIDDEN `#tenant-id`; 2+ → a `<select>`
- * of tenant names (value = UUID). When the picker is off (or on but the
- * registry read yields 0 rows) the manual Tenant ID text field is rendered.
- *
- * Motion: the card entrance animates transform ONLY (never opacity), so an
- * axe-core contrast scan can never catch semi-transparent text mid-animation.
- * All motion routes through the shared motion tokens and is neutralised by the
- * global `prefers-reduced-motion` reset in tokens.css.
+ * Anti-enumeration (mirrors the endpoint): a successful submit ALWAYS shows
+ * the same neutral "awaiting approval" notice — the visitor never learns
+ * whether the identifier was already taken. Shares the `src/styles/auth.css`
+ * surface + theme/i18n/Turnstile wiring with the other auth screens.
  */
 import "../styles/tokens.css";
 import "../styles/auth.css";
 import { createTranslator } from "../lib/i18n/translate";
 import { buildClientErrorMessages } from "../lib/i18n/error-messages";
 import { isTurnstileRequired } from "../lib/security/turnstile";
-import { isGoogleLoginRequired } from "../lib/auth/google-oidc-config";
 import { isSelfRegistrationEnabled } from "../lib/auth/self-registration-config";
 import { THEME_INIT_SCRIPT_BODY } from "../lib/security/theme-init-script";
 import {
@@ -59,34 +25,33 @@ import {
   type LoginTenantOption
 } from "../lib/auth/login-tenant-picker";
 
+if (!isSelfRegistrationEnabled()) {
+  return Astro.redirect("/login", 302);
+}
+
 const locale = Astro.locals.locale;
 const t = await createTranslator(locale);
 const turnstileActive = isTurnstileRequired();
 const turnstileSiteKey = turnstileActive
   ? process.env.TURNSTILE_SITE_KEY
   : null;
-const googleLoginActive = isGoogleLoginRequired();
-const registrationActive = isSelfRegistrationEnabled();
 
-// Opt-in tenant picker (AUTH_LOGIN_TENANT_PICKER) — see file header. The list
-// is only queried when the operator has opted in, since it exposes tenant
-// names pre-auth (see login-tenant-picker.ts).
 const tenantPickerActive = isLoginTenantPickerEnabled();
 const tenantOptions: LoginTenantOption[] = tenantPickerActive
   ? await listActiveTenantsForLogin()
   : [];
-
 const singleTenant =
   tenantPickerActive && tenantOptions.length === 1 ? tenantOptions[0]! : null;
 const tenantSelect = tenantPickerActive && tenantOptions.length >= 2;
-// Picker off, or on but registry empty → keep the manual text field.
 const tenantManual = !tenantPickerActive || tenantOptions.length === 0;
 
 const clientStrings = {
-  genericError: t("auth.login.generic_error"),
+  genericError: t("auth.register.generic_error"),
   networkError: t("common.network_error"),
   pleaseWait: t("common.please_wait"),
-  submitLabel: t("auth.login.submit"),
+  notice: t("auth.register.notice"),
+  mismatch: t("auth.register.mismatch"),
+  tooShort: t("auth.reset.too_short"),
   passwordShow: t("auth.password_show"),
   passwordHide: t("auth.password_hide"),
   passwordShowAria: t("auth.password_show_aria"),
@@ -101,7 +66,7 @@ const clientStrings = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{t("auth.login.page_title")}</title>
+    <title>{t("auth.register.page_title")}</title>
     <script is:inline set:html={THEME_INIT_SCRIPT_BODY} />
   </head>
   <body class="auth-body">
@@ -112,12 +77,13 @@ const clientStrings = {
             <span class="auth-mark" aria-hidden="true">A</span>
             <span class="auth-wordmark">AWCMS-Micro</span>
           </a>
-          <h1 class="auth-title">{t("auth.login.heading")}</h1>
-          <p class="auth-subtitle">{t("auth.login.subtitle")}</p>
+          <h1 class="auth-title">{t("auth.register.heading")}</h1>
+          <p class="auth-subtitle">{t("auth.register.subtitle")}</p>
         </div>
 
-        <form id="login-form" class="auth-form" novalidate>
-          <p id="login-error" class="auth-error" role="alert" hidden></p>
+        <form id="register-form" class="auth-form" novalidate>
+          <p id="register-error" class="auth-error" role="alert" hidden></p>
+          <p id="register-notice" class="auth-notice" role="status" hidden></p>
 
           {
             singleTenant && (
@@ -170,28 +136,42 @@ const clientStrings = {
           }
 
           <div class="auth-field">
-            <label for="login-identifier">
-              {t("auth.login.identifier_label")}
-            </label>
+            <label for="display-name">{t("auth.register.name_label")}</label>
             <input
-              id="login-identifier"
-              name="loginIdentifier"
+              id="display-name"
+              name="displayName"
               type="text"
               required
-              autocomplete="username"
-              spellcheck={false}
+              autocomplete="name"
+              maxlength="120"
             />
           </div>
 
           <div class="auth-field">
-            <label for="password">{t("auth.login.password_label")}</label>
+            <label for="login-identifier">
+              {t("auth.register.identifier_label")}
+            </label>
+            <input
+              id="login-identifier"
+              name="loginIdentifier"
+              type="email"
+              required
+              autocomplete="email"
+              spellcheck={false}
+              maxlength="320"
+            />
+          </div>
+
+          <div class="auth-field">
+            <label for="password">{t("auth.register.password_label")}</label>
             <div class="auth-password">
               <input
                 id="password"
                 name="password"
                 type="password"
                 required
-                autocomplete="current-password"
+                autocomplete="new-password"
+                minlength="8"
               />
               <button
                 type="button"
@@ -206,6 +186,20 @@ const clientStrings = {
                 </span>
               </button>
             </div>
+            <p class="auth-hint">{t("auth.reset.password_hint")}</p>
+          </div>
+
+          <div class="auth-field">
+            <label for="confirm-password">
+              {t("auth.register.confirm_label")}
+            </label>
+            <input
+              id="confirm-password"
+              name="confirmPassword"
+              type="password"
+              required
+              autocomplete="new-password"
+            />
           </div>
 
           {
@@ -217,33 +211,14 @@ const clientStrings = {
             )
           }
 
-          <button type="submit" id="login-submit" class="auth-submit">
-            {t("auth.login.submit")}
+          <button type="submit" id="register-submit" class="auth-submit">
+            {t("auth.register.submit")}
           </button>
-
-          {
-            googleLoginActive && (
-              <button
-                type="button"
-                id="google-login-button"
-                class="auth-google"
-              >
-                {t("auth.login.google_button")}
-              </button>
-            )
-          }
         </form>
 
         <nav class="auth-links" aria-label={t("auth.nav_label")}>
-          <a href="/forgot-password">{t("auth.login.forgot_link")}</a>
-          {
-            registrationActive && (
-              <a href="/register">{t("auth.login.register_link")}</a>
-            )
-          }
+          <a href="/login">{t("auth.back_to_login")}</a>
         </nav>
-
-        <p class="auth-foot">{t("auth.login.footer")}</p>
       </div>
     </main>
 
@@ -270,10 +245,13 @@ const clientStrings = {
       } from "../lib/ui/admin-form-client";
       import { wirePasswordToggle } from "../lib/ui/password-toggle";
 
-      interface LoginStrings {
+      interface RegisterStrings {
         genericError: string;
         networkError: string;
         pleaseWait: string;
+        notice: string;
+        mismatch: string;
+        tooShort: string;
         passwordShow: string;
         passwordHide: string;
         passwordShowAria: string;
@@ -282,61 +260,55 @@ const clientStrings = {
       }
 
       const form = document.getElementById(
-        "login-form"
+        "register-form"
       ) as HTMLFormElement | null;
-      const errorBox = document.getElementById("login-error");
+      const errorBox = document.getElementById("register-error");
+      const noticeBox = document.getElementById("register-notice");
       const submitButton = document.getElementById(
-        "login-submit"
+        "register-submit"
       ) as HTMLButtonElement | null;
-      const strings = readClientStrings<LoginStrings>();
+      const strings = readClientStrings<RegisterStrings>();
 
       wirePasswordToggle("password", "password-toggle", strings);
 
-      function showError(message: string): void {
-        if (!errorBox) return;
-        errorBox.textContent = message;
-        errorBox.hidden = false;
-        // Transform-only entrance (replay on each new error): remove → reflow
-        // → re-add. Token-driven and reduced-motion-safe (tokens.css).
-        errorBox.classList.remove("auth-banner--enter");
-        void errorBox.offsetWidth;
-        errorBox.classList.add("auth-banner--enter");
-      }
-
-      function hideError(): void {
-        if (!errorBox) return;
-        errorBox.hidden = true;
-        errorBox.classList.remove("auth-banner--enter");
+      function reveal(el: HTMLElement | null, message: string): void {
+        if (!el) return;
+        el.textContent = message;
+        el.hidden = false;
+        el.classList.remove("auth-banner--enter");
+        void el.offsetWidth;
+        el.classList.add("auth-banner--enter");
       }
 
       form?.addEventListener("submit", async (event) => {
         event.preventDefault();
-
-        // Issue #434 (UX/UI audit): guard + disable the submit button for the
-        // duration of the request — a fast double-click (or double Enter)
-        // could otherwise fire two login POSTs before the first redirect
-        // landed (doc 14 §Form UX "cegah double-submit").
-        if (!submitButton || submitButton.disabled) {
-          return;
-        }
-        const unlock = lockElement(submitButton, strings.pleaseWait);
-
-        hideError();
+        if (!submitButton || submitButton.disabled) return;
+        if (errorBox) errorBox.hidden = true;
 
         const formData = new FormData(form);
         const tenantId = String(formData.get("tenantId") ?? "").trim();
+        const displayName = String(formData.get("displayName") ?? "").trim();
         const loginIdentifier = String(
           formData.get("loginIdentifier") ?? ""
         ).trim();
         const password = String(formData.get("password") ?? "");
-        // Cloudflare Turnstile (Issue #588) auto-injects a hidden
-        // `cf-turnstile-response` field into this form once solved — absent
-        // entirely when the widget isn't rendered (Turnstile not required for
-        // this deployment), matching the server's own optional field.
+        const confirmPassword = String(formData.get("confirmPassword") ?? "");
         const turnstileToken = formData.get("cf-turnstile-response");
 
+        // Client-side guards (the server re-validates; UX only).
+        if (password.length < 8) {
+          reveal(errorBox, strings.tooShort);
+          return;
+        }
+        if (password !== confirmPassword) {
+          reveal(errorBox, strings.mismatch);
+          return;
+        }
+
+        const unlock = lockElement(submitButton, strings.pleaseWait);
+
         try {
-          const response = await fetch("/api/v1/auth/login", {
+          const response = await fetch("/api/v1/auth/register", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -344,6 +316,7 @@ const clientStrings = {
             },
             credentials: "same-origin",
             body: JSON.stringify({
+              displayName,
               loginIdentifier,
               password,
               ...(turnstileToken ? { turnstileToken } : {})
@@ -355,41 +328,19 @@ const clientStrings = {
           if (!response.ok || !payload || payload.success !== true) {
             const code = payload?.error?.code as string | undefined;
             const localized = code ? strings.errorMessages?.[code] : null;
-            showError(localized ?? strings.genericError);
+            reveal(errorBox, localized ?? strings.genericError);
             unlock();
             return;
           }
 
-          // Navigating away — leave the button disabled/busy rather than
-          // unlocking, so it can't be clicked again during the redirect.
-          window.location.href = "/admin";
+          // Generic success (the account may or may not be new). Hide the form
+          // and show the neutral "awaiting approval" notice.
+          form.hidden = true;
+          reveal(noticeBox, strings.notice);
         } catch {
-          showError(strings.networkError);
+          reveal(errorBox, strings.networkError);
           unlock();
         }
-      });
-
-      // Google OIDC login (Issue #590) — the destination needs the Tenant ID
-      // field's CURRENT value, read at click time, as a `?tenantId=` query
-      // param (this page has no tenant cookie yet pre-login, and a plain
-      // navigation can't carry the `X-AWCMS-Micro-Tenant-ID` header every
-      // fetch-based call on this page uses instead).
-      const googleButton = document.getElementById(
-        "google-login-button"
-      ) as HTMLButtonElement | null;
-
-      googleButton?.addEventListener("click", () => {
-        const tenantId = String(
-          (document.getElementById("tenant-id") as HTMLInputElement | null)
-            ?.value ?? ""
-        ).trim();
-
-        if (!tenantId) {
-          showError(strings.genericError);
-          return;
-        }
-
-        window.location.href = `/api/v1/auth/providers/google/start?tenantId=${encodeURIComponent(tenantId)}`;
       });
     </script>
   </body>

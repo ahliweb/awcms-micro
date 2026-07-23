@@ -2299,7 +2299,7 @@ msgid "admin.layout.nav_blog"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
-#: src/modules/identity-access/module.ts:49
+#: src/modules/identity-access/module.ts:58
 msgid "admin.layout.nav_business_scope"
 msgstr ""
 
@@ -2340,6 +2340,11 @@ msgstr ""
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
 #: src/modules/profile-identity/module.ts:28
 msgid "admin.layout.nav_profile_identity_parties"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/identity-access/module.ts:50
+msgid "admin.layout.nav_registrations"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
@@ -3356,6 +3361,86 @@ msgstr ""
 
 #: src/pages/admin/profile-identity/index.astro:76
 msgid "admin.profile_identity.parties.title"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:117
+msgid "admin.registrations.access_denied_body"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:116
+msgid "admin.registrations.access_denied_title"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:182
+msgid "admin.registrations.approve_button"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:50
+msgid "admin.registrations.approve_confirm_body"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:49
+msgid "admin.registrations.approve_confirm_title"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:47
+msgid "admin.registrations.approve_success"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:150
+msgid "admin.registrations.col_actions"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:143
+msgid "admin.registrations.col_identifier"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:144
+msgid "admin.registrations.col_name"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:145
+msgid "admin.registrations.col_requested"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:147
+msgid "admin.registrations.col_role"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:140
+msgid "admin.registrations.empty"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:107
+msgid "admin.registrations.heading"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:108
+msgid "admin.registrations.intro"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:106
+msgid "admin.registrations.nav"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:187
+msgid "admin.registrations.reject_button"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:52
+msgid "admin.registrations.reject_confirm_body"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:51
+msgid "admin.registrations.reject_confirm_title"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:48
+msgid "admin.registrations.reject_success"
+msgstr ""
+
+#: src/pages/admin/registrations.astro:167
+msgid "admin.registrations.role_none"
 msgstr ""
 
 #: src/pages/admin/reporting/projections.astro:144
@@ -4559,36 +4644,204 @@ msgstr ""
 msgid "admin.tenant_domain.verify_success"
 msgstr ""
 
-#: src/pages/login.astro:61
+#: src/pages/forgot-password.astro:155
+msgid "auth.back_to_login"
+msgstr ""
+
+#: src/pages/forgot-password.astro:68
+msgid "auth.forgot.heading"
+msgstr ""
+
+#: src/pages/forgot-password.astro:46
+msgid "auth.forgot.notice"
+msgstr ""
+
+#: src/pages/forgot-password.astro:57
+msgid "auth.forgot.page_title"
+msgstr ""
+
+#: src/pages/forgot-password.astro:150
+msgid "auth.forgot.submit"
+msgstr ""
+
+#: src/pages/forgot-password.astro:69
+msgid "auth.forgot.subtitle"
+msgstr ""
+
+#: src/pages/login.astro:246
+msgid "auth.login.footer"
+msgstr ""
+
+#: src/pages/login.astro:238
+msgid "auth.login.forgot_link"
+msgstr ""
+
+#: src/pages/forgot-password.astro:43
 msgid "auth.login.generic_error"
 msgstr ""
 
-#: src/pages/login.astro:170
+#: src/pages/login.astro:231
 msgid "auth.login.google_button"
 msgstr ""
 
-#: src/pages/login.astro:139
+#: src/pages/login.astro:115
+msgid "auth.login.heading"
+msgstr ""
+
+#: src/pages/forgot-password.astro:128
 msgid "auth.login.identifier_label"
 msgstr ""
 
-#: src/pages/login.astro:74
+#: src/pages/login.astro:104
 msgid "auth.login.page_title"
 msgstr ""
 
-#: src/pages/login.astro:148
+#: src/pages/login.astro:187
 msgid "auth.login.password_label"
 msgstr ""
 
-#: src/pages/login.astro:64
+#: src/pages/login.astro:241
+msgid "auth.login.register_link"
+msgstr ""
+
+#: src/pages/login.astro:89
 msgid "auth.login.submit"
 msgstr ""
 
-#: src/pages/login.astro:118
+#: src/pages/login.astro:116
+msgid "auth.login.subtitle"
+msgstr ""
+
+#: src/pages/forgot-password.astro:80
+msgid "auth.login.tenant_context_label"
+msgstr ""
+
+#: src/pages/forgot-password.astro:113
 msgid "auth.login.tenant_id_label"
 msgstr ""
 
-#: src/pages/login.astro:101
+#: src/pages/forgot-password.astro:98
 msgid "auth.login.tenant_label"
+msgstr ""
+
+#: src/pages/forgot-password.astro:154
+msgid "auth.nav_label"
+msgstr ""
+
+#: src/pages/login.astro:91
+msgid "auth.password_hide"
+msgstr ""
+
+#: src/pages/login.astro:93
+msgid "auth.password_hide_aria"
+msgstr ""
+
+#: src/lib/ui/password-toggle.ts:12
+msgid "auth.password_show"
+msgstr ""
+
+#: src/lib/ui/password-toggle.ts:11
+msgid "auth.password_show_aria"
+msgstr ""
+
+#: src/pages/register.astro:194
+msgid "auth.register.confirm_label"
+msgstr ""
+
+#: src/pages/register.astro:49
+msgid "auth.register.generic_error"
+msgstr ""
+
+#: src/pages/register.astro:80
+msgid "auth.register.heading"
+msgstr ""
+
+#: src/pages/register.astro:152
+msgid "auth.register.identifier_label"
+msgstr ""
+
+#: src/pages/register.astro:53
+msgid "auth.register.mismatch"
+msgstr ""
+
+#: src/pages/register.astro:139
+msgid "auth.register.name_label"
+msgstr ""
+
+#: src/pages/register.astro:52
+msgid "auth.register.notice"
+msgstr ""
+
+#: src/pages/register.astro:69
+msgid "auth.register.page_title"
+msgstr ""
+
+#: src/pages/register.astro:166
+msgid "auth.register.password_label"
+msgstr ""
+
+#: src/pages/register.astro:215
+msgid "auth.register.submit"
+msgstr ""
+
+#: src/pages/register.astro:81
+msgid "auth.register.subtitle"
+msgstr ""
+
+#: src/pages/reset-password.astro:160
+msgid "auth.reset.confirm_label"
+msgstr ""
+
+#: src/pages/reset-password.astro:47
+msgid "auth.reset.generic_error"
+msgstr ""
+
+#: src/pages/reset-password.astro:78
+msgid "auth.reset.heading"
+msgstr ""
+
+#: src/pages/reset-password.astro:86
+msgid "auth.reset.invalid_link"
+msgstr ""
+
+#: src/pages/reset-password.astro:50
+msgid "auth.reset.mismatch"
+msgstr ""
+
+#: src/pages/reset-password.astro:67
+msgid "auth.reset.page_title"
+msgstr ""
+
+#: src/pages/register.astro:189
+msgid "auth.reset.password_hint"
+msgstr ""
+
+#: src/pages/reset-password.astro:131
+msgid "auth.reset.password_label"
+msgstr ""
+
+#: src/pages/reset-password.astro:89
+msgid "auth.reset.request_new"
+msgstr ""
+
+#: src/pages/reset-password.astro:172
+msgid "auth.reset.submit"
+msgstr ""
+
+#: src/pages/reset-password.astro:79
+msgid "auth.reset.subtitle"
+msgstr ""
+
+#: src/pages/reset-password.astro:52
+msgid "auth.reset.success"
+msgstr ""
+
+#: src/pages/reset-password.astro:182
+msgid "auth.reset.success_login_link"
+msgstr ""
+
+#: src/pages/register.astro:54
+msgid "auth.reset.too_short"
 msgstr ""
 
 #: src/components/comments/CommentsSection.astro:34

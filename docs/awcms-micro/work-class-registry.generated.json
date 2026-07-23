@@ -146,6 +146,11 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/auth/register.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/auth/sso/[providerKey]/callback.ts",
       "workClass": "interactive",
       "source": "default"
@@ -792,6 +797,21 @@
     },
     {
       "path": "src/pages/api/v1/profiles/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/registration-requests/[id]/approve.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/registration-requests/[id]/reject.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/registration-requests/index.ts",
       "workClass": "interactive",
       "source": "default"
     },

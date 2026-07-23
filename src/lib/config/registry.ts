@@ -611,6 +611,37 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     default: "900",
     description: "Window (seconds) for AUTH_PASSWORD_RESET_RATE_LIMIT_MAX."
   },
+  {
+    name: "AUTH_SELF_REGISTRATION_ENABLED",
+    type: "boolean",
+    required: "optional",
+    ownerModule: "identity-access",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "false",
+    description:
+      "Enable the public /register page + POST /auth/register endpoint. Off by default — self-registered accounts are created as PENDING requests that an admin must approve before they can log in (never active on their own); enabling it opens a public account-request/spam surface an operator accepts per deployment — self-registration-config.ts."
+  },
+  {
+    name: "AUTH_SELF_REGISTRATION_RATE_LIMIT_MAX",
+    type: "integer",
+    required: "optional",
+    ownerModule: "identity-access",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "5",
+    description: "Rate limit for POST /auth/register per source+tenant."
+  },
+  {
+    name: "AUTH_SELF_REGISTRATION_RATE_LIMIT_WINDOW_SEC",
+    type: "integer",
+    required: "optional",
+    ownerModule: "identity-access",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "900",
+    description: "Window (seconds) for AUTH_SELF_REGISTRATION_RATE_LIMIT_MAX."
+  },
 
   // ---------------------------------------------------------------------
   // Full-online auth security hardening (Issue #587-#593)
@@ -839,6 +870,16 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     description:
       "Base64-encoded 32-byte AES-256-GCM key encrypting tenant SSO provider client secrets at rest — required when AUTH_SSO_ENABLED=true; must differ from AUTH_MFA_SECRET_ENCRYPTION_KEY.",
     validatorGroup: "checkSsoConfig"
+  },
+  {
+    name: "AUTH_URL_PARAM_ENCRYPTION_KEY",
+    type: "string",
+    required: "optional",
+    ownerModule: "identity-access",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "Base64-encoded 32-byte AES-256-GCM key that seals sensitive auth URL query params (e.g. the password-reset link's token+tenant) into one opaque token. Optional hardening — when unset those links fall back to plain params (the underlying token is already cryptographically random); when set the params are encrypted + tamper-evident. NOT applied to public SEO URLs — secure-url-params.ts."
   },
   {
     name: "AUTH_SSO_DISCOVERY_TIMEOUT_MS",

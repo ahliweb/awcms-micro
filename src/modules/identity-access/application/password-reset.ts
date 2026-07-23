@@ -21,6 +21,7 @@ import {
   generateResetToken,
   hashResetToken
 } from "../../../lib/auth/password-reset-token";
+import { sealUrlParams } from "../../../lib/security/secure-url-params";
 import {
   hashIdentifier,
   maskIdentifier,
@@ -99,7 +100,20 @@ export async function requestPasswordReset(
   `;
 
   const normalizedEmail = normalizeIdentifier("email", loginIdentifier);
-  const resetUrl = `${options.resetUrlBase}?token=${rawToken}`;
+  // The reset endpoint (`reset.ts`) is tenant-scoped (RLS) and requires the
+  // tenant header, so the link must carry the tenant too — the `/reset-password`
+  // page reads it and sends it as `X-AWCMS-Micro-Tenant-ID`. When
+  // AUTH_URL_PARAM_ENCRYPTION_KEY is set, both params are sealed into one
+  // opaque `?p=` token (AES-256-GCM, tamper-evident) so the link exposes no
+  // guessable `token=`/`tenantId=` structure; otherwise they fall back to
+  // plain query params (the raw token is already cryptographically random, so
+  // this is defense-in-depth, not the primary control). The page reads either
+  // shape. The tenant id is not a secret and this link only ever reaches the
+  // account owner's mailbox.
+  const sealed = sealUrlParams({ token: rawToken, tenantId });
+  const resetUrl = sealed
+    ? `${options.resetUrlBase}?p=${sealed}`
+    : `${options.resetUrlBase}?token=${rawToken}&tenantId=${tenantId}`;
 
   await tx`
     INSERT INTO awcms_micro_email_messages
