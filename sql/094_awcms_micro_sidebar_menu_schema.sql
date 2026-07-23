@@ -52,7 +52,11 @@ CREATE TABLE IF NOT EXISTS awcms_micro_sidebar_menu_types (
     CHECK (type_key <> '' AND char_length(type_key) <= 64),
   CONSTRAINT awcms_micro_sidebar_menu_types_label_override_len_check
     CHECK (label_override IS NULL OR char_length(label_override) <= 120),
-  -- At most one override row per (tenant, type) — the save path upserts on this.
+  -- At most one override row per (tenant, type). `saveSidebarConfig` does a
+  -- DELETE-all-then-INSERT full replace of this tenant's rows (not ON CONFLICT
+  -- upsert), so this constraint guards against duplicate keys WITHIN a single
+  -- submitted payload (validation also rejects those) rather than backing an
+  -- upsert clause.
   CONSTRAINT awcms_micro_sidebar_menu_types_tenant_type_key
     UNIQUE (tenant_id, type_key)
 );
@@ -88,7 +92,14 @@ CREATE TABLE IF NOT EXISTS awcms_micro_sidebar_menu_items (
     CHECK (type_key IS NULL OR (type_key <> '' AND char_length(type_key) <= 64)),
   CONSTRAINT awcms_micro_sidebar_menu_items_label_override_len_check
     CHECK (label_override IS NULL OR char_length(label_override) <= 120),
-  -- At most one override row per (tenant, entry) — the save path upserts on this.
+  -- At most one override row per (tenant, entry). Same as the types table: the
+  -- save path is a full DELETE-then-INSERT replace, not an upsert, so this
+  -- guards intra-payload duplicates. NOTE: the admin island currently persists
+  -- an item row for every entry (not only changed ones), so "override rows" is
+  -- the stored delta only in the sense that untouched TENANTS have zero rows —
+  -- a tenant that has saved once has ~one row per menu item. Compose still
+  -- merges code defaults for any entry without a row, so a newly-added module's
+  -- menu appears automatically regardless.
   CONSTRAINT awcms_micro_sidebar_menu_items_tenant_entry_key
     UNIQUE (tenant_id, entry_key)
 );

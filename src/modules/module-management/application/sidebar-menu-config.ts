@@ -83,6 +83,17 @@ async function fetchItemOverrides(
  * renders. REPLACES the flat `fetchVisibleModuleNavigationEntries` +
  * hardcoded-core rendering (the old service is kept only as the layout's
  * graceful-degradation fallback).
+ *
+ * PER-REQUEST COST (accepted trade-off): this runs on every `/admin/*` render
+ * and issues three reads — the two override tables plus the tenant's
+ * disabled-module keys — where the old flat path issued exactly one. They are
+ * `Promise.all`'d, all three are tenant-scoped point/range scans on tiny,
+ * indexed per-tenant tables (`_items` has `(tenant_id, type_key)`; `_types` is
+ * unique on `(tenant_id, type_key)`; `tenant_modules` is already indexed), and
+ * they are dwarfed by the page's own queries. Consciously not folded into a
+ * single CTE: the marginal round-trips are negligible and separate functions
+ * keep the read path readable/testable. Revisit only if admin-page latency
+ * profiling ever flags this.
  */
 export async function fetchSidebarArrangement(
   tx: Bun.SQL,

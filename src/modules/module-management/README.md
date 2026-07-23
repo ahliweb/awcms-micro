@@ -288,16 +288,26 @@ module's nav links). `domain/sidebar-menu.ts` is pure:
 - `validateSidebarMenuInput(...)` — bounds the save payload (rejects unknown
   entry keys, malformed/oversized custom types/labels, bad slugs, duplicates).
 
-A tenant stores only the DELTA (reorder/hide/relabel/move/custom-type) in
-`awcms_micro_sidebar_menu_types`/`awcms_micro_sidebar_menu_items` (sql/094, RLS
-ENABLE+FORCE + `tenant_isolation`) — so a new module's nav entry appears for
-every tenant automatically without a data migration, while a tenant's explicit
-customization survives. `entry_key` = the nav item's stable `path`.
+A tenant's overrides live in `awcms_micro_sidebar_menu_types`/
+`awcms_micro_sidebar_menu_items` (sql/094, RLS ENABLE+FORCE + `tenant_isolation`).
+An UNTOUCHED tenant has zero rows and renders the pure code default; once it
+saves, the admin island persists a row per item (a full-replace, not a minimal
+diff). Either way compose merges code defaults for any entry WITHOUT a row, so a
+newly-added module's nav entry still appears for every tenant automatically
+without a data migration, while a tenant's explicit customization survives.
+`entry_key` = the nav item's stable `path`.
 
 API: `GET`/`PUT /api/v1/navigation/sidebar-config` + `POST .../reset`. Read is
 gated on `module_management.navigation.read`; save/reset on the new high-risk
 `module_management.navigation.configure` (sql/095) — Idempotency-Key'd + audited
 (`resource_type = sidebar_menu_config`). Admin UI: `/admin/sidebar-menu`.
+
+> **Existing tenants**: `navigation.configure` is only auto-granted to tenants
+> created AFTER sql/095 (setup-wizard catalog snapshot; there is no owner
+> "implicit-all" bypass). A tenant provisioned earlier can open the page
+> (`navigation.read` predates this) but save/reset 403s until an owner grants
+> the new permission via the RBAC admin, or an operator backfills it once — see
+> the `OPERATOR NOTE` block in sql/095 for the exact grant.
 
 ## Module job registry — `application/job-registry.ts` (Issue #519)
 
