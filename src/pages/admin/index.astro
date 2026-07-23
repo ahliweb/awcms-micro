@@ -64,7 +64,8 @@ if (hasDashboardAccess) {
         accessAudit: await fetchAccessAuditReport(tx, context.tenantId),
         syncHealth: await fetchSyncHealthReport(tx, context.tenantId),
         moduleUsage: await fetchModuleUsageReport(tx, context.tenantId)
-      })
+      }),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError("admin/index.astro: failed to load dashboard", error, {

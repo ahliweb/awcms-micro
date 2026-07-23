@@ -53,8 +53,11 @@ let account: AccountOverview | null = null;
 let loadError = false;
 
 try {
-  account = await withTenant(getDatabaseClient(), context.tenantId, (tx) =>
-    fetchAccountOverview(tx, context.tenantId, context.identityId)
+  account = await withTenant(
+    getDatabaseClient(),
+    context.tenantId,
+    (tx) => fetchAccountOverview(tx, context.tenantId, context.identityId),
+    { unavailableBehavior: "throw" }
   );
 } catch (error) {
   loadError = true;

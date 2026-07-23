@@ -63,8 +63,11 @@ let loadError = false;
 
 if (CAN_READ) {
   try {
-    config = await withTenant(getDatabaseClient(), context.tenantId, (tx) =>
-      fetchSidebarConfigForAdmin(tx, context.tenantId)
+    config = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      (tx) => fetchSidebarConfigForAdmin(tx, context.tenantId),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     loadError = true;

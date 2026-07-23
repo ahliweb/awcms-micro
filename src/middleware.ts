@@ -433,6 +433,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const ssrContext = await resolveSsrContext(context.cookies, new Date());
 
+  if (ssrContext instanceof Response) {
+    // The DB pool was saturated / the circuit breaker was open, so
+    // `resolveSsrContext` handed back `withTenant`'s 503 `DATABASE_BUSY`
+    // fallback (Retry-After already attached). Serve it as-is: the session may
+    // be perfectly valid, the database is just busy. Redirecting to /login
+    // here would be misleading (and /login would likely 503 too), and letting
+    // this Response reach a page as `ssrContext` would crash it (undefined
+    // `permissions`). This is the fix for the pool-saturation admin 500s.
+    recordHttpRequestMetrics(context, ssrContext.status, requestStartedAt);
+
+    return applyResponseHeaders(ssrContext, context.locals.correlationId);
+  }
+
   if (!ssrContext) {
     // Astro's `context.redirect(path)` defaults to a 302 status.
     recordHttpRequestMetrics(context, 302, requestStartedAt);

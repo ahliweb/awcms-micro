@@ -8,7 +8,10 @@ import {
   acquireWorkClassSlot,
   resetWorkClassGatesForTests
 } from "../../src/lib/database/work-class";
-import { withTenant } from "../../src/lib/database/tenant-context";
+import {
+  DatabaseUnavailableError,
+  withTenant
+} from "../../src/lib/database/tenant-context";
 
 const TENANT_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -297,6 +300,108 @@ describe("withTenant graceful saturation and Retry-After (Issue #743)", () => {
 
     expect(response.status).toBe(503);
     expect(response.headers.get("Retry-After")).toBe("2");
+
+    active.release();
+  });
+});
+
+// Regression: `withTenant`'s pool-gate fallback returns a 503 `Response` cast
+// to the generic `T`. That is correct for API routes (T=Response), but a
+// NON-Response caller (SSR page/layout render, `resolveSsrContext`) that got a
+// Response back would let it masquerade as its data `T` — the exact defect
+// that 500'd every admin page under pool saturation (`context.permissions` /
+// `Response.types.map` on a Response). `unavailableBehavior: "throw"` makes all
+// three fallback paths throw `DatabaseUnavailableError` instead, so a caller's
+// existing try/catch degrades gracefully rather than crashing the template.
+describe("withTenant unavailableBehavior: throw (non-Response callers)", () => {
+  beforeEach(() => {
+    resetDatabaseCircuitBreakerForTests();
+    resetWorkClassGatesForTests();
+  });
+
+  afterEach(() => {
+    resetDatabaseCircuitBreakerForTests();
+    resetWorkClassGatesForTests();
+  });
+
+  test("circuit-open throws DatabaseUnavailableError (retryAfter 30), never returns a Response", async () => {
+    const sql = fakeSql();
+    const genericError = new Error("boom");
+
+    for (let i = 0; i < 5; i++) {
+      await expect(
+        withTenant(sql, TENANT_ID, async () => {
+          throw genericError;
+        })
+      ).rejects.toBe(genericError);
+    }
+    expect(getDatabaseCircuitBreaker().canAttempt(new Date())).toBe(false);
+
+    let thrown: unknown;
+    const result = await withTenant(
+      sql,
+      TENANT_ID,
+      // A non-Response caller: returns a plain object, not a Response.
+      async () => ({ permissions: new Set<string>() }),
+      { unavailableBehavior: "throw" }
+    ).catch((error) => {
+      thrown = error;
+      return undefined;
+    });
+
+    expect(result).toBeUndefined();
+    expect(thrown).toBeInstanceOf(DatabaseUnavailableError);
+    expect((thrown as DatabaseUnavailableError).retryAfterSeconds).toBe(30);
+  });
+
+  test("a bounded-queue rejection throws DatabaseUnavailableError (retryAfter 2), never returns a Response", async () => {
+    const sql = fakeSql();
+    // "maintenance": max 1, default maxQueueDepth 4 — fill active (1) + queue (4).
+    const active = await acquireWorkClassSlot("maintenance", 5_000);
+    const queued = [
+      acquireWorkClassSlot("maintenance", 5_000),
+      acquireWorkClassSlot("maintenance", 5_000),
+      acquireWorkClassSlot("maintenance", 5_000),
+      acquireWorkClassSlot("maintenance", 5_000)
+    ];
+    await Promise.resolve();
+
+    let thrown: unknown;
+    try {
+      await withTenant(sql, TENANT_ID, async () => ({ ok: true }), {
+        workClass: "maintenance",
+        unavailableBehavior: "throw"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(DatabaseUnavailableError);
+    expect((thrown as DatabaseUnavailableError).retryAfterSeconds).toBe(2);
+
+    active.release();
+    for (const promise of queued) {
+      (await promise).release();
+    }
+  });
+
+  test("a work-class timeout throws DatabaseUnavailableError (retryAfter 2), never returns a Response", async () => {
+    const sql = fakeSql();
+    const active = await acquireWorkClassSlot("maintenance", 5_000);
+
+    let thrown: unknown;
+    try {
+      await withTenant(sql, TENANT_ID, async () => ({ ok: true }), {
+        workClass: "maintenance",
+        queueTimeoutMs: 20,
+        unavailableBehavior: "throw"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(DatabaseUnavailableError);
+    expect((thrown as DatabaseUnavailableError).retryAfterSeconds).toBe(2);
 
     active.release();
   });

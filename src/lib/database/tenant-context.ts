@@ -71,7 +71,40 @@ export type WithTenantOptions = {
   workClass?: WorkClass;
   /** Defaults to 2000ms. */
   queueTimeoutMs?: number;
+  /**
+   * What to do when the pool gate can't run `fn` — the circuit breaker is
+   * open, the work-class queue is full, or the queue wait timed out.
+   *
+   * - `"response"` (DEFAULT): return a `503 DATABASE_BUSY` `Response` (with
+   *   `Retry-After`) cast to `T`. Correct for API routes, which `return
+   *   withTenant(...)` straight to the client — the Response IS the reply.
+   * - `"throw"`: throw {@link DatabaseUnavailableError} instead. Correct for
+   *   NON-Response callers (SSR page/layout renders, `resolveSsrContext`),
+   *   where a `Response` cast to `T` would masquerade as real data and crash
+   *   the caller (e.g. `undefined.permissions`, `Response.types.map`). Their
+   *   existing `try/catch` then degrades gracefully (fallback nav, `loadError`
+   *   notice) instead of 500ing.
+   */
+  unavailableBehavior?: "response" | "throw";
 };
+
+/**
+ * Thrown by `withTenant` when `unavailableBehavior: "throw"` is set and the
+ * pool gate rejects the work (breaker open / queue full / saturated). Carries
+ * the same 503 + `Retry-After` semantics as the default Response fallback so a
+ * caller that wants to surface a 503 still can. NON-Response callers catch this
+ * and degrade gracefully rather than letting a 503 `Response` masquerade as
+ * their `T`.
+ */
+export class DatabaseUnavailableError extends Error {
+  readonly retryAfterSeconds: number;
+
+  constructor(message: string, retryAfterSeconds: number) {
+    super(message);
+    this.name = "DatabaseUnavailableError";
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
 
 /**
  * Runs `fn` inside a tenant-scoped transaction, protected by the Issue 10.2
@@ -95,10 +128,18 @@ export async function withTenant<T>(
   const safeTenantId = assertUuid(tenantId);
   const workClass = options?.workClass ?? "interactive";
   const queueTimeoutMs = options?.queueTimeoutMs ?? DEFAULT_QUEUE_TIMEOUT_MS;
+  const unavailableBehavior = options?.unavailableBehavior ?? "response";
   const breaker = getDatabaseCircuitBreaker();
   const now = new Date();
 
   if (!breaker.canAttempt(now)) {
+    if (unavailableBehavior === "throw") {
+      throw new DatabaseUnavailableError(
+        "Database circuit breaker is open.",
+        CIRCUIT_OPEN_RETRY_AFTER_SECONDS
+      );
+    }
+
     return fail(
       503,
       "DATABASE_BUSY",
@@ -126,6 +167,13 @@ export async function withTenant<T>(
         saturation: getWorkClassSaturation()
       });
 
+      if (unavailableBehavior === "throw") {
+        throw new DatabaseUnavailableError(
+          `Database work-class "${workClass}" queue is full; rejected immediately.`,
+          WORK_CLASS_BUSY_RETRY_AFTER_SECONDS
+        );
+      }
+
       return fail(
         503,
         "DATABASE_BUSY",
@@ -143,6 +191,13 @@ export async function withTenant<T>(
         queueTimeoutMs,
         saturation: getWorkClassSaturation()
       });
+
+      if (unavailableBehavior === "throw") {
+        throw new DatabaseUnavailableError(
+          `Database work-class "${workClass}" is saturated.`,
+          WORK_CLASS_BUSY_RETRY_AFTER_SECONDS
+        );
+      }
 
       return fail(
         503,

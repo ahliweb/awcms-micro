@@ -134,7 +134,8 @@ if (hasAnyAccess) {
           ? await fetchRolesWithPermissions(tx, context.tenantId)
           : [],
         permissions: CAN_READ_ROLES ? await fetchPermissionCatalog(tx) : []
-      })
+      }),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError("admin/access-users.astro: failed to load data", error, {

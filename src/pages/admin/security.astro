@@ -132,29 +132,35 @@ let loadError = false;
 
 if (statusSummary.gateActive && CAN_READ_ANYTHING) {
   try {
-    await withTenant(getDatabaseClient(), context.tenantId, async (tx) => {
-      if (CAN_READ_POLICY) {
-        policy = await getTenantAuthPolicy(tx, context.tenantId);
-      }
-      if (CAN_READ_PROVIDERS) {
-        providers = await listAuthProviders(tx, context.tenantId);
-      }
-      if (CAN_READ_POLICY && CAN_READ_USERS) {
-        // Issue #605: only offer identities that could actually still pass
-        // `countEligibleBreakGlassIdentities`'s own eligibility check
-        // (`saveTenantAuthPolicy`) — the underlying directory query lists
-        // every tenant user (needed elsewhere, e.g. `admin/access-users`),
-        // but selecting an inactive/suspended one here would be a doomed
-        // choice the server rejects only after submit.
-        const allTenantUsers = await fetchTenantUsersWithRoles(
-          tx,
-          context.tenantId
-        );
-        breakGlassCandidates = allTenantUsers.filter(
-          (user) => user.status === "active" && user.identityStatus === "active"
-        );
-      }
-    });
+    await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => {
+        if (CAN_READ_POLICY) {
+          policy = await getTenantAuthPolicy(tx, context.tenantId);
+        }
+        if (CAN_READ_PROVIDERS) {
+          providers = await listAuthProviders(tx, context.tenantId);
+        }
+        if (CAN_READ_POLICY && CAN_READ_USERS) {
+          // Issue #605: only offer identities that could actually still pass
+          // `countEligibleBreakGlassIdentities`'s own eligibility check
+          // (`saveTenantAuthPolicy`) — the underlying directory query lists
+          // every tenant user (needed elsewhere, e.g. `admin/access-users`),
+          // but selecting an inactive/suspended one here would be a doomed
+          // choice the server rejects only after submit.
+          const allTenantUsers = await fetchTenantUsersWithRoles(
+            tx,
+            context.tenantId
+          );
+          breakGlassCandidates = allTenantUsers.filter(
+            (user) =>
+              user.status === "active" && user.identityStatus === "active"
+          );
+        }
+      },
+      { unavailableBehavior: "throw" }
+    );
   } catch (error) {
     logAdminPageError(
       "admin/security.astro: failed to load security data",
