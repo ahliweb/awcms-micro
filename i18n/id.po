@@ -262,6 +262,84 @@ msgstr "Keluar"
 msgid "admin.layout.nav_aria_label"
 msgstr "Navigasi utama"
 
+#. Topbar profile icon (links to the user's own account at /admin/profile).
+msgid "admin.layout.profile_aria_label"
+msgstr "Buka profil saya"
+
+#. Repo/app version shown in the sidebar footer (value rendered as "v1.0.0").
+msgid "admin.layout.version_label"
+msgstr "Versi"
+
+#. admin.profile — the logged-in user's own account overview (/admin/profile)
+msgid "admin.profile.title"
+msgstr "Profil Saya"
+
+msgid "admin.profile.subtitle"
+msgstr "Detail akun Anda untuk tenant ini."
+
+msgid "admin.profile.field_profile_type"
+msgstr "Tipe profil"
+
+msgid "admin.profile.field_legal_name"
+msgstr "Nama legal"
+
+msgid "admin.profile.field_status"
+msgstr "Status akun"
+
+msgid "admin.profile.field_verification"
+msgstr "Verifikasi"
+
+msgid "admin.profile.field_roles"
+msgstr "Peran"
+
+msgid "admin.profile.field_last_login"
+msgstr "Login terakhir"
+
+msgid "admin.profile.type_person"
+msgstr "Perorangan"
+
+msgid "admin.profile.type_organization"
+msgstr "Organisasi"
+
+msgid "admin.profile.status_active"
+msgstr "Aktif"
+
+msgid "admin.profile.status_inactive"
+msgstr "Nonaktif"
+
+msgid "admin.profile.status_locked"
+msgstr "Terkunci"
+
+msgid "admin.profile.verification_verified"
+msgstr "Terverifikasi"
+
+msgid "admin.profile.verification_unverified"
+msgstr "Belum diverifikasi"
+
+msgid "admin.profile.verification_pending"
+msgstr "Menunggu"
+
+msgid "admin.profile.never_logged_in"
+msgstr "Belum pernah login"
+
+msgid "admin.profile.action_change_password"
+msgstr "Ubah kata sandi"
+
+msgid "admin.profile.action_manage_full"
+msgstr "Kelola profil lengkap"
+
+msgid "admin.profile.load_error_title"
+msgstr "Tidak dapat memuat profil Anda"
+
+msgid "admin.profile.load_error_description"
+msgstr "Terjadi kesalahan saat memuat akun Anda. Silakan coba lagi."
+
+msgid "admin.profile.empty_title"
+msgstr "Profil tidak tersedia"
+
+msgid "admin.profile.empty_description"
+msgstr "Kami tidak menemukan profil akun untuk sesi Anda."
+
 #. Responsive sidebar/drawer hamburger toggle (Issue #693, epic #679
 #. platform-hardening) — hanya tampil di bawah `--bp-md`; status buka/tutup
 #. disampaikan lewat `aria-expanded`, bukan label terpisah per status.
