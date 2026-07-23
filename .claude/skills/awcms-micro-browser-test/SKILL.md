@@ -167,6 +167,17 @@ NULL, expires_at = now() + interval '…'` agar seed benar-benar re-arm
    elemen `<style>`. (axe `target-size` WCAG 2.2 AA 2.5.8 nyata menangkap link
    `<24px` di homepage foundation — perbaiki dengan padding/min-height, bukan
    melonggarkan threshold.)
+8. **Viewport mobile 360px + timing entrance (overhaul UI/UX #311–#316).**
+   `admin-a11y-smoke.e2e.ts` berjalan di viewport LEBAR default → bug a11y/layout
+   mobile-only lolos (fix #315: overflow horizontal topbar admin +
+   `scrollable-region-focusable` pada tabel yang overflow, keduanya HANYA
+   tertangkap saat viewport di-set 360px). Untuk surface yang punya varian mobile,
+   set `page.setViewportSize({ width: 360, height: 780 })` (atau device preset) dan
+   scan ulang. **Entrance animasi vs axe**: axe men-scan `/admin` segera setelah
+   `waitForURL`, jadi entrance `opacity:0→1` bikin `color-contrast (serious)` fail
+   karena teks tertangkap mid-fade — sumbernya CSS (entrance harus transform-only,
+   `opacity` tetap 1; fix #314), BUKAN test; jangan "perbaiki" dengan menambah
+   `waitForTimeout` sebelum scan (menyembunyikan regresi kontras nyata).
 
 ## File referensi
 

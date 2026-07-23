@@ -236,7 +236,7 @@ Aturan offline:
 ## Keamanan frontend
 
 - Tidak ada secret/API key provider di klien (doc 10, doc 18).
-- CSP ketat; sanitasi input; hindari `innerHTML` tak aman (XSS).
+- CSP ketat (`default-src 'self'`); sanitasi input; hindari `innerHTML` tak aman (XSS). Konsekuensi styling: `<style>` inline & atribut `style=` **diblokir**. Komponen `.astro` aman (Astro CSP meng-HASH inline `<style>`/`<script>` build-time), tetapi route yang merender **HTML string mentah** dari `.ts` (mis. `blog-content` public shell `renderPublicPageShell()`) tak terkena hasher — satu-satunya jalur CSP-legal untuk stylingnya adalah **stylesheet eksternal same-origin** dari `public/` (`public/css/public-content.css`, self-contained + membawa guard reduced-motion sendiri; lihat doc 14 §Surface publik & §Motion).
 - Cookie httpOnly + SameSite untuk token; CSRF token untuk mutation berbasis cookie.
 - Navigasi/aksi disembunyikan sesuai permission, **bukan** kontrol utama — backend ABAC tetap wajib.
 - Data sensitif ditampilkan ter-mask (doc 04); jangan cache PII mentah di IndexedDB.

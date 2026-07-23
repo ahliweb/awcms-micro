@@ -25,39 +25,63 @@ Token diimplementasikan sebagai CSS custom properties, di-scope ke `:root` dan o
 
 ### Warna semantik
 
-| Token                      | Light     | Dark      | Fungsi                  |
-| -------------------------- | --------- | --------- | ----------------------- |
-| `--color-bg`               | `#f7f8fa` | `#0e1116` | Latar aplikasi          |
-| `--color-surface`          | `#ffffff` | `#161b22` | Kartu/panel             |
-| `--color-surface-2`        | `#eef1f5` | `#1f262e` | Panel sekunder          |
-| `--color-border`           | `#d8dee6` | `#2b333c` | Garis/pembatas          |
-| `--color-text`             | `#1a1f26` | `#e6edf3` | Teks utama              |
-| `--color-text-muted`       | `#5b6672` | `#9aa7b2` | Teks sekunder           |
-| `--color-primary`          | `#2563eb` | `#3b82f6` | Aksi utama              |
-| `--color-primary-contrast` | `#ffffff` | `#ffffff` | Teks di atas primary    |
-| `--color-success`          | `#16a34a` | `#22c55e` | Sukses/posted           |
-| `--color-warning`          | `#d97706` | `#f59e0b` | Peringatan/held         |
-| `--color-danger`           | `#dc2626` | `#ef4444` | Error/stok kurang       |
-| `--color-info`             | `#0891b2` | `#06b6d4` | Info/sync               |
-| `--color-focus`            | `#2563eb` | `#60a5fa` | Cincin fokus            |
-| `--color-primary-strong`   | `#2563eb` | `#3472d8` | Fill solid + teks putih |
-| `--color-success-strong`   | `#12873d` | `#178841` | Fill solid + teks putih |
-| `--color-danger-strong`    | `#dc2626` | `#d73d3d` | Fill solid + teks putih |
+| Token                      | Light               | Dark             | Fungsi                                                                             |
+| -------------------------- | ------------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| `--color-bg`               | `#f7f8fa`           | `#0e1116`        | Latar aplikasi                                                                     |
+| `--color-surface`          | `#ffffff`           | `#161b22`        | Kartu/panel                                                                        |
+| `--color-surface-2`        | `#eef1f5`           | `#1f262e`        | Panel sekunder                                                                     |
+| `--color-border`           | `#d8dee6`           | `#2b333c`        | Garis/pembatas                                                                     |
+| `--color-text`             | `#1a1f26`           | `#e6edf3`        | Teks utama                                                                         |
+| `--color-text-muted`       | `#5b6672`           | `#9aa7b2`        | Teks sekunder                                                                      |
+| `--color-primary`          | `#2563eb`           | `#3b82f6`        | Aksi utama                                                                         |
+| `--color-primary-contrast` | `#ffffff`           | `#ffffff`        | Teks di atas primary                                                               |
+| `--color-success`          | `#16a34a`           | `#22c55e`        | Sukses/posted                                                                      |
+| `--color-warning`          | `#d97706`           | `#f59e0b`        | Peringatan/held                                                                    |
+| `--color-danger`           | `#dc2626`           | `#ef4444`        | Error/stok kurang                                                                  |
+| `--color-info`             | `#0891b2`           | `#06b6d4`        | Info/sync                                                                          |
+| `--color-focus`            | `#2563eb`           | `#60a5fa`        | Cincin fokus                                                                       |
+| `--color-primary-strong`   | `#2563eb`           | `#3472d8`        | Fill solid + teks putih                                                            |
+| `--color-success-strong`   | `#12873d`           | `#178841`        | Fill solid + teks putih                                                            |
+| `--color-danger-strong`    | `#dc2626`           | `#d73d3d`        | Fill solid + teks putih                                                            |
+| `--color-info-strong`      | `#0e7490`           | `#0e7490`        | Teks/ikon info di atas surface/tint (5.36:1 vs putih)                              |
+| `--color-warning-strong`   | `#92400e`           | `#fbbf24`        | Teks/ikon amber di atas surface/tint terang                                        |
+| `--color-scrim`            | `rgba(15,23,42,.5)` | `rgba(0,0,0,.6)` | Backdrop scrim dialog/drawer (satu nilai theme-aware, ganti literal `rgba` ad-hoc) |
 
-> **`-strong` vs token polos** (Issue #434 — audit UX/UI): `--color-primary`/`--color-success`/`--color-danger` polos ditujukan untuk dipakai sebagai _teks/ikon/border_ di atas `--color-surface`/`--color-surface-2` — kontras yang diperlukan berbeda dari kasus _fill solid_ + `--color-primary-contrast` (putih) di atasnya (tombol CTA, banner error, status pill solid). Diukur (formula WCAG relative-luminance): token polos dengan teks putih hanya 3.19–3.76:1 di beberapa kombinasi (di bawah AA 4.5:1). Token `-strong` adalah varian yang di-gelapkan secukupnya (khusus tema gelap; tema terang sebagian sudah lulus tanpa perlu digelapkan) agar teks putih di atasnya selalu ≥4.5:1 — pakai token ini, bukan yang polos, setiap kali `--color-primary-contrast` dirender langsung di atas fill warna semantik.
+> **`-strong` vs token polos** (Issue #434 — audit UX/UI; diperluas overhaul UI/UX #311–#316): `--color-primary`/`--color-success`/`--color-danger` polos ditujukan untuk dipakai sebagai _teks/ikon/border_ di atas `--color-surface`/`--color-surface-2` — kontras yang diperlukan berbeda dari kasus _fill solid_ + `--color-primary-contrast` (putih) di atasnya (tombol CTA, banner error, status pill solid). Diukur (formula WCAG relative-luminance): token polos dengan teks putih hanya 3.19–3.76:1 di beberapa kombinasi (di bawah AA 4.5:1). Token `-strong` adalah varian yang di-gelapkan secukupnya (khusus tema gelap; tema terang sebagian sudah lulus tanpa perlu digelapkan) agar teks putih di atasnya selalu ≥4.5:1 — pakai token ini, bukan yang polos, setiap kali `--color-primary-contrast` dirender langsung di atas fill warna semantik.
+>
+> **`--color-info-strong`/`--color-warning-strong` beda kelas** (redesign dashboard #314): keduanya untuk **teks/ikon berwarna di atas surface atau tint terang** (mis. angka atensi, chip status `warning`/`info`), **bukan** teks putih di atas fill solid — `warning` sengaja ABSEN dari set "teks-putih-di-atas-fill" karena amber tidak bisa mencapai 4.5:1 dengan putih. Untuk teks berwarna amber pakai `--color-warning-strong`, bukan `--color-warning` polos.
 
 ### Skala lain
 
-| Kategori    | Token                                  | Nilai                                     |
-| ----------- | -------------------------------------- | ----------------------------------------- |
-| Font family | `--font-sans`                          | system-ui, Inter, sans-serif              |
-| Font mono   | `--font-mono`                          | ui-monospace, monospace (harga/SKU/angka) |
-| Font size   | `--fs-xs..2xl`                         | 12 · 14 · 16 · 18 · 20 · 24 · 32 px       |
-| Spacing     | `--sp-1..8`                            | 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 px    |
-| Radius      | `--radius-sm/md/lg/full`               | 4 · 8 · 12 · 9999 px                      |
-| Shadow      | `--shadow-sm/md/lg`                    | elevasi kartu/dialog                      |
-| Z-index     | `--z-nav/drawer/dropdown/dialog/toast` | 100 · 150 · 200 · 300 · 400               |
-| Breakpoint  | `sm/md/lg/xl`                          | 640 · 768 · 1024 · 1280 px                |
+| Kategori    | Token                                          | Nilai                                                                         |
+| ----------- | ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| Font family | `--font-sans`                                  | system-ui, Inter, sans-serif                                                  |
+| Font mono   | `--font-mono`                                  | ui-monospace, monospace (harga/SKU/angka)                                     |
+| Font size   | `--fs-xs..2xl`                                 | 12 · 14 · 16 · 18 · 20 · 24 · 32 px                                           |
+| Spacing     | `--sp-1..8`                                    | 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 px                                        |
+| Radius      | `--radius-sm/md/lg/full`                       | 4 · 8 · 12 · 9999 px                                                          |
+| Shadow      | `--shadow-sm/md/lg`                            | elevasi kartu/dialog                                                          |
+| Z-index     | `--z-nav/drawer/dropdown/dialog/toast`         | 100 · 150 · 200 · 300 · 400                                                   |
+| Breakpoint  | `sm/md/lg/xl`                                  | 640 · 768 · 1024 · 1280 px                                                    |
+| Durasi      | `--dur-fast/base/slow`                         | 120 · 200 · 320 ms                                                            |
+| Easing      | `--ease-standard/decelerate/accelerate/spring` | cubic-bezier (masuk=decelerate, keluar=accelerate, spring=overshoot scale-in) |
+| Transition  | `--transition-colors/transform/opacity`        | primitif komposit siap-tempel ke elemen interaktif                            |
+
+### Motion & animasi (overhaul UI/UX #311–#316)
+
+Lapisan motion **halus-profesional** yang token-driven dan **reduced-motion-safe by default**. Diperkenalkan di [`src/styles/tokens.css`](../../src/styles/tokens.css) (fondasi #311) lalu diadopsi lintas komponen (#312) dan dashboard admin (#314).
+
+- **Token durasi/easing** (tabel di atas): durasi sengaja pendek — micro-interaction terasa instan (<100ms), entrance ≤320ms; masuk pakai `decelerate`, keluar pakai `accelerate` (asimetris = natural), `spring` hanya untuk "pop" scale-in. **Jangan pernah hardcode `transition`/`animation` mentah** — selalu lewat token ini agar terpusat & reduced-motion-safe.
+- **Helper class opt-in** (nothing animates by default): `.awcms-animate-fade`, `.awcms-animate-slide-up`, `.awcms-animate-scale-in`. Elemen mengaktifkan animasi dengan menambah class-nya.
+- **Skeleton primitive** `.awcms-skeleton` — shimmer gradient token-driven; ini implementasi konkret dari mandat "skeleton, bukan spinner kosong" di §State pattern. Pasang ke blok placeholder seukuran konten akhirnya.
+- **Global reduced-motion neutralizer** (WCAG 2.3.3): blok `@media (prefers-reduced-motion: reduce)` di akhir `tokens.css` meng-collapse SEMUA durasi/animasi app-wide (0.01ms, bukan 0, agar `transitionend`/`animationend` tetap fire). `tokens.css` adalah import global (AdminLayout + login), jadi guard ini menjangkau seluruh admin. **Layout publik yang tidak meng-import `tokens.css` WAJIB membawa salinan guard-nya sendiri** — `PublicThemeLayout.astro` (is:global) dan `public/css/public-content.css` masing-masing menyertakannya (lihat §Surface publik).
+- **`--color-scrim`** menggantikan literal `rgba(15,23,42,.5)` ad-hoc untuk backdrop dialog/drawer; scrim admin drawer kini fade lewat `data-open` + `pointer-events`, bukan pop `hidden`.
+
+> **A11y gotcha — entrance transform-only, bukan opacity-fade** (fix #314): entrance `opacity: 0→1` (mis. `.awcms-animate-slide-up`) membuat `tests/e2e/admin-a11y-smoke.e2e.ts` gagal `color-contrast (serious)` — axe men-scan `/admin` **segera** setelah `waitForURL`, menangkap tiap node teks mid-fade pada kontras rendah. Untuk surface admin yang di-scan a11y E2E, pakai entrance **transform-only** (translateY; `opacity` tetap 1) — lihat keyframe `.dash-rise` di `src/pages/admin/index.astro`.
+
+### Surface publik (blog/news CSS-less, overhaul #312)
+
+Halaman blog/news publik dirender sebagai **string HTML mentah** oleh `blog-content/domain/public-page-rendering.ts` (`renderPublicPageShell()`) dari route `.ts`, **bukan** komponen `.astro` — jadi Astro CSP style-hasher tak pernah melihatnya dan CSP `default-src 'self'` memblokir `<style>` inline maupun atribut `style=`. Satu-satunya cara styling CSP-legal: **stylesheet eksternal same-origin** [`public/css/public-content.css`](../../public/css/public-content.css) (mirror pola `PublicThemeLayout.astro` yang meng-consume token CSS eksternal, dan precedent `public/js/news-share.js`). File itu **self-contained**: membawa token warna+motion sendiri (namespace `--pc-*`, nama token `--dur-*`/`--ease-*` sengaja identik dengan `tokens.css`) plus guard `prefers-reduced-motion`-nya sendiri. Mobile-first (base rule = layar kecil, viewport lebar hanya menambah), motion subtle (opacity/transform saja, ≤320ms, tanpa bounce), reveal scroll-driven murni-CSS (`animation-timeline: view()`, di-gate ganda `no-preference` + `@supports` agar purely additive).
 
 ### Theming
 
@@ -71,6 +95,8 @@ flowchart LR
 ```
 
 Aturan: default `system`; pilihan personal per-browser disimpan di localStorage (selalu menang bila ada) dengan fallback ke preferensi tenant `awcms_micro_tenants.default_theme` (dapat diubah admin di `/admin/settings`) untuk browser yang belum pernah memilih; `data-theme` di-set pada `<html>` sebelum paint untuk mencegah flash.
+
+> **Gotcha — import `tokens.css` saja tidak cukup** (fix dark-mode login #313): `tokens.css`'s override `[data-theme="dark"]` hanya berlaku bila `data-theme` benar-benar di-set pada `<html>`. `/login` sempat meng-import `tokens.css` tapi tak pernah set `data-theme`, sehingga halaman light-only walau OS dark (tertangkap verifikasi headless-Chrome overhaul: `/news` gelap, `/login` tetap terang). Setiap halaman yang meng-import `tokens.css` WAJIB menjalankan `THEME_INIT_SCRIPT_BODY` bersama (sudah terdaftar CSP-hash di `astro.config.mjs`) sebelum paint.
 
 ## Component library
 
@@ -232,7 +258,7 @@ stateDiagram-v2
   Error --> Loading: retry
 ```
 
-- **Loading**: skeleton, bukan spinner kosong untuk list.
+- **Loading**: skeleton, bukan spinner kosong untuk list — pakai primitive `.awcms-skeleton` (shimmer token-driven, lihat §Motion & animasi).
 - **Empty**: pesan + call-to-action (mis. "Belum ada produk. Tambah produk").
 - **Error**: pesan user-friendly (petakan error code doc 05), tanpa detail teknis.
 - **Optimistic**: keranjang storefront update instan; rollback bila server menolak.
@@ -248,6 +274,8 @@ stateDiagram-v2
 - Dialog memerangkap fokus; `Esc` menutup; fokus kembali ke pemicu.
 - Target sentuh ≥ 44px untuk portal mobile.
 - Jangan mengandalkan warna saja untuk status (tambah ikon/teks).
+- **Reduced motion (WCAG 2.3.3)**: setiap animasi/transition WAJIB dinetralkan saat `prefers-reduced-motion: reduce`. Fondasi motion (`tokens.css`) sudah menyediakan guard global; surface yang tidak meng-import `tokens.css` (layout publik, `public-content.css`) membawa salinan guard-nya sendiri (lihat §Motion & animasi).
+- **Verifikasi mobile 360px, bukan hanya CI**: a11y E2E berjalan di viewport lebar default, sehingga bug a11y/layout mobile-only lolos (contoh #315: overflow horizontal topbar admin + `scrollable-region-focusable` pada tabel yang overflow — keduanya hanya tertangkap pass headless 360px). Jalankan verifikasi login+`/admin` headless di 360px (light+dark) sebelum menganggap selesai.
 
 ## Internationalization (i18n)
 
