@@ -35,11 +35,20 @@ mengubah setiap route.
 
 `getDatabaseClient()` mengonfigurasi `Bun.SQL` dengan:
 
-| Opsi                           | Sumber                          | Default |
-| ------------------------------ | ------------------------------- | ------- |
-| `max`                          | `DATABASE_POOL_MAX`             | `20`    |
-| `prepare`                      | `DATABASE_PGBOUNCER !== "true"` | `true`  |
-| `connection.statement_timeout` | `DATABASE_STATEMENT_TIMEOUT_MS` | `15000` |
+| Opsi                                             | Sumber                            | Default |
+| ------------------------------------------------ | --------------------------------- | ------- |
+| `max`                                            | `DATABASE_POOL_MAX`               | `20`    |
+| `prepare`                                        | `DATABASE_PGBOUNCER !== "true"`   | `true`  |
+| `connection.statement_timeout`                   | `DATABASE_STATEMENT_TIMEOUT_MS`   | `15000` |
+| `connection.idle_in_transaction_session_timeout` | `DATABASE_IDLE_IN_TXN_TIMEOUT_MS` | `30000` |
+
+`idle_in_transaction_session_timeout` adalah pertahanan berlapis terhadap
+_transaction leak_: `statement_timeout` hanya membunuh query yang **aktif**, ia
+tidak bisa mereap koneksi yang membuka transaksi, menjalankan satu statement,
+lalu berhenti mendorongnya (`idle in transaction`). Tanpa ini, kebocoran seperti
+itu menahan slot work-class selamanya dan menjenuhkan pool — terjadi di produksi
+2026-07-24 (8 sesi tersangkut `idle in transaction` 22 menit = seluruh 8 slot
+`interactive`; lihat §9). `0` menonaktifkan (default Postgres).
 
 Catatan implementasi: `onconnect` pada `Bun.SQL.Options` (lihat
 `node_modules/bun-types/sql.d.ts`) bertipe `(err: Error | null) => void` — ia
@@ -327,6 +336,37 @@ divalidasi read-only lewat `bun run database:capacity:check` /
 §Kapasitas deployment-aware dan
 [`database-capacity-runbook.md`](database-capacity-runbook.md) (rumus,
 contoh perhitungan, SOP incident saturasi/connection-storm).
+
+## 9. JANGAN jalankan query konkuren pada satu transaksi (`tx`)
+
+`withTenant(sql, tenantId, fn)` menjalankan `fn` di dalam satu `sql.begin()` —
+`tx` adalah **satu koneksi Postgres yang direservasi**. Menembakkan beberapa
+query pada `tx` yang sama secara **konkuren** lewat `Promise.all([...])` akan
+men-desync koneksi itu: Bun.SQL meninggalkan transaksinya tersangkut
+`idle in transaction` (COMMIT tidak pernah dikirim), sehingga menahan koneksi
+**dan** slot work-class-nya selamanya. `statement_timeout` tidak bisa
+membunuhnya (tak ada statement aktif). Ini menjenuhkan pool `interactive` di
+produksi 2026-07-24 (root cause: path sidebar `fetchSidebarArrangement` yang
+jalan di setiap render `/admin/*`).
+
+**Aturan**: di dalam callback `withTenant`/`sql.begin`, `await` setiap query
+pada `tx` secara **berurutan**. Jangan `Promise.all` beberapa query pada `tx`
+yang sama:
+
+```ts
+// ❌ SALAH — dua query konkuren pada satu koneksi transaksi → bocor
+const [a, b] = await Promise.all([qA(tx), qB(tx)]);
+
+// ✅ BENAR — berurutan
+const a = await qA(tx);
+const b = await qB(tx);
+```
+
+`Promise.all` **boleh** dipakai bila operand-nya bukan query pada `tx` yang
+sama — misal query pada pool langsung (`getDatabaseClient()` di luar `begin`,
+koneksi terpisah), kerja async non-DB (fetch/fs/crypto), atau hanya satu cabang
+yang menyentuh `tx`. §1's `idle_in_transaction_session_timeout` adalah jaring
+pengaman bila aturan ini terlanggar lagi, bukan pengganti perbaikannya.
 
 ## Gap yang belum ditutup
 

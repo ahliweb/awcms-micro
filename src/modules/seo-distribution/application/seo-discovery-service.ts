@@ -316,11 +316,13 @@ async function loadBase(ctx: SeoDiscoveryContext): Promise<{
   primaryHost: string | null;
   settingsUpdatedAt: Date | null;
 }> {
-  const [settings, primaryHost, settingsUpdatedAt] = await Promise.all([
-    fetchSeoTenantSettings(ctx.tx, ctx.tenantId),
-    resolveTenantPrimaryHost(ctx.tx, ctx.tenantId),
-    fetchSeoSettingsUpdatedAt(ctx.tx, ctx.tenantId)
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const settings = await fetchSeoTenantSettings(ctx.tx, ctx.tenantId);
+  const primaryHost = await resolveTenantPrimaryHost(ctx.tx, ctx.tenantId);
+  const settingsUpdatedAt = await fetchSeoSettingsUpdatedAt(
+    ctx.tx,
+    ctx.tenantId
+  );
   return { settings, primaryHost, settingsUpdatedAt };
 }
 
@@ -528,10 +530,9 @@ export async function buildFeedPayload(
   if (primaryHost === null) return null;
 
   const nowIso = (ctx.now ?? new Date()).toISOString();
-  const [summary, latest] = await Promise.all([
-    summarizeAll(ctx, locale),
-    listLatest(ctx, settings.feedItemLimit, locale)
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const summary = await summarizeAll(ctx, locale);
+  const latest = await listLatest(ctx, settings.feedItemLimit, locale);
 
   const eligible = latest
     .filter(

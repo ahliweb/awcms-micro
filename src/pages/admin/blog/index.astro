@@ -80,37 +80,31 @@ if (hasAnyAccess) {
       getDatabaseClient(),
       context.tenantId,
       async (tx) => {
-        const [
-          totalPostsRows,
-          draftPostsRows,
-          scheduledPostsRows,
-          totalPagesRows
-        ] = await Promise.all([
-          CAN_READ_POSTS
-            ? (tx`
+        // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+        const totalPostsRows = CAN_READ_POSTS
+          ? ((await tx`
                 SELECT count(*)::int AS count FROM awcms_micro_blog_posts
                 WHERE tenant_id = ${context.tenantId} AND deleted_at IS NULL
-              ` as Promise<CountRow[]>)
-            : Promise.resolve([{ count: 0 }]),
-          CAN_READ_POSTS
-            ? (tx`
+              `) as CountRow[])
+          : [{ count: 0 }];
+        const draftPostsRows = CAN_READ_POSTS
+          ? ((await tx`
                 SELECT count(*)::int AS count FROM awcms_micro_blog_posts
                 WHERE tenant_id = ${context.tenantId} AND deleted_at IS NULL AND status = 'draft'
-              ` as Promise<CountRow[]>)
-            : Promise.resolve([{ count: 0 }]),
-          CAN_READ_POSTS
-            ? (tx`
+              `) as CountRow[])
+          : [{ count: 0 }];
+        const scheduledPostsRows = CAN_READ_POSTS
+          ? ((await tx`
                 SELECT count(*)::int AS count FROM awcms_micro_blog_posts
                 WHERE tenant_id = ${context.tenantId} AND deleted_at IS NULL AND status = 'scheduled'
-              ` as Promise<CountRow[]>)
-            : Promise.resolve([{ count: 0 }]),
-          CAN_READ_PAGES
-            ? (tx`
+              `) as CountRow[])
+          : [{ count: 0 }];
+        const totalPagesRows = CAN_READ_PAGES
+          ? ((await tx`
                 SELECT count(*)::int AS count FROM awcms_micro_blog_pages
                 WHERE tenant_id = ${context.tenantId} AND deleted_at IS NULL
-              ` as Promise<CountRow[]>)
-            : Promise.resolve([{ count: 0 }])
-        ]);
+              `) as CountRow[])
+          : [{ count: 0 }];
 
         const recentUpdates = CAN_READ_POSTS
           ? await listBlogPosts(tx, context.tenantId, { limit: 5 })

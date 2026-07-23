@@ -163,46 +163,45 @@ async function computeDailyAreaRollup(
   dayEnd: Date,
   counts: AreaCountRow
 ): Promise<DailyAreaRollup> {
-  const [topPaths, topBrowsers, topDevices, topCountries] = await Promise.all([
-    fetchTopPathsForDay(
-      tx,
-      tenantId,
-      area,
-      dayStart,
-      dayEnd,
-      ROLLUP_TOP_N_LIMIT
-    ),
-    fetchTopJsonFieldForDay(
-      tx,
-      tenantId,
-      area,
-      dayStart,
-      dayEnd,
-      "user_agent_parsed",
-      "browserName",
-      ROLLUP_TOP_N_LIMIT
-    ),
-    fetchTopJsonFieldForDay(
-      tx,
-      tenantId,
-      area,
-      dayStart,
-      dayEnd,
-      "user_agent_parsed",
-      "deviceType",
-      ROLLUP_TOP_N_LIMIT
-    ),
-    fetchTopJsonFieldForDay(
-      tx,
-      tenantId,
-      area,
-      dayStart,
-      dayEnd,
-      "geo",
-      "countryCode",
-      ROLLUP_TOP_N_LIMIT
-    )
-  ]);
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const topPaths = await fetchTopPathsForDay(
+    tx,
+    tenantId,
+    area,
+    dayStart,
+    dayEnd,
+    ROLLUP_TOP_N_LIMIT
+  );
+  const topBrowsers = await fetchTopJsonFieldForDay(
+    tx,
+    tenantId,
+    area,
+    dayStart,
+    dayEnd,
+    "user_agent_parsed",
+    "browserName",
+    ROLLUP_TOP_N_LIMIT
+  );
+  const topDevices = await fetchTopJsonFieldForDay(
+    tx,
+    tenantId,
+    area,
+    dayStart,
+    dayEnd,
+    "user_agent_parsed",
+    "deviceType",
+    ROLLUP_TOP_N_LIMIT
+  );
+  const topCountries = await fetchTopJsonFieldForDay(
+    tx,
+    tenantId,
+    area,
+    dayStart,
+    dayEnd,
+    "geo",
+    "countryCode",
+    ROLLUP_TOP_N_LIMIT
+  );
 
   const authenticatedUniqueUsers = Number(counts.authenticated_unique_users);
   const allUniqueVisitors = Number(counts.all_unique_visitors);

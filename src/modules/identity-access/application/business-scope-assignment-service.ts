@@ -210,10 +210,19 @@ export async function createBusinessScopeAssignment(
   const conflicts: SoDConflictSummary[] = [];
 
   if (input.roleId) {
-    const [requestedPermissionKeys, subjectFacts] = await Promise.all([
-      resolveRolePermissionKeys(tx, tenantId, input.roleId),
-      resolveSoDAssignmentFacts(tx, tenantId, input.tenantUserId, now, null)
-    ]);
+    // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+    const requestedPermissionKeys = await resolveRolePermissionKeys(
+      tx,
+      tenantId,
+      input.roleId
+    );
+    const subjectFacts = await resolveSoDAssignmentFacts(
+      tx,
+      tenantId,
+      input.tenantUserId,
+      now,
+      null
+    );
 
     for (const permissionKey of requestedPermissionKeys) {
       const matches = detectSoDConflicts(

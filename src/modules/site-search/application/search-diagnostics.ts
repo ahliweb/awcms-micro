@@ -58,20 +58,20 @@ export async function fetchIndexStatus(
   tx: Bun.SQL,
   tenantId: string
 ): Promise<IndexStatus> {
-  const [totals, byType, lastRunRows, failureRows] = await Promise.all([
-    tx`
+  // Sequential, not Promise.all: concurrent queries on one tx connection leak it (idle in transaction).
+  const totals = (await tx`
       SELECT count(*)::int AS count, max(indexed_at) AS latest_indexed_at
       FROM awcms_micro_site_search_documents
       WHERE tenant_id = ${tenantId}
-    ` as Promise<{ count: number; latest_indexed_at: Date | null }[]>,
-    tx`
+    `) as { count: number; latest_indexed_at: Date | null }[];
+  const byType = (await tx`
       SELECT resource_type, count(*)::int AS count
       FROM awcms_micro_site_search_documents
       WHERE tenant_id = ${tenantId}
       GROUP BY resource_type
       ORDER BY resource_type ASC
-    ` as Promise<{ resource_type: string; count: number }[]>,
-    tx`
+    `) as { resource_type: string; count: number }[];
+  const lastRunRows = (await tx`
       SELECT id, run_type, status, trigger, documents_indexed, documents_updated,
              documents_removed, documents_unchanged, sources_processed,
              failure_count, last_error, started_at, finished_at
@@ -79,13 +79,12 @@ export async function fetchIndexStatus(
       WHERE tenant_id = ${tenantId}
       ORDER BY started_at DESC
       LIMIT 1
-    ` as Promise<RunRow[]>,
-    tx`
+    `) as RunRow[];
+  const failureRows = (await tx`
       SELECT count(*)::int AS count
       FROM awcms_micro_site_search_index_failures
       WHERE tenant_id = ${tenantId} AND resolved_at IS NULL
-    ` as Promise<{ count: number }[]>
-  ]);
+    `) as { count: number }[];
 
   return {
     documentCount: totals[0]?.count ?? 0,
