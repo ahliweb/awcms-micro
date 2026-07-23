@@ -1339,6 +1339,82 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Identity & Access
+      summary: Submit a public self-registration request (admin-approval-gated); always returns a generic response
+      description: "Opt-in via AUTH_SELF_REGISTRATION_ENABLED (404 when off). Creates a PENDING request an admin approves before the user can log in — never an active identity. Anti-enumeration: the same generic 200 is returned whether the identifier was fresh, already registered, or already pending. Rate-limited by source+tenant; Turnstile enforced when full-online hardening + TURNSTILE_ENABLED. No privilege/role input is accepted."
+      operationId: authRegister
+      security:
+        - tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - displayName
+                - loginIdentifier
+                - password
+              properties:
+                displayName:
+                  type: string
+                  maxLength: 120
+                loginIdentifier:
+                  type: string
+                  maxLength: 320
+                password:
+                  type: string
+                  minLength: 8
+                  format: password
+                turnstileToken:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: Generic acknowledgement — does not reveal whether the account exists or is pending.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - requested
+                          - message
+                        properties:
+                          requested:
+                            type: boolean
+                          message:
+                            type: string
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Self-registration is not enabled for this deployment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "429":
+          description: Too many registration attempts from this source.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/auth/sso/{providerKey}/callback:
     get:
       tags:
@@ -11300,6 +11376,186 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           description: Profile was merged away (merged_into_profile_id is set) and cannot be restored through this endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/registration-requests:
+    get:
+      tags:
+        - Identity & Access
+      summary: List pending self-registration requests (admin approval queue)
+      operationId: registrationRequestsList
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Pending registration requests for the tenant, oldest first.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        required:
+                          - requests
+                        properties:
+                          requests:
+                            type: array
+                            items:
+                              type: object
+                              required:
+                                - id
+                                - loginIdentifier
+                                - displayName
+                                - requestedAt
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                loginIdentifier:
+                                  type: string
+                                displayName:
+                                  type: string
+                                  nullable: true
+                                requestedAt:
+                                  type: string
+                                  format: date-time
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/registration-requests/{id}/approve:
+    post:
+      tags:
+        - Identity & Access
+      summary: Approve a pending registration (materializes an active user, optional role assignment)
+      description: The single point where a self-registered user becomes login-eligible. Idempotent against an already-reviewed request (acts only on a pending row → repeat is a 404). roleIds are validated to exist for the tenant.
+      operationId: registrationRequestApprove
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roleIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Request approved; an active tenant user was created.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          approved:
+                            type: boolean
+                          tenantUserId:
+                            type: string
+                            format: uuid
+                          identityId:
+                            type: string
+                            format: uuid
+                          profileId:
+                            type: string
+                            format: uuid
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: No pending registration request with that id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "409":
+          description: A user with that login identifier already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/registration-requests/{id}/reject:
+    post:
+      tags:
+        - Identity & Access
+      summary: Reject a pending registration request (no identity is created)
+      operationId: registrationRequestReject
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Request rejected.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          rejected:
+                            type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          description: No pending registration request with that id.
           content:
             application/json:
               schema:

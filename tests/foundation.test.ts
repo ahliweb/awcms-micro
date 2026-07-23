@@ -640,7 +640,8 @@ describe("database migration runner helpers", () => {
       "089_awcms_micro_comments_schema.sql",
       "090_awcms_micro_comments_permissions.sql",
       "091_awcms_micro_newsletter_schema.sql",
-      "092_awcms_micro_newsletter_permissions.sql"
+      "092_awcms_micro_newsletter_permissions.sql",
+      "093_awcms_micro_self_registration_schema.sql"
     ]);
     for (const migration of migrations) {
       expect(migration.checksum).toMatch(/^sha256:[a-f0-9]{64}$/);

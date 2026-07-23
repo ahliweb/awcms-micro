@@ -1002,6 +1002,33 @@ Full-online-only (Issue #590). High-risk, audited (`google_account_unlinked`). N
 | 409    | No Google account is currently linked (`GOOGLE_NOT_LINKED`).               | [`ApiError`](#standard-error-envelope)                                                                   |
 | 500    | Internal server error without stack trace.                                 | [`ApiError`](#standard-error-envelope)                                                                   |
 
+### `POST /api/v1/auth/register` — Submit a public self-registration request (admin-approval-gated); always returns a generic response
+
+- **operationId**: `authRegister`
+- **Security**: tenantHeader
+
+Opt-in via AUTH_SELF_REGISTRATION_ENABLED (404 when off). Creates a PENDING request an admin approves before the user can log in — never an active identity. Anti-enumeration: the same generic 200 is returned whether the identifier was fresh, already registered, or already pending. Rate-limited by source+tenant; Turnstile enforced when full-online hardening + TURNSTILE_ENABLED. No privilege/role input is accepted.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): object
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                   |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| 200    | Generic acknowledgement — does not reveal whether the account exists or is pending.                                                                                                                              | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                   |
+| 404    | Self-registration is not enabled for this deployment.                                                                                                                                                            | [`ApiError`](#standard-error-envelope)                   |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                   |
+| 429    | Too many registration attempts from this source.                                                                                                                                                                 | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                   |
+
 ### `GET /api/v1/auth/sso/{providerKey}/callback` — Tenant OIDC provider's redirect target — completes login or link
 
 - **operationId**: `authSsoCallback`
@@ -1573,6 +1600,79 @@ Admin CRUD (Issue #591), protected by ABAC (`identity_access.sso_providers.delet
 | 401    | Authentication required or expired.                          | [`ApiError`](#standard-error-envelope)                                                                       |
 | 403    | Access denied by RBAC, ABAC, or tenant policy.               | [`ApiError`](#standard-error-envelope)                                                                       |
 | 500    | Internal server error without stack trace.                   | [`ApiError`](#standard-error-envelope)                                                                       |
+
+### `GET /api/v1/registration-requests` — List pending self-registration requests (admin approval queue)
+
+- **operationId**: `registrationRequestsList`
+- **Security**: bearerAuth + tenantHeader
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                 | Schema                                                   |
+| ------ | ----------------------------------------------------------- | -------------------------------------------------------- |
+| 200    | Pending registration requests for the tenant, oldest first. | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 401    | Authentication required or expired.                         | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.              | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.                  | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/registration-requests/{id}/approve` — Approve a pending registration (materializes an active user, optional role assignment)
+
+- **operationId**: `registrationRequestApprove`
+- **Security**: bearerAuth + tenantHeader
+
+The single point where a self-registered user becomes login-eligible. Idempotent against an already-reviewed request (acts only on a pending row → repeat is a 404). roleIds are validated to exist for the tenant.
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Request body** (optional): object
+
+**Responses**
+
+| Status | Description                                          | Schema                                                   |
+| ------ | ---------------------------------------------------- | -------------------------------------------------------- |
+| 200    | Request approved; an active tenant user was created. | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 400    | Validation or request error.                         | [`ApiError`](#standard-error-envelope)                   |
+| 401    | Authentication required or expired.                  | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.       | [`ApiError`](#standard-error-envelope)                   |
+| 404    | No pending registration request with that id.        | [`ApiError`](#standard-error-envelope)                   |
+| 409    | A user with that login identifier already exists.    | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.           | [`ApiError`](#standard-error-envelope)                   |
+
+### `POST /api/v1/registration-requests/{id}/reject` — Reject a pending registration request (no identity is created)
+
+- **operationId**: `registrationRequestReject`
+- **Security**: bearerAuth + tenantHeader
+
+**Parameters**
+
+| Name               | In     | Required | Type          | Description                                 |
+| ------------------ | ------ | -------- | ------------- | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string        | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string        | Optional client-generated request trace ID. |
+| `id`               | path   | yes      | string (uuid) |                                             |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                   |
+| ------ | ---------------------------------------------- | -------------------------------------------------------- |
+| 200    | Request rejected.                              | [`ApiSuccess`](#standard-success-envelope)&lt;object&gt; |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                   |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                   |
+| 404    | No pending registration request with that id.  | [`ApiError`](#standard-error-envelope)                   |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                   |
 
 ### `GET /api/v1/roles` — List tenant roles with their permission ids and assigned user count
 

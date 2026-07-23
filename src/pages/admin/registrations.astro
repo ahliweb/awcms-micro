@@ -1,0 +1,374 @@
+---
+/**
+ * Pending self-registrations admin screen (Issue: self-registration). The
+ * approval queue for public `/register` submissions: each row is a PENDING
+ * `awcms_micro_registration_requests` row that an admin approves (materializes
+ * an active user, optionally with a role) or rejects.
+ *
+ * SSR fetches via the same application function the JSON endpoint uses
+ * (`listPendingRegistrations`) — matching access-users.astro. All mutations go
+ * through the real ABAC-guarded, audited endpoints
+ * (`/api/v1/registration-requests/{id}/approve|reject`), so the UI has no
+ * privileged shortcut (defense-in-depth; hiding a control here is only a UX
+ * nicety). Uses the shared `src/components/ui` primitives + admin-form-client,
+ * per doc 14 §Component library.
+ *
+ * Permission-gated per action, matching each endpoint's own guard exactly:
+ *   - identity_access.user_management.read    -> see the queue
+ *   - identity_access.user_management.create  -> Approve (creates the user)
+ *   - identity_access.user_management.update  -> Reject
+ *   - identity_access.access_control.read     -> optional role picker on approve
+ */
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import StateNotice from "../../components/ui/StateNotice.astro";
+import ActionBanner from "../../components/ui/ActionBanner.astro";
+import DataTable from "../../components/ui/DataTable.astro";
+import ConfirmDialog from "../../components/ui/ConfirmDialog.astro";
+import { getDatabaseClient } from "../../lib/database/client";
+import { withTenant } from "../../lib/database/tenant-context";
+import { permissionKey } from "../../modules/identity-access/domain/access-control";
+import { listPendingRegistrations } from "../../modules/identity-access/application/self-registration";
+import { fetchRolesWithPermissions } from "../../modules/identity-access/application/user-directory";
+import { createTranslator } from "../../lib/i18n/translate";
+import { logAdminPageError } from "../../lib/logging/error-log";
+import { buildClientErrorMessages } from "../../lib/i18n/error-messages";
+
+const context = Astro.locals.ssrContext;
+
+if (!context) {
+  throw new Error(
+    "admin/registrations.astro rendered without Astro.locals.ssrContext — src/middleware.ts should have redirected to /login before this page ever runs."
+  );
+}
+
+const t = await createTranslator(Astro.locals.locale);
+
+const clientStrings = {
+  approveSuccess: t("admin.registrations.approve_success"),
+  rejectSuccess: t("admin.registrations.reject_success"),
+  approveConfirmTitle: t("admin.registrations.approve_confirm_title"),
+  approveConfirmBody: t("admin.registrations.approve_confirm_body"),
+  rejectConfirmTitle: t("admin.registrations.reject_confirm_title"),
+  rejectConfirmBody: t("admin.registrations.reject_confirm_body"),
+  confirmButton: t("common.confirm_button"),
+  cancelButton: t("common.cancel_button"),
+  networkError: t("common.network_error"),
+  pleaseWait: t("common.please_wait"),
+  errorMessages: buildClientErrorMessages(t)
+};
+
+const CAN_READ = context.permissions.has(
+  permissionKey("identity_access", "user_management", "read")
+);
+const CAN_APPROVE = context.permissions.has(
+  permissionKey("identity_access", "user_management", "create")
+);
+const CAN_REJECT = context.permissions.has(
+  permissionKey("identity_access", "user_management", "update")
+);
+const CAN_READ_ROLES = context.permissions.has(
+  permissionKey("identity_access", "access_control", "read")
+);
+
+let data: {
+  requests: Awaited<ReturnType<typeof listPendingRegistrations>>;
+  roles: Awaited<ReturnType<typeof fetchRolesWithPermissions>>;
+} | null = null;
+let loadError = false;
+
+if (CAN_READ) {
+  try {
+    data = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => ({
+        requests: await listPendingRegistrations(tx, context.tenantId),
+        roles: CAN_READ_ROLES
+          ? await fetchRolesWithPermissions(tx, context.tenantId)
+          : []
+      })
+    );
+  } catch (error) {
+    logAdminPageError("admin/registrations.astro: failed to load data", error, {
+      correlationId: Astro.locals.correlationId
+    });
+    loadError = true;
+  }
+}
+
+function formatRequestedAt(iso: string): string {
+  // UTC, minute precision — enough for an approval queue; avoids a per-row
+  // locale formatter dependency.
+  return iso.slice(0, 16).replace("T", " ") + " UTC";
+}
+---
+
+<AdminLayout title={t("admin.registrations.nav")}>
+  <h1>{t("admin.registrations.heading")}</h1>
+  <p class="page-intro">{t("admin.registrations.intro")}</p>
+
+  <ActionBanner id="action-banner" />
+
+  {
+    !CAN_READ && (
+      <StateNotice
+        kind="denied"
+        title={t("admin.registrations.access_denied_title")}
+        body={t("admin.registrations.access_denied_body")}
+      />
+    )
+  }
+
+  {
+    CAN_READ && loadError && (
+      <StateNotice
+        kind="error"
+        title={t("common.error_title")}
+        body={t("common.error_body")}
+        retryLabel={t("common.retry")}
+        retryHref={Astro.url.pathname}
+      />
+    )
+  }
+
+  {
+    CAN_READ && data && (
+      <DataTable
+        caption={t("admin.registrations.heading")}
+        columnCount={CAN_APPROVE || CAN_REJECT ? 5 : 4}
+        isEmpty={data.requests.length === 0}
+        emptyMessage={t("admin.registrations.empty")}
+      >
+        <tr slot="head">
+          <th>{t("admin.registrations.col_identifier")}</th>
+          <th>{t("admin.registrations.col_name")}</th>
+          <th>{t("admin.registrations.col_requested")}</th>
+          {CAN_READ_ROLES && (CAN_APPROVE || CAN_REJECT) && (
+            <th>{t("admin.registrations.col_role")}</th>
+          )}
+          {(CAN_APPROVE || CAN_REJECT) && (
+            <th>{t("admin.registrations.col_actions")}</th>
+          )}
+        </tr>
+
+        {data.requests.map((req) => (
+          <tr data-request-row data-request-id={req.id}>
+            <td>{req.loginIdentifier}</td>
+            <td>{req.displayName ?? "—"}</td>
+            <td>{formatRequestedAt(req.requestedAt)}</td>
+            {CAN_READ_ROLES && (CAN_APPROVE || CAN_REJECT) && (
+              <td>
+                {CAN_APPROVE ? (
+                  <select
+                    class="registration-role"
+                    aria-label={t("admin.registrations.col_role")}
+                  >
+                    <option value="">
+                      {t("admin.registrations.role_none")}
+                    </option>
+                    {data!.roles.map((role) => (
+                      <option value={role.id}>{role.roleName}</option>
+                    ))}
+                  </select>
+                ) : (
+                  "—"
+                )}
+              </td>
+            )}
+            {(CAN_APPROVE || CAN_REJECT) && (
+              <td class="registration-actions">
+                {CAN_APPROVE && (
+                  <button type="button" class="btn-approve" data-id={req.id}>
+                    {t("admin.registrations.approve_button")}
+                  </button>
+                )}
+                {CAN_REJECT && (
+                  <button type="button" class="btn-reject" data-id={req.id}>
+                    {t("admin.registrations.reject_button")}
+                  </button>
+                )}
+              </td>
+            )}
+          </tr>
+        ))}
+      </DataTable>
+    )
+  }
+
+  <ConfirmDialog id="approve-dialog" danger={false} />
+  <ConfirmDialog id="reject-dialog" />
+
+  <script
+    type="application/json"
+    id="i18n-strings"
+    set:html={JSON.stringify(clientStrings)}
+  />
+
+  <script>
+    import {
+      lockElement,
+      readClientStrings,
+      reloadAfterDelay,
+      showBanner,
+      submitJson
+    } from "../../lib/ui/admin-form-client";
+    import { openConfirmDialog } from "../../lib/ui/confirm-dialog-client";
+
+    interface RegistrationsStrings {
+      approveSuccess: string;
+      rejectSuccess: string;
+      approveConfirmTitle: string;
+      approveConfirmBody: string;
+      rejectConfirmTitle: string;
+      rejectConfirmBody: string;
+      confirmButton: string;
+      cancelButton: string;
+      networkError: string;
+      pleaseWait: string;
+      errorMessages?: Record<string, string>;
+    }
+
+    const strings = readClientStrings<RegistrationsStrings>();
+
+    function roleIdsFor(id: string): string[] {
+      const row = document.querySelector<HTMLTableRowElement>(
+        `[data-request-row][data-request-id="${id}"]`
+      );
+      const select =
+        row?.querySelector<HTMLSelectElement>(".registration-role");
+      const value = select?.value?.trim();
+      return value ? [value] : [];
+    }
+
+    document
+      .querySelectorAll<HTMLButtonElement>(".btn-approve")
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          if (!id || btn.disabled) return;
+
+          const confirmed = await openConfirmDialog("approve-dialog", {
+            title: strings.approveConfirmTitle,
+            body: strings.approveConfirmBody,
+            confirmLabel: strings.confirmButton,
+            cancelLabel: strings.cancelButton
+          });
+          if (!confirmed.confirmed) return;
+
+          const unlock = lockElement(btn, strings.pleaseWait);
+          try {
+            const result = await submitJson(
+              `/api/v1/registration-requests/${id}/approve`,
+              "POST",
+              { roleIds: roleIdsFor(id) },
+              strings
+            );
+            showBanner(
+              "action-banner",
+              result.ok ? strings.approveSuccess : result.message,
+              result.ok ? "success" : "error"
+            );
+            if (result.ok) reloadAfterDelay();
+          } finally {
+            unlock();
+          }
+        });
+      });
+
+    document
+      .querySelectorAll<HTMLButtonElement>(".btn-reject")
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id;
+          if (!id || btn.disabled) return;
+
+          const confirmed = await openConfirmDialog("reject-dialog", {
+            title: strings.rejectConfirmTitle,
+            body: strings.rejectConfirmBody,
+            confirmLabel: strings.confirmButton,
+            cancelLabel: strings.cancelButton
+          });
+          if (!confirmed.confirmed) return;
+
+          const unlock = lockElement(btn, strings.pleaseWait);
+          try {
+            const result = await submitJson(
+              `/api/v1/registration-requests/${id}/reject`,
+              "POST",
+              {},
+              strings
+            );
+            showBanner(
+              "action-banner",
+              result.ok ? strings.rejectSuccess : result.message,
+              result.ok ? "success" : "error"
+            );
+            if (result.ok) reloadAfterDelay();
+          } finally {
+            unlock();
+          }
+        });
+      });
+  </script>
+
+  <style>
+    .page-intro {
+      color: var(--color-text-muted);
+      font-size: var(--fs-sm);
+      margin: 0 0 var(--sp-4);
+    }
+
+    .registration-actions {
+      display: flex;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+    }
+
+    .registration-role {
+      min-height: 36px;
+      padding: 0 var(--sp-2);
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--fs-sm);
+    }
+
+    .btn-approve,
+    .btn-reject {
+      min-height: 36px;
+      padding: 0 var(--sp-3);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-colors);
+    }
+
+    .btn-approve {
+      background: var(--color-success-strong);
+      color: var(--color-primary-contrast);
+      border-color: transparent;
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-success-strong) 88%, #000);
+    }
+
+    .btn-reject {
+      background: var(--color-surface);
+      color: var(--color-danger-strong);
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      background: var(--color-surface-2);
+    }
+
+    .btn-approve:disabled,
+    .btn-reject:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  </style>
+</AdminLayout>
