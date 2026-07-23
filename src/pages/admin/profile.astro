@@ -1,0 +1,345 @@
+---
+/**
+ * My Profile — the logged-in user's own account overview (`/admin/profile`).
+ * Reached from the topbar profile icon in `AdminLayout.astro`.
+ *
+ * Deliberately NOT permission-gated: it shows only the caller's OWN account
+ * (`fetchAccountOverview` filters to `context.identityId` inside the tenant
+ * RLS transaction), which is a different authorization question from the
+ * CRM party-governance directory under `/admin/profile-identity` (that one
+ * is gated on `profile_identity.profile_management.*`). Any authenticated
+ * user can read their own account. The optional "manage full profile" link
+ * to the governance screen is only rendered when the user actually holds
+ * `profile_identity.profile_management.read`, so it never leads to an
+ * access-denied page.
+ *
+ * SSR reads the application function directly inside this page's own
+ * `withTenant` transaction (same convention as `admin/business-scope.astro`
+ * et al.); there is no self round-trip through the HTTP API and no mutation
+ * here — it is a read-only overview with links out to existing flows
+ * (password reset, full profile governance).
+ */
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import StateNotice from "../../components/ui/StateNotice.astro";
+import StatusBadge from "../../components/ui/StatusBadge.astro";
+import type { StatusBadgeVariant } from "../../components/ui/StatusBadge.astro";
+import { getDatabaseClient } from "../../lib/database/client";
+import { withTenant } from "../../lib/database/tenant-context";
+import { permissionKey } from "../../modules/identity-access/domain/access-control";
+import {
+  fetchAccountOverview,
+  type AccountOverview
+} from "../../modules/identity-access/application/account-overview";
+import { createTranslator } from "../../lib/i18n/translate";
+import { formatDateTime } from "../../lib/i18n/format";
+import { logAdminPageError } from "../../lib/logging/error-log";
+
+const context = Astro.locals.ssrContext;
+
+if (!context) {
+  throw new Error(
+    "admin/profile.astro rendered without Astro.locals.ssrContext — src/middleware.ts should have redirected to /login before this page ever runs."
+  );
+}
+
+const locale = Astro.locals.locale;
+const t = await createTranslator(locale);
+
+const CAN_MANAGE_FULL_PROFILE = context.permissions.has(
+  permissionKey("profile_identity", "profile_management", "read")
+);
+
+let account: AccountOverview | null = null;
+let loadError = false;
+
+try {
+  account = await withTenant(getDatabaseClient(), context.tenantId, (tx) =>
+    fetchAccountOverview(tx, context.tenantId, context.identityId)
+  );
+} catch (error) {
+  loadError = true;
+  logAdminPageError("admin/profile", error);
+}
+
+function accountStatusVariant(status: string): StatusBadgeVariant {
+  switch (status) {
+    case "active":
+      return "success";
+    case "locked":
+      return "danger";
+    case "inactive":
+      return "warning";
+    default:
+      return "neutral";
+  }
+}
+
+function accountStatusLabel(status: string): string {
+  switch (status) {
+    case "active":
+      return t("admin.profile.status_active");
+    case "locked":
+      return t("admin.profile.status_locked");
+    case "inactive":
+      return t("admin.profile.status_inactive");
+    default:
+      return status;
+  }
+}
+
+function verificationVariant(status: string): StatusBadgeVariant {
+  switch (status) {
+    case "verified":
+      return "success";
+    case "pending":
+      return "warning";
+    default:
+      return "neutral";
+  }
+}
+
+function verificationLabel(status: string): string {
+  switch (status) {
+    case "verified":
+      return t("admin.profile.verification_verified");
+    case "pending":
+      return t("admin.profile.verification_pending");
+    case "unverified":
+      return t("admin.profile.verification_unverified");
+    default:
+      return status;
+  }
+}
+
+function profileTypeLabel(type: string): string {
+  switch (type) {
+    case "person":
+      return t("admin.profile.type_person");
+    case "organization":
+      return t("admin.profile.type_organization");
+    default:
+      return type;
+  }
+}
+
+const rolesLabel =
+  context.roles.length > 0
+    ? context.roles.join(", ")
+    : t("admin.layout.no_role");
+---
+
+<AdminLayout title={t("admin.profile.title")}>
+  <section class="profile-page" aria-labelledby="profile-heading">
+    <header class="profile-header">
+      <h1 id="profile-heading">{t("admin.profile.title")}</h1>
+      <p class="profile-subtitle">{t("admin.profile.subtitle")}</p>
+    </header>
+
+    {
+      loadError && (
+        <StateNotice
+          kind="error"
+          title={t("admin.profile.load_error_title")}
+          body={t("admin.profile.load_error_description")}
+        />
+      )
+    }
+
+    {
+      !loadError && !account && (
+        <StateNotice
+          kind="info"
+          title={t("admin.profile.empty_title")}
+          body={t("admin.profile.empty_description")}
+        />
+      )
+    }
+
+    {
+      account && (
+        <div class="profile-card">
+          <div class="profile-identity">
+            <span class="profile-avatar" aria-hidden="true">
+              {account.displayName.trim().charAt(0).toUpperCase() || "?"}
+            </span>
+            <div>
+              <p class="profile-name">{account.displayName}</p>
+              <p class="profile-login">{account.loginIdentifier}</p>
+            </div>
+          </div>
+
+          <dl class="profile-fields">
+            <div class="profile-field">
+              <dt>{t("admin.profile.field_profile_type")}</dt>
+              <dd>{profileTypeLabel(account.profileType)}</dd>
+            </div>
+            {account.legalName && (
+              <div class="profile-field">
+                <dt>{t("admin.profile.field_legal_name")}</dt>
+                <dd>{account.legalName}</dd>
+              </div>
+            )}
+            <div class="profile-field">
+              <dt>{t("admin.profile.field_status")}</dt>
+              <dd>
+                <StatusBadge
+                  label={accountStatusLabel(account.status)}
+                  variant={accountStatusVariant(account.status)}
+                />
+              </dd>
+            </div>
+            <div class="profile-field">
+              <dt>{t("admin.profile.field_verification")}</dt>
+              <dd>
+                <StatusBadge
+                  label={verificationLabel(account.verificationStatus)}
+                  variant={verificationVariant(account.verificationStatus)}
+                />
+              </dd>
+            </div>
+            <div class="profile-field">
+              <dt>{t("admin.profile.field_roles")}</dt>
+              <dd>{rolesLabel}</dd>
+            </div>
+            <div class="profile-field">
+              <dt>{t("admin.profile.field_last_login")}</dt>
+              <dd>
+                {account.lastLoginAt
+                  ? formatDateTime(new Date(account.lastLoginAt), locale)
+                  : t("admin.profile.never_logged_in")}
+              </dd>
+            </div>
+          </dl>
+
+          <div class="profile-actions">
+            <a class="profile-action" href="/forgot-password">
+              {t("admin.profile.action_change_password")}
+            </a>
+            {CAN_MANAGE_FULL_PROFILE && (
+              <a
+                class="profile-action profile-action-secondary"
+                href={`/admin/profile-identity/${account.profileId}`}
+              >
+                {t("admin.profile.action_manage_full")}
+              </a>
+            )}
+          </div>
+        </div>
+      )
+    }
+  </section>
+</AdminLayout>
+
+<style>
+  .profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-width: 720px;
+  }
+
+  .profile-header h1 {
+    margin: 0;
+    font-size: var(--fs-xl);
+  }
+
+  .profile-subtitle {
+    margin: var(--sp-1) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .profile-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    padding: var(--sp-4);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .profile-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .profile-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    background: var(--color-primary-strong);
+    color: var(--color-primary-contrast);
+    font-size: var(--fs-lg);
+    font-weight: 700;
+  }
+
+  .profile-name {
+    margin: 0;
+    font-weight: 700;
+    font-size: var(--fs-md);
+  }
+
+  .profile-login {
+    margin: var(--sp-1) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .profile-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--sp-3);
+    margin: 0;
+  }
+
+  .profile-field dt {
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .profile-field dd {
+    margin: var(--sp-1) 0 0;
+    font-size: var(--fs-sm);
+  }
+
+  .profile-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  .profile-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--sp-4);
+    border-radius: var(--radius-sm);
+    background: var(--color-primary-strong);
+    color: var(--color-primary-contrast);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .profile-action:hover {
+    filter: brightness(1.05);
+  }
+
+  .profile-action:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .profile-action-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+</style>

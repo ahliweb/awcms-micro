@@ -262,6 +262,84 @@ msgstr "Log out"
 msgid "admin.layout.nav_aria_label"
 msgstr "Main navigation"
 
+#. Topbar profile icon (links to the user's own account at /admin/profile).
+msgid "admin.layout.profile_aria_label"
+msgstr "Open my profile"
+
+#. Repo/app version shown in the sidebar footer (value rendered as "v1.0.0").
+msgid "admin.layout.version_label"
+msgstr "Version"
+
+#. admin.profile — the logged-in user's own account overview (/admin/profile)
+msgid "admin.profile.title"
+msgstr "My Profile"
+
+msgid "admin.profile.subtitle"
+msgstr "Your account details for this tenant."
+
+msgid "admin.profile.field_profile_type"
+msgstr "Profile type"
+
+msgid "admin.profile.field_legal_name"
+msgstr "Legal name"
+
+msgid "admin.profile.field_status"
+msgstr "Account status"
+
+msgid "admin.profile.field_verification"
+msgstr "Verification"
+
+msgid "admin.profile.field_roles"
+msgstr "Roles"
+
+msgid "admin.profile.field_last_login"
+msgstr "Last login"
+
+msgid "admin.profile.type_person"
+msgstr "Person"
+
+msgid "admin.profile.type_organization"
+msgstr "Organization"
+
+msgid "admin.profile.status_active"
+msgstr "Active"
+
+msgid "admin.profile.status_inactive"
+msgstr "Inactive"
+
+msgid "admin.profile.status_locked"
+msgstr "Locked"
+
+msgid "admin.profile.verification_verified"
+msgstr "Verified"
+
+msgid "admin.profile.verification_unverified"
+msgstr "Unverified"
+
+msgid "admin.profile.verification_pending"
+msgstr "Pending"
+
+msgid "admin.profile.never_logged_in"
+msgstr "Never logged in"
+
+msgid "admin.profile.action_change_password"
+msgstr "Change password"
+
+msgid "admin.profile.action_manage_full"
+msgstr "Manage full profile"
+
+msgid "admin.profile.load_error_title"
+msgstr "Could not load your profile"
+
+msgid "admin.profile.load_error_description"
+msgstr "Something went wrong loading your account. Please try again."
+
+msgid "admin.profile.empty_title"
+msgstr "Profile unavailable"
+
+msgid "admin.profile.empty_description"
+msgstr "We couldn't find an account profile for your session."
+
 #. Responsive sidebar/drawer hamburger toggle (Issue #693, epic #679
 #. platform-hardening) — visible only below `--bp-md`; open/closed state is
 #. conveyed via `aria-expanded`, not a separate label per state.

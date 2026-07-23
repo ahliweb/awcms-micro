@@ -2269,27 +2269,27 @@ msgstr ""
 msgid "admin.examples.wizard.validation_title_required"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:207
+#: src/layouts/AdminLayout.astro:214
 msgid "admin.layout.active_tenant_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:314
+#: src/layouts/AdminLayout.astro:348
 msgid "admin.layout.breadcrumb_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:223
+#: src/layouts/AdminLayout.astro:230
 msgid "admin.layout.language_switcher_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:238
+#: src/layouts/AdminLayout.astro:266
 msgid "admin.layout.logout"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:272
+#: src/layouts/AdminLayout.astro:300
 msgid "admin.layout.nav_access_users"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:254
+#: src/layouts/AdminLayout.astro:282
 msgid "admin.layout.nav_aria_label"
 msgstr ""
 
@@ -2303,7 +2303,7 @@ msgstr ""
 msgid "admin.layout.nav_business_scope"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:262
+#: src/layouts/AdminLayout.astro:290
 msgid "admin.layout.nav_dashboard"
 msgstr ""
 
@@ -2357,7 +2357,7 @@ msgstr ""
 msgid "admin.layout.nav_security"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:294
+#: src/layouts/AdminLayout.astro:322
 msgid "admin.layout.nav_settings"
 msgstr ""
 
@@ -2376,7 +2376,7 @@ msgstr ""
 msgid "admin.layout.nav_social_publishing_rules"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:284
+#: src/layouts/AdminLayout.astro:312
 msgid "admin.layout.nav_sync"
 msgstr ""
 
@@ -2385,7 +2385,7 @@ msgstr ""
 msgid "admin.layout.nav_tenant_domains"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:200
+#: src/layouts/AdminLayout.astro:207
 msgid "admin.layout.nav_toggle_aria_label"
 msgstr ""
 
@@ -2394,36 +2394,44 @@ msgstr ""
 msgid "admin.layout.nav_visitor_analytics"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:230
+#: src/layouts/AdminLayout.astro:258
 msgid "admin.layout.no_role"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:190
+#: src/layouts/AdminLayout.astro:237
+msgid "admin.layout.profile_aria_label"
+msgstr ""
+
+#: src/layouts/AdminLayout.astro:197
 msgid "admin.layout.skip_to_content"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:212
+#: src/layouts/AdminLayout.astro:219
 msgid "admin.layout.sync_active"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:213
+#: src/layouts/AdminLayout.astro:220
 msgid "admin.layout.sync_inactive"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:219
+#: src/layouts/AdminLayout.astro:226
 msgid "admin.layout.theme_dark"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:218
+#: src/layouts/AdminLayout.astro:225
 msgid "admin.layout.theme_light"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:217
+#: src/layouts/AdminLayout.astro:224
 msgid "admin.layout.theme_system"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:216
+#: src/layouts/AdminLayout.astro:223
 msgid "admin.layout.theme_toggle_aria_label"
+msgstr ""
+
+#: src/layouts/AdminLayout.astro:340
+msgid "admin.layout.version_label"
 msgstr ""
 
 #: src/pages/admin/media/index.astro:195
@@ -3073,6 +3081,98 @@ msgstr ""
 
 #: src/pages/admin/newsletter/index.astro:33
 msgid "admin.newsletter.topics_heading"
+msgstr ""
+
+#: src/pages/admin/profile.astro:216
+msgid "admin.profile.action_change_password"
+msgstr ""
+
+#: src/pages/admin/profile.astro:223
+msgid "admin.profile.action_manage_full"
+msgstr ""
+
+#: src/pages/admin/profile.astro:153
+msgid "admin.profile.empty_description"
+msgstr ""
+
+#: src/pages/admin/profile.astro:152
+msgid "admin.profile.empty_title"
+msgstr ""
+
+#: src/pages/admin/profile.astro:205
+msgid "admin.profile.field_last_login"
+msgstr ""
+
+#: src/pages/admin/profile.astro:178
+msgid "admin.profile.field_legal_name"
+msgstr ""
+
+#: src/pages/admin/profile.astro:173
+msgid "admin.profile.field_profile_type"
+msgstr ""
+
+#: src/pages/admin/profile.astro:201
+msgid "admin.profile.field_roles"
+msgstr ""
+
+#: src/pages/admin/profile.astro:183
+msgid "admin.profile.field_status"
+msgstr ""
+
+#: src/pages/admin/profile.astro:192
+msgid "admin.profile.field_verification"
+msgstr ""
+
+#: src/pages/admin/profile.astro:143
+msgid "admin.profile.load_error_description"
+msgstr ""
+
+#: src/pages/admin/profile.astro:142
+msgid "admin.profile.load_error_title"
+msgstr ""
+
+#: src/pages/admin/profile.astro:209
+msgid "admin.profile.never_logged_in"
+msgstr ""
+
+#: src/pages/admin/profile.astro:80
+msgid "admin.profile.status_active"
+msgstr ""
+
+#: src/pages/admin/profile.astro:84
+msgid "admin.profile.status_inactive"
+msgstr ""
+
+#: src/pages/admin/profile.astro:82
+msgid "admin.profile.status_locked"
+msgstr ""
+
+#: src/pages/admin/profile.astro:135
+msgid "admin.profile.subtitle"
+msgstr ""
+
+#: src/pages/admin/profile.astro:131
+msgid "admin.profile.title"
+msgstr ""
+
+#: src/pages/admin/profile.astro:119
+msgid "admin.profile.type_organization"
+msgstr ""
+
+#: src/pages/admin/profile.astro:117
+msgid "admin.profile.type_person"
+msgstr ""
+
+#: src/pages/admin/profile.astro:106
+msgid "admin.profile.verification_pending"
+msgstr ""
+
+#: src/pages/admin/profile.astro:108
+msgid "admin.profile.verification_unverified"
+msgstr ""
+
+#: src/pages/admin/profile.astro:104
+msgid "admin.profile.verification_verified"
 msgstr ""
 
 #: src/pages/admin/profile-identity/[id].astro:151
