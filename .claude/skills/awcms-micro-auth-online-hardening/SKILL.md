@@ -1,6 +1,6 @@
 ---
 name: awcms-micro-auth-online-hardening
-description: Kerjakan bagian mana pun dari epic full-online auth security hardening AWCMS-Micro (Issue #587-#593). Gunakan saat menambah/mengubah AUTH_ONLINE_SECURITY_* gate, Cloudflare Turnstile, MFA/TOTP, Google OIDC login, generic tenant OIDC SSO, atau admin auth policy UI. Merangkum keputusan yang sudah dibuat supaya issue lanjutan tidak mengulang/kontradiksi.
+description: Kerjakan bagian mana pun dari epic full-online auth security hardening AWCMS-Micro (Issue #587-#593). Gunakan saat menambah/mengubah AUTH_ONLINE_SECURITY_* gate, Cloudflare Turnstile, MFA/TOTP, Google OIDC login, generic tenant OIDC SSO, admin auth policy UI, self-registration (admin approval), sealed/encrypted auth URL params (AUTH_URL_PARAM_ENCRYPTION_KEY), atau redesign layar auth (login/forgot/reset/register). Merangkum keputusan yang sudah dibuat supaya issue lanjutan tidak mengulang/kontradiksi.
 ---
 
 # AWCMS-Micro — Full-Online Auth Security Hardening
@@ -795,3 +795,78 @@ jadi kontrol otoritatif) diperbaiki:
   test: `tests/integration/tenant-sso-flow.integration.test.ts`'s
   "break-glass hygiene: saving policy with 1 valid + N garbage/ineligible
   ids persists ONLY the valid one".
+
+## Self-registration admin-approval + sealed auth URLs (PR #318, selesai 2026-07-23)
+
+Fitur baru di atas epic #587-#593: **redesign layar auth** + **self-signup
+dengan approval admin** + **enkripsi param URL auth**. Semuanya **opt-in,
+backward-compatible** — tanpa env baru, perilaku publik tidak berubah
+(`/register` → 302 ke `/login`, reset link tetap plaintext `?token=&tenantId=`).
+Deployed ke dinkes-prod 2026-07-23 dalam keadaan DORMANT (flag belum di-set).
+Migration **093** (`awcms_micro_registration_requests`).
+
+### Sealed/encrypted auth URL params — `src/lib/security/secure-url-params.ts`
+
+- `sealUrlParams(params, key)` / `openUrlParams(sealed, key)` +
+  `resolveUrlParamKey(env)`. **AES-256-GCM**, IV acak, format versioned
+  `v1.<iv>.<tag>.<ciphertext>` base64url. **Fail-closed**: key kosong →
+  `null` (caller fallback ke param plaintext), tamper/wrong-key/malformed →
+  `null` (bukan throw). Key dari `AUTH_URL_PARAM_ENCRYPTION_KEY` (32-byte
+  base64), opsional.
+- **SCOPE: hanya URL auth (reset link `?p=`), JANGAN URL SEO publik.** Ini
+  keputusan produk eksplisit user ("kecuali untuk kebutuhan SEO pada website
+  publik") — mengenkripsi slug/param publik akan merusak indeksabilitas.
+  `seo-distribution/domain/redirect-eligibility.ts` `EXCLUDED_SEGMENT_PREFIXES`
+  menambah `/register`, `/forgot-password`, `/reset-password` supaya
+  admin-hijack invariant (`seo-redirect-eligibility.test.ts`) tidak
+  memperlakukan rute sensitif ini sebagai redirect-eligible.
+- `password-reset.ts` `resetUrl` kini `?p=<sealed>` kalau key ada, else
+  fallback `?token=X&tenantId=Y`. `reset-password.astro` membaca KEDUA bentuk.
+- Test: `tests/unit/secure-url-params.test.ts` (round-trip, randomized,
+  no-key null, tamper fail-closed, wrong-key fail-closed).
+
+### Self-registration (admin approval) — model "registration_requests" terpisah
+
+- Gate: `src/lib/auth/self-registration-config.ts`
+  `isSelfRegistrationEnabled(env)` — **hanya** literal `"true"` untuk
+  `AUTH_SELF_REGISTRATION_ENABLED` (bukan `"1"`/`"TRUE"`). Plus rate-limit env
+  `AUTH_SELF_REGISTRATION_RATE_LIMIT_MAX` / `_WINDOW_SEC`.
+- **Model desain**: permohonan masuk ke tabel `awcms_micro_registration_requests`
+  (status `pending`/`approved`/`rejected`) TERPISAH — BUKAN identity `inactive`
+  setengah-jadi. Alasan: spam signup tidak boleh mencemari uniqueness
+  `awcms_micro_identities`. Partial unique `(tenant_id, login_identifier)
+WHERE status='pending'`. RLS ENABLE+FORCE + `tenant_isolation`.
+- **Approval baru membuat identity**: `approveRegistrationRequest`
+  (`application/self-registration.ts`) yang mint `awcms_micro_identities` +
+  `awcms_micro_tenant_users` aktif dengan role dipilih admin. `submit`/`list`/
+  `approve`/`reject` semua `tx: Bun.SQL`.
+- **Anti-privilege-escalation**: `validateRegistrationInput`
+  (`domain/self-registration-validation.ts`) TIDAK PERNAH menerima `roleIds`
+  dari payload publik (test membuktikan field di-drop). Role hanya di-set admin
+  saat approve.
+- **Anti-enumeration**: `POST /api/v1/auth/register` publik mengembalikan
+  respons generik apa pun hasilnya (404 kalau flag off); alasan asli hanya di
+  audit log. argon2id `hashPassword` di luar transaksi. Turnstile dipakai ulang
+  dari #588.
+- **API admin** (ABAC-guarded): `GET /api/v1/registration-requests`
+  (`user_management.read`), `[id]/approve.ts` (`.create`), `[id]/reject.ts`
+  (`.update`). Halaman `/admin/registrations.astro` (nav order 54,
+  `requiredPermission: identity_access.user_management.read`).
+- Test: `tests/unit/self-registration-config.test.ts`,
+  `self-registration-validation.test.ts`,
+  `tests/integration/self-registration.integration.test.ts`. Migration 093
+  di-hardcode di `tests/foundation.test.ts` migration list.
+
+### Redesign layar auth — `src/styles/auth.css` (shared)
+
+- Surface token-driven bersama untuk `login.astro` (rewrite), `forgot-password.astro`,
+  `reset-password.astro`, `register.astro`. Entrance **transform-only**
+  (`@keyframes auth-card-rise` translateY→none) — JANGAN opacity-fade (gagal
+  axe contrast gate, lihat skill `awcms-micro-ui-screen`/`awcms-micro-ux-review`).
+- `login.astro` mempertahankan kontrak DOM stabil (`#login-form`/`#tenant-id`/
+  `#login-identifier`/`#password`/`#login-submit`/`#login-error`) supaya E2E
+  login tidak putus. `src/lib/ui/password-toggle.ts`
+  `wirePasswordToggle(inputId, toggleId, strings)` dipakai lintas layar.
+- i18n: 63 key baru (`auth.*`, `admin.registrations.*`) — ingat re-run
+  `bun run i18n:extract` SETELAH `bun run format` (prettier menggeser
+  `#: file:line` di messages.pot).

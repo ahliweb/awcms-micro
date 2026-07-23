@@ -472,6 +472,25 @@ sekali — `APP_ENV=production` **bukan** proxy untuk gate ini (lihat
   **selesai** (`isPostgresClientInputError` di `tenant-context.ts` kini
   mencakup kelas `22` dan `23`).
 
+## Standar tambahan dipicu self-registration + sealed auth URL (PR #318)
+
+PR #318 menambahkan **pendaftaran mandiri dengan approval admin**,
+**enkripsi param URL auth**, dan **redesign layar auth** di atas permukaan
+auth yang sudah dicakup matrix dan epic #587-#593 di atas — tidak mengulang
+kontrol generik (RLS, ABAC default-deny, argon2id, rate-limit, anti-enum
+respons) yang sudah berlaku. Semuanya **opt-in, backward-compatible**;
+deployment yang tidak men-set flag baru berperilaku identik dengan sebelum
+PR ini (`/register` → 302, reset link plaintext). Detail implementasi:
+skill `awcms-micro-auth-online-hardening` §Self-registration admin-approval.
+
+| Kategori risiko                                   | Mitigasi                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Privilege escalation lewat self-signup**        | Payload publik `POST /api/v1/auth/register` **tidak pernah** menerima `roleIds`/field privilege — `validateRegistrationInput` (`identity-access/domain/self-registration-validation.ts`) mem-_drop_ field itu (dibuktikan test unit). Permohonan masuk sebagai `registration_request` **tanpa akun/role**; role hanya di-set admin saat `approveRegistrationRequest`, yang tunduk ABAC (`identity_access.user_management.create`). Approve baru me-mint identity + tenant_user aktif — pendaftar tak pernah bisa menaikkan hak sendiri. |
+| **Account enumeration via signup**                | `POST /auth/register` mengembalikan respons **generik** apa pun hasilnya (identifier baru, sudah pending, sudah jadi identity) dan **404** saat flag off — alasan asli hanya di audit log. `hashPassword` argon2id dijalankan di luar transaksi. Turnstile (#588) dipakai ulang saat mode full-online aktif. Partial unique `(tenant_id, login_identifier) WHERE status='pending'` mencegah pemaksaan konflik yang bocorkan keberadaan.                                                                                                 |
+| **Spam signup mencemari data identity**           | Permohonan disimpan di tabel **terpisah** `awcms_micro_registration_requests` (RLS `ENABLE`+`FORCE` + `tenant_isolation`), BUKAN sebagai identity `inactive` setengah-jadi — flood pendaftaran tidak menyentuh uniqueness/kunci `awcms_micro_identities`. Rate limit khusus (`AUTH_SELF_REGISTRATION_RATE_LIMIT_MAX`/`_WINDOW_SEC`) membatasi laju submit per sumber+tenant. Admin bisa `reject` tanpa pernah membuat akun.                                                                                                             |
+| **Brute-force / tebak param URL auth**            | Reset link meng-_seal_ token+tenant menjadi satu param buram terenkripsi `?p=` bila `AUTH_URL_PARAM_ENCRYPTION_KEY` di-set — **AES-256-GCM**, IV acak per-seal, format versioned `v1.iv.tag.ciphertext` base64url (`src/lib/security/secure-url-params.ts`). **Fail-closed**: key kosong → `null` (fallback plaintext, tak pernah bocorkan setengah-terenkripsi), tamper/wrong-key/malformed → `null` (bukan throw) — dibuktikan test. Struktur `?token=&tenantId=` tidak lagi terekspos saat key ada, menutup tebakan berbasis pola.   |
+| **Sealed URL merusak SEO (regresi yang dicegah)** | Enkripsi param **sengaja di-scope hanya ke URL auth**, TIDAK ke URL SEO publik — keputusan produk eksplisit (mengenkripsi slug/param konten akan merusak indeksabilitas). `/register`, `/forgot-password`, `/reset-password` ditambahkan ke `EXCLUDED_SEGMENT_PREFIXES` (`seo-distribution/domain/redirect-eligibility.ts`) supaya invariant admin-hijack (`seo-redirect-eligibility.test.ts`) tidak memperlakukan rute sensitif ini sebagai redirect-eligible — ini menutup celah keamanan nyata, bukan sekadar SEO.                   |
+
 ## Standar tambahan dipicu epic visitor analytics (Issue #617-#624)
 
 Epic ini menambah **telemetry pengunjung berskala tinggi** (satu baris

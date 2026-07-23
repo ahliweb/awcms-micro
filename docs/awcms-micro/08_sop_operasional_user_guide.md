@@ -130,6 +130,27 @@ Checklist:
 6. Simpan.
 7. Sistem membuat profile, identity, tenant user, assignment, audit log.
 
+### Self-registration & approval permohonan user baru (opt-in, PR #318)
+
+Selain admin menambah user manual (di atas), tenant boleh membuka **pendaftaran mandiri** dengan **approval admin**. Fitur ini **nonaktif secara default** — hanya aktif jika operator men-set `AUTH_SELF_REGISTRATION_ENABLED=true` (lihat doc 18 §Self-registration). Saat nonaktif, halaman `/register` mengalihkan ke `/login` dan endpoint publiknya mengembalikan 404.
+
+**Alur calon user (publik):**
+
+1. Buka `/register` (jika diaktifkan tenant).
+2. Isi nama tampilan, email/identifier login, dan password (min. panjang sama seperti kebijakan user-management). Turnstile dipakai jika mode full-online aktif.
+3. Submit. Sistem **selalu** menampilkan pesan generik "permohonan diterima, menunggu persetujuan" — tidak membocorkan apakah identifier sudah terdaftar (anti-enumeration; alasan asli hanya di audit log).
+4. Permohonan tersimpan sebagai **registration request** berstatus `pending` (tabel terpisah — belum menjadi akun, belum bisa login).
+
+**Alur admin (approval):**
+
+1. Login owner/admin (butuh permission `identity_access.user_management.read`).
+2. Buka menu **Registrasi** (`/admin/registrations`) — antrean permohonan `pending`.
+3. Tinjau nama & identifier pemohon.
+4. **Approve**: pilih role yang akan diberikan, konfirmasi. Sistem membuat identity + tenant user aktif dengan role tersebut, menandai request `approved`, mencatat approver + audit log. Baru setelah ini user bisa login. **Role tidak pernah datang dari input pemohon** — hanya admin yang menetapkannya saat approve.
+5. **Reject**: konfirmasi (opsional alasan). Request ditandai `rejected`; tidak ada akun dibuat.
+
+Catatan: permohonan berstatus `pending` menjaga uniqueness — satu identifier hanya boleh punya satu permohonan `pending` aktif per tenant. Spam pendaftaran tidak mencemari data identity karena permohonan disimpan terpisah, bukan sebagai identity nonaktif setengah-jadi.
+
 ### Nonaktifkan user
 
 1. Buka detail user.
@@ -396,6 +417,15 @@ menyimpulkan "akun tidak ada" dari respons publik; gunakan audit log
 internal oleh admin/support, bukan respons API publik. Token reset
 berlaku `AUTH_PASSWORD_RESET_TOKEN_TTL_MIN` menit (default 30), sekali
 pakai, dan sesi identity **dicabut penuh** setelah reset berhasil.
+
+Link reset dalam email: bila `AUTH_URL_PARAM_ENCRYPTION_KEY` di-set
+(opsional, lihat doc 18), token + tenant di-**seal** menjadi satu param
+buram terenkripsi `?p=<...>` (AES-256-GCM) supaya tidak bisa ditebak/di-
+brute-force dari struktur URL; bila tidak di-set, link jatuh ke bentuk
+plaintext `?token=…&tenantId=…` yang tetap berfungsi. Halaman
+`/reset-password` menerima **kedua** bentuk. Enkripsi ini **hanya untuk
+URL auth**, sengaja **tidak** diterapkan ke URL SEO publik (slug/param
+konten) agar indeksabilitas mesin pencari tidak rusak.
 
 ### Mengirim announcement/notification (admin)
 
