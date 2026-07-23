@@ -43,6 +43,15 @@ export const identityAccessModule = defineModule({
       order: 55,
       requiredPermission: "identity_access.sso_policy.read"
     },
+    // Self-registration approval queue (Issue: self-registration). Gated on
+    // user_management.read; the page re-checks create/update independently
+    // before rendering the Approve/Reject controls.
+    {
+      labelKey: "admin.layout.nav_registrations",
+      path: "/admin/registrations",
+      order: 54,
+      requiredPermission: "identity_access.user_management.read"
+    },
     // Issue #746 (epic #738 platform-evolution Wave 2) — business-scope
     // assignments/SoD review admin screens.
     {

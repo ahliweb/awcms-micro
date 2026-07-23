@@ -3786,3 +3786,192 @@ msgstr "Berlangganan"
 
 msgid "newsletter.public.subscribed_note"
 msgstr "Terima kasih! Jika alamat Anda memenuhi syarat, tautan konfirmasi sedang dikirim."
+
+msgid "auth.nav_label"
+msgstr "Autentikasi"
+
+msgid "auth.back_to_login"
+msgstr "Kembali ke halaman masuk"
+
+msgid "auth.password_show"
+msgstr "Tampilkan"
+
+msgid "auth.password_hide"
+msgstr "Sembunyikan"
+
+msgid "auth.password_show_aria"
+msgstr "Tampilkan kata sandi"
+
+msgid "auth.password_hide_aria"
+msgstr "Sembunyikan kata sandi"
+
+msgid "auth.login.heading"
+msgstr "Masuk"
+
+msgid "auth.login.subtitle"
+msgstr "Masuk ke ruang kerja AWCMS-Micro Anda."
+
+msgid "auth.login.tenant_context_label"
+msgstr "Masuk ke"
+
+msgid "auth.login.footer"
+msgstr "Area terlindungi. Akses tanpa izin dilarang."
+
+msgid "auth.login.forgot_link"
+msgstr "Lupa kata sandi?"
+
+msgid "auth.login.register_link"
+msgstr "Buat akun"
+
+msgid "auth.forgot.page_title"
+msgstr "Lupa kata sandi"
+
+msgid "auth.forgot.heading"
+msgstr "Lupa kata sandi"
+
+msgid "auth.forgot.subtitle"
+msgstr "Masukkan identitas akun Anda dan kami akan mengirim instruksi reset."
+
+msgid "auth.forgot.submit"
+msgstr "Kirim tautan reset"
+
+msgid "auth.forgot.notice"
+msgstr "Jika akun untuk identitas itu ada, instruksi reset kata sandi telah dikirim."
+
+msgid "auth.reset.page_title"
+msgstr "Reset kata sandi"
+
+msgid "auth.reset.heading"
+msgstr "Setel kata sandi baru"
+
+msgid "auth.reset.subtitle"
+msgstr "Pilih kata sandi baru untuk akun Anda."
+
+msgid "auth.reset.generic_error"
+msgstr "Tautan reset kata sandi ini tidak valid atau telah kedaluwarsa."
+
+msgid "auth.reset.mismatch"
+msgstr "Kata sandi tidak cocok."
+
+msgid "auth.reset.too_short"
+msgstr "Kata sandi minimal 8 karakter."
+
+msgid "auth.reset.success"
+msgstr "Kata sandi Anda telah direset. Anda sekarang dapat masuk."
+
+msgid "auth.reset.password_label"
+msgstr "Kata sandi baru"
+
+msgid "auth.reset.confirm_label"
+msgstr "Konfirmasi kata sandi baru"
+
+msgid "auth.reset.password_hint"
+msgstr "Minimal 8 karakter."
+
+msgid "auth.reset.submit"
+msgstr "Reset kata sandi"
+
+msgid "auth.reset.invalid_link"
+msgstr "Tautan reset kata sandi ini tidak valid atau telah kedaluwarsa."
+
+msgid "auth.reset.request_new"
+msgstr "Minta tautan baru"
+
+msgid "auth.reset.success_login_link"
+msgstr "Ke halaman masuk"
+
+msgid "auth.register.page_title"
+msgstr "Buat akun"
+
+msgid "auth.register.heading"
+msgstr "Buat akun Anda"
+
+msgid "auth.register.subtitle"
+msgstr "Daftar untuk akses. Administrator akan meninjau permohonan Anda."
+
+msgid "auth.register.generic_error"
+msgstr "Kami tidak dapat memproses pendaftaran Anda. Silakan coba lagi."
+
+msgid "auth.register.notice"
+msgstr "Permohonan pendaftaran Anda telah dikirim dan menunggu persetujuan administrator."
+
+msgid "auth.register.mismatch"
+msgstr "Kata sandi tidak cocok."
+
+msgid "auth.register.name_label"
+msgstr "Nama lengkap"
+
+msgid "auth.register.identifier_label"
+msgstr "Email"
+
+msgid "auth.register.password_label"
+msgstr "Kata sandi"
+
+msgid "auth.register.confirm_label"
+msgstr "Konfirmasi kata sandi"
+
+msgid "auth.register.submit"
+msgstr "Kirim pendaftaran"
+
+msgid "admin.layout.nav_registrations"
+msgstr "Pendaftaran"
+
+msgid "admin.registrations.nav"
+msgstr "Pendaftaran"
+
+msgid "admin.registrations.heading"
+msgstr "Pendaftaran menunggu"
+
+msgid "admin.registrations.intro"
+msgstr "Tinjau lalu setujui atau tolak permohonan pendaftaran mandiri publik."
+
+msgid "admin.registrations.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.registrations.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat permohonan pendaftaran."
+
+msgid "admin.registrations.empty"
+msgstr "Tidak ada permohonan pendaftaran yang menunggu."
+
+msgid "admin.registrations.col_identifier"
+msgstr "Identitas"
+
+msgid "admin.registrations.col_name"
+msgstr "Nama"
+
+msgid "admin.registrations.col_requested"
+msgstr "Diminta"
+
+msgid "admin.registrations.col_role"
+msgstr "Peran saat disetujui"
+
+msgid "admin.registrations.col_actions"
+msgstr "Aksi"
+
+msgid "admin.registrations.role_none"
+msgstr "Tanpa peran"
+
+msgid "admin.registrations.approve_button"
+msgstr "Setujui"
+
+msgid "admin.registrations.reject_button"
+msgstr "Tolak"
+
+msgid "admin.registrations.approve_success"
+msgstr "Pendaftaran disetujui; pengguna sekarang dapat masuk."
+
+msgid "admin.registrations.reject_success"
+msgstr "Permohonan pendaftaran ditolak."
+
+msgid "admin.registrations.approve_confirm_title"
+msgstr "Setujui pendaftaran?"
+
+msgid "admin.registrations.approve_confirm_body"
+msgstr "Ini membuat akun pengguna aktif yang dapat langsung masuk."
+
+msgid "admin.registrations.reject_confirm_title"
+msgstr "Tolak pendaftaran?"
+
+msgid "admin.registrations.reject_confirm_body"
+msgstr "Ini menolak permohonan secara permanen. Tidak ada akun yang dibuat."
