@@ -35,7 +35,7 @@
 
 ## Migrations
 
-78 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `093_awcms_micro_self_registration_schema.sql`).
+80 migration files in `sql/` (`001_awcms_micro_foundation_schema.sql` .. `095_awcms_micro_sidebar_menu_permissions.sql`).
 
 | #   | File                                                               |
 | --- | ------------------------------------------------------------------ |
@@ -117,10 +117,12 @@
 | 091 | `091_awcms_micro_newsletter_schema.sql`                            |
 | 092 | `092_awcms_micro_newsletter_permissions.sql`                       |
 | 093 | `093_awcms_micro_self_registration_schema.sql`                     |
+| 094 | `094_awcms_micro_sidebar_menu_schema.sql`                          |
+| 095 | `095_awcms_micro_sidebar_menu_permissions.sql`                     |
 
 ## Tables & Row-Level Security
 
-138 tables created across all migrations; 130 carry a `tenant_id` column; 129 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
+140 tables created across all migrations; 132 carry a `tenant_id` column; 131 have an `ENABLE ROW LEVEL SECURITY` statement; 9 are on the reviewed RLS-exempt allow-list.
 
 No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` statement, or is on the reviewed exempt allow-list below.
 
@@ -140,19 +142,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-360 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+362 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 46         |
 | `e2e`         | 16         |
-| `integration` | 113        |
+| `integration` | 114        |
 | `modules`     | 5          |
-| `unit`        | 180        |
+| `unit`        | 181        |
 
 ## Routes / Operations (summary)
 
-256 OpenAPI paths, 336 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+258 OpenAPI paths, 339 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 

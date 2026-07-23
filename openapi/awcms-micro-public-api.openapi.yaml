@@ -8593,6 +8593,132 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/navigation/sidebar-config:
+    get:
+      tags:
+        - Module Management
+      summary: Read the tenant's editable admin sidebar menu configuration
+      description: The FULL editable model — every default menu entry (core items + module nav) with its current per-tenant override state (type placement, order, visibility, label override), grouped by type -> module. Deliberately NOT permission-filtered (the admin arranges everything), but each item still carries its `requiredPermission` so the UI can flag permission-gated entries. Gated by `module_management.navigation.read`.
+      operationId: sidebarConfigRead
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: This tenant's editable sidebar configuration.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SidebarMenuAdminConfig"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    put:
+      tags:
+        - Module Management
+      summary: Save the tenant's admin sidebar menu configuration
+      description: "Full replace of this tenant's sidebar override rows to match the submitted arrangement (grouping, order, visibility, label overrides, custom types). High-risk (`configure`): rewrites how every admin sees the sidebar, so it requires an `Idempotency-Key` header and records an audit event. Unknown menu entry keys and malformed/oversized custom types/labels are rejected `400`. Gated by `module_management.navigation.configure`."
+      operationId: sidebarConfigSave
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SidebarMenuSaveRequest"
+      responses:
+        "200":
+          description: Sidebar configuration saved.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SidebarMenuSaveResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /api/v1/navigation/sidebar-config/reset:
+    post:
+      tags:
+        - Module Management
+      summary: Reset the tenant's admin sidebar menu configuration to the code default
+      description: "Delete ALL of this tenant's sidebar override rows, back to the pure code default. High-risk (`configure`): requires an `Idempotency-Key` header and records an audit event. Naturally idempotent (deleting nothing is fine). Gated by `module_management.navigation.configure`."
+      operationId: sidebarConfigReset
+      security:
+        - bearerAuth: []
+          tenantHeader: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+        - $ref: "#/components/parameters/CorrelationId"
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Sidebar configuration reset to default.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/SidebarMenuSaveResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: The `Idempotency-Key` was already used with a different request payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
   /api/v1/news-portal/ad-placements:
     get:
       tags:
@@ -23459,6 +23585,192 @@ components:
         lockedAt:
           type: string
           format: date-time
+    SidebarMenuAdminConfig:
+      type: object
+      required:
+        - types
+        - availableTypeKeys
+      additionalProperties: false
+      properties:
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuAdminType"
+        availableTypeKeys:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuAvailableType"
+    SidebarMenuAdminItem:
+      type: object
+      required:
+        - entryKey
+        - path
+        - labelKey
+        - labelOverride
+        - hidden
+        - position
+        - typeKey
+        - moduleKey
+        - moduleName
+      additionalProperties: false
+      properties:
+        entryKey:
+          type: string
+          description: Stable key for the menu item — its `path`.
+        path:
+          type: string
+        labelKey:
+          type: string
+          description: i18n key for the item's default label (resolved client/server-side).
+        labelOverride:
+          type: string
+          nullable: true
+        icon:
+          type: string
+        hidden:
+          type: boolean
+        position:
+          type: integer
+        typeKey:
+          type: string
+          description: The type the item currently sits under (override or default).
+        moduleKey:
+          type: string
+          description: Owning module; `core` for the synthetic core items.
+        moduleName:
+          type: string
+        requiredPermission:
+          type: string
+          description: Exact permission key required to see the item (module nav entries).
+        requiredPermissionPrefix:
+          type: string
+          description: Prefix permission gate (core items — any granted key starting with this).
+    SidebarMenuAdminModuleGroup:
+      type: object
+      required:
+        - moduleKey
+        - moduleName
+        - items
+      additionalProperties: false
+      properties:
+        moduleKey:
+          type: string
+        moduleName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuAdminItem"
+    SidebarMenuAdminType:
+      type: object
+      required:
+        - typeKey
+        - labelOverride
+        - position
+        - hidden
+        - isCustom
+        - modules
+      additionalProperties: false
+      properties:
+        typeKey:
+          type: string
+        labelKey:
+          type: string
+          description: i18n key for a default type's label; absent for a custom type.
+        labelOverride:
+          type: string
+          nullable: true
+        position:
+          type: integer
+        hidden:
+          type: boolean
+        isCustom:
+          type: boolean
+        modules:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuAdminModuleGroup"
+    SidebarMenuAvailableType:
+      type: object
+      required:
+        - typeKey
+        - isCustom
+      additionalProperties: false
+      properties:
+        typeKey:
+          type: string
+        labelKey:
+          type: string
+        isCustom:
+          type: boolean
+    SidebarMenuSaveItemInput:
+      type: object
+      required:
+        - entryKey
+        - position
+        - hidden
+      additionalProperties: false
+      properties:
+        entryKey:
+          type: string
+          description: Must be a known menu entry from the code default model — a custom item is rejected.
+        typeKey:
+          type: string
+          nullable: true
+          description: Type to place the item under; null keeps the item's default type.
+        position:
+          type: integer
+          minimum: 0
+        labelOverride:
+          type: string
+          nullable: true
+        hidden:
+          type: boolean
+    SidebarMenuSaveRequest:
+      type: object
+      required:
+        - types
+        - items
+      additionalProperties: false
+      properties:
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuSaveTypeInput"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SidebarMenuSaveItemInput"
+    SidebarMenuSaveResult:
+      type: object
+      required:
+        - typeCount
+        - itemCount
+      additionalProperties: false
+      properties:
+        typeCount:
+          type: integer
+        itemCount:
+          type: integer
+    SidebarMenuSaveTypeInput:
+      type: object
+      required:
+        - typeKey
+        - position
+        - hidden
+      additionalProperties: false
+      properties:
+        typeKey:
+          type: string
+          description: Lowercase slug (a-z, 0-9, _). A key not in the default taxonomy is a custom type.
+        labelOverride:
+          type: string
+          nullable: true
+        position:
+          type: integer
+          minimum: 0
+        hidden:
+          type: boolean
     SiteSearchIndexFailure:
       type: object
       required:

@@ -43,6 +43,11 @@ import { getDatabaseClient } from "../lib/database/client";
 import { withTenant } from "../lib/database/tenant-context";
 import { fetchSyncIndicatorActive } from "../modules/reporting/application/sync-indicator";
 import { fetchVisibleModuleNavigationEntries } from "../modules/module-management/application/navigation-registry";
+import { fetchSidebarArrangement } from "../modules/module-management/application/sidebar-menu-config";
+import {
+  CORE_MODULE_KEY,
+  type ComposedSidebar
+} from "../modules/module-management/domain/sidebar-menu";
 import { createTranslator } from "../lib/i18n/translate";
 import { THEME_INIT_SCRIPT_BODY } from "../lib/security/theme-init-script";
 import packageJson from "../../package.json";
@@ -100,25 +105,39 @@ try {
   console.error("AdminLayout: failed to load sync indicator state", error);
 }
 
-// Issue #518 — module-declared nav entries (currently just
-// `module_management`'s own `/admin/modules`), appended after the 4
-// existing hardcoded items below. Same defensive pattern as
-// tenantName/syncActive above: a failure here must never hide the
-// hardcoded items or otherwise lock an admin out, so it falls back to an
-// empty list rather than failing the whole page.
-let moduleNavEntries: Awaited<
+// feat/sidebar-menu-management — the composed, per-tenant sidebar tree
+// (type -> sub-type(module) -> items), applying this tenant's overrides
+// (reorder/hide/relabel/move/custom types) on top of the code default.
+// REPLACES the old flat "hardcoded core items + module nav" rendering.
+//
+// GRACEFUL DEGRADATION (unchanged intent from Issue #518/#434): a failure
+// here must never lock an admin out of the sidebar. On any error we fall
+// back to the previous flat rendering — the hardcoded core items plus
+// `fetchVisibleModuleNavigationEntries` — so the admin is never stranded.
+let sidebarArrangement: ComposedSidebar | null = null;
+let fallbackModuleNavEntries: Awaited<
   ReturnType<typeof fetchVisibleModuleNavigationEntries>
 > = [];
 try {
-  moduleNavEntries = await withTenant(sql, context.tenantId, (tx) =>
-    fetchVisibleModuleNavigationEntries(
-      tx,
-      context.tenantId,
-      context.permissions
-    )
+  sidebarArrangement = await withTenant(sql, context.tenantId, (tx) =>
+    fetchSidebarArrangement(tx, context.tenantId, context.permissions)
   );
 } catch (error) {
-  console.error("AdminLayout: failed to load module navigation entries", error);
+  console.error("AdminLayout: failed to load sidebar arrangement", error);
+  try {
+    fallbackModuleNavEntries = await withTenant(sql, context.tenantId, (tx) =>
+      fetchVisibleModuleNavigationEntries(
+        tx,
+        context.tenantId,
+        context.permissions
+      )
+    );
+  } catch (fallbackError) {
+    console.error(
+      "AdminLayout: fallback module navigation load also failed",
+      fallbackError
+    );
+  }
 }
 
 // i18n (Issue #433): already fully resolved (cookie -> tenant default -> en)
@@ -137,6 +156,20 @@ const hasAccessMenu = permissionList.some((key) =>
 const hasSyncMenu = permissionList.some((key) =>
   key.startsWith("sync_storage.")
 );
+
+// Resolve a sidebar label: an explicit tenant override always wins; otherwise
+// the i18n key (default types/items carry one); otherwise a raw fallback (a
+// custom type key with no override — shouldn't normally happen since the admin
+// names custom types, but never render blank).
+function resolveSidebarLabel(
+  labelKey: string | undefined,
+  labelOverride: string | undefined,
+  fallback: string
+): string {
+  if (labelOverride && labelOverride.length > 0) return labelOverride;
+  if (labelKey) return t(labelKey);
+  return fallback;
+}
 
 const pathname = Astro.url.pathname;
 const isDashboardActive = pathname === "/admin";
@@ -281,60 +314,103 @@ const isProfileActive = pathname === "/admin/profile";
           data-open="false"
           aria-label={t("admin.layout.nav_aria_label")}
         >
-          <ul>
-            <li>
-              <a
-                href="/admin"
-                aria-current={isDashboardActive ? "page" : undefined}
-              >
-                {t("admin.layout.nav_dashboard")}
-              </a>
-            </li>
-            {
-              hasAccessMenu && (
+          {
+            sidebarArrangement ? (
+              <ul class="admin-sidebar-types">
+                {sidebarArrangement.types.map((type) => (
+                  <li class="admin-sidebar-type">
+                    <span class="admin-sidebar-type-label">
+                      {resolveSidebarLabel(
+                        type.labelKey,
+                        type.labelOverride,
+                        type.typeKey
+                      )}
+                    </span>
+                    <ul class="admin-sidebar-modules">
+                      {type.items.map((group) => (
+                        <li class="admin-sidebar-module">
+                          {group.moduleKey !== CORE_MODULE_KEY && (
+                            <span class="admin-sidebar-module-label">
+                              {group.moduleName}
+                            </span>
+                          )}
+                          <ul class="admin-sidebar-links">
+                            {group.entries.map((entry) => (
+                              <li>
+                                <a
+                                  href={entry.path}
+                                  aria-current={
+                                    pathname === entry.path ? "page" : undefined
+                                  }
+                                >
+                                  {resolveSidebarLabel(
+                                    entry.labelKey,
+                                    entry.labelOverride,
+                                    entry.path
+                                  )}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <ul>
                 <li>
                   <a
-                    href="/admin/access-users"
-                    aria-current={isAccessUsersActive ? "page" : undefined}
+                    href="/admin"
+                    aria-current={isDashboardActive ? "page" : undefined}
                   >
-                    {t("admin.layout.nav_access_users")}
+                    {t("admin.layout.nav_dashboard")}
                   </a>
                 </li>
-              )
-            }
-            {
-              hasSyncMenu && (
+                {hasAccessMenu && (
+                  <li>
+                    <a
+                      href="/admin/access-users"
+                      aria-current={isAccessUsersActive ? "page" : undefined}
+                    >
+                      {t("admin.layout.nav_access_users")}
+                    </a>
+                  </li>
+                )}
+                {hasSyncMenu && (
+                  <li>
+                    <a
+                      href="/admin/sync"
+                      aria-current={isSyncActive ? "page" : undefined}
+                    >
+                      {t("admin.layout.nav_sync")}
+                    </a>
+                  </li>
+                )}
                 <li>
                   <a
-                    href="/admin/sync"
-                    aria-current={isSyncActive ? "page" : undefined}
+                    href="/admin/settings"
+                    aria-current={isSettingsActive ? "page" : undefined}
                   >
-                    {t("admin.layout.nav_sync")}
+                    {t("admin.layout.nav_settings")}
                   </a>
                 </li>
-              )
-            }
-            <li>
-              <a
-                href="/admin/settings"
-                aria-current={isSettingsActive ? "page" : undefined}
-              >
-                {t("admin.layout.nav_settings")}
-              </a>
-            </li>
-            {
-              moduleNavEntries.map((entry) => (
-                <li>
-                  <a
-                    href={entry.path}
-                    aria-current={pathname === entry.path ? "page" : undefined}
-                  >
-                    {t(entry.labelKey)}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+                {fallbackModuleNavEntries.map((entry) => (
+                  <li>
+                    <a
+                      href={entry.path}
+                      aria-current={
+                        pathname === entry.path ? "page" : undefined
+                      }
+                    >
+                      {t(entry.labelKey)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
           <div class="admin-sidebar-footer">
             <span class="admin-sidebar-version">
               {t("admin.layout.version_label")}
@@ -797,6 +873,42 @@ const isProfileActive = pathname === "/admin/profile";
        while touching this selector for Issue #693's drawer rewrite. */
     background: var(--color-primary-strong);
     color: var(--color-primary-contrast);
+  }
+
+  /* Grouped sidebar (feat/sidebar-menu-management): type (top-level category)
+     -> sub-type (module) -> item links. Nested lists reset their own spacing
+     so the flat `.admin-sidebar a` link styling above still applies to the
+     leaf links unchanged. */
+  .admin-sidebar-types {
+    gap: var(--sp-3);
+  }
+
+  .admin-sidebar-type-label {
+    display: block;
+    padding: 0 var(--sp-3);
+    margin-bottom: var(--sp-1);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  .admin-sidebar-modules,
+  .admin-sidebar-links {
+    gap: 2px;
+  }
+
+  .admin-sidebar-module + .admin-sidebar-module {
+    margin-top: var(--sp-2);
+  }
+
+  .admin-sidebar-module-label {
+    display: block;
+    padding: 0 var(--sp-3);
+    margin-bottom: 2px;
+    font-size: var(--fs-xs);
+    color: var(--color-text-muted);
   }
 
   .admin-main {

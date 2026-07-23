@@ -31,7 +31,13 @@ function collectNavigationCandidates(): NavigationCandidate[] {
   );
 }
 
-async function fetchTenantDisabledModuleKeys(
+/**
+ * Module keys the tenant has explicitly disabled
+ * (`awcms_micro_tenant_modules.enabled = false`). Exported (feat/
+ * sidebar-menu-management) so the sidebar-menu composition service reuses the
+ * exact same single lightweight query rather than duplicating it.
+ */
+export async function fetchTenantDisabledModuleKeys(
   tx: Bun.SQL,
   tenantId: string
 ): Promise<Set<string>> {

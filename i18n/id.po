@@ -377,9 +377,115 @@ msgstr "Modul"
 msgid "admin.layout.nav_module_matrix"
 msgstr "Matriks Modul"
 
+#. feat/sidebar-menu-management — layar admin menu sidebar per-tenant
+msgid "admin.layout.nav_sidebar_menu"
+msgstr "Menu Sidebar"
+
+#. feat/sidebar-menu-management — item Profil core, kini entri sidebar yang dikelola
+msgid "admin.layout.nav_profile"
+msgstr "Profil"
+
 #. Issue #592, epic: full-online auth hardening #587-#593
 msgid "admin.layout.nav_security"
 msgstr "Keamanan"
+
+#. feat/sidebar-menu-management — label tipe (kategori teratas) default
+msgid "admin.menu_type.system"
+msgstr "Sistem"
+
+msgid "admin.menu_type.content"
+msgstr "Konten"
+
+msgid "admin.menu_type.commerce"
+msgstr "Perdagangan"
+
+msgid "admin.menu_type.engagement"
+msgstr "Interaksi"
+
+msgid "admin.menu_type.operations"
+msgstr "Operasional"
+
+msgid "admin.menu_type.identity"
+msgstr "Identitas"
+
+msgid "admin.menu_type.general"
+msgstr "Umum"
+
+#. feat/sidebar-menu-management — layar pengelolaan menu sidebar
+msgid "admin.sidebar_menu.title"
+msgstr "Menu Sidebar"
+
+msgid "admin.sidebar_menu.subtitle"
+msgstr "Atur sidebar admin untuk tenant ini: kelompokkan per kategori dan modul, urutkan, tampilkan atau sembunyikan, ubah nama, pindahkan item antar kategori, atau kembalikan ke default."
+
+msgid "admin.sidebar_menu.access_denied_title"
+msgstr "Akses ditolak"
+
+msgid "admin.sidebar_menu.access_denied_body"
+msgstr "Anda tidak memiliki izin untuk melihat konfigurasi menu sidebar."
+
+msgid "admin.sidebar_menu.types_heading"
+msgstr "Kategori dan item"
+
+msgid "admin.sidebar_menu.save_button"
+msgstr "Simpan"
+
+msgid "admin.sidebar_menu.reset_button"
+msgstr "Kembalikan ke default"
+
+msgid "admin.sidebar_menu.save_success"
+msgstr "Menu sidebar tersimpan."
+
+msgid "admin.sidebar_menu.reset_success"
+msgstr "Menu sidebar dikembalikan ke default."
+
+msgid "admin.sidebar_menu.reset_confirm_title"
+msgstr "Kembalikan menu sidebar?"
+
+msgid "admin.sidebar_menu.reset_confirm_body"
+msgstr "Ini menghapus semua kustomisasi dan memulihkan tata letak sidebar default untuk tenant ini."
+
+msgid "admin.sidebar_menu.reset_confirm_accept"
+msgstr "Kembalikan"
+
+msgid "admin.sidebar_menu.reset_confirm_cancel"
+msgstr "Batal"
+
+msgid "admin.sidebar_menu.hidden_label"
+msgstr "Disembunyikan"
+
+msgid "admin.sidebar_menu.move_up"
+msgstr "Naikkan"
+
+msgid "admin.sidebar_menu.move_down"
+msgstr "Turunkan"
+
+msgid "admin.sidebar_menu.move_to_type"
+msgstr "Pindahkan ke kategori"
+
+msgid "admin.sidebar_menu.type_label_aria"
+msgstr "Override label kategori"
+
+msgid "admin.sidebar_menu.item_label_aria"
+msgstr "Override label item menu"
+
+msgid "admin.sidebar_menu.add_type_heading"
+msgstr "Tambah kategori kustom"
+
+msgid "admin.sidebar_menu.add_type_key_label"
+msgstr "Kunci kategori (a-z, 0-9, _)"
+
+msgid "admin.sidebar_menu.add_type_label_label"
+msgstr "Label kategori"
+
+msgid "admin.sidebar_menu.add_type_button"
+msgstr "Tambah kategori"
+
+msgid "admin.sidebar_menu.invalid_type_key"
+msgstr "Masukkan kunci kategori unik hanya dengan huruf kecil, angka, dan garis bawah."
+
+msgid "admin.sidebar_menu.permission_gated_note"
+msgstr "Hanya tampil untuk pengguna dengan izin yang diperlukan."
 
 msgid "admin.layout.breadcrumb_aria_label"
 msgstr "Breadcrumb"
