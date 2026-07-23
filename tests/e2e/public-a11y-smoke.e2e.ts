@@ -10,6 +10,15 @@
  * of scope for a smoke gate (same rationale + threshold as the admin
  * spec) — see `awcms-micro-ux-review` for a full page-by-page audit.
  *
+ * DEVICE MATRIX (Issue #296, "desktop + mobile"): every page is scanned at
+ * both a desktop (1280×800) and a small-phone (390×844) viewport, because
+ * several WCAG 2.2 AA rules are viewport-dependent (`target-size`,
+ * reflow/`meta-viewport`, breakpoint-specific contrast) and a desktop-only
+ * pass can miss a critical/serious mobile-only regression. Screen-reader
+ * and the full published-content-template journey remain deferred (needs a
+ * bootstrapped pilot tenant — see `website-platform-e2e-evidence.md`
+ * §Deferred work).
+ *
  * `@axe-core/playwright` is a plain JS library used from inside an
  * already-`bun --bun playwright test`-run process (not Node-only build
  * tooling) — the same "not an AGENTS.md #14 Bun-only violation" reasoning
@@ -61,6 +70,19 @@ const FAILING_IMPACTS = new Set(["critical", "serious"]);
 const LOCALE_COOKIE_NAME = "awcms_micro_locale";
 const LOCALES = ["en", "id"] as const;
 
+/**
+ * Device matrix (Issue #296, "desktop + mobile"). The same axe scan runs at
+ * each viewport because several WCAG 2.2 AA rules are viewport-dependent —
+ * `target-size` (2.5.8), `meta-viewport`/reflow (1.4.10), and contrast on
+ * responsive layouts that change at a breakpoint — so a desktop-only pass
+ * can miss a critical/serious mobile-only violation. 390×844 is a common
+ * small-phone logical viewport (iPhone 12/13/14 class); 1280×800 a laptop.
+ */
+const VIEWPORTS = [
+  { name: "desktop", width: 1280, height: 800 },
+  { name: "mobile", width: 390, height: 844 }
+] as const;
+
 async function assertNoSeriousViolations(
   page: Page,
   label: string
@@ -105,42 +127,65 @@ async function gotoWithLocale(
 }
 
 test.describe("Public — accessibility smoke (axe-core, WCAG 2.2 AA)", () => {
-  test("homepage has no critical/serious violations", async ({ page }) => {
-    // `/` is static (hardcoded lang, ignores the locale cookie) — scan once.
-    await page.goto("/");
-    await assertNoSeriousViolations(page, "/ (homepage)");
-  });
-
-  for (const locale of LOCALES) {
-    test(`newsletter demo page has no critical/serious violations (${locale})`, async ({
-      page,
-      baseURL
+  for (const viewport of VIEWPORTS) {
+    test(`homepage has no critical/serious violations (${viewport.name})`, async ({
+      page
     }) => {
-      await gotoWithLocale(page, "/newsletter/demo", locale, baseURL);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await assertNoSeriousViolations(page, `/newsletter/demo (${locale})`);
-
-      // Cheap keyboard-focusability check on the primary interactive controls.
-      const email = page.locator("#newsletter-email");
-      await email.focus();
-      await expect(email).toBeFocused();
-
-      const submit = page.locator(
-        "form[data-newsletter-subscribe] button[type='submit']"
-      );
-      await submit.focus();
-      await expect(submit).toBeFocused();
+      // `/` is static (hardcoded lang, ignores the locale cookie) — scan once
+      // per viewport rather than per-locale.
+      await page.setViewportSize({
+        width: viewport.width,
+        height: viewport.height
+      });
+      await page.goto("/");
+      await assertNoSeriousViolations(page, `/ (homepage, ${viewport.name})`);
     });
 
-    test(`comments demo page has no critical/serious violations (${locale})`, async ({
-      page,
-      baseURL
-    }) => {
-      // No `resourceId` → localized heading + "missing resource" copy; the
-      // CommentsSection island (needs a seeded tenant+resource) is not mounted.
-      await gotoWithLocale(page, "/comments/demo", locale, baseURL);
-      await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await assertNoSeriousViolations(page, `/comments/demo (${locale})`);
-    });
+    for (const locale of LOCALES) {
+      test(`newsletter demo page has no critical/serious violations (${viewport.name}, ${locale})`, async ({
+        page,
+        baseURL
+      }) => {
+        await page.setViewportSize({
+          width: viewport.width,
+          height: viewport.height
+        });
+        await gotoWithLocale(page, "/newsletter/demo", locale, baseURL);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await assertNoSeriousViolations(
+          page,
+          `/newsletter/demo (${viewport.name}, ${locale})`
+        );
+
+        // Cheap keyboard-focusability check on the primary interactive controls.
+        const email = page.locator("#newsletter-email");
+        await email.focus();
+        await expect(email).toBeFocused();
+
+        const submit = page.locator(
+          "form[data-newsletter-subscribe] button[type='submit']"
+        );
+        await submit.focus();
+        await expect(submit).toBeFocused();
+      });
+
+      test(`comments demo page has no critical/serious violations (${viewport.name}, ${locale})`, async ({
+        page,
+        baseURL
+      }) => {
+        // No `resourceId` → localized heading + "missing resource" copy; the
+        // CommentsSection island (needs a seeded tenant+resource) is not mounted.
+        await page.setViewportSize({
+          width: viewport.width,
+          height: viewport.height
+        });
+        await gotoWithLocale(page, "/comments/demo", locale, baseURL);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await assertNoSeriousViolations(
+          page,
+          `/comments/demo (${viewport.name}, ${locale})`
+        );
+      });
+    }
   }
 });

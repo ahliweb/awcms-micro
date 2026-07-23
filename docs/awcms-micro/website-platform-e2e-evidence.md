@@ -137,6 +137,19 @@ and close each of these — with exact commands and evidence to capture — is i
 - **Deployment rehearsal** — Docker dev + `Dockerfile.production` + Coolify,
   internal PostgreSQL network, durable object-storage config, secrets handling,
   and Cloudflare/CDN/WAF guidance, executed end-to-end. (split issue: **#293**)
+  **Partial real-infra evidence LANDED** (dinkes-prod, `awcms-micro.ahlikoding.com`,
+  2026-07-22/23 — see [`deploy-coolify.md`](deploy-coolify.md)): the production
+  image **builds and boots** on Coolify (build-from-GitHub, commit-SHA-tagged,
+  container reports healthy) against an **internal Coolify-network PostgreSQL**
+  (managed PG 18.4, pinned container IP); migrations were applied via a
+  privileged one-shot with `DATABASE_URL` kept **server-side only** (the secret
+  never left the box); durable **R2 object storage** is configured (bucket +
+  custom domain); and the **live edge** is reachable (health `200`, TLS via
+  Cloudflare). STILL PENDING for full sign-off: `production:preflight` green
+  **on the target**, the **full-online security profile** explicitly enabled and
+  exercised, a **durable-storage round-trip** proven for managed media (not
+  ephemeral container FS), and **security-headers/CSP verified on the live edge**
+  via a real browser. Operator steps: [website-platform completion runbook](website-platform-completion-runbook.md).
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
   plus live provider-outage/worker-restart/DB-saturation/stale-projection/
@@ -146,12 +159,15 @@ and close each of these — with exact commands and evidence to capture — is i
   content/media volume. (split issue: **#295**)
 - **Full-journey accessibility & link checking** (**#296**) — the base-app
   in-repo portion has LANDED: `public-a11y-smoke.e2e.ts` (axe-core over public
-  `/`, `/newsletter/demo`, `/comments/demo` in EN + ID) and
-  `public-link-integrity.integration.test.ts` (sitemap URLs, canonical, hreflang,
-  robots `Sitemap:` all resolve; drafts stay out of the sitemap and 404).
-  STILL DEFERRED: axe over the rendered content-reading templates (`/news`,
-  `/blog` article pages), the derived-site full journey, and the full desktop/
-  mobile keyboard/screen-reader matrix.
+  `/`, `/newsletter/demo`, `/comments/demo` in EN + ID, at **desktop 1280×800
+  AND mobile 390×844** viewports — the device matrix catches viewport-dependent
+  WCAG 2.2 rules like `target-size` and reflow that a desktop-only pass misses)
+  and `public-link-integrity.integration.test.ts` (sitemap URLs, canonical,
+  hreflang, robots `Sitemap:` all resolve; drafts stay out of the sitemap and
+  404). STILL DEFERRED: axe over the rendered content-reading templates
+  (`/news`, `/blog` article pages — needs a bootstrapped pilot tenant), the
+  derived-site full journey, the **screen-reader** pass, and a full rendered-site
+  link crawl at representative volume.
 
 ## Residual risks and limitations
 
