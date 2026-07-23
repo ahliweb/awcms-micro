@@ -266,6 +266,49 @@ doesn't point at a 404; the real experience (filters, module detail,
 dependency/settings/permission-sync/navigation/jobs/health panels, tenant
 enable/disable actions) is Issue #521's job.
 
+## Per-tenant sidebar menu management — `application/sidebar-menu-config.ts` + `domain/sidebar-menu.ts` (feat/sidebar-menu-management)
+
+Builds on the navigation registry above to make the whole admin sidebar
+**configurable per tenant**, grouped three levels deep:
+**type** (top-level category, e.g. `system`/`content`/`operations`) →
+**sub-type** (the owning module, e.g. `blog_content`) → **items** (that
+module's nav links). `domain/sidebar-menu.ts` is pure:
+
+- `buildDefaultSidebarModel(listModules())` — the trusted BUILD-TIME default:
+  the synthetic **core** items (Dashboard/Access & Users/Sync/Settings/Profile,
+  module key `core`, default type `system`, keeping their prefix permission
+  gates) plus every module's declared `navigation`. Each module lands in a
+  default type via `DEFAULT_MODULE_TYPE` (mapping by module key, no per-module
+  edit needed), falling back to the nav entry's `group`, then `general`.
+- `composeSidebarArrangement(...)` — applies the tenant's overrides, filters
+  (hidden, permission-gated, tenant-disabled module) and groups into the
+  render tree. This is what `AdminLayout.astro` renders now (replacing the flat
+  "core + module nav" list), with **graceful degradation** back to the old flat
+  rendering on any error so an admin is never locked out.
+- `validateSidebarMenuInput(...)` — bounds the save payload (rejects unknown
+  entry keys, malformed/oversized custom types/labels, bad slugs, duplicates).
+
+A tenant's overrides live in `awcms_micro_sidebar_menu_types`/
+`awcms_micro_sidebar_menu_items` (sql/094, RLS ENABLE+FORCE + `tenant_isolation`).
+An UNTOUCHED tenant has zero rows and renders the pure code default; once it
+saves, the admin island persists a row per item (a full-replace, not a minimal
+diff). Either way compose merges code defaults for any entry WITHOUT a row, so a
+newly-added module's nav entry still appears for every tenant automatically
+without a data migration, while a tenant's explicit customization survives.
+`entry_key` = the nav item's stable `path`.
+
+API: `GET`/`PUT /api/v1/navigation/sidebar-config` + `POST .../reset`. Read is
+gated on `module_management.navigation.read`; save/reset on the new high-risk
+`module_management.navigation.configure` (sql/095) — Idempotency-Key'd + audited
+(`resource_type = sidebar_menu_config`). Admin UI: `/admin/sidebar-menu`.
+
+> **Existing tenants**: `navigation.configure` is only auto-granted to tenants
+> created AFTER sql/095 (setup-wizard catalog snapshot; there is no owner
+> "implicit-all" bypass). A tenant provisioned earlier can open the page
+> (`navigation.read` predates this) but save/reset 403s until an owner grants
+> the new permission via the RBAC admin, or an operator backfills it once — see
+> the `OPERATOR NOTE` block in sql/095 for the exact grant.
+
 ## Module job registry — `application/job-registry.ts` (Issue #519)
 
 `GET /api/v1/modules/{moduleKey}/jobs`. Documentation only — never

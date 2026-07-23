@@ -2269,27 +2269,27 @@ msgstr ""
 msgid "admin.examples.wizard.validation_title_required"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:214
+#: src/layouts/AdminLayout.astro:247
 msgid "admin.layout.active_tenant_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:348
+#: src/layouts/AdminLayout.astro:424
 msgid "admin.layout.breadcrumb_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:230
+#: src/layouts/AdminLayout.astro:263
 msgid "admin.layout.language_switcher_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:266
+#: src/layouts/AdminLayout.astro:299
 msgid "admin.layout.logout"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:300
+#: src/layouts/AdminLayout.astro:377
 msgid "admin.layout.nav_access_users"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:282
+#: src/layouts/AdminLayout.astro:315
 msgid "admin.layout.nav_aria_label"
 msgstr ""
 
@@ -2303,7 +2303,7 @@ msgstr ""
 msgid "admin.layout.nav_business_scope"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:290
+#: src/layouts/AdminLayout.astro:368
 msgid "admin.layout.nav_dashboard"
 msgstr ""
 
@@ -2333,6 +2333,11 @@ msgid "admin.layout.nav_news_portal_homepage_sections"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:155
+msgid "admin.layout.nav_profile"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
 #: src/modules/profile-identity/module.ts:34
 msgid "admin.layout.nav_profile_identity_merge_requests"
 msgstr ""
@@ -2357,8 +2362,13 @@ msgstr ""
 msgid "admin.layout.nav_security"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:322
+#: src/layouts/AdminLayout.astro:396
 msgid "admin.layout.nav_settings"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/module.ts:31
+msgid "admin.layout.nav_sidebar_menu"
 msgstr ""
 
 #. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
@@ -2376,7 +2386,7 @@ msgstr ""
 msgid "admin.layout.nav_social_publishing_rules"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:312
+#: src/layouts/AdminLayout.astro:387
 msgid "admin.layout.nav_sync"
 msgstr ""
 
@@ -2385,7 +2395,7 @@ msgstr ""
 msgid "admin.layout.nav_tenant_domains"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:207
+#: src/layouts/AdminLayout.astro:240
 msgid "admin.layout.nav_toggle_aria_label"
 msgstr ""
 
@@ -2394,43 +2404,43 @@ msgstr ""
 msgid "admin.layout.nav_visitor_analytics"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:258
+#: src/layouts/AdminLayout.astro:291
 msgid "admin.layout.no_role"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:237
+#: src/layouts/AdminLayout.astro:270
 msgid "admin.layout.profile_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:197
+#: src/layouts/AdminLayout.astro:230
 msgid "admin.layout.skip_to_content"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:219
+#: src/layouts/AdminLayout.astro:252
 msgid "admin.layout.sync_active"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:220
+#: src/layouts/AdminLayout.astro:253
 msgid "admin.layout.sync_inactive"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:226
+#: src/layouts/AdminLayout.astro:259
 msgid "admin.layout.theme_dark"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:225
+#: src/layouts/AdminLayout.astro:258
 msgid "admin.layout.theme_light"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:224
+#: src/layouts/AdminLayout.astro:257
 msgid "admin.layout.theme_system"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:223
+#: src/layouts/AdminLayout.astro:256
 msgid "admin.layout.theme_toggle_aria_label"
 msgstr ""
 
-#: src/layouts/AdminLayout.astro:340
+#: src/layouts/AdminLayout.astro:416
 msgid "admin.layout.version_label"
 msgstr ""
 
@@ -2560,6 +2570,41 @@ msgstr ""
 
 #: src/pages/admin/media/index.astro:189
 msgid "admin.media.title"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:62
+msgid "admin.menu_type.commerce"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:61
+msgid "admin.menu_type.content"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:63
+msgid "admin.menu_type.engagement"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:66
+msgid "admin.menu_type.general"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:65
+msgid "admin.menu_type.identity"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:64
+msgid "admin.menu_type.operations"
+msgstr ""
+
+#. referenced dynamically via t(entry.labelKey) (AdminLayout.astro / admin/modules/[moduleKey].astro)
+#: src/modules/module-management/domain/sidebar-menu.ts:60
+msgid "admin.menu_type.system"
 msgstr ""
 
 #: src/pages/admin/modules/[moduleKey].astro:203
@@ -4078,6 +4123,106 @@ msgstr ""
 
 #: src/pages/admin/settings.astro:163
 msgid "admin.settings.timezone_legend"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:121
+msgid "admin.sidebar_menu.access_denied_body"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:120
+msgid "admin.sidebar_menu.access_denied_title"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:321
+msgid "admin.sidebar_menu.add_type_button"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:310
+msgid "admin.sidebar_menu.add_type_heading"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:313
+msgid "admin.sidebar_menu.add_type_key_label"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:317
+msgid "admin.sidebar_menu.add_type_label_label"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:100
+msgid "admin.sidebar_menu.hidden_label"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:99
+msgid "admin.sidebar_menu.invalid_type_key"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:244
+msgid "admin.sidebar_menu.item_label_aria"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:102
+msgid "admin.sidebar_menu.move_down"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:103
+msgid "admin.sidebar_menu.move_to_type"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:101
+msgid "admin.sidebar_menu.move_up"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:295
+msgid "admin.sidebar_menu.permission_gated_note"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:333
+msgid "admin.sidebar_menu.reset_button"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:97
+msgid "admin.sidebar_menu.reset_confirm_accept"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:96
+msgid "admin.sidebar_menu.reset_confirm_body"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:98
+msgid "admin.sidebar_menu.reset_confirm_cancel"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:95
+msgid "admin.sidebar_menu.reset_confirm_title"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:94
+msgid "admin.sidebar_menu.reset_success"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:330
+msgid "admin.sidebar_menu.save_button"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:93
+msgid "admin.sidebar_menu.save_success"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:112
+msgid "admin.sidebar_menu.subtitle"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:110
+msgid "admin.sidebar_menu.title"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:160
+msgid "admin.sidebar_menu.type_label_aria"
+msgstr ""
+
+#: src/pages/admin/sidebar-menu.astro:144
+msgid "admin.sidebar_menu.types_heading"
 msgstr ""
 
 #: src/pages/admin/social-publishing/accounts.astro:93

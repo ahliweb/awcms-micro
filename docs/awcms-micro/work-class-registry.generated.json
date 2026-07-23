@@ -621,6 +621,16 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/navigation/sidebar-config/index.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
+      "path": "src/pages/api/v1/navigation/sidebar-config/reset.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/news-portal/ad-placements/[id].ts",
       "workClass": "interactive",
       "source": "default"

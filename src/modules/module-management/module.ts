@@ -26,6 +26,12 @@ export const moduleManagementModule = defineModule({
       path: "/admin/modules/tenants",
       order: 51,
       requiredPermission: "module_management.tenant_modules.read"
+    },
+    {
+      labelKey: "admin.layout.nav_sidebar_menu",
+      path: "/admin/sidebar-menu",
+      order: 52,
+      requiredPermission: "module_management.navigation.read"
     }
   ],
   permissions: [
@@ -73,6 +79,12 @@ export const moduleManagementModule = defineModule({
       activityCode: "navigation",
       action: "read",
       description: "Read the module admin navigation registry"
+    },
+    {
+      activityCode: "navigation",
+      action: "configure",
+      description:
+        "Configure the per-tenant sidebar menu layout (grouping, order, visibility, labels)"
     },
     {
       activityCode: "jobs",

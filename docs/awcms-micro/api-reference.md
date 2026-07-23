@@ -3750,6 +3750,85 @@ Naturally idempotent — no `Idempotency-Key` required. Running it repeatedly is
 | 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                               |
 | 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                               |
 
+### `GET /api/v1/navigation/sidebar-config` — Read the tenant's editable admin sidebar menu configuration
+
+- **operationId**: `sidebarConfigRead`
+- **Security**: bearerAuth + tenantHeader
+
+The FULL editable model — every default menu entry (core items + module nav) with its current per-tenant override state (type placement, order, visibility, label override), grouped by type -> module. Deliberately NOT permission-filtered (the admin arranges everything), but each item still carries its `requiredPermission` so the UI can flag permission-gated entries. Gated by `module_management.navigation.read`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                    | Schema                                                                                                       |
+| ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 200    | This tenant's editable sidebar configuration.  | [`ApiSuccess`](#standard-success-envelope)&lt;[`SidebarMenuAdminConfig`](#schema-sidebarmenuadminconfig)&gt; |
+| 400    | Validation or request error.                   | [`ApiError`](#standard-error-envelope)                                                                       |
+| 401    | Authentication required or expired.            | [`ApiError`](#standard-error-envelope)                                                                       |
+| 403    | Access denied by RBAC, ABAC, or tenant policy. | [`ApiError`](#standard-error-envelope)                                                                       |
+| 500    | Internal server error without stack trace.     | [`ApiError`](#standard-error-envelope)                                                                       |
+
+### `PUT /api/v1/navigation/sidebar-config` — Save the tenant's admin sidebar menu configuration
+
+- **operationId**: `sidebarConfigSave`
+- **Security**: bearerAuth + tenantHeader
+
+Full replace of this tenant's sidebar override rows to match the submitted arrangement (grouping, order, visibility, label overrides, custom types). High-risk (`configure`): rewrites how every admin sees the sidebar, so it requires an `Idempotency-Key` header and records an audit event. Unknown menu entry keys and malformed/oversized custom types/labels are rejected `400`. Gated by `module_management.navigation.configure`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Request body** (required): [`SidebarMenuSaveRequest`](#schema-sidebarmenusaverequest)
+
+**Responses**
+
+| Status | Description                                                                                                                                                                                                      | Schema                                                                                                     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 200    | Sidebar configuration saved.                                                                                                                                                                                     | [`ApiSuccess`](#standard-success-envelope)&lt;[`SidebarMenuSaveResult`](#schema-sidebarmenusaveresult)&gt; |
+| 400    | Validation or request error.                                                                                                                                                                                     | [`ApiError`](#standard-error-envelope)                                                                     |
+| 401    | Authentication required or expired.                                                                                                                                                                              | [`ApiError`](#standard-error-envelope)                                                                     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                                                                                                                                                                   | [`ApiError`](#standard-error-envelope)                                                                     |
+| 409    | The `Idempotency-Key` was already used with a different request payload.                                                                                                                                         | [`ApiError`](#standard-error-envelope)                                                                     |
+| 413    | Request body exceeds the endpoint's size limit (Issue #686, epic #679) — either its declared `Content-Length` or, for a chunked/ unlabeled body, the actual streamed byte count. Error code `PAYLOAD_TOO_LARGE`. | [`ApiError`](#standard-error-envelope)                                                                     |
+| 500    | Internal server error without stack trace.                                                                                                                                                                       | [`ApiError`](#standard-error-envelope)                                                                     |
+
+### `POST /api/v1/navigation/sidebar-config/reset` — Reset the tenant's admin sidebar menu configuration to the code default
+
+- **operationId**: `sidebarConfigReset`
+- **Security**: bearerAuth + tenantHeader
+
+Delete ALL of this tenant's sidebar override rows, back to the pure code default. High-risk (`configure`): requires an `Idempotency-Key` header and records an audit event. Naturally idempotent (deleting nothing is fine). Gated by `module_management.navigation.configure`.
+
+**Parameters**
+
+| Name               | In     | Required | Type   | Description                                 |
+| ------------------ | ------ | -------- | ------ | ------------------------------------------- |
+| `Idempotency-Key`  | header | yes      | string | Required for high-risk mutations.           |
+| `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
+| `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
+
+**Responses**
+
+| Status | Description                                                              | Schema                                                                                                     |
+| ------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| 200    | Sidebar configuration reset to default.                                  | [`ApiSuccess`](#standard-success-envelope)&lt;[`SidebarMenuSaveResult`](#schema-sidebarmenusaveresult)&gt; |
+| 400    | Validation or request error.                                             | [`ApiError`](#standard-error-envelope)                                                                     |
+| 401    | Authentication required or expired.                                      | [`ApiError`](#standard-error-envelope)                                                                     |
+| 403    | Access denied by RBAC, ABAC, or tenant policy.                           | [`ApiError`](#standard-error-envelope)                                                                     |
+| 409    | The `Idempotency-Key` was already used with a different request payload. | [`ApiError`](#standard-error-envelope)                                                                     |
+| 500    | Internal server error without stack trace.                               | [`ApiError`](#standard-error-envelope)                                                                     |
+
 ### `GET /api/v1/tenant/modules` — List every registered module's enablement state for the caller's tenant
 
 - **operationId**: `tenantModulesList`
@@ -14355,6 +14434,246 @@ Update body — same shape as SeoTenantSettings; omitted string fields are treat
   "locked": false,
   "tenantId": "00000000-0000-0000-0000-000000000000",
   "lockedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: SidebarMenuAdminConfig
+
+| Field               | Type                                                                    | Required | Nullable | Description |
+| ------------------- | ----------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `types`             | array of [`SidebarMenuAdminType`](#schema-sidebarmenuadmintype)         | yes      | no       |             |
+| `availableTypeKeys` | array of [`SidebarMenuAvailableType`](#schema-sidebarmenuavailabletype) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "types": [
+    {
+      "typeKey": "string",
+      "labelKey": "string",
+      "labelOverride": "string",
+      "position": 0,
+      "hidden": false,
+      "isCustom": false,
+      "modules": []
+    }
+  ],
+  "availableTypeKeys": [
+    {
+      "typeKey": "string",
+      "labelKey": "string",
+      "isCustom": false
+    }
+  ]
+}
+```
+
+### Schema: SidebarMenuAdminItem
+
+| Field                      | Type    | Required | Nullable | Description                                                               |
+| -------------------------- | ------- | -------- | -------- | ------------------------------------------------------------------------- |
+| `entryKey`                 | string  | yes      | no       | Stable key for the menu item — its `path`.                                |
+| `path`                     | string  | yes      | no       |                                                                           |
+| `labelKey`                 | string  | yes      | no       | i18n key for the item's default label (resolved client/server-side).      |
+| `labelOverride`            | string  | yes      | yes      |                                                                           |
+| `icon`                     | string  | no       | no       |                                                                           |
+| `hidden`                   | boolean | yes      | no       |                                                                           |
+| `position`                 | integer | yes      | no       |                                                                           |
+| `typeKey`                  | string  | yes      | no       | The type the item currently sits under (override or default).             |
+| `moduleKey`                | string  | yes      | no       | Owning module; `core` for the synthetic core items.                       |
+| `moduleName`               | string  | yes      | no       |                                                                           |
+| `requiredPermission`       | string  | no       | no       | Exact permission key required to see the item (module nav entries).       |
+| `requiredPermissionPrefix` | string  | no       | no       | Prefix permission gate (core items — any granted key starting with this). |
+
+**Example**
+
+```json
+{
+  "entryKey": "string",
+  "path": "string",
+  "labelKey": "string",
+  "labelOverride": "string",
+  "icon": "string",
+  "hidden": false,
+  "position": 0,
+  "typeKey": "string",
+  "moduleKey": "string",
+  "moduleName": "string",
+  "requiredPermission": "string",
+  "requiredPermissionPrefix": "string"
+}
+```
+
+### Schema: SidebarMenuAdminModuleGroup
+
+| Field        | Type                                                            | Required | Nullable | Description |
+| ------------ | --------------------------------------------------------------- | -------- | -------- | ----------- |
+| `moduleKey`  | string                                                          | yes      | no       |             |
+| `moduleName` | string                                                          | yes      | no       |             |
+| `items`      | array of [`SidebarMenuAdminItem`](#schema-sidebarmenuadminitem) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "moduleKey": "string",
+  "moduleName": "string",
+  "items": [
+    {
+      "entryKey": "string",
+      "path": "string",
+      "labelKey": "string",
+      "labelOverride": "string",
+      "icon": "string",
+      "hidden": false,
+      "position": 0,
+      "typeKey": "string",
+      "moduleKey": "string",
+      "moduleName": "string",
+      "requiredPermission": "string",
+      "requiredPermissionPrefix": "string"
+    }
+  ]
+}
+```
+
+### Schema: SidebarMenuAdminType
+
+| Field           | Type                                                                          | Required | Nullable | Description                                                    |
+| --------------- | ----------------------------------------------------------------------------- | -------- | -------- | -------------------------------------------------------------- |
+| `typeKey`       | string                                                                        | yes      | no       |                                                                |
+| `labelKey`      | string                                                                        | no       | no       | i18n key for a default type's label; absent for a custom type. |
+| `labelOverride` | string                                                                        | yes      | yes      |                                                                |
+| `position`      | integer                                                                       | yes      | no       |                                                                |
+| `hidden`        | boolean                                                                       | yes      | no       |                                                                |
+| `isCustom`      | boolean                                                                       | yes      | no       |                                                                |
+| `modules`       | array of [`SidebarMenuAdminModuleGroup`](#schema-sidebarmenuadminmodulegroup) | yes      | no       |                                                                |
+
+**Example**
+
+```json
+{
+  "typeKey": "string",
+  "labelKey": "string",
+  "labelOverride": "string",
+  "position": 0,
+  "hidden": false,
+  "isCustom": false,
+  "modules": [
+    {
+      "moduleKey": "string",
+      "moduleName": "string",
+      "items": []
+    }
+  ]
+}
+```
+
+### Schema: SidebarMenuAvailableType
+
+| Field      | Type    | Required | Nullable | Description |
+| ---------- | ------- | -------- | -------- | ----------- |
+| `typeKey`  | string  | yes      | no       |             |
+| `labelKey` | string  | no       | no       |             |
+| `isCustom` | boolean | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "typeKey": "string",
+  "labelKey": "string",
+  "isCustom": false
+}
+```
+
+### Schema: SidebarMenuSaveItemInput
+
+| Field           | Type    | Required | Nullable | Description                                                                         |
+| --------------- | ------- | -------- | -------- | ----------------------------------------------------------------------------------- |
+| `entryKey`      | string  | yes      | no       | Must be a known menu entry from the code default model — a custom item is rejected. |
+| `typeKey`       | string  | no       | yes      | Type to place the item under; null keeps the item's default type.                   |
+| `position`      | integer | yes      | no       |                                                                                     |
+| `labelOverride` | string  | no       | yes      |                                                                                     |
+| `hidden`        | boolean | yes      | no       |                                                                                     |
+
+**Example**
+
+```json
+{
+  "entryKey": "string",
+  "typeKey": "string",
+  "position": 0,
+  "labelOverride": "string",
+  "hidden": false
+}
+```
+
+### Schema: SidebarMenuSaveRequest
+
+| Field   | Type                                                                    | Required | Nullable | Description |
+| ------- | ----------------------------------------------------------------------- | -------- | -------- | ----------- |
+| `types` | array of [`SidebarMenuSaveTypeInput`](#schema-sidebarmenusavetypeinput) | yes      | no       |             |
+| `items` | array of [`SidebarMenuSaveItemInput`](#schema-sidebarmenusaveiteminput) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "types": [
+    {
+      "typeKey": "string",
+      "labelOverride": "string",
+      "position": 0,
+      "hidden": false
+    }
+  ],
+  "items": [
+    {
+      "entryKey": "string",
+      "typeKey": "string",
+      "position": 0,
+      "labelOverride": "string",
+      "hidden": false
+    }
+  ]
+}
+```
+
+### Schema: SidebarMenuSaveResult
+
+| Field       | Type    | Required | Nullable | Description |
+| ----------- | ------- | -------- | -------- | ----------- |
+| `typeCount` | integer | yes      | no       |             |
+| `itemCount` | integer | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "typeCount": 0,
+  "itemCount": 0
+}
+```
+
+### Schema: SidebarMenuSaveTypeInput
+
+| Field           | Type    | Required | Nullable | Description                                                                       |
+| --------------- | ------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| `typeKey`       | string  | yes      | no       | Lowercase slug (a-z, 0-9, _). A key not in the default taxonomy is a custom type. |
+| `labelOverride` | string  | no       | yes      |                                                                                   |
+| `position`      | integer | yes      | no       |                                                                                   |
+| `hidden`        | boolean | yes      | no       |                                                                                   |
+
+**Example**
+
+```json
+{
+  "typeKey": "string",
+  "labelOverride": "string",
+  "position": 0,
+  "hidden": false
 }
 ```
 

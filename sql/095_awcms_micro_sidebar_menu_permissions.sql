@@ -1,0 +1,51 @@
+-- Permission catalog seed for per-tenant sidebar menu configuration
+-- (feat/sidebar-menu-management). Adds the single new
+-- `module_management.navigation.configure` permission that gates the
+-- PUT/reset mutations on `/api/v1/navigation/sidebar-config` (the passive read
+-- reuses the pre-existing `module_management.navigation.read`, seeded with the
+-- rest of module_management's catalog — not re-added here). Wires up this
+-- module's own `module.ts` `permissions` declaration.
+--
+-- Same shape/limitation as every prior permission-seed migration here (see
+-- sql/090/sql/092 precedents): this extends the GLOBAL ABAC catalog only.
+-- Existing tenants' `owner` role does NOT retroactively gain this — only
+-- tenants created after this migration runs get it via
+-- `POST /api/v1/setup/initialize`'s
+-- `INSERT INTO awcms_micro_role_permissions ... SELECT ... FROM awcms_micro_permissions`.
+--
+-- OPERATOR NOTE (existing tenants, e.g. a tenant provisioned before this
+-- migration): the sidebar-menu page (gated by the pre-existing
+-- `navigation.read`) is reachable, but PUT/reset (`navigation.configure`)
+-- returns 403 until the owner role is granted the new permission — there is no
+-- owner "implicit-all" bypass (`auth-context.ts` resolves permissions purely by
+-- role_permissions join). Grant it either (a) via the RBAC admin UI
+-- (`/admin/access-users`, an owner with `identity_access.access_control.assign`
+-- can attach `module_management.navigation.configure` to a role), or (b) with a
+-- one-time backfill run once per affected tenant/role, e.g.:
+--
+--   INSERT INTO awcms_micro_role_permissions (tenant_id, role_id, permission_id)
+--   SELECT r.tenant_id, r.id, p.id
+--   FROM awcms_micro_roles r
+--   JOIN awcms_micro_permissions p
+--     ON p.module_key = 'module_management'
+--    AND p.activity_code = 'navigation' AND p.action = 'configure'
+--   WHERE r.role_key = 'owner'   -- adjust to the roles that should manage the sidebar
+--   ON CONFLICT DO NOTHING;
+--
+-- (Verify the exact role_permissions column names against sql/025 before
+-- running on a real target.) Deliberately NOT auto-backfilled in this migration
+-- to stay consistent with every prior permission-seed migration's convention.
+--
+-- `configure` is an EXISTING `AccessAction` literal (identity-access/domain/
+-- access-control.ts) and is already in `HIGH_RISK_ACTIONS` — so the save/reset
+-- endpoints require an `Idempotency-Key` and record an audit event, exactly
+-- like every other high-risk configure/update surface (mirrors sql/081's
+-- `seo_distribution.config.update`). No new action literal is invented.
+-- Description MUST match `module.ts`'s declared permission description byte-for-
+-- byte — `permission-sync` reports `mismatched_description` (degrading module
+-- health) otherwise (see domain/permission-sync.ts). The high-risk/idempotency/
+-- audit posture is documented above, not encoded in this catalog text.
+INSERT INTO awcms_micro_permissions (module_key, activity_code, action, description)
+VALUES
+  ('module_management', 'navigation', 'configure', 'Configure the per-tenant sidebar menu layout (grouping, order, visibility, labels)')
+ON CONFLICT (module_key, activity_code, action) DO NOTHING;

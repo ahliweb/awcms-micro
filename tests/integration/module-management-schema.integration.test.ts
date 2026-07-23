@@ -328,6 +328,7 @@ suite("module management schema — RLS isolation and constraints", () => {
       "jobs.read",
       "modules.read",
       "modules.sync",
+      "navigation.configure",
       "navigation.read",
       "permissions.read",
       "settings.read",

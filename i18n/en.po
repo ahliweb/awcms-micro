@@ -377,9 +377,115 @@ msgstr "Modules"
 msgid "admin.layout.nav_module_matrix"
 msgstr "Module Matrix"
 
+#. feat/sidebar-menu-management — per-tenant sidebar menu admin screen
+msgid "admin.layout.nav_sidebar_menu"
+msgstr "Sidebar Menu"
+
+#. feat/sidebar-menu-management — core Profile item, now a managed sidebar entry
+msgid "admin.layout.nav_profile"
+msgstr "Profile"
+
 #. Issue #592, epic: full-online auth hardening #587-#593
 msgid "admin.layout.nav_security"
 msgstr "Security"
+
+#. feat/sidebar-menu-management — default type (top-level category) labels
+msgid "admin.menu_type.system"
+msgstr "System"
+
+msgid "admin.menu_type.content"
+msgstr "Content"
+
+msgid "admin.menu_type.commerce"
+msgstr "Commerce"
+
+msgid "admin.menu_type.engagement"
+msgstr "Engagement"
+
+msgid "admin.menu_type.operations"
+msgstr "Operations"
+
+msgid "admin.menu_type.identity"
+msgstr "Identity"
+
+msgid "admin.menu_type.general"
+msgstr "General"
+
+#. feat/sidebar-menu-management — sidebar menu management screen
+msgid "admin.sidebar_menu.title"
+msgstr "Sidebar Menu"
+
+msgid "admin.sidebar_menu.subtitle"
+msgstr "Arrange the admin sidebar for this tenant: group by category and module, reorder, show or hide, rename, move items between categories, or reset to the default."
+
+msgid "admin.sidebar_menu.access_denied_title"
+msgstr "Access denied"
+
+msgid "admin.sidebar_menu.access_denied_body"
+msgstr "You do not have permission to view the sidebar menu configuration."
+
+msgid "admin.sidebar_menu.types_heading"
+msgstr "Categories and items"
+
+msgid "admin.sidebar_menu.save_button"
+msgstr "Save"
+
+msgid "admin.sidebar_menu.reset_button"
+msgstr "Reset to default"
+
+msgid "admin.sidebar_menu.save_success"
+msgstr "Sidebar menu saved."
+
+msgid "admin.sidebar_menu.reset_success"
+msgstr "Sidebar menu reset to default."
+
+msgid "admin.sidebar_menu.reset_confirm_title"
+msgstr "Reset the sidebar menu?"
+
+msgid "admin.sidebar_menu.reset_confirm_body"
+msgstr "This removes every customization and restores the default sidebar layout for this tenant."
+
+msgid "admin.sidebar_menu.reset_confirm_accept"
+msgstr "Reset"
+
+msgid "admin.sidebar_menu.reset_confirm_cancel"
+msgstr "Cancel"
+
+msgid "admin.sidebar_menu.hidden_label"
+msgstr "Hidden"
+
+msgid "admin.sidebar_menu.move_up"
+msgstr "Move up"
+
+msgid "admin.sidebar_menu.move_down"
+msgstr "Move down"
+
+msgid "admin.sidebar_menu.move_to_type"
+msgstr "Move to category"
+
+msgid "admin.sidebar_menu.type_label_aria"
+msgstr "Category label override"
+
+msgid "admin.sidebar_menu.item_label_aria"
+msgstr "Menu item label override"
+
+msgid "admin.sidebar_menu.add_type_heading"
+msgstr "Add a custom category"
+
+msgid "admin.sidebar_menu.add_type_key_label"
+msgstr "Category key (a-z, 0-9, _)"
+
+msgid "admin.sidebar_menu.add_type_label_label"
+msgstr "Category label"
+
+msgid "admin.sidebar_menu.add_type_button"
+msgstr "Add category"
+
+msgid "admin.sidebar_menu.invalid_type_key"
+msgstr "Enter a unique category key using only lowercase letters, numbers, and underscores."
+
+msgid "admin.sidebar_menu.permission_gated_note"
+msgstr "Only shown to users with the required permission."
 
 msgid "admin.layout.breadcrumb_aria_label"
 msgstr "Breadcrumb"
