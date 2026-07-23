@@ -87,7 +87,8 @@ try {
     context.tenantId,
     (tx) => tx`
       SELECT tenant_name, default_theme FROM awcms_micro_tenants WHERE id = ${context.tenantId}
-    `
+    `,
+    { unavailableBehavior: "throw" }
   );
   tenantName = (rows[0]?.tenant_name as string | undefined) ?? tenantName;
   tenantDefaultTheme =
@@ -98,8 +99,11 @@ try {
 
 let syncActive = false;
 try {
-  syncActive = await withTenant(sql, context.tenantId, (tx) =>
-    fetchSyncIndicatorActive(tx, context.tenantId)
+  syncActive = await withTenant(
+    sql,
+    context.tenantId,
+    (tx) => fetchSyncIndicatorActive(tx, context.tenantId),
+    { unavailableBehavior: "throw" }
   );
 } catch (error) {
   console.error("AdminLayout: failed to load sync indicator state", error);
@@ -119,18 +123,25 @@ let fallbackModuleNavEntries: Awaited<
   ReturnType<typeof fetchVisibleModuleNavigationEntries>
 > = [];
 try {
-  sidebarArrangement = await withTenant(sql, context.tenantId, (tx) =>
-    fetchSidebarArrangement(tx, context.tenantId, context.permissions)
+  sidebarArrangement = await withTenant(
+    sql,
+    context.tenantId,
+    (tx) => fetchSidebarArrangement(tx, context.tenantId, context.permissions),
+    { unavailableBehavior: "throw" }
   );
 } catch (error) {
   console.error("AdminLayout: failed to load sidebar arrangement", error);
   try {
-    fallbackModuleNavEntries = await withTenant(sql, context.tenantId, (tx) =>
-      fetchVisibleModuleNavigationEntries(
-        tx,
-        context.tenantId,
-        context.permissions
-      )
+    fallbackModuleNavEntries = await withTenant(
+      sql,
+      context.tenantId,
+      (tx) =>
+        fetchVisibleModuleNavigationEntries(
+          tx,
+          context.tenantId,
+          context.permissions
+        ),
+      { unavailableBehavior: "throw" }
     );
   } catch (fallbackError) {
     console.error(

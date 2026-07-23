@@ -48,11 +48,21 @@ export type SsrContext = {
  * or the tenant id cookie is malformed. Callers (e.g. `AdminLayout.astro`)
  * treat `null` as "redirect to /login"; we never leak DB/validation errors
  * to the caller here (doc 10 §Guardrail keamanan — no stack traces).
+ *
+ * Returns a `Response` (never a context) in exactly one case: the shared
+ * `withTenant` pool gate returned its 503 `DATABASE_BUSY` fallback because the
+ * DB pool is saturated or the circuit breaker is open (`tenant-context.ts`).
+ * That fallback is a `Response` cast to the generic `T` — fine for the API
+ * routes that return it directly, but for SSR context resolution it must NOT
+ * masquerade as a session (its `permissions` would be `undefined`, crashing
+ * every admin page's `context.permissions.has(...)`). The middleware serves
+ * this Response as-is (its `Retry-After` is already set) instead of a bogus
+ * `/login` bounce — the session may be perfectly valid, the DB is just busy.
  */
 export async function resolveSsrContext(
   cookies: AstroCookies,
   now: Date
-): Promise<SsrContext | null> {
+): Promise<SsrContext | Response | null> {
   const tenantId = cookies.get(TENANT_COOKIE_NAME)?.value ?? null;
   const sessionToken = cookies.get(SESSION_COOKIE_NAME)?.value ?? null;
 
@@ -64,7 +74,7 @@ export async function resolveSsrContext(
     const sql = getDatabaseClient();
     const tokenHash = hashSessionToken(sessionToken);
 
-    return await withTenant(sql, tenantId, async (tx) => {
+    const resolved = await withTenant(sql, tenantId, async (tx) => {
       const context = await resolveTenantContext(tx, tenantId, tokenHash, now);
 
       if (!context) {
@@ -92,6 +102,11 @@ export async function resolveSsrContext(
         tenantDefaultLocale
       };
     });
+
+    // `withTenant` returns a 503 `Response` (its generic fallback) when the DB
+    // pool is saturated or the circuit breaker is open — hand that back to the
+    // middleware verbatim rather than treating it as a resolved session.
+    return resolved;
   } catch {
     return null;
   }

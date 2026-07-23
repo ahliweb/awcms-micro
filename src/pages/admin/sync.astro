@@ -123,7 +123,8 @@ if (hasAnyAccess) {
         failedObjects: CAN_READ_QUEUE
           ? await fetchObjectQueueEntries(tx, context.tenantId, "failed")
           : []
-      })
+      }),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError("admin/sync.astro: failed to load data", error, {

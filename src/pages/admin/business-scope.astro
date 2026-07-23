@@ -116,21 +116,26 @@ let loadError = false;
 const sodRules = collectSoDRuleDescriptors(listModules());
 
 try {
-  await withTenant(getDatabaseClient(), context.tenantId, async (tx) => {
-    if (CAN_READ_ASSIGNMENTS) {
-      assignments = await listBusinessScopeAssignments(tx, context.tenantId);
-      tenantUsers = await fetchTenantUsersWithRoles(tx, context.tenantId);
-      roles = await fetchRolesWithPermissions(tx, context.tenantId);
-    }
-    if (CAN_READ_EXCEPTIONS) {
-      exceptions = await listSoDConflictExceptions(tx, context.tenantId);
-    }
-    if (CAN_READ_CONFLICTS) {
-      conflicts = await listSoDConflictEvaluations(tx, context.tenantId, {
-        limit: 50
-      });
-    }
-  });
+  await withTenant(
+    getDatabaseClient(),
+    context.tenantId,
+    async (tx) => {
+      if (CAN_READ_ASSIGNMENTS) {
+        assignments = await listBusinessScopeAssignments(tx, context.tenantId);
+        tenantUsers = await fetchTenantUsersWithRoles(tx, context.tenantId);
+        roles = await fetchRolesWithPermissions(tx, context.tenantId);
+      }
+      if (CAN_READ_EXCEPTIONS) {
+        exceptions = await listSoDConflictExceptions(tx, context.tenantId);
+      }
+      if (CAN_READ_CONFLICTS) {
+        conflicts = await listSoDConflictEvaluations(tx, context.tenantId, {
+          limit: 50
+        });
+      }
+    },
+    { unavailableBehavior: "throw" }
+  );
 } catch (error) {
   loadError = true;
   logAdminPageError("admin/business-scope", error);

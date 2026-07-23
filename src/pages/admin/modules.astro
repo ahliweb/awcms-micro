@@ -76,7 +76,8 @@ if (CAN_READ_MODULES) {
           ...entry,
           healthStatus: healthReports.get(entry.moduleKey)?.status ?? null
         }));
-      }
+      },
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError(

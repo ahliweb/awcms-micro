@@ -63,8 +63,11 @@ let loadError = false;
 
 if (CAN_READ) {
   try {
-    settings = await withTenant(getDatabaseClient(), context.tenantId, (tx) =>
-      fetchTenantSettings(tx, context.tenantId)
+    settings = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      (tx) => fetchTenantSettings(tx, context.tenantId),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError("admin/settings.astro: failed to load settings", error, {

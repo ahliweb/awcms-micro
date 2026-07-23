@@ -86,7 +86,8 @@ if (CAN_READ) {
         roles: CAN_READ_ROLES
           ? await fetchRolesWithPermissions(tx, context.tenantId)
           : []
-      })
+      }),
+      { unavailableBehavior: "throw" }
     );
   } catch (error) {
     logAdminPageError("admin/registrations.astro: failed to load data", error, {
