@@ -184,8 +184,21 @@ Findings:
   prod host; it MUST also be stored off-box (operator password manager) or the
   offsite copies are unrecoverable after a host loss — the exact disaster this
   layer defends against.
-- **Object-storage (R2) restore** and the live chaos drills remain deferred
-  (their shapes are covered by the integration suites above).
+- **Offsite restore drill — AUTOMATED (verified live 2026-07-24).** So the offsite
+  backups are _verified, not just taken_, a **weekly** drill runs on prod
+  (`~/backups/awcms-micro-restore-drill.sh`, cron `17 3 * * 0`): it pulls the
+  newest `nightly/*.sql.gz.enc` from R2, decrypts, and restores it into a
+  **disposable throwaway `postgres:18.4` container** (never the live DB, not on
+  the coolify network), asserts the restore is real (`>=100` `awcms_micro_*`
+  tables, `>=70` migrations, `awcms_micro_tenants` queryable), logs OK/FAIL to
+  `restore-drill.log`, then discards the container. First run PASSED —
+  `tables=140 migrations=80 tenants=1`, exactly matching prod.
+- **Live chaos drills** (provider outage, worker restart, DB saturation, stale
+  projection, object-storage failure, cache invalidation) remain deferred: their
+  _shapes_ are covered by the integration suites above, and running them live is
+  intentionally NOT done against production — `authorizeDrDrill` hard-blocks
+  `APP_ENV=production` with no override (see §Safety interlock), and there is no
+  standing staging target. They stay gated on a non-prod environment.
 
 ## Retry/idempotency evidence
 
