@@ -11,9 +11,37 @@
 
 ## Entri aktif
 
+### 2026-07-24 — Full-online enablement runbook (Turnstile/2FA/SSO/email)
+
+**Status:** SELESAI — commit `bb1821f2`, PR [#331](https://github.com/ahliweb/awcms-micro/pull/331)
+(menunggu merge). Docs-only.
+
+**Konteks.** Fitur auth-hardening + email sudah ter-ship penuh (#588 Turnstile, #589 TOTP 2FA,
+#590 Google OIDC, #591 tenant SSO, #493 email Mailketing) tapi **dormant-by-design** di balik gate
+`AUTH_ONLINE_SECURITY_ENABLED` + `AUTH_ONLINE_SECURITY_PROFILE=full_online`. Belum ada satu prosedur
+operator "cara menyalakan + konfigurasi" yang berurutan. Runbook ini mengisi celah itu (bukan
+development baru).
+
+**Yang dikerjakan:**
+
+- **Baru:** `docs/awcms-micro/full-online-enablement-runbook.md` (bagian 0–10: prasyarat, gate
+  dua-level, kunci enkripsi AES yang permanen, per-fitur enable+cara peroleh credential, cron
+  `email:dispatch`, apply/validate/rollback, backup layer-2 offsite).
+- **Indeks:** ditambahkan satu baris di tabel runbook `docs/awcms-micro/README.md`.
+- **Koreksi terverifikasi:** invocation validator dibetulkan `env:validate` → **`config:validate`**
+  (script asli package.json; `env:validate` tidak pernah ada). Semua env var / script / route /
+  tabel / gate-fn lain sudah dicek ADA di kode sebelum ditulis.
+
+**Verifikasi (hijau):** `check:docs`, `config:docs:check`, `prettier --check` (2 file). Docs-only
+(hanya `*.md`) → **tidak perlu changeset**.
+
+**Langkah lanjut:** merge PR #331. Setelah merge, kompres entri ini jadi satu baris historis.
+
+---
+
 ### 2026-07-21 — Sinkronisasi docs + skills pasca ADR-0036 (penghapusan jalur aplikasi-turunan)
 
-**Status:** SELESAI (belum di-commit pada saat penulisan — lihat `git status`).
+**Status:** SELESAI & ter-ship (sudah di-commit — sudah ada banyak commit main setelahnya).
 
 **Konteks.** [ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md)
 (PR #304, commit `39a33f2f`) **menghapus penuh jalur aplikasi-turunan** dan
