@@ -27,6 +27,9 @@ msgstr "Masuk"
 msgid "auth.login.google_button"
 msgstr "Lanjutkan dengan Google"
 
+msgid "auth.login.sso_group_label"
+msgstr "Masuk dengan organisasi Anda"
+
 msgid "auth.login.generic_error"
 msgstr "Login gagal. Coba lagi."
 

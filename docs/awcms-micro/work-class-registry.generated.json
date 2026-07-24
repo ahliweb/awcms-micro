@@ -171,6 +171,11 @@
       "source": "default"
     },
     {
+      "path": "src/pages/api/v1/auth/sso/providers.ts",
+      "workClass": "interactive",
+      "source": "default"
+    },
+    {
       "path": "src/pages/api/v1/blog/ads/[id].ts",
       "workClass": "interactive",
       "source": "default"

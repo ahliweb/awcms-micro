@@ -127,6 +127,60 @@ export async function fetchAuthProviderRowByKey(
   return rows[0] ?? null;
 }
 
+/**
+ * The ONLY provider shape the unauthenticated login page ever sees — the
+ * public button label (`displayName`) and the `providerKey` needed to build
+ * the `/api/v1/auth/sso/{providerKey}/start` link. Deliberately excludes every
+ * internal/credential field `AuthProviderView` carries (`issuerUrl`,
+ * `clientId`, `secretSource`, `clientSecretEnvVar`, `scopes`,
+ * `allowedEmailDomains`, even `providerType`): none of them is needed to render
+ * a login button, and none must ever reach an anonymous caller.
+ */
+export type LoginAuthProviderView = {
+  providerKey: string;
+  displayName: string;
+};
+
+/**
+ * Login-facing read (Issue #591 follow-up) — the enabled SSO providers a
+ * tenant's users may start a login with, for the anonymous login-page picker
+ * (`GET /api/v1/auth/sso/providers`). Distinct from `listAuthProviders` (admin,
+ * ABAC-gated, returns the full config incl. issuer/client id): this returns
+ * ONLY `{ providerKey, displayName }` and only for `enabled = true` rows.
+ *
+ * Anti-enumeration is baked into the SQL, not the caller: the result is empty
+ * for (a) an unknown tenant, (b) an inactive/suspended tenant, and (c) an
+ * active tenant with no enabled providers — a single uniform query, no
+ * per-outcome branch. RLS scopes `awcms_micro_auth_providers` to the current
+ * tenant GUC, and the `EXISTS (... status = 'active')` guard collapses the
+ * inactive/unknown-tenant cases to the same empty set an active-but-empty
+ * tenant already yields (an enabled provider row can outlive its tenant being
+ * suspended, so RLS + `enabled` alone would otherwise leak a suspended tenant's
+ * providers). Ordered stably (`display_name`, then `provider_key`) so the
+ * picker's button order is deterministic.
+ */
+export async function listEnabledAuthProvidersForLogin(
+  tx: Bun.SQL,
+  tenantId: string
+): Promise<LoginAuthProviderView[]> {
+  const rows = (await tx`
+    SELECT p.provider_key, p.display_name
+    FROM awcms_micro_auth_providers p
+    WHERE p.enabled = true
+      AND p.deleted_at IS NULL
+      AND EXISTS (
+        SELECT 1 FROM awcms_micro_tenants t
+        WHERE t.id = ${tenantId} AND t.status = 'active'
+      )
+    ORDER BY p.display_name ASC, p.provider_key ASC
+  `) as { provider_key: string; display_name: string }[];
+
+  return rows.map((row) => ({
+    providerKey: row.provider_key,
+    displayName: row.display_name
+  }));
+}
+
 export type CreateAuthProviderResult =
   | { outcome: "created"; provider: AuthProviderView }
   | { outcome: "duplicate_key" }

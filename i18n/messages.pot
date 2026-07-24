@@ -5069,11 +5069,11 @@ msgstr ""
 msgid "auth.forgot.subtitle"
 msgstr ""
 
-#: src/pages/login.astro:294
+#: src/pages/login.astro:321
 msgid "auth.login.footer"
 msgstr ""
 
-#: src/pages/login.astro:286
+#: src/pages/login.astro:313
 msgid "auth.login.forgot_link"
 msgstr ""
 
@@ -5081,11 +5081,11 @@ msgstr ""
 msgid "auth.login.generic_error"
 msgstr ""
 
-#: src/pages/login.astro:238
+#: src/pages/login.astro:244
 msgid "auth.login.google_button"
 msgstr ""
 
-#: src/pages/login.astro:122
+#: src/pages/login.astro:128
 msgid "auth.login.heading"
 msgstr ""
 
@@ -5093,23 +5093,27 @@ msgstr ""
 msgid "auth.login.identifier_label"
 msgstr ""
 
-#: src/pages/login.astro:111
+#: src/pages/login.astro:117
 msgid "auth.login.page_title"
 msgstr ""
 
-#: src/pages/login.astro:194
+#: src/pages/login.astro:200
 msgid "auth.login.password_label"
 msgstr ""
 
-#: src/pages/login.astro:289
+#: src/pages/login.astro:316
 msgid "auth.login.register_link"
 msgstr ""
 
-#: src/pages/login.astro:89
+#: src/pages/login.astro:264
+msgid "auth.login.sso_group_label"
+msgstr ""
+
+#: src/pages/login.astro:95
 msgid "auth.login.submit"
 msgstr ""
 
-#: src/pages/login.astro:123
+#: src/pages/login.astro:129
 msgid "auth.login.subtitle"
 msgstr ""
 
@@ -5125,31 +5129,31 @@ msgstr ""
 msgid "auth.login.tenant_label"
 msgstr ""
 
-#: src/pages/login.astro:254
+#: src/pages/login.astro:281
 msgid "auth.mfa.challenge_subtitle"
 msgstr ""
 
-#: src/pages/login.astro:253
+#: src/pages/login.astro:280
 msgid "auth.mfa.challenge_title"
 msgstr ""
 
-#: src/pages/login.astro:97
+#: src/pages/login.astro:103
 msgid "auth.mfa.code_label"
 msgstr ""
 
-#: src/pages/login.astro:98
+#: src/pages/login.astro:104
 msgid "auth.mfa.recovery_label"
 msgstr ""
 
-#: src/pages/login.astro:277
+#: src/pages/login.astro:304
 msgid "auth.mfa.submit"
 msgstr ""
 
-#: src/pages/login.astro:99
+#: src/pages/login.astro:105
 msgid "auth.mfa.use_recovery"
 msgstr ""
 
-#: src/pages/login.astro:100
+#: src/pages/login.astro:106
 msgid "auth.mfa.use_totp"
 msgstr ""
 
@@ -5157,11 +5161,11 @@ msgstr ""
 msgid "auth.nav_label"
 msgstr ""
 
-#: src/pages/login.astro:91
+#: src/pages/login.astro:97
 msgid "auth.password_hide"
 msgstr ""
 
-#: src/pages/login.astro:93
+#: src/pages/login.astro:99
 msgid "auth.password_hide_aria"
 msgstr ""
 

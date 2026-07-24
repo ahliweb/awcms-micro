@@ -1114,6 +1114,50 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "500":
           $ref: "#/components/responses/InternalError"
+  /api/v1/auth/sso/providers:
+    get:
+      tags:
+        - Identity & Access
+      summary: List a tenant's enabled SSO providers for the login page picker
+      description: "Full-online-only (Issue #591 follow-up) — unauthenticated login-page discovery for the generic tenant OIDC SSO backend. Companion to `/auth/sso/{providerKey}/start`: `start` redirects to ONE provider, this lists which providers a tenant's users may start with so the login page can render one button per provider. Tenant resolved from the `X-AWCMS-Micro-Tenant-ID` header, the tenant cookie, or a `?tenantId=` query param fallback, same as `start`. ANTI-ENUMERATION: an unknown tenant, an inactive/suspended tenant, and an active tenant with no enabled providers ALL return the SAME empty `{ providers: [] }` via one uniform query — only an active tenant WITH enabled providers returns a non-empty list. Returns ONLY `{ providerKey, displayName }` per provider — never issuer/client id/secret/provider-type internals. When the deployment-wide gate is off (`isSsoRequired()` false) it returns `{ providers: [] }` without touching the database. Single per-source+tenant rate limit (no shared/aggregate limit — see the route's own comment)."
+      operationId: authSsoLoginProvidersList
+      security:
+        - tenantHeader: []
+      parameters:
+        - name: tenantId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Fallback tenant id when neither the header nor cookie is present.
+      responses:
+        "200":
+          description: The tenant's enabled SSO providers (possibly empty; empty is also the anti-enumeration answer for an unknown/inactive tenant).
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiSuccess"
+                  - type: object
+                    required:
+                      - data
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LoginSsoProvidersResponse"
+        "429":
+          description: Too many requests from this source (`RATE_LIMITED`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          description: The database pool is saturated or the circuit breaker is open (`DATABASE_BUSY`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
   /api/v1/auth/sso/{providerKey}/callback:
     get:
       tags:
@@ -2657,6 +2701,28 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AuthProviderView"
+    LoginSsoProvider:
+      type: object
+      required:
+        - providerKey
+        - displayName
+      additionalProperties: false
+      description: The ONLY provider shape the anonymous login page sees — the button label and the key needed to build the `/auth/sso/{providerKey}/start` link. Never carries issuer/client id/secret/provider-type internals.
+      properties:
+        providerKey:
+          type: string
+        displayName:
+          type: string
+    LoginSsoProvidersResponse:
+      type: object
+      required:
+        - providers
+      additionalProperties: false
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginSsoProvider"
     AuthProviderView:
       type: object
       required:
