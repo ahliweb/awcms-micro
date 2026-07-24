@@ -59,10 +59,15 @@ function listMarkdown() {
   // `git ls-files` mencerminkan index, bukan working tree — berkas yang
   // dihapus tapi belum di-stage (mis. changeset yang baru dikonsumsi) masih
   // muncul di sini. Saring agar hanya berkas yang benar-benar ada di disk.
-  return out
-    .split("\n")
-    .filter(Boolean)
-    .filter((file) => existsSync(join(ROOT, file)));
+  return (
+    out
+      .split("\n")
+      .filter(Boolean)
+      // Keluaran graphify (graphify-out/GRAPH_REPORT.md, dst.) adalah artefak
+      // generated, bukan dokumentasi yang di-maintain manual — lewati.
+      .filter((file) => !file.startsWith("graphify-out/"))
+      .filter((file) => existsSync(join(ROOT, file)))
+  );
 }
 
 /**

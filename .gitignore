@@ -42,3 +42,8 @@ blob-report/
 
 # Claude Code user-local settings (jangan commit)
 .claude/settings.local.json
+
+# graphify incremental-extraction cache — machine-local, regenerable, large.
+# The graph outputs (graph.json/GRAPH_REPORT.md/graph.html/manifest.json) are
+# committed; the cache under graphify-out/cache/ is not.
+graphify-out/cache/
