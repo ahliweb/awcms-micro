@@ -168,22 +168,24 @@ dan HARUS dibungkus `withTimeout` + circuit breaker per-provider
 disiapkan generik di `social-publish-dispatch.ts` — adapter baru TIDAK
 perlu menambah circuit breaker sendiri.
 
-### Keputusan kunci #6 — dua port lintas modul: `SocialPublishingPort` (blog_content konsumsi) dan `NewsMediaPort` (social_publishing konsumsi)
+### Keputusan kunci #6 — dua port lintas modul: `SocialPublishingPort` (blog_content konsumsi) dan `MediaLibraryPort` (social_publishing konsumsi)
 
-Sama pola Issue #681 (`_shared/ports/`, `news_media`/`public_content`):
+Sama pola Issue #681 (`_shared/ports/`, `media_library`/`public_content`):
 `_shared/ports/social-publishing-port.ts` (BARU, issue ini) adalah
 capability yang `blog_content` KONSUMSI dari `social_publishing`
 (`onArticlePublished`, dipanggil dari `pages/api/v1/blog/posts/[id]/
 publish.ts` dan `blog-content/application/blog-scheduled-publish.ts` via
 parameter `socialPublishingPort` opsional, diwire di
 `scripts/blog-scheduled-publish.ts`). `social_publishing` sendiri
-KONSUMSI `news_portal`'s `news_media` capability (untuk resolusi URL
-gambar R2 terverifikasi) — TIDAK mengimpor `news-portal/application/
-news-media-port-adapter.ts` secara langsung dari dalam
+KONSUMSI modul `media-library`'s `media_library` capability (untuk resolusi URL
+gambar R2 terverifikasi; kapabilitas `news_media` lama sudah pensiun, machinery
+media pindah dari `news_portal` ke modul `media-library` — ADR-0026) — TIDAK
+mengimpor `media-library/application/media-library-port-adapter.ts` secara
+langsung dari dalam
 `social-publishing/application` (itu justru anti-pattern yang sama
 persis #681 perbaiki); factory
 `social-publishing-port-adapter.ts`'s `createSocialPublishingPortAdapter(mediaPort)`
-menerima `NewsMediaPort` sebagai PARAMETER, hanya composition root
+menerima `MediaLibraryPort` sebagai PARAMETER, hanya composition root
 (route/script) yang mengimpor kedua adapter konkret dan merangkainya.
 
 **Catatan khusus**: `social-publishing-port-adapter.ts` JUGA mengimpor
@@ -508,7 +510,7 @@ membandingkan `new URL(url).host` PERSIS terhadap
 substring/prefix check (pelajaran Issue #635: trailing-dot FQDN bisa
 membypass prefix check). Ini murni defense-in-depth: `content.imageUrl`
 pada job SUDAH dijamin verified oleh `create-social-publish-jobs.ts`
-(foundation #643) via `NewsMediaPort.resolveMediaReferences` — adapter
+(foundation #643) via `MediaLibraryPort.resolveMediaReferences` — adapter
 ini TIDAK pernah menerima URL gambar dari sumber lain (caption custom
 editor hanya berupa TEKS, bukan URL). Re-check ini hanya jaring pengaman
 titik-terakhir sebelum panggilan eksternal, bukan mekanisme enforcement
@@ -805,7 +807,7 @@ konsep dari versi API).
 ### Gambar — Images API asli LinkedIn, digerbang cek kepercayaan R2
 
 `content.imageUrl` (sudah dijamin berasal dari objek R2 terverifikasi oleh
-`create-social-publish-jobs.ts`'s `NewsMediaPort.resolveMediaReferences`)
+`create-social-publish-jobs.ts`'s `MediaLibraryPort.resolveMediaReferences`)
 diperiksa ULANG (defense-in-depth, `isTrustedR2MediaUrl`, membandingkan
 terhadap `NEWS_MEDIA_R2_PUBLIC_BASE_URL` — import lintas modul yang
 sengaja dan sempit, sama pola Keputusan kunci #6's "Catatan khusus" di

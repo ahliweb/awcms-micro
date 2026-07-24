@@ -141,7 +141,7 @@ selalu ikut ter-bundle).
 
 **Dua varian composition-root sudah ada di repo ini — pilih sesuai
 taruhan keamanan fitur, bukan template tunggal.** Varian #1
-(`blog_content` konsumsi `NewsMediaPort` dari `news_portal`, Issue #681):
+(`blog_content` konsumsi `MediaLibraryPort` dari `media-library`, Issue #681; kapabilitas media diekstrak dari `news_portal` ke `media-library` oleh ADR-0026):
 route handler SELALU inject adapter konkret, TANPA cek enable/disable
 tenant di call site — port itu sendiri yang didesain fail-closed/no-op
 aman untuk setiap kasus "tidak berlaku". Varian #2 (gate enable eksplisit

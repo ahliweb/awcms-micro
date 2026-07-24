@@ -122,9 +122,22 @@ pernah** menyatukan keduanya ke bucket/kredensial yang sama:
 - Cloudflare **account** boleh sama (satu akun, dua bucket) — yang
   wajib terpisah adalah bucket dan API token, bukan akun.
 
+> **Catatan ekstraksi (ADR-0026)**: seluruh media machinery (R2
+> upload/object-key/mime-sniff/finalize/reconcile + presigned session)
+> telah DIEKSTRAK dari modul `news_portal` ke modul `media-library`.
+> Path sumber di bawah yang tampak sebagai `news-portal/.../news-media-*.ts`
+> kini berada di `media-library/.../media-*.ts`, port bersama
+> `_shared/ports/media-library-port.ts` mengekspor `MediaLibraryPort`
+> (dulu `NewsMediaPort`), dengan adapter di
+> `media-library/application/media-library-port-adapter.ts`. Gate
+> `blog-content/application/news-media-reference-gate.ts` TETAP di
+> blog-content dengan nama itu, hanya meng-inject `MediaLibraryPort`.
+> Nama berkas TEST (`tests/**/news-media-*.test.ts`), prefix object-key
+> runtime `news-media/`, dan job `news-media:reconcile` TIDAK berubah.
+
 **Ditegakkan (bukan hanya didokumentasikan) sejak Issue #632**:
 `findNewsMediaR2SeparationViolations`
-(`news-portal/domain/news-media-r2-config.ts`) membandingkan
+(`media-library/domain/media-r2-config.ts`) membandingkan
 `NEWS_MEDIA_R2_BUCKET`/`_ACCESS_KEY_ID`/`_SECRET_ACCESS_KEY` terhadap
 `AWCMS_MICRO_R2_BUCKET`/`AWCMS_MICRO_R2_ACCESS_KEY_ID`/`AWCMS_MICRO_R2_SECRET_ACCESS_KEY` milik
 `sync-storage`, dipanggil dari `config:validate`
@@ -212,7 +225,7 @@ atas) dirancang mencegah. Dipakai sebagai gantinya: konvensi
 TIDAK punya `NEWS_MEDIA_R2_CUSTOM_DOMAIN` terpisah (§11-nya menyatakan
 `_PUBLIC_BASE_URL` SUDAH mencakup custom domain) — implementor #633/#634
 jangan menambah var `_CUSTOM_DOMAIN` terpisah tanpa keputusan eksplisit
-baru. Resolver: `src/modules/news-portal/domain/news-media-r2-config.ts`
+baru. Resolver: `src/modules/media-library/domain/media-r2-config.ts`
 (`resolveNewsMediaR2Config`, `findMissingNewsMediaR2Vars`,
 `findNewsMediaR2SeparationViolations`, `allowsSvgMimeType`).
 
@@ -350,7 +363,7 @@ PR manapun (#634 khususnya) menambah jalur itu.
 
 ### File yang dibuat/diubah (referensi cepat)
 
-- `src/modules/news-portal/module.ts`, `domain/news-media-r2-config.ts`,
+- `src/modules/news-portal/module.ts`, `domain/media-r2-config.ts`,
   `domain/news-portal-preset-readiness.ts`,
   `application/apply-news-portal-preset.ts`.
 - `src/modules/index.ts`,
@@ -380,10 +393,10 @@ PR manapun (#634 khususnya) menambah jalur itu.
 
 Implementasi lengkap: migration
 `sql/041_awcms_micro_news_media_object_registry_schema.sql`, domain
-`src/modules/news-portal/domain/news-media-object-key.ts` (object key
-build/validate, trusted public URL) + `domain/news-media-permissions.ts`
+`src/modules/media-library/domain/media-object-key.ts` (object key
+build/validate, trusted public URL) + `domain/media-permissions.ts`
 (permission constants for #634, not wired yet), application
-`application/news-media-object-directory.ts` (full CRUD + lifecycle).
+`application/media-object-directory.ts` (full CRUD + lifecycle).
 Two rekonsiliasi below **mengikat** issue #634+ lanjutan — jangan
 investigasi ulang.
 
@@ -463,7 +476,7 @@ AND tenant_id = $2`) di dalam transaksi tenant-scoped yang sama SEBELUM
 ### Object key & public URL — server-generated, divalidasi 3 lapis
 
 `buildNewsMediaObjectKey`/`isValidNewsMediaObjectKey`
-(`domain/news-media-object-key.ts`) menerapkan §6 persis:
+(`domain/media-object-key.ts`) menerapkan §6 persis:
 `news-media/{tenantId}/{yyyy}/{mm}/{uuid}.{ext}`, `{ext}` diturunkan
 dari `mime_type` tervalidasi (map eksplisit 4 tipe default, BUKAN
 `mime.split("/")[1]` generik — mime type di luar map melempar error
@@ -480,7 +493,7 @@ client.
 
 ### Permission key untuk #634 — disiapkan sebagai konstanta, BELUM dideklarasikan di `module.ts`
 
-`domain/news-media-permissions.ts` mengekspor
+`domain/media-permissions.ts` mengekspor
 `NEWS_MEDIA_PERMISSIONS.{create,read,verify,attach,detach,delete,restore,purge}`
 (nilai `news_portal.media.<action>`) — dokumentasi/konstanta MURNI,
 belum disinkronkan ke `awcms_micro_permissions` (tidak ada baris DB, tidak
@@ -496,9 +509,9 @@ array dan memanggil `authorizeInTransaction` (skill
 ### File yang dibuat/diubah (referensi cepat)
 
 - `sql/041_awcms_micro_news_media_object_registry_schema.sql`.
-- `src/modules/news-portal/domain/news-media-object-key.ts`,
-  `domain/news-media-permissions.ts`,
-  `application/news-media-object-directory.ts`.
+- `src/modules/media-library/domain/media-object-key.ts`,
+  `domain/media-permissions.ts`,
+  `application/media-object-directory.ts`.
 - Test: `tests/unit/news-media-object-key.test.ts`,
   `tests/unit/news-media-permissions.test.ts`,
   `tests/integration/news-media-object-registry.integration.test.ts`;
@@ -521,18 +534,18 @@ metadata via R2 HEAD/metadata" — kalimat itu SENGAJA TIDAK diikuti
 karena sudah usang dibanding keputusan arsitektur pasca-review (temuan
 Critical security-auditor #631) di `full-online-r2-architecture.md` §9
 dan `r2-upload-sop.md` §2 langkah 5. Implementasi nyata:
-`src/modules/news-portal/application/news-media-r2-verification.ts`'s
+`src/modules/media-library/application/media-r2-verification.ts`'s
 `verifyNewsMediaR2Object` — urutan PERSIS: (1) `client.headObject()`
 (cek cepat eksistensi + `Content-Length` real, short-circuit sebelum
 `GET` kalau objek tidak ada atau kelebihan ukuran — hemat bandwidth
 sesuai §9 poin 1), (2) `client.getObject()` = `S3File.arrayBuffer()`
 (GET PENUH, bukan ranged/partial), (3) `sniffNewsMediaMimeType(bytes)`
-(`domain/news-media-mime-sniffer.ts`, magic-byte allow-list JPEG/PNG/
+(`domain/media-mime-sniffer.ts`, magic-byte allow-list JPEG/PNG/
 WebP/GIF — payload apa pun yang tidak cocok, termasuk HTML/JS berkedok
 `.jpg`, sniff ke `undefined`), (4) `Bun.CryptoHasher("sha256")` dihitung
 dari BYTE YANG SAMA yang dibaca di langkah 2 (bukan hash ulang beberapa
 byte pertama), (5) `decideNewsMediaFinalizeOutcome`
-(`domain/news-media-finalize-decision.ts`) — keputusan MIME/konten
+(`domain/media-finalize-decision.ts`) — keputusan MIME/konten
 SELALU dari hasil sniffing; checksum klaim client (opsional, di body
 finalize request, BUKAN create — lihat Rekonsiliasi checksum di bawah)
 HANYA dibandingkan sebagai deteksi korupsi transport, tidak pernah
@@ -543,7 +556,7 @@ tetap lewat urutan HEAD-lalu-GET, bukan HEAD-saja).
 
 Route (`pages/api/v1/media/news-images/upload-sessions/[id]/finalize.ts`)
 hanya parsing/validasi HTTP tipis — logika nyata ada di
-`application/news-media-finalize-upload-session.ts`'s
+`application/media-finalize-upload-session.ts`'s
 `finalizeNewsMediaUploadSession` (dua transaksi `withTenant` terpisah
 mengapit panggilan R2 di tengah, ADR-0006 — precheck row/TTL/idempotency
 di tx pertama, commit, panggil R2 di luar transaksi, lalu tx kedua
@@ -567,7 +580,7 @@ tercatat. Test serupa di level unit (tanpa DB):
 
 Route Astro punya signature tetap `(context) => Response`, tidak ada
 seam untuk inject R2 client palsu ke test. `finalizeNewsMediaUploadSession`
-diekstrak ke `application/news-media-finalize-upload-session.ts` persis
+diekstrak ke `application/media-finalize-upload-session.ts` persis
 supaya punya `deps.createR2Client` yang bisa di-override test (pola sama
 `dispatchObjectSyncQueue`'s `resolveUploader` option di `sync-storage`,
 diterapkan satu layer lebih dalam karena di situlah seam-nya nyata ada).
@@ -583,7 +596,7 @@ menunjuk ke fake server lokal.
 
 Body issue #634 menyarankan
 `media_objects.news_images.{upload,read,attach,delete}`. TIDAK diikuti —
-`news-media-permissions.ts` (#633) sudah membekukan
+`media-permissions.ts` (#633) sudah membekukan
 `news_portal.media.{create,read,verify,attach,detach,delete,restore,purge}`
 lebih dulu, dan file itu sendiri sudah menulis eksplisit "#634 WAJIB
 pakai persis konstanta ini". Verifikasi dilakukan: tidak ada modul lain
@@ -638,7 +651,7 @@ PR #653 (issue ini) melalui SATU putaran review setelah commit awal — reviewer
    melaporkan ukuran kecil) dan `getObject` (yang membaca byte
    sesungguhnya) — proses bisa OOM. **Fix**: `getObject(objectKey,
 maxBytes)` sekarang membaca via `readCappedStream` (helper diekspor
-   dari `news-media-r2-client.ts`, bisa diuji langsung terhadap
+   dari `media-r2-client.ts`, bisa diuji langsung terhadap
    `ReadableStream` sintetis) yang membatalkan (`reader.cancel()`) baca
    PERSIS saat total terbaca melebihi `maxBytes`, TANPA pernah
    mengakumulasi lebih dari `maxBytes`. `verifyNewsMediaR2Object`
@@ -707,16 +720,16 @@ merah/hijau.
 ### File yang dibuat/diubah (referensi cepat)
 
 - `sql/042_awcms_micro_news_media_permissions.sql`.
-- `src/modules/news-portal/domain/news-media-mime-sniffer.ts`,
-  `domain/news-media-finalize-decision.ts`,
-  `domain/news-media-upload-session-validation.ts`; diperbarui:
-  `domain/news-media-permissions.ts` (tambah `cancel`).
-- `src/modules/news-portal/infrastructure/news-media-r2-client.ts`
+- `src/modules/media-library/domain/media-mime-sniffer.ts`,
+  `domain/media-finalize-decision.ts`,
+  `domain/media-upload-session-validation.ts`; diperbarui:
+  `domain/media-permissions.ts` (tambah `cancel`).
+- `src/modules/media-library/infrastructure/media-r2-client.ts`
   (`Bun.S3Client` wrapper: presign/HEAD/GET, circuit breaker
   `"news-media-r2"`, timeout — pola sama `object-storage-uploader.ts`).
-- `src/modules/news-portal/application/news-media-r2-verification.ts`
+- `src/modules/media-library/application/media-r2-verification.ts`
   (orkestrasi HEAD→GET→sniff→checksum→decision, tanpa `tx`, murni R2 +
-  domain), `application/news-media-finalize-upload-session.ts`
+  domain), `application/media-finalize-upload-session.ts`
   (orkestrasi finalize penuh: precheck tx → R2 verify → outcome tx,
   `deps.createR2Client` injectable untuk test).
 - `src/pages/api/v1/media/news-images/upload-sessions/index.ts` (create),
@@ -788,8 +801,8 @@ menutup sisanya:
 - **`checkNewsMediaR2AllowedMimeTypesKnown`** (`config:validate`,
   **fail**) — `NEWS_MEDIA_R2_ALLOWED_MIME_TYPES` wajib seluruhnya berada
   di `NEWS_MEDIA_R2_KNOWN_MIME_TYPES` (domain
-  `news-media-r2-config.ts`: empat tipe raster yang bisa disniff
-  `news-media-mime-sniffer.ts` PLUS `image/svg+xml` — svg tetap "known"
+  `media-r2-config.ts`: empat tipe raster yang bisa disniff
+  `media-mime-sniffer.ts` PLUS `image/svg+xml` — svg tetap "known"
   karena punya jalur override yang sah lewat
   `checkNewsMediaR2SvgNotAllowed`, bukan "unknown/unsafe"). Entri lain
   (`text/html`, `application/octet-stream`, typo) tidak pernah bisa
@@ -892,7 +905,7 @@ menyederhanakan balik ke exact-string match polos.
 
 ### File yang dibuat/diubah (referensi cepat)
 
-- `src/modules/news-portal/domain/news-media-r2-config.ts`: tambah
+- `src/modules/media-library/domain/media-r2-config.ts`: tambah
   `NEWS_MEDIA_R2_KNOWN_MIME_TYPES`,
   `NEWS_MEDIA_R2_MAX_PRESIGNED_UPLOAD_TTL_SECONDS`,
   `findUnknownNewsMediaR2MimeTypes`, `isPresignedUploadTtlTooLong`,
@@ -1069,7 +1082,7 @@ keempat route handler asli sudah mencakup semua jalur tulis yang ada.
 
 ### File yang dibuat/diubah (referensi cepat)
 
-- `src/modules/news-portal/application/news-media-object-directory.ts`:
+- `src/modules/media-library/application/media-object-directory.ts`:
   tambah `isNewsMediaObjectSafeForPublicReference(status)` — predikat
   bersama (`verified`/`attached` saja) dipakai `blog_content` supaya
   daftar "status aman untuk direferensikan publik" hanya didefinisikan
@@ -1477,7 +1490,7 @@ TypeScript import BUKAN `dependencies` array, yang cuma mengatur urutan
 enable/disable" — benar untuk KONSEKUENSI lifecycle-nya, tapi hasil
 akhirnya tetap sebuah cycle nyata di level import SOURCE CODE:
 `blog-content/application/news-media-reference-gate.ts` meng-import
-`news-portal/application/news-media-object-directory.ts` (§636), sementara
+`media-library/application/media-object-directory.ts` (§636), sementara
 `news-portal/application/homepage-section-composer.ts` meng-import
 `blog-content/application/public-blog-directory.ts` DAN
 `blog-content/application/news-media-reference-gate.ts` (§637) — yang
@@ -1494,13 +1507,13 @@ Detail lengkap alasan/alternatif ada di **ADR-0011**
 ringkasan:
 
 - **Port** (interface murni, TIDAK meng-import modul manapun):
-  `src/modules/_shared/ports/news-media-port.ts` (`NewsMediaPort` —
+  `src/modules/_shared/ports/media-library-port.ts` (`MediaLibraryPort` —
   kapabilitas `news_portal`, dipakai `blog_content`) dan `.../public-
 content-port.ts` (`PublicContentPort` — kapabilitas `blog_content`,
   dipakai `news_portal`). DTO di port SENGAJA bentuk sendiri, bukan
   re-export tipe modul pemilik.
 - **Adapter** (implementasi konkret, hidup di modul PEMILIK kapabilitas):
-  `news-portal/application/news-media-port-adapter.ts` (folds in fungsi
+  `media-library/application/media-library-port-adapter.ts` (folds in fungsi
   `isNewsPortalFullOnlineR2ModeActiveForTenant` yang dulu di
   `blog-content/application/news-portal-r2-mode-gate.ts` — **file itu
   DIHAPUS**, seluruh histori "TIGA percobaan gagal" §636 di atas
@@ -1540,23 +1553,23 @@ Setiap fungsi berikut sekarang menerima port sebagai parameter tambahan
 
 - `blog-content/application/news-media-reference-gate.ts`'s
   `validateNewsMediaReferencesForFullOnlineR2Mode(tx, tenantId, input,
-mediaPort: NewsMediaPort, env?)` — parameter `mediaPort` baru sebelum
+mediaPort: MediaLibraryPort, env?)` — parameter `mediaPort` baru sebelum
   `env`. `resolveVerifiedNewsMediaReferences` (fungsi render-time yang
   dulu ada di file ini) **DIHAPUS SELURUHNYA** — setiap pemanggil (route
   publik `blog_content` sendiri, homepage composer `news_portal`)
-  sekarang memanggil `NewsMediaPort.resolveMediaReferences` LANGSUNG
-  (adapter `newsMediaPortAdapter` dari `news-portal`), karena itu memang
+  sekarang memanggil `MediaLibraryPort.resolveMediaReferences` LANGSUNG
+  (adapter `mediaLibraryPortAdapter` dari `media-library`), karena itu memang
   murni kapabilitas port itu sendiri, tidak ada lagi yang perlu
   ditambahkan file ini di atasnya.
 - `news-portal/application/homepage-section-reference-validation.ts`'s
   `validateHomepageSectionReferences(tx, tenantId, sectionType, config,
 contentPort: PublicContentPort)` — parameter `contentPort` baru di
   akhir. `mediaObjectIds` (`gallery_block`) TIDAK berubah — itu
-  `news-media-object-directory.ts` milik modul ini SENDIRI, bukan
+  `media-object-directory.ts` milik modul ini SENDIRI, bukan
   cross-module.
 - `news-portal/application/homepage-section-composer.ts`'s
   `composeHomepageSectionsHtml(tx, tenantId, basePath, contentPort:
-PublicContentPort, mediaPort: NewsMediaPort, now?)` — DUA parameter
+PublicContentPort, mediaPort: MediaLibraryPort, now?)` — DUA parameter
   port baru sebelum `now`.
 
 Setiap route handler pemanggil (5 di `blog_content` untuk gate #636, 3 di
@@ -1567,15 +1580,15 @@ daftar file lengkap kalau butuh contoh call-site persis.
 
 ### File yang dibuat/diubah/dihapus (referensi cepat)
 
-- **Baru**: `src/modules/_shared/ports/news-media-port.ts`,
+- **Baru**: `src/modules/_shared/ports/media-library-port.ts`,
   `_shared/ports/public-content-port.ts`,
   `_shared/rendering/gallery-block-renderer.ts`,
-  `news-portal/application/news-media-port-adapter.ts`,
+  `media-library/application/media-library-port-adapter.ts`,
   `blog-content/application/public-content-port-adapter.ts`,
   `tests/unit/module-boundary.test.ts`,
   `docs/adr/0011-capability-ports-for-cross-module-collaboration.md`.
 - **Dihapus**: `blog-content/application/news-portal-r2-mode-gate.ts`
-  (logika pindah ke `news-media-port-adapter.ts`, histori "tiga percobaan
+  (logika pindah ke `media-library-port-adapter.ts`, histori "tiga percobaan
   gagal" §636 dipindah verbatim).
 - **Diubah**: `blog-content/application/news-media-reference-gate.ts`
   (terima `mediaPort`, `resolveVerifiedNewsMediaReferences` dihapus),
@@ -1632,8 +1645,8 @@ Karena tabel ini hidup DI DALAM modul `news_portal` sendiri (bukan lintas
 modul seperti gate #636's `blog_content`↔`news_portal`), validasi
 `mediaObjectId` (`ad-placement-reference-validation.ts`) memanggil
 `fetchNewsMediaObjectById`/`isNewsMediaObjectSafeForPublicReference`
-(`news-media-object-directory.ts`, #633) LANGSUNG — TIDAK butuh
-`_shared/ports/news-media-port.ts` (port #681) sama sekali, sama seperti
+(`media-object-directory.ts`, #633) LANGSUNG — TIDAK butuh
+`_shared/ports/media-library-port.ts` (port #681) sama sekali, sama seperti
 `homepage-section-reference-validation.ts`'s `mediaObjectIds`
 (`gallery_block`) check. Ini PERSIS pola "verified-media-reference
 validation" yang diminta prompt orchestrator untuk dipakai ulang dari
@@ -1719,7 +1732,7 @@ port lintas modul baru.
 ### Tidak perlu gerbang mode R2-only — R2-only berlaku by construction
 
 Berbeda dari `blog_content`'s Issue #636 gate
-(`isNewsPortalFullOnlineR2ModeActiveForTenant`, lewat `NewsMediaPort`),
+(`isNewsPortalFullOnlineR2ModeActiveForTenant`, lewat `MediaLibraryPort`),
 validasi di sini TIDAK BERSYARAT sama sekali — tidak ada pengecekan
 "apakah preset full-online-R2 aktif untuk tenant ini". Alasannya SAMA
 dengan §637's homepage sections: tabel baru, nol baris warisan, jadi tidak
@@ -1844,7 +1857,7 @@ di `contentJson` gallery blocks, dalam urutan dokumen, HANYA bila tenant
 mengizinkan (`socialPreviewContentImageFallbackEnabled`, default `true`)
 → (4) `socialPreviewFallbackImageMediaId` tenant-level. Fungsi murni
 `resolveSocialPreviewImageSourceId` (domain, tanpa I/O) menerima SATU set
-id yang sudah "resolved" (hasil SATU bulk `NewsMediaPort.resolveMediaReferences`
+id yang sudah "resolved" (hasil SATU bulk `MediaLibraryPort.resolveMediaReferences`
 call yang menggabungkan featured + SEO image + gallery + video thumbnail +
 tenant fallback ids — sama primitif #636, tidak pernah query registry
 kedua kalinya) dan mengembalikan id pemenang pertama yang ADA di set itu —
@@ -1943,7 +1956,7 @@ hidup di kolom catch-all `settings jsonb` (sama seperti
 `contentQualityChecklistPolicy`) — ini AMAN karena keduanya preferensi
 BISNIS tenant, bukan sinyal security: enforcement R2-only yang sebenarnya
 tetap 100% terjadi di langkah resolusi RENDER-TIME
-(`NewsMediaPort.resolveMediaReferences`, fail-closed untuk id apa pun yang
+(`MediaLibraryPort.resolveMediaReferences`, fail-closed untuk id apa pun yang
 tidak verified/same-tenant), tidak pernah dipercaya dari nilai tersimpan
 ini sendiri. `blog-settings-directory.ts`'s `sanitizeSocialPreviewFallbackImageMediaId`
 menegakkan ulang bentuk UUID di sisi baca (defense-in-depth yang sama
@@ -2053,7 +2066,7 @@ yang sama persis dengan `NewsShareConfig` (di `news-portal`) TANPA
 cross-module import — struktural TypeScript cukup, route (composition
 root) yang memanggil keduanya langsung, sama pola "route mengimpor dari
 dua modul sekaligus" yang sudah ada (`[slug].ts` sudah mengimpor
-`newsMediaPortAdapter` dari `news-portal/application/` langsung sebelum
+`mediaLibraryPortAdapter` dari `media-library/application/` langsung sebelum
 issue ini).
 
 ### Instagram — TIDAK ada tombol/URL, hanya catatan teks
@@ -2193,14 +2206,14 @@ dihindari (lihat §636's prinsip yang sama). `applicable: false` pada
 
 `content-quality-checklist-gate.ts` memanggil
 `collectGalleryImageReferences` (domain #636, TIDAK diubah traversal-nya)
-dan `NewsMediaPort.resolveMediaReferences` (adapter #681,
-`news-portal/application/news-media-port-adapter.ts`) — SATU bulk lookup
+dan `MediaLibraryPort.resolveMediaReferences` (adapter #681,
+`media-library/application/media-library-port-adapter.ts`) — SATU bulk lookup
 untuk featured image + semua gallery mediaObjectId, PERSIS primitif yang
 #636 sudah bangun. Checklist TIDAK memanggil registry/DB `news_portal`
 sendiri secara langsung dan TIDAK re-implement query "apakah media ini
 verified/attached" — itu sudah jadi tanggung jawab
 `isNewsMediaObjectSafeForPublicReference` di balik port, dipanggil satu
-tempat (`news-media-port-adapter.ts`).
+tempat (`media-library-port-adapter.ts`).
 
 ### Perubahan aditif ke file yang di-flag berbagi dengan Issue #639 (video block, dikerjakan paralel)
 
@@ -2221,8 +2234,8 @@ string` (diisi hanya untuk `reason: "raw_url_not_allowed"`), supaya
   issue ini (rendering bukan concern checklist — checklist hanya
   membaca `contentJson`/registry, tidak pernah merender HTML).
 
-`_shared/ports/news-media-port.ts` juga diperluas aditif:
-`ResolvedNewsMediaReferenceDTO` dapat empat field metadata baru
+`_shared/ports/media-library-port.ts` juga diperluas aditif:
+`ResolvedMediaReferenceDTO` dapat empat field metadata baru
 (`mimeType`, `width`, `height`, `sizeBytes`) di samping `publicUrl`/
 `altText` yang sudah ada — setiap consumer lama (homepage composer,
 render-time gallery/og:image resolution) tetap hanya membaca dua field
@@ -2316,9 +2329,9 @@ issue ini). `taxonomy_exists` selalu `applicable: false` untuk pages
   `src/modules/blog-content/application/content-quality-checklist-gate.ts`,
   `src/pages/api/v1/blog/posts/[id]/quality-checklist.ts`,
   `src/pages/api/v1/blog/pages/[id]/quality-checklist.ts`.
-- **Diubah (aditif)**: `src/modules/_shared/ports/news-media-port.ts`
-  (`ResolvedNewsMediaReferenceDTO` metadata baru),
-  `src/modules/news-portal/application/news-media-port-adapter.ts`
+- **Diubah (aditif)**: `src/modules/_shared/ports/media-library-port.ts`
+  (`ResolvedMediaReferenceDTO` metadata baru),
+  `src/modules/media-library/application/media-library-port-adapter.ts`
   (mengisi metadata baru), `src/modules/blog-content/domain/content-block-media-references.ts`
   (`rawUrl` opsional pada violation), `src/modules/blog-content/domain/blog-settings-policy.ts`
   - `application/blog-settings-directory.ts` (`contentQualityChecklistPolicy`),
@@ -2563,7 +2576,7 @@ langsung (dicatat di sini untuk konteks tetap terpusat, sama seperti
 ### Yang diimplementasikan
 
 `bun run news-media:reconcile` (`scripts/news-media-r2-reconcile.ts`,
-logika di `news-media-reconciliation.ts` + `news-media-reconciliation-
+logika di `media-reconciliation.ts` + `media-reconciliation-
 categorization.ts`) — job pertama modul ini di atas shared worker
 runner (#697). Mengisi TIGA celah yang `r2-backup-lifecycle.md` §2/§4
 sudah tulis sejak Issue #631/#633 tapi belum ada implementasinya:
@@ -2623,20 +2636,20 @@ objeknya.
 
 - `sql/046_awcms_micro_news_media_orphan_lifecycle.sql` — kolom
   `orphaned_at` + CHECK constraint + GRANT `awcms_micro_worker`.
-- `src/modules/news-portal/domain/news-media-reconciliation-
+- `src/modules/media-library/domain/media-reconciliation-
 categorization.ts` — logika kategorisasi murni (tanpa I/O).
-- `src/modules/news-portal/application/news-media-reconciliation.ts` —
+- `src/modules/media-library/application/media-reconciliation.ts` —
   orkestrasi per-tenant/semua-tenant (DB + R2 client asli).
-- `src/modules/news-portal/application/news-media-object-directory.ts`
+- `src/modules/media-library/application/media-object-directory.ts`
   — fungsi atomik baru: `purgeExpiredPendingNewsMediaObject`,
   `markStaleOrphanedNewsMediaObjectDeleted`, `objectKeyExistsForTenant`,
   `fetchNewsMediaObjectsForReconciliation`;
   `markNewsMediaObjectFailed` dapat parameter `olderThan` opsional;
   `markNewsMediaObjectOrphaned` sekarang mengisi `orphaned_at`.
-- `src/modules/news-portal/infrastructure/news-media-r2-client.ts` —
+- `src/modules/media-library/infrastructure/media-r2-client.ts` —
   `listObjects`/`deleteObject` baru (circuit breaker + timeout sama
   seperti method lain di file ini).
-- `src/modules/news-portal/domain/news-media-r2-config.ts` —
+- `src/modules/media-library/domain/media-r2-config.ts` —
   `orphanGraceDays`/`NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`/
   `isOrphanGraceTooShort`.
 - `scripts/news-media-r2-reconcile.ts` — CLI, `bun run

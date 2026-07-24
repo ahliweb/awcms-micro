@@ -154,7 +154,6 @@ Dokumen dikelompokkan mengikuti alur pengembangan agar mudah diimplementasi.
 |   – | `../../openapi/` dan `../../asyncapi/`                | Baseline kontrak OpenAPI/AsyncAPI dan validator `api:spec:check`                                                                                                                                                                                 |
 |   – | `api-reference.md`                                    | Referensi API & event GENERATED (`bun run api:docs:generate`) dari kontrak OpenAPI/AsyncAPI ter-bundle — auth, tenant context, pagination, idempotency, error schema, seluruh operation/event, dan kebijakan deprecation (Issue #700, epic #679) |
 |   – | `repo-inventory.md`                                   | Inventory repo GENERATED (`bun run repo:inventory:generate`): modul, migration, tabel/RLS, test, dan route — sumber kebenaran mekanis, dicek `repo:inventory:check` (Issue #688, epic #679)                                                      |
-|   – | `../Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf` | Pedoman penggunaan AI agent lintas keluarga produk AWCMS (AWCMS, AWCMS-Micro, AWCMS-Micro, software turunan) — AWCMS-Micro menjadi sumber utama (baseline) pedoman ini                                                                           |
 
 ### Architecture Decision Records
 
@@ -209,7 +208,7 @@ AWCMS-Micro adalah **template full-online website yang dipakai LANGSUNG** — An
 
 AWCMS-Micro dipakai **langsung sebagai template**: tambahkan modul website di dalam repo ini (`src/modules/index.ts`) dan ikuti alur dokumen 01 → 20 (plus ADR di [`../adr/`](../adr/README.md)). Jalur aplikasi-turunan terpisah DIHAPUS oleh ADR-0034/0036 — [`derived-application-guide.md`](derived-application-guide.md) dipertahankan sebagai rujukan **historis** saja.
 
-Kontrak repository AWCMS-Micro (AGENTS.md, README.md, CONTRIBUTING.md, `derived-application-guide.md`, skill proyek) juga menjadi **sumber utama** bagi [`../Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf`](../Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf) — pedoman penggunaan agent yang menggeneralisasi pola AWCMS-Micro agar berlaku lintas keluarga produk (AWCMS, AWCMS-Micro, AWCMS-Micro, dan software turunannya). Repo ini tetap sumber kebenaran paling spesifik ketika ada perbedaan.
+Kontrak repository AWCMS-Micro (AGENTS.md, README.md, CONTRIBUTING.md, `derived-application-guide.md`, skill proyek) juga menjadi **sumber utama** pedoman penggunaan agent yang menggeneralisasi pola AWCMS-Micro agar berlaku lintas keluarga produk (AWCMS, AWCMS-Mini, AWCMS-Micro, dan software turunannya). Repo ini tetap sumber kebenaran paling spesifik ketika ada perbedaan.
 
 ## Versioning
 

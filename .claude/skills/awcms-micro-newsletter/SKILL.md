@@ -8,8 +8,10 @@ description: Kerjakan bagian mana pun dari epic newsletter AWCMS-Micro (Issue #2
 `newsletter` (`src/modules/newsletter`) adalah **modul domain Official Optional
 Module** (ADR-0033, Issue #272, epic #261 Wave 2) — buletin **CONSENT-FIRST** +
 **ANTI-ENUMERATION**. Admission + runtime pertama mendarat dalam satu PR (#272),
-menaikkan registry base **21 → 22** dan `MODULE_CONTRACT_VERSION` **1.4.0 →
-1.5.0**. Modul terdaftar `status: "active"`, default-OFF,
+menaikkan registry base **21 → 22** (angka base terkini) dan
+`MODULE_CONTRACT_VERSION` **1.4.0 → 1.5.0** saat itu — kontrak **kini 2.0.0**
+setelah ADR-0036 (PR #304) menghapus jalur derived-application. Modul
+terdaftar `status: "active"`, default-OFF,
 `dependencies: ["tenant_admin", "identity_access"]` saja. Baca
 `src/modules/newsletter/README.md` untuk detail tiap tabel/endpoint dan
 `docs/awcms-micro/newsletter.md` untuk consent/privacy/runbook.
