@@ -3200,7 +3200,7 @@ msgstr ""
 msgid "admin.profile.subtitle"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:114
+#: src/pages/admin/profile/security.astro:115
 msgid "admin.profile.title"
 msgstr ""
 
@@ -4065,31 +4065,31 @@ msgstr ""
 msgid "admin.security.update_provider_success"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:169
+#: src/pages/admin/profile/security.astro:170
 msgid "admin.security_2fa.activated_label"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:243
+#: src/pages/admin/profile/security.astro:244
 msgid "admin.security_2fa.code_label"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:100
+#: src/pages/admin/profile/security.astro:101
 msgid "admin.security_2fa.copied"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:316
+#: src/pages/admin/profile/security.astro:317
 msgid "admin.security_2fa.copy_codes"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:101
+#: src/pages/admin/profile/security.astro:102
 msgid "admin.security_2fa.copy_failed"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:230
+#: src/pages/admin/profile/security.astro:231
 msgid "admin.security_2fa.copy_secret"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:293
+#: src/pages/admin/profile/security.astro:294
 msgid "admin.security_2fa.disable_button"
 msgstr ""
 
@@ -4097,11 +4097,11 @@ msgstr ""
 msgid "admin.security_2fa.disable_confirm"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:161
+#: src/pages/admin/profile/security.astro:162
 msgid "admin.security_2fa.disabled_badge"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:179
+#: src/pages/admin/profile/security.astro:180
 msgid "admin.security_2fa.disabled_lead"
 msgstr ""
 
@@ -4109,11 +4109,11 @@ msgstr ""
 msgid "admin.security_2fa.disabled_success"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:319
+#: src/pages/admin/profile/security.astro:320
 msgid "admin.security_2fa.download_codes"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:200
+#: src/pages/admin/profile/security.astro:201
 msgid "admin.security_2fa.enable_button"
 msgstr ""
 
@@ -4121,19 +4121,19 @@ msgstr ""
 msgid "admin.security_2fa.enable_error"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:193
+#: src/pages/admin/profile/security.astro:194
 msgid "admin.security_2fa.enable_intro"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:191
+#: src/pages/admin/profile/security.astro:192
 msgid "admin.security_2fa.enable_legend"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:160
+#: src/pages/admin/profile/security.astro:161
 msgid "admin.security_2fa.enabled_badge"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:177
+#: src/pages/admin/profile/security.astro:178
 msgid "admin.security_2fa.enabled_lead"
 msgstr ""
 
@@ -4141,43 +4141,43 @@ msgstr ""
 msgid "admin.security_2fa.enabled_success"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:209
+#: src/pages/admin/profile/security.astro:210
 msgid "admin.security_2fa.enroll_step1_body"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:207
+#: src/pages/admin/profile/security.astro:208
 msgid "admin.security_2fa.enroll_step1_title"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:236
+#: src/pages/admin/profile/security.astro:237
 msgid "admin.security_2fa.enroll_step2_title"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:278
+#: src/pages/admin/profile/security.astro:279
 msgid "admin.security_2fa.manage_legend"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:102
+#: src/pages/admin/profile/security.astro:103
 msgid "admin.security_2fa.qr_alt"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:311
+#: src/pages/admin/profile/security.astro:312
 msgid "admin.security_2fa.recovery_body"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:326
+#: src/pages/admin/profile/security.astro:327
 msgid "admin.security_2fa.recovery_done"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:103
+#: src/pages/admin/profile/security.astro:104
 msgid "admin.security_2fa.recovery_filename"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:308
+#: src/pages/admin/profile/security.astro:309
 msgid "admin.security_2fa.recovery_title"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:286
+#: src/pages/admin/profile/security.astro:287
 msgid "admin.security_2fa.regenerate_button"
 msgstr ""
 
@@ -4189,31 +4189,35 @@ msgstr ""
 msgid "admin.security_2fa.regenerated_success"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:221
+#: src/pages/admin/profile/security.astro:222
 msgid "admin.security_2fa.secret_label"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:155
+#: src/pages/admin/profile/security.astro:156
 msgid "admin.security_2fa.status_legend"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:117
+#: src/pages/admin/profile/security.astro:100
+msgid "admin.security_2fa.step_up_prompt"
+msgstr ""
+
+#: src/pages/admin/profile/security.astro:118
 msgid "admin.security_2fa.subtitle"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:110
+#: src/pages/admin/profile/security.astro:111
 msgid "admin.security_2fa.title"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:125
+#: src/pages/admin/profile/security.astro:126
 msgid "admin.security_2fa.unavailable_body"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:124
+#: src/pages/admin/profile/security.astro:125
 msgid "admin.security_2fa.unavailable_title"
 msgstr ""
 
-#: src/pages/admin/profile/security.astro:261
+#: src/pages/admin/profile/security.astro:262
 msgid "admin.security_2fa.verify_button"
 msgstr ""
 
@@ -5426,337 +5430,347 @@ msgid "common.yes"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:40
+#: src/lib/i18n/error-messages.ts:41
 msgid "error.access_denied"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:103
+#: src/lib/i18n/error-messages.ts:106
 msgid "error.ad_placement_reference_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:38
+#: src/lib/i18n/error-messages.ts:39
 msgid "error.auth_invalid_credentials"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:37
+#: src/lib/i18n/error-messages.ts:38
 msgid "error.auth_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:89
+#: src/lib/i18n/error-messages.ts:92
 msgid "error.break_glass_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:115
+#: src/lib/i18n/error-messages.ts:118
 msgid "error.checksum_mismatch"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:57
+#: src/lib/i18n/error-messages.ts:58
 msgid "error.concurrent_update"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:104
+#: src/lib/i18n/error-messages.ts:107
 msgid "error.content_quality_checklist_blocked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:50
+#: src/lib/i18n/error-messages.ts:51
 msgid "error.database_busy"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:72
+#: src/lib/i18n/error-messages.ts:75
 msgid "error.google_account_not_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:73
+#: src/lib/i18n/error-messages.ts:76
 msgid "error.google_already_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:71
+#: src/lib/i18n/error-messages.ts:74
 msgid "error.google_id_token_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:68
+#: src/lib/i18n/error-messages.ts:71
 msgid "error.google_login_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:75
+#: src/lib/i18n/error-messages.ts:78
 msgid "error.google_misconfigured"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:74
+#: src/lib/i18n/error-messages.ts:77
 msgid "error.google_not_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:69
+#: src/lib/i18n/error-messages.ts:72
 msgid "error.google_oauth_state_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:70
+#: src/lib/i18n/error-messages.ts:73
 msgid "error.google_token_exchange_failed"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:102
+#: src/lib/i18n/error-messages.ts:105
 msgid "error.homepage_section_key_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:100
+#: src/lib/i18n/error-messages.ts:103
 msgid "error.homepage_section_reference_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:55
+#: src/lib/i18n/error-messages.ts:56
 msgid "error.hostname_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:46
+#: src/lib/i18n/error-messages.ts:47
 msgid "error.idempotency_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:45
+#: src/lib/i18n/error-messages.ts:46
 msgid "error.idempotency_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:52
+#: src/lib/i18n/error-messages.ts:53
 msgid "error.internal_error"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:140
+#: src/lib/i18n/error-messages.ts:143
 msgid "error.invalid_media_status"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:114
+#: src/lib/i18n/error-messages.ts:117
 msgid "error.invalid_state"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:56
+#: src/lib/i18n/error-messages.ts:57
 msgid "error.invalid_status_transition"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:62
+#: src/lib/i18n/error-messages.ts:63
 msgid "error.mfa_already_active"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:66
+#: src/lib/i18n/error-messages.ts:67
 msgid "error.mfa_challenge_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:61
+#: src/lib/i18n/error-messages.ts:62
 msgid "error.mfa_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:64
+#: src/lib/i18n/error-messages.ts:65
 msgid "error.mfa_enrollment_not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:65
+#: src/lib/i18n/error-messages.ts:66
 msgid "error.mfa_invalid_code"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:67
+#: src/lib/i18n/error-messages.ts:68
 msgid "error.mfa_misconfigured"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:63
+#: src/lib/i18n/error-messages.ts:64
 msgid "error.mfa_not_active"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:60
+#: src/lib/i18n/error-messages.ts:61
 msgid "error.mfa_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:99
+#: src/lib/i18n/error-messages.ts:70
+msgid "error.mfa_step_up_invalid"
+msgstr ""
+
+#. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
+#: src/lib/i18n/error-messages.ts:69
+msgid "error.mfa_step_up_required"
+msgstr ""
+
+#. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
+#: src/lib/i18n/error-messages.ts:102
 msgid "error.news_media_reference_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:132
+#: src/lib/i18n/error-messages.ts:135
 msgid "error.not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:98
+#: src/lib/i18n/error-messages.ts:101
 msgid "error.password_login_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:113
+#: src/lib/i18n/error-messages.ts:116
 msgid "error.payload_too_large"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:51
+#: src/lib/i18n/error-messages.ts:52
 msgid "error.provider_error"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:53
+#: src/lib/i18n/error-messages.ts:54
 msgid "error.purge_blocked_by_dependents"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:54
+#: src/lib/i18n/error-messages.ts:55
 msgid "error.purge_requires_soft_delete"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:44
+#: src/lib/i18n/error-messages.ts:45
 msgid "error.resource_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:43
+#: src/lib/i18n/error-messages.ts:44
 msgid "error.resource_deleted"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:42
+#: src/lib/i18n/error-messages.ts:43
 msgid "error.resource_not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:105
+#: src/lib/i18n/error-messages.ts:108
 msgid "error.social_account_unsupported_type"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:83
+#: src/lib/i18n/error-messages.ts:86
 msgid "error.sso_account_not_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:84
+#: src/lib/i18n/error-messages.ts:87
 msgid "error.sso_already_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:76
+#: src/lib/i18n/error-messages.ts:79
 msgid "error.sso_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:82
+#: src/lib/i18n/error-messages.ts:85
 msgid "error.sso_id_token_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:86
+#: src/lib/i18n/error-messages.ts:89
 msgid "error.sso_misconfigured"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:85
+#: src/lib/i18n/error-messages.ts:88
 msgid "error.sso_not_linked"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:80
+#: src/lib/i18n/error-messages.ts:83
 msgid "error.sso_oauth_state_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:78
+#: src/lib/i18n/error-messages.ts:81
 msgid "error.sso_provider_disabled"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:87
+#: src/lib/i18n/error-messages.ts:90
 msgid "error.sso_provider_key_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:88
+#: src/lib/i18n/error-messages.ts:91
 msgid "error.sso_provider_limit_exceeded"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:77
+#: src/lib/i18n/error-messages.ts:80
 msgid "error.sso_provider_not_found"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:79
+#: src/lib/i18n/error-messages.ts:82
 msgid "error.sso_provider_unavailable"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:81
+#: src/lib/i18n/error-messages.ts:84
 msgid "error.sso_token_exchange_failed"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:48
+#: src/lib/i18n/error-messages.ts:49
 msgid "error.stock_not_available"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:49
+#: src/lib/i18n/error-messages.ts:50
 msgid "error.sync_conflict"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:41
+#: src/lib/i18n/error-messages.ts:42
 msgid "error.tenant_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:39
+#: src/lib/i18n/error-messages.ts:40
 msgid "error.token_expired"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:59
+#: src/lib/i18n/error-messages.ts:60
 msgid "error.turnstile_invalid"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:58
+#: src/lib/i18n/error-messages.ts:59
 msgid "error.turnstile_required"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:119
+#: src/lib/i18n/error-messages.ts:122
 msgid "error.unsupported_media_type"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:36
+#: src/lib/i18n/error-messages.ts:37
 msgid "error.validation_error"
 msgstr ""
 
 #. referenced dynamically via ERROR_CODE_KEYS (translateErrorCode / buildClientErrorMessages)
-#: src/lib/i18n/error-messages.ts:47
+#: src/lib/i18n/error-messages.ts:48
 msgid "error.workflow_approval_required"
 msgstr ""
 

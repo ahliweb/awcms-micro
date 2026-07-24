@@ -551,13 +551,17 @@ suite("MFA/TOTP login-challenge flow (Issue #589)", () => {
             "content-type": "application/json",
             "x-awcms-micro-tenant-id": owner.tenantId,
             authorization: `Bearer ${initialToken}`
-          }
+          },
+          // Step-up proof (Issue #329): the account password authorizes it.
+          body: { password: OWNER_PASSWORD }
         }
       );
       expect(disable.status).toBe(200);
       expect(disable.body.data.disabled).toBe(true);
 
-      // Disabling again (nothing active) is a conflict, not a silent no-op success.
+      // Disabling again (nothing active) is a conflict, not a silent no-op
+      // success — even with a valid proof, there is no active factor to step
+      // up against, so it surfaces MFA_NOT_ACTIVE (409).
       const disableAgain = await invoke<ErrorEnvelope>(mfaDisable, {
         method: "POST",
         path: "/api/v1/auth/mfa/totp/disable",
@@ -565,7 +569,8 @@ suite("MFA/TOTP login-challenge flow (Issue #589)", () => {
           "content-type": "application/json",
           "x-awcms-micro-tenant-id": owner.tenantId,
           authorization: `Bearer ${initialToken}`
-        }
+        },
+        body: { password: OWNER_PASSWORD }
       });
       expect(disableAgain.status).toBe(409);
       expect(disableAgain.body.error.code).toBe("MFA_NOT_ACTIVE");
@@ -607,7 +612,9 @@ suite("MFA/TOTP login-challenge flow (Issue #589)", () => {
             "content-type": "application/json",
             "x-awcms-micro-tenant-id": owner.tenantId,
             authorization: `Bearer ${initialToken}`
-          }
+          },
+          // Step-up proof (Issue #329).
+          body: { password: OWNER_PASSWORD }
         }
       );
       expect(regenerate.status).toBe(200);
@@ -659,6 +666,130 @@ suite("MFA/TOTP login-challenge flow (Issue #589)", () => {
         }
       );
       expect(freshCodeAttempt.status).toBe(200);
+    });
+  });
+
+  test("step-up (#329): disable rejects a missing or wrong proof; the factor stays active", async () => {
+    const owner = await bootstrapTenant();
+
+    await withEnvOverride(FULL_ONLINE_MFA_ENV, async () => {
+      const token = await loginAndGetToken(owner.tenantId);
+      await enrollMfa(owner.tenantId, token);
+
+      const headers = {
+        "content-type": "application/json",
+        "x-awcms-micro-tenant-id": owner.tenantId,
+        authorization: `Bearer ${token}`
+      };
+
+      // A valid session with NO fresh proof is not enough (the whole point of
+      // #329 — a hijacked session must not be able to disable MFA).
+      const noProof = await invoke<ErrorEnvelope>(mfaDisable, {
+        method: "POST",
+        path: "/api/v1/auth/mfa/totp/disable",
+        headers,
+        body: {}
+      });
+      expect(noProof.status).toBe(401);
+      expect(noProof.body.error.code).toBe("MFA_STEP_UP_REQUIRED");
+
+      // A wrong password is a generic step-up failure (not distinguished from
+      // a wrong code).
+      const wrongPassword = await invoke<ErrorEnvelope>(mfaDisable, {
+        method: "POST",
+        path: "/api/v1/auth/mfa/totp/disable",
+        headers,
+        body: { password: "not-the-real-password" }
+      });
+      expect(wrongPassword.status).toBe(401);
+      expect(wrongPassword.body.error.code).toBe("MFA_STEP_UP_INVALID");
+
+      // A wrong TOTP code likewise.
+      const wrongCode = await invoke<ErrorEnvelope>(mfaDisable, {
+        method: "POST",
+        path: "/api/v1/auth/mfa/totp/disable",
+        headers,
+        body: { code: "000000" }
+      });
+      expect(wrongCode.status).toBe(401);
+      expect(wrongCode.body.error.code).toBe("MFA_STEP_UP_INVALID");
+
+      // After every rejected attempt, MFA is still active.
+      const status = await invoke<{ data: { enabled: boolean } }>(mfaStatus, {
+        method: "GET",
+        path: "/api/v1/auth/mfa/status",
+        headers: {
+          "x-awcms-micro-tenant-id": owner.tenantId,
+          authorization: `Bearer ${token}`
+        }
+      });
+      expect(status.body.data.enabled).toBe(true);
+    });
+  });
+
+  test("step-up (#329): a valid current TOTP code authorizes disable", async () => {
+    const owner = await bootstrapTenant();
+
+    await withEnvOverride(FULL_ONLINE_MFA_ENV, async () => {
+      const token = await loginAndGetToken(owner.tenantId);
+      const { secretBase32 } = await enrollMfa(owner.tenantId, token);
+
+      // A genuinely later step than enrollment's own confirmation code, so the
+      // replay guard (`last_used_step`) accepts it (same pattern the challenge
+      // flow uses above).
+      const code = totpCodeFor(secretBase32, Date.now() + 30_000);
+      const disable = await invoke<{ data: { disabled: boolean } }>(
+        mfaDisable,
+        {
+          method: "POST",
+          path: "/api/v1/auth/mfa/totp/disable",
+          headers: {
+            "content-type": "application/json",
+            "x-awcms-micro-tenant-id": owner.tenantId,
+            authorization: `Bearer ${token}`
+          },
+          body: { code }
+        }
+      );
+      expect(disable.status).toBe(200);
+      expect(disable.body.data.disabled).toBe(true);
+    });
+  });
+
+  test("step-up (#329): regenerate rejects a missing proof but accepts the password", async () => {
+    const owner = await bootstrapTenant();
+
+    await withEnvOverride(FULL_ONLINE_MFA_ENV, async () => {
+      const token = await loginAndGetToken(owner.tenantId);
+      const { recoveryCodes } = await enrollMfa(owner.tenantId, token);
+
+      const headers = {
+        "content-type": "application/json",
+        "x-awcms-micro-tenant-id": owner.tenantId,
+        authorization: `Bearer ${token}`
+      };
+
+      const noProof = await invoke<ErrorEnvelope>(recoveryCodesRegenerate, {
+        method: "POST",
+        path: "/api/v1/auth/mfa/recovery-codes/regenerate",
+        headers,
+        body: {}
+      });
+      expect(noProof.status).toBe(401);
+      expect(noProof.body.error.code).toBe("MFA_STEP_UP_REQUIRED");
+
+      const ok = await invoke<{ data: { recoveryCodes: string[] } }>(
+        recoveryCodesRegenerate,
+        {
+          method: "POST",
+          path: "/api/v1/auth/mfa/recovery-codes/regenerate",
+          headers,
+          body: { password: OWNER_PASSWORD }
+        }
+      );
+      expect(ok.status).toBe(200);
+      expect(ok.body.data.recoveryCodes).toHaveLength(10);
+      expect(ok.body.data.recoveryCodes).not.toEqual(recoveryCodes);
     });
   });
 

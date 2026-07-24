@@ -33,6 +33,7 @@ import {
   generateChallengeToken,
   hashChallengeToken
 } from "../../../lib/auth/mfa-challenge-token";
+import { verifyPasswordOrDummy } from "../../../lib/auth/password";
 import {
   evaluateMfaChallenge,
   type MfaChallengeDenyReason
@@ -219,6 +220,110 @@ export async function verifyTotpEnrollment(
   );
 
   return { ok: true, recoveryCodes };
+}
+
+export type MfaStepUpResult =
+  | { ok: true }
+  | {
+      ok: false;
+      code:
+        | "MFA_STEP_UP_REQUIRED"
+        | "MFA_STEP_UP_INVALID"
+        | "MFA_MISCONFIGURED"
+        | "MFA_NOT_ACTIVE";
+    };
+
+/**
+ * Fresh proof-of-possession gate for the high-risk self-service MFA
+ * mutations `disable` and `recovery-codes/regenerate` (Issue #329 — closing
+ * the #589-review "a valid session alone is enough" gap). A hijacked
+ * authenticated session could otherwise silently turn off the victim's
+ * second factor or invalidate its recovery codes. Requires EITHER the
+ * current TOTP `code` OR the account `password`, verified fresh here (`code`
+ * takes precedence when both are supplied).
+ *
+ * The TOTP path advances `last_used_step` with the SAME atomic
+ * compare-and-swap `verifyMfaChallenge` uses — a step-up code is single-use,
+ * so a code already burned by a login challenge (or a concurrent step-up)
+ * is correctly rejected as replayed rather than re-accepted. The `UPDATE ...
+ * WHERE last_used_step < $step RETURNING id` is the serialization point
+ * itself (Postgres row-lock + EvalPlanQual re-check under READ COMMITTED), so
+ * no separate `FOR UPDATE` is needed. The password path re-verifies against
+ * the identity's own `password_hash` via the timing-equalized
+ * `verifyPasswordOrDummy`. Every wrong-proof outcome collapses to the generic
+ * `MFA_STEP_UP_INVALID` (never "wrong code" vs "wrong password").
+ */
+export async function verifyMfaStepUp(
+  tx: Bun.SQL,
+  tenantId: string,
+  identityId: string,
+  proof: { code?: string; password?: string },
+  env: NodeJS.ProcessEnv,
+  now: Date
+): Promise<MfaStepUpResult> {
+  const hasCode = typeof proof.code === "string" && proof.code.length > 0;
+  const hasPassword =
+    typeof proof.password === "string" && proof.password.length > 0;
+
+  if (!hasCode && !hasPassword) {
+    return { ok: false, code: "MFA_STEP_UP_REQUIRED" };
+  }
+
+  const factorRows = (await tx`
+    SELECT id, secret_ciphertext, last_used_step
+    FROM awcms_micro_identity_mfa_factors
+    WHERE tenant_id = ${tenantId} AND identity_id = ${identityId} AND status = 'active'
+  `) as { id: string; secret_ciphertext: string; last_used_step: number }[];
+  const factor = factorRows[0];
+
+  if (!factor) {
+    // No active factor to step up against — the mutation these gate would
+    // itself return MFA_NOT_ACTIVE, surfaced here consistently.
+    return { ok: false, code: "MFA_NOT_ACTIVE" };
+  }
+
+  if (hasCode) {
+    const key = resolveMfaEncryptionKey(env);
+
+    if (!key) {
+      return { ok: false, code: "MFA_MISCONFIGURED" };
+    }
+
+    let matched = false;
+
+    try {
+      const secret = decryptMfaSecret(factor.secret_ciphertext, key);
+      const matchedStep = verifyTotpCode(secret, proof.code!, now.getTime(), {
+        periodSec: resolveTotpPeriodSec(env),
+        digits: resolveTotpDigits(env)
+      });
+
+      if (matchedStep !== null && matchedStep > factor.last_used_step) {
+        const advancedRows = (await tx`
+          UPDATE awcms_micro_identity_mfa_factors
+          SET last_used_step = ${matchedStep}
+          WHERE id = ${factor.id} AND last_used_step < ${matchedStep}
+          RETURNING id
+        `) as { id: string }[];
+        matched = advancedRows.length > 0;
+      }
+    } catch {
+      matched = false;
+    }
+
+    return matched ? { ok: true } : { ok: false, code: "MFA_STEP_UP_INVALID" };
+  }
+
+  const identityRows = (await tx`
+    SELECT password_hash
+    FROM awcms_micro_identities
+    WHERE id = ${identityId} AND tenant_id = ${tenantId}
+  `) as { password_hash: string }[];
+  const passwordHash = identityRows[0]?.password_hash ?? null;
+
+  const matches = await verifyPasswordOrDummy(proof.password!, passwordHash);
+
+  return matches ? { ok: true } : { ok: false, code: "MFA_STEP_UP_INVALID" };
 }
 
 export type DisableMfaResult =

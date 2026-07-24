@@ -806,8 +806,8 @@ paths:
     post:
       tags:
         - Identity & Access
-      summary: Invalidate existing recovery codes and issue a fresh set (high-risk, audited)
-      description: "Full-online-only (Issue #589). Requires an active MFA factor. Every previously issued recovery code stops working immediately; the 10 fresh codes are shown exactly once in the response. Audited (`mfa_recovery_codes_regenerated`)."
+      summary: Invalidate existing recovery codes and issue a fresh set (high-risk, audited, step-up)
+      description: "Full-online-only (Issue #589). Requires an active MFA factor. Every previously issued recovery code stops working immediately; the 10 fresh codes are shown exactly once in the response. Audited (`mfa_recovery_codes_regenerated`). Step-up (Issue #329): a valid session alone is not accepted — the caller must also supply the current TOTP `code` OR the account `password`. Rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/`_WINDOW_SEC`)."
       operationId: authMfaRecoveryCodesRegenerate
       security:
         - bearerAuth: []
@@ -815,6 +815,13 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CorrelationId"
         - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        description: "Step-up proof of possession (Issue #329) — supply exactly one of `code` (current TOTP) or `password` (account password)."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MfaStepUpProof"
       responses:
         "200":
           description: Recovery codes regenerated.
@@ -830,7 +837,11 @@ paths:
                       data:
                         $ref: "#/components/schemas/MfaRecoveryCodesResponse"
         "401":
-          $ref: "#/components/responses/Unauthorized"
+          description: "Missing/expired session, or the step-up proof is missing (`MFA_STEP_UP_REQUIRED`) or incorrect (`MFA_STEP_UP_INVALID`) — Issue #329."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "403":
           description: Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`).
           content:
@@ -839,6 +850,12 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "409":
           description: No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many attempts from this source (`RATE_LIMITED`).
           content:
             application/json:
               schema:
@@ -888,8 +905,8 @@ paths:
     post:
       tags:
         - Identity & Access
-      summary: Disable the caller's own MFA (high-risk, audited)
-      description: "Full-online-only (Issue #589). Self-service: requires an already-valid session (for an identity with active MFA, only obtainable by already passing an MFA challenge). Deletes the factor's recovery codes too. Audited (`mfa_disabled`)."
+      summary: Disable the caller's own MFA (high-risk, audited, step-up)
+      description: "Full-online-only (Issue #589). Self-service: requires an already-valid session (for an identity with active MFA, only obtainable by already passing an MFA challenge). Deletes the factor's recovery codes too. Audited (`mfa_disabled`). Step-up (Issue #329): a valid session alone is not accepted — the caller must also supply the current TOTP `code` OR the account `password`. Rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/`_WINDOW_SEC`)."
       operationId: authMfaTotpDisable
       security:
         - bearerAuth: []
@@ -897,6 +914,13 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CorrelationId"
         - $ref: "#/components/parameters/RequestId"
+      requestBody:
+        required: true
+        description: "Step-up proof of possession (Issue #329) — supply exactly one of `code` (current TOTP) or `password` (account password)."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MfaStepUpProof"
       responses:
         "200":
           description: MFA disabled.
@@ -912,7 +936,11 @@ paths:
                       data:
                         $ref: "#/components/schemas/MfaDisableResponse"
         "401":
-          $ref: "#/components/responses/Unauthorized"
+          description: "Missing/expired session, or the step-up proof is missing (`MFA_STEP_UP_REQUIRED`) or incorrect (`MFA_STEP_UP_INVALID`) — Issue #329."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
         "403":
           description: Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`).
           content:
@@ -921,6 +949,12 @@ paths:
                 $ref: "#/components/schemas/ApiError"
         "409":
           description: No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Too many attempts from this source (`RATE_LIMITED`).
           content:
             application/json:
               schema:
@@ -21446,6 +21480,18 @@ components:
         activatedAt:
           type: string
           format: date-time
+    MfaStepUpProof:
+      type: object
+      description: "Fresh proof-of-possession for a high-risk MFA mutation (Issue #329). Supply exactly ONE of `code` (current TOTP) or `password` (account password); when both are present `code` is used. A valid session alone is not sufficient — a hijacked session could otherwise weaken the account's second factor."
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: The current TOTP code from the authenticator app.
+        password:
+          type: string
+          format: password
+          description: The account password.
     ModerateRequest:
       type: object
       required:

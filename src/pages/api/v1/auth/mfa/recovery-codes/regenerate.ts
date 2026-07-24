@@ -12,16 +12,45 @@ import {
   resolveActiveSession
 } from "../../../../../../modules/identity-access/application/session-lookup";
 import { isMfaRequired } from "../../../../../../lib/auth/mfa-config";
-import { regenerateRecoveryCodes } from "../../../../../../modules/identity-access/application/mfa";
+import {
+  regenerateRecoveryCodes,
+  verifyMfaStepUp
+} from "../../../../../../modules/identity-access/application/mfa";
+import {
+  checkRateLimit,
+  resolveClientIp
+} from "../../../../../../lib/security/rate-limit";
+import {
+  mfaStepUpMessage,
+  mfaStepUpStatus
+} from "../../../../../../lib/auth/mfa-step-up-response";
 import { recordAuditEvent } from "../../../../../../modules/logging/application/audit-log";
 
+const RATE_LIMIT_MAX_ATTEMPTS = Number(
+  process.env.AUTH_MFA_RATE_LIMIT_MAX ?? 5
+);
+const RATE_LIMIT_WINDOW_SEC = Number(
+  process.env.AUTH_MFA_RATE_LIMIT_WINDOW_SEC ?? 300
+);
+
+type RegenerateBody = { code?: unknown; password?: unknown };
+
 /**
- * `POST /api/v1/auth/mfa/recovery-codes/regenerate` (Issue #589) —
- * high-risk, self-service action: invalidates every existing recovery code
- * and issues 10 fresh ones, shown exactly once in the response (never
- * retrievable again afterward, same as `enroll/verify`'s initial set).
+ * `POST /api/v1/auth/mfa/recovery-codes/regenerate` (Issue #589; step-up
+ * added by Issue #329) — high-risk, self-service action: invalidates every
+ * existing recovery code and issues 10 fresh ones, shown exactly once in the
+ * response (never retrievable again afterward, same as `enroll/verify`'s
+ * initial set). A valid session alone is NOT sufficient (a hijacked session
+ * could otherwise invalidate the victim's recovery codes) — the caller must
+ * also prove fresh possession with the current TOTP `code` OR the account
+ * `password` (`verifyMfaStepUp`). Rate-limited per source+tenant and audited.
  */
-export const POST: APIRoute = async ({ request, cookies, locals }) => {
+export const POST: APIRoute = async ({
+  request,
+  cookies,
+  clientAddress,
+  locals
+}) => {
   if (!isMfaRequired()) {
     return fail(
       403,
@@ -48,6 +77,31 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     return fail(401, "AUTH_REQUIRED", "Authentication required.");
   }
 
+  const clientIp = resolveClientIp(request, clientAddress);
+  const rateLimit = checkRateLimit(`${clientIp}:${tenantId}:mfa-regen`, {
+    maxAttempts: RATE_LIMIT_MAX_ATTEMPTS,
+    windowMs: RATE_LIMIT_WINDOW_SEC * 1000
+  });
+
+  if (!rateLimit.allowed) {
+    return fail(
+      429,
+      "RATE_LIMITED",
+      "Too many attempts from this source. Try again later.",
+      {},
+      undefined,
+      { "retry-after": String(rateLimit.retryAfterSec) }
+    );
+  }
+
+  const body = (await request
+    .json()
+    .catch(() => null)) as RegenerateBody | null;
+  const proof = {
+    code: typeof body?.code === "string" ? body.code : undefined,
+    password: typeof body?.password === "string" ? body.password : undefined
+  };
+
   const sql = getDatabaseClient();
   const tokenHash = hashSessionToken(token);
   const now = new Date();
@@ -57,6 +111,23 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
 
     if (!session) {
       return fail(401, "AUTH_REQUIRED", "Session is invalid or expired.");
+    }
+
+    const stepUp = await verifyMfaStepUp(
+      tx,
+      tenantId,
+      session.identity_id,
+      proof,
+      process.env,
+      now
+    );
+
+    if (!stepUp.ok) {
+      return fail(
+        mfaStepUpStatus(stepUp.code),
+        stepUp.code,
+        mfaStepUpMessage(stepUp.code)
+      );
     }
 
     const result = await regenerateRecoveryCodes(
