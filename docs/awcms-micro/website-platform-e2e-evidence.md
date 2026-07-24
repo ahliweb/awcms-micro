@@ -185,9 +185,17 @@ and close each of these — with exact commands and evidence to capture — is i
   DB resolved by resource uuid so it survives redeploys, `gzip -t` + `>1000` byte
   integrity gate, **14-day retention**; 3 valid dumps present). **RPO now bounded
   to ≤24 h.** A Coolify-native backup was deliberately NOT added (would duplicate
-  this + must not use the 57 G root disk). STILL DEFERRED: an **offsite** copy
-  (layer 2 — needs a private R2 bucket), the object-storage (R2) restore drill,
-  and the live chaos drills (the _shapes_ are covered by
+  this + must not use the 57 G root disk). **Offsite (layer 2) — DONE (verified
+  live 2026-07-24)**: the nightly script now also client-side **encrypts** each
+  dump (`openssl aes-256-cbc/pbkdf2`, passphrase chmod 600 on prod, never in the
+  bucket) and pushes it to the private Cloudflare R2 bucket `awcms-micro-backups`
+  under `nightly/*.sql.gz.enc` (throwaway `rclone` container; 30-day offsite
+  retention scoped to `nightly/` only — the bucket's unrelated historical
+  `backups/db/*.enc` is untouched). Restore-proven end-to-end (R2 → decrypt →
+  `gunzip -t` = valid PG dump); see
+  [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO. STILL
+  DEFERRED: the object-storage (R2) **restore** drill and the live chaos drills
+  (the _shapes_ are covered by
   `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts`).
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
@@ -237,7 +245,8 @@ and close each of these — with exact commands and evidence to capture — is i
   load/soak at representative volume, and object-storage DR. **Operational gap
   now RESOLVED (verified live 2026-07-24)**: prod has a **nightly host cron
   backup** (`30 2 * * *`, sdb1, 14-day retention, integrity-gated) → RPO bounded
-  to ≤24 h; only an offsite (R2) copy remains — see
+  to ≤24 h, **plus an encrypted offsite copy to Cloudflare R2**
+  (`awcms-micro-backups/nightly/*.sql.gz.enc`, restore-proven) — see
   [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO.
 - **Pilot is a website / online store, used directly from this template** (ADR-0034)
   — NOT `ahliweb/awpos` (POS, ERP lineage) and NOT a separate derived app. No ERP/POS
