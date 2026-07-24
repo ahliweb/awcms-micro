@@ -55,10 +55,14 @@ function isCrawlableHref(href: string): boolean {
   if (href.length === 0) return false;
   if (href.startsWith("#")) return false;
   const lower = href.toLowerCase();
+  // Exclude non-navigable / non-HTTP schemes. `javascript:`/`vbscript:`/`data:`
+  // are listed together (satisfies CodeQL js/incomplete-url-scheme-check) even
+  // though the same-origin filter downstream would already drop them.
   return !(
     lower.startsWith("mailto:") ||
     lower.startsWith("tel:") ||
     lower.startsWith("javascript:") ||
+    lower.startsWith("vbscript:") ||
     lower.startsWith("data:")
   );
 }
