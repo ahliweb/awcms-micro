@@ -5,3 +5,6 @@ bun.lock
 CHANGELOG.md
 .changeset/*.md
 .claude/worktrees/
+
+# graphify generated outputs (graph.json/manifest.json/GRAPH_REPORT.md, etc.)
+graphify-out/
