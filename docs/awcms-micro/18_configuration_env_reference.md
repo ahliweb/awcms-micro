@@ -385,7 +385,20 @@ online-only ini (lihat `deployment-profiles.md`).
   `POST /auth/sso/{providerKey}/link|unlink` (pola identik Google), plus
   admin CRUD `identity_access.sso_providers.*`/`sso_policy.*` di
   `/api/v1/identity/sso/providers`/`/api/v1/identity/sso/policy`
-  (dilindungi ABAC, migration 037). OIDC discovery
+  (dilindungi ABAC, migration 037). **Login-page discovery**:
+  `GET /api/v1/auth/sso/providers?tenantId=<id>` (public, tenant dari
+  header/cookie/`?tenantId=` sama seperti `start`) melistkan provider
+  `enabled` sebuah tenant HANYA sebagai `{ providerKey, displayName }`
+  (tak pernah issuer/client id/secret/type) sehingga `login.astro` dapat
+  merender satu tombol SSO per provider (`#sso-providers` →
+  `.sso-provider-button`, di-fetch saat field tenant tenang, debounce)
+  di samping tombol "Continue with Google". Anti-enumeration ketat: tenant
+  tak dikenal, tenant `inactive`/`suspended` (bahkan yang masih punya
+  provider `enabled`), dan tenant `active` tanpa provider `enabled` SEMUA
+  mengembalikan `{ providers: [] }` yang identik lewat satu query seragam
+  (RLS + guard `EXISTS status='active'`); gate `isSsoRequired()` mati →
+  `{ providers: [] }` tanpa menyentuh DB. Rate limit tunggal per
+  sumber+tenant (tanpa limit shared/aggregate — alasan sama `start.ts`). OIDC discovery
   (`.well-known/openid-configuration`) dan JWKS di-fetch per provider (beda
   dari Google yang hardcode endpoint) — timeout `AUTH_SSO_DISCOVERY_TIMEOUT_MS`,
   circuit breaker PER TENANT+PROVIDER KEY (`sso-oidc-discovery:<tenantId>:<key>`/

@@ -1135,6 +1135,28 @@ Full-online-only (Issue #591). High-risk, audited (`sso_account_unlinked`). Neve
 | 409    | No SSO account is currently linked (`SSO_NOT_LINKED`).               | [`ApiError`](#standard-error-envelope)                                                             |
 | 500    | Internal server error without stack trace.                           | [`ApiError`](#standard-error-envelope)                                                             |
 
+### `GET /api/v1/auth/sso/providers` — List a tenant's enabled SSO providers for the login page picker
+
+- **operationId**: `authSsoLoginProvidersList`
+- **Security**: tenantHeader
+
+Full-online-only (Issue #591 follow-up) — unauthenticated login-page discovery for the generic tenant OIDC SSO backend. Companion to `/auth/sso/{providerKey}/start`: `start` redirects to ONE provider, this lists which providers a tenant's users may start with so the login page can render one button per provider. Tenant resolved from the `X-AWCMS-Micro-Tenant-ID` header, the tenant cookie, or a `?tenantId=` query param fallback, same as `start`. ANTI-ENUMERATION: an unknown tenant, an inactive/suspended tenant, and an active tenant with no enabled providers ALL return the SAME empty `{ providers: [] }` via one uniform query — only an active tenant WITH enabled providers returns a non-empty list. Returns ONLY `{ providerKey, displayName }` per provider — never issuer/client id/secret/provider-type internals. When the deployment-wide gate is off (`isSsoRequired()` false) it returns `{ providers: [] }` without touching the database. Single per-source+tenant rate limit (no shared/aggregate limit — see the route's own comment).
+
+**Parameters**
+
+| Name       | In    | Required | Type   | Description                                                       |
+| ---------- | ----- | -------- | ------ | ----------------------------------------------------------------- |
+| `tenantId` | query | no       | string | Fallback tenant id when neither the header nor cookie is present. |
+
+**Responses**
+
+| Status | Description                                                                                                                    | Schema                                                                                                             |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| 200    | The tenant's enabled SSO providers (possibly empty; empty is also the anti-enumeration answer for an unknown/inactive tenant). | [`ApiSuccess`](#standard-success-envelope)&lt;[`LoginSsoProvidersResponse`](#schema-loginssoprovidersresponse)&gt; |
+| 429    | Too many requests from this source (`RATE_LIMITED`).                                                                           | [`ApiError`](#standard-error-envelope)                                                                             |
+| 500    | Internal server error without stack trace.                                                                                     | [`ApiError`](#standard-error-envelope)                                                                             |
+| 503    | The database pool is saturated or the circuit breaker is open (`DATABASE_BUSY`).                                               | [`ApiError`](#standard-error-envelope)                                                                             |
+
 ### `GET /api/v1/identity/business-scope/assignments` — List this tenant's business-scope assignments
 
 - **operationId**: `identityBusinessScopeAssignmentsList`
@@ -12189,6 +12211,43 @@ Locale code (2-letter, e.g. "en", "id") to string. Must include an "en" entry.
 {
   "token": "string",
   "expiresAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: LoginSsoProvider
+
+The ONLY provider shape the anonymous login page sees — the button label and the key needed to build the `/auth/sso/{providerKey}/start` link. Never carries issuer/client id/secret/provider-type internals.
+
+| Field         | Type   | Required | Nullable | Description |
+| ------------- | ------ | -------- | -------- | ----------- |
+| `providerKey` | string | yes      | no       |             |
+| `displayName` | string | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "providerKey": "string",
+  "displayName": "string"
+}
+```
+
+### Schema: LoginSsoProvidersResponse
+
+| Field       | Type                                                    | Required | Nullable | Description |
+| ----------- | ------------------------------------------------------- | -------- | -------- | ----------- |
+| `providers` | array of [`LoginSsoProvider`](#schema-loginssoprovider) | yes      | no       |             |
+
+**Example**
+
+```json
+{
+  "providers": [
+    {
+      "providerKey": "string",
+      "displayName": "string"
+    }
+  ]
 }
 ```
 

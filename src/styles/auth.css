@@ -371,6 +371,22 @@
   border-color: var(--color-text-muted);
 }
 
+/* ── Tenant SSO provider picker (login page, Issue #591) ───────────────── */
+/* Stacks one secondary (.auth-google) button per enabled provider. Populated
+   client-side; hidden whenever the list is empty so a tenant's provider config
+   is never disclosed. Each `.sso-provider-button` reuses the .auth-google
+   secondary-button vocabulary for visual + a11y parity with "Continue with
+   Google". */
+.auth-sso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.auth-sso[hidden] {
+  display: none;
+}
+
 /* ── Secondary navigation between auth screens ─────────────────────────── */
 .auth-links {
   display: flex;

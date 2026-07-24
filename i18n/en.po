@@ -27,6 +27,9 @@ msgstr "Sign in"
 msgid "auth.login.google_button"
 msgstr "Continue with Google"
 
+msgid "auth.login.sso_group_label"
+msgstr "Sign in with your organization"
+
 msgid "auth.login.generic_error"
 msgstr "Login failed. Try again."
 

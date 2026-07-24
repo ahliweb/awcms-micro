@@ -51,6 +51,7 @@ import { createTranslator } from "../lib/i18n/translate";
 import { buildClientErrorMessages } from "../lib/i18n/error-messages";
 import { isTurnstileRequired } from "../lib/security/turnstile";
 import { isGoogleLoginRequired } from "../lib/auth/google-oidc-config";
+import { isSsoRequired } from "../lib/auth/sso-config";
 import { isSelfRegistrationEnabled } from "../lib/auth/self-registration-config";
 import { THEME_INIT_SCRIPT_BODY } from "../lib/security/theme-init-script";
 import {
@@ -66,6 +67,11 @@ const turnstileSiteKey = turnstileActive
   ? process.env.TURNSTILE_SITE_KEY
   : null;
 const googleLoginActive = isGoogleLoginRequired();
+// Generic tenant OIDC SSO (Issue #591) — the login-page provider picker only
+// renders when the deployment gate is active; the actual buttons are fetched
+// client-side per the tenant the user enters (see the SSO block in the client
+// script). Inert (never rendered) on any deployment where SSO is off.
+const ssoLoginActive = isSsoRequired();
 const registrationActive = isSelfRegistrationEnabled();
 
 // Opt-in tenant picker (AUTH_LOGIN_TENANT_PICKER) — see file header. The list
@@ -237,6 +243,27 @@ const clientStrings = {
               >
                 {t("auth.login.google_button")}
               </button>
+            )
+          }
+
+          {
+            /* Generic tenant OIDC SSO picker (Issue #591). Server-gated: this
+              container only exists when `isSsoRequired()` is true — the block is
+              genuinely absent (not CSS-hidden) on deployments where SSO is off.
+              Populated client-side with one `.sso-provider-button` per enabled
+              provider for the tenant the user enters (fetched from
+              `/api/v1/auth/sso/providers`); starts empty + hidden, and stays
+              hidden whenever the list is empty so a tenant's provider config is
+              never disclosed. Stable ids/classes for E2E: #sso-providers,
+              .sso-provider-button. */
+            ssoLoginActive && (
+              <div
+                id="sso-providers"
+                class="auth-sso"
+                role="group"
+                aria-label={t("auth.login.sso_group_label")}
+                hidden
+              />
             )
           }
         </form>
@@ -506,6 +533,141 @@ const clientStrings = {
 
         window.location.href = `/api/v1/auth/providers/google/start?tenantId=${encodeURIComponent(tenantId)}`;
       });
+
+      // ── Generic tenant OIDC SSO picker (Issue #591) ────────────────────
+      // The `#sso-providers` container only exists when the server rendered it
+      // (deployment gate `isSsoRequired()` true), so this whole block is inert
+      // on deployments where SSO is off. The provider list depends on the
+      // tenant the user enters, so it's fetched when the tenant field settles
+      // (debounced, NOT per keystroke) and re-fetched on change. An empty or
+      // errored result renders nothing — no "tenant not found" text — so a
+      // tenant's SSO config (or existence) is never disclosed by the picker.
+      const ssoContainer = document.getElementById("sso-providers");
+      const tenantField = document.getElementById("tenant-id") as
+        HTMLInputElement | HTMLSelectElement | null;
+
+      interface LoginSsoProvider {
+        providerKey: string;
+        displayName: string;
+      }
+
+      function currentTenantId(): string {
+        return String(
+          (
+            document.getElementById("tenant-id") as
+              HTMLInputElement | HTMLSelectElement | null
+          )?.value ?? ""
+        ).trim();
+      }
+
+      function clearSsoProviders(): void {
+        if (!ssoContainer) return;
+        ssoContainer.replaceChildren();
+        ssoContainer.hidden = true;
+      }
+
+      function renderSsoProviders(providers: LoginSsoProvider[]): void {
+        if (!ssoContainer) return;
+        ssoContainer.replaceChildren();
+
+        for (const provider of providers) {
+          if (
+            !provider ||
+            typeof provider.providerKey !== "string" ||
+            typeof provider.displayName !== "string" ||
+            provider.providerKey.length === 0 ||
+            provider.displayName.length === 0
+          ) {
+            continue;
+          }
+
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "auth-google sso-provider-button";
+          button.dataset.providerKey = provider.providerKey;
+          button.textContent = provider.displayName;
+          button.addEventListener("click", () => {
+            // Read the tenant field's CURRENT value at click time (same as the
+            // Google button) — a plain navigation can't carry the tenant
+            // header, so the tenant rides as a `?tenantId=` query param.
+            const tenantId = currentTenantId();
+            const providerKey = button.dataset.providerKey ?? "";
+            if (tenantId.length === 0 || providerKey.length === 0) return;
+            window.location.href = `/api/v1/auth/sso/${encodeURIComponent(providerKey)}/start?tenantId=${encodeURIComponent(tenantId)}`;
+          });
+          ssoContainer.appendChild(button);
+        }
+
+        ssoContainer.hidden = ssoContainer.childElementCount === 0;
+      }
+
+      // Guards against a stale fetch (tenant changed mid-flight) overwriting a
+      // newer one — only the latest request's result is ever rendered.
+      let ssoRequestSeq = 0;
+
+      async function loadSsoProviders(tenantId: string): Promise<void> {
+        if (!ssoContainer) return;
+        const trimmed = tenantId.trim();
+        if (trimmed.length === 0) {
+          clearSsoProviders();
+          return;
+        }
+
+        const seq = ++ssoRequestSeq;
+        try {
+          const response = await fetch(
+            `/api/v1/auth/sso/providers?tenantId=${encodeURIComponent(trimmed)}`,
+            { method: "GET", credentials: "same-origin" }
+          );
+          if (seq !== ssoRequestSeq) return;
+
+          const payload = await response.json().catch(() => null);
+          if (!response.ok || !payload || payload.success !== true) {
+            clearSsoProviders();
+            return;
+          }
+
+          const providers = Array.isArray(payload.data?.providers)
+            ? (payload.data.providers as LoginSsoProvider[])
+            : [];
+          renderSsoProviders(providers);
+        } catch {
+          // Network/parse failure — render nothing (generic, silent).
+          if (seq === ssoRequestSeq) clearSsoProviders();
+        }
+      }
+
+      if (ssoContainer && tenantField) {
+        let ssoDebounce: ReturnType<typeof setTimeout> | undefined;
+        const scheduleSsoLoad = (): void => {
+          if (ssoDebounce) clearTimeout(ssoDebounce);
+          ssoDebounce = setTimeout(() => {
+            void loadSsoProviders(currentTenantId());
+          }, 300);
+        };
+
+        if (tenantField.tagName === "SELECT") {
+          // A select always has a value — refresh on change, and load its
+          // initial selection immediately.
+          tenantField.addEventListener("change", () => {
+            void loadSsoProviders(currentTenantId());
+          });
+          void loadSsoProviders(currentTenantId());
+        } else if (tenantField.getAttribute("type") === "hidden") {
+          // Single-tenant readout — fixed value, load once.
+          void loadSsoProviders(currentTenantId());
+        } else {
+          // Manual text field — debounced on input, plus a blur backstop.
+          tenantField.addEventListener("input", scheduleSsoLoad);
+          tenantField.addEventListener("blur", () => {
+            void loadSsoProviders(currentTenantId());
+          });
+          // Pre-filled (e.g. browser autofill) → load once on init.
+          if (currentTenantId().length > 0) {
+            void loadSsoProviders(currentTenantId());
+          }
+        }
+      }
 
       // Toggle between the authenticator (TOTP) code and a one-time recovery
       // code, updating the field's label + input constraints accordingly.

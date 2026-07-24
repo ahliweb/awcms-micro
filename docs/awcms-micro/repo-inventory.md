@@ -142,19 +142,19 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-366 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+369 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 46         |
-| `e2e`         | 19         |
-| `integration` | 114        |
+| `e2e`         | 20         |
+| `integration` | 115        |
 | `modules`     | 5          |
-| `unit`        | 182        |
+| `unit`        | 183        |
 
 ## Routes / Operations (summary)
 
-258 OpenAPI paths, 339 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
+259 OpenAPI paths, 340 operations, contract `info.version` `1.0.0` — sourced from the bundled contract (`bun run openapi:bundle`). Route<->contract parity itself is already enforced by `bun run api:spec:check`'s route-parity check (Issue #685/#695); this is a read-only summary, not a separate enforcement.
 
 ## GitHub issue/label/milestone snapshot
 

@@ -330,6 +330,24 @@ evaluation, auto-link domain resolution, admin input validation, pure)
   dengan `login.ts`/Google), `POST .../link` (butuh session, kembalikan
   `authorizationUrl` sebagai JSON), `POST .../unlink` (high-risk,
   diaudit `sso_account_unlinked`).
+* **Login-page provider discovery** — `GET /api/v1/auth/sso/providers?tenantId=<id>`
+  (unauthenticated; tenant dari header/cookie/`?tenantId=` sama seperti
+  `start`) melistkan provider `enabled` sebuah tenant HANYA sebagai
+  `{ providerKey, displayName }` (tidak pernah `issuer_url`/`client_id`/
+  secret/`provider_type`) supaya `src/pages/login.astro` bisa merender satu
+  tombol per provider (`#sso-providers` → `.sso-provider-button`, di-fetch
+  saat field tenant tenang, debounce, bukan per ketikan; kosong/error →
+  tidak merender apa pun). Fungsi baca: `listEnabledAuthProvidersForLogin`
+  (`auth-provider-directory.ts`), TERPISAH dari `listAuthProviders` (admin,
+  ABAC). **Anti-enumeration**: tenant tak dikenal, tenant `inactive`/
+  `suspended` (bahkan yang masih punya baris provider `enabled`), dan tenant
+  `active` tanpa provider `enabled` SEMUA mengembalikan `{ providers: [] }`
+  yang identik lewat SATU query seragam (scoping RLS + guard
+  `EXISTS (... status = 'active')`) — tak ada cabang/early-return yang
+  menciptakan oracle keberadaan/status tenant. Gate `isSsoRequired()` mati →
+  `{ providers: [] }` tanpa menyentuh DB. Rate limit tunggal per
+  sumber+tenant (tanpa limit shared/aggregate — alasan DoS tanpa-privilege
+  sama dengan `start.ts`).
 * **Admin CRUD API** (bukan admin UI — itu Issue #592) dilindungi ABAC
   (migration 037): `identity_access.sso_providers.{read,create,update,delete}`
   di `/api/v1/identity/sso/providers`(`/{id}`), dan
