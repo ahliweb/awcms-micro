@@ -1,13 +1,18 @@
-# Graph Report - /home/data/dev_react/awcms-micro  (2026-07-25)
+# Graph Report - awcms-micro  (2026-07-25)
 
 ## Corpus Check
-- 5 files · ~1,709,681 words
+- 1666 files · ~1,710,403 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8948 nodes · 30194 edges · 427 communities (314 shown, 113 thin omitted)
+- 9002 nodes · 30246 edges · 434 communities (321 shown, 113 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 263 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `06caba12`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - V1 / Comments
@@ -430,6 +435,12 @@
 - Visitor Analytics / Readme
 - Tests / Readme
 - Tests / Readme
+- news-media-r2-client.test.ts
+- sync-directory.ts
+- object-queue.ts
+- dependencies
+- tenant-settings-directory.ts
+- Admin Layout Shell (Issue 8.1)
 
 ## God Nodes (most connected - your core abstractions)
 1. `withTenant()` - 827 edges
@@ -440,7 +451,7 @@
 6. `authorizeInTransaction()` - 491 edges
 7. `resolveAuthInputs()` - 486 edges
 8. `recordAuditEvent()` - 350 edges
-9. `astro` - 289 edges
+9. `astro` - 288 edges
 10. `getAdminSql()` - 269 edges
 
 ## Surprising Connections (you probably didn't know these)
@@ -450,10 +461,10 @@
   docs/awcms-micro/news-portal/social-publishing-architecture.md → src/modules/social-publishing/domain/social-publishing-config.ts
 - `docker-compose.yml (LAN-first single-server stack)` --references--> `getWorkerDatabaseClient()`  [EXTRACTED]
   docker-compose.yml → src/lib/database/client.ts
-- `initNewsletterAdmin()` --indirect_call--> `item()`  [INFERRED]
-  src/lib/newsletter/newsletter-admin-client.ts → tests/unit/seo-discovery-serialization.test.ts
 - `Social Sharing (Manual)` --references--> `renderSocialShareButtonsHtml()`  [EXTRACTED]
   docs/awcms-micro/news-portal/social-sharing.md → src/modules/blog-content/domain/social-share-links.ts
+- `ADR-0014: Deterministic Build-Time Module Composition` --references--> `composeModuleRegistry()`  [EXTRACTED]
+  docs/adr/0014-deterministic-build-time-module-composition.md → src/modules/module-management/domain/module-composition.ts
 
 ## Import Cycles
 - None detected.
@@ -500,119 +511,119 @@
 - **CLAIM/CALL/FINALIZE outbox dispatcher pattern (ADR-0006) across modules** — src_modules_social_publishing_readme_social_publish_dispatch, src_modules_sync_storage_readme_object_dispatch, src_modules_sync_storage_readme_adr_0006 [INFERRED 0.85]
 - **Visitor analytics pure domain helpers consumed by collector** — src_modules_visitor_analytics_readme_visitor_key, src_modules_visitor_analytics_readme_user_agent, src_modules_visitor_analytics_readme_human_classifier, src_modules_visitor_analytics_readme_path_sanitizer, src_modules_visitor_analytics_readme_referrer, src_modules_visitor_analytics_readme_collector [EXTRACTED 1.00]
 
-## Communities (427 total, 113 thin omitted)
+## Communities (434 total, 113 thin omitted)
 
 ### Community 0 - "V1 / Comments"
 Cohesion: 0.03
-Nodes (176): astro, fetchBlogPostById(), purgeBlogPost(), bulkModerateComments(), moderateComment(), ADR-0032, AuthorizeResult, revokeBusinessScopeAssignment() (+168 more)
+Nodes (197): bulkModerateComments(), moderateComment(), ADR-0032, AuthorizeResult, resolveAuthInputs(), isNewsMediaOwnerResourceType(), NEWS_MEDIA_OWNER_RESOURCE_TYPES, NewsMediaObjectStatus (+189 more)
 
 ### Community 1 - "V1 / Analytics"
 Cohesion: 0.03
-Nodes (167): hashSessionToken(), buildClient(), getNamedDatabaseClient(), POOL_MAX_OVERRIDE_ENV_VAR, sharedClients, withTenant(), Shared Runtime Library (src/lib), fetchBlogRevisionById() (+159 more)
+Nodes (180): astro, hashSessionToken(), POOL_MAX_OVERRIDE_ENV_VAR, sharedClients, authorizeInTransaction(), endRelationship(), ApiError, ApiMeta (+172 more)
 
 ### Community 2 - "V1 / Blog"
-Cohesion: 0.04
-Nodes (163): getDatabaseClient(), log(), bodyTooLargeResponse(), readJsonBody(), createAd(), fetchAdById(), listAds(), softDeleteAd() (+155 more)
+Cohesion: 0.03
+Nodes (179): currentThreshold(), getLogSink(), log(), LOG_LEVEL_SEVERITY, LogEntry, LogLevel, LogSink, setLogSink() (+171 more)
 
 ### Community 3 - "Shared / Module Contract"
-Cohesion: 0.02
-Nodes (120): ADR-0017, blogContentModule, ADR-0006, ADR-0010, ADR-0026, ADR-0028, ADR-0031, ADR-0032 (+112 more)
+Cohesion: 0.03
+Nodes (71): blogContentModule, ADR-0006, ADR-0010, ADR-0026, ADR-0028, ADR-0031, ADR-0032, ADR-0033 (+63 more)
 
 ### Community 4 - "Integration / Harness"
 Cohesion: 0.03
-Nodes (107): getSetupDatabaseClient(), createLegalHold(), resolvePublicRedirect(), provisionTenant(), Tenant, fetchAuditActions(), seedAuditEvent(), seedTenant() (+99 more)
+Nodes (117): legalHoldGuardPortAdapter, createLegalHold(), provisionTenant(), Tenant, Bootstrap, bootstrapTenant(), fetchAuditActions(), seedAuditEvent() (+109 more)
 
 ### Community 5 - "V1 / Auth"
 Cohesion: 0.03
-Nodes (78): resetDatabaseCircuitBreakerForTests(), isPasswordLoginDisabledForIdentity(), bootstrapPlatformTenant(), PlatformBootstrapResult, REQUIRED_STRING_FIELDS, SetupInitializeInput, SetupInitializeValidationResult, validateSetupInitializeInput() (+70 more)
+Nodes (93): getSetupDatabaseClient(), findActiveMfaFactor(), isPasswordLoginDisabledForIdentity(), bootstrapPlatformTenant(), PlatformBootstrapResult, REQUIRED_STRING_FIELDS, SetupInitializeInput, SetupInitializeValidationResult (+85 more)
 
 ### Community 6 - "Application / Media Object Directory"
-Cohesion: 0.03
-Nodes (102): attachNewsMediaObject(), AttachNewsMediaObjectInput, createPendingNewsMediaObject(), CreatePendingNewsMediaObjectInput, detachNewsMediaObject(), FetchNewsMediaObjectOptions, isNewsMediaObjectStatus(), isNewsMediaOwnerResourceType() (+94 more)
+Cohesion: 0.04
+Nodes (86): attachNewsMediaObject(), AttachNewsMediaObjectInput, createPendingNewsMediaObject(), CreatePendingNewsMediaObjectInput, detachNewsMediaObject(), FetchNewsMediaObjectOptions, isNewsMediaObjectStatus(), listNewsMediaObjects() (+78 more)
 
 ### Community 7 - "Lib / Security"
-Cohesion: 0.03
-Nodes (76): isPostgresClientInputError(), POSTGRES_CLIENT_INPUT_ERROR_CLASSES, WithTenantOptions, BODY_SIZE_TIER_BYTES, BodyReadResult, BodySizeTier, checkContentLengthCeiling(), parseDeclaredLength() (+68 more)
+Cohesion: 0.06
+Nodes (49): isPostgresClientInputError(), POSTGRES_CLIENT_INPUT_ERROR_CLASSES, WithTenantOptions, BODY_SIZE_TIER_BYTES, BodyReadResult, BodySizeTier, checkContentLengthCeiling(), parseDeclaredLength() (+41 more)
 
 ### Community 8 - "Lib / I18N"
-Cohesion: 0.09
-Nodes (66): ../../../lib/database/client, ../../../lib/database/tenant-context, ../lib/i18n/error-messages, ../lib/i18n/translate, ../../../lib/logging/error-log, ../lib/ui/admin-form-client, ../../../modules/blog-content/application/ads-directory, ../../../../modules/blog-content/application/author-lookup (+58 more)
+Cohesion: 0.07
+Nodes (95): ../../lib/auth/auth-security-status, ../../../lib/comments/comments-admin-client, ../../../lib/database/client, ../../../lib/database/tenant-context, ../lib/i18n/error-messages, ../../lib/i18n/locale, ../lib/i18n/translate, ../../../lib/logging/error-log (+87 more)
 
 ### Community 9 - "Domain / Module Presets"
-Cohesion: 0.04
-Nodes (74): main(), checkDataLifecycleRegistryValid(), formatLifecycleRegistryIssue(), LifecycleRegistryIssue, LifecycleRegistryValidationResult, VALID_RETENTION_CLASSES, validateLifecycleRegistry(), validateSingleDescriptor() (+66 more)
+Cohesion: 0.08
+Nodes (43): serializeJsonl(), listModules(), fetchModuleCatalog(), fetchModuleCatalogEntry(), fetchRegistryRows(), ModuleCatalogEntry, ModuleRegistryRow, DEPENDENCY_WARNING_CODES (+35 more)
 
 ### Community 10 - "Lib / Auth"
-Cohesion: 0.05
-Nodes (71): RFC-4226, RFC-4648, generateChallengeToken(), hashChallengeToken(), isMfaRequired(), KNOWN_TOTP_DIGITS, resolveChallengeTtlSec(), resolveTotpDigits() (+63 more)
+Cohesion: 0.08
+Nodes (49): RFC-4226, RFC-4648, generateChallengeToken(), hashChallengeToken(), resolveTotpDigits(), resolveTotpPeriodSec(), generateRecoveryCode(), hashRecoveryCode() (+41 more)
 
 ### Community 11 - "Lib / Auth"
-Cohesion: 0.05
-Nodes (72): BuildAuthorizationUrlParams, buildGoogleAuthorizationUrl(), exchangeAuthorizationCode(), ExchangeCodeParams, ExchangeCodeResult, fetchGoogleJwks(), FetchJwksParams, FetchJwksResult (+64 more)
+Cohesion: 0.10
+Nodes (30): BuildAuthorizationUrlParams, ExchangeCodeParams, ExchangeCodeResult, FetchJwksParams, FetchJwksResult, GoogleJwks, resolveGoogleRedirectUri(), GOOGLE_OIDC_ENDPOINTS (+22 more)
 
 ### Community 12 - "V1 / Blog"
-Cohesion: 0.07
-Nodes (65): resolveSsrContext(), createBlogRevision(), countExistingTerms(), syncPostTermAssignments(), PostTranslationRow, PostTranslationSummary, setPostTranslationGroup(), validateNewsMediaReferencesForFullOnlineR2Mode() (+57 more)
+Cohesion: 0.04
+Nodes (127): MfaStepUpFailureCode, mfaStepUpMessage(), mfaStepUpStatus(), generateSessionToken(), resolveSsrContext(), getDatabaseClient(), withTenant(), Shared Runtime Library (src/lib) (+119 more)
 
 ### Community 13 - "Lib / Auth"
-Cohesion: 0.05
-Nodes (70): discoverOidcConfiguration(), DiscoverOidcResult, discoveryCache, discoveryFailureCache, exchangeAuthorizationCode(), ExchangeCodeParams, ExchangeCodeResult, FetchJwksResult (+62 more)
+Cohesion: 0.13
+Nodes (26): discoverOidcConfiguration(), DiscoverOidcResult, discoveryCache, discoveryFailureCache, exchangeAuthorizationCode(), ExchangeCodeParams, ExchangeCodeResult, FetchJwksResult (+18 more)
 
 ### Community 14 - "Lib / Jobs"
-Cohesion: 0.08
-Nodes (59): AuditLogPurgeOptions, AuditLogPurgeResult, countPurgeableForTenant(), main(), resolveRetentionDays(), runAuditLogPurge(), main(), DomainEventsDispatchOptions (+51 more)
+Cohesion: 0.12
+Nodes (41): AuditLogPurgeOptions, AuditLogPurgeResult, main(), resolveRetentionDays(), main(), DomainEventsDispatchOptions, DomainEventsDispatchRunResult, main() (+33 more)
 
 ### Community 15 - "Domain / Module Composition"
-Cohesion: 0.05
-Nodes (53): runModuleCompositionInventoryCheck(), buildModuleCompositionInventoryJson(), ADR-0036, main(), ADR-0036, main(), listBaseModules(), DescriptorSyncResult (+45 more)
+Cohesion: 0.06
+Nodes (48): runModuleCompositionInventoryCheck(), buildModuleCompositionInventoryJson(), ADR-0036, main(), ADR-0036, main(), listBaseModules(), DescriptorSyncResult (+40 more)
 
 ### Community 16 - "Package"
 Cohesion: 0.03
 Nodes (74): scripts, analytics:purge, analytics:rollup, api:docs:check, api:docs:generate, api:spec:check, blog:publish:scheduled, build (+66 more)
 
 ### Community 17 - "Application / Comment Service"
-Cohesion: 0.05
-Nodes (64): CommentRow, EditCommentResult, editCommentWithinWindow(), isBoundAuthor(), isDuplicate(), PublicCommentView, recordAbuseEvent(), requestCommentDeletion() (+56 more)
+Cohesion: 0.09
+Nodes (30): CommentRow, EditCommentResult, editCommentWithinWindow(), isBoundAuthor(), isDuplicate(), PublicCommentView, recordAbuseEvent(), reportComment() (+22 more)
 
 ### Community 18 - "V1 / Profiles"
-Cohesion: 0.06
-Nodes (59): generateSessionToken(), createParty(), fetchPartyById(), listParties(), ListPartiesOptions, ListPartiesResult, PartyRow, toRecord() (+51 more)
+Cohesion: 0.07
+Nodes (36): createAddress(), fetchPartyById(), toPartyMaskedAdminDTO(), POST(), REVIEW_GUARD, ReviewBody, VALID_DECISIONS, CREATE_GUARD (+28 more)
 
 ### Community 19 - "Application / Form Draft Purge"
-Cohesion: 0.05
-Nodes (57): main(), socialPublishingPort, TenantRow, ADR-0011, main(), resolveRetentionDays(), TenantRow, ADR-0032 (+49 more)
+Cohesion: 0.06
+Nodes (45): main(), resolveRetentionDays(), TenantRow, ADR-0032, main(), resolveRetentionDays(), TenantRow, main() (+37 more)
 
 ### Community 20 - "Scripts / Security Readiness"
-Cohesion: 0.07
-Nodes (67): ADR-0005, ALLOWED_GLOBAL_TABLE_GRANTS, checkAbacDefaultDeny(), checkAppDbUserNotSuperuser(), checkAuditLogTableReachable(), checkDataLifecycleLegalHoldReleaseSeparate(), checkDurableMediaStorageReady(), checkEnvNotTracked() (+59 more)
+Cohesion: 0.06
+Nodes (74): ADR-0005, ALLOWED_GLOBAL_TABLE_GRANTS, checkAbacDefaultDeny(), checkAppDbUserNotSuperuser(), checkAuditLogTableReachable(), checkDataLifecycleLegalHoldReleaseSeparate(), checkDurableMediaStorageReady(), checkEmailProviderConfigReady() (+66 more)
 
 ### Community 21 - "Scripts / Validate Env"
 Cohesion: 0.07
-Nodes (59): checkEmailProviderConfigReady(), checkGoogleOidcReady(), checkMfaReady(), checkSyncHmacSecretNotDefault(), checkTurnstileReady(), checkAppEnvValue(), checkBlogAutoInternalTagLinksConfig(), checkEmailConfig() (+51 more)
+Nodes (60): checkAppEnvValue(), checkBlogAutoInternalTagLinksConfig(), checkEmailConfig(), checkGoogleOidcConfig(), checkMfaConfig(), checkNewsMediaR2AllowedMimeTypesKnown(), checkNewsMediaR2Config(), checkNewsMediaR2SeparationFromSyncR2() (+52 more)
 
 ### Community 22 - "Infrastructure / Meta"
 Cohesion: 0.07
-Nodes (41): codeSuffix(), extractMetaErrorShape(), MetaErrorShape, normalizeMetaGraphApiError(), PERMISSION_ERROR_CODES, RATE_LIMIT_ERROR_CODES, isMetaProviderEnabled(), isNonEmpty() (+33 more)
+Nodes (41): checkMetaSocialPublishingProviderConfig(), codeSuffix(), extractMetaErrorShape(), MetaErrorShape, normalizeMetaGraphApiError(), PERMISSION_ERROR_CODES, RATE_LIMIT_ERROR_CODES, isMetaProviderEnabled() (+33 more)
 
 ### Community 23 - "Application / Scheduled Export Store"
-Cohesion: 0.06
-Nodes (48): main(), buildSummaryView(), findProjectionDescriptor(), getProjectionSummaryForTenant(), listProjectionSummariesForTenant(), listRegisteredProjectionDescriptors(), ProjectionSummaryLookupResult, ProjectionSummaryView (+40 more)
+Cohesion: 0.10
+Nodes (28): buildSummaryView(), getProjectionSummaryForTenant(), listProjectionSummariesForTenant(), listRegisteredProjectionDescriptors(), ProjectionSummaryLookupResult, ProjectionSummaryView, getProjectionMetrics(), assertSafeIdentifier() (+20 more)
 
 ### Community 24 - "Integration / Website Platform Public Security.Integration.T"
-Cohesion: 0.04
-Nodes (41): Bucket, buckets, RateLimitConfig, RateLimitResult, resetRateLimitStoreForTests(), invoke(), attemptLogin(), LoginAnswer (+33 more)
+Cohesion: 0.11
+Nodes (11): resetRateLimitStoreForTests(), attemptLogin(), LoginAnswer, ErrorEnvelope, FULL_ONLINE_MFA_ENV, loginAndGetToken(), VALID_MFA_KEY_BASE64, fetchProviders() (+3 more)
 
 ### Community 25 - "Application / Health Registry"
 Cohesion: 0.07
-Nodes (47): asyncApiDocumentedSignal(), buildGenericSignalsFromContext(), buildModuleHealthBatchContext(), computeGenericSignals(), dbRegistrySyncedSignal(), fetchModuleHealthReport(), fetchModuleHealthReports(), findDescriptor() (+39 more)
+Nodes (48): asyncApiDocumentedSignal(), buildGenericSignalsFromContext(), buildModuleHealthBatchContext(), computeGenericSignals(), dbRegistrySyncedSignal(), fetchModuleHealthReport(), fetchModuleHealthReports(), findDescriptor() (+40 more)
 
 ### Community 26 - "Lib / Performance"
 Cohesion: 0.09
-Nodes (54): RFC-4122, AbacDecisionLogFixtureRow, AGGREGATE_TYPES, AREAS, AUDIT_ACTIONS, AuditEventFixtureRow, BLOG_STATUSES, BlogPostFixtureRow (+46 more)
+Nodes (53): RFC-4122, AbacDecisionLogFixtureRow, AGGREGATE_TYPES, AREAS, AUDIT_ACTIONS, AuditEventFixtureRow, BLOG_STATUSES, BlogPostFixtureRow (+45 more)
 
 ### Community 27 - "Lib / Redis"
-Cohesion: 0.07
-Nodes (45): interpretPoolHealthStatus(), main(), PoolHealthOutcome, resolveAppBaseUrl(), config, failures, findings, safeErrorDetail (+37 more)
+Cohesion: 0.09
+Nodes (38): config, failures, findings, safeErrorDetail, deleteRedisCache(), getRedisJson(), redisCacheAside(), RedisCacheAsideOptions (+30 more)
 
 ### Community 28 - "Skills / Awcms Micro Auth Online Hardening"
 Cohesion: 0.05
@@ -620,39 +631,39 @@ Nodes (57): awcms-micro-coder: end-to-end issue implementation agent, awcms-micr
 
 ### Community 29 - "Application / Rebuild Run Store"
 Cohesion: 0.08
-Nodes (48): runBoundedBatches(), applyEventActivityProjectionIncrement(), ProjectionRebuildInProgressError, getStreamCursor(), resetProjectionCursors(), upsertStreamCursor(), assertSafeIdentifier(), computeMetricDeltas() (+40 more)
+Nodes (48): applyEventActivityProjectionIncrement(), ProjectionRebuildInProgressError, getStreamCursor(), resetProjectionCursors(), upsertStreamCursor(), assertSafeIdentifier(), computeMetricDeltas(), IncrementalUpdateOutcome (+40 more)
 
 ### Community 30 - "V1 / Seo"
-Cohesion: 0.07
-Nodes (48): dismissNotFoundObservation(), createRedirect(), getRedirectById(), softDeleteRedirect(), toRecord(), updateRedirect(), checkRedirectSafety(), fetchRedirectSettings() (+40 more)
+Cohesion: 0.23
+Nodes (12): getRedirectById(), DELETE(), POST(), resolveId(), UPDATE_GUARD, DELETE(), DELETE_GUARD, GET() (+4 more)
 
 ### Community 31 - "Admin / Business Scope"
-Cohesion: 0.05
-Nodes (47): ../../lib/auth/auth-security-status, ../../../lib/ui/confirm-dialog-client, ../../modules/identity-access/application/auth-provider-directory, ../../modules/identity-access/application/business-scope-assignment-service, ../../modules/identity-access/application/self-registration, ../../modules/identity-access/application/sod-conflict-evaluation-log, ../../modules/identity-access/application/sod-exception-service, ../../modules/identity-access/application/tenant-auth-policy (+39 more)
+Cohesion: 0.06
+Nodes (34): ../../../lib/ui/confirm-dialog-client, ../../../modules, ../../modules/identity-access/application/business-scope-assignment-service, ../../modules/identity-access/application/sod-conflict-evaluation-log, ../../modules/identity-access/application/sod-exception-service, ../../modules/identity-access/application/user-directory, ../../modules/identity-access/domain/sod-rule-registry, ../../../modules/tenant-domain/application/tenant-domain-directory (+26 more)
 
 ### Community 32 - "Domain / Linkedin Provider Config"
-Cohesion: 0.07
-Nodes (40): checkLinkedInProviderReadiness(), main(), TenantRow, checkLinkedInProviderConfig(), findMissingOrInvalidLinkedInConfig(), isLinkedInProviderEnabled(), isSet(), isSupportedLinkedInOrganizationRole() (+32 more)
+Cohesion: 0.09
+Nodes (29): checkLinkedInProviderReadiness(), main(), TenantRow, checkLinkedInProviderConfig(), findMissingOrInvalidLinkedInConfig(), isLinkedInProviderEnabled(), isSet(), isSupportedLinkedInOrganizationRole() (+21 more)
 
 ### Community 33 - "Domain / Homepage Section Policy"
 Cohesion: 0.08
-Nodes (48): ComposedHomepageSections, composeHomepageSectionsHtml(), renderPostCards(), renderSectionBody(), resolveMediaForPosts(), toPostCard(), createHomepageSection(), HomepageSectionRow (+40 more)
+Nodes (49): ComposedHomepageSections, composeHomepageSectionsHtml(), renderPostCards(), renderSectionBody(), resolveMediaForPosts(), toPostCard(), createHomepageSection(), fetchHomepageSectionById() (+41 more)
 
 ### Community 34 - "V1 / Newsletter"
-Cohesion: 0.05
-Nodes (45): getCampaign(), listSubscribers(), listSuppressions(), ADR-0033, GET(), isRecord(), parseDate(), PATCH() (+37 more)
+Cohesion: 0.06
+Nodes (35): getCampaign(), ADR-0033, GET(), isRecord(), parseDate(), PATCH(), READ_GUARD, requireBodyText() (+27 more)
 
 ### Community 35 - "Application / Search Index Engine"
 Cohesion: 0.08
 Nodes (45): main(), readFlag(), TenantRow, ADR-0031, getRegisteredSearchSources(), ADR-0031, SearchSourceDescriptor, countSource() (+37 more)
 
 ### Community 36 - "Domain / Tenant Domain Validation"
-Cohesion: 0.05
-Nodes (45): cancelEmailMessage(), CancelEmailMessageResult, EmailMessageEntry, EmailMessageRow, EmailMessageStatus, fetchEmailMessageEntries(), toView(), KeysetCursor (+37 more)
+Cohesion: 0.08
+Nodes (30): createTenantDomain(), fetchActiveTenantDomain(), listTenantDomains(), setPrimaryTenantDomain(), SetPrimaryTenantDomainResult, softDeleteTenantDomain(), TenantDomainRow, TenantDomainView (+22 more)
 
 ### Community 37 - "Domain / Sidebar Menu"
 Cohesion: 0.07
-Nodes (42): ADR-0034, collectNavigationCandidates(), fetchTenantDisabledModuleKeys(), fetchVisibleModuleNavigationEntries(), AdminSidebarConfig, AdminSidebarItem, AdminSidebarModuleGroup, AdminSidebarType (+34 more)
+Nodes (44): ADR-0034, collectNavigationCandidates(), fetchTenantDisabledModuleKeys(), fetchVisibleModuleNavigationEntries(), AdminSidebarConfig, AdminSidebarItem, AdminSidebarModuleGroup, AdminSidebarType (+36 more)
 
 ### Community 38 - "Application / Seo Discovery Service"
 Cohesion: 0.08
@@ -660,63 +671,63 @@ Nodes (43): RFC-822, escapeXmlText(), absoluteUrl(), buildSitemapPagePayload(), 
 
 ### Community 39 - "Domain / Internal Tag Linking"
 Cohesion: 0.07
-Nodes (42): buildTagArchiveUrl(), InternalTagLinkingContext, InternalTagLinkingDisabledReason, InternalTagLinkingPreview, previewInternalTagLinksForContent(), resolveInternalTagLinkingContext(), DEFAULT_SETTINGS, fetchInternalTagLinkingSettings() (+34 more)
+Nodes (43): buildTagArchiveUrl(), InternalTagLinkingContext, InternalTagLinkingDisabledReason, InternalTagLinkingPreview, previewInternalTagLinksForContent(), resolveInternalTagLinkingContext(), countExistingTagTermIds(), DEFAULT_SETTINGS (+35 more)
 
 ### Community 40 - "Domain / Seo Rendering"
-Cohesion: 0.10
-Nodes (40): renderContentHtmlWithInternalTagLinks(), buildNewsArticleSeoMetadata(), NewsArticleSeoMetadata, NewsArticleSeoMetadataInput, ResolvedNewsArticlePreviewImage, fetchPublicBlogPostBySlug(), fetchPublicPostTaxonomyTerms(), collectRenderableGalleryMediaObjectIds() (+32 more)
+Cohesion: 0.12
+Nodes (34): renderContentHtmlWithInternalTagLinks(), buildNewsArticleSeoMetadata(), fetchPublicBlogPostBySlug(), collectRenderableGalleryMediaObjectIds(), collectRenderableVideoNewsThumbnailMediaObjectIds(), renderContentJsonToHtml(), ArticleTaxonomyTerm, deriveArticleSectionAndTags() (+26 more)
 
 ### Community 41 - "E2E / Helpers"
-Cohesion: 0.06
-Nodes (21): FAILING_IMPACTS, ADR-0026, WCAG_TAGS, ADR-0032, [databaseUrl, tenantCode], SeededOwner, seedOwnerTenant(), seedOwnerTenantInProcess() (+13 more)
+Cohesion: 0.07
+Nodes (18): FAILING_IMPACTS, ADR-0026, WCAG_TAGS, ADR-0032, [databaseUrl, tenantCode], SeededOwner, seedOwnerTenant(), seedOwnerTenantInProcess() (+10 more)
 
 ### Community 42 - "V1 / Comments"
-Cohesion: 0.11
-Nodes (38): checkRateLimit(), resolveClientIp(), ResolvedAuthor, resolveOptionalRegisteredAuthor(), ADR-0032, reportComment(), ReportReason, buildPublicHostResolverConfigFromEnv() (+30 more)
+Cohesion: 0.18
+Nodes (18): ResolvedAuthor, resolveOptionalRegisteredAuthor(), ADR-0032, withCommentsTenant(), hashRequestSignal(), ADR-0032, POST(), ADR-0032 (+10 more)
 
 ### Community 43 - "Lib / Performance"
-Cohesion: 0.12
-Nodes (34): CallSample, EMPTY_LATENCY_SUMMARY, flattenWorkloadMetrics(), LatencySummary, percentile(), round2(), summarizeLatency(), summarizeThroughput() (+26 more)
+Cohesion: 0.10
+Nodes (39): WorkClassSaturation, FixturePlan, CallSample, EMPTY_LATENCY_SUMMARY, flattenWorkloadMetrics(), LatencySummary, percentile(), round2() (+31 more)
 
 ### Community 44 - "Domain / Blog Post Validation"
-Cohesion: 0.10
-Nodes (43): CreateBlogPageValidationResult, SoftDeleteBlogPageInput, SoftDeleteBlogPageValidationResult, UpdateBlogPageValidationResult, validateCreateBlogPageInput(), validateFeaturedMediaId(), validateMenuOrder(), validateParentPageId() (+35 more)
+Cohesion: 0.07
+Nodes (58): sanitizeChecklistPolicyOverrides(), CreateBlogPageValidationResult, SoftDeleteBlogPageInput, SoftDeleteBlogPageValidationResult, UpdateBlogPageValidationResult, validateCreateBlogPageInput(), validateFeaturedMediaId(), validateMenuOrder() (+50 more)
 
 ### Community 45 - "Lib / Observability"
-Cohesion: 0.10
-Nodes (34): CircuitBreaker, CircuitBreakerOptions, CircuitState, circuitStateRank(), decorateWithMetrics(), deriveProviderFamilyLabel(), getProviderCircuitBreakerFamilyStates(), InternalState (+26 more)
+Cohesion: 0.08
+Nodes (34): emitJobRunMetrics(), CounterOrGaugeSeries, createPrometheusTextMetricsPort(), HistogramSeries, PrometheusTextMetricsPort, createInMemoryMetricsPort(), InMemoryHistogramSnapshot, InMemoryMetricsPort (+26 more)
 
 ### Community 46 - "Lib / Tenant"
 Cohesion: 0.08
-Nodes (40): defaultDeps, extractHostHeader(), fetchActivePublicTenantById(), isValidHostnameShape(), normalizePublicHost(), PublicHostResolverConfig, PublicHostResolverDeps, PublicTenantResolutionMode (+32 more)
+Nodes (39): defaultDeps, extractHostHeader(), fetchActivePublicTenantById(), isValidHostnameShape(), normalizePublicHost(), PublicHostResolverDeps, PublicTenantResolutionMode, resolveDefaultPublicTenantFromEnv() (+31 more)
 
 ### Community 47 - "Ports / Seo Facts Port"
 Cohesion: 0.07
-Nodes (40): BlogPostSeoRow, buildArticleJsonLd(), deriveVisibility(), robotsFor(), toFacts(), ADR-0028, assertControlledJsonLd(), buildSeoCacheKey() (+32 more)
+Nodes (41): BlogPostSeoRow, buildArticleJsonLd(), deriveVisibility(), robotsFor(), toFacts(), ADR-0028, assertControlledJsonLd(), assertSafeRedirectTarget() (+33 more)
 
 ### Community 48 - "Lib / Performance"
-Cohesion: 0.09
-Nodes (36): buildSafeScenarios(), buildScenarios(), flagValue(), main(), parseArgs(), PerformanceSuiteOptions, FixtureSeedSummary, QueryPlanCheckResult (+28 more)
+Cohesion: 0.10
+Nodes (33): buildSafeScenarios(), buildScenarios(), flagValue(), main(), parseArgs(), PerformanceSuiteOptions, FixtureSeedSummary, createIdRedactor() (+25 more)
 
 ### Community 49 - "Domain / Content Quality Checklist"
-Cohesion: 0.08
-Nodes (38): BlogSettingsRow, BlogSettingsView, sanitizeChecklistPolicyOverrides(), sanitizeSocialPreviewFallbackImageMediaId(), toView(), upsertBlogSettings(), ChecklistEvaluableContent, EvaluateContentQualityChecklistOptions (+30 more)
+Cohesion: 0.04
+Nodes (65): main(), socialPublishingPort, TenantRow, ADR-0011, DuePostRow, publishDueScheduledPosts(), PublishDueScheduledPostsOptions, PublishDueScheduledPostsResult (+57 more)
 
 ### Community 50 - "Domain / Ad Placement Policy"
 Cohesion: 0.09
 Nodes (37): ActiveAdPlacementForRendering, ActiveAdPlacementRow, AdPlacementRow, AdPlacementView, listActiveAdPlacementsForRendering(), renderAdPlacementHtml(), selectAndRenderActiveAdsForPlacement(), AdPlacementReferenceValidationError (+29 more)
 
 ### Community 51 - "V1 / Social Publishing"
-Cohesion: 0.08
-Nodes (38): connectSocialAccount(), disconnectSocialAccount(), fetchSocialAccountById(), fetchSocialAccountCredentialsForVerification(), listConnectedAutoPublishAccountsForTenant(), listSocialAccounts(), recordSocialAccountVerification(), SocialAccountRow (+30 more)
+Cohesion: 0.13
+Nodes (23): connectSocialAccount(), disconnectSocialAccount(), fetchSocialAccountCredentialsForVerification(), listConnectedAutoPublishAccountsForTenant(), listSocialAccounts(), SocialAccountRow, SocialAccountView, toView() (+15 more)
 
 ### Community 52 - "Scripts / Changeset Policy Check"
 Cohesion: 0.06
 Nodes (36): bun, CHANGESET_POLICY_PATH_EXEMPTIONS, ChangesetFrontmatterResult, ChangesetPolicyResult, evaluateChangesetPolicy(), EXEMPT_PATH_PATTERNS, getChangedFiles(), getDeletedFiles() (+28 more)
 
 ### Community 53 - "Domain / Public Page Rendering"
-Cohesion: 0.23
-Nodes (32): errorPage(), notFoundHtmlResponse(), serverErrorHtmlResponse(), escapeHtml(), resolvePublicTenantByCode(), searchPublicBlogContent(), fetchPublicBlogSettings(), fetchPublicTermBySlug() (+24 more)
+Cohesion: 0.15
+Nodes (43): errorPage(), notFoundHtmlResponse(), serverErrorHtmlResponse(), escapeHtml(), isSupportedLocale(), PublicTenantResolution, resolvePublicTenantByCode(), TenantRow (+35 more)
 
 ### Community 54 - "Integration / Public Link Integrity.Integration.Test"
 Cohesion: 0.06
@@ -724,23 +735,23 @@ Nodes (37): blogContentSeoFactsAdapter, renderResourceSeoHead(), rebuildTenantSe
 
 ### Community 55 - "Application / Search Service"
 Cohesion: 0.08
-Nodes (35): recordSearchQuery(), ADR-0031, decodeSearchCursor(), encodeSearchCursor(), escapeLike(), SearchCursor, SearchQueryOptions, SearchResult (+27 more)
+Nodes (37): recordHistogram(), recordSearchQuery(), ADR-0031, decodeSearchCursor(), encodeSearchCursor(), escapeLike(), SearchCursor, SearchQueryOptions (+29 more)
 
 ### Community 56 - "Admin / Profile"
-Cohesion: 0.06
-Nodes (30): ../../../lib/auth/mfa-config, ../../../lib/i18n/format, ../../lib/i18n/locale, ../../../lib/ui/qr-code, ../../modules/identity-access/application/account-overview, ../../../modules/identity-access/application/mfa, ../modules/module-management/application/navigation-registry, ../modules/reporting/application/sync-indicator (+22 more)
+Cohesion: 0.14
+Nodes (14): ../../../lib/auth/mfa-config, ../../modules/identity-access/application/account-overview, ../../../components/ui/StatusBadge.astro, resolveSidebarLabel(), AccountOverview, AccountOverviewRow, fetchAccountOverview(), accountStatusLabel() (+6 more)
 
 ### Community 57 - "Application / Blog Scheduled Publish"
-Cohesion: 0.07
-Nodes (32): DuePostRow, publishDueScheduledPosts(), PublishDueScheduledPostsOptions, PublishDueScheduledPostsResult, ADR-0006, ADR-0011, fetchPostTermIds(), checklistBlockersToErrorDetails() (+24 more)
+Cohesion: 0.05
+Nodes (42): createBlogPost(), countExistingTerms(), syncPostTermAssignments(), checklistBlockersToErrorDetails(), PostTranslationRow, PostTranslationSummary, setPostTranslationGroup(), POST() (+34 more)
 
 ### Community 58 - "Domain / Path Sanitizer"
-Cohesion: 0.11
-Nodes (30): collectRequestAnalytics(), collectVisitorTelemetry(), CollectVisitorTelemetryInput, SessionRow, shouldCollectRequest(), upsertVisitorSession(), classifyHumanStatus(), classifySessionHumanity() (+22 more)
+Cohesion: 0.07
+Nodes (38): resolveLocale(), resolveRequestLocale(), CorrelationMergeResult, isApiJsonResponseCandidate(), mergeCorrelationIdIntoApiPayload(), buildSecurityHeaders(), SecurityHeaderOptions, applyCorrelationIdToApiBody() (+30 more)
 
 ### Community 59 - "Domain / Redirect Chain"
-Cohesion: 0.08
-Nodes (34): escapeLike(), findConflictingRedirect(), listRedirects(), RedirectListFilters, RedirectRecord, RedirectRow, ResolvedRedirectRule, ADR-0028 (+26 more)
+Cohesion: 0.14
+Nodes (20): findActiveRedirectByPath(), makeOverlayLookup(), previewRedirectChainForInput(), RedirectSafetyOptions, RedirectSafetyResult, siblingInScope(), toHopRule(), ADR-0028 (+12 more)
 
 ### Community 60 - "Adr / 0034 Template Repositioning Online Store Scope And Der"
 Cohesion: 0.09
@@ -748,63 +759,63 @@ Nodes (40): AWPOS (derived application example), Consent-First + Anti-Enumeratio
 
 ### Community 61 - "Application / Dispatch Domain Events"
 Cohesion: 0.07
-Nodes (30): ADR-0012, classifyError(), NOT_RETRYABLE_SQLSTATE_CLASSES, RETRYABLE_SQLSTATE_CLASSES, RETRYABLE_SQLSTATES, RetryClassification, ADR-0006, ClaimedDeliveryRow (+22 more)
+Nodes (33): ADR-0012, classifyError(), NOT_RETRYABLE_SQLSTATE_CLASSES, RETRYABLE_SQLSTATE_CLASSES, RETRYABLE_SQLSTATES, RetryClassification, ADR-0006, sanitizeErrorForLog() (+25 more)
 
 ### Community 62 - "Integration / Reporting Projections.Integration.Test"
 Cohesion: 0.07
-Nodes (29): DUMMY_PASSWORD_SOURCE, getDummyPasswordHash(), hashPassword(), WHY: `POST /auth/login` used to skip `verifyPassword` entirely for an, verifyPassword(), verifyPasswordOrDummy(), [databaseUrl, tenantCode], seedAnalyticsFixture() (+21 more)
+Nodes (30): DUMMY_PASSWORD_SOURCE, getDummyPasswordHash(), hashPassword(), WHY: `POST /auth/login` used to skip `verifyPassword` entirely for an, verifyPassword(), verifyPasswordOrDummy(), [databaseUrl, tenantCode], seedAnalyticsFixture() (+22 more)
 
 ### Community 63 - "Application / Campaign Service"
-Cohesion: 0.07
-Nodes (34): CampaignKind, CampaignRow, CampaignSummary, CampaignTransitionOutcome, cancelCampaign(), createCampaign(), dispatchCampaign(), DispatchOutcome (+26 more)
+Cohesion: 0.10
+Nodes (22): CampaignKind, CampaignRow, CampaignSummary, CampaignTransitionOutcome, cancelCampaign(), createCampaign(), dispatchCampaign(), DispatchOutcome (+14 more)
 
 ### Community 64 - "Lib / Auth"
-Cohesion: 0.11
-Nodes (22): ADR-0002, ../lib/auth/google-oidc-config, ../lib/auth/login-tenant-picker, ../lib/auth/self-registration-config, ../lib/auth/sso-config, ../../lib/comments/comments-client, ../lib/security/secure-url-params, ../lib/security/theme-init-script (+14 more)
+Cohesion: 0.15
+Nodes (15): ADR-0002, ../lib/auth/google-oidc-config, ../lib/auth/login-tenant-picker, ../lib/auth/self-registration-config, ../lib/auth/sso-config, ../lib/security/secure-url-params, ../lib/security/theme-init-script, ../lib/security/turnstile (+7 more)
 
 ### Community 65 - "Domain / Content Block Rendering"
 Cohesion: 0.10
 Nodes (33): ContentBlock, EMPTY_RESOLVED_MEDIA_URLS, GalleryItem, isRecord(), renderBlock(), renderHeading(), renderList(), renderParagraph() (+25 more)
 
 ### Community 66 - "V1 / Newsletter"
-Cohesion: 0.10
-Nodes (31): buildPublicHostResolverConfigFromEnv(), checkNewsletterGate(), NewsletterTenantHandler, padUnresolvedNewsletterTenantLatency(), ADR-0033, withNewsletterTenant(), updatePreferences(), GENERIC_ACCEPTED (+23 more)
+Cohesion: 0.16
+Nodes (18): buildPublicHostResolverConfigFromEnv(), checkNewsletterGate(), NewsletterTenantHandler, padUnresolvedNewsletterTenantLatency(), ADR-0033, withNewsletterTenant(), updatePreferences(), GENERIC_ACCEPTED (+10 more)
 
 ### Community 67 - "Infrastructure / Object Storage Uploader"
-Cohesion: 0.08
-Nodes (30): ClaimedRow, claimEligibleEntries(), dispatchObjectSyncQueue(), DispatchObjectSyncQueueOptions, DispatchObjectSyncQueueResult, finalizeFailure(), finalizeSent(), ADR-0006 (+22 more)
+Cohesion: 0.19
+Nodes (12): verifyObjectChecksum(), createNoopObjectUploader(), createR2ObjectUploader(), ObjectUploader, ObjectUploadInput, R2UploaderConfig, resolveObjectUploader(), resolveUploadTimeoutMs() (+4 more)
 
 ### Community 68 - "Domain / Announcement Validation"
-Cohesion: 0.10
-Nodes (30): AnnouncementPreviewResult, EnqueueAnnouncementResult, previewAnnouncement(), ResolvedRecipient, TargetRow, AnnouncementInput, AnnouncementTarget, isPlainObject() (+22 more)
+Cohesion: 0.11
+Nodes (25): AnnouncementInput, AnnouncementTarget, isPlainObject(), Result, validateAnnouncementInput(), validateTarget(), validateVariables(), ValidationError (+17 more)
 
 ### Community 69 - "Domain / Seo Config"
-Cohesion: 0.08
-Nodes (30): PrimaryHostRow, resolveTenantPrimaryHost(), ADR-0028, fetchSeoSettingsUpdatedAt(), fetchSeoTenantSettings(), SeoConfigAuditHook, SeoSettingsRow, toSettings() (+22 more)
+Cohesion: 0.09
+Nodes (25): PrimaryHostRow, resolveTenantPrimaryHost(), ADR-0028, fetchSeoSettingsUpdatedAt(), fetchSeoTenantSettings(), SeoConfigAuditHook, SeoSettingsRow, toSettings() (+17 more)
 
 ### Community 70 - "Domain / Redirect Rule"
-Cohesion: 0.11
-Nodes (32): RFC-3986, normalizeRedirectPath(), NormalizeRedirectPathOptions, RedirectPathNormalizationResult, ADR-0028, RFC-6761, ALLOWED_REDIRECT_ORIGINS, ALLOWED_REDIRECT_STATES (+24 more)
+Cohesion: 0.09
+Nodes (34): RFC-3986, normalizeRedirectPath(), NormalizeRedirectPathOptions, RedirectPathNormalizationResult, ADR-0028, RFC-6761, RedirectQueryPolicyInput, ADR-0028 (+26 more)
 
 ### Community 71 - "Infrastructure / Telegram Provider Adapter"
 Cohesion: 0.10
-Nodes (27): checkTelegramProviderConfig(), SocialPublishContentSnapshot, isKnownTelegramParseMode(), isTelegramProviderEnabled(), KNOWN_TELEGRAM_PARSE_MODES, resolveTelegramBotTokenSecretReference(), resolveTelegramDefaultParseMode(), resolveTelegramRequestTimeoutMs() (+19 more)
+Nodes (26): checkTelegramProviderConfig(), isKnownTelegramParseMode(), isTelegramProviderEnabled(), KNOWN_TELEGRAM_PARSE_MODES, resolveTelegramBotTokenSecretReference(), resolveTelegramDefaultParseMode(), resolveTelegramRequestTimeoutMs(), TelegramParseMode (+18 more)
 
 ### Community 72 - "Lib / Ui"
 Cohesion: 0.11
 Nodes (18): byteModeCharCountBits(), ECC_CODEWORDS_PER_BLOCK, ECC_FORMAT_BITS, ECC_ORDINAL, encodeQrByteMode(), getBit(), getNumDataCodewords(), getNumRawDataModules() (+10 more)
 
 ### Community 73 - "Domain / Comment Status"
-Cohesion: 0.08
-Nodes (30): BulkModerateResult, listModerationQueue(), ModerateResult, ModerationAuditHook, ModerationQueueItem, QUEUE_STATUSES, QueueRow, ADR-0032 (+22 more)
+Cohesion: 0.14
+Nodes (16): BulkModerateResult, listModerationQueue(), ModerateResult, ModerationAuditHook, ModerationQueueItem, QUEUE_STATUSES, QueueRow, ADR-0032 (+8 more)
 
 ### Community 74 - "Lib / Auth"
-Cohesion: 0.12
-Nodes (29): allEnvVarsPresent(), AuthSecurityFeatureStatus, AuthSecurityStatusSummary, resolveAuthSecurityStatusSummary(), GOOGLE_OIDC_REQUIRED_WHEN_ENABLED, AUTH_MFA_REQUIRED_WHEN_ENABLED, isMfaEnabled(), isFullOnlineSecurityActive() (+21 more)
+Cohesion: 0.11
+Nodes (31): allEnvVarsPresent(), AuthSecurityFeatureStatus, AuthSecurityStatusSummary, resolveAuthSecurityStatusSummary(), GOOGLE_OIDC_REQUIRED_WHEN_ENABLED, AUTH_MFA_REQUIRED_WHEN_ENABLED, isFullOnlineSecurityActive(), isKnownOnlineSecurityProfile() (+23 more)
 
 ### Community 75 - "Integration / Seo Discovery.Integration.Test"
-Cohesion: 0.12
-Nodes (28): notFoundTextResponse(), serverErrorTextResponse(), resolveEnabledSeoProviders(), parseDiscoveryLocaleParam(), serveDiscovery(), buildFeedPayload(), buildRobotsPayload(), buildSitemapIndexPayload() (+20 more)
+Cohesion: 0.13
+Nodes (27): notFoundTextResponse(), serverErrorTextResponse(), parseDiscoveryLocaleParam(), serveDiscovery(), buildFeedPayload(), buildRobotsPayload(), buildSitemapIndexPayload(), GET() (+19 more)
 
 ### Community 76 - "Awcms Micro / 04 Erd Data Dictionary"
 Cohesion: 0.06
@@ -812,23 +823,23 @@ Nodes (34): Concept: Claim-Lease Dispatcher (CLAIM/SEND/FINALIZE), Concept: Gene
 
 ### Community 77 - "Infrastructure / Cloudflare Dns Adapter"
 Cohesion: 0.09
-Nodes (27): RFC-2181, isKnownTenantDomainDnsProvider(), resolveTenantDomainCloudflareTimeoutMs(), TENANT_DOMAIN_CLOUDFLARE_REQUIRED_WHEN_SELECTED, TenantDomainDnsProviderKind, CheckVerificationStatusInput, CheckVerificationStatusResult, CloudflareApiError (+19 more)
+Nodes (26): RFC-2181, resolveTenantDomainCloudflareTimeoutMs(), TENANT_DOMAIN_CLOUDFLARE_REQUIRED_WHEN_SELECTED, TenantDomainDnsProviderKind, CheckVerificationStatusInput, CheckVerificationStatusResult, CloudflareApiError, CloudflareApiResponse (+18 more)
 
 ### Community 78 - "Scripts / Db Migrate"
-Cohesion: 0.10
-Nodes (31): assertNoTransactionControl(), computeMigrationChecksum(), discoverMigrationFiles(), getDatabaseUrl(), isIdentifierContinuationChar(), main(), maskUrlPassword(), MigrationResult (+23 more)
+Cohesion: 0.09
+Nodes (34): assertNoTransactionControl(), computeMigrationChecksum(), discoverMigrationFiles(), getDatabaseUrl(), isIdentifierContinuationChar(), main(), maskUrlPassword(), MigrationResult (+26 more)
 
 ### Community 79 - "Application / Subscriber Service"
-Cohesion: 0.09
-Nodes (31): appendSubscriberEvent(), applyProviderSuppression(), ConfirmResult, confirmSubscription(), getPreferences(), mintToken(), PreferencesView, ProviderSuppressionResult (+23 more)
+Cohesion: 0.08
+Nodes (41): appendSubscriberEvent(), applyProviderSuppression(), ConfirmResult, confirmSubscription(), ensureSubscription(), getPreferences(), mintToken(), padSuppressedSubscribeLatency() (+33 more)
 
 ### Community 80 - "Domain / Media R2 Config"
-Cohesion: 0.13
-Nodes (30): checkNewsMediaR2ImageResizingSafe(), checkNewsMediaR2PublicBaseUrlProductionSafe(), checkNewsMediaR2OrphanGraceLowerBound(), checkNewsMediaR2PresignedTtlUpperBound(), allowedDocumentMimeTypes(), allowsSvgMimeType(), findMissingNewsMediaR2Vars(), findNewsMediaR2PublicBaseUrlProductionUnsafeReason() (+22 more)
+Cohesion: 0.19
+Nodes (21): checkNewsMediaR2OrphanGraceLowerBound(), checkNewsMediaR2PresignedTtlUpperBound(), allowsSvgMimeType(), findNewsMediaR2PublicBaseUrlProductionUnsafeReason(), findUnknownNewsMediaR2MimeTypes(), isLoopbackHost(), isNewsMediaR2Enabled(), isOrphanGraceTooShort() (+13 more)
 
 ### Community 81 - "Lib / Performance"
 Cohesion: 0.11
-Nodes (24): collectNodeTypes(), evaluateQueryPlan(), ExplainPlanNode, ExplainResult, findBudget(), QUERY_PLAN_BUDGETS, QueryPlanBudget, QueryPlanBudgetApproval (+16 more)
+Nodes (21): collectNodeTypes(), evaluateQueryPlan(), ExplainPlanNode, ExplainResult, findBudget(), QUERY_PLAN_BUDGETS, QueryPlanBudget, QueryPlanBudgetApproval (+13 more)
 
 ### Community 82 - "Scripts / Api Docs Generate"
 Cohesion: 0.17
@@ -836,83 +847,83 @@ Nodes (31): RFC-2606, AnyRecord, asArray(), asRecord(), buildRawApiReferenceMark
 
 ### Community 83 - "Lib / Database"
 Cohesion: 0.12
-Nodes (27): formatCapacityReport(), formatUsageLine(), main(), CapacityBudgetReport, CapacityConfig, CapacityFinding, CapacityFindingSeverity, CapacityScenario (+19 more)
+Nodes (26): formatCapacityReport(), formatUsageLine(), main(), CapacityBudgetReport, CapacityConfig, CapacityFinding, CapacityFindingSeverity, CapacityScenario (+18 more)
 
 ### Community 84 - "Scripts / I18N Extract"
-Cohesion: 0.13
-Nodes (25): assertNoDeadDynamicFamilies(), buildLineIndex(), buildPotContent(), DYNAMIC_KEY_FAMILIES, DynamicKeyFamily, escapePoString(), ExtractedEntry, extractKeys() (+17 more)
+Cohesion: 0.22
+Nodes (14): assertNoDeadDynamicFamilies(), buildLineIndex(), buildPotContent(), DYNAMIC_KEY_FAMILIES, DynamicKeyFamily, escapePoString(), ExtractedEntry, extractKeys() (+6 more)
 
 ### Community 85 - "Application / Merge Workflow"
-Cohesion: 0.11
-Nodes (29): computeReferenceImpactSummary(), createMergeRequest(), decideMergeRequest(), DecideMergeRequestResult, executeMergeRequest(), ExecuteMergeRequestResult, fetchMergeRequestById(), fetchPartiesForMergeLocked() (+21 more)
+Cohesion: 0.09
+Nodes (32): appendDomainEvent(), computeReferenceImpactSummary(), createMergeRequest(), decideMergeRequest(), DecideMergeRequestResult, executeMergeRequest(), ExecuteMergeRequestResult, fetchMergeRequestById() (+24 more)
 
 ### Community 86 - "Scripts / Api Spec Check"
 Cohesion: 0.14
-Nodes (27): ALLOWED_PUBLIC_OPERATIONS, AnyRecord, asRecord(), checkAsyncApi(), checkModuleEventChannels(), checkOpenApi(), checkOperationIdUniqueness(), checkOperationSecurityMetadata() (+19 more)
+Nodes (28): ALLOWED_PUBLIC_OPERATIONS, AnyRecord, asRecord(), checkAsyncApi(), checkBundleFreshness(), checkModuleEventChannels(), checkOpenApi(), checkOperationIdUniqueness() (+20 more)
 
 ### Community 87 - "Lib / Config"
-Cohesion: 0.11
-Nodes (26): checkConfigDocsDrift(), DOC18_NON_VARIABLE_TOKENS, DriftProblem, parseDoc18VarNames(), parseEnvExampleVarNames(), runConfigDocsCheck(), ALL_PROFILES, CONFIG_EXEMPTIONS (+18 more)
+Cohesion: 0.13
+Nodes (20): ALL_PROFILES, CONFIG_EXEMPTIONS, CONFIG_REGISTRY, ConfigExemption, ConfigVarDeprecation, ConfigVarEntry, ConfigVarRequirement, ConfigVarSensitivity (+12 more)
 
 ### Community 88 - "Domain / News Portal Preset Readiness"
-Cohesion: 0.11
-Nodes (25): checkNewsPortalFullOnlineR2PresetReady(), checkNewsPortalProfileConfig(), enableManagedMediaEnforcement(), EnableManagedMediaEnforcementResult, ADR-0026, isManagedMediaEnforcedForTenant(), markManagedMediaEnforced(), ADR-0026 (+17 more)
+Cohesion: 0.04
+Nodes (52): ADR-0017, CommentableResourceDefaultPolicy, CommentableResourcePublicationFilter, ExchangeDescriptor, ExchangeDirection, ExchangeFormat, ExchangeLimits, ExchangeSensitiveFieldPolicy (+44 more)
 
 ### Community 89 - "Application / Not Found Directory"
-Cohesion: 0.10
-Nodes (25): buildRedirectResponse(), isPermanent(), MiddlewareRedirectResult, recordPublicNotFound(), resolvePublicRedirectForRequest(), ADR-0028, listNotFoundObservations(), NotFoundObservation (+17 more)
+Cohesion: 0.08
+Nodes (30): buildRedirectResponse(), isPermanent(), MiddlewareRedirectResult, recordPublicNotFound(), resolvePublicRedirectForRequest(), ADR-0028, dismissNotFoundObservation(), listNotFoundObservations() (+22 more)
 
 ### Community 90 - "Application / Public Blog Directory"
-Cohesion: 0.11
-Nodes (27): boundedPage(), boundedPageSize(), fetchPublicBlogPostSummariesByIds(), listPublicBlogPosts(), PublicBlogPostDetail, PublicBlogPostDetailRow, PublicBlogPostPage, PublicBlogPostSummary (+19 more)
+Cohesion: 0.10
+Nodes (26): fetchPublicBlogPostSummariesByIds(), fetchPublicPostTaxonomyTerms(), PublicBlogPostDetail, PublicBlogPostDetailRow, PublicBlogPostPage, PublicBlogPostSummary, PublicBlogPostSummaryRow, PublicBlogSettings (+18 more)
 
 ### Community 91 - "Awcms Micro / 18 Configuration Env Reference"
 Cohesion: 0.11
 Nodes (30): Config Registry (single source of truth), Four-role database separation (migration 045), Deployment-aware connection capacity (Issue #743), Configuration & Environment Reference (Doc 18), Full-online auth security hardening gate (Issue #587-#593), Full-online deployment profile (ADR-0027), Public tenant routing config (Issue #556/#559), Request body size limits (Issue #686) (+22 more)
 
 ### Community 92 - "Application / Sync Directory"
-Cohesion: 0.10
-Nodes (21): ../../modules/reporting/application/access-audit-report, ../../modules/reporting/application/module-usage-report, ../../modules/reporting/application/sync-health-report, ../../modules/reporting/application/tenant-activity-report, ../../modules/sync-storage/application/sync-directory, EmailHealthReport, fetchEmailHealthReport(), fetchSyncHealthReport() (+13 more)
+Cohesion: 0.11
+Nodes (18): ../../modules/reporting/application/access-audit-report, ../../modules/reporting/application/module-usage-report, ../../modules/reporting/application/sync-health-report, ../../modules/reporting/application/tenant-activity-report, AccessAuditReport, fetchAccessAuditReport(), EmailHealthReport, fetchEmailHealthReport() (+10 more)
 
 ### Community 93 - "Lib / I18N"
-Cohesion: 0.11
-Nodes (22): ../../modules/tenant-admin/application/tenant-settings-directory, App, Locals, SsrContext, catalogCache, clearCatalogCache(), DEFAULT_I18N_DIR, formatCurrencyIDR() (+14 more)
+Cohesion: 0.10
+Nodes (32): checkKeyParity(), checkNoPluralForms(), checkPlaceholderParity(), extractPlaceholders(), Problem, runI18nParityCheck(), App, Locals (+24 more)
 
 ### Community 94 - "Scripts / Production Preflight"
-Cohesion: 0.13
-Nodes (25): AppliedMigration, MigrationFile, validateAppliedChecksums(), isServerReachable(), authorizeApply(), checkDatabaseCapacity(), checkDatabaseConnectivity(), computeMigrationPlan() (+17 more)
+Cohesion: 0.11
+Nodes (26): AppliedMigration, MigrationFile, interpretPoolHealthStatus(), main(), PoolHealthOutcome, isServerReachable(), resolveAppBaseUrl(), authorizeApply() (+18 more)
 
 ### Community 95 - "Middleware"
-Cohesion: 0.11
-Nodes (16): resolveLocale(), resolveRequestLocale(), CorrelationMergeResult, isApiJsonResponseCandidate(), mergeCorrelationIdIntoApiPayload(), buildSecurityHeaders(), SecurityHeaderOptions, applyCorrelationIdToApiBody() (+8 more)
+Cohesion: 0.08
+Nodes (35): buildOAuthStateParam(), generateOAuthState(), generateOidcNonce(), hashOAuthState(), parseOAuthStateParam(), consumeOAuthRequest(), createOAuthRequest(), AutoLinkResult (+27 more)
 
 ### Community 96 - "Domain / Sync Validation"
-Cohesion: 0.10
-Nodes (23): SyncAuthFailure, SyncAuthSuccess, NODE_STATUSES, Result, UpdateSyncNodeInput, validateUpdateSyncNodeInput(), ValidationError, evaluatePushEventConflict() (+15 more)
+Cohesion: 0.20
+Nodes (11): NODE_STATUSES, Result, UpdateSyncNodeInput, validateUpdateSyncNodeInput(), ValidationError, evaluatePushEventConflict(), SyncConflictEvaluation, SyncConflictType (+3 more)
 
 ### Community 97 - "Lib / Database"
-Cohesion: 0.11
-Nodes (20): createCircuitBreaker(), getProviderCircuitBreaker(), DatabaseUnavailableError, acquireWorkClassSlot(), createGateState(), emitWorkClassGauges(), gates, GateState (+12 more)
+Cohesion: 0.08
+Nodes (33): runWorkClassRegistryCheck(), buildWorkClassRegistryJson(), buildWorkClassRegistrySnapshot(), classifyJob(), classifyRoute(), findStaleJobRegistryEntries(), JobWorkClassSnapshotEntry, main() (+25 more)
 
 ### Community 98 - "Domain / Content Block Media References"
-Cohesion: 0.11
-Nodes (19): NewsMediaReferenceValidationError, NewsMediaReferenceValidationResult, violationMessage(), VideoNewsThumbnailReferenceValidationError, VideoNewsThumbnailReferenceValidationResult, collectGalleryImageReferences(), collectVideoNewsThumbnailReferences(), GalleryImageReferences (+11 more)
+Cohesion: 0.12
+Nodes (28): buildGoogleAuthorizationUrl(), isSsoRequired(), Bucket, buckets, checkRateLimit(), RateLimitConfig, RateLimitResult, resolveClientIp() (+20 more)
 
 ### Community 99 - "Domain / Widget Policy"
-Cohesion: 0.11
-Nodes (25): BlogWidgetRow, BlogWidgetView, createWidget(), fetchWidgetById(), listWidgets(), ListWidgetsFilter, toView(), updateWidget() (+17 more)
+Cohesion: 0.21
+Nodes (12): BlogWidgetRow, BlogWidgetView, createWidget(), fetchWidgetById(), listWidgets(), ListWidgetsFilter, softDeleteWidget(), toView() (+4 more)
 
 ### Community 100 - "Domain / Tenant Sso Policy"
 Cohesion: 0.12
-Nodes (25): countEligibleBreakGlassIdentities(), DEFAULT_POLICY_VIEW, fetchEligibleBreakGlassIdentityIds(), getTenantAuthPolicy(), saveTenantAuthPolicy(), SaveTenantAuthPolicyResult, TenantAuthPolicyRow, TenantAuthPolicyView (+17 more)
+Nodes (26): DEFAULT_POLICY_VIEW, fetchEligibleBreakGlassIdentityIds(), getTenantAuthPolicy(), saveTenantAuthPolicy(), SaveTenantAuthPolicyResult, TenantAuthPolicyRow, TenantAuthPolicyView, toArray() (+18 more)
 
 ### Community 101 - "Application / Theme Config Directory"
 Cohesion: 0.15
-Nodes (26): EMPTY_THEME_TENANT_STATE, fetchDraftVersion(), fetchThemeTenantState(), fetchVersionById(), insertPublishedVersion(), listPublishedVersionIds(), listPublishedVersions(), nextPublishedVersionNumber() (+18 more)
+Nodes (25): EMPTY_THEME_TENANT_STATE, fetchDraftVersion(), fetchThemeTenantState(), fetchVersionById(), insertPublishedVersion(), listPublishedVersionIds(), listPublishedVersions(), nextPublishedVersionNumber() (+17 more)
 
 ### Community 102 - "Adr / 0013 Extension Layers And Boundary Model"
 Cohesion: 0.09
-Nodes (27): Capability Ports-and-Adapters Pattern, Six Extension Layers (Core..Derived Application), Modular Monolith Pattern, Module Admission Categories (Core/System/Optional/Derived/Integration), No Shared-Table Write Rule, Row Level Security (RLS) Multi-Tenant Isolation, PostgreSQL Backup & Restore Guide, Deployment Assets README (+19 more)
+Nodes (26): Capability Ports-and-Adapters Pattern, Six Extension Layers (Core..Derived Application), Modular Monolith Pattern, Module Admission Categories (Core/System/Optional/Derived/Integration), No Shared-Table Write Rule, Row Level Security (RLS) Multi-Tenant Isolation, PostgreSQL Backup & Restore Guide, Deployment Assets README (+18 more)
 
 ### Community 103 - "Lib / Ui"
 Cohesion: 0.15
@@ -923,68 +934,68 @@ Cohesion: 0.11
 Nodes (21): registerDomainEventConsumerForTests(), fetchAuditActions(), seedAuditEvent(), seedTenant(), countAuditEvents(), countRunHistoryRows(), seedAuditEvent(), seedOldRunHistoryRows() (+13 more)
 
 ### Community 105 - "Skills / Awcms Micro Sync Hmac"
-Cohesion: 0.13
-Nodes (26): ADR-0025: Website Scope Derivation from AWCMS-Mini, ADR-0036: Remove Derived-Application Pathway, Align Family, Concept: Bun-Only Backend Platform Policy, awcms-micro-security-review skill, awcms-micro-sensitive-data skill, awcms-micro-sync-hmac skill, PRD Detail Per Modul, SRS Detail Per Modul (+18 more)
+Cohesion: 0.12
+Nodes (25): ADR-0025: Website Scope Derivation from AWCMS-Mini, ADR-0034: Template Repositioning to Online-Store Scope, Derived-App Deprecation, ADR-0036: Remove Derived-Application Pathway, Align Family, Concept: Bun-Only Backend Platform Policy, awcms-micro-security-review skill, awcms-micro-sensitive-data skill, awcms-micro-sync-hmac skill, PRD Detail Per Modul (+17 more)
 
 ### Community 106 - "Domain / Ad Policy"
-Cohesion: 0.11
-Nodes (23): ActiveAdForPlacement, ActiveAdRow, BlogAdPlacementRow, BlogAdPlacementView, BlogAdRow, BlogAdView, fetchAdPlacements(), renderAdHtml() (+15 more)
+Cohesion: 0.19
+Nodes (14): AD_PLACEMENT_TYPES, AdPlacementInput, AdPlacementType, CreateAdInput, CreateAdValidationResult, isAdPlacementType(), isNonEmptyString(), parseOptionalDate() (+6 more)
 
 ### Community 107 - "Domain / Css Value Validation"
-Cohesion: 0.17
-Nodes (21): assertSafeCssPrimitive(), CssValueError, DIMENSION_UNIT_ALLOW_LIST, FORBIDDEN_CSS_SUBSTRINGS, hasBalancedParens(), hasBalancedQuotes(), NAMED_COLOR_ALLOW_LIST, ADR-0029 (+13 more)
+Cohesion: 0.15
+Nodes (22): assertSafeCssPrimitive(), CssValueError, DIMENSION_UNIT_ALLOW_LIST, DimensionConstraint, FORBIDDEN_CSS_SUBSTRINGS, hasBalancedParens(), hasBalancedQuotes(), NAMED_COLOR_ALLOW_LIST (+14 more)
 
 ### Community 108 - "Domain / Theme Descriptor"
 Cohesion: 0.08
-Nodes (25): DimensionConstraint, NumberConstraint, assertSubset(), THEME_ALLOWED_EXTERNAL_FRAME_SOURCES, THEME_ALLOWED_EXTERNAL_SCRIPT_SOURCES, THEME_ALLOWED_EXTERNAL_STYLE_SOURCES, ThemeAccessibilityDeclaration, ThemeAssetSlotKind (+17 more)
+Nodes (22): InvalidThemeDescriptorError, THEME_ALLOWED_EXTERNAL_FRAME_SOURCES, THEME_ALLOWED_EXTERNAL_SCRIPT_SOURCES, THEME_ALLOWED_EXTERNAL_STYLE_SOURCES, ThemeAccessibilityDeclaration, ThemeAssetSlotKind, ThemeAssetSlotSpec, ThemeColorTokenSpec (+14 more)
 
 ### Community 109 - "Awcms Micro / News Portal"
 Cohesion: 0.11
 Nodes (25): asyncapi/awcms-micro-domain-events.asyncapi.yaml, Social Provider Limitations, Cross-provider limitations (secret manager, auto-requeue, metrics sync), Instagram manual share limitation, Meta Facebook Page provider limitations, Meta Instagram Business provider limitations, WhatsApp no auto-posting decision, Social Publishing (Auto Posting) Architecture (+17 more)
 
 ### Community 110 - "Domain / Access Control"
-Cohesion: 0.12
-Nodes (18): ../../../lib/comments/comments-admin-client, ../../../lib/newsletter/newsletter-admin-client, ContentOwnershipAttributes, ADR-0004, PageOwnershipAttributes, ADR-0004, UPDATE_GUARD, PostOwnershipAttributes (+10 more)
+Cohesion: 0.15
+Nodes (16): ContentOwnershipAttributes, evaluateContentUpdateAccess(), ADR-0004, evaluatePageUpdateAccess(), PageOwnershipAttributes, ADR-0004, UPDATE_GUARD, PostOwnershipAttributes (+8 more)
 
 ### Community 111 - "Lib / Docs Checks.Mjs"
 Cohesion: 0.20
 Nodes (20): checkLinks(), listMarkdown(), loadComposeServiceNames(), ROOT, runChecks(), checkComposeServiceNames(), checkMermaid(), checkNaming() (+12 more)
 
 ### Community 112 - "Infrastructure / Local Export Adapter"
-Cohesion: 0.13
-Nodes (22): GenerateExportInput, generateProjectionExport(), resolveExportRootPath(), resolveRetentionDays(), ADR-0006, ExportRunDbRow, ExportRunFormat, ExportRunRow (+14 more)
+Cohesion: 0.08
+Nodes (34): GenerateExportInput, generateProjectionExport(), resolveExportRootPath(), resolveRetentionDays(), ADR-0006, ExportRunDbRow, ExportRunFormat, ExportRunRow (+26 more)
 
 ### Community 113 - "Domain / Seo Document"
-Cohesion: 0.14
-Nodes (23): absoluteOrRelative(), buildSeoDocument(), buildSiteIdentityNodes(), composeRobots(), parseRobots(), ResolvedSeoImage, SeoDocument, SeoDocumentResult (+15 more)
+Cohesion: 0.12
+Nodes (29): resolveImages(), SeoResourceRenderInput, SeoResourceRenderResult, ADR-0028, absoluteOrRelative(), buildSeoDocument(), buildSiteIdentityNodes(), composeRobots() (+21 more)
 
 ### Community 114 - "Lib / Resilience"
-Cohesion: 0.13
-Nodes (18): buildSafeScenarios(), buildScenarios(), DrDrillOptions, DrReport, main(), parseArgs(), computeDrOverall(), ScenarioResult (+10 more)
+Cohesion: 0.12
+Nodes (23): buildSafeScenarios(), buildScenarios(), DrDrillOptions, DrReport, main(), parseArgs(), computeDrOverall(), DrOverall (+15 more)
 
 ### Community 115 - "Scripts / Scope Consistency Check"
 Cohesion: 0.14
 Nodes (22): AnyRecord, boundaryPattern(), checkAsyncApiFreeOfExcludedModules(), checkBaseModuleCount(), checkInventoriesFreeOfExcludedModules(), checkModuleCountClaim(), checkOpenApiPathsFreeOfExcludedModules(), checkRegistryExcludesErpModules() (+14 more)
 
 ### Community 116 - "Domain / Login Policy"
-Cohesion: 0.12
-Nodes (19): checkLoginLockoutImplemented(), computeLockedUntil(), evaluateLoginAttempt(), IdentityStatus, isAccountLocked(), LoginAttemptInput, LoginAttemptResult, LoginDenyReason (+11 more)
+Cohesion: 0.13
+Nodes (18): computeLockedUntil(), evaluateLoginAttempt(), IdentityStatus, isAccountLocked(), LoginAttemptInput, LoginAttemptResult, LoginDenyReason, LoginIdentitySnapshot (+10 more)
 
 ### Community 117 - "Integration / Blog Content Settings.Integration.Test"
-Cohesion: 0.26
-Nodes (17): notFoundXmlResponse(), serverErrorXmlResponse(), EnabledSeoProviders, ADR-0028, fetchBlogSettings(), resolveNewsArticlePreviewImage(), listPublicBlogPostsForFeed(), mediaLibraryPortAdapter (+9 more)
+Cohesion: 0.12
+Nodes (39): notFoundXmlResponse(), serverErrorXmlResponse(), EnabledSeoProviders, resolveEnabledSeoProviders(), ADR-0028, BlogSettingsRow, fetchBlogSettings(), sanitizeSocialPreviewFallbackImageMediaId() (+31 more)
 
 ### Community 118 - "Shared / Redaction"
 Cohesion: 0.15
-Nodes (20): redactEventPayloadForResponse(), AuditEventInput, AuditEventRecorded, getAuditExportHook(), setAuditExportHook(), collectKeysDeep(), collectSecretShapedValuePaths(), EXACT_SENSITIVE_KEY_SYNONYMS (+12 more)
+Nodes (19): redactEventPayloadForResponse(), AuditEventInput, AuditEventRecorded, getAuditExportHook(), setAuditExportHook(), collectKeysDeep(), collectSecretShapedValuePaths(), EXACT_SENSITIVE_KEY_SYNONYMS (+11 more)
 
 ### Community 119 - "Domain / Email Template Validation"
 Cohesion: 0.12
-Nodes (21): createEmailTemplate(), EmailTemplateRow, EmailTemplateView, listEmailTemplates(), ListEmailTemplatesFilter, restoreEmailTemplate(), SeedDefaultEmailTemplatesResult, toView() (+13 more)
+Nodes (22): createEmailTemplate(), EmailTemplateRow, EmailTemplateView, listEmailTemplates(), ListEmailTemplatesFilter, restoreEmailTemplate(), SeedDefaultEmailTemplatesResult, softDeleteEmailTemplate() (+14 more)
 
 ### Community 120 - "V1 / Media"
-Cohesion: 0.12
-Nodes (20): fetchNewsMediaObjectById(), createAdPlacement(), fetchAdPlacementById(), listAdPlacements(), softDeleteAdPlacement(), toView(), updateAdPlacement(), validateAdPlacementMediaReference() (+12 more)
+Cohesion: 0.13
+Nodes (15): finalizeNewsMediaUploadSession(), FinalizeNewsMediaUploadSessionDeps, FinalizeNewsMediaUploadSessionInput, PrecheckResult, ADR-0006, VERIFY_GUARD, fetchNewsMediaObjectById(), CANCEL_GUARD (+7 more)
 
 ### Community 121 - "Domain / Media Permissions"
 Cohesion: 0.13
@@ -995,36 +1006,36 @@ Cohesion: 0.14
 Nodes (22): CandidateInput, DuplicateCandidateRow, DuplicateCandidateView, fetchDuplicateCandidateById(), generateDuplicateCandidatesForProfile(), IdentifierMatchRow, listDuplicateCandidates(), ProfileForMatching (+14 more)
 
 ### Community 123 - "Application / Social Publish Job Directory"
-Cohesion: 0.13
-Nodes (20): approveSocialPublishJob(), CANCELLABLE_STATUSES, cancelSocialPublishJob(), fetchSocialPublishJobById(), listSocialPublishAttemptsForJob(), listSocialPublishJobs(), ListSocialPublishJobsOptions, RETRYABLE_STATUSES (+12 more)
+Cohesion: 0.14
+Nodes (19): approveSocialPublishJob(), CANCELLABLE_STATUSES, fetchSocialPublishJobById(), listSocialPublishAttemptsForJob(), listSocialPublishJobs(), ListSocialPublishJobsOptions, RETRYABLE_STATUSES, retrySocialPublishJob() (+11 more)
 
 ### Community 124 - "Tsconfig"
 Cohesion: 0.09
 Nodes (22): astro/tsconfigs/strict, .astro/types.d.ts, dist, ES2024, node_modules, scripts/**/*, src/**/*, tests/**/* (+14 more)
 
 ### Community 125 - "Application / Blog Post Directory"
-Cohesion: 0.11
-Nodes (22): BlogPostAdminListRow, BlogPostRow, BlogPostSummary, BlogPostSummaryRow, BlogPostView, createBlogPost(), FetchBlogPostOptions, listBlogPosts() (+14 more)
+Cohesion: 0.05
+Nodes (55): ../../../lib/i18n/format, ../../../../modules/blog-content/application/author-lookup, ../../../../modules/blog-content/application/blog-page-directory, ../../../../modules/blog-content/application/blog-post-directory, ../../../../modules/blog-content/application/blog-revision-directory, ../../../modules/blog-content/application/blog-taxonomy-directory, ../../../../modules/blog-content/domain/page-type, ../../../modules/blog-content/domain/post-status (+47 more)
 
 ### Community 126 - "Domain / Blog Term Validation"
-Cohesion: 0.16
-Nodes (19): CreateBlogTermInput, CreateBlogTermValidationResult, isNonEmptyString(), SoftDeleteBlogTermInput, SoftDeleteBlogTermValidationResult, UpdateBlogTermInput, UpdateBlogTermValidationResult, validateCreateBlogTermInput() (+11 more)
+Cohesion: 0.12
+Nodes (27): BlogTermRow, BlogTermView, createBlogTerm(), fetchBlogTermById(), fetchBlogTermsByTaxonomyType(), listBlogTerms(), ListBlogTermsFilter, toView() (+19 more)
 
 ### Community 127 - "Infrastructure / Consumer Registry"
-Cohesion: 0.11
-Nodes (18): applyConsumerEffectOnce(), BacklogCountRow, ConsumerStateRow, DomainEventConsumerView, pauseConsumer(), resumeConsumer(), UnknownDomainEventConsumerError, activityRollupProjectorConsumer (+10 more)
+Cohesion: 0.16
+Nodes (11): applyConsumerEffectOnce(), activityRollupProjectorConsumer, BASE_DOMAIN_EVENT_CONSUMERS, DOMAIN_EVENT_CONSUMERS, eventActivityProjectorConsumer, getConsumersForEventType(), resetDomainEventConsumersForTests(), sampleAuditProjectorConsumer (+3 more)
 
 ### Community 128 - "Application / Identifier Directory"
-Cohesion: 0.19
-Nodes (18): enqueueAnnouncement(), resolveAnnouncementTargets(), createSuppression(), deriveSubscriberEmailParts(), ADR-0033, createIdentifier(), DuplicateIdentifierError, IdentifierRow (+10 more)
+Cohesion: 0.12
+Nodes (28): AnnouncementPreviewResult, enqueueAnnouncement(), EnqueueAnnouncementResult, previewAnnouncement(), resolveAnnouncementTargets(), ResolvedRecipient, TargetRow, fetchActiveEmailTemplateByKey() (+20 more)
 
 ### Community 129 - "Application / Email Dispatch"
-Cohesion: 0.15
-Nodes (18): ClaimedRow, claimEligibleEntries(), dispatchEmailQueue(), DispatchEmailQueueOptions, DispatchEmailQueueResult, fetchTenantDefaultLocale(), finalizeFailure(), finalizeSent() (+10 more)
+Cohesion: 0.12
+Nodes (22): main(), TenantRow, main(), readArg(), logScriptFailure(), ClaimedRow, claimEligibleEntries(), dispatchEmailQueue() (+14 more)
 
 ### Community 130 - "Domain / Form Draft Validation"
-Cohesion: 0.16
-Nodes (20): createFormDraft(), fetchActiveFormDraft(), FormDraftRow, FormDraftView, listFormDrafts(), ListFormDraftsFilter, submitFormDraft(), toView() (+12 more)
+Cohesion: 0.15
+Nodes (21): createFormDraft(), deleteFormDraft(), fetchActiveFormDraft(), FormDraftRow, FormDraftView, listFormDrafts(), ListFormDraftsFilter, submitFormDraft() (+13 more)
 
 ### Community 131 - "Domain / Campaign Preview"
 Cohesion: 0.15
@@ -1043,32 +1054,32 @@ Cohesion: 0.15
 Nodes (15): generateResetToken(), hashResetToken(), openUrlParams(), sealUrlParams(), completePasswordReset(), CompletePasswordResetResult, requestPasswordReset(), RequestPasswordResetOptions (+7 more)
 
 ### Community 135 - "Lib / Logging"
-Cohesion: 0.13
-Nodes (18): isSupportedLocale(), currentThreshold(), getLogSink(), LOG_LEVEL_SEVERITY, LogContext, LogEntry, LogLevel, LogSink (+10 more)
+Cohesion: 0.07
+Nodes (29): API contract test, Application, Backup SOP ringkas, Bagian 7 — Sprint Plan, Testing Checklist, dan Production Readiness, Database, Definition of MVP Ready, Definition of Production Ready, Go-live plan (+21 more)
 
 ### Community 136 - "Lib / Theming"
 Cohesion: 0.20
 Nodes (18): buildThemingHostResolverConfigFromEnv(), cssResponse(), etagFor(), notModified(), serveActiveThemeTokensCss(), ADR-0029, ThemeConfigVersion, defaultThemeCss() (+10 more)
 
 ### Community 137 - "Domain / Legal Hold"
-Cohesion: 0.16
-Nodes (19): CreateLegalHoldResult, LegalHoldDbRow, LegalHoldRow, listLegalHolds(), ListLegalHoldsFilter, releaseLegalHold(), ReleaseLegalHoldResult, toRow() (+11 more)
+Cohesion: 0.12
+Nodes (23): ADR-0011, CreateLegalHoldResult, LegalHoldDbRow, LegalHoldRow, listLegalHolds(), ListLegalHoldsFilter, releaseLegalHold(), ReleaseLegalHoldResult (+15 more)
 
 ### Community 138 - "Application / Append Domain Event"
-Cohesion: 0.14
-Nodes (17): appendDomainEvent(), AppendDomainEventInput, AppendDomainEventResult, DomainEventRow, InvalidDomainEventPayloadError, ADR-0006, UnregisteredDomainEventTypeError, collectCredentialShapedKeys() (+9 more)
+Cohesion: 0.29
+Nodes (10): collectCredentialShapedKeys(), CREDENTIAL_KEY_SUBSTRINGS, deriveOrderKey(), DomainEventPayloadValidationResult, isCredentialShapedKey(), isValidEventType(), isValidEventVersion(), ADR-0013 (+2 more)
 
 ### Community 139 - "V1 / Registration Requests"
-Cohesion: 0.13
-Nodes (17): ApproveOutcome, approveRegistrationRequest(), listPendingRegistrations(), PendingRegistration, RejectOutcome, rejectRegistrationRequest(), SubmitOutcome, submitRegistrationRequest() (+9 more)
+Cohesion: 0.16
+Nodes (14): ApproveOutcome, approveRegistrationRequest(), listPendingRegistrations(), PendingRegistration, RejectOutcome, rejectRegistrationRequest(), SubmitOutcome, APPROVE_GUARD (+6 more)
 
 ### Community 140 - "Domain / User Management"
 Cohesion: 0.15
 Nodes (18): isNonEmptyString(), RegistrationInput, Result, validateRegistrationInput(), ValidationError, CreateRoleInput, CreateUserInput, isNonEmptyString() (+10 more)
 
 ### Community 141 - "Domain / Redirect Settings"
-Cohesion: 0.13
-Nodes (17): RedirectSettingsAuditHook, SettingsRow, ADR-0028, UrlChangeCaptureAudit, UrlChangeCaptureResult, RedirectValidationError, EMPTY_REDIRECT_SETTINGS, RedirectSettings (+9 more)
+Cohesion: 0.09
+Nodes (28): escapeLike(), findConflictingRedirect(), listRedirects(), purgeRedirect(), RedirectListFilters, RedirectRecord, RedirectRow, ResolvedRedirectRule (+20 more)
 
 ### Community 142 - "Domain / Search Settings"
 Cohesion: 0.16
@@ -1083,20 +1094,20 @@ Cohesion: 0.11
 Nodes (16): awcms (ERP lineage repo), AWCMS-Micro, awcms-mini (base standard repo), CODE_OF_CONDUCT.md (Contributor Covenant v2.1), ADR-0002: Bun-only runtime, ADR-0003: PostgreSQL + RLS multi-tenant, ADR-0004: RBAC/ABAC default-deny, ADR-0005: Soft delete and immutability (+8 more)
 
 ### Community 145 - "Awcms Micro / Comments"
-Cohesion: 0.12
-Nodes (21): awcms-micro-repo-inventory skill, AWCMS-Micro API & Event Reference, Comments module — moderation, privacy, admin guide, ADR-0032 (comments module admission), Comments anti-abuse runbook (honeypot, timing floor, blocked terms), Comment moderation status machine (applyModerationAction), Data Lifecycle — operational and compliance guide, Cursor boundary safety margin (microsecond vs millisecond) (+13 more)
+Cohesion: 0.08
+Nodes (31): awcms-micro-repo-inventory skill, AWCMS-Micro API & Event Reference, Base-Standard Hardening Roadmap, ADR-0025 (website-scope narrowing), Login response-body enumeration collapse (A2), verifyPasswordOrDummy (login timing oracle fix), Comments module — moderation, privacy, admin guide, ADR-0032 (comments module admission) (+23 more)
 
 ### Community 146 - "Application / Blog Page Directory"
-Cohesion: 0.12
-Nodes (19): BlogPageRow, BlogPageSummary, BlogPageSummaryRow, BlogPageView, createBlogPage(), fetchBlogPageById(), FetchBlogPageOptions, listBlogPages() (+11 more)
+Cohesion: 0.14
+Nodes (20): PublicHostResolverConfig, CommentSettingsAuditHook, fetchCommentSettings(), SettingsRow, toSettings(), ADR-0032, updateCommentSettings(), buildPublicHostResolverConfigFromEnv() (+12 more)
 
 ### Community 147 - "Domain / Template Policy"
-Cohesion: 0.16
-Nodes (19): BlogTemplateRow, BlogTemplateView, createTemplate(), fetchTemplateById(), listTemplates(), toView(), updateTemplate(), CreateTemplateInput (+11 more)
+Cohesion: 0.14
+Nodes (21): BlogTemplateRow, BlogTemplateView, createTemplate(), fetchTemplateById(), listTemplates(), softDeleteTemplate(), toView(), updateTemplate() (+13 more)
 
 ### Community 148 - "Integration / Website Platform Cross Tenant Isolation.Integr"
 Cohesion: 0.11
-Nodes (17): listApprovedComments(), DEFAULT_COMMENT_SETTINGS, insertPost(), publicList(), seedTenant(), settings, authHeaders(), Bootstrap (+9 more)
+Nodes (19): listApprovedComments(), getOrCreateThread(), DEFAULT_COMMENT_SETTINGS, insertPost(), publicList(), seedTenant(), settings, submit() (+11 more)
 
 ### Community 149 - "Domain / Commentable Resource Registry"
 Cohesion: 0.17
@@ -1104,23 +1115,23 @@ Nodes (18): buildUrl(), findDescriptorByResourceType(), listCommentableDescripto
 
 ### Community 150 - "Application / Domain Event Directory"
 Cohesion: 0.13
-Nodes (16): DeliveryNotDeadLetteredError, replayDomainEventDelivery(), ReplaySchemaIncompatibleError, UnknownReplayConsumerError, DomainEventDeliveryRow, DomainEventDeliveryView, DomainEventRow, DomainEventView (+8 more)
+Nodes (17): DeliveryNotDeadLetteredError, replayDomainEventDelivery(), ReplaySchemaIncompatibleError, UnknownReplayConsumerError, DomainEventDeliveryRow, DomainEventDeliveryView, DomainEventRow, DomainEventView (+9 more)
 
 ### Community 151 - "Application / Business Scope Assignment Service"
 Cohesion: 0.15
-Nodes (18): BusinessScopeAssignmentDbRow, BusinessScopeAssignmentRow, createBusinessScopeAssignment(), CreateBusinessScopeAssignmentResult, listBusinessScopeAssignments(), ListBusinessScopeAssignmentsFilter, RevokeBusinessScopeAssignmentResult, SoDConflictSummary (+10 more)
+Nodes (19): BusinessScopeAssignmentDbRow, BusinessScopeAssignmentRow, createBusinessScopeAssignment(), CreateBusinessScopeAssignmentResult, listBusinessScopeAssignments(), ListBusinessScopeAssignmentsFilter, revokeBusinessScopeAssignment(), RevokeBusinessScopeAssignmentResult (+11 more)
 
 ### Community 152 - "Domain / Content Source Registry"
 Cohesion: 0.16
 Nodes (18): buildUrl(), findContentSourceByResourceType(), listNewsletterContentSources(), ResolvedNewsletterContent, resolvePublishedNewsletterContent(), ADR-0013, ADR-0033, assertSafeIdentifier() (+10 more)
 
 ### Community 153 - "V1 / Profiles"
-Cohesion: 0.14
-Nodes (16): softDeleteAddress(), softDeleteChannel(), softDeleteIdentifier(), DeleteReasonRequestBody, DeleteReasonValidationResult, validateDeleteReasonRequestBody(), ValidationError, DELETE() (+8 more)
+Cohesion: 0.15
+Nodes (16): softDeleteAddress(), softDeleteChannel(), softDeleteIdentifier(), updateIdentifier(), DeleteReasonRequestBody, DeleteReasonValidationResult, validateDeleteReasonRequestBody(), ValidationError (+8 more)
 
 ### Community 154 - "Package"
-Cohesion: 0.10
-Nodes (20): @astrojs/node, ../../package.json, author, bugs, url, dependencies, astro, @astrojs/node (+12 more)
+Cohesion: 0.12
+Nodes (16): ../../package.json, author, bugs, url, description, engines, homepage, license (+8 more)
 
 ### Community 155 - "Skills / Awcms Micro Idempotency"
 Cohesion: 0.14
@@ -1128,7 +1139,7 @@ Nodes (20): awcms-micro-email Skill, Email outbox dispatcher pattern (awcms_micr
 
 ### Community 156 - "Infrastructure / Local Archive Adapter"
 Cohesion: 0.13
-Nodes (15): RFC-4180, ArchivePortKind, ArchiveWriteInput, ArchiveWriteResult, ADR-0006, ADR-0011, ADR-0013, buildArtifactPath() (+7 more)
+Nodes (16): RFC-4180, ArchivePort, ArchivePortKind, ArchiveWriteInput, ArchiveWriteResult, ADR-0006, ADR-0011, ADR-0013 (+8 more)
 
 ### Community 157 - "Application / Social Publishing Settings Directory"
 Cohesion: 0.17
@@ -1139,12 +1150,12 @@ Cohesion: 0.16
 Nodes (18): isValidDateOnly(), main(), readFlag(), resolveDatesToRollup(), TenantRow, toDateOnly(), ALLOWED_JSON_COLUMNS, ALLOWED_JSON_KEYS (+10 more)
 
 ### Community 159 - "Application / Public Route Settings"
-Cohesion: 0.15
-Nodes (17): PublicTenantResolution, TenantRow, ADR-0003, ADR-0009, buildPublicHostResolverConfigFromEnv(), checkBlogContentAndRouteGate(), NewsTenantHandler, padUnresolvedTenantLatency() (+9 more)
+Cohesion: 0.12
+Nodes (18): cancelEmailMessage(), CancelEmailMessageResult, EmailMessageEntry, EmailMessageRow, EmailMessageStatus, fetchEmailMessageEntries(), toView(), KeysetCursor (+10 more)
 
 ### Community 160 - "Domain / Theme Policy"
-Cohesion: 0.15
-Nodes (16): BlogThemeSettings, fetchBlogThemeSettings(), isMenuLinkType(), isNonEmptyString(), MENU_LINK_TYPES, validateMenuItemInput(), validateMenuItemsInput(), ValidationError (+8 more)
+Cohesion: 0.21
+Nodes (10): BlogThemeSettings, fetchBlogThemeSettings(), upsertBlogThemeSettings(), BLOG_THEME_MODES, BlogThemeMode, isBlogThemeMode(), UpdateThemeSettingsInput, UpdateThemeSettingsValidationResult (+2 more)
 
 ### Community 161 - "Application / Media Reconciliation"
 Cohesion: 0.19
@@ -1171,20 +1182,20 @@ Cohesion: 0.19
 Nodes (16): runRepoInventoryCheck(), buildRawRepoInventoryMarkdown(), buildRepoInventoryMarkdown(), countTestFiles(), extractRlsEnabledTables(), extractTables(), HTTP_METHODS, listSqlFiles() (+8 more)
 
 ### Community 167 - "Scripts / Work Class Registry Generate"
-Cohesion: 0.23
-Nodes (15): runWorkClassRegistryCheck(), buildWorkClassRegistryJson(), buildWorkClassRegistrySnapshot(), classifyJob(), classifyRoute(), findStaleJobRegistryEntries(), JobWorkClassSnapshotEntry, main() (+7 more)
+Cohesion: 0.16
+Nodes (17): decryptSsoClientSecret(), encryptSsoClientSecret(), resolveSsoEncryptionKey(), AuthProviderRow, AuthProviderView, createAuthProvider(), CreateAuthProviderResult, fetchAuthProviderById() (+9 more)
 
 ### Community 168 - "Infrastructure / Media R2 Client"
-Cohesion: 0.12
-Nodes (14): defaultR2ClientFactory(), createNewsMediaR2Client(), NewsMediaR2ClientConfig, NewsMediaR2DeleteResult, NewsMediaR2ListObjectsInput, NewsMediaR2ListObjectsResult, NewsMediaR2ObjectSummary, NewsMediaR2PresignUploadInput (+6 more)
+Cohesion: 0.15
+Nodes (14): NewsMediaR2ClientConfig, NewsMediaR2DeleteResult, NewsMediaR2GetResult, NewsMediaR2HeadResult, NewsMediaR2ListObjectsInput, NewsMediaR2ListObjectsResult, NewsMediaR2ObjectSummary, NewsMediaR2PresignUploadInput (+6 more)
 
 ### Community 169 - "Application / Module Settings"
 Cohesion: 0.19
-Nodes (16): buildModuleSettingsView(), fetchModuleSettingsView(), fetchSettingsRow(), findDescriptor(), ModuleSettingsRow, ModuleSettingsRowWithKey, ModuleSettingsView, updateModuleSettings() (+8 more)
+Nodes (15): fetchModuleSettingsView(), fetchSettingsRow(), findDescriptor(), ModuleSettingsRow, ModuleSettingsRowWithKey, ModuleSettingsView, updateModuleSettings(), UpdateModuleSettingsResult (+7 more)
 
 ### Community 170 - "Application / Social Publish Dispatch"
-Cohesion: 0.18
-Nodes (16): fetchSocialAccountTokenReferenceForDispatch(), markSocialAccountNeedsReauth(), ClaimedJobRow, claimEligibleJobs(), dispatchSocialPublishQueue(), DispatchSocialPublishQueueOptions, DispatchSocialPublishQueueResult, FinalizeInput (+8 more)
+Cohesion: 0.14
+Nodes (17): TimeoutError, fetchSocialAccountTokenReferenceForDispatch(), markSocialAccountNeedsReauth(), ClaimedJobRow, claimEligibleJobs(), dispatchSocialPublishQueue(), DispatchSocialPublishQueueOptions, DispatchSocialPublishQueueResult (+9 more)
 
 ### Community 171 - "Domain / User Agent"
 Cohesion: 0.18
@@ -1195,44 +1206,44 @@ Cohesion: 0.13
 Nodes (18): awcms-micro-profile-identity Skill, Party merge approval-gated workflow, PartyDirectoryPort capability port, PR #777 review errors that slipped through draft, ADR-0011: Capability ports, MediaLibraryPort (_shared/ports/media-library-port.ts), NewsMediaPort, PartyDirectoryPort (_shared/ports/party-directory-port.ts) (+10 more)
 
 ### Community 173 - "Lib / Theming"
-Cohesion: 0.18
-Nodes (14): ResolvedThemeAsset, resolveThemeAssetUrls(), ADR-0029, PreviewRenderContext, resolvePreviewContext(), serveThemePreviewTokensCss(), ADR-0029, findActivePreviewSession() (+6 more)
+Cohesion: 0.17
+Nodes (14): ResolvedThemeAsset, resolveThemeAssetUrls(), ADR-0029, PreviewRenderContext, resolvePreviewContext(), serveThemePreviewTokensCss(), ADR-0029, createPreviewSession() (+6 more)
 
 ### Community 174 - "Application / High Risk Sod Guard"
-Cohesion: 0.17
-Nodes (15): checkHighRiskSoDConflicts(), extractRequestedScope(), HighRiskSoDCheckResult, SOD_RELEVANT_PERMISSION_KEYS, SOD_RULES, ADR-0013, findValidSoDConflictException(), DecideSoDConflictExceptionInput (+7 more)
+Cohesion: 0.31
+Nodes (8): checkHighRiskSoDConflicts(), extractRequestedScope(), HighRiskSoDCheckResult, SOD_RELEVANT_PERMISSION_KEYS, SOD_RULES, ADR-0013, RequestedScope, BusinessScopeHierarchyPort
 
 ### Community 175 - "Application / Sod Exception Service"
-Cohesion: 0.16
-Nodes (17): approveSoDConflictException(), createSoDConflictException(), CreateSoDConflictExceptionResult, DecideSoDConflictExceptionResult, listSoDConflictExceptions(), ListSoDConflictExceptionsFilter, rejectSoDConflictException(), revokeSoDConflictException() (+9 more)
+Cohesion: 0.12
+Nodes (25): approveSoDConflictException(), createSoDConflictException(), CreateSoDConflictExceptionResult, DecideSoDConflictExceptionResult, findValidSoDConflictException(), listSoDConflictExceptions(), ListSoDConflictExceptionsFilter, rejectSoDConflictException() (+17 more)
 
 ### Community 176 - "Domain / Subscriber State"
-Cohesion: 0.15
-Nodes (14): AdminSubscriberRow, ConsentEventRow, ADR-0033, canReopt(), isLegalSubscriberTransition(), isMailable(), LEGAL_TRANSITIONS, SubscriberState (+6 more)
+Cohesion: 0.09
+Nodes (25): AdminSubscriberRow, ConsentEventRow, listConsentEvents(), listSubscribers(), ADR-0033, ACTION_TARGET, applyCampaignAction(), CampaignAction (+17 more)
 
 ### Community 177 - "Awcms Micro / Database Capacity Runbook"
-Cohesion: 0.14
-Nodes (17): Branch Protection — Required Status Checks, Required status checks (quality, e2e-smoke, hygiene, CodeQL, changesets), Database Capacity Runbook, capacity-config.ts (deployment-aware capacity model), Capacity formula (sum(instance x pool_max) + headroom <= approved capacity), Idle-in-transaction leak incident (2026-07-24, PR #324), Concurrent Promise.all on one tx corrupts transaction, Production Preflight — Rehearsal, Apply, Rollback Runbook (+9 more)
+Cohesion: 0.09
+Nodes (30): Branch Protection — Required Status Checks, Required status checks (quality, e2e-smoke, hygiene, CodeQL, changesets), Database Capacity Runbook, capacity-config.ts (deployment-aware capacity model), Capacity formula (sum(instance x pool_max) + headroom <= approved capacity), Idle-in-transaction leak incident (2026-07-24, PR #324), Database Connection Pooling and Backpressure, Database circuit breaker (circuit-breaker.ts) (+22 more)
 
 ### Community 178 - "Scripts / Openapi Bundle"
-Cohesion: 0.19
-Nodes (12): runApiDocsCheck(), buildApiReferenceMarkdown(), writeApiReferenceDocs(), checkBundleFreshness(), AnyRecord, asRecord(), buildBundledDocument(), bundleOpenApi() (+4 more)
+Cohesion: 0.21
+Nodes (11): runApiDocsCheck(), buildApiReferenceMarkdown(), writeApiReferenceDocs(), AnyRecord, asRecord(), buildBundledDocument(), bundleOpenApi(), readYaml() (+3 more)
 
 ### Community 179 - "Application / Archive Purge Job"
-Cohesion: 0.24
-Nodes (15): assertSafeIdentifier(), computeCutoff(), DataLifecycleArchivePurgeResult, RunArchivePurgeOptions, runDataLifecycleArchivePurge(), runGenericArchivePass(), runGenericPurgePass(), toDate() (+7 more)
+Cohesion: 0.07
+Nodes (49): countPurgeableForTenant(), runAuditLogPurge(), runDomainEventsDispatch(), BatchPassResult, BoundedBatchOptions, BoundedBatchOutcome, fetchActiveTenants(), iterateTenantsInBatches() (+41 more)
 
 ### Community 180 - "Application / Search Diagnostics"
-Cohesion: 0.18
-Nodes (13): fetchIndexFailures(), fetchIndexStatus(), fetchRecentRuns(), IndexFailureItem, IndexRunSummary, IndexStatus, RunRow, toRunSummary() (+5 more)
+Cohesion: 0.22
+Nodes (9): fetchIndexFailures(), fetchIndexStatus(), fetchRecentRuns(), IndexFailureItem, IndexRunSummary, IndexStatus, RunRow, toRunSummary() (+1 more)
 
 ### Community 181 - "Social Publishing / Readme"
 Cohesion: 0.12
 Nodes (17): ADR-0006 offline-first sync outbox, linkedin-provider-adapter.ts, meta-facebook-page-adapter.ts, meta-instagram-adapter.ts, SocialProviderAdapter interface, infrastructure/social-provider-registry.ts, application/social-publish-dispatch.ts (outbox dispatcher), telegram-provider-adapter.ts (+9 more)
 
 ### Community 182 - "Domain / Preview Token"
-Cohesion: 0.19
-Nodes (14): buildPreviewUrlToken(), generatePreviewToken(), isPreviewSessionActive(), isWellFormedPreviewToken(), parsePreviewUrlToken(), resolvePreviewTtlMinutes(), ADR-0029, canActivateVersion() (+6 more)
+Cohesion: 0.18
+Nodes (15): buildPreviewUrlToken(), generatePreviewToken(), hashPreviewToken(), isPreviewSessionActive(), isWellFormedPreviewToken(), parsePreviewUrlToken(), resolvePreviewTtlMinutes(), ADR-0029 (+7 more)
 
 ### Community 183 - "Changelog"
 Cohesion: 0.13
@@ -1243,8 +1254,8 @@ Cohesion: 0.13
 Nodes (16): ETag/Last-Modified caching scheme for discovery routes, isPubliclyIndexable guard, seo_distribution module — public discovery/syndication, SeoFactsSource adapter (derived-module discovery contribution), assertSafeRedirectTarget / classifyRedirectTarget (frozen open-redirect guard), isRedirectEligiblePath (admin-route-hijack defense), seo_distribution redirect governance & 404 module, normalizeRedirectPath (domain/redirect-path.ts) (+8 more)
 
 ### Community 185 - "Domain / Email Config"
-Cohesion: 0.20
-Nodes (11): main(), EMAIL_MAILKETING_REQUIRED_WHEN_SELECTED, EMAIL_REQUIRED_WHEN_ENABLED, EmailProviderKind, isKnownEmailProvider(), KNOWN_EMAIL_PROVIDERS, resolveEmailSendTimeoutMs(), createMisconfiguredProvider() (+3 more)
+Cohesion: 0.08
+Nodes (29): main(), BASE_ENV, ADR-0006, EMAIL_MAILKETING_REQUIRED_WHEN_SELECTED, EMAIL_REQUIRED_WHEN_ENABLED, EmailProviderKind, isKnownEmailProvider(), KNOWN_EMAIL_PROVIDERS (+21 more)
 
 ### Community 186 - "Scripts / Github Snapshot Refresh"
 Cohesion: 0.21
@@ -1255,32 +1266,32 @@ Cohesion: 0.25
 Nodes (14): ALLOWED_SANITIZER_CALLS, ConsoleCall, findConsoleErrorWarnCalls(), findRawIdiomAssignments(), isDangerousConsoleCall(), lineNumberAt(), LOGGING_LINT_EXEMPTIONS, LoggingLintProblem (+6 more)
 
 ### Community 188 - "Scripts / Media Library Consistency Check"
-Cohesion: 0.26
-Nodes (12): checkCapabilityRegistry(), checkMediaLibraryStatusFacts(), checkNoConsumerConsumesRetiredCapability(), checkPresetMediaInvariant(), checkReconcileJobOwnership(), checkSourceCommentsNoPlaceholder(), deriveMediaConsumerKeys(), FORBIDDEN_PLACEHOLDER_PHRASES (+4 more)
+Cohesion: 0.08
+Nodes (34): checkCapabilityRegistry(), checkMediaLibraryStatusFacts(), checkNoConsumerConsumesRetiredCapability(), checkPresetMediaInvariant(), checkReconcileJobOwnership(), checkSourceCommentsNoPlaceholder(), deriveMediaConsumerKeys(), FORBIDDEN_PLACEHOLDER_PHRASES (+26 more)
 
 ### Community 189 - "Lib / Resilience"
-Cohesion: 0.22
-Nodes (13): flagValue(), main(), parseArgs(), QueryPlanCheckOptions, resetPerformanceFixtureRows(), authorizeDrDrill(), AuthorizeDrDrillOptions, AuthorizeDrDrillResult (+5 more)
+Cohesion: 0.21
+Nodes (14): flagValue(), main(), parseArgs(), QueryPlanCheckOptions, resetPerformanceFixtureRows(), runAllQueryPlanChecks(), authorizeDrDrill(), AuthorizeDrDrillOptions (+6 more)
 
 ### Community 190 - "Lib / Deployment"
 Cohesion: 0.18
 Nodes (14): classifyDeploymentProfile(), DurableStorageFinding, DurableStorageInput, DurableStorageReason, DurableStorageSeverity, DurableStorageStatus, evaluateDurableStorageReadiness(), FullOnlineDeploymentProfile (+6 more)
 
 ### Community 191 - "Domain / Email Provider Contract"
-Cohesion: 0.19
-Nodes (12): BASE_ENV, ADR-0006, EmailAddress, EmailAttachmentRef, EmailDeliveryResult, EmailHealthCheckResult, EmailMessage, EmailProvider (+4 more)
+Cohesion: 0.18
+Nodes (14): BacklogCountRow, ConsumerStateRow, DomainEventConsumerView, listConsumerStates(), pauseConsumer(), resumeConsumer(), UnknownDomainEventConsumerError, GET() (+6 more)
 
 ### Community 192 - "Application / Relationship Directory"
-Cohesion: 0.17
-Nodes (13): createRelationship(), listRelationshipsForProfile(), RelationshipRow, RelationshipTargetNotFoundError, RelationshipView, toView(), ValidationError, CreateRelationshipInput (+5 more)
+Cohesion: 0.28
+Nodes (7): createRelationship(), listRelationshipsForProfile(), RelationshipRow, RelationshipTargetNotFoundError, RelationshipView, toView(), CreateRelationshipInput
 
 ### Community 193 - "Theming / Theme Registry"
 Cohesion: 0.18
-Nodes (12): defineTheme(), InvalidThemeDescriptorError, BASE_THEME_DESCRIPTORS, composeThemeDescriptors(), listThemeDescriptors(), ADR-0029, ADR-0036, defaultTheme (+4 more)
+Nodes (13): defineTheme(), ThemeDescriptor, BASE_THEME_DESCRIPTORS, composeThemeDescriptors(), listThemeDescriptors(), ADR-0029, ADR-0036, defaultTheme (+5 more)
 
 ### Community 194 - "Skills / Awcms Micro Ui Screen"
 Cohesion: 0.16
-Nodes (15): Concept: Reduced-Motion-Safe Motion System, Capability-gated control rendering (Issue #693), awcms-micro-ui-screen skill, awcms-micro-ux-review skill, awcms-micro-wizard-form skill, doc 14 UI/UX design system, Nielsen usability heuristics, ConfirmDialog.astro / confirm-dialog-client.ts (+7 more)
+Nodes (16): Concept: Reduced-Motion-Safe Motion System, Capability-gated control rendering (Issue #693), awcms-micro-ui-screen skill, awcms-micro-ux-review skill, awcms-micro-wizard-form skill, doc 14 UI/UX design system, doc 15 frontend architecture & integration, Nielsen usability heuristics (+8 more)
 
 ### Community 195 - "Skills / Awcms Micro Comments"
 Cohesion: 0.14
@@ -1291,40 +1302,40 @@ Cohesion: 0.13
 Nodes (15): ADR-0013 extension layers and boundary model, data_lifecycle module (Issue #745, ADR-0013), HighVolumeTableDescriptor contract, validateLifecycleRegistry (domain/lifecycle-registry.ts), applyConsumerEffectOnce (application/consumer-effect.ts), broker-adapter-port.ts (DomainEventBrokerAdapter), DOMAIN_EVENT_CONSUMERS (infrastructure/consumer-registry.ts), dispatchDomainEventsForTenant (application/dispatch-domain-events.ts) (+7 more)
 
 ### Community 197 - "Awcms Micro / Deployment Profiles"
-Cohesion: 0.17
-Nodes (15): Deploy Coolify, Coolify curl-not-found healthcheck gotcha, Coolify port publish without Traefik gotcha (--ip pin workaround), Two Coolify deploy patterns (build-from-repo vs pull-image), Deployment Profiles, ADR-0027 (full-online deployment and durable storage profiles), config:validate (scripts/validate-env.ts), email:dispatch scheduled CLI dispatcher (+7 more)
+Cohesion: 0.16
+Nodes (16): Deploy Coolify, Coolify curl-not-found healthcheck gotcha, Coolify port publish without Traefik gotcha (--ip pin workaround), Two Coolify deploy patterns (build-from-repo vs pull-image), Deployment Profiles, ADR-0027 (full-online deployment and durable storage profiles), config:validate (scripts/validate-env.ts), email:dispatch scheduled CLI dispatcher (+8 more)
 
 ### Community 198 - "Awcms Micro / News Portal"
 Cohesion: 0.18
 Nodes (15): News Portal — Full-Online R2-Only Media Architecture (Issue #631), Bucket/credential separation principle (news media vs sync-storage R2), buildNewsMediaObjectKey / isValidNewsMediaObjectKey (domain/news-media-object-key.ts), MIME sniffing / checksum / extension validation sequence (§9), awcms_micro_news_media_objects table (migration 041), NEWS_MEDIA_R2_* environment variable convention, Direct-to-R2 / server-streaming upload flow (Issue #634), News Portal — Newsroom User Guide (editor) (+7 more)
 
 ### Community 199 - "Domain / Sod Rule Registry"
-Cohesion: 0.24
-Nodes (10): main(), collectSoDRuleDescriptors(), formatSoDRuleRegistryIssue(), SoDRuleRegistryIssue, SoDRuleRegistryValidationResult, VALID_SCOPE_APPLICABILITIES, VALID_SEVERITIES, validateSingleRule() (+2 more)
+Cohesion: 0.25
+Nodes (9): main(), collectSoDRuleDescriptors(), formatSoDRuleRegistryIssue(), SoDRuleRegistryIssue, SoDRuleRegistryValidationResult, VALID_SCOPE_APPLICABILITIES, VALID_SEVERITIES, validateSingleRule() (+1 more)
 
 ### Community 200 - "Application / Suppression Directory"
-Cohesion: 0.18
-Nodes (12): CreateSuppressionResult, deleteSuppression(), listSuppressions(), SuppressionEntry, SuppressionRow, toView(), KNOWN_REASONS, Result (+4 more)
+Cohesion: 0.32
+Nodes (6): KNOWN_REASONS, Result, SuppressionInput, SuppressionReason, validateSuppressionInput(), ValidationError
 
 ### Community 201 - "Email / Readme"
-Cohesion: 0.13
-Nodes (15): application/announcement-directory.ts, email-dispatch.ts / dispatchEmailQueue, Email module (Issue #493-#500), domain/email-template-render.ts, EmailProvider port (domain/email-provider-contract.ts), Mailketing adapter (infrastructure/mailketing-provider.ts), authorizeInTransaction (access-guard.ts), BusinessScopeHierarchyPort (_shared/ports/business-scope-hierarchy-port.ts) (+7 more)
+Cohesion: 0.22
+Nodes (9): authorizeInTransaction (access-guard.ts), BusinessScopeHierarchyPort (_shared/ports/business-scope-hierarchy-port.ts), evaluateAccess (domain/access-control.ts), evaluateLoginAttempt (domain/login-policy.ts), Identity & Access module (Issue 2.3/2.4), Media Library module (ADR-0026), applyModulePreset (application/module-presets.ts, Issue #565), applyNewsPortalFullOnlineR2Preset (application/apply-news-portal-preset.ts) (+1 more)
 
 ### Community 202 - "Ports / Business Scope Hierarchy Port"
 Cohesion: 0.18
-Nodes (12): defaultBusinessScopeHierarchyPortAdapter, ADR-0013, ADR-0016, UNRESOLVED, BusinessScopeHierarchyPort, BusinessScopeReference, BusinessScopeResolution, ADR-0013 (+4 more)
+Nodes (11): defaultBusinessScopeHierarchyPortAdapter, ADR-0013, ADR-0016, UNRESOLVED, BusinessScopeReference, BusinessScopeResolution, ADR-0013, ADR-0016 (+3 more)
 
 ### Community 203 - "Domain / Subscriber Crypto"
-Cohesion: 0.22
-Nodes (13): ensureSubscription(), padSuppressedSubscribeLatency(), recordConsent(), resubscribe(), subscribeToNewsletter(), upsertSubscriber(), decryptSubscriberEmail(), encryptSubscriberEmail() (+5 more)
+Cohesion: 0.15
+Nodes (18): hashRequestSignal(), ADR-0033, decryptSubscriberEmail(), encryptSubscriberEmail(), resolveStoredSubscriberRef(), resolveSubscriberEncryptionKey(), ADR-0006, ADR-0033 (+10 more)
 
 ### Community 204 - "Domain / Address Channel Validation"
-Cohesion: 0.20
-Nodes (13): AddressRow, AddressView, createAddress(), listAddresses(), toView(), ADDRESS_TYPES, AddressType, CHANNEL_TYPES (+5 more)
+Cohesion: 0.12
+Nodes (20): AddressRow, AddressView, listAddresses(), toView(), ChannelIdentifierNotFoundError, ChannelRow, ChannelView, createChannel() (+12 more)
 
 ### Community 205 - "Application / Analytics Queries"
-Cohesion: 0.21
-Nodes (14): ALLOWED_JSON_COLUMNS, ALLOWED_JSON_KEYS, AnalyticsSummary, fetchAnalyticsSummary(), fetchTopBrowsers(), fetchTopCountries(), fetchTopDevices(), fetchTopPaths() (+6 more)
+Cohesion: 0.18
+Nodes (16): ALLOWED_JSON_COLUMNS, ALLOWED_JSON_KEYS, AnalyticsSummary, fetchAnalyticsSummary(), fetchRealtimeStats(), fetchSecurityView(), fetchTopBrowsers(), fetchTopCountries() (+8 more)
 
 ### Community 206 - "Awcms Micro / Examples"
 Cohesion: 0.16
@@ -1339,16 +1350,16 @@ Cohesion: 0.19
 Nodes (14): awcms-micro-public-api.openapi.yaml (bundled contract), awcms-micro-public-api.src.yaml (root fragment), Blog Internal Tag Links OpenAPI module fragment, Blog Pages OpenAPI module fragment, Blog Posts OpenAPI module fragment, Blog Presentation OpenAPI module fragment (ads/menus/templates/theme/widgets), Blog Revisions OpenAPI module fragment, Blog Search OpenAPI module fragment (+6 more)
 
 ### Community 209 - "Domain / Media Mime Sniffer"
-Cohesion: 0.16
-Nodes (11): GIF_MAGIC_PREFIX, JPEG_MAGIC, matchesAt(), PDF_MAGIC, PNG_MAGIC, RIFF_MAGIC, SniffedNewsMediaMimeType, sniffNewsMediaMimeType() (+3 more)
+Cohesion: 0.12
+Nodes (16): NewsMediaR2VerificationRejectionReason, NewsMediaR2VerificationResult, ADR-0006, verifyNewsMediaR2Object(), VerifyNewsMediaR2ObjectInput, GIF_MAGIC_PREFIX, JPEG_MAGIC, matchesAt() (+8 more)
 
 ### Community 210 - "Domain / Media Object Key"
 Cohesion: 0.23
 Nodes (10): buildNewsMediaObjectKey(), BuildNewsMediaObjectKeyInput, buildNewsMediaPublicUrl(), deriveExtensionFromMimeType(), isValidNewsMediaObjectKey(), MIME_TYPE_TO_EXTENSION, pad2(), ADR-0026 (+2 more)
 
 ### Community 211 - "Domain / Party Validation"
-Cohesion: 0.19
-Nodes (13): CreatePartyInput, PARTY_RISK_LEVELS, PARTY_SETTABLE_STATUSES, PARTY_TYPES, PARTY_VERIFICATION_STATUSES, PartyRiskLevel, PartySettableStatus, PartyType (+5 more)
+Cohesion: 0.05
+Nodes (53): createParty(), listParties(), ListPartiesOptions, ListPartiesResult, PartyRow, exists(), partyDirectoryPortAdapter, resolveMergeSurvivor() (+45 more)
 
 ### Community 212 - "Integration / Tenant Sso Flow.Integration.Test"
 Cohesion: 0.16
@@ -1359,12 +1370,12 @@ Cohesion: 0.15
 Nodes (12): access, baseBranch, changelog, commit, fixed, ignore, linked, privatePackages (+4 more)
 
 ### Community 214 - "Awcms Micro / Performance Suite"
-Cohesion: 0.22
-Nodes (13): Database Connection Pooling and Backpressure, Database circuit breaker (circuit-breaker.ts), withTenant integration chokepoint, Work-class concurrency gate (work-class.ts), Observability: Metrics, SLOs, Job Health, Provider Telemetry, GET /api/v1/logs/observability/dependency-health, deriveProviderFamilyLabel bounded-cardinality reduction, MetricsPort contract (metrics-port.ts) (+5 more)
+Cohesion: 0.18
+Nodes (14): CommentBodyRejectionReason, countLinks(), escapeHtml(), isSafeLinkUrl(), normalizeCommentBody(), NormalizeCommentResult, renderCommentHtml(), ADR-0032 (+6 more)
 
 ### Community 215 - "Application / Module Audit Summary"
-Cohesion: 0.17
-Nodes (11): ../../../modules, ../../../modules/module-management/application/health-registry, ../../../modules/module-management/application/job-registry, ../../../modules/module-management/application/module-audit-summary, ../../../modules/module-management/application/module-catalog, ../../../modules/module-management/application/module-settings, ../../../modules/module-management/application/permission-sync, ../../../modules/module-management/application/tenant-module-lifecycle (+3 more)
+Cohesion: 0.50
+Nodes (3): fetchModuleAuditSummary(), ModuleAuditSummaryEntry, RELEVANT_RESOURCE_TYPES
 
 ### Community 216 - "Domain / Video News Block Validation"
 Cohesion: 0.26
@@ -1375,56 +1386,56 @@ Cohesion: 0.21
 Nodes (8): seedDefaultEmailTemplates(), DEFAULT_EMAIL_TEMPLATES, ANNOUNCEMENT_BODY, Bootstrap, provisionNotificationOnlyUser(), Bootstrap, CREATE_BODY, provisionSecondTenantWithTemplateReadAccess()
 
 ### Community 218 - "Application / Media R2 Verification"
-Cohesion: 0.19
-Nodes (10): NewsMediaR2VerificationRejectionReason, NewsMediaR2VerificationResult, ADR-0006, verifyNewsMediaR2Object(), VerifyNewsMediaR2ObjectInput, decideNewsMediaFinalizeOutcome(), NewsMediaFinalizeDecision, NewsMediaFinalizeDecisionInput (+2 more)
+Cohesion: 0.20
+Nodes (9): decideNewsMediaFinalizeOutcome(), NewsMediaFinalizeDecision, NewsMediaFinalizeDecisionInput, NewsMediaFinalizeRejectionReason, NEWS_MEDIA_R2_DEFAULT_ALLOWED_MIME_TYPES, NEWS_MEDIA_R2_KNOWN_MIME_TYPES, NEWS_MEDIA_R2_OPTIONAL_DOCUMENT_MIME_TYPES, ADR-0026 (+1 more)
 
 ### Community 219 - "Skills / Awcms Micro Module Management"
 Cohesion: 0.20
 Nodes (12): awcms-micro-module-management Skill, ADR-0036 removal of derived-application pathway, capabilities provides/consumes ports-and-adapters (ADR-0011), Registry-wide DAG validator (validateModuleDependencyGraph), tenant_admin dependency cycle fix (Issue #680), awcms-micro-new-event Skill, AppendDomainEventInput DB-level append shape, DomainEventEnvelope wire schema (AsyncAPI) (+4 more)
 
 ### Community 220 - "Skills / Awcms Micro Release"
-Cohesion: 0.20
-Nodes (12): awcms-micro-release skill, changesets.yml workflow (Changesets policy gate), ci.yml workflow (Quality + E2E smoke), ci.yml E2E smoke (Playwright) job, ci.yml quality job (lint+docs+contracts+typecheck+test), codeql.yml workflow, release.yml workflow, Issue #685 least-required workflow permissions (+4 more)
+Cohesion: 0.10
+Nodes (21): awcms-micro-release skill, awcms-micro-security-hardening skill, CSP verification requires real browser (curl can't detect), doc 20 threat model & security architecture, changesets.yml workflow (Changesets policy gate), ci.yml workflow (Quality + E2E smoke), ci.yml E2E smoke (Playwright) job, ci.yml quality job (lint+docs+contracts+typecheck+test) (+13 more)
 
 ### Community 221 - "Domain Event Runtime / Readme"
-Cohesion: 0.17
-Nodes (12): ADR-0006 transactional outbox / no provider call in DB tx, CommentableResourceDescriptor (ADR-0032 §3), comments module (ADR-0032), renderCommentHtml (domain/comment-sanitization.ts), appendDomainEvent (application/append-domain-event.ts), domain-event-runtime module (Issue #742), application/content-source-engine.ts, newsletter module (ADR-0033) (+4 more)
+Cohesion: 0.29
+Nodes (7): CommentableResourceDescriptor (ADR-0032 §3), comments module (ADR-0032), renderCommentHtml (domain/comment-sanitization.ts), domain-event-runtime module (Issue #742), application/content-source-engine.ts, newsletter module (ADR-0033), NewsletterContentSourceDescriptor
 
 ### Community 222 - "Application / Theme Preview Render"
-Cohesion: 0.20
-Nodes (10): ../../../lib/theming/theme-preview, ../../../modules/theming/application/theme-preview-render, ../../../layouts/PublicThemeLayout.astro, buildPreviewViewModel(), PreviewAsset, PreviewSection, PreviewViewModel, SAMPLE_COPY (+2 more)
+Cohesion: 0.22
+Nodes (9): ../../../lib/theming/theme-preview, ../../../modules/theming/application/theme-preview-render, ../../../layouts/PublicThemeLayout.astro, buildPreviewViewModel(), PreviewAsset, PreviewSection, PreviewViewModel, SAMPLE_COPY (+1 more)
 
 ### Community 223 - "Scripts / Newsletter Dispatch"
-Cohesion: 0.21
-Nodes (10): CampaignRow, main(), TenantRow, ADR-0006, ADR-0033, runReconciliation(), DispatchBatchResult, processDispatchBatch() (+2 more)
+Cohesion: 0.11
+Nodes (22): CampaignRow, main(), TenantRow, ADR-0006, ADR-0033, runReconciliation(), DispatchBatchResult, processDispatchBatch() (+14 more)
 
 ### Community 224 - "Lib / Semver"
-Cohesion: 0.35
-Nodes (10): Comparator, compareSemver(), isValidSemver(), ParsedSemver, parseSemver(), parseSemverRange(), satisfiesComparator(), satisfiesSemverRange() (+2 more)
+Cohesion: 0.29
+Nodes (12): Comparator, compareSemver(), isValidSemver(), ParsedSemver, parseSemver(), parseSemverRange(), satisfiesComparator(), satisfiesSemverRange() (+4 more)
 
 ### Community 225 - "Application / Menu Directory"
-Cohesion: 0.23
-Nodes (11): BlogMenuItemRow, BlogMenuItemView, BlogMenuRow, BlogMenuView, createMenu(), fetchMenuById(), listMenus(), toMenuView() (+3 more)
+Cohesion: 0.13
+Nodes (20): BlogMenuItemRow, BlogMenuItemView, BlogMenuRow, BlogMenuView, createMenu(), fetchMenuById(), fetchMenuItems(), listMenus() (+12 more)
 
 ### Community 226 - "Application / Party Directory Port Adapter"
-Cohesion: 0.23
-Nodes (10): exists(), partyDirectoryPortAdapter, resolveMergeSurvivor(), resolvePublicSafeSummary(), resolveSummary(), toPartyPublicSafeDTO(), PartyDirectoryPort, PartyDirectoryPublicSafeDTO (+2 more)
+Cohesion: 0.15
+Nodes (15): ActiveAdForPlacement, ActiveAdRow, BlogAdPlacementRow, BlogAdPlacementView, BlogAdRow, BlogAdView, createAd(), fetchAdById() (+7 more)
 
 ### Community 227 - "Domain / Projection Keys"
 Cohesion: 0.23
 Nodes (9): ACCESS_AUDIT_METRIC_KEYS, EVENT_ACTIVITY_METRIC_KEYS, MODULE_ACTIVITY_METRIC_KEYS, REPORTING_PROJECTION_PERMISSIONS, ReportingProjectionPermissionKey, ReportingProjectionPermissionValue, CURSOR_TABLE_FRESHNESS, EVENT_DRIVEN_FRESHNESS (+1 more)
 
 ### Community 228 - "Domain / Social Publish Template Validation"
-Cohesion: 0.23
-Nodes (10): CreateSocialPublishTemplateInput, CreateSocialPublishTemplateValidationResult, isNonEmptyString(), renderSocialPublishCaption(), SOCIAL_PUBLISH_TEMPLATE_PLACEHOLDERS, UpdateSocialPublishTemplateInput, UpdateSocialPublishTemplateValidationResult, validateCreateSocialPublishTemplateInput() (+2 more)
+Cohesion: 0.16
+Nodes (15): fetchSocialPublishTemplateById(), listSocialPublishTemplates(), SocialPublishTemplateRow, SocialPublishTemplateView, toView(), CreateSocialPublishTemplateInput, CreateSocialPublishTemplateValidationResult, isNonEmptyString() (+7 more)
 
 ### Community 229 - ".Changeset / Fix Concurrent Tx Query Pool Leak"
 Cohesion: 0.22
 Nodes (11): fetchSidebarArrangement (admin sidebar menu), AdminLayout, changeset: docs-sync-tx-pool-leak-and-idle-timeout, changeset: fix-concurrent-tx-query-pool-leak, changeset: fix-withtenant-response-leak-admin-500, database-pooling.md §9 (never Promise.all on one tx rule), DATABASE_IDLE_IN_TXN_TIMEOUT_MS env var, DatabaseUnavailableError (+3 more)
 
 ### Community 230 - "Awcms Micro / Base Standard Hardening Roadmap"
-Cohesion: 0.22
-Nodes (11): Base-Standard Hardening Roadmap, ADR-0025 (website-scope narrowing), Login response-body enumeration collapse (A2), verifyPasswordOrDummy (login timing oracle fix), HighVolumeTableDescriptor registry, Rencana Pilot Aplikasi Turunan Pertama (AWPOS, historical/removed), ADR-0036 (remove derived application pathway, align family), AWPOS docs as source-of-truth for AWCMS-Micro base extraction (+3 more)
+Cohesion: 0.18
+Nodes (13): CommentEventInput, createReplySubscription(), CreateReplySubscriptionInput, ReplySubscriptionResult, sha256(), ADR-0006, ADR-0032, ADR-0032 (+5 more)
 
 ### Community 231 - "Awcms Micro / News Portal"
 Cohesion: 0.20
@@ -1439,16 +1450,16 @@ Cohesion: 0.18
 Nodes (3): ClientErrorStrings, FetchJsonResult, SubmitResult
 
 ### Community 234 - "Domain / Event Type Registry"
-Cohesion: 0.24
-Nodes (7): DOMAIN_EVENT_TYPE_REGISTRY, isRegisteredDomainEventType(), RegisteredDomainEventType, ADR-0025, ADR-0032, ADR-0033, domainEventRuntimeModule
+Cohesion: 0.14
+Nodes (12): AppendDomainEventInput, AppendDomainEventResult, DomainEventRow, InvalidDomainEventPayloadError, ADR-0006, UnregisteredDomainEventTypeError, DOMAIN_EVENT_TYPE_REGISTRY, isRegisteredDomainEventType() (+4 more)
 
 ### Community 235 - "Domain / Media Upload Session Validation"
 Cohesion: 0.24
 Nodes (9): CreateNewsMediaUploadSessionInput, CreateNewsMediaUploadSessionValidationResult, FinalizeNewsMediaUploadSessionInput, FinalizeNewsMediaUploadSessionValidationResult, validateCreateNewsMediaUploadSessionInput(), validateFinalizeNewsMediaUploadSessionInput(), validateOptionalText(), ValidationError (+1 more)
 
 ### Community 236 - "Domain / Social Publish Rule Validation"
-Cohesion: 0.24
-Nodes (10): CreateSocialPublishRuleInput, CreateSocialPublishRuleValidationResult, isUuid(), SOCIAL_PUBLISH_TRIGGER_EVENTS, SocialPublishTriggerEvent, UpdateSocialPublishRuleInput, UpdateSocialPublishRuleValidationResult, validateCreateSocialPublishRuleInput() (+2 more)
+Cohesion: 0.15
+Nodes (17): EligibleSocialPublishRuleRow, fetchSocialPublishRuleById(), listSocialPublishRules(), SocialPublishRuleRow, SocialPublishRuleView, toView(), ADR-0006, CreateSocialPublishRuleInput (+9 more)
 
 ### Community 237 - "Integration / Google Oidc Flow.Integration.Test"
 Cohesion: 0.20
@@ -1467,48 +1478,48 @@ Cohesion: 0.20
 Nodes (10): assertValidThemeDescriptor (CSP/a11y rejection gate), BASE_THEME_DESCRIPTORS (theme-registry.ts), defineTheme / ThemeDescriptor (domain/theme-descriptor.ts), theming module — tokens, versions, CSP/a11y, Work Continuation Log — AWCMS-Micro, ADR-0036 post-removal docs+skills sync (2026-07-21), Docs/skills sync PR #332 (auth-hardening, email, admin, R2 rename), Full-online enablement runbook (PR #331) (+2 more)
 
 ### Community 242 - "Lib / Performance"
-Cohesion: 0.22
-Nodes (8): getWorkClassSaturation(), WorkClassSaturation, DatabaseActivitySnapshot, diffProcessResources(), ProcessResourceDelta, ProcessResourceSnapshot, sampleProcessResources(), sampleWorkClassSaturation()
+Cohesion: 0.16
+Nodes (17): CircuitBreaker, CircuitBreakerOptions, CircuitState, circuitStateRank(), createCircuitBreaker(), decorateWithMetrics(), deriveProviderFamilyLabel(), getDatabaseCircuitBreaker() (+9 more)
 
 ### Community 243 - "Lib / Observability"
-Cohesion: 0.22
-Nodes (5): CounterOrGaugeSeries, createPrometheusTextMetricsPort(), HistogramSeries, PrometheusTextMetricsPort, DEFAULT_HISTOGRAM_BUCKETS_MS
+Cohesion: 0.25
+Nodes (9): main(), checkDataLifecycleRegistryValid(), formatLifecycleRegistryIssue(), LifecycleRegistryIssue, LifecycleRegistryValidationResult, VALID_RETENTION_CLASSES, validateLifecycleRegistry(), validateSingleDescriptor() (+1 more)
 
 ### Community 244 - "Application / Blog Revision Directory"
-Cohesion: 0.24
-Nodes (9): BlogRevisionDetail, BlogRevisionDetailRow, BlogRevisionSnapshot, BlogRevisionSummary, BlogRevisionSummaryRow, listBlogRevisions(), RevisionResourceType, toDetail() (+1 more)
+Cohesion: 0.15
+Nodes (13): Sprint 1, Sprint 10, Sprint 11, Sprint 12, Sprint 2, Sprint 3, Sprint 4, Sprint 5 (+5 more)
 
 ### Community 245 - "Application / Blog Taxonomy Directory"
-Cohesion: 0.31
-Nodes (9): BlogTermRow, BlogTermView, createBlogTerm(), fetchBlogTermById(), fetchBlogTermsByTaxonomyType(), listBlogTerms(), ListBlogTermsFilter, toView() (+1 more)
+Cohesion: 0.23
+Nodes (11): main(), TenantRow, ClaimedRow, claimEligibleEntries(), dispatchObjectSyncQueue(), DispatchObjectSyncQueueOptions, DispatchObjectSyncQueueResult, finalizeFailure() (+3 more)
 
 ### Community 246 - "Application / Cursor Store"
 Cohesion: 0.24
-Nodes (9): CursorDbRow, getCursor(), LifecycleCursorPhase, LifecycleCursorRow, LifecycleCursorStatus, resetCursor(), toRow(), upsertCursor() (+1 more)
+Nodes (8): main(), formatProjectionRegistryIssue(), ProjectionRegistryIssue, ProjectionRegistryValidationResult, validateCursorStream(), validateProjectionRegistry(), validateSingleDescriptor(), ProjectionCursorStream
 
 ### Community 247 - "Application / Run Record Store"
 Cohesion: 0.22
 Nodes (9): LifecycleRunCounts, LifecycleRunRow, LifecycleRunStatus, LifecycleRunType, listLifecycleRuns(), ListLifecycleRunsFilter, RecordLifecycleRunInput, RunDbRow (+1 more)
 
 ### Community 248 - "Application / Business Scope Facts"
-Cohesion: 0.29
-Nodes (9): ActiveAssignmentRow, AssignmentPermissionRow, fetchActiveAssignmentRows(), OrdinaryRbacPermissionRow, resolveBusinessScopeFacts(), resolveOrdinaryRbacFacts(), resolveSoDAssignmentFacts(), BusinessScopeFact (+1 more)
+Cohesion: 0.25
+Nodes (10): ActiveAssignmentRow, AssignmentPermissionRow, fetchActiveAssignmentRows(), OrdinaryRbacPermissionRow, resolveBusinessScopeFacts(), resolveOrdinaryRbacFacts(), resolveSoDAssignmentFacts(), BusinessScopeFact (+2 more)
 
 ### Community 249 - "Application / Topic Directory"
-Cohesion: 0.31
-Nodes (9): createTopic(), findTopicById(), getOrCreateDefaultTopic(), listTopics(), NewsletterTopic, TopicRow, toTopic(), ADR-0033 (+1 more)
+Cohesion: 0.28
+Nodes (11): checkVisitorAnalyticsConfig(), isKnownVisitorAnalyticsMode(), isSet(), isVisitorAnalyticsEnabled(), parseBoolean(), parsePositiveInt(), resolveVisitorKeyCookieMaxAgeSeconds(), VISITOR_ANALYTICS_DEFAULTS (+3 more)
 
 ### Community 250 - "Domain / Identifier Lifecycle"
-Cohesion: 0.27
-Nodes (9): IdentifierType, CreateIdentifierInput, IDENTIFIER_PROVENANCES, IDENTIFIER_TYPES, IdentifierProvenance, UpdateIdentifierInput, validateCreateIdentifierInput(), validateEffectiveWindow() (+1 more)
+Cohesion: 0.26
+Nodes (11): base64UrlDecode(), findJwk(), Jwk, JwtHeader, JwtPayload, ParsedJwt, parseJwt(), verifyJwtRs256() (+3 more)
 
 ### Community 251 - "Domain / Projection"
-Cohesion: 0.31
-Nodes (8): PARTY_FULL_DTO_FIELDS, PARTY_MASKED_ADMIN_DTO_FIELDS, PARTY_PUBLIC_SAFE_DTO_FIELDS, PartyFullDTO, PartyMaskedAdminDTO, PartyPublicSafeDTO, PartyRecordForProjection, toPartyFullDTO()
+Cohesion: 0.23
+Nodes (11): fetchRedirectSettings(), RedirectSettingsAuditHook, SettingsRow, toSettings(), updateRedirectSettings(), EMPTY_REDIRECT_SETTINGS, RedirectSettings, RedirectSettingsValidationResult (+3 more)
 
 ### Community 252 - "Skills / Awcms Micro Security Hardening"
-Cohesion: 0.22
-Nodes (9): awcms-micro-security-hardening skill, CSP verification requires real browser (curl can't detect), doc 20 threat model & security architecture, ISO/IEC 27001:2022 Annex A, OWASP ASVS, OWASP Top 10 (2021), src/lib/security/rate-limit.ts, src/lib/security/secure-url-params.ts (+1 more)
+Cohesion: 0.18
+Nodes (11): ADR-0006 transactional outbox / no provider call in DB tx, appendDomainEvent (application/append-domain-event.ts), application/announcement-directory.ts, email-dispatch.ts / dispatchEmailQueue, Email module (Issue #493-#500), domain/email-template-render.ts, EmailProvider port (domain/email-provider-contract.ts), Mailketing adapter (infrastructure/mailketing-provider.ts) (+3 more)
 
 ### Community 253 - "Openapi / Domain Event Runtime.Openapi"
 Cohesion: 0.25
@@ -1523,12 +1534,12 @@ Cohesion: 0.25
 Nodes (8): BlogSearchResourceType, BlogSearchResult, BlogSearchResultItem, BlogSearchRow, searchBlogContentAdmin(), SearchBlogContentAdminFilter, SearchPublicBlogContentFilter, toResultItem()
 
 ### Community 256 - "Application / Manifest Store"
-Cohesion: 0.31
-Nodes (7): ArchiveManifestRow, getArchiveManifest(), insertArchiveManifest(), InsertArchiveManifestInput, listArchiveManifests(), ManifestDbRow, toRow()
+Cohesion: 0.20
+Nodes (10): ConflictResolution, ConflictResolutionRequestBody, ConflictResolutionValidationResult, SyncPushEvent, SyncPushRequestBody, SyncPushValidationResult, VALID_RESOLUTIONS, validateConflictResolutionRequestBody() (+2 more)
 
 ### Community 257 - "Application / Channel Directory"
-Cohesion: 0.28
-Nodes (7): ChannelIdentifierNotFoundError, ChannelRow, ChannelView, createChannel(), listChannels(), toView(), CreateChannelInput
+Cohesion: 0.31
+Nodes (9): ../../lib/comments/comments-client, ../../modules/comments/domain/timing-token, ../../components/comments/CommentsSection.astro, mintTimingToken(), resolveSecret(), sign(), TimingTokenVerification, ADR-0032 (+1 more)
 
 ### Community 258 - "Domain / Settings Validation"
 Cohesion: 0.33
@@ -1543,40 +1554,40 @@ Cohesion: 0.61
 Nodes (6): checkChangelogHasVersionSection(), checkNoPendingChangesets(), checkVersionMatchesTag(), normalizeTagVersion(), ReleaseVerifyProblem, runReleaseVerify()
 
 ### Community 261 - "Lib / Newsletter"
-Cohesion: 0.25
-Nodes (7): AdminStrings, Campaign, initNewsletterAdmin(), Subscriber, Suppression, Topic, ADR-0033
+Cohesion: 0.13
+Nodes (14): AdminStrings, initCommentsAdmin(), QueueItem, ADR-0032, uuid(), AdminStrings, Campaign, initNewsletterAdmin() (+6 more)
 
 ### Community 262 - "Application / Dry Run Planner"
-Cohesion: 0.39
-Nodes (7): assertSafeIdentifier(), clampRetentionDays(), LifecycleDryRunOutcome, LifecycleDryRunResult, planLifecycleDryRun(), planLifecycleDryRunForAllDescriptors(), findArchivedThroughCursor()
+Cohesion: 0.38
+Nodes (9): containsUnsafeHtml(), CreateWidgetValidationResult, isNonEmptyString(), isWidgetPosition(), UpdateWidgetValidationResult, validateCreateWidgetInput(), validateUpdateWidgetInput(), ValidationError (+1 more)
 
 ### Community 263 - "Unit / News Media R2 Verification.Test"
-Cohesion: 0.32
-Nodes (7): NewsMediaR2GetResult, NewsMediaR2HeadResult, ALLOWED, fakeClient(), JPEG_BYTES, unusedDeleteObject(), unusedListObjects()
+Cohesion: 0.39
+Nodes (7): checkSocialPublishingProfileConfig(), isKnownSocialPublishingProfile(), isSocialPublishingDeploymentActive(), isSocialPublishingEnabled(), KNOWN_SOCIAL_PUBLISHING_PROFILES, resolveSocialPublishingProfile(), SocialPublishingProfile
 
 ### Community 264 - "Application / Social Publish Template Directory"
 Cohesion: 0.39
-Nodes (7): createSocialPublishTemplate(), fetchSocialPublishTemplateById(), listSocialPublishTemplates(), SocialPublishTemplateRow, SocialPublishTemplateView, toView(), updateSocialPublishTemplate()
+Nodes (7): fileExtension(), isTrackablePath(), sanitizePath(), SENSITIVE_QUERY_PARAM_NAMES, SKIPPED_PATH_PREFIXES, SKIPPED_PATH_SEGMENTS, STATIC_ASSET_EXTENSIONS
 
 ### Community 265 - "Awcms Micro / Templates"
-Cohesion: 0.38
-Nodes (6): doc 21 module admission governance, Module Admission Decision Checklist, module-proposal-template.md, feature_request.yml issue template, awcms-micro-pr-review skill, awcms-micro-security-review skill
+Cohesion: 0.12
+Nodes (16): doc 21 module admission governance, Module Admission Decision Checklist, 10. Alternatif yang dipertimbangkan, 1. Nama & key modul yang diusulkan, 2. Masalah / kebutuhan, 3. Mengapa ini bukan modul Derived Application, 4. Dependency, 5. Kompatibilitas offline/LAN vs full-online-only (+8 more)
 
 ### Community 266 - "Components / Ui"
 Cohesion: 0.33
 Nodes (5): ../../../lib/ui/wizard-client, ../../../modules/form-drafts/application/form-draft-directory, ../../../components/ui/WizardActions.astro, ../../../components/ui/WizardPanel.astro, ../../../components/ui/WizardStepper.astro
 
 ### Community 267 - "Domain / Structured Data Rendering"
-Cohesion: 0.38
-Nodes (5): buildNewsArticleJsonLd(), NewsArticleImage, NewsArticleJsonLdInput, renderJsonLdScriptTag(), BASE_INPUT
+Cohesion: 0.40
+Nodes (4): buildNewsArticleJsonLd(), NewsArticleImage, NewsArticleJsonLdInput, BASE_INPUT
 
 ### Community 268 - "Application / Sod Conflict Evaluation Log"
 Cohesion: 0.33
 Nodes (6): listSoDConflictEvaluations(), ListSoDConflictEvaluationsFilter, SoDConflictEvaluationDbRow, SoDConflictEvaluationInput, SoDConflictEvaluationRow, toRow()
 
 ### Community 269 - "Ports / Social Publishing Port"
-Cohesion: 0.43
-Nodes (5): ArticlePublishedEventInput, ArticlePublishedPortResult, SocialPublishingPort, SocialPublishingTriggerEvent, ADR-0006
+Cohesion: 0.54
+Nodes (6): checkConfigDocsDrift(), DOC18_NON_VARIABLE_TOKENS, DriftProblem, parseDoc18VarNames(), parseEnvExampleVarNames(), runConfigDocsCheck()
 
 ### Community 270 - "E2E / Public A11Y Smoke.E2E"
 Cohesion: 0.29
@@ -1591,8 +1602,8 @@ Cohesion: 0.33
 Nodes (6): AWCMS-Micro Domain Events AsyncAPI Spec, AsyncAPI Contracts Doc, Transactional Outbox Pattern, ADR-0006: Offline-First + Transactional Outbox + Sync HMAC, ADR-0007: OpenAPI & AsyncAPI as Mandatory Contracts, ADR-0008: Independent Versioning (Package, Contract, Module Descriptor)
 
 ### Community 273 - "Awcms Micro / 02 Prd Detail Per Modul"
-Cohesion: 0.33
-Nodes (6): ADR-0034: Template Repositioning to Online-Store Scope, Derived-App Deprecation, Lineage ERP `awcms` (Excluded Scope), Module: Accounting Tax / Coretax (excluded ERP lineage), Module: Shared Stock Routing (excluded ERP lineage), Module: Warehouse Management (excluded ERP lineage), Role: Store Operator
+Cohesion: 0.40
+Nodes (5): Lineage ERP `awcms` (Excluded Scope), Module: Accounting Tax / Coretax (excluded ERP lineage), Module: Shared Stock Routing (excluded ERP lineage), Module: Warehouse Management (excluded ERP lineage), Role: Store Operator
 
 ### Community 274 - "Skills / Awcms Micro News Portal"
 Cohesion: 0.33
@@ -1615,8 +1626,8 @@ Cohesion: 0.33
 Nodes (6): Sensitive identifier pipeline (normalize/hash/mask), sql/031 + sql/032 tenant domain schema/permissions, hashResetToken (lib/auth/password-reset-token.ts), profile-identity/domain/identifier.ts (normalizeIdentifier/hashIdentifier/maskIdentifier), awcms_micro_tenant_domains table, token_reference opaque-pointer pattern
 
 ### Community 280 - "Lib / Comments"
-Cohesion: 0.40
-Nodes (5): AdminStrings, initCommentsAdmin(), QueueItem, ADR-0032, uuid()
+Cohesion: 0.43
+Nodes (6): isMfaEnabled(), isMfaRequired(), KNOWN_TOTP_DIGITS, resolveChallengeTtlSec(), resolveTotpIssuer(), FULL_ONLINE_ENV
 
 ### Community 281 - "Lib / Comments"
 Cohesion: 0.40
@@ -1722,6 +1733,10 @@ Nodes (3): Concept: Soft Delete / Restore / Purge Policy, Skill: awcms-micro-aud
 Cohesion: 0.67
 Nodes (3): POST /api/v1/tenant/domains (tenantDomainsCreate), POST /api/v1/tenant/domains/{id}/set-primary (tenantDomainsSetPrimary), POST /api/v1/tenant/domains/{id}/verify (tenantDomainsVerify)
 
+### Community 316 - "Scripts / Email Templates Seed Defaults"
+Cohesion: 0.32
+Nodes (7): CommentThread, findThread(), findThreadByComment(), ThreadRow, toThread(), ADR-0032, ResolvedCommentableResource
+
 ### Community 318 - "Site Search / Readme"
 Cohesion: 0.67
 Nodes (3): rebuild indexing operation, reconcile indexing operation, reindexSearchResource
@@ -1730,33 +1745,51 @@ Nodes (3): rebuild indexing operation, reconcile indexing operation, reindexSear
 Cohesion: 0.67
 Nodes (3): ADR-0036 no derived-repo seam, PublicThemeLayout.astro, theme-registry.ts
 
+### Community 427 - "news-media-r2-client.test.ts"
+Cohesion: 0.33
+Nodes (4): readCappedStream(), BASE_CONFIG, fetch(), xmlListResponse()
+
+### Community 428 - "sync-directory.ts"
+Cohesion: 0.29
+Nodes (6): fetchObjectQueueEntries(), fetchSyncNodes(), ObjectQueueEntry, ObjectQueueRow, SyncNodeRow, SyncNodeSummary
+
+### Community 429 - "object-queue.ts"
+Cohesion: 0.29
+Nodes (6): ObjectRetryEvaluation, ObjectSyncEnqueueRequestBody, ObjectSyncEnqueueValidationResult, ObjectSyncQueueItem, validateObjectSyncEnqueueRequestBody(), ValidationError
+
+### Community 430 - "dependencies"
+Cohesion: 0.40
+Nodes (5): astro, @astrojs/node, dependencies, astro, @astrojs/node
+
+### Community 431 - "tenant-settings-directory.ts"
+Cohesion: 0.50
+Nodes (3): TenantRow, TenantSettingsRow, TenantSettingsView
+
 ## Ambiguous Edges - Review These
-- `Perbedaan awcms-micro vs awcms Doc` → `Pedoman Penggunaan Agent Keluarga AWCMS v1.0 (PDF)`  [AMBIGUOUS]
-  docs/Pedoman_Penggunaan_Agent_Keluarga_AWCMS_v1.0.pdf · relation: conceptually_related_to
 - `Form Drafts API` → `Identity & Access API`  [AMBIGUOUS]
   openapi/modules/form-drafts.openapi.yaml · relation: conceptually_related_to
 - `authorizeInTransaction (access-guard.ts)` → `applyModulePreset (application/module-presets.ts, Issue #565)`  [AMBIGUOUS]
   src/modules/module-management/README.md · relation: references
 
 ## Knowledge Gaps
-- **2812 isolated node(s):** `$schema`, `changelog`, `commit`, `fixed`, `linked` (+2807 more)
+- **2858 isolated node(s):** `$schema`, `changelog`, `commit`, `fixed`, `linked` (+2853 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **113 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **What is the exact relationship between `Perbedaan awcms-micro vs awcms Doc` and `Pedoman Penggunaan Agent Keluarga AWCMS v1.0 (PDF)`?**
-  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Form Drafts API` and `Identity & Access API`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `authorizeInTransaction (access-guard.ts)` and `applyModulePreset (application/module-presets.ts, Issue #565)`?**
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
-- **Why does `withTenant()` connect `V1 / Analytics` to `V1 / Comments`, `Application / Email Dispatch`, `V1 / Blog`, `Integration / Harness`, `V1 / Auth`, `Application / Media Object Directory`, `Lib / Security`, `Lib / Theming`, `Lib / I18N`, `Components / Ui`, `Lib / Auth`, `V1 / Blog`, `Lib / Auth`, `Lib / Jobs`, `Domain / Search Settings`, `Lib / Auth`, `V1 / Registration Requests`, `V1 / Profiles`, `Application / Form Draft Purge`, `Scripts / Security Readiness`, `Integration / Website Platform Cross Tenant Isolation.Integr`, `Application / Comment Service`, `Application / Scheduled Export Store`, `Integration / Website Platform Public Security.Integration.T`, `V1 / Profiles`, `Lib / Performance`, `Skills / Awcms Micro Idempotency`, `Application / Health Registry`, `Application / Rebuild Run Store`, `Application / Rollup`, `Application / Public Route Settings`, `Admin / Business Scope`, `Application / Media Reconciliation`, `V1 / Newsletter`, `Application / Search Index Engine`, `V1 / Seo`, `Domain / Seo Rendering`, `V1 / Comments`, `Lib / Performance`, `Application / Social Publish Dispatch`, `Lib / Observability`, `Lib / Theming`, `Lib / Tenant`, `Application / Archive Purge Job`, `Application / Search Diagnostics`, `Domain / Public Page Rendering`, `V1 / Social Publishing`, `Integration / Public Link Integrity.Integration.Test`, `Admin / Profile`, `Application / Blog Scheduled Publish`, `Domain / Path Sanitizer`, `Scripts / Email Templates Seed Defaults`, `Lib / Resilience`, `Application / Dispatch Domain Events`, `Domain / Email Provider Contract`, `Integration / Reporting Projections.Integration.Test`, `Application / Campaign Service`, `V1 / Newsletter`, `Infrastructure / Object Storage Uploader`, `Integration / Seo Discovery.Integration.Test`, `Lib / Database`, `Application / Module Audit Summary`, `Domain / News Portal Preset Readiness`, `Application / Not Found Directory`, `Integration / Email Announcements.Integration.Test`, `Application / Sync Directory`, `Lib / I18N`, `Scripts / Newsletter Dispatch`, `Lib / Database`, `Application / Theme Config Directory`, `Integration / Domain Event Runtime.Integration.Test`, `Infrastructure / Local Export Adapter`, `Lib / Performance`, `Integration / Blog Content Settings.Integration.Test`, `V1 / Media`, `Application / Social Publish Job Directory`?**
-  _High betweenness centrality (0.147) - this node is a cross-community bridge._
-- **Why does `getDatabaseClient()` connect `V1 / Blog` to `V1 / Comments`, `V1 / Analytics`, `Domain / Campaign Preview`, `Integration / Harness`, `Domain / Discovery Cache`, `V1 / Auth`, `Lib / Security`, `Lib / Theming`, `Lib / I18N`, `Components / Ui`, `Lib / Auth`, `V1 / Blog`, `Lib / Auth`, `Lib / Jobs`, `V1 / Registration Requests`, `Lib / Auth`, `Domain / Module Composition`, `V1 / Profiles`, `Scripts / Security Readiness`, `Integration / Website Platform Public Security.Integration.T`, `V1 / Profiles`, `Application / Health Registry`, `V1 / Seo`, `Admin / Business Scope`, `Application / Media Object Directory`, `V1 / Newsletter`, `Integration / Social Publishing.Integration.Test`, `Domain / Seo Rendering`, `Lib / Logging`, `V1 / Comments`, `Lib / Theming`, `Lib / Observability`, `Lib / Performance`, `V1 / Social Publishing`, `Application / Search Diagnostics`, `Domain / Public Page Rendering`, `Application / Search Service`, `Admin / Profile`, `Application / Blog Scheduled Publish`, `Domain / Path Sanitizer`, `Scripts / Email Templates Seed Defaults`, `Lib / Resilience`, `Lib / Auth`, `V1 / Newsletter`, `Infrastructure / Object Storage Uploader`, `Integration / Seo Discovery.Integration.Test`, `Lib / Database`, `Application / Module Audit Summary`, `Domain / News Portal Preset Readiness`, `Application / Not Found Directory`, `Application / Sync Directory`, `Lib / I18N`, `Middleware`, `Application / Theme Config Directory`, `Integration / Blog Content Settings.Integration.Test`, `V1 / Media`, `Application / Social Publish Job Directory`?**
-  _High betweenness centrality (0.086) - this node is a cross-community bridge._
-- **Why does `AWCMS-Micro API & Event Reference` connect `Awcms Micro / Comments` to `Scripts / Api Docs Generate`, `Awcms Micro / Performance Suite`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `withTenant()` connect `V1 / Blog` to `V1 / Comments`, `Application / Email Dispatch`, `V1 / Blog`, `V1 / Analytics`, `Integration / Harness`, `V1 / Auth`, `Application / Media Object Directory`, `Lib / Security`, `Lib / I18N`, `Lib / Theming`, `Components / Ui`, `Lib / Auth`, `V1 / Registration Requests`, `Lib / Auth`, `Lib / Jobs`, `Domain / Search Settings`, `Application / Blog Page Directory`, `Application / Form Draft Purge`, `Scripts / Security Readiness`, `V1 / Profiles`, `Integration / Website Platform Cross Tenant Isolation.Integr`, `V1 / Profiles`, `Lib / Performance`, `Skills / Awcms Micro Idempotency`, `Application / Health Registry`, `Application / Rebuild Run Store`, `Application / Rollup`, `Admin / Business Scope`, `V1 / Seo`, `Application / Media Reconciliation`, `V1 / Newsletter`, `Application / Search Index Engine`, `Domain / Seo Rendering`, `V1 / Comments`, `Lib / Performance`, `Application / Social Publish Dispatch`, `Lib / Theming`, `Lib / Observability`, `Lib / Tenant`, `Domain / Content Quality Checklist`, `Application / Archive Purge Job`, `Domain / Public Page Rendering`, `Integration / Public Link Integrity.Integration.Test`, `Admin / Profile`, `Domain / Email Config`, `Domain / Path Sanitizer`, `Application / Blog Scheduled Publish`, `Lib / Resilience`, `Application / Dispatch Domain Events`, `Domain / Email Provider Contract`, `Integration / Reporting Projections.Integration.Test`, `V1 / Newsletter`, `Integration / Seo Discovery.Integration.Test`, `Application / Not Found Directory`, `Integration / Email Announcements.Integration.Test`, `Application / Sync Directory`, `Scripts / Newsletter Dispatch`, `Middleware`, `Lib / Database`, `Domain / Content Block Media References`, `Integration / Domain Event Runtime.Integration.Test`, `Infrastructure / Local Export Adapter`, `Lib / Performance`, `Integration / Blog Content Settings.Integration.Test`, `Application / Blog Taxonomy Directory`, `V1 / Media`, `Application / Social Publish Job Directory`, `Application / Blog Post Directory`?**
+  _High betweenness centrality (0.152) - this node is a cross-community bridge._
+- **Why does `getDatabaseClient()` connect `V1 / Blog` to `V1 / Comments`, `Application / Email Dispatch`, `V1 / Analytics`, `V1 / Blog`, `Domain / Campaign Preview`, `Domain / Discovery Cache`, `V1 / Auth`, `Lib / Security`, `Lib / I18N`, `Lib / Theming`, `Components / Ui`, `V1 / Registration Requests`, `Application / Media Object Directory`, `Integration / Harness`, `Lib / Jobs`, `V1 / Profiles`, `Scripts / Security Readiness`, `V1 / Profiles`, `Application / Health Registry`, `V1 / Seo`, `Admin / Business Scope`, `V1 / Newsletter`, `Integration / Social Publishing.Integration.Test`, `Domain / Seo Rendering`, `V1 / Comments`, `Lib / Theming`, `Lib / Performance`, `Domain / Public Page Rendering`, `Application / Search Service`, `Admin / Profile`, `Application / Blog Scheduled Publish`, `Domain / Path Sanitizer`, `Domain / Email Config`, `Lib / Resilience`, `Domain / Email Provider Contract`, `Lib / Auth`, `V1 / Newsletter`, `Integration / Seo Discovery.Integration.Test`, `Domain / Subscriber Crypto`, `Lib / Database`, `Application / Not Found Directory`, `Application / Sync Directory`, `Domain / Content Block Media References`, `Lib / Performance`, `Integration / Blog Content Settings.Integration.Test`, `V1 / Media`, `Application / Social Publish Job Directory`, `Application / Blog Post Directory`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+- **Why does `AWCMS-Micro API & Event Reference` connect `Awcms Micro / Comments` to `Awcms Micro / Database Capacity Runbook`, `Scripts / Api Docs Generate`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **What connects `$schema`, `changelog`, `commit` to the rest of the system?**
-  _2812 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2858 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `V1 / Comments` be split into smaller, more focused modules?**
+  _Cohesion score 0.02951068994764704 - nodes in this community are weakly interconnected._

@@ -44,9 +44,11 @@ blob-report/
 .claude/settings.local.json
 
 # graphify incremental-extraction cache — machine-local, regenerable, large.
-# The graph outputs (graph.json/GRAPH_REPORT.md/graph.html/manifest.json) are
-# committed; the cache under graphify-out/cache/ is not.
+# The graph outputs (graph.json/GRAPH_REPORT.md/manifest.json/GRAPH_TREE.html)
+# are committed; the cache under graphify-out/cache/ is not.
 graphify-out/cache/
+# graphify dated backups of the prior curated graph (graphify-out/YYYY-MM-DD/)
+graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 # Penanda lokal per-mesin (absolute path checkout + interpreter uv), bukan hasil.
 graphify-out/.graphify_root
 graphify-out/.graphify_python
