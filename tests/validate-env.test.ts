@@ -120,7 +120,9 @@ describe("checkSyncConfig", () => {
 
 describe("checkR2Config", () => {
   test("passes (single check) when R2 is disabled", () => {
-    const results = checkR2Config({ R2_ENABLED: "false" } as NodeJS.ProcessEnv);
+    const results = checkR2Config({
+      AWCMS_MICRO_R2_ENABLED: "false"
+    } as NodeJS.ProcessEnv);
 
     expect(results).toHaveLength(1);
     expect(results[0]?.status).toBe("pass");
@@ -128,22 +130,40 @@ describe("checkR2Config", () => {
 
   test("fails and names each missing R2 credential when R2 is enabled", () => {
     const results = checkR2Config({
-      R2_ENABLED: "true",
-      R2_BUCKET: "my-bucket"
+      AWCMS_MICRO_R2_ENABLED: "true",
+      AWCMS_MICRO_R2_BUCKET: "my-bucket"
     } as NodeJS.ProcessEnv);
 
     const failed = results.filter((result) => result.status === "fail");
     const failedNames = failed.map((result) => result.name).sort();
 
     expect(failedNames).toEqual(
-      ["R2_ACCESS_KEY_ID", "R2_ACCOUNT_ID", "R2_SECRET_ACCESS_KEY"].sort()
+      [
+        "AWCMS_MICRO_R2_ACCESS_KEY_ID",
+        "AWCMS_MICRO_R2_ACCOUNT_ID",
+        "AWCMS_MICRO_R2_SECRET_ACCESS_KEY"
+      ].sort()
     );
-    expect(results.find((result) => result.name === "R2_BUCKET")?.status).toBe(
-      "pass"
-    );
+    expect(
+      results.find((result) => result.name === "AWCMS_MICRO_R2_BUCKET")?.status
+    ).toBe("pass");
   });
 
   test("all pass when R2 is enabled and every credential is set", () => {
+    const results = checkR2Config({
+      AWCMS_MICRO_R2_ENABLED: "true",
+      AWCMS_MICRO_R2_ACCOUNT_ID: "acct",
+      AWCMS_MICRO_R2_ACCESS_KEY_ID: "key",
+      AWCMS_MICRO_R2_SECRET_ACCESS_KEY: "secret",
+      AWCMS_MICRO_R2_BUCKET: "bucket"
+    } as NodeJS.ProcessEnv);
+
+    expect(results.every((result) => result.status === "pass")).toBe(true);
+  });
+
+  test("accepts legacy R2_* names as a fallback during the rename migration", () => {
+    // A deployment still on the old env keys must still validate — this is the
+    // zero-downtime guarantee for the R2_* -> AWCMS_MICRO_R2_* rename.
     const results = checkR2Config({
       R2_ENABLED: "true",
       R2_ACCOUNT_ID: "acct",

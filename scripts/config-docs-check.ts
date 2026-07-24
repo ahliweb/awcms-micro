@@ -92,7 +92,18 @@ export const DOC18_NON_VARIABLE_TOKENS: ReadonlySet<string> = new Set([
   // work-class-registry.ts's exported map), mentioned in doc 18 §Model
   // role database prose to point readers at the live job list — not an
   // env var.
-  "JOB_WORK_CLASS_REGISTRY"
+  "JOB_WORK_CLASS_REGISTRY",
+  // Legacy sync-storage R2 var names, renamed to `AWCMS_MICRO_R2_*`. Kept in
+  // doc 18 prose ONLY as migration guidance ("renamed from `R2_ENABLED`…",
+  // "legacy … fallback") — the code still reads them as a fallback during the
+  // migration window, but they are no longer canonical registry variables, so
+  // they must not be required back in the registry/.env.example. Remove these
+  // once the fallback is dropped and the migration notes are pruned from doc 18.
+  "R2_ENABLED",
+  "R2_ACCOUNT_ID",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET"
 ]);
 
 export type DriftProblem = {

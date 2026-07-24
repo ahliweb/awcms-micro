@@ -82,7 +82,10 @@ export const POST: APIRoute = async ({ request }) => {
       validation.value.objects.map((object) => [object.objectKey, object])
     ).values()
   ];
-  const requiresUpload = process.env.R2_ENABLED === "true";
+  // Canonical `AWCMS_MICRO_R2_ENABLED`, legacy `R2_ENABLED` fallback during the
+  // rename migration window (drop the fallback once all deployments migrated).
+  const requiresUpload =
+    (process.env.AWCMS_MICRO_R2_ENABLED ?? process.env.R2_ENABLED) === "true";
   const sql = getDatabaseClient();
 
   return withTenant(

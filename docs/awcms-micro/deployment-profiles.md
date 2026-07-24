@@ -309,7 +309,7 @@ konvensi penamaan lengkap dan
 - **production (online)**, hanya bila operator memang menjalankan
   portal berita publik dengan kredensial R2 aktif: aktifkan preset
   (Issue #632) dan pastikan bucket + kredensial R2 media **berbeda**
-  dari `R2_BUCKET`/`R2_*` yang sudah dipakai `sync-storage` (§Storage di
+  dari `AWCMS_MICRO_R2_BUCKET`/`AWCMS_MICRO_R2_*` yang sudah dipakai `sync-storage` (§Storage di
   atas) — ini bukan rekomendasi, tapi penegakan wajib di
   `config:validate`/`security:readiness` begitu Issue #635 selesai
   (lihat `docs/awcms-micro/news-portal/r2-security-checklist.md` §7).
@@ -662,8 +662,8 @@ registry ini, `.env.example`, dan doc 18 tetap sinkron.
   `.env.example` (`change-me`) — memakai ulang deteksi placeholder yang
   sama dengan `checkSyncHmacSecretNotDefault` di `scripts/security-readiness.ts`
   (Issue 10.3), bukan logika terpisah yang bisa menyimpang.
-- Kondisional: bila `R2_ENABLED=true`, maka `R2_ACCOUNT_ID`,
-  `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` wajib diisi.
+- Kondisional: bila `AWCMS_MICRO_R2_ENABLED=true`, maka `AWCMS_MICRO_R2_ACCOUNT_ID`,
+  `AWCMS_MICRO_R2_ACCESS_KEY_ID`, `AWCMS_MICRO_R2_SECRET_ACCESS_KEY`, `AWCMS_MICRO_R2_BUCKET` wajib diisi (nama legacy `R2_*` masih diterima sebagai fallback selama migrasi).
 - Kondisional (Issue #556, epic #555 — config-only, lihat §Profil online
   di bawah): bila `PUBLIC_TENANT_RESOLUTION_MODE` diisi, nilainya harus
   salah satu dari `host_default`/`env_default`/`setup_default`/
@@ -760,7 +760,7 @@ idempoten/aman dijalankan berulang, no-op aman bila fiturnya nonaktif:
 | `identity-access:business-scope:expiry` | identity_access      | Per jam (Issue #746)                                                  |
 
 Semua bersifat operasi database murni (kecuali `sync:objects:dispatch`
-yang menyentuh R2 bila `R2_ENABLED` adalah `"true"` (bukan `STORAGE_DRIVER`,
+yang menyentuh R2 bila `AWCMS_MICRO_R2_ENABLED` adalah `"true"` (bukan `STORAGE_DRIVER`,
 yang **DEPRECATED**/tidak pernah dibaca — lihat
 `18_configuration_env_reference.md` §Config registry), dan
 `news-media:reconcile` yang menyentuh R2 bila `NEWS_MEDIA_R2_ENABLED`

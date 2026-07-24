@@ -1017,56 +1017,59 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
       "Per-attempt timeout (ms) for the object-sync dispatcher (Issue #436)."
   },
   {
-    name: "R2_ENABLED",
+    name: "AWCMS_MICRO_R2_ENABLED",
     type: "boolean",
     required: "optional",
     ownerModule: "sync-storage",
     sensitivity: "non-secret",
     profiles: ALL_PROFILES,
     default: "false",
-    description: "Enables Cloudflare R2 for the sync object queue.",
+    description:
+      "Enables Cloudflare R2 for the sync object queue. Renamed from the legacy `R2_ENABLED` (still read as a fallback during the migration window — object-storage-uploader.ts / sync/objects). Prefix unified under `awcms-micro`.",
     validatorGroup: "checkR2Config"
   },
   {
-    name: "R2_ACCOUNT_ID",
+    name: "AWCMS_MICRO_R2_ACCOUNT_ID",
     type: "string",
     required: "conditional",
     ownerModule: "sync-storage",
     sensitivity: "non-secret",
     profiles: ALL_PROFILES,
     description:
-      "Cloudflare R2 account id — required when R2_ENABLED=true. An account identifier, not a credential by itself (R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY are the actual secrets) — matches NEWS_MEDIA_R2_ACCOUNT_ID's classification (PR #709 review).",
+      "Cloudflare R2 account id — required when AWCMS_MICRO_R2_ENABLED=true. An account identifier, not a credential by itself (AWCMS_MICRO_R2_ACCESS_KEY_ID/AWCMS_MICRO_R2_SECRET_ACCESS_KEY are the actual secrets). Renamed from legacy `R2_ACCOUNT_ID` (read as fallback during migration).",
     validatorGroup: "checkR2Config"
   },
   {
-    name: "R2_ACCESS_KEY_ID",
+    name: "AWCMS_MICRO_R2_ACCESS_KEY_ID",
     type: "string",
     required: "conditional",
     ownerModule: "sync-storage",
     sensitivity: "secret",
     profiles: ALL_PROFILES,
-    description: "R2 credential — required when R2_ENABLED=true.",
+    description:
+      "R2 credential — required when AWCMS_MICRO_R2_ENABLED=true. Renamed from legacy `R2_ACCESS_KEY_ID` (read as fallback during migration).",
     validatorGroup: "checkR2Config"
   },
   {
-    name: "R2_SECRET_ACCESS_KEY",
+    name: "AWCMS_MICRO_R2_SECRET_ACCESS_KEY",
     type: "string",
     required: "conditional",
     ownerModule: "sync-storage",
     sensitivity: "secret",
     profiles: ALL_PROFILES,
-    description: "R2 credential — required when R2_ENABLED=true.",
+    description:
+      "R2 credential — required when AWCMS_MICRO_R2_ENABLED=true. Renamed from legacy `R2_SECRET_ACCESS_KEY` (read as fallback during migration).",
     validatorGroup: "checkR2Config"
   },
   {
-    name: "R2_BUCKET",
+    name: "AWCMS_MICRO_R2_BUCKET",
     type: "string",
     required: "conditional",
     ownerModule: "sync-storage",
     sensitivity: "non-secret",
     profiles: ALL_PROFILES,
     description:
-      "R2 bucket name (private object queue) — required when R2_ENABLED=true; must differ from NEWS_MEDIA_R2_BUCKET.",
+      "R2 bucket name (private object queue) — required when AWCMS_MICRO_R2_ENABLED=true; must differ from NEWS_MEDIA_R2_BUCKET. Convention: prefix `awcms-micro-` (e.g. `awcms-micro-objects`). Renamed from legacy `R2_BUCKET` (read as fallback during migration).",
     validatorGroup: "checkR2Config"
   },
 
