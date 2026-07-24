@@ -147,13 +147,28 @@ Findings:
   for a clean run either pre-create those roles first or restore with
   `pg_restore --no-owner --no-privileges`. (`restore-postgres.sh` already
   handles the role/ownership concern for the real target.)
-- **CRITICAL GAP — no scheduled backup.** Coolify has **0 scheduled database
-  backups** configured for this app's DB (verified via
-  `ScheduledDatabaseBackup::all()->count()`), so **RPO is currently unbounded**
-  — only manual `pg_dump`s exist. **Action**: enable a scheduled (e.g. daily)
-  backup on the Coolify database (Backups tab, or the `deploy/backup/`
-  cron) so RPO becomes the backup interval, and pair it with the existing
-  scheduled `restore-drill.sh` so the backup is verified, not just taken.
+- **Scheduled backup — RESOLVED (verified live 2026-07-24).** The original
+  drill found Coolify had **0 scheduled database backups** for this app's DB
+  (via `ScheduledDatabaseBackup::all()->count()`), leaving RPO unbounded. A
+  **nightly logical backup is now installed on the dinkes-prod host** and was
+  re-verified live on 2026-07-24: admin1 crontab `30 2 * * *
+/home/admin1/backups/awcms-micro-backup.sh` — a daily `pg_dump | gzip` of the
+  live DB (resolved by resource uuid `clgwm77eofuyz36vfj2jnse9`, so it survives
+  redeploys) written to `/var/lib/docker/awcms-micro-db-backups` on the **sdb1**
+  disk (2.7 T; the root disk is only 57 G, so the operator deliberately chose
+  sdb1 over Coolify-managed storage). Each run is integrity-gated
+  (`gzip -t` + a `>1000` byte floor — a bad dump is deleted and the run exits
+  non-zero) and **rotated at 14 days**. Verified present: 3 valid gzipped dumps
+  (~92 KB each) in the target dir. **RPO is now bounded to ≤24 h** (worst case
+  since the last nightly dump); combined with the measured restore proxy above,
+  RTO ≈ seconds at current volume. A Coolify-native scheduled backup was
+  **deliberately NOT added** — it would duplicate this daily dump and, per the
+  operator's storage decision, must not rely on the small root disk.
+- **Still open (optional): offsite copy (layer 2).** The nightly dump is on the
+  same host as the DB (sdb1). An **offsite** copy (e.g. the host cron piped to a
+  private R2 bucket, or a Coolify-native backup targeting S3/R2) would survive
+  whole-host loss. This is a genuine follow-up and needs a **private R2 bucket**
+  provisioned first (the public `awcms-micro-media` bucket must not be reused).
 - **Object-storage (R2) restore** and the live chaos drills remain deferred
   (their shapes are covered by the integration suites above).
 
