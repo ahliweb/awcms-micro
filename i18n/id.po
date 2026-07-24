@@ -4159,3 +4159,144 @@ msgstr "Tolak pendaftaran?"
 
 msgid "admin.registrations.reject_confirm_body"
 msgstr "Ini menolak permohonan secara permanen. Tidak ada akun yang dibuat."
+
+#. admin.profile 2FA link
+msgid "admin.profile.action_security"
+msgstr "Autentikasi dua faktor"
+
+#. admin.security_2fa — self-service TOTP 2FA enrollment & management
+msgid "admin.security_2fa.title"
+msgstr "Autentikasi Dua Faktor (2FA)"
+
+msgid "admin.security_2fa.subtitle"
+msgstr "Tambahkan langkah kedua saat masuk untuk perlindungan akun yang lebih kuat."
+
+msgid "admin.security_2fa.unavailable_title"
+msgstr "Tidak tersedia pada deployment ini"
+
+msgid "admin.security_2fa.unavailable_body"
+msgstr "Autentikasi dua faktor tidak diaktifkan untuk deployment ini. Hubungi administrator Anda jika perlu diaktifkan."
+
+msgid "admin.security_2fa.status_legend"
+msgstr "Status"
+
+msgid "admin.security_2fa.enabled_badge"
+msgstr "Aktif"
+
+msgid "admin.security_2fa.disabled_badge"
+msgstr "Nonaktif"
+
+msgid "admin.security_2fa.activated_label"
+msgstr "Aktif sejak"
+
+msgid "admin.security_2fa.enabled_lead"
+msgstr "Akun Anda dilindungi oleh aplikasi authenticator. Anda dapat membuat ulang kode pemulihan atau menonaktifkan 2FA di bawah."
+
+msgid "admin.security_2fa.disabled_lead"
+msgstr "Autentikasi dua faktor belum disiapkan untuk akun Anda."
+
+msgid "admin.security_2fa.enable_legend"
+msgstr "Siapkan autentikasi dua faktor"
+
+msgid "admin.security_2fa.enable_intro"
+msgstr "Anda memerlukan aplikasi authenticator seperti Google Authenticator, 1Password, atau Authy."
+
+msgid "admin.security_2fa.enable_button"
+msgstr "Aktifkan 2FA"
+
+msgid "admin.security_2fa.enroll_step1_title"
+msgstr "Langkah 1 — Pindai kode QR"
+
+msgid "admin.security_2fa.enroll_step1_body"
+msgstr "Pindai kode QR ini dengan aplikasi authenticator Anda. Tidak bisa memindai? Masukkan kunci penyiapan secara manual."
+
+msgid "admin.security_2fa.secret_label"
+msgstr "Kunci penyiapan"
+
+msgid "admin.security_2fa.copy_secret"
+msgstr "Salin kunci"
+
+msgid "admin.security_2fa.enroll_step2_title"
+msgstr "Langkah 2 — Masukkan kode 6 digit"
+
+msgid "admin.security_2fa.code_label"
+msgstr "Kode verifikasi"
+
+msgid "admin.security_2fa.verify_button"
+msgstr "Verifikasi & aktifkan"
+
+msgid "admin.security_2fa.manage_legend"
+msgstr "Kelola autentikasi dua faktor"
+
+msgid "admin.security_2fa.regenerate_button"
+msgstr "Buat ulang kode pemulihan"
+
+msgid "admin.security_2fa.disable_button"
+msgstr "Nonaktifkan 2FA"
+
+msgid "admin.security_2fa.recovery_title"
+msgstr "Simpan kode pemulihan Anda"
+
+msgid "admin.security_2fa.recovery_body"
+msgstr "Simpan kode-kode ini di tempat yang aman. Masing-masing berlaku sekali jika Anda kehilangan akses ke aplikasi authenticator. Kode ini tidak akan ditampilkan lagi."
+
+msgid "admin.security_2fa.copy_codes"
+msgstr "Salin kode"
+
+msgid "admin.security_2fa.download_codes"
+msgstr "Unduh kode"
+
+msgid "admin.security_2fa.recovery_done"
+msgstr "Saya sudah menyimpan kode"
+
+msgid "admin.security_2fa.enable_error"
+msgstr "Tidak dapat memulai penyiapan 2FA. Coba lagi."
+
+msgid "admin.security_2fa.enabled_success"
+msgstr "Autentikasi dua faktor sekarang aktif."
+
+msgid "admin.security_2fa.disabled_success"
+msgstr "Autentikasi dua faktor telah dinonaktifkan."
+
+msgid "admin.security_2fa.regenerated_success"
+msgstr "Kode pemulihan baru dibuat. Kode lama Anda tidak berlaku lagi."
+
+msgid "admin.security_2fa.disable_confirm"
+msgstr "Nonaktifkan autentikasi dua faktor? Akun Anda akan kurang terlindungi."
+
+msgid "admin.security_2fa.regenerate_confirm"
+msgstr "Buat ulang kode pemulihan? Kode Anda yang lama akan langsung berhenti berlaku."
+
+msgid "admin.security_2fa.copied"
+msgstr "Tersalin"
+
+msgid "admin.security_2fa.copy_failed"
+msgstr "Gagal menyalin — pilih dan salin manual."
+
+msgid "admin.security_2fa.qr_alt"
+msgstr "Kode QR untuk penyiapan autentikasi dua faktor"
+
+msgid "admin.security_2fa.recovery_filename"
+msgstr "awcms-micro-kode-pemulihan.txt"
+
+#. auth.mfa — login second-step challenge
+msgid "auth.mfa.challenge_title"
+msgstr "Verifikasi dua langkah"
+
+msgid "auth.mfa.challenge_subtitle"
+msgstr "Masukkan kode 6 digit dari aplikasi authenticator Anda untuk menyelesaikan proses masuk."
+
+msgid "auth.mfa.code_label"
+msgstr "Kode verifikasi"
+
+msgid "auth.mfa.submit"
+msgstr "Verifikasi"
+
+msgid "auth.mfa.use_recovery"
+msgstr "Gunakan kode pemulihan"
+
+msgid "auth.mfa.recovery_label"
+msgstr "Kode pemulihan"
+
+msgid "auth.mfa.use_totp"
+msgstr "Gunakan kode authenticator"

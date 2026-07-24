@@ -211,6 +211,16 @@ gate env — semuanya modul-agnostic, tinggal di `src/lib/auth/` seperti
   session/reset token. Replay kode TOTP dicegah via kolom
   `last_used_step` per factor (kode/step yang sama tidak bisa dipakai
   dua kali walau masih dalam window toleransi clock drift).
+- **Browser UI** (melengkapi backend di atas — hanya UI, tanpa perubahan
+  backend/migration): self-service enroll/manage di
+  `src/pages/admin/profile/security.astro` (`/admin/profile/security`,
+  ditautkan dari `/admin/profile` saat `isMfaRequired()`), dan langkah
+  challenge kedua di `src/pages/login.astro` yang menangani
+  `401 MFA_REQUIRED`. QR enroll dirender sebagai SVG inline dari generator
+  vendored `src/lib/ui/qr-code.ts` (tanpa library/permintaan eksternal —
+  patuh CSP ketat). Alur user: doc 08 §Autentikasi dua faktor. Kedua
+  halaman digerbangi server-side `isMfaRequired()`; inert di deployment
+  offline/LAN/local.
 - Detail lengkap + rasional lintas-issue: skill
   `awcms-micro-auth-online-hardening` §MFA/TOTP.
 

@@ -4160,3 +4160,144 @@ msgstr "Reject registration?"
 
 msgid "admin.registrations.reject_confirm_body"
 msgstr "This permanently rejects the request. No account will be created."
+
+#. admin.profile 2FA link
+msgid "admin.profile.action_security"
+msgstr "Two-factor authentication"
+
+#. admin.security_2fa — self-service TOTP 2FA enrollment & management
+msgid "admin.security_2fa.title"
+msgstr "Two-Factor Authentication (2FA)"
+
+msgid "admin.security_2fa.subtitle"
+msgstr "Add a second step to your sign-in for stronger account protection."
+
+msgid "admin.security_2fa.unavailable_title"
+msgstr "Not available on this deployment"
+
+msgid "admin.security_2fa.unavailable_body"
+msgstr "Two-factor authentication is not enabled for this deployment. Contact your administrator if you need it turned on."
+
+msgid "admin.security_2fa.status_legend"
+msgstr "Status"
+
+msgid "admin.security_2fa.enabled_badge"
+msgstr "On"
+
+msgid "admin.security_2fa.disabled_badge"
+msgstr "Off"
+
+msgid "admin.security_2fa.activated_label"
+msgstr "Enabled since"
+
+msgid "admin.security_2fa.enabled_lead"
+msgstr "Your account is protected by an authenticator app. You can regenerate your recovery codes or turn 2FA off below."
+
+msgid "admin.security_2fa.disabled_lead"
+msgstr "Two-factor authentication is not set up for your account yet."
+
+msgid "admin.security_2fa.enable_legend"
+msgstr "Set up two-factor authentication"
+
+msgid "admin.security_2fa.enable_intro"
+msgstr "You will need an authenticator app such as Google Authenticator, 1Password, or Authy."
+
+msgid "admin.security_2fa.enable_button"
+msgstr "Enable 2FA"
+
+msgid "admin.security_2fa.enroll_step1_title"
+msgstr "Step 1 — Scan the QR code"
+
+msgid "admin.security_2fa.enroll_step1_body"
+msgstr "Scan this QR code with your authenticator app. Cannot scan? Enter the setup key manually instead."
+
+msgid "admin.security_2fa.secret_label"
+msgstr "Setup key"
+
+msgid "admin.security_2fa.copy_secret"
+msgstr "Copy key"
+
+msgid "admin.security_2fa.enroll_step2_title"
+msgstr "Step 2 — Enter the 6-digit code"
+
+msgid "admin.security_2fa.code_label"
+msgstr "Verification code"
+
+msgid "admin.security_2fa.verify_button"
+msgstr "Verify & activate"
+
+msgid "admin.security_2fa.manage_legend"
+msgstr "Manage two-factor authentication"
+
+msgid "admin.security_2fa.regenerate_button"
+msgstr "Regenerate recovery codes"
+
+msgid "admin.security_2fa.disable_button"
+msgstr "Disable 2FA"
+
+msgid "admin.security_2fa.recovery_title"
+msgstr "Save your recovery codes"
+
+msgid "admin.security_2fa.recovery_body"
+msgstr "Store these codes somewhere safe. Each one works once if you lose access to your authenticator app. They will not be shown again."
+
+msgid "admin.security_2fa.copy_codes"
+msgstr "Copy codes"
+
+msgid "admin.security_2fa.download_codes"
+msgstr "Download codes"
+
+msgid "admin.security_2fa.recovery_done"
+msgstr "I have saved my codes"
+
+msgid "admin.security_2fa.enable_error"
+msgstr "Could not start 2FA setup. Try again."
+
+msgid "admin.security_2fa.enabled_success"
+msgstr "Two-factor authentication is now on."
+
+msgid "admin.security_2fa.disabled_success"
+msgstr "Two-factor authentication has been turned off."
+
+msgid "admin.security_2fa.regenerated_success"
+msgstr "New recovery codes generated. Your old codes no longer work."
+
+msgid "admin.security_2fa.disable_confirm"
+msgstr "Turn off two-factor authentication? Your account will be less protected."
+
+msgid "admin.security_2fa.regenerate_confirm"
+msgstr "Regenerate recovery codes? Your existing codes will stop working immediately."
+
+msgid "admin.security_2fa.copied"
+msgstr "Copied"
+
+msgid "admin.security_2fa.copy_failed"
+msgstr "Copy failed — select and copy manually."
+
+msgid "admin.security_2fa.qr_alt"
+msgstr "QR code for two-factor authentication setup"
+
+msgid "admin.security_2fa.recovery_filename"
+msgstr "awcms-micro-recovery-codes.txt"
+
+#. auth.mfa — login second-step challenge
+msgid "auth.mfa.challenge_title"
+msgstr "Two-step verification"
+
+msgid "auth.mfa.challenge_subtitle"
+msgstr "Enter the 6-digit code from your authenticator app to finish signing in."
+
+msgid "auth.mfa.code_label"
+msgstr "Verification code"
+
+msgid "auth.mfa.submit"
+msgstr "Verify"
+
+msgid "auth.mfa.use_recovery"
+msgstr "Use a recovery code instead"
+
+msgid "auth.mfa.recovery_label"
+msgstr "Recovery code"
+
+msgid "auth.mfa.use_totp"
+msgstr "Use authenticator code instead"

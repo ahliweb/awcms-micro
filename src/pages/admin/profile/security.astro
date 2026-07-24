@@ -1,0 +1,932 @@
+---
+/**
+ * My Profile · Two-Factor Authentication (2FA) — self-service TOTP
+ * enrollment & management (`/admin/profile/security`). Completes the browser
+ * UX for the already-shipped MFA/TOTP backend (epic full-online auth
+ * hardening #587-#593): the lib primitives, application seam, migration 034,
+ * and every `/api/v1/auth/mfa/*` endpoint already exist and are REUSED here,
+ * not reimplemented. Reached from a gated link on `/admin/profile`.
+ *
+ * Home decision (noted per the issue's "pick the most consistent option"
+ * guidance): a dedicated sub-page rather than a section inside
+ * `admin/profile.astro`. `admin/profile.astro` is deliberately a read-only
+ * account overview with no client script; the 2FA flows (enroll → QR →
+ * verify → recovery codes, disable, regenerate) need a substantial
+ * interactive `<script>`, so keeping them on their own page mirrors how
+ * `/admin/security` (the ADMIN auth-policy UI, #592) is also its own page
+ * rather than crammed into a read-only screen.
+ *
+ * Two gates, checked server-side in this frontmatter (never merely hidden
+ * with CSS), exactly like `/admin/security`'s own #587 gate:
+ * 1. `isMfaRequired()` (= `isFullOnlineSecurityActive()` ∧ `AUTH_MFA_ENABLED`,
+ *    `src/lib/auth/mfa-config.ts`) — inactive on every local/offline/LAN
+ *    deployment (the default), where the page renders ONLY an informational
+ *    `StateNotice` and no interactive form. No new env var is introduced.
+ * 2. This is the caller's OWN account (`context.identityId`), so — like
+ *    `admin/profile.astro` — it is NOT permission-gated: any authenticated
+ *    user manages their own 2FA. There is no cross-account surface here.
+ *
+ * SSR reads the current MFA status once (`getMfaStatus`) inside this page's
+ * own `withTenant` transaction so the correct panel (enrolled vs. not)
+ * renders without a client flash — same "call the application layer directly
+ * instead of round-tripping our own HTTP API" convention `admin/security.astro`
+ * uses. All MUTATIONS go through the real `/api/v1/auth/mfa/*` endpoints via
+ * `submitJson` (same-origin, session cookie + tenant header), so every
+ * enroll/verify/disable/regenerate still runs the endpoints' own gate + audit
+ * logic; this page never writes to the database directly. The QR is rendered
+ * as INLINE SVG from a repo-vendored generator (`src/lib/ui/qr-code.ts`) — no
+ * external library, no remote image, no `data:` image — so the strict CSP
+ * (`astro.config.mjs`) is never engaged.
+ */
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import StateNotice from "../../../components/ui/StateNotice.astro";
+import StatusBadge from "../../../components/ui/StatusBadge.astro";
+import { getDatabaseClient } from "../../../lib/database/client";
+import { withTenant } from "../../../lib/database/tenant-context";
+import { isMfaRequired } from "../../../lib/auth/mfa-config";
+import {
+  getMfaStatus,
+  type MfaStatus
+} from "../../../modules/identity-access/application/mfa";
+import { createTranslator } from "../../../lib/i18n/translate";
+import { formatDateTime } from "../../../lib/i18n/format";
+import { buildClientErrorMessages } from "../../../lib/i18n/error-messages";
+import { logAdminPageError } from "../../../lib/logging/error-log";
+
+const context = Astro.locals.ssrContext;
+
+if (!context) {
+  throw new Error(
+    "admin/profile/security.astro rendered without Astro.locals.ssrContext — src/middleware.ts should have redirected to /login before this page ever runs."
+  );
+}
+
+const locale = Astro.locals.locale;
+const t = await createTranslator(locale);
+
+// Gate 1 (#587/#589) — env-only, no I/O. Inactive on every local/offline/LAN
+// deployment: nothing below ever runs, no MFA endpoint is reachable anyway.
+const mfaActive = isMfaRequired();
+
+let status: MfaStatus | null = null;
+let loadError = false;
+
+if (mfaActive) {
+  try {
+    status = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      (tx) => getMfaStatus(tx, context.tenantId, context.identityId),
+      { unavailableBehavior: "throw" }
+    );
+  } catch (error) {
+    loadError = true;
+    logAdminPageError("admin/profile/security", error, {
+      correlationId: Astro.locals.correlationId
+    });
+  }
+}
+
+const enrolled = status?.enabled === true;
+
+const clientStrings = {
+  tenantId: context.tenantId,
+  enableError: t("admin.security_2fa.enable_error"),
+  enabledSuccess: t("admin.security_2fa.enabled_success"),
+  disabledSuccess: t("admin.security_2fa.disabled_success"),
+  regeneratedSuccess: t("admin.security_2fa.regenerated_success"),
+  disableConfirm: t("admin.security_2fa.disable_confirm"),
+  regenerateConfirm: t("admin.security_2fa.regenerate_confirm"),
+  copied: t("admin.security_2fa.copied"),
+  copyFailed: t("admin.security_2fa.copy_failed"),
+  qrAlt: t("admin.security_2fa.qr_alt"),
+  recoveryFilename: t("admin.security_2fa.recovery_filename"),
+  networkError: t("common.network_error"),
+  pleaseWait: t("common.please_wait"),
+  errorMessages: buildClientErrorMessages(t)
+};
+---
+
+<AdminLayout title={t("admin.security_2fa.title")}>
+  <section class="twofa-page" aria-labelledby="twofa-heading">
+    <header class="twofa-header">
+      <p class="twofa-breadcrumb">
+        <a href="/admin/profile">{t("admin.profile.title")}</a>
+      </p>
+      <h1 id="twofa-heading">{t("admin.security_2fa.title")}</h1>
+      <p class="twofa-subtitle">{t("admin.security_2fa.subtitle")}</p>
+    </header>
+
+    {
+      !mfaActive && (
+        <StateNotice
+          kind="info"
+          title={t("admin.security_2fa.unavailable_title")}
+          body={t("admin.security_2fa.unavailable_body")}
+        />
+      )
+    }
+
+    {
+      mfaActive && loadError && (
+        <StateNotice
+          kind="error"
+          title={t("common.error_title")}
+          body={t("common.error_body")}
+          retryLabel={t("common.retry")}
+          retryHref={Astro.url.pathname}
+        />
+      )
+    }
+
+    {
+      mfaActive && !loadError && (
+        <div class="twofa-body">
+          <div id="action-banner" class="action-banner" role="alert" hidden />
+          <script
+            type="application/json"
+            id="i18n-strings"
+            set:html={JSON.stringify(clientStrings)}
+          />
+
+          <section class="twofa-card" aria-labelledby="twofa-status-legend">
+            <div class="twofa-status-row">
+              <h2 id="twofa-status-legend">
+                {t("admin.security_2fa.status_legend")}
+              </h2>
+              <StatusBadge
+                label={
+                  enrolled
+                    ? t("admin.security_2fa.enabled_badge")
+                    : t("admin.security_2fa.disabled_badge")
+                }
+                variant={enrolled ? "success" : "neutral"}
+              />
+            </div>
+
+            {enrolled && status?.activatedAt && (
+              <p class="twofa-activated">
+                {t("admin.security_2fa.activated_label")}{" "}
+                <strong>
+                  {formatDateTime(new Date(status.activatedAt), locale)}
+                </strong>
+              </p>
+            )}
+
+            {enrolled ? (
+              <p class="twofa-lead">{t("admin.security_2fa.enabled_lead")}</p>
+            ) : (
+              <p class="twofa-lead">{t("admin.security_2fa.disabled_lead")}</p>
+            )}
+          </section>
+
+          {/* NOT ENROLLED — enable / enroll flow */}
+          {!enrolled && (
+            <section
+              class="twofa-card"
+              id="enroll-section"
+              aria-labelledby="enroll-legend"
+            >
+              <h2 id="enroll-legend">
+                {t("admin.security_2fa.enable_legend")}
+              </h2>
+              <p class="twofa-lead">{t("admin.security_2fa.enable_intro")}</p>
+
+              <button
+                type="button"
+                id="mfa-enable-button"
+                class="twofa-primary"
+              >
+                {t("admin.security_2fa.enable_button")}
+              </button>
+
+              {/* Revealed after enroll/start returns a secret + otpauth URI. */}
+              <div id="enroll-panel" class="twofa-enroll" hidden>
+                <ol class="twofa-steps">
+                  <li class="twofa-step">
+                    <h3>{t("admin.security_2fa.enroll_step1_title")}</h3>
+                    <p class="twofa-lead">
+                      {t("admin.security_2fa.enroll_step1_body")}
+                    </p>
+                    <div class="twofa-qr-wrap">
+                      <div
+                        id="mfa-qr"
+                        class="twofa-qr"
+                        role="img"
+                        aria-label={t("admin.security_2fa.qr_alt")}
+                      />
+                    </div>
+                    <div class="twofa-key">
+                      <span class="twofa-key-label">
+                        {t("admin.security_2fa.secret_label")}
+                      </span>
+                      <code id="mfa-secret" class="twofa-secret" />
+                      <button
+                        type="button"
+                        id="mfa-copy-secret"
+                        class="twofa-ghost"
+                        data-copy-target="mfa-secret"
+                      >
+                        {t("admin.security_2fa.copy_secret")}
+                      </button>
+                    </div>
+                  </li>
+
+                  <li class="twofa-step">
+                    <h3>{t("admin.security_2fa.enroll_step2_title")}</h3>
+                    <form
+                      id="mfa-verify-form"
+                      class="twofa-code-form"
+                      novalidate
+                    >
+                      <label for="mfa-enroll-code">
+                        {t("admin.security_2fa.code_label")}
+                      </label>
+                      <input
+                        id="mfa-enroll-code"
+                        name="code"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        pattern="[0-9]*"
+                        maxlength="8"
+                        required
+                        spellcheck={false}
+                      />
+                      <button
+                        type="submit"
+                        id="mfa-verify-button"
+                        class="twofa-primary"
+                      >
+                        {t("admin.security_2fa.verify_button")}
+                      </button>
+                    </form>
+                  </li>
+                </ol>
+              </div>
+            </section>
+          )}
+
+          {/* ENROLLED — manage / disable / regenerate */}
+          {enrolled && (
+            <section
+              class="twofa-card"
+              id="manage-section"
+              aria-labelledby="manage-legend"
+            >
+              <h2 id="manage-legend">
+                {t("admin.security_2fa.manage_legend")}
+              </h2>
+              <div class="twofa-actions">
+                <button
+                  type="button"
+                  id="mfa-regenerate-button"
+                  class="twofa-secondary"
+                >
+                  {t("admin.security_2fa.regenerate_button")}
+                </button>
+                <button
+                  type="button"
+                  id="mfa-disable-button"
+                  class="twofa-danger"
+                >
+                  {t("admin.security_2fa.disable_button")}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* Recovery codes reveal — populated once, after verify OR regenerate. */}
+          <section
+            class="twofa-card twofa-recovery"
+            id="recovery-section"
+            aria-labelledby="recovery-legend"
+            tabindex="-1"
+            hidden
+          >
+            <h2 id="recovery-legend">
+              {t("admin.security_2fa.recovery_title")}
+            </h2>
+            <p class="twofa-warn" role="note">
+              {t("admin.security_2fa.recovery_body")}
+            </p>
+            <ul id="mfa-recovery-list" class="twofa-recovery-list" />
+            <div class="twofa-actions">
+              <button type="button" id="mfa-copy-codes" class="twofa-ghost">
+                {t("admin.security_2fa.copy_codes")}
+              </button>
+              <button type="button" id="mfa-download-codes" class="twofa-ghost">
+                {t("admin.security_2fa.download_codes")}
+              </button>
+              <button
+                type="button"
+                id="mfa-recovery-done"
+                class="twofa-primary"
+              >
+                {t("admin.security_2fa.recovery_done")}
+              </button>
+            </div>
+          </section>
+        </div>
+      )
+    }
+  </section>
+</AdminLayout>
+
+<style>
+  /* The panels below set an explicit `display` (flex), which overrides the
+     `[hidden]` attribute's UA `display: none` — so `#enroll-panel` /
+     `#recovery-section` / `#enroll-section` toggled with `hidden` would stay
+     visible. Re-assert the hide for any hidden element in this component. */
+  [hidden] {
+    display: none !important;
+  }
+
+  .twofa-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-width: 720px;
+  }
+
+  .twofa-breadcrumb {
+    margin: 0 0 var(--sp-1);
+    font-size: var(--fs-sm);
+  }
+
+  .twofa-breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .twofa-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .twofa-header h1 {
+    margin: 0;
+    font-size: var(--fs-xl);
+  }
+
+  .twofa-subtitle {
+    margin: var(--sp-1) 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .twofa-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+
+  .action-banner {
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+  }
+
+  .action-banner[data-variant="success"] {
+    background: color-mix(
+      in srgb,
+      var(--color-success) 15%,
+      var(--color-surface)
+    );
+    border: 1px solid var(--color-success);
+  }
+
+  .action-banner[data-variant="error"] {
+    background: color-mix(
+      in srgb,
+      var(--color-danger) 15%,
+      var(--color-surface)
+    );
+    border: 1px solid var(--color-danger);
+  }
+
+  .twofa-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    padding: var(--sp-4);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .twofa-card h2 {
+    margin: 0;
+    font-size: var(--fs-md);
+  }
+
+  .twofa-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+  }
+
+  .twofa-activated {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+  }
+
+  .twofa-lead {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .twofa-enroll {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  /* Transform-only entrance (never opacity) so an axe contrast scan can't
+     catch semi-transparent text mid-animation. Neutralised by the global
+     reduced-motion guard in tokens.css via --dur-base. */
+  .twofa-enroll:not([hidden]),
+  .twofa-recovery:not([hidden]) {
+    animation: twofa-rise var(--dur-base) var(--ease-decelerate, ease-out) both;
+  }
+
+  @keyframes twofa-rise {
+    from {
+      transform: translateY(8px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .twofa-steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+
+  .twofa-step h3 {
+    margin: 0 0 var(--sp-1);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+  }
+
+  .twofa-qr-wrap {
+    display: flex;
+    margin: var(--sp-3) 0;
+  }
+
+  /* QR always renders dark-on-white regardless of theme — scanners need high
+     contrast and some misread an inverted (dark-mode) code. */
+  .twofa-qr {
+    display: inline-flex;
+    padding: var(--sp-3);
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .twofa-qr :global(svg) {
+    width: 200px;
+    height: 200px;
+    display: block;
+  }
+
+  .twofa-key {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    flex-wrap: wrap;
+  }
+
+  .twofa-key-label {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  .twofa-secret {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.08em;
+    word-break: break-all;
+    padding: var(--sp-1) var(--sp-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+
+  .twofa-code-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    max-width: 260px;
+  }
+
+  .twofa-code-form label {
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+
+  .twofa-code-form input {
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-lg);
+    letter-spacing: 0.3em;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .twofa-code-form input:focus-visible {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  .twofa-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+
+  .twofa-recovery {
+    border-color: var(--color-warning);
+  }
+
+  .twofa-recovery:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .twofa-warn {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--color-warning-strong, var(--color-warning));
+    font-weight: 500;
+  }
+
+  .twofa-recovery-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--sp-2);
+  }
+
+  .twofa-recovery-list li {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.06em;
+    padding: var(--sp-1) var(--sp-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-align: center;
+  }
+
+  .twofa-primary,
+  .twofa-secondary,
+  .twofa-danger,
+  .twofa-ghost {
+    align-self: flex-start;
+    min-height: 44px;
+    padding: 0 var(--sp-4);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+
+  .twofa-primary {
+    background: var(--color-primary-strong);
+    color: var(--color-primary-contrast);
+  }
+
+  .twofa-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .twofa-danger {
+    background: var(--color-danger-strong, var(--color-danger));
+    color: var(--color-primary-contrast);
+  }
+
+  .twofa-ghost {
+    background: transparent;
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
+
+  .twofa-primary:hover:not(:disabled),
+  .twofa-secondary:hover:not(:disabled),
+  .twofa-danger:hover:not(:disabled),
+  .twofa-ghost:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+
+  .twofa-primary:focus-visible,
+  .twofa-secondary:focus-visible,
+  .twofa-danger:focus-visible,
+  .twofa-ghost:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .twofa-primary:disabled,
+  .twofa-secondary:disabled,
+  .twofa-danger:disabled,
+  .twofa-ghost:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+</style>
+
+<script>
+  import {
+    lockElement,
+    readClientStrings,
+    reloadAfterDelay,
+    showBanner,
+    submitJson
+  } from "../../../lib/ui/admin-form-client";
+  import { encodeQrByteMode, qrToSvgPath } from "../../../lib/ui/qr-code";
+
+  interface TwoFaStrings {
+    tenantId: string;
+    enableError: string;
+    enabledSuccess: string;
+    disabledSuccess: string;
+    regeneratedSuccess: string;
+    disableConfirm: string;
+    regenerateConfirm: string;
+    copied: string;
+    copyFailed: string;
+    qrAlt: string;
+    recoveryFilename: string;
+    networkError: string;
+    pleaseWait: string;
+    errorMessages?: Record<string, string>;
+  }
+
+  const strings = readClientStrings<TwoFaStrings>();
+  // Every MFA endpoint reads the tenant from the session cookie already sent
+  // by `credentials: "same-origin"`, but we also send the header explicitly,
+  // the same way the rest of the admin UI addresses tenant-scoped endpoints.
+  const tenantHeaders = { "X-AWCMS-Micro-Tenant-ID": strings.tenantId };
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  /** Renders `text` as an inline SVG QR into `container` (CSP-safe, no fetch). */
+  function renderQr(container: HTMLElement, text: string): void {
+    container.replaceChildren();
+    const qr = encodeQrByteMode(text, "M");
+    const { pathData, dimension } = qrToSvgPath(qr, 4);
+
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${dimension} ${dimension}`);
+    svg.setAttribute("shape-rendering", "crispEdges");
+    svg.setAttribute("aria-hidden", "true");
+
+    const bg = document.createElementNS(SVG_NS, "rect");
+    bg.setAttribute("width", String(dimension));
+    bg.setAttribute("height", String(dimension));
+    bg.setAttribute("fill", "#ffffff");
+    svg.appendChild(bg);
+
+    const path = document.createElementNS(SVG_NS, "path");
+    path.setAttribute("d", pathData);
+    path.setAttribute("fill", "#111111");
+    svg.appendChild(path);
+
+    container.appendChild(svg);
+  }
+
+  async function copyText(text: string, feedbackButton: HTMLButtonElement) {
+    const original = feedbackButton.textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      feedbackButton.textContent = strings.copied;
+    } catch {
+      feedbackButton.textContent = strings.copyFailed;
+    }
+    window.setTimeout(() => {
+      feedbackButton.textContent = original;
+    }, 1500);
+  }
+
+  const recoverySection = document.getElementById(
+    "recovery-section"
+  ) as HTMLElement | null;
+  const recoveryList = document.getElementById(
+    "mfa-recovery-list"
+  ) as HTMLElement | null;
+  let currentRecoveryCodes: string[] = [];
+
+  function revealRecoveryCodes(codes: string[]): void {
+    if (!recoverySection || !recoveryList) return;
+    currentRecoveryCodes = codes;
+    recoveryList.replaceChildren();
+    for (const code of codes) {
+      const li = document.createElement("li");
+      li.textContent = code;
+      recoveryList.appendChild(li);
+    }
+    recoverySection.hidden = false;
+    // Move focus to the codes so keyboard/AT users land on the critical
+    // one-time information they must save.
+    recoverySection.focus();
+    recoverySection.scrollIntoView({ block: "nearest" });
+  }
+
+  // ── Enable / enroll flow ────────────────────────────────────────────────
+  const enableButton = document.getElementById(
+    "mfa-enable-button"
+  ) as HTMLButtonElement | null;
+  const enrollPanel = document.getElementById("enroll-panel");
+  const secretEl = document.getElementById("mfa-secret");
+  const codeInput = document.getElementById(
+    "mfa-enroll-code"
+  ) as HTMLInputElement | null;
+
+  enableButton?.addEventListener("click", async () => {
+    if (enableButton.disabled) return;
+    const unlock = lockElement(enableButton, strings.pleaseWait);
+    try {
+      const result = await submitJson<{ secret: string; otpauthUri: string }>(
+        "/api/v1/auth/mfa/totp/enroll/start",
+        "POST",
+        {},
+        strings,
+        tenantHeaders
+      );
+      if (!result.ok || !result.data) {
+        showBanner(
+          "action-banner",
+          result.message || strings.enableError,
+          "error"
+        );
+        return;
+      }
+
+      const qrContainer = document.getElementById("mfa-qr");
+      if (qrContainer) {
+        try {
+          renderQr(qrContainer, result.data.otpauthUri);
+        } catch {
+          // A QR failure must never block enrollment — the manual key below
+          // is fully sufficient to configure any authenticator app.
+        }
+      }
+      if (secretEl) secretEl.textContent = result.data.secret;
+      if (enrollPanel) enrollPanel.hidden = false;
+      enableButton.hidden = true;
+      codeInput?.focus();
+    } finally {
+      unlock();
+    }
+  });
+
+  document
+    .getElementById("mfa-verify-form")
+    ?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = document.getElementById(
+        "mfa-verify-button"
+      ) as HTMLButtonElement | null;
+      if (!button || button.disabled) return;
+
+      const code = (codeInput?.value ?? "").trim();
+      const unlock = lockElement(button, strings.pleaseWait);
+      try {
+        const result = await submitJson<{ recoveryCodes: string[] }>(
+          "/api/v1/auth/mfa/totp/enroll/verify",
+          "POST",
+          { code },
+          strings,
+          tenantHeaders
+        );
+        if (!result.ok || !result.data) {
+          showBanner("action-banner", result.message, "error");
+          return;
+        }
+        showBanner("action-banner", strings.enabledSuccess, "success");
+        if (enrollPanel) enrollPanel.hidden = true;
+        const section = document.getElementById("enroll-section");
+        if (section) section.hidden = true;
+        revealRecoveryCodes(result.data.recoveryCodes);
+      } finally {
+        unlock();
+      }
+    });
+
+  // ── Manage: regenerate / disable ────────────────────────────────────────
+  document
+    .getElementById("mfa-regenerate-button")
+    ?.addEventListener("click", async (event) => {
+      const button = event.currentTarget as HTMLButtonElement;
+      if (button.disabled) return;
+      if (!window.confirm(strings.regenerateConfirm)) return;
+
+      const unlock = lockElement(button, strings.pleaseWait);
+      try {
+        const result = await submitJson<{ recoveryCodes: string[] }>(
+          "/api/v1/auth/mfa/recovery-codes/regenerate",
+          "POST",
+          {},
+          strings,
+          tenantHeaders
+        );
+        if (!result.ok || !result.data) {
+          showBanner("action-banner", result.message, "error");
+          return;
+        }
+        showBanner("action-banner", strings.regeneratedSuccess, "success");
+        revealRecoveryCodes(result.data.recoveryCodes);
+      } finally {
+        unlock();
+      }
+    });
+
+  document
+    .getElementById("mfa-disable-button")
+    ?.addEventListener("click", async (event) => {
+      const button = event.currentTarget as HTMLButtonElement;
+      if (button.disabled) return;
+      if (!window.confirm(strings.disableConfirm)) return;
+
+      const unlock = lockElement(button, strings.pleaseWait);
+      try {
+        const result = await submitJson(
+          "/api/v1/auth/mfa/totp/disable",
+          "POST",
+          {},
+          strings,
+          tenantHeaders
+        );
+        if (!result.ok) {
+          showBanner("action-banner", result.message, "error");
+          unlock();
+          return;
+        }
+        showBanner("action-banner", strings.disabledSuccess, "success");
+        // Reload so the SSR renders the not-enrolled panel afresh.
+        reloadAfterDelay();
+      } catch {
+        unlock();
+      }
+    });
+
+  // ── Copy / download recovery codes ──────────────────────────────────────
+  document.getElementById("mfa-copy-secret")?.addEventListener("click", (e) => {
+    const button = e.currentTarget as HTMLButtonElement;
+    copyText(secretEl?.textContent ?? "", button);
+  });
+
+  document.getElementById("mfa-copy-codes")?.addEventListener("click", (e) => {
+    copyText(
+      currentRecoveryCodes.join("\n"),
+      e.currentTarget as HTMLButtonElement
+    );
+  });
+
+  document
+    .getElementById("mfa-download-codes")
+    ?.addEventListener("click", () => {
+      const blob = new Blob([currentRecoveryCodes.join("\n") + "\n"], {
+        type: "text/plain"
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = strings.recoveryFilename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+  document
+    .getElementById("mfa-recovery-done")
+    ?.addEventListener("click", () => {
+      // After verify, reload to show the freshly-enrolled manage panel;
+      // after regenerate (already enrolled) this simply refreshes the same
+      // state. Either way the one-time codes are gone from the DOM.
+      reloadAfterDelay(0);
+    });
+</script>

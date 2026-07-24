@@ -160,6 +160,29 @@ Catatan: permohonan berstatus `pending` menjaga uniqueness — satu identifier h
 5. Token dapat dicabut sesuai kebijakan.
 6. Audit log tercatat.
 
+### Autentikasi dua faktor (2FA/TOTP) — self-service
+
+Fitur ini **hanya tersedia saat mode full-online aktif** (`isFullOnlineSecurityActive()`) **dan** `AUTH_MFA_ENABLED=true` (lihat doc 18 §Full-online auth security hardening). Pada deployment offline/LAN/local (default) menu 2FA tidak muncul, dan halaman self-service hanya menampilkan catatan "tidak tersedia pada deployment ini". Tidak ada env baru yang ditambahkan untuk UI ini — backend TOTP (endpoint `/api/v1/auth/mfa/*`, migration 034) sudah ada sejak epic #587-#593; UI ini hanya melengkapinya di browser. 2FA bersifat **opt-in per user**, bukan wajib tenant-wide: user yang belum enroll tetap login normal.
+
+Mengaktifkan (enroll):
+
+1. Buka **My Profile** (ikon profil di topbar → `/admin/profile`), lalu klik **Autentikasi dua faktor** (`/admin/profile/security`).
+2. Klik **Aktifkan 2FA**. Sistem memanggil `POST /auth/mfa/totp/enroll/start` dan menampilkan **kode QR** (dirender sebagai SVG inline di dalam aplikasi — tidak ada permintaan ke layanan QR eksternal, patuh CSP ketat) beserta **kunci penyiapan** (setup key base32) untuk entri manual.
+3. Pindai QR dengan aplikasi authenticator (Google Authenticator, 1Password, Authy, dsb.), atau masukkan kunci penyiapan manual.
+4. Masukkan **kode 6 digit** dari aplikasi, klik **Verifikasi & aktifkan** (`POST /auth/mfa/totp/enroll/verify`).
+5. Sistem menampilkan **kode pemulihan (recovery codes)** satu kali — simpan/unduh sekarang; kode ini tidak ditampilkan lagi. Aksi enroll tercatat di audit log (`mfa_enrolled`).
+
+Menyelesaikan login saat 2FA aktif (login challenge):
+
+1. Masukkan tenant + identifier + password seperti biasa di `/login`.
+2. Bila akun punya faktor MFA aktif, server **menjeda** login (tidak membuat sesi) dan membalas `401 MFA_REQUIRED` berisi challenge token. Halaman login **menyembunyikan form password** dan menampilkan **langkah verifikasi kedua**.
+3. Masukkan kode 6 digit authenticator, atau klik **Gunakan kode pemulihan** untuk memakai satu recovery code. Submit memanggil `POST /auth/mfa/totp/verify` dengan challenge token + kode; sukses membuat sesi dan mengarahkan ke `/admin` sama seperti login biasa. Endpoint membatasi jumlah percobaan (per-sumber dan per-challenge).
+
+Mengelola / menonaktifkan:
+
+- **Buat ulang kode pemulihan** (`POST /auth/mfa/recovery-codes/regenerate`) — kode lama langsung tidak berlaku, set baru ditampilkan sekali. High-risk, diaudit (`mfa_recovery_codes_regenerated`).
+- **Nonaktifkan 2FA** (`POST /auth/mfa/totp/disable`) — memerlukan sesi valid, diaudit (`mfa_disabled`). Reset password **tidak** menonaktifkan 2FA.
+
 ### Arsipkan dan pulihkan master data
 
 Gunakan arsip/soft delete untuk produk, office/lokasi, profile/contact, channel, atau kategori konten yang tidak dipakai. Jangan menghapus fisik data operasional harian.
