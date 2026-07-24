@@ -214,21 +214,26 @@ isMfaRequired(env)
 - **Re-enroll ditolak selagi factor aktif** (`409 MFA_ALREADY_ACTIVE`,
   `POST /auth/mfa/totp/enroll/start`) — sesi yang di-hijack tidak bisa
   diam-diam mengganti secret TOTP tanpa lebih dulu `disable`.
-- **Disable & regenerate recovery code = high-risk, diaudit**
-  (`mfa_disabled`/`mfa_recovery_codes_regenerated`,
-  severity `warning`) — pola sama `awcms-micro-audit-log`. **Catatan
-  desain yang belum ditutup** (PR #597 review, tidak blocking): kedua
-  endpoint ini hanya mensyaratkan sesi valid, tanpa re-autentikasi
-  tambahan (password saat ini/kode TOTP saat ini) — sesi yang dibajak
-  (bukan hanya dicuri sebelum MFA aktif) cukup untuk mematikan MFA korban
-  atau membuang recovery code lama. Diterima sebagai trade-off untuk
-  scope issue #589 saat ini; fitur online lanjutan (mis. #592 admin
-  policy UI) yang menyentuh area ini sebaiknya mempertimbangkan
-  step-up re-auth di titik ini.
+- **Disable & regenerate recovery code = high-risk, diaudit + STEP-UP
+  re-auth** (`mfa_disabled`/`mfa_recovery_codes_regenerated`, severity
+  `warning`) — pola sama `awcms-micro-audit-log`. **Celah desain #597 kini
+  DITUTUP (Issue #329):** kedua endpoint dulu hanya mensyaratkan sesi valid,
+  sehingga sesi yang dibajak cukup untuk mematikan MFA korban atau membuang
+  recovery code lama. Sekarang keduanya WAJIB bukti kepemilikan segar —
+  `verifyMfaStepUp` (`application/mfa.ts`) memverifikasi **kode TOTP saat ini
+  ATAU password akun** sebelum mutasi. Jalur TOTP memakai compare-and-swap
+  atomik `last_used_step` yang SAMA dengan `verifyMfaChallenge` (kode
+  step-up single-use, tidak bisa di-replay); jalur password lewat
+  `verifyPasswordOrDummy` (timing-equalized). Gagal-proof collapse ke
+  `MFA_STEP_UP_INVALID`; tanpa proof → `MFA_STEP_UP_REQUIRED` (401);
+  mapping status/pesan bersama di `lib/auth/mfa-step-up-response.ts`. Kedua
+  endpoint kini rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/
+  `_WINDOW_SEC`, sama seperti `mfa/totp/verify`). **Aturan untuk mutasi MFA
+  high-risk baru:** gate dengan `verifyMfaStepUp`, jangan cukup sesi saja.
 - Error code i18n: `error.mfa_required`/`_disabled`/`_already_active`/
   `_not_active`/`_enrollment_not_found`/`_invalid_code`/
-  `_challenge_invalid`/`_misconfigured` (`error-messages.ts`,
-  `i18n/en.po`+`id.po`).
+  `_challenge_invalid`/`_misconfigured`/`_step_up_required`/`_step_up_invalid`
+  (`error-messages.ts`, `i18n/en.po`+`id.po`).
 
 ### Google OIDC login (Issue #590, `src/modules/identity-access/application/google-oidc.ts`)
 

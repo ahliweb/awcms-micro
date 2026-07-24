@@ -174,6 +174,12 @@ msgstr "Tantangan MFA ini tidak valid, kedaluwarsa, atau sudah digunakan."
 msgid "error.mfa_misconfigured"
 msgstr "Autentikasi multi-faktor salah konfigurasi di server ini."
 
+msgid "error.mfa_step_up_required"
+msgstr "Kode TOTP terkini atau kata sandi akun Anda diperlukan untuk melakukan tindakan ini."
+
+msgid "error.mfa_step_up_invalid"
+msgstr "Kode verifikasi atau kata sandi salah."
+
 msgid "error.google_login_disabled"
 msgstr "Login Google tidak diaktifkan untuk deployment ini."
 
@@ -4269,6 +4275,9 @@ msgstr "Nonaktifkan autentikasi dua faktor? Akun Anda akan kurang terlindungi."
 
 msgid "admin.security_2fa.regenerate_confirm"
 msgstr "Buat ulang kode pemulihan? Kode Anda yang lama akan langsung berhenti berlaku."
+
+msgid "admin.security_2fa.step_up_prompt"
+msgstr "Demi keamanan, masukkan kode autentikator 6-digit Anda saat ini untuk mengonfirmasi perubahan ini."
 
 msgid "admin.security_2fa.copied"
 msgstr "Tersalin"

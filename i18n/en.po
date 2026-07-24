@@ -174,6 +174,12 @@ msgstr "This MFA challenge is invalid, expired, or already used."
 msgid "error.mfa_misconfigured"
 msgstr "Multi-factor authentication is misconfigured on this server."
 
+msgid "error.mfa_step_up_required"
+msgstr "A current TOTP code or your account password is required to perform this action."
+
+msgid "error.mfa_step_up_invalid"
+msgstr "The verification code or password is incorrect."
+
 msgid "error.google_login_disabled"
 msgstr "Google login is not enabled for this deployment."
 
@@ -4270,6 +4276,9 @@ msgstr "Turn off two-factor authentication? Your account will be less protected.
 
 msgid "admin.security_2fa.regenerate_confirm"
 msgstr "Regenerate recovery codes? Your existing codes will stop working immediately."
+
+msgid "admin.security_2fa.step_up_prompt"
+msgstr "For your security, enter your current 6-digit authenticator code to confirm this change."
 
 msgid "admin.security_2fa.copied"
 msgstr "Copied"

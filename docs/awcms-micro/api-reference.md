@@ -702,12 +702,12 @@ When the same gate is active AND `AUTH_MFA_ENABLED=true` (Issue #589) AND the id
 | 401    | Authentication required or expired.        | [`ApiError`](#standard-error-envelope)                                               |
 | 500    | Internal server error without stack trace. | [`ApiError`](#standard-error-envelope)                                               |
 
-### `POST /api/v1/auth/mfa/recovery-codes/regenerate` — Invalidate existing recovery codes and issue a fresh set (high-risk, audited)
+### `POST /api/v1/auth/mfa/recovery-codes/regenerate` — Invalidate existing recovery codes and issue a fresh set (high-risk, audited, step-up)
 
 - **operationId**: `authMfaRecoveryCodesRegenerate`
 - **Security**: bearerAuth + tenantHeader
 
-Full-online-only (Issue #589). Requires an active MFA factor. Every previously issued recovery code stops working immediately; the 10 fresh codes are shown exactly once in the response. Audited (`mfa_recovery_codes_regenerated`).
+Full-online-only (Issue #589). Requires an active MFA factor. Every previously issued recovery code stops working immediately; the 10 fresh codes are shown exactly once in the response. Audited (`mfa_recovery_codes_regenerated`). Step-up (Issue #329): a valid session alone is not accepted — the caller must also supply the current TOTP `code` OR the account `password`. Rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/`_WINDOW_SEC`).
 
 **Parameters**
 
@@ -716,15 +716,18 @@ Full-online-only (Issue #589). Requires an active MFA factor. Every previously i
 | `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
 | `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
 
+**Request body** (required): [`MfaStepUpProof`](#schema-mfastepupproof)
+
 **Responses**
 
-| Status | Description                                                                      | Schema                                                                                                           |
-| ------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 200    | Recovery codes regenerated.                                                      | [`ApiSuccess`](#standard-success-envelope)&lt;[`MfaRecoveryCodesResponse`](#schema-mfarecoverycodesresponse)&gt; |
-| 401    | Authentication required or expired.                                              | [`ApiError`](#standard-error-envelope)                                                                           |
-| 403    | Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`). | [`ApiError`](#standard-error-envelope)                                                                           |
-| 409    | No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).           | [`ApiError`](#standard-error-envelope)                                                                           |
-| 500    | Internal server error without stack trace.                                       | [`ApiError`](#standard-error-envelope)                                                                           |
+| Status | Description                                                                                                                          | Schema                                                                                                           |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| 200    | Recovery codes regenerated.                                                                                                          | [`ApiSuccess`](#standard-success-envelope)&lt;[`MfaRecoveryCodesResponse`](#schema-mfarecoverycodesresponse)&gt; |
+| 401    | Missing/expired session, or the step-up proof is missing (`MFA_STEP_UP_REQUIRED`) or incorrect (`MFA_STEP_UP_INVALID`) — Issue #329. | [`ApiError`](#standard-error-envelope)                                                                           |
+| 403    | Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`).                                                     | [`ApiError`](#standard-error-envelope)                                                                           |
+| 409    | No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).                                                               | [`ApiError`](#standard-error-envelope)                                                                           |
+| 429    | Too many attempts from this source (`RATE_LIMITED`).                                                                                 | [`ApiError`](#standard-error-envelope)                                                                           |
+| 500    | Internal server error without stack trace.                                                                                           | [`ApiError`](#standard-error-envelope)                                                                           |
 
 ### `GET /api/v1/auth/mfa/status` — Get the caller's own MFA enrollment status
 
@@ -750,12 +753,12 @@ Full-online-only (Issue #589) — `403 MFA_DISABLED` unless the #587 gate AND `A
 | 403    | Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`). | [`ApiError`](#standard-error-envelope)                                                             |
 | 500    | Internal server error without stack trace.                                       | [`ApiError`](#standard-error-envelope)                                                             |
 
-### `POST /api/v1/auth/mfa/totp/disable` — Disable the caller's own MFA (high-risk, audited)
+### `POST /api/v1/auth/mfa/totp/disable` — Disable the caller's own MFA (high-risk, audited, step-up)
 
 - **operationId**: `authMfaTotpDisable`
 - **Security**: bearerAuth + tenantHeader
 
-Full-online-only (Issue #589). Self-service: requires an already-valid session (for an identity with active MFA, only obtainable by already passing an MFA challenge). Deletes the factor's recovery codes too. Audited (`mfa_disabled`).
+Full-online-only (Issue #589). Self-service: requires an already-valid session (for an identity with active MFA, only obtainable by already passing an MFA challenge). Deletes the factor's recovery codes too. Audited (`mfa_disabled`). Step-up (Issue #329): a valid session alone is not accepted — the caller must also supply the current TOTP `code` OR the account `password`. Rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/`_WINDOW_SEC`).
 
 **Parameters**
 
@@ -764,15 +767,18 @@ Full-online-only (Issue #589). Self-service: requires an already-valid session (
 | `X-Correlation-ID` | header | no       | string | Optional server-side trace correlation ID.  |
 | `X-Request-ID`     | header | no       | string | Optional client-generated request trace ID. |
 
+**Request body** (required): [`MfaStepUpProof`](#schema-mfastepupproof)
+
 **Responses**
 
-| Status | Description                                                                      | Schema                                                                                               |
-| ------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| 200    | MFA disabled.                                                                    | [`ApiSuccess`](#standard-success-envelope)&lt;[`MfaDisableResponse`](#schema-mfadisableresponse)&gt; |
-| 401    | Authentication required or expired.                                              | [`ApiError`](#standard-error-envelope)                                                               |
-| 403    | Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`). | [`ApiError`](#standard-error-envelope)                                                               |
-| 409    | No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).           | [`ApiError`](#standard-error-envelope)                                                               |
-| 500    | Internal server error without stack trace.                                       | [`ApiError`](#standard-error-envelope)                                                               |
+| Status | Description                                                                                                                          | Schema                                                                                               |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 200    | MFA disabled.                                                                                                                        | [`ApiSuccess`](#standard-success-envelope)&lt;[`MfaDisableResponse`](#schema-mfadisableresponse)&gt; |
+| 401    | Missing/expired session, or the step-up proof is missing (`MFA_STEP_UP_REQUIRED`) or incorrect (`MFA_STEP_UP_INVALID`) — Issue #329. | [`ApiError`](#standard-error-envelope)                                                               |
+| 403    | Multi-factor authentication is not enabled for this deployment (`MFA_DISABLED`).                                                     | [`ApiError`](#standard-error-envelope)                                                               |
+| 409    | No MFA factor is currently active for this account (`MFA_NOT_ACTIVE`).                                                               | [`ApiError`](#standard-error-envelope)                                                               |
+| 429    | Too many attempts from this source (`RATE_LIMITED`).                                                                                 | [`ApiError`](#standard-error-envelope)                                                               |
+| 500    | Internal server error without stack trace.                                                                                           | [`ApiError`](#standard-error-envelope)                                                               |
 
 ### `POST /api/v1/auth/mfa/totp/enroll/start` — Generate a new pending TOTP secret for the caller to confirm
 
@@ -12566,6 +12572,24 @@ Enum values: `blog_post`, `blog_page`, `homepage_section`, `gallery_item`, `ad`,
   "enabled": false,
   "factorType": "totp",
   "activatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
+### Schema: MfaStepUpProof
+
+Fresh proof-of-possession for a high-risk MFA mutation (Issue #329). Supply exactly ONE of `code` (current TOTP) or `password` (account password); when both are present `code` is used. A valid session alone is not sufficient — a hijacked session could otherwise weaken the account's second factor.
+
+| Field      | Type              | Required | Nullable | Description                                       |
+| ---------- | ----------------- | -------- | -------- | ------------------------------------------------- |
+| `code`     | string            | no       | no       | The current TOTP code from the authenticator app. |
+| `password` | string (password) | no       | no       | The account password.                             |
+
+**Example**
+
+```json
+{
+  "code": "string",
+  "password": "string"
 }
 ```
 

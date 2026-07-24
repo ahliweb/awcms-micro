@@ -201,7 +201,14 @@ gate env — semuanya modul-agnostic, tinggal di `src/lib/auth/` seperti
   10 recovery code sekali tampil). Re-enroll saat sudah `active` ditolak
   `409 MFA_ALREADY_ACTIVE` — harus `disable` dulu.
 - `POST /auth/mfa/totp/disable`/`POST /auth/mfa/recovery-codes/regenerate`:
-  high-risk, diaudit (`mfa_disabled`/`mfa_recovery_codes_regenerated`).
+  high-risk, diaudit (`mfa_disabled`/`mfa_recovery_codes_regenerated`), dan
+  **wajib step-up re-auth (Issue #329)** — sesi valid saja tidak cukup (sesi
+  dibajak tidak boleh bisa mematikan MFA korban). `verifyMfaStepUp`
+  (`application/mfa.ts`) memverifikasi **kode TOTP saat ini ATAU password
+  akun** sebelum mutasi (jalur TOTP memakai compare-and-swap `last_used_step`
+  yang sama dengan verifikasi challenge → kode step-up single-use). Tanpa
+  proof → `401 MFA_STEP_UP_REQUIRED`; proof salah → `401 MFA_STEP_UP_INVALID`.
+  Keduanya rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`).
   Reset password (`completePasswordReset`) **tidak** menyentuh MFA sama
   sekali — diverifikasi test integrasi eksplisit (bukan MFA bypass).
 - TOTP secret dienkripsi AES-256-GCM (`AUTH_MFA_SECRET_ENCRYPTION_KEY`)

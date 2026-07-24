@@ -97,6 +97,7 @@ const clientStrings = {
   regeneratedSuccess: t("admin.security_2fa.regenerated_success"),
   disableConfirm: t("admin.security_2fa.disable_confirm"),
   regenerateConfirm: t("admin.security_2fa.regenerate_confirm"),
+  stepUpPrompt: t("admin.security_2fa.step_up_prompt"),
   copied: t("admin.security_2fa.copied"),
   copyFailed: t("admin.security_2fa.copy_failed"),
   qrAlt: t("admin.security_2fa.qr_alt"),
@@ -675,6 +676,7 @@ const clientStrings = {
     regeneratedSuccess: string;
     disableConfirm: string;
     regenerateConfirm: string;
+    stepUpPrompt: string;
     copied: string;
     copyFailed: string;
     qrAlt: string;
@@ -842,13 +844,19 @@ const clientStrings = {
       const button = event.currentTarget as HTMLButtonElement;
       if (button.disabled) return;
       if (!window.confirm(strings.regenerateConfirm)) return;
+      // Step-up re-auth (Issue #329): a valid session alone is not enough for
+      // this high-risk mutation — prove fresh possession with a current code.
+      const proof = window.prompt(strings.stepUpPrompt);
+      if (proof === null) return;
+      const code = proof.trim();
+      if (!code) return;
 
       const unlock = lockElement(button, strings.pleaseWait);
       try {
         const result = await submitJson<{ recoveryCodes: string[] }>(
           "/api/v1/auth/mfa/recovery-codes/regenerate",
           "POST",
-          {},
+          { code },
           strings,
           tenantHeaders
         );
@@ -869,13 +877,19 @@ const clientStrings = {
       const button = event.currentTarget as HTMLButtonElement;
       if (button.disabled) return;
       if (!window.confirm(strings.disableConfirm)) return;
+      // Step-up re-auth (Issue #329): prove fresh possession before disabling
+      // the second factor — a hijacked session must not be enough.
+      const proof = window.prompt(strings.stepUpPrompt);
+      if (proof === null) return;
+      const code = proof.trim();
+      if (!code) return;
 
       const unlock = lockElement(button, strings.pleaseWait);
       try {
         const result = await submitJson(
           "/api/v1/auth/mfa/totp/disable",
           "POST",
-          {},
+          { code },
           strings,
           tenantHeaders
         );

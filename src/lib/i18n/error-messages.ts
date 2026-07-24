@@ -10,7 +10,8 @@ import type { Translator } from "./translate";
  * gate's own `TURNSTILE_REQUIRED`/`TURNSTILE_INVALID` — and Issue #589's
  * MFA/TOTP codes: `MFA_REQUIRED`/`MFA_DISABLED`/`MFA_ALREADY_ACTIVE`/
  * `MFA_NOT_ACTIVE`/`MFA_ENROLLMENT_NOT_FOUND`/`MFA_INVALID_CODE`/
- * `MFA_CHALLENGE_INVALID`/`MFA_MISCONFIGURED` — and Issue #590's Google
+ * `MFA_CHALLENGE_INVALID`/`MFA_MISCONFIGURED`/`MFA_STEP_UP_REQUIRED`/
+ * `MFA_STEP_UP_INVALID` (Issue #329) — and Issue #590's Google
  * OIDC codes: `GOOGLE_LOGIN_DISABLED`/`GOOGLE_OAUTH_STATE_INVALID`/
  * `GOOGLE_TOKEN_EXCHANGE_FAILED`/`GOOGLE_ID_TOKEN_INVALID`/
  * `GOOGLE_ACCOUNT_NOT_LINKED`/`GOOGLE_ALREADY_LINKED`/`GOOGLE_NOT_LINKED`/
@@ -65,6 +66,8 @@ export const ERROR_CODE_KEYS: Record<string, string> = {
   MFA_INVALID_CODE: "error.mfa_invalid_code",
   MFA_CHALLENGE_INVALID: "error.mfa_challenge_invalid",
   MFA_MISCONFIGURED: "error.mfa_misconfigured",
+  MFA_STEP_UP_REQUIRED: "error.mfa_step_up_required",
+  MFA_STEP_UP_INVALID: "error.mfa_step_up_invalid",
   GOOGLE_LOGIN_DISABLED: "error.google_login_disabled",
   GOOGLE_OAUTH_STATE_INVALID: "error.google_oauth_state_invalid",
   GOOGLE_TOKEN_EXCHANGE_FAILED: "error.google_token_exchange_failed",
