@@ -40,6 +40,7 @@ Sumber kebenaran: **`docs/awcms-micro/16_backend_data_access_integration.md`** (
 - Benchmark p95 endpoint membaik; tak ada regresi fungsional (`bun run check` hijau).
 - Uji beban ringan: query saturasi kelas pool → `503`, mengering ke 0 (bukti backpressure, seperti verifikasi Issue 10.2).
 - Tak ada N+1 baru; tak ada `OFFSET` besar; index cocok dengan predikat.
+- **Core Web Vitals (frontend, lab)** — regression gate `tests/e2e/public-web-vitals.e2e.ts` (Issue #295): ukur **LCP + CLS** di Chromium via `PerformanceObserver` (`largest-contentful-paint`/`layout-shift`, di-`addInitScript` SEBELUM navigasi), assert ≤ ambang "good" (LCP 2500 ms, CLS 0.1). INP interaction-driven & CWV field/volume real tetap deferred (`website-platform-e2e-evidence.md` §Deferred). Query/plan budget backend tetap lewat `performance:query-plan:check`.
 
 ## Performance suite representatif (Issue #744)
 

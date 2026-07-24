@@ -145,18 +145,52 @@ and close each of these — with exact commands and evidence to capture — is i
   privileged one-shot with `DATABASE_URL` kept **server-side only** (the secret
   never left the box); durable **R2 object storage** is configured (bucket +
   custom domain); and the **live edge** is reachable (health `200`, TLS via
-  Cloudflare). STILL PENDING for full sign-off: `production:preflight` green
-  **on the target**, the **full-online security profile** explicitly enabled and
-  exercised, a **durable-storage round-trip** proven for managed media (not
-  ephemeral container FS), and **security-headers/CSP verified on the live edge**
-  via a real browser. Operator steps: [website-platform completion runbook](website-platform-completion-runbook.md).
+  Cloudflare). **Live-edge security verified 2026-07-24** (`curl -D` against
+  `https://awcms-micro.ahlikoding.com/`): TLS = Let's Encrypt (valid → Oct 21
+  2026), HTTP/2, **HSTS** `max-age=31536000; includeSubDomains`, strict **CSP**
+  (`default-src 'self'`, `object-src 'none'`, `base-uri 'none'`,
+  `frame-ancestors 'none'`, `script-src` hash-pinned — no `unsafe-inline`),
+  **X-Frame-Options: DENY**, **X-Content-Type-Options: nosniff**,
+  **Referrer-Policy** `strict-origin-when-cross-origin`, **Permissions-Policy**
+  locked (geolocation/camera/microphone/payment `=()`); health/error bodies
+  carry no secrets/stack. Durable **R2** confirmed configured
+  (`NEWS_MEDIA_R2_ENABLED`/`_BUCKET`/`_PUBLIC_BASE_URL` all set on the running
+  container). STILL PENDING for full sign-off: `production:preflight` green
+  **on the target**, a **durable-storage round-trip** proven for managed media
+  (upload → served-from-R2, not ephemeral container FS). **Config gap found**:
+  the apex host serves only the generic fallback `robots.txt` and
+  `/sitemap.xml`+feeds return `404` — tenant-by-host resolution
+  (`PUBLIC_TENANT_RESOLUTION_MODE=host_default` + a verified primary domain for
+  the tenant) is not mapped for `awcms-micro.ahlikoding.com`, so the SEO
+  discovery surfaces are not live. Operator steps:
+  [website-platform completion runbook](website-platform-completion-runbook.md).
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
   plus live provider-outage/worker-restart/DB-saturation/stale-projection/
   object-storage-failure/cache-invalidation drills. (split issue: **#294**)
+  **Measured restore drill LANDED 2026-07-24** (the
+  `deploy/backup/restore-drill.sh` shape — backup → restore into a disposable
+  target → verify — run against the live dinkes-prod PG, restored into an
+  ISOLATED throwaway container on the coolify network, then discarded):
+  `pg_dump -Fc` **backup
+  ≈1.7 s / 708 KB**; **restore ≈6.3 s**; restored row counts (1 tenant / 0
+  modules / 80 migrations) **exactly match prod** — data-faithful, so **RPO = 0
+  at the dump instant**. Restore-cleanliness finding: a vanilla target emits
+  ~145 non-fatal owner/GRANT/policy errors for roles it lacks — restore with
+  `--no-owner --no-privileges` or pre-create the app roles. **CRITICAL GAP
+  found**: Coolify has **0 scheduled backups** for this DB → **RPO is currently
+  unbounded** (only manual dumps exist). Recommend enabling a scheduled
+  (e.g. daily) backup → RPO = backup interval. STILL DEFERRED: object-storage
+  (R2) restore drill, and the live chaos drills (the _shapes_ are covered by
+  `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts`).
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
-  content/media volume. (split issue: **#295**)
+  content/media volume. (split issue: **#295**) **Lab CWV gate LANDED**:
+  `public-web-vitals.e2e.ts` measures **LCP + CLS** in real Chromium on the
+  hermetic public pages (`/`, `/newsletter/demo`) against the Google "good"
+  thresholds (LCP ≤ 2500 ms, CLS ≤ 0.1) — a regression gate. STILL DEFERRED:
+  **INP** (interaction-driven), and **field-style LCP/INP/CLS + load/soak at
+  representative content/media volume** with real network/CDN.
 - **Full-journey accessibility & link checking** (**#296**) — the base-app
   in-repo portion has LANDED: `public-a11y-smoke.e2e.ts` (axe-core over public
   `/`, `/newsletter/demo`, `/comments/demo` in EN + ID, at **desktop 1280×800
@@ -164,10 +198,17 @@ and close each of these — with exact commands and evidence to capture — is i
   WCAG 2.2 rules like `target-size` and reflow that a desktop-only pass misses)
   and `public-link-integrity.integration.test.ts` (sitemap URLs, canonical,
   hreflang, robots `Sitemap:` all resolve; drafts stay out of the sitemap and
-  404). STILL DEFERRED: axe over the rendered content-reading templates
-  (`/news`, `/blog` article pages — needs a bootstrapped pilot tenant), the
-  derived-site full journey, the **screen-reader** pass, and a full rendered-site
-  link crawl at representative volume.
+  404). **Rendered-site link crawl LANDED**: `public-link-crawl.e2e.ts` fetches
+  each hermetic public entry page (`/`, `/login`, `/register`,
+  `/forgot-password`, `/newsletter/demo`, `/comments/demo`), extracts every
+  same-origin `<a href>` it actually renders, and asserts each resolves
+  (HTTP < 400 after redirects) — the rendered-page complement to the
+  handler-level sitemap/canonical/hreflang/robots graph above. STILL DEFERRED:
+  axe over the rendered content-reading templates (`/news`, `/blog` article
+  pages — needs a bootstrapped pilot tenant), the derived-site full journey,
+  the **screen-reader** pass, and a rendered-content link crawl at
+  representative content volume (the seeded content graph is covered at handler
+  level by `public-link-integrity.integration.test.ts`).
 
 ## Residual risks and limitations
 
@@ -176,8 +217,13 @@ and close each of these — with exact commands and evidence to capture — is i
   because this environment cannot reach the containerized PostgreSQL
   (host→container publishing is blocked). Treat CI green — not a local
   `bun run check` — as the proof for the integration rows above.
-- **CWV/RTO/RPO are unmeasured in-repo.** Query/plan budgets and DR _shape_ are
-  covered; the _measured_ numbers on production-like infrastructure are deferred.
+- **CWV/RTO/RPO — now partially MEASURED (2026-07-24).** Lab CWV (LCP/CLS) is a
+  Chromium regression gate (`public-web-vitals.e2e.ts`); a measured PG
+  backup/restore drill ran against live prod (backup ≈1.7 s, restore ≈6.3 s,
+  data-faithful → RPO 0 at dump instant). STILL DEFERRED: field-style CWV +
+  load/soak at representative volume, and object-storage DR. **Operational gap
+  surfaced**: prod has **no scheduled DB backup** (RPO unbounded) — see
+  [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO.
 - **Pilot is a website / online store, used directly from this template** (ADR-0034)
   — NOT `ahliweb/awpos` (POS, ERP lineage) and NOT a separate derived app. No ERP/POS
   back-office logic (cashier, warehouse, tax posting) is added to this base.

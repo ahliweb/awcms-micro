@@ -204,3 +204,18 @@ berjalan di Bun). Belum ada spec untuk admin page lain (`blog/*`, dst) —
 tambahkan sesuai kebutuhan issue, jangan retrofit semua admin page
 sekaligus tanpa alasan konkret (lihat prinsip repo ini: jangan bangun
 cakupan di luar scope issue yang sedang dikerjakan).
+
+**Public surface (hermetis, tanpa seed) — Issue #296/#295**:
+`public-a11y-smoke.e2e.ts` (axe EN/ID × desktop/mobile),
+`public-link-crawl.e2e.ts` (crawl link internal same-origin di halaman
+publik hermetis via **Bun `fetch`**, bukan fixture `request` Playwright yang
+crash pada `Set-Cookie` di bawah bun — assert semua resolve < 400), dan
+`public-web-vitals.e2e.ts` (ukur **LCP + CLS** lab di Chromium via
+`PerformanceObserver` di-`addInitScript` SEBELUM navigasi; budget ambang
+"good" Google, sebagai regression gate — INP interaction-driven & CWV
+field/volume tetap deferred, lihat `website-platform-e2e-evidence.md`
+§Deferred). Pola crawl: seed daftar halaman publik yang render tanpa tenant
+(`/`, `/login`, `/register`, `/forgot-password`, `/newsletter/demo`,
+`/comments/demo`), extract `href`, filter same-origin, follow redirect,
+assert status. Untuk graf konten ber-seed (sitemap/canonical/hreflang) pakai
+`public-link-integrity.integration.test.ts` (handler-level), bukan crawl E2E.

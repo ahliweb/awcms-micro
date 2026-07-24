@@ -125,6 +125,38 @@ metrics are:
   failure), `pool-saturation`'s `backpressureLatencyMs` (bounded queueing
   under load).
 
+### Measured on live prod (dinkes-prod, 2026-07-24, Issue #294)
+
+A measured backup/restore drill (the `deploy/backup/restore-drill.sh` shape:
+backup → restore into a disposable target → verify) was run against the live
+Coolify-managed PostgreSQL — `pg_dump -Fc` of the live DB, restored into an
+**isolated throwaway `postgres:18.4-alpine` container** on the `coolify`
+network (never the live DB), verified, then discarded:
+
+| Metric                                        | Measured                                                                                                        |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Backup (`pg_dump -Fc`)                        | **≈1.7 s**, dump **708 KB**                                                                                     |
+| Restore (`pg_restore` into disposable target) | **≈6.3 s** (RTO proxy at current volume)                                                                        |
+| Data fidelity                                 | restored counts (1 tenant / 0 modules / 80 migrations) **exactly match prod** → **RPO = 0 at the dump instant** |
+
+Findings:
+
+- **Restore cleanliness** — a vanilla target emits ~145 non-fatal
+  owner/`GRANT`/policy errors for the least-privilege roles it lacks
+  (`awcms_micro_app`/`_worker`/`_setup`). Data restores intact regardless;
+  for a clean run either pre-create those roles first or restore with
+  `pg_restore --no-owner --no-privileges`. (`restore-postgres.sh` already
+  handles the role/ownership concern for the real target.)
+- **CRITICAL GAP — no scheduled backup.** Coolify has **0 scheduled database
+  backups** configured for this app's DB (verified via
+  `ScheduledDatabaseBackup::all()->count()`), so **RPO is currently unbounded**
+  — only manual `pg_dump`s exist. **Action**: enable a scheduled (e.g. daily)
+  backup on the Coolify database (Backups tab, or the `deploy/backup/`
+  cron) so RPO becomes the backup interval, and pair it with the existing
+  scheduled `restore-drill.sh` so the backup is verified, not just taken.
+- **Object-storage (R2) restore** and the live chaos drills remain deferred
+  (their shapes are covered by the integration suites above).
+
 ## Retry/idempotency evidence
 
 `provider-outage-email` is the concrete proof that a retried operation
