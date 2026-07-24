@@ -11,9 +11,32 @@
 
 ## Entri aktif
 
+> Tidak ada unit kerja in-flight per 2026-07-24 sore — tiga PR di bawah (#331/#332/#333)
+> semuanya sudah MERGED ke `main`. Entri dibiarkan sebagai jejak terkini; kompres jadi
+> historis saat pekerjaan berikutnya masuk.
+
+### 2026-07-24 — De-flake E2E: race lintas-file pada singleton `setup_state`
+
+**Status:** SELESAI & MERGED — PR [#333](https://github.com/ahliweb/awcms-micro/pull/333) (`ebd943b1`).
+Test-only + changeset `patch`.
+
+**Konteks.** Saat menuntaskan #332, job E2E required gagal 3× di `seo-discovery-smoke`
+(sitemap `<urlset>` kosong) — **bukan** dari diff docs. Akar: enam smoke spec public-content
+me-repoint singleton global `awcms_micro_setup_state` (resolusi default-tenant `localhost`) lalu
+assert; `fullyParallel: true` + `mode: serial` (hanya intra-file) → repoint spec lain mendarat di
+antara seed & fetch → tenant salah → konten kosong.
+
+**Fix.** `tests/e2e/helpers/setup-state-ownership.ts` — advisory lock Postgres session-level (koneksi
+ter-`reserve()`, meniru `src/lib/jobs/advisory-lock.ts`) di-hold `beforeAll`→`afterAll`, kunci sama
+untuk keenam spec (seo-discovery, seo-redirect, newsletter, comments, site-search, theming). Mutual
+exclusion dibuktikan vs `postgres:18.4`; E2E CI #333 & #332 hijau. Detail lengkap → memory
+`awcms-micro-e2e-setup-state-singleton-race`.
+
+---
+
 ### 2026-07-24 — Sync prosa docs+skills dgn fitur ter-ship (auth-hardening/email + admin + rename R2)
 
-**Status:** SELESAI — PR [#332](https://github.com/ahliweb/awcms-micro/pull/332) (menunggu merge).
+**Status:** SELESAI & MERGED — PR [#332](https://github.com/ahliweb/awcms-micro/pull/332) (`5d6d608c`).
 Docs/skills only (13 file `.md`) → tidak butuh changeset.
 
 **Konteks.** Beberapa commit fitur belum punya pasangan "docs+skills sync": browser-UX auth
@@ -34,9 +57,8 @@ diverifikasi ulang terhadap kode sebelum diedit.
 - **R2 #326**: docs 11/20/21, deployment-profiles, deploy-coolify, skill news-portal → `AWCMS_MICRO_R2_*`
   kanonik (selaras doc 18/.env.example); betulkan line-ref `object-storage-uploader.ts` :88-89→:169.
 
-**Verifikasi (hijau):** `check:docs`, `config:docs:check`, `prettier --check` (13 file).
-
-**Langkah lanjut:** merge PR #332. Setelah merge, kompres jadi satu baris historis.
+**Verifikasi (hijau):** `check:docs`, `config:docs:check`, `prettier --check` (13 file); E2E CI
+lolos setelah branch di-update dengan fix #333.
 
 ---
 
