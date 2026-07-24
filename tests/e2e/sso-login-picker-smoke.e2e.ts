@@ -114,9 +114,14 @@ test.describe("SSO login picker smoke (#591)", () => {
 
     expect(unknownBody.data.providers).toEqual([]);
     expect(emptyBody.data.providers).toEqual([]);
-    // Byte-identical — an attacker cannot tell an unknown tenant apart from a
-    // real active tenant that simply has no enabled providers.
-    expect(JSON.stringify(unknownBody)).toBe(JSON.stringify(emptyBody));
+    // Byte-identical DATA payload — an attacker cannot tell an unknown tenant
+    // apart from a real active tenant that simply has no enabled providers.
+    // (The envelope's `meta.correlationId` is a per-request random UUID injected
+    // by middleware over the real HTTP path and is deliberately NOT part of the
+    // anti-enumeration surface, so the guarantee is asserted on `data`.)
+    expect(JSON.stringify(unknownBody.data)).toBe(
+      JSON.stringify(emptyBody.data)
+    );
   });
 
   test("the endpoint + login page agree with the deployment gate for a tenant that HAS an enabled provider", async ({

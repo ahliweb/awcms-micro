@@ -166,10 +166,17 @@ suite("Public login SSO provider discovery (Issue #591)", () => {
         expect(res.body.data.providers).toEqual([]);
       }
 
-      // Byte-identical bodies — the property that makes this a real oracle-free
-      // control, not just three separately-empty responses.
-      expect(JSON.stringify(unknown.body)).toBe(JSON.stringify(empty.body));
-      expect(JSON.stringify(suspended.body)).toBe(JSON.stringify(empty.body));
+      // Byte-identical DATA payloads — the property that makes this a real
+      // oracle-free control, not just three separately-empty responses.
+      // (`meta.correlationId` is a per-request random UUID; it is intentionally
+      // excluded here to mirror the e2e counterpart, where it always differs
+      // over the real HTTP path.)
+      expect(JSON.stringify(unknown.body.data)).toBe(
+        JSON.stringify(empty.body.data)
+      );
+      expect(JSON.stringify(suspended.body.data)).toBe(
+        JSON.stringify(empty.body.data)
+      );
     });
   });
 
