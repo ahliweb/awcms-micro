@@ -24,6 +24,10 @@ import { test, expect } from "@playwright/test";
 
 import { deriveSubscriberEmailParts } from "../../src/modules/newsletter/domain/subscriber-identity";
 import { hashToken } from "../../src/modules/newsletter/domain/newsletter-token";
+import {
+  acquireSetupStateOwnership,
+  type SetupStateOwnership
+} from "./helpers/setup-state-ownership";
 
 const SEED_URL = process.env.E2E_SEED_DATABASE_URL ?? "";
 const EMAIL = "newsletter-e2e@example.com";
@@ -33,6 +37,9 @@ const UNSUB_TOKEN = "e2e-unsub-token-fixed";
 test.describe.configure({ mode: "serial" });
 
 let seededTenantId = "";
+// Held for the file's lifetime so no sibling spec repoints the shared
+// `awcms_micro_setup_state` singleton between our seed and our HTTP assertions.
+let setupStateOwnership: SetupStateOwnership | null = null;
 
 test.beforeAll(async () => {
   if (SEED_URL.length === 0) {
@@ -40,6 +47,7 @@ test.beforeAll(async () => {
       "E2E_SEED_DATABASE_URL must be set for the newsletter smoke spec."
     );
   }
+  setupStateOwnership = await acquireSetupStateOwnership(SEED_URL);
   const unique = crypto.randomUUID().slice(0, 12);
   const code = `nl-e2e-${unique}`;
   const parts = deriveSubscriberEmailParts(EMAIL);
@@ -90,15 +98,21 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (SEED_URL.length === 0 || seededTenantId === "") return;
-  const sql = new Bun.SQL(SEED_URL);
   try {
-    await sql`
-      UPDATE awcms_micro_setup_state SET tenant_id = NULL
-      WHERE id = true AND tenant_id = ${seededTenantId}
-    `;
+    if (SEED_URL.length === 0 || seededTenantId === "") return;
+    const sql = new Bun.SQL(SEED_URL);
+    try {
+      await sql`
+        UPDATE awcms_micro_setup_state SET tenant_id = NULL
+        WHERE id = true AND tenant_id = ${seededTenantId}
+      `;
+    } finally {
+      await sql.end();
+    }
   } finally {
-    await sql.end();
+    // Release LAST so the lock is freed even on the early return above.
+    await setupStateOwnership?.release();
+    setupStateOwnership = null;
   }
 });
 

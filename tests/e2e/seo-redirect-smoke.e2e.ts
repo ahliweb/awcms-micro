@@ -31,6 +31,11 @@
  */
 import { test, expect } from "@playwright/test";
 
+import {
+  acquireSetupStateOwnership,
+  type SetupStateOwnership
+} from "./helpers/setup-state-ownership";
+
 const SEED_URL = process.env.E2E_SEED_DATABASE_URL ?? "";
 
 test.describe.configure({ mode: "serial" });
@@ -38,6 +43,9 @@ test.describe.configure({ mode: "serial" });
 let seededTenantId = "";
 let seededCode = "";
 let seededHostname = "";
+// Held for the file's lifetime so no sibling spec repoints the shared
+// `awcms_micro_setup_state` singleton between our seed and our HTTP assertions.
+let setupStateOwnership: SetupStateOwnership | null = null;
 const MISSING_PATH = `/e2e-missing-${crypto.randomUUID().slice(0, 8)}`;
 
 test.beforeAll(async () => {
@@ -46,6 +54,7 @@ test.beforeAll(async () => {
       "E2E_SEED_DATABASE_URL must be set for the redirect smoke spec."
     );
   }
+  setupStateOwnership = await acquireSetupStateOwnership(SEED_URL);
   const unique = crypto.randomUUID().slice(0, 12);
   seededCode = `rd-e2e-${unique}`;
   seededHostname = `rd-e2e-${unique}.example`;
@@ -98,22 +107,28 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (SEED_URL.length === 0 || seededTenantId === "") return;
-  const sql = new Bun.SQL(SEED_URL);
   try {
-    await sql`
-      UPDATE awcms_micro_setup_state SET tenant_id = NULL
-      WHERE id = true AND tenant_id = ${seededTenantId}
-    `;
-    await sql`
-      UPDATE awcms_micro_tenant_domains SET deleted_at = now()
-      WHERE tenant_id = ${seededTenantId} AND deleted_at IS NULL
-    `;
-    await sql`DELETE FROM awcms_micro_seo_redirects WHERE tenant_id = ${seededTenantId}`;
-    await sql`DELETE FROM awcms_micro_seo_not_found_observations WHERE tenant_id = ${seededTenantId}`;
-    await sql`DELETE FROM awcms_micro_seo_redirect_settings WHERE tenant_id = ${seededTenantId}`;
+    if (SEED_URL.length === 0 || seededTenantId === "") return;
+    const sql = new Bun.SQL(SEED_URL);
+    try {
+      await sql`
+        UPDATE awcms_micro_setup_state SET tenant_id = NULL
+        WHERE id = true AND tenant_id = ${seededTenantId}
+      `;
+      await sql`
+        UPDATE awcms_micro_tenant_domains SET deleted_at = now()
+        WHERE tenant_id = ${seededTenantId} AND deleted_at IS NULL
+      `;
+      await sql`DELETE FROM awcms_micro_seo_redirects WHERE tenant_id = ${seededTenantId}`;
+      await sql`DELETE FROM awcms_micro_seo_not_found_observations WHERE tenant_id = ${seededTenantId}`;
+      await sql`DELETE FROM awcms_micro_seo_redirect_settings WHERE tenant_id = ${seededTenantId}`;
+    } finally {
+      await sql.end();
+    }
   } finally {
-    await sql.end();
+    // Release LAST so the lock is freed even on the early return above.
+    await setupStateOwnership?.release();
+    setupStateOwnership = null;
   }
 });
 
