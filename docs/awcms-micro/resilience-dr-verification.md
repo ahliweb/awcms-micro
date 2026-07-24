@@ -164,11 +164,26 @@ Findings:
   RTO ≈ seconds at current volume. A Coolify-native scheduled backup was
   **deliberately NOT added** — it would duplicate this daily dump and, per the
   operator's storage decision, must not rely on the small root disk.
-- **Still open (optional): offsite copy (layer 2).** The nightly dump is on the
-  same host as the DB (sdb1). An **offsite** copy (e.g. the host cron piped to a
-  private R2 bucket, or a Coolify-native backup targeting S3/R2) would survive
-  whole-host loss. This is a genuine follow-up and needs a **private R2 bucket**
-  provisioned first (the public `awcms-micro-media` bucket must not be reused).
+- **Offsite copy (layer 2) — DONE (verified live 2026-07-24).** The nightly
+  backup script now also ships each dump **offsite** to Cloudflare R2, so a copy
+  survives whole-host loss of the DB box. After a verified local backup, the same
+  gzip dump is **client-side encrypted** (`openssl enc -aes-256-cbc -pbkdf2
+-iter 200000`, passphrase at `~/backups/r2-backup-passphrase` on prod, chmod
+  600 — **never** stored in the bucket) and pushed via a throwaway `rclone/rclone`
+  container (creds in `~/backups/r2-db-backup.env`, chmod 600) to the private
+  bucket **`awcms-micro-backups`** under the **`nightly/`** prefix as
+  `<dump>.sql.gz.enc`. Offsite retention is **30 days**, scoped to
+  `nightly/*.sql.gz.enc` only — the bucket's pre-existing, unrelated
+  `backups/db/*.sql.enc` history (a lapsed earlier scheme) is never touched. The
+  offsite push is a **warning-not-fatal** step, so an R2 hiccup never fails the
+  local backup. **Restore-proven end-to-end**: an uploaded object was pulled back
+  from R2, decrypted, and `gunzip -t`-verified as a valid PostgreSQL dump. Restore
+  command:
+  `rclone --env-file ~/backups/r2-db-backup.env cat R2:awcms-micro-backups/nightly/<FILE>.enc | openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass file:~/backups/r2-backup-passphrase | gunzip > <FILE>`.
+  **Key-management caveat**: the decryption passphrase currently lives only on the
+  prod host; it MUST also be stored off-box (operator password manager) or the
+  offsite copies are unrecoverable after a host loss — the exact disaster this
+  layer defends against.
 - **Object-storage (R2) restore** and the live chaos drills remain deferred
   (their shapes are covered by the integration suites above).
 
