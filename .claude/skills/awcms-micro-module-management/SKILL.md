@@ -253,6 +253,30 @@ menjalankan command dari sini; bila eksekusi job dari UI benar-benar
 dibutuhkan suatu saat, itu harus fitur terpisah yang dibatasi ketat
 (security note eksplisit epic #510).
 
+## Sidebar menu per-tenant (feat/sidebar-menu-management, #322)
+
+Membangun di atas navigation registry (#518): membuat seluruh sidebar admin
+**dapat dikonfigurasi per tenant**, dikelompokkan tiga tingkat — type →
+sub-type (modul) → item. `domain/sidebar-menu.ts` murni
+(`buildDefaultSidebarModel`/`composeSidebarArrangement`/`validateSidebarMenuInput`);
+override tenant disimpan di `awcms_micro_sidebar_menu_types`/`_items` (sql/094,
+RLS ENABLE+FORCE). API: `GET`/`PUT /api/v1/navigation/sidebar-config` +
+`POST .../reset`; UI `/admin/sidebar-menu`. Tiga gotcha non-obvious:
+
+- **Permission split**: baca digate `module_management.navigation.read` (lama);
+  save/reset digate permission BARU high-risk `module_management.navigation.configure`
+  (sql/095) — Idempotency-Key'd + audited (`resourceType = sidebar_menu_config`).
+- **Tenant lama 403 saat save**: `navigation.configure` **tidak** auto-backfill
+  (sengaja, konsisten dengan konvensi permission-seed sebelumnya). Tenant yang
+  dibuat sebelum sql/095 bisa MEMBUKA halaman (`navigation.read` sudah ada) tapi
+  save/reset 403 sampai owner-role di-backfill — lihat OPERATOR NOTE di sql/095.
+  Ini bukan bug.
+- **Degradasi anggun**: `AdminLayout.astro` me-render `composeSidebarArrangement`
+  dalam try/catch dan jatuh balik ke rendering flat lama pada error apa pun, jadi
+  admin tak pernah terkunci; compose selalu me-merge default kode untuk entry
+  tanpa row, jadi nav entry modul baru muncul otomatis tanpa migrasi data. Detail
+  penuh: `module-management/README.md` §Per-tenant sidebar menu management.
+
 ## Verifikasi
 
 `tests/module-management-*.test.ts` (domain, unit, per Issue) dan

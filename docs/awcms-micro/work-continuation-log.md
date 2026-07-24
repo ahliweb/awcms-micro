@@ -11,10 +11,39 @@
 
 ## Entri aktif
 
+### 2026-07-24 — Sync prosa docs+skills dgn fitur ter-ship (auth-hardening/email + admin + rename R2)
+
+**Status:** SELESAI — PR [#332](https://github.com/ahliweb/awcms-micro/pull/332) (menunggu merge).
+Docs/skills only (13 file `.md`) → tidak butuh changeset.
+
+**Konteks.** Beberapa commit fitur belum punya pasangan "docs+skills sync": browser-UX auth
+(#328 2FA challenge/enroll, #330 SSO picker), email module, sidebar-menu #322 + My Profile #320,
+dan rename env-var R2 #326. Drift ditemukan lewat **4 auditor read-only paralel**, tiap temuan
+diverifikasi ulang terhadap kode sebelum diedit.
+
+**Yang diperbaiki (13 file):**
+
+- **Auth-UX**: skill `auth-online-hardening` (widget Turnstile SUDAH ada di
+  login/forgot-password/register; hanya `/setup` tanpa halaman) + skill `browser-test` (tambah
+  `mfa-browser-ux.e2e.ts`/`sso-login-picker-smoke.e2e.ts`).
+- **Email**: **koreksi error nyata di runbook §1** — email BUKAN di balik shared gate
+  `AUTH_ONLINE_SECURITY_*` (aktif dari `EMAIL_ENABLED` saja, jalan di profil apa pun). newsletter.md:
+  `newsletter:dispatch` hanya hand-off, tak panggil provider.
+- **Admin/UI**: README module-management (nav entry **20 di 12 modul**, dulu 16/10; +/admin/sidebar-menu)
+  - skill module-management (seksi baru sidebar-menu #322 + 3 gotcha) + doc 14 (footer versi #320).
+- **R2 #326**: docs 11/20/21, deployment-profiles, deploy-coolify, skill news-portal → `AWCMS_MICRO_R2_*`
+  kanonik (selaras doc 18/.env.example); betulkan line-ref `object-storage-uploader.ts` :88-89→:169.
+
+**Verifikasi (hijau):** `check:docs`, `config:docs:check`, `prettier --check` (13 file).
+
+**Langkah lanjut:** merge PR #332. Setelah merge, kompres jadi satu baris historis.
+
+---
+
 ### 2026-07-24 — Full-online enablement runbook (Turnstile/2FA/SSO/email)
 
-**Status:** SELESAI — commit `bb1821f2`, PR [#331](https://github.com/ahliweb/awcms-micro/pull/331)
-(menunggu merge). Docs-only.
+**Status:** SELESAI & MERGED — PR [#331](https://github.com/ahliweb/awcms-micro/pull/331) (`c5d95624`).
+Docs-only.
 
 **Konteks.** Fitur auth-hardening + email sudah ter-ship penuh (#588 Turnstile, #589 TOTP 2FA,
 #590 Google OIDC, #591 tenant SSO, #493 email Mailketing) tapi **dormant-by-design** di balik gate

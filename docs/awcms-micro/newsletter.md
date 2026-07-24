@@ -39,7 +39,7 @@ ABAC-guarded under `/api/v1/newsletter/admin/*` (default-deny, audited, Idempote
 1. Compose a draft (`POST /admin/campaigns`) — subject, body text, optional safe HTML source, locale, optional topic.
 2. Preview (`GET /admin/campaigns/{id}/preview`) — the source is rendered through the escape-then-allow-only-safe-constructs renderer.
 3. Schedule (`POST /admin/campaigns/{id}/schedule`, Idempotency-Key) — draft → scheduled, publishes `newsletter.campaign.scheduled`.
-4. Dispatch (`POST /admin/campaigns/{id}/dispatch`, Idempotency-Key) — freezes an explainable audience snapshot (confirmed + subscribed + not-suppressed recipients of the topic) + enqueues per-recipient queued delivery attempts, publishes `newsletter.campaign.dispatched`. The actual provider send is the `newsletter:dispatch` job / email outbox consumer, OUTSIDE any DB transaction.
+4. Dispatch (`POST /admin/campaigns/{id}/dispatch`, Idempotency-Key) — freezes an explainable audience snapshot (confirmed + subscribed + not-suppressed recipients of the topic) + enqueues per-recipient queued delivery attempts, publishes `newsletter.campaign.dispatched`. The actual provider send is a **documented follow-up** email-outbox consumer that resolves the encrypted recipient at send time, OUTSIDE any DB transaction; the `newsletter:dispatch` job itself only marks attempts as handed-off (`sent`) and reconciles/completes the campaign — it does not call a provider.
 5. The `newsletter:dispatch` job processes queued attempts in bounded batches (re-checking suppression + subscriber state at attempt time), then reconciles and completes the campaign.
 
 ## 6. Suppression / bounce / complaint runbook

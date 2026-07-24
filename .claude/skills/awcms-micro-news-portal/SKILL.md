@@ -105,8 +105,7 @@ kode/test di issue #631). Validasi: `bun run lint`, `bun run check:docs`,
 ### Keputusan kunci #1 — bucket R2 terpisah dari `sync-storage` (WAJIB dipertahankan)
 
 `src/modules/sync-storage/` sudah memakai R2 sejak Issue 6.3/#436
-(`R2_ENABLED`/`R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/
-`R2_BUCKET`) sebagai **object queue privat** untuk sinkronisasi
+(`AWCMS_MICRO_R2_ENABLED`/`AWCMS_MICRO_R2_ACCOUNT_ID`/`AWCMS_MICRO_R2_ACCESS_KEY_ID`/`AWCMS_MICRO_R2_SECRET_ACCESS_KEY`/`AWCMS_MICRO_R2_BUCKET`; nama lama tanpa prefix masih dibaca sebagai fallback) sebagai **object queue privat** untuk sinkronisasi
 offline/LAN (lampiran/receipt, machine-to-machine via HMAC). News
 portal media adalah kebutuhan yang **fundamental berbeda** — publik,
 diakses browser, custom domain, CORS untuk direct-upload. **Jangan
@@ -117,8 +116,8 @@ pernah** menyatukan keduanya ke bucket/kredensial yang sama:
 - Kredensial berbeda membatasi blast radius — kompromi token media
   publik (bucket yang memang sudah publik) tidak pernah memberi akses
   tulis ke objek sync privat, dan sebaliknya.
-- Konvensi penamaan env var **`NEWS_MEDIA_R2_*`** (bukan `R2_*` yang
-  sudah dipakai) — lihat `full-online-r2-architecture.md` §4 untuk
+- Konvensi penamaan env var **`NEWS_MEDIA_R2_*`** (bukan `AWCMS_MICRO_R2_*`
+  yang sudah dipakai sync-storage) — lihat `full-online-r2-architecture.md` §4 untuk
   daftar lengkap yang wajib diikuti implementor persis apa adanya.
 - Cloudflare **account** boleh sama (satu akun, dua bucket) — yang
   wajib terpisah adalah bucket dan API token, bukan akun.
@@ -127,7 +126,7 @@ pernah** menyatukan keduanya ke bucket/kredensial yang sama:
 `findNewsMediaR2SeparationViolations`
 (`news-portal/domain/news-media-r2-config.ts`) membandingkan
 `NEWS_MEDIA_R2_BUCKET`/`_ACCESS_KEY_ID`/`_SECRET_ACCESS_KEY` terhadap
-`R2_BUCKET`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY` milik
+`AWCMS_MICRO_R2_BUCKET`/`AWCMS_MICRO_R2_ACCESS_KEY_ID`/`AWCMS_MICRO_R2_SECRET_ACCESS_KEY` milik
 `sync-storage`, dipanggil dari `config:validate`
 (`checkNewsMediaR2SeparationFromSyncR2`, gagal `bun run config:validate`/
 gate CI-deploy bila sama — **bukan** penegakan boot-time otomatis di

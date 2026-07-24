@@ -189,7 +189,10 @@ NULL, expires_at = now() + interval '…'` agar seed benar-benar re-arm
 
 ## Status
 
-Selain `login.e2e.ts`, sudah ada spec untuk `/admin/analytics`,
+Selain `login.e2e.ts` (plus `mfa-browser-ux.e2e.ts` untuk login second-step
+MFA challenge dan `sso-login-picker-smoke.e2e.ts` untuk provider picker SSO
+di halaman login — browser UX epic full-online auth #328/#587–#593), sudah
+ada spec untuk `/admin/analytics`,
 `/admin/security` (kedua profil gate), dan — sejak Issue #693 (epic #679
 platform-hardening) — `admin-responsive-nav.e2e.ts` (sidebar/drawer
 responsif: toggle, scrim, Escape, focus management, skip link),

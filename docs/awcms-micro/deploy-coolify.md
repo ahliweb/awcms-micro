@@ -212,13 +212,13 @@ Nilai berikut wajib disuntikkan lewat Coolify environment variable (bukan
 dibakar ke image) untuk setiap aplikasi/deployment. Lihat `.env.example`
 untuk daftar lengkap dan komentar tiap variabel:
 
-| Variabel                                                           | Wajib       | Catatan                                                                                                                                                                           |
-| ------------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                                     | Ya          | Role app least-privilege (`awcms_micro_app` atau setara), **bukan** role migrasi. Hostname internal bila app+DB satu network.                                                     |
-| `AUTH_JWT_SECRET`                                                  | Ya          | Unik per aplikasi — jangan reuse antar aplikasi/environment.                                                                                                                      |
-| `AUTH_COOKIE_SECURE`                                               | Ya          | `true` untuk deployment Coolify (selalu di belakang HTTPS).                                                                                                                       |
-| `APP_ENV`                                                          | Ya          | `production` (atau `staging` untuk instance staging).                                                                                                                             |
-| `AWCMS_MICRO_SYNC_HMAC_SECRET`, `AWCMS_MICRO_SYNC_ENABLED`, `R2_*` | Kondisional | Wajib diisi bila sync/R2 dipakai — lihat `bun run config:validate` (Issue 12.2, `deployment-profiles.md` §Validasi konfigurasi) yang menegakkan aturan kondisional ini saat boot. |
+| Variabel                                                                       | Wajib       | Catatan                                                                                                                                                                           |
+| ------------------------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                                                 | Ya          | Role app least-privilege (`awcms_micro_app` atau setara), **bukan** role migrasi. Hostname internal bila app+DB satu network.                                                     |
+| `AUTH_JWT_SECRET`                                                              | Ya          | Unik per aplikasi — jangan reuse antar aplikasi/environment.                                                                                                                      |
+| `AUTH_COOKIE_SECURE`                                                           | Ya          | `true` untuk deployment Coolify (selalu di belakang HTTPS).                                                                                                                       |
+| `APP_ENV`                                                                      | Ya          | `production` (atau `staging` untuk instance staging).                                                                                                                             |
+| `AWCMS_MICRO_SYNC_HMAC_SECRET`, `AWCMS_MICRO_SYNC_ENABLED`, `AWCMS_MICRO_R2_*` | Kondisional | Wajib diisi bila sync/R2 dipakai — lihat `bun run config:validate` (Issue 12.2, `deployment-profiles.md` §Validasi konfigurasi) yang menegakkan aturan kondisional ini saat boot. |
 
 `bun run config:validate` (dijalankan otomatis oleh
 `bun run production:preflight`, lihat skill

@@ -344,7 +344,7 @@ External Integration menurut §2, bukan entri registry terpisah):
 | Modul pemilik     | Provider eksternal (adapter)                                           | Off-by-default?                                                               |
 | ----------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | `email`           | Mailketing                                                             | Ya (`EMAIL_ENABLED=false`)                                                    |
-| `sync_storage`    | Cloudflare R2 (object sync queue)                                      | Ya (`R2_ENABLED=false`)                                                       |
+| `sync_storage`    | Cloudflare R2 (object sync queue)                                      | Ya (`AWCMS_MICRO_R2_ENABLED=false`)                                           |
 | `tenant_domain`   | Cloudflare DNS                                                         | Ya (`TENANT_DOMAIN_DNS_PROVIDER=manual` default)                              |
 | `media_library`   | Cloudflare R2 (public media object storage, bucket terpisah dari sync) | Ya (`NEWS_MEDIA_R2_ENABLED=false`)                                            |
 | `identity_access` | Google OIDC, generic tenant OIDC SSO, Cloudflare Turnstile             | Ya (`AUTH_GOOGLE_LOGIN_ENABLED`/`AUTH_SSO_ENABLED`/`TURNSTILE_ENABLED=false`) |
