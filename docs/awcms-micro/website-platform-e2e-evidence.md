@@ -177,11 +177,17 @@ and close each of these — with exact commands and evidence to capture — is i
   modules / 80 migrations) **exactly match prod** — data-faithful, so **RPO = 0
   at the dump instant**. Restore-cleanliness finding: a vanilla target emits
   ~145 non-fatal owner/GRANT/policy errors for roles it lacks — restore with
-  `--no-owner --no-privileges` or pre-create the app roles. **CRITICAL GAP
-  found**: Coolify has **0 scheduled backups** for this DB → **RPO is currently
-  unbounded** (only manual dumps exist). Recommend enabling a scheduled
-  (e.g. daily) backup → RPO = backup interval. STILL DEFERRED: object-storage
-  (R2) restore drill, and the live chaos drills (the _shapes_ are covered by
+  `--no-owner --no-privileges` or pre-create the app roles. **Scheduled backup —
+  RESOLVED (verified live 2026-07-24)**: the original drill found Coolify had
+  **0 scheduled backups** (RPO unbounded); a **nightly host cron is now installed
+  and verified** — admin1 `30 2 * * * /home/admin1/backups/awcms-micro-backup.sh`
+  (daily `pg_dump | gzip` → sdb1 `/var/lib/docker/awcms-micro-db-backups`,
+  DB resolved by resource uuid so it survives redeploys, `gzip -t` + `>1000` byte
+  integrity gate, **14-day retention**; 3 valid dumps present). **RPO now bounded
+  to ≤24 h.** A Coolify-native backup was deliberately NOT added (would duplicate
+  this + must not use the 57 G root disk). STILL DEFERRED: an **offsite** copy
+  (layer 2 — needs a private R2 bucket), the object-storage (R2) restore drill,
+  and the live chaos drills (the _shapes_ are covered by
   `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts`).
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
@@ -229,7 +235,9 @@ and close each of these — with exact commands and evidence to capture — is i
   backup/restore drill ran against live prod (backup ≈1.7 s, restore ≈6.3 s,
   data-faithful → RPO 0 at dump instant). STILL DEFERRED: field-style CWV +
   load/soak at representative volume, and object-storage DR. **Operational gap
-  surfaced**: prod has **no scheduled DB backup** (RPO unbounded) — see
+  now RESOLVED (verified live 2026-07-24)**: prod has a **nightly host cron
+  backup** (`30 2 * * *`, sdb1, 14-day retention, integrity-gated) → RPO bounded
+  to ≤24 h; only an offsite (R2) copy remains — see
   [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO.
 - **Pilot is a website / online store, used directly from this template** (ADR-0034)
   — NOT `ahliweb/awpos` (POS, ERP lineage) and NOT a separate derived app. No ERP/POS
