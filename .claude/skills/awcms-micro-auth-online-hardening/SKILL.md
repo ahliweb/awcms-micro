@@ -130,10 +130,12 @@ isTurnstileRequired(env)
   sedangkan `TURNSTILE_ENABLED` didesain runtime-toggleable seperti flag
   lain; widget sendiri tetap runtime-gated lewat `isTurnstileRequired()`
   di `login.astro`.
-- **Widget UI** hanya di-render di `login.astro` (form publik lain —
-  forgot/reset/setup — belum punya halaman UI di repo ini, baru endpoint
-  API-nya) saat `isTurnstileRequired()` true; token dikirim sebagai field
-  opsional `turnstileToken` di body JSON, dibaca dari hidden field
+- **Widget UI** di-render di `login.astro`, `forgot-password.astro`, dan
+  `register.astro` saat `isTurnstileRequired()` true — ketiga halaman auth
+  itu sudah ada (lihat §Redesign layar auth). `reset-password.astro` juga
+  sudah ada tapi belum merender widget; hanya `/setup` yang belum punya
+  halaman UI (baru endpoint `/setup/initialize`). Token dikirim sebagai
+  field opsional `turnstileToken` di body JSON, dibaca dari hidden field
   `cf-turnstile-response` yang otomatis diisi widget.
 - Error code i18n: `error.turnstile_required`/`error.turnstile_invalid`
   (`src/lib/i18n/error-messages.ts`, `i18n/en.po`+`id.po`).

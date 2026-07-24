@@ -347,7 +347,7 @@ sudo systemctl reload nginx
 ```
 
 Untuk `full_online_production` pastikan object storage aktif
-(`R2_ENABLED=true` dan/atau `NEWS_MEDIA_R2_ENABLED=true` dengan kredensial
+(`AWCMS_MICRO_R2_ENABLED=true` dan/atau `NEWS_MEDIA_R2_ENABLED=true` dengan kredensial
 lengkap) — `security:readiness` `checkDurableMediaStorageReady` memblokir
 go-live bila `APP_ENV=production` tanpa object storage (media terkelola
 tidak boleh di FS ephemeral, ADR-0027 §3).

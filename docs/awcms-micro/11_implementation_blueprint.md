@@ -105,7 +105,7 @@ AWCMS_MICRO_SYNC_HMAC_SECRET=change-me
 AWCMS_MICRO_NODE_ID=local-dev-node
 STORAGE_DRIVER=local
 LOCAL_STORAGE_PATH=./storage
-R2_ENABLED=false
+AWCMS_MICRO_R2_ENABLED=false
 ```
 
 Base tidak menetapkan provider eksternal tertentu (mis. email/payment gateway/AI). Modul website/toko online menambah flag provider-nya sendiri langsung di repo ini (default off, ADR-0034) — lihat contoh di doc 18 §Provider.

@@ -240,8 +240,9 @@ to add the registry _alongside_ the existing items, not migrate them onto
 it. The registry-driven list is appended after those 4 — at the time
 this was written it surfaced exactly one entry (`module_management`'s
 own `/admin/modules`); several modules have since added their own
-`navigation` entries — `module_management` itself grew to two
-(`/admin/modules`, `/admin/modules/tenants`, Issue #566), `blog_content`
+`navigation` entries — `module_management` itself grew to three
+(`/admin/modules`, `/admin/modules/tenants` Issue #566, and
+`/admin/sidebar-menu` feat/sidebar-menu-management #322), `blog_content`
 (`/admin/blog`, Issue #543), `identity-access` (`/admin/security`, Issue
 #592, epic full-online auth hardening #587-#593), `news_portal` (two:
 `/admin/news-portal/homepage-sections` Issue #637 and
@@ -251,7 +252,7 @@ own `/admin/modules`); several modules have since added their own
 `visitor_analytics` (`/admin/analytics`), and the remaining
 modules added since (`identity-access` (a second entry), `media_library`
 (`/admin/media`), `profile_identity`, `reporting`) — so it now
-surfaces 16 entries across 10 modules (grep `navigation:` across
+surfaces 20 entries across 12 modules (grep `navigation:` across
 `src/modules/*/module.ts` to confirm the current count as more modules
 add entries). A failure loading the registry (e.g.
 a transient DB hiccup) falls back to

@@ -27,19 +27,23 @@ this runbook is the operational sequence + how to obtain each credential.
    require a redeploy. See [`deploy-coolify.md`](deploy-coolify.md). No DB migration is involved in
    enabling any of these (all schema already applied).
 
-## 1. The shared gate (always required)
+## 1. The shared gate (required for the four AUTH features)
 
-Nothing below activates until **both** of these are set:
+The four auth-hardening features (Turnstile §3, TOTP 2FA §4, Google login §5, generic SSO §6) do
+**not** activate until **both** of these are set:
 
 ```
 AUTH_ONLINE_SECURITY_ENABLED=true
 AUTH_ONLINE_SECURITY_PROFILE=full_online      # boot fails if ENABLED=true and profile != full_online
 ```
 
-Each feature then has its own `*_ENABLED` flag ANDed on top, so you can enable them one at a time.
-`scripts/validate-env.ts` (`bun run config:validate`) enforces every "required-when-enabled" rule at
-boot — a flag set to `true` without its credentials fails the container start, so validate locally
-first.
+Each auth feature then has its own `*_ENABLED` flag ANDed on top, so you can enable them one at a
+time. **Email (§7) is the exception — it is NOT behind this shared gate:** it activates on
+`EMAIL_ENABLED=true` alone (plus its own provider config) and runs on any deployment profile,
+including offline/LAN (`src/modules/email/module.ts`: the dispatcher is "safe to schedule regardless
+of deployment profile"). `scripts/validate-env.ts` (`bun run config:validate`) enforces every
+"required-when-enabled" rule at boot — a flag set to `true` without its credentials fails the
+container start, so validate locally first.
 
 ## 2. Encryption keys you generate (never paste secrets into chat/tickets)
 

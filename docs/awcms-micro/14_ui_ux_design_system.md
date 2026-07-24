@@ -258,6 +258,9 @@ Model default diturunkan dari kode (`buildDefaultSidebarModel` = item core +
 `awcms_micro_sidebar_menu_types`/`_items` (RLS FORCE). `AdminLayout` merender
 `fetchSidebarArrangement` dan **degradasi anggun** ke rendering flat lama bila
 gagal, agar admin tak pernah terkunci. Pengelolaannya di `/admin/sidebar-menu`.
+Footer sidebar menampilkan versi aplikasi (`admin.layout.version_label` + `v{appVersion}`
+dari `package.json`, dipin ke bawah via `margin-top:auto`; #320) — sumber versi yang sama
+dengan cek `minAppVersion` module_management, jadi tak pernah drift dari versi rilis.
 
 ## State pattern wajib
 
