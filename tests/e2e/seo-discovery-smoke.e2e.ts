@@ -40,6 +40,11 @@
  */
 import { test, expect } from "@playwright/test";
 
+import {
+  acquireSetupStateOwnership,
+  type SetupStateOwnership
+} from "./helpers/setup-state-ownership";
+
 const SEED_URL = process.env.E2E_SEED_DATABASE_URL ?? "";
 
 // Shared global setup_state singleton → run serially on one worker.
@@ -47,6 +52,9 @@ test.describe.configure({ mode: "serial" });
 
 let seededTenantId = "";
 let seededHostname = "";
+// Held for the file's lifetime so no sibling spec repoints the shared
+// `awcms_micro_setup_state` singleton between our seed and our HTTP assertions.
+let setupStateOwnership: SetupStateOwnership | null = null;
 
 test.beforeAll(async () => {
   if (SEED_URL.length === 0) {
@@ -54,6 +62,7 @@ test.beforeAll(async () => {
       "E2E_SEED_DATABASE_URL must be set for the SEO discovery smoke spec."
     );
   }
+  setupStateOwnership = await acquireSetupStateOwnership(SEED_URL);
   const unique = crypto.randomUUID().slice(0, 12);
   const code = `seo-e2e-${unique}`;
   // Per-run-unique hostname keeps the normalized_hostname dedup index (migration
@@ -97,26 +106,33 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  if (SEED_URL.length === 0 || seededTenantId === "") return;
-  const sql = new Bun.SQL(SEED_URL);
   try {
-    // Detach the shared singleton from this run's tenant, then soft-delete the
-    // seeded domain: setting `deleted_at` drops the row from the partial
-    // `..._normalized_hostname_dedup` index (its predicate is `deleted_at IS
-    // NULL`), freeing the hostname — the exact reuse mechanism migration 031
-    // documents — so a second full suite run starts clean. Both are guarded,
-    // idempotent UPDATEs (no FK-cascade hazard), and run only after every test
-    // in the serial group has finished.
-    await sql`
-      UPDATE awcms_micro_setup_state SET tenant_id = NULL
-      WHERE id = true AND tenant_id = ${seededTenantId}
-    `;
-    await sql`
-      UPDATE awcms_micro_tenant_domains SET deleted_at = now()
-      WHERE tenant_id = ${seededTenantId} AND deleted_at IS NULL
-    `;
+    if (SEED_URL.length === 0 || seededTenantId === "") return;
+    const sql = new Bun.SQL(SEED_URL);
+    try {
+      // Detach the shared singleton from this run's tenant, then soft-delete the
+      // seeded domain: setting `deleted_at` drops the row from the partial
+      // `..._normalized_hostname_dedup` index (its predicate is `deleted_at IS
+      // NULL`), freeing the hostname — the exact reuse mechanism migration 031
+      // documents — so a second full suite run starts clean. Both are guarded,
+      // idempotent UPDATEs (no FK-cascade hazard), and run only after every test
+      // in the serial group has finished.
+      await sql`
+        UPDATE awcms_micro_setup_state SET tenant_id = NULL
+        WHERE id = true AND tenant_id = ${seededTenantId}
+      `;
+      await sql`
+        UPDATE awcms_micro_tenant_domains SET deleted_at = now()
+        WHERE tenant_id = ${seededTenantId} AND deleted_at IS NULL
+      `;
+    } finally {
+      await sql.end();
+    }
   } finally {
-    await sql.end();
+    // Release LAST (outer finally) so the lock is freed even on the early return
+    // above — otherwise a beforeAll that acquired then failed would leak it.
+    await setupStateOwnership?.release();
+    setupStateOwnership = null;
   }
 });
 
