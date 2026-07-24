@@ -31,6 +31,10 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 import { seedOwnerTenant } from "./helpers/seed-owner-tenant";
+import {
+  acquireSetupStateOwnership,
+  type SetupStateOwnership
+} from "./helpers/setup-state-ownership";
 
 const SEED_URL = process.env.E2E_SEED_DATABASE_URL ?? "";
 const BASE_URL = process.env.E2E_BASE_URL ?? "http://localhost:4321";
@@ -48,6 +52,9 @@ let tenantId = "";
 let token = "";
 let previewUrl = "";
 let priorSetupTenant: string | null = null;
+// Held for the file's lifetime so no sibling spec repoints the shared
+// `awcms_micro_setup_state` singleton between our seed and our HTTP assertions.
+let setupStateOwnership: SetupStateOwnership | null = null;
 
 function draftBody(color: string) {
   return {
@@ -65,6 +72,7 @@ test.beforeAll(async () => {
       "E2E_SEED_DATABASE_URL must be set for the theming smoke spec."
     );
   }
+  setupStateOwnership = await acquireSetupStateOwnership(SEED_URL);
   const code = `th-e2e-${crypto.randomUUID().slice(0, 12)}`;
   const owner = await seedOwnerTenant(SEED_URL, code);
   tenantId = owner.tenantId;
@@ -142,15 +150,21 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  const sql = new Bun.SQL(SEED_URL);
   try {
-    // Restore the setup-state singleton so we don't strand a dev database.
-    await sql`UPDATE awcms_micro_setup_state SET tenant_id = ${priorSetupTenant} WHERE id = true`;
-    if (tenantId) {
-      await sql`DELETE FROM awcms_micro_theming_preview_sessions WHERE tenant_id = ${tenantId}`;
+    const sql = new Bun.SQL(SEED_URL);
+    try {
+      // Restore the setup-state singleton so we don't strand a dev database.
+      await sql`UPDATE awcms_micro_setup_state SET tenant_id = ${priorSetupTenant} WHERE id = true`;
+      if (tenantId) {
+        await sql`DELETE FROM awcms_micro_theming_preview_sessions WHERE tenant_id = ${tenantId}`;
+      }
+    } finally {
+      await sql.end();
     }
   } finally {
-    await sql.end();
+    // Release LAST so the lock is freed for the next setup_state-owning spec.
+    await setupStateOwnership?.release();
+    setupStateOwnership = null;
   }
 });
 
