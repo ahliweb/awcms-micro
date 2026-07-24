@@ -33,6 +33,7 @@ import {
 import { createTranslator } from "../../lib/i18n/translate";
 import { formatDateTime } from "../../lib/i18n/format";
 import { logAdminPageError } from "../../lib/logging/error-log";
+import { isMfaRequired } from "../../lib/auth/mfa-config";
 
 const context = Astro.locals.ssrContext;
 
@@ -48,6 +49,14 @@ const t = await createTranslator(locale);
 const CAN_MANAGE_FULL_PROFILE = context.permissions.has(
   permissionKey("profile_identity", "profile_management", "read")
 );
+
+// Self-service 2FA link (epic #587-#593 browser UX) — only surfaced when MFA
+// is actually active for this deployment (`isMfaRequired()` =
+// `isFullOnlineSecurityActive()` ∧ `AUTH_MFA_ENABLED`), the same way the login
+// page only renders the Google button when that feature is active. On every
+// local/offline/LAN deployment the link is simply absent; the target page
+// (`/admin/profile/security`) additionally guards itself server-side.
+const MFA_UI_ACTIVE = isMfaRequired();
 
 let account: AccountOverview | null = null;
 let loadError = false;
@@ -218,6 +227,14 @@ const rolesLabel =
             <a class="profile-action" href="/forgot-password">
               {t("admin.profile.action_change_password")}
             </a>
+            {MFA_UI_ACTIVE && (
+              <a
+                class="profile-action profile-action-secondary"
+                href="/admin/profile/security"
+              >
+                {t("admin.profile.action_security")}
+              </a>
+            )}
             {CAN_MANAGE_FULL_PROFILE && (
               <a
                 class="profile-action profile-action-secondary"

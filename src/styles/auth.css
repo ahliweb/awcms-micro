@@ -129,6 +129,14 @@
   gap: var(--sp-4);
 }
 
+/* An explicit `display` above overrides the `[hidden]` attribute's UA
+   `display: none`, so a form toggled with `hidden` (the second-step MFA
+   challenge, and the password form once the challenge is revealed) would
+   otherwise stay visible. Re-assert the hide with equal-plus-one specificity. */
+.auth-form[hidden] {
+  display: none;
+}
+
 .auth-field {
   display: flex;
   flex-direction: column;

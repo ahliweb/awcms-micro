@@ -91,6 +91,13 @@ const clientStrings = {
   passwordHide: t("auth.password_hide"),
   passwordShowAria: t("auth.password_show_aria"),
   passwordHideAria: t("auth.password_hide_aria"),
+  // Login MFA challenge step (epic #587-#593 browser UX) — used when the
+  // server answers the login POST with `401 MFA_REQUIRED`. Harmless on
+  // deployments where MFA is off (that response never happens there).
+  mfaCodeLabel: t("auth.mfa.code_label"),
+  mfaRecoveryLabel: t("auth.mfa.recovery_label"),
+  mfaUseRecovery: t("auth.mfa.use_recovery"),
+  mfaUseTotp: t("auth.mfa.use_totp"),
   errorMessages: buildClientErrorMessages(t)
 };
 ---
@@ -234,6 +241,47 @@ const clientStrings = {
           }
         </form>
 
+        {
+          /* Second-step MFA challenge (epic #587-#593). Always present but
+            inert — revealed by the client script only when the login POST
+            answers `401 MFA_REQUIRED`, which only happens on deployments with
+            2FA active. Stable ids for E2E: #mfa-challenge, #mfa-code,
+            #mfa-submit, #mfa-error, #mfa-use-recovery. */
+        }
+        <form id="mfa-challenge" class="auth-form" novalidate hidden>
+          <div class="auth-head">
+            <h2 class="auth-title">{t("auth.mfa.challenge_title")}</h2>
+            <p class="auth-subtitle">{t("auth.mfa.challenge_subtitle")}</p>
+          </div>
+
+          <p id="mfa-error" class="auth-error" role="alert" hidden></p>
+
+          <div class="auth-field">
+            <label for="mfa-code" id="mfa-code-label">
+              {t("auth.mfa.code_label")}
+            </label>
+            <input
+              id="mfa-code"
+              name="code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              pattern="[0-9]*"
+              maxlength="8"
+              required
+              spellcheck={false}
+            />
+          </div>
+
+          <button type="submit" id="mfa-submit" class="auth-submit">
+            {t("auth.mfa.submit")}
+          </button>
+
+          <button type="button" id="mfa-use-recovery" class="auth-google">
+            {t("auth.mfa.use_recovery")}
+          </button>
+        </form>
+
         <nav class="auth-links" aria-label={t("auth.nav_label")}>
           <a href="/forgot-password">{t("auth.login.forgot_link")}</a>
           {
@@ -278,6 +326,10 @@ const clientStrings = {
         passwordHide: string;
         passwordShowAria: string;
         passwordHideAria: string;
+        mfaCodeLabel: string;
+        mfaRecoveryLabel: string;
+        mfaUseRecovery: string;
+        mfaUseTotp: string;
         errorMessages?: Record<string, string>;
       }
 
@@ -307,6 +359,51 @@ const clientStrings = {
         if (!errorBox) return;
         errorBox.hidden = true;
         errorBox.classList.remove("auth-banner--enter");
+      }
+
+      // ── Second-step MFA challenge (epic #587-#593) ──────────────────────
+      // These elements always exist (rendered inert), so the whole block is a
+      // no-op on deployments where the server never returns `MFA_REQUIRED`.
+      const mfaForm = document.getElementById(
+        "mfa-challenge"
+      ) as HTMLFormElement | null;
+      const mfaCodeInput = document.getElementById(
+        "mfa-code"
+      ) as HTMLInputElement | null;
+      const mfaCodeLabel = document.getElementById("mfa-code-label");
+      const mfaSubmit = document.getElementById(
+        "mfa-submit"
+      ) as HTMLButtonElement | null;
+      const mfaErrorBox = document.getElementById("mfa-error");
+      const mfaRecoveryToggle = document.getElementById(
+        "mfa-use-recovery"
+      ) as HTMLButtonElement | null;
+
+      // Carried from the successful password step to authenticate the verify
+      // call (the tenant header + the possession token the server issued).
+      let mfaTenantId = "";
+      let mfaChallengeToken = "";
+      let mfaUsingRecovery = false;
+
+      function showMfaError(message: string): void {
+        if (!mfaErrorBox) return;
+        mfaErrorBox.textContent = message;
+        mfaErrorBox.hidden = false;
+        mfaErrorBox.classList.remove("auth-banner--enter");
+        void mfaErrorBox.offsetWidth;
+        mfaErrorBox.classList.add("auth-banner--enter");
+      }
+
+      function hideMfaError(): void {
+        if (!mfaErrorBox) return;
+        mfaErrorBox.hidden = true;
+        mfaErrorBox.classList.remove("auth-banner--enter");
+      }
+
+      function revealMfaChallenge(): void {
+        if (form) form.hidden = true;
+        if (mfaForm) mfaForm.hidden = false;
+        mfaCodeInput?.focus();
       }
 
       form?.addEventListener("submit", async (event) => {
@@ -352,6 +449,24 @@ const clientStrings = {
 
           const payload = await response.json().catch(() => null);
 
+          // MFA gate (epic #587-#593): the password was correct but the
+          // account has 2FA enabled, so the server paused login with a
+          // challenge instead of a session. Reveal the second step rather
+          // than surfacing this as an error.
+          if (
+            response.status === 401 &&
+            payload?.error?.code === "MFA_REQUIRED"
+          ) {
+            const token = payload?.error?.details?.mfaChallengeToken;
+            if (typeof token === "string" && token.length > 0) {
+              mfaTenantId = tenantId;
+              mfaChallengeToken = token;
+              unlock();
+              revealMfaChallenge();
+              return;
+            }
+          }
+
           if (!response.ok || !payload || payload.success !== true) {
             const code = payload?.error?.code as string | undefined;
             const localized = code ? strings.errorMessages?.[code] : null;
@@ -390,6 +505,85 @@ const clientStrings = {
         }
 
         window.location.href = `/api/v1/auth/providers/google/start?tenantId=${encodeURIComponent(tenantId)}`;
+      });
+
+      // Toggle between the authenticator (TOTP) code and a one-time recovery
+      // code, updating the field's label + input constraints accordingly.
+      mfaRecoveryToggle?.addEventListener("click", () => {
+        mfaUsingRecovery = !mfaUsingRecovery;
+        hideMfaError();
+
+        if (mfaCodeInput) {
+          mfaCodeInput.value = "";
+          if (mfaUsingRecovery) {
+            mfaCodeInput.setAttribute("inputmode", "text");
+            mfaCodeInput.removeAttribute("pattern");
+            mfaCodeInput.setAttribute("maxlength", "9");
+          } else {
+            mfaCodeInput.setAttribute("inputmode", "numeric");
+            mfaCodeInput.setAttribute("pattern", "[0-9]*");
+            mfaCodeInput.setAttribute("maxlength", "8");
+          }
+          mfaCodeInput.focus();
+        }
+        if (mfaCodeLabel) {
+          mfaCodeLabel.textContent = mfaUsingRecovery
+            ? strings.mfaRecoveryLabel
+            : strings.mfaCodeLabel;
+        }
+        if (mfaRecoveryToggle) {
+          mfaRecoveryToggle.textContent = mfaUsingRecovery
+            ? strings.mfaUseTotp
+            : strings.mfaUseRecovery;
+        }
+      });
+
+      mfaForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!mfaSubmit || mfaSubmit.disabled) return;
+
+        const value = String(mfaCodeInput?.value ?? "").trim();
+        if (value.length === 0) {
+          showMfaError(strings.genericError);
+          return;
+        }
+
+        const unlock = lockElement(mfaSubmit, strings.pleaseWait);
+        hideMfaError();
+
+        try {
+          const response = await fetch("/api/v1/auth/mfa/totp/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-AWCMS-Micro-Tenant-ID": mfaTenantId
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              mfaChallengeToken,
+              ...(mfaUsingRecovery ? { recoveryCode: value } : { code: value })
+            })
+          });
+
+          const payload = await response.json().catch(() => null);
+
+          if (!response.ok || !payload || payload.success !== true) {
+            const code = payload?.error?.code as string | undefined;
+            const localized = code ? strings.errorMessages?.[code] : null;
+            showMfaError(
+              localized ?? payload?.error?.message ?? strings.genericError
+            );
+            unlock();
+            return;
+          }
+
+          // Same success path as the plain login: session cookie is set,
+          // navigate to the admin shell (leave the button locked).
+          window.location.href = "/admin";
+        } catch {
+          showMfaError(strings.networkError);
+          unlock();
+        }
       });
     </script>
   </body>
