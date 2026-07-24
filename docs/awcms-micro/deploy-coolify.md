@@ -347,7 +347,7 @@ disposable `awcms_micro_restore_test`, bukan menimpa database live) untuk
 setiap aplikasi/database yang dianggap penting.
 
 Backup storage/R2 (bila dipakai) mengikuti scope R2 bucket/prefix per
-aplikasi yang sudah diatur lewat `R2_BUCKET` dan variabel R2 lain di
+aplikasi yang sudah diatur lewat `AWCMS_MICRO_R2_BUCKET` dan variabel R2 lain di
 environment variable masing-masing aplikasi — jangan berbagi bucket/prefix
 antar aplikasi tanpa pemisahan path yang jelas.
 

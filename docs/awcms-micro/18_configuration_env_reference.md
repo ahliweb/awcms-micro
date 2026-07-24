@@ -101,7 +101,7 @@ masing-masing di `src/lib/config/registry.ts` untuk bukti lengkap):
 | `APP_TIMEZONE`        | Tidak pernah dibaca — `src/lib/i18n/format.ts` hardcode `Asia/Jakarta`; timezone per tenant dari DB        | Ubah timezone tenant lewat `/admin/settings` (`awcms_micro_tenant_settings.timezone`) |
 | `APP_DEFAULT_LOCALE`  | Tidak pernah dibaca — `src/lib/i18n/locale.ts` hardcode `DEFAULT_LOCALE = "en"`; locale per tenant dari DB | Ubah `default_locale` tenant lewat Setup Wizard / data tenant, bukan env var          |
 | `AWCMS_MICRO_NODE_ID` | Tidak pernah dibaca — identitas node berasal dari `awcms_micro_sync_nodes` (DB), bukan env var             | Tidak ada — node teregistrasi otomatis lewat header/HMAC saat request sync pertama    |
-| `STORAGE_DRIVER`      | Tidak pernah dibaca — switch lokal/R2 sesungguhnya adalah `R2_ENABLED`                                     | `R2_ENABLED=true`/`false`                                                             |
+| `STORAGE_DRIVER`      | Tidak pernah dibaca — switch lokal/R2 sesungguhnya adalah `AWCMS_MICRO_R2_ENABLED`                         | `AWCMS_MICRO_R2_ENABLED=true`/`false`                                                 |
 | `LOCAL_STORAGE_PATH`  | Tidak pernah dibaca — tidak ada kode yang menulis ke path ini                                              | Tidak ada                                                                             |
 
 `AUTH_JWT_SECRET`/`APP_TIMEZONE` **tetap** wajib non-kosong di
@@ -475,16 +475,16 @@ nginx sama sekali).
 
 ### Storage
 
-| Var                             | Wajib   | Default     | Sensitif | Fungsi                                                                                                                                                                  |
-| ------------------------------- | ------- | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `STORAGE_DRIVER`                | –       | `local`     | –        | **DEPRECATED** (Issue #689, target hapus `1.0.0`) — tidak pernah dibaca; switch lokal/R2 sesungguhnya `R2_ENABLED`; lihat §Config registry                              |
-| `LOCAL_STORAGE_PATH`            | –       | `./storage` | –        | **DEPRECATED** (Issue #689, target hapus `1.0.0`) — tidak pernah dibaca; lihat §Config registry                                                                         |
-| `R2_ENABLED`                    | –       | `false`     | –        | Aktifkan R2                                                                                                                                                             |
-| `R2_ACCOUNT_ID`                 | bila R2 | –           | –        | Akun R2 (identifier, bukan kredensial — kredensial sesungguhnya `R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`; disamakan dengan `NEWS_MEDIA_R2_ACCOUNT_ID`, PR #709 review) |
-| `R2_ACCESS_KEY_ID`              | bila R2 | –           | Ya       | Kredensial R2                                                                                                                                                           |
-| `R2_SECRET_ACCESS_KEY`          | bila R2 | –           | Ya       | Kredensial R2                                                                                                                                                           |
-| `R2_BUCKET`                     | bila R2 | –           | –        | Bucket                                                                                                                                                                  |
-| `OBJECT_SYNC_UPLOAD_TIMEOUT_MS` | –       | `10000`     | –        | Timeout upload dispatcher (Issue #436, `bun run sync:objects:dispatch`)                                                                                                 |
+| Var                                | Wajib   | Default     | Sensitif | Fungsi                                                                                                                                                              |
+| ---------------------------------- | ------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STORAGE_DRIVER`                   | –       | `local`     | –        | **DEPRECATED** (Issue #689, target hapus `1.0.0`) — tidak pernah dibaca; switch lokal/R2 sesungguhnya `AWCMS_MICRO_R2_ENABLED`; lihat §Config registry              |
+| `LOCAL_STORAGE_PATH`               | –       | `./storage` | –        | **DEPRECATED** (Issue #689, target hapus `1.0.0`) — tidak pernah dibaca; lihat §Config registry                                                                     |
+| `AWCMS_MICRO_R2_ENABLED`           | –       | `false`     | –        | Aktifkan R2 (di-rename dari `R2_ENABLED`; nama lama masih dibaca sebagai fallback selama migrasi)                                                                   |
+| `AWCMS_MICRO_R2_ACCOUNT_ID`        | bila R2 | –           | –        | Akun R2 (identifier, bukan kredensial — kredensial sesungguhnya `AWCMS_MICRO_R2_ACCESS_KEY_ID`/`AWCMS_MICRO_R2_SECRET_ACCESS_KEY`). Legacy `R2_ACCOUNT_ID` fallback |
+| `AWCMS_MICRO_R2_ACCESS_KEY_ID`     | bila R2 | –           | Ya       | Kredensial R2 (legacy `R2_ACCESS_KEY_ID` fallback)                                                                                                                  |
+| `AWCMS_MICRO_R2_SECRET_ACCESS_KEY` | bila R2 | –           | Ya       | Kredensial R2 (legacy `R2_SECRET_ACCESS_KEY` fallback)                                                                                                              |
+| `AWCMS_MICRO_R2_BUCKET`            | bila R2 | –           | –        | Bucket antrean objek privat; konvensi prefix `awcms-micro-` (mis. `awcms-micro-objects`). Legacy `R2_BUCKET` fallback                                               |
+| `OBJECT_SYNC_UPLOAD_TIMEOUT_MS`    | –       | `10000`     | –        | Timeout upload dispatcher (Issue #436, `bun run sync:objects:dispatch`)                                                                                             |
 
 ### Email (base — Issue #493-#495, epic #492)
 
@@ -767,7 +767,7 @@ sudah ada sebagai konsep lain: `blog_content`'s per-tenant module setting
 boot bila `NEWS_PORTAL_PROFILE` bukan nilai yang dikenal, bila
 `NEWS_MEDIA_R2_ENABLED=true` tapi var wajib di atas hilang, bila
 `NEWS_MEDIA_R2_BUCKET`/`_ACCESS_KEY_ID`/`_SECRET_ACCESS_KEY` sama persis
-dengan `R2_BUCKET`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY` milik
+dengan `AWCMS_MICRO_R2_BUCKET`/`AWCMS_MICRO_R2_ACCESS_KEY_ID`/`AWCMS_MICRO_R2_SECRET_ACCESS_KEY` milik
 sync-storage (Issue #631 architecture doc §2), bila allow-list MIME berisi
 tipe di luar yang dikenal sniffer, ATAU bila TTL presigned upload melebihi
 3600 detik. `bun run security:readiness`
@@ -1143,7 +1143,7 @@ AWCMS_MICRO_SYNC_MAX_SKEW_SEC=300
 STORAGE_DRIVER=local
 LOCAL_STORAGE_PATH=./storage
 OBJECT_SYNC_UPLOAD_TIMEOUT_MS=10000
-R2_ENABLED=false
+AWCMS_MICRO_R2_ENABLED=false
 
 # Email (base, Issue #493) — lihat src/modules/email/README.md
 EMAIL_ENABLED=false
@@ -1220,7 +1220,7 @@ flowchart TB
 ## Validasi konfigurasi saat boot
 
 - Var wajib hilang → gagal start dengan pesan jelas (tanpa membocorkan nilai).
-- Flag aktif tanpa kredensial (mis. `R2_ENABLED=true` tanpa key) → gagal start.
+- Flag aktif tanpa kredensial (mis. `AWCMS_MICRO_R2_ENABLED=true` tanpa key) → gagal start.
 - `PUBLIC_TENANT_RESOLUTION_MODE` diisi nilai selain 4 mode terdokumentasi,
   `host_default` tanpa `PUBLIC_PLATFORM_ROOT_DOMAIN`, `env_default` tanpa
   `PUBLIC_DEFAULT_TENANT_ID`/`PUBLIC_DEFAULT_TENANT_CODE`, atau

@@ -1947,11 +1947,21 @@ export function checkNewsPortalFullOnlineR2PresetReady(
  * go-live on its own.
  */
 const R2_SYNC_REQUIRED_WHEN_ENABLED = [
-  "R2_ACCOUNT_ID",
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
-  "R2_BUCKET"
+  "AWCMS_MICRO_R2_ACCOUNT_ID",
+  "AWCMS_MICRO_R2_ACCESS_KEY_ID",
+  "AWCMS_MICRO_R2_SECRET_ACCESS_KEY",
+  "AWCMS_MICRO_R2_BUCKET"
 ] as const;
+
+/**
+ * The sync-storage R2 vars were renamed `R2_*` -> `AWCMS_MICRO_R2_*`. During
+ * the migration window read the canonical name and fall back to the legacy
+ * `R2_*` name (drop the fallback once all deployments have migrated).
+ */
+const readSyncR2Var = (
+  env: NodeJS.ProcessEnv,
+  name: string
+): string | undefined => env[name] ?? env[name.replace(/^AWCMS_MICRO_/, "")];
 
 /**
  * Durable managed-media storage readiness (Issue #262, ADR-0027 §Aturan
@@ -1965,8 +1975,9 @@ const R2_SYNC_REQUIRED_WHEN_ENABLED = [
  * object storage, or object storage enabled with incomplete credentials).
  * `full_online_single_host` (APP_ENV=staging) with host-local storage is a
  * `warning` — a mounted durable volume is legitimate but unverifiable here.
- * `development` is `info`. Deliberately keyed on the same `APP_ENV`/`R2_*`/
- * `NEWS_MEDIA_R2_*` signals the rest of this file already uses — no new
+ * `development` is `info`. Deliberately keyed on the same `APP_ENV`/
+ * `AWCMS_MICRO_R2_*` (legacy `R2_*` fallback)/`NEWS_MEDIA_R2_*` signals the
+ * rest of this file already uses — no new
  * `DEPLOYMENT_PROFILE` env var (see storage-profile.ts header).
  */
 export function checkDurableMediaStorageReady(
@@ -1974,14 +1985,14 @@ export function checkDurableMediaStorageReady(
 ): SecurityCheckResult {
   const name = "Durable managed-media storage (no ephemeral FS in production)";
 
-  const r2Enabled = env.R2_ENABLED === "true";
+  const r2Enabled = (env.AWCMS_MICRO_R2_ENABLED ?? env.R2_ENABLED) === "true";
   const newsMediaR2Enabled = env.NEWS_MEDIA_R2_ENABLED === "true";
 
   const finding = evaluateDurableStorageReadiness({
     appEnv: env.APP_ENV,
     r2Enabled,
     r2CredentialsComplete: R2_SYNC_REQUIRED_WHEN_ENABLED.every(
-      (varName) => (env[varName] ?? "").trim().length > 0
+      (varName) => (readSyncR2Var(env, varName) ?? "").trim().length > 0
     ),
     newsMediaR2Enabled,
     newsMediaR2CredentialsComplete: findMissingNewsMediaR2Vars(env).length === 0

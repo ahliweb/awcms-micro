@@ -161,17 +161,25 @@ export function resolveObjectUploader(requiresUpload: boolean): ObjectUploader {
     return createNoopObjectUploader();
   }
 
-  const accountId = process.env.R2_ACCOUNT_ID;
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-  const bucket = process.env.R2_BUCKET;
+  // Canonical `AWCMS_MICRO_R2_*` names, falling back to the legacy `R2_*`
+  // names during the rename migration window (zero-downtime: a prod box still
+  // on the old keys keeps working until the operator swaps them). Drop the
+  // `?? process.env.R2_*` fallback once every deployment has migrated.
+  const accountId =
+    process.env.AWCMS_MICRO_R2_ACCOUNT_ID ?? process.env.R2_ACCOUNT_ID;
+  const accessKeyId =
+    process.env.AWCMS_MICRO_R2_ACCESS_KEY_ID ?? process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey =
+    process.env.AWCMS_MICRO_R2_SECRET_ACCESS_KEY ??
+    process.env.R2_SECRET_ACCESS_KEY;
+  const bucket = process.env.AWCMS_MICRO_R2_BUCKET ?? process.env.R2_BUCKET;
 
   if (!accountId || !accessKeyId || !secretAccessKey || !bucket) {
     return async () => ({
       ok: false,
       error:
-        "R2 credentials are not configured (requires R2_ACCOUNT_ID, " +
-        "R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET)."
+        "R2 credentials are not configured (requires AWCMS_MICRO_R2_ACCOUNT_ID, " +
+        "AWCMS_MICRO_R2_ACCESS_KEY_ID, AWCMS_MICRO_R2_SECRET_ACCESS_KEY, AWCMS_MICRO_R2_BUCKET)."
     });
   }
 

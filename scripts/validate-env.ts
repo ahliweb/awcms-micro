@@ -19,8 +19,10 @@
  *     logic a second, divergent way — its `status` field (not its
  *     `severity`, which is scoped to that script's own go-live gate) is
  *     what decides pass/fail here.
- *  3. Conditional: if R2_ENABLED === "true", then R2_ACCOUNT_ID,
- *     R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_BUCKET must all be
+ *  3. Conditional: if AWCMS_MICRO_R2_ENABLED === "true", then
+ *     AWCMS_MICRO_R2_ACCOUNT_ID, AWCMS_MICRO_R2_ACCESS_KEY_ID,
+ *     AWCMS_MICRO_R2_SECRET_ACCESS_KEY, and AWCMS_MICRO_R2_BUCKET must all be
+ *     set (legacy `R2_*` names accepted as fallback during migration)
  *     set. These four vars are not in the current minimal `.env.example`
  *     (doc 18 documents them as "bila R2" in its fuller reference table) —
  *     that's fine, they are validated conditionally regardless of whether
@@ -137,7 +139,7 @@
  *     NEWS_MEDIA_R2_ACCESS_KEY_ID, NEWS_MEDIA_R2_SECRET_ACCESS_KEY,
  *     NEWS_MEDIA_R2_BUCKET, and NEWS_MEDIA_R2_PUBLIC_BASE_URL must all be
  *     set (`../src/modules/media-library/domain/media-r2-config`) —
- *     mirrors the R2_ENABLED conditional check above (item 3), deliberately
+ *     mirrors the AWCMS_MICRO_R2_ENABLED conditional check above (item 3), deliberately
  *     namespaced `NEWS_MEDIA_R2_*` rather than reusing `R2_*` (see that
  *     file's header comment: news-portal media is a public bucket, wholly
  *     separate from sync-storage's private object queue — Issue #631
@@ -303,11 +305,21 @@ export function checkAppEnvValue(env: NodeJS.ProcessEnv): EnvCheckResult {
 }
 
 const R2_REQUIRED_WHEN_ENABLED = [
-  "R2_ACCOUNT_ID",
-  "R2_ACCESS_KEY_ID",
-  "R2_SECRET_ACCESS_KEY",
-  "R2_BUCKET"
+  "AWCMS_MICRO_R2_ACCOUNT_ID",
+  "AWCMS_MICRO_R2_ACCESS_KEY_ID",
+  "AWCMS_MICRO_R2_SECRET_ACCESS_KEY",
+  "AWCMS_MICRO_R2_BUCKET"
 ] as const;
+
+/**
+ * The `AWCMS_MICRO_R2_*` vars were renamed from legacy `R2_*`. During the
+ * migration window both are accepted: read the canonical name, fall back to the
+ * legacy `R2_*` name. Drop the fallback once every deployment has migrated.
+ */
+const legacyR2Name = (name: string): string =>
+  name.replace(/^AWCMS_MICRO_/, "");
+const readR2Var = (env: NodeJS.ProcessEnv, name: string): string | undefined =>
+  env[name] ?? env[legacyR2Name(name)];
 
 /**
  * The four documented public tenant resolution modes (Issue #556, epic
@@ -438,25 +450,28 @@ export function checkSyncConfig(
 export function checkR2Config(
   env: NodeJS.ProcessEnv = process.env
 ): EnvCheckResult[] {
-  if (env.R2_ENABLED !== "true") {
+  if ((env.AWCMS_MICRO_R2_ENABLED ?? env.R2_ENABLED) !== "true") {
     return [
       {
         name: "R2 credentials (conditional on R2 enabled)",
         status: "pass",
-        detail: 'R2_ENABLED is not "true" — R2 credentials not required.'
+        detail:
+          'AWCMS_MICRO_R2_ENABLED is not "true" — R2 credentials not required.'
       }
     ];
   }
 
   return R2_REQUIRED_WHEN_ENABLED.map((name) => {
-    if (isSet(env[name])) {
+    if (isSet(readR2Var(env, name))) {
       return { name, status: "pass", detail: `${name} is set.` };
     }
 
     return {
       name,
       status: "fail",
-      detail: `R2_ENABLED=true but ${name} is missing or empty.`
+      detail: `AWCMS_MICRO_R2_ENABLED=true but ${name} (or legacy ${legacyR2Name(
+        name
+      )}) is missing or empty.`
     };
   });
 }
