@@ -222,3 +222,18 @@ field/volume tetap deferred, lihat `website-platform-e2e-evidence.md`
 `/comments/demo`), extract `href`, filter same-origin, follow redirect,
 assert status. Untuk graf konten ber-seed (sitemap/canonical/hreflang) pakai
 `public-link-integrity.integration.test.ts` (handler-level), bukan crawl E2E.
+
+**Public content-template (BER-SEED, bukan hermetis) — Issue #296**:
+`public-content-a11y.e2e.ts` menjalankan axe atas **konten artikel yang
+sudah dirender** — beda dari `public-a11y-smoke` yang hermetis. Spec ini
+meng-INSERT satu tenant + verified primary domain + 2 `blog_post` published
+(locale en/id, `content_json` kaya: heading/paragraph/list/quote) lalu
+repoint `awcms_micro_setup_state`, jadi WAJIB memegang advisory lock
+`acquireSetupStateOwnership` (`setup-state-ownership.ts`) supaya tidak balapan
+dengan spec ber-seed lain yang me-repoint `awcms_micro_setup_state` di bawah
+`fullyParallel` (mutual-exclusion advisory-lock yang sama dipakai
+`seo-discovery-smoke.e2e.ts`). Cakupan axe: `/news/{slug}`
+dan `/blog/{tenantCode}/{slug}` di EN+ID × desktop (1280×800) + mobile
+(390×844), rule-set wcag2a/2aa/21aa/22aa (critical/serious). Menutup item
+axe atas template konten yang sebelumnya deferred di
+`website-platform-e2e-evidence.md`.

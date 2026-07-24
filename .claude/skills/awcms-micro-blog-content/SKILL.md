@@ -43,11 +43,15 @@ publik `/news` untuk detail resolusi tenant lintas-mode. `/blog/{tenantCode}`
 tambahan, bukan pengganti.
 
 **Juga di luar epic #536**: Issue #636 (epic `news_portal` #631-#642/#649)
-menambah validasi KONDISIONAL — hanya aktif ketika full-online R2-only
-mode aktif UNTUK TENANT PEMANGGIL (`isNewsPortalFullOnlineR2ModeActiveForTenant`,
-`application/news-portal-r2-mode-gate.ts`) — yang mewajibkan
+menambah validasi KONDISIONAL — hanya aktif ketika managed-media
+enforcement aktif UNTUK TENANT PEMANGGIL (dicek `mediaPort.isManagedMediaEnforcementActiveForTenant`
+dari dalam `blog-content/application/news-media-reference-gate.ts`'s
+`validateNewsMediaReferencesForFullOnlineR2Mode`; gate lama
+`news-portal-r2-mode-gate.ts` + fungsi `isNewsPortalFullOnlineR2ModeActiveForTenant`
+sudah DIHAPUS, machinery media pindah ke modul `media-library` — ADR-0026)
+— yang mewajibkan
 `featuredMediaId` dan item gallery bertipe image mereferensikan baris
-`verified`/`attached` di media registry `news_portal` (#633), bukan lagi
+`verified`/`attached` di media registry (kini modul `media-library`, #633), bukan lagi
 UUID/URL bebas TANPA verifikasi. **Rule #18 di bawah ("tidak ada base
 media library") TETAP BENAR untuk mode non-R2-only** (mayoritas
 deployment hari ini) — hanya mode R2-only yang menambah lapisan
@@ -114,7 +118,7 @@ Admin UI: `src/pages/admin/blog/internal-tag-links.astro` (layar ke-15).
 17. **Sub-resource full-replace butuh `id` client-supplied kalau ada hierarki/self-reference dalam satu payload** (`menu items`' `parentItemId`, lihat `menu-directory.ts`'s `syncMenuItems` docblock) — karena `DELETE`-lalu-`INSERT` membuang id lama sebelum baris baru ditulis, referensi ke sibling di payload yang sama HANYA bisa diselesaikan kalau klien sendiri yang menyuplai id-nya (bukan `gen_random_uuid()` DB). Sub-resource _tanpa_ hierarki (ad placements) tetap boleh pakai id DB-generated biasa.
 18. **Tidak ada base media library** — jangan bangun tabel/endpoint media baru untuk kebutuhan galeri/attachment. Tambahkan tipe block baru di `content-block-rendering.ts`'s whitelist (pola `gallery`, Issue #542) atau simpan sebagai UUID/URL longgar (pola `featuredMediaId`), tergantung kebutuhan — jangan re-derive konsep "media library" dari nol. **Sejak Issue #636** (lihat catatan "Di luar epic #536" di atas): saat full-online R2-only mode aktif untuk tenant, UUID/URL longgar itu WAJIB divalidasi menunjuk baris registry `news_portal` (#633) yang aman — tetap bukan media library baru di `blog_content` sendiri, hanya validasi referensi ke registry modul lain.
 19. **Theme mode adalah override, bukan engine baru** — `awcms_micro_tenants.default_theme` (migration 002) tetap satu-satunya sumber default. Tabel/endpoint theme modul manapun (blog atau modul lain di masa depan) harus fallback ke situ saat tidak ada override, sama seperti `theme-settings-directory.ts`'s `fetchBlogThemeSettings`.
-20. **Kolaborasi dengan `news_portal` lewat capability port, BUKAN import langsung** (Issue #681, epic #679 — lihat ADR-0011 dan skill `awcms-micro-news-portal`'s §681 untuk detail penuh). `application`/`domain` file `blog_content` DILARANG `import ... from` tree `application`/`domain` milik `news_portal` — kapabilitas apa pun yang dibutuhkan dari `news_portal` (mis. validasi/resolusi media R2) diterima lewat parameter port (`_shared/ports/news-media-port.ts`'s `NewsMediaPort`), disuntikkan pemanggil (route handler). Dijaga otomatis oleh `tests/unit/module-boundary.test.ts` — PR yang menambah import lintas-modul baru akan gagal test ini.
+20. **Kolaborasi dengan `news_portal` lewat capability port, BUKAN import langsung** (Issue #681, epic #679 — lihat ADR-0011 dan skill `awcms-micro-news-portal`'s §681 untuk detail penuh). `application`/`domain` file `blog_content` DILARANG `import ... from` tree `application`/`domain` milik `news_portal` — kapabilitas media R2 (validasi/resolusi) **kini disediakan modul `media-library`, bukan lagi `news_portal`** (ADR-0026) dan diterima lewat parameter port (`_shared/ports/media-library-port.ts`'s `MediaLibraryPort`), disuntikkan pemanggil (route handler); kapabilitas non-media dari `news_portal` tetap lewat port `_shared/ports/` yang sama polanya. Dijaga otomatis oleh `tests/unit/module-boundary.test.ts` — PR yang menambah import lintas-modul baru akan gagal test ini.
 21. **Styling rute publik HANYA lewat `public/css/public-content.css`** (overhaul UI/UX #312) — `public-page-rendering.ts`'s `renderPublicPageShell()` mengeluarkan HTML string mentah dari route `.ts`, jadi Astro CSP style-hasher tak melihatnya dan CSP `default-src 'self'` memblokir `<style>` inline + atribut `style=`. Jalur CSP-legal satu-satunya adalah stylesheet eksternal same-origin `public/css/public-content.css` (self-contained: token `--pc-*` + nama `--dur-*`/`--ease-*` identik `tokens.css` + guard `prefers-reduced-motion` sendiri, mobile-first). Kelas markup yang di-emit renderer (`.pc-article`, `.gallery`, `.video-news*`, `.homepage-section-*`, `.pc-pagination`) di-style di situ — kalau menambah tipe block/markup publik baru, extend file itu, JANGAN sisipkan `<style>`/`style=` inline (akan diblokir CSP diam-diam). Lihat doc 14 §Surface publik.
 
 ## Belum ada — jangan asumsikan sudah dikerjakan

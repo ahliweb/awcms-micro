@@ -144,7 +144,10 @@ Reference: [`performance-suite.md`](performance-suite.md).
 ## §D — #296 Full-journey accessibility (axe EN/ID) + automated link checking
 
 Reference: `tests/e2e/public-a11y-smoke.e2e.ts`, `tests/e2e/admin-a11y-smoke.e2e.ts`,
-`tests/integration/public-link-integrity.integration.test.ts` (all from #298).
+`tests/integration/public-link-integrity.integration.test.ts` (all from #298),
+`tests/e2e/public-content-a11y.e2e.ts` (axe atas template artikel `/news` + `/blog`
+yang sudah dirender, ber-seed, EN/ID × desktop/mobile — #296, menutup item axe
+konten yang sebelumnya deferred).
 
 1. **Run the in-repo axe smoke against the rendered site** (desktop + mobile viewports):
    ```bash

@@ -1,6 +1,6 @@
 ---
 name: awcms-micro-codeql-triage
-description: Triase dan perbaiki temuan CodeQL code scanning AWCMS-Micro (github.com/ahliweb/awcms-micro/security/code-scanning). Gunakan saat diminta "analisis code scanning"/"perbaiki CodeQL", saat sebuah PR gagal check CodeQL, atau saat menemukan alert baru. Mendokumentasikan enam false-positive nyata yang sudah ditemukan (name-heuristic password, incompatible-types typeof/null, URL substring-sanitization di test mock, dua kasus dismiss resmi tanpa reformulasi kode, Bun.SQL tagged-template null-cast, dan build-time extension seam trivial-conditional) plus pola "unused-local-variable di test kadang menandai coverage gap" — supaya tidak diinvestigasi ulang dari nol.
+description: Triase dan perbaiki temuan CodeQL code scanning AWCMS-Micro (github.com/ahliweb/awcms-micro/security/code-scanning). Gunakan saat diminta "analisis code scanning"/"perbaiki CodeQL", saat sebuah PR gagal check CodeQL, atau saat menemukan alert baru. Mendokumentasikan enam false-positive nyata yang sudah ditemukan (name-heuristic password, incompatible-types typeof/null, URL substring-sanitization di test mock, dua kasus dismiss resmi tanpa reformulasi kode, Bun.SQL tagged-template null-cast, dan build-time extension seam trivial-conditional — kini obsolet, kode seam dihapus ADR-0036/PR #304) plus pola "unused-local-variable di test kadang menandai coverage gap" — supaya tidak diinvestigasi ulang dari nol.
 ---
 
 # AWCMS-Micro — Triase CodeQL Code Scanning

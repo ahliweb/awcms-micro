@@ -180,8 +180,8 @@ Menyelesaikan login saat 2FA aktif (login challenge):
 
 Mengelola / menonaktifkan:
 
-- **Buat ulang kode pemulihan** (`POST /auth/mfa/recovery-codes/regenerate`) — kode lama langsung tidak berlaku, set baru ditampilkan sekali. High-risk, diaudit (`mfa_recovery_codes_regenerated`).
-- **Nonaktifkan 2FA** (`POST /auth/mfa/totp/disable`) — memerlukan sesi valid, diaudit (`mfa_disabled`). Reset password **tidak** menonaktifkan 2FA.
+- **Buat ulang kode pemulihan** (`POST /auth/mfa/recovery-codes/regenerate`) — kode lama langsung tidak berlaku, set baru ditampilkan sekali. High-risk, diaudit (`mfa_recovery_codes_regenerated`). Wajib **step-up re-auth** (lihat butir berikut).
+- **Nonaktifkan 2FA** (`POST /auth/mfa/totp/disable`) — sesi valid saja **tidak cukup**: kedua aksi ini mewajibkan **step-up re-auth segar** (Issue #329) — kirim bukti berupa kode TOTP saat ini **atau** password akun di body request. Bukti absen → `401 MFA_STEP_UP_REQUIRED`; bukti salah → `MFA_STEP_UP_INVALID` (rate-limited). Diaudit (`mfa_disabled`). Reset password **tidak** menonaktifkan 2FA.
 
 ### Arsipkan dan pulihkan master data
 
