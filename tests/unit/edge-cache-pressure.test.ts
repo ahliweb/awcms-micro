@@ -232,6 +232,62 @@ describe("purgeEdgeCache", () => {
     ).resolves.toEqual({ status: "skipped", reason: "invalid_request" });
   });
 
+  test("POSTs to the reserved ban path, never a custom HTTP method", async () => {
+    // Bun's fetch silently rewrites an unknown method (e.g. `BAN`) to
+    // `GET`, which made invalidation a silent no-op that still reported
+    // success. Verified against a live Varnish on Bun 1.3.14.
+    const seen: { method?: string; url?: string } = {};
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async (url: URL | string, init?: RequestInit) => {
+      seen.method = init?.method;
+      seen.url = String(url);
+
+      return new Response(null, {
+        status: 200,
+        headers: { "X-Edge-Cache-Ban": "ok" }
+      });
+    }) as unknown as typeof fetch;
+
+    try {
+      const result = await purgeEdgeCache(
+        { host: "tenant.example.com" },
+        CONFIG
+      );
+
+      expect(result).toEqual({ status: "purged" });
+      expect(seen.method).toBe("POST");
+      expect(seen.url).toBe(
+        "http://varnish.invalid:8080/__awcms-edge-cache/ban"
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  test("treats a 200 WITHOUT the cache's marker header as a failure", async () => {
+    // The exact regression: an ordinary page answered 200 because the
+    // request never reached the ban handler at all. Without this check that
+    // reads as a successful purge.
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = (async () =>
+      new Response("<html>a normal page</html>", {
+        status: 200
+      })) as unknown as typeof fetch;
+
+    try {
+      const result = await purgeEdgeCache(
+        { host: "tenant.example.com" },
+        CONFIG
+      );
+
+      expect(result).toEqual({ status: "failed", reason: "unmarked_response" });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
   test("fails open when the cache is unreachable", async () => {
     const result = await purgeEdgeCache({ host: "tenant.example.com" }, CONFIG);
 

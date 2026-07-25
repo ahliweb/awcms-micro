@@ -44,7 +44,21 @@ acl purge_network {
 }
 
 sub vcl_recv {
-    if (req.method == "BAN") {
+    # Invalidation endpoint.
+    #
+    # Deliberately a POST to a reserved PATH rather than a custom `BAN`
+    # method, which is the conventional Varnish idiom: Bun's `fetch`
+    # silently rewrites an unknown method to `GET` (verified on Bun 1.3.14
+    # against this very service — the request arrived as `ReqMethod GET`,
+    # was served as an ordinary page, and returned 200, so the caller could
+    # not tell an invalidation had never happened). Relying on a custom verb
+    # surviving every HTTP client in the chain is not something this layer
+    # can verify at runtime, so it does not depend on it.
+    if (req.url == "/__awcms-edge-cache/ban") {
+        if (req.method != "POST") {
+            return (synth(405, "Method Not Allowed"));
+        }
+
         if (client.ip !~ purge_network) {
             return (synth(403, "Forbidden"));
         }
@@ -158,6 +172,18 @@ sub vcl_backend_response {
     # Never leaked to a client: the aggressive TTL is for shared caches
     # only, while the browser obeys the separate `Cache-Control`.
     unset beresp.http.Surrogate-Control;
+
+    return (deliver);
+}
+
+sub vcl_synth {
+    # Marker the caller checks. Without it, ANY 200 reaching the client —
+    # including an ordinary page served because the request never matched
+    # the branch above — would read as a successful invalidation. That is
+    # exactly the failure this endpoint was rebuilt to make impossible.
+    if (resp.reason == "Banned") {
+        set resp.http.X-Edge-Cache-Ban = "ok";
+    }
 
     return (deliver);
 }

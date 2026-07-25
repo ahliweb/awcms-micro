@@ -58,14 +58,22 @@ async function probePurgeEndpoint(): Promise<PurgeEndpointProbe> {
     // Deliberately WITHOUT the token: a correctly configured cache must
     // answer 4xx here. A 2xx would mean anyone on the network can flush
     // the cache, which is worth failing this check over.
-    const response = await fetch(config.purgeUrl, {
-      method: "BAN",
-      headers: {
-        "X-Ban-Host": "edge-cache-health.invalid",
-        "X-Ban-Path": "^/"
-      },
-      signal: AbortSignal.timeout(3_000)
-    });
+    //
+    // POST to the reserved path, matching `edge-cache-purge.ts` — a custom
+    // HTTP method does not survive Bun's `fetch` (it is rewritten to
+    // `GET`), which is what let a completely non-functional invalidation
+    // look healthy before.
+    const response = await fetch(
+      new URL("/__awcms-edge-cache/ban", config.purgeUrl),
+      {
+        method: "POST",
+        headers: {
+          "X-Ban-Host": "edge-cache-health.invalid",
+          "X-Ban-Path": "^/"
+        },
+        signal: AbortSignal.timeout(3_000)
+      }
+    );
 
     if (response.ok) {
       return {

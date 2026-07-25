@@ -105,7 +105,10 @@ describe("invalidatePublicCacheForTenant — configured", () => {
         path: headers.get("x-ban-path") ?? ""
       });
 
-      return new Response(null, { status: 200 });
+      return new Response(null, {
+        status: 200,
+        headers: { "X-Edge-Cache-Ban": "ok" }
+      });
     }) as typeof fetch;
 
     const { sql } = createSqlSpy([
@@ -151,7 +154,12 @@ describe("invalidatePublicCacheForTenant — configured", () => {
 
     globalThis.fetch = (async () => {
       call += 1;
-      return new Response(null, { status: call === 1 ? 200 : 500 });
+      return call === 1
+        ? new Response(null, {
+            status: 200,
+            headers: { "X-Edge-Cache-Ban": "ok" }
+          })
+        : new Response(null, { status: 500 });
     }) as unknown as typeof fetch;
 
     const { sql } = createSqlSpy([
@@ -253,7 +261,10 @@ describe("withPublicCacheInvalidation", () => {
 
   test("returns the original response object untouched on success", async () => {
     globalThis.fetch = (async () =>
-      new Response(null, { status: 200 })) as unknown as typeof fetch;
+      new Response(null, {
+        status: 200,
+        headers: { "X-Edge-Cache-Ban": "ok" }
+      })) as unknown as typeof fetch;
 
     const { sql } = createSqlSpy([{ hostname: "tenant.example.com" }]);
     const success = new Response(JSON.stringify({ ok: true }), { status: 200 });

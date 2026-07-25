@@ -137,15 +137,15 @@ database sedang tertekan.
 **Varnish 7.7.3 sungguhan** dengan backend tiruan, dan setiap aturannya
 diperiksa satu per satu:
 
-| Yang diuji                      | Hasil                                                       |
-| ------------------------------- | ----------------------------------------------------------- |
-| Halaman publik diminta dua kali | MISS lalu **HIT**, backend hanya dipukul sekali             |
-| Permintaan dengan cookie sesi   | Selalu MISS — backend dipukul setiap kali (bypass benar)    |
-| Permintaan dengan cookie locale | MISS lalu **HIT** — varian per-locale, bukan per-pengunjung |
-| `/admin` dua kali               | Tidak pernah HIT                                            |
-| Response ber-`Set-Cookie`       | Tidak pernah disimpan                                       |
-| BAN tanpa token / token salah   | **403**                                                     |
-| BAN dengan token benar          | 200, dan permintaan berikutnya kembali MISS                 |
+| Yang diuji                           | Hasil                                                       |
+| ------------------------------------ | ----------------------------------------------------------- |
+| Halaman publik diminta dua kali      | MISS lalu **HIT**, backend hanya dipukul sekali             |
+| Permintaan dengan cookie sesi        | Selalu MISS — backend dipukul setiap kali (bypass benar)    |
+| Permintaan dengan cookie locale      | MISS lalu **HIT** — varian per-locale, bukan per-pengunjung |
+| `/admin` dua kali                    | Tidak pernah HIT                                            |
+| Response ber-`Set-Cookie`            | Tidak pernah disimpan                                       |
+| Invalidasi tanpa token / token salah | **403**                                                     |
+| Invalidasi token benar               | 200 + `X-Edge-Cache-Ban: ok`, permintaan berikutnya MISS    |
 
 Pengujian itu menemukan satu cacat nyata: `Surrogate-Control` masih
 terkirim ke klien pada response yang **tidak** di-cache, karena dulu hanya
@@ -173,15 +173,15 @@ satu siklus deploy penuh (19 HIT dari 20, `db_xact` 1–4).
 
 Aturan keamanannya diverifikasi pada instance yang sama, bukan hanya di lab:
 
-| Yang diuji                    | Hasil                                       |
-| ----------------------------- | ------------------------------------------- |
-| Halaman publik, 2×            | HIT — backend tidak dipukul lagi            |
-| Permintaan dengan cookie sesi | `bypass`, selalu MISS                       |
-| `/admin`, 2×                  | Tidak pernah HIT                            |
-| `/api/v1/health`, 2×          | `bypass`, selalu MISS                       |
-| BAN tanpa token / token salah | **403**                                     |
-| BAN token benar               | 200, dan permintaan berikutnya kembali MISS |
-| `Surrogate-Control` ke klien  | Tidak pernah muncul, pada rute mana pun     |
+| Yang diuji                           | Hasil                                       |
+| ------------------------------------ | ------------------------------------------- |
+| Halaman publik, 2×                   | HIT — backend tidak dipukul lagi            |
+| Permintaan dengan cookie sesi        | `bypass`, selalu MISS                       |
+| `/admin`, 2×                         | Tidak pernah HIT                            |
+| `/api/v1/health`, 2×                 | `bypass`, selalu MISS                       |
+| Invalidasi tanpa token / token salah | **403**                                     |
+| Invalidasi token benar               | 200, dan permintaan berikutnya kembali MISS |
+| `Surrogate-Control` ke klien         | Tidak pernah muncul, pada rute mana pun     |
 
 ### Bila Cloudflare ikut berada di depan (record ter-proxy)
 
@@ -222,8 +222,22 @@ tidak pernah bisa menjangkau di luar hostname yang disebutnya. Pola path
 dibatasi himpunan karakter sebelum dikirim, karena pola itu ikut membentuk
 ekspresi ban di dalam cache.
 
-Cache menerima BAN hanya dari jaringan privat **dan** dengan token yang
-cocok. Token kosong **mematikan** invalidasi, bukan membukanya.
+Cache menerima invalidasi hanya dari jaringan privat **dan** dengan token
+yang cocok. Token kosong **mematikan** invalidasi, bukan membukanya.
+
+**Transportnya `POST /__awcms-edge-cache/ban`, bukan metode HTTP `BAN`** —
+dan itu bukan selera. Idiom Varnish yang lazim memakai metode kustom `BAN`,
+tetapi `fetch` milik Bun **diam-diam menulis ulang metode yang tidak dikenal
+menjadi `GET`** (diverifikasi pada Bun 1.3.14 terhadap Varnish sungguhan:
+permintaan tiba sebagai `ReqMethod GET`, dilayani sebagai halaman biasa, dan
+membalas 200). Karena 200 itu, klien mengira purge berhasil padahal tidak
+pernah terjadi — invalidasi yang sepenuhnya mati namun tampak sehat.
+
+Dua hal menutup kelas kegagalan itu: transport tidak lagi bergantung pada
+metode kustom, dan respons ban membawa penanda `X-Edge-Cache-Ban: ok` yang
+**wajib** ada. Sebuah 200 tanpa penanda itu kini dilaporkan sebagai
+**gagal**, bukan sukses — karena artinya yang menjawab bukan handler ban
+cache, melainkan sesuatu yang lain (biasanya aplikasi itu sendiri).
 
 ### Purge otomatis saat publikasi berubah (Issue #359)
 
