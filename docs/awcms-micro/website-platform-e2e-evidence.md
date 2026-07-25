@@ -16,8 +16,16 @@ it, and it states **honestly** which criteria are proven in this base repository
 versus which are deferred to a **website / online-store pilot** or to **real
 infrastructure drills** (deployment, measured RTO/RPO, Core Web Vitals on
 representative volume, base-upgrade rehearsal). Those deferred parts are tracked
-as separate atomic issues (see [§Deferred work](#deferred-work)); #273 remains
-open until they land.
+as separate atomic issues (see [§Deferred work](#deferred-work)).
+
+> **Issue status (verified 2026-07-25).** **#273 itself is CLOSED** (completed
+> 2026-07-20) once its automatable surface landed and the infra-gated remainder
+> was split out; **#292 is CLOSED** too, its "derived-site pilot" premise
+> cancelled by [ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md)
+> (the residual base-upgrade rehearsal should be raised as its own focused issue
+> if it is still wanted). Still open: **#293–#296** (infra-gated field proofs)
+> and the umbrella epic **#261**, which closes when they do. This document keeps
+> being updated as their evidence lands.
 
 > **Positioning ([ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md)).** AWCMS-Micro is a **template full-online website used directly** (spectrum reaches an **online store / e-commerce**; **not in-store POS** — that is the ERP `awcms` lineage). The pilot is a generic **website / online store**, NOT `ahliweb/awpos` (a POS app, whose relation here is only historical: it was the standards source). The derived-application pathway (separate downstream app via `application-registry.ts` + compatibility manifest + `extension:check`) is **removed** ([ADR-0036](../adr/0036-remove-derived-application-pathway-align-family.md), men-supersede ADR-0034/0035) — the template is used directly.
 
@@ -132,7 +140,13 @@ surface is explicit rather than silently claimed. **Operator procedure to execut
 and close each of these — with exact commands and evidence to capture — is in the
 [website-platform completion runbook](website-platform-completion-runbook.md).**
 
-- **Website / online-store pilot execution & base-upgrade rehearsal** — stand up a
+- **Website / online-store pilot execution & base-upgrade rehearsal** — **CLOSED
+  2026-07-25 status: issue #292 is closed, premise cancelled by ADR-0036** (no
+  derived sites exist in this family; the template is used directly). The
+  bilingual full-journey portion is already proven in-repo by the #291
+  cross-feature suites; only the _base-upgrade rehearsal_ remains genuinely
+  unproven, and it needs a new focused issue rather than this one. Original
+  wording kept below for traceability. Stand up a
   generic bilingual **website (up to an online store)** directly from this template
   (per [ADR-0034](../adr/0034-template-repositioning-online-store-scope-and-derived-app-deprecation.md);
   NOT `ahliweb/awpos`/POS, NOT a separate derived app), provision tenant/domain +
@@ -239,8 +253,15 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   (allow-listed host name for the disposable DB, an `APP_URL` reachable from the
   deployment host, `db:migrate` first) are written up in the
   [completion runbook §A](website-platform-completion-runbook.md).
-  STILL PENDING for full sign-off: only the app-level media upload leg above.
-  Operator steps:
+  **All three §A acceptance boxes now have live evidence** (image builds/boots +
+  preflight green; managed media durable across a full rebuild, proven through
+  the authenticated app-level API leg; TLS/security headers/CSP verified with no
+  secrets leaked). One operational follow-up came out of the media probe and is
+  **DONE**: `news-media:reconcile` — the sweep that actually removes purged
+  objects from R2 — was never scheduled on the target, so purged media stayed
+  publicly readable; it now runs daily (`45 3 * * *`, after the 02:30 backup),
+  verified executing for real. What remains for #293 is bookkeeping, not proof:
+  attach these artifacts to the issue and tick the boxes. Operator steps:
   [website-platform completion runbook](website-platform-completion-runbook.md).
 
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage

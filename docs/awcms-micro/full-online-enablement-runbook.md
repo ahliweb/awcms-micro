@@ -59,6 +59,30 @@ These are **permanent**: rotating `AUTH_MFA_SECRET_ENCRYPTION_KEY` makes every a
 secret undecryptable (users must re-enroll); rotating the SSO key invalidates stored provider client
 secrets. Set once, store in your secret manager, do not rotate casually.
 
+Three more keys belong to the **content** modules rather than auth. They are outside the shared gate
+of §1 and each is independently optional, but every one left unset costs a specific guarantee —
+generate them the same way and store them the same place:
+
+```sh
+openssl rand -base64 32     # -> COMMENTS_TIMING_SECRET (any high-entropy value; not length-checked)
+openssl rand -base64 32     # -> COMMENTS_SUBSCRIBER_ENCRYPTION_KEY (must decode to exactly 32 bytes)
+openssl rand -base64 32     # -> NEWSLETTER_SUBSCRIBER_ENCRYPTION_KEY (must decode to exactly 32 bytes)
+```
+
+- `COMMENTS_TIMING_SECRET` — unset means the public comment form's submit-timing token is signed with
+  a dev literal committed in this repository, so anyone can mint one and walk past the anti-abuse
+  timing floor. `bun run security:readiness` reports this as a **warning** on any `APP_ENV=production`
+  target (Issue #293). Not an authorization control; rotating it only invalidates in-flight forms.
+- The two `*_SUBSCRIBER_ENCRYPTION_KEY` values encrypt reply-notification and newsletter recipient
+  addresses at rest. Unset = fail-closed: the address is stored unresolvable and that notification
+  simply never sends — no plaintext is ever written. **Also permanent**: rotating one makes every
+  address already encrypted with the old key unrecoverable.
+
+Optionally also set `NEWSLETTER_PROVIDER_WEBHOOK_SECRET` (the HMAC key your ESP signs
+delivery/bounce/complaint callbacks with). Verification fails closed without it, so unsigned callbacks
+are never trusted — you just lose bounce/complaint feedback. Full reference for all of these:
+[doc 18 §Comments / §Newsletter](18_configuration_env_reference.md).
+
 ## 3. Cloudflare Turnstile (bot/CAPTCHA on login/register/forgot/reset)
 
 Obtain keys: Cloudflare dashboard → **Turnstile** → add a widget for `awcms-micro.ahlikoding.com`

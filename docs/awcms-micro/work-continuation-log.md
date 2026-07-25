@@ -11,9 +11,59 @@
 
 ## Entri aktif
 
-> Tidak ada unit kerja in-flight per 2026-07-24 sore — tiga PR di bawah (#331/#332/#333)
-> semuanya sudah MERGED ke `main`. Entri dibiarkan sebagai jejak terkini; kompres jadi
-> historis saat pekerjaan berikutnya masuk.
+### 2026-07-25 — Sinkronisasi docs+skills + audit konflik lintas-dokumen
+
+**Status:** SELESAI (belum di-PR saat entri ini ditulis — branch kerja, lihat §Langkah lanjut).
+
+**Konteks.** Permintaan operator: "update semua skills dan docs" + "analisis semua docs
+agar tidak ada yang konflik". Drift yang disasar: enam commit hari ini (#343–#349) yang
+mengubah perilaku tanpa pasangan sync prosa, ditambah dua konflik struktural yang lolos
+dari semua gate otomatis.
+
+**Yang diperbaiki:**
+
+- **Celah dokumentasi env var (temuan terbesar).** `src/lib/config/registry.ts` mengklaim
+  dirinya "single source of truth for every environment variable this application reads",
+  tapi **20 var yang benar-benar dibaca kode ter-ship tidak ada di sana** — jadi tak ada
+  pula di `.env.example` maupun doc 18, dan `config:docs:check` tidak bisa melihatnya
+  (gate itu membandingkan tiga permukaan, bukan memindai `process.env`). Didaftarkan
+  sekarang: comments (3), newsletter (3), site_search (4), redis (7),
+  `PREFLIGHT_TEST_DATABASE_URL` — plus enam `CONFIG_EXEMPTIONS` untuk var CI/container
+  (`PATH`, `CHANGESET_POLICY_BASE_REF`, `RELEASE_TAG_REF`, `REDIS_PASSWORD`,
+  `REDIS_MAXMEMORY`, `REDIS_MAXMEMORY_POLICY`).
+- **Status issue yang basi.** Docs menulis "#273 remains open"/"#273 closes when
+  #292–#296 are green"; kenyataannya **#273 CLOSED 2026-07-20** dan **#292 CLOSED
+  2026-07-21** (premis derived-site dibatalkan ADR-0036). Yang masih terbuka hanya
+  #293–#296 beserta epik #261. Dibetulkan di evidence matrix, completion runbook
+  (judul, §E, §F), README paket docs, dan tabel backlog di bawah.
+- **`security:readiness` (#344)** — pengecualian struktural scan secret +
+  `SECRET_SCAN_ACKNOWLEDGED` + check baru `checkCommentsTimingSecretConfigured`
+  didokumentasikan di `production-readiness.md` (§Scan secret baru), skill
+  `production-preflight`, skill `security-review`, `comments.md`, dan runbook enablement.
+- **Backup drill (#346)** — `resilience-dr-verification.md`: "unavailable" kini mencakup
+  klien PostgreSQL yang **absen**, bukan hanya versi tak cocok.
+- **Job terjadwal (#349)** — skill `deploy` dan skill `news-portal` mendapat seksi ops:
+  `docker exec … bun run <job>` tidak pernah bisa dipakai (image tanpa `scripts/`),
+  jebakan filter env yang menelan prefix `NEWS_MEDIA_R2_`, dan `skipped` yang menyamar
+  sebagai sukses.
+- **Konflik internal skill** — skill `production-preflight` menulis "sepuluh stage" di
+  satu paragraf dan "sebelas stage" di paragraf lain (yang benar: sepuluh); checklist
+  restore-nya masih menyebut "POS smoke test" (di luar scope ADR-0034); checklist go-live
+  §Security memuat tax/CRM/AI seolah berlaku di repo ini. Skill `security-review` dapat
+  banner scope + tanda _lineage ERP `awcms`_ pada baris warisan.
+
+**Verifikasi:** `config:docs:check`, `check:docs`, `repo:inventory:check`, `typecheck`,
+`prettier --check` — lihat §Langkah lanjut untuk sisa gate.
+
+**Langkah lanjut:** commit di branch non-main + PR (perubahan menyentuh `src/` → changeset
+`patch` wajib, lihat `changesets:policy:check`). Setelah merge, kompres entri ini jadi satu
+baris historis.
+
+---
+
+### 2026-07-24 — Tiga PR sebelumnya (#331/#332/#333) sudah MERGED
+
+> Jejak terkini sebelum entri di atas; dipertahankan sebagai konteks.
 
 ### 2026-07-24 — De-flake E2E: race lintas-file pada singleton `setup_state`
 
@@ -157,21 +207,20 @@ paket — cek `changesets:policy:check` bila ragu).
 
 ---
 
-## Backlog terbuka yang menunggu operator (per 2026-07-21)
+## Backlog terbuka yang menunggu operator (status per 2026-07-25)
 
 Bukan pekerjaan kode yang bisa di-merge — **ter-gate infrastruktur**, hasil split dari
 #273. Runbook eksekusi lengkap: [`website-platform-completion-runbook.md`](website-platform-completion-runbook.md).
+**#273 dan #292 sudah CLOSED** (masing-masing 2026-07-20 completed dan 2026-07-21 premis
+dibatalkan ADR-0036) — jangan buka lagi; bukti baru cukup ditautkan dari evidence matrix.
 
-| Issue | Ringkas                                                | Butuh                                 |
-| ----- | ------------------------------------------------------ | ------------------------------------- |
-| #261  | Epic website-platform (payung)                         | tetap terbuka sampai #293–#296 tuntas |
-| #293  | Deployment rehearsal Docker/Coolify/object-storage/CDN | infra deploy nyata                    |
-| #294  | Backup/restore + DR (RTO/RPO terukur) + chaos drill    | environment live                      |
-| #295  | Performance/CWV budget + load/soak                     | volume representatif                  |
-| #296  | Full-journey a11y (axe EN/ID) + link checking otomatis | environment terdeploy                 |
-
-`#296` paling dekat ke otomasi CLI (axe + link-check) bila ingin mengurangi
-ketergantungan operator.
+| Issue | Ringkas                                                | Status lapangan (2026-07-25)                                                                                                                                                       |
+| ----- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #261  | Epic website-platform (payung)                         | tetap terbuka sampai #293–#296 tuntas                                                                                                                                              |
+| #293  | Deployment rehearsal Docker/Coolify/object-storage/CDN | **bukti lengkap** — preflight `GO-LIVE DIIZINKAN` 10/10 di target, media durable + leg upload ter-autentikasi terbukti, reconcile terjadwal; sisa: tautkan artefak & centang kotak |
+| #294  | Backup/restore + DR (RTO/RPO terukur) + chaos drill    | backup nightly + offsite R2 terenkripsi **terpasang & restore-proven**; sisa: drill restore R2 + chaos drill live                                                                  |
+| #295  | Performance/CWV budget + load/soak                     | gate lab LCP/CLS/**INP** mendarat; sisa: load/soak pada volume representatif                                                                                                       |
+| #296  | Full-journey a11y (axe EN/ID) + link checking otomatis | axe atas template `/news` + `/blog` + crawl tautan mendarat; sisa: full journey di environment terdeploy                                                                           |
 
 ---
 

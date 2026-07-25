@@ -94,11 +94,11 @@ persis diagram gate skill `awcms-micro-production-preflight`.
 
 | Item checklist doc 07                         | Status                                                                                                                                                                                                                                                                                                                                                              |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| No hardcoded secret                           | **Otomatis** (critical) — heuristik grep `src/`, `scripts/`, config file yang di-track git                                                                                                                                                                                                                                                                          |
+| No hardcoded secret                           | **Otomatis** (critical) — heuristik grep `src/`, `scripts/`, config file yang di-track git. **Diperbaiki Issue #293** (PR #344): empat pengecualian **struktural** (baris komentar, deklarasi type-only, template literal ter-interpolasi, nilai URL) + daftar `SECRET_SCAN_ACKNOWLEDGED` beralasan — lihat §Scan secret di bawah                                   |
 | `.env` tidak dikomit                          | **Otomatis** (critical) — `git ls-files` tidak boleh memuat `.env`                                                                                                                                                                                                                                                                                                  |
 | Password hash modern                          | **Otomatis** (critical) — memanggil `hashPassword()` sungguhan, memeriksa awalan `$argon2id$`                                                                                                                                                                                                                                                                       |
 | Login lockout                                 | **Otomatis** (critical) — memanggil `evaluateLoginAttempt()` dengan skenario 5x gagal                                                                                                                                                                                                                                                                               |
-| RLS aktif                                     | **Otomatis** (critical) — query langsung `pg_class.relrowsecurity` per tabel `awcms_micro_%`                                                                                                                                                                                                                                                                        |
+| RLS aktif                                     | **Otomatis** (critical) — check `RLS enabled AND forced on tenant-scoped tables`: query langsung `pg_class.relrowsecurity` **dan** `relforcerowsecurity` per tabel `awcms_micro_%` (sekadar `ENABLE` tidak cukup — policy harus berlaku juga bagi pemilik tabel). Dilengkapi check terpisah `App DB connection role does not bypass RLS`                            |
 | ABAC aktif (default deny)                     | **Otomatis** (critical) — memanggil `evaluateAccess()` dengan permission kosong                                                                                                                                                                                                                                                                                     |
 | Audit log aktif                               | **Otomatis** (critical) — `SELECT to_regclass('awcms_micro_audit_events')`                                                                                                                                                                                                                                                                                          |
 | Soft delete/restore/purge audit aktif         | **Otomatis** (warning) — cek seed permission + grep `recordAuditEvent` di 3 endpoint profile                                                                                                                                                                                                                                                                        |
@@ -121,6 +121,30 @@ persis diagram gate skill `awcms-micro-production-preflight`.
 | Security response headers (CSP/HSTS/dst.)     | **Diperbarui Issue #437** (warning) — hit server nyata, cek `content-security-policy`/`x-content-type-options`/`x-frame-options`/`referrer-policy`/`permissions-policy` di respons `GET /login`                                                                                                                                                                     |
 | Login rate limiting (sumber+tenant)           | **Diperbarui Issue #437** (warning) — `checkRateLimit()` murni, menegaskan percobaan ke-4 ditolak setelah `maxAttempts=3`                                                                                                                                                                                                                                           |
 | Email provider config lengkap bila diaktifkan | **Ditambahkan Issue #499** (critical) — `checkEmailProviderConfigReady` menggunakan ulang `checkEmailConfig` (`validate-env.ts`, Issue #493) verbatim; skip (pass) bila `EMAIL_ENABLED` bukan `"true"`                                                                                                                                                              |
+| Comments submit-timing secret terisi          | **Ditambahkan Issue #293** (warning) — `checkCommentsTimingSecretConfigured`: `COMMENTS_TIMING_SECRET` kosong saat `APP_ENV=production` berarti token timing form komentar publik ditandatangani literal dev yang ada di repo ini. Warning, bukan critical — token itu menjaga heuristik anti-abuse lunak, tidak pernah otorisasi                                   |
+
+### Scan secret: pengecualian struktural + daftar acknowledged (Issue #293)
+
+Eksekusi nyata pertama `security:readiness` terhadap target deployment
+melaporkan **11 temuan, 10 di antaranya palsu**. Karena check ini
+`critical`, `production:preflight` jadi **secara struktural mustahil**
+melaporkan `GO-LIVE DIIZINKAN` di target mana pun. Perbaikannya (PR #344)
+sengaja berupa **bentuk**, bukan allowlist, supaya tetap bekerja saat kode
+bergerak — empat shape yang tidak mungkin memuat secret:
+
+| Shape                           | Contoh nyata yang dulu ditandai palsu                                                                                                         |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baris komentar                  | `_shared/redaction.ts` mendokumentasikan pola yang di-redaksi; `theming/domain/preview-token.ts` menjelaskan format token URL-nya             |
+| Deklarasi type-only             | Union literal string TypeScript (`PasswordResetDenyReason`, `NewsletterTokenPurpose`, `ThemeTokenKind`, `secretSource`) — terhapus saat build |
+| Template literal terinterpolasi | `appAccessToken`, `tokenCssHref` — nilainya dihitung runtime, baris sumbernya tidak memuat secret                                             |
+| Nilai URL                       | Endpoint OIDC Google yang dipublikasikan sendiri                                                                                              |
+
+Kasus yang memang berbentuk persis seperti yang dicari heuristik masuk
+`SECRET_SCAN_ACKNOWLEDGED` (file + variabel + nilai persis + alasan) —
+**bukan** dengan melebarkan regex, supaya setiap kasus tetap terlihat saat
+review. Dua entri hari ini: key registry circuit-breaker
+`google-oidc-token`, dan fallback dev `COMMENTS_TIMING_SECRET` yang risikonya
+dipindahkan ke check per-deployment di atas.
 
 ### Item di luar cakupan generic base ini
 

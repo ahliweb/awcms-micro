@@ -1066,6 +1066,71 @@ bisa diunduh sebelum kedaluwarsa.
 | `REPORTING_EXPORT_ROOT_PATH`      | –     | `./var/reporting-exports` | –        | Root filesystem tempat local/offline export adapter menulis artefak snapshot proyeksi (CSV/JSON, checksum tercatat di `awcms_micro_reporting_export_runs`) |
 | `REPORTING_EXPORT_RETENTION_DAYS` | –     | `7`                       | –        | Berapa hari artefak export tetap dapat diunduh sebelum `GET /api/v1/reports/exports/runs/{id}/download` menolak dengan `410 Gone`                          |
 
+### Comments (Issue #271, ADR-0032)
+
+Modul `comments` (moderation-first, ADR-0032) — panduan lengkap di
+[`comments.md`](comments.md). Ketiga var di bawah **opsional**: modul
+berjalan tanpa satu pun diisi, tetapi setiap yang kosong menurunkan satu
+jaminan secara **fail-closed** (degradasi terlihat, bukan kebocoran).
+
+| Var                                  | Wajib | Default | Sensitif | Fungsi                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------ | ----- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `COMMENTS_TIMING_SECRET`             | –     | –       | Ya       | Kunci HMAC token submit-timing form komentar publik (`domain/timing-token.ts`). Kosong = ditandatangani literal dev yang ada di repo ini, sehingga siapa pun bisa menempa token dan melewati lantai anti-abuse timing (heuristik lunak, **bukan** otorisasi). `security:readiness` memberi **warning** bila `APP_ENV=production` dan var ini kosong (Issue #293) |
+| `COMMENTS_SUBSCRIBER_ENCRYPTION_KEY` | –     | –       | Ya       | Base64 dari 32 byte — kunci AES-256-GCM yang mengenkripsi alamat pelanggan notifikasi balasan saat istirahat. Kunci **terpisah** dari kunci lain agar blast radius-nya satu kolom; kosong/salah panjang = baris menyimpan penanda tak-terpecahkan dan reply-notify mati (ADR-0006 provider-optional)                                                             |
+| `COMMENTS_RETENTION_DAYS`            | –     | `365`   | –        | Umur (hari) saat `bun run comments:retention` menganonimkan PII pengomentar. Prioritas: flag `--retention-days=<n>` → var ini → default modul. Dilewati untuk tenant yang sedang kena legal hold `data_lifecycle`                                                                                                                                                |
+
+### Newsletter (Issue #272, ADR-0033)
+
+Modul `newsletter` (double-opt-in, anti-enumeration) — lihat
+[`newsletter.md`](newsletter.md).
+
+| Var                                    | Wajib | Default | Sensitif | Fungsi                                                                                                                                                                                                              |
+| -------------------------------------- | ----- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEWSLETTER_SUBSCRIBER_ENCRYPTION_KEY` | –     | –       | Ya       | Base64 dari 32 byte — AES-256-GCM untuk alamat subscriber saat istirahat. Bentuk & postur identik `COMMENTS_SUBSCRIBER_ENCRYPTION_KEY`, sengaja kunci **berbeda**; kosong = pengiriman mati, bukan alamat plaintext |
+| `NEWSLETTER_PROVIDER_WEBHOOK_SECRET`   | –     | –       | Ya       | Kunci HMAC-SHA256 verifikasi callback delivery/bounce/complaint provider. Kosong = verifikasi **fail closed** (callback tak bertanda tangan tidak pernah dipercaya); redirect browser tidak pernah dipercaya        |
+| `NEWSLETTER_RETENTION_DAYS`            | –     | `365`   | –        | Umur (hari) saat `bun run newsletter:retention` menganonimkan PII subscriber unsubscribed/bounced. Prioritas sama seperti `COMMENTS_RETENTION_DAYS`; dilewati saat legal hold aktif                                 |
+
+### Site search (Issue #270, ADR-0031)
+
+Rate limit per-IP untuk dua endpoint pencarian **publik anonim** — lihat
+[`site-search.md`](site-search.md). `suggest` sengaja lebih longgar dari
+`query` karena dipanggil per ketikan.
+
+| Var                                         | Wajib | Default | Sensitif | Fungsi                                                    |
+| ------------------------------------------- | ----- | ------- | -------- | --------------------------------------------------------- |
+| `SITE_SEARCH_RATE_LIMIT_MAX`                | –     | `60`    | –        | Batas permintaan per-IP `GET /api/v1/site-search/query`   |
+| `SITE_SEARCH_RATE_LIMIT_WINDOW_SEC`         | –     | `60`    | –        | Jendela rate limit (detik) untuk endpoint `query`         |
+| `SITE_SEARCH_SUGGEST_RATE_LIMIT_MAX`        | –     | `120`   | –        | Batas permintaan per-IP `GET /api/v1/site-search/suggest` |
+| `SITE_SEARCH_SUGGEST_RATE_LIMIT_WINDOW_SEC` | –     | `60`    | –        | Jendela rate limit (detik) untuk endpoint `suggest`       |
+
+### Redis (opsional, Issue #285)
+
+**Scaffolding readiness**, bukan dependency: `src/lib/redis/*` +
+`bun run redis:health` berdiri sendiri — tidak ada jalur request aplikasi
+yang bergantung pada Redis, jadi membiarkannya mati tidak menurunkan fitur
+apa pun (fail-open by design). Panduan operasional lengkap (overlay Compose,
+`REDIS_PASSWORD`/`REDIS_MAXMEMORY` milik container, rollback) ada di
+[`redis-readiness.md`](redis-readiness.md); tabel di bawah hanya var yang
+dibaca **kode aplikasi** (`src/lib/redis/config.ts`). Nilai integer di luar
+rentang atau bukan bilangan bulat **jatuh ke default**, bukan menggagalkan
+boot.
+
+| Var                           | Wajib                | Default       | Sensitif | Fungsi                                                                                                                    |
+| ----------------------------- | -------------------- | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_ENABLED`               | –                    | `false`       | –        | Saklar utama; tanpa `true` aplikasi tidak pernah membuka koneksi Redis                                                    |
+| `REDIS_URL`                   | bila `REDIS_ENABLED` | –             | Ya       | `redis://`, `rediss://`, `redis+tls://`, `redis+unix://`, `redis+tls+unix://`. **Secret** — bisa memuat username/password |
+| `REDIS_KEY_PREFIX`            | –                    | `awcms-micro` | –        | Namespace key (2–64 karakter: huruf, angka, `.`, `_`, `-`)                                                                |
+| `REDIS_CONNECTION_TIMEOUT_MS` | –                    | `2000`        | –        | Timeout pembukaan koneksi (100–30.000 ms)                                                                                 |
+| `REDIS_COMMAND_TIMEOUT_MS`    | –                    | `1000`        | –        | Timeout per-perintah (50–30.000 ms)                                                                                       |
+| `REDIS_MAX_RETRIES`           | –                    | `3`           | –        | Percobaan reconnect sebelum menyerah (0–20)                                                                               |
+| `REDIS_CACHE_DEFAULT_TTL_SEC` | –                    | `300`         | –        | TTL default entri cache tanpa TTL eksplisit (1–86.400 detik)                                                              |
+
+### Preflight tooling (Issue #293)
+
+| Var                           | Wajib | Default | Sensitif | Fungsi                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------- | ----- | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PREFLIGHT_TEST_DATABASE_URL` | –     | –       | Ya       | DSN database **sekali pakai** untuk tahap `test` pada `bun run production:preflight`. `DATABASE_URL` target **tidak pernah** diteruskan ke tahap itu (suite integrasi mengosongkan seluruh tabel `awcms_micro_*`). Kosong — atau sama dengan DSN target — membuat tahap berjalan unit-only dan dilaporkan sebagai skip, yang **memblokir go-live** saat `APP_ENV=production`. Dipakai operator/CI; aplikasi tidak pernah membacanya |
+
 ### Provider CRM (opsional) — contoh domain retail/POS
 
 | Var                    | Wajib      | Default | Sensitif | Fungsi             |

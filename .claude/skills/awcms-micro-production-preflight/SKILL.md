@@ -63,7 +63,7 @@ database target — bug lama (Issue #684): `db:migrate` dulu berjalan sebagai
 stage awal tanpa syarat, jadi stage belakangan (spec check/test/build)
 yang gagal tetap meninggalkan database ter-migrasi walau verdict akhirnya
 "GO-LIVE DIBLOKIR". Sekarang menerapkan migrasi butuh flag eksplisit,
-HANYA berjalan bila verdict `GO-LIVE DIIZINKAN` (sebelas stage read-only
+HANYA berjalan bila verdict `GO-LIVE DIIZINKAN` (**sepuluh** stage read-only
 di atas semua lulus):
 
 ```bash
@@ -80,13 +80,46 @@ di-restore), `--acknowledge-target=<nilai>` yang harus SAMA PERSIS dengan
 diam-diam ke database yang salah). Prosedur lengkap (rehearsal staging,
 bukti backup, apply, rollback): `docs/awcms-micro/production-preflight-runbook.md`.
 
+### `security:readiness` — scan secret & check per-deployment (Issue #293)
+
+Stage kedua preflight. Dua hal yang wajib dipahami sebelum menyimpulkan
+temuannya, keduanya dipelajari dari eksekusi nyata pertama terhadap target
+deployment (PR #344):
+
+- **Check `No hardcoded secret` punya pengecualian STRUKTURAL, bukan
+  allowlist.** Heuristiknya menandai baris yang nama variabelnya memuat
+  `password`/`secret`/`api_key`/`token` di sebelah literal ber-kutip.
+  Empat bentuk yang **tidak mungkin** memuat secret sengaja dikecualikan
+  (`scripts/security-readiness.ts` §Structural exclusions): baris komentar,
+  deklarasi type-only (union literal string TypeScript, terhapus saat
+  build), template literal ter-interpolasi, dan nilai URL. Tanpa itu scan
+  melaporkan 11 temuan — 10 palsu — dan karena severity-nya `critical`,
+  preflight **secara struktural mustahil** melaporkan `GO-LIVE DIIZINKAN`
+  di target mana pun.
+- **Kasus yang memang berbentuk seperti secret masuk
+  `SECRET_SCAN_ACKNOWLEDGED`** (file + variabel + nilai persis + alasan) —
+  BUKAN dengan melebarkan regex. Saat menemukan temuan baru: (1) buktikan
+  dulu itu bukan secret nyata; (2) kalau bentuknya salah satu shape di
+  atas, perbaiki shape-nya; (3) baru terakhir tambahkan entri acknowledged
+  beralasan, supaya tetap terlihat saat review alih-alih larut ke dalam
+  regex.
+- **Check baru `Comments submit-timing secret is configured in production`**
+  (warning, `checkCommentsTimingSecretConfigured`). Mengukur kondisi yang
+  benar-benar berbeda per deployment: `COMMENTS_TIMING_SECRET` kosong saat
+  `APP_ENV=production` berarti token timing form komentar publik
+  ditandatangani literal dev yang ada di repo ini — siapa pun bisa
+  menempanya dan melewati lantai anti-abuse timing. Sengaja **warning**,
+  bukan critical: token itu menjaga heuristik anti-abuse lunak, tidak
+  pernah otorisasi. **Aksi operator:** isi `COMMENTS_TIMING_SECRET` dengan
+  nilai acak berentropi tinggi di target.
+
 ## Checklist go-live
 
 **Application:** build pass · migration pass · OpenAPI valid · setup wizard locked · role default ada · ABAC default deny tested · RLS tested · soft delete default filter tested · logging aktif.
 
 **Database:** versi sesuai target · PostgreSQL tidak public · least-privilege user · backup aktif · restore tested · index utama ada · partial index soft delete ada bila relevan · pool sehat · slow query monitoring.
 
-**Security:** no hardcoded secret · `.env` aman & tidak dikomit · password hash modern · login lockout · RLS aktif · ABAC aktif · audit aktif · restore/purge berizin dan diaudit · tax data masked · CRM opt-out respected · AI read-only · sync HMAC bila hybrid · error tanpa stack trace · **no critical finding**.
+**Security:** no hardcoded secret · `.env` aman & tidak dikomit · password hash modern · login lockout · RLS aktif · ABAC aktif · audit aktif · restore/purge berizin dan diaudit · sync HMAC bila hybrid · error tanpa stack trace · `COMMENTS_TIMING_SECRET` terisi di produksi · **no critical finding**. (Tax data masking, CRM opt-out, dan AI read-only tetap dicetak `security:readiness` sebagai **out of scope** — tidak ada modul pajak/CRM/AI di scope website ini, ADR-0025/ADR-0034; lihat `production-readiness.md` §Item di luar cakupan.)
 
 **Runtime platform:** backend, script, test, migration, build, dan preflight berjalan dengan Bun. Tidak ada `node`, `npm`, `npx`, `pnpm`, `yarn`, adapter server Node.js, atau dependency yang memaksa runtime Node.js kecuali pengecualian tertulis sudah disetujui dan dicatat di docs/audit.
 
@@ -128,7 +161,7 @@ BACKUP_HMAC_KEY_FILE=/etc/awcms-micro/backup-hmac.key \
 default — never the live one. `--target=<dbname>` + matching
 `--acknowledge-target=<dbname>` is required for a real recovery target.)
 
-Validasi restore: tenant/user/produk/stok/transaksi terbaca · login test · POS smoke test · report smoke test. `deploy/backup/restore-drill.sh` mengotomasi sebagian validasi ini (migrasi schema, tenant isolation RLS, sample record) plus laporan RTO/RPO — jalankan terjadwal, terpisah dari backup harian.
+Validasi restore: tenant/user/konten (post, media, komentar) terbaca · login test · smoke test halaman publik (home/blog/news, sitemap, feed) · smoke test admin + report. `deploy/backup/restore-drill.sh` mengotomasi sebagian validasi ini (migrasi schema, tenant isolation RLS, sample record) plus laporan RTO/RPO — jalankan terjadwal, terpisah dari backup harian.
 
 Sejak Issue #684, `--backup-verified` di atas WAJIB berdasarkan bukti
 restore-test nyata dari skrip ini, bukan sekadar backup yang "ada" —

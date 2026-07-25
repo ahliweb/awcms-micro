@@ -100,6 +100,32 @@ Coolify tidak bisa publish port ke `127.0.0.1` atau pakai `-p` sama sekali (paka
 untuk pin IP statis + reverse proxy langsung ke IP itu); dan image `Dockerfile.production` tidak
 menyertakan `scripts/` sehingga migration one-shot butuh container terpisah dengan source lengkap.
 
+## Job terjadwal: `docker exec … bun run <job>` TIDAK bisa dipakai
+
+Konsekuensi kedua dari image tanpa `scripts/`, ditemukan saat memasang jadwal
+nyata (Issue #293, 2026-07-25): **setiap** job terjadwal — `email:dispatch`,
+`sync:objects:dispatch`, `logs:audit:purge`, `form-drafts:purge`,
+`news-media:reconcile` — gagal `Module not found "scripts/…"` bila dijalankan
+lewat `docker exec` ke container aplikasi. Cron yang dibangun dari pola lama
+gagal **setiap kali**, dan tanpa pemeriksaan exit code gagalnya tak terlihat.
+Pola yang benar (checkout sumber persisten + container `oven/bun` sekali-pakai
+di network Coolify): `deploy-coolify.md` §Job terjadwal.
+
+Dua jebakan turunannya, keduanya sudah kejadian:
+
+- **Filter env yang menelan prefix.** `grep -E "^(DATABASE_URL|NEWS_MEDIA_R2_|APP_ENV)="`
+  menuntut `=` tepat setelah `NEWS_MEDIA_R2_`, sehingga **semua** var
+  `NEWS_MEDIA_R2_*` ikut terbuang. Job lalu melaporkan `skipped` dan **exit 0** —
+  cron hijau yang tidak menyapu apa pun. Pakai
+  `"^(DATABASE_URL|APP_ENV|LOG_LEVEL)=|^NEWS_MEDIA_R2_"`.
+- **`skipped` bukan sukses.** Perlakukan hasil `skipped` sebagai FAIL di skrip
+  cron; kalau tidak, satu salah-konfigurasi env menyamar sebagai jadwal sehat.
+
+`news-media:reconcile` bukan housekeeping opsional: purge hanya menghapus baris
+metadata (ADR-0006 melarang panggilan provider di dalam transaksi DB), jadi tanpa
+sapuan ini objek media yang sudah di-purge **tetap bisa diakses publik** —
+terverifikasi live. Jadwalkan harian, setelah backup.
+
 ## Rollback
 
 Image immutable (Pola registry) → redeploy tag sebelumnya. **Migration
