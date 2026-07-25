@@ -59,6 +59,32 @@ function parseMajorVersion(versionOutput: string): number | undefined {
   return match ? Number(match[1]) : undefined;
 }
 
+/**
+ * `Bun.spawnSync` THROWS (`ENOENT`) when the executable is absent entirely,
+ * rather than returning a failed result. Because this probe runs at module-load
+ * time, that throw escapes as an unhandled error and takes the whole file down —
+ * a hard FAIL instead of the skip this function is explicitly designed to
+ * produce ("this is an environment constraint, not a code defect", below).
+ *
+ * Issue #293, found running `production:preflight` against a live deployment
+ * target: preflight's `test` stage runs in a minimal runtime container (Bun, no
+ * PostgreSQL client binaries), so `psql` is simply not installed and the stage
+ * failed on this file alone — the last thing standing between a real target and
+ * a green preflight. Version MISMATCH was handled; version ABSENCE was not.
+ *
+ * The runtime counterpart of this probe
+ * (`src/lib/resilience/scenarios/backup-restore-drill.ts`) already guards the
+ * identical call with its own `trySpawnSync`; only this test-side copy was
+ * missing it. This restores parity rather than inventing a new convention.
+ */
+function probeCommandStdout(command: string[]): string | undefined {
+  try {
+    return Bun.spawnSync(command).stdout.toString();
+  } catch {
+    return undefined;
+  }
+}
+
 function detectPgBinOverride(): {
   pathPrefix: string | undefined;
   skipReason: string | undefined;
@@ -67,20 +93,36 @@ function detectPgBinOverride(): {
     return { pathPrefix: undefined, skipReason: "DATABASE_URL not set" };
   }
 
-  const serverProbe = Bun.spawnSync([
+  const serverProbeOutput = probeCommandStdout([
     "psql",
     getAdminDatabaseUrl(),
     "-tAc",
     "SHOW server_version_num"
   ]);
-  const serverMajor = Number.isFinite(
-    Number(serverProbe.stdout.toString().trim())
-  )
-    ? Math.floor(Number(serverProbe.stdout.toString().trim()) / 10000)
+
+  if (serverProbeOutput === undefined) {
+    return {
+      pathPrefix: undefined,
+      skipReason:
+        "the `psql` client is not installed, so the server version cannot be probed — skipping backup/restore integration tests (environment constraint, not a code defect)"
+    };
+  }
+
+  const serverMajor = Number.isFinite(Number(serverProbeOutput.trim()))
+    ? Math.floor(Number(serverProbeOutput.trim()) / 10000)
     : undefined;
 
-  const clientProbe = Bun.spawnSync(["pg_dump", "--version"]);
-  const clientMajor = parseMajorVersion(clientProbe.stdout.toString());
+  const clientProbeOutput = probeCommandStdout(["pg_dump", "--version"]);
+
+  if (clientProbeOutput === undefined) {
+    return {
+      pathPrefix: undefined,
+      skipReason:
+        "the `pg_dump` client is not installed — skipping backup/restore integration tests (environment constraint, not a code defect)"
+    };
+  }
+
+  const clientMajor = parseMajorVersion(clientProbeOutput);
 
   if (serverMajor === undefined || clientMajor === undefined) {
     return {
