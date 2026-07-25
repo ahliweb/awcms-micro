@@ -49,13 +49,21 @@ tanpa/salah token 403, `Surrogate-Control` tidak pernah bocor.
    (keduanya dicoba). VCL karena itu harus diarahkan ulang setiap deploy —
    skrip `~/awcms-micro-staging-varnish-repoint.sh` ada di host.
 
+**Varnish kini menjadi pintu masuk publik staging** (12:2x UTC). Caranya bukan
+mengosongkan `domains` aplikasi, melainkan memberi Varnish router Traefik
+sendiri dengan aturan `Host` yang sama dan `priority=100`. Label aplikasi
+dibiarkan utuh, sehingga ketika Varnish hilang Traefik jatuh kembali ke
+aplikasi **dengan sendirinya** — diuji dengan benar-benar `docker stop`:
+situs tetap 200 tanpa header `x-cache`, lalu `docker start` mengembalikan
+cache ke depan. Lewat Traefik: `http://` → 302, `https://` → MISS lalu HIT,
+`/admin` tidak pernah HIT.
+
 **Sisa pekerjaan:**
 
 - A record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46` (MCP
-  Cloudflare masih menunggu OAuth pengguna);
-- menjadikan Varnish pintu masuk publik staging (memindahkan domain dari app
-  ke resource Varnish di Coolify) — belum dilakukan karena host itu sedang
-  dipakai operator lain untuk rollout staging keluarga;
+  Cloudflare masih menunggu OAuth pengguna). Sampai DNS ada, Let's Encrypt
+  belum bisa menerbitkan sertifikat — verifikasi internal memakai header
+  `Host` dan `curl -k`;
 - purge otomatis per-publikasi (issue terpisah, ADR-0037 §Alternatif).
 
 ---

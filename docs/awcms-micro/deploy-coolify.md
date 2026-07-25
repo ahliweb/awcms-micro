@@ -515,6 +515,30 @@ Di Coolify, urutannya:
 4. Traefik tetap yang memegang TLS — tidak ada yang perlu diubah pada
    sertifikat.
 
+### Memindahkan domain ke Varnish — pakai prioritas router, jangan hapus label aplikasi
+
+Cara yang jelas kelihatan benar — mengosongkan `domains` aplikasi lalu memberi
+domain itu ke Varnish — memaksa satu siklus deploy penuh dan, lebih buruk,
+membuat situs **tidak punya jalur cadangan** ketika Varnish mati.
+
+Cara yang dipakai dan diverifikasi di staging: biarkan label Traefik milik
+aplikasi apa adanya, lalu jalankan Varnish dengan router bernama sendiri,
+aturan `Host` yang sama, dan **`priority=100`**. Traefik memilih router
+berprioritas lebih tinggi, jadi trafik melewati Varnish — dan begitu container
+Varnish hilang, Traefik jatuh kembali ke router aplikasi **dengan sendirinya**.
+
+Label yang dipakai (menyalin pola Coolify: entrypoint `http` dengan middleware
+`redirect-to-https`, entrypoint `https` dengan `gzip` + certresolver
+`letsencrypt`), hanya berbeda nama router, `priority=100`, dan
+`loadbalancer.server.port=8080`.
+
+Diverifikasi 2026-07-25 pada instance staging: `http://` → 302 ke `https://`;
+`https://` → MISS lalu **HIT**; `/admin` tidak pernah HIT; **Varnish
+di-`docker stop` → situs tetap dilayani aplikasi** (header `x-cache` hilang,
+respons tetap 200), lalu `docker start` → cache kembali di depan. Inilah
+invariant fail-open ADR-0037 yang terbukti di jalur nyata, bukan sekadar
+dijanjikan.
+
 ### Gotcha Coolify nyata: nama container aplikasi berubah tiap deploy
 
 Backend Varnish di `default.vcl` menunjuk sebuah hostname. Pada Compose itu
