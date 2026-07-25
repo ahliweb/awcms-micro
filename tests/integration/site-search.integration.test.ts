@@ -198,10 +198,22 @@ suite("site_search integration (ADR-0031)", () => {
     const countAfterFirst = await docCount(TENANT_A);
     expect(countAfterFirst).toBe(5);
 
-    // Rebuild again — end state identical (idempotent).
+    // Rebuild again — end state identical (idempotent). The RUN is a distinct
+    // one that redoes the work: `rebuildTenantSearchIndex` DELETEs the source's
+    // documents first, so every row comes back as `added`, never `unchanged`.
+    // That is exactly what separates a rebuild from the reconcile below, and
+    // asserting it here is what makes "idempotent" a claim about the END STATE
+    // rather than about the amount of work done.
     const r2 = await withTenant(getTestSql(), TENANT_A, (tx) =>
       rebuildTenantSearchIndex(tx, TENANT_A, SOURCES)
     );
+    expect(r2.status).toBe("succeeded");
+    expect(r2.runId).not.toBe(r1.runId);
+    expect(r2.results[0]!.sourceCount).toBe(5);
+    expect(r2.results[0]!.added).toBe(5);
+    expect(r2.results[0]!.unchanged).toBe(0);
+    expect(r2.results[0]!.removed).toBe(0);
+    expect(r2.results[0]!.failures).toBe(0);
     expect(await docCount(TENANT_A)).toBe(5);
 
     // Reconcile a THIRD time with no source change — every doc unchanged (checksum skip).

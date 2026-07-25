@@ -2078,6 +2078,214 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     default: "7",
     description:
       "How many days a generated export artifact (and its awcms_micro_reporting_export_runs manifest row's expires_at) remains downloadable before GET /api/v1/reports/exports/{id}/download starts refusing it with 410 Gone."
+  },
+  // ---------------------------------------------------------------------
+  // Comments (Issue #271, ADR-0032)
+  // ---------------------------------------------------------------------
+  {
+    name: "COMMENTS_TIMING_SECRET",
+    type: "string",
+    required: "optional",
+    ownerModule: "comments",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "HMAC key signing the public comment form's submit-timing token (src/modules/comments/domain/timing-token.ts). Unset falls back to a fixed development literal, so an unconfigured deployment lets anyone mint a valid token and walk past the anti-abuse timing floor — a soft anti-abuse heuristic only, never authorization. `bun run security:readiness`'s `checkCommentsTimingSecretConfigured` reports a WARNING when APP_ENV=production and this is unset (Issue #293)."
+  },
+  {
+    name: "COMMENTS_SUBSCRIBER_ENCRYPTION_KEY",
+    type: "string",
+    required: "optional",
+    ownerModule: "comments",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      'Base64-encoded 32-byte AES-256-GCM key encrypting reply-notification subscriber addresses at rest (awcms_micro_comments_reply_subscriptions.subscriber_email_encrypted). Deliberately SEPARATE from every other key so its blast radius stays one column. Unset (or wrong length) = fail-closed: the row stores an unresolvable marker and reply-notify degrades to "cannot notify" (ADR-0006 provider-optional), never a plaintext leak.'
+  },
+  {
+    name: "COMMENTS_RETENTION_DAYS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "comments",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "365",
+    description:
+      "Age (days) at which `bun run comments:retention` anonymizes commenter PII. Priority: --retention-days=<n> flag, then this var, then the module default (COMMENTS_DEFAULT_ANONYMIZE_DAYS = 365). Anonymization is SKIPPED for a tenant under an active data_lifecycle legal hold."
+  },
+  // ---------------------------------------------------------------------
+  // Newsletter (Issue #272, ADR-0033)
+  // ---------------------------------------------------------------------
+  {
+    name: "NEWSLETTER_SUBSCRIBER_ENCRYPTION_KEY",
+    type: "string",
+    required: "optional",
+    ownerModule: "newsletter",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      'Base64-encoded 32-byte AES-256-GCM key encrypting newsletter subscriber addresses at rest (awcms_micro_newsletter_subscribers.email_encrypted). Same shape and fail-closed posture as COMMENTS_SUBSCRIBER_ENCRYPTION_KEY, deliberately a DIFFERENT key: unset means delivery degrades to "cannot send", never a plaintext address.'
+  },
+  {
+    name: "NEWSLETTER_PROVIDER_WEBHOOK_SECRET",
+    type: "string",
+    required: "optional",
+    ownerModule: "newsletter",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "HMAC-SHA256 key verifying inbound provider delivery/bounce/complaint callbacks (src/modules/newsletter/domain/provider-callback-verify.ts). Verification FAILS CLOSED when unset, so an unconfigured deployment never trusts an unsigned callback; browser redirects are never trusted regardless."
+  },
+  {
+    name: "NEWSLETTER_RETENTION_DAYS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "newsletter",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "365",
+    description:
+      "Age (days) at which `bun run newsletter:retention` anonymizes unsubscribed/bounced subscriber PII. Priority: --retention-days=<n> flag, then this var, then the module default (NEWSLETTER_DEFAULT_ANONYMIZE_DAYS = 365). Skipped for a tenant under an active legal hold."
+  },
+  // ---------------------------------------------------------------------
+  // Site search (Issue #270, ADR-0031)
+  // ---------------------------------------------------------------------
+  {
+    name: "SITE_SEARCH_RATE_LIMIT_MAX",
+    type: "integer",
+    required: "optional",
+    ownerModule: "site-search",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "60",
+    description:
+      "Per-IP request ceiling for the public GET /api/v1/site-search/query endpoint within SITE_SEARCH_RATE_LIMIT_WINDOW_SEC."
+  },
+  {
+    name: "SITE_SEARCH_RATE_LIMIT_WINDOW_SEC",
+    type: "integer",
+    required: "optional",
+    ownerModule: "site-search",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "60",
+    description:
+      "Rate-limit window (seconds) for GET /api/v1/site-search/query."
+  },
+  {
+    name: "SITE_SEARCH_SUGGEST_RATE_LIMIT_MAX",
+    type: "integer",
+    required: "optional",
+    ownerModule: "site-search",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "120",
+    description:
+      "Per-IP request ceiling for the public GET /api/v1/site-search/suggest endpoint (higher than the query ceiling: suggest fires per keystroke)."
+  },
+  {
+    name: "SITE_SEARCH_SUGGEST_RATE_LIMIT_WINDOW_SEC",
+    type: "integer",
+    required: "optional",
+    ownerModule: "site-search",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "60",
+    description:
+      "Rate-limit window (seconds) for GET /api/v1/site-search/suggest."
+  },
+  // ---------------------------------------------------------------------
+  // Redis (opsional, Issue #285 — readiness scaffolding: `src/lib/redis/*`
+  // + `bun run redis:health`; no application path depends on Redis, see
+  // `docs/awcms-micro/redis-readiness.md`)
+  // ---------------------------------------------------------------------
+  {
+    name: "REDIS_ENABLED",
+    type: "boolean",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "false",
+    description:
+      "Master switch for the optional Redis cache/health scaffolding. Without it the application never opens a Redis connection; nothing in the request path degrades when it stays off (fail-open by design)."
+  },
+  {
+    name: "REDIS_URL",
+    type: "url",
+    required: "conditional",
+    ownerModule: "deployment",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "Connection URL, required when REDIS_ENABLED=true. Accepts redis://, rediss://, redis+tls://, redis+unix://, redis+tls+unix://. SECRET — may embed username/password, so it never belongs in an issue, log, or screenshot."
+  },
+  {
+    name: "REDIS_KEY_PREFIX",
+    type: "string",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "awcms-micro",
+    description:
+      "Namespace prefix for every key this application writes (2-64 chars: letters, digits, `.`, `_`, `-`), so one Redis instance can host several deployments without collision."
+  },
+  {
+    name: "REDIS_CONNECTION_TIMEOUT_MS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "2000",
+    description:
+      "Connection establishment timeout (100-30000 ms). An out-of-range or non-integer value falls back to the default rather than failing boot."
+  },
+  {
+    name: "REDIS_COMMAND_TIMEOUT_MS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "1000",
+    description:
+      "Per-command timeout (50-30000 ms) — the ceiling on how long a cache read may delay a request before the caller falls back to the database."
+  },
+  {
+    name: "REDIS_MAX_RETRIES",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "3",
+    description: "Reconnect attempts before the client gives up (0-20)."
+  },
+  {
+    name: "REDIS_CACHE_DEFAULT_TTL_SEC",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "300",
+    description:
+      "Default TTL (1-86400 s) applied to a cache entry written without an explicit TTL."
+  },
+  // ---------------------------------------------------------------------
+  // Preflight tooling (Issue #293)
+  // ---------------------------------------------------------------------
+  {
+    name: "PREFLIGHT_TEST_DATABASE_URL",
+    type: "url",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "DISPOSABLE database DSN that `bun run production:preflight`'s `test` stage runs the integration suite against. The deployment target's DATABASE_URL is NEVER forwarded to that stage (the suite TRUNCATEs every awcms_micro_* table and activates three login roles with publicly-known passwords). Unset — or set to the same DSN as the target — makes the stage run unit-only and report SKIPPED, which blocks go-live under APP_ENV=production. Operator/CI tooling only; the application never reads it."
   }
 ];
 
@@ -2128,6 +2336,36 @@ export const CONFIG_EXEMPTIONS: readonly ConfigExemption[] = [
   {
     name: "AI_MODEL",
     reason: "Same as AI_ANALYST_ENABLED above."
+  },
+  {
+    name: "PATH",
+    reason:
+      "Platform-level shell variable, read only to locate the PostgreSQL client binaries the backup/restore drill shells out to (src/lib/resilience/scenarios/backup-restore-drill.ts) — never application configuration, never set by an operator for this repo's sake."
+  },
+  {
+    name: "CHANGESET_POLICY_BASE_REF",
+    reason:
+      "CI-only input to scripts/changeset-policy-check.ts (which git ref to diff the changeset policy against). Repository tooling, never read by the application or set on a deployment target."
+  },
+  {
+    name: "RELEASE_TAG_REF",
+    reason:
+      "CI-only input to scripts/release-verify.ts (the tag ref being released). Repository tooling, never read by the application or set on a deployment target."
+  },
+  {
+    name: "REDIS_PASSWORD",
+    reason:
+      "Redis SERVER/Compose-overlay configuration (docs/awcms-micro/redis-readiness.md §Overlay), consumed by the Redis container itself — this repo's code only ever reads REDIS_URL, which carries the credential when one is set."
+  },
+  {
+    name: "REDIS_MAXMEMORY",
+    reason:
+      "Redis server memory ceiling — same container-level scope as REDIS_PASSWORD above."
+  },
+  {
+    name: "REDIS_MAXMEMORY_POLICY",
+    reason:
+      "Redis server eviction policy (kept at noeviction so a full instance fails visibly) — same container-level scope as REDIS_PASSWORD above."
   }
 ];
 

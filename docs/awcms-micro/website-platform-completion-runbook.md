@@ -1,6 +1,11 @@
-# Website-platform completion runbook — closing #273 / #292–#296
+# Website-platform completion runbook — closing #293–#296 (epic #261)
 
-> **Purpose.** Issues #292–#296 (split from #273, epic #261) are the last website-platform
+> **Issue status (verified 2026-07-25).** **#273 and #292 are already CLOSED** — #273 as
+> completed once its automatable surface landed, #292 because ADR-0036 cancelled its
+> "derived-site pilot" premise. What is still open: **#293–#296** and the umbrella epic
+> **#261**. §E below is therefore historical; §A–§D are the live procedure.
+>
+> **Purpose.** Issues #293–#296 (split from #273, epic #261) are the last website-platform
 > evidence items. Their acceptance criteria need a **live deployment target** (Docker/Coolify,
 > durable object storage, a running rendered site, measured RTO/RPO, load/soak at volume) — work
 > the repo/CI sandbox cannot execute. **Everything automatable already landed** (cross-feature
@@ -196,7 +201,13 @@ konten yang sebelumnya deferred).
 
 ---
 
-## §E — #292 In-place template full-journey + one upgrade rehearsal (reframed by ADR-0034)
+## §E — #292 In-place template full-journey + one upgrade rehearsal (CLOSED — historical)
+
+> ⛔ **#292 is CLOSED (2026-07-21).** ADR-0036 cancelled the premise outright: there are no
+> derived sites in this family, the template is used directly. The bilingual full-journey
+> portion is already proven in-repo by the #291 cross-feature suites. The **base-upgrade
+> rehearsal** below is the one piece never proven on a live instance — if you still want it,
+> raise a new focused issue for it rather than reopening #292. Kept here for traceability.
 
 The original "external derived pilot in `ahliweb/awpos`" is superseded (ADR-0034 §3/§5). What remains:
 
@@ -221,13 +232,15 @@ The original "external derived pilot in `ahliweb/awpos`" is superseded (ADR-0034
 
 ---
 
-## §F — #273 and #261 closure
+## §F — #261 closure (#273/#292 already closed)
 
-- **#273** closes when #292–#296 are all green and their evidence is linked from
-  [`website-platform-e2e-evidence.md`](website-platform-e2e-evidence.md) §Deferred work (flip each row
-  from `partial` to `covered`).
-- **#261** (epic) closes when #273 closes and the evidence index below is complete. Wave-0
-  (#262/#263/#264) and all website modules are already done; the registry is 22 modules.
+- **#273** is **CLOSED** (completed 2026-07-20): its automatable surface landed and the
+  infra-gated remainder was split into #293–#296. **#292** is **CLOSED** (2026-07-21, premise
+  cancelled by ADR-0036). Neither needs reopening — keep linking new field evidence from
+  [`website-platform-e2e-evidence.md`](website-platform-e2e-evidence.md) §Deferred work (flip each
+  row from `partial` to `covered` as it lands).
+- **#261** (epic) closes when **#293–#296** are all green and the evidence index below is complete.
+  Wave-0 (#262/#263/#264) and all website modules are already done; the registry is 22 modules.
 
 ## Evidence conventions
 

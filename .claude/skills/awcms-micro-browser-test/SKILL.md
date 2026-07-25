@@ -217,7 +217,23 @@ crash pada `Set-Cookie` di bawah bun — assert semua resolve < 400), dan
 `PerformanceObserver` di-`addInitScript` SEBELUM navigasi; budget ambang
 "good" Google, sebagai regression gate — INP interaction-driven & CWV
 field/volume tetap deferred, lihat `website-platform-e2e-evidence.md`
-§Deferred). Pola crawl: seed daftar halaman publik yang render tanpa tenant
+§Deferred), plus `public-keyboard-journey.e2e.ts` (**perjalanan keyboard**:
+2.1.2 no-trap, 2.4.3 focus order, 2.4.7 focus visible). Yang terakhir ini
+menutup celah yang **tidak bisa** dilihat axe: axe adalah auditor DOM statis,
+tidak pernah menekan Tab — jadi keyboard trap, urutan fokus yang menyimpang
+dari urutan dokumen, dan `outline: none` global (DOM terlihat sempurna, fokus
+tak terlihat di layar) semuanya lolos scan axe yang hijau. Spec ini men-Tab
+sampai fokus keluar/berputar (dibatasi 40 tekanan — batas itulah yang membuat
+trap gagal cepat alih-alih menggantung sampai timeout), mencocokkan urutan
+kunjungan dengan urutan dokumen, dan menuntut tiap kontrol ber-`outline` atau
+`box-shadow` saat fokus. **Border-color sengaja TIDAK diterima** sebagai
+indikator: ia hanya bisa dikenali dengan mem-banding gaya elemen yang sama
+dalam keadaan tidak-fokus, dan menerimanya tanpa syarat membuat assertion-nya
+tak-terfalsifikasi (setiap elemen punya border color). Falsifiabilitas
+dibuktikan dengan **negative control**: menyuntik
+`*, *:focus { outline: none !important; box-shadow: none !important }` membuat
+spec ini GAGAL — kalau menambah assertion a11y baru, lakukan kontrol yang sama,
+jangan hanya melihat hijau. Pola crawl: seed daftar halaman publik yang render tanpa tenant
 (`/`, `/login`, `/register`, `/forgot-password`, `/newsletter/demo`,
 `/comments/demo`), extract `href`, filter same-origin, follow redirect,
 assert status. Untuk graf konten ber-seed (sitemap/canonical/hreflang) pakai

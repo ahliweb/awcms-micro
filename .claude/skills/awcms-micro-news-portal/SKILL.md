@@ -144,7 +144,7 @@ pernah** menyatukan keduanya ke bucket/kredensial yang sama:
 (`checkNewsMediaR2SeparationFromSyncR2`, gagal `bun run config:validate`/
 gate CI-deploy bila sama — **bukan** penegakan boot-time otomatis di
 server; `config:validate`/`security:readiness` adalah script CLI mandiri
-yang tidak dipanggil dari `src/server.ts`, sama seperti seluruh keluarga
+yang tidak dipanggil dari entry server SSR (`dist/server/entry.mjs`; tidak ada `src/server.ts` di repo ini), sama seperti seluruh keluarga
 check lain di `validate-env.ts`) DAN
 `security:readiness` (`checkNewsPortalFullOnlineR2PresetReady`, critical)
 — lihat `r2-security-checklist.md` §7 untuk kontrak lengkap dan apa yang
@@ -513,7 +513,7 @@ array dan memanggil `authorizeInTransaction` (skill
   `domain/media-permissions.ts`,
   `application/media-object-directory.ts`.
 - Test: `tests/unit/news-media-object-key.test.ts`,
-  `tests/unit/news-media-permissions.test.ts`,
+  `tests/unit/news-media-permissions.test.ts` (kini `tests/modules/media-library-module.test.ts` — ADR-0026 memindahkan registry media + 9 permission-nya ke `media_library`),
   `tests/integration/news-media-object-registry.integration.test.ts`;
   diperbarui: `tests/foundation.test.ts` (migration list).
 - Docs: `full-online-r2-architecture.md` §5/§6/§16 (status diperbarui),
@@ -744,7 +744,7 @@ merah/hijau.
   `tests/unit/news-media-r2-client.test.ts`,
   `tests/unit/news-media-r2-verification.test.ts`,
   `tests/integration/news-media-upload-session-api.integration.test.ts`;
-  diperbarui: `tests/unit/news-media-permissions.test.ts` (9 keys,
+  diperbarui: `tests/unit/news-media-permissions.test.ts` (kini `tests/modules/media-library-module.test.ts` — ADR-0026 memindahkan registry media + 9 permission-nya ke `media_library`) (9 keys,
   module.ts kini deklarasikan permissions),
   `tests/modules/news-portal-module.test.ts`,
   `tests/unit/news-portal-no-local-fallback.test.ts` (extend scan ke
@@ -967,7 +967,7 @@ video adalah scope #639 (belum dikerjakan), memaksanya sekarang akan
 `evaluateNewsPortalFullOnlineR2Readiness` (§632) murni env-based/global
 — TIDAK tahu apakah TENANT PEMANGGIL benar-benar mengaktifkan preset
 `news_portal_full_online_r2`. Issue ini menambah
-`src/modules/blog-content/application/news-portal-r2-mode-gate.ts`'s
+`src/modules/blog-content/application/news-portal-r2-mode-gate.ts` (**sudah tidak ada** — Issue #681 + ADR-0026 memecahnya: sinyal per-tenant kini `media-library/application/media-library-tenant-state.ts` `isManagedMediaEnforcedForTenant`, enforcement referensinya `blog-content/application/news-media-reference-gate.ts` lewat `MediaLibraryPort`)'s
 `isNewsPortalFullOnlineR2ModeActiveForTenant(tx, tenantId, env)` —
 mengomposisikan check env global TERSEBUT dengan sinyal per-tenant
 nyata bahwa tenant itu SUDAH menerapkan preset. **Sengaja runtime
@@ -1087,7 +1087,7 @@ keempat route handler asli sudah mencakup semua jalur tulis yang ada.
   bersama (`verified`/`attached` saja) dipakai `blog_content` supaya
   daftar "status aman untuk direferensikan publik" hanya didefinisikan
   SATU tempat.
-- `src/modules/blog-content/application/news-portal-r2-mode-gate.ts`
+- `src/modules/blog-content/application/news-portal-r2-mode-gate.ts` (**sudah tidak ada** — Issue #681 + ADR-0026 memecahnya: sinyal per-tenant kini `media-library/application/media-library-tenant-state.ts` `isManagedMediaEnforcedForTenant`, enforcement referensinya `blog-content/application/news-media-reference-gate.ts` lewat `MediaLibraryPort`)
   (baru) — lihat di atas.
 - `src/modules/blog-content/domain/content-block-media-references.ts`
   (baru) — `collectGalleryImageReferences(contentJson)`, murni: mengekstrak
@@ -1309,7 +1309,7 @@ lewat form edit yang sudah ada — TIDAK menambah endpoint baru untuk itu.
   (baru — CRUD, reference validation per tipe, cross-tenant 404 (RLS,
   bukan 403), ABAC 403 tanpa permission, render publik enabled/disabled/
   degrade-saat-unpublish/gallery); diperbarui:
-  `tests/unit/news-media-permissions.test.ts`,
+  `tests/unit/news-media-permissions.test.ts` (kini `tests/modules/media-library-module.test.ts` — ADR-0026 memindahkan registry media + 9 permission-nya ke `media_library`),
   `tests/modules/news-portal-module.test.ts` (keduanya di-filter per
   `activityCode` supaya jumlah permission `media` yang lama tidak
   tercampur dengan `homepage_sections` yang baru),
@@ -2656,6 +2656,30 @@ categorization.ts` — logika kategorisasi murni (tanpa I/O).
 news-media:reconcile`, dibangun di atas `runJob` sejak awal.
 - `docs/awcms-micro/news-portal/r2-backup-lifecycle.md` — §2/§4 diupdate
   - §Operator SOP baru.
+
+### Ops: job ini WAJIB dijadwalkan (Issue #293, 2026-07-25)
+
+Deklarasi job-nya hidup di **`media-library/module.ts`**, bukan
+`news-portal/module.ts` (dipindahkan bersama modul; nama command
+`news-media:reconcile` sengaja dipertahankan agar cron yang sudah
+terpasang tidak putus). Tiga temuan dari pemasangan jadwal nyata di
+target produksi:
+
+1. **Tanpa jadwal, purge tidak tuntas.** `purge` hanya menghapus baris
+   metadata — ADR-0006 melarang panggilan provider di dalam transaksi DB
+   — jadi objek R2-nya **tetap terlayani publik** sampai sapuan ini
+   berjalan (terverifikasi live: `DELETE` + purge dua-duanya `200`, objek
+   masih `HTTP/2 200`). Ini bukan housekeeping opsional.
+2. **`docker exec <app> bun run news-media:reconcile` TIDAK bisa
+   dipakai** — image `Dockerfile.production` tidak menyertakan
+   `scripts/`. Pakai checkout sumber persisten + container `oven/bun`
+   sekali-pakai (`deploy-coolify.md` §Job terjadwal).
+3. **Filter env yang menelan prefix + `skipped` yang menyamar sukses.**
+   `grep -E "^(…|NEWS_MEDIA_R2_|…)="` membuang semua var
+   `NEWS_MEDIA_R2_*` (butuh `=` tepat setelahnya), job lalu melaporkan
+   `skipped — NEWS_MEDIA_R2_ENABLED is not "true"` dan **exit 0**. Pakai
+   `"^(DATABASE_URL|APP_ENV|LOG_LEVEL)=|^NEWS_MEDIA_R2_"`, dan
+   perlakukan `skipped` sebagai FAIL di skrip cron.
 
 ## Prinsip yang wajib dipertahankan di setiap issue lanjutan
 
