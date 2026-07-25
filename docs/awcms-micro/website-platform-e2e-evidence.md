@@ -184,12 +184,36 @@ and close each of these — with exact commands and evidence to capture — is i
   at the storage layer, **not** through the authenticated
   `POST /api/v1/media/news-images/upload-sessions` → presign → finalize flow,
   which needs an admin credential for the live tenant that the operator holds.
-  STILL PENDING for full sign-off: `production:preflight` green **on the
-  target** (see the two blockers found while attempting exactly that, recorded
-  under §Residual risks — both now fixed) and the app-level upload leg above.
-  Note that running preflight against the target additionally requires a
-  **disposable** `PREFLIGHT_TEST_DATABASE_URL`. Operator steps:
+  **`production:preflight` EXECUTED against the live target (2026-07-25) —
+  9 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14` container on the
+  deployment host at merged `main`, with the target's own environment,
+  `APP_ENV=production`, `APP_URL` pointed at the app container's internal
+  address, and a **disposable** `postgres:18.4` for
+  `PREFLIGHT_TEST_DATABASE_URL`. The target database was only ever **read**:
+
+  | Stage                   | Result                                           |
+  | ----------------------- | ------------------------------------------------ |
+  | `config:validate`       | PASS                                             |
+  | `security:readiness`    | **PASS** (was FAIL — fixed, see §Residual risks) |
+  | `database:capacity`     | PASS                                             |
+  | `db:connectivity`       | PASS                                             |
+  | `api:spec:check`        | PASS                                             |
+  | `modules:compose:check` | PASS                                             |
+  | `test`                  | FAIL — see below                                 |
+  | `build`                 | PASS                                             |
+  | `db:pool:health`        | **PASS** (`status="healthy"`)                    |
+  | `migration:plan`        | PASS — **0 pending, 80 already applied**         |
+
+  `migration:plan` reporting **0 pending** is itself useful evidence: the live
+  schema is exactly in step with `main`. The three environment gotchas that made
+  earlier attempts fail for non-product reasons (allow-listed host name for the
+  disposable DB, an `APP_URL` reachable from the deployment host, `db:migrate`
+  first) are written up in the
+  [completion runbook §A](website-platform-completion-runbook.md).
+  STILL PENDING for full sign-off: the `test` stage, and the app-level upload
+  leg above. Operator steps:
   [website-platform completion runbook](website-platform-completion-runbook.md).
+
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
   plus live provider-outage/worker-restart/DB-saturation/stale-projection/
@@ -239,8 +263,18 @@ and close each of these — with exact commands and evidence to capture — is i
   `inp: 0` reading can never be confused with "no interaction ever reached the
   page". Measured on the dev server 2026-07-25: `/` → LCP 44 ms, CLS 0,
   **INP 24 ms**, 4 interactions; `/newsletter/demo` → LCP 48 ms, CLS 0,
-  **INP 24 ms**, 4 interactions. STILL DEFERRED: **field-style LCP/INP/CLS +
-  load/soak at representative content/media volume** with real network/CDN.
+  **INP 24 ms**, 4 interactions. **Also measured over the real network/CDN
+  against the deployed instance** `https://awcms-micro.ahlikoding.com`
+  (2026-07-25, through Cloudflare), with the gate run unmodified against the
+  live edge: `/` → LCP **652 ms**, CLS **0**, INP **0**, 4 interactions;
+  `/newsletter/demo` → LCP **140 ms**, CLS **0**, INP **40 ms**, 4
+  interactions — all comfortably inside budget. The `/` reading is exactly the
+  case the two-counter design exists for: `inp: 0` alongside `interactions: 4`
+  proves every interaction finished under Event Timing's 16 ms floor, rather
+  than that nothing ever reached the page. STILL DEFERRED: **load/soak at
+  representative content/media volume** — the live tenant has no published
+  content yet, so these numbers characterise the site shell, not a
+  content-heavy site.
 - **Full-journey accessibility & link checking** (**#296**) — the base-app
   in-repo portion has LANDED: `public-a11y-smoke.e2e.ts` (axe-core over public
   `/`, `/newsletter/demo`, `/comments/demo` in EN + ID, at **desktop 1280×800
@@ -262,8 +296,18 @@ and close each of these — with exact commands and evidence to capture — is i
   `/news/{slug}` route AND the `/blog/{tenantCode}/{slug}` route, in **EN and
   ID** (the rendered `<html lang>` is the article's own `locale`) at **desktop
   AND mobile** — closing "axe over the rendered content-reading templates
-  (`/news`, `/blog` article pages)". STILL DEFERRED: the **screen-reader** pass
-  (manual), the derived-site full journey, and a rendered-content link crawl at
+  (`/news`, `/blog` article pages)". **Executed against the DEPLOYED INSTANCE
+  (2026-07-25)**: `public-a11y-smoke.e2e.ts` + `public-link-crawl.e2e.ts` were
+  run unmodified with `E2E_BASE_URL=https://awcms-micro.ahlikoding.com` —
+  **11/11 passed** (axe EN + ID × desktop + mobile over the live homepage,
+  `/newsletter/demo` and `/comments/demo`; live rendered-link crawl green). Both
+  specs are pure Playwright with no database import, so this was read-only
+  traffic against production. This closes the "deployed-instance journey" half
+  of the criterion for the surfaces the live tenant currently renders. STILL
+  DEFERRED: the **screen-reader** pass (manual), the deployed-instance
+  **content-template** journey (the live tenant has no published content yet,
+  so `/news`/`/blog` render nothing there — covered hermetically by
+  `public-content-a11y.e2e.ts`), and a rendered-content link crawl at
   representative content volume (the seeded content graph is covered at handler
   level by `public-link-integrity.integration.test.ts`).
 

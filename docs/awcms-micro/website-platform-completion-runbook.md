@@ -70,6 +70,23 @@ Reference: [`deploy-coolify.md`](deploy-coolify.md), [`deployment-profiles.md`](
    own `DATABASE_URL` to that stage — omit the variable and `test` runs unit-only and reports
    **SKIP**, which blocks go-live under `APP_ENV=production`.
 
+   Three field gotchas, each found the hard way running this against a live target (2026-07-25):
+
+   - **Address the disposable database by an allow-listed HOST NAME, not by IP.**
+     `src/lib/resilience/target-guard.ts`'s `KNOWN_SAFE_HOSTS` is default-deny and accepts only
+     `localhost` / `127.0.0.1` / `[::1]` / `postgres` / `db` / `0.0.0.0`. A container IP such as
+     `10.0.1.12` is treated as production-like, so `dr-drill`/`performance-suite` refuse to run and
+     the `test` stage fails with 4 failures that look like product bugs but are not. Give the
+     throwaway container a network alias (`docker network connect --alias postgres …`) and use
+     `postgres://…@postgres:5432/…`.
+   - **`APP_URL` must be reachable FROM wherever preflight runs.** `db:pool:health` is a mandatory
+     stage under `APP_ENV=production` (a SKIP blocks go-live), and it probes `APP_URL`. If you run
+     preflight on the deployment host itself, the public hostname usually will **not** resolve back
+     (no NAT hairpin) — point `APP_URL` at the app container's internal address
+     (`http://<container-ip>:4321`) instead. Note the app listens on **4321**, not 3000.
+   - **Run `bun run db:migrate` against the disposable database first.** The integration suite
+     expects the schema to exist, exactly as CI does before `bun test`.
+
 5. **Edge/TLS/CDN**: put Cloudflare/CDN/WAF in front per `deploy-coolify.md`; verify TLS + security
    headers/CSP with `curl -I https://<site>` and confirm no secrets in headers/logs.
 
