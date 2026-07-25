@@ -45,9 +45,13 @@ bun run test:e2e
 bun run modules:compose:check
 bun run modules:composition:inventory:check
 
-# Query/plan performance budgets + production preflight:
+# Query/plan performance budgets + production preflight. PREFLIGHT_TEST_DATABASE_URL
+# must be a DISPOSABLE database: preflight's `test` stage runs the integration
+# suite, which TRUNCATEs every awcms_micro_* table, so the deployment target's
+# own DATABASE_URL is never forwarded to it (omit it and `test` runs unit-only
+# and reports SKIP, which blocks go-live under APP_ENV=production):
 bun run performance:query-plan:check
-bun run production:preflight
+PREFLIGHT_TEST_DATABASE_URL=<disposable-db-url> bun run production:preflight
 ```
 
 The integration suite is **gated on `DATABASE_URL`** (`integrationEnabled` in
@@ -155,14 +159,22 @@ and close each of these — with exact commands and evidence to capture — is i
   locked (geolocation/camera/microphone/payment `=()`); health/error bodies
   carry no secrets/stack. Durable **R2** confirmed configured
   (`NEWS_MEDIA_R2_ENABLED`/`_BUCKET`/`_PUBLIC_BASE_URL` all set on the running
-  container). STILL PENDING for full sign-off: `production:preflight` green
-  **on the target**, a **durable-storage round-trip** proven for managed media
-  (upload → served-from-R2, not ephemeral container FS). **Config gap found**:
-  the apex host serves only the generic fallback `robots.txt` and
-  `/sitemap.xml`+feeds return `404` — tenant-by-host resolution
-  (`PUBLIC_TENANT_RESOLUTION_MODE=host_default` + a verified primary domain for
-  the tenant) is not mapped for `awcms-micro.ahlikoding.com`, so the SEO
-  discovery surfaces are not live. Operator steps:
+  container). **SEO-discovery config gap — RESOLVED (re-verified live
+  2026-07-25)**: the earlier finding (apex host served only the generic
+  fallback `robots.txt`; `/sitemap.xml` + feeds `404`) no longer reproduces.
+  Tenant-by-host resolution now maps `awcms-micro.ahlikoding.com`:
+  `robots.txt` is tenant-specific and advertises
+  `Sitemap: https://awcms-micro.ahlikoding.com/sitemap.xml`; `/sitemap.xml`
+  returns `200` with a `<sitemapindex>` pointing at `/sitemap-1.xml`; and
+  `/feed.xml`, `/atom.xml`, `/feed.json` all return `200` resolved to the
+  tenant ("Default Tenant"). The child `<urlset>` is empty only because the
+  prod tenant has no published content yet — a content state, not a routing
+  fault. STILL PENDING for full sign-off: `production:preflight` green **on the
+  target** and a **durable-storage round-trip** proven for managed media
+  (upload → served-from-R2, not ephemeral container FS). Note that running
+  preflight against the target additionally requires a **disposable**
+  `PREFLIGHT_TEST_DATABASE_URL` — see the preflight-safety fix recorded under
+  §Residual risks. Operator steps:
   [website-platform completion runbook](website-platform-completion-runbook.md).
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
@@ -200,11 +212,21 @@ and close each of these — with exact commands and evidence to capture — is i
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
   content/media volume. (split issue: **#295**) **Lab CWV gate LANDED**:
-  `public-web-vitals.e2e.ts` measures **LCP + CLS** in real Chromium on the
-  hermetic public pages (`/`, `/newsletter/demo`) against the Google "good"
-  thresholds (LCP ≤ 2500 ms, CLS ≤ 0.1) — a regression gate. STILL DEFERRED:
-  **INP** (interaction-driven), and **field-style LCP/INP/CLS + load/soak at
-  representative content/media volume** with real network/CDN.
+  `public-web-vitals.e2e.ts` measures **LCP + CLS + INP** in real Chromium on
+  the hermetic public pages (`/`, `/newsletter/demo`) against the Google "good"
+  thresholds (LCP ≤ 2500 ms, CLS ≤ 0.1, INP ≤ 200 ms) — a regression gate.
+  **INP LANDED**: the spec now DRIVES the interactions it measures (three
+  `Tab` presses + a click on the first heading — non-navigating, non-
+  submitting) and reads the worst `event`-timing entry carrying an
+  `interactionId`. Because the Event Timing spec clamps `durationThreshold` to
+  a minimum of 16 ms, a sub-16 ms interaction produces no entry at all; the
+  spec therefore also counts dispatched `pointerdown`/`keydown` events with a
+  plain listener (no such floor) and asserts that count is `> 0`, so an
+  `inp: 0` reading can never be confused with "no interaction ever reached the
+  page". Measured on the dev server 2026-07-25: `/` → LCP 44 ms, CLS 0,
+  **INP 24 ms**, 4 interactions; `/newsletter/demo` → LCP 48 ms, CLS 0,
+  **INP 24 ms**, 4 interactions. STILL DEFERRED: **field-style LCP/INP/CLS +
+  load/soak at representative content/media volume** with real network/CDN.
 - **Full-journey accessibility & link checking** (**#296**) — the base-app
   in-repo portion has LANDED: `public-a11y-smoke.e2e.ts` (axe-core over public
   `/`, `/newsletter/demo`, `/comments/demo` in EN + ID, at **desktop 1280×800
@@ -233,6 +255,28 @@ and close each of these — with exact commands and evidence to capture — is i
 
 ## Residual risks and limitations
 
+- **`production:preflight` used to be unsafe to run against its own target
+  (found + FIXED 2026-07-25, while executing #293's "preflight green on
+  target" step).** Every preflight stage is documented as read-only, but the
+  `test` stage spawned `bun test` with the ambient environment inherited — so
+  the documented invocation
+  `APP_ENV=production DATABASE_URL=<target> bun run production:preflight`
+  handed the target's DSN to the integration suite. That suite (113 files)
+  calls `resetDatabase()` — `TRUNCATE` over every `awcms_micro_*` table — and
+  `provisionAppRole()`/`provisionWorkerRole()`/`provisionSetupRole()`, which
+  `ALTER ROLE ... WITH LOGIN PASSWORD '<fixture literal committed in this
+repo>'`. Following the runbook would therefore have **wiped the deployment
+  target and activated three least-privilege login roles on it with
+  publicly-known passwords**, from a script whose contract is "non-destructive
+  by default". Fixed by `planTestStage` in
+  [`scripts/production-preflight.ts`](../../scripts/production-preflight.ts):
+  the target's `DATABASE_URL` is never forwarded to `bun test`; the operator
+  opts into real integration coverage via a **disposable**
+  `PREFLIGHT_TEST_DATABASE_URL` (a DSN identical to the target is refused);
+  absent that, the stage runs unit-only and reports **SKIP**, which is a
+  blocking skip under `APP_ENV=production` rather than a green it did not
+  earn. This is why no "preflight green on target" evidence exists for #293
+  prior to this date — the step could not be executed safely.
 - **In-sandbox verification is partial.** The integration/E2E suites here are
   authored against the real handlers but are executed by **CI**, not locally,
   because this environment cannot reach the containerized PostgreSQL

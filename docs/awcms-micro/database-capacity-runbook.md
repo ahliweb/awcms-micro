@@ -148,11 +148,19 @@ scale-out or restart plan, same rehearsal-first discipline as
 [`production-preflight-runbook.md`](production-preflight-runbook.md)):
 
 ```bash
-APP_ENV=production DATABASE_URL=<production-url> bun run production:preflight
+APP_ENV=production DATABASE_URL=<production-url> \
+  PREFLIGHT_TEST_DATABASE_URL=<disposable-db-url> \
+  bun run production:preflight
 ```
 
-Both are 100% read-only — pure config arithmetic, no database connection,
-no network call, and neither can change pool/database configuration. A
+(`PREFLIGHT_TEST_DATABASE_URL` must be a **disposable** database — preflight's
+`test` stage runs the integration suite, which `TRUNCATE`s every
+`awcms_micro_*` table, so it is never given the target's `DATABASE_URL`. Omit
+it and `test` runs unit-only and reports SKIP, blocking go-live under
+`APP_ENV=production`.)
+
+Both capacity checks are 100% read-only — pure config arithmetic, no database
+connection, no network call, and neither can change pool/database configuration. A
 `[FAIL]` finding blocks preflight's overall `GO-LIVE DIIZINKAN` verdict
 exactly like any other stage; a `[WARNING]` finding (currently only the
 work-class-vs-pool oversubscription check, see `database-pooling.md`'s

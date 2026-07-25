@@ -12,10 +12,12 @@
  * mutates its target even when it blocks go-live is not actually safe to
  * run repeatedly, which defeats the entire point of a preflight.
  *
- * NEW ORDER — every stage below is READ-ONLY (matches the issue's own
- * required ordering: config/security, connectivity + read-only schema
- * inspection, specs/contracts, tests/build, migration plan, then optional
- * apply):
+ * NEW ORDER — every stage below is READ-ONLY with respect to the deployment
+ * target (matches the issue's own required ordering: config/security,
+ * connectivity + read-only schema inspection, specs/contracts, tests/build,
+ * migration plan, then optional apply). Stage 6 (`test`) is read-only against
+ * the TARGET only because it is never given the target's `DATABASE_URL` — see
+ * its entry below and `planTestStage`:
  *
  *   1. config:validate       — config must be valid before anything else
  *                               attempts to connect to a database.
@@ -37,7 +39,18 @@
  *                               queryable. Issues exactly one `SELECT`,
  *                               never a write.
  *   5. api:spec:check
- *   6. test
+ *   6. test                     — the ONE stage that is not inherently
+ *                               read-only: with `DATABASE_URL` set, the
+ *                               integration suite TRUNCATEs every
+ *                               `awcms_micro_*` table and ALTERs three login
+ *                               roles. It therefore never receives the
+ *                               deployment target's DSN; it runs against
+ *                               `PREFLIGHT_TEST_DATABASE_URL` (a disposable
+ *                               database) or, absent that, unit-only with
+ *                               `DATABASE_URL` removed from the child env —
+ *                               reported as a SKIP, which blocks go-live
+ *                               under `APP_ENV=production`. See
+ *                               `planTestStage`.
  *   7. build
  *   8. db:pool:health          — needs a running server; skipped (not
  *                               failed) if nothing answers, UNLESS
@@ -116,16 +129,139 @@ const REMAINING_CHILD_PROCESS_STAGES: StageDefinition[] = [
   {
     name: "modules:compose:check",
     command: ["bun", "run", "modules:compose:check"]
-  },
-  { name: "test", command: ["bun", "test"] },
-  { name: "build", command: ["bun", "run", "build"] }
+  }
+  // `test` runs HERE (between modules:compose:check and build) via
+  // `runTestStage`, not from this list: unlike every other child-process
+  // stage it is NOT read-only with respect to `DATABASE_URL`, so it must
+  // never inherit the deployment target's DSN. See `planTestStage`.
+  //
   // db:connectivity, db:pool:health, and migration:plan are handled
   // separately below — each needs custom logic (a direct read-only DB
   // query, a reachability probe, or both), not a plain child-process spawn.
 ];
 
-/** Stages whose SKIP status blocks go-live specifically when APP_ENV=production. */
-const MANDATORY_IN_PRODUCTION = new Set(["db:pool:health"]);
+/** Child-process stages that run AFTER the `test` stage (order preserved). */
+const POST_TEST_CHILD_PROCESS_STAGES: StageDefinition[] = [
+  { name: "build", command: ["bun", "run", "build"] }
+];
+
+/**
+ * Stages whose SKIP status blocks go-live specifically when APP_ENV=production.
+ *
+ * `test` is here because a production preflight whose integration suite never
+ * ran has not verified production readiness — it has only verified the pure
+ * unit suite. See `planTestStage` for why the integration suite can be absent.
+ */
+const MANDATORY_IN_PRODUCTION = new Set(["db:pool:health", "test"]);
+
+/**
+ * The `test` stage's execution plan.
+ *
+ * `integration` — run the full `bun test` suite (unit + integration) against
+ * `databaseUrl`, a DISPOSABLE database supplied by the operator.
+ * `unit-only` — run `bun test` with `DATABASE_URL` REMOVED from the child's
+ * environment, so `tests/integration/harness.ts` reports `integrationEnabled:
+ * false` and the whole integration suite skips itself.
+ */
+export type TestStagePlan =
+  | { mode: "integration"; databaseUrl: string }
+  | { mode: "unit-only"; reason: string };
+
+/**
+ * Decides what `DATABASE_URL` (if any) the `test` stage may see — pure, so the
+ * "never point the integration suite at the deployment target" invariant is
+ * directly unit-testable.
+ *
+ * WHY THIS EXISTS. Every other preflight stage is read-only, but `bun test` is
+ * not: with `DATABASE_URL` set, `tests/integration/harness.ts` enables 113
+ * integration files that each call `resetDatabase()` — `TRUNCATE` over every
+ * `awcms_micro_*` table — and `provisionAppRole()`/`provisionWorkerRole()`/
+ * `provisionSetupRole()`, which run `ALTER ROLE ... WITH LOGIN PASSWORD
+ * '<literal committed in this repo>'`. Inheriting the ambient environment (as
+ * this stage previously did) therefore meant the documented invocation
+ * `APP_ENV=production DATABASE_URL=<target> bun run production:preflight`
+ * would WIPE the deployment target and activate three least-privilege login
+ * roles on it with publicly-known passwords — from a script whose own contract
+ * is "non-destructive by default".
+ *
+ * So the target DSN is never forwarded. The operator opts into real
+ * integration coverage by pointing `PREFLIGHT_TEST_DATABASE_URL` at a
+ * disposable database; absent that, the stage runs unit-only and reports
+ * itself as SKIPPED (a blocking skip under `APP_ENV=production`) rather than
+ * claiming a green it did not earn.
+ */
+export function planTestStage(env: {
+  DATABASE_URL?: string | undefined;
+  PREFLIGHT_TEST_DATABASE_URL?: string | undefined;
+}): TestStagePlan {
+  const testUrl = env.PREFLIGHT_TEST_DATABASE_URL?.trim() ?? "";
+  const targetUrl = env.DATABASE_URL?.trim() ?? "";
+
+  if (testUrl.length === 0) {
+    return {
+      mode: "unit-only",
+      reason:
+        "integration suite not run — set PREFLIGHT_TEST_DATABASE_URL to a DISPOSABLE database to include it (the deployment target's DATABASE_URL is never used: the integration suite truncates every awcms_micro_* table)"
+    };
+  }
+
+  if (testUrl === targetUrl) {
+    return {
+      mode: "unit-only",
+      reason:
+        "integration suite not run — PREFLIGHT_TEST_DATABASE_URL is identical to the deployment target's DATABASE_URL; refusing to run the destructive integration suite against the target"
+    };
+  }
+
+  return { mode: "integration", databaseUrl: testUrl };
+}
+
+/**
+ * Runs the `test` stage under `planTestStage`'s verdict. A unit-only run that
+ * PASSES is reported as `skipped` (not `pass`): the stage ran, but it did not
+ * deliver the integration coverage its name implies, and silently reporting
+ * green would hide ~1000 unrun tests. A failing run is always `fail`.
+ */
+async function runTestStage(): Promise<StageResult> {
+  const plan = planTestStage({
+    DATABASE_URL: process.env.DATABASE_URL,
+    PREFLIGHT_TEST_DATABASE_URL: process.env.PREFLIGHT_TEST_DATABASE_URL
+  });
+  const start = performance.now();
+  console.log(`\n=== production:preflight — test ===`);
+
+  const env = { ...process.env };
+  if (plan.mode === "integration") {
+    env.DATABASE_URL = plan.databaseUrl;
+    console.log(
+      "running unit + integration suite against PREFLIGHT_TEST_DATABASE_URL (disposable target)"
+    );
+  } else {
+    delete env.DATABASE_URL;
+    console.log(plan.reason);
+  }
+
+  const proc = Bun.spawn(["bun", "test"], {
+    stdout: "inherit",
+    stderr: "inherit",
+    env
+  });
+  const exitCode = await proc.exited;
+  const durationMs = performance.now() - start;
+
+  if (exitCode !== 0) {
+    return {
+      name: "test",
+      status: "fail",
+      detail: `exit code ${exitCode}`,
+      durationMs
+    };
+  }
+
+  return plan.mode === "integration"
+    ? { name: "test", status: "pass", durationMs }
+    : { name: "test", status: "skipped", detail: plan.reason, durationMs };
+}
 
 async function runStage(name: string, command: string[]): Promise<StageResult> {
   const start = performance.now();
@@ -350,6 +486,12 @@ export async function runProductionPreflight(): Promise<{
   results.push(await checkDatabaseConnectivity());
 
   for (const stage of REMAINING_CHILD_PROCESS_STAGES) {
+    results.push(await runStage(stage.name, stage.command));
+  }
+
+  results.push(await runTestStage());
+
+  for (const stage of POST_TEST_CHILD_PROCESS_STAGES) {
     results.push(await runStage(stage.name, stage.command));
   }
 

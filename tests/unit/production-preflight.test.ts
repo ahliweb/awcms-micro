@@ -6,6 +6,7 @@ import {
   computeMigrationPlan,
   computeVerdict,
   parseArgs,
+  planTestStage,
   type PreflightOptions,
   type StageResult
 } from "../../scripts/production-preflight";
@@ -182,6 +183,79 @@ describe("computeVerdict", () => {
     );
     expect(verdict.go).toBe(true);
     expect(verdict.blockingSkips).toEqual([]);
+  });
+
+  test("a unit-only (skipped) test stage BLOCKS go-live when APP_ENV=production", () => {
+    const verdict = computeVerdict(
+      [stageResult("test", "skipped", "integration suite not run")],
+      "production"
+    );
+    expect(verdict.go).toBe(false);
+    expect(verdict.blockingSkips).toEqual(["test"]);
+  });
+
+  test("a unit-only (skipped) test stage is non-blocking outside production", () => {
+    const verdict = computeVerdict(
+      [stageResult("test", "skipped", "integration suite not run")],
+      "staging"
+    );
+    expect(verdict.go).toBe(true);
+    expect(verdict.blockingSkips).toEqual([]);
+  });
+});
+
+describe("planTestStage (never truncate the deployment target)", () => {
+  const TARGET = "postgres://app:pw@prod-db.internal:5432/awcms_micro";
+  const DISPOSABLE = "postgres://app:pw@127.0.0.1:5433/awcms_micro_preflight";
+
+  test("the deployment target's DATABASE_URL is NEVER forwarded to bun test", () => {
+    // The regression this whole gate exists for: the documented invocation
+    // `APP_ENV=production DATABASE_URL=<target> bun run production:preflight`
+    // used to hand <target> straight to the integration suite, which
+    // TRUNCATEs every awcms_micro_* table and ALTERs three login roles.
+    const plan = planTestStage({ DATABASE_URL: TARGET });
+    expect(plan.mode).toBe("unit-only");
+    expect(JSON.stringify(plan)).not.toContain("prod-db.internal");
+  });
+
+  test("runs the integration suite when PREFLIGHT_TEST_DATABASE_URL is a distinct, disposable database", () => {
+    const plan = planTestStage({
+      DATABASE_URL: TARGET,
+      PREFLIGHT_TEST_DATABASE_URL: DISPOSABLE
+    });
+    expect(plan).toEqual({ mode: "integration", databaseUrl: DISPOSABLE });
+  });
+
+  test("refuses when PREFLIGHT_TEST_DATABASE_URL is the deployment target itself", () => {
+    const plan = planTestStage({
+      DATABASE_URL: TARGET,
+      PREFLIGHT_TEST_DATABASE_URL: TARGET
+    });
+    expect(plan.mode).toBe("unit-only");
+    expect(plan.mode === "unit-only" && plan.reason).toContain(
+      "identical to the deployment target"
+    );
+  });
+
+  test("whitespace-only PREFLIGHT_TEST_DATABASE_URL is treated as unset, not as a DSN", () => {
+    const plan = planTestStage({
+      DATABASE_URL: TARGET,
+      PREFLIGHT_TEST_DATABASE_URL: "   "
+    });
+    expect(plan.mode).toBe("unit-only");
+  });
+
+  test("trailing whitespace does not defeat the same-as-target refusal", () => {
+    const plan = planTestStage({
+      DATABASE_URL: TARGET,
+      PREFLIGHT_TEST_DATABASE_URL: `${TARGET}  `
+    });
+    expect(plan.mode).toBe("unit-only");
+  });
+
+  test("unit-only with no database configured at all", () => {
+    const plan = planTestStage({});
+    expect(plan.mode).toBe("unit-only");
   });
 });
 

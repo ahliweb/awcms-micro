@@ -29,8 +29,20 @@ capacity budget check, see
 epic #738, build-time composition of the single base registry validated
 before production deploy — `test`, `build`,
 `db:pool:health`, `migration:plan`) and reports a go/no-go verdict — none of
-them write to the database. Applying pending migrations is a separate,
-explicit, gated action.
+them write to the **deployment target**. Applying pending migrations is a
+separate, explicit, gated action.
+
+> **`test` is the one stage that is not inherently read-only.** With
+> `DATABASE_URL` set, the integration suite (113 files) calls `resetDatabase()`
+> — `TRUNCATE` over every `awcms_micro_*` table — and activates the
+> `awcms_micro_app`/`_worker`/`_setup` login roles with fixture passwords that
+> are committed in this repository. Preflight therefore **never forwards the
+> target's `DATABASE_URL` to `bun test`**. Point
+> `PREFLIGHT_TEST_DATABASE_URL` at a **disposable** database to get real
+> integration coverage; omit it and the stage runs unit-only and reports
+> **SKIP**, which blocks go-live under `APP_ENV=production` (it is in the
+> mandatory-in-production set). Setting `PREFLIGHT_TEST_DATABASE_URL` to the
+> same DSN as the target is refused.
 
 ## Stage 1 — Rehearsal (staging, always first)
 
@@ -43,7 +55,8 @@ copy of production.
    you a realistic staging database in one step).
 2. Run the read-only preflight against staging:
    ```bash
-   APP_ENV=staging DATABASE_URL=<staging-url> bun run production:preflight
+   APP_ENV=staging DATABASE_URL=<staging-url> \
+     PREFLIGHT_TEST_DATABASE_URL=<disposable-db-url> bun run production:preflight
    ```
    Confirm `GO-LIVE DIIZINKAN` and read the `migration:plan` stage's output
    — it lists exactly which migrations are pending, by name.
@@ -112,11 +125,18 @@ backup host).
 ## Stage 3 — Production preflight (read-only)
 
 ```bash
-APP_ENV=production DATABASE_URL=<production-url> bun run production:preflight
+APP_ENV=production DATABASE_URL=<production-url> \
+  PREFLIGHT_TEST_DATABASE_URL=<disposable-db-url> bun run production:preflight
 ```
 
 Read the full report. In particular:
 
+- `test` — if this shows `SKIP`, the integration suite never ran and the
+  verdict is **already** `GO-LIVE DIBLOKIR` when `APP_ENV=production`. Provide
+  a **disposable** `PREFLIGHT_TEST_DATABASE_URL` (a throwaway `postgres:18.4`
+  container is enough) so the stage can actually run. Never point it at the
+  production DSN — preflight refuses that, because the integration suite
+  truncates every `awcms_micro_*` table.
 - `db:pool:health` — if this shows `SKIP`, the verdict is **already**
   `GO-LIVE DIBLOKIR` when `APP_ENV=production` (Issue #684's mandatory-skip
   rule) — start the server (`bun run preview` after `bun run build`) so
@@ -130,7 +150,8 @@ Optionally capture a machine-readable copy of the report for the deploy
 record:
 
 ```bash
-APP_ENV=production DATABASE_URL=<production-url> bun run production:preflight \
+APP_ENV=production DATABASE_URL=<production-url> \
+  PREFLIGHT_TEST_DATABASE_URL=<disposable-db-url> bun run production:preflight \
   --json-output=/var/log/awcms-micro/preflight-$(date +%Y%m%d_%H%M%S).json
 ```
 

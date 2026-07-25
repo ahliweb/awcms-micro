@@ -35,10 +35,23 @@ terkomposisi valid; ADR-0036 menghapus gerbang `extension:check` turunan
 yang dulu di sini) → `test` → `build` → `db:pool:health` (skip bila server belum
 jalan, kecuali `APP_ENV=production` — di situ skip BLOKIR go-live) →
 `migration:plan` (dry-run: daftar migrasi pending TANPA menjalankannya).
-**Sepuluh** stage read-only total (`scripts/production-preflight.ts`'s
-`REMAINING_CHILD_PROCESS_STAGES` + `db:connectivity`/`db:pool:health`/
-`migration:plan` yang ditangani terpisah). Tidak ada stage yang menulis ke
-database. Menjalankan command satu-satu secara manual (seperti daftar lama
+**Sepuluh** stage total (`scripts/production-preflight.ts`'s
+`REMAINING_CHILD_PROCESS_STAGES`/`POST_TEST_CHILD_PROCESS_STAGES` +
+`test`/`db:connectivity`/`db:pool:health`/`migration:plan` yang ditangani
+terpisah). Tidak ada stage yang menulis ke **database target**.
+
+> ⚠️ **`test` adalah satu-satunya stage yang tidak read-only secara inheren.**
+> Bila `DATABASE_URL` ter-set, suite integrasi (113 file) memanggil
+> `resetDatabase()` — `TRUNCATE` seluruh tabel `awcms_micro_*` — dan
+> mengaktifkan role login `awcms_micro_app`/`_worker`/`_setup` dengan password
+> fixture yang dikomit di repo ini. Karena itu preflight **tidak pernah**
+> meneruskan `DATABASE_URL` target ke `bun test`: arahkan
+> `PREFLIGHT_TEST_DATABASE_URL` ke database **sekali-pakai** agar stage ini
+> benar-benar jalan; tanpa itu stage `test` jalan unit-only dan berstatus
+> **SKIP** — dan SKIP itu MEMBLOKIR go-live saat `APP_ENV=production`. Mengisi
+> `PREFLIGHT_TEST_DATABASE_URL` dengan DSN target ditolak (`planTestStage`).
+
+Menjalankan command satu-satu secara manual (seperti daftar lama
 di atas) TIDAK lagi direkomendasikan — `bun run db:migrate` secara
 terpisah TIDAK termasuk dalam preflight ini sama sekali; lihat §Menerapkan
 migrasi di bawah.
@@ -46,7 +59,7 @@ migrasi di bawah.
 ### Menerapkan migrasi (langkah terpisah, wajib eksplisit)
 
 `bun run production:preflight` sendiri **tidak pernah** menulis ke
-database — bug lama (Issue #684): `db:migrate` dulu berjalan sebagai
+database target — bug lama (Issue #684): `db:migrate` dulu berjalan sebagai
 stage awal tanpa syarat, jadi stage belakangan (spec check/test/build)
 yang gagal tetap meninggalkan database ter-migrasi walau verdict akhirnya
 "GO-LIVE DIBLOKIR". Sekarang menerapkan migrasi butuh flag eksplisit,
