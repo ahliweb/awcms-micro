@@ -136,6 +136,46 @@ export const METRIC_DEFINITIONS = {
       "5 work classes x 2 outcomes (acquired, timeout) = 10 series bound.",
     privacyNote: PRIVACY_NOTE_CODE_DEFINED_ENUM
   },
+  edge_cache_boost_active: {
+    name: "edge_cache_boost_active",
+    type: "gauge",
+    description:
+      "1 while this process is asking the optional edge cache for the boosted TTL because it measured database pressure, 0 otherwise (Issue #353, ADR-0037). Paired with edge_cache_pressure_percent: this is the decision, that is the input.",
+    allowedLabelKeys: [],
+    approxCardinality: "Exactly 1 — no labels.",
+    privacyNote:
+      "Carries no labels at all, so it cannot encode a tenant, route, or identity."
+  },
+  edge_cache_pressure_percent: {
+    name: "edge_cache_pressure_percent",
+    type: "gauge",
+    description:
+      "Highest foreground work-class utilization this process observed when it last resolved the edge-cache mode, in percent (Issue #353). May exceed 100 when callers are queued.",
+    allowedLabelKeys: [],
+    approxCardinality: "Exactly 1 — no labels.",
+    privacyNote:
+      "Carries no labels at all, so it cannot encode a tenant, route, or identity."
+  },
+  edge_cache_escalation_transitions_total: {
+    name: "edge_cache_escalation_transitions_total",
+    type: "counter",
+    description:
+      "Count of automatic edge-cache mode transitions (Issue #353) — how often this process entered or left the boosted TTL. A high rate means the hysteresis window is mistuned for this deployment's traffic.",
+    allowedLabelKeys: ["from", "to"],
+    approxCardinality:
+      "2 modes x 2 modes = 4 series bound (normal, boost) — a fixed, code-defined enum.",
+    privacyNote: PRIVACY_NOTE_CODE_DEFINED_ENUM
+  },
+  edge_cache_purge_total: {
+    name: "edge_cache_purge_total",
+    type: "counter",
+    description:
+      "Count of explicit edge-cache invalidation attempts by outcome (Issue #353). Deliberately unlabelled by host: the target hostname is tenant-identifying.",
+    allowedLabelKeys: ["outcome"],
+    approxCardinality: "Exactly 2 — outcome is a fixed enum (purged, failed).",
+    privacyNote:
+      "Only a fixed outcome enum is forwarded; the purged hostname and path pattern are never used as labels because a public hostname identifies a tenant."
+  },
   db_pool_capacity_configured_connections: {
     name: "db_pool_capacity_configured_connections",
     type: "gauge",

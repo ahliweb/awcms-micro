@@ -11,6 +11,40 @@
 
 ## Entri aktif
 
+### 2026-07-25 (4) — Edge cache Varnish opsional (#353, ADR-0037)
+
+**Status:** PR [#354](https://github.com/ahliweb/awcms-micro/pull/354) terbuka,
+`bun run check` hijau penuh. Belum di-merge, belum dipasang ke deployment mana pun.
+
+**Apa.** Cache HTTP bersama di depan aplikasi (Traefik → Varnish → aplikasi →
+PostgreSQL) supaya pembaca anonim berulang berhenti membangkitkan pekerjaan
+database. Melengkapi fondasi Redis (ADR-0030), tidak menggantikannya: Redis
+menghapus query berulang di dalam proses, Varnish menghapus render berulang
+sebelum proses.
+
+**Yang perlu dijaga jujur.** Container Varnish **tidak** menyala sendiri — itu
+overlay opt-in operator. Yang otomatis adalah **agresivitas cache-nya**: aplikasi
+menaikkan TTL surrogate sendiri ketika mengukur tekanan database (saturasi
+work-class foreground, atau circuit breaker tidak `closed`), lalu menurunkannya
+dengan histeresis 20 poin + tahan 30 detik. Jangan menjanjikan lebih dari itu ke
+operator.
+
+**Bukti.** VCL tidak hanya dikompilasi, tapi dijalankan pada Varnish 7.7.3 nyata
+dengan backend tiruan: HIT pada permintaan kedua, cookie sesi selalu bypass,
+cookie locale menghasilkan varian per-locale, `/admin` tidak pernah tersimpan,
+response ber-`Set-Cookie` tidak pernah tersimpan, BAN tanpa/salah token 403.
+Pengujian itu **menemukan cacat nyata**: `Surrogate-Control` bocor ke klien pada
+response yang tidak di-cache (kini dibuang tanpa syarat di `vcl_deliver`).
+
+**Sisa pekerjaan yang sengaja tidak dikerjakan di sini:**
+
+- purge otomatis per-publikasi — transisi publikasi ada **di dalam** transaksi
+  database, sementara invalidasi wajib di luarnya; butuh issue sendiri;
+- memasang Varnish ke staging/produksi (perubahan port domain 4321 → 8080);
+- verifikasi hit-rate lapangan pada instance yang punya konten terbit.
+
+---
+
 ### 2026-07-25 (3) — Instance STAGING dibuat; chaos drill #294 akhirnya HIJAU
 
 **Status:** SELESAI di server; dokumentasi di PR terpisah. **Sisa satu langkah operator: record DNS.**

@@ -1125,6 +1125,44 @@ boot.
 | `REDIS_MAX_RETRIES`           | –                    | `3`           | –        | Percobaan reconnect sebelum menyerah (0–20)                                                                               |
 | `REDIS_CACHE_DEFAULT_TTL_SEC` | –                    | `300`         | –        | TTL default entri cache tanpa TTL eksplisit (1–86.400 detik)                                                              |
 
+### Edge cache (opsional, Issue #353 / ADR-0037)
+
+Cache HTTP bersama **di depan** aplikasi (Traefik → Varnish → aplikasi →
+PostgreSQL). Tujuannya satu: menghapus pekerjaan database yang berulang
+untuk pembaca anonim, sehingga slot pool tersisa untuk transaksi yang
+memang tidak bisa dilayani dari cache. Panduan operasional lengkap —
+overlay Compose, VCL, cara verifikasi, rollback — ada di
+[`edge-cache-varnish.md`](edge-cache-varnish.md).
+
+Dua lapis aktivasi, dan bedanya penting:
+
+- **Infrastruktur** — container Varnish adalah overlay opt-in yang dinyalakan
+  operator, sama seperti Redis pada ADR-0030. Tidak ada di stack default.
+- **Perilaku — otomatis** — aplikasi menentukan sendiri, per-response, apakah
+  sebuah response boleh di-cache, dan **menaikkan TTL sendiri** ketika ia
+  mengukur tekanan database (saturasi work-class atau circuit breaker tidak
+  `closed`), lalu menurunkannya kembali setelah tekanan reda. Ini yang
+  dimaksud "aktif otomatis apabila diperlukan"; tidak ada yang perlu
+  dinyalakan manual saat beban naik.
+
+Selama `EDGE_CACHE_ENABLED` bukan `true`, middleware tidak menambah header
+cache apa pun. Nilai integer di luar rentang **jatuh ke default**, bukan
+menggagalkan boot — satu salah ketik pada tunable cache tidak boleh
+menghentikan aplikasi.
+
+| Var                                         | Wajib | Default | Sensitif | Fungsi                                                                                                                                                                      |
+| ------------------------------------------- | ----- | ------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EDGE_CACHE_ENABLED`                        | –     | `false` | –        | Saklar utama; `false` = batas no-op sejati (tidak ada header cache sama sekali)                                                                                             |
+| `EDGE_CACHE_DEFAULT_TTL_SECONDS`            | –     | `60`    | –        | TTL `Surrogate-Control` dasar (1–86.400 detik) = **kontrak kesegaran** tanpa purge                                                                                          |
+| `EDGE_CACHE_BOOST_TTL_SECONDS`              | –     | `300`   | –        | TTL saat eskalasi otomatis aktif; nilai di bawah TTL dasar **dinaikkan paksa** ke TTL dasar                                                                                 |
+| `EDGE_CACHE_BROWSER_TTL_SECONDS`            | –     | `0`     | –        | `Cache-Control: max-age` untuk browser; `0` → `public, max-age=0, must-revalidate`                                                                                          |
+| `EDGE_CACHE_STALE_WHILE_REVALIDATE_SECONDS` | –     | `60`    | –        | Berapa lama cache boleh menyajikan entri basi sambil menyegarkan di belakang layar (0 = direktif dihilangkan)                                                               |
+| `EDGE_CACHE_STALE_IF_ERROR_SECONDS`         | –     | `600`   | –        | Berapa lama entri basi boleh disajikan saat origin gagal — dipetakan ke grace Varnish; inilah yang mengubah gangguan database menjadi halaman basi, bukan 503               |
+| `EDGE_CACHE_AUTO_ESCALATION`                | –     | `true`  | –        | Apakah aplikasi menaikkan TTL sendiri di bawah tekanan database; `false` mengunci semuanya ke TTL dasar                                                                     |
+| `EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT`     | –     | `70`    | –        | Utilisasi work-class foreground (10–100 %) tempat eskalasi menyala; pelepasan memakai histeresis 20 poin + tahan minimum 30 detik                                           |
+| `EDGE_CACHE_PURGE_URL`                      | –     | –       | –        | Endpoint invalidasi cache, mis. `http://varnish:8080`. Kosong = tanpa invalidasi eksplisit (kesegaran dibatasi TTL saja). Alamat servis internal, bukan kredensial          |
+| `EDGE_CACHE_PURGE_TOKEN`                    | –     | –       | Ya       | Rahasia bersama yang diminta cache pada permintaan BAN, di samping ACL jaringan privat miliknya. Kosong di salah satu sisi = invalidasi mati, bukan purge tanpa autentikasi |
+
 ### Preflight tooling (Issue #293)
 
 | Var                           | Wajib | Default | Sensitif | Fungsi                                                                                                                                                                                                                                                                                                                                                                                                                              |

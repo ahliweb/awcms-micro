@@ -2275,6 +2275,117 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
       "Default TTL (1-86400 s) applied to a cache entry written without an explicit TTL."
   },
   // ---------------------------------------------------------------------
+  // Edge cache (opsional, Issue #353 / ADR-0037)
+  // ---------------------------------------------------------------------
+  {
+    name: "EDGE_CACHE_ENABLED",
+    type: "boolean",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "false",
+    description:
+      "Master switch for the optional HTTP surrogate cache in front of the application (Varnish is the reference implementation). While false the middleware adds no cache headers at all, so this is a true no-op boundary rather than a behaviour change on every route."
+  },
+  {
+    name: "EDGE_CACHE_DEFAULT_TTL_SECONDS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "60",
+    description:
+      "Baseline `Surrogate-Control: max-age` (1-86400 s) for a cacheable public response. This is the freshness contract: without an explicit purge, an edit becomes visible to anonymous readers within this many seconds."
+  },
+  {
+    name: "EDGE_CACHE_BOOST_TTL_SECONDS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "300",
+    description:
+      "Surrogate TTL (1-86400 s) used while automatic escalation is active. A value below EDGE_CACHE_DEFAULT_TTL_SECONDS is clamped up to it, because a shorter boost would weaken caching exactly when the database is under pressure."
+  },
+  {
+    name: "EDGE_CACHE_BROWSER_TTL_SECONDS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "0",
+    description:
+      "Client-facing `Cache-Control: max-age` (0-86400 s). The default 0 emits `public, max-age=0, must-revalidate`, so browsers keep revalidating (a purge takes effect for them immediately) while the shared cache absorbs the repeat load."
+  },
+  {
+    name: "EDGE_CACHE_STALE_WHILE_REVALIDATE_SECONDS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "60",
+    description:
+      "How long (0-86400 s) a shared cache may serve a stale entry while it refreshes in the background. 0 omits the directive."
+  },
+  {
+    name: "EDGE_CACHE_STALE_IF_ERROR_SECONDS",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "600",
+    description:
+      "How long (0-604800 s) a shared cache may serve a stale entry while the origin is failing — mapped to Varnish grace. This is what turns a database outage into slightly stale pages instead of 503s; `bun run edge-cache:health` warns when it is 0."
+  },
+  {
+    name: "EDGE_CACHE_AUTO_ESCALATION",
+    type: "boolean",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "true",
+    description:
+      "Whether the application raises the surrogate TTL by itself when it measures database pressure (work-class saturation or a non-closed circuit breaker). False pins every cacheable response to the baseline TTL."
+  },
+  {
+    name: "EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT",
+    type: "integer",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    default: "70",
+    description:
+      "Foreground work-class utilization (10-100 %) at or above which automatic escalation engages. Release uses a 20-point hysteresis band plus a 30 s minimum hold, so the mode cannot oscillate request-to-request."
+  },
+  {
+    name: "EDGE_CACHE_PURGE_URL",
+    type: "url",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "non-secret",
+    profiles: ALL_PROFILES,
+    description:
+      "Base URL of the cache's invalidation endpoint, e.g. `http://varnish:8080`. Unset disables explicit invalidation entirely; staleness is then bounded only by the TTLs above. An internal service address, not a credential."
+  },
+  {
+    name: "EDGE_CACHE_PURGE_TOKEN",
+    type: "string",
+    required: "optional",
+    ownerModule: "deployment",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "Shared secret the cache requires on a BAN request, alongside its own private-network ACL. SECRET — never in an issue, log, or screenshot. Empty on either side disables invalidation rather than accepting an unauthenticated purge."
+  },
+  // ---------------------------------------------------------------------
   // Preflight tooling (Issue #293)
   // ---------------------------------------------------------------------
   {

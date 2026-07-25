@@ -37,6 +37,9 @@ import {
   recordPublicNotFound,
   resolvePublicRedirectForRequest
 } from "./lib/seo/redirect-middleware";
+import { getEdgeCacheConfig } from "./lib/cache/edge-cache-config";
+import { resolveEdgeCacheMode } from "./lib/cache/edge-cache-pressure";
+import { applyEdgeCacheToResponse } from "./lib/cache/edge-cache-response";
 
 const PROTECTED_PREFIX = "/admin";
 const API_PREFIX = "/api/";
@@ -283,6 +286,7 @@ export async function collectRequestAnalytics(
  * that module's doc comment for why a nonce was tried and abandoned).
  */
 function applyResponseHeaders(
+  context: APIContext,
   response: Response,
   correlationId: string
 ): Response {
@@ -294,7 +298,44 @@ function applyResponseHeaders(
     response.headers.set(name, value);
   }
 
-  return response;
+  return applyEdgeCacheHeaders(context, response);
+}
+
+/**
+ * Edge-cache directives (Issue #353, ADR-0037). Applied at this one choke
+ * point — the same place the security headers are applied — so every
+ * branch below is covered by construction, including the `/admin/*` and
+ * `503` branches, which get an explicit `Surrogate-Control: no-store`
+ * rather than merely being absent from the allowlist.
+ *
+ * Returns `response` untouched when `EDGE_CACHE_ENABLED` is not `true`, so
+ * the flag is a genuine no-op boundary. The mode resolution reads only
+ * in-process counters (work-class gates, circuit-breaker state) — no I/O,
+ * no database call — so this cannot add latency to a response.
+ */
+function applyEdgeCacheHeaders(
+  context: APIContext,
+  response: Response
+): Response {
+  const config = getEdgeCacheConfig();
+
+  if (!config.enabled) {
+    return response;
+  }
+
+  const mode = resolveEdgeCacheMode({
+    enabled: true,
+    autoEscalation: config.autoEscalation,
+    thresholdPercent: config.pressureThresholdPercent,
+    now: new Date()
+  });
+
+  return applyEdgeCacheToResponse(response, {
+    request: context.request,
+    pathname: context.url.pathname,
+    mode,
+    config
+  }).response;
 }
 
 /**
@@ -376,7 +417,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     recordHttpRequestMetrics(context, response.status, requestStartedAt);
 
-    return applyResponseHeaders(response, context.locals.correlationId);
+    return applyResponseHeaders(
+      context,
+      response,
+      context.locals.correlationId
+    );
   }
 
   if (!context.url.pathname.startsWith(PROTECTED_PREFIX)) {
@@ -400,6 +445,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
 
       return applyResponseHeaders(
+        context,
         redirectResult.redirect,
         context.locals.correlationId
       );
@@ -428,7 +474,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
     recordHttpRequestMetrics(context, response.status, requestStartedAt);
 
-    return applyResponseHeaders(response, context.locals.correlationId);
+    return applyResponseHeaders(
+      context,
+      response,
+      context.locals.correlationId
+    );
   }
 
   const ssrContext = await resolveSsrContext(context.cookies, new Date());
@@ -443,7 +493,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // `permissions`). This is the fix for the pool-saturation admin 500s.
     recordHttpRequestMetrics(context, ssrContext.status, requestStartedAt);
 
-    return applyResponseHeaders(ssrContext, context.locals.correlationId);
+    return applyResponseHeaders(
+      context,
+      ssrContext,
+      context.locals.correlationId
+    );
   }
 
   if (!ssrContext) {
@@ -470,5 +524,5 @@ export const onRequest = defineMiddleware(async (context, next) => {
   await collectRequestAnalytics(context, response, ssrContext.identityId, true);
   recordHttpRequestMetrics(context, response.status, requestStartedAt);
 
-  return applyResponseHeaders(response, context.locals.correlationId);
+  return applyResponseHeaders(context, response, context.locals.correlationId);
 });
