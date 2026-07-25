@@ -183,6 +183,27 @@ Aturan keamanannya diverifikasi pada instance yang sama, bukan hanya di lab:
 | BAN token benar               | 200, dan permintaan berikutnya kembali MISS |
 | `Surrogate-Control` ke klien  | Tidak pernah muncul, pada rute mana pun     |
 
+### Bila Cloudflare ikut berada di depan (record ter-proxy)
+
+Diverifikasi pada staging 2026-07-25 dengan record Cloudflare **ter-proxy**
+(orange cloud): rantai lengkapnya Cloudflare → Traefik → Varnish → aplikasi,
+dan permintaan publik ke halaman utama mengembalikan `x-cache: HIT` — cache
+di repo ini tetap yang melayani.
+
+Dua hal yang perlu diketahui operator:
+
+- **Cloudflare tidak ikut menyimpan HTML-nya** (`cf-cache-status: DYNAMIC`),
+  karena `EDGE_CACHE_BROWSER_TTL_SECONDS=0` menghasilkan
+  `Cache-Control: public, max-age=0, must-revalidate`. Ini perilaku yang
+  diinginkan: tidak ada lapisan cache kedua yang diam-diam memperpanjang
+  kebasian, dan sebuah purge di Varnish langsung terasa oleh pembaca. Menaikkan
+  `EDGE_CACHE_BROWSER_TTL_SECONDS` akan mengubah itu — Cloudflare mulai
+  menyimpan, dan purge Varnish tidak lagi cukup.
+- **Sertifikat yang dilihat publik adalah milik Cloudflare**, bukan Let's
+  Encrypt. Let's Encrypt tetap dipakai di **origin** (Traefik). Keduanya benar
+  dan berbeda lapisan; jangan simpulkan penerbitan gagal hanya karena
+  `openssl s_client` dari internet menunjukkan penerbit Cloudflare.
+
 ## Invalidasi
 
 TTL adalah kontrak kesegaran utama: tanpa purge apa pun, sebuah suntingan

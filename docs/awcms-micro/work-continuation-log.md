@@ -13,7 +13,9 @@
 
 ### 2026-07-25 (5) — Staging DIBUAT ULANG + edge cache terbukti di lapangan
 
-**Status:** SELESAI dan terukur. Sisa satu langkah operator: record DNS.
+**Status:** SELESAI dan terukur. Sisa satu langkah operator: record DNS. **[UPDATE
+2026-07-25 sore] DNS record dibuat dan sertifikat Let's Encrypt terbit** — lihat
+"Sisa pekerjaan" di bawah untuk detail; blocker ini sudah tuntas.
 
 **Staging lama hilang.** Instance pertama (`a107y9000uz0t9cmgs18lzcv` + DB
 `d437d850oei6v1s92dq5y3lf`) dihapus dari Coolify di luar sesi yang membuatnya,
@@ -60,10 +62,31 @@ cache ke depan. Lewat Traefik: `http://` → 302, `https://` → MISS lalu HIT,
 
 **Sisa pekerjaan:**
 
-- A record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46` (MCP
+- ~~A record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46` (MCP
   Cloudflare masih menunggu OAuth pengguna). Sampai DNS ada, Let's Encrypt
   belum bisa menerbitkan sertifikat — verifikasi internal memakai header
-  `Host` dan `curl -k`;
+  `Host` dan `curl -k`~~ — **selesai 2026-07-25 sore.** Record dibuat via
+  Cloudflare API dari sesi lain (repo `serv-dinkesdocker`), dan sekaligus
+  domain ini di-proxy Cloudflare (orange cloud). Traefik juga dipindah dari
+  tantangan HTTP-01 ke **DNS-01 via Cloudflare** untuk resolver `letsencrypt`,
+  jadi status proxy record tidak lagi memengaruhi penerbitan/renewal
+  sertifikat. Sertifikat Let's Encrypt asli sudah terbit dan terverifikasi
+  (bukan self-signed default Traefik). Detail:
+  `docs/12-cloudflare-proxy-dns01.md` di repo `serv-dinkesdocker`.
+
+  **Diverifikasi ulang dari sesi ini (12:41 UTC), rantai penuh:** DNS
+  menjawab IP proxy Cloudflare (`104.21.11.201`/`172.67.167.66`); sertifikat
+  **origin** di Traefik memang Let's Encrypt (`CN =
+awcms-micro-staging.ahlikoding.com`, berlaku sampai 23 Okt 2026); sertifikat
+  yang dilihat publik adalah milik Cloudflare (Google Trust Services,
+  `CN = ahlikoding.com`) — konsekuensi wajar record ter-proxy, bukan
+  kekeliruan. Permintaan publik ke `https://awcms-micro-staging.ahlikoding.com/`
+  menembus Cloudflare → Traefik → **Varnish (`x-cache: HIT`)** → aplikasi, dan
+  `cf-cache-status: DYNAMIC` mengonfirmasi Cloudflare **tidak** ikut menyimpan
+  HTML-nya (karena `Cache-Control: public, max-age=0, must-revalidate`) —
+  jadi tidak ada lapisan cache kedua yang diam-diam memperpanjang kebasian,
+  dan purge di Varnish langsung terasa oleh pembaca;
+
 - purge otomatis per-publikasi (issue terpisah, ADR-0037 §Alternatif).
 
 ---
