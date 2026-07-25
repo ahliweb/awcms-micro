@@ -13,7 +13,8 @@
 
 ### 2026-07-25 (2) — CodeQL 298 + penuntasan backlog issue #293–#296
 
-**Status:** SELESAI di branch yang sama dengan entri di bawah; #293 sudah **DITUTUP** di GitHub.
+**Status:** SELESAI & MERGED — PR [#350](https://github.com/ahliweb/awcms-micro/pull/350)
+(`b4888df7`, squash; 8/8 check CI hijau). Issue **#293 DITUTUP** di GitHub.
 
 **CodeQL alert 298** (`js/unused-local-variable`,
 `site-search.integration.test.ts:202`) ternyata **coverage gap, bukan dead code** — persis
@@ -54,7 +55,8 @@ satu tugas yang memang manual: pass screen-reader (#296).
 
 ### 2026-07-25 — Sinkronisasi docs+skills + audit konflik lintas-dokumen
 
-**Status:** SELESAI (belum di-PR saat entri ini ditulis — branch kerja, lihat §Langkah lanjut).
+**Status:** SELESAI & MERGED — bagian pertama dari PR
+[#350](https://github.com/ahliweb/awcms-micro/pull/350) (`b4888df7`).
 
 **Konteks.** Permintaan operator: "update semua skills dan docs" + "analisis semua docs
 agar tidak ada yang konflik". Drift yang disasar: enam commit hari ini (#343–#349) yang
@@ -93,12 +95,11 @@ dari semua gate otomatis.
   §Security memuat tax/CRM/AI seolah berlaku di repo ini. Skill `security-review` dapat
   banner scope + tanda _lineage ERP `awcms`_ pada baris warisan.
 
-**Verifikasi:** `config:docs:check`, `check:docs`, `repo:inventory:check`, `typecheck`,
-`prettier --check` — lihat §Langkah lanjut untuk sisa gate.
-
-**Langkah lanjut:** commit di branch non-main + PR (perubahan menyentuh `src/` → changeset
-`patch` wajib, lihat `changesets:policy:check`). Setelah merge, kompres entri ini jadi satu
-baris historis.
+**Verifikasi:** `bun run check` penuh hijau (lint, docs, kontrak, inventori, i18n,
+typecheck, ~3,9k test, build), lalu 8/8 check CI hijau di PR #350. Satu hal yang
+tertangkap gate: menambah satu file test membuat `repo:inventory:check` GAGAL — jumlah
+file test ada di `repo-inventory.md`, jadi **regenerasi inventori setiap kali menambah
+test/modul/migration/route**, jangan tunggu CI yang memberi tahu.
 
 ---
 
