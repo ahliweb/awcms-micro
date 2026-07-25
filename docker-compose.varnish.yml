@@ -1,0 +1,88 @@
+# Optional Varnish edge-cache overlay for AWCMS-Micro (Issue #353, ADR-0037).
+#
+# Varnish is deliberately absent from the default stack. Enable it explicitly:
+#
+#   cp config/varnish.env.example .env.varnish
+#   # replace EDGE_CACHE_PURGE_TOKEN with a deployment secret
+#   docker compose --env-file .env --env-file .env.varnish \
+#     -f docker-compose.yml -f docker-compose.varnish.yml up --build
+#
+# For the immutable production topology, replace docker-compose.yml above
+# with docker-compose.prod.yml.
+#
+# Traffic then enters on port 8080 (Varnish) instead of 4321 (the app) —
+# point the reverse proxy / Coolify domain mapping at 8080. Removing this
+# overlay and pointing it back at 4321 is a complete, safe rollback: the
+# application is fully functional with no cache in front of it, which is
+# ADR-0037's fail-open invariant.
+#
+# PostgreSQL remains authoritative. This service only removes repeat reads
+# for anonymous visitors; nothing in the request path depends on it.
+
+services:
+  varnish:
+    # Pinned, and the exact version default.vcl was compiled and
+    # behaviour-tested against (Issue #353).
+    image: varnish:7.7.3
+    restart: unless-stopped
+    environment:
+      # Consumed by default.vcl via std.getenv() for the BAN endpoint.
+      # Empty (the default) disables invalidation entirely rather than
+      # accepting unauthenticated bans.
+      EDGE_CACHE_PURGE_TOKEN: ${EDGE_CACHE_PURGE_TOKEN:-}
+      VARNISH_SIZE: ${VARNISH_SIZE:-256M}
+    command:
+      - varnishd
+      - -F
+      - -f
+      - /etc/varnish/default.vcl
+      - -a
+      - :8080
+      - -s
+      - malloc,${VARNISH_SIZE:-256M}
+      # Cap the work a single malformed upstream response can cause.
+      - -p
+      - http_resp_hdr_len=8192
+      - -p
+      - workspace_backend=128k
+    volumes:
+      - ./deploy/varnish/default.vcl:/etc/varnish/default.vcl:ro
+    ports:
+      - "8080:8080"
+    # Deliberately no `depends_on: app` with a health condition: Varnish
+    # must be able to start (and serve stale/grace content) while the
+    # application is still coming up.
+    depends_on:
+      - app
+    healthcheck:
+      test:
+        ["CMD-SHELL", "varnishadm -n /var/lib/varnish status | grep -q Running"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    # Varnish needs to write its shared-memory log and mmap its storage;
+    # it drops to the `varnish` user itself after binding.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /var/lib/varnish:exec
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+
+  app:
+    environment:
+      EDGE_CACHE_ENABLED: "true"
+      EDGE_CACHE_DEFAULT_TTL_SECONDS: ${EDGE_CACHE_DEFAULT_TTL_SECONDS:-60}
+      EDGE_CACHE_BOOST_TTL_SECONDS: ${EDGE_CACHE_BOOST_TTL_SECONDS:-300}
+      EDGE_CACHE_BROWSER_TTL_SECONDS: ${EDGE_CACHE_BROWSER_TTL_SECONDS:-0}
+      EDGE_CACHE_STALE_WHILE_REVALIDATE_SECONDS: ${EDGE_CACHE_STALE_WHILE_REVALIDATE_SECONDS:-60}
+      EDGE_CACHE_STALE_IF_ERROR_SECONDS: ${EDGE_CACHE_STALE_IF_ERROR_SECONDS:-600}
+      EDGE_CACHE_AUTO_ESCALATION: ${EDGE_CACHE_AUTO_ESCALATION:-true}
+      EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT: ${EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT:-70}
+      EDGE_CACHE_PURGE_URL: ${EDGE_CACHE_PURGE_URL:-http://varnish:8080}
+      EDGE_CACHE_PURGE_TOKEN: ${EDGE_CACHE_PURGE_TOKEN:-}

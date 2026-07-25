@@ -126,6 +126,24 @@ metadata (ADR-0006 melarang panggilan provider di dalam transaksi DB), jadi tanp
 sapuan ini objek media yang sudah di-purge **tetap bisa diakses publik** —
 terverifikasi live. Jadwalkan harian, setelah backup.
 
+## Edge cache Varnish (opsional, Issue #353 / ADR-0037)
+
+Tidak ada di stack default. Nyalakan hanya bila deployment ini memang butuh
+menekan beban baca database: overlay `docker-compose.varnish.yml` +
+`deploy/varnish/default.vcl`, lalu **arahkan domain/proxy dari port 4321 ke
+8080**. Traefik tetap memegang TLS. Rollback = arahkan kembali ke 4321.
+
+Yang **otomatis** bukan container-nya, melainkan agresivitas cache-nya:
+aplikasi menaikkan TTL surrogate sendiri saat mengukur tekanan database
+(saturasi work-class foreground atau circuit breaker tidak `closed`), lalu
+menurunkannya dengan histeresis. Jangan menjanjikan ke operator bahwa
+container-nya menyala sendiri — itu tidak benar.
+
+Sebelum menyebut deployment ini "ter-cache", jalankan
+`bun run edge-cache:health` (gagal bila endpoint BAN menerima purge tanpa
+token) dan buktikan `X-Cache: MISS` lalu `HIT` pada permintaan kedua.
+Detail lengkap: `docs/awcms-micro/edge-cache-varnish.md`.
+
 ## Rollback
 
 Image immutable (Pola registry) → redeploy tag sebelumnya. **Migration
