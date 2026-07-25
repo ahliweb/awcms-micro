@@ -180,10 +180,36 @@ and close each of these — with exact commands and evidence to capture — is i
   local media directory at all** (`/app/public/uploads`, `/app/uploads`,
   `/app/media` all absent), so managed media cannot be sitting on ephemeral
   container FS. The probe object was deleted afterwards (verified
-  `exists=false`). REMAINING GAP on this criterion: the round-trip was driven
-  at the storage layer, **not** through the authenticated
-  `POST /api/v1/media/news-images/upload-sessions` → presign → finalize flow,
-  which needs an admin credential for the live tenant that the operator holds.
+  `exists=false`). **The authenticated app-level leg is now ALSO proven
+  (2026-07-25)** — the gap this entry previously recorded is closed. Driven end
+  to end against the live tenant through the real API, as an authenticated
+  admin:
+
+  1. `POST /api/v1/auth/login` (with `x-awcms-micro-tenant-id`) → session +
+     tenant cookies;
+  2. `POST /api/v1/media/news-images/upload-sessions` → `pending_upload` row
+     plus a server-generated, **tenant-scoped** object key
+     (`news-media/<tenantId>/2026/07/<uuid>.png`) and a short-lived presigned
+     `PUT`;
+  3. the presigned `PUT` itself → **HTTP 200**;
+  4. `POST …/upload-sessions/{id}/finalize` with an `Idempotency-Key` →
+     **HTTP 200, `status=verified`**, i.e. the server's own R2 `GET` +
+     magic-byte MIME sniff + SHA-256 all passed.
+
+  The finalize response's server-computed checksum
+  (`ebf4f635…22ee9d2a`) is **byte-identical to the local file's `sha256sum`**,
+  and the object is then served from the tenant's public media domain
+  (`HTTP/2 200`, `content-type: image/png`, `content-length: 67`,
+  `server: cloudflare`). So the media path is proven from the authenticated API
+  call through to public delivery, not merely at the storage layer. The asset
+  was then re-fetched **after a full Coolify rebuild + container replacement**
+  (image `78910fe6` → `1c539bf1`) and came back **byte-identical**, which is a
+  strictly stronger durability proof than the earlier restart-only check. The
+  probe asset was removed afterwards (see §Residual risks for the R2-orphan
+  caveat that removal surfaced). Two guardrails were observed working in
+  passing: Astro's CSRF check rejected a `DELETE` that looked like a
+  cross-site form submission, and `purge` refused with `INVALID_MEDIA_STATUS`
+  until the object had actually been soft-deleted first.
   **`production:preflight` GREEN ON THE TARGET (2026-07-25) — `GO-LIVE
 DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   container on the deployment host at merged `main`, with the target's own
@@ -369,8 +395,27 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   dedicated check (`checkCommentsTimingSecretConfigured`) that measures the
   per-deployment condition — "is a real key configured on THIS target?" —
   instead of flagging a literal whose presence is intentional and permanent.
-  **Operator action: set `COMMENTS_TIMING_SECRET` to a random high-entropy
-  value on the target.**
+  **RESOLVED on the target 2026-07-25**: a 64-character base64url value was
+  generated on the deployment host (`openssl rand -base64 48`, never leaving
+  the box), stored as a Coolify application env var, and applied by a redeploy;
+  the running container now reports it set (length 64), so
+  `checkCommentsTimingSecretConfigured` passes.
+- **Purging managed media does NOT remove the R2 object, and no reconcile job
+  is scheduled on the target (found 2026-07-25).** This is not a code defect —
+  `purgeNewsMediaObject` deliberately hard-deletes only the metadata row,
+  because ADR-0006 forbids provider calls inside a DB transaction, and
+  `media-reconciliation-categorization.ts` documents the resulting
+  `orphanInR2` category as "a known, accepted gap this job [cleans up]" after
+  `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`. The gap is **operational**: the deployment
+  target runs exactly two cron entries (the nightly backup and the weekly
+  restore drill) and **no media-reconciliation schedule at all**, so the sweep
+  that the design relies on never executes. Purged media therefore stays
+  readable at its public URL indefinitely, even though its metadata row is
+  gone — verified live: after `DELETE` + `purge` both returned `200`, the
+  object still served `HTTP/2 200` with `cf-cache-status: DYNAMIC` (so not a
+  CDN artifact). The probe object was removed by hand. **Operator action:
+  schedule the media-library reconciliation job on the target**, or accept that
+  purge leaves public bytes behind.
 - **One integration file hard-failed when the PostgreSQL client was absent
   (found + FIXED 2026-07-25, same #293 step).** With the first two blockers
   cleared, the `test` stage reported **4718 pass / 1 fail** on the target, and
