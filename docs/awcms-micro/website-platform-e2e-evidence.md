@@ -184,34 +184,37 @@ and close each of these — with exact commands and evidence to capture — is i
   at the storage layer, **not** through the authenticated
   `POST /api/v1/media/news-images/upload-sessions` → presign → finalize flow,
   which needs an admin credential for the live tenant that the operator holds.
-  **`production:preflight` EXECUTED against the live target (2026-07-25) —
-  9 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14` container on the
-  deployment host at merged `main`, with the target's own environment,
-  `APP_ENV=production`, `APP_URL` pointed at the app container's internal
-  address, and a **disposable** `postgres:18.4` for
+  **`production:preflight` GREEN ON THE TARGET (2026-07-25) — `GO-LIVE
+DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
+  container on the deployment host at merged `main`, with the target's own
+  environment, `APP_ENV=production`, `APP_URL` pointed at the app container's
+  internal address, and a **disposable** `postgres:18.4` for
   `PREFLIGHT_TEST_DATABASE_URL`. The target database was only ever **read**:
 
-  | Stage                   | Result                                           |
-  | ----------------------- | ------------------------------------------------ |
-  | `config:validate`       | PASS                                             |
-  | `security:readiness`    | **PASS** (was FAIL — fixed, see §Residual risks) |
-  | `database:capacity`     | PASS                                             |
-  | `db:connectivity`       | PASS                                             |
-  | `api:spec:check`        | PASS                                             |
-  | `modules:compose:check` | PASS                                             |
-  | `test`                  | FAIL — see below                                 |
-  | `build`                 | PASS                                             |
-  | `db:pool:health`        | **PASS** (`status="healthy"`)                    |
-  | `migration:plan`        | PASS — **0 pending, 80 already applied**         |
+  | Stage                   | Result                                              |
+  | ----------------------- | --------------------------------------------------- |
+  | `config:validate`       | PASS                                                |
+  | `security:readiness`    | **PASS** (was FAIL — fixed, see §Residual risks)    |
+  | `database:capacity`     | PASS                                                |
+  | `db:connectivity`       | PASS                                                |
+  | `api:spec:check`        | PASS                                                |
+  | `modules:compose:check` | PASS                                                |
+  | `test`                  | **PASS** (4719 tests, ≈936 s — see §Residual risks) |
+  | `build`                 | PASS                                                |
+  | `db:pool:health`        | **PASS** (`status="healthy"`)                       |
+  | `migration:plan`        | PASS — **0 pending, 80 already applied**            |
 
+  Machine-readable report: `go: true`, `failedStages: []`, `blockingSkips: []`.
   `migration:plan` reporting **0 pending** is itself useful evidence: the live
-  schema is exactly in step with `main`. The three environment gotchas that made
-  earlier attempts fail for non-product reasons (allow-listed host name for the
-  disposable DB, an `APP_URL` reachable from the deployment host, `db:migrate`
-  first) are written up in the
+  schema is exactly in step with `main`. Reaching this verdict took **three
+  product fixes**, each invisible from inside CI and each found only by pointing
+  the gate at a real deployment — see §Residual risks. The three _environment_
+  gotchas that additionally made earlier attempts fail for non-product reasons
+  (allow-listed host name for the disposable DB, an `APP_URL` reachable from the
+  deployment host, `db:migrate` first) are written up in the
   [completion runbook §A](website-platform-completion-runbook.md).
-  STILL PENDING for full sign-off: the `test` stage, and the app-level upload
-  leg above. Operator steps:
+  STILL PENDING for full sign-off: only the app-level media upload leg above.
+  Operator steps:
   [website-platform completion runbook](website-platform-completion-runbook.md).
 
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
@@ -368,6 +371,29 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   instead of flagging a literal whose presence is intentional and permanent.
   **Operator action: set `COMMENTS_TIMING_SECRET` to a random high-entropy
   value on the target.**
+- **One integration file hard-failed when the PostgreSQL client was absent
+  (found + FIXED 2026-07-25, same #293 step).** With the first two blockers
+  cleared, the `test` stage reported **4718 pass / 1 fail** on the target, and
+  the single failure was `Executable not found in $PATH: "psql"`.
+  `backup-restore-drill.integration.test.ts` probes `psql`/`pg_dump` at
+  module-load time and is explicitly designed to **skip** when the client is
+  unusable ("this is an environment constraint, not a code defect") — but
+  `Bun.spawnSync` **throws** `ENOENT` when the binary is absent entirely rather
+  than returning a failed result, so version _mismatch_ was handled while
+  version _absence_ escaped as an unhandled error and took the whole file down.
+  That is precisely the environment a preflight runs in: a minimal runtime
+  container with Bun and no PostgreSQL client binaries. Fixed by routing both
+  probes through a non-throwing helper — restoring parity with the runtime
+  counterpart (`src/lib/resilience/scenarios/backup-restore-drill.ts`), which
+  already guarded the identical call with its own `trySpawnSync`. Verified with
+  a `PATH` stripped of the pg binaries: **1 fail + 1 error → 8 skip / 0 fail**.
+- **All three preflight blockers above were invisible from inside CI.** CI runs
+  the suite against a purpose-built Postgres service, on `localhost`, with the
+  client binaries installed, and never sets `APP_ENV=production` — so none of
+  the three could surface there. They are recorded together because the pattern
+  matters more than any one bug: a go-live gate that has only ever been run in
+  CI has not been shown to work on a deployment target, and this one turned out
+  to be unrunnable, unsatisfiable, and then still red, in that order.
 - **In-sandbox verification is partial.** The integration/E2E suites here are
   authored against the real handlers but are executed by **CI**, not locally,
   because this environment cannot reach the containerized PostgreSQL
