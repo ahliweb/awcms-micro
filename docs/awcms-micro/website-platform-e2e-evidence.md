@@ -169,12 +169,26 @@ and close each of these — with exact commands and evidence to capture — is i
   `/feed.xml`, `/atom.xml`, `/feed.json` all return `200` resolved to the
   tenant ("Default Tenant"). The child `<urlset>` is empty only because the
   prod tenant has no published content yet — a content state, not a routing
-  fault. STILL PENDING for full sign-off: `production:preflight` green **on the
-  target** and a **durable-storage round-trip** proven for managed media
-  (upload → served-from-R2, not ephemeral container FS). Note that running
-  preflight against the target additionally requires a **disposable**
-  `PREFLIGHT_TEST_DATABASE_URL` — see the preflight-safety fix recorded under
-  §Residual risks. Operator steps:
+  fault. **Durable-media round-trip — PROVEN (measured live 2026-07-25)**: an
+  object was written to the R2 media bucket through the app's own
+  `Bun.S3Client` configuration (the same client
+  `media-r2-client.ts` builds), fetched over the tenant's public media domain
+  `https://awcms-micro-r2.ahlikoding.com` (**HTTP/2 200**, `server: cloudflare`,
+  stable `etag`), then the **application container was restarted**
+  (`docker restart`, app back to `healthy`) and the object **re-fetched
+  successfully — byte-identical, HTTP 200**. The container additionally has **no
+  local media directory at all** (`/app/public/uploads`, `/app/uploads`,
+  `/app/media` all absent), so managed media cannot be sitting on ephemeral
+  container FS. The probe object was deleted afterwards (verified
+  `exists=false`). REMAINING GAP on this criterion: the round-trip was driven
+  at the storage layer, **not** through the authenticated
+  `POST /api/v1/media/news-images/upload-sessions` → presign → finalize flow,
+  which needs an admin credential for the live tenant that the operator holds.
+  STILL PENDING for full sign-off: `production:preflight` green **on the
+  target** (see the two blockers found while attempting exactly that, recorded
+  under §Residual risks — both now fixed) and the app-level upload leg above.
+  Note that running preflight against the target additionally requires a
+  **disposable** `PREFLIGHT_TEST_DATABASE_URL`. Operator steps:
   [website-platform completion runbook](website-platform-completion-runbook.md).
 - **Backup/restore + DR with measured RTO/RPO** — PostgreSQL and object-storage
   backup/restore evidence with measured recovery objectives on a real target,
@@ -277,6 +291,39 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   blocking skip under `APP_ENV=production` rather than a green it did not
   earn. This is why no "preflight green on target" evidence exists for #293
   prior to this date — the step could not be executed safely.
+- **`security:readiness` could never go green either (found + FIXED
+  2026-07-25, same #293 step).** With the preflight now safe to run, the first
+  real execution against the live target surfaced a second structural blocker:
+  the `No hardcoded secret` check — severity **critical**, so a go-live
+  blocker — reported **11 findings, 10 of them false**. The heuristic flags any
+  line whose variable name contains `password`/`secret`/`api_key`/`token` and
+  whose value is a quoted literal, which caught four TypeScript **string-literal
+  union type aliases** (`PasswordResetDenyReason`, `NewsletterTokenPurpose`,
+  `ThemeTokenKind`, `secretSource`), two **doc comments** that _describe_
+  credential shapes (`redaction.ts`, `preview-token.ts`), two **interpolated
+  template literals** computed at runtime (`appAccessToken`, `tokenCssHref`),
+  Google's **published OIDC endpoint URL**, and a circuit-breaker registry key.
+  Because these are permanent properties of the source, `production:preflight`
+  was structurally incapable of reporting `GO-LIVE DIIZINKAN` on **any** target.
+  Fixed in `scripts/security-readiness.ts` by four **structural** exclusions
+  (comment lines, type-only declarations, interpolated templates, URL values) —
+  shapes that cannot hold a secret — plus a small, explicitly justified
+  `SECRET_SCAN_ACKNOWLEDGED` list so remaining cases stay visible in review
+  rather than dissolving into a regex. The scan now passes cleanly over 910
+  tracked files.
+- **The 11th finding was REAL, and is a live production gap (#293).**
+  `COMMENTS_TIMING_SECRET` is **unset on the deployment target**, so
+  `src/modules/comments/domain/timing-token.ts` signs public comment
+  submit-timing tokens with `DEV_FALLBACK_SECRET` — a fixed literal committed
+  in this repository. Anyone can therefore mint a valid timing token and walk
+  past the submit-timing floor in `anti-abuse.ts`. Severity is **warning, not
+  critical**: the token gates a soft anti-abuse heuristic and never
+  authorization, so the cost is one spam signal, not access. Surfaced by a new
+  dedicated check (`checkCommentsTimingSecretConfigured`) that measures the
+  per-deployment condition — "is a real key configured on THIS target?" —
+  instead of flagging a literal whose presence is intentional and permanent.
+  **Operator action: set `COMMENTS_TIMING_SECRET` to a random high-entropy
+  value on the target.**
 - **In-sandbox verification is partial.** The integration/E2E suites here are
   authored against the real handlers but are executed by **CI**, not locally,
   because this environment cannot reach the containerized PostgreSQL

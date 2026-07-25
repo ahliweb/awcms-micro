@@ -21,6 +21,7 @@ import {
   checkVisitorAnalyticsRawUserAgentRetentionReady,
   checkVisitorAnalyticsRetentionOrderingReady,
   checkVisitorAnalyticsVisitorKeyCookieTtlReady,
+  checkCommentsTimingSecretConfigured,
   scanLineForHardcodedSecret
 } from "../scripts/security-readiness";
 
@@ -119,6 +120,97 @@ describe("scanLineForHardcodedSecret", () => {
     const line = `const ${variableName} = "${fixtureValue}";`;
 
     expect(scanLineForHardcodedSecret(line)).toBe("apiKey");
+  });
+
+  // Regression (Issue #293, found running this gate against the live
+  // deployment target): the scan produced 11 findings, 10 false, which made a
+  // `critical` go-live blocker permanently red and left
+  // `production:preflight` structurally unable to report GO-LIVE DIIZINKAN on
+  // any target. Each case below is a shape that CANNOT hold a secret.
+  test("does not flag a comment line that describes secrets", () => {
+    expect(
+      scanLineForHardcodedSecret("  // `password=hunter2`, `apiKey=abc123`,")
+    ).toBeNull();
+    expect(
+      scanLineForHardcodedSecret(
+        '   * BOTH the tenant id and the raw token: "x~y"'
+      )
+    ).toBeNull();
+  });
+
+  test("does not flag a type-only declaration (erased at build time)", () => {
+    expect(
+      scanLineForHardcodedSecret(
+        'export type NewsletterTokenPurpose = "confirm" | "unsubscribe";'
+      )
+    ).toBeNull();
+    expect(
+      scanLineForHardcodedSecret('  secretSource: "encrypted" | "env";')
+    ).toBeNull();
+  });
+
+  test("does not flag an interpolated template literal (computed at runtime)", () => {
+    const variableName = "appAccess" + "Token";
+    const line =
+      "  const " + variableName + " = `${config.appId}|${credential.value}`;";
+
+    expect(scanLineForHardcodedSecret(line)).toBeNull();
+  });
+
+  test("does not flag a published URL value", () => {
+    expect(
+      scanLineForHardcodedSecret(
+        '  tokenEndpoint: "https://oauth2.googleapis.com/token",'
+      )
+    ).toBeNull();
+  });
+
+  // The exclusions above are structural, so they must not blunt the heuristic
+  // for a genuine single-line assignment.
+  test("still flags a real single-line secret assignment", () => {
+    const variableName = "api" + "SecretKey";
+    const fixtureValue = "aaaaaaaa" + "aaaaaaaa";
+    const line = `const ${variableName} = "${fixtureValue}";`;
+
+    expect(scanLineForHardcodedSecret(line)).toBe("apiSecretKey");
+  });
+});
+
+describe("checkCommentsTimingSecretConfigured (Issue #293)", () => {
+  test("fails when COMMENTS_TIMING_SECRET is unset in production", () => {
+    const result = checkCommentsTimingSecretConfigured({
+      APP_ENV: "production"
+    });
+
+    expect(result.severity).toBe("warning");
+    expect(result.status).toBe("fail");
+    expect(result.evidence).toContain("COMMENTS_TIMING_SECRET is unset");
+  });
+
+  test("fails when COMMENTS_TIMING_SECRET is only whitespace in production", () => {
+    const result = checkCommentsTimingSecretConfigured({
+      APP_ENV: "production",
+      COMMENTS_TIMING_SECRET: "   "
+    });
+
+    expect(result.status).toBe("fail");
+  });
+
+  test("passes when a real value is configured in production", () => {
+    const result = checkCommentsTimingSecretConfigured({
+      APP_ENV: "production",
+      COMMENTS_TIMING_SECRET: "operator-provided-high-entropy-value"
+    });
+
+    expect(result.status).toBe("pass");
+  });
+
+  // The whole point of the fallback is that development runs unconfigured.
+  test("passes outside production even when unset", () => {
+    expect(
+      checkCommentsTimingSecretConfigured({ APP_ENV: "development" }).status
+    ).toBe("pass");
+    expect(checkCommentsTimingSecretConfigured({}).status).toBe("pass");
   });
 });
 
