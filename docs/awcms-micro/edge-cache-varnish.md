@@ -222,7 +222,12 @@ mengidentifikasi tenant.
 
 ## Rollback
 
-Arahkan reverse proxy kembali ke port 4321 dan hentikan service Varnish.
+Hentikan service Varnish. Bila pemasangannya memakai pola prioritas router
+Traefik (lihat [`deploy-coolify.md`](deploy-coolify.md) §Memindahkan domain ke
+Varnish), tidak ada langkah lain sama sekali: Traefik jatuh kembali ke router
+aplikasi dengan sendirinya — sudah diverifikasi dengan benar-benar mematikan
+container-nya di staging. Pada topologi Compose, arahkan reverse proxy kembali
+ke port 4321.
 Tidak ada migrasi yang perlu dibalik, tidak ada state yang hilang — cache
 tidak pernah menjadi sumber kebenaran. Menyetel `EDGE_CACHE_ENABLED=false`
 menghentikan aplikasi mengirim header cache sama sekali, sehingga aman
