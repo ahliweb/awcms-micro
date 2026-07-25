@@ -293,10 +293,25 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   retention scoped to `nightly/` only — the bucket's unrelated historical
   `backups/db/*.enc` is untouched). Restore-proven end-to-end (R2 → decrypt →
   `gunzip -t` = valid PG dump); see
-  [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO. STILL
-  DEFERRED: the object-storage (R2) **restore** drill and the live chaos drills
-  (the _shapes_ are covered by
-  `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts`).
+  [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO.
+  **Offsite restore drill — AUTOMATED (verified live 2026-07-24)**: a weekly cron
+  (`17 3 * * 0`) pulls the newest `nightly/*.sql.gz.enc` from R2, decrypts it, and
+  restores it into a disposable throwaway `postgres:18.4` container, asserting the
+  restore is real (`tables=140 migrations=80 tenants=1`, matching prod) before
+  discarding the container — so the offsite copies are _verified_, not merely
+  taken. STILL DEFERRED: the **live chaos drills**. That deferral is by design,
+  not omission: `authorizeDrDrill` hard-blocks `APP_ENV=production` with **no
+  override flag at all** (see [`resilience-dr-verification.md`](resilience-dr-verification.md)
+  §Safety interlock), so chaos injection can never legitimately run against the
+  production target; it needs a standing non-production instance, which does not
+  exist yet. The drill _shapes_ all execute for real against a real PostgreSQL in
+  `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts` and via
+  `bun run resilience:dr-drill` (5/5 safe-tier scenarios PASS, re-verified
+  2026-07-25 against `postgres:18.4`: SSO-discovery outage fails fast in 6 ms,
+  work-class backpressure rejects an over-capacity waiter and hands the slot to
+  the FIFO-queued one, a closed client reconnects in 3.6 ms, a real `SIGTERM`
+  leaves no stuck advisory lock, and the email outbox commits independently of a
+  provider outage then retries exactly once with no duplicate send).
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
   content/media volume. (split issue: **#295**) **Lab CWV gate LANDED**:
@@ -321,10 +336,28 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   interactions — all comfortably inside budget. The `/` reading is exactly the
   case the two-counter design exists for: `inp: 0` alongside `interactions: 4`
   proves every interaction finished under Event Timing's 16 ms floor, rather
-  than that nothing ever reached the page. STILL DEFERRED: **load/soak at
-  representative content/media volume** — the live tenant has no published
-  content yet, so these numbers characterise the site shell, not a
-  content-heavy site.
+  than that nothing ever reached the page.
+  **Server/query/search/feed budgets under load + soak — MEASURED 2026-07-25**:
+  the FULL lane (`bun run performance:suite -- --full`, `large` fixture scale,
+  soak included) ran against a real `postgres:18.4` — **6/6 scenarios PASS**:
+  `interactive-load` p50 15.7 ms / p95 25.8 ms / p99 26.4 ms, 0 errors;
+  `critical-transaction-integrity` 20 concurrent racers on one idempotency key →
+  **exactly 1 row persisted**, every caller got a successful (replayed or
+  original) response; `reporting-under-load` 15/15 critical writes persisted
+  while 16 concurrent reporting reads succeeded (reporting p95 369 ms, critical
+  p95 5.7 ms — the work-class split keeps a heavy report off the write path);
+  `background-sync-claim-load` 16 concurrent `FOR UPDATE SKIP LOCKED` claims,
+  **0.0 % error rate**; `saturation-and-recovery` 20-call burst on a capacity-1
+  class → 15 rejected immediately with `503 DATABASE_BUSY` + `Retry-After: 2`,
+  5 served, gate drained to baseline, follow-up call succeeded;
+  **`soak-stability` 1 428 479 calls over 600 s with 0 errors and growth that
+  settled** (first half 746.5 MB, second half 737.0 MB — flat, not compounding,
+  which is what distinguishes a leak from steady-state churn).
+  STILL DEFERRED: **CWV at representative content/media volume** and **load at
+  the public HTTP edge** — the live tenant has no published content yet, so the
+  field CWV numbers above characterise the site shell rather than a
+  content-heavy site, and the suite above drives the server/DB in-process rather
+  than through Cloudflare.
 - **Full-journey accessibility & link checking** (**#296**) — the base-app
   in-repo portion has LANDED: `public-a11y-smoke.e2e.ts` (axe-core over public
   `/`, `/newsletter/demo`, `/comments/demo` in EN + ID, at **desktop 1280×800
@@ -353,8 +386,25 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   `/newsletter/demo` and `/comments/demo`; live rendered-link crawl green). Both
   specs are pure Playwright with no database import, so this was read-only
   traffic against production. This closes the "deployed-instance journey" half
-  of the criterion for the surfaces the live tenant currently renders. STILL
-  DEFERRED: the **screen-reader** pass (manual), the deployed-instance
+  of the criterion for the surfaces the live tenant currently renders.
+  **Keyboard journey LANDED (2026-07-25)**: `public-keyboard-journey.e2e.ts`
+  covers the part axe **structurally cannot** — axe is a static DOM auditor and
+  never presses Tab, so a keyboard trap (2.1.2), a tab order that diverges from
+  document order (2.4.3), and a global `outline: none` that leaves a keyboard
+  user with no visible position (2.4.7) all survive a green axe scan. The spec
+  tabs each public page until focus escapes or provably cycles (bounded at 40
+  presses — the bound is what makes a trap fail fast instead of hanging),
+  asserts visit order equals document order, and requires every visited control
+  to paint an outline or box-shadow while focused. A border-colour change is
+  deliberately NOT accepted as an indicator: recognising it needs a diff against
+  the same element unfocused, and accepting it unconditionally would make the
+  assertion unfalsifiable. **Falsifiability was verified, not assumed** — a
+  negative control injecting
+  `*, *:focus { outline: none !important; box-shadow: none !important }` makes
+  the spec FAIL. Run unmodified against the deployed instance
+  (`E2E_BASE_URL=https://awcms-micro.ahlikoding.com`): **5/5 PASS**, EN + ID,
+  read-only traffic. STILL DEFERRED: the **screen-reader** pass (manual), the
+  deployed-instance
   **content-template** journey (the live tenant has no published content yet,
   so `/news`/`/blog` render nothing there — covered hermetically by
   `public-content-a11y.e2e.ts`), and a rendered-content link crawl at

@@ -11,6 +11,47 @@
 
 ## Entri aktif
 
+### 2026-07-25 (2) — CodeQL 298 + penuntasan backlog issue #293–#296
+
+**Status:** SELESAI di branch yang sama dengan entri di bawah; #293 sudah **DITUTUP** di GitHub.
+
+**CodeQL alert 298** (`js/unused-local-variable`,
+`site-search.integration.test.ts:202`) ternyata **coverage gap, bukan dead code** — persis
+pola yang dicatat skill `awcms-micro-codeql-triage` §Pola tambahan. Test "rebuild is
+idempotent" menangkap hasil rebuild kedua lalu tak pernah meng-assert apa pun darinya.
+Yang hilang justru bagian menariknya: `rebuildTenantSearchIndex` meng-DELETE dokumen
+sumber lebih dulu, jadi semua baris kembali sebagai `added`, tidak pernah `unchanged` —
+itulah yang membedakannya dari reconcile ber-checksum tiga baris di bawahnya. Sekarang
+di-assert (runId berbeda, `sourceCount` 5, `added` 5, `unchanged` 0, `removed` 0,
+`failures` 0); 11/11 lulus terhadap `postgres:18.4` sungguhan.
+
+**Backlog issue:**
+
+- **#293 DITUTUP** — tiga kotak acceptance semuanya punya bukti lapangan.
+- **#294** — kotak 1 (RTO/RPO terukur) tuntas; kotak 2 terpenuhi secara substansi (5/5
+  skenario safe-tier diverifikasi ulang hari ini). Sisa "live chaos drill" **diblokir by
+  design**: `authorizeDrDrill` menolak `APP_ENV=production` tanpa override apa pun, jadi
+  butuh instance non-produksi yang belum ada. Satu follow-up nyata: passphrase dekripsi
+  backup offsite baru ada di host prod, wajib disimpan off-box.
+- **#295** — lane FULL `performance:suite` dijalankan (skala `large` + soak): **6/6 PASS**,
+  termasuk soak **1.428.479 call / 600 s, 0 error**, pertumbuhan **mendatar** (paruh
+  pertama 746,5 MB vs paruh kedua 737,0 MB — itulah yang membedakan kebocoran dari churn
+  steady-state, bukan angka RSS absolutnya).
+- **#296** — spec baru `public-keyboard-journey.e2e.ts` menutup yang **tidak bisa** dilihat
+  axe (auditor DOM statis tak pernah menekan Tab): 2.1.2 keyboard trap, 2.4.3 focus order,
+  2.4.7 focus visible. 5/5 hijau terhadap instance ter-deploy (EN+ID, trafik read-only).
+  **Falsifiabilitasnya dibuktikan** lewat negative control — menyuntik
+  `outline: none !important; box-shadow: none !important` membuat spec GAGAL. Lakukan hal
+  yang sama untuk assertion a11y baru; hijau saja tidak membuktikan gate-nya menggigit.
+
+**Blocker tunggal yang tersisa untuk #295 DAN #296 bukan kode:** tenant live belum punya
+konten terbit, jadi angka CWV mencirikan cangkang situs, `/news`/`/blog` tak merender apa
+pun di sana, dan load di edge akan mengukur situs kosong. Terbitkan konten+media
+representatif di target → jalankan ulang spec yang SUDAH ada (tanpa perubahan). Sisanya
+satu tugas yang memang manual: pass screen-reader (#296).
+
+---
+
 ### 2026-07-25 — Sinkronisasi docs+skills + audit konflik lintas-dokumen
 
 **Status:** SELESAI (belum di-PR saat entri ini ditulis — branch kerja, lihat §Langkah lanjut).
