@@ -50,15 +50,16 @@ daftar false-positive nyata: `docs/awcms-micro/production-readiness.md`
 
 ## Fokus per area
 
-| Area        | Cek utama                                                                    |
-| ----------- | ---------------------------------------------------------------------------- |
-| Identity    | password hash modern, login lockout, failed login audit                      |
-| POS         | idempotency, stock lock, atomic, immutable                                   |
-| Tax         | NPWP/NIK/NITKU masked, export approval + audit                               |
-| CRM         | consent, provider key env, phone/email masked                                |
-| Sync        | HMAC, anti-replay, node inactive ditolak                                     |
-| AI          | read-only, safe aggregate views, no raw PII                                  |
-| Master data | soft delete hidden by default, restore conflict check, purge retention/legal |
+| Area                                   | Cek utama                                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity                               | password hash modern, login lockout, failed login audit                                                                                                                                                                                                                                            |
+| POS _(lineage ERP `awcms`)_            | idempotency, stock lock, atomic, immutable                                                                                                                                                                                                                                                         |
+| Tax _(lineage ERP `awcms`)_            | NPWP/NIK/NITKU masked, export approval + audit                                                                                                                                                                                                                                                     |
+| CRM _(lineage ERP `awcms`)_            | consent, provider key env, phone/email masked                                                                                                                                                                                                                                                      |
+| Sync                                   | HMAC, anti-replay, node inactive ditolak                                                                                                                                                                                                                                                           |
+| AI _(lineage ERP `awcms`)_             | read-only, safe aggregate views, no raw PII                                                                                                                                                                                                                                                        |
+| Master data                            | soft delete hidden by default, restore conflict check, purge retention/legal                                                                                                                                                                                                                       |
+| Edge cache _(bila dipasang, ADR-0037)_ | rute publik baru TIDAK boleh masuk allowlist tanpa alasan; permukaan anti-enumerasi (`/comments`, `/newsletter`) tetap di denylist; endpoint BAN menolak tanpa token (`bun run edge-cache:health` gagal bila menerima); `Surrogate-Control` tidak bocor ke klien; label metrik tanpa hostname/path |
 
 ## Output
 

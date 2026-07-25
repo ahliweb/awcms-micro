@@ -59,6 +59,29 @@ Sukses `{ success:true, data, meta }`; error `{ success:false, error:{ code, mes
 
 `Authorization`, `X-AWCMS-Micro-Tenant-ID`, `Idempotency-Key`, `X-Correlation-ID`, `Accept-Language`; sync: `X-AWCMS-Micro-Node-ID`, `X-AWCMS-Micro-Timestamp`, `X-AWCMS-Micro-Signature`.
 
+## Rute PUBLIK baru dan edge cache (Issue #353, ADR-0037)
+
+Berlaku hanya untuk rute **publik anonim** (halaman/feed), bukan `/api/*`
+— seluruh prefix `/api/` ada di denylist cache permanen.
+
+Rute publik baru **tidak** otomatis ter-cache. Itu disengaja: default-deny
+di `src/lib/cache/edge-cache-policy.ts` berarti hit rate yang rendah hanya
+membuang peluang, sedangkan satu halaman yang bocor lintas pembaca adalah
+insiden. Kalau rute baru memang layak di-cache, tambahkan ke
+`PUBLIC_CACHEABLE_EXACT`/`PUBLIC_CACHEABLE_PREFIXES` **secara sadar** dan
+pastikan tiga hal:
+
+- responsnya identik untuk semua pengunjung anonim (tidak ada bagian
+  per-pembaca, tidak ada data sesi);
+- ia tidak memasang cookie sendiri;
+- ia bukan permukaan anti-enumerasi (respons sengaja seragam) — kalau ya,
+  masukkan ke `NEVER_CACHEABLE_PREFIXES` seperti `/comments` dan
+  `/newsletter`.
+
+Kalau handler menetapkan `Cache-Control` sendiri, lapisan cache **tidak**
+menimpanya; yang privat/`no-store` otomatis membuat respons itu tidak
+cacheable.
+
 ## Verifikasi
 
 ```bash

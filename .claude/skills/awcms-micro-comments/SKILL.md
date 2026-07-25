@@ -8,7 +8,7 @@ description: Kerjakan bagian mana pun dari epic comments AWCMS-Micro (Issue #271
 `comments` (`src/modules/comments`) adalah **modul domain Official Optional
 Module** (ADR-0032, Issue #271, epic #261 Wave 2) — komentar
 **MODERATION-FIRST** atas resource TERBIT & PUBLIK. Admission + runtime pertama
-mendarat dalam satu PR (#271), menaikkan registry base **20 → 21** dan
+mendarat dalam satu PR (#271), menaikkan registry base **20 → 21** (angka base terkini **22**, lihat `src/modules/index.ts`) dan
 `MODULE_CONTRACT_VERSION` **1.3.0 → 1.4.0** saat itu (registry base **kini 22**;
 kontrak **kini 2.0.0** setelah ADR-0036/PR #304 menghapus jalur
 derived-application). Modul terdaftar `status: "active"`,
