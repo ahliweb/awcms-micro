@@ -351,26 +351,88 @@ aplikasi yang sudah diatur lewat `AWCMS_MICRO_R2_BUCKET` dan variabel R2 lain di
 environment variable masing-masing aplikasi — jangan berbagi bucket/prefix
 antar aplikasi tanpa pemisahan path yang jelas.
 
-## Dispatcher terjadwal (email)
+## Job terjadwal (email, reconcile, purge) — `docker exec` TIDAK bisa dipakai
 
-`bun run email:dispatch` (Issue #499, lihat
-[`deployment-profiles.md`](deployment-profiles.md) §Dispatcher email
-terjadwal untuk detail lengkap) adalah CLI, bukan endpoint — di Coolify
-dijalankan lewat **Scheduled Task** Coolify (bila plan/versi mendukung)
-atau cron di VPS host, memanggil `docker exec <container-app> bun run
-email:dispatch` setiap 1-2 menit. Sama seperti backup, pada topologi
-multi-app setiap aplikasi punya jadwal dispatch sendiri sesuai
-`EMAIL_ENABLED`/`DATABASE_URL` masing-masing — tidak ada dispatcher
-bersama lintas aplikasi. Bila `EMAIL_ENABLED` aplikasi tersebut `false`,
-perintah ini no-op (exit 0) sehingga aman dijadwalkan meski belum
-diaktifkan.
+> ⚠️ **Koreksi (Issue #293, diverifikasi live 2026-07-25).** Dokumen ini dulu
+> menyuruh menjadwalkan job lewat `docker exec <container-app> bun run <job>`.
+> **Pola itu tidak pernah bisa berjalan pada image `Dockerfile.production`** —
+> alasannya sama persis dengan §Migration one-shot di atas: image runtime hanya
+> berisi `dist/` + `package.json` + `node_modules`, **tanpa `scripts/`**.
+> Diverifikasi di container prod yang sedang berjalan:
+>
+> ```text
+> $ docker exec <app> bun run email:dispatch
+> error: Module not found "scripts/email-dispatch.ts"
+> $ docker exec <app> bun run news-media:reconcile
+> error: Module not found "scripts/news-media-r2-reconcile.ts"
+> ```
+>
+> Ini berlaku untuk **semua** job: `email:dispatch`, `sync:objects:dispatch`,
+> `logs:audit:purge`, `form-drafts:purge`, `news-media:reconcile`. Sebuah cron
+> yang memakai pola lama akan gagal tiap kali dijalankan, dan — bila exit code-nya
+> tidak diperiksa — gagal **tanpa terlihat**.
 
-`sync:objects:dispatch` (setiap 1-2 menit) dan `logs:audit:purge`/
-`form-drafts:purge` (harian) dijadwalkan dengan pola **Scheduled
-Task**/cron `docker exec` yang sama persis, hanya beda nama command —
-lihat [`deployment-profiles.md`](deployment-profiles.md) §Job registry
-lainnya (Issue #519) untuk daftar lengkap job dan mana yang on-demand
-(bukan cron berulang).
+Job adalah CLI, bukan endpoint, dan butuh source lengkap. Jalankan dari
+**checkout sumber persisten** di host lewat container `oven/bun` sekali-pakai
+di network Coolify — bentuk yang sama dengan migration one-shot, tetapi
+checkout-nya dipertahankan supaya `bun install` tidak diulang tiap malam:
+
+```bash
+# Sekali: siapkan checkout
+git clone --depth 5 https://github.com/ahliweb/awcms-micro ~/jobs/awcms-micro
+
+# Tiap run (cron): sinkronkan sumber, lalu jalankan job
+git -C ~/jobs/awcms-micro fetch -q origin main
+git -C ~/jobs/awcms-micro checkout -q -f origin/main
+docker run --rm --network <network-coolify> --env-file <envfile-chmod-600> \
+  -v ~/jobs/awcms-micro:/work -w /work oven/bun:1.3.14 \
+  sh -c 'bun install --frozen-lockfile && bun run <job>'
+```
+
+`git` dijalankan **di host** (image `oven/bun` tidak menyertakannya). Env diambil
+dari container aplikasi yang sedang berjalan ke file `chmod 600` yang dihapus
+oleh `trap` EXIT, sehingga run yang terinterupsi tidak meninggalkan kredensial.
+
+> ⚠️ **Filter env: jangan taruh `=` setelah prefiks.** Pola seperti
+> `grep -E "^(DATABASE_URL|NEWS_MEDIA_R2_|APP_ENV)="` menuntut `=` tepat setelah
+> `NEWS_MEDIA_R2_`, sehingga **membuang seluruh** `NEWS_MEDIA_R2_*`. Akibatnya
+> job berstatus `skipped` (exit 0!) dan cron terlihat hijau tiap malam sambil
+> tidak menyapu apa pun. Gunakan
+> `grep -E "^(DATABASE_URL|APP_ENV|LOG_LEVEL)=|^NEWS_MEDIA_R2_"`, dan
+> **perlakukan `skipped` sebagai FAIL** di script cron — bug ini nyata terjadi
+> saat memasang jadwal ini.
+
+Pada topologi multi-app setiap aplikasi punya jadwal sendiri sesuai
+`EMAIL_ENABLED`/`DATABASE_URL` masing-masing — tidak ada dispatcher bersama
+lintas aplikasi. Bila gate fitur aplikasi tersebut `false`, job-nya no-op
+(exit 0) sehingga aman dijadwalkan meski belum diaktifkan.
+
+Frekuensi: `email:dispatch` dan `sync:objects:dispatch` setiap 1–2 menit;
+`logs:audit:purge`, `form-drafts:purge`, dan `news-media:reconcile` harian.
+Lihat [`deployment-profiles.md`](deployment-profiles.md) §Job registry lainnya
+(Issue #519) untuk daftar lengkap dan mana yang on-demand (bukan cron berulang).
+
+### `news-media:reconcile` — wajib bila media dikelola (Issue #293)
+
+Ini bukan job opsional kalau tenant menyimpan media. Mem-`purge` sebuah media
+object **hanya** menghapus baris metadata: `purgeNewsMediaObject` tidak pernah
+memanggil R2, karena ADR-0006 melarang panggilan provider di dalam transaksi DB.
+Byte-nya disapu belakangan oleh job ini sebagai kategori `orphanInR2`, setelah
+lebih tua dari `NEWS_MEDIA_R2_ORPHAN_GRACE_DAYS`.
+
+**Tanpa jadwal ini, sapuan itu tidak pernah terjadi** dan media yang sudah
+di-purge tetap dapat diakses publik selamanya meski metadata-nya hilang —
+diverifikasi live pada 2026-07-25: setelah `DELETE` dan `purge` sama-sama
+mengembalikan `200`, objeknya masih menyajikan `HTTP/2 200` dengan
+`cf-cache-status: DYNAMIC` (jadi bukan artefak CDN). Perlakukan job ini sebagai
+bagian dari jaminan retensi/penghapusan, bukan sekadar housekeeping.
+
+Contoh jadwal yang terpasang di `dinkes-prod` (harian 03:45, setelah backup
+02:30 dan sebelum restore-drill mingguan 03:17 Minggu):
+
+```cron
+45 3 * * * /home/admin1/jobs/awcms-micro-media-reconcile.sh
+```
 
 ## Rollback
 

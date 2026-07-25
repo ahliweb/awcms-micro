@@ -413,9 +413,34 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   readable at its public URL indefinitely, even though its metadata row is
   gone — verified live: after `DELETE` + `purge` both returned `200`, the
   object still served `HTTP/2 200` with `cf-cache-status: DYNAMIC` (so not a
-  CDN artifact). The probe object was removed by hand. **Operator action:
-  schedule the media-library reconciliation job on the target**, or accept that
-  purge leaves public bytes behind.
+  CDN artifact). The probe object was removed by hand.
+  **RESOLVED on the target 2026-07-25**: a daily reconcile job is now scheduled
+  (`45 3 * * * /home/admin1/jobs/awcms-micro-media-reconcile.sh`, after the
+  02:30 backup), verified running for real (`tenants=1`, not skipped). Two
+  things had to be fixed along the way, both now written up in
+  [`deploy-coolify.md`](deploy-coolify.md) §Job terjadwal:
+  - **The documented scheduling pattern could never have worked.** Both
+    `deploy-coolify.md` and `deployment-profiles.md` prescribed
+    `docker exec <container-app> bun run <job>`, but the `Dockerfile.production`
+    image ships `dist/` + `package.json` + `node_modules` and **no `scripts/`**
+    — the same constraint the docs already recorded for migrations, never
+    carried over to jobs. Verified on the running container:
+    `docker exec <app> bun run email:dispatch` →
+    `Module not found "scripts/email-dispatch.ts"`. This affected **every**
+    scheduled job (`email:dispatch`, `sync:objects:dispatch`,
+    `logs:audit:purge`, `form-drafts:purge`, `news-media:reconcile`), so any
+    cron built from those docs would have failed on every run — silently, if it
+    did not check exit codes. Jobs now run from a persistent source checkout via
+    a throwaway `oven/bun` container.
+  - **A silent-skip trap in the env plumbing.** Filtering the app's environment
+    with `grep -E "^(DATABASE_URL|NEWS_MEDIA_R2_|APP_ENV)="` requires `=`
+    immediately after `NEWS_MEDIA_R2_`, so it drops **every** `NEWS_MEDIA_R2_*`
+    variable. The job then reports `skipped — NEWS_MEDIA_R2_ENABLED is not
+"true"` and **exits 0**: a nightly cron that looks green while sweeping
+    nothing — precisely the failure mode that let this gap go unnoticed in the
+    first place. The installed script uses
+    `"^(DATABASE_URL|APP_ENV|LOG_LEVEL)=|^NEWS_MEDIA_R2_"` and now treats a
+    `skipped` result as **FAIL**.
 - **One integration file hard-failed when the PostgreSQL client was absent
   (found + FIXED 2026-07-25, same #293 step).** With the first two blockers
   cleared, the `test` stage reported **4718 pass / 1 fail** on the target, and
