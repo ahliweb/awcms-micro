@@ -445,11 +445,17 @@ non-produksi, bukan sekadar belum dijalankan.
 
 | Aspek    | Nilai                                                                                 |
 | -------- | ------------------------------------------------------------------------------------- |
-| Aplikasi | Coolify app `a107y9000uz0t9cmgs18lzcv`, build dari `main` via `Dockerfile.production` |
+| Aplikasi | Coolify app `pd1wiamufqx3cnzy6gmilh1i`, build dari `main` via `Dockerfile.production` |
 | Domain   | `awcms-micro-staging.ahlikoding.com` (router Traefik + resolver `letsencrypt`)        |
-| Database | `postgres:18.4` Coolify-managed `d437d850oei6v1s92dq5y3lf`, DB `awcms_micro_staging`  |
+| Database | `postgres:18.4` Coolify-managed `pu25s9f9xiuwwobxn2azp3en`, DB `awcms_micro_staging`  |
 | Peran DB | `awcms_micro_app` least-privilege sendiri (bukan superuser, bukan BYPASSRLS)          |
 | Isolasi  | `AUTH_JWT_SECRET`/`COMMENTS_TIMING_SECRET` sendiri; **R2, email, dan sync semua OFF** |
+
+> **Instance ini dibuat ULANG 2026-07-25 siang.** Instance pertama
+> (`a107y9000uz0t9cmgs18lzcv` + DB `d437d850oei6v1s92dq5y3lf`) dihapus dari
+> Coolify di luar sesi yang membuatnya, bersamaan dengan rollout staging untuk
+> `awcms-mini` dan `awcms` di host yang sama. UUID di tabel ini adalah instance
+> yang berlaku sekarang; UUID lama sudah mati dan tidak akan kembali.
 
 **Isolasi adalah keputusan desain, bukan penghematan konfigurasi.** Staging tidak
 diberi kredensial R2 dan email dimatikan supaya sebuah drill atau eksperimen
@@ -508,6 +514,28 @@ Di Coolify, urutannya:
    berjalan tanpa menerima permintaan apa pun.
 4. Traefik tetap yang memegang TLS — tidak ada yang perlu diubah pada
    sertifikat.
+
+### Gotcha Coolify nyata: nama container aplikasi berubah tiap deploy
+
+Backend Varnish di `default.vcl` menunjuk sebuah hostname. Pada Compose itu
+`app` dan stabil; **di Coolify tidak**: container aplikasi bernama
+`<uuid>-<timestamp>` dan berganti pada **setiap** deploy, sehingga Varnish
+tiba-tiba menunjuk backend yang sudah tidak ada.
+
+Dua jalan yang terlihat menjanjikan dan **terbukti tidak berhasil** di
+Coolify 4.1.2 (keduanya dicoba pada instance staging, 2026-07-25):
+
+- `custom_docker_run_options: "--network-alias …"` — tersimpan di database
+  Coolify, tetapi tidak pernah diteruskan ke `docker run` (Coolify menyaring
+  opsi ke daftar-izin miliknya);
+- kolom `custom_network_aliases` — juga tersimpan, juga tidak diterapkan
+  untuk build pack `dockerfile`.
+
+Jadi sampai Coolify menyediakan alias yang benar-benar diterapkan, **VCL harus
+diarahkan ulang setelah setiap deploy aplikasi**. Skrip satu langkah untuk itu
+ada di host staging sebagai `~/awcms-micro-staging-varnish-repoint.sh`: ia
+membaca nama container yang sedang berjalan, menulis ulang VCL dari template,
+lalu me-restart Varnish. Jalankan setiap kali aplikasi selesai deploy.
 
 Verifikasi sebelum menyebut deployment ini "ter-cache": `bun run
 edge-cache:health` (gagal bila endpoint BAN menerima purge tanpa token),

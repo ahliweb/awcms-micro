@@ -11,6 +11,55 @@
 
 ## Entri aktif
 
+### 2026-07-25 (5) — Staging DIBUAT ULANG + edge cache terbukti di lapangan
+
+**Status:** SELESAI dan terukur. Sisa satu langkah operator: record DNS.
+
+**Staging lama hilang.** Instance pertama (`a107y9000uz0t9cmgs18lzcv` + DB
+`d437d850oei6v1s92dq5y3lf`) dihapus dari Coolify di luar sesi yang membuatnya,
+bersamaan dengan rollout staging `awcms-mini` dan `awcms` di host yang sama.
+Dibuat ulang atas permintaan dengan domain yang sama:
+
+- app `pd1wiamufqx3cnzy6gmilh1i`, DB `pu25s9f9xiuwwobxn2azp3en` (`postgres:18.4`);
+- 80 migration, 131 tabel FORCE RLS, peran `awcms_micro_app` least-privilege;
+- secret **baru** (JWT/timing/purge) — tidak ada yang disalin dari instance lama;
+- tenant `staging` di-seed lewat setup wizard, hostname dipetakan di
+  `awcms_micro_tenant_domains` sehingga rute publik betul-betul 200.
+
+**Edge cache #353 terukur pada instance itu** (20 permintaan per rute; `db_xact`
+= delta `pg_stat_database.xact_commit`, jadi pekerjaan database nyata):
+
+| Rute           | Tanpa cache       | Dengan cache   |
+| -------------- | ----------------- | -------------- |
+| `/`            | 163 txn / 24,8 ms | 2 txn / 1,7 ms |
+| `/sitemap.xml` | 76 txn / 19,2 ms  | 1 txn / 3,7 ms |
+| `/feed.xml`    | 60 txn / 16,8 ms  | 1 txn / 3,3 ms |
+
+Cookie sesi selalu bypass, `/admin` dan `/api/*` tidak pernah tersimpan, BAN
+tanpa/salah token 403, `Surrogate-Control` tidak pernah bocor.
+
+**Dua bug nyata ditemukan karena benar-benar dijalankan:**
+
+1. `docker-compose.varnish.yml` memasang `tmpfs: /var/lib/varnish` — Varnish
+   berjalan non-root dan tidak bisa membuat direktori kerjanya di tmpfs kosong,
+   container crash-loop. Baris itu dihapus (`cap_drop: [ALL]` sendiri aman).
+2. Coolify mengganti nama container aplikasi tiap deploy, dan **baik**
+   `custom_docker_run_options: --network-alias` **maupun** kolom
+   `custom_network_aliases` tidak diterapkan untuk build pack `dockerfile`
+   (keduanya dicoba). VCL karena itu harus diarahkan ulang setiap deploy —
+   skrip `~/awcms-micro-staging-varnish-repoint.sh` ada di host.
+
+**Sisa pekerjaan:**
+
+- A record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46` (MCP
+  Cloudflare masih menunggu OAuth pengguna);
+- menjadikan Varnish pintu masuk publik staging (memindahkan domain dari app
+  ke resource Varnish di Coolify) — belum dilakukan karena host itu sedang
+  dipakai operator lain untuk rollout staging keluarga;
+- purge otomatis per-publikasi (issue terpisah, ADR-0037 §Alternatif).
+
+---
+
 ### 2026-07-25 (4) — Edge cache Varnish opsional (#353, ADR-0037)
 
 **Status:** PR [#354](https://github.com/ahliweb/awcms-micro/pull/354) terbuka,
