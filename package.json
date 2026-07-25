@@ -47,6 +47,7 @@
     "redis:health": "bun scripts/redis-health.ts",
     "edge-cache:health": "bun scripts/edge-cache-health.ts",
     "edge-cache:purge": "bun scripts/edge-cache-purge.ts",
+    "edge-cache:verify": "bun scripts/edge-cache-verify.ts",
     "database:capacity:check": "bun scripts/database-capacity-check.ts",
     "db:work-class:generate": "bun scripts/work-class-registry-generate.ts",
     "db:work-class:check": "bun scripts/work-class-registry-check.ts",
