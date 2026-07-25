@@ -152,6 +152,14 @@ dua modul, sementara invalidasi wajib berada **di luar** transaksi
 terpisah; TTL sudah membatasi kebasian, dan `bun run edge-cache:purge`
 menyediakan jalur eksplisit untuk kasus yang tidak boleh menunggu TTL.
 
+> **Sudah mendarat (Issue #359).** Penundaan di atas berakhir: invalidasi
+> otomatis kini berjalan pada publish/archive/restore/update/delete artikel
+> dan pada job publikasi terjadwal, dipanggil **setelah** transaksi commit
+> lewat `invalidatePublicCacheForTenant()`. Tiga aturannya — di luar
+> transaksi, fail-open mutlak, dan nol pekerjaan database ketika cache tidak
+> dikonfigurasi — diuji unit. TTL tetap menjadi jaring pengaman, bukan
+> digantikan.
+
 ## Konsekuensi
 
 ### Positif
