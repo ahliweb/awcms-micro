@@ -57,10 +57,19 @@ Reference: [`deploy-coolify.md`](deploy-coolify.md), [`deployment-profiles.md`](
    re-fetch the asset — it must survive).
 4. **Preflight on the target** (read-only) — write the machine-readable report with `--json-output`
    (stdout is human-readable progress, not the report):
+
    ```bash
-   APP_ENV=production DATABASE_URL=<url> bun run production:preflight -- \
-     --json-output=evidence/preflight.json
+   APP_ENV=production DATABASE_URL=<url> \
+     PREFLIGHT_TEST_DATABASE_URL=<DISPOSABLE-db-url> \
+     bun run production:preflight -- --json-output=evidence/preflight.json
    ```
+
+   `PREFLIGHT_TEST_DATABASE_URL` must point at a **disposable** database (a throwaway
+   `postgres:18.4` container is fine), never at the target: the `test` stage runs the integration
+   suite, which `TRUNCATE`s every `awcms_micro_*` table. Preflight refuses to forward the target's
+   own `DATABASE_URL` to that stage — omit the variable and `test` runs unit-only and reports
+   **SKIP**, which blocks go-live under `APP_ENV=production`.
+
 5. **Edge/TLS/CDN**: put Cloudflare/CDN/WAF in front per `deploy-coolify.md`; verify TLS + security
    headers/CSP with `curl -I https://<site>` and confirm no secrets in headers/logs.
 

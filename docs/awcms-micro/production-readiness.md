@@ -15,7 +15,7 @@ flowchart LR
   Cap --> Conn[db:connectivity]
   Conn --> Spec[api:spec:check]
   Spec --> Compose[modules:compose:check]
-  Compose --> Test[bun test]
+  Compose --> Test["test - bun test, NEVER against the target DSN"]
   Test --> Build[build]
   Build --> Probe{Server reachable?}
   Probe -->|ya| Pool[db:pool:health]
@@ -33,7 +33,14 @@ flowchart LR
 valid sebelum tahap manapun mencoba konek database
 (`scripts/production-preflight.ts`'s `READ_ONLY_STAGES`). **Reworked oleh
 Issue #684** (epic #679, platform-hardening) supaya seluruh tahap ini
-read-only secara default (lihat daftar tahap di §3 di bawah — jangan
+read-only **terhadap database target** secara default — dengan satu
+pengecualian penting, stage `test`: suite integrasi men-`TRUNCATE` seluruh
+tabel `awcms_micro_*`, jadi preflight tidak pernah meneruskan `DATABASE_URL`
+target ke `bun test` dan memakai `PREFLIGHT_TEST_DATABASE_URL` (database
+sekali-pakai) sebagai gantinya; tanpa itu stage `test` SKIP dan memblokir
+go-live saat `APP_ENV=production`. Lihat
+[`production-preflight-runbook.md`](production-preflight-runbook.md)
+(lihat daftar tahap di §3 di bawah — jangan
 hardcode jumlahnya di sini, karena bertambah seiring skrip berkembang) —
 lihat
 `docs/awcms-micro/production-preflight-runbook.md` untuk urutan tahap yang

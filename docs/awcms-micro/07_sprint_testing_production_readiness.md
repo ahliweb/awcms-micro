@@ -273,8 +273,14 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 - Backup baru dibuat.
 
 Sejak Issue #684 (epic #679): `bun run production:preflight` sendiri
-**read-only** (config/security/connectivity/spec/test/build/pool-health/
-migration-plan — tidak ada stage yang menulis). Menerapkan migrasi adalah
+**read-only terhadap target deployment**
+(config/security/connectivity/spec/test/build/pool-health/migration-plan —
+tidak ada stage yang menulis ke target). Pengecualiannya adalah stage `test`:
+suite integrasi men-`TRUNCATE` seluruh tabel `awcms_micro_*`, sehingga
+preflight **tidak pernah** meneruskan `DATABASE_URL` target ke `bun test` —
+gunakan `PREFLIGHT_TEST_DATABASE_URL` (database sekali-pakai) agar stage itu
+benar-benar jalan; tanpa itu stage `test` berstatus SKIP dan memblokir go-live
+saat `APP_ENV=production`. Menerapkan migrasi adalah
 langkah terpisah dan eksplisit (`--apply-migrations --backup-verified
 --acknowledge-target=<APP_ENV>`), hanya berjalan bila verdict preflight
 `GO-LIVE DIIZINKAN`. Prosedur rehearsal staging → bukti backup → apply →
@@ -301,8 +307,8 @@ rollback lengkap: `docs/awcms-micro/production-preflight-runbook.md`.
   terpisah, lihat §Migration checklist di atas — berhasil).
 - API spec valid.
 - Production preflight pass (`bun run production:preflight`, read-only
-  sejak Issue #684; `APP_ENV=production` memblokir go-live bila
-  `db:pool:health` skip).
+  terhadap target sejak Issue #684; `APP_ENV=production` memblokir go-live
+  bila `db:pool:health` atau `test` skip).
 - Setup wizard locked.
 - Role default tersedia.
 - ABAC default deny tested.
