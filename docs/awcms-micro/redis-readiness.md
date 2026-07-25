@@ -19,6 +19,16 @@ flowchart LR
   MISS --> PG
 ```
 
+> **Beda dengan edge cache Varnish (Issue #353, [ADR-0037](../adr/0037-optional-varnish-edge-cache-with-automatic-escalation.md)).**
+> Keduanya opsional, keduanya fail-open, dan keduanya **tidak** pernah
+> menjadi sumber kebenaran — tetapi berada di lapisan berbeda dan saling
+> melengkapi, bukan bersaing. Redis menghapus **query berulang di dalam
+> proses**; render SSR tetap dijalankan. Varnish duduk **di depan** proses
+> dan menghapus render berulang itu seluruhnya untuk pembaca anonim, tetapi
+> tidak menolong sama sekali untuk permintaan terautentikasi (yang memang
+> selalu di-bypass). Sebuah deployment boleh memakai salah satu, keduanya,
+> atau tidak sama sekali.
+
 ## 2. Prinsip yang mengikat
 
 1. **Default disabled** — tanpa `REDIS_ENABLED=true`, aplikasi tidak membuat koneksi Redis.

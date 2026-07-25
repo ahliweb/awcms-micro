@@ -50,6 +50,10 @@ flowchart TB
     VIS[Pengunjung publik<br/>situs tenant]
   end
 
+  subgraph Edge["Akselerasi opsional (nonaktif default)"]
+    VARNISH[Edge cache HTTP<br/>Varnish · ADR-0037]
+  end
+
   subgraph App["AWCMS-Micro — Bun + Astro 7 (Modular Monolith)"]
     API[REST API /api/v1<br/>OpenAPI]
     MW[Middleware:<br/>Auth · Tenant · ABAC · Idempotency · Audit]
@@ -69,6 +73,8 @@ flowchart TB
 
   ADM --> API
   VIS --> API
+  VIS -. bila dipasang, pembaca anonim .-> VARNISH
+  VARNISH -. miss .-> API
   API --> MW --> MOD
   MOD --> PG
   MOD --> EVT
@@ -90,6 +96,7 @@ Media terkelola disimpan di **object storage yang durable** lewat kontrak provid
 - Outbox transaksional + sync HMAC untuk delivery provider & object queue ([ADR-0006](docs/adr/0006-offline-first-sync-outbox.md), diamandemen ADR-0027)
 - Security baseline: **RBAC + ABAC + PostgreSQL RLS + Audit Log** ([ADR-0004](docs/adr/0004-rbac-abac-default-deny.md))
 - Kontrak: **OpenAPI** + **AsyncAPI** ([ADR-0007](docs/adr/0007-openapi-asyncapi-contracts.md))
+- Akselerasi **opsional, nonaktif secara default** — keduanya fail-open dan tidak pernah menjadi sumber kebenaran: **edge cache HTTP Varnish** di depan aplikasi, dengan TTL yang naik sendiri saat tekanan database terukur ([ADR-0037](docs/adr/0037-optional-varnish-edge-cache-with-automatic-escalation.md)), dan **Redis** untuk cache/koordinasi ephemeral di dalam proses ([ADR-0030](docs/adr/0030-optional-redis-readiness-foundation.md))
 
 ## Prinsip utama
 

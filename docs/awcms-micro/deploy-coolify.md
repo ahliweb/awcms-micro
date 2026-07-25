@@ -488,6 +488,39 @@ begitu record DNS publik menunjuk ke server ini.
 yang rusak, bukan masalah lockfile. Deploy ulang dengan `force=true` (tanpa
 cache) langsung berhasil.
 
+## Edge cache Varnish opsional (Issue #353, ADR-0037)
+
+Tidak ada di stack default dan tidak perlu dipasang kecuali deployment ini
+memang ingin menekan beban baca database untuk pengunjung anonim. Referensi
+lengkap: [`edge-cache-varnish.md`](edge-cache-varnish.md).
+
+Di Coolify, urutannya:
+
+1. Tambahkan satu service `varnish` (image `varnish:7.7.3`) di stack yang
+   sama, mount `deploy/varnish/default.vcl` ke `/etc/varnish/default.vcl`,
+   dan set env `EDGE_CACHE_PURGE_TOKEN` (rahasia deployment; kosong =
+   invalidasi mati, bukan terbuka).
+2. Set env aplikasi: `EDGE_CACHE_ENABLED=true` dan
+   `EDGE_CACHE_PURGE_URL=http://varnish:8080`. Sisanya punya default yang
+   masuk akal.
+3. **Pindahkan port yang dipetakan domain dari 4321 ke 8080.** Ini satu
+   perubahan yang benar-benar mengalihkan trafik; sebelum itu, Varnish
+   berjalan tanpa menerima permintaan apa pun.
+4. Traefik tetap yang memegang TLS — tidak ada yang perlu diubah pada
+   sertifikat.
+
+Verifikasi sebelum menyebut deployment ini "ter-cache": `bun run
+edge-cache:health` (gagal bila endpoint BAN menerima purge tanpa token),
+lalu buktikan `X-Cache: MISS` pada permintaan pertama dan `HIT` pada
+permintaan kedua ke halaman publik yang sama.
+
+**Rollback**: kembalikan pemetaan domain ke port 4321 dan hentikan service
+Varnish. Tidak ada migrasi yang perlu dibalik dan tidak ada state yang
+hilang — cache tidak pernah menjadi sumber kebenaran. Bila yang dicurigai
+adalah kebijakan cache-nya (bukan container-nya), `EDGE_CACHE_ENABLED=false`
+menghentikan aplikasi mengirim header cache sama sekali dan bisa dipakai
+sebagai langkah pertama.
+
 ## Rollback
 
 - **Image registry (Pola 2)**: rollback = deploy ulang tag image

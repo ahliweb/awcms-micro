@@ -121,6 +121,8 @@ deployment (PR #344):
 
 **Security:** no hardcoded secret · `.env` aman & tidak dikomit · password hash modern · login lockout · RLS aktif · ABAC aktif · audit aktif · restore/purge berizin dan diaudit · sync HMAC bila hybrid · error tanpa stack trace · `COMMENTS_TIMING_SECRET` terisi di produksi · **no critical finding**. (Tax data masking, CRM opt-out, dan AI read-only tetap dicetak `security:readiness` sebagai **out of scope** — tidak ada modul pajak/CRM/AI di scope website ini, ADR-0025/ADR-0034; lihat `production-readiness.md` §Item di luar cakupan.)
 
+**Edge cache (hanya bila dipasang, Issue #353/ADR-0037):** `bun run edge-cache:health` keluar zero · endpoint BAN **menolak** purge tanpa token · `X-Cache` menunjukkan MISS lalu HIT pada halaman publik yang sama · `Surrogate-Control` tidak muncul di respons ke klien. Lapisan ini opsional dan **tidak** diperiksa `security:readiness`/`production:preflight` — ia hidup di luar proses aplikasi, jadi ini langkah manual terpisah. Deployment tanpa edge cache melewatinya sepenuhnya.
+
 **Runtime platform:** backend, script, test, migration, build, dan preflight berjalan dengan Bun. Tidak ada `node`, `npm`, `npx`, `pnpm`, `yarn`, adapter server Node.js, atau dependency yang memaksa runtime Node.js kecuali pengecualian tertulis sudah disetujui dan dicatat di docs/audit.
 
 ## Gate

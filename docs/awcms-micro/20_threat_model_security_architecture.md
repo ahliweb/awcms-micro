@@ -1349,6 +1349,34 @@ rebuildCursor` (lihat mitigasi "Live delivery yang di-skip..." di
   di sini juga — tidak dipicu pola tulis nyata `sample.recorded` hari
   ini.
 
+## Standar tambahan dipicu edge cache opsional (Issue #353, ADR-0037)
+
+Menempatkan cache HTTP bersama **di depan** middleware auth memindahkan
+sebagian keputusan "siapa boleh melihat apa" ke komponen yang tidak
+mengenal sesi. Itu batas kepercayaan baru, dan diperlakukan demikian.
+Lapisan ini opsional dan nonaktif secara default — bagian ini hanya
+berlaku bila `EDGE_CACHE_ENABLED=true` dan sebuah cache benar-benar
+dipasang.
+
+**Aset yang dipertaruhkan:** isi halaman per-pembaca, batas tenant, dan
+ketersediaan.
+
+| Ancaman                                               | Vektor                                                                                                    | Kontrol                                                                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Information disclosure — lintas pembaca**           | Response terautentikasi tersimpan lalu disajikan ke orang lain                                            | Tiga lapis saling bebas: kebijakan aplikasi (bypass bila ada cookie sesi/header `Authorization`, tolak bila response memasang `Set-Cookie`, hanya status 200, hanya rute allowlist), cache key, dan VCL yang mengulang kedua pemeriksaan itu. Lapis VCL wajib: cookie yang diantrekan lewat `context.cookies` Astro baru digabung setelah middleware selesai sehingga tidak terlihat oleh aplikasi |
+| **Information disclosure — lintas tenant**            | Satu entri cache dipakai dua hostname tenant                                                              | Host masuk ke cache key (tenant di-resolve per host), dan `Vary: Cookie` dikirim pada setiap response cacheable                                                                                                                                                                                                                                                                                    |
+| **Information disclosure — bocornya sinyal internal** | `Surrogate-Control` (dan TTL boost yang menyiratkan database sedang tertekan) sampai ke klien             | Dibuang tanpa syarat di `vcl_deliver` — termasuk pada response yang **tidak** di-cache; header diagnostik publik dibatasi pada `cacheable`/`bypass` dan tidak pernah menyebut mode eskalasi. Kebocoran ini nyata pernah ada dan ditemukan dengan menjalankan VCL-nya, bukan membacanya                                                                                                             |
+| **Tampering — cache poisoning**                       | Header yang dikendalikan penyerang (`Host`, `X-Forwarded-*`) membentuk key atau isi                       | Cache berada **di belakang** reverse proxy yang sudah menormalkan `Host`; aturan `PUBLIC_TRUST_PROXY` yang ada tetap berlaku tanpa perubahan                                                                                                                                                                                                                                                       |
+| **Denial of service — purge tak berwenang**           | Siapa pun mengosongkan cache berulang kali sehingga semua beban jatuh ke database                         | BAN hanya diterima dari ACL jaringan privat **dan** dengan token bersama; token kosong menonaktifkan invalidasi alih-alih membukanya. `bun run edge-cache:health` sengaja menguji tanpa token dan **gagal** bila endpoint menerimanya                                                                                                                                                              |
+| **Injection — ekspresi ban**                          | Pola path pemanggil membentuk ulang ekspresi `ban()` di dalam cache                                       | `edge-cache-purge.ts` membatasi host dan pola path pada himpunan karakter sebelum dikirim; permintaan tak valid tidak pernah diteruskan                                                                                                                                                                                                                                                            |
+| **Privacy — label metrik**                            | Hostname/path masuk ke label metrik dan mengidentifikasi tenant                                           | `edge_cache_purge_total` hanya berlabel `outcome`; dua gauge eskalasi tidak berlabel sama sekali                                                                                                                                                                                                                                                                                                   |
+| **Oracle pada permukaan anti-enumerasi**              | Respons `/comments` dan `/newsletter` yang sengaja seragam menjadi tidak seragam karena sebagian di-cache | Kedua prefix ada di denylist **eksplisit**, dan denylist diperiksa sebelum allowlist                                                                                                                                                                                                                                                                                                               |
+
+Batasan yang diterima secara sadar: kebasian konten publik terikat TTL
+(bukan nol), dan mode eskalasi bersifat per-proses sehingga beberapa
+instance dapat berbeda mode pada saat bersamaan. Keduanya tidak menyentuh
+kerahasiaan maupun integritas — hanya kesegaran.
+
 ## Permukaan ancaman scope ERP yang tidak diport (ADR-0025 §3)
 
 awcms-micro adalah turunan scope WEBSITE dari standar AWCMS-Mini. Tujuh

@@ -77,6 +77,16 @@ stale-while-revalidate=600` (see `domain/discovery-limits.ts`).
   CDN/edge integration ADR-0028 §7 describes (locking on the same
   tenant/host/locale tuple) is a follow-up and must not degrade the offline-lan
   profile when off.
+- **In-repo edge cache** (Issue #353, [ADR-0037](../adr/0037-optional-varnish-edge-cache-with-automatic-escalation.md)) —
+  `/robots.txt`, `/sitemap.xml`, `/sitemap-*.xml`, `/feed.xml`, `/atom.xml`, and
+  `/feed.json` are on the optional Varnish layer's public allowlist. Two
+  interactions matter here: that layer **never overwrites** the `Cache-Control`
+  these routes set for themselves, and its own `Surrogate-Control` TTL
+  (`EDGE_CACHE_DEFAULT_TTL_SECONDS`, default 60 s) is what the shared cache
+  actually obeys — so the effective edge lifetime is the edge TTL, deliberately
+  shorter than the `s-maxage=300` above rather than longer. Nothing about the
+  validators changes; a revalidation still returns `304`. See
+  [`edge-cache-varnish.md`](edge-cache-varnish.md).
 
 ### Event-driven invalidation
 

@@ -180,6 +180,23 @@ open gets `Retry-After: 30` (roughly the breaker's own `openDurationMs`).
 Neither number is computed from live state (see `tenant-context.ts`'s doc
 comment for why) — both are fixed, conservative constants.
 
+**If the optional edge cache is deployed** (Issue #353,
+[ADR-0037](../adr/0037-optional-varnish-edge-cache-with-automatic-escalation.md)),
+one more thing happens automatically at this point, and an operator reading
+a saturation incident should expect it: the application raises its
+surrogate TTL from `EDGE_CACHE_DEFAULT_TTL_SECONDS` to
+`EDGE_CACHE_BOOST_TTL_SECONDS` as soon as foreground work-class
+utilization reaches `EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT` (default 70 %),
+or immediately when the database circuit breaker leaves `closed`. Anonymous
+readers then stop reaching the database at all while the incident lasts, and
+`edge_cache_boost_active` goes to 1. The boost releases itself after
+pressure falls 20 points below the threshold **and** at least 30 s have
+passed — so seeing it stay on briefly after recovery is expected, not a
+stuck state. Watch `edge_cache_escalation_transitions_total`: a high rate
+means the threshold is mistuned for this deployment, not that the cache is
+malfunctioning. Without the cache deployed, none of this happens and the
+`503 DATABASE_BUSY` path above is the whole behaviour.
+
 ## Operational signals
 
 `GET /api/v1/database/pool/health` now includes a `capacity` field (this

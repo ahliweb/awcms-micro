@@ -34,6 +34,31 @@ Sumber kebenaran: **`docs/awcms-micro/16_backend_data_access_integration.md`** (
 - [ ] **SSR reuse** — halaman admin fetch via fungsi application-layer di dalam satu `withTenant`, bukan round-trip HTTP ke API sendiri (pola `*-directory.ts`/`*-report.ts`).
 - [ ] **Locking** — `FOR UPDATE` hanya pada baris yang benar-benar dimutasi bersama (mis. stok); hindari lock rentang lebar.
 
+## Edge cache opsional — hapus pekerjaannya, bukan percepat (Issue #353, ADR-0037)
+
+Sebelum mengoptimasi query halaman publik, tanyakan apakah query itu perlu
+dijalankan sama sekali. Untuk pembaca anonim yang berulang, jawabannya
+sering tidak: cache HTTP di depan aplikasi
+(`docs/awcms-micro/edge-cache-varnish.md`) menghapus render SSR **dan**
+query-nya sekaligus.
+
+- [ ] **Tahu apa yang otomatis dan apa yang tidak.** Container Varnish
+      adalah keputusan operator; yang otomatis adalah TTL-nya — aplikasi
+      menaikkannya sendiri saat utilisasi work-class foreground mencapai
+      `EDGE_CACHE_PRESSURE_THRESHOLD_PERCENT` atau circuit breaker
+      meninggalkan `closed`, lalu melepasnya dengan histeresis 20 poin +
+      tahan 30 detik. Jangan menjanjikan lebih dari itu.
+- [ ] **Ini bukan pengganti tuning.** Permintaan terautentikasi (admin,
+      pembaca ber-sesi) SELALU bypass cache — jalur itu hanya membaik lewat
+      query/index/pool. Cache membeli ruang, bukan kebenaran.
+- [ ] **Bedakan dari Redis (ADR-0030).** Redis menghapus query berulang di
+      dalam proses; render SSR tetap jalan. Varnish menghapus render itu
+      sendiri untuk pembaca anonim. Boleh dipakai bersama.
+- [ ] **Ukur, jangan asumsikan.** `X-Cache: HIT/MISS` per rute plus
+      `edge_cache_boost_active`/`edge_cache_pressure_percent`. Hit rate
+      rendah pada pengunjung pertama adalah perilaku yang dirancang
+      (respons pertama memasang cookie visitor), bukan bug.
+
 ## Verifikasi
 
 - `EXPLAIN ANALYZE` sebelum/sesudah menunjukkan perbaikan nyata (Seq→Index Scan, plan cost turun).
