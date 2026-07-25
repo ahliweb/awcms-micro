@@ -225,9 +225,37 @@ ekspresi ban di dalam cache.
 Cache menerima BAN hanya dari jaringan privat **dan** dengan token yang
 cocok. Token kosong **mematikan** invalidasi, bukan membukanya.
 
-Purge otomatis pada setiap publikasi belum ada dan itu disengaja (ADR-0037
-§Alternatif): transisi publikasi berada di dalam transaksi database,
-sementara invalidasi wajib berada di luar transaksi.
+### Purge otomatis saat publikasi berubah (Issue #359)
+
+Sejak Issue #359 invalidasi berjalan **sendiri** ketika konten publik
+berubah — tidak perlu operator mengingat menjalankan perintah di atas.
+Permukaan yang terhubung: `publish`, `archive`, `restore`, `PATCH`, dan
+`DELETE` artikel blog, plus job publikasi terjadwal.
+
+Tiga aturan yang membentuk implementasinya, masing-masing karena mode gagal
+yang pernah dialami repositori ini:
+
+1. **Selalu di luar transaksi database.** Menahan koneksi pool selama
+   panggilan HTTP ke cache adalah bentuk yang menjenuhkan pool pada Issue
+   #324. Pemanggilan terjadi setelah `withTenant` selesai, dan hanya ketika
+   handler benar-benar sukses — `404`/`422`/fallback `503` tidak mengubah
+   konten publik apa pun.
+2. **Fail-open mutlak.** Publikasi yang sudah commit tidak pernah berubah
+   menjadi gagal karena cache tak terjangkau; TTL tetap jaring pengamannya.
+3. **Nol pekerjaan database bila cache tidak dikonfigurasi.** Pemeriksaan
+   konfigurasi mendahului pencarian hostname, sehingga deployment tanpa edge
+   cache tidak membayar satu query pun per publikasi.
+
+Yang di-purge adalah **seluruh host**, bukan hanya URL yang berubah:
+menerbitkan satu artikel juga mengubah daftar, halaman tag/kategori,
+sitemap, dan feed. Mendaftar semuanya secara presisi berarti menyalin ulang
+aturan routing tiap modul ke satu tempat dan diam-diam melewatkan modul yang
+ditambahkan kemudian — biayanya (satu pengisian ulang cache) jauh lebih
+murah daripada risikonya.
+
+**Belum terhubung, dan alasannya:** halaman (`blog_pages`) belum disajikan
+publik; `news_portal` punya jalur publikasinya sendiri; `purge` artikel
+hanya sah untuk konten yang sudah non-publik.
 
 ## Metrik
 

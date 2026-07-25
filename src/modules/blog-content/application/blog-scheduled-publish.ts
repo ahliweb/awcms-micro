@@ -1,4 +1,5 @@
 import { withTenant } from "../../../lib/database/tenant-context";
+import { invalidatePublicCacheForTenant } from "../../../lib/cache/edge-cache-invalidation";
 import { log } from "../../../lib/logging/logger";
 import { recordAuditEvent } from "../../logging/application/audit-log";
 import { fetchPostTermIds } from "./blog-taxonomy-directory";
@@ -78,7 +79,7 @@ export async function publishDueScheduledPosts(
   const now = options.now ?? new Date();
   const correlationId = options.correlationId;
 
-  return withTenant(
+  const result = await withTenant(
     sql,
     tenantId,
     async (tx) => {
@@ -268,4 +269,19 @@ export async function publishDueScheduledPosts(
     },
     { workClass: "maintenance" }
   );
+
+  // Issue #359 — outside the transaction above (ADR-0030 §4), and only when
+  // something actually became public. A scheduled run that published
+  // nothing must not drop a tenant's cache: the job runs on a timer, so
+  // that would flush the cache on a schedule rather than on a change.
+  if (result.publishedCount > 0) {
+    await invalidatePublicCacheForTenant({
+      sql,
+      tenantId,
+      reason: "blog.post.scheduled_published",
+      correlationId
+    });
+  }
+
+  return result;
 }

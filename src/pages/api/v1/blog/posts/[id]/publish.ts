@@ -6,6 +6,7 @@ import {
   ok
 } from "../../../../../../modules/_shared/api-response";
 import { getDatabaseClient } from "../../../../../../lib/database/client";
+import { withPublicCacheInvalidation } from "../../../../../../lib/cache/edge-cache-invalidation";
 import { withTenant } from "../../../../../../lib/database/tenant-context";
 import {
   authorizeInTransaction,
@@ -90,7 +91,7 @@ export const POST: APIRoute = async ({ request, params, cookies, locals }) => {
   const now = new Date();
   const correlationId = locals.correlationId;
 
-  return withTenant(sql, tenantId, async (tx) => {
+  const response = await withTenant(sql, tenantId, async (tx) => {
     const auth = await authorizeInTransaction(
       tx,
       tenantId,
@@ -246,5 +247,16 @@ export const POST: APIRoute = async ({ request, params, cookies, locals }) => {
     );
 
     return successResponse;
+  });
+
+  // Issue #359 — AFTER the transaction, never inside it (ADR-0030 §4):
+  // holding a pooled connection open across an HTTP call to the cache is
+  // the shape that saturated the pool in Issue #324. Fail-open; TTL expiry
+  // stays the backstop.
+  return withPublicCacheInvalidation(response, {
+    sql,
+    tenantId,
+    reason: "blog.post.published",
+    correlationId
   });
 };
