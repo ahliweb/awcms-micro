@@ -271,6 +271,44 @@ murah daripada risikonya.
 publik; `news_portal` punya jalur publikasinya sendiri; `purge` artikel
 hanya sah untuk konten yang sudah non-publik.
 
+#### Bukti lapangan invalidasi otomatis (staging, 2026-07-25)
+
+Dijalankan pada instance staging yang sama setelah deploy `d2798fb7`, dengan
+menerbitkan artikel sungguhan lewat API — bukan memanggil purge secara
+langsung. Header saja tidak cukup sebagai bukti (sebuah MISS bisa berasal dari
+banyak sebab), jadi yang dicek juga **isi** yang tersaji:
+
+| Langkah                          | Hasil                                             |
+| -------------------------------- | ------------------------------------------------- |
+| `/sitemap-1.xml` 2×              | `HIT` — tersaji dari cache                        |
+| Buat artikel (belum diterbitkan) | Slug baru **tidak** ada di badan yang di-cache    |
+| `POST .../publish`               | 200                                               |
+| `/sitemap-1.xml` berikutnya      | **`MISS`** — entri lama dibuang oleh invalidasi   |
+| Isi jawaban `MISS` itu           | Slug baru **ada** — pembaca menerima konten segar |
+| `/sitemap-1.xml` sekali lagi     | `HIT` — cache terisi ulang                        |
+
+Urutan yang sama diamati pada `/`: `HIT` sebelum terbit, `MISS` tepat
+sesudahnya, `HIT` lagi pada permintaan berikutnya. Inilah pengujian yang
+menemukan bug transport di atas — sebelum perbaikan, langkah keempat tetap
+`HIT` sementara klien melaporkan purge berhasil.
+
+Sebuah `MISS` saja belum membuktikan apa-apa: kedaluwarsa TTL menghasilkan
+`MISS` yang persis sama. Karena itu larinya diulang dengan **kontrol waktu**,
+memakai `archive` (jalur terhubung lainnya) dan mencatat detik berjalan:
+
+```
+t=0s  hangat    : HIT
+t=12s KONTROL   : HIT   <- tanpa perubahan konten, masih di dalam TTL 60 detik
+t=13s sebelum   : HIT   (3 slug uji ada di badan)
+t=13s archive   : 200 200 200
+t=14s SESUDAH   : MISS  (0 slug uji — konten segar)
+t=14s berikutnya: HIT
+```
+
+Objek yang sama masih `HIT` pada detik ke-12 dan baru `MISS` satu detik setelah
+`archive`, jauh di dalam TTL — jadi yang membuang entri itu adalah invalidasi,
+bukan waktu.
+
 ## Metrik
 
 | Metrik                                    | Arti                                                                          |

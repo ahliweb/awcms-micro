@@ -11,6 +11,51 @@
 
 ## Entri aktif
 
+### 2026-07-25 (6) — Invalidasi otomatis per-publikasi (#359) TERBUKTI di lapangan
+
+**Status:** SELESAI. PR [#360](https://github.com/ahliweb/awcms-micro/pull/360)
+(implementasi) dan [#361](https://github.com/ahliweb/awcms-micro/pull/361)
+(perbaikan transport) sudah merge; commit `d2798fb7` sudah ter-deploy ke staging
+dan diverifikasi di sana dengan menerbitkan artikel sungguhan.
+
+**Apa.** `publish`, `archive`, `restore`, `PATCH`, `DELETE` artikel blog, plus
+job publikasi terjadwal, kini meng-invalidasi cache publik tenantnya sendiri —
+tidak lagi bergantung pada operator mengingat menjalankan `edge-cache:purge`.
+Tiga aturan yang mengikatnya (di luar transaksi, fail-open mutlak, nol query bila
+edge cache tidak dikonfigurasi) ada di header
+`src/lib/cache/edge-cache-invalidation.ts` dan diuji unit.
+
+**Pelajaran yang paling mahal: invalidasi itu tadinya mati total, tapi tampak
+sehat.** Klien purge memakai metode HTTP kustom `BAN` (idiom Varnish yang lazim),
+dan **`fetch` milik Bun diam-diam menulis ulang metode tak dikenal menjadi `GET`**
+(diverifikasi pada Bun 1.3.14 lewat `varnishlog`: `ReqMethod GET`). Permintaan
+tidak pernah menyentuh cabang ban di VCL, dilayani sebagai halaman biasa, membalas
+200 — dan 200 itu dibaca klien sebagai purge berhasil. Unit test tidak mungkin
+menangkapnya karena mereka men-stub `fetch`, persis lapisan yang rusak; `bun run
+edge-cache:health` pun ikut buta karena memakai metode kustom yang sama.
+Perbaikannya menutup kelasnya, bukan gejalanya: transport menjadi
+`POST /__awcms-edge-cache/ban`, dan respons ban **wajib** membawa penanda
+`X-Edge-Cache-Ban: ok` sehingga 200 dari apa pun yang bukan handler ban kini
+dilaporkan **gagal**.
+
+**Bukti lapangan (staging, setelah deploy `d2798fb7`).** Terbitkan artikel
+sungguhan lewat API, lalu periksa header **dan** isi:
+`/sitemap-1.xml` `HIT` → buat artikel (slug baru belum ada di badan yang
+di-cache) → `publish` → `MISS` dan **slug baru tersaji** → `HIT` lagi. Urutan
+sama pada `/`. Tabelnya ada di
+[`edge-cache-varnish.md`](edge-cache-varnish.md) §Purge otomatis.
+
+**Yang perlu diingat operator staging:** Coolify mengganti nama container
+aplikasi tiap deploy, jadi `~/awcms-micro-staging-varnish-repoint.sh` di host
+harus dijalankan setelah setiap deploy sebelum verifikasi apa pun — kalau tidak,
+Varnish masih menunjuk container lama.
+
+**Sisa pekerjaan:** halaman (`blog_pages`) dan `news_portal` belum terhubung ke
+invalidasi karena masing-masing punya alasan yang dicatat di dokumen; sengaja
+tidak dikerjakan di sini.
+
+---
+
 ### 2026-07-25 (5) — Staging DIBUAT ULANG + edge cache terbukti di lapangan
 
 **Status:** SELESAI dan terukur. Sisa satu langkah operator: record DNS. **[UPDATE
@@ -87,7 +132,8 @@ awcms-micro-staging.ahlikoding.com`, berlaku sampai 23 Okt 2026); sertifikat
   jadi tidak ada lapisan cache kedua yang diam-diam memperpanjang kebasian,
   dan purge di Varnish langsung terasa oleh pembaca;
 
-- purge otomatis per-publikasi (issue terpisah, ADR-0037 §Alternatif).
+- ~~purge otomatis per-publikasi (issue terpisah, ADR-0037 §Alternatif)~~ —
+  selesai sebagai #359, lihat entri (6) di atas.
 
 ---
 
