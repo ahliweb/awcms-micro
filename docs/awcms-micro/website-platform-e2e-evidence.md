@@ -299,19 +299,29 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   restores it into a disposable throwaway `postgres:18.4` container, asserting the
   restore is real (`tables=140 migrations=80 tenants=1`, matching prod) before
   discarding the container — so the offsite copies are _verified_, not merely
-  taken. STILL DEFERRED: the **live chaos drills**. That deferral is by design,
-  not omission: `authorizeDrDrill` hard-blocks `APP_ENV=production` with **no
-  override flag at all** (see [`resilience-dr-verification.md`](resilience-dr-verification.md)
-  §Safety interlock), so chaos injection can never legitimately run against the
-  production target; it needs a standing non-production instance, which does not
-  exist yet. The drill _shapes_ all execute for real against a real PostgreSQL in
-  `dr-drill.integration.test.ts`/`backup-restore-drill.integration.test.ts` and via
-  `bun run resilience:dr-drill` (5/5 safe-tier scenarios PASS, re-verified
-  2026-07-25 against `postgres:18.4`: SSO-discovery outage fails fast in 6 ms,
-  work-class backpressure rejects an over-capacity waiter and hands the slot to
-  the FIFO-queued one, a closed client reconnects in 3.6 ms, a real `SIGTERM`
-  leaves no stuck advisory lock, and the email outbox commits independently of a
-  provider outage then retries exactly once with no duplicate send).
+  taken. **Live chaos drills — DONE 2026-07-25 on a real staging instance.** The
+  deferral was never about effort: `authorizeDrDrill` hard-blocks
+  `APP_ENV=production` with **no override flag at all** (see
+  [`resilience-dr-verification.md`](resilience-dr-verification.md) §Safety
+  interlock), so chaos injection cannot legitimately run against the production
+  target — it needed a non-production instance, which now exists
+  (`awcms-micro-staging.ahlikoding.com`, own `postgres:18.4`, own secrets,
+  R2/email/sync off; see [`deploy-coolify.md`](deploy-coolify.md) §Instance
+  staging). `bun run resilience:dr-drill -- --confirm-non-production=staging
+--full` returns **`overall = pass`, 6/6**: SSO-discovery outage fails fast in
+  15.7 ms; work-class backpressure rejects an over-capacity waiter after 151.6 ms
+  and hands the freed slot to the FIFO-queued one; a closed client reconnects in
+  11.1 ms; a real `SIGTERM` terminates a job in 10.5 ms with the same job name
+  re-acquired 109 ms later (advisory lock not stuck); the email outbox commits
+  independently of a provider outage and retries exactly once with no duplicate
+  send; and `backup-restore-drill` runs a real `pg_dump` → restore into a
+  disposable database → schema-ledger + **cross-tenant RLS** verification,
+  **RTO 7 s**. Getting from `incomplete` to `pass` needed two environment facts
+  that will recur: the runner needs a **version-matched** PostgreSQL client
+  (`oven/bun` has none and Debian trixie ships 17 against a server 18.4 — both
+  produce a SKIP, and a skip can never be a pass), and the drill **cannot prove
+  RLS on an empty database** (one tenant only ever yields `skip`; it needs one
+  tenant owning office rows plus a second tenant that does not).
 - **Performance/CWV budgets on representative volume** — LCP/INP/CLS field-style
   budgets, SSR/search/feed/image budgets, and load/soak runs at representative
   content/media volume. (split issue: **#295**) **Lab CWV gate LANDED**:

@@ -11,6 +11,56 @@
 
 ## Entri aktif
 
+### 2026-07-25 (3) — Instance STAGING dibuat; chaos drill #294 akhirnya HIJAU
+
+**Status:** SELESAI di server; dokumentasi di PR terpisah. **Sisa satu langkah operator: record DNS.**
+
+**Kenapa staging ada.** #294 menyisakan satu item: live chaos drill. Itu bukan pekerjaan
+yang belum dikerjakan, melainkan pekerjaan yang **mustahil** dijalankan — `authorizeDrDrill`
+memblokir `APP_ENV=production` tanpa satu pun flag override (desain, bukan bug). Jadi
+blokirnya adalah ketiadaan target non-produksi.
+
+**Yang dibuat** (semua lewat REST API Coolify di host yang sama dengan produksi;
+**tidak** butuh sudo karena Traefik memegang :80/:443, nginx sudah tidak aktif — catatan
+lama "nginx vhost + certbot butuh sudo" sudah usang):
+
+- App Coolify `a107y9000uz0t9cmgs18lzcv`, `APP_ENV=staging`, build `main` via
+  `Dockerfile.production`, domain `awcms-micro-staging.ahlikoding.com`.
+- DB `postgres:18.4` sendiri (`d437d850oei6v1s92dq5y3lf`), 80 migration, 131 tabel
+  FORCE RLS, peran `awcms_micro_app` least-privilege sendiri.
+- **Isolasi disengaja**: secret sendiri (JWT, timing), **R2/email/sync semuanya OFF** —
+  staging tak akan pernah bisa menulis ke bucket media produksi atau mengirim email ke
+  alamat orang sungguhan.
+
+**Hasil drill** (`resilience:dr-drill --full --confirm-non-production=staging`):
+**`overall = pass`, 6/6**, termasuk `backup-restore-drill` nyata (pg_dump → restore ke DB
+sekali-pakai → verifikasi ledger migrasi + **isolasi RLS lintas-tenant**), RTO 7 s.
+
+**Tiga hal yang harus diketahui sebelum mengulang ini:**
+
+1. **`config:validate` sebelum deploy pertama** menangkap satu kesalahan nyata:
+   `NEWS_PORTAL_PROFILE` hanya menerima `full_online_r2`, sementara staging sengaja tanpa
+   R2 → variabel harus DIHAPUS, bukan diisi nilai lain.
+2. **Drill butuh klien PostgreSQL yang versinya cocok.** `oven/bun` tidak punya; Debian
+   trixie hanya menyediakan 17 melawan server 18.4 — keduanya menghasilkan SKIP, dan SKIP
+   tidak akan pernah menjadi `pass`. Pakai `postgresql-client-18` dari PGDG.
+3. **Drill tidak bisa membuktikan RLS di database kosong.** Satu tenant hanya menghasilkan
+   `skip` → `incomplete`. Butuh satu tenant yang punya baris office + satu tenant lain yang
+   tidak.
+
+Jalankan runner dengan **berbagi network namespace container DB** supaya host DSN-nya
+`127.0.0.1` (masuk `KNOWN_SAFE_HOSTS`); IP container/hostname UUID Coolify ditolak sebagai
+"production-like", dan meng-alias DB sebagai `postgres` di network `coolify` bersama akan
+bentrok dengan service alias aplikasi lain.
+
+**Blocker tersisa:** record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46`
+(DNS-only). MCP Cloudflare API (`https://mcp.cloudflare.com/mcp`) sudah ditambahkan ke
+konfigurasi tapi **butuh OAuth interaktif** (`/mcp`) yang tidak bisa dijalankan dari sesi
+non-interaktif. Setelah record ada, TLS terbit otomatis lewat resolver `letsencrypt`
+Traefik — tidak ada konfigurasi lain.
+
+---
+
 ### 2026-07-25 (2) — CodeQL 298 + penuntasan backlog issue #293–#296
 
 **Status:** SELESAI & MERGED — PR [#350](https://github.com/ahliweb/awcms-micro/pull/350)
