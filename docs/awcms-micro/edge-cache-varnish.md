@@ -113,6 +113,26 @@ di jaringan dapat mengosongkan cache, dan itu membuat perintah ini keluar
 dengan status gagal. Angka tekanannya milik proses CLI itu sendiri, bukan
 armada yang melayani.
 
+`edge-cache:health` hanya bisa mengatakan endpoint invalidasi **menjawab**
+sebagaimana mestinya. Ia tidak bisa mengatakan apakah sebuah purge
+benar-benar membuang sesuatu — dan selama dua rilis memang tidak, sementara
+semua sinyal berkata sehat. Untuk itu ada perintah kedua yang menguji
+**akibatnya**:
+
+```bash
+bun run edge-cache:verify -- --url=https://<domain>/
+```
+
+Urutannya: ambil URL dua kali (yang kedua wajib `HIT`), purge path itu, ambil
+sekali lagi (wajib `MISS`). Sebuah `MISS` saja tidak membuktikan apa pun —
+kedaluwarsa TTL menghasilkan `MISS` yang identik — jadi langkah pertamalah
+yang membuatnya sahih: seluruh rangkaian berjalan beberapa detik, jauh di
+dalam TTL berapa pun yang masuk akal. Keluar dengan status 0 hanya bila
+seluruh urutan itu terpenuhi; `purge_reported_success_but_object_survived`
+adalah bentuk kegagalan yang perintah ini memang ada untuk menangkapnya.
+Aman dijalankan terhadap URL produksi — biayanya satu pengisian ulang cache
+untuk satu objek.
+
 Verifikasi jalur nyata dari luar:
 
 ```bash
@@ -151,6 +171,31 @@ Pengujian itu menemukan satu cacat nyata: `Surrogate-Control` masih
 terkirim ke klien pada response yang **tidak** di-cache, karena dulu hanya
 dibuang di cabang cacheable. Sekarang dibuang tanpa syarat di
 `vcl_deliver`, dan diverifikasi ulang setelah perbaikan.
+
+### Kini dijalankan CI, bukan sekali lalu dilupakan
+
+`tests/integration/edge-cache-varnish.integration.test.ts` menyalakan
+`varnish:7.7.3` sungguhan dari `deploy/varnish/default.vcl` — berkas yang
+dikirim, bukan salinan fixture; hanya alamat backend-nya yang ditukar,
+substitusi yang sama persis dengan skrip repoint staging. Yang diuji adalah
+lapisan yang tidak mungkin diuji dengan mock: purge sungguhan, lalu bukti
+bahwa objeknya benar-benar hilang **dan** origin kembali dipukul.
+
+Ini lahir dari post-mortem #361. Unit test men-stub `fetch`, persis lapisan
+yang rusak; `edge-cache:health` memakai klien yang sama dengan yang
+diperiksanya; dan klien itu menyimpulkan sukses dari status code. Empat
+pengaman yang tampak independen ternyata satu asumsi. Suite ini adalah
+satu-satunya yang berdiri di luar asumsi itu.
+
+Terbukti bergigi: dengan transport lama dikembalikan sementara (metode
+`BAN` + tanpa penanda), **4 dari 8 test gagal** — termasuk satu yang
+melaporkan `purged` padahal tokennya salah.
+
+CI menjalankannya dengan `EDGE_CACHE_VARNISH_TEST=1`, yang mengubah "tidak
+ada Docker" dari _skip_ menjadi **gagal keras**. Tanpa itu, suite yang
+menjaga transport bisa lulus dengan cara tidak dijalankan — persis bentuk
+kebutaan yang ingin ditutupnya. Di mesin tanpa Docker suite ini tetap
+di-skip agar `bun test` lokal hijau.
 
 ### Bukti lapangan pada instance staging nyata (2026-07-25)
 

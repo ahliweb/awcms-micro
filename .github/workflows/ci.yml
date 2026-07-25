@@ -166,6 +166,15 @@ jobs:
         run: bun run db:migrate
 
       - name: Unit + integration tests (bun test)
+        # EDGE_CACHE_VARNISH_TEST turns the real-Varnish suite
+        # (tests/integration/edge-cache-varnish.integration.test.ts) from
+        # "skip when Docker is missing" into a hard failure. That suite is
+        # the ONLY place the invalidation transport is exercised for real —
+        # the unit tests stub `fetch`, which is precisely the layer that was
+        # silently broken for two releases (Issue #359/#361). A silent skip
+        # here would restore exactly the blind spot it was written to close.
+        env:
+          EDGE_CACHE_VARNISH_TEST: "1"
         run: bun test
 
       # Issue #699 (epic #679): the "safe" tier only (fast, deterministic,
