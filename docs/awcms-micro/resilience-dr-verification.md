@@ -193,12 +193,41 @@ Findings:
   tables, `>=70` migrations, `awcms_micro_tenants` queryable), logs OK/FAIL to
   `restore-drill.log`, then discards the container. First run PASSED —
   `tables=140 migrations=80 tenants=1`, exactly matching prod.
-- **Live chaos drills** (provider outage, worker restart, DB saturation, stale
-  projection, object-storage failure, cache invalidation) remain deferred: their
-  _shapes_ are covered by the integration suites above, and running them live is
-  intentionally NOT done against production — `authorizeDrDrill` hard-blocks
-  `APP_ENV=production` with no override (see §Safety interlock), and there is no
-  standing staging target. They stay gated on a non-prod environment.
+- **Live chaos drills — DONE on a real staging instance (2026-07-25).** These were
+  never runnable against production by design (`authorizeDrDrill` hard-blocks
+  `APP_ENV=production` with **no override flag**, §Safety interlock), so the
+  blocker was the absence of a non-production target, not the drills themselves.
+  A staging instance now exists on the same Coolify host
+  (`awcms-micro-staging.ahlikoding.com`, `APP_ENV=staging`, its own
+  `postgres:18.4`, its own secrets, R2/email/sync all off — see
+  [`deploy-coolify.md`](deploy-coolify.md) §Instance staging).
+  `bun run resilience:dr-drill -- --confirm-non-production=staging --full`
+  returns **`overall = pass`, 6/6**: SSO-discovery outage fails fast in 15.7 ms;
+  work-class backpressure rejects an over-capacity waiter after 151.6 ms and
+  hands the freed slot to the FIFO-queued one; a closed client reconnects in
+  11.1 ms; a real `SIGTERM` terminates a job in 10.5 ms and the same job name is
+  re-acquired 109 ms later (**advisory lock not stuck**); the email outbox
+  commits independently of a provider outage and retries exactly once with no
+  duplicate send; and `backup-restore-drill` performs a real `pg_dump` → restore
+  into a disposable database → schema-ledger + **cross-tenant RLS** verification,
+  **RTO 7 s**.
+
+  Two environment facts are load-bearing, and a repeat run will hit both:
+
+  1. **The runner needs a version-matched PostgreSQL client.** `oven/bun` ships
+     none, so `backup-restore-drill` correctly SKIPS — and a skip makes the
+     verdict `incomplete`, never `pass`. Debian trixie's own client is 17 against
+     a server 18.4, which the drill also rejects, so the client must come from
+     PGDG (`postgresql-client-18`).
+  2. **The drill cannot prove RLS on an empty database.** With a single tenant
+     the isolation check can only report `skip` → `incomplete`. The target needs
+     one tenant that owns office rows plus a second tenant that does not.
+
+  Point the runner at the database by joining the DB container's **network
+  namespace** so the DSN host is `127.0.0.1` — one of `target-guard.ts`'s
+  `KNOWN_SAFE_HOSTS`. A container IP or a Coolify UUID hostname is treated as
+  production-like and refused; aliasing the DB as `postgres` on a shared Docker
+  network would collide with another app's service alias.
 
 ## Retry/idempotency evidence
 

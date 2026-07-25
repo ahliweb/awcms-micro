@@ -434,6 +434,60 @@ Contoh jadwal yang terpasang di `dinkes-prod` (harian 03:45, setelah backup
 45 3 * * * /home/admin1/jobs/awcms-micro-media-reconcile.sh
 ```
 
+## Instance staging (target non-produksi untuk chaos drill)
+
+Dibuat 2026-07-25 di **host Coolify yang sama** dengan produksi, karena
+`bun run resilience:dr-drill` menolak `APP_ENV=production` **tanpa flag override
+apa pun** (`authorizeDrDrill`, lihat
+[`resilience-dr-verification.md`](resilience-dr-verification.md) §Safety
+interlock) — jadi drill kekacauan (chaos) mustahil dijalankan sampai ada target
+non-produksi, bukan sekadar belum dijalankan.
+
+| Aspek    | Nilai                                                                                 |
+| -------- | ------------------------------------------------------------------------------------- |
+| Aplikasi | Coolify app `a107y9000uz0t9cmgs18lzcv`, build dari `main` via `Dockerfile.production` |
+| Domain   | `awcms-micro-staging.ahlikoding.com` (router Traefik + resolver `letsencrypt`)        |
+| Database | `postgres:18.4` Coolify-managed `d437d850oei6v1s92dq5y3lf`, DB `awcms_micro_staging`  |
+| Peran DB | `awcms_micro_app` least-privilege sendiri (bukan superuser, bukan BYPASSRLS)          |
+| Isolasi  | `AUTH_JWT_SECRET`/`COMMENTS_TIMING_SECRET` sendiri; **R2, email, dan sync semua OFF** |
+
+**Isolasi adalah keputusan desain, bukan penghematan konfigurasi.** Staging tidak
+diberi kredensial R2 dan email dimatikan supaya sebuah drill atau eksperimen
+tidak akan pernah bisa menulis ke bucket media produksi atau mengirim email ke
+alamat orang sungguhan. Setiap secret dibuat baru, tidak pernah disalin dari
+produksi.
+
+Urutan pembuatannya (semua lewat REST API Coolify — tidak butuh browser dan
+tidak butuh sudo, karena Traefik yang memegang :80/:443, bukan nginx):
+
+1. `POST /api/v1/databases/postgresql` → DB baru; tunggu `healthy`.
+2. Jalankan `bun run db:migrate` dari checkout sumber (throwaway container
+   `oven/bun`) memakai peran privileged, lalu
+   `ALTER ROLE awcms_micro_app LOGIN PASSWORD …` untuk mengaktifkan peran runtime.
+3. `POST /api/v1/applications/public` dengan `build_pack: "dockerfile"`,
+   `dockerfile_location: "/Dockerfile.production"`, `ports_exposes: "4321"`,
+   `domains: "https://awcms-micro-staging.ahlikoding.com"`,
+   `health_check_enabled: false` (image tidak punya curl/wget — sama seperti
+   produksi).
+4. `POST /api/v1/applications/<uuid>/envs` per variabel, **lalu jalankan
+   `bun run config:validate` terhadap env hasilnya sebelum deploy pertama.**
+   Itu langsung menangkap satu kesalahan nyata di sini: `NEWS_PORTAL_PROFILE`
+   hanya menerima `full_online_r2`, sementara staging sengaja tanpa R2 — jadi
+   variabel itu harus **dihapus** dan `NEWS_PORTAL_ENABLED=false`.
+5. `GET /api/v1/deploy?uuid=<app-uuid>`.
+
+**Verifikasi tanpa DNS.** Sebelum record DNS ada, buktikan routing-nya lewat
+header Host: `curl -H 'Host: awcms-micro-staging.ahlikoding.com'
+http://127.0.0.1/api/v1/health` dari server → `302` ke https, dan versi
+`https://127.0.0.1` (dengan `-k`) → `200`. Sertifikat asli terbit otomatis
+begitu record DNS publik menunjuk ke server ini.
+
+**Gotcha build yang sudah kejadian:** build pertama gagal di
+`bun install --frozen-lockfile --production` dengan
+`Fail extracting tarball for "@rolldown/binding-linux-x64-musl"` — cache build
+yang rusak, bukan masalah lockfile. Deploy ulang dengan `force=true` (tanpa
+cache) langsung berhasil.
+
 ## Rollback
 
 - **Image registry (Pola 2)**: rollback = deploy ulang tag image
