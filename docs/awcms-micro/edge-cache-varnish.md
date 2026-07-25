@@ -191,6 +191,32 @@ Terbukti bergigi: dengan transport lama dikembalikan sementara (metode
 `BAN` + tanpa penanda), **4 dari 8 test gagal** — termasuk satu yang
 melaporkan `purged` padahal tokennya salah.
 
+Dua lapis lagi menempel di suite yang sama:
+
+- **Kedua CLI operator dijalankan sebagai proses sungguhan** (`bun
+scripts/edge-cache-verify.ts`, `…-health.ts`), sehingga **exit code**-nya —
+  yang dibaca pipeline deploy — ikut jadi bagian assertion. Pemeriksa yang
+  sendirinya tidak diperiksa adalah persis bagaimana `edge-cache:health`
+  bisa melaporkan sehat untuk subsistem yang tidak melakukan apa pun.
+- **`tests/integration/edge-cache-publish-invalidation.integration.test.ts`**
+  menutup sambungan yang tersisa: rute `publish`/`archive` sungguhan →
+  PostgreSQL sungguhan → Varnish sungguhan. Suite transport membuktikan
+  `purgeEdgeCache()` mengosongkan cache; unit test membuktikan rute
+  memanggil pembungkusnya. Tidak satu pun membuktikan keduanya
+  **tersambung** — resolusi hostname dari `awcms_micro_tenant_domains`
+  duduk di antaranya, dan tenant yang hostname-nya tidak resolve tidak
+  meng-invalidasi apa pun sementara semua test komponen tetap hijau.
+
+Yang ikut terkunci di situ: setiap hostname aktif tenant di-purge (bukan
+hanya yang primary), hostname non-aktif **tidak** di-purge, publikasi tenant
+lain tidak mengosongkan cache tenant ini, dan publikasi yang **gagal** tidak
+mengosongkan apa pun — yang terakhir menutup cara murah bagi pemanggil tak
+berwenang untuk membuang cache sebuah situs.
+
+Suite itu juga diuji balik dengan dua mutasi: melepas pemanggilan
+invalidasi dari rute `publish` menggagalkan 3 dari 6 test; mengubah filter
+status resolver hostname menjadi salah menggagalkan 5 dari 6.
+
 CI menjalankannya dengan `EDGE_CACHE_VARNISH_TEST=1`, yang mengubah "tidak
 ada Docker" dari _skip_ menjadi **gagal keras**. Tanpa itu, suite yang
 menjaga transport bisa lulus dengan cara tidak dijalankan — persis bentuk
@@ -283,6 +309,28 @@ metode kustom, dan respons ban membawa penanda `X-Edge-Cache-Ban: ok` yang
 **wajib** ada. Sebuah 200 tanpa penanda itu kini dilaporkan sebagai
 **gagal**, bukan sukses — karena artinya yang menjawab bukan handler ban
 cache, melainkan sesuatu yang lain (biasanya aplikasi itu sendiri).
+
+**Aturan Bun-nya lebih luas dari sekadar metode kustom, dan itu penting
+untuk kode lain di repo ini.** Yang menentukan bukan "dikenal atau tidak"
+melainkan **kecocokan huruf per huruf** dengan tabel verb internal Bun.
+Diukur pada Bun 1.3.14:
+
+| Ditulis  | Terkirim | Ditulis  | Terkirim  |
+| -------- | -------- | -------- | --------- |
+| `DELETE` | `DELETE` | `Delete` | **`GET`** |
+| `delete` | `DELETE` | `Patch`  | **`GET`** |
+| `PATCH`  | `PATCH`  | `Post`   | **`GET`** |
+| `put`    | `PUT`    | `BAN`    | **`GET`** |
+
+Jadi bukan hanya verb eksotis: `Post` — salah kapitalisasi biasa yang
+dilewati mata saat review, dan yang menurut spec fetch justru **wajib**
+dinormalkan — ikut berubah menjadi `GET`. Arah kegagalannya berbahaya:
+permintaan yang dimaksudkan **mengubah** terkirim sebagai **pembacaan**,
+server menjawab 200 untuk pembacaan itu, dan 200-nya terbaca sebagai
+sukses. Karena itu ada gate `bun run http:methods:check` yang menolak
+literal metode apa pun yang bukan verb standar huruf besar penuh. Sudah
+dilaporkan ke hulu: [oven-sh/bun#33469](https://github.com/oven-sh/bun/issues/33469)
+(masih terbuka; lihat juga #6021 dan #21566) — jangan buat laporan baru.
 
 ### Purge otomatis saat publikasi berubah (Issue #359)
 

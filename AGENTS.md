@@ -272,7 +272,7 @@ berjalan, bukan target/rencana:
 
 ```bash
 bun install
-bun run check                    # gate lengkap: lint + check:docs + api:spec:check + api:docs:check + repo:inventory:check + modules:dag:check + modules:compose:check + modules:composition:inventory:check + media-library:consistency:check + scope:consistency:check + data-lifecycle:registry:check + reporting:projections:registry:check + identity-access:sod-registry:check + i18n:pot:check + i18n:parity:check + config:docs:check + logging:lint:check + db:work-class:check + typecheck + test + build
+bun run check                    # gate lengkap: lint + check:docs + api:spec:check + api:docs:check + repo:inventory:check + modules:dag:check + modules:compose:check + modules:composition:inventory:check + media-library:consistency:check + scope:consistency:check + data-lifecycle:registry:check + reporting:projections:registry:check + identity-access:sod-registry:check + i18n:pot:check + i18n:parity:check + config:docs:check + logging:lint:check + http:methods:check + db:work-class:check + typecheck + test + build
 bun run dev                      # bun --bun astro dev
 bun run build                    # bun --bun astro build
 bun run preview                  # bun --bun astro preview
@@ -299,6 +299,7 @@ bun run security:readiness       # cek security readiness
 bun run config:validate          # validasi env/config sebelum apapun jalan
 bun run config:docs:check        # validasi src/lib/config/registry.ts <-> .env.example <-> doc 18 sinkron (bagian dari `bun run check`, Issue #689)
 bun run logging:lint:check       # gate: larang console.error/warn dengan raw error/error.message/error.stack tanpa sanitasi di src/pages/admin, src/pages/api/v1, scripts/ (bagian dari `bun run check`, Issue #687)
+bun run http:methods:check       # gate: setiap literal `method: "..."` wajib verb standar HURUF BESAR penuh — `fetch` Bun mengirim `GET` untuk metode yang tidak cocok huruf-per-huruf (`Post`/`Delete`/`BAN` → `GET`), sehingga mutasi terkirim sebagai pembacaan dan 200-nya terbaca sukses (oven-sh/bun#33469, Issue #359/#361)
 bun run production:preflight     # preflight read-only sebelum go-live (config -> security -> connectivity -> spec -> test -> build -> pool -> migration:plan); apply migrasi terpisah & bergerbang (--apply-migrations --backup-verified --acknowledge-target=<APP_ENV>, Issue #684)
 bun run resilience:dr-drill      # failure-injection & DR verification (safety interlock default-deny target produksi; tier safe default, --full menambah restore-drill.sh; Issue #699)
 bun run performance:suite        # performance suite representatif: seed fixture sintetik + skenario load/soak/saturasi-recovery (safety interlock sama dengan dr-drill; tier safe default, --full menambah skala large + soak-stability; Issue #744)

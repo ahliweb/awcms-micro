@@ -16,127 +16,43 @@
  * No amount of mocking can catch that class, because the mock replaces the
  * exact layer that breaks. The only assertion that could have caught it is
  * the one below: purge a real cache, then observe that the object is really
- * gone. Everything here therefore runs against `varnish:7.7.3` started from
- * this repo's own `deploy/varnish/default.vcl` — the shipped file, not a
- * fixture — with only the backend address rewritten, exactly as the staging
- * repoint script does.
+ * gone.
  *
- * ## Gating
+ * The two operator CLIs are exercised here too, as real processes. A checker
+ * that is itself unchecked is how `edge-cache:health` came to report health
+ * for a subsystem that did nothing.
  *
- * Skipped when Docker is unavailable so a laptop without it stays green.
- * That is a real hazard on its own (a silent skip is how ~1000 integration
- * tests can quietly not run), so CI sets `EDGE_CACHE_VARNISH_TEST=1`, which
- * turns "cannot run" into a LOUD FAILURE instead of a skip.
+ * Gating and the Docker requirement: see `varnish-fixture.ts`.
  */
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
 import {
   purgeEdgeCache,
   type EdgeCachePurgeResult
 } from "../../src/lib/cache/edge-cache-purge";
 import type { EdgeCacheConfig } from "../../src/lib/cache/edge-cache-config";
+import {
+  dockerAvailable,
+  startVarnish,
+  varnishSuiteRequired,
+  type VarnishFixture
+} from "./varnish-fixture";
 
-const VARNISH_IMAGE = "varnish:7.7.3";
-const PURGE_TOKEN = "integration-edge-cache-purge-token";
 const TEST_HOST = "cache-integration.awcms-micro.test";
-const REQUIRED = process.env.EDGE_CACHE_VARNISH_TEST === "1";
 
-async function commandSucceeds(command: string[]): Promise<boolean> {
-  try {
-    const process = Bun.spawn(command, { stdout: "pipe", stderr: "pipe" });
+let varnish: VarnishFixture | undefined;
 
-    return (await process.exited) === 0;
-  } catch {
-    return false;
-  }
-}
-
-const dockerAvailable = await commandSucceeds(["docker", "info"]);
-
-/**
- * A free TCP port, obtained by binding and immediately releasing one.
- *
- * Racy in principle; acceptable here because the container claims it
- * milliseconds later and a collision surfaces as an obvious startup failure
- * rather than a wrong assertion.
- */
-function reserveEphemeralPort(): number {
-  const probe = Bun.serve({
-    port: 0,
-    hostname: "127.0.0.1",
-    fetch: () => new Response("")
-  });
-  // `port` is optional in Bun's type (a server may be bound to a unix
-  // socket instead); it is always present for a TCP listener like this one.
-  const port = probe.port ?? 0;
-
-  probe.stop(true);
-
-  if (port === 0) {
-    throw new Error("could not reserve a TCP port for the cache container");
+beforeAll(async () => {
+  if (!dockerAvailable) {
+    return;
   }
 
-  return port;
-}
+  varnish = await startVarnish();
+}, 120_000);
 
-type Backend = {
-  port: number;
-  /** How many requests actually reached the origin — a cache HIT must not move this. */
-  hits: () => number;
-  stop: () => void;
-};
-
-/**
- * Minimal origin standing in for the app: it speaks the same contract the
- * middleware does (`Surrogate-Control` for the shared cache, `Vary: Cookie`),
- * which is all the VCL consumes.
- */
-function startBackend(): Backend {
-  let hits = 0;
-
-  const server = Bun.serve({
-    port: 0,
-    hostname: "127.0.0.1",
-    fetch(request) {
-      hits += 1;
-
-      const url = new URL(request.url);
-      const body = `origin-response ${url.pathname} #${hits}`;
-
-      if (url.pathname === "/uncacheable") {
-        return new Response(body, {
-          headers: {
-            "Content-Type": "text/html",
-            "Surrogate-Control": "no-store"
-          }
-        });
-      }
-
-      return new Response(body, {
-        headers: {
-          "Content-Type": "text/html",
-          "Surrogate-Control": "max-age=60, stale-if-error=600",
-          "Cache-Control": "public, max-age=0, must-revalidate",
-          Vary: "Cookie"
-        }
-      });
-    }
-  });
-
-  return {
-    port: server.port ?? 0,
-    hits: () => hits,
-    stop: () => server.stop(true)
-  };
-}
-
-let backend: Backend | undefined;
-let containerId = "";
-let varnishPort = 0;
-let workDirectory = "";
+afterAll(async () => {
+  await varnish?.stop();
+});
 
 function cacheConfig(
   overrides: Partial<EdgeCacheConfig> = {}
@@ -150,133 +66,76 @@ function cacheConfig(
     staleIfErrorSeconds: 600,
     autoEscalation: true,
     pressureThresholdPercent: 70,
-    purgeUrl: `http://127.0.0.1:${varnishPort}`,
-    purgeToken: PURGE_TOKEN,
+    purgeUrl: varnish?.purgeUrl ?? null,
+    purgeToken: varnish?.purgeToken ?? null,
     ...overrides
   };
 }
 
-/** One request through the cache, reported as the cache classified it. */
-async function fetchThroughCache(
-  path = "/",
-  init: RequestInit = {}
-): Promise<{
-  status: number;
-  cache: string | null;
-  body: string;
-  headers: Headers;
-}> {
-  const response = await fetch(`http://127.0.0.1:${varnishPort}${path}`, {
-    ...init,
-    headers: { Host: TEST_HOST, ...(init.headers ?? {}) },
-    signal: AbortSignal.timeout(5_000)
+function probe(path = "/", init: RequestInit = {}) {
+  if (!varnish) {
+    throw new Error("varnish fixture not started");
+  }
+
+  return varnish.fetchThroughCache(TEST_HOST, path, init);
+}
+
+type CliRun = { exitCode: number; stdout: string };
+
+/**
+ * The operator CLIs as real processes — `bun run` them the way an operator
+ * does, rather than importing their internals, so the exit code (which is
+ * what a deploy pipeline reads) is part of the assertion.
+ */
+async function runCli(
+  script: string,
+  args: string[],
+  env: Record<string, string>
+): Promise<CliRun> {
+  const spawned = Bun.spawn(["bun", script, ...args], {
+    env: { ...process.env, ...env },
+    stdout: "pipe",
+    stderr: "pipe"
   });
 
+  const stdout = await new Response(spawned.stdout).text();
+
+  return { exitCode: await spawned.exited, stdout };
+}
+
+/**
+ * The CLI's own report, isolated from the structured log lines that share
+ * stdout with it.
+ *
+ * `src/lib/logging/logger.ts` writes to `console.log` by deliberate design
+ * ("stdout stays the source of truth"), so a run that logs a warning — a
+ * rejected purge, for instance — emits log JSON before the report JSON.
+ * Parsing the whole stream would fail on exactly the failure paths these
+ * tests care about most.
+ */
+function parseCliReport<T>(script: string, stdout: string): T {
+  const marker = `{\n  "check": "${script}"`;
+  const start = stdout.lastIndexOf(marker);
+
+  if (start === -1) {
+    throw new Error(`no ${script} report in CLI output:\n${stdout}`);
+  }
+
+  return JSON.parse(stdout.slice(start)) as T;
+}
+
+function cliEnv(
+  overrides: Record<string, string> = {}
+): Record<string, string> {
   return {
-    status: response.status,
-    cache: response.headers.get("x-cache"),
-    body: await response.text(),
-    headers: response.headers
+    EDGE_CACHE_ENABLED: "true",
+    EDGE_CACHE_PURGE_URL: varnish?.purgeUrl ?? "",
+    EDGE_CACHE_PURGE_TOKEN: varnish?.purgeToken ?? "",
+    ...overrides
   };
 }
 
-async function waitForVarnish(): Promise<void> {
-  const deadline = Date.now() + 40_000;
-
-  while (Date.now() < deadline) {
-    try {
-      const probe = await fetchThroughCache("/readiness-probe");
-
-      if (probe.status === 200) {
-        return;
-      }
-    } catch {
-      // Not listening yet.
-    }
-
-    await Bun.sleep(400);
-  }
-
-  throw new Error(`${VARNISH_IMAGE} did not become reachable within 40s`);
-}
-
-beforeAll(async () => {
-  if (!dockerAvailable) {
-    return;
-  }
-
-  backend = startBackend();
-  varnishPort = reserveEphemeralPort();
-  workDirectory = await mkdtemp(join(tmpdir(), "awcms-micro-varnish-"));
-
-  // The SHIPPED VCL, with only the backend address rewritten — the same
-  // single substitution the staging repoint script performs. Testing a
-  // copy would defeat the purpose: the rules under test live in that file.
-  const shippedVcl = await Bun.file("deploy/varnish/default.vcl").text();
-  const vcl = shippedVcl
-    .replace('.host = "app";', '.host = "127.0.0.1";')
-    .replace('.port = "4321";', `.port = "${backend.port}";`);
-
-  expect(vcl).toContain(`.port = "${backend.port}";`);
-
-  const vclPath = join(workDirectory, "default.vcl");
-  await writeFile(vclPath, vcl, "utf8");
-
-  // `--network host` so the containerized cache can reach the in-process
-  // backend on 127.0.0.1 without a published port.
-  const run = Bun.spawn(
-    [
-      "docker",
-      "run",
-      "--rm",
-      "--detach",
-      "--network",
-      "host",
-      "--env",
-      `EDGE_CACHE_PURGE_TOKEN=${PURGE_TOKEN}`,
-      "--volume",
-      `${vclPath}:/etc/varnish/default.vcl:ro`,
-      VARNISH_IMAGE,
-      "varnishd",
-      "-F",
-      "-f",
-      "/etc/varnish/default.vcl",
-      "-a",
-      `:${varnishPort}`,
-      "-s",
-      "malloc,64M"
-    ],
-    { stdout: "pipe", stderr: "pipe" }
-  );
-
-  const stdout = await new Response(run.stdout).text();
-  const stderr = await new Response(run.stderr).text();
-
-  if ((await run.exited) !== 0) {
-    throw new Error(`docker run failed: ${stderr || stdout}`);
-  }
-
-  containerId = stdout.trim();
-
-  await waitForVarnish();
-}, 120_000);
-
-afterAll(async () => {
-  if (containerId) {
-    Bun.spawnSync(["docker", "rm", "--force", containerId], {
-      stdout: "ignore",
-      stderr: "ignore"
-    });
-  }
-
-  backend?.stop();
-
-  if (workDirectory) {
-    await rm(workDirectory, { recursive: true, force: true });
-  }
-});
-
-describe.skipIf(!REQUIRED || dockerAvailable)(
+describe.skipIf(!varnishSuiteRequired || dockerAvailable)(
   "edge cache integration environment",
   () => {
     test("CI requires Docker for this suite", () => {
@@ -292,17 +151,15 @@ describe.skipIf(!REQUIRED || dockerAvailable)(
 
 describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
   test("a purge really removes the object, and the origin is hit again", async () => {
-    const path = "/";
-
-    const first = await fetchThroughCache(path);
+    const first = await probe("/");
     expect(first.status).toBe(200);
     expect(first.cache).toBe("MISS");
 
-    const second = await fetchThroughCache(path);
+    const second = await probe("/");
     expect(second.cache).toBe("HIT");
     expect(second.body).toBe(first.body);
 
-    const hitsBeforePurge = backend?.hits() ?? 0;
+    const hitsBeforePurge = varnish?.originHits() ?? 0;
 
     const result: EdgeCachePurgeResult = await purgeEdgeCache(
       { host: TEST_HOST },
@@ -312,19 +169,19 @@ describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
 
     // The assertion that a stubbed `fetch` structurally cannot make: the
     // cache no longer holds the object, and the ORIGIN sees the next read.
-    const afterPurge = await fetchThroughCache(path);
+    const afterPurge = await probe("/");
     expect(afterPurge.cache).toBe("MISS");
     expect(afterPurge.body).not.toBe(first.body);
-    expect(backend?.hits() ?? 0).toBeGreaterThan(hitsBeforePurge);
+    expect(varnish?.originHits() ?? 0).toBeGreaterThan(hitsBeforePurge);
 
-    expect((await fetchThroughCache(path)).cache).toBe("HIT");
+    expect((await probe("/")).cache).toBe("HIT");
   }, 30_000);
 
   test("a path pattern bans only the paths it names", async () => {
-    await fetchThroughCache("/scoped/one");
-    await fetchThroughCache("/other/two");
-    expect((await fetchThroughCache("/scoped/one")).cache).toBe("HIT");
-    expect((await fetchThroughCache("/other/two")).cache).toBe("HIT");
+    await probe("/scoped/one");
+    await probe("/other/two");
+    expect((await probe("/scoped/one")).cache).toBe("HIT");
+    expect((await probe("/other/two")).cache).toBe("HIT");
 
     const result = await purgeEdgeCache(
       { host: TEST_HOST, pathPattern: "^/scoped" },
@@ -332,13 +189,13 @@ describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
     );
     expect(result).toEqual({ status: "purged" });
 
-    expect((await fetchThroughCache("/scoped/one")).cache).toBe("MISS");
-    expect((await fetchThroughCache("/other/two")).cache).toBe("HIT");
+    expect((await probe("/scoped/one")).cache).toBe("MISS");
+    expect((await probe("/other/two")).cache).toBe("HIT");
   }, 30_000);
 
   test("a ban for another host leaves this host's objects alone", async () => {
-    await fetchThroughCache("/tenant-boundary");
-    expect((await fetchThroughCache("/tenant-boundary")).cache).toBe("HIT");
+    await probe("/tenant-boundary");
+    expect((await probe("/tenant-boundary")).cache).toBe("HIT");
 
     const result = await purgeEdgeCache(
       { host: "someone-else.awcms-micro.test" },
@@ -346,7 +203,7 @@ describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
     );
     expect(result).toEqual({ status: "purged" });
 
-    expect((await fetchThroughCache("/tenant-boundary")).cache).toBe("HIT");
+    expect((await probe("/tenant-boundary")).cache).toBe("HIT");
   }, 30_000);
 
   test("a 200 from something that is not the ban handler is reported failed", async () => {
@@ -356,15 +213,15 @@ describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
     // back.
     const result = await purgeEdgeCache(
       { host: TEST_HOST },
-      cacheConfig({ purgeUrl: `http://127.0.0.1:${backend?.port ?? 0}` })
+      cacheConfig({ purgeUrl: `http://127.0.0.1:${varnish?.backendPort ?? 0}` })
     );
 
     expect(result).toEqual({ status: "failed", reason: "unmarked_response" });
   }, 30_000);
 
   test("the wrong token cannot invalidate anything", async () => {
-    await fetchThroughCache("/token-guard");
-    expect((await fetchThroughCache("/token-guard")).cache).toBe("HIT");
+    await probe("/token-guard");
+    expect((await probe("/token-guard")).cache).toBe("HIT");
 
     const result = await purgeEdgeCache(
       { host: TEST_HOST },
@@ -372,35 +229,128 @@ describe.skipIf(!dockerAvailable)("edge cache against a real Varnish", () => {
     );
 
     expect(result).toEqual({ status: "failed", reason: "http_403" });
-    expect((await fetchThroughCache("/token-guard")).cache).toBe("HIT");
+    expect((await probe("/token-guard")).cache).toBe("HIT");
   }, 30_000);
 
   test("the ban path answers only to POST", async () => {
-    const viaGet = await fetchThroughCache("/__awcms-edge-cache/ban");
+    const viaGet = await probe("/__awcms-edge-cache/ban");
 
     expect(viaGet.status).toBe(405);
     expect(viaGet.headers.get("x-edge-cache-ban")).toBeNull();
   }, 30_000);
 
   test("Surrogate-Control never reaches a client, cacheable or not", async () => {
-    const cacheable = await fetchThroughCache("/leak-check");
-    const uncacheable = await fetchThroughCache("/uncacheable");
+    const cacheable = await probe("/leak-check");
+    const uncacheable = await probe("/uncacheable");
 
     expect(cacheable.headers.get("surrogate-control")).toBeNull();
     expect(uncacheable.headers.get("surrogate-control")).toBeNull();
 
     // And the response the app marked no-store is genuinely not stored.
-    expect((await fetchThroughCache("/uncacheable")).cache).toBe("MISS");
+    expect((await probe("/uncacheable")).cache).toBe("MISS");
   }, 30_000);
 
   test("a request carrying a session cookie is never served from the cache", async () => {
-    await fetchThroughCache("/session-bypass");
-    expect((await fetchThroughCache("/session-bypass")).cache).toBe("HIT");
+    await probe("/session-bypass");
+    expect((await probe("/session-bypass")).cache).toBe("HIT");
 
-    const authenticated = await fetchThroughCache("/session-bypass", {
+    const authenticated = await probe("/session-bypass", {
       headers: { Cookie: "awcms_micro_session=opaque-session-token" }
     });
 
     expect(authenticated.cache).toBe("MISS");
   }, 30_000);
 });
+
+describe.skipIf(!dockerAvailable)(
+  "operator CLIs against a real Varnish",
+  () => {
+    test("edge-cache:verify proves the purge by its effect", async () => {
+      const url = `http://127.0.0.1:${varnish?.varnishPort ?? 0}/cli-verify`;
+
+      const run = await runCli(
+        "scripts/edge-cache-verify.ts",
+        [`--url=${url}`, `--host=${TEST_HOST}`],
+        cliEnv()
+      );
+
+      expect(run.exitCode).toBe(0);
+
+      const report = parseCliReport<{
+        verdict: string;
+        steps: { ok: boolean }[];
+      }>("edge-cache-verify", run.stdout);
+
+      expect(report.verdict).toBe("invalidation_effective");
+      expect(report.steps.every((step) => step.ok)).toBe(true);
+    }, 30_000);
+
+    test("edge-cache:verify fails when the purge is rejected", async () => {
+      const url = `http://127.0.0.1:${varnish?.varnishPort ?? 0}/cli-verify-token`;
+
+      const run = await runCli(
+        "scripts/edge-cache-verify.ts",
+        [`--url=${url}`, `--host=${TEST_HOST}`],
+        cliEnv({ EDGE_CACHE_PURGE_TOKEN: "not-the-deployment-secret" })
+      );
+
+      // A non-zero exit is the whole contract: a deploy pipeline reads this,
+      // and reporting success for an invalidation that did not happen is the
+      // original defect.
+      expect(run.exitCode).toBe(1);
+      expect(
+        parseCliReport<{ verdict: string }>("edge-cache-verify", run.stdout)
+          .verdict
+      ).toBe("purge_failed");
+    }, 30_000);
+
+    test("edge-cache:verify reports when nothing is caching the URL", async () => {
+      const url = `http://127.0.0.1:${varnish?.backendPort ?? 0}/no-cache-here`;
+
+      const run = await runCli(
+        "scripts/edge-cache-verify.ts",
+        [`--url=${url}`, `--host=${TEST_HOST}`],
+        cliEnv()
+      );
+
+      expect(run.exitCode).toBe(1);
+      expect(
+        parseCliReport<{ verdict: string }>("edge-cache-verify", run.stdout)
+          .verdict
+      ).toBe("no_cache_in_front");
+    }, 30_000);
+
+    test("edge-cache:health sees the endpoint reject an unauthenticated ban", async () => {
+      const run = await runCli("scripts/edge-cache-health.ts", [], cliEnv());
+
+      expect(run.exitCode).toBe(0);
+
+      const report = parseCliReport<{
+        purge: { endpoint: { status: string } };
+      }>("edge-cache", run.stdout);
+
+      expect(report.purge.endpoint.status).toBe("reachable");
+    }, 30_000);
+
+    test("edge-cache:health fails when the ban endpoint accepts anyone", async () => {
+      // The origin accepts everything, standing in for a cache whose token
+      // check is missing or misconfigured. Exit code 1 is what makes this a
+      // gate rather than a report.
+      const run = await runCli(
+        "scripts/edge-cache-health.ts",
+        [],
+        cliEnv({
+          EDGE_CACHE_PURGE_URL: `http://127.0.0.1:${varnish?.backendPort ?? 0}`
+        })
+      );
+
+      expect(run.exitCode).toBe(1);
+      expect(
+        parseCliReport<{ purge: { endpoint: { status: string } } }>(
+          "edge-cache",
+          run.stdout
+        ).purge.endpoint.status
+      ).toBe("unprotected");
+    }, 30_000);
+  }
+);
