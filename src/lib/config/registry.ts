@@ -2383,7 +2383,7 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     sensitivity: "secret",
     profiles: ALL_PROFILES,
     description:
-      "Shared secret the cache requires on a BAN request, alongside its own private-network ACL. SECRET — never in an issue, log, or screenshot. Empty on either side disables invalidation rather than accepting an unauthenticated purge."
+      "Shared secret the cache requires on an invalidation request (`POST /__awcms-edge-cache/ban`), alongside its own private-network ACL. SECRET — never in an issue, log, or screenshot. Empty on either side disables invalidation rather than accepting an unauthenticated purge."
   },
   // ---------------------------------------------------------------------
   // Preflight tooling (Issue #293)
