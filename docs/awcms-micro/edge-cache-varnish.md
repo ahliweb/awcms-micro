@@ -152,6 +152,37 @@ terkirim ke klien pada response yang **tidak** di-cache, karena dulu hanya
 dibuang di cabang cacheable. Sekarang dibuang tanpa syarat di
 `vcl_deliver`, dan diverifikasi ulang setelah perbaikan.
 
+### Bukti lapangan pada instance staging nyata (2026-07-25)
+
+Diukur pada instance staging `awcms-micro-staging.ahlikoding.com` — aplikasi
+sungguhan, PostgreSQL 18.4 sungguhan, satu tenant terkonfigurasi — dengan
+Varnish 7.7.3 di depannya. Setiap baris 20 permintaan; `db_xact` adalah delta
+`pg_stat_database.xact_commit` untuk database staging, jadi ia menghitung
+pekerjaan database **nyata**, bukan proksi.
+
+| Rute           | Tanpa cache (db_xact / rata-rata) | Dengan cache (db_xact / rata-rata) | Pengurangan kerja DB |
+| -------------- | --------------------------------- | ---------------------------------- | -------------------- |
+| `/`            | 163 / 24,8 ms                     | 2 / 1,7 ms                         | −98,8 %              |
+| `/sitemap.xml` | 76 / 19,2 ms                      | 1 / 3,7 ms                         | −98,7 %              |
+| `/feed.xml`    | 60 / 16,8 ms                      | 1 / 3,3 ms                         | −98,3 %              |
+
+Angka "tanpa cache" diambil lewat Varnish yang sama dengan
+`EDGE_CACHE_ENABLED=false`, sehingga satu-satunya variabel yang berubah adalah
+kebijakan cache — bukan jalur jaringan. Hasil ini direproduksi ulang setelah
+satu siklus deploy penuh (19 HIT dari 20, `db_xact` 1–4).
+
+Aturan keamanannya diverifikasi pada instance yang sama, bukan hanya di lab:
+
+| Yang diuji                    | Hasil                                       |
+| ----------------------------- | ------------------------------------------- |
+| Halaman publik, 2×            | HIT — backend tidak dipukul lagi            |
+| Permintaan dengan cookie sesi | `bypass`, selalu MISS                       |
+| `/admin`, 2×                  | Tidak pernah HIT                            |
+| `/api/v1/health`, 2×          | `bypass`, selalu MISS                       |
+| BAN tanpa token / token salah | **403**                                     |
+| BAN token benar               | 200, dan permintaan berikutnya kembali MISS |
+| `Surrogate-Control` ke klien  | Tidak pernah muncul, pada rute mana pun     |
+
 ## Invalidasi
 
 TTL adalah kontrak kesegaran utama: tanpa purge apa pun, sebuah suntingan
