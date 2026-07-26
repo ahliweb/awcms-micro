@@ -1,0 +1,46 @@
+---
+/**
+ * CheckboxField — one labelled checkbox row (Issue #372).
+ *
+ * Measured on `0a8c3ba5`: `class="checkbox-label"` appears in **16 of 51**
+ * admin pages, always as the same `<label>`-wraps-`<input>` shape (the
+ * WCAG-friendly implicit association — no `for`/`id` pairing to keep in
+ * sync, whole label is the hit target):
+ *
+ * ```astro
+ * <label class="checkbox-label">
+ *   <input type="checkbox" name="roleIds" value={role.roleId} />
+ *   {role.roleName}
+ * </label>
+ * ```
+ *
+ * **This component deliberately ships no CSS.** Each admin screen styles
+ * `.checkbox-label` itself, and the three call sites migrated in Issue
+ * #372 do not agree: `access-users` sets `gap: var(--sp-1)` plus its own
+ * font-size/weight, while `security`/`tenant/domains` instead *override* a
+ * page-level `form label { flex-direction: column }` rule with
+ * `flex-direction: row !important`. Shipping an opinionated scoped style
+ * here would have silently changed the spacing on two live screens. So the
+ * component owns the **markup and the class name** — the seam a later
+ * design-system pass can consolidate the styling through — and the page's
+ * own stylesheet keeps producing pixel-identical output today.
+ *
+ * `value` is omitted entirely when not given, so a bare
+ * `<CheckboxField name="ssoRequired" checked={...} />` submits the HTML
+ * default `"on"` exactly like the hand-authored markup it replaces (every
+ * client script in this repo tests `formData.get(name) === "on"`).
+ */
+interface Props {
+  name: string;
+  label: string;
+  value?: string;
+  checked?: boolean;
+}
+
+const { name, label, value, checked = false } = Astro.props;
+---
+
+<label class="checkbox-label">
+  <input type="checkbox" name={name} value={value} checked={checked} />
+  {label}
+</label>

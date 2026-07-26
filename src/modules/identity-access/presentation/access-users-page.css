@@ -1,0 +1,181 @@
+/**
+ * Stylesheet for the Access & Users admin screen (`/admin/access-users`) —
+ * presentation layer per ADR-0038, moved out of that page's inline
+ * `<style>` block by Issue #372.
+ *
+ * Every selector here is anchored on a class this page owns
+ * (`.access-users`, `.au-*`, `.role-*`, `.permission-module-group`,
+ * `.checkbox-label`) — no bare element selectors — so losing Astro's
+ * per-component scoping changes nothing about which elements match. That
+ * property is what makes the extraction safe, and is worth preserving when
+ * editing this file.
+ *
+ * `.checkbox-label` deliberately stays here rather than moving into
+ * `CheckboxField.astro`: the three screens that share that markup do not
+ * share its spacing (see the component's own header comment).
+ */
+.access-users {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* `.action-banner`, `.table-scroll`/`.au-table`, and `.status-pill` were
+   previously hand-rolled here — now supplied by `ActionBanner.astro`,
+   `DataTable.astro`, and `StatusBadge.astro` respectively (Issue #693).
+   `.au-section-header h2` stays: it is page-specific section-heading
+   spacing, not part of any shared primitive. */
+.au-section-header h2 {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-md);
+}
+
+.role-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-1);
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-xs);
+}
+
+.role-chip-empty {
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+}
+
+.role-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1;
+  padding: 0;
+}
+
+.role-chip-remove:hover {
+  color: var(--color-danger-strong);
+}
+
+/* Touch target >= 44px on tablet/mobile (doc 14 §Aksesibilitas). */
+@media (max-width: 768px) {
+  .role-chip-remove,
+  .toggle-status-button,
+  .delete-role-button,
+  .assign-role-form button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+.assign-role-form {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.assign-role-form select,
+.assign-role-form button {
+  font-size: var(--fs-xs);
+}
+
+.system-role-badge {
+  font-style: normal;
+  font-size: var(--fs-xs);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--sp-1);
+  margin-left: var(--sp-1);
+}
+
+.toggle-status-button,
+.delete-role-button {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-2);
+  cursor: pointer;
+  font-size: var(--fs-xs);
+}
+
+.delete-role-button {
+  margin-top: var(--sp-1);
+  color: var(--color-danger-strong);
+  border-color: var(--color-danger-strong);
+}
+
+.au-create {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+}
+
+.au-create summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.au-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  max-width: 480px;
+}
+
+/* Plain text/password fields now render via `FormField.astro` (Issue
+   #693), which supplies its own label/input styling — only the
+   checkbox-group fieldset below stays page-specific. */
+
+.role-checkbox-group {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2);
+}
+
+.permission-module-group {
+  margin-bottom: var(--sp-2);
+}
+
+.permission-module-group strong {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: var(--sp-1);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+
+.au-form button {
+  align-self: flex-start;
+  background: var(--color-primary-strong);
+  color: var(--color-primary-contrast);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.au-form button:disabled,
+.assign-role-form button:disabled,
+.toggle-status-button:disabled,
+.delete-role-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

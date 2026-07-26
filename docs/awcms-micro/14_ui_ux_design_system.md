@@ -125,6 +125,12 @@ Komponen dasar di `src/components/ui`, dipakai lintas persona.
 | SyncIndicator / OfflineBanner             | status koneksi & antrean sync                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | MoneyText / MaskedText                    | format IDR & masking data sensitif                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `StateNotice` (Issue #434)                | denied/error banner bersama; `kind="error"` menutup cabang Error state pattern di layar SSR (lihat §State pattern wajib)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `LoadErrorNotice` (Issue #372)            | pembungkus satu-baris untuk cabang `StateNotice kind="error"` yang **38 dari 51** halaman admin tulis ulang persis sama (`common.error_title`/`common.error_body`/`common.retry` + `retryHref={Astro.url.pathname}`); menerjemahkan sendiri, `retryHref` tetap prop untuk tiga halaman yang menunjuk layar lain                                                                                                                                                                                                                                                                                                               |
+| `ClientJsonData` (Issue #372)             | blob serah-terima data SSR→browser `<script type="application/json">`; **35 dari 51** halaman admin menyalinnya verbatim. Byte-compatible dengan `readClientStrings()` — migrasi halaman tidak menyentuh skrip kliennya                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `CheckboxField` / `CheckboxGroup` (#372)  | satu baris checkbox berlabel (`class="checkbox-label"`, **16 dari 51** halaman) dan grup `role-checkbox-group` (flat `items` atau bergrup `groups`). **Sengaja tanpa CSS** — tiga layar yang dimigrasikan tidak sepakat soal spacing; komponen memiliki markup + nama kelas, stylesheet halaman tetap memiliki tampilannya                                                                                                                                                                                                                                                                                                    |
+| `TextField` (Issue #372)                  | input teks/password/url berlabel; default `layout="stacked"` = bentuk implicit-label (`<label>teks<input/></label>`) yang **27 dari 51** halaman admin pakai dan yang stylesheet mereka tulis untuk. Bukan turunan `FormField` — wrapper `.form-field*` milik `FormField` tidak di-style oleh stylesheet layar-layar itu                                                                                                                                                                                                                                                                                                      |
+| `FieldHint` (Issue #372)                  | baris bantuan kecil di bawah/di samping kontrol (`class="field-hint"`, **18 dari 51** halaman, 46 kemunculan); elemen pembungkus tetap prop (`p`/`span`/`div`) karena keduanya nyata dipakai; varian `warning`                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `SelectField` (Issue #372)                | `<select>` berlabel dari array `options`; dua layout nyata di codebase — `inline` (label+select bersaudara, toolbar `admin/analytics`) dan `stacked` (`<label>teks<select/></label>`, form `admin/tenant/domains`), keduanya merender persis seperti sebelum migrasi                                                                                                                                                                                                                                                                                                                                                          |
 
 Helper klien non-visual `src/lib/ui/admin-form-client.ts` (Issue #434) — `submitJson`/`showBanner`/`lockElement` dipakai bersama oleh `<script>` tiap layar admin untuk fetch+banner+anti-double-submit; bukan komponen Astro, tapi sumber kebenaran yang sama untuk pola "kunci tombol pemicu selama mutation in-flight" di §Form UX. `src/lib/ui/confirm-dialog-client.ts` (Issue #693) adalah pasangan non-visualnya untuk `ConfirmDialog.astro` — lihat entri Dialog/Drawer di atas.
 
@@ -136,6 +142,46 @@ Dua layar admin besar (800–1122 baris) dimigrasikan sebagai contoh pemakaian p
 - **`src/pages/admin/tenant/domains.astro`** (1076 baris) — dipilih untuk bentuk mutasi yang BERBEDA dari `access-users`: tiga alur konfirmasi-lalu-aksi destruktif/high-risk terpisah (verify, set-primary, delete-dengan-alasan), sebelumnya tiga kombinasi berbeda dari `window.confirm`/`window.prompt` mentah tanpa validasi inline sama sekali, sekarang semuanya lewat satu `ConfirmDialog` yang sama. Juga memakai `DataTable`, `StatusBadge`, `ActionBanner`.
 
 Kedua migrasi TIDAK mengubah pola SSR-read-langsung/mutation-lewat-API yang sudah ada (doc 15) — hanya markup/CSS/script client yang diganti ke primitive bersama.
+
+### Dekomposisi halaman admin (Issue #372)
+
+Rasio 16 komponen untuk 51 halaman berarti praktis tidak ada lapisan
+komponen: tiap halaman membangun ulang tabel, dialog, form, dan penanganan
+errornya sendiri sebagai teks di dalam satu berkas. Gelombang pertama
+memecah empat halaman yang punya jaring pengaman Playwright, dengan tiga
+gerakan mekanis per halaman (bukan penulisan ulang):
+
+1. **Skrip inline `<script>` → modul `.ts`** di
+   `src/modules/<modul>/presentation/` (ADR-0038). Begitu jadi `.ts` ia
+   masuk `tsc` dan bisa di-unit-test. Impornya tetap lewat `<script>` yang
+   meng-`import` modul itu — bukan import di frontmatter, yang berjalan di
+   server. `bun run build` membuktikan bundling-nya (satu berkas
+   `dist/client/_astro/<page>.astro_astro_type_script_*.js` per halaman).
+2. **Frontmatter → `presentation/<page>-page-data.ts`.** Composition root
+   SSR: permission gating, `withTenant` read, builder daftar opsi, dan
+   builder blob `clientStrings` — yang terakhir diketik dengan interface
+   milik modul kliennya sendiri, sehingga `tsc` gagal kalau kedua sisi
+   melenceng.
+3. **Ekstraksi komponen berdasarkan pengukuran**, bukan tebakan: hanya pola
+   yang muncul di **lebih dari satu halaman** (angka per komponen ada di
+   tabel §Component library dan di komentar tiap komponen).
+
+Hasil terukur (baris `.astro`, sebelum → sesudah): `admin/access-users`
+1005→397, `admin/analytics` 1123→380, `admin/security` 1069→399,
+`admin/tenant/domains` 1045→371. Keempat spesifikasi E2E-nya tidak
+disunting.
+
+Stylesheet halaman ikut pindah ke `presentation/<page>.css` dan di-`import`
+dari frontmatter. Konsekuensinya CSS itu **global**, bukan scoped Astro
+lagi: setiap selector wajib berjangkar pada kelas milik halaman itu. Tiga
+selector element-level di `admin/tenant/domains` (`details summary`,
+`button:disabled`, `*:focus-visible`) dijangkarkan ulang ke
+`.domain-manager` supaya tidak merembes ke topbar `AdminLayout`.
+
+Langkah lanjutan (belum dikerjakan di gelombang ini): gerbang anggaran
+baris yang menolak `.astro` baru di atas ~400 baris dengan daftar
+pengecualian yang hanya boleh menyusut — perlu menyentuh `scripts/` +
+`package.json`, jadi dipisah dari PR ini.
 
 ## Information architecture (navigasi role-aware)
 

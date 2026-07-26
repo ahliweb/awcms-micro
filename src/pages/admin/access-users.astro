@@ -1,59 +1,31 @@
 ---
 /**
- * Access & Users admin screen — full management UI over the identity-access
- * module: tenant users (create, rename, activate/deactivate), roles (create,
- * rename, edit permission set, soft delete), and role assignment.
+ * Access & Users admin screen — tenant users, roles, and role assignment.
  *
- * SSR fetches via the same application-layer functions the JSON endpoints
- * use (`modules/identity-access/application/user-directory.ts`) — matching
- * `admin/index.astro`'s pattern of not round-tripping through its own HTTP
- * API for the initial render. All mutations (create/update/assign/delete) go
- * through the real `/api/v1/users`, `/api/v1/roles`, `/api/v1/permissions`,
- * `/api/v1/access/assignments` endpoints via client-side `fetch` — the same
- * ABAC-guarded, audited endpoints any other API client would use, so the UI
- * has no privileged shortcut. No client-side framework is available in this
- * project (Astro + vanilla JS only, see AdminLayout's logout button for the
- * same pattern) — the single <script> below does all the wiring.
- *
- * Permission-gated per-section, matching each endpoint's own guard exactly
- * (defense-in-depth: hiding a control here is a UX nicety, the real
- * enforcement is server-side):
- *   - identity_access.user_management.read    -> see the Users table
- *   - identity_access.user_management.create  -> "Tambah pengguna" form
- *   - identity_access.user_management.update  -> rename / activate-deactivate
- *   - identity_access.access_control.read     -> see the Roles table
- *   - identity_access.access_control.configure -> create/edit/delete role
- *   - identity_access.access_control.assign    -> assign/unassign role chips
- *
- * Migrated to the shared `src/components/ui` primitives (Issue #693, epic
- * #679 platform-hardening) as one of that issue's two representative
- * large-page migrations — chosen because it exercises nearly every new
- * primitive in one file: two `DataTable`s, `StatusBadge` (user status),
- * `ActionBanner` (mutation feedback), `FormField` (create-user/create-role/
- * edit-role text inputs), and `ConfirmDialog` (delete-role, replacing a
- * `window.prompt` reason capture with no confirmation step at all before
- * this). See `docs/awcms-micro/14_ui_ux_design_system.md` §Component library
- * and §Migrated reference pages for the adoption note.
+ * This file is markup. Its three other concerns live in the module's
+ * presentation layer (ADR-0038), where `tsc` and `bun test` reach them
+ * (Issue #372) and where their rationale is documented:
+ *   - SSR data + permission gating -> `presentation/access-users-page-data.ts`
+ *   - browser behaviour            -> `presentation/access-users-admin-client.ts`
+ *   - styling                      -> `presentation/access-users-page.css`
  */
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import StateNotice from "../../components/ui/StateNotice.astro";
 import ActionBanner from "../../components/ui/ActionBanner.astro";
-import DataTable from "../../components/ui/DataTable.astro";
-import StatusBadge from "../../components/ui/StatusBadge.astro";
-import FormField from "../../components/ui/FormField.astro";
+import CheckboxGroup from "../../components/ui/CheckboxGroup.astro";
+import ClientJsonData from "../../components/ui/ClientJsonData.astro";
 import ConfirmDialog from "../../components/ui/ConfirmDialog.astro";
-import { getDatabaseClient } from "../../lib/database/client";
-import { withTenant } from "../../lib/database/tenant-context";
-import { permissionKey } from "../../modules/identity-access/domain/access-control";
-import {
-  fetchPermissionCatalog,
-  fetchRolesWithPermissions,
-  fetchTenantUsersWithRoles,
-  type PermissionCatalogEntry
-} from "../../modules/identity-access/application/user-directory";
+import DataTable from "../../components/ui/DataTable.astro";
+import FormField from "../../components/ui/FormField.astro";
+import LoadErrorNotice from "../../components/ui/LoadErrorNotice.astro";
+import StateNotice from "../../components/ui/StateNotice.astro";
+import StatusBadge from "../../components/ui/StatusBadge.astro";
 import { createTranslator } from "../../lib/i18n/translate";
-import { logAdminPageError } from "../../lib/logging/error-log";
-import { buildClientErrorMessages } from "../../lib/i18n/error-messages";
+import {
+  buildAccessUsersClientStrings,
+  buildPermissionCheckboxSections,
+  loadAccessUsersPageModel
+} from "../../modules/identity-access/presentation/access-users-page-data";
+import "../../modules/identity-access/presentation/access-users-page.css";
 
 const context = Astro.locals.ssrContext;
 
@@ -64,96 +36,25 @@ if (!context) {
 }
 
 const t = await createTranslator(Astro.locals.locale);
+const clientStrings = buildAccessUsersClientStrings(t);
+const permissionLegend = t("admin.access_users.permission_legend");
+const systemRoleNote = t("admin.access_users.system_role_note");
+const actionsColumn = t("admin.access_users.actions_column");
 
-// i18n (Issue #433): the client <script> below can't read the .po catalog
-// itself (server-side only, via Bun.file) — translated strings/error-code
-// map it needs are injected as a <script type="application/json"> blob, the
-// same pattern login.astro uses.
-const clientStrings = {
-  createUserSuccess: t("admin.access_users.create_user_success"),
-  createRoleSuccess: t("admin.access_users.create_role_success"),
-  updateRoleSuccess: t("admin.access_users.update_role_success"),
-  deleteRoleSuccess: t("admin.access_users.delete_role_success"),
-  updateStatusSuccess: t("admin.access_users.update_status_success"),
-  assignRoleSuccess: t("admin.access_users.assign_role_success"),
-  unassignRoleSuccess: t("admin.access_users.unassign_role_success"),
-  deleteRolePrompt: t("admin.access_users.delete_role_prompt"),
-  deleteRoleConfirmTitle: t("admin.access_users.delete_role_confirm_title"),
-  deleteRoleConfirmBody: t("admin.access_users.delete_role_confirm_body"),
-  confirmButton: t("common.confirm_button"),
-  cancelButton: t("common.cancel_button"),
-  reasonRequiredError: t("common.reason_required_error"),
-  networkError: t("common.network_error"),
-  pleaseWait: t("common.please_wait"),
-  errorMessages: buildClientErrorMessages(t)
-};
-
-const CAN_READ_USERS = context.permissions.has(
-  permissionKey("identity_access", "user_management", "read")
-);
-const CAN_CREATE_USERS = context.permissions.has(
-  permissionKey("identity_access", "user_management", "create")
-);
-const CAN_UPDATE_USERS = context.permissions.has(
-  permissionKey("identity_access", "user_management", "update")
-);
-const CAN_READ_ROLES = context.permissions.has(
-  permissionKey("identity_access", "access_control", "read")
-);
-const CAN_CONFIGURE_ROLES = context.permissions.has(
-  permissionKey("identity_access", "access_control", "configure")
-);
-const CAN_ASSIGN = context.permissions.has(
-  permissionKey("identity_access", "access_control", "assign")
-);
-
-const hasAnyAccess = CAN_READ_USERS || CAN_READ_ROLES;
-
-// Issue #434 (UX/UI audit): the doc 14 §State pattern wajib requires an
-// explicit Error branch ("Loading -> Error: gagal") — previously a DB
-// failure here had no graceful path at all (unhandled 500). `loadError`
-// distinguishes "you can't see this" (permission) from "we couldn't load
-// it right now" (transient failure); see `StateNotice.astro`.
-let data: {
-  users: Awaited<ReturnType<typeof fetchTenantUsersWithRoles>>;
-  roles: Awaited<ReturnType<typeof fetchRolesWithPermissions>>;
-  permissions: PermissionCatalogEntry[];
-} | null = null;
-let loadError = false;
-
-if (hasAnyAccess) {
-  try {
-    data = await withTenant(
-      getDatabaseClient(),
-      context.tenantId,
-      async (tx) => ({
-        users: CAN_READ_USERS
-          ? await fetchTenantUsersWithRoles(tx, context.tenantId)
-          : [],
-        roles: CAN_READ_ROLES
-          ? await fetchRolesWithPermissions(tx, context.tenantId)
-          : [],
-        permissions: CAN_READ_ROLES ? await fetchPermissionCatalog(tx) : []
-      }),
-      { unavailableBehavior: "throw" }
-    );
-  } catch (error) {
-    logAdminPageError("admin/access-users.astro: failed to load data", error, {
-      correlationId: Astro.locals.correlationId
-    });
-    loadError = true;
-  }
-}
-
-// Group the permission catalog by moduleKey for a readable checkbox layout.
-const permissionGroups = new Map<string, PermissionCatalogEntry[]>();
-if (data) {
-  for (const permission of data.permissions) {
-    const list = permissionGroups.get(permission.moduleKey) ?? [];
-    list.push(permission);
-    permissionGroups.set(permission.moduleKey, list);
-  }
-}
+const {
+  canReadUsers: CAN_READ_USERS,
+  canCreateUsers: CAN_CREATE_USERS,
+  canUpdateUsers: CAN_UPDATE_USERS,
+  canReadRoles: CAN_READ_ROLES,
+  canConfigureRoles: CAN_CONFIGURE_ROLES,
+  canAssign: CAN_ASSIGN,
+  hasAnyAccess,
+  data,
+  loadError,
+  permissionGroups
+} = await loadAccessUsersPageModel(context, {
+  correlationId: Astro.locals.correlationId
+});
 ---
 
 <AdminLayout title={t("admin.layout.nav_access_users")}>
@@ -166,31 +67,13 @@ if (data) {
       />
     )
   }
-  {
-    hasAnyAccess && loadError && (
-      <StateNotice
-        kind="error"
-        title={t("common.error_title")}
-        body={t("common.error_body")}
-        retryLabel={t("common.retry")}
-        retryHref={Astro.url.pathname}
-      />
-    )
-  }
+  {hasAnyAccess && loadError && <LoadErrorNotice />}
   {
     data && (
       <div class="access-users">
         <ActionBanner />
-        <ConfirmDialog
-          id="au-confirm-dialog"
-          confirmLabel={clientStrings.confirmButton}
-          cancelLabel={clientStrings.cancelButton}
-        />
-        <script
-          type="application/json"
-          id="i18n-strings"
-          set:html={JSON.stringify(clientStrings)}
-        />
+        <ConfirmDialog id="au-confirm-dialog" />
+        <ClientJsonData data={clientStrings} />
 
         {CAN_READ_USERS && (
           <section class="au-section">
@@ -200,21 +83,16 @@ if (data) {
 
             <DataTable
               caption={t("admin.access_users.users_title")}
-              columnCount={CAN_UPDATE_USERS || CAN_ASSIGN ? 5 : 4}
+              columns={[
+                t("admin.access_users.name_column"),
+                t("admin.access_users.login_column"),
+                t("admin.access_users.status_column"),
+                t("admin.access_users.role_column"),
+                ...(CAN_UPDATE_USERS || CAN_ASSIGN ? [actionsColumn] : [])
+              ]}
               isEmpty={data.users.length === 0}
               emptyMessage={t("admin.access_users.no_users")}
             >
-              <Fragment slot="head">
-                <tr>
-                  <th>{t("admin.access_users.name_column")}</th>
-                  <th>{t("admin.access_users.login_column")}</th>
-                  <th>{t("admin.access_users.status_column")}</th>
-                  <th>{t("admin.access_users.role_column")}</th>
-                  {(CAN_UPDATE_USERS || CAN_ASSIGN) && (
-                    <th>{t("admin.access_users.actions_column")}</th>
-                  )}
-                </tr>
-              </Fragment>
               {data.users.map((user) => (
                 <tr data-user-row={user.tenantUserId}>
                   <td>{user.displayName}</td>
@@ -354,21 +232,14 @@ if (data) {
                       required
                     />
                   </FormField>
-                  <fieldset class="role-checkbox-group">
-                    <legend>
-                      {t("admin.access_users.initial_roles_legend")}
-                    </legend>
-                    {data.roles.map((role) => (
-                      <label class="checkbox-label">
-                        <input
-                          type="checkbox"
-                          name="roleIds"
-                          value={role.roleId}
-                        />
-                        {role.roleName}
-                      </label>
-                    ))}
-                  </fieldset>
+                  <CheckboxGroup
+                    name="roleIds"
+                    legend={t("admin.access_users.initial_roles_legend")}
+                    items={data.roles.map((role) => ({
+                      value: role.roleId,
+                      label: role.roleName
+                    }))}
+                  />
                   <button type="submit">
                     {t("admin.access_users.create_user_submit")}
                   </button>
@@ -386,21 +257,16 @@ if (data) {
 
             <DataTable
               caption={t("admin.access_users.roles_title")}
-              columnCount={CAN_CONFIGURE_ROLES ? 5 : 4}
+              columns={[
+                t("admin.access_users.role_column"),
+                t("admin.access_users.code_column"),
+                t("admin.access_users.permission_column"),
+                t("admin.access_users.users_column"),
+                ...(CAN_CONFIGURE_ROLES ? [actionsColumn] : [])
+              ]}
               isEmpty={data.roles.length === 0}
               emptyMessage={t("admin.access_users.no_roles")}
             >
-              <Fragment slot="head">
-                <tr>
-                  <th>{t("admin.access_users.role_column")}</th>
-                  <th>{t("admin.access_users.code_column")}</th>
-                  <th>{t("admin.access_users.permission_column")}</th>
-                  <th>{t("admin.access_users.users_column")}</th>
-                  {CAN_CONFIGURE_ROLES && (
-                    <th>{t("admin.access_users.actions_column")}</th>
-                  )}
-                </tr>
-              </Fragment>
               {data.roles.map((role) => (
                 <tr>
                   <td>
@@ -440,37 +306,19 @@ if (data) {
                               required
                             />
                           </FormField>
-                          <fieldset
-                            class="role-checkbox-group"
+                          <CheckboxGroup
+                            name="permissionIds"
                             disabled={role.isSystem}
-                          >
-                            <legend>
-                              {t("admin.access_users.permission_legend")}
-                              {role.isSystem &&
-                                ` ${t("admin.access_users.system_role_note")}`}
-                            </legend>
-                            {[...permissionGroups.entries()].map(
-                              ([moduleKey, perms]) => (
-                                <div class="permission-module-group">
-                                  <strong>{moduleKey}</strong>
-                                  {perms.map((permission) => (
-                                    <label class="checkbox-label">
-                                      <input
-                                        type="checkbox"
-                                        name="permissionIds"
-                                        value={permission.permissionId}
-                                        checked={role.permissionIds.includes(
-                                          permission.permissionId
-                                        )}
-                                      />
-                                      {permission.activityCode}.
-                                      {permission.action}
-                                    </label>
-                                  ))}
-                                </div>
-                              )
+                            legend={
+                              role.isSystem
+                                ? `${permissionLegend} ${systemRoleNote}`
+                                : permissionLegend
+                            }
+                            groups={buildPermissionCheckboxSections(
+                              permissionGroups,
+                              role.permissionIds
                             )}
-                          </fieldset>
+                          />
                           <button type="submit">
                             {t("admin.access_users.save_button")}
                           </button>
@@ -524,26 +372,11 @@ if (data) {
                       required
                     />
                   </FormField>
-                  <fieldset class="role-checkbox-group">
-                    <legend>{t("admin.access_users.permission_legend")}</legend>
-                    {[...permissionGroups.entries()].map(
-                      ([moduleKey, perms]) => (
-                        <div class="permission-module-group">
-                          <strong>{moduleKey}</strong>
-                          {perms.map((permission) => (
-                            <label class="checkbox-label">
-                              <input
-                                type="checkbox"
-                                name="permissionIds"
-                                value={permission.permissionId}
-                              />
-                              {permission.activityCode}.{permission.action}
-                            </label>
-                          ))}
-                        </div>
-                      )
-                    )}
-                  </fieldset>
+                  <CheckboxGroup
+                    name="permissionIds"
+                    legend={permissionLegend}
+                    groups={buildPermissionCheckboxSections(permissionGroups)}
+                  />
                   <button type="submit">
                     {t("admin.access_users.create_role_submit")}
                   </button>
@@ -557,448 +390,8 @@ if (data) {
   }
 </AdminLayout>
 
-<style>
-  .access-users {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-6);
-  }
-
-  /* `.action-banner`, `.table-scroll`/`.au-table`, and `.status-pill` were
-     previously hand-rolled here — now supplied by `ActionBanner.astro`,
-     `DataTable.astro`, and `StatusBadge.astro` respectively (Issue #693).
-     `.au-section-header h2` stays: it is page-specific section-heading
-     spacing, not part of any shared primitive. */
-  .au-section-header h2 {
-    margin: 0 0 var(--sp-3);
-    font-size: var(--fs-md);
-  }
-
-  .role-chip-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-1);
-    margin-bottom: var(--sp-1);
-  }
-
-  .role-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-1);
-    background: var(--color-surface-2);
-    border-radius: var(--radius-full);
-    padding: 0 var(--sp-2);
-    font-size: var(--fs-xs);
-  }
-
-  .role-chip-empty {
-    color: var(--color-text-muted);
-    font-size: var(--fs-xs);
-  }
-
-  .role-chip-remove {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    font-size: var(--fs-sm);
-    line-height: 1;
-    padding: 0;
-  }
-
-  .role-chip-remove:hover {
-    color: var(--color-danger-strong);
-  }
-
-  /* Touch target >= 44px on tablet/mobile (doc 14 §Aksesibilitas). */
-  @media (max-width: 768px) {
-    .role-chip-remove,
-    .toggle-status-button,
-    .delete-role-button,
-    .assign-role-form button {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
-
-  .assign-role-form {
-    display: flex;
-    gap: var(--sp-1);
-  }
-
-  .assign-role-form select,
-  .assign-role-form button {
-    font-size: var(--fs-xs);
-  }
-
-  .system-role-badge {
-    font-style: normal;
-    font-size: var(--fs-xs);
-    background: var(--color-surface-2);
-    border-radius: var(--radius-sm);
-    padding: 0 var(--sp-1);
-    margin-left: var(--sp-1);
-  }
-
-  .toggle-status-button,
-  .delete-role-button {
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: var(--sp-1) var(--sp-2);
-    cursor: pointer;
-    font-size: var(--fs-xs);
-  }
-
-  .delete-role-button {
-    margin-top: var(--sp-1);
-    color: var(--color-danger-strong);
-    border-color: var(--color-danger-strong);
-  }
-
-  .au-create {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--sp-3);
-  }
-
-  .au-create summary {
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .au-form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-3);
-    margin-top: var(--sp-3);
-    max-width: 480px;
-  }
-
-  /* Plain text/password fields now render via `FormField.astro` (Issue
-     #693), which supplies its own label/input styling — only the
-     checkbox-group fieldset below stays page-specific. */
-
-  .role-checkbox-group {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: var(--sp-2);
-  }
-
-  .permission-module-group {
-    margin-bottom: var(--sp-2);
-  }
-
-  .permission-module-group strong {
-    display: block;
-    font-size: var(--fs-xs);
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    margin-bottom: var(--sp-1);
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-1);
-    font-size: var(--fs-sm);
-    font-weight: 400;
-  }
-
-  .au-form button {
-    align-self: flex-start;
-    background: var(--color-primary-strong);
-    color: var(--color-primary-contrast);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: var(--sp-2) var(--sp-4);
-    min-height: 44px;
-    cursor: pointer;
-  }
-
-  .au-form button:disabled,
-  .assign-role-form button:disabled,
-  .toggle-status-button:disabled,
-  .delete-role-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-</style>
-
 <script>
-  // Issue #434 (UX/UI audit): `submitJson`/`showBanner`/`reloadAfterDelay`
-  // used to be duplicated verbatim in this file, `admin/sync.astro`, and
-  // `admin/settings.astro` — now shared (doc 14 §Konsistensi). `lockElement`
-  // is new: it disables the button that triggered a mutation for the
-  // duration of the request so a fast double-click/double-Enter can't fire
-  // it twice (doc 14 §Form UX "cegah double-submit"); errors leave the
-  // button re-enabled and every field exactly as the user left it.
-  import {
-    lockElement,
-    readClientStrings,
-    reloadAfterDelay,
-    showBanner,
-    submitJson
-  } from "../../lib/ui/admin-form-client";
-  import { openConfirmDialog } from "../../lib/ui/confirm-dialog-client";
+  import { initAccessUsersAdmin } from "../../modules/identity-access/presentation/access-users-admin-client";
 
-  interface AccessUsersStrings {
-    createUserSuccess: string;
-    createRoleSuccess: string;
-    updateRoleSuccess: string;
-    deleteRoleSuccess: string;
-    updateStatusSuccess: string;
-    assignRoleSuccess: string;
-    unassignRoleSuccess: string;
-    deleteRolePrompt: string;
-    deleteRoleConfirmTitle: string;
-    deleteRoleConfirmBody: string;
-    confirmButton: string;
-    cancelButton: string;
-    reasonRequiredError: string;
-    networkError: string;
-    pleaseWait: string;
-    errorMessages?: Record<string, string>;
-  }
-
-  const strings = readClientStrings<AccessUsersStrings>();
-
-  function submitButtonOf(form: HTMLFormElement): HTMLButtonElement | null {
-    return form.querySelector('button[type="submit"]');
-  }
-
-  document
-    .getElementById("create-user-form")
-    ?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = event.target as HTMLFormElement;
-      const button = submitButtonOf(form);
-      if (button?.disabled) return;
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-
-      try {
-        const formData = new FormData(form);
-        const roleIds = formData.getAll("roleIds") as string[];
-
-        const result = await submitJson(
-          "/api/v1/users",
-          "POST",
-          {
-            displayName: formData.get("displayName"),
-            loginIdentifier: formData.get("loginIdentifier"),
-            password: formData.get("password"),
-            roleIds
-          },
-          strings
-        );
-
-        showBanner(
-          "action-banner",
-          result.ok ? strings.createUserSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock?.();
-      }
-    });
-
-  document
-    .getElementById("create-role-form")
-    ?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = event.target as HTMLFormElement;
-      const button = submitButtonOf(form);
-      if (button?.disabled) return;
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-
-      try {
-        const formData = new FormData(form);
-        const permissionIds = formData.getAll("permissionIds") as string[];
-
-        const result = await submitJson(
-          "/api/v1/roles",
-          "POST",
-          {
-            roleCode: formData.get("roleCode"),
-            roleName: formData.get("roleName"),
-            permissionIds
-          },
-          strings
-        );
-
-        showBanner(
-          "action-banner",
-          result.ok ? strings.createRoleSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock?.();
-      }
-    });
-
-  document.querySelectorAll(".edit-role-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const el = event.target as HTMLFormElement;
-      const button = submitButtonOf(el);
-      if (button?.disabled) return;
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-
-      try {
-        const roleId = el.dataset.roleId!;
-        const isSystem = el.dataset.roleSystem === "true";
-        const formData = new FormData(el);
-
-        const body: Record<string, unknown> = {
-          roleName: formData.get("roleName")
-        };
-        if (!isSystem) {
-          body.permissionIds = formData.getAll("permissionIds");
-        }
-
-        const result = await submitJson(
-          `/api/v1/roles/${roleId}`,
-          "PATCH",
-          body,
-          strings
-        );
-        showBanner(
-          "action-banner",
-          result.ok ? strings.updateRoleSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock?.();
-      }
-    });
-  });
-
-  document.querySelectorAll(".delete-role-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-
-      const roleId = el.dataset.deleteRole!;
-      const confirmation = await openConfirmDialog("au-confirm-dialog", {
-        title: strings.deleteRoleConfirmTitle,
-        body: strings.deleteRoleConfirmBody,
-        confirmLabel: strings.confirmButton,
-        cancelLabel: strings.cancelButton,
-        requireReason: true,
-        reasonLabel: strings.deleteRolePrompt,
-        reasonRequiredError: strings.reasonRequiredError
-      });
-      if (!confirmation.confirmed || !confirmation.reason) return;
-      const reason = confirmation.reason;
-
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const result = await submitJson(
-          `/api/v1/roles/${roleId}`,
-          "DELETE",
-          { reason },
-          strings
-        );
-        showBanner(
-          "action-banner",
-          result.ok ? strings.deleteRoleSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock();
-      }
-    });
-  });
-
-  document.querySelectorAll(".toggle-status-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const unlock = lockElement(el, strings.pleaseWait);
-
-      try {
-        const tenantUserId = el.dataset.toggleUser!;
-        const nextStatus = el.dataset.nextStatus!;
-
-        const result = await submitJson(
-          `/api/v1/users/${tenantUserId}`,
-          "PATCH",
-          { status: nextStatus },
-          strings
-        );
-        showBanner(
-          "action-banner",
-          result.ok ? strings.updateStatusSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock();
-      }
-    });
-  });
-
-  document.querySelectorAll(".assign-role-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const el = event.target as HTMLFormElement;
-      const button = submitButtonOf(el);
-      if (button?.disabled) return;
-
-      const formData = new FormData(el);
-      const roleId = formData.get("roleId");
-      if (!roleId) return;
-
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-      try {
-        const tenantUserId = el.dataset.assignUser!;
-        const result = await submitJson(
-          "/api/v1/access/assignments",
-          "POST",
-          { tenantUserId, roleId },
-          strings
-        );
-        showBanner(
-          "action-banner",
-          result.ok ? strings.assignRoleSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock?.();
-      }
-    });
-  });
-
-  document.querySelectorAll(".role-chip-remove").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const unlock = lockElement(el);
-
-      try {
-        const tenantUserId = el.dataset.unassignUser!;
-        const roleId = el.dataset.unassignRole!;
-
-        const result = await submitJson(
-          "/api/v1/access/assignments",
-          "DELETE",
-          { tenantUserId, roleId },
-          strings
-        );
-        showBanner(
-          "action-banner",
-          result.ok ? strings.unassignRoleSuccess : result.message,
-          result.ok ? "success" : "error"
-        );
-        if (result.ok) reloadAfterDelay();
-      } finally {
-        unlock();
-      }
-    });
-  });
+  initAccessUsersAdmin();
 </script>

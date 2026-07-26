@@ -1,0 +1,193 @@
+/**
+ * Stylesheet for the auth-security admin screen (`/admin/security`) —
+ * presentation layer per ADR-0038, moved out of that page's inline
+ * `<style>` block by Issue #372.
+ *
+ * Every selector is anchored on a class this page owns (`.security-admin`,
+ * `.sec-*`, `.status-*`, `.field-hint`, `.checkbox-label`,
+ * `.role-checkbox-group`, `.table-scroll`, `.break-glass-fieldset`) — no
+ * bare element selectors — so losing Astro's per-component scoping changes
+ * nothing about which elements match.
+ *
+ * The `.action-banner*` rules that used to sit here are gone: the page now
+ * renders `<ActionBanner />` (`src/components/ui/ActionBanner.astro`), which
+ * ships those exact declarations as its own scoped style. It was the last
+ * screen still hand-rolling that banner's markup and CSS.
+ */
+.security-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  max-width: 960px;
+}
+
+.sec-section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sec-section h2 {
+  margin: 0;
+  font-size: var(--fs-md);
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--sp-1) var(--sp-3);
+  margin: 0;
+}
+
+.status-grid dt {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.status-grid dd {
+  margin: 0;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-pill, 999px);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.status-pill[data-status="active"] {
+  background: color-mix(
+    in srgb,
+    var(--color-success) 20%,
+    var(--color-surface)
+  );
+  color: var(--color-success-strong, var(--color-success));
+}
+
+.status-pill[data-status="inactive"] {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.sec-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sec-form fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sec-form legend {
+  font-weight: 600;
+  padding: 0 var(--sp-1);
+}
+
+.sec-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--sp-2) !important;
+}
+
+.sec-form input,
+.sec-form select,
+.sec-form textarea {
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.field-hint-warning {
+  color: var(--color-warning);
+}
+
+.break-glass-fieldset {
+  border: 1px dashed var(--color-border);
+}
+
+.role-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.sec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.sec-table th,
+.sec-table td {
+  text-align: left;
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.sec-actions-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 140px;
+}
+
+.sec-form button,
+.delete-provider-button {
+  align-self: flex-start;
+  background: var(--color-primary-strong);
+  color: var(--color-primary-contrast);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.delete-provider-button {
+  background: var(--color-danger-strong, var(--color-danger));
+}
+
+.sec-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .sec-form input,
+  .sec-form select {
+    min-height: 44px;
+  }
+}

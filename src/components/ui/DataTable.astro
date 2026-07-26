@@ -47,7 +47,26 @@
 interface Props {
   id?: string;
   caption: string;
-  columnCount: number;
+  /**
+   * Header cell texts (Issue #372). When given, this component renders the
+   * `<tr><th>…` header row itself and `columnCount` is derived from the
+   * array's length — the common case, and one every migrated page spelled
+   * out as an 8-to-13-line `<Fragment slot="head">` block. Omit it (and
+   * pass `columnCount`) to keep using the `head` slot for a header row that
+   * needs `colspan`, grouped `<th>`s, or markup inside a cell.
+   */
+  columns?: string[];
+  columnCount?: number;
+  /**
+   * Value for a `data-role` attribute on the `<table>` (Issue #372) — the
+   * stable hook `admin/analytics.astro`'s client script and its E2E spec
+   * already select every one of its seven tables by
+   * (`[data-role="sessions-table"] tbody`). Kept as a first-class prop so
+   * adopting this component required no change to either of those, and so
+   * the next client-fetched table has an obvious place to declare its hook
+   * instead of hand-rolling the table markup to keep one attribute.
+   */
+  dataRole?: string;
   isEmpty?: boolean;
   emptyMessage?: string;
   /** Render shimmer placeholder rows instead of body content while a
@@ -61,7 +80,9 @@ interface Props {
 const {
   id,
   caption,
-  columnCount,
+  columns,
+  columnCount = columns?.length ?? 0,
+  dataRole,
   isEmpty = false,
   emptyMessage,
   loading = false,
@@ -70,10 +91,25 @@ const {
 ---
 
 <div class="data-table-scroll">
-  <table id={id} class="data-table" aria-busy={loading ? "true" : undefined}>
+  <table
+    id={id}
+    class="data-table"
+    data-role={dataRole}
+    aria-busy={loading ? "true" : undefined}
+  >
     <caption class="sr-only">{caption}</caption>
     <thead>
-      <slot name="head" />
+      {
+        columns ? (
+          <tr>
+            {columns.map((column) => (
+              <th>{column}</th>
+            ))}
+          </tr>
+        ) : (
+          <slot name="head" />
+        )
+      }
     </thead>
     <tbody>
       {

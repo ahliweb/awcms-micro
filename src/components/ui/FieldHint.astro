@@ -1,0 +1,36 @@
+---
+/**
+ * FieldHint — the small muted helper line under (or beside) a form control
+ * (Issue #372).
+ *
+ * Measured on `0a8c3ba5`: `class="field-hint"` appears in **18 of 51**
+ * admin pages, 46 occurrences in total, split between `<span>` (23),
+ * `<p>` (20) and `<div>` (2) — the element varies because some hints sit
+ * inline inside a table cell and others are block text under an input. So
+ * the wrapping element stays a prop rather than being hardcoded; the class
+ * name, the single `warning` modifier, and the slot are what actually
+ * repeat.
+ *
+ * **No CSS here, on purpose** — same reasoning as `CheckboxField.astro`:
+ * the migrated pages disagree on the margin (`admin/security` uses
+ * `margin: 0` because its hints live in a `gap`-spaced flex column,
+ * `admin/tenant/domains` uses `margin: var(--sp-1) 0 0`), so an
+ * opinionated scoped rule here would have quietly moved text on a live
+ * screen. The page stylesheet keeps styling `.field-hint`; this component
+ * owns the markup shape and is the seam a later design-system pass can
+ * consolidate through.
+ *
+ * `variant="warning"` maps to the existing `.field-hint-warning` modifier
+ * (used today by `admin/security`'s "sso_required" caution line).
+ */
+interface Props {
+  as?: "p" | "span" | "div";
+  variant?: "default" | "warning";
+}
+
+const { as: Tag = "p", variant = "default" } = Astro.props;
+---
+
+<Tag class:list={["field-hint", variant === "warning" && "field-hint-warning"]}>
+  <slot />
+</Tag>

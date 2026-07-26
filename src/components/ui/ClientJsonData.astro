@@ -1,0 +1,47 @@
+---
+/**
+ * ClientJsonData — the server→browser data hand-off blob (Issue #372).
+ *
+ * Every admin screen with a client `<script>` ships the exact same five
+ * lines to hand SSR-computed data to that script:
+ *
+ * ```astro
+ * <script
+ *   type="application/json"
+ *   id="i18n-strings"
+ *   set:html={JSON.stringify(clientStrings)}
+ * />
+ * ```
+ *
+ * Measured on `0a8c3ba5`: **35 of 51** admin pages carry that block
+ * verbatim (`grep -rl 'id="i18n-strings"' src/pages/admin`), several twice
+ * (a strings blob plus a page-config blob). It is the single most
+ * duplicated markup fragment in `src/pages/admin` after `.action-banner`,
+ * which `ActionBanner.astro` already owns.
+ *
+ * Deliberately byte-compatible with `readClientStrings()`
+ * (`src/lib/ui/admin-form-client.ts`), which reads
+ * `document.getElementById(id)?.textContent` and `JSON.parse`s it — the
+ * rendered element is identical to the hand-authored one, so migrating a
+ * page needs no change to any client script.
+ *
+ * Why a `<script type="application/json">` and not a `data-*` attribute:
+ * the payload carries translated sentences with quotes/apostrophes and a
+ * whole error-code map; a JSON script block keeps it out of the attribute
+ * escaping path entirely. `JSON.stringify` output is inserted with
+ * `set:html` because it is machine-generated JSON, never author HTML —
+ * the browser never executes a non-`module`/non-JS `type`, so this is a
+ * data island, not a script (CSP-safe: no inline JS is introduced).
+ */
+interface Props {
+  /** DOM id the client script reads. Defaults to the `readClientStrings()`
+   *  default so the common case stays a one-liner. */
+  id?: string;
+  /** Any JSON-serializable payload. */
+  data: unknown;
+}
+
+const { id = "i18n-strings", data } = Astro.props;
+---
+
+<script type="application/json" id={id} set:html={JSON.stringify(data)} />
