@@ -93,6 +93,24 @@ const DEFAULT_ROUTE_WORK_CLASS: WorkClass = "interactive";
 const WITH_TENANT_CALL_PATTERN = /\bwithTenant\s*(?:<[^()]*>)?\s*\(/;
 
 /**
+ * Issue #370 — a route migrated to `defineTenantRoute`
+ * (`src/modules/_shared/tenant-route.ts`) no longer contains the literal
+ * `withTenant(` at all: the factory calls it on the route's behalf. Without
+ * this second pattern such a route would silently DISAPPEAR from the
+ * snapshot — the migration would read as "25 routes deleted" instead of "25
+ * routes now explicitly classified", and a genuinely unclassified route
+ * could hide behind the factory forever.
+ *
+ * `defineTenantRoute` makes `workClass` a REQUIRED field, so a route matched
+ * by this pattern MUST yield a `workClass:` literal; `classifyRoute` throws
+ * rather than recording a `"default"` for it (see there). That is the point
+ * of the issue: through the factory there is no such thing as an implicit
+ * work class.
+ */
+const DEFINE_TENANT_ROUTE_CALL_PATTERN =
+  /\bdefineTenantRoute\s*(?:<[^()]*>)?\s*\(/;
+
+/**
  * This script's own file is excluded from job-discovery — its doc comments
  * above legitimately name `getWorkerDatabaseClient(`/`getSetupDatabaseClient(`
  * in prose (explaining what the scanner looks for), which would otherwise
@@ -154,11 +172,22 @@ export function classifyRoute(
   relativePath: string,
   source: string
 ): RouteWorkClassEntry | null {
-  if (!WITH_TENANT_CALL_PATTERN.test(source)) {
+  const usesFactory = DEFINE_TENANT_ROUTE_CALL_PATTERN.test(source);
+
+  if (!usesFactory && !WITH_TENANT_CALL_PATTERN.test(source)) {
     return null;
   }
 
   const match = WORK_CLASS_LITERAL_PATTERN.exec(source);
+
+  if (usesFactory && !match) {
+    throw new Error(
+      `${relativePath} uses defineTenantRoute but no workClass literal could be read from it. ` +
+        "The factory makes workClass REQUIRED (Issue #370), so this is either a computed value " +
+        "— write the literal inline instead — or a pattern this scanner cannot see. It is NOT " +
+        'recorded as "interactive by default": that implicit classification is what the factory exists to abolish.'
+    );
+  }
 
   return match
     ? {

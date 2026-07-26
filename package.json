@@ -90,6 +90,7 @@
     "config:docs:check": "bun scripts/config-docs-check.ts",
     "logging:lint:check": "bun scripts/logging-lint-check.ts",
     "http:methods:check": "bun scripts/http-method-check.ts",
+    "api:tenant-route:check": "bun scripts/tenant-route-factory-check.ts",
     "production:preflight": "bun scripts/production-preflight.ts",
     "resilience:dr-drill": "bun scripts/dr-drill.ts",
     "performance:suite": "bun scripts/performance-suite.ts",

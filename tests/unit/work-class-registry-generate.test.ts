@@ -112,6 +112,32 @@ describe("classifyRoute (pure)", () => {
     expect(entry?.workClass).toBe("interactive");
     expect(entry?.source).toBe("default");
   });
+
+  // Issue #370 — a route migrated to `defineTenantRoute` contains no
+  // `withTenant(` at all. Without the second detection pattern it would drop
+  // out of the snapshot entirely, so the migration would read as "routes
+  // deleted" and an unclassified route could hide behind the factory.
+  test("detects a defineTenantRoute route and records its required workClass as explicit", () => {
+    const entry = classifyRoute(
+      "src/pages/api/v1/data-lifecycle/registry.ts",
+      'export const GET = defineTenantRoute({\n  workClass: "interactive",\n  authorize: {},\n  handler: () => ok({})\n});'
+    );
+
+    expect(entry).toEqual({
+      path: "src/pages/api/v1/data-lifecycle/registry.ts",
+      workClass: "interactive",
+      source: "explicit"
+    });
+  });
+
+  test("a defineTenantRoute route whose workClass literal cannot be read THROWS — it is never recorded as interactive-by-default", () => {
+    expect(() =>
+      classifyRoute(
+        "src/pages/api/v1/synthetic/computed-work-class.ts",
+        "export const GET = defineTenantRoute({\n  workClass: chooseClass(),\n  handler: () => ok({})\n});"
+      )
+    ).toThrow(/workClass literal/);
+  });
 });
 
 describe("classifyJob (pure)", () => {

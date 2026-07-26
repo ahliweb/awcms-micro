@@ -21,6 +21,8 @@ Ikuti `docs/awcms-micro/12_generator_prompt.md` (Prompt Security Review) dan `do
 - [ ] Tidak ada hardcoded secret; provider credential dari env. Gate objektifnya `bun run security:readiness` — sebelum menyimpulkan sebuah temuan, baca §Scan secret di bawah.
 - [ ] Auth required kecuali endpoint public eksplisit.
 - [ ] Tenant context diset; query tenant-scoped filter `tenant_id`.
+- [ ] Rute API baru memakai `defineTenantRoute` (`src/modules/_shared/tenant-route.ts`), bukan pembukaan `withTenant` tulisan tangan — gate objektifnya `bun run api:tenant-route:check`. Daftar `NOT_YET_MIGRATED` di gate itu hanya boleh menyusut; entri baru di sana adalah temuan, bukan solusi.
+- [ ] `workClass` setiap rute tertulis eksplisit, bukan warisan default (`docs/awcms-micro/work-class-registry.generated.json` — `source: "explicit"` vs `"default"`). Rute berat yang diam-diam berbagi budget pool dengan login adalah temuan availability.
 - [ ] ABAC default deny + deny overrides allow (`awcms-micro-abac-guard`).
 - [ ] RLS aktif pada semua tabel tenant-scoped.
 - [ ] Audit high-risk tertulis + redaksi (`awcms-micro-audit-log`).
