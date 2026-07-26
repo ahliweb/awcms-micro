@@ -1,5 +1,490 @@
 # Changelog
 
+## [1.1.0]
+
+### Minor Changes
+
+- 52b2138: Redesign the admin dashboard (`/admin`) into a professional, scannable executive layout — subtle-professional, fully token-driven, no new i18n strings (reuses the existing `admin.dashboard.*` labels verbatim):
+
+  - **KPI hero row** — four headline tiles (active users, active offices, allow-decisions in the audit window, sync node health) with theme-aware line icons, a semantic accent rail, and a hover-lift. Mobile-first: 2-up at 360px, flowing to 4-up on wider viewports.
+  - **Detail cards** get icon headers, a divider between title and body, right-aligned emphasized values, and status badges (sync healthy / needs-attention, tenant status). Non-zero deny / open-conflict / failed-object counts render in the warning colour **paired with their descriptive label** (never colour alone — WCAG 1.4.1).
+  - **Module-usage** becomes a full-width card with an uppercase table header, tabular-nums count column, and the existing `overflow-x` scroll container preserved.
+  - Cards ease up on entrance with a small stagger; every animation references the shared motion tokens, so the global `prefers-reduced-motion` guard neutralizes it (and the stagger delay is zeroed for reduced-motion users). All SVG is static inline markup and all styles are Astro-scoped, so the strict admin CSP is unchanged.
+
+- 1524477: Add a self-service account view and surface the app version in the admin shell:
+
+  - **Topbar profile icon → "My Profile" (`/admin/profile`).** A new functional profile button in the admin topbar links every user to their own account overview: display name, login identifier, profile type, account status + verification (as status badges), roles, and last login — read-only, with links out to the existing password-reset flow and (only when the user holds `profile_identity.profile_management.read`) the full CRM party-governance screen. The page is deliberately **not** permission-gated: it shows only the caller's own account via `fetchAccountOverview`, which filters to `context.identityId` inside the tenant RLS transaction (a different authorization question from the tenant-wide party directory). New shared application function `fetchAccountOverview` (identity-access), fully token-driven page, ≥44px touch target on the icon, transform-only surface (no opacity-fade), and i18n across en/id.
+  - **Repo version in the sidebar footer.** The admin sidebar now pins a `Version v<x.y.z>` footer read from `package.json` (the same source the module-management app-version checks use), so it never drifts from the released version.
+
+- 7f3c6a6: Invalidasi edge cache otomatis saat publikasi konten berubah (Issue #359,
+  tindak lanjut Issue #353 / ADR-0037 yang sengaja menundanya).
+
+  Sebelumnya kesegaran konten publik hanya dibatasi TTL (default 60 detik),
+  dan invalidasi segera mengandalkan operator mengingat menjalankan
+  `bun run edge-cache:purge`. Sekarang `publish`, `archive`, `restore`,
+  `PATCH`, dan `DELETE` artikel blog — plus job publikasi terjadwal —
+  meng-invalidasi sendiri cache publik tenant yang bersangkutan.
+
+  Tiga aturan yang mengikat implementasinya: dipanggil **di luar** transaksi
+  database (menahan koneksi pool selama panggilan HTTP ke cache adalah bentuk
+  yang menjenuhkan pool pada Issue #324), **fail-open mutlak** (publikasi yang
+  sudah commit tidak pernah berubah menjadi gagal karena cache tak
+  terjangkau), dan **nol pekerjaan database ketika edge cache tidak
+  dikonfigurasi**. Ketiganya diuji unit.
+
+  Tanpa edge cache aktif, tidak ada perubahan perilaku sama sekali.
+
+- d8c9722: `bun run bootstrap:default-tenant` — satu perintah agar development, staging,
+  dan production berangkat dari tenant default dan owner akses-penuh yang sama.
+
+  Audit ketiga fase menemukan mereka cocok hanya karena kebetulan: production
+  punya tenant `default` + `admin@ahlikoding.com`, staging punya `staging` +
+  `owner@staging.ahlikoding.com`, dan development tidak punya jalur seed sama
+  sekali — instance lokal seorang developer adalah apa pun yang dia ketik di
+  setup wizard. Bagian akses penuh tidak pernah berisiko (bootstrap memberi role
+  owner **seluruh baris** `awcms_micro_permissions`, jadi permission baru ikut
+  otomatis), tapi identitas dan kode tenant murni konvensi. Perintah ini
+  mengubah konvensi itu menjadi sesuatu yang dijalankan dan diperiksa.
+
+  Idempoten dan tidak merusak secara default:
+
+  - database kosong → memakai composition root yang **sama** dengan setup wizard
+    (`bootstrapPlatformTenant`), jadi hanya ada satu jalur kode yang bisa
+    membuat tenant/owner, bukan implementasi kedua yang bisa menyimpang;
+  - sudah sesuai → melapor, tidak mengubah apa pun;
+  - owner yang diharapkan tidak ada → dilaporkan; dengan `--repair` identitas itu
+    ditambahkan dan diberi role owner akses-penuh (owner lama tidak diganti);
+  - role kurang permission (mis. setelah migration menambah permission baru) →
+    ditambal dengan `--repair`;
+  - **kode tenant berbeda → dilaporkan, tidak pernah ditulis ulang.** Kode tenant
+    muncul di URL publik (`/blog/{tenantCode}`, ADR-0009), jadi mengubahnya
+    adalah keputusan routing milik operator, bukan efek samping perintah
+    bootstrap. Jalur ini tetap read-only bahkan dengan `--repair`.
+
+  Password dibaca **hanya** dari `BOOTSTRAP_OWNER_PASSWORD`, tidak pernah dari
+  flag CLI — flag terlihat di daftar proses oleh proses lokal mana pun.
+
+  Tabel keputusannya diuji unit (7 kasus, termasuk dua jalur yang wajib menolak
+  menulis) dan perilaku SQL-nya diuji integrasi terhadap PostgreSQL sungguhan
+  dengan menjalankan CLI-nya sebagai proses nyata, sehingga exit code yang
+  dibaca operator/pipeline ikut jadi bagian assertion.
+
+- 984c221: Require step-up re-authentication to disable 2FA or regenerate recovery codes (Issue #329).
+
+  `POST /api/v1/auth/mfa/totp/disable` and `POST /api/v1/auth/mfa/recovery-codes/regenerate` previously authenticated on the session cookie alone, so a hijacked authenticated session could silently turn off a victim's second factor or invalidate its recovery codes (a documented #589-review defense-in-depth gap). Both now require a fresh proof of possession — the current TOTP `code` OR the account `password` — verified by `verifyMfaStepUp`. The TOTP path advances `last_used_step` with the same atomic compare-and-swap the login challenge uses (a step-up code is single-use, never replayable); the password path re-verifies via the timing-equalized `verifyPasswordOrDummy`. Both endpoints are now also rate-limited per source+tenant (`AUTH_MFA_RATE_LIMIT_MAX`/`_WINDOW_SEC`) and return `MFA_STEP_UP_REQUIRED` (no proof) / `MFA_STEP_UP_INVALID` (wrong proof). The self-service 2FA page (`/admin/profile/security`) now prompts for the current authenticator code before either action.
+
+  **Contract change:** these two endpoints now require a request body carrying the step-up proof; a session-only call returns `401 MFA_STEP_UP_REQUIRED`. Existing behavior is otherwise unchanged, and every non-full-online deployment (the default) is unaffected because the MFA feature gate stays off.
+
+- b844ac6: Tambah edge cache Varnish opsional dengan eskalasi otomatis (Issue #353,
+  ADR-0037).
+
+  Cache HTTP bersama di depan aplikasi (Traefik → Varnish → aplikasi →
+  PostgreSQL) yang menghapus pekerjaan database berulang untuk pembaca
+  anonim. Container-nya opt-in lewat `docker-compose.varnish.yml`; yang
+  **otomatis** adalah agresivitas cache-nya — aplikasi menaikkan TTL
+  surrogate sendiri ketika mengukur tekanan database (saturasi work-class
+  foreground atau circuit breaker tidak `closed`), lalu menurunkannya kembali
+  dengan histeresis 20 poin dan tahan minimum 30 detik.
+
+  Nonaktif secara default: selama `EDGE_CACHE_ENABLED` bukan `true`,
+  middleware tidak menambah header cache apa pun. Kebijakan cacheability
+  default-deny (allowlist rute publik, tanpa cookie sesi, tanpa `Set-Cookie`,
+  status 200 saja), dan aturan lintas-pembaca ditegakkan berlapis di
+  kebijakan aplikasi, cache key, dan VCL. `stale-if-error` mengubah gangguan
+  database menjadi halaman agak basi alih-alih 503. Rollback = arahkan proxy
+  kembali ke port aplikasi.
+
+  Perintah baru: `bun run edge-cache:health` dan `bun run edge-cache:purge`.
+
+- aa5bb8e: Modernize the pre-auth screens and add admin-approval-gated self-registration.
+
+  **Shared auth surface** — new `src/styles/auth.css` (token-driven, mobile-first, transform-only card entrance so an axe contrast scan never catches text mid-animation) shared by every pre-auth screen. Login is redesigned onto it (brand mark, subtitle, password show/hide toggle, footer, secondary links) keeping its stable DOM contract, tenant picker, Turnstile, Google OIDC, and theme-init.
+
+  **Password reset UI** — the previously headless `POST /auth/password/{forgot,reset}` endpoints now have real pages: `/forgot-password` (generic, anti-enumeration notice) and `/reset-password` (token + confirm-password, generic failure). The reset link now also carries the tenant so the tenant-scoped endpoint works from an email link.
+
+  **Self-registration (opt-in, `AUTH_SELF_REGISTRATION_ENABLED`)** — public `/register` submits an **admin-approval-gated** request: it lands in the new `awcms_micro_registration_requests` table as `pending` and is **never a login-eligible identity** until an admin approves it from `/admin/registrations` (which materializes an active profile/identity/tenant_user, optionally assigning a role). `POST /api/v1/auth/register` mirrors the password-reset security posture (rate-limit, Turnstile, anti-enumeration generic response, audit records the real outcome internally, no privilege input accepted); admin `GET/approve/reject` endpoints are ABAC-guarded (`user_management.read`/`create`/`update`). Migration `093`, RLS + FORCE RLS.
+
+  **Sensitive auth URL encryption (opt-in, `AUTH_URL_PARAM_ENCRYPTION_KEY`)** — new `secure-url-params.ts` (AES-256-GCM, random IV, tamper-evident) seals the reset link's `token`+`tenant` into one opaque `?p=` param when the key is set; falls back to plain params otherwise (the token is already cryptographically random). Deliberately not applied to public SEO URLs.
+
+  OpenAPI, env reference (doc 18), api-reference, repo-inventory, work-class registry, and en/id i18n catalogs updated.
+
+- 140cc26: feat(ui): per-tenant admin sidebar menu management
+
+  The admin sidebar is now grouped **type → sub-type (module) → items** and is
+  fully configurable per tenant. A new admin screen (`/admin/sidebar-menu`, gated
+  on `module_management.navigation.read`, save/reset on the new high-risk
+  `module_management.navigation.configure`) lets an admin reorder types/modules/
+  items, show/hide, rename labels (override), move an item to a different type,
+  add custom types, and reset to the code default. Core items (Dashboard, Access
+  & Users, Sync, Settings, Profile) are brought into the same model under the
+  synthetic `core` module / `system` type while preserving their existing
+  permission gating. Config is per-tenant (RLS FORCE + `tenant_isolation` on the
+  new `awcms_micro_sidebar_menu_types`/`_items` tables, migrations 094/095). The
+  sidebar composition (`GET`/`PUT /api/v1/navigation/sidebar-config` +
+  `.../reset`) replaces the old flat rendering in `AdminLayout`, which falls back
+  to the previous flat list on any error so an admin is never locked out.
+
+- 72d71d7: Add an opt-in `AUTH_LOGIN_TENANT_PICKER` flag that renders `/login`'s tenant field as a dropdown of active tenant names instead of the default manual tenant-id text input. Off by default — enabling it exposes the active-tenant list pre-auth (tenant enumeration), which is acceptable for single/few-tenant deployments but an information disclosure for multi-tenant ones, so it must be opted into per deployment. The option value remains the tenant UUID; only the visible label is the friendly tenant name.
+- a4ada58: Add a design-token motion foundation: duration (`--dur-fast/base/slow`) and easing (`--ease-standard/decelerate/accelerate/spring`) tokens, reusable transition primitives (`--transition-colors/transform/opacity`), keyframe + helper primitives (`awcms-fade-in`/`slide-up`/`scale-in`, `.awcms-skeleton` shimmer), and a `--color-scrim` overlay token — all in `src/styles/tokens.css`, with a **global `prefers-reduced-motion: reduce` neutralizer** so every animation built on these tokens is accessibility-safe by default (WCAG 2.3.3). `PublicThemeLayout` (which intentionally doesn't import `tokens.css`) ships its own copy of the motion tokens + guard via `is:global` so the reduced-motion guard reaches slotted page content, not just the layout's own elements. The admin drawer now uses the motion tokens and its scrim fades in/out (via `data-open` + `pointer-events`) instead of hard-popping.
+- f049ba7: UI/UX overhaul (phase 2) — subtle-professional, token-driven animation + mobile-first responsiveness across public, shared-component, and admin surfaces, all built on the motion-token foundation:
+
+  - **Public content pages** now ship a real stylesheet (`public/css/public-content.css`, external + CSP-safe): mobile-first readable layout, responsive media (`max-width`/`aspect-ratio`/lazy-load) that fixes horizontal-scroll and layout-shift on phones, a `prefers-color-scheme: dark` path, card hover-lift + a CSS-only reduced-motion-safe scroll-in reveal, and image fade-in. `PublicThemeLayout` gains a dark-mode path. `login` gets `100dvh`, autofocus, a card entrance, and an animated error reveal. `CommentsSection` fixes an AA solid-fill contrast bug (`--color-*-strong`), adds 44px touch targets and a skeleton loading state. The newsletter/comments demo pages adopt tokens + CSP-safe scoped styles.
+  - **Shared UI components** get subtle motion: `ConfirmDialog` animates open (`@starting-style` + `allow-discrete`) with a fading scrim, `ActionBanner` slides in, `DataTable` gains an optional skeleton-loading affordance, and buttons/badges/steppers ease their state changes. All APIs stay backward-compatible.
+  - **Admin**: the four remaining wide tables are wrapped in `overflow-x` scroll containers (no more whole-page horizontal scroll on mobile); the `comments` and `newsletter` admin pages are brought onto the design tokens with 44px touch targets and skeleton loading states.
+
+  Every animation references the shared motion tokens, so the global `prefers-reduced-motion` guard neutralizes all of it for users who ask for reduced motion.
+
+- 74dfa17: Uji invalidasi edge cache terhadap Varnish sungguhan di CI, dan tambahkan
+  `bun run edge-cache:verify` yang menguji **akibat** purge, bukan panggilannya.
+
+  Tindak lanjut post-mortem Issue #359/#361. Invalidasi sempat mati total
+  selama dua rilis sementara empat pengaman melaporkan sehat — dan keempatnya
+  ternyata satu asumsi yang sama: bahwa permintaan yang ditulis adalah
+  permintaan yang terkirim. Unit test men-stub `fetch` (persis lapisan yang
+  rusak), `edge-cache:health` memakai klien yang sama dengan yang diperiksanya,
+  klien itu menyimpulkan sukses dari status code, dan metrik ikut mencatat
+  "purged" untuk non-purge.
+
+  Dua penutup yang berdiri di luar asumsi itu:
+
+  - `tests/integration/edge-cache-varnish.integration.test.ts` menyalakan
+    `varnish:7.7.3` sungguhan dari `deploy/varnish/default.vcl` yang dikirim
+    (hanya alamat backend yang ditukar) lalu membuktikan purge benar-benar
+    membuang objeknya dan origin kembali dipukul — assertion yang secara
+    struktural mustahil dibuat oleh `fetch` yang di-stub. CI menjalankannya
+    dengan `EDGE_CACHE_VARNISH_TEST=1` sehingga ketiadaan Docker menjadi
+    **gagal keras**, bukan skip diam-diam.
+  - `bun run edge-cache:verify -- --url=<url>` memanaskan URL sampai `HIT`,
+    mem-purge, lalu mewajibkan `MISS`. Sebuah `MISS` saja tidak membuktikan
+    apa pun (kedaluwarsa TTL identik), jadi `HIT` beberapa detik sebelumnya
+    itulah yang membuat urutan ini sahih.
+
+  Suite baru itu diuji balik dengan mengembalikan transport lama sementara:
+  4 dari 8 test gagal, termasuk satu yang melaporkan `purged` padahal
+  tokennya salah.
+
+### Patch Changes
+
+- a9ae354: Fix admin mobile layout defects surfaced by a 360px headless pass:
+
+  - **Topbar no longer overflows on phones.** The admin topbar (brand, tenant badge, sync, theme, language, roles, logout) ran off the right edge below `--bp-md`, forcing a whole-page horizontal scroll. It now wraps onto a second row (desktop flex spacer dropped on mobile; secondary role text hidden) — no single control is wider than a phone viewport, so wrapping guarantees no horizontal scroll.
+  - **Dashboard module-usage table** scroll container is now a keyboard-focusable labelled region (`role="region"` + `aria-label` + `tabindex="0"`), resolving an axe `scrollable-region-focusable` (serious) finding that only appears once the table overflows at narrow widths.
+
+- edf248f: fix(tests): skip the backup/restore drill when the PostgreSQL client is absent, instead of failing the whole file (#293)
+
+  `backup-restore-drill.integration.test.ts` probes `psql`/`pg_dump` at module-load
+  time to decide whether the client is version-compatible with the server, and is
+  explicitly designed to **skip** when it is not ("this is an environment
+  constraint, not a code defect"). But `Bun.spawnSync` **throws** `ENOENT` when the
+  executable is absent entirely rather than returning a failed result — so version
+  _mismatch_ was handled while version _absence_ took the whole file down as an
+  unhandled error.
+
+  Found running `production:preflight` against a live deployment target: the `test`
+  stage runs in a minimal runtime container (Bun, no PostgreSQL client binaries),
+  so this single file was the last thing standing between a real target and a green
+  preflight — 4718 pass, 1 fail, and the one failure was `psql` simply not being
+  installed.
+
+  The runtime counterpart of this probe
+  (`src/lib/resilience/scenarios/backup-restore-drill.ts`) already guards the
+  identical call with its own `trySpawnSync`; only the test-side copy was missing
+  it, so this restores parity rather than introducing a new convention. With the
+  fix the file reports **8 skip / 0 fail** on a machine without `psql`, versus
+  **1 fail / 1 error** before.
+
+- 3d17d21: Commit the `graphify-out/` knowledge-graph output (generated by the `/graphify` skill) to the repository at the operator's request. Committed artifacts are the graph outputs (`graph.json`, `graph.html`, `manifest.json`, `GRAPH_REPORT.md`, `cost.json`); the incremental-extraction `cache/` (machine-local, regenerable, ~356 files) is git-ignored, prettier-ignored, and excluded from `check:docs`. No runtime code or behavior change.
+- b4888df: config: register the twenty environment variables the application already read but never documented
+
+  `src/lib/config/registry.ts` calls itself the "single source of truth for every
+  environment variable this application reads", and `bun run config:docs:check`
+  enforces that the registry, `.env.example`, and doc 18 agree. But that gate
+  compares three surfaces against each other — it never scans the code — so a
+  variable missing from all three was invisible to it. Twenty were: the comments
+  module's `COMMENTS_TIMING_SECRET`/`COMMENTS_SUBSCRIBER_ENCRYPTION_KEY`/
+  `COMMENTS_RETENTION_DAYS`, newsletter's three equivalents, site search's four
+  rate-limit knobs, the seven Redis readiness variables, and
+  `PREFLIGHT_TEST_DATABASE_URL` (the disposable-database DSN a production
+  preflight needs, without which its `test` stage skips and blocks go-live).
+
+  Every one is now registered with its real type, requirement, owner module,
+  sensitivity, and default, and documented in `.env.example` + doc 18 §Comments /
+  §Newsletter / §Site search / §Redis / §Preflight tooling — including what each
+  one costs when left unset, which is the part an operator actually needs: three
+  of them fail closed (an address stored unresolvable, a callback refused, a
+  notification never sent) rather than failing loudly.
+
+  Six more variables are recorded as explicit `CONFIG_EXEMPTIONS` because they are
+  not application configuration at all: `PATH`, the CI-only
+  `CHANGESET_POLICY_BASE_REF`/`RELEASE_TAG_REF`, and the container-level
+  `REDIS_PASSWORD`/`REDIS_MAXMEMORY`/`REDIS_MAXMEMORY_POLICY`.
+
+  Registry metadata only — no validation behavior changes, no boot-time
+  enforcement added.
+
+- c37321d: Add automated axe-core accessibility coverage over the public rendered content-reading templates (Issue #296, epic #261 website-platform).
+
+  `tests/e2e/public-content-a11y.e2e.ts` seeds a tenant with a published EN post and a published ID post — the same proven seed shape as `seo-discovery-smoke` (tenant + verified primary domain + `awcms_micro_setup_state` singleton, holding the shared `setup-state-ownership` cross-file advisory lock) — then runs axe-core (WCAG 2.2 A/AA, failing on any critical/serious violation) over BOTH the tenant-code-free `/news/{slug}` route and the `/blog/{tenantCode}/{slug}` route, in English and Indonesian (the rendered `<html lang>` is the article's own `locale`) at desktop (1280×800) and mobile (390×844) viewports. This closes the `public-a11y-smoke` deferred item "axe over the rendered content-reading templates (`/news`, `/blog` article pages)"; the screen-reader pass and the full pilot-site journey remain deferred (manual). Evidence matrix updated.
+
+- 83a1ec6: Tutup sambungan terakhir yang belum teruji: rute publikasi sungguhan →
+  PostgreSQL sungguhan → Varnish sungguhan (lanjutan Issue #359/#361).
+
+  Suite transport membuktikan `purgeEdgeCache()` mengosongkan cache nyata;
+  unit test membuktikan rute memanggil pembungkusnya. Tidak satu pun
+  membuktikan keduanya **tersambung** — resolusi hostname dari
+  `awcms_micro_tenant_domains` duduk di antaranya, dan tenant yang
+  hostname-nya tidak resolve tidak meng-invalidasi apa pun sementara seluruh
+  test komponen tetap hijau. Di staging, celah itu hanya pernah terlihat
+  dengan menerbitkan artikel sungguhan lalu memeriksa permintaan berikutnya.
+
+  `tests/integration/edge-cache-publish-invalidation.integration.test.ts`
+  sekarang menjalankan tepat urutan itu, dan mengunci batas-batasnya: setiap
+  hostname aktif tenant di-purge (bukan hanya yang primary), hostname
+  non-aktif tidak, publikasi tenant lain tidak mengosongkan cache tenant ini,
+  dan publikasi yang **gagal** tidak mengosongkan apa pun — yang terakhir
+  menutup cara murah bagi pemanggil tak berwenang untuk membuang cache sebuah
+  situs.
+
+  Kedua CLI operator (`edge-cache:verify`, `edge-cache:health`) kini
+  dijalankan sebagai proses sungguhan terhadap Varnish nyata, sehingga exit
+  code yang dibaca pipeline deploy ikut jadi bagian assertion — pemeriksa yang
+  sendirinya tidak diperiksa adalah persis bagaimana `edge-cache:health` bisa
+  melaporkan sehat untuk subsistem yang tidak melakukan apa pun.
+
+  Suite baru diuji balik dengan dua mutasi: melepas pemanggilan invalidasi
+  dari rute `publish` menggagalkan 3 dari 6 test; mengubah filter status
+  resolver hostname menggagalkan 5 dari 6.
+
+  Ditambahkan pula gate `bun run http:methods:check`. Aturan Bun-nya ternyata
+  lebih luas dari "metode kustom": yang menentukan adalah kecocokan huruf per
+  huruf dengan tabel verb internalnya, sehingga `Post`/`Delete`/`Patch` —
+  salah kapitalisasi biasa yang menurut spec fetch justru wajib dinormalkan —
+  juga terkirim sebagai `GET`. Arahnya berbahaya: permintaan yang dimaksudkan
+  mengubah terkirim sebagai pembacaan, dan 200-nya terbaca sukses. Sudah
+  dilaporkan ke hulu (oven-sh/bun#33469); gate ini menutup sisi kita.
+
+- ebd943b: Fix an intermittent E2E failure (`seo-discovery-smoke`: "sitemap … with the published URL" returning an empty `<urlset>`) caused by a cross-file race on the global `awcms_micro_setup_state` singleton.
+
+  Six public-content smoke specs (`seo-discovery-smoke`, `seo-redirect-smoke`, `newsletter-smoke`, `comments-smoke`, `site-search-smoke`, `theming-preview`) each repoint that one singleton — which drives localhost default-tenant resolution — at their own freshly-seeded tenant, then assert on what localhost serves. Under Playwright's `fullyParallel: true` those files run concurrently, so a sibling's repoint could land between a spec's seed and its HTTP request and the public route would resolve the wrong tenant (`test.describe.configure({ mode: "serial" })` only serializes within a file). A new `tests/e2e/helpers/setup-state-ownership.ts` holds a Postgres session-level advisory lock (mirroring `src/lib/jobs/advisory-lock.ts`) for each such spec's lifetime, making them mutually exclusive while leaving the rest of the suite parallel. Test-only change — no runtime code affected.
+
+- c3a47f4: Sync docs, config registry, and agent/skills with the connection-pool fixes (#323/#324). Register the new `DATABASE_IDLE_IN_TXN_TIMEOUT_MS` env var in `src/lib/config/registry.ts` + `.env.example` + doc 18 (three-way config-docs parity), document the "never `Promise.all` multiple queries on one `withTenant` `tx`" rule and the `unavailableBehavior: "throw"` requirement for non-Response callers in doc 16 and `database-pooling.md` §9, add the idle-in-transaction leak diagnosis to the capacity runbook's saturation SOP, and add the anti-pattern to the coder/reviewer agent checklists and the new-endpoint/performance skills.
+- 7761c65: Buang penggambaran "LAN-first/offline" yang sudah usang dari stack default dan
+  resolver tenant publik (komentar saja — tidak ada perubahan perilaku).
+
+  Ditemukan lewat graphify: graf pengetahuan repo memunculkan tautan mengejutkan
+  antara `docker-compose.yml (LAN-first single-server stack)` dan
+  `getWorkerDatabaseClient()`, dan label itulah yang salah — bukan tautannya.
+  `docker-compose.yml` masih menyebut dirinya "LAN-first single-server stack"
+  dan mengutip **`doc 18 §Topologi deployment LAN-first`**, judul yang sudah
+  tidak ada; doc 18 sekarang berjudul §Topologi deployment **full-online
+  single-host**. Jadi rujukan silangnya menggantung sekaligus salah arah.
+
+  ADR-0027 menetapkan tiga profil operasi (`development`,
+  `full_online_single_host`, `full_online_production`) dan ADR-0034 menegaskan
+  repo ini template website **full-online** yang dipakai langsung. Label
+  `offline-lan` hanya bertahan sebagai penanda applicability untuk aplikasi
+  turunan, bukan mode operasi repo ini.
+
+  Yang diperbaiki: header `docker-compose.yml` + empat penyebutan di dalamnya,
+  satu rujukan di `docker-compose.prod.yml`, dan alasan pada
+  `public-tenant-resolver.ts` — komentarnya membenarkan routing `tenantCode`
+  dengan "default LAN-first/offline" yang sudah dihapus ADR-0027/0034. Pilihan
+  routingnya sendiri tetap benar dan kini dijelaskan dengan alasan yang masih
+  berlaku: resolusi berbasis host bersifat **opt-in**
+  (`PUBLIC_TENANT_RESOLUTION_MODE=host_default` + `awcms_micro_tenant_domains`),
+  sedangkan bentuk path adalah fallback yang selalu bekerja.
+
+- d2798fb: Perbaiki invalidasi edge cache yang **tidak pernah benar-benar terjadi**
+  (Issue #359).
+
+  Klien purge memakai metode HTTP kustom `BAN`, idiom Varnish yang lazim.
+  Tetapi `fetch` milik Bun **diam-diam menulis ulang metode yang tidak dikenal
+  menjadi `GET`** (diverifikasi pada Bun 1.3.14 terhadap Varnish sungguhan:
+  permintaan tiba sebagai `ReqMethod GET`, dilayani sebagai halaman biasa, dan
+  membalas 200). Karena 200 itu, klien melaporkan purge **berhasil** padahal
+  cache tidak pernah tersentuh — invalidasi yang sepenuhnya mati namun tampak
+  sehat, baik dari kode maupun dari `bun run edge-cache:health`.
+
+  Dua perubahan menutup kelas kegagalan itu:
+
+  - transport menjadi `POST /__awcms-edge-cache/ban` sehingga tidak lagi
+    bergantung pada metode kustom yang harus selamat melewati setiap klien
+    HTTP di rantai;
+  - respons ban membawa penanda `X-Edge-Cache-Ban: ok` yang **wajib** ada.
+    Sebuah 200 tanpa penanda kini dilaporkan **gagal**, bukan sukses — artinya
+    yang menjawab bukan handler ban cache.
+
+  Ditemukan dengan menjalankan publikasi sungguhan pada instance staging dan
+  mendapati cache tetap `HIT`; unit test tidak bisa menangkapnya karena
+  mereka men-stub `fetch`.
+
+- a252045: Fix a database connection-pool leak that saturated the `interactive` work-class and made `/admin/*` return `503 DATABASE_BUSY`. Several code paths ran multiple queries on a single `withTenant` transaction connection concurrently via `Promise.all([...])`. `tx` is one reserved Postgres connection — firing concurrent queries on it desyncs the connection, leaving the transaction stuck `idle in transaction` (COMMIT never sent), which holds the connection and its work-class slot forever (`statement_timeout` can't reap an idle-in-transaction session). Because `fetchSidebarArrangement` runs on every admin render (AdminLayout), it exhausted all 8 `interactive` slots in production (8 sessions stuck idle-in-transaction for ~22 min).
+
+  - Serialized the concurrent-on-one-`tx` queries (await sequentially) across all affected modules: sidebar-menu, seo-distribution (discovery + metadata), site-search diagnostics, business-scope assignment, module-matrix, visitor-analytics (rollup + summary), blog admin pages + menus API, theming API, analytics devices API, and seo discovery providers. Identical queries/order/results — only execution is serialized.
+  - Defense-in-depth: `getDatabaseClient()` now sets `idle_in_transaction_session_timeout` (new `DATABASE_IDLE_IN_TXN_TIMEOUT_MS`, default 30000ms) so any future such leak self-heals instead of permanently saturating the pool.
+  - Documented the rule in `docs/awcms-micro/database-pooling.md` §9 (never `Promise.all` multiple queries on one `tx`).
+
+- 69bd35c: Fix admin pages returning HTTP 500 under database pool saturation. `withTenant()`'s pool-gate fallback returns a `503 DATABASE_BUSY` `Response` cast to its generic `T` — correct for API routes (which return it to the client), but SSR renders and `resolveSsrContext` call `withTenant` with `T` being a plain data object. Under saturation/circuit-open those callers received a truthy `Response` instead of their data, which their `try/catch` did not catch, so the template then crashed (`context.permissions.has(...)` on a `Response`, `Response.types.map(...)`) → 500 on `/admin/*`.
+
+  - New opt-in `withTenant` option `unavailableBehavior: "throw"` (default `"response"` preserves API-route behavior) makes the three pool-gate fallbacks throw the new exported `DatabaseUnavailableError` (carrying `retryAfterSeconds`) instead of returning a `Response`.
+  - `resolveSsrContext` now surfaces the leaked `Response` and the middleware serves it as a proper 503 (with `Retry-After`) rather than storing it as `Astro.locals.ssrContext` — the session may be valid, the DB is just busy, so a `/login` bounce would be misleading.
+  - All 14 SSR render call sites (AdminLayout + 10 admin pages) pass `unavailableBehavior: "throw"`, so their existing `try/catch` degrades gracefully (fallback nav / `loadError` notice) under saturation instead of 500ing.
+  - Regression tests cover all three fallback paths throwing `DatabaseUnavailableError` for non-Response callers.
+
+- ebd7306: Refresh the committed `graphify-out/` knowledge graph after the docs/skills drift-sync (#341) and prior merges (#335–#340). Incremental `graphify update` re-extraction: 9002 nodes / 30246 edges / 434 communities. The force-graph `graph.html` exceeded the viz node limit and was replaced by a collapsible-tree `GRAPH_TREE.html`. Dated graph backups (`graphify-out/YYYY-MM-DD/`) are now git-ignored alongside `cache/`. Generated artifacts only; no runtime code or behavior change.
+- b4888df: test: assert what the public keyboard journey and the search rebuild actually do
+
+  Two test gaps, both found by CodeQL flagging an unused binding — the kind of
+  finding that is usually dead code and occasionally a test that stops short of
+  its own claim.
+
+  **`js/unused-local-variable` alert 298 was a coverage gap, not dead code.**
+  `site-search.integration.test.ts`'s "rebuild is idempotent" test captured the
+  second rebuild's result and never asserted on it, checking only the document
+  count. That left the interesting half unproven: `rebuildTenantSearchIndex`
+  DELETEs the source's documents before reconciling, so every row comes back as
+  `added`, never `unchanged` — which is exactly what separates a rebuild from the
+  checksum-skipping reconcile the same test exercises three lines later. The
+  result is now asserted (distinct run id, `sourceCount` 5, `added` 5,
+  `unchanged` 0, `removed` 0, `failures` 0), making "idempotent" a claim about the
+  end state rather than about the amount of work done. Verified against a real
+  `postgres:18.4`: 11/11 pass.
+
+  **New `tests/e2e/public-keyboard-journey.e2e.ts`** covers what axe structurally
+  cannot. axe is a static DOM auditor — it never presses Tab — so a keyboard trap
+  (WCAG 2.1.2), a tab order diverging from document order (2.4.3), and a blanket
+  `outline: none` that leaves a keyboard user with no visible position (2.4.7) all
+  survive a green axe scan. The spec tabs each public page until focus escapes or
+  provably cycles (bounded at 40 presses, so a trap fails fast instead of hanging),
+  asserts visit order equals document order, requires an outline or box-shadow on
+  every visited control, and checks `Shift+Tab` walks back.
+
+  A border-colour change is deliberately not accepted as a focus indicator:
+  recognising it needs a diff against the same element unfocused, and accepting it
+  unconditionally would make the assertion unfalsifiable. That falsifiability was
+  verified rather than assumed — a negative control injecting
+  `*, *:focus { outline: none !important; box-shadow: none !important }` makes the
+  spec fail. Run unmodified against the deployed instance: 5/5 pass, EN + ID, pure
+  Playwright with no database import (read-only traffic).
+
+  Tests only — no application behavior changes.
+
+- a23810d: Give the `/login` page dark-mode parity. It imported the design tokens but never set `data-theme`, so it rendered light-only regardless of the visitor's OS preference (real-browser verification of the UI overhaul caught this: `/news` switched to dark correctly while `/login` stayed light). Login now runs the same shared, CSP-hash-registered theme-init script AdminLayout uses; being pre-auth (no tenant default) it resolves to "system" and follows `prefers-color-scheme`.
+- 65060ef: Add the missing browser UI for the already-shipped TOTP 2FA backend (epic full-online auth hardening #587-#593). No backend, migration, API, or event change — this is UI + tests + i18n + docs only; it reuses the existing `/api/v1/auth/mfa/*` endpoints, application seam, and migration 034 as-is.
+
+  **Gap 1 — self-service enrollment/management** — new `src/pages/admin/profile/security.astro` (`/admin/profile/security`), linked from `/admin/profile` only when `isMfaRequired()` (= full-online gate ∧ `AUTH_MFA_ENABLED`) is active. Not enrolled: **Enable 2FA** → `enroll/start` → shows a scannable QR **plus** the manual setup key (copy-to-clipboard) → enter code → `enroll/verify` → one-time recovery codes (copy/download, must-save warning). Enrolled: **Disable 2FA** and **Regenerate recovery codes**. Server-side gated (informational "not available" state on every offline/LAN/local deployment); no new env var.
+
+  **Gap 2 — login MFA challenge step** — `src/pages/login.astro`'s client script now handles the `401 MFA_REQUIRED` login response: it captures `mfaChallengeToken`, hides the password form, and reveals a second-step panel (`#mfa-challenge`/`#mfa-code`/`#mfa-submit`/`#mfa-error`/`#mfa-use-recovery`) with a 6-digit code input and a "use a recovery code instead" toggle, then completes login via `POST /auth/mfa/totp/verify`. The existing login DOM contract is unchanged; the panel is inert when the server never returns `MFA_REQUIRED`.
+
+  **CSP-safe QR** — new vendored, dependency-free QR generator `src/lib/ui/qr-code.ts` (byte-mode, auto version/mask; adapted from Project Nayuki's public-domain library) rendered as inline SVG — no external QR library, no remote image, no `data:` image — so the strict Content-Security-Policy is never engaged.
+
+  Adds `tests/unit/qr-code.test.ts` (structural + BCH-format-info validity of the generated symbol), `tests/e2e/mfa-browser-ux.e2e.ts` (login challenge reveal/recovery-toggle/verify wiring via request interception + enrollment gated state), en/id i18n catalogs, and the 2FA user flow in doc 08 + the identity-access README.
+
+- 4637f30: Percepat halaman admin modul (`/admin/modules` dan `/admin/modules/tenants`) dengan menghilangkan pola N+1 pada perhitungan health/readiness modul.
+
+  Sebelumnya `fetchModuleHealthReport` dipanggil sekali per modul di dalam `Promise.all(catalog.map(...))`, terserialisasi pada satu koneksi `withTenant`. Dengan registry kini 22 modul, setiap modul menjalankan ~4 query + `readdir(sql/)` — dan sinyal `migrations_applied` (yang bersifat instance-global, identik untuk semua modul) dihitung 22×.
+
+  Perbaikan: jalur batched baru `fetchModuleHealthReports` membangun satu `ModuleHealthBatchContext` sekali untuk seluruh registry — `migrations_applied`, scan lifecycle `awcms_micro_modules`, dan katalog permission masing-masing dibaca sekali, plus baris settings tenant (`WHERE tenant_id`) sekali. Total ~4 query + 1 readdir untuk SEMUA modul, bukan per modul. `fetchModuleHealthReport` (single) dan jalur batched berbagi builder sinyal murni yang sama, sehingga output `status`/`signals` per modul byte-identik (dijamin test ekuivalensi baru). Semua query tetap pada koneksi tenant-scoped `withTenant` yang sama — RLS dan cakupan akses tidak berubah, hanya jumlah query yang berkurang.
+
+- 6fd0e67: fix(preflight): never hand the deployment target's `DATABASE_URL` to the `test` stage; add INP to the lab CWV gate (#293, #295)
+
+  `bun run production:preflight` documented every stage as read-only, but the
+  `test` stage spawned `bun test` with the ambient environment inherited. The
+  invocation its own runbooks prescribe —
+  `APP_ENV=production DATABASE_URL=<target> bun run production:preflight` —
+  therefore enabled the integration suite against the deployment target, and that
+  suite `TRUNCATE`s every `awcms_micro_*` table (`resetDatabase()`, 113 files) and
+  runs `ALTER ROLE ... WITH LOGIN PASSWORD '<fixture literal committed in this
+repo>'` for the `awcms_micro_app`/`_worker`/`_setup` roles. Running the
+  documented preflight would have wiped the target and weakened its role
+  credentials.
+
+  The new pure `planTestStage` gate never forwards the target DSN to `bun test`.
+  Real integration coverage is opted into with a **disposable**
+  `PREFLIGHT_TEST_DATABASE_URL` (a DSN equal to the target is refused); without
+  it the stage runs unit-only with `DATABASE_URL` removed from the child
+  environment and reports `SKIP` — now a blocking skip under
+  `APP_ENV=production`, so it cannot silently claim coverage for ~1000 tests that
+  never ran.
+
+  Also extends `tests/e2e/public-web-vitals.e2e.ts` from LCP+CLS to **LCP+CLS+INP**
+  (Google "good" budget, 200 ms). The spec drives its own non-navigating
+  interactions and separately counts dispatched `pointerdown`/`keydown` events, so
+  an `inp: 0` reading (legitimate below Event Timing's 16 ms `durationThreshold`
+  floor) can never be mistaken for a page that swallowed every interaction.
+
+- 78910fe: Rename the sync-storage R2 object-storage env vars under a unified `AWCMS_MICRO_` prefix, with a zero-downtime backward-compat fallback. `R2_ENABLED`/`R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET` become `AWCMS_MICRO_R2_*`. The runtime readers (`object-storage-uploader.ts`, `sync/objects`) and the `config:validate`/`security:readiness` gates read the new canonical name and fall back to the legacy `R2_*` name during the migration window, so a deployment still on the old keys keeps working until the operator swaps them. Bucket-name convention documented as `awcms-micro-*` (e.g. `awcms-micro-objects`).
+
+  Registry, `.env.example`, and doc 18 use the canonical names (three-way `config:docs:check` stays in sync; legacy names kept in doc 18 migration prose via `DOC18_NON_VARIABLE_TOKENS`). The public-media `NEWS_MEDIA_R2_*` namespace is intentionally unchanged. Drop the `?? R2_*` fallback (and the exemption/migration notes) once every deployment has migrated.
+
+- 5a7a3d2: fix(security-readiness): stop the hardcoded-secret scan from blocking go-live on structural false positives; surface the one real finding as its own check (#293)
+
+  Running `bun run security:readiness` against the live deployment target (the
+  first time it could be run safely, after the `production:preflight` fix)
+  reported **11 findings, 10 of them false**. Because the check's severity is
+  `critical`, and because the flagged lines are permanent properties of the
+  source, `production:preflight` was structurally incapable of ever reporting
+  `GO-LIVE DIIZINKAN` on any target.
+
+  The heuristic flags any line whose variable name contains
+  `password`/`secret`/`api_key`/`token` next to a quoted literal. That caught four
+  TypeScript string-literal **union type aliases** (`PasswordResetDenyReason`,
+  `NewsletterTokenPurpose`, `ThemeTokenKind`, `secretSource`), two **doc comments**
+  that describe credential shapes, two **interpolated template literals** computed
+  at runtime, Google's **published OIDC endpoint URL**, and a circuit-breaker
+  registry key.
+
+  Fixed with four **structural** exclusions — comment lines, type-only
+  declarations, interpolated templates, and URL values, none of which can hold a
+  secret — plus a small `SECRET_SCAN_ACKNOWLEDGED` list (file + variable + exact
+  value + justification) so any remaining case stays visible in review instead of
+  dissolving into a widened regex. The scan now passes cleanly over 910 tracked
+  files.
+
+  The **11th finding was real**: `COMMENTS_TIMING_SECRET` was unset on the
+  deployment target, so public comment submit-timing tokens were signed with the
+  `DEV_FALLBACK_SECRET` literal committed in this repository — letting anyone mint
+  a valid token and bypass the anti-abuse timing floor. Rather than leaving a
+  permanent red light on a literal whose presence is intentional, the risk moves to
+  a new `checkCommentsTimingSecretConfigured` check that measures the condition
+  which actually varies per deployment. It is `warning` severity, deliberately: the
+  token gates a soft anti-abuse heuristic and never authorization.
+
+- e8addfe: Fix `Dockerfile.production`'s runtime stage missing `i18n/`, `sql/`, `openapi/`, and `asyncapi/` — the previous image only copied `dist/`, `package.json`, and `node_modules`, so every page render that calls `translate()` 500'd with `ENOENT: no such file or directory, open '/app/i18n/en.po'` since locale catalogs are read from disk at request time, not bundled into `dist/`.
+- 1def530: Add the login-page provider picker for the generic tenant OIDC SSO backend (Issue #591) — closes the discovery gap where per-tenant providers configured via `awcms_micro_auth_providers` had no way to start a login from `/login`.
+
+  - **New public endpoint `GET /api/v1/auth/sso/providers?tenantId=<id>`** — lists a tenant's ENABLED SSO providers for the login page, returning ONLY `{ providerKey, displayName }` (never issuer/client id/secret/provider-type). Tenant resolved from the `X-AWCMS-Micro-Tenant-ID` header / tenant cookie / `?tenantId=` query fallback, exactly like `/auth/sso/{providerKey}/start`. Single per-source+tenant rate limit (no shared/aggregate limit — same privilege-free-DoS reasoning as `start.ts`).
+  - **Anti-enumeration:** an unknown tenant, an inactive/suspended tenant (even one that still has an enabled provider row), and an active tenant with no enabled providers ALL return the same empty `{ providers: [] }` via one uniform query (RLS scoping + an `EXISTS (... status = 'active')` guard); only an active tenant WITH enabled providers returns a non-empty list. When the deployment gate `isSsoRequired()` is off, it returns empty without touching the database.
+  - **Login-page picker** (`src/pages/login.astro`) — when `isSsoRequired()` is true, fetches the tenant's providers (debounced on the tenant field, not per keystroke) and renders one `.sso-provider-button` per provider inside `#sso-providers`, each navigating to `/api/v1/auth/sso/{providerKey}/start?tenantId=<id>`. Empty/errored → renders nothing (no "tenant not found" leak). Server-gated (inert when SSO is off), reuses the `.auth-google` secondary-button vocabulary.
+
+  New i18n key `auth.login.sso_group_label` (en/id). No migration, no module-count change, no new module.
+
+- 48c07d0: Perbaiki `docker-compose.varnish.yml` yang tidak bisa start (Issue #353).
+
+  Overlay itu memasang `tmpfs: /var/lib/varnish`. Varnish berjalan sebagai
+  pengguna non-root dan tidak dapat membuat direktori kerjanya sendiri di
+  dalam tmpfs yang baru dipasang, sehingga container crash-loop dengan
+  `Cannot create working directory '/var/lib/varnish/varnishd': Permission
+denied`. Baris itu dihapus — direktori bawaan image sudah berkepemilikan
+  benar. `cap_drop: [ALL]` diverifikasi tetap aman dan dipertahankan.
+
+  Ditemukan saat memasang overlay ini pada instance staging sungguhan, bukan
+  lewat pembacaan ulang.
+
+- a9ffc7a: Advance the website-platform evidence trail (epic #261) — test + docs only, no runtime behavior change:
+
+  - **#296 (accessibility)** — the public a11y smoke (`public-a11y-smoke.e2e.ts`) now runs its axe-core scans across a **desktop (1280×800) + mobile (390×844) device matrix**, not desktop-only, so viewport-dependent WCAG 2.2 AA rules (`target-size`, reflow, breakpoint contrast) are covered on every hermetic public page in EN + ID.
+  - **#293 (deployment rehearsal)** — `website-platform-e2e-evidence.md` §Deferred work now records the **partial real-infra evidence** produced by the dinkes-prod deployment (production image builds + boots on Coolify against internal PostgreSQL, migrations applied with the DB secret kept server-side, R2 durable storage configured, live edge reachable over TLS) with the exact criteria still pending operator sign-off.
+
+- f6a1843: Advance the website-platform production-proof issues (#293–#296, epic #261) with in-repo automation + measured real-infra evidence.
+
+  - **#296** — add `tests/e2e/public-link-crawl.e2e.ts`: a hermetic rendered-site internal-link crawl over the public entry pages (fetch each page, extract same-origin `<a href>`, assert all resolve < 400). Complements the handler-level `public-link-integrity.integration.test.ts`.
+  - **#295** — add `tests/e2e/public-web-vitals.e2e.ts`: a lab Core Web Vitals regression gate measuring LCP + CLS in Chromium (via `PerformanceObserver`) against the Google "good" thresholds on the hermetic public pages.
+  - **#293** — record live-edge deployment evidence (dinkes-prod): TLS (Let's Encrypt), HSTS, strict CSP (no `unsafe-inline`), X-Frame-Options/nosniff/Referrer-Policy/Permissions-Policy verified on the live edge; durable R2 configured; a found config gap (apex serves generic robots.txt, sitemap/feeds 404 — tenant-by-host resolution unmapped).
+  - **#294** — record a measured backup/restore drill against live prod PG (backup ≈1.7 s/708 KB, restore ≈6.3 s, data-faithful → RPO 0 at dump instant) and a critical gap: **0 scheduled Coolify backups → RPO currently unbounded**.
+
+  Docs: `website-platform-e2e-evidence.md` §Deferred and `resilience-dr-verification.md` §RTO/RPO updated with the above; `awcms-micro-browser-test` + `awcms-micro-performance` skills note the new specs. No app/runtime code changed.
+
 ## [1.0.0]
 
 ### Major Changes
