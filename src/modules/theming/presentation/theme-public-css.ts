@@ -84,15 +84,29 @@ export async function serveActiveThemeTokensCss(
   if (!tenant) {
     resolved = defaultThemeCss();
   } else {
-    resolved = await withTenant(sql, tenant.tenantId, async (tx) => {
-      const entry = await fetchTenantModuleEntry(
-        tx,
+    try {
+      resolved = await withTenant(
+        sql,
         tenant.tenantId,
-        THEMING_MODULE_KEY
+        async (tx) => {
+          const entry = await fetchTenantModuleEntry(
+            tx,
+            tenant.tenantId,
+            THEMING_MODULE_KEY
+          );
+          if (!(entry?.tenantEnabled ?? false)) return defaultThemeCss();
+          return resolveActiveThemeCssForTenant(tx, tenant.tenantId);
+        },
+        // Non-`Response` caller: without this, a saturated pool makes
+        // `withTenant` hand back its 503 `Response`, which then gets cast to
+        // `ResolvedThemeCss` and serialised as `[object Response]` INTO THE
+        // STYLESHEET of every public page (#323 class). Degrade to the
+        // default theme instead — a plain-looking site beats a broken one.
+        { unavailableBehavior: "throw" }
       );
-      if (!(entry?.tenantEnabled ?? false)) return defaultThemeCss();
-      return resolveActiveThemeCssForTenant(tx, tenant.tenantId);
-    });
+    } catch {
+      resolved = defaultThemeCss();
+    }
   }
 
   const ifNoneMatch = request.headers.get("if-none-match");

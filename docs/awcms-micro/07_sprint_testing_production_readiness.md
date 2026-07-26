@@ -210,7 +210,7 @@ Buktikan pembagiannya kapan saja: `bun run static-analysis:versions` (harus menc
 
 **Daftar hutang eksplisit (harus MENYUSUT, bukan bertambah).** Aturan tidak pernah dilonggarkan secara global dan `@ts-ignore`/`any` tidak dipakai untuk lolos gerbang; pengecualian ditulis per berkas di `NO_MISUSED_PROMISES_EXEMPT` (`tools/static-analysis/eslint.config.mjs`):
 
-- `src/lib/comments/comments-client.ts` — `@typescript-eslint/no-misused-promises`: listener `submit` bertipe `async` di tempat yang mengharapkan `void`; rejection-nya jadi unhandled rejection, bukan umpan balik ke pengguna.
+- _(kosong)_ — satu-satunya entri yang pernah ada (`src/lib/comments/comments-client.ts`) sudah basi di PR yang sama: #371 memindahkan berkasnya ke `src/modules/comments/presentation/` dan rejection-nya kemudian benar-benar diperbaiki dengan `asyncHandler` lokal. Daftar pengecualian yang tidak pernah membuat apa pun gagal adalah cara hutang mati bertahan — entri baru harus dipasangkan dengan asersi bahwa path-nya masih ada, seperti `NOT_YET_MIGRATED` di `tenant-route-factory-check.ts`.
 
 Aturan yang **belum** dinyalakan, dengan angka terukurnya (kandidat PR pembersihan tersendiri, bukan pelonggaran):
 

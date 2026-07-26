@@ -45,10 +45,23 @@ Hasilnya `src/lib` tumbuh menjadi **sistem modul kedua yang tidak dijaga
 gerbang mana pun** — dan tanpa keputusan eksplisit, ia akan terus tumbuh setiap
 kali sebuah modul butuh kode yang menyentuh browser atau merakit rute.
 
-Catatan penting dari investigasi Issue #371: DAG modul itu sendiri **bersih**.
-Enam dependensi dua-arah yang sempat terlihat pada graf semuanya adalah edge
-antar `README.md`, bukan antar kode; nol impor relatif lintas-modul di seluruh
-`src/modules`. Batas modulnya nyata. Yang bocor justru `src/lib`.
+Catatan penting dari investigasi Issue #371, **dikoreksi pada review PR #374**:
+enam dependensi dua-arah yang sempat terlihat pada graf memang semuanya edge
+antar `README.md`, bukan antar kode — jadi tidak ada SIKLUS antar modul.
+
+Tapi klaim awal "nol impor relatif lintas-modul di seluruh `src/modules`"
+**salah**, dan tidak boleh dipakai sebagai dasar keputusan apa pun. Pengukuran
+ulang menemukan **~80** impor relatif lintas-modul yang sudah ada jauh sebelum
+ADR ini (`recordAuditEvent` dari `logging`, port adapter, `permissionKey` dari
+`identity_access`, dan seterusnya). Klaim itu lahir dari memeriksa `_shared`
+plus tiga pasangan modul tertentu, lalu menggeneralisasi ke seluruh pohon.
+
+Yang benar-benar dijaga hari ini adalah **dependensi yang DIDEKLARASIKAN**
+(`modules:dag:check` memvalidasi registry), bukan impor tingkat berkas. Tidak
+ada gerbang yang memeriksa apakah sebuah impor relatif lintas-modul sesuai
+dengan `dependencies` modul itu — termasuk untuk `presentation/` yang ADR ini
+perkenalkan. Itu lubang nyata dan tercatat sebagai pekerjaan lanjutan (§Risiko),
+bukan sesuatu yang ADR ini selesaikan.
 
 ## Keputusan
 

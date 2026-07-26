@@ -60,13 +60,14 @@ const REPO_ROOT = path.resolve(import.meta.dirname, "..", "..");
  * Mirrored in `docs/awcms-micro/07_sprint_testing_production_readiness.md`
  * §Gerbang analisis statis.
  */
-const NO_MISUSED_PROMISES_EXEMPT = [
-  // `form.addEventListener("submit", async (event) => ...)` — an async
-  // listener where a void return is expected; a rejection inside it becomes an
-  // unhandled rejection instead of user-visible feedback. Left as debt because
-  // the comments module was being edited in parallel when #369 landed.
-  "src/lib/comments/comments-client.ts"
-];
+// Deliberately EMPTY. The one entry this list ever held
+// (`src/lib/comments/comments-client.ts`) was stale within the same PR: #371
+// moved the file to `src/modules/comments/presentation/` and the rejection it
+// described was then actually fixed with a local `asyncHandler`. An exemption
+// list nothing ever fails for is how dead debt survives — if a future entry is
+// genuinely needed, pair it with an assertion that the path still exists, the
+// way `NOT_YET_MIGRATED` in `tenant-route-factory-check.ts` does.
+const NO_MISUSED_PROMISES_EXEMPT = [];
 
 export default [
   {
@@ -128,10 +129,16 @@ export default [
       "@typescript-eslint/no-misused-promises": "error"
     }
   },
-  {
-    files: NO_MISUSED_PROMISES_EXEMPT,
-    rules: { "@typescript-eslint/no-misused-promises": "off" }
-  },
+  // Spread, not a bare object: ESLint rejects a config whose `files` is an
+  // empty array, so an empty debt list must contribute nothing at all.
+  ...(NO_MISUSED_PROMISES_EXEMPT.length > 0
+    ? [
+        {
+          files: NO_MISUSED_PROMISES_EXEMPT,
+          rules: { "@typescript-eslint/no-misused-promises": "off" }
+        }
+      ]
+    : []),
 
   // `.astro` frontmatter: type-aware, minus the rule that crashes (see 4).
   // Parser + processor are set explicitly (see 1) — the plugin cannot detect

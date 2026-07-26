@@ -31,7 +31,7 @@
  * counts the source files that exist and fails unless the tool actually
  * looked at most of them, even when nothing else complained.
  */
-import { unlink } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -178,10 +178,14 @@ async function runEslint(): Promise<never> {
   // which made the gate fail on report SIZE rather than on anything in the
   // code — the parse blew up mid-token and reported "invalid JSON". Route it
   // through `-o` so the size of the report can never decide the verdict.
-  const reportPath = path.join(
-    os.tmpdir(),
-    `awcms-micro-eslint-${process.pid}.json`
+  // `mkdtemp`, not a pid-derived name in the shared tmpdir: the path is passed
+  // to ESLint's `-o`, so a pre-planted symlink at a guessable location would
+  // have ESLint overwrite whatever it points at. `mkdtemp` yields a fresh
+  // 0700 directory whose name cannot be predicted.
+  const reportDir = await mkdtemp(
+    path.join(os.tmpdir(), "awcms-micro-eslint-")
   );
+  const reportPath = path.join(reportDir, "report.json");
   const proc = Bun.spawnSync(
     [
       bin,
@@ -198,17 +202,25 @@ async function runEslint(): Promise<never> {
   );
   const stderr = proc.stderr.toString();
 
-  let results: EslintResult[];
+  let raw: string | null = null;
+  let results: EslintResult[] | null = null;
   try {
-    results = JSON.parse(await Bun.file(reportPath).text()) as EslintResult[];
+    raw = await Bun.file(reportPath).text();
+    results = JSON.parse(raw) as EslintResult[];
   } catch {
+    // Nothing here may `fail()` before the cleanup below: `fail()` calls
+    // `process.exit()`, which skips a `finally` — the exact path that would
+    // leak the biggest reports, forever, on every broken run.
+  }
+  await rm(reportDir, { recursive: true, force: true }).catch(() => {});
+
+  if (results === null) {
     process.stderr.write(proc.stdout.toString());
     process.stderr.write(stderr);
+    if (raw !== null) process.stderr.write(raw.slice(0, 2000));
     fail(
       `static-analysis: eslint tidak mengembalikan JSON yang valid (exit ${proc.exitCode}).`
     );
-  } finally {
-    await unlink(reportPath).catch(() => {});
   }
 
   // The JSON formatter emits one entry per LINTED file, including clean ones —

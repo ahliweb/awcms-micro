@@ -31,6 +31,28 @@ export type PreviewRenderContext = {
 };
 
 /**
+ * `withTenant` for the two preview readers below, degrading to `null` rather
+ * than letting a 503 `Response` escape as a value. Both callers are
+ * non-`Response` callers, so `withTenant`'s default would cast its unavailable
+ * `Response` into the declared return type (#323 class). "Preview could not be
+ * loaded" is exactly what `null` already means here, so no caller needs a new
+ * branch.
+ */
+async function withTenantOrNull<T>(
+  sql: Bun.SQL,
+  tenantId: string,
+  fn: (tx: Bun.TransactionSQL) => Promise<T | null>
+): Promise<T | null> {
+  try {
+    return await withTenant(sql, tenantId, fn, {
+      unavailableBehavior: "throw"
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Resolve a preview URL token to a renderable draft context, or `null` when the
  * token is malformed, the session is unknown/expired, the version is gone, or the
  * theme is no longer registered. Every DB read is strictly tenant-scoped.
@@ -44,7 +66,11 @@ export async function resolvePreviewContext(
   const sql = getDatabaseClient();
   const tokenHash = hashPreviewToken(parsed.rawToken);
 
-  return withTenant(sql, parsed.tenantId, async (tx) => {
+  // Non-`Response` caller (#323): a saturated pool would otherwise hand this
+  // function `withTenant`'s 503 `Response`, cast to `PreviewRenderContext`.
+  // A preview that cannot load is `null` — the caller already renders that as
+  // "preview unavailable" rather than leaking a Response into the page.
+  return withTenantOrNull(sql, parsed.tenantId, async (tx) => {
     const session = await findActivePreviewSession(tx, tokenHash, now);
     if (!session) return null;
     const version = await fetchVersionById(
@@ -89,7 +115,7 @@ export async function serveThemePreviewTokensCss(
   const sql = getDatabaseClient();
   const tokenHash = hashPreviewToken(parsed.rawToken);
 
-  const css = await withTenant(sql, parsed.tenantId, async (tx) => {
+  const css = await withTenantOrNull(sql, parsed.tenantId, async (tx) => {
     const session = await findActivePreviewSession(tx, tokenHash, now);
     if (!session) return null;
     const version = await fetchVersionById(

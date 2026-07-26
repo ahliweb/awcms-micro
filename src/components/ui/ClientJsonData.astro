@@ -41,7 +41,9 @@ interface Props {
   data: unknown;
 }
 
+import { serializeClientJson } from "../../lib/ui/client-json-data";
+
 const { id = "i18n-strings", data } = Astro.props;
 ---
 
-<script type="application/json" id={id} set:html={JSON.stringify(data)} />
+<script type="application/json" id={id} set:html={serializeClientJson(data)} />

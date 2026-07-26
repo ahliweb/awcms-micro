@@ -197,11 +197,20 @@ describe("src/lib namespace ownership gate — the real CLI entry point", () => 
     expect(main()).toBe(true);
   });
 
-  test("readLibNamespaces lists only directories, and tolerates a missing root", () => {
+  test("readLibNamespaces lists only directories", () => {
     const root = fixture(["auth", "database"]);
 
     expect(readLibNamespaces(root)).toEqual(["auth", "database"]);
-    expect(readLibNamespaces(join(root, "does-not-exist"))).toEqual([]);
+  });
+
+  test("an unreadable root THROWS instead of reporting an empty tree", () => {
+    // Review round on PR #374: returning `[]` here made the collision check
+    // pass having scanned nothing — the dead-but-green gate this repo has
+    // already paid for twice (#359/#361). `src/lib` always exists, so a read
+    // failure is a broken run, not "no namespaces".
+    expect(() =>
+      readLibNamespaces(join(fixture([]), "does-not-exist"))
+    ).toThrow(/TIDAK dijalankan/);
   });
 
   test("the real src/lib no longer contains any of the five moved namespaces", () => {

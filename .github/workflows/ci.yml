@@ -135,6 +135,9 @@ jobs:
       - name: i18n EN/ID/POT key parity check
         run: bun run i18n:parity:check
 
+      - name: Tenant-route factory gate
+        run: bun run api:tenant-route:check
+
       - name: Database work-class registry drift check
         run: bun run db:work-class:check
 

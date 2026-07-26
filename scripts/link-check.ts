@@ -247,20 +247,29 @@ function decodeEntities(value: string): string {
 }
 
 /** Schemes that are not navigable HTTP(S) links. */
+/** `URL` with any `user:pass@` stripped — never log what the operator typed. */
+function redactUrlUserinfo(url: URL): string {
+  const copy = new URL(url.toString());
+  copy.username = "";
+  copy.password = "";
+  return copy.toString();
+}
+
 function isNavigableHref(href: string): boolean {
   if (href.length === 0) return false;
   if (href.startsWith("#")) return false;
   const lower = href.toLowerCase();
-  // `javascript:`/`vbscript:`/`data:` are listed together — an incomplete
-  // scheme filter is what CodeQL js/incomplete-url-scheme-check flags.
-  return !(
-    lower.startsWith("mailto:") ||
-    lower.startsWith("tel:") ||
-    lower.startsWith("sms:") ||
-    lower.startsWith("javascript:") ||
-    lower.startsWith("vbscript:") ||
-    lower.startsWith("data:")
-  );
+  // ALLOW-list, not a deny-list. The deny-list this replaced missed `file:`,
+  // so with `--include-external` a crawled page could point this crawler at
+  // the operator's own filesystem. Anything that is not an http(s) absolute
+  // URL or a relative reference is simply not a link this tool follows.
+  const schemeMatch = /^([a-z][a-z0-9+.-]*):/.exec(lower);
+  if (schemeMatch) {
+    return schemeMatch[1] === "http" || schemeMatch[1] === "https";
+  }
+  // No scheme = relative reference (resolved against the current page).
+  // Protocol-relative `//host/path` inherits the entry scheme, so it is fine.
+  return true;
 }
 
 type Tag = { name: string; raw: string };
@@ -491,7 +500,11 @@ function classify(
 async function report(exitCode: number, verdict: string): Promise<never> {
   const payload = {
     check: "link-check",
-    entryUrl: entry.toString(),
+    // Userinfo stripped: this payload is printed AND written to
+    // `--json-output`, an artefact operators routinely attach to issues. A
+    // `--url=https://user:pass@host/` would otherwise carry the credentials
+    // straight into it.
+    entryUrl: redactUrlUserinfo(entry),
     origin: entryOrigin,
     siteOrigin,
     host: hostHeader ?? entry.hostname,

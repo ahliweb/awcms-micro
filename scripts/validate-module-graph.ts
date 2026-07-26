@@ -99,14 +99,22 @@ export function findLibNamespaceCollisions(
 
   for (const namespace of namespaces) {
     const normalized = normalizeNamespace(namespace);
-    if (normalized in exemptions) continue;
+    if (Object.hasOwn(exemptions, normalized)) continue;
 
     if (keys.has(normalized)) {
       collisions.push({ namespace, moduleKey: normalized, kind: "exact" });
       continue;
     }
 
-    const aliasOwner = MODULE_OWNED_LIB_NAMESPACE_ALIASES[normalized];
+    // `Object.hasOwn` + explicit read, not a bare index: a directory named
+    // `constructor` or `toString` would otherwise hit Object.prototype and be
+    // silently treated as exempt (or crash the gate).
+    const aliasOwner = Object.hasOwn(
+      MODULE_OWNED_LIB_NAMESPACE_ALIASES,
+      normalized
+    )
+      ? MODULE_OWNED_LIB_NAMESPACE_ALIASES[normalized]
+      : undefined;
     if (aliasOwner !== undefined && keys.has(normalizeNamespace(aliasOwner))) {
       collisions.push({ namespace, moduleKey: aliasOwner, kind: "alias" });
     }
@@ -120,8 +128,16 @@ export function readLibNamespaces(libRoot: string): string[] {
   let entries;
   try {
     entries = readdirSync(libRoot, { withFileTypes: true });
-  } catch {
-    return [];
+  } catch (error) {
+    // NOT `return []` — an unreadable `src/lib` would make the collision check
+    // pass with nothing scanned, the same dead-but-green shape this repo keeps
+    // paying for (#359/#361). `src/lib` always exists in this repository, so a
+    // read failure is a broken run, not an empty result.
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `validate-module-graph: tidak bisa membaca ${libRoot} (${detail}). ` +
+        "Gerbang tabrakan namespace src/lib TIDAK dijalankan."
+    );
   }
   return entries
     .filter((entry) => entry.isDirectory())
